@@ -34,6 +34,7 @@
   import {SvelteDate} from 'svelte/reactivity';
   import {RichTextToggle} from '$lib/dotnet-types/generated-types/MiniLcm/Models/RichTextToggle';
   import {FFmpegApi} from '$lib/components/audio/ffmpeg';
+  import {useDialogsService} from '$lib/services/dialogs-service';
 
   const testingService = tryUseService(DotnetService.TestingService);
 
@@ -109,6 +110,18 @@
   useBackHandler({addToStack: () => isBetter, onBack: () => isBetter = false, key: 'sandbox-better'});
   let dialogOpen = $state(false);
   useBackHandler({addToStack: () => dialogOpen, onBack: () => dialogOpen = false, key: 'sandbox-dialog'});
+
+  // Dialogs service demo
+  const dialogsService = useDialogsService();
+  let deleteResult: string | undefined = $state(undefined);
+  async function showDelete() {
+    const res = await dialogsService.promptDelete('Example item', 'Normal example');
+    deleteResult = res ? 'Confirmed delete' : 'Cancelled delete';
+  }
+  async function showDangerous() {
+    const res = await dialogsService.promptDelete('Dangerous item', 'This is irreversible', true);
+    deleteResult = res ? 'Confirmed dangerous delete' : 'Cancelled dangerous delete';
+  }
 
   const variants = Object.keys(buttonVariants.variants.variant) as unknown as (keyof typeof buttonVariants.variants.variant)[];
   const sizes = Object.keys(buttonVariants.variants.size) as unknown as (keyof typeof buttonVariants.variants.size)[];
@@ -249,6 +262,16 @@
         </div>
       </Dialog.Content>
     </Dialog.Root>
+  </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <h3 class="font-medium">Delete dialog example</h3>
+    <div class="flex gap-2 flex-wrap">
+      <Button onclick={showDelete}>Show Delete Dialog</Button>
+      <Button variant="destructive" onclick={showDangerous}>Show Dangerous Delete Dialog</Button>
+    </div>
+    {#if deleteResult}
+      <div>Result: {deleteResult}</div>
+    {/if}
   </div>
 </div>
 
