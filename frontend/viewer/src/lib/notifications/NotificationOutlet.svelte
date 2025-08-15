@@ -8,6 +8,7 @@
   import {useFwLiteConfig} from '$lib/services/service-provider';
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
   import {Toaster} from '$lib/components/ui/sonner';
+  import {openUrl} from '$lib/services/url-opener';
 
   const eventBus = useEventBus();
 
@@ -21,7 +22,7 @@
         callback: () => {
           const fwliteConfig = useFwLiteConfig();
           const url = updateUrls[fwliteConfig.os] ?? 'https://lexbox.org/fw-lite';
-          window.open(url, '_blank');
+          void openUrl(url);
         },
         label: $t`Download`
       });
