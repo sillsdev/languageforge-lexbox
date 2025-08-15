@@ -31,12 +31,13 @@ public static class SendReceiveHelpers
     private static async Task<LfMergeBridgeResult> CallLfMergeBridge(string method, IDictionary<string, string> flexBridgeOptions, IProgress? progress = null)
     {
         var sbProgress = new StringBuilderProgress();
+        var combinedProgress = new CombiningProgress(sbProgress, progress);
         var lfMergeBridgeOutputForClient = await Task.Run(() =>
         {
-            LfMergeBridge.LfMergeBridge.Execute(method, progress ?? sbProgress, flexBridgeOptions.ToDictionary(), out var output);
+            LfMergeBridge.LfMergeBridge.Execute(method, combinedProgress, flexBridgeOptions.ToDictionary(), out var output);
             return output;
         });
-        return new LfMergeBridgeResult(lfMergeBridgeOutputForClient, progress == null ? sbProgress.ToString() : "");
+        return new LfMergeBridgeResult(lfMergeBridgeOutputForClient, sbProgress.ToString());
     }
 
     private static Uri BuildSendReceiveUrl(string baseUrl, string projectCode, SendReceiveAuth? auth, bool forChorus = true)
