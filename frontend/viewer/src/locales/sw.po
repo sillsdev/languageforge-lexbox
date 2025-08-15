@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-07 13:40\n"
+"PO-Revision-Date: 2025-08-15 08:29\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -61,7 +61,7 @@ msgstr ""
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr ""
 
-#: src/lib/notifications/NotificationOutlet.svelte:20
+#: src/lib/notifications/NotificationOutlet.svelte:21
 msgid "A new version of FieldWorks lite is available."
 msgstr ""
 
@@ -126,7 +126,7 @@ msgstr ""
 msgid "Any Ws"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
 msgid "Application version"
 msgstr ""
 
@@ -189,7 +189,7 @@ msgstr ""
 msgid "Citation Form"
 msgstr "Fomu ya Manukuu"
 
-#: src/home/HomeView.svelte:261
+#: src/home/HomeView.svelte:260
 msgid "Classic FieldWorks Projects"
 msgstr ""
 
@@ -249,7 +249,7 @@ msgstr ""
 msgid "Create entry"
 msgstr ""
 
-#: src/home/HomeView.svelte:240
+#: src/home/HomeView.svelte:239
 msgid "Create Example Project"
 msgstr ""
 
@@ -271,7 +271,7 @@ msgstr ""
 msgid "Dashboard"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:48
 msgid "Data Directory"
 msgstr ""
 
@@ -279,7 +279,7 @@ msgstr ""
 msgid "Definition"
 msgstr "Maana"
 
-#: src/home/HomeView.svelte:222
+#: src/home/HomeView.svelte:221
 msgid "Delete"
 msgstr "Futa"
 
@@ -296,8 +296,8 @@ msgstr "Futa ingizo"
 msgid "Delete Word"
 msgstr ""
 
-#: src/home/HomeView.svelte:132
-#: src/home/HomeView.svelte:136
+#: src/home/HomeView.svelte:131
+#: src/home/HomeView.svelte:135
 msgid "Dictionaries"
 msgstr "Kamusi"
 
@@ -322,7 +322,7 @@ msgstr ""
 msgid "Don't delete"
 msgstr ""
 
-#: src/lib/notifications/NotificationOutlet.svelte:26
+#: src/lib/notifications/NotificationOutlet.svelte:27
 #: src/lib/components/audio/audio-editor.svelte:106
 #: src/home/Server.svelte:167
 msgid "Download"
@@ -405,12 +405,17 @@ msgstr ""
 msgid "Failed to download {0}"
 msgstr ""
 
-#: src/project/browse/EntriesList.svelte:134
+#: src/project/browse/EntriesList.svelte:143
+#: src/project/browse/EntriesList.svelte:99
 msgid "Failed to load entries"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:31
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:28
 msgid "Failed to open data directory, use the path in the text field instead"
+msgstr ""
+
+#: src/lib/services/url-opener.ts:16
+msgid "Failed to open URL: {0}"
 msgstr ""
 
 #: src/project/SyncDialog.svelte:120
@@ -422,7 +427,7 @@ msgid "Failed to synchronize."
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte:181
-#: src/home/HomeView.svelte:155
+#: src/home/HomeView.svelte:154
 msgid "Feedback"
 msgstr "Maoni"
 
@@ -436,7 +441,7 @@ msgstr ""
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:267
+#: src/home/HomeView.svelte:266
 msgid "FieldWorks logo"
 msgstr ""
 
@@ -528,7 +533,7 @@ msgstr ""
 msgid "I don't see my project"
 msgstr ""
 
-#: src/home/HomeView.svelte:275
+#: src/home/HomeView.svelte:274
 msgid "Import"
 msgstr "Agiza"
 
@@ -541,7 +546,7 @@ msgstr ""
 msgid "Length:"
 msgstr ""
 
-#: src/home/HomeView.svelte:135
+#: src/home/HomeView.svelte:134
 msgid "Lexbox logo"
 msgstr ""
 
@@ -565,15 +570,15 @@ msgstr ""
 msgid "Loading Dictionaries..."
 msgstr ""
 
-#: src/home/HomeView.svelte:176
+#: src/home/HomeView.svelte:175
 msgid "loading..."
 msgstr "inashughulikia..."
 
-#: src/home/HomeView.svelte:181
+#: src/home/HomeView.svelte:180
 msgid "Local"
 msgstr "Mitaa"
 
-#: src/home/HomeView.svelte:203
+#: src/home/HomeView.svelte:202
 msgid "Local only"
 msgstr ""
 
@@ -629,7 +634,7 @@ msgstr "Sogeza"
 msgid "Never"
 msgstr "Kamwe"
 
-#: src/project/NewEntryButton.svelte:48
+#: src/project/NewEntryButton.svelte:51
 msgid "New"
 msgstr "Mpya"
 
@@ -637,9 +642,13 @@ msgstr "Mpya"
 msgid "New {0}"
 msgstr ""
 
-#: src/project/NewEntryButton.svelte:50
+#: src/project/NewEntryButton.svelte:53
 msgid "New Entry"
 msgstr "Ingizo Mpya"
+
+#: src/project/NewEntryButton.svelte:53
+msgid "New Word"
+msgstr ""
 
 #: src/lib/activity/ActivityView.svelte:89
 msgid "No activity found"
@@ -653,7 +662,7 @@ msgstr ""
 msgid "No Dictionaries found"
 msgstr ""
 
-#: src/project/browse/EntriesList.svelte:160
+#: src/project/browse/EntriesList.svelte:168
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:174
 msgid "No entries found"
 msgstr ""
@@ -711,7 +720,7 @@ msgstr ""
 msgid "Offline, unable to download"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:53
 msgid "Open Data Directory"
 msgstr ""
 
@@ -723,7 +732,7 @@ msgstr ""
 msgid "Open in new Window"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:65
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:68
 msgid "Open Log file"
 msgstr ""
 
@@ -760,7 +769,7 @@ msgstr ""
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr ""
 
-#: src/home/HomeView.svelte:246
+#: src/home/HomeView.svelte:245
 msgid "Project name..."
 msgstr ""
 
@@ -774,7 +783,7 @@ msgid "Refine your filter to see more..."
 msgstr ""
 
 #: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:185
+#: src/home/HomeView.svelte:184
 msgid "Refresh Projects"
 msgstr ""
 
@@ -842,11 +851,11 @@ msgstr "Mipangilio"
 msgid "Shadcn Sandbox # #"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:69
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:72
 msgid "Share Log file"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:58
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:61
 msgid "Share project data file"
 msgstr ""
 
@@ -881,7 +890,7 @@ msgstr "Wasilisha"
 msgid "Synced"
 msgstr ""
 
-#: src/home/HomeView.svelte:203
+#: src/home/HomeView.svelte:202
 msgid "Synced with {0}"
 msgstr ""
 
@@ -929,9 +938,9 @@ msgid "Translation"
 msgstr "Tafsiri"
 
 #: src/project/ProjectSidebar.svelte:172
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:39
-#: src/home/HomeView.svelte:161
-#: src/home/HomeView.svelte:217
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
+#: src/home/HomeView.svelte:160
+#: src/home/HomeView.svelte:216
 msgid "Troubleshoot"
 msgstr ""
 
