@@ -75,8 +75,8 @@ public class CurrentProjectService(
         if (_project != null && project != _project)
             throw new InvalidOperationException($"Can't setup project context for {project.Name} when already in context of project {_project.Name}");
         _project = project;
-        //the first time this is called ProjectData will be null, after that it will be populated, so we can skip migration
-        if (projectDataCache.CachedProjectData(project) is null) await MigrateDb();
+        //migrate will only execute once with a static which tracks if we've already migrated
+        await MigrateDb();
         return project.Data = await RefreshProjectData();
     }
 
