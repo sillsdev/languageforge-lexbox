@@ -151,7 +151,7 @@ public class SyncWorker(
         }
         catch (SendReceiveException e)
         {
-            return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, e.ToString());
+            return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, e.Message);
         }
         //always do this as existing projects need to run this even if they didn't S&R due to no pending changes
         await mediaFileService.SyncMediaFiles(fwdataApi.Cache);
