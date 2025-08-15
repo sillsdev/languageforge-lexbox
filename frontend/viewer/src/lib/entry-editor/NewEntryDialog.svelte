@@ -54,7 +54,10 @@
   let errors: string[] = $state([]);
   function validateEntry(): boolean {
     errors = [];
-    if (!writingSystemService.headword(entry)) errors.push('Lexeme form is required');
+    // Allow entries with only an audio lexeme-form or citation-form to be created
+    if (!(writingSystemService.first(entry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
+      errors.push(`${pt('Lexeme or citation form', 'Word', $currentView)} is required`);
+    }
     if (entry.senses.length > 0 && !writingSystemService.firstDefOrGlossVal(entry.senses[0])) errors.push('Definition or gloss is required');
     return errors.length === 0;
   }

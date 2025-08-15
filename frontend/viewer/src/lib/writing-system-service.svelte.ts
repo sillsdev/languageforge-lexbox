@@ -166,7 +166,7 @@ export class WritingSystemService {
     return colors[ws];
   }
 
-  private first(value: IMultiString | IRichMultiString, writingSystems: IWritingSystem[]): string | undefined {
+  first(value: IMultiString | IRichMultiString, writingSystems: IWritingSystem[] = this.allWritingSystems()): string | undefined {
     return firstTruthy(writingSystems, ws => asString(value[ws.wsId]));
   }
 }
