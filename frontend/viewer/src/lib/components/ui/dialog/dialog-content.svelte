@@ -20,7 +20,7 @@
   } = $props();
 
   // This is duplicated in alert-dialog-content.svelte
-  const state = $derived(useDialogSharedRoot());
+  const state = useDialogSharedRoot();
 </script>
 
 <Dialog.Portal {...portalProps}>
