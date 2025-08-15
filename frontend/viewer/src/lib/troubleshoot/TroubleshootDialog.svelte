@@ -7,6 +7,7 @@
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
   import InputShell from '$lib/components/ui/input/input-shell.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
+  import {CopyButton} from '$lib/components/ui/button';
 
   const openQueryParam = new QueryParamStateBool({
     key: 'troubleshootDialogOpen',
@@ -42,7 +43,13 @@
       <DialogTitle>{$t`Troubleshoot`}</DialogTitle>
     </DialogHeader>
     <div class="flex flex-col gap-4 items-start">
-      <p>{$t`Application version`}: <span class="font-mono text-muted-foreground border-b">{config.appVersion}</span>
+      <p class="flex items-center gap-2">{$t`Application version`}: <span class="font-mono text-muted-foreground border-b">{config.appVersion}</span>
+        <CopyButton
+          variant="ghost"
+          size="xs-icon"
+          title={$t`Copy version`}
+          text={`${config.appVersion} on ${config.os}`}
+        />
       </p>
       <div class="w-full">
         <Label>{$t`Data Directory`}</Label>
