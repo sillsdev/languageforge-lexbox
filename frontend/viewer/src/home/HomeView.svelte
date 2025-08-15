@@ -28,6 +28,7 @@
   import {cubicOut} from 'svelte/easing';
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
+  import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -71,6 +72,7 @@
 
   async function deleteProject(project: IProjectModel) {
     try {
+      if (!await deleteDialog.prompt($t`Project`, $t`${project.name}, you may have changes not synced to Lexbox`, true)) return;
       deletingProject = project.id;
       await projectsService.deleteProject(project.code);
       await refreshProjects();
@@ -125,8 +127,10 @@
       clickTimeout = setTimeout(resetClickCounter, 500);
     }
   }
-
+  let deleteDialog = $state<DeleteDialog>();
 </script>
+
+<DeleteDialog bind:this={deleteDialog}/>
 
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
@@ -216,11 +220,9 @@
                         {$t`Troubleshoot`}
                       </ResponsiveMenu.Item>
                     {/if}
-                    {#if $isDev}
-                      <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={() => void deleteProject(project)}>
-                        {$t`Delete`}
-                      </ResponsiveMenu.Item>
-                    {/if}
+                    <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={() => void deleteProject(project)}>
+                      {$t`Delete`}
+                    </ResponsiveMenu.Item>
                   </ResponsiveMenu.Content>
                 </ResponsiveMenu.Root>
               </div>
