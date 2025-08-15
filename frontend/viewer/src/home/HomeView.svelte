@@ -102,7 +102,6 @@
     projectsPromise = promise;
   }
 
-  const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog: TroubleshootDialog | undefined;
 
   let clickCount = 0;
@@ -153,18 +152,14 @@
           <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} target="_blank" icon="i-mdi-chat-question">
             {$t`Feedback`}
           </ResponsiveMenu.Item>
-          {#if supportsTroubleshooting}
-            <ResponsiveMenu.Item
-              icon="i-mdi-face-agent"
-              onSelect={() => troubleshootDialog?.open()}>
-              {$t`Troubleshoot`}
-            </ResponsiveMenu.Item>
-          {/if}
+          <ResponsiveMenu.Item
+            icon="i-mdi-face-agent"
+            onSelect={() => troubleshootDialog?.open()}>
+            {$t`Troubleshoot`}
+          </ResponsiveMenu.Item>
         </ResponsiveMenu.Content>
       </ResponsiveMenu.Root>
-      {#if supportsTroubleshooting}
-        <TroubleshootDialog bind:this={troubleshootDialog}/>
-      {/if}
+      <TroubleshootDialog bind:this={troubleshootDialog}/>
     </div>
     {/snippet}
 </AppBar>
@@ -211,11 +206,9 @@
                     {/snippet}
                   </ResponsiveMenu.Trigger>
                   <ResponsiveMenu.Content>
-                    {#if supportsTroubleshooting}
-                      <ResponsiveMenu.Item icon="i-mdi-bug" onSelect={() => troubleshootDialog?.open(project.code)}>
-                        {$t`Troubleshoot`}
-                      </ResponsiveMenu.Item>
-                    {/if}
+                    <ResponsiveMenu.Item icon="i-mdi-bug" onSelect={() => troubleshootDialog?.open(project.code)}>
+                      {$t`Troubleshoot`}
+                    </ResponsiveMenu.Item>
                     {#if $isDev}
                       <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={() => void deleteProject(project)}>
                         {$t`Delete`}
