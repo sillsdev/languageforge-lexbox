@@ -13,11 +13,13 @@ public class IsHarmonyProjectDataLoader(
 {
     protected override async Task<IReadOnlyDictionary<Guid, bool>> LoadBatchAsync(IReadOnlyList<Guid> keys, CancellationToken cancellationToken)
     {
-        var isHarmonyProject = await dbContext.Set<ServerCommit>()
+        var serverCommits = dbContext.Set<ServerCommit>().AsQueryable();
+        if (keys.Count < 100) serverCommits = serverCommits.Where(c => keys.Contains(c.ProjectId));
+        var isHarmonyProject = await serverCommits
             .Select(c => c.ProjectId)
             .Distinct()
             .ToArrayAsync(cancellationToken);
-        if (isHarmonyProject.Length > 100)
+        if (keys.Count >= 100 && isHarmonyProject.Length >= 100)
         {
             // N is large enough that .Contains() being O(N) vs O(1) will matter
             var projectIds = isHarmonyProject.ToHashSet();
