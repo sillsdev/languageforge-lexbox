@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using LfClassicData.Entities;
 using LfClassicData.Entities.MongoUtils;
 using Microsoft.Extensions.Caching.Memory;

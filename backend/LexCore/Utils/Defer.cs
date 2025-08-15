@@ -1,4 +1,4 @@
-﻿namespace LexCore.Utils;
+namespace LexCore.Utils;
 
 public static class Defer
 {

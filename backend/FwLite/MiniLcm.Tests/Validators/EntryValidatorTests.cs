@@ -1,4 +1,4 @@
-﻿using FluentValidation.TestHelper;
+using FluentValidation.TestHelper;
 using MiniLcm.Validators;
 
 namespace MiniLcm.Tests.Validators;

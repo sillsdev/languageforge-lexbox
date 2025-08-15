@@ -1,4 +1,4 @@
-﻿using FwLiteWeb.Hubs;
+using FwLiteWeb.Hubs;
 
 namespace FwLiteWeb;
 

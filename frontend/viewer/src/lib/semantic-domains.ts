@@ -1,4 +1,4 @@
-﻿import {useProjectContext} from '$lib/project-context.svelte';
+import {useProjectContext} from '$lib/project-context.svelte';
 
 const semanticDomainsSymbol = Symbol.for('fw-lite-semantic-domains');
 export function useSemanticDomains() {

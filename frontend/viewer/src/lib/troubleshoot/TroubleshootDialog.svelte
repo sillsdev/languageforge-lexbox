@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {Dialog, DialogContent, DialogHeader, DialogTitle} from '$lib/components/ui/dialog';
   import {Button} from '$lib/components/ui/button';
   import {useFwLiteConfig, useTroubleshootingService} from '$lib/services/service-provider';

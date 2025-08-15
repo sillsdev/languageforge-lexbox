@@ -1,4 +1,4 @@
-﻿import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
 import * as testEnv from '../tests/envVars';
 const vitePort = '5173';
 const dotnetPort = '5137';

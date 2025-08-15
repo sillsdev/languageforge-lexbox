@@ -1,4 +1,4 @@
-﻿using SIL.LCModel;
+using SIL.LCModel;
 
 namespace FwDataMiniLcmBridge.LcmUtils;
 

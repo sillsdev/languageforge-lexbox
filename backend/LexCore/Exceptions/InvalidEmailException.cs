@@ -1,4 +1,4 @@
-﻿namespace LexCore.Exceptions;
+namespace LexCore.Exceptions;
 
 public class InvalidEmailException(string message, string address) : Exception(message)
 {

@@ -1,4 +1,4 @@
-﻿namespace MiniLcm.Tests;
+namespace MiniLcm.Tests;
 
 public class WritingSystemIdTests
 {

@@ -1,4 +1,4 @@
-﻿import type {ICombinedProjectsService, ILexboxServer, IProjectModel, IServerProjects, IServerStatus} from '$lib/dotnet-types';
+import type {ICombinedProjectsService, ILexboxServer, IProjectModel, IServerProjects, IServerStatus} from '$lib/dotnet-types';
 import type {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
 import type {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
 

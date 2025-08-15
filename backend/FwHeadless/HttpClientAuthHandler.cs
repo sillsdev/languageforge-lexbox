@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using LexCore;
 using LexCore.Auth;
 using Microsoft.Extensions.Caching.Memory;

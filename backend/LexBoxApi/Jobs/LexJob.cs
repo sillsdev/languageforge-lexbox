@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using LexBoxApi.Otel;
 using OpenTelemetry.Trace;
 using Quartz;

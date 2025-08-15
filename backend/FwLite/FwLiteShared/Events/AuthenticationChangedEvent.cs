@@ -1,4 +1,4 @@
-﻿using FwLiteShared.Auth;
+using FwLiteShared.Auth;
 
 namespace FwLiteShared.Events;
 

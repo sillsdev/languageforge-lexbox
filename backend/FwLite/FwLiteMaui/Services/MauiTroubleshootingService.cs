@@ -1,4 +1,4 @@
-﻿using FwLiteShared.Services;
+using FwLiteShared.Services;
 using LcmCrdt;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

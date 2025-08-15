@@ -1,4 +1,4 @@
-﻿using LcmCrdt.Changes;
+using LcmCrdt.Changes;
 
 namespace LcmCrdt.Tests.Changes;
 

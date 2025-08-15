@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {Button} from '$lib/components/ui/button';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import {t} from 'svelte-i18n-lingui';

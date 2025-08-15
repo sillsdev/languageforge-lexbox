@@ -1,4 +1,4 @@
-﻿using System.CommandLine;
+using System.CommandLine;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using LcmCrdt;

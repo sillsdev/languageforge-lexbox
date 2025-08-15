@@ -1,4 +1,4 @@
-﻿namespace FwLiteShared.Auth;
+namespace FwLiteShared.Auth;
 
 public interface IRedirectUrlProvider
 {

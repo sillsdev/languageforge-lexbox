@@ -1,4 +1,4 @@
-﻿import {toast} from 'svelte-sonner';
+import {toast} from 'svelte-sonner';
 
 interface NotificationAction {
   label: string;

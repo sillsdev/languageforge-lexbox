@@ -1,4 +1,4 @@
-﻿using MiniLcm.Models;
+using MiniLcm.Models;
 using SystemTextJsonPatch;
 
 namespace MiniLcm.SyncHelpers;

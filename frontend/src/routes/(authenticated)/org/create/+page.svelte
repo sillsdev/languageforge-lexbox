@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 import t from '$lib/i18n';
 import {TitlePage} from '$lib/layout';
 import {Form, FormError, Input, lexSuperForm, SubmitButton} from '$lib/forms';

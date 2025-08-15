@@ -1,4 +1,4 @@
-﻿import {useProjectContext} from '$lib/project-context.svelte';
+import {useProjectContext} from '$lib/project-context.svelte';
 
 const complexFormTypesSymbol = Symbol.for('fw-lite-complex-form-types');
 export function useComplexFormTypes() {

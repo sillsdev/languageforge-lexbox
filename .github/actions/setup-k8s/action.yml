@@ -1,4 +1,4 @@
-﻿name: Setup and run lexbox k8s
+name: Setup and run lexbox k8s
 inputs:
   lexbox-api-tag:
     required: true

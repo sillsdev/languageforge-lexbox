@@ -1,4 +1,4 @@
-﻿using LexCore.Entities;
+using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using LexCore.Utils;
 using Nito.AsyncEx;

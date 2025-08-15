@@ -1,4 +1,4 @@
-﻿using CrystalQuartz.Core.Contracts;
+using CrystalQuartz.Core.Contracts;
 using CrystalQuartz.Core.SchedulerProviders;
 using Quartz;
 

@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;

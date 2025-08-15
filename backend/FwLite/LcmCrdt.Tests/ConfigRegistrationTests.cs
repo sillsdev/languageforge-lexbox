@@ -1,4 +1,4 @@
-﻿using FluentAssertions.Execution;
+using FluentAssertions.Execution;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
 using SIL.Harmony.Changes;

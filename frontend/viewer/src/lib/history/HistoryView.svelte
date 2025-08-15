@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
   import {t} from 'svelte-i18n-lingui';
   import EntryEditor from '../entry-editor/object-editors/EntryEditor.svelte';

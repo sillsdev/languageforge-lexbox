@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import type { IWritingSystem } from '$lib/dotnet-types';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import { Button } from '$lib/components/ui/button';

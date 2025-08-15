@@ -1,4 +1,4 @@
-﻿using LcmCrdt;
+using LcmCrdt;
 using LcmCrdt.RemoteSync;
 using SIL.Harmony;
 

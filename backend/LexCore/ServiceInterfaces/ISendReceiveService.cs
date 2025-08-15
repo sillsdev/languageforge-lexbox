@@ -1,4 +1,4 @@
-﻿namespace LexCore.ServiceInterfaces;
+namespace LexCore.ServiceInterfaces;
 
 public interface ISendReceiveService
 {

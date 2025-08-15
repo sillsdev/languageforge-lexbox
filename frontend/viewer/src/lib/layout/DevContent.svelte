@@ -1,4 +1,4 @@
-﻿<script context="module" lang="ts">
+<script context="module" lang="ts">
   import { writable } from 'svelte/store';
 
   //indicates that the user is a developer, show them features that are not ready for production, etc.

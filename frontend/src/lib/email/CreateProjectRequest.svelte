@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import Email from '$lib/email/Email.svelte';
     import t from '$lib/i18n';
     import type {CreateProjectInput} from '$lib/gql/generated/graphql';

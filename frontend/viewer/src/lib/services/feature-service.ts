@@ -1,4 +1,4 @@
-﻿import type {IMiniLcmFeatures} from '$lib/dotnet-types';
+import type {IMiniLcmFeatures} from '$lib/dotnet-types';
 import {useProjectContext} from '$lib/project-context.svelte';
 
 export type LexboxFeatures = IMiniLcmFeatures;

@@ -1,4 +1,4 @@
-﻿namespace MiniLcm.Push;
+namespace MiniLcm.Push;
 
 public interface IProjectChangeListener
 {

@@ -1,4 +1,4 @@
-﻿import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
+import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
