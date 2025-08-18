@@ -1,0 +1,75 @@
+<script lang="ts">
+  import {type TaskSubject, useTasksService} from './tasks-service';
+  import {type IEntry, SortField} from '$lib/dotnet-types';
+  import EntriesList from '../browse/EntriesList.svelte';
+  import {Button} from '$lib/components/ui/button';
+  import SubjectPopup from './SubjectPopup.svelte';
+  import DevContent from '$lib/layout/DevContent.svelte';
+  import DoneView from './DoneView.svelte';
+  import {watch} from 'runed';
+
+  let {
+    taskId,
+    onClose = () => {
+    }
+  }: { taskId: string, onClose: () => void } = $props();
+  const tasksService = useTasksService();
+  const task = $derived(tasksService.listTasks().find(task => task.id === taskId));
+  watch(() => taskId, () => {
+    completedSubjects = [];
+    showDone = false;
+  });
+  let entry = $state<IEntry>();
+
+  let entriesList = $state<EntriesList>();
+  let completedSubjects = $state([] as TaskSubject[]);
+  let progress = $derived(completedSubjects.length / 10);
+  let showDone = $state(false);
+  let allCompletedSubjects = $state([] as TaskSubject[]);
+
+  function onDone() {
+    showDone = true;
+  }
+  function onContinue() {
+    showDone = false;
+    completedSubjects = [];
+  }
+</script>
+<div class="flex flex-col h-full gap-4">
+  <p>Task: {task?.subject}</p>
+  {#if !showDone}
+    <Button variant="secondary" onclick={() => entriesList?.selectNextEntry()}>Keep going</Button>
+    <Button onclick={onDone}>Done</Button>
+    <DevContent>
+      <details>
+        <summary>Completed Subjects</summary>
+        {completedSubjects.map(s => s.subject).join(', ')}
+      </details>
+    </DevContent>
+    <EntriesList bind:this={entriesList}
+                 sort={{field: SortField.Headword, dir: 'asc'}}
+                 gridifyFilter={task?.gridifyFilter}
+                 onSelectEntry={e => entry = e} selectedEntryId={entry?.id}/>
+    <SubjectPopup
+      bind:entry
+      {task}
+      {progress}
+      onNextEntry={() => entriesList?.selectNextEntry()}
+      onCompletedSubject={s =>{
+        const subject = {subject: s, entryId: entry.id};
+        completedSubjects.push(subject);
+        allCompletedSubjects.push(subject);
+        if (completedSubjects.length === 10) {
+          onDone();
+        }
+      }}
+    />
+  {:else}
+    <DoneView subjects={completedSubjects}
+              allSubjects={allCompletedSubjects}
+              {task}
+              onFinish={() =>onClose()}
+              onContinue={onContinue}
+    />
+  {/if}
+</div>

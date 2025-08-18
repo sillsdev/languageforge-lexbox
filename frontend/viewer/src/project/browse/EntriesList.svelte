@@ -25,7 +25,7 @@
     sort,
     onSelectEntry,
     gridifyFilter = undefined,
-    previewDictionary = false
+    previewDictionary = false,
   }: {
     search?: string;
     selectedEntryId?: string;
@@ -120,6 +120,14 @@
       vList.scrollToIndex(indexOfSelected, {align: 'center'});
     }
   });
+
+  export function selectNextEntry() {
+    const indexOfSelected = entries.findIndex(e => e.id === selectedEntryId);
+    const nextIndex = indexOfSelected === -1 ? 0 : indexOfSelected + 1;
+    if (nextIndex < entries.length) {
+      onSelectEntry(entries[nextIndex]);
+    }
+  }
 
 </script>
 

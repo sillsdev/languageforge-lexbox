@@ -17,10 +17,7 @@ export class EntryPersistence {
   get entryEditorProps(): Partial<Props> {
     return {
       onchange: async (changed: { entry: IEntry }) => {
-        const updatedEntry = await this.updateEntry(changed.entry);
-        this.onUpdated();
-        // use the version from the server or else we might get unsaved changes in initialEntry
-        this.updateInitialEntry(updatedEntry);
+        await this.updateEntry(changed.entry);
       },
       ondelete: async (e: { entry: IEntry, example?: IExampleSentence, sense?: ISense }) => {
         if (e.example !== undefined && e.sense !== undefined) {
@@ -37,10 +34,42 @@ export class EntryPersistence {
     };
   }
 
-  private async updateEntry(updatedEntry: IEntry): Promise<IEntry> {
+  public async updateEntry(entry: IEntry): Promise<IEntry> {
     if (this.initialEntry === undefined) throw new Error('Not sure what to compare against');
-    if (this.initialEntry.id != updatedEntry.id) throw new Error('Entry id mismatch');
-    return await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry!, $state.snapshot(updatedEntry)));
+    if (this.initialEntry.id != entry.id) throw new Error('Entry id mismatch');
+    const updatedEntry = await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry!, $state.snapshot(entry)));
+    this.onUpdated();
+    // use the version from the server or else we might get unsaved changes in initialEntry
+    this.updateInitialEntry(updatedEntry);
+    return updatedEntry;
+  }
+
+  public async updateSense(sense: ISense): Promise<ISense> {
+    if (this.initialEntry === undefined) throw new Error('Not sure what to compare against');
+    const initialSense = this.initialEntry.senses.find(s => s.id === sense.id);
+    let updatedSense: ISense;
+    if (initialSense) {
+      updatedSense = await this.saveHandler.handleSave(() => this.lexboxApi.updateSense(sense.entryId, initialSense, $state.snapshot(sense)));
+    } else {
+      updatedSense = await this.saveHandler.handleSave(() => this.lexboxApi.createSense(sense.entryId, $state.snapshot(sense)));
+    }
+    this.updateInitialEntry();
+    return updatedSense;
+  }
+
+  public async updateExample(example: IExampleSentence): Promise<IExampleSentence> {
+    if (this.initialEntry === undefined) throw new Error('Not sure what to compare against');
+    const sense = this.initialEntry.senses.find(s => s.id === example.senseId);
+    if (!sense) throw new Error(`Sense ${example.senseId} not found`);
+    const initialExample = sense.exampleSentences.find(e => e.id === example.id);
+    let updatedExample: IExampleSentence;
+    if (initialExample) {
+      updatedExample = await this.saveHandler.handleSave(() => this.lexboxApi.updateExampleSentence(sense.entryId, sense.id, initialExample, $state.snapshot(example)));
+    } else {
+      updatedExample = await this.saveHandler.handleSave(() => this.lexboxApi.createExampleSentence(sense.entryId, example.senseId, $state.snapshot(example)));
+    }
+    this.updateInitialEntry();
+    return updatedExample;
   }
 
   private updateInitialEntry(entry = this.entryGetter()): void {

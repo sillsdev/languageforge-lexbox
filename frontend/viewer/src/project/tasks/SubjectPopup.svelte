@@ -1,0 +1,146 @@
+<script lang="ts">
+  import type {IEntry} from '$lib/dotnet-types';
+  import * as Drawer from '$lib/components/ui/drawer';
+  import {Button} from '$lib/components/ui/button';
+  import {asString, useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {type Task, TasksService} from './tasks-service';
+  import OverrideFields from '$lib/OverrideFields.svelte';
+  import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
+  import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
+  import ExampleEditorPrimitive from '$lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte';
+  import {Separator} from '$lib/components/ui/separator';
+  import {defaultExampleSentence, defaultSense} from '$lib/utils';
+  import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
+
+  const writingSystemService = useWritingSystemService();
+  let {
+    entry = $bindable(),
+    progress = 0,
+    task,
+    onNextEntry = () => {
+    },
+    onCompletedSubject = () => {
+    }
+  }: {
+    entry?: IEntry,
+    //from 0 - 1
+    progress?: number,
+    task: Task,
+    onNextEntry?: () => void,
+    onCompletedSubject?: (subject: string) => void,
+  } = $props();
+  const entryPersistence = new EntryPersistence(() => entry);
+  let senseIndex = $state(0);
+  let sense = $derived(entry ?
+    //don't create a sense when the subject is an example sentence
+    (entry.senses[senseIndex] ?? (task.subjectType === 'sense' ? defaultSense(entry.id) : undefined))
+    : undefined);
+  let exampleIndex = $state(0);
+  let example = $derived(
+    sense ?
+      (sense.exampleSentences[exampleIndex] ?? (task.subjectType === 'example-sentence' ? defaultExampleSentence(sense.id) : undefined))
+      : undefined
+  );
+
+  async function onNext(skip: boolean = false) {
+    if (!entry) return;
+    //comparing directly to a bool value to avoid comparing against an event
+    let updateExample = skip === false;
+    let updateSense = skip === false;
+    let updateEntry = skip === false;
+    switch (task.subjectType) {
+      case 'example-sentence':
+        if (updateExample) {
+          await entryPersistence.updateExample(example);
+          const subject = task.getSubjectValue(example);
+          onCompletedSubject(subject)
+        }
+        exampleIndex = TasksService.findNextSubjectIndex(task, sense, exampleIndex + 1);
+        if (sense && exampleIndex < sense.exampleSentences.length) {
+          return;
+        }
+        updateSense = false;
+      // eslint-disable-next-line no-fallthrough
+      case 'sense':
+        if (updateSense) {
+          await entryPersistence.updateSense(sense);
+          const subject = task.getSubjectValue(sense);
+          onCompletedSubject(subject);
+        }
+        senseIndex = TasksService.findNextSubjectIndex(task, entry, senseIndex + 1);
+        if (entry && senseIndex < entry.senses.length) {
+          exampleIndex = 0;
+          return;
+        }
+        updateEntry = false;
+      // eslint-disable-next-line no-fallthrough
+      case 'entry':
+        if (updateEntry) {
+          await entryPersistence.updateEntry(entry);
+          const subject = task.getSubjectValue(entry);
+          onCompletedSubject(subject);
+        }
+        onNextEntry();
+        break;
+    }
+  }
+</script>
+
+<Drawer.Root bind:open={() => !!entry, open => {if (!open) entry = undefined;}}>
+  <Drawer.Content>
+    <Drawer.Header class="relative">
+      <div class="absolute -z-10 inset-0 bg-primary rounded my-2 ml-1" style="margin-right: {100 - (progress * 100)}%"></div>
+      <Drawer.Title>{entry ? writingSystemService.headword(entry) : ''}</Drawer.Title>
+      <Drawer.Close>
+        {#snippet child({props})}
+          <Button {...props} icon="i-mdi-close" variant="ghost" class="absolute right-2"></Button>
+        {/snippet}
+      </Drawer.Close>
+    </Drawer.Header>
+    <div class="flex flex-col gap-4 mx-2 md:mx-4 border rounded p-4 max-h-[50vh] overflow-y-auto">
+      <p>{task.subject}</p>
+      <OverrideFields shownFields={task.contextFields}>
+        {#if entry}
+          <EntryEditorPrimitive readonly {entry}/>
+        {/if}
+        {#if sense}
+          <SenseEditorPrimitive readonly {sense}/>
+        {:else if task.subjectType === 'example-sentence'}
+          <p>No sense, unable to create a new example sentence</p>
+        {/if}
+        {#if example}
+          <ExampleEditorPrimitive readonly {example}/>
+        {/if}
+      </OverrideFields>
+    </div>
+    <Drawer.Footer>
+      <Separator/>
+      <p class="text-sm">
+        {task.prompt}
+      </p>
+      <form onsubmit={(e) => {e.preventDefault(); void onNext()}}>
+        <!--        lets us submit by pressing enter on any field-->
+        <input type="submit" style="display: none;"/>
+
+        <OverrideFields shownFields={task.subjectFields}>
+          {#if task.subjectType === 'entry' && entry}
+            <EntryEditorPrimitive {entry}/>
+          {:else if task.subjectType === 'sense' && sense}
+            <SenseEditorPrimitive {sense}/>
+          {:else if task.subjectType === 'example-sentence' && example}
+            <ExampleEditorPrimitive {example}/>
+          {/if}
+        </OverrideFields>
+      </form>
+      <div class="flex flex-row gap-2 justify-end">
+        <Drawer.Close>
+          {#snippet child({props})}
+            <Button {...props} variant="outline">Close</Button>
+          {/snippet}
+        </Drawer.Close>
+        <Button variant="secondary" onclick={() => onNext(true)}>Skip</Button>
+        <Button onclick={() => onNext()}>Next</Button>
+      </div>
+    </Drawer.Footer>
+  </Drawer.Content>
+</Drawer.Root>

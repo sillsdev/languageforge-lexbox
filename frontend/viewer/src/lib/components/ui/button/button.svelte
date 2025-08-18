@@ -47,6 +47,7 @@
       loading?: boolean;
       icon?: IconClass;
       iconProps?: Partial<IconProps>;
+      autofocus?: boolean;
     };
 </script>
 
@@ -66,6 +67,7 @@
     loading = false,
     icon = undefined,
     iconProps: nullableIconProps = undefined,
+    autofocus = false,
     children,
     ...restProps
   }: ButtonProps = $props();
@@ -73,6 +75,11 @@
   const iconProps = $derived(nullableIconProps && ('icon' in nullableIconProps || 'src' in nullableIconProps)
     ? nullableIconProps as IconProps
     : icon ? {icon, ...nullableIconProps} : undefined);
+  $effect(() => {
+    if (autofocus && ref) {
+      ref.focus();
+    }
+  });
 </script>
 
 {#snippet content()}
