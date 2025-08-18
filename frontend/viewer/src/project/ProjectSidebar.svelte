@@ -89,9 +89,8 @@
             {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
           </DevContent>
           {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`, formatNumber(stats.current?.totalEntryCount))}
-          <DevContent>
-            {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
-          </DevContent>
+          {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
+
           {#if features.history}
             {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
           {/if}
