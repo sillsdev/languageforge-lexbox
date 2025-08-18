@@ -81,10 +81,11 @@
           onCompletedSubject(subject);
         }
         senseIndex = TasksService.findNextSubjectIndex(task, entry, senseIndex + 1);
+        exampleIndex = 0;
         if (entry && senseIndex < entry.senses.length) {
-          exampleIndex = 0;
           return;
         }
+
         updateEntry = false;
       // eslint-disable-next-line no-fallthrough
       case 'entry':
@@ -93,6 +94,7 @@
           const subject = task.getSubjectValue(entry);
           onCompletedSubject(subject);
         }
+        senseIndex = 0;
         onNextEntry();
         break;
     }
