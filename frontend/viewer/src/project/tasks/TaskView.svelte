@@ -49,6 +49,7 @@
     <EntriesList bind:this={entriesList}
                  sort={{field: SortField.Headword, dir: 'asc'}}
                  gridifyFilter={task?.gridifyFilter}
+                 disableNewEntry
                  onSelectEntry={e => entry = e} selectedEntryId={entry?.id}/>
     <SubjectPopup
       bind:entry

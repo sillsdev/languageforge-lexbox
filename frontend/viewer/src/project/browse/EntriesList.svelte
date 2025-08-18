@@ -26,13 +26,15 @@
     onSelectEntry,
     gridifyFilter = undefined,
     previewDictionary = false,
+    disableNewEntry = false,
   }: {
     search?: string;
     selectedEntryId?: string;
     sort?: SortConfig;
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
-    previewDictionary?: boolean
+    previewDictionary?: boolean,
+    disableNewEntry?: boolean,
   } = $props();
   const miniLcmApi = useMiniLcmApi();
   const dialogsService = useDialogsService();
@@ -141,7 +143,9 @@
       onclick={() => entriesResource.refetch()}
     />
   </DevContent>
-  <NewEntryButton onclick={handleNewEntry} shortForm />
+  {#if !disableNewEntry}
+    <NewEntryButton onclick={handleNewEntry} shortForm />
+  {/if}
 </FabContainer>
 
 <div class="flex-1 h-full" role="table">
