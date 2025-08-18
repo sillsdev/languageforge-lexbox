@@ -55,7 +55,7 @@ export class TasksService {
         subjectWritingSystemType: analysis.type,
         taskKind: 'provide-missing',
         prompt: gt`Type a Gloss`,
-        gridifyFilter: `Senses=null,Senses.Gloss[${analysis.wsId}]=`,
+        gridifyFilter: `Senses=null|Senses.Gloss[${analysis.wsId}]=`,
         getSubjectValue: s => TasksService.getSubjectValue(taskSense, s)
       }
       yield taskSense;
@@ -74,7 +74,7 @@ export class TasksService {
         subjectWritingSystemType: vernacular.type,
         prompt: gt`Type an example sentence`,
         taskKind: 'provide-missing',
-        gridifyFilter: `Senses.ExampleSentences=null,Senses.ExampleSentences.Sentence[${vernacular.wsId}]=`,
+        gridifyFilter: `Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${vernacular.wsId}]=`,
         getSubjectValue: s => TasksService.getSubjectValue(taskExample, s)
       };
       yield taskExample;
