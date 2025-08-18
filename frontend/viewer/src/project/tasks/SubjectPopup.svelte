@@ -97,6 +97,20 @@
         break;
     }
   }
+
+  let form = $state<HTMLFormElement>();
+  $effect(() => {
+    if (!form) return;
+    let inputs = form?.getElementsByTagName('input');
+
+    if (!inputs || inputs.length < 0) return;
+    for (let input of inputs) {
+      if (input.checkVisibility()) {
+        input.focus();
+        return;
+      }
+    }
+  })
 </script>
 
 <Drawer.Root bind:open={() => !!entry, open => {if (!open) entry = undefined;}}>
@@ -131,13 +145,13 @@
       <p class="text-sm">
         {task.prompt}
       </p>
-      <form onsubmit={(e) => {e.preventDefault(); void onNext()}}>
+      <form bind:this={form} onsubmit={(e) => {e.preventDefault(); void onNext()}}>
         <!--        lets us submit by pressing enter on any field-->
         <input type="submit" style="display: none;"/>
 
         <OverrideFields shownFields={task.subjectFields} {overrides}>
           {#if task.subjectType === 'entry' && entry}
-            <EntryEditorPrimitive {entry}/>
+            <EntryEditorPrimitive modalMode {entry}/>
           {:else if task.subjectType === 'sense' && sense}
             <SenseEditorPrimitive {sense}/>
           {:else if task.subjectType === 'example-sentence' && example}
