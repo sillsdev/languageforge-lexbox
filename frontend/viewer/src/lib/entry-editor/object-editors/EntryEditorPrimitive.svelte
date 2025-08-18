@@ -58,7 +58,7 @@
           onchange={() => onFieldChanged('citationForm')}
           bind:value={entry.citationForm}
           {readonly}
-          writingSystems={writingSystemService.viewVernacular($currentView)} />/>
+          writingSystems={writingSystemService.viewVernacular($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
