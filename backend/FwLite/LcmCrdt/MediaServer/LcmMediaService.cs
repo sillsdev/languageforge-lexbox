@@ -7,6 +7,7 @@ using SIL.Harmony.Resource;
 using LcmCrdt.RemoteSync;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Media;
+using System.Net.Http.Json;
 
 namespace LcmCrdt.MediaServer;
 
@@ -67,6 +68,29 @@ public class LcmMediaService(
         if (!File.Exists(localResource.LocalPath))
             throw new FileNotFoundException("Unable to find the file with Id" + fileId, localResource.LocalPath);
         return new(File.OpenRead(localResource.LocalPath), Path.GetFileName(localResource.LocalPath));
+    }
+
+    public async Task<LcmFileMetadata> GetFileMetadata(Guid fileId)
+    {
+        var mediaClient = await MediaServerClient();
+        var response = await mediaClient.GetFileMetadata(fileId);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Failed to retrieve metadata for file {fileId}: {response.StatusCode} {response.ReasonPhrase}");
+        }
+        var metadata = await response.Content.ReadFromJsonAsync<LcmFileMetadata>();
+        if (metadata is null)
+        {
+            // Try to get content into error message, but if buffering not enabled for this request, give up
+            var content = "";
+            try
+            {
+                content = await response.Content.ReadAsStringAsync();
+            }
+            catch { } // Oh well, we tried
+            throw new Exception($"Failed to retrieve metadata for file {fileId}: response was in incorrect format. {content}");
+        }
+        return metadata;
     }
 
     private async Task<(Stream? stream, string? filename)> RequestMediaFile(Guid fileId)

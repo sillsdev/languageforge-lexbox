@@ -8,6 +8,9 @@ public interface IMediaServerClient
     [Get("/api/media/{fileId}")]
     Task<HttpResponseMessage> DownloadFile(Guid fileId);
 
+    [Get("/api/media/metadata/{fileId}")]
+    Task<HttpResponseMessage> GetFileMetadata(Guid fileId);
+
     [Post("/api/media")]
     [Multipart]
     Task<MediaUploadFileResponse> UploadFile(MultipartItem file,
