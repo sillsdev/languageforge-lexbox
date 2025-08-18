@@ -58,10 +58,12 @@
     loader = defaultLoader,
     audioId = $bindable(),
     onchange = () => {},
+    readonly = false
   }: {
     loader?: (audioId: string) => Promise<ReadableStream | undefined | typeof handled>,
     audioId: string | undefined,
     onchange?: (audioId: string | undefined) => void;
+    readonly?: boolean;
   } = $props();
 
   const projectContext = useProjectContext();
@@ -253,9 +255,17 @@
 </script>
 {#if supportsAudio}
   {#if !audioId}
-    <Button variant="secondary" icon="i-mdi-microphone-plus" size="sm" iconProps={{class: 'size-5'}} onclick={onGetAudioClick}>
-      {$t`Add audio`}
-    </Button>
+    {#if readonly}
+      <div class="text-muted-foreground p-1">{$t`No Audio`}</div>
+    {:else}
+      <Button variant="secondary"
+              icon="i-mdi-microphone-plus"
+              size="sm"
+              iconProps={{class: 'size-5'}}
+              onclick={onGetAudioClick}>
+        {$t`Add audio`}
+      </Button>
+    {/if}
   {:else if isNotFoundAudioId(audioId)}
     <div class="text-muted-foreground p-1">
       {$t`Audio file not included in Send & Receive`}

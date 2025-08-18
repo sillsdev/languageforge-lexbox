@@ -25,14 +25,16 @@
     sort,
     onSelectEntry,
     gridifyFilter = undefined,
-    previewDictionary = false
+    previewDictionary = false,
+    disableNewEntry = false,
   }: {
     search?: string;
     selectedEntryId?: string;
     sort?: SortConfig;
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
-    previewDictionary?: boolean
+    previewDictionary?: boolean,
+    disableNewEntry?: boolean,
   } = $props();
   const miniLcmApi = useMiniLcmApi();
   const dialogsService = useDialogsService();
@@ -121,6 +123,14 @@
     }
   });
 
+  export function selectNextEntry() {
+    const indexOfSelected = entries.findIndex(e => e.id === selectedEntryId);
+    const nextIndex = indexOfSelected === -1 ? 0 : indexOfSelected + 1;
+    let nextEntry = entries[nextIndex];
+    onSelectEntry(nextEntry);
+    return nextEntry;
+  }
+
 </script>
 
 <FabContainer>
@@ -133,7 +143,9 @@
       onclick={() => entriesResource.refetch()}
     />
   </DevContent>
-  <NewEntryButton onclick={handleNewEntry} shortForm />
+  {#if !disableNewEntry}
+    <NewEntryButton onclick={handleNewEntry} shortForm />
+  {/if}
 </FabContainer>
 
 <div class="flex-1 h-full" role="table">

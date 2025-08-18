@@ -50,7 +50,7 @@
           autocapitalize="off"
           onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)} />
       {:else}
-        <AudioInput bind:audioId={value[ws.wsId]} onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)}/>
+        <AudioInput {readonly} bind:audioId={value[ws.wsId]} onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)}/>
       {/if}
     </div>
   {/each}

@@ -44,7 +44,7 @@
           onchange={() => onFieldChanged('gloss')}
           bind:value={sense.gloss}
           {readonly}
-          writingSystems={writingSystemService.analysis} />
+          writingSystems={writingSystemService.viewAnalysis($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
@@ -55,7 +55,7 @@
           onchange={() => onFieldChanged('definition')}
           bind:value={sense.definition}
           {readonly}
-          writingSystems={writingSystemService.analysis} />
+          writingSystems={writingSystemService.viewAnalysis($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 

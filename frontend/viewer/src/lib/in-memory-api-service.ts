@@ -337,7 +337,12 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   }
 
   updateSense(_entryId: string, _before: ISense, _after: ISense): Promise<ISense> {
-    throw new Error('Method not implemented.');
+    const entry = this._entries.find(e => e.id == _entryId);
+    if (!entry) throw new Error(`Entry ${_entryId} not found`);
+    const index = entry.senses.findIndex(s => s.id == _before.id);
+    if (index == -1) throw new Error(`Sense ${_before.id} not found`);
+    entry.senses.splice(index, 1, _after);
+    return Promise.resolve(_after);
   }
 
   addSemanticDomainToSense(_senseId: string, _semanticDomain: ISemanticDomain): Promise<void> {
@@ -349,7 +354,14 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   }
 
   updateExampleSentence(_entryId: string, _senseId: string, _before: IExampleSentence, _after: IExampleSentence): Promise<IExampleSentence> {
-    throw new Error('Method not implemented.');
+    const entry = this._entries.find(e => e.id == _entryId);
+    if (!entry) throw new Error(`Entry ${_entryId} not found`);
+    const sense = entry.senses.find(s => s.id == _senseId);
+    if (!sense) throw new Error(`Sense ${_senseId} not found`);
+    const index = sense.exampleSentences.findIndex(es => es.id == _before.id);
+    if (index == -1) throw new Error(`ExampleSentence ${_before.id} not found`);
+    sense.exampleSentences.splice(index, 1, _after);
+    return Promise.resolve(_after);
   }
 
   getPublications(): Promise<IPublication[]> {

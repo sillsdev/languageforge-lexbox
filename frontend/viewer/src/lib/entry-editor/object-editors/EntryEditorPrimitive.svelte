@@ -47,7 +47,7 @@
           bind:value={entry.lexemeForm}
           {readonly}
           autofocus={modalMode}
-          writingSystems={writingSystemService.vernacular} />
+          writingSystems={writingSystemService.viewVernacular($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
@@ -58,7 +58,7 @@
           onchange={() => onFieldChanged('citationForm')}
           bind:value={entry.citationForm}
           {readonly}
-          writingSystems={writingSystemService.vernacular} />
+          writingSystems={writingSystemService.viewVernacular($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
@@ -106,7 +106,7 @@
           onchange={() => onFieldChanged('literalMeaning')}
           bind:value={entry.literalMeaning}
           {readonly}
-          writingSystems={writingSystemService.analysis} />
+          writingSystems={writingSystemService.viewAnalysis($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
@@ -117,7 +117,7 @@
           onchange={() => onFieldChanged('note')}
           bind:value={entry.note}
           {readonly}
-          writingSystems={writingSystemService.analysis} />
+          writingSystems={writingSystemService.viewAnalysis($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>

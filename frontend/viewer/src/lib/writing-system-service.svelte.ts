@@ -11,6 +11,7 @@
 import {firstTruthy} from './utils';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
 import {type ResourceReturn} from 'runed';
+import type {View} from '$lib/views/view-data';
 
 export type WritingSystemSelection =
   | 'vernacular'
@@ -71,6 +72,21 @@ export class WritingSystemService {
 
   get defaultAnalysis(): IWritingSystem | undefined {
     return this.writingSystems.analysis[0];
+  }
+
+  viewAnalysis(view: View) {
+    return this.filterAndSortWs(this.analysis, view?.overrides?.analysisWritingSystems);
+  }
+
+  viewVernacular(view: View) {
+    return this.filterAndSortWs(this.vernacular, view?.overrides?.vernacularWritingSystems);
+  }
+
+  filterAndSortWs(writingSystems: IWritingSystem[], override?: string[]) {
+    if (!override) return writingSystems;
+    return override
+      .map(wsId => writingSystems.find(ws => ws.wsId === wsId))
+      .filter(ws => !!ws);
   }
 
   pickWritingSystems(
