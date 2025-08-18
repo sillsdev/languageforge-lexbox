@@ -73,11 +73,11 @@ msgstr "una palabra"
 msgid "About"
 msgstr "Acerca de"
 
-#: src/project/ProjectSidebar.svelte:140
+#: src/project/ProjectSidebar.svelte:139
 msgid "Account"
 msgstr "Cuenta"
 
-#: src/project/ProjectSidebar.svelte:96
+#: src/project/ProjectSidebar.svelte:95
 msgid "Activity"
 msgstr "Actividad"
 
@@ -126,7 +126,7 @@ msgstr "una entrada"
 msgid "Any Ws"
 msgstr "Cualquier W"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:46
 msgid "Application version"
 msgstr "Versión de la aplicación"
 
@@ -168,11 +168,11 @@ msgstr "antes de"
 msgid "Best match"
 msgstr "Mejor partido"
 
-#: src/project/ProjectSidebar.svelte:91
+#: src/project/ProjectSidebar.svelte:90
 msgid "Browse"
 msgstr "Visite"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:110
+#: src/lib/entry-editor/NewEntryDialog.svelte:113
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
 #: src/lib/components/field-editors/select.svelte:164
 #: src/lib/components/field-editors/multi-select.svelte:277
@@ -189,7 +189,7 @@ msgstr "Formulario de cita"
 msgid "Citation Form"
 msgstr "Formulario de citación"
 
-#: src/home/HomeView.svelte:260
+#: src/home/HomeView.svelte:253
 msgid "Classic FieldWorks Projects"
 msgstr "Proyectos clásicos de FieldWorks"
 
@@ -204,7 +204,7 @@ msgstr "borrar"
 msgid "Close"
 msgstr "Cerrar"
 
-#: src/project/ProjectSidebar.svelte:159
+#: src/project/ProjectSidebar.svelte:158
 msgid "Close Dictionary"
 msgstr "Cerrar Diccionario"
 
@@ -241,7 +241,15 @@ msgstr "Componentes"
 msgid "Contains"
 msgstr "Contiene"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:112
+#: src/lib/components/ui/button/copy-button.svelte:24
+msgid "Copied to clipboard"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
+msgid "Copy version"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte:115
 msgid "Create {0}"
 msgstr "Cree {0}"
 
@@ -249,7 +257,7 @@ msgstr "Cree {0}"
 msgid "Create entry"
 msgstr "Crear entrada"
 
-#: src/home/HomeView.svelte:239
+#: src/home/HomeView.svelte:232
 msgid "Create Example Project"
 msgstr "Crear un proyecto de ejemplo"
 
@@ -267,11 +275,11 @@ msgstr "Entrada actual"
 msgid "Current Word"
 msgstr "Palabra actual"
 
-#: src/project/ProjectSidebar.svelte:89
+#: src/project/ProjectSidebar.svelte:88
 msgid "Dashboard"
 msgstr "Cuadro de mandos"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:48
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:56
 msgid "Data Directory"
 msgstr "Directorio de datos"
 
@@ -279,7 +287,7 @@ msgstr "Directorio de datos"
 msgid "Definition"
 msgstr "Definición"
 
-#: src/home/HomeView.svelte:221
+#: src/home/HomeView.svelte:214
 msgid "Delete"
 msgstr "Borrar"
 
@@ -296,12 +304,12 @@ msgstr "Borrar entrada"
 msgid "Delete Word"
 msgstr "Borrar palabra"
 
-#: src/home/HomeView.svelte:131
-#: src/home/HomeView.svelte:135
+#: src/home/HomeView.svelte:130
+#: src/home/HomeView.svelte:134
 msgid "Dictionaries"
 msgstr "Diccionarios"
 
-#: src/project/ProjectSidebar.svelte:85
+#: src/project/ProjectSidebar.svelte:84
 msgid "Dictionary"
 msgstr "Diccionario"
 
@@ -364,7 +372,7 @@ msgid "Ends with"
 msgstr "Termina con"
 
 #: src/project/browse/EntryMenu.svelte:37
-#: src/lib/entry-editor/NewEntryDialog.svelte:84
+#: src/lib/entry-editor/NewEntryDialog.svelte:87
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 msgid "Entry"
 msgstr "Entrada"
@@ -381,7 +389,7 @@ msgstr "Entrada o sentido:"
 msgid "Equals"
 msgstr "Es igual a"
 
-#: src/project/ProjectSidebar.svelte:121
+#: src/project/ProjectSidebar.svelte:120
 msgid "Error getting sync status"
 msgstr "Error al obtener el estado de sincronización"
 
@@ -401,6 +409,10 @@ msgstr "Ejemplo"
 msgid "Example sentence"
 msgstr "Ejemplo de frase"
 
+#: src/lib/components/ui/button/copy-button.svelte:26
+msgid "Failed to copy to clipboard"
+msgstr ""
+
 #: src/home/Server.svelte:53
 msgid "Failed to download {0}"
 msgstr "Error al descargar {0}"
@@ -410,7 +422,7 @@ msgstr "Error al descargar {0}"
 msgid "Failed to load entries"
 msgstr "Error al cargar entradas"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:28
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:29
 msgid "Failed to open data directory, use the path in the text field instead"
 msgstr "Error al abrir el directorio de datos, utilice la ruta en el campo de texto en su lugar"
 
@@ -426,8 +438,8 @@ msgstr "Error de sincronización"
 msgid "Failed to synchronize."
 msgstr "Error de sincronización."
 
-#: src/project/ProjectSidebar.svelte:181
-#: src/home/HomeView.svelte:154
+#: src/project/ProjectSidebar.svelte:178
+#: src/home/HomeView.svelte:153
 msgid "Feedback"
 msgstr "Comentarios"
 
@@ -441,7 +453,7 @@ msgstr "Etiquetas de campo"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:266
+#: src/home/HomeView.svelte:259
 msgid "FieldWorks logo"
 msgstr "Logotipo de FieldWorks"
 
@@ -533,7 +545,7 @@ msgstr "Mantenga pulsado para grabar o\\npulse y suelte para iniciar la grabaci�
 msgid "I don't see my project"
 msgstr "No veo mi proyecto"
 
-#: src/home/HomeView.svelte:274
+#: src/home/HomeView.svelte:267
 msgid "Import"
 msgstr "Importar"
 
@@ -546,7 +558,7 @@ msgstr "Última modificación: {0}"
 msgid "Length:"
 msgstr "Longitud:"
 
-#: src/home/HomeView.svelte:134
+#: src/home/HomeView.svelte:133
 msgid "Lexbox logo"
 msgstr "Logotipo de Lexbox"
 
@@ -570,15 +582,15 @@ msgstr "Significado literal"
 msgid "Loading Dictionaries..."
 msgstr "Cargando diccionarios..."
 
-#: src/home/HomeView.svelte:175
+#: src/home/HomeView.svelte:170
 msgid "loading..."
 msgstr "cargando..."
 
-#: src/home/HomeView.svelte:180
+#: src/home/HomeView.svelte:175
 msgid "Local"
 msgstr "Local"
 
-#: src/home/HomeView.svelte:202
+#: src/home/HomeView.svelte:197
 msgid "Local only"
 msgstr "Sólo local"
 
@@ -595,7 +607,7 @@ msgstr "Inicie sesión para ver los proyectos"
 msgid "Logout"
 msgstr "Cierre de sesión"
 
-#: src/project/ProjectSidebar.svelte:195
+#: src/project/ProjectSidebar.svelte:192
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Hecho con ❤️ de 🇦🇹 🇹🇭 🇺🇸"
 
@@ -638,7 +650,7 @@ msgstr "Nunca"
 msgid "New"
 msgstr "Nuevo"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:97
+#: src/lib/entry-editor/NewEntryDialog.svelte:100
 msgid "New {0}"
 msgstr "Nuevo {0}"
 
@@ -681,7 +693,7 @@ msgid "No items found"
 msgstr "No se han encontrado artículos"
 
 #: src/project/SyncDialog.svelte:193
-#: src/project/ProjectSidebar.svelte:115
+#: src/project/ProjectSidebar.svelte:114
 msgid "No server configured"
 msgstr "Ningún servidor configurado"
 
@@ -699,7 +711,7 @@ msgid "Not equal"
 msgstr "No es igual"
 
 #: src/project/SyncDialog.svelte:257
-#: src/project/ProjectSidebar.svelte:113
+#: src/project/ProjectSidebar.svelte:112
 msgid "Not logged in"
 msgstr "No conectado"
 
@@ -707,12 +719,16 @@ msgstr "No conectado"
 msgid "Note"
 msgstr "Nota"
 
+#: src/lib/components/ui/button/copy-button.svelte:20
+msgid "Nothing to copy"
+msgstr ""
+
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:42
 msgid "Observer"
 msgstr "Observador"
 
 #: src/project/SyncDialog.svelte:187
-#: src/project/ProjectSidebar.svelte:111
+#: src/project/ProjectSidebar.svelte:110
 msgid "Offline"
 msgstr "Fuera de línea"
 
@@ -720,7 +736,7 @@ msgstr "Fuera de línea"
 msgid "Offline, unable to download"
 msgstr "Desconectado, no se puede descargar"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:53
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:61
 msgid "Open Data Directory"
 msgstr "Directorio de datos abiertos"
 
@@ -732,7 +748,7 @@ msgstr "Abrir en FieldWorks"
 msgid "Open in new Window"
 msgstr "Abrir en una ventana nueva"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:68
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:78
 msgid "Open Log file"
 msgstr "Abrir archivo Log"
 
@@ -769,7 +785,7 @@ msgstr "Proyecto {0} no encontrado en {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "El proyecto {0} en {1} aún no está configurado para FieldWorks Lite"
 
-#: src/home/HomeView.svelte:245
+#: src/home/HomeView.svelte:238
 msgid "Project name..."
 msgstr "Nombre del proyecto..."
 
@@ -783,7 +799,7 @@ msgid "Refine your filter to see more..."
 msgstr "Afine su filtro para ver más..."
 
 #: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:184
+#: src/home/HomeView.svelte:179
 msgid "Refresh Projects"
 msgstr "Actualizar proyectos"
 
@@ -843,7 +859,7 @@ msgstr "Sentido"
 msgid "Sentence"
 msgstr "Sentencia"
 
-#: src/project/ProjectSidebar.svelte:146
+#: src/project/ProjectSidebar.svelte:145
 msgid "Settings"
 msgstr "Ajustes"
 
@@ -851,11 +867,11 @@ msgstr "Ajustes"
 msgid "Shadcn Sandbox # #"
 msgstr "Shadcn Sandbox"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:72
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:82
 msgid "Share Log file"
 msgstr "Compartir archivo de registro"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:61
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:70
 msgid "Share project data file"
 msgstr "Compartir archivo de datos del proyecto"
 
@@ -885,18 +901,18 @@ msgstr "Empieza por"
 msgid "Submit"
 msgstr "Enviar"
 
-#: src/project/ProjectSidebar.svelte:119
+#: src/project/ProjectSidebar.svelte:118
 #: src/lib/activity/ActivityView.svelte:108
 msgid "Synced"
 msgstr "Sincronizado"
 
-#: src/home/HomeView.svelte:202
+#: src/home/HomeView.svelte:197
 msgid "Synced with {0}"
 msgstr "Sincronizado con {0}"
 
 #: src/project/SyncDialog.svelte:149
 #: src/project/SyncDialog.svelte:234
-#: src/project/ProjectSidebar.svelte:126
+#: src/project/ProjectSidebar.svelte:125
 msgid "Synchronize"
 msgstr "Sincronice"
 
@@ -909,7 +925,7 @@ msgstr "Sincronización de FieldWorks Lite con FieldWorks..."
 msgid "Synchronizing..."
 msgstr "Sincronizar..."
 
-#: src/project/ProjectSidebar.svelte:93
+#: src/project/ProjectSidebar.svelte:92
 msgid "Tasks"
 msgstr "Tareas"
 
@@ -937,10 +953,10 @@ msgstr "Alternar tema"
 msgid "Translation"
 msgstr "Traducción"
 
-#: src/project/ProjectSidebar.svelte:172
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
-#: src/home/HomeView.svelte:160
-#: src/home/HomeView.svelte:216
+#: src/project/ProjectSidebar.svelte:170
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:43
+#: src/home/HomeView.svelte:158
+#: src/home/HomeView.svelte:210
 msgid "Troubleshoot"
 msgstr "Solución de problemas"
 
@@ -959,7 +975,7 @@ msgstr "No se puede abrir en FieldWorks"
 msgid "Unknown"
 msgstr "Desconocido"
 
-#: src/project/ProjectSidebar.svelte:117
+#: src/project/ProjectSidebar.svelte:116
 #: src/lib/components/audio/AudioDialog.svelte:93
 msgid "Unknown error"
 msgstr "Error desconocido"
@@ -986,7 +1002,7 @@ msgstr "Sin título"
 msgid "Uses components as"
 msgstr "Utiliza componentes como"
 
-#: src/project/ProjectSidebar.svelte:194
+#: src/project/ProjectSidebar.svelte:191
 msgid "Version {0}"
 msgstr "Versión {0}"
 
@@ -1000,7 +1016,7 @@ msgstr "¿Dónde están mis proyectos?"
 
 #: src/project/browse/SearchFilter.svelte:40
 #: src/project/browse/EntryMenu.svelte:37
-#: src/lib/entry-editor/NewEntryDialog.svelte:84
+#: src/lib/entry-editor/NewEntryDialog.svelte:87
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:43
 msgid "Word"
@@ -1034,4 +1050,3 @@ msgstr "No tiene permiso para descargar el proyecto {0} desde {1}"
 #: src/home/Server.svelte:85
 msgid "You have already downloaded the {0} project"
 msgstr "Ya has descargado el proyecto {0}"
-

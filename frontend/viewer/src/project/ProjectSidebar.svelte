@@ -49,7 +49,6 @@
     navigate(newLocation);
   }
 
-  const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog = $state<TroubleshootDialog>();
   let syncDialog = $state<SyncDialog>();
 </script>
@@ -164,15 +163,13 @@
 
     <Sidebar.Group>
       <Sidebar.Menu>
-        {#if supportsTroubleshooting}
-          <TroubleshootDialog bind:this={troubleshootDialog}/>
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
-              <Icon icon="i-mdi-help-circle" />
-              <span>{$t`Troubleshoot`}</span>
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-        {/if}
+        <TroubleshootDialog bind:this={troubleshootDialog}/>
+        <Sidebar.MenuItem>
+          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
+            <Icon icon="i-mdi-help-circle" />
+            <span>{$t`Troubleshoot`}</span>
+          </Sidebar.MenuButton>
+        </Sidebar.MenuItem>
         <Sidebar.MenuItem>
           <Sidebar.MenuButton>
             {#snippet child({ props })}
