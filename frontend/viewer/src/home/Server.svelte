@@ -13,6 +13,7 @@
   import type {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
   import ProjectListItem from './ProjectListItem.svelte';
   import {transitionContext} from './transitions';
+  import ListItem from '$lib/components/ListItem.svelte';
 
   const [send, receive] = transitionContext.get();
 
@@ -125,30 +126,19 @@
       <LoginButton {status} statusChange={() => refreshAll()}/>
     {/if}
   </div>
-  <div class={cn('rounded', !projects.length && 'border')}>
+  <div class={cn('rounded', (!projects.length && !canDownloadByCode) && 'border')}>
     {#if !status || loading}
       <!--override the defaults from App.svelte-->
       <!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
       <ProjectListItem icon="i-mdi-cloud" skeleton/>
-    {:else if !projects.length}
-      <div class="flex flex-col gap-2 items-center justify-center md:rounded p-4">
+    {:else if !projects.length && !canDownloadByCode}
+      <div class="flex flex-col items-center justify-center md:rounded p-4">
         {#if status.loggedIn}
           <Button class="border border-primary" variant="link" target="_blank"
                   href="{server?.authority}/wheresMyProject">
             {$t`Where are my projects?`}
             <Icon icon="i-mdi-open-in-new" class="size-4"/>
           </Button>
-          {#if canDownloadByCode}
-            <Button icon="i-mdi-download"
-                    title={$t`Download project not listed`}
-                    disabled={loading}
-                    class="mr-2"
-                    variant="ghost"
-                    size="default"
-                    onclick={getProjectByCode}>
-              {$t`Download project not listed`}
-            </Button>
-          {/if}
         {:else}
           <LoginButton {status} statusChange={() => refreshAll()}/>
         {/if}
@@ -173,14 +163,12 @@
           {/if}
         {/each}
         {#if canDownloadByCode}
-        <Button icon="i-mdi-download"
-                title={$t`Download project not listed`}
-                disabled={loading}
-                class="mr-2"
-                variant="ghost"
-                size="default"
-                onclick={getProjectByCode}
-                >{$t`Download project not listed`}</Button>
+          <ListItem icon="i-mdi-download"
+                  title={$t`Download unlisted project`}
+                  disabled={loading}
+                  onclick={getProjectByCode}>
+            {$t`Download unlisted project`}
+          </ListItem>
         {/if}
       </div>
       <div class="text-center pt-2">
