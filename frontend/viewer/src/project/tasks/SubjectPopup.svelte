@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type {IEntry} from '$lib/dotnet-types';
+  import {type IEntry, WritingSystemType} from '$lib/dotnet-types';
   import * as Drawer from '$lib/components/ui/drawer';
   import {Button} from '$lib/components/ui/button';
-  import {asString, useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {type Task, TasksService} from './tasks-service';
   import OverrideFields from '$lib/OverrideFields.svelte';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
@@ -29,6 +29,19 @@
     onNextEntry?: () => void,
     onCompletedSubject?: (subject: string) => void,
   } = $props();
+  const overrides = $derived.by(() => {
+    if (task.subjectWritingSystemType === WritingSystemType.Analysis) {
+      return {
+        analysisWritingSystems: [task.subjectWritingSystemId],
+        vernacularWritingSystems: [],
+      };
+    } else {
+      return {
+        analysisWritingSystems: [],
+        vernacularWritingSystems: [task.subjectWritingSystemId]
+      };
+    }
+  });
   const entryPersistence = new EntryPersistence(() => entry);
   let senseIndex = $state(0);
   let sense = $derived(entry ?
@@ -122,7 +135,7 @@
         <!--        lets us submit by pressing enter on any field-->
         <input type="submit" style="display: none;"/>
 
-        <OverrideFields shownFields={task.subjectFields}>
+        <OverrideFields shownFields={task.subjectFields} {overrides}>
           {#if task.subjectType === 'entry' && entry}
             <EntryEditorPrimitive {entry}/>
           {:else if task.subjectType === 'sense' && sense}

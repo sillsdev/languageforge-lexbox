@@ -103,6 +103,10 @@ interface CustomViewDefinition extends ViewDefinition {
 
 interface ViewBase extends ViewDefinition {
   fields: Record<FieldId, FieldView>;
+  overrides?: {
+    analysisWritingSystems?: string[],
+    vernacularWritingSystems?: string[],
+  }
 }
 
 interface RootView extends ViewBase {

@@ -2,7 +2,7 @@ import {asString, useWritingSystemService, type WritingSystemService} from '$lib
 import {useProjectContext} from '$lib/project-context.svelte';
 import type {FieldId} from '$lib/entry-editor/field-data';
 import {gt} from 'svelte-i18n-lingui';
-import type {IEntry, IExampleSentence, IRichString, ISense} from '$lib/dotnet-types';
+import {type IEntry, type IExampleSentence, type IRichString, type ISense, WritingSystemType} from '$lib/dotnet-types';
 import {isEntry, isSense} from '$lib/utils';
 
 const symbol = Symbol.for('fw-lite-tasks');
@@ -24,6 +24,7 @@ export interface Task {
   subjectType: 'entry' | 'sense' | 'example-sentence';
   subjectFields?: FieldId[];
   subjectWritingSystemId: string;
+  subjectWritingSystemType: WritingSystemType;
   prompt: string;
   taskKind: 'provide-missing'
   gridifyFilter?: string;
@@ -51,6 +52,7 @@ export class TasksService {
         subjectType: 'sense',
         subjectFields: ['gloss'],
         subjectWritingSystemId: analysis.wsId,
+        subjectWritingSystemType: analysis.type,
         taskKind: 'provide-missing',
         prompt: gt`Type a Gloss`,
         gridifyFilter: `Senses=null,Senses.Gloss[${analysis.wsId}]=`,
@@ -69,6 +71,7 @@ export class TasksService {
         subjectType: 'example-sentence',
         subjectFields: ['sentence'],
         subjectWritingSystemId: vernacular.wsId,
+        subjectWritingSystemType: vernacular.type,
         prompt: gt`Type an example sentence`,
         taskKind: 'provide-missing',
         gridifyFilter: `Senses.ExampleSentences=null,Senses.ExampleSentences.Sentence[${vernacular.wsId}]=`,
