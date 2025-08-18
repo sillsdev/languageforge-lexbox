@@ -66,7 +66,7 @@
         if (updateExample) {
           await entryPersistence.updateExample(example);
           const subject = task.getSubjectValue(example);
-          onCompletedSubject(subject)
+          onCompletedSubject(subject);
         }
         exampleIndex = TasksService.findNextSubjectIndex(task, sense, exampleIndex + 1);
         if (sense && exampleIndex < sense.exampleSentences.length) {
@@ -110,13 +110,14 @@
         return;
       }
     }
-  })
+  });
 </script>
 
 <Drawer.Root bind:open={() => !!entry, open => {if (!open) entry = undefined;}}>
   <Drawer.Content>
     <Drawer.Header class="relative">
-      <div class="absolute -z-10 inset-0 bg-primary rounded my-2 ml-1" style="margin-right: {100 - (progress * 100)}%"></div>
+      <div class="absolute -z-10 inset-0 bg-primary rounded my-2 ml-1"
+           style="margin-right: {100 - (progress * 100)}%"></div>
       <Drawer.Title>{entry ? writingSystemService.headword(entry) : ''}</Drawer.Title>
       <Drawer.Close>
         {#snippet child({props})}
@@ -156,6 +157,8 @@
             <SenseEditorPrimitive {sense}/>
           {:else if task.subjectType === 'example-sentence' && example}
             <ExampleEditorPrimitive {example}/>
+          {:else}
+            <p>No subject, unable to create a new {task.subjectType}</p>
           {/if}
         </OverrideFields>
       </form>
