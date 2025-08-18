@@ -36,10 +36,7 @@
   }
 </script>
 <div class="flex flex-col h-full gap-4">
-  <p>Task: {task?.subject}</p>
   {#if !showDone}
-    <Button variant="secondary" onclick={() => entriesList?.selectNextEntry()}>Keep going</Button>
-    <Button onclick={onDone}>Done</Button>
     <DevContent>
       <details>
         <summary>Completed Subjects</summary>
@@ -51,6 +48,7 @@
                  gridifyFilter={task?.gridifyFilter}
                  disableNewEntry
                  onSelectEntry={e => entry = e} selectedEntryId={entry?.id}/>
+    <Button onclick={onDone}>Done</Button>
     <SubjectPopup
       bind:entry
       {task}
