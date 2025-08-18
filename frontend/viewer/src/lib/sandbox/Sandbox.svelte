@@ -119,7 +119,10 @@
     deleteResult = res ? 'Confirmed delete' : 'Cancelled delete';
   }
   async function showDangerous() {
-    const res = await dialogsService.promptDelete('Dangerous item', 'This is irreversible', true);
+    const res = await dialogsService.promptDelete('Dangerous item', undefined, {
+      isDangerous: true,
+      details: 'This is irreversible',
+    });
     deleteResult = res ? 'Confirmed dangerous delete' : 'Cancelled dangerous delete';
   }
 

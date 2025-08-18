@@ -1,12 +1,21 @@
-﻿<script lang="ts">
+﻿<script lang="ts" module>
+  export type DeleteDialogOptions = {
+    details?: string;
+    isDangerous?: boolean;
+  }
+</script>
+
+<script lang="ts">
   import {Button} from '$lib/components/ui/button';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import {t} from 'svelte-i18n-lingui';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {Switch} from '$lib/components/ui/switch';
+  import FwMarkdown from '$lib/markdown/FwMarkdown.svelte';
 
   let subject = $state('');
   let description = $state<string>();
+  let details = $state<string>();
   let dangerous = $state(false);
   let confirmed = $state(false);
   const subjectWithDescription = $derived(description ? `${subject}: ${description}` : subject);
@@ -34,13 +43,14 @@
     open = false;
   }
 
-  export function prompt(promptSubject: string, subjectDescription?: string, isDangerous: boolean = false): Promise<boolean> {
+  export function prompt(promptSubject: string, subjectDescription?: string, options?: DeleteDialogOptions): Promise<boolean> {
     if (requester) throw new Error('already prompting for a delete');
     return new Promise((resolve) => {
       requester = { resolve };
       subject = promptSubject;
       description = subjectDescription;
-      dangerous = isDangerous;
+      details = options?.details;
+      dangerous = !!options?.isDangerous;
       confirmed = false;
       open = true;
     });
@@ -54,7 +64,14 @@
       <AlertDialog.Title>{$t`Delete ${subject}`}</AlertDialog.Title>
     </AlertDialog.Header>
     <AlertDialog.Description>
-      {$t`Are you sure you want to delete ${subjectWithDescription}?`}
+      <div class="space-y-2">
+        <p>
+          {$t`Are you sure you want to delete ${subjectWithDescription}?`}
+        </p>
+        {#if details}
+          <FwMarkdown md={details} />
+        {/if}
+      </div>
     </AlertDialog.Description>
     {#if dangerous}
       <div class="mt-4">

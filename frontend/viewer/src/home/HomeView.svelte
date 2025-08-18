@@ -29,6 +29,7 @@
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
+  import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -46,9 +47,9 @@
       .replace(/-$/, '');
   }
 
-  let customExampleProjectName: string = '';
+  let customExampleProjectName = $state('');
 
-  let createProjectLoading = false;
+  let createProjectLoading = $state(false);
 
   async function createExampleProject() {
     try {
@@ -68,11 +69,16 @@
     }
   }
 
-  let deletingProject: undefined | string = undefined;
+  let deletingProject = $state<string>();
 
   async function deleteProject(project: IProjectModel) {
+    if (!deleteDialog) throw new Error('Delete dialog not initialized');
     try {
-      if (!await deleteDialog.prompt($t`Project`, $t`${project.name}, you may have changes not synced to Lexbox`, true)) return;
+      const syncDialogUrl = `/project/${project.code}/browse?${SYNC_DIALOG_QUERY_PARAM}=true`;
+      if (!await deleteDialog.prompt($t`Project`, $t`${project.name}`, {
+        isDangerous: true,
+        details: $t`Make sure your [changes are synced](${syncDialogUrl}) to Lexbox.`,
+      })) return;
       deletingProject = project.id;
       await projectsService.deleteProject(project.code);
       await refreshProjects();
@@ -81,7 +87,7 @@
     }
   }
 
-  let importing = '';
+  let importing = $state('');
 
   async function importFwDataProject(name: string) {
     if (importing) return;
@@ -94,9 +100,9 @@
     }
   }
 
-  let projectsPromise = projectsService
+  let projectsPromise = $state(projectsService
     .localProjects()
-    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name)));
+    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name))));
 
   async function refreshProjects() {
     let promise = projectsService.localProjects().then((p) => p.sort((p1, p2) => p1.name.localeCompare(p2.name)));
@@ -105,7 +111,7 @@
   }
 
   const supportsTroubleshooting = useTroubleshootingService();
-  let troubleshootDialog: TroubleshootDialog | undefined;
+  let troubleshootDialog = $state<TroubleshootDialog>();
 
   let clickCount = 0;
   let clickTimeout: ReturnType<typeof setTimeout> | undefined;
