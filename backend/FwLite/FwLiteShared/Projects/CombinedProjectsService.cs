@@ -164,6 +164,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             {
                 var (status, projectId) = await lexboxProjectService.GetLexboxProjectId(server, code);
                 if (status != DownloadProjectByCodeResult.Success) return status;
+                // Note: the project might be from a different server, but that's current only relevant for devs
+                // and we still can't download two projects with the same code
                 if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
                 var role = userRole.HasValue ? FromRole(userRole.Value) : ProjectRole.Editor;
                 project = new ProjectModel(
