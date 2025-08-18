@@ -1,6 +1,7 @@
 <script lang="ts">
   import {type IEntry, WritingSystemType} from '$lib/dotnet-types';
   import * as Drawer from '$lib/components/ui/drawer';
+  import * as Editor from '$lib/components/editor';
   import {Button} from '$lib/components/ui/button';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {type Task, TasksService} from './tasks-service';
@@ -43,17 +44,19 @@
     }
   });
   const entryPersistence = new EntryPersistence(() => entry);
-  let senseIndex = $state(0);
-  let sense = $derived(entry ?
-    //don't create a sense when the subject is an example sentence
-    (entry.senses[senseIndex] ?? (task.subjectType === 'sense' ? defaultSense(entry.id) : undefined))
-    : undefined);
-  let exampleIndex = $state(0);
-  let example = $derived(
-    sense ?
-      (sense.exampleSentences[exampleIndex] ?? (task.subjectType === 'example-sentence' ? defaultExampleSentence(sense.id) : undefined))
-      : undefined
-  );
+  let senseIndex = $derived(entry ? TasksService.findNextSubjectIndex(task, entry, 0) : 0);
+  let sense = $derived.by(() => {
+    if (!entry) return undefined;
+    return $state.snapshot(entry.senses[senseIndex])
+      //don't create a sense when the subject is an example sentence
+      ?? (task.subjectType === 'sense' ? defaultSense(entry.id) : undefined);
+  });
+  let exampleIndex = $derived(sense ? TasksService.findNextSubjectIndex(task, sense, 0) : 0);
+  let example = $derived.by(() => {
+    if (!sense || task.subjectType !== 'example-sentence') return undefined;
+    return $state.snapshot(sense.exampleSentences[exampleIndex])
+      ?? (task.subjectType === 'example-sentence' ? defaultExampleSentence(sense.id) : undefined);
+  });
 
   async function onNext(skip: boolean = false) {
     if (!entry) return;
@@ -77,6 +80,7 @@
       case 'sense':
         if (updateSense) {
           await entryPersistence.updateSense(sense);
+          entry = entryPersistence.initialEntry;
           const subject = task.getSubjectValue(sense);
           onCompletedSubject(subject);
         }
@@ -129,19 +133,23 @@
     </Drawer.Header>
     <div class="flex flex-col gap-4 mx-2 md:mx-4 border rounded p-4 max-h-[50vh] overflow-y-auto">
       <p>{task.subject}</p>
-      <OverrideFields shownFields={task.contextFields}>
-        {#if entry}
-          <EntryEditorPrimitive readonly {entry}/>
-        {/if}
-        {#if sense}
-          <SenseEditorPrimitive readonly {sense}/>
-        {:else if task.subjectType === 'example-sentence'}
-          <p>No sense, unable to create a new example sentence</p>
-        {/if}
-        {#if example}
-          <ExampleEditorPrimitive readonly {example}/>
-        {/if}
-      </OverrideFields>
+      <Editor.Root>
+        <Editor.Grid>
+          <OverrideFields shownFields={task.contextFields}>
+            {#if entry}
+              <EntryEditorPrimitive readonly {entry}/>
+            {/if}
+            {#if sense}
+              <SenseEditorPrimitive readonly {sense}/>
+            {:else if task.subjectType === 'example-sentence'}
+              <p>No sense, unable to create a new example sentence</p>
+            {/if}
+            {#if example}
+              <ExampleEditorPrimitive readonly {example}/>
+            {/if}
+          </OverrideFields>
+        </Editor.Grid>
+      </Editor.Root>
     </div>
     <Drawer.Footer>
       <Separator/>
@@ -151,18 +159,21 @@
       <form bind:this={form} onsubmit={(e) => {e.preventDefault(); void onNext()}}>
         <!--        lets us submit by pressing enter on any field-->
         <input type="submit" style="display: none;"/>
-
-        <OverrideFields shownFields={task.subjectFields} {overrides}>
-          {#if task.subjectType === 'entry' && entry}
-            <EntryEditorPrimitive modalMode {entry}/>
-          {:else if task.subjectType === 'sense' && sense}
-            <SenseEditorPrimitive {sense}/>
-          {:else if task.subjectType === 'example-sentence' && example}
-            <ExampleEditorPrimitive {example}/>
-          {:else}
-            <p>No subject, unable to create a new {task.subjectType}</p>
-          {/if}
-        </OverrideFields>
+        <Editor.Root>
+          <Editor.Grid>
+            <OverrideFields shownFields={task.subjectFields} {overrides}>
+              {#if task.subjectType === 'entry' && entry}
+                <EntryEditorPrimitive modalMode {entry}/>
+              {:else if task.subjectType === 'sense' && sense}
+                <SenseEditorPrimitive {sense}/>
+              {:else if task.subjectType === 'example-sentence' && example}
+                <ExampleEditorPrimitive {example}/>
+              {:else}
+                <p>No subject, unable to create a new {task.subjectType}</p>
+              {/if}
+            </OverrideFields>
+          </Editor.Grid>
+        </Editor.Root>
       </form>
       <div class="flex flex-row gap-2 justify-end">
         <Drawer.Close>
