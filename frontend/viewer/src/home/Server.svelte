@@ -40,6 +40,9 @@
     refreshAll = () => {
     }
   }: Props = $props();
+
+  const undownloadedProjects = $derived(projects.filter(project => !matchesProject(localProjects, project)?.crdt));
+
   let downloading = $state('');
 
   async function downloadCrdtProject(project: Project) {
@@ -126,57 +129,52 @@
       <LoginButton {status} statusChange={() => refreshAll()}/>
     {/if}
   </div>
-  <div class={cn('rounded', (!projects.length && !canDownloadByCode) && 'border')}>
-    {#if !status || loading}
-      <!--override the defaults from App.svelte-->
-      <!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-      <ProjectListItem icon="i-mdi-cloud" skeleton/>
-    {:else if !projects.length && !canDownloadByCode}
-      <div class="flex flex-col items-center justify-center md:rounded p-4">
-        {#if status.loggedIn}
-          <Button class="border border-primary" variant="link" target="_blank"
-                  href="{server?.authority}/wheresMyProject">
-            {$t`Where are my projects?`}
-            <Icon icon="i-mdi-open-in-new" class="size-4"/>
-          </Button>
-        {:else}
-          <LoginButton {status} statusChange={() => refreshAll()}/>
-        {/if}
-      </div>
-      {:else}
-      <div>
-        {#each projects as project (project.id)}
-          {@const localProject = matchesProject(localProjects, project)}
-          {#if !localProject?.crdt}
-            {@const loading = downloading === project.code}
-            <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
-              <ProjectListItem onclick={() => downloadCrdtProject(project)} icon="i-mdi-cloud" {project} {loading}>
-                {#snippet actions()}
-                  <div class="pointer-events-none shrink-0">
-                    <Button icon="i-mdi-book-arrow-down-outline" variant="ghost" class="p-2">
-                      {loading ? $t`Downloading...` : $t`Download`}
-                    </Button>
-                  </div>
-                {/snippet}
-              </ProjectListItem>
-            </div>
-          {/if}
-        {/each}
-        {#if canDownloadByCode}
-          <ListItem icon="i-mdi-download"
-                  title={$t`Download unlisted project`}
-                  disabled={loading}
-                  onclick={getProjectByCode}>
-            {$t`Download unlisted project`}
-          </ListItem>
-        {/if}
-      </div>
-      <div class="text-center pt-2">
-        <Button variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
-          {$t`I don't see my project`}
+  {#if !status || loading}
+    <!--override the defaults from App.svelte-->
+    <!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
+    <ProjectListItem icon="i-mdi-cloud" skeleton/>
+  {:else if !undownloadedProjects.length && !canDownloadByCode}
+    <div class="flex flex-col items-center justify-center md:rounded p-4 rounded border">
+      {#if status.loggedIn}
+        <Button class="border border-primary" variant="link" target="_blank"
+                href="{server?.authority}/wheresMyProject">
+          {$t`Where are my projects?`}
           <Icon icon="i-mdi-open-in-new" class="size-4"/>
         </Button>
-      </div>
-    {/if}
-  </div>
+      {:else}
+        <LoginButton {status} statusChange={() => refreshAll()}/>
+      {/if}
+    </div>
+  {:else}
+    <div>
+      {#each undownloadedProjects as project (project.id)}
+        {@const loading = downloading === project.code}
+        <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
+          <ProjectListItem onclick={() => downloadCrdtProject(project)} icon="i-mdi-cloud" {project} {loading}>
+            {#snippet actions()}
+              <div class="pointer-events-none shrink-0">
+                <Button icon="i-mdi-book-arrow-down-outline" variant="ghost" class="p-2">
+                  {loading ? $t`Downloading...` : $t`Download`}
+                </Button>
+              </div>
+            {/snippet}
+          </ProjectListItem>
+        </div>
+      {/each}
+      {#if canDownloadByCode}
+        <ListItem icon="i-mdi-download"
+                title={$t`Download unlisted project`}
+                disabled={loading}
+                onclick={getProjectByCode}>
+          {$t`Download unlisted project`}
+        </ListItem>
+      {/if}
+    </div>
+    <div class="text-center pt-2">
+      <Button variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
+        {$t`I don't see my project`}
+        <Icon icon="i-mdi-open-in-new" class="size-4"/>
+      </Button>
+    </div>
+  {/if}
 </div>
