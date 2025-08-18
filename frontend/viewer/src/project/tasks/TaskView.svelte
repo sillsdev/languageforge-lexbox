@@ -55,7 +55,10 @@
       bind:entry
       {task}
       {progress}
-      onNextEntry={() => entriesList?.selectNextEntry()}
+      onNextEntry={() =>{
+        let next = entriesList?.selectNextEntry();
+        if (!next) onDone();
+      }}
       onCompletedSubject={s =>{
         const subject = {subject: s, entryId: entry.id};
         completedSubjects.push(subject);
