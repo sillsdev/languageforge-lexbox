@@ -337,12 +337,10 @@ msgstr "Descargar {0}"
 msgid "Download project by project code"
 msgstr "Descargar proyecto por código de proyecto"
 
-#: src/home/Server.svelte:143
-#: src/home/Server.svelte:149
-#: src/home/Server.svelte:177
-#: src/home/Server.svelte:183
-msgid "Download project not listed"
-msgstr "Descargar proyecto no listado"
+#: src/home/Server.svelte:165
+#: src/home/Server.svelte:168
+msgid "Download unlisted project"
+msgstr ""
 
 #: src/home/Server.svelte:52
 msgid "Downloaded {0}"
