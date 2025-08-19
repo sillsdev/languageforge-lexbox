@@ -5,7 +5,6 @@
   import LoginButton from '$lib/auth/LoginButton.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {t} from 'svelte-i18n-lingui';
-  import {cn} from '$lib/utils';
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
