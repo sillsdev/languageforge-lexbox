@@ -1,4 +1,4 @@
-﻿namespace FwDataMiniLcmBridge.LcmUtils;
+namespace FwDataMiniLcmBridge.LcmUtils;
 
 public static class FwLink
 {

@@ -22,7 +22,7 @@
         - '!frontend/pnpm-lock.yaml'
         - '!frontend/pnpm-workspace.yaml'
 
-"📙 Platform.Bible extension":
+"📙 Platform.Bible":
   - changed-files:
       - any-glob-to-any-file:
         - 'platform.bible-extension/**'

@@ -1,4 +1,4 @@
-﻿namespace FwDataMiniLcmBridge;
+namespace FwDataMiniLcmBridge;
 
 public class FwDataProjectContext
 {

@@ -1,4 +1,4 @@
-﻿
+
 interface FieldData {
   helpId: string;
 }

@@ -1,4 +1,4 @@
-﻿using SIL.Harmony.Core;
+using SIL.Harmony.Core;
 
 namespace LcmCrdt.Utils;
 

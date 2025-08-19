@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using SIL.LCModel;
 
 namespace FwLiteWeb.Hubs;

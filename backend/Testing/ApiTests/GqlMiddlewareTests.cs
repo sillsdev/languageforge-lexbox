@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Nodes;
+using System.Text.Json.Nodes;
 using LexCore.Entities;
 using FluentAssertions;
 using Testing.Fixtures;

@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {locale} from 'svelte-i18n-lingui';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import {Button} from '$lib/components/ui/button';
