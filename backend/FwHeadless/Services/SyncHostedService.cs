@@ -189,7 +189,7 @@ public class SyncWorker(
         {
             var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
             logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
-            if (!SendReceiveHelpers.IsSuccess(srResult2))
+            if (srResult2.ErrorEncountered)
             {
                 return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, $"Send/Receive after CRDT sync failed: {srResult2.Output}");
             }
@@ -211,7 +211,7 @@ public class SyncWorker(
             {
                 var srResult = await srService.SendReceive(fwDataProject, projectCode);
                 logger.LogInformation("Send/Receive result before CRDT sync: {srResult}", srResult.Output);
-                if (!SendReceiveHelpers.IsSuccess(srResult))
+                if (srResult.ErrorEncountered)
                 {
                     throw new SendReceiveException($"Send/Receive before CRDT sync failed: {srResult.Output}");
                 }

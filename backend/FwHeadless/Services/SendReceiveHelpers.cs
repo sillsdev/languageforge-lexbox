@@ -19,11 +19,9 @@ public static class SendReceiveHelpers
         public SendReceiveAuth(FwHeadlessConfig config) : this(config.LexboxUsername, config.LexboxPassword) { }
     };
 
-    public record LfMergeBridgeResult(string Output, string ProgressMessages, bool ErrorEncountered);
-
-    public static bool IsSuccess(LfMergeBridgeResult result)
+    public record LfMergeBridgeResult(string Output, IProgress progress)
     {
-        return !result.ErrorEncountered;
+        public bool ErrorEncountered => progress.ErrorEncountered;
     }
 
     private static async Task<LfMergeBridgeResult> CallLfMergeBridge(string method, IDictionary<string, string> flexBridgeOptions, IProgress? progress = null)
@@ -35,7 +33,7 @@ public static class SendReceiveHelpers
             LfMergeBridge.LfMergeBridge.Execute(method, combinedProgress, flexBridgeOptions.ToDictionary(), out var output);
             return output;
         });
-        return new LfMergeBridgeResult(lfMergeBridgeOutputForClient, sbProgress.ToString(), sbProgress.ErrorEncountered);
+        return new LfMergeBridgeResult(lfMergeBridgeOutputForClient, sbProgress);
     }
 
     private static Uri BuildSendReceiveUrl(string baseUrl, string projectCode, SendReceiveAuth? auth, bool forChorus = true)
