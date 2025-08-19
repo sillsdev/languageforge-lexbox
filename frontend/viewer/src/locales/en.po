@@ -20,14 +20,15 @@ msgstr "– ({0} changes)"
 #: src/lib/components/audio/audio-editor.svelte:86
 #: src/lib/components/audio/audio-editor.svelte:91
 #: src/lib/components/audio/audio-editor.svelte:95
+#: src/home/HomeView.svelte:78
 msgid "{0}"
 msgstr "{0}"
 
-#: src/project/SyncDialog.svelte:249
+#: src/project/SyncDialog.svelte:253
 msgid "{0} - FieldWorks"
 msgstr "{0} - FieldWorks"
 
-#: src/project/SyncDialog.svelte:209
+#: src/project/SyncDialog.svelte:213
 msgid "{0} - FieldWorks Lite"
 msgstr "{0} - FieldWorks Lite"
 
@@ -47,12 +48,12 @@ msgstr "{0} MB"
 msgid "{0} Server"
 msgstr "{0} Server"
 
-#: src/project/SyncDialog.svelte:93
+#: src/project/SyncDialog.svelte:97
 msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
 msgstr "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
 
-#: src/project/SyncDialog.svelte:91
-#: src/project/SyncDialog.svelte:92
+#: src/project/SyncDialog.svelte:95
+#: src/project/SyncDialog.svelte:96
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {# change} other {# changes}}"
 
@@ -125,7 +126,7 @@ msgstr "Any Ws"
 msgid "Application version"
 msgstr "Application version"
 
-#: src/lib/entry-editor/DeleteDialog.svelte:55
+#: src/lib/entry-editor/DeleteDialog.svelte:69
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
 
@@ -150,7 +151,7 @@ msgstr "Author:"
 msgid "Auto"
 msgstr "Auto"
 
-#: src/project/SyncDialog.svelte:183
+#: src/project/SyncDialog.svelte:187
 msgid "Auto synchronizing"
 msgstr "Auto synchronizing"
 
@@ -167,7 +168,7 @@ msgstr "Best match"
 msgid "Browse"
 msgstr "Browse"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:110
+#: src/lib/entry-editor/NewEntryDialog.svelte:113
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
 #: src/lib/components/field-editors/select.svelte:164
 #: src/lib/components/field-editors/multi-select.svelte:277
@@ -184,7 +185,7 @@ msgstr "Citation form"
 msgid "Citation Form"
 msgstr "Citation Form"
 
-#: src/home/HomeView.svelte:260
+#: src/home/HomeView.svelte:268
 msgid "Classic FieldWorks Projects"
 msgstr "Classic FieldWorks Projects"
 
@@ -236,7 +237,7 @@ msgstr "Components"
 msgid "Contains"
 msgstr "Contains"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:112
+#: src/lib/entry-editor/NewEntryDialog.svelte:115
 msgid "Create {0}"
 msgstr "Create {0}"
 
@@ -244,7 +245,7 @@ msgstr "Create {0}"
 msgid "Create entry"
 msgstr "Create entry"
 
-#: src/home/HomeView.svelte:239
+#: src/home/HomeView.svelte:247
 msgid "Create Example Project"
 msgstr "Create Example Project"
 
@@ -274,12 +275,12 @@ msgstr "Data Directory"
 msgid "Definition"
 msgstr "Definition"
 
-#: src/home/HomeView.svelte:221
+#: src/home/HomeView.svelte:230
 msgid "Delete"
 msgstr "Delete"
 
-#: src/lib/entry-editor/DeleteDialog.svelte:52
-#: src/lib/entry-editor/DeleteDialog.svelte:59
+#: src/lib/entry-editor/DeleteDialog.svelte:64
+#: src/lib/entry-editor/DeleteDialog.svelte:83
 msgid "Delete {0}"
 msgstr "Delete {0}"
 
@@ -291,8 +292,8 @@ msgstr "Delete Entry"
 msgid "Delete Word"
 msgstr "Delete Word"
 
-#: src/home/HomeView.svelte:131
-#: src/home/HomeView.svelte:135
+#: src/home/HomeView.svelte:141
+#: src/home/HomeView.svelte:145
 msgid "Dictionaries"
 msgstr "Dictionaries"
 
@@ -313,7 +314,7 @@ msgstr "Discard"
 msgid "Display as"
 msgstr "Display as"
 
-#: src/lib/entry-editor/DeleteDialog.svelte:58
+#: src/lib/entry-editor/DeleteDialog.svelte:82
 msgid "Don't delete"
 msgstr "Don't delete"
 
@@ -359,7 +360,7 @@ msgid "Ends with"
 msgstr "Ends with"
 
 #: src/project/browse/EntryMenu.svelte:37
-#: src/lib/entry-editor/NewEntryDialog.svelte:84
+#: src/lib/entry-editor/NewEntryDialog.svelte:87
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 msgid "Entry"
 msgstr "Entry"
@@ -380,11 +381,11 @@ msgstr "Equals"
 msgid "Error getting sync status"
 msgstr "Error getting sync status"
 
-#: src/project/SyncDialog.svelte:195
+#: src/project/SyncDialog.svelte:199
 msgid "Error getting sync status."
 msgstr "Error getting sync status."
 
-#: src/project/SyncDialog.svelte:260
+#: src/project/SyncDialog.svelte:264
 msgid "Error: {0}"
 msgstr "Error: {0}"
 
@@ -413,16 +414,16 @@ msgstr "Failed to open data directory, use the path in the text field instead"
 msgid "Failed to open URL: {0}"
 msgstr "Failed to open URL: {0}"
 
-#: src/project/SyncDialog.svelte:120
+#: src/project/SyncDialog.svelte:124
 msgid "Failed to synchronize"
 msgstr "Failed to synchronize"
 
-#: src/project/SyncDialog.svelte:95
+#: src/project/SyncDialog.svelte:99
 msgid "Failed to synchronize."
 msgstr "Failed to synchronize."
 
 #: src/project/ProjectSidebar.svelte:181
-#: src/home/HomeView.svelte:154
+#: src/home/HomeView.svelte:164
 msgid "Feedback"
 msgstr "Feedback"
 
@@ -436,7 +437,7 @@ msgstr "Field Labels"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:266
+#: src/home/HomeView.svelte:274
 msgid "FieldWorks logo"
 msgstr "FieldWorks logo"
 
@@ -528,12 +529,16 @@ msgstr "Hold to record or\\npress and release to start recording."
 msgid "I don't see my project"
 msgstr "I don't see my project"
 
-#: src/home/HomeView.svelte:274
+#: src/lib/entry-editor/DeleteDialog.svelte:78
+msgid "I understand that this can't be undone"
+msgstr "I understand that this can't be undone"
+
+#: src/home/HomeView.svelte:282
 msgid "Import"
 msgstr "Import"
 
-#: src/project/SyncDialog.svelte:212
-#: src/project/SyncDialog.svelte:252
+#: src/project/SyncDialog.svelte:216
+#: src/project/SyncDialog.svelte:256
 msgid "Last change: {0}"
 msgstr "Last change: {0}"
 
@@ -541,7 +546,7 @@ msgstr "Last change: {0}"
 msgid "Length:"
 msgstr "Length:"
 
-#: src/home/HomeView.svelte:134
+#: src/home/HomeView.svelte:144
 msgid "Lexbox logo"
 msgstr "Lexbox logo"
 
@@ -565,19 +570,19 @@ msgstr "Literal meaning"
 msgid "Loading Dictionaries..."
 msgstr "Loading Dictionaries..."
 
-#: src/home/HomeView.svelte:175
+#: src/home/HomeView.svelte:185
 msgid "loading..."
 msgstr "loading..."
 
-#: src/home/HomeView.svelte:180
+#: src/home/HomeView.svelte:190
 msgid "Local"
 msgstr "Local"
 
-#: src/home/HomeView.svelte:202
+#: src/home/HomeView.svelte:212
 msgid "Local only"
 msgstr "Local only"
 
-#: src/project/SyncDialog.svelte:189
+#: src/project/SyncDialog.svelte:193
 msgid "Login"
 msgstr "Login"
 
@@ -593,6 +598,10 @@ msgstr "Logout"
 #: src/project/ProjectSidebar.svelte:195
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/home/HomeView.svelte:80
+msgid "Make sure your [changes are synced]({0}) to Lexbox."
+msgstr "Make sure your [changes are synced]({0}) to Lexbox."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:40
 msgid "Manager"
@@ -625,7 +634,7 @@ msgstr "Missing Senses"
 msgid "Move"
 msgstr "Move"
 
-#: src/project/SyncDialog.svelte:253
+#: src/project/SyncDialog.svelte:257
 msgid "Never"
 msgstr "Never"
 
@@ -633,7 +642,7 @@ msgstr "Never"
 msgid "New"
 msgstr "New"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:97
+#: src/lib/entry-editor/NewEntryDialog.svelte:100
 msgid "New {0}"
 msgstr "New {0}"
 
@@ -675,7 +684,7 @@ msgstr "No history found"
 msgid "No items found"
 msgstr "No items found"
 
-#: src/project/SyncDialog.svelte:193
+#: src/project/SyncDialog.svelte:197
 #: src/project/ProjectSidebar.svelte:115
 msgid "No server configured"
 msgstr "No server configured"
@@ -693,7 +702,7 @@ msgstr "None"
 msgid "Not equal"
 msgstr "Not equal"
 
-#: src/project/SyncDialog.svelte:257
+#: src/project/SyncDialog.svelte:261
 #: src/project/ProjectSidebar.svelte:113
 msgid "Not logged in"
 msgstr "Not logged in"
@@ -706,7 +715,7 @@ msgstr "Note"
 msgid "Observer"
 msgstr "Observer"
 
-#: src/project/SyncDialog.svelte:187
+#: src/project/SyncDialog.svelte:191
 #: src/project/ProjectSidebar.svelte:111
 msgid "Offline"
 msgstr "Offline"
@@ -756,6 +765,10 @@ msgstr "Pinned"
 msgid "Preview"
 msgstr "Preview"
 
+#: src/home/HomeView.svelte:78
+msgid "Project"
+msgstr "Project"
+
 #: src/home/Server.svelte:77
 msgid "Project {0} not found on {1}"
 msgstr "Project {0} not found on {1}"
@@ -764,7 +777,7 @@ msgstr "Project {0} not found on {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
 
-#: src/home/HomeView.svelte:245
+#: src/home/HomeView.svelte:253
 msgid "Project name..."
 msgstr "Project name..."
 
@@ -778,7 +791,7 @@ msgid "Refine your filter to see more..."
 msgstr "Refine your filter to see more..."
 
 #: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:184
+#: src/home/HomeView.svelte:194
 msgid "Refresh Projects"
 msgstr "Refresh Projects"
 
@@ -885,22 +898,22 @@ msgstr "Submit"
 msgid "Synced"
 msgstr "Synced"
 
-#: src/home/HomeView.svelte:202
+#: src/home/HomeView.svelte:212
 msgid "Synced with {0}"
 msgstr "Synced with {0}"
 
-#: src/project/SyncDialog.svelte:149
-#: src/project/SyncDialog.svelte:234
+#: src/project/SyncDialog.svelte:153
+#: src/project/SyncDialog.svelte:238
 #: src/project/ProjectSidebar.svelte:126
 msgid "Synchronize"
 msgstr "Synchronize"
 
-#: src/project/SyncDialog.svelte:89
+#: src/project/SyncDialog.svelte:93
 msgid "Synchronizing FieldWorks Lite with FieldWorks..."
 msgstr "Synchronizing FieldWorks Lite with FieldWorks..."
 
-#: src/project/SyncDialog.svelte:181
-#: src/project/SyncDialog.svelte:232
+#: src/project/SyncDialog.svelte:185
+#: src/project/SyncDialog.svelte:236
 msgid "Synchronizing..."
 msgstr "Synchronizing..."
 
@@ -934,8 +947,8 @@ msgstr "Translation"
 
 #: src/project/ProjectSidebar.svelte:172
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:42
-#: src/home/HomeView.svelte:160
-#: src/home/HomeView.svelte:216
+#: src/home/HomeView.svelte:170
+#: src/home/HomeView.svelte:226
 msgid "Troubleshoot"
 msgstr "Troubleshoot"
 
@@ -947,8 +960,8 @@ msgstr "Type:"
 msgid "Unable to open in FieldWorks"
 msgstr "Unable to open in FieldWorks"
 
-#: src/project/SyncDialog.svelte:253
-#: src/project/SyncDialog.svelte:260
+#: src/project/SyncDialog.svelte:257
+#: src/project/SyncDialog.svelte:264
 #: src/lib/history/HistoryView.svelte:108
 #: src/lib/activity/ActivityView.svelte:100
 msgid "Unknown"
@@ -967,7 +980,7 @@ msgstr "Unknown error {0}"
 msgid "Unknown error downloading {0}"
 msgstr "Unknown error downloading {0}"
 
-#: src/project/SyncDialog.svelte:191
+#: src/project/SyncDialog.svelte:195
 msgid "Unknown server: {0}"
 msgstr "Unknown server: {0}"
 
@@ -995,7 +1008,7 @@ msgstr "Where are my projects?"
 
 #: src/project/browse/SearchFilter.svelte:40
 #: src/project/browse/EntryMenu.svelte:37
-#: src/lib/entry-editor/NewEntryDialog.svelte:84
+#: src/lib/entry-editor/NewEntryDialog.svelte:87
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:43
 msgid "Word"

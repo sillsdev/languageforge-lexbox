@@ -1,6 +1,7 @@
 import {useProjectContext} from '$lib/project-context.svelte';
 import type {IEntry} from '$lib/dotnet-types';
 import {useWritingSystemService, type WritingSystemService} from '$lib/writing-system-service.svelte';
+import type {DeleteDialogOptions} from '$lib/entry-editor/DeleteDialog.svelte';
 
 const symbol = Symbol.for('fw-lite-dialogs');
 
@@ -14,8 +15,8 @@ export class DialogsService {
   constructor(private writingSystemService: WritingSystemService) {
   }
 
-  #invokeDeleteDialog: undefined | ((subject: string, subjectDescription?: string) => Promise<boolean>);
-  set invokeDeleteDialog(dialog: ((subject: string, subjectDescription?: string) => Promise<boolean>)) {
+  #invokeDeleteDialog: undefined | ((subject: string, subjectDescription?: string, options?: DeleteDialogOptions) => Promise<boolean>);
+  set invokeDeleteDialog(dialog: ((subject: string, subjectDescription?: string, options?: DeleteDialogOptions) => Promise<boolean>) | undefined) {
     this.#invokeDeleteDialog = dialog;
   }
   #invokeNewEntryDialog: undefined | ((newEntry: Partial<IEntry>) => Promise<IEntry | undefined>);
@@ -38,9 +39,9 @@ export class DialogsService {
     const entry = await this.#invokeNewEntryDialog(partialEntry);
     return entry;
   }
-  async promptDelete(subject: string, subjectDescription?: string): Promise<boolean> {
+  async promptDelete(subject: string, subjectDescription?: string, options?: DeleteDialogOptions): Promise<boolean> {
     if (!this.#invokeDeleteDialog) throw new Error('No delete dialog');
-    return this.#invokeDeleteDialog(subject, subjectDescription);
+    return this.#invokeDeleteDialog(subject, subjectDescription, options);
   }
   async getAudio(): Promise<string | undefined> {
     if (!this.#invokeAudioDialog) throw new Error('No audio dialog');
