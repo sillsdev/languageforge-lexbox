@@ -58,10 +58,12 @@
     loader = defaultLoader,
     audioId = $bindable(),
     onchange = () => {},
+    readonly = false,
   }: {
     loader?: (audioId: string) => Promise<ReadableStream | undefined | typeof handled>,
     audioId: string | undefined,
     onchange?: (audioId: string | undefined) => void;
+    readonly?: boolean;
   } = $props();
 
   const projectContext = useProjectContext();
@@ -253,9 +255,15 @@
 </script>
 {#if supportsAudio}
   {#if !audioId}
-    <Button variant="secondary" icon="i-mdi-microphone-plus" size="sm" iconProps={{class: 'size-5'}} onclick={onGetAudioClick}>
-      {$t`Add audio`}
-    </Button>
+    {#if !readonly}
+      <Button variant="secondary" icon="i-mdi-microphone-plus" size="sm" iconProps={{class: 'size-5'}} onclick={onGetAudioClick}>
+        {$t`Add audio`}
+      </Button>
+    {:else}
+      <div class="text-muted-foreground p-1">
+        {$t`No audio`}
+      </div>
+    {/if}
   {:else if isNotFoundAudioId(audioId)}
     <div class="text-muted-foreground p-1">
       {$t`Audio file not included in Send & Receive`}
@@ -294,21 +302,23 @@
             <time>{zeroDuration}</time> / <time class="text-muted-foreground">{missingDuration}</time>
           {/if}
         </span>
-        <ResponsiveMenu.Root>
-          <ResponsiveMenu.Trigger>
-            {#snippet child({props})}
-              <Button variant="secondary" icon="i-mdi-dots-vertical" size="sm-icon" {...props} />
-            {/snippet}
-          </ResponsiveMenu.Trigger>
-          <ResponsiveMenu.Content>
-            <ResponsiveMenu.Item icon="i-mdi-microphone-plus" onSelect={onGetAudioClick}>
-              {$t`Replace audio`}
-            </ResponsiveMenu.Item>
-            <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onRemoveAudio}>
-              {$t`Remove audio`}
-            </ResponsiveMenu.Item>
-          </ResponsiveMenu.Content>
-        </ResponsiveMenu.Root>
+        {#if !readonly}
+          <ResponsiveMenu.Root>
+            <ResponsiveMenu.Trigger>
+              {#snippet child({props})}
+                <Button variant="secondary" icon="i-mdi-dots-vertical" size="sm-icon" {...props} />
+              {/snippet}
+            </ResponsiveMenu.Trigger>
+            <ResponsiveMenu.Content>
+              <ResponsiveMenu.Item icon="i-mdi-microphone-plus" onSelect={onGetAudioClick}>
+                {$t`Replace audio`}
+              </ResponsiveMenu.Item>
+              <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onRemoveAudio}>
+                {$t`Remove audio`}
+              </ResponsiveMenu.Item>
+            </ResponsiveMenu.Content>
+          </ResponsiveMenu.Root>
+        {/if}
       {/if}
       {#key audioId}
         <audio bind:this={audio} onerror={onAudioError}>

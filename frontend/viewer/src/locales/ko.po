@@ -663,6 +663,10 @@ msgstr "새 단어"
 msgid "No activity found"
 msgstr "활동을 찾을 수 없습니다."
 
+#: src/lib/components/field-editors/audio-input.svelte:264
+msgid "No audio"
+msgstr ""
+
 #: src/lib/history/HistoryView.svelte:78
 msgid "No change name"
 msgstr "이름 변경 안 함"

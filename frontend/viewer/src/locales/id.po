@@ -663,6 +663,10 @@ msgstr "Kata Baru"
 msgid "No activity found"
 msgstr "Tidak ada aktivitas yang ditemukan"
 
+#: src/lib/components/field-editors/audio-input.svelte:264
+msgid "No audio"
+msgstr ""
+
 #: src/lib/history/HistoryView.svelte:78
 msgid "No change name"
 msgstr "Tidak ada perubahan nama"

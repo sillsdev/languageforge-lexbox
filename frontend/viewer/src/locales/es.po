@@ -663,6 +663,10 @@ msgstr "Nueva palabra"
 msgid "No activity found"
 msgstr "No se ha encontrado actividad"
 
+#: src/lib/components/field-editors/audio-input.svelte:264
+msgid "No audio"
+msgstr ""
+
 #: src/lib/history/HistoryView.svelte:78
 msgid "No change name"
 msgstr "Sin cambio de nombre"
