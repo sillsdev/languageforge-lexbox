@@ -200,6 +200,21 @@ public class ProjectService(
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task<Project?> DeleteProjectPermanently(Guid projectId)
+    {
+        // This method should only be called for test projects, like those created during E2E tests
+        var project = await dbContext.Projects.FindAsync(projectId);
+        // These checks *should* be redundant with the ProjectController's checks, but do them again anyway
+        if (project is null) return null;
+        if (project.RetentionPolicy != RetentionPolicy.Dev) return null;
+        dbContext.Projects.Remove(project);
+        await hgService.DeleteRepo(project.Code);
+        await fwHeadless.DeleteRepo(projectId);
+        project.UpdateUpdatedDate();
+        await dbContext.SaveChangesAsync();
+        return project;
+    }
+
     public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
     {
         var cacheKey = $"ProjectOrgsForId:{projectId}";
