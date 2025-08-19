@@ -2,7 +2,7 @@ using SIL.Progress;
 
 namespace FwHeadless.Services;
 
-public class CombiningProgress(params IEnumerable<IProgress?> progresses) : IProgress
+public class CombiningProgress(params ICollection<IProgress?> progresses) : IProgress
 {
 
     public bool ShowVerbose
