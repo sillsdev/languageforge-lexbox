@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-15 08:29\n"
+"PO-Revision-Date: 2025-08-19 03:38\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -25,14 +25,15 @@ msgstr "- ({0} 변경)"
 #: src/lib/components/audio/audio-editor.svelte:86
 #: src/lib/components/audio/audio-editor.svelte:91
 #: src/lib/components/audio/audio-editor.svelte:95
+#: src/home/HomeView.svelte:78
 msgid "{0}"
 msgstr "{0}"
 
-#: src/project/SyncDialog.svelte:249
+#: src/project/SyncDialog.svelte:253
 msgid "{0} - FieldWorks"
 msgstr "{0} - FieldWorks"
 
-#: src/project/SyncDialog.svelte:209
+#: src/project/SyncDialog.svelte:213
 msgid "{0} - FieldWorks Lite"
 msgstr "{0} - FieldWorks Lite"
 
@@ -52,12 +53,12 @@ msgstr "{0} MB"
 msgid "{0} Server"
 msgstr "{0} 서버"
 
-#: src/project/SyncDialog.svelte:93
+#: src/project/SyncDialog.svelte:97
 msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
 msgstr "{0} FieldWorks에 동기화됨. {1} FieldWorks Lite에 동기화됨."
 
-#: src/project/SyncDialog.svelte:91
-#: src/project/SyncDialog.svelte:92
+#: src/project/SyncDialog.svelte:95
+#: src/project/SyncDialog.svelte:96
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {#변경} other {#변경}}"
 
@@ -130,7 +131,7 @@ msgstr "모든 W"
 msgid "Application version"
 msgstr "애플리케이션 버전"
 
-#: src/lib/entry-editor/DeleteDialog.svelte:55
+#: src/lib/entry-editor/DeleteDialog.svelte:69
 msgid "Are you sure you want to delete {0}?"
 msgstr "{0}을 삭제하시겠습니까?"
 
@@ -155,7 +156,7 @@ msgstr "작성자:"
 msgid "Auto"
 msgstr "자동"
 
-#: src/project/SyncDialog.svelte:183
+#: src/project/SyncDialog.svelte:187
 msgid "Auto synchronizing"
 msgstr "자동 동기화"
 
@@ -172,7 +173,7 @@ msgstr "베스트 매치"
 msgid "Browse"
 msgstr "찾아보기"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:110
+#: src/lib/entry-editor/NewEntryDialog.svelte:113
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
 #: src/lib/components/field-editors/select.svelte:164
 #: src/lib/components/field-editors/multi-select.svelte:277
@@ -189,7 +190,7 @@ msgstr "인용 양식"
 msgid "Citation Form"
 msgstr "인용 양식"
 
-#: src/home/HomeView.svelte:260
+#: src/home/HomeView.svelte:268
 msgid "Classic FieldWorks Projects"
 msgstr "클래식 FieldWorks 프로젝트"
 
@@ -241,7 +242,7 @@ msgstr "구성 요소"
 msgid "Contains"
 msgstr "포함 사항"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:112
+#: src/lib/entry-editor/NewEntryDialog.svelte:115
 msgid "Create {0}"
 msgstr "{0}만들기"
 
@@ -249,7 +250,7 @@ msgstr "{0}만들기"
 msgid "Create entry"
 msgstr "항목 만들기"
 
-#: src/home/HomeView.svelte:239
+#: src/home/HomeView.svelte:247
 msgid "Create Example Project"
 msgstr "예제 프로젝트 만들기"
 
@@ -279,12 +280,12 @@ msgstr "데이터 디렉토리"
 msgid "Definition"
 msgstr "정의"
 
-#: src/home/HomeView.svelte:221
+#: src/home/HomeView.svelte:230
 msgid "Delete"
 msgstr "삭제"
 
-#: src/lib/entry-editor/DeleteDialog.svelte:52
-#: src/lib/entry-editor/DeleteDialog.svelte:59
+#: src/lib/entry-editor/DeleteDialog.svelte:64
+#: src/lib/entry-editor/DeleteDialog.svelte:83
 msgid "Delete {0}"
 msgstr "삭제 {0}"
 
@@ -296,8 +297,8 @@ msgstr "항목 삭제"
 msgid "Delete Word"
 msgstr "단어 삭제"
 
-#: src/home/HomeView.svelte:131
-#: src/home/HomeView.svelte:135
+#: src/home/HomeView.svelte:141
+#: src/home/HomeView.svelte:145
 msgid "Dictionaries"
 msgstr "사전"
 
@@ -318,7 +319,7 @@ msgstr "폐기"
 msgid "Display as"
 msgstr "다음으로 표시"
 
-#: src/lib/entry-editor/DeleteDialog.svelte:58
+#: src/lib/entry-editor/DeleteDialog.svelte:82
 msgid "Don't delete"
 msgstr "삭제하지 마세요."
 
@@ -364,7 +365,7 @@ msgid "Ends with"
 msgstr "로 끝납니다."
 
 #: src/project/browse/EntryMenu.svelte:37
-#: src/lib/entry-editor/NewEntryDialog.svelte:84
+#: src/lib/entry-editor/NewEntryDialog.svelte:87
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 msgid "Entry"
 msgstr "항목"
@@ -385,11 +386,11 @@ msgstr "같음"
 msgid "Error getting sync status"
 msgstr "동기화 상태 가져오기 오류"
 
-#: src/project/SyncDialog.svelte:195
+#: src/project/SyncDialog.svelte:199
 msgid "Error getting sync status."
 msgstr "동기화 상태를 가져오는 중 오류가 발생했습니다."
 
-#: src/project/SyncDialog.svelte:260
+#: src/project/SyncDialog.svelte:264
 msgid "Error: {0}"
 msgstr "오류: {0}"
 
@@ -418,16 +419,16 @@ msgstr "데이터 디렉토리를 열지 못했습니다. 대신 텍스트 필�
 msgid "Failed to open URL: {0}"
 msgstr "URL을 열지 못했습니다: {0}"
 
-#: src/project/SyncDialog.svelte:120
+#: src/project/SyncDialog.svelte:124
 msgid "Failed to synchronize"
 msgstr "동기화 실패"
 
-#: src/project/SyncDialog.svelte:95
+#: src/project/SyncDialog.svelte:99
 msgid "Failed to synchronize."
 msgstr "동기화하지 못했습니다."
 
 #: src/project/ProjectSidebar.svelte:181
-#: src/home/HomeView.svelte:154
+#: src/home/HomeView.svelte:164
 msgid "Feedback"
 msgstr "피드백"
 
@@ -441,7 +442,7 @@ msgstr "필드 레이블"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:266
+#: src/home/HomeView.svelte:274
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
 
@@ -533,12 +534,16 @@ msgstr "길게 눌러 녹화하거나\\n을 눌렀다 놓으면 녹화가 시작
 msgid "I don't see my project"
 msgstr "내 프로젝트가 보이지 않습니다."
 
-#: src/home/HomeView.svelte:274
+#: src/lib/entry-editor/DeleteDialog.svelte:78
+msgid "I understand that this can't be undone"
+msgstr "이 작업은 되돌릴 수 없다는 것을 이해합니다."
+
+#: src/home/HomeView.svelte:282
 msgid "Import"
 msgstr "가져오기"
 
-#: src/project/SyncDialog.svelte:212
-#: src/project/SyncDialog.svelte:252
+#: src/project/SyncDialog.svelte:216
+#: src/project/SyncDialog.svelte:256
 msgid "Last change: {0}"
 msgstr "마지막 변경 사항: {0}"
 
@@ -546,7 +551,7 @@ msgstr "마지막 변경 사항: {0}"
 msgid "Length:"
 msgstr "길이:"
 
-#: src/home/HomeView.svelte:134
+#: src/home/HomeView.svelte:144
 msgid "Lexbox logo"
 msgstr "렉스박스 로고"
 
@@ -570,19 +575,19 @@ msgstr "문자 그대로의 의미"
 msgid "Loading Dictionaries..."
 msgstr "사전 로드 중..."
 
-#: src/home/HomeView.svelte:175
+#: src/home/HomeView.svelte:185
 msgid "loading..."
 msgstr "로딩 중..."
 
-#: src/home/HomeView.svelte:180
+#: src/home/HomeView.svelte:190
 msgid "Local"
 msgstr "로컬"
 
-#: src/home/HomeView.svelte:202
+#: src/home/HomeView.svelte:212
 msgid "Local only"
 msgstr "로컬 전용"
 
-#: src/project/SyncDialog.svelte:189
+#: src/project/SyncDialog.svelte:193
 msgid "Login"
 msgstr "로그인"
 
@@ -598,6 +603,10 @@ msgstr "로그아웃"
 #: src/project/ProjectSidebar.svelte:195
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "제작: ❤️ 출처: 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/home/HomeView.svelte:80
+msgid "Make sure your [changes are synced]({0}) to Lexbox."
+msgstr "변경 사항이 렉스박스에 동기화되었는지 확인합니다({0})."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:40
 msgid "Manager"
@@ -630,7 +639,7 @@ msgstr "미싱 센스"
 msgid "Move"
 msgstr "이동"
 
-#: src/project/SyncDialog.svelte:253
+#: src/project/SyncDialog.svelte:257
 msgid "Never"
 msgstr "절대로"
 
@@ -638,7 +647,7 @@ msgstr "절대로"
 msgid "New"
 msgstr "신규"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:97
+#: src/lib/entry-editor/NewEntryDialog.svelte:100
 msgid "New {0}"
 msgstr "신규 {0}"
 
@@ -680,7 +689,7 @@ msgstr "기록을 찾을 수 없습니다."
 msgid "No items found"
 msgstr "항목을 찾을 수 없습니다."
 
-#: src/project/SyncDialog.svelte:193
+#: src/project/SyncDialog.svelte:197
 #: src/project/ProjectSidebar.svelte:115
 msgid "No server configured"
 msgstr "구성된 서버 없음"
@@ -698,7 +707,7 @@ msgstr "없음"
 msgid "Not equal"
 msgstr "동일하지 않음"
 
-#: src/project/SyncDialog.svelte:257
+#: src/project/SyncDialog.svelte:261
 #: src/project/ProjectSidebar.svelte:113
 msgid "Not logged in"
 msgstr "로그인하지 않음"
@@ -711,7 +720,7 @@ msgstr "참고"
 msgid "Observer"
 msgstr "옵저버"
 
-#: src/project/SyncDialog.svelte:187
+#: src/project/SyncDialog.svelte:191
 #: src/project/ProjectSidebar.svelte:111
 msgid "Offline"
 msgstr "오프라인"
@@ -761,6 +770,10 @@ msgstr "고정됨"
 msgid "Preview"
 msgstr "미리 보기"
 
+#: src/home/HomeView.svelte:78
+msgid "Project"
+msgstr "프로젝트"
+
 #: src/home/Server.svelte:77
 msgid "Project {0} not found on {1}"
 msgstr "프로젝트 {0} {1}에서 찾을 수 없음"
@@ -769,7 +782,7 @@ msgstr "프로젝트 {0} {1}에서 찾을 수 없음"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "{1} 의 프로젝트 {0} 는 아직 FieldWorks Lite용으로 설정되지 않았습니다."
 
-#: src/home/HomeView.svelte:245
+#: src/home/HomeView.svelte:253
 msgid "Project name..."
 msgstr "프로젝트 이름..."
 
@@ -783,7 +796,7 @@ msgid "Refine your filter to see more..."
 msgstr "필터를 세분화하여 자세히 보기..."
 
 #: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:184
+#: src/home/HomeView.svelte:194
 msgid "Refresh Projects"
 msgstr "프로젝트 새로 고침"
 
@@ -890,22 +903,22 @@ msgstr "제출하기"
 msgid "Synced"
 msgstr "동기화"
 
-#: src/home/HomeView.svelte:202
+#: src/home/HomeView.svelte:212
 msgid "Synced with {0}"
 msgstr "{0}으로 동기화"
 
-#: src/project/SyncDialog.svelte:149
-#: src/project/SyncDialog.svelte:234
+#: src/project/SyncDialog.svelte:153
+#: src/project/SyncDialog.svelte:238
 #: src/project/ProjectSidebar.svelte:126
 msgid "Synchronize"
 msgstr "동기화"
 
-#: src/project/SyncDialog.svelte:89
+#: src/project/SyncDialog.svelte:93
 msgid "Synchronizing FieldWorks Lite with FieldWorks..."
 msgstr "FieldWorks Lite와 FieldWorks 동기화..."
 
-#: src/project/SyncDialog.svelte:181
-#: src/project/SyncDialog.svelte:232
+#: src/project/SyncDialog.svelte:185
+#: src/project/SyncDialog.svelte:236
 msgid "Synchronizing..."
 msgstr "동기화 중..."
 
@@ -939,8 +952,8 @@ msgstr "번역"
 
 #: src/project/ProjectSidebar.svelte:172
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:42
-#: src/home/HomeView.svelte:160
-#: src/home/HomeView.svelte:216
+#: src/home/HomeView.svelte:170
+#: src/home/HomeView.svelte:226
 msgid "Troubleshoot"
 msgstr "문제 해결"
 
@@ -952,8 +965,8 @@ msgstr "유형:"
 msgid "Unable to open in FieldWorks"
 msgstr "FieldWorks에서 열 수 없음"
 
-#: src/project/SyncDialog.svelte:253
-#: src/project/SyncDialog.svelte:260
+#: src/project/SyncDialog.svelte:257
+#: src/project/SyncDialog.svelte:264
 #: src/lib/history/HistoryView.svelte:108
 #: src/lib/activity/ActivityView.svelte:100
 msgid "Unknown"
@@ -972,7 +985,7 @@ msgstr "알 수 없는 오류 {0}"
 msgid "Unknown error downloading {0}"
 msgstr "알 수 없는 오류 다운로드 중 {0}"
 
-#: src/project/SyncDialog.svelte:191
+#: src/project/SyncDialog.svelte:195
 msgid "Unknown server: {0}"
 msgstr "알 수 없는 서버입니다: {0}"
 
@@ -1000,7 +1013,7 @@ msgstr "내 프로젝트는 어디에 있나요?"
 
 #: src/project/browse/SearchFilter.svelte:40
 #: src/project/browse/EntryMenu.svelte:37
-#: src/lib/entry-editor/NewEntryDialog.svelte:84
+#: src/lib/entry-editor/NewEntryDialog.svelte:87
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:43
 msgid "Word"
