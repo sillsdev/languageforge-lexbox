@@ -191,7 +191,7 @@ public class SyncWorker(
             logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
             if (!SendReceiveHelpers.IsSuccess(srResult2))
             {
-                return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, $"Send/Receive before CRDT sync failed: {srResult2.Output}");
+                return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, $"Send/Receive after CRDT sync failed: {srResult2.Output}");
             }
         }
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
