@@ -1,4 +1,4 @@
-﻿namespace LcmCrdt.Tests.MiniLcmTests;
+namespace LcmCrdt.Tests.MiniLcmTests;
 
 public class SortingTests : SortingTestsBase
 {

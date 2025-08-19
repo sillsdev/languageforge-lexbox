@@ -1,4 +1,4 @@
-﻿using FwDataMiniLcmBridge;
+using FwDataMiniLcmBridge;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using MiniLcm;

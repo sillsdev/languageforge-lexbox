@@ -1,4 +1,4 @@
-﻿using MiniLcm.Exceptions;
+using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Operations;

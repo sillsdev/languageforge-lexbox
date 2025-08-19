@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using MiniLcm.Models;
 using SIL.WritingSystems;
 

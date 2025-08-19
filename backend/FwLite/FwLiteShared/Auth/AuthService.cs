@@ -1,4 +1,4 @@
-﻿using FwLiteShared.Projects;
+using FwLiteShared.Projects;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 

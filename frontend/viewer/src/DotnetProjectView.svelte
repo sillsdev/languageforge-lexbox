@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import ProjectView from './ProjectView.svelte';
   import {onDestroy, onMount} from 'svelte';
   import {DotnetService} from '$lib/dotnet-types';

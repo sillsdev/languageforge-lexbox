@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using SIL.Harmony.Core;
 using LexData;
 using LexData.Entities;

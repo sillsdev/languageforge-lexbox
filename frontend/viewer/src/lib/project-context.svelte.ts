@@ -1,4 +1,4 @@
-﻿import {getContext, setContext} from 'svelte';
+import {getContext, setContext} from 'svelte';
 import type {ILexboxServer, IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
