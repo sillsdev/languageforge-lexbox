@@ -211,6 +211,10 @@ public class ProjectService(
         await hgService.DeleteRepo(project.Code);
         await fwHeadless.DeleteRepo(projectId);
         project.UpdateUpdatedDate();
+        // Don't forget to add more Invalidate calls here if we add new caches
+        InvalidateProjectCodeCache(project.Code);
+        InvalidateProjectConfidentialityCache(projectId);
+        InvalidateProjectOrgIdsCache(projectId);
         await dbContext.SaveChangesAsync();
         return project;
     }
