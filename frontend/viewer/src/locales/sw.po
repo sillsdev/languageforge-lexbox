@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-15 08:29\n"
+"PO-Revision-Date: 2025-08-19 03:38\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -25,14 +25,15 @@ msgstr ""
 #: src/lib/components/audio/audio-editor.svelte:86
 #: src/lib/components/audio/audio-editor.svelte:91
 #: src/lib/components/audio/audio-editor.svelte:95
+#: src/home/HomeView.svelte:78
 msgid "{0}"
 msgstr "{0}"
 
-#: src/project/SyncDialog.svelte:249
+#: src/project/SyncDialog.svelte:253
 msgid "{0} - FieldWorks"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:209
+#: src/project/SyncDialog.svelte:213
 msgid "{0} - FieldWorks Lite"
 msgstr ""
 
@@ -52,12 +53,12 @@ msgstr ""
 msgid "{0} Server"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:93
+#: src/project/SyncDialog.svelte:97
 msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
 msgstr ""
 
-#: src/project/SyncDialog.svelte:91
-#: src/project/SyncDialog.svelte:92
+#: src/project/SyncDialog.svelte:95
+#: src/project/SyncDialog.svelte:96
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr ""
 
@@ -130,7 +131,7 @@ msgstr ""
 msgid "Application version"
 msgstr ""
 
-#: src/lib/entry-editor/DeleteDialog.svelte:55
+#: src/lib/entry-editor/DeleteDialog.svelte:69
 msgid "Are you sure you want to delete {0}?"
 msgstr ""
 
@@ -155,7 +156,7 @@ msgstr "Mwandishi:"
 msgid "Auto"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:183
+#: src/project/SyncDialog.svelte:187
 msgid "Auto synchronizing"
 msgstr ""
 
@@ -172,7 +173,7 @@ msgstr ""
 msgid "Browse"
 msgstr "Angalia"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:110
+#: src/lib/entry-editor/NewEntryDialog.svelte:113
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
 #: src/lib/components/field-editors/select.svelte:164
 #: src/lib/components/field-editors/multi-select.svelte:277
@@ -189,7 +190,7 @@ msgstr ""
 msgid "Citation Form"
 msgstr "Fomu ya Manukuu"
 
-#: src/home/HomeView.svelte:260
+#: src/home/HomeView.svelte:268
 msgid "Classic FieldWorks Projects"
 msgstr ""
 
@@ -241,7 +242,7 @@ msgstr ""
 msgid "Contains"
 msgstr ""
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:112
+#: src/lib/entry-editor/NewEntryDialog.svelte:115
 msgid "Create {0}"
 msgstr ""
 
@@ -249,7 +250,7 @@ msgstr ""
 msgid "Create entry"
 msgstr ""
 
-#: src/home/HomeView.svelte:239
+#: src/home/HomeView.svelte:247
 msgid "Create Example Project"
 msgstr ""
 
@@ -279,12 +280,12 @@ msgstr ""
 msgid "Definition"
 msgstr "Maana"
 
-#: src/home/HomeView.svelte:221
+#: src/home/HomeView.svelte:230
 msgid "Delete"
 msgstr "Futa"
 
-#: src/lib/entry-editor/DeleteDialog.svelte:52
-#: src/lib/entry-editor/DeleteDialog.svelte:59
+#: src/lib/entry-editor/DeleteDialog.svelte:64
+#: src/lib/entry-editor/DeleteDialog.svelte:83
 msgid "Delete {0}"
 msgstr ""
 
@@ -296,8 +297,8 @@ msgstr "Futa ingizo"
 msgid "Delete Word"
 msgstr ""
 
-#: src/home/HomeView.svelte:131
-#: src/home/HomeView.svelte:135
+#: src/home/HomeView.svelte:141
+#: src/home/HomeView.svelte:145
 msgid "Dictionaries"
 msgstr "Kamusi"
 
@@ -318,7 +319,7 @@ msgstr "Kataa mabadiliko"
 msgid "Display as"
 msgstr ""
 
-#: src/lib/entry-editor/DeleteDialog.svelte:58
+#: src/lib/entry-editor/DeleteDialog.svelte:82
 msgid "Don't delete"
 msgstr ""
 
@@ -364,7 +365,7 @@ msgid "Ends with"
 msgstr ""
 
 #: src/project/browse/EntryMenu.svelte:37
-#: src/lib/entry-editor/NewEntryDialog.svelte:84
+#: src/lib/entry-editor/NewEntryDialog.svelte:87
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 msgid "Entry"
 msgstr "Ingizo"
@@ -385,11 +386,11 @@ msgstr ""
 msgid "Error getting sync status"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:195
+#: src/project/SyncDialog.svelte:199
 msgid "Error getting sync status."
 msgstr ""
 
-#: src/project/SyncDialog.svelte:260
+#: src/project/SyncDialog.svelte:264
 msgid "Error: {0}"
 msgstr ""
 
@@ -418,16 +419,16 @@ msgstr ""
 msgid "Failed to open URL: {0}"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:120
+#: src/project/SyncDialog.svelte:124
 msgid "Failed to synchronize"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:95
+#: src/project/SyncDialog.svelte:99
 msgid "Failed to synchronize."
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte:181
-#: src/home/HomeView.svelte:154
+#: src/home/HomeView.svelte:164
 msgid "Feedback"
 msgstr "Maoni"
 
@@ -441,7 +442,7 @@ msgstr ""
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:266
+#: src/home/HomeView.svelte:274
 msgid "FieldWorks logo"
 msgstr ""
 
@@ -533,12 +534,16 @@ msgstr ""
 msgid "I don't see my project"
 msgstr ""
 
-#: src/home/HomeView.svelte:274
+#: src/lib/entry-editor/DeleteDialog.svelte:78
+msgid "I understand that this can't be undone"
+msgstr ""
+
+#: src/home/HomeView.svelte:282
 msgid "Import"
 msgstr "Agiza"
 
-#: src/project/SyncDialog.svelte:212
-#: src/project/SyncDialog.svelte:252
+#: src/project/SyncDialog.svelte:216
+#: src/project/SyncDialog.svelte:256
 msgid "Last change: {0}"
 msgstr ""
 
@@ -546,7 +551,7 @@ msgstr ""
 msgid "Length:"
 msgstr ""
 
-#: src/home/HomeView.svelte:134
+#: src/home/HomeView.svelte:144
 msgid "Lexbox logo"
 msgstr ""
 
@@ -570,19 +575,19 @@ msgstr ""
 msgid "Loading Dictionaries..."
 msgstr ""
 
-#: src/home/HomeView.svelte:175
+#: src/home/HomeView.svelte:185
 msgid "loading..."
 msgstr "inashughulikia..."
 
-#: src/home/HomeView.svelte:180
+#: src/home/HomeView.svelte:190
 msgid "Local"
 msgstr "Mitaa"
 
-#: src/home/HomeView.svelte:202
+#: src/home/HomeView.svelte:212
 msgid "Local only"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:189
+#: src/project/SyncDialog.svelte:193
 msgid "Login"
 msgstr ""
 
@@ -597,6 +602,10 @@ msgstr ""
 
 #: src/project/ProjectSidebar.svelte:195
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
+msgstr ""
+
+#: src/home/HomeView.svelte:80
+msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:40
@@ -630,7 +639,7 @@ msgstr ""
 msgid "Move"
 msgstr "Sogeza"
 
-#: src/project/SyncDialog.svelte:253
+#: src/project/SyncDialog.svelte:257
 msgid "Never"
 msgstr "Kamwe"
 
@@ -638,7 +647,7 @@ msgstr "Kamwe"
 msgid "New"
 msgstr "Mpya"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:97
+#: src/lib/entry-editor/NewEntryDialog.svelte:100
 msgid "New {0}"
 msgstr ""
 
@@ -680,7 +689,7 @@ msgstr ""
 msgid "No items found"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:193
+#: src/project/SyncDialog.svelte:197
 #: src/project/ProjectSidebar.svelte:115
 msgid "No server configured"
 msgstr ""
@@ -698,7 +707,7 @@ msgstr "Hamna"
 msgid "Not equal"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:257
+#: src/project/SyncDialog.svelte:261
 #: src/project/ProjectSidebar.svelte:113
 msgid "Not logged in"
 msgstr ""
@@ -711,7 +720,7 @@ msgstr "Tanbihi"
 msgid "Observer"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:187
+#: src/project/SyncDialog.svelte:191
 #: src/project/ProjectSidebar.svelte:111
 msgid "Offline"
 msgstr ""
@@ -761,6 +770,10 @@ msgstr ""
 msgid "Preview"
 msgstr "Hakiki"
 
+#: src/home/HomeView.svelte:78
+msgid "Project"
+msgstr ""
+
 #: src/home/Server.svelte:77
 msgid "Project {0} not found on {1}"
 msgstr ""
@@ -769,7 +782,7 @@ msgstr ""
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr ""
 
-#: src/home/HomeView.svelte:245
+#: src/home/HomeView.svelte:253
 msgid "Project name..."
 msgstr ""
 
@@ -783,7 +796,7 @@ msgid "Refine your filter to see more..."
 msgstr ""
 
 #: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:184
+#: src/home/HomeView.svelte:194
 msgid "Refresh Projects"
 msgstr ""
 
@@ -890,22 +903,22 @@ msgstr "Wasilisha"
 msgid "Synced"
 msgstr ""
 
-#: src/home/HomeView.svelte:202
+#: src/home/HomeView.svelte:212
 msgid "Synced with {0}"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:149
-#: src/project/SyncDialog.svelte:234
+#: src/project/SyncDialog.svelte:153
+#: src/project/SyncDialog.svelte:238
 #: src/project/ProjectSidebar.svelte:126
 msgid "Synchronize"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:89
+#: src/project/SyncDialog.svelte:93
 msgid "Synchronizing FieldWorks Lite with FieldWorks..."
 msgstr ""
 
-#: src/project/SyncDialog.svelte:181
-#: src/project/SyncDialog.svelte:232
+#: src/project/SyncDialog.svelte:185
+#: src/project/SyncDialog.svelte:236
 msgid "Synchronizing..."
 msgstr ""
 
@@ -939,8 +952,8 @@ msgstr "Tafsiri"
 
 #: src/project/ProjectSidebar.svelte:172
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:42
-#: src/home/HomeView.svelte:160
-#: src/home/HomeView.svelte:216
+#: src/home/HomeView.svelte:170
+#: src/home/HomeView.svelte:226
 msgid "Troubleshoot"
 msgstr ""
 
@@ -952,8 +965,8 @@ msgstr "Aina:"
 msgid "Unable to open in FieldWorks"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:253
-#: src/project/SyncDialog.svelte:260
+#: src/project/SyncDialog.svelte:257
+#: src/project/SyncDialog.svelte:264
 #: src/lib/history/HistoryView.svelte:108
 #: src/lib/activity/ActivityView.svelte:100
 msgid "Unknown"
@@ -972,7 +985,7 @@ msgstr ""
 msgid "Unknown error downloading {0}"
 msgstr ""
 
-#: src/project/SyncDialog.svelte:191
+#: src/project/SyncDialog.svelte:195
 msgid "Unknown server: {0}"
 msgstr ""
 
@@ -1000,7 +1013,7 @@ msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:40
 #: src/project/browse/EntryMenu.svelte:37
-#: src/lib/entry-editor/NewEntryDialog.svelte:84
+#: src/lib/entry-editor/NewEntryDialog.svelte:87
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:43
 msgid "Word"
