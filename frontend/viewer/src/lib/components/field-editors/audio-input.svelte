@@ -52,6 +52,7 @@
   import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
+  import * as stream from 'node:stream';
 
   const handled = Symbol();
   let {
@@ -60,7 +61,7 @@
     onchange = () => {},
     readonly = false,
   }: {
-    loader?: (audioId: string) => Promise<ReadableStream | undefined | typeof handled>,
+    loader?: (audioId: string) => Promise<{stream: ReadableStream, filename: string} | undefined | typeof handled>,
     audioId: string | undefined,
     onchange?: (audioId: string | undefined) => void;
     readonly?: boolean;
@@ -89,23 +90,24 @@
 
       return handled;
     }
-    return await file.stream.stream();
+    return {stream: await file.stream.stream(), filename: file.fileName ?? ''};
   }
 
   async function load() {
     if (!audio || loadedAudioId === audioId || !audioId) return !!audioId;
     playerState = 'loading';
     try {
-      const stream = await loader(audioId);
-      if (stream === handled) return false;
-      if (!stream) {
+      const result = await loader(audioId);
+      if (result === handled) return false;
+      if (!result) {
         AppNotification.error(`Failed to load audio ${audioId}`);
         return;
       }
-      let blob = await new Response(stream).blob();
+      let blob = await new Response(result.stream).blob();
       if (audio.src) URL.revokeObjectURL(audio.src);
       loadedAudioId = undefined;
       audio.src = URL.createObjectURL(blob);
+      filename = result.filename;
       loadedAudioId = audioId;
       return true;
     } finally {
@@ -184,6 +186,7 @@
 
 
   let loadedAudioId = $state<string>();
+  let filename = $state('');
   let audio = $state<HTMLAudioElement>();
   let audioRuned = $derived(audio ? new AudioRuned(audio) : null);
   useEventListener(() => audio, 'ended', () => playerState = 'paused');
@@ -233,6 +236,16 @@
         audio.src = '';
       }
     }
+  }
+
+  async function onSaveAs() {
+    if (!audio) return;
+    await load();
+    //todo sadly this only works on desktop, not mobile, but it's the same with save as with the audio editor.
+    const a = document.createElement('a');
+    a.href = audio.src;
+    a.download = filename;
+    a.click();
   }
 
   function onAudioError(event: Event) {
@@ -302,23 +315,26 @@
             <time>{zeroDuration}</time> / <time class="text-muted-foreground">{missingDuration}</time>
           {/if}
         </span>
-        {#if !readonly}
-          <ResponsiveMenu.Root>
-            <ResponsiveMenu.Trigger>
-              {#snippet child({props})}
-                <Button variant="secondary" icon="i-mdi-dots-vertical" size="sm-icon" {...props} />
-              {/snippet}
-            </ResponsiveMenu.Trigger>
-            <ResponsiveMenu.Content>
+        <ResponsiveMenu.Root>
+          <ResponsiveMenu.Trigger>
+            {#snippet child({props})}
+              <Button variant="secondary" icon="i-mdi-dots-vertical" size="sm-icon" {...props} />
+            {/snippet}
+          </ResponsiveMenu.Trigger>
+          <ResponsiveMenu.Content>
+            {#if !readonly}
               <ResponsiveMenu.Item icon="i-mdi-microphone-plus" onSelect={onGetAudioClick}>
                 {$t`Replace audio`}
               </ResponsiveMenu.Item>
               <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onRemoveAudio}>
                 {$t`Remove audio`}
               </ResponsiveMenu.Item>
-            </ResponsiveMenu.Content>
-          </ResponsiveMenu.Root>
-        {/if}
+            {/if}
+            <ResponsiveMenu.Item icon="i-mdi-download" onSelect={onSaveAs}>
+              {$t`Save As`}
+            </ResponsiveMenu.Item>
+          </ResponsiveMenu.Content>
+        </ResponsiveMenu.Root>
       {/if}
       {#key audioId}
         <audio bind:this={audio} onerror={onAudioError}>
