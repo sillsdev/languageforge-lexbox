@@ -107,7 +107,7 @@
   let form = $state<HTMLFormElement>();
   $effect(() => {
     if (!form) return;
-    let inputs = form?.getElementsByTagName('input');
+    let inputs = form?.querySelectorAll<HTMLElement>('input, .ProseMirror');
 
     if (!inputs || inputs.length < 0) return;
     for (let input of inputs) {
