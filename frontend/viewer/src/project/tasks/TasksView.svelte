@@ -4,15 +4,28 @@
   import {t} from 'svelte-i18n-lingui';
   import {QueryParamState} from '$lib/utils/url.svelte';
   import TaskView from './TaskView.svelte';
-
+  import {watch} from 'runed';
+  import {onMount} from 'svelte';
+const selectedTaskStorageKey = 'selectedTaskId';
   const tasksService = useTasksService();
   const tasks = $derived(tasksService.listTasks());
-  const selectedTaskId = new QueryParamState({key: 'taskId', allowBack: true, replaceOnDefaultValue: true});
+  const selectedTaskId = new QueryParamState({key: 'taskId', allowBack: true, replaceOnDefaultValue: true}, localStorage.getItem(selectedTaskStorageKey) ?? '');
+  watch(() => selectedTaskId.current, (selectedTaskId) => {
+    if (selectedTaskId) {
+      localStorage.setItem(selectedTaskStorageKey, selectedTaskId);
+    }
+  });
   const selectedTask = $derived(tasks.find(task => task.id === selectedTaskId.current));
+  onMount(() => {
+    if (!selectedTaskId.current) {
+      open = true;
+    }
+  });
+  let open = $state(false);
 </script>
 
 <div class="flex flex-col h-full p-4 gap-4">
-  <Select.Root type="single" bind:value={selectedTaskId.current}>
+  <Select.Root bind:open type="single" bind:value={selectedTaskId.current}>
     <Select.Trigger>Task {selectedTask?.subject}</Select.Trigger>
     <Select.Content>
       {#each tasks as task (task.id)}
@@ -21,7 +34,7 @@
     </Select.Content>
   </Select.Root>
   {#if selectedTaskId.current}
-    <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.current = undefined}/>
+    <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.current = ''}/>
   {:else}
     <p>{$t`Select a task`}</p>
   {/if}

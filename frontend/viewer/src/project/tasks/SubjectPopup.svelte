@@ -132,7 +132,6 @@
       </Drawer.Close>
     </Drawer.Header>
     <div class="flex flex-col gap-4 mx-2 md:mx-4 border rounded p-4 max-h-[50vh] overflow-y-auto">
-      <p>{task.subject}</p>
       <Editor.Root>
         <Editor.Grid>
           <OverrideFields shownFields={task.contextFields}>
