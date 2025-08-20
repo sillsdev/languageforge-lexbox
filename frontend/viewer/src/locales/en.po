@@ -17,9 +17,9 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
-#: src/lib/components/audio/audio-editor.svelte:86
-#: src/lib/components/audio/audio-editor.svelte:91
-#: src/lib/components/audio/audio-editor.svelte:95
+#: src/lib/components/audio/audio-editor.svelte:87
+#: src/lib/components/audio/audio-editor.svelte:92
+#: src/lib/components/audio/audio-editor.svelte:96
 #: src/home/HomeView.svelte:78
 msgid "{0}"
 msgstr "{0}"
@@ -40,7 +40,7 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
-#: src/lib/components/audio/audio-editor.svelte:88
+#: src/lib/components/audio/audio-editor.svelte:89
 msgid "{0} MB"
 msgstr "{0} MB"
 
@@ -77,7 +77,7 @@ msgstr "Account"
 msgid "Activity"
 msgstr "Activity"
 
-#: src/lib/components/field-editors/audio-input.svelte:257
+#: src/lib/components/field-editors/audio-input.svelte:273
 #: src/lib/components/audio/AudioDialog.svelte:143
 msgid "Add audio"
 msgstr "Add audio"
@@ -130,7 +130,7 @@ msgstr "Application version"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
 
-#: src/lib/components/field-editors/audio-input.svelte:261
+#: src/lib/components/field-editors/audio-input.svelte:282
 msgid "Audio file not included in Send & Receive"
 msgstr "Audio file not included in Send & Receive"
 
@@ -305,7 +305,7 @@ msgstr "Dictionary"
 msgid "Dictionary Preview"
 msgstr "Dictionary Preview"
 
-#: src/lib/components/audio/audio-editor.svelte:107
+#: src/lib/components/audio/audio-editor.svelte:108
 msgid "Discard"
 msgstr "Discard"
 
@@ -319,7 +319,7 @@ msgid "Don't delete"
 msgstr "Don't delete"
 
 #: src/lib/notifications/NotificationOutlet.svelte:27
-#: src/lib/components/audio/audio-editor.svelte:106
+#: src/lib/components/audio/audio-editor.svelte:107
 #: src/home/Server.svelte:167
 msgid "Download"
 msgstr "Download"
@@ -445,11 +445,11 @@ msgstr "FieldWorks logo"
 msgid "File already exists"
 msgstr "File already exists"
 
-#: src/lib/components/audio/audio-editor.svelte:90
+#: src/lib/components/audio/audio-editor.svelte:91
 msgid "File name:"
 msgstr "File name:"
 
-#: src/lib/components/field-editors/audio-input.svelte:78
+#: src/lib/components/field-editors/audio-input.svelte:81
 msgid "File not found"
 msgstr "File not found"
 
@@ -542,7 +542,7 @@ msgstr "Import"
 msgid "Last change: {0}"
 msgstr "Last change: {0}"
 
-#: src/lib/components/audio/audio-editor.svelte:86
+#: src/lib/components/audio/audio-editor.svelte:87
 msgid "Length:"
 msgstr "Length:"
 
@@ -658,7 +658,7 @@ msgstr "New Word"
 msgid "No activity found"
 msgstr "No activity found"
 
-#: src/lib/components/field-editors/audio-input.svelte:264
+#: src/lib/components/field-editors/audio-input.svelte:277
 msgid "No audio"
 msgstr "No audio"
 
@@ -724,7 +724,7 @@ msgstr "Observer"
 msgid "Offline"
 msgstr "Offline"
 
-#: src/lib/components/field-editors/audio-input.svelte:81
+#: src/lib/components/field-editors/audio-input.svelte:84
 msgid "Offline, unable to download"
 msgstr "Offline, unable to download"
 
@@ -803,7 +803,7 @@ msgstr "Refresh Projects"
 msgid "Remove"
 msgstr "Remove"
 
-#: src/lib/components/field-editors/audio-input.svelte:308
+#: src/lib/components/field-editors/audio-input.svelte:330
 msgid "Remove audio"
 msgstr "Remove audio"
 
@@ -811,9 +811,13 @@ msgstr "Remove audio"
 msgid "Reopen"
 msgstr "Reopen"
 
-#: src/lib/components/field-editors/audio-input.svelte:305
+#: src/lib/components/field-editors/audio-input.svelte:327
 msgid "Replace audio"
 msgstr "Replace audio"
+
+#: src/lib/components/field-editors/audio-input.svelte:334
+msgid "Save As"
+msgstr "Save As"
 
 #: src/lib/components/audio/AudioDialog.svelte:155
 msgid "Save audio"
@@ -883,7 +887,7 @@ msgstr "Show {0} more..."
 msgid "Simple"
 msgstr "Simple"
 
-#: src/lib/components/audio/audio-editor.svelte:88
+#: src/lib/components/audio/audio-editor.svelte:89
 msgid "Size:"
 msgstr "Size:"
 
@@ -956,7 +960,7 @@ msgstr "Translation"
 msgid "Troubleshoot"
 msgstr "Troubleshoot"
 
-#: src/lib/components/audio/audio-editor.svelte:94
+#: src/lib/components/audio/audio-editor.svelte:95
 msgid "Type:"
 msgstr "Type:"
 
@@ -976,7 +980,7 @@ msgstr "Unknown"
 msgid "Unknown error"
 msgstr "Unknown error"
 
-#: src/lib/components/field-editors/audio-input.svelte:84
+#: src/lib/components/field-editors/audio-input.svelte:87
 msgid "Unknown error {0}"
 msgstr "Unknown error {0}"
 

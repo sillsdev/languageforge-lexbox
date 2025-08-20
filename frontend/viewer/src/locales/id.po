@@ -22,9 +22,9 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "- ({0} perubahan)"
 
-#: src/lib/components/audio/audio-editor.svelte:86
-#: src/lib/components/audio/audio-editor.svelte:91
-#: src/lib/components/audio/audio-editor.svelte:95
+#: src/lib/components/audio/audio-editor.svelte:87
+#: src/lib/components/audio/audio-editor.svelte:92
+#: src/lib/components/audio/audio-editor.svelte:96
 #: src/home/HomeView.svelte:78
 msgid "{0}"
 msgstr "{0}"
@@ -45,7 +45,7 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (Pekerjaan Lapangan)"
 
-#: src/lib/components/audio/audio-editor.svelte:88
+#: src/lib/components/audio/audio-editor.svelte:89
 msgid "{0} MB"
 msgstr "{0} MB"
 
@@ -82,7 +82,7 @@ msgstr "Akun"
 msgid "Activity"
 msgstr "Aktivitas"
 
-#: src/lib/components/field-editors/audio-input.svelte:257
+#: src/lib/components/field-editors/audio-input.svelte:273
 #: src/lib/components/audio/AudioDialog.svelte:143
 msgid "Add audio"
 msgstr "Menambahkan audio"
@@ -135,7 +135,7 @@ msgstr "Versi aplikasi"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Apakah Anda yakin ingin menghapus {0}?"
 
-#: src/lib/components/field-editors/audio-input.svelte:261
+#: src/lib/components/field-editors/audio-input.svelte:282
 msgid "Audio file not included in Send & Receive"
 msgstr "File audio tidak disertakan dalam Kirim & Terima"
 
@@ -310,7 +310,7 @@ msgstr "Kamus"
 msgid "Dictionary Preview"
 msgstr "Pratinjau Kamus"
 
-#: src/lib/components/audio/audio-editor.svelte:107
+#: src/lib/components/audio/audio-editor.svelte:108
 msgid "Discard"
 msgstr "Buang"
 
@@ -324,7 +324,7 @@ msgid "Don't delete"
 msgstr "Jangan hapus"
 
 #: src/lib/notifications/NotificationOutlet.svelte:27
-#: src/lib/components/audio/audio-editor.svelte:106
+#: src/lib/components/audio/audio-editor.svelte:107
 #: src/home/Server.svelte:167
 msgid "Download"
 msgstr "Unduh"
@@ -450,11 +450,11 @@ msgstr "Logo FieldWorks"
 msgid "File already exists"
 msgstr "File sudah ada"
 
-#: src/lib/components/audio/audio-editor.svelte:90
+#: src/lib/components/audio/audio-editor.svelte:91
 msgid "File name:"
 msgstr "Nama file:"
 
-#: src/lib/components/field-editors/audio-input.svelte:78
+#: src/lib/components/field-editors/audio-input.svelte:81
 msgid "File not found"
 msgstr "File tidak ditemukan"
 
@@ -547,7 +547,7 @@ msgstr "Impor"
 msgid "Last change: {0}"
 msgstr "Perubahan terakhir: {0}"
 
-#: src/lib/components/audio/audio-editor.svelte:86
+#: src/lib/components/audio/audio-editor.svelte:87
 msgid "Length:"
 msgstr "Panjang:"
 
@@ -663,7 +663,7 @@ msgstr "Kata Baru"
 msgid "No activity found"
 msgstr "Tidak ada aktivitas yang ditemukan"
 
-#: src/lib/components/field-editors/audio-input.svelte:264
+#: src/lib/components/field-editors/audio-input.svelte:277
 msgid "No audio"
 msgstr ""
 
@@ -729,7 +729,7 @@ msgstr "Pengamat"
 msgid "Offline"
 msgstr "Offline"
 
-#: src/lib/components/field-editors/audio-input.svelte:81
+#: src/lib/components/field-editors/audio-input.svelte:84
 msgid "Offline, unable to download"
 msgstr "Offline, tidak dapat mengunduh"
 
@@ -808,7 +808,7 @@ msgstr "Menyegarkan Proyek"
 msgid "Remove"
 msgstr "Menghapus"
 
-#: src/lib/components/field-editors/audio-input.svelte:308
+#: src/lib/components/field-editors/audio-input.svelte:330
 msgid "Remove audio"
 msgstr "Menghapus audio"
 
@@ -816,9 +816,13 @@ msgstr "Menghapus audio"
 msgid "Reopen"
 msgstr "Buka kembali"
 
-#: src/lib/components/field-editors/audio-input.svelte:305
+#: src/lib/components/field-editors/audio-input.svelte:327
 msgid "Replace audio"
 msgstr "Mengganti audio"
+
+#: src/lib/components/field-editors/audio-input.svelte:334
+msgid "Save As"
+msgstr ""
 
 #: src/lib/components/audio/AudioDialog.svelte:155
 msgid "Save audio"
@@ -888,7 +892,7 @@ msgstr "Tampilkan {0} selengkapnya..."
 msgid "Simple"
 msgstr "Sederhana"
 
-#: src/lib/components/audio/audio-editor.svelte:88
+#: src/lib/components/audio/audio-editor.svelte:89
 msgid "Size:"
 msgstr "Ukuran:"
 
@@ -961,7 +965,7 @@ msgstr "Terjemahan"
 msgid "Troubleshoot"
 msgstr "Memecahkan masalah"
 
-#: src/lib/components/audio/audio-editor.svelte:94
+#: src/lib/components/audio/audio-editor.svelte:95
 msgid "Type:"
 msgstr "Ketik:"
 
@@ -981,7 +985,7 @@ msgstr "Tidak diketahui"
 msgid "Unknown error"
 msgstr "Kesalahan yang tidak diketahui"
 
-#: src/lib/components/field-editors/audio-input.svelte:84
+#: src/lib/components/field-editors/audio-input.svelte:87
 msgid "Unknown error {0}"
 msgstr "Kesalahan tidak dikenal {0}"
 
