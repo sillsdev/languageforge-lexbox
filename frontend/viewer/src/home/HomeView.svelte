@@ -243,7 +243,7 @@
               </Anchor>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ListItem onclick={() => createExampleProject()} disabled={createProjectLoading} class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
+              <ListItem onclick={() => createExampleProject()} loading={createProjectLoading} class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
                 <span>{$t`Create Example Project`}</span>
                 {#snippet actions()}
                   <div class="flex flex-nowrap items-center gap-2">
