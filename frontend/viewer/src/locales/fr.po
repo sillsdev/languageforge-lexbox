@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-19 03:38\n"
+"PO-Revision-Date: 2025-08-20 04:10\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -606,7 +606,7 @@ msgstr "Réalisé avec ❤️ à partir de 🇦🇹 🇹🇭 🇺🇸"
 
 #: src/home/HomeView.svelte:80
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
-msgstr ""
+msgstr "Assurez-vous que vos [changements sont synchronisés]({0}) vers Lexbox."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:40
 msgid "Manager"
@@ -772,7 +772,7 @@ msgstr "Avant-première"
 
 #: src/home/HomeView.svelte:78
 msgid "Project"
-msgstr ""
+msgstr "Projet"
 
 #: src/home/Server.svelte:77
 msgid "Project {0} not found on {1}"
