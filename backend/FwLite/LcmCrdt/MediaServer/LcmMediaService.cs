@@ -25,6 +25,16 @@ public class LcmMediaService(
         return await resourceService.AllResources();
     }
 
+    public async Task<RemoteResource[]> ResourcesPendingDownload()
+    {
+        return await resourceService.ListResourcesPendingDownload();
+    }
+
+    public async Task<LocalResource[]> ResourcesPendingUpload()
+    {
+        return await resourceService.ListResourcesPendingUpload();
+    }
+
     /// <summary>
     /// should only be used in fw-headless for files which already exist in the lexbox db
     /// </summary>
@@ -43,6 +53,41 @@ public class LcmMediaService(
         await resourceService.DeleteResource(currentProjectService.ProjectData.ClientId, fileId);
     }
 
+    public async Task<LocalResource?> DownloadResourceIfNeeded(Guid fileId)
+    {
+        var localResource = await resourceService.GetLocalResource(fileId);
+        if (localResource is null)
+        {
+            var connectionStatus = await httpClientProvider.ConnectionStatus();
+            if (connectionStatus == ConnectionStatus.Online)
+            {
+                return await resourceService.DownloadResource(fileId, this);
+            }
+        }
+        return localResource;
+    }
+
+    public async Task DownloadAllResources()
+    {
+        var resources = await ResourcesPendingDownload();
+        var localResourceCachePath = options.Value.LocalResourceCachePath;
+        foreach (var resource in resources)
+        {
+            if (resource.RemoteId is null) continue;
+            await ((IRemoteResourceService)this).DownloadResource(resource.RemoteId, localResourceCachePath);
+            // NOTE: DownloadResource never uses the localResourceCachePath parameter; bug? Or just a quirk of how the API works?
+        }
+    }
+
+    public async Task UploadAllResources()
+    {
+        var resources = await ResourcesPendingUpload();
+        foreach (var resource in resources)
+        {
+            await ((IRemoteResourceService)this).UploadResource(resource.Id, resource.LocalPath);
+        }
+    }
+
     /// <summary>
     /// return a stream for the file, if it's not cached locally, it will be downloaded
     /// </summary>
@@ -51,20 +96,28 @@ public class LcmMediaService(
     /// <exception cref="FileNotFoundException"></exception>
     public async Task<ReadFileResponse> GetFileStream(Guid fileId)
     {
-        var localResource = await resourceService.GetLocalResource(fileId);
+        var localResource = await DownloadResourceIfNeeded(fileId);
         if (localResource is null)
         {
             var connectionStatus = await httpClientProvider.ConnectionStatus();
             if (connectionStatus == ConnectionStatus.Online)
             {
-                localResource = await resourceService.DownloadResource(fileId, this);
+                // Try again, maybe earlier failure was a blip
+                localResource = await DownloadResourceIfNeeded(fileId);
             }
             else
             {
                 return new ReadFileResponse(ReadFileResult.Offline);
             }
         }
-        //todo, consider trying to download the file again, maybe the cache was cleared
+        if (localResource is null || !File.Exists(localResource.LocalPath))
+        {
+            // One more attempt to download again, maybe the cache was cleared
+            localResource = await DownloadResourceIfNeeded(fileId);
+            // If still null then connection is offline or unreliable enough to consider as offline
+            if (localResource is null) return new ReadFileResponse(ReadFileResult.Offline);
+        }
+        // If still can't find local path then this is where we give up
         if (!File.Exists(localResource.LocalPath))
             throw new FileNotFoundException("Unable to find the file with Id" + fileId, localResource.LocalPath);
         return new(File.OpenRead(localResource.LocalPath), Path.GetFileName(localResource.LocalPath));
