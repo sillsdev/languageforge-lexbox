@@ -224,4 +224,41 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
             .For(e => e.Components).Exclude(c => c.Id)
             .For(e => e.Components).Exclude(c => c.Order));
     }
+
+    [Fact]
+    public async Task CanSyncNewComplexFormComponentReferencingNewSense()
+    {
+        // arrange
+        // - before
+        var complexFormEntryBefore = await Api.CreateEntry(new() { LexemeForm = { { "en", "complex-form" } } });
+        var componentEntryBefore = await Api.CreateEntry(new() { LexemeForm = { { "en", "component" } } });
+
+        // - after
+        var complexFormEntryAfter = complexFormEntryBefore.Copy();
+        var componentEntryAfter = componentEntryBefore.Copy();
+        var senseId = Guid.NewGuid();
+        componentEntryAfter.Senses = [new Sense() { Id = senseId, EntryId = componentEntryAfter.Id }];
+
+        var component = ComplexFormComponent.FromEntries(complexFormEntryAfter, componentEntryAfter, senseId);
+        complexFormEntryAfter.Components.Add(component);
+        componentEntryAfter.ComplexForms.Add(component);
+
+        // act
+        await EntrySync.Sync(
+            // note: the entry with the added sense is at the end of the list
+            [complexFormEntryBefore, componentEntryBefore],
+            [complexFormEntryAfter, componentEntryAfter],
+            Api);
+
+        // assert
+        var actualComplexFormEntry = await Api.GetEntry(complexFormEntryAfter.Id);
+        actualComplexFormEntry.Should().BeEquivalentTo(complexFormEntryAfter,
+            options => SyncTests.SyncExclusions(options)
+            .Excluding(e => e.ComplexFormTypes) // LibLcm automatically creates a complex form type. Should we?
+            .WithStrictOrdering());
+
+        var actualComponentEntry = await Api.GetEntry(componentEntryAfter.Id);
+        actualComponentEntry.Should().BeEquivalentTo(componentEntryAfter,
+            options => SyncTests.SyncExclusions(options).WithStrictOrdering());
+    }
 }

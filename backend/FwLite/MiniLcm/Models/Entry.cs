@@ -81,6 +81,11 @@ public record Entry : IObjectWithId<Entry>
     {
         return this with { Components = [], ComplexForms = [] };
     }
+
+    public Entry WithEntryRefsFrom(Entry from)
+    {
+        return this with { Components = from.Components, ComplexForms = from.ComplexForms };
+    }
 }
 
 public class Variants

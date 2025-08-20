@@ -97,13 +97,25 @@ public static class EntrySync
 
     private class EntriesDiffApi(IMiniLcmApi api) : ObjectWithIdCollectionDiffApi<Entry>
     {
-        public override async Task<(int, Entry)> AddAndGet(Entry afterEntry)
+        public override async Task<(int, Entry)> AddWithoutReferencesAndGet(Entry afterEntry)
         {
-            //create each entry without components.
+            //create each entry (and its hierarchy: senses, example sentence etc.) in isolation (e.g. without components)
             //After each entry is created, then replace will be called to create those components
             var entryWithoutEntryRefs = afterEntry.WithoutEntryRefs();
             var changes = await Add(entryWithoutEntryRefs);
             return (changes, entryWithoutEntryRefs);
+        }
+
+        public override async Task<(int, Entry)> ReplaceWithoutReferencesAndGet(Entry beforeEntry, Entry afterEntry)
+        {
+            //same as AddAndGet, but for already existing entries, because they
+            //might have new entities (e.g. senses) in their hierarchy that other entries reference
+            var beforeEntryWithoutEntryRefs = beforeEntry.WithoutEntryRefs();
+            var afterEntryWithoutEntryRefs = afterEntry.WithoutEntryRefs();
+            var changes = await Sync(beforeEntryWithoutEntryRefs, afterEntryWithoutEntryRefs, api);
+            //We've synced everything except the refs
+            var updatedBeforeEntry = afterEntry.WithEntryRefsFrom(beforeEntry);
+            return (changes, updatedBeforeEntry);
         }
 
         public override async Task<int> Add(Entry afterEntry)

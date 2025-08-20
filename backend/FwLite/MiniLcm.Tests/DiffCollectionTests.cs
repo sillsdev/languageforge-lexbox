@@ -231,7 +231,7 @@ public class DiffCollectionTests
         var entry = new Entry(Guid.NewGuid(), "test");
         await DiffCollection.DiffAddThenUpdate([], [entry], _fakeApi);
         _fakeApi.VerifyCalls(
-            new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.AddAndGet)),
+            new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.AddWithoutReferencesAndGet)),
             new FakeDiffApi.MethodCall((entry, entry), nameof(FakeDiffApi.Replace))
         );
     }
@@ -250,22 +250,25 @@ public class DiffCollectionTests
         var entry = new Entry(Guid.NewGuid(), "test");
         var updated = entry with { Word = "new" };
         await DiffCollection.DiffAddThenUpdate([entry], [updated], _fakeApi);
-        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall((entry, updated), nameof(FakeDiffApi.Replace)));
+        _fakeApi.VerifyCalls(
+            new FakeDiffApi.MethodCall((entry, updated), nameof(FakeDiffApi.ReplaceWithoutReferencesAndGet)),
+            new FakeDiffApi.MethodCall((updated, updated), nameof(FakeDiffApi.Replace)));
     }
 
     [Fact]
-    public async Task DiffAddThenUpdate_AddAlwaysBeforeReplace()
+    public async Task DiffAddThenUpdate_WithoutReferencesAlwaysFirst()
     {
         var newEntry = new Entry(Guid.NewGuid(), "new");
         var oldEntry = new Entry(Guid.NewGuid(), "test");
         var updated = oldEntry with { Word = "new" };
         await DiffCollection.DiffAddThenUpdate([oldEntry], [updated, newEntry], _fakeApi);
-        //this order is required because the new entry must be created before the updated entry is modified.
-        //the updated entry might reference the newEntry and so must be updated after the new entry is created.
-        //the order that the replace calls are made is unimportant.
+        //this order is required because new entries (and/or new senses etc.) must be created first
+        //updated entries might reference the newEntry (or a new sense) and so must be updated after the new entry is created.
+        //the order of the "simple" Replace calls is unimportant.
         _fakeApi.VerifyCalls(
-            new FakeDiffApi.MethodCall(newEntry, nameof(FakeDiffApi.AddAndGet)),
-            new FakeDiffApi.MethodCall((oldEntry, updated), nameof(FakeDiffApi.Replace)),
+            new FakeDiffApi.MethodCall((oldEntry, updated), nameof(FakeDiffApi.ReplaceWithoutReferencesAndGet)),
+            new FakeDiffApi.MethodCall(newEntry, nameof(FakeDiffApi.AddWithoutReferencesAndGet)),
+            new FakeDiffApi.MethodCall((updated, updated), nameof(FakeDiffApi.Replace)),
             new FakeDiffApi.MethodCall((newEntry, newEntry), nameof(FakeDiffApi.Replace))
         );
     }
@@ -293,10 +296,16 @@ public class DiffCollectionTests
             return Task.FromResult(1);
         }
 
-        public override Task<(int, Entry)> AddAndGet(Entry value)
+        public override Task<(int, Entry)> AddWithoutReferencesAndGet(Entry value)
         {
             Calls.Add(new(value));
             return Task.FromResult((1, value));
+        }
+
+        public override Task<(int, Entry)> ReplaceWithoutReferencesAndGet(Entry before, Entry after)
+        {
+            Calls.Add(new((before, after)));
+            return Task.FromResult((1, after));
         }
 
         public override Guid GetId(Entry value)

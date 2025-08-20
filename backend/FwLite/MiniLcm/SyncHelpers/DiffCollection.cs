@@ -10,10 +10,15 @@ namespace MiniLcm.SyncHelpers;
 public abstract class CollectionDiffApi<T, TId> where TId : notnull
 {
     public abstract Task<int> Add(T value);
-    public virtual async Task<(int, T)> AddAndGet(T value)
+    public virtual async Task<(int, T)> AddWithoutReferencesAndGet(T value)
     {
         var changes = await Add(value);
         return (changes, value);
+    }
+    public virtual async Task<(int, T)> ReplaceWithoutReferencesAndGet(T before, T after)
+    {
+        var changes = await Replace(before, after);
+        return (changes, after);
     }
     public abstract Task<int> Remove(T value);
     public abstract Task<int> Replace(T before, T after);
@@ -60,13 +65,17 @@ public static class DiffCollection
         {
             if (beforeEntriesDict.Remove(diffApi.GetId(afterEntry), out var beforeEntry))
             {
-                postAddUpdates.Add((beforeEntry, afterEntry)); // defer updating existing entry
+                // ensure all children that might be referenced are created
+                var (changed, replacedEntry) = await diffApi.ReplaceWithoutReferencesAndGet(beforeEntry, afterEntry);
+                changes += changed;
+                postAddUpdates.Add((replacedEntry, afterEntry)); // defer full update
             }
             else
             {
-                var (change, created) = await diffApi.AddAndGet(afterEntry); // create new entry
+                // create new entry with children that might be referenced
+                var (change, created) = await diffApi.AddWithoutReferencesAndGet(afterEntry);
                 changes += change;
-                postAddUpdates.Add((created, afterEntry)); // defer updating new entry
+                postAddUpdates.Add((created, afterEntry)); // defer full update
             }
         }
 
