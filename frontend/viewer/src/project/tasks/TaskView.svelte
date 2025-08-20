@@ -36,42 +36,51 @@
   }
 </script>
 <div class="flex flex-col h-full gap-4">
-  {#if !showDone}
-    <DevContent>
-      <details>
-        <summary>Completed Subjects</summary>
-        {completedSubjects.map(s => s.subject).join(', ')}
-      </details>
-    </DevContent>
-    <EntriesList bind:this={entriesList}
-                 sort={{field: SortField.Headword, dir: 'asc'}}
-                 gridifyFilter={task?.gridifyFilter}
-                 disableNewEntry
-                 onSelectEntry={e => entry = e} selectedEntryId={entry?.id}/>
-    <Button onclick={onDone}>Done</Button>
-    <SubjectPopup
-      bind:entry
-      {task}
-      {progress}
-      onNextEntry={() =>{
-        let next = entriesList?.selectNextEntry();
-        if (!next) onDone();
-      }}
-      onCompletedSubject={s =>{
-        const subject = {subject: s, entryId: entry.id};
-        completedSubjects.push(subject);
-        allCompletedSubjects.push(subject);
-        if (completedSubjects.length === 10) {
-          onDone();
-        }
-      }}
-    />
+  {#if task}
+    {#if !showDone}
+      <DevContent>
+        <details>
+          <summary>Completed Subjects</summary>
+          {completedSubjects.map(s => s.subject).join(', ')}
+        </details>
+      </DevContent>
+      <EntriesList bind:this={entriesList}
+                   sort={{field: SortField.Headword, dir: 'asc'}}
+                   gridifyFilter={task?.gridifyFilter}
+                   disableNewEntry
+                   onSelectEntry={e => entry = e} selectedEntryId={entry?.id}/>
+      <Button onclick={onDone}>Done</Button>
+      <SubjectPopup
+        bind:entry
+        {task}
+        {progress}
+        onNextEntry={() =>{
+          let next = entriesList?.selectNextEntry();
+          if (!next) onDone();
+        }}
+        onCompletedSubject={s =>{
+          const subject = {subject: s, entryId: entry.id};
+          completedSubjects.push(subject);
+          allCompletedSubjects.push(subject);
+          if (completedSubjects.length === 10) {
+            onDone();
+          }
+        }}
+      />
+    {:else}
+      <DoneView subjects={completedSubjects}
+                allSubjects={allCompletedSubjects}
+                {task}
+                onFinish={() =>onClose()}
+                onContinue={onContinue}
+      />
+    {/if}
   {:else}
-    <DoneView subjects={completedSubjects}
-              allSubjects={allCompletedSubjects}
-              {task}
-              onFinish={() =>onClose()}
-              onContinue={onContinue}
-    />
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-4">
+        <h1 class="text-2xl font-bold">Task not found: {taskId}</h1>
+        <p>The task you are looking for does not exist.</p>
+      </div>
+    </div>
   {/if}
 </div>
