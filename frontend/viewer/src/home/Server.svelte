@@ -81,7 +81,7 @@
   }
 
   function validateCodeForDownload(projectCode: string): string | undefined {
-    if (localProjects.some(p => p.code === projectCode)) {
+    if (localProjects.some(p => p.code === projectCode && p.server?.id === server?.id)) {
       return $t`You have already downloaded the ${projectCode} project`;
     }
   }
