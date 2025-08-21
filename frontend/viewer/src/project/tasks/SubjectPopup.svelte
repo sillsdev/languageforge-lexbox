@@ -44,7 +44,8 @@
     }
   });
   const entryPersistence = new EntryPersistence(() => entry);
-  let subjects = $derived(TasksService.subjects(task, entry));
+  //need to create a snapshot, otherwise changes to the subjects will trigger this derived and it will skip to the next subject
+  let subjects = $derived(TasksService.subjects(task, $state.snapshot(entry)));
   let subjectIndex = $state(0);
   let subject = $derived(subjects[subjectIndex]);
   $effect(() => {

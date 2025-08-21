@@ -16,10 +16,11 @@
     entryId,
     open = $bindable(false),
   }: {
-    entryId: string,
+    entryId?: string,
     open: boolean,
   } = $props();
   let entryResource = resource(() => entryId, (entryId) => {
+    if (!entryId) return undefined;
     return api.getEntry(entryId);
   });
   let entry = $derived(entryResource.current);

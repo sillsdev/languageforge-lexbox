@@ -6,6 +6,7 @@ import {type IEntry, type IExampleSentence, type IRichString, type ISense, type 
   WritingSystemType
 } from '$lib/dotnet-types';
 import {defaultExampleSentence, defaultSense, isEntry, isSense} from '$lib/utils';
+import {TaskSubject} from './subject.svelte';
 
 const symbol = Symbol.for('fw-lite-tasks');
 
@@ -13,13 +14,6 @@ export function useTasksService() {
   const projectContext = useProjectContext();
   const writingSystemService = useWritingSystemService();
   return projectContext.getOrAdd(symbol, () => new TasksService(writingSystemService));
-}
-
-export interface TaskSubject {
-  entry: IEntry;
-  sense?: ISense;
-  exampleSentence?: IExampleSentence;
-  readonly subject?: string;
 }
 
 export interface Task {
@@ -94,7 +88,8 @@ export class TasksService {
     }
   }
 
-  private static getSubjectValue(task: Task, subject: IEntry | ISense | IExampleSentence): string | undefined {
+  private static getSubjectValue(task: Task, subject: IEntry | ISense | IExampleSentence | undefined): string | undefined {
+    if (!subject) return undefined;
     const field = task.subjectFields[0];
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
     return asString((subject as any)[field][task.subjectWritingSystemId] as string | undefined | IRichString);
@@ -134,11 +129,7 @@ export class TasksService {
   public static subjects(task: Task, entry?: IEntry): TaskSubject[] {
     if (!entry) return [];
     if (task.subjectType === 'entry') {
-      return [{
-        entry, get subject() {
-          return TasksService.getSubjectValue(task, entry);
-        }
-      }];
+      return [new TaskSubject(entry, undefined, undefined, s => TasksService.getSubjectValue(task, s.entry))];
     }
     const subjects: TaskSubject[] = [];
     if (task.subjectType === 'sense') {
@@ -146,11 +137,7 @@ export class TasksService {
       if (senses.length === 0) senses = [defaultSense(entry.id)];
       for (const sense of senses) {
         if (task.getSubjectValue(sense)) continue;
-        subjects.push({
-          entry, sense, get subject() {
-            return TasksService.getSubjectValue(task, sense);
-          }
-        });
+        subjects.push(new TaskSubject(entry, sense, undefined, s => TasksService.getSubjectValue(task, s.sense)));
       }
     } else if (task.subjectType === 'example-sentence') {
       for (const sense of entry.senses) {
@@ -158,11 +145,7 @@ export class TasksService {
         if (examples.length === 0) examples = [defaultExampleSentence(sense.id)];
         for (const example of examples) {
           if (task.getSubjectValue(example)) continue;
-          subjects.push({
-            entry, sense, exampleSentence: example, get subject() {
-              return TasksService.getSubjectValue(task, example);
-            }
-          });
+          subjects.push(new TaskSubject(entry, sense, example, (s) => TasksService.getSubjectValue(task, s.exampleSentence)));
         }
       }
     }

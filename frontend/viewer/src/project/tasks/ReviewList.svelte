@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type {TaskSubject} from './tasks-service';
   import {Button} from '$lib/components/ui/button';
   import ListItem from '$lib/components/ListItem.svelte';
   import EditEntryDialog from '$lib/entry-editor/EditEntryDialog.svelte';
+  import type {TaskSubject} from './subject.svelte';
 
   let {
     subjects,
@@ -26,4 +26,4 @@
   {/each}
   <Button class="m-2" onclick={() => onFinish()}>Finish</Button>
 </div>
-<EditEntryDialog bind:open={editOpen} entryId={selectedSubject?.entryId}/>
+<EditEntryDialog bind:open={editOpen} entryId={selectedSubject?.entry.id}/>
