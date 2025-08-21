@@ -81,7 +81,19 @@ public class LcmMediaService(
 
     public async Task UploadAllResources()
     {
-        var resources = await ResourcesPendingUpload();
+        await UploadResources(await ResourcesPendingUpload());
+    }
+
+    public async Task DownloadResources(IEnumerable<RemoteResource> resources)
+    {
+        foreach (var resource in resources)
+        {
+            await DownloadResourceIfNeeded(resource.Id);
+        }
+    }
+
+    public async Task UploadResources(IEnumerable<LocalResource> resources)
+    {
         foreach (var resource in resources)
         {
             await ((IRemoteResourceService)this).UploadResource(resource.Id, resource.LocalPath);
