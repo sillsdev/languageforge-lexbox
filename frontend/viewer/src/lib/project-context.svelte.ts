@@ -6,6 +6,9 @@ import type {
 import type {
   ISyncServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
+import type {
+  IMediaFilesServiceJsInvokable
+} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
 import {resource, type ResourceOptions, type ResourceReturn} from 'runed';
 import {SvelteMap} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
@@ -18,6 +21,7 @@ interface ProjectContextSetup {
   api: IMiniLcmJsInvokable;
   historyService?: IHistoryServiceJsInvokable;
   syncService?: ISyncServiceJsInvokable;
+  mediaFilesService?: IMediaFilesServiceJsInvokable;
   projectName: string;
   projectCode: string;
   projectType?: 'crdt' | 'fwdata';
@@ -43,6 +47,7 @@ export class ProjectContext {
   #projectData = $state<IProjectData>();
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
+  #mediaFilesService: IMediaFilesServiceJsInvokable | undefined = $state(undefined);
   #paratext = $state(false);
   #features = resource(() => this.#api, (api) => {
     if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
@@ -81,6 +86,9 @@ export class ProjectContext {
   public get syncService(): ISyncServiceJsInvokable | undefined {
     return this.#syncService;
   }
+  public get mediaFilesService(): IMediaFilesServiceJsInvokable | undefined {
+    return this.#mediaFilesService;
+  }
   public get inParatext(): boolean {
     return this.#paratext;
   }
@@ -93,6 +101,7 @@ export class ProjectContext {
     this.#api = args.api;
     this.#historyService = args.historyService;
     this.#syncService = args.syncService;
+    this.#mediaFilesService = args.mediaFilesService;
     this.#projectName = args.projectName;
     this.#projectCode = args.projectCode;
     this.#projectType = args.projectType;

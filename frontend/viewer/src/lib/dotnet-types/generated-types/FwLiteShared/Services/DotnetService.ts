@@ -12,6 +12,7 @@ export enum DotnetService {
 	ProjectServicesProvider = "ProjectServicesProvider",
 	HistoryService = "HistoryService",
 	SyncService = "SyncService",
+	MediaFilesService = "MediaFilesService",
 	AppLauncher = "AppLauncher",
 	TroubleshootingService = "TroubleshootingService",
 	TestingService = "TestingService",

@@ -16,6 +16,7 @@ import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteSha
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
 import type {IHistoryServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
+import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
 import {useProjectContext} from '../project-context.svelte';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
@@ -28,6 +29,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.ProjectServicesProvider]: IProjectServicesProvider,
   [DotnetService.HistoryService]: IHistoryServiceJsInvokable,
   [DotnetService.SyncService]: ISyncServiceJsInvokable,
+  [DotnetService.MediaFilesService]: IMediaFilesServiceJsInvokable,
   [DotnetService.AppLauncher]: IAppLauncher,
   [DotnetService.TroubleshootingService]: ITroubleshootingService,
   [DotnetService.TestingService]: ITestingService,

@@ -21,6 +21,7 @@ using Reinforced.Typings.Visitors.TypeScript;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
+using SIL.Harmony.Resource;
 using System.Runtime.CompilerServices;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Sync;
@@ -84,7 +85,9 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(RichTextObjectData),
 
                 typeof(MediaFile),
-                typeof(LcmFileMetadata)
+                typeof(LcmFileMetadata),
+                typeof(RemoteResource),
+                typeof(LocalResource)
             ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(exportBuilder =>
         {
@@ -112,6 +115,10 @@ public static class ReinforcedFwLiteTypingConfig
             .FlattenHierarchy()
             .WithPublicProperties()
             .WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable());
+        builder.ExportAsInterface<MediaFilesServiceJsInvokable>()
+            // .WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable());
+            .WithPublicMethods();
+            // TODO: Does MediaFilesServiceJsInvokable need the AlwaysReturnPromise().OnlyJsInvokable() setup that MiniLcmJsInvokable needs?
         builder.ExportAsEnum<SortField>().UseString();
         builder.ExportAsInterfaces([
                 typeof(QueryOptions),
