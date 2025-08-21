@@ -21,13 +21,13 @@ public class MediaFilesServiceJsInvokable(LcmMediaService mediaService)
     [JSInvokable]
     public async Task DownloadAllResources()
     {
-        await mediaService.ResourcesPendingUpload();
+        await mediaService.DownloadAllResources();
     }
 
     [JSInvokable]
     public async Task UploadAllResources()
     {
-        await mediaService.ResourcesPendingUpload();
+        await mediaService.UploadAllResources();
     }
 
     [JSInvokable]
