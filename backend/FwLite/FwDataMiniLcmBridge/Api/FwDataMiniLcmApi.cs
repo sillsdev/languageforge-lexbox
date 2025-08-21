@@ -956,7 +956,7 @@ public class FwDataMiniLcmApi(
         return Task.FromResult<Entry?>(FromLexEntry(EntriesRepository.GetObject(id)));
     }
 
-    public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options)
+    public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
         options ??= CreateEntryOptions.Everything;
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
