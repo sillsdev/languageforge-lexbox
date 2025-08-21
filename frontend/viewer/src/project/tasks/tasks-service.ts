@@ -2,10 +2,13 @@ import {asString, useWritingSystemService, type WritingSystemService} from '$lib
 import {useProjectContext} from '$lib/project-context.svelte';
 import type {FieldId} from '$lib/entry-editor/field-data';
 import {gt} from 'svelte-i18n-lingui';
-import {type IEntry, type IExampleSentence, type IRichString, type ISense, WritingSystemType} from '$lib/dotnet-types';
-import {isEntry, isSense} from '$lib/utils';
+import {type IEntry, type IExampleSentence, type IRichString, type ISense, type IWritingSystem,
+  WritingSystemType
+} from '$lib/dotnet-types';
+import {defaultExampleSentence, defaultSense, isEntry, isSense} from '$lib/utils';
 
 const symbol = Symbol.for('fw-lite-tasks');
+
 export function useTasksService() {
   const projectContext = useProjectContext();
   const writingSystemService = useWritingSystemService();
@@ -13,8 +16,10 @@ export function useTasksService() {
 }
 
 export interface TaskSubject {
-  entryId: string;
-  subject: string;
+  entry: IEntry;
+  sense?: ISense;
+  exampleSentence?: IExampleSentence;
+  readonly subject?: string;
 }
 
 export interface Task {
@@ -26,7 +31,7 @@ export interface Task {
   subjectWritingSystemId: string;
   subjectWritingSystemType: WritingSystemType;
   prompt: string;
-  taskKind: 'provide-missing'
+  taskKind: 'provide-missing';
   gridifyFilter?: string;
   getSubjectValue: (subject: IEntry | ISense | IExampleSentence) => string | undefined;
 }
@@ -43,38 +48,46 @@ export class TasksService {
     ];
   }
 
-  public *senseTasks() {
-    for (const analysis of this.writingSystemService.analysis) {
+  public senseTasks() {
+    return TasksService.makeSenseTasks(this.writingSystemService.analysis);
+  }
+
+  public static *makeSenseTasks(analysis: IWritingSystem[]) {
+    for (const writingSystem of analysis) {
       const taskSense: Task = {
-        id: `sense-${analysis.wsId}`,
+        id: `sense-${writingSystem.wsId}`,
         contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
-        subject: gt`Missing Sense Gloss ${analysis.abbreviation}`,
+        subject: gt`Missing Sense Gloss ${writingSystem.abbreviation}`,
         subjectType: 'sense',
         subjectFields: ['gloss'],
-        subjectWritingSystemId: analysis.wsId,
-        subjectWritingSystemType: analysis.type,
+        subjectWritingSystemId: writingSystem.wsId,
+        subjectWritingSystemType: writingSystem.type,
         taskKind: 'provide-missing',
         prompt: gt`Type a Gloss`,
-        gridifyFilter: `Senses=null|Senses.Gloss[${analysis.wsId}]=`,
+        gridifyFilter: `Senses=null|Senses.Gloss[${writingSystem.wsId}]=`,
         getSubjectValue: s => TasksService.getSubjectValue(taskSense, s)
-      }
+      };
       yield taskSense;
     }
   }
 
-  public *exampleSentenceTasks() {
-    for (const vernacular of this.writingSystemService.vernacular) {
+  public exampleSentenceTasks() {
+    return TasksService.makeExampleSentenceTasks(this.writingSystemService.vernacular);
+  }
+
+  public static *makeExampleSentenceTasks(vernacular: IWritingSystem[]) {
+    for (const writingSystem of vernacular) {
       const taskExample: Task = {
-        id: `example-sentence-${vernacular.wsId}`,
+        id: `example-sentence-${writingSystem.wsId}`,
         contextFields: ['gloss', 'definition'],
-        subject: gt`Missing Example sentence ${vernacular.abbreviation}`,
+        subject: gt`Missing Example sentence ${writingSystem.abbreviation}`,
         subjectType: 'example-sentence',
         subjectFields: ['sentence'],
-        subjectWritingSystemId: vernacular.wsId,
-        subjectWritingSystemType: vernacular.type,
+        subjectWritingSystemId: writingSystem.wsId,
+        subjectWritingSystemType: writingSystem.type,
         prompt: gt`Type an example sentence`,
         taskKind: 'provide-missing',
-        gridifyFilter: `Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${vernacular.wsId}]=`,
+        gridifyFilter: `Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${writingSystem.wsId}]=`,
         getSubjectValue: s => TasksService.getSubjectValue(taskExample, s)
       };
       yield taskExample;
@@ -116,5 +129,43 @@ export class TasksService {
       if (!task.getSubjectValue(example)) return i;
     }
     return parent.exampleSentences.length;
+  }
+
+  public static subjects(task: Task, entry?: IEntry): TaskSubject[] {
+    if (!entry) return [];
+    if (task.subjectType === 'entry') {
+      return [{
+        entry, get subject() {
+          return TasksService.getSubjectValue(task, entry);
+        }
+      }];
+    }
+    const subjects: TaskSubject[] = [];
+    if (task.subjectType === 'sense') {
+      let senses = entry.senses;
+      if (senses.length === 0) senses = [defaultSense(entry.id)];
+      for (const sense of senses) {
+        if (task.getSubjectValue(sense)) continue;
+        subjects.push({
+          entry, sense, get subject() {
+            return TasksService.getSubjectValue(task, sense);
+          }
+        });
+      }
+    } else if (task.subjectType === 'example-sentence') {
+      for (const sense of entry.senses) {
+        let examples = sense.exampleSentences;
+        if (examples.length === 0) examples = [defaultExampleSentence(sense.id)];
+        for (const example of examples) {
+          if (task.getSubjectValue(example)) continue;
+          subjects.push({
+            entry, sense, exampleSentence: example, get subject() {
+              return TasksService.getSubjectValue(task, example);
+            }
+          });
+        }
+      }
+    }
+    return subjects;
   }
 }
