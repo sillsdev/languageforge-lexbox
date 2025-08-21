@@ -1291,7 +1291,7 @@ public class FwDataMiniLcmApi(
             "Revert entry",
             async () =>
             {
-                await EntrySync.Sync(before, after, api ?? this);
+                await EntrySync.SyncFull(before, after, api ?? this);
             });
         return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }

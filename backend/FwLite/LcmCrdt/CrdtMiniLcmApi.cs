@@ -604,7 +604,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
-        await EntrySync.Sync(before, after, api ?? this);
+        await EntrySync.SyncFull(before, after, api ?? this);
         var updatedEntry = await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
         return updatedEntry;
     }

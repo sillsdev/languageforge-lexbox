@@ -7,23 +7,45 @@ namespace MiniLcm.SyncHelpers;
 
 public static class EntrySync
 {
-    public static async Task<int> Sync(Entry[] beforeEntries,
+    public static async Task<int> SyncFull(Entry[] beforeEntries,
         Entry[] afterEntries,
         IMiniLcmApi api)
     {
-        return await DiffCollection.DiffAddThenUpdate(beforeEntries, afterEntries, new EntriesDiffApi(api));
+        var changes = await SyncWithoutComplexFormsAndComponents(beforeEntries, afterEntries, api);
+        changes += await SyncComplexFormsAndComponents(beforeEntries, afterEntries, api);
+        return changes;
     }
 
-    public static async Task<int> Sync(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
+    public static async Task<int> SyncWithoutComplexFormsAndComponents(Entry[] beforeEntries,
+        Entry[] afterEntries,
+        IMiniLcmApi api)
+    {
+        return await DiffCollection.Diff(beforeEntries, afterEntries, new EntriesDiffApi(api));
+    }
+
+    public static async Task<int> SyncComplexFormsAndComponents(Entry[] beforeEntries,
+        Entry[] afterEntries,
+        IMiniLcmApi api)
+    {
+        return await DiffCollection.Diff(beforeEntries, afterEntries,
+            new ObjectWithIdCollectionReplaceOnlyDiffApi<Entry>(
+                (before, after) => SyncComplexFormsAndComponents(before, after, api)));
+    }
+
+    public static async Task<int> SyncFull(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
+    {
+        var changes = await SyncWithoutComplexFormsAndComponents(beforeEntry, afterEntry, api);
+        changes += await SyncComplexFormsAndComponents(beforeEntry, afterEntry, api);
+        return changes;
+    }
+
+    public static async Task<int> SyncWithoutComplexFormsAndComponents(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
     {
         try
         {
             var updateObjectInput = EntryDiffToUpdate(beforeEntry, afterEntry);
             if (updateObjectInput is not null) await api.UpdateEntry(afterEntry.Id, updateObjectInput);
             var changes = await SensesSync(afterEntry.Id, beforeEntry.Senses, afterEntry.Senses, api);
-
-            changes += await SyncComplexFormComponents(afterEntry, beforeEntry.Components, afterEntry.Components, api);
-            changes += await SyncComplexForms(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
             changes += await Sync(afterEntry.Id, beforeEntry.ComplexFormTypes, afterEntry.ComplexFormTypes, api);
             changes += await SyncPublications(afterEntry.Id, beforeEntry.PublishIn, afterEntry.PublishIn, api);
             return changes + (updateObjectInput is null ? 0 : 1);
@@ -31,6 +53,21 @@ public static class EntrySync
         catch (Exception e)
         {
             throw new SyncObjectException($"Failed to sync entry {afterEntry}", e);
+        }
+    }
+
+    public static async Task<int> SyncComplexFormsAndComponents(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
+    {
+        try
+        {
+            var changes = 0;
+            changes += await SyncComplexFormComponents(afterEntry, beforeEntry.Components, afterEntry.Components, api);
+            changes += await SyncComplexForms(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
+            return changes;
+        }
+        catch (Exception e)
+        {
+            throw new SyncObjectException($"Failed to sync complex forms and components of entry {afterEntry}", e);
         }
     }
 
@@ -97,30 +134,9 @@ public static class EntrySync
 
     private class EntriesDiffApi(IMiniLcmApi api) : ObjectWithIdCollectionDiffApi<Entry>
     {
-        public override async Task<(int, Entry)> AddWithoutReferencesAndGet(Entry afterEntry)
-        {
-            //create each entry (and its hierarchy: senses, example sentence etc.) in isolation (e.g. without components)
-            //After each entry is created, then replace will be called to create those components
-            var entryWithoutEntryRefs = afterEntry.WithoutEntryRefs();
-            var changes = await Add(entryWithoutEntryRefs);
-            return (changes, entryWithoutEntryRefs);
-        }
-
-        public override async Task<(int, Entry)> ReplaceWithoutReferencesAndGet(Entry beforeEntry, Entry afterEntry)
-        {
-            //same as AddAndGet, but for already existing entries, because they
-            //might have new entities (e.g. senses) in their hierarchy that other entries reference
-            var beforeEntryWithoutEntryRefs = beforeEntry.WithoutEntryRefs();
-            var afterEntryWithoutEntryRefs = afterEntry.WithoutEntryRefs();
-            var changes = await Sync(beforeEntryWithoutEntryRefs, afterEntryWithoutEntryRefs, api);
-            //We've synced everything except the refs
-            var updatedBeforeEntry = afterEntry.WithEntryRefsFrom(beforeEntry);
-            return (changes, updatedBeforeEntry);
-        }
-
         public override async Task<int> Add(Entry afterEntry)
         {
-            await api.CreateEntry(afterEntry);
+            await api.CreateEntry(afterEntry, CreateEntryOptions.WithoutComplexFormsAndComponents);
             return 1;
         }
 
@@ -132,7 +148,7 @@ public static class EntrySync
 
         public override Task<int> Replace(Entry before, Entry after)
         {
-            return Sync(before, after, api);
+            return SyncWithoutComplexFormsAndComponents(before, after, api);
         }
     }
 

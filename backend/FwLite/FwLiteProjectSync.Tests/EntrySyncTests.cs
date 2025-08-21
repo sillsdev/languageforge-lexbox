@@ -29,7 +29,7 @@ public class CrdtEntrySyncTests(SyncFixture fixture) : EntrySyncTestsBase(fixtur
                 ..after.Senses
             ])];
 
-        await EntrySync.Sync(createdEntry, after, Api);
+        await EntrySync.SyncFull(createdEntry, after, Api);
         var actual = await Api.GetEntry(after.Id);
         actual.Should().NotBeNull();
         actual.Should().BeEquivalentTo(after, options => options
@@ -92,7 +92,7 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
         complexFormAfter.Components[0].ComponentEntryId = component2.Id;
         complexFormAfter.Components[0].ComponentHeadword = component2.Headword();
 
-        await EntrySync.Sync(complexForm, complexFormAfter, Api);
+        await EntrySync.SyncFull(complexForm, complexFormAfter, Api);
 
         var actual = await Api.GetEntry(complexFormAfter.Id);
         actual.Should().NotBeNull();
@@ -125,7 +125,7 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
         componentAter.ComplexForms[0].ComplexFormEntryId = complexForm2.Id;
         componentAter.ComplexForms[0].ComplexFormHeadword = complexForm2.Headword();
 
-        await EntrySync.Sync(component, componentAter, Api);
+        await EntrySync.SyncFull(component, componentAter, Api);
 
         var actual = await Api.GetEntry(componentAter.Id);
         actual.Should().NotBeNull();
@@ -140,7 +140,7 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
         var entry = await Api.CreateEntry(new() { LexemeForm = { { "en", "complexForm1" } } });
         var after = entry.Copy();
         after.ComplexFormTypes = [complexFormType];
-        await EntrySync.Sync(entry, after, Api);
+        await EntrySync.SyncFull(entry, after, Api);
 
         var actual = await Api.GetEntry(after.Id);
         actual.Should().NotBeNull();
@@ -172,14 +172,14 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
             // this results in 2 crdt changes:
             // (1) add complex-form (i.e. implicitly add component)
             // (2) move component to the right place
-            await EntrySync.Sync([newComponentBefore, complexFormBefore], [newComponentAfter, complexFormAfter], Api);
+            await EntrySync.SyncFull([newComponentBefore, complexFormBefore], [newComponentAfter, complexFormAfter], Api);
         }
         else
         {
             // this results in 1 crdt change:
             // the component is added in the right place
             // (adding the complex-form becomes a no-op, because it already exists and a BetweenPosition is not specified)
-            await EntrySync.Sync([complexFormBefore, newComponentBefore], [complexFormAfter, newComponentAfter], Api);
+            await EntrySync.SyncFull([complexFormBefore, newComponentBefore], [complexFormAfter, newComponentAfter], Api);
         }
 
         // assert
@@ -210,7 +210,7 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
         newEntry.Components.Add(newComplexFormComponent);
 
         // act
-        await EntrySync.Sync([existingEntryBefore], [existingEntryAfter, newEntry], Api);
+        await EntrySync.SyncFull([existingEntryBefore], [existingEntryAfter, newEntry], Api);
 
         // assert
         var actualExistingEntry = await Api.GetEntry(existingEntryAfter.Id);
@@ -244,7 +244,7 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
         componentEntryAfter.ComplexForms.Add(component);
 
         // act
-        await EntrySync.Sync(
+        await EntrySync.SyncFull(
             // note: the entry with the added sense is at the end of the list
             [complexFormEntryBefore, componentEntryBefore],
             [complexFormEntryAfter, componentEntryAfter],
