@@ -23,12 +23,11 @@ public abstract class ObjectWithIdCollectionDiffApi<T> : CollectionDiffApi<T, Gu
     }
 }
 
-public class ObjectWithIdCollectionReplaceOnlyDiffApi<T>(Func<T, T, Task<int>> ReplaceFunc) : ObjectWithIdCollectionDiffApi<T> where T : IObjectWithId
+public class ObjectWithIdCollectionReplaceDiffApi<T>(Func<T?, T, Task<int>> ReplaceFunc) : ObjectWithIdCollectionDiffApi<T> where T : IObjectWithId
 {
-    public override Task<int> Add(T value)
+    public override async Task<int> Add(T value)
     {
-        // no op
-        return Task.FromResult(0);
+        return await ReplaceFunc(default, value);
     }
 
     public override Task<int> Remove(T value)

@@ -2,6 +2,8 @@ namespace MiniLcm.Models;
 
 public record Entry : IObjectWithId<Entry>
 {
+    public static readonly Entry Empty = new();
+
     public Guid Id { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
 
@@ -75,16 +77,6 @@ public record Entry : IObjectWithId<Entry>
 
     public void RemoveReference(Guid id, DateTimeOffset time)
     {
-    }
-
-    public Entry WithoutEntryRefs()
-    {
-        return this with { Components = [], ComplexForms = [] };
-    }
-
-    public Entry WithEntryRefsFrom(Entry from)
-    {
-        return this with { Components = from.Components, ComplexForms = from.ComplexForms };
     }
 }
 

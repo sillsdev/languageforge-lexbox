@@ -4,7 +4,6 @@ using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
-using Soenneker.Utils.AutoBogus.Config;
 
 namespace FwLiteProjectSync.Tests;
 
@@ -259,6 +258,100 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
 
         var actualComponentEntry = await Api.GetEntry(componentEntryAfter.Id);
         actualComponentEntry.Should().BeEquivalentTo(componentEntryAfter,
+            options => SyncTests.SyncExclusions(options).WithStrictOrdering());
+    }
+
+    [Fact]
+    public async Task SyncsAddedEntriesInTwoPhases()
+    {
+        // Arrange
+        // - after
+        var component = new Entry()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "component" } }
+        };
+        var complexForm = new Entry()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "complex form" } }
+        };
+        var complexFormComponent = ComplexFormComponent.FromEntries(complexForm, component);
+        component.ComplexForms.Add(complexFormComponent);
+        complexForm.Components.Add(complexFormComponent);
+
+        // act - first phase
+        await EntrySync.SyncWithoutComplexFormsAndComponents([], [component, complexForm], Api);
+
+        // assert - first phase
+        var actualComponent = await Api.GetEntry(component.Id);
+        actualComponent.Should().BeEquivalentTo(component,
+            options => options.Excluding(e => e.ComplexForms));
+        actualComponent.ComplexForms.Should().BeEmpty();
+
+        var actualComplexForm = await Api.GetEntry(complexForm.Id);
+        actualComplexForm.Should().BeEquivalentTo(complexForm,
+            options => options.Excluding(e => e.Components));
+        actualComplexForm.Components.Should().BeEmpty();
+
+        // act - second phase
+        await EntrySync.SyncComplexFormsAndComponentsOfExistingEntries([], [component, complexForm], Api);
+
+        // assert - second phase
+        actualComponent = await Api.GetEntry(component.Id);
+        actualComponent.Should().BeEquivalentTo(component,
+            options => SyncTests.SyncExclusions(options).WithStrictOrdering());
+
+        actualComplexForm = await Api.GetEntry(complexForm.Id);
+        actualComplexForm.Should().BeEquivalentTo(complexForm,
+            options => SyncTests.SyncExclusions(options)
+            .Excluding(e => e.ComplexFormTypes) // LibLcm automatically creates a complex form type. Should we?
+            .WithStrictOrdering());
+    }
+
+    [Fact]
+    public async Task SyncsUpdatedEntriesInTwoPhases()
+    {
+        // Arrange
+        // - before
+        var componentBefore = await Api.CreateEntry(new() { LexemeForm = { { "en", "component" } } });
+
+        // - after
+        var componentAfter = componentBefore.Copy();
+        componentAfter.LexemeForm["en"] = "component updated";
+        var complexForm = new Entry()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "complex form" } }
+        };
+        var complexFormComponent = ComplexFormComponent.FromEntries(complexForm, componentAfter);
+        componentAfter.ComplexForms.Add(complexFormComponent);
+        complexForm.Components.Add(complexFormComponent);
+
+        // act - first phase
+        await EntrySync.SyncWithoutComplexFormsAndComponents([componentBefore], [componentAfter, complexForm], Api);
+
+        // assert - first phase
+        var actualComponent = await Api.GetEntry(componentAfter.Id);
+        actualComponent.Should().BeEquivalentTo(componentAfter,
+            options => options.Excluding(e => e.ComplexForms));
+        actualComponent.ComplexForms.Should().BeEmpty();
+
+        var actualComplexForm = await Api.GetEntry(complexForm.Id);
+        actualComplexForm.Should().BeEquivalentTo(complexForm,
+            options => options.Excluding(e => e.Components));
+        actualComplexForm.Components.Should().BeEmpty();
+
+        // act - second phase
+        await EntrySync.SyncComplexFormsAndComponentsOfExistingEntries([], [componentAfter, complexForm], Api);
+
+        // assert - second phase
+        actualComponent = await Api.GetEntry(componentAfter.Id);
+        actualComponent.Should().BeEquivalentTo(componentAfter,
+            options => SyncTests.SyncExclusions(options).WithStrictOrdering());
+
+        actualComplexForm = await Api.GetEntry(complexForm.Id);
+        actualComplexForm.Should().BeEquivalentTo(complexForm,
             options => SyncTests.SyncExclusions(options).WithStrictOrdering());
     }
 }

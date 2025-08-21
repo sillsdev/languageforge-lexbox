@@ -12,7 +12,7 @@ public static class EntrySync
         IMiniLcmApi api)
     {
         var changes = await SyncWithoutComplexFormsAndComponents(beforeEntries, afterEntries, api);
-        changes += await SyncComplexFormsAndComponents(beforeEntries, afterEntries, api);
+        changes += await SyncComplexFormsAndComponentsOfExistingEntries(beforeEntries, afterEntries, api);
         return changes;
     }
 
@@ -23,12 +23,16 @@ public static class EntrySync
         return await DiffCollection.Diff(beforeEntries, afterEntries, new EntriesDiffApi(api));
     }
 
-    public static async Task<int> SyncComplexFormsAndComponents(Entry[] beforeEntries,
+    /// <summary>
+    /// Syncs only the complex forms and components of the before and after entries.
+    /// Any entries that are NOT in before are assumed to have already been created and have NO complex forms or components.
+    /// </summary>
+    public static async Task<int> SyncComplexFormsAndComponentsOfExistingEntries(Entry[] beforeEntries,
         Entry[] afterEntries,
         IMiniLcmApi api)
     {
         return await DiffCollection.Diff(beforeEntries, afterEntries,
-            new ObjectWithIdCollectionReplaceOnlyDiffApi<Entry>(
+            new ObjectWithIdCollectionReplaceDiffApi<Entry>(
                 (before, after) => SyncComplexFormsAndComponents(before, after, api)));
     }
 
@@ -56,8 +60,13 @@ public static class EntrySync
         }
     }
 
-    public static async Task<int> SyncComplexFormsAndComponents(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
+    /// <summary>
+    /// Syncs only the complex forms and components of the before and after entries.
+    /// If before is null it is assumed to have already been created and have NO complex forms or components.
+    /// </summary>
+    public static async Task<int> SyncComplexFormsAndComponents(Entry? beforeEntry, Entry afterEntry, IMiniLcmApi api)
     {
+        beforeEntry ??= Entry.Empty;
         try
         {
             var changes = 0;
