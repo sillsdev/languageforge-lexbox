@@ -151,9 +151,9 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public Task<Entry> CreateEntry(Entry entry)
+    public Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(CreateEntry), $"Create entry {entry.Headword()}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateEntry), $"Create entry {entry.Headword()} ({options})"));
         return Task.FromResult(entry);
     }
 

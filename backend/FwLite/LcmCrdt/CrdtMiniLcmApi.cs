@@ -482,8 +482,9 @@ public class CrdtMiniLcmApi(
         }
     }
 
-    public async Task<Entry> CreateEntry(Entry entry)
+    public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options)
     {
+        options ??= CreateEntryOptions.Everything;
         await using var repo = await repoFactory.CreateRepoAsync();
         await AddChanges([
             new CreateEntryChange(entry),
@@ -495,8 +496,12 @@ public class CrdtMiniLcmApi(
                 })
                 .ToArrayAsync(),
             ..await ToPublications(entry.PublishIn).ToArrayAsync(),
-            ..await ToComplexFormComponents(entry.Components).ToArrayAsync(),
-            ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
+            ..options.IncludeComplexFormsAndComponents ?
+                await ToComplexFormComponents(entry.Components).ToArrayAsync() :
+                Enumerable.Empty<AddEntryComponentChange>(),
+            ..options.IncludeComplexFormsAndComponents ?
+                await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync() :
+                Enumerable.Empty<AddEntryComponentChange>(),
             ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()
         ]);
         return await repo.GetEntry(entry.Id) ?? throw new NullReferenceException();
