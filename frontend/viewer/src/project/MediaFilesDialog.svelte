@@ -78,9 +78,10 @@
   async function downloadAll() {
     try {
       const downloadPromise = service.downloadAllResources();
+      const count = pendingDownloadCount; // Break reactivity before we set pending count to 0
       AppNotification.promise(downloadPromise, {
         loading: $t`Downloading files from remote...`,
-        success: (result) => $t`${pendingDownloadCount} files downloaded.`,
+        success: $t`${count} files downloaded.`,
         error: (error) => $t`Failed to download files.` + '\n' + (error as Error).message,
       });
     } finally {
@@ -92,9 +93,10 @@
   async function uploadAll() {
     try {
       const uploadPromise = service.uploadAllResources();
+      const count = pendingUploadCount; // Break reactivity before we set pending count to 0
       AppNotification.promise(uploadPromise, {
         loading: $t`Uploading files to remote...`,
-        success: (result) => $t`${pendingUploadCount} files uploaded.`,
+        success: $t`${count} files uploaded.`,
         error: (error) => $t`Failed to upload files.` + '\n' + (error as Error).message,
       });
     } finally {
