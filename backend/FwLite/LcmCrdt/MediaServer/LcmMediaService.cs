@@ -69,14 +69,17 @@ public class LcmMediaService(
 
     public async Task DownloadAllResources()
     {
-        var resources = await ResourcesPendingDownload();
-        var localResourceCachePath = options.Value.LocalResourceCachePath;
-        foreach (var resource in resources)
+        var connectionStatus = await httpClientProvider.ConnectionStatus();
+        if (connectionStatus == ConnectionStatus.Online)
         {
-            if (resource.RemoteId is null) continue;
-            await ((IRemoteResourceService)this).DownloadResource(resource.RemoteId, localResourceCachePath);
-            // NOTE: DownloadResource never uses the localResourceCachePath parameter; bug? Or just a quirk of how the API works?
+            var resources = await ResourcesPendingDownload();
+            foreach (var resource in resources)
+            {
+                if (resource.RemoteId is null) continue;
+                await resourceService.DownloadResource(resource.Id, this);
+            }
         }
+        // TODO: Gracefully handle other connection statuses, e.g. "not logged in"
     }
 
     public async Task UploadAllResources()
