@@ -352,6 +352,8 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
 
         actualComplexForm = await Api.GetEntry(complexForm.Id);
         actualComplexForm.Should().BeEquivalentTo(complexForm,
-            options => SyncTests.SyncExclusions(options).WithStrictOrdering());
+            options => SyncTests.SyncExclusions(options)
+            .Excluding(e => e.ComplexFormTypes) // LibLcm automatically creates a complex form type. Should we?
+            .WithStrictOrdering());
     }
 }
