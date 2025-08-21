@@ -140,7 +140,7 @@ public class FwDataMiniLcmApi(
         {
             if (entry.CitationForm is not null)
                 LcmHelpers.ContributeExemplars(entry.CitationForm, wsExemplarsByHandle);
-            if (entry.LexemeFormOA is {Form: not null })
+            if (entry.LexemeFormOA is { Form: not null })
                 LcmHelpers.ContributeExemplars(entry.LexemeFormOA.Form, wsExemplarsByHandle);
         }
 
@@ -294,7 +294,7 @@ public class FwDataMiniLcmApi(
             ? FromLcmPartOfSpeech(partOfSpeech) : null);
     }
 
-    public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         IPartOfSpeech? lcmPartOfSpeech = null;
         if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
@@ -307,7 +307,8 @@ public class FwDataMiniLcmApi(
                     .Create(partOfSpeech.Id, Cache.LangProject.PartsOfSpeechOA);
                 UpdateLcmMultiString(lcmPartOfSpeech.Name, partOfSpeech.Name);
             });
-        return FromLcmPartOfSpeech(lcmPartOfSpeech ?? throw new InvalidOperationException("Part of speech was not created"));
+        return Task.FromResult(FromLcmPartOfSpeech(
+            lcmPartOfSpeech ?? throw new InvalidOperationException("Part of speech was not created")));
     }
 
     public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
@@ -351,19 +352,20 @@ public class FwDataMiniLcmApi(
                 UpdateLcmMultiString(lcmPublication.Name, pub.Name);
             }
         );
-        return await Task.FromResult(FromLcmPossibility(lcmPublication ?? throw new InvalidOperationException("Failed to create publication")));
+        return await Task.FromResult(FromLcmPossibility(
+            lcmPublication ?? throw new InvalidOperationException("Failed to create publication")));
     }
 
-	private Publication FromLcmPossibility(ICmPossibility lcmPossibility)
+    private Publication FromLcmPossibility(ICmPossibility lcmPossibility)
     {
-		var possibility = new Publication
-		{
-			Id = lcmPossibility.Guid,
-			Name = FromLcmMultiString(lcmPossibility.Name)
-		};
+        var possibility = new Publication
+        {
+            Id = lcmPossibility.Guid,
+            Name = FromLcmMultiString(lcmPossibility.Name)
+        };
 
-		return possibility;
-	}
+        return possibility;
+    }
 
     public Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
@@ -496,7 +498,7 @@ public class FwDataMiniLcmApi(
         return new ComplexFormType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) };
     }
 
-    public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
+    public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create complex form type",
@@ -510,7 +512,7 @@ public class FwDataMiniLcmApi(
                 ComplexFormTypes.PossibilitiesOS.Add(lexComplexFormType);
                 UpdateLcmMultiString(lexComplexFormType.Name, complexFormType.Name);
             });
-        return ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == complexFormType.Id));
+        return Task.FromResult(ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == complexFormType.Id)));
     }
 
     public Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
@@ -657,9 +659,9 @@ public class FwDataMiniLcmApi(
                 CitationForm = FromLcmMultiString(entry.CitationForm),
                 LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
                 MorphType = LcmHelpers.FromLcmMorphType(entry.PrimaryMorphType), // TODO: Decide what to do about entries with *mixed* morph types
-                Senses = entry.AllSenses.Select(FromLexSense).ToList(),
+                Senses = [.. entry.AllSenses.Select(FromLexSense)],
                 ComplexFormTypes = ToComplexFormTypes(entry),
-                Components = ToComplexFormComponents(entry).ToList(),
+                Components = [.. ToComplexFormComponents(entry)],
                 ComplexForms = [
                     ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
                     ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
@@ -747,7 +749,7 @@ public class FwDataMiniLcmApi(
 
     private static int Order(ICmObject component, ILexEntry complexEntry)
     {
-        int order = 0;
+        var order = 0;
         foreach (var entryRef in complexEntry.ComplexFormEntryRefs)
         {
             var foundIndex = entryRef.ComponentLexemesRS.IndexOf(component);
@@ -768,7 +770,7 @@ public class FwDataMiniLcmApi(
     private Sense FromLexSense(ILexSense sense)
     {
         var pos = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech();
-        var s =  new Sense
+        var s = new Sense
         {
             Id = sense.Guid,
             EntryId = sense.Entry.Guid,
@@ -776,8 +778,8 @@ public class FwDataMiniLcmApi(
             Definition = FromLcmMultiString(sense.Definition),
             PartOfSpeech = pos is null ? null : FromLcmPartOfSpeech(pos),
             PartOfSpeechId = pos?.Guid,
-            SemanticDomains = sense.SemanticDomainsRC.Select(FromLcmSemanticDomain).ToList(),
-            ExampleSentences = sense.ExamplesOS.Select(sentence => FromLexExampleSentence(sense.Guid, sentence)).ToList()
+            SemanticDomains = [.. sense.SemanticDomainsRC.Select(FromLcmSemanticDomain)],
+            ExampleSentences = [.. sense.ExamplesOS.Select(sentence => FromLexExampleSentence(sense.Guid, sentence))]
         };
         return s;
     }
@@ -791,13 +793,13 @@ public class FwDataMiniLcmApi(
             SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
             Reference = ToRichString(sentence.Reference),
-            Translation = translation is null ? new() : FromLcmMultiString(translation),
+            Translation = translation is null ? [] : FromLcmMultiString(translation),
         };
     }
 
     private MultiString FromLcmMultiString(ITsMultiString? multiString)
     {
-        if (multiString is null) return new MultiString();
+        if (multiString is null) return [];
         var result = new MultiString(multiString.StringCount);
         for (var i = 0; i < multiString.StringCount; i++)
         {
@@ -852,7 +854,7 @@ public class FwDataMiniLcmApi(
     internal string FromMediaUri(string mediaUriString)
     {
         //path includes `AudioVisual` currently
-        MediaUri mediaUri = new MediaUri(mediaUriString);
+        var mediaUri = new MediaUri(mediaUriString);
         var path = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
         if (path is null) throw new NotFoundException($"Unable to find file {mediaUri.FileId}.", nameof(MediaFile));
         return Path.GetRelativePath(Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder), path);
@@ -1171,11 +1173,8 @@ public class FwDataMiniLcmApi(
     internal void AddComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)
     {
         //do the same thing as LCM, use the first when adding if there's more than one
-        ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.FirstOrDefault();
-        if (entryRef is null)
-        {
-            entryRef = AddComplexFormLexEntryRef(lexEntry);
-        }
+        var entryRef = lexEntry.ComplexFormEntryRefs.FirstOrDefault()
+            ?? AddComplexFormLexEntryRef(lexEntry);
 
         var lexEntryType = ComplexFormTypesFlattened.Single(c => c.Guid == complexFormTypeId);
         entryRef.ComplexEntryTypesRS.Add(lexEntryType);
@@ -1425,7 +1424,7 @@ public class FwDataMiniLcmApi(
         return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
     }
 
-    public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
+    public Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
         if (sense.Id == default) sense.Id = Guid.NewGuid();
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
@@ -1434,7 +1433,7 @@ public class FwDataMiniLcmApi(
             "Remove sense",
             Cache.ServiceLocator.ActionHandler,
             () => CreateSense(lexEntry, sense, between));
-        return FromLexSense(SenseRepository.GetObject(sense.Id));
+        return Task.FromResult(FromLexSense(SenseRepository.GetObject(sense.Id)));
     }
 
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
@@ -1570,7 +1569,7 @@ public class FwDataMiniLcmApi(
         return CmTranslationFactory.Create(parent, freeTranslationType);
     }
 
-    public async Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? between = null)
+    public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? between = null)
     {
         if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
@@ -1579,7 +1578,8 @@ public class FwDataMiniLcmApi(
             "Remove example sentence",
             Cache.ServiceLocator.ActionHandler,
             () => CreateExampleSentence(lexSense, exampleSentence, between));
-        return FromLexExampleSentence(senseId, ExampleSentenceRepository.GetObject(exampleSentence.Id));
+        return Task.FromResult(
+            FromLexExampleSentence(senseId, ExampleSentenceRepository.GetObject(exampleSentence.Id)));
     }
 
     public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
@@ -1668,7 +1668,7 @@ public class FwDataMiniLcmApi(
         if (mediaUri == MediaUri.NotFound) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
         var pathFromMediaUri = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
         if (pathFromMediaUri is not {Length: > 0}) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
-        string fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, pathFromMediaUri);
+        var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, pathFromMediaUri);
         if (!File.Exists(fullPath)) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
         return Task.FromResult(new ReadFileResponse(File.OpenRead(fullPath), Path.GetFileName(fullPath)));
     }

@@ -5,7 +5,7 @@ namespace FwDataMiniLcmBridge.LcmUtils;
 
 public class LcmThreadedProgress : IThreadedProgress
 {
-    private SingleThreadedSynchronizeInvoke _synchronizeInvoke = new();
+    private readonly SingleThreadedSynchronizeInvoke _synchronizeInvoke = new();
 
     public event CancelEventHandler? Canceling; // this is part of the interface
 
@@ -20,10 +20,7 @@ public class LcmThreadedProgress : IThreadedProgress
     public int Minimum { get; set; }
     public int Maximum { get; set; }
 
-    public ISynchronizeInvoke SynchronizeInvoke
-    {
-        get { return _synchronizeInvoke; }
-    }
+    public ISynchronizeInvoke SynchronizeInvoke => _synchronizeInvoke;
 
     public bool IsIndeterminate { get; set; }
     public bool AllowCancel { get; set; }
@@ -40,13 +37,7 @@ public class LcmThreadedProgress : IThreadedProgress
         return backgroundTask(this, parameters);
     }
 
-    public bool Canceled
-    {
-        get { return false; }
-    }
+    public bool Canceled => false;
 
-    public bool IsCanceling
-    {
-        get { return false; }
-    }
+    public bool IsCanceling => false;
 }
