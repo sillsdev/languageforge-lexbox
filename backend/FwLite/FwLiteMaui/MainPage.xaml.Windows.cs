@@ -27,10 +27,9 @@ public partial class MainPage
             CoreWebView2PermissionKind.OtherSensors,
             CoreWebView2PermissionKind.WindowManagement,
         ];
-#pragma warning disable VSTHRD110
+#pragma warning disable VSTHRD110, CS4014
         foreach (var permission in permissions)
         {
-            //either of these ip addresses may be used, so just do both
             e.WebView.CoreWebView2.Profile.SetPermissionStateAsync(permission,
                 "https://0.0.0.1",
                 CoreWebView2PermissionState.Allow);
@@ -38,7 +37,7 @@ public partial class MainPage
                 "https://0.0.0.0",
                 CoreWebView2PermissionState.Allow);
         }
-#pragma warning restore VSTHRD110
+#pragma warning restore VSTHRD110, CS4014
         e.WebView.CoreWebView2.Settings.IsGeneralAutofillEnabled = false;
     }
 }

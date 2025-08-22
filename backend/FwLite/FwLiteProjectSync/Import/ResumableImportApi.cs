@@ -66,7 +66,7 @@ public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
     {
         return await HasCreated(publication, _api.GetPublications(), () => _api.CreatePublication(publication));
     }
-    async Task<WritingSystem> IMiniLcmWriteApi.CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
+    async Task<WritingSystem> IMiniLcmWriteApi.CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between)
     {
         return await HasCreated(writingSystem, AsyncWs(), () => _api.CreateWritingSystem(writingSystem, between), ws => ws.Type + ws.WsId.Code);
     }

@@ -1,15 +1,12 @@
 using Chorus.VcsDrivers.Mercurial;
-using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Tests.Fixtures;
 using FwHeadless;
 using FwHeadless.Media;
 using FwHeadless.Services;
-using LexCore.Entities;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using MiniLcm;
 using MiniLcm.Media;
 using SIL.LCModel;
 using SIL.Progress;
@@ -240,7 +237,7 @@ public class MediaFileServiceTests : IDisposable
         {
             while (memoryStream.Length < _fwHeadlessConfig.MaxUploadFileSizeBytes)
             {
-                stream.Write(Guid.NewGuid().ToString("N"));
+                await stream.WriteAsync(Guid.NewGuid().ToString("N"));
             }
         }
         memoryStream.Position = 0;
