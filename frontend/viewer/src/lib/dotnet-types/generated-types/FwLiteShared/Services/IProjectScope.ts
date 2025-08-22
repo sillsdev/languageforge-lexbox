@@ -16,5 +16,6 @@ export interface IProjectScope
 	miniLcm: DotNet.DotNetObject;
 	historyService?: DotNet.DotNetObject;
 	syncService?: DotNet.DotNetObject;
+	mediaFilesService?: DotNet.DotNetObject;
 }
 /* eslint-enable */

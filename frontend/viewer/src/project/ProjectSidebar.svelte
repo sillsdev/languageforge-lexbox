@@ -16,6 +16,7 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import SyncDialog from './SyncDialog.svelte';
+  import MediaFilesDialog from './MediaFilesDialog.svelte';
   import {useFeatures} from '$lib/services/feature-service';
   import {useProjectStats} from '$lib/project-stats';
   import {formatNumber} from '$lib/components/ui/format';
@@ -52,6 +53,7 @@
   const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog = $state<TroubleshootDialog>();
   let syncDialog = $state<SyncDialog>();
+  let mediaFilesDialog = $state<MediaFilesDialog>();
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string, stat?: string)}
@@ -103,8 +105,15 @@
         <Sidebar.GroupContent>
           <Sidebar.Menu>
               {#if features.sync}
+                <MediaFilesDialog bind:this={mediaFilesDialog} />
                 <SyncDialog bind:this={syncDialog} {syncStatus} />
                 <Sidebar.MenuItem>
+                  <Sidebar.MenuButton onclick={() => mediaFilesDialog?.open()} class="justify-between">
+                    <div class="flex items-center gap-2">
+                      <Icon icon="i-mdi-folder"/>
+                      <span>{$t`Media Files`}</span>
+                    </div>
+                  </Sidebar.MenuButton>
                   <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
                     {#snippet tooltipContent()}
                       {#if syncStatus === SyncStatus.Offline}
