@@ -13,8 +13,8 @@ export interface IMediaFilesServiceJsInvokable
 	resourcesPendingUpload() : Promise<ILocalResource[]>;
 	downloadAllResources() : Promise<void>;
 	uploadAllResources() : Promise<void>;
-	downloadResources(resources: IRemoteResource[]) : Promise<void>;
-	uploadResources(resources: ILocalResource[]) : Promise<void>;
+	downloadResources(resourceIds: string[]) : Promise<void>;
+	uploadResources(resourceIds: string[]) : Promise<void>;
 	getFileMetadata(fileId: string) : Promise<ILcmFileMetadata>;
 }
 /* eslint-enable */

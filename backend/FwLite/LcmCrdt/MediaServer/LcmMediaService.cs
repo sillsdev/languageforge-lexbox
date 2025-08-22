@@ -84,7 +84,15 @@ public class LcmMediaService(
 
     public async Task UploadAllResources()
     {
-        await UploadResources(await ResourcesPendingUpload());
+        await UploadResources((await ResourcesPendingUpload()).Select(r => r.Id));
+    }
+
+    public async Task DownloadResources(IEnumerable<Guid> resourceIds)
+    {
+        foreach (var resourceId in resourceIds)
+        {
+            await DownloadResourceIfNeeded(resourceId);
+        }
     }
 
     public async Task DownloadResources(IEnumerable<RemoteResource> resources)
@@ -95,11 +103,21 @@ public class LcmMediaService(
         }
     }
 
+    public async Task UploadResources(IEnumerable<Guid> resourceIds)
+    {
+        var clientId = currentProjectService.ProjectData.ClientId;
+        foreach (var resourceId in resourceIds)
+        {
+            await resourceService.UploadPendingResource(resourceId, clientId, this);
+        }
+    }
+
     public async Task UploadResources(IEnumerable<LocalResource> resources)
     {
+        var clientId = currentProjectService.ProjectData.ClientId;
         foreach (var resource in resources)
         {
-            await ((IRemoteResourceService)this).UploadResource(resource.Id, resource.LocalPath);
+            await resourceService.UploadPendingResource(resource, clientId, this);
         }
     }
 

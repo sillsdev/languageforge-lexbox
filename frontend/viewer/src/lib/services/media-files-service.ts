@@ -35,10 +35,10 @@ export class MediaFilesService {
   uploadAllResources() {
     return this.mediaFilesApi.uploadAllResources();
   }
-  downloadResources(resources: IRemoteResource[]) {
+  downloadResources(resources: string[]) {
     return this.mediaFilesApi.downloadResources(resources);
   }
-  uploadResources(resources: ILocalResource[]) {
+  uploadResources(resources: string[]) {
     return this.mediaFilesApi.uploadResources(resources);
   }
   getFileMetadata(id: string) {

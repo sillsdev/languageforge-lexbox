@@ -32,15 +32,15 @@ public class MediaFilesServiceJsInvokable(LcmMediaService mediaService)
     }
 
     [JSInvokable]
-    public async Task DownloadResources(IEnumerable<RemoteResource> resources)
+    public async Task DownloadResources(IEnumerable<Guid> resourceIds)
     {
-        await mediaService.DownloadResources(resources);
+        await mediaService.DownloadResources(resourceIds);
     }
 
     [JSInvokable]
-    public async Task UploadResources(IEnumerable<LocalResource> resources)
+    public async Task UploadResources(IEnumerable<Guid> resourceIds)
     {
-        await mediaService.UploadResources(resources);
+        await mediaService.UploadResources(resourceIds);
     }
 
     [JSInvokable]
