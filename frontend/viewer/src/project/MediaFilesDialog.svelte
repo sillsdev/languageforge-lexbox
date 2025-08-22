@@ -25,6 +25,7 @@
   import {useMediaFilesService} from '$lib/services/media-files-service';
   import type {IRemoteResource} from '$lib/dotnet-types/generated-types/SIL/Harmony/Resource/IRemoteResource';
   import type {ILocalResource} from '$lib/dotnet-types/generated-types/SIL/Harmony/Resource/ILocalResource';
+  import type {IHarmonyResource} from '$lib/dotnet-types/generated-types/SIL/Harmony/Resource/IHarmonyResource';
   import {Checkbox, CheckboxGroup} from '$lib/components/ui/checkbox';
 
   const {
@@ -48,6 +49,8 @@
   let selectedFilesToDownload = $state<string[]>([]);
   let selectedFilesToUpload = $state<string[]>([]);
 
+  let allFiles = $state<IHarmonyResource[]>([]);
+
   const serverName = $derived(server?.displayName ?? projectContext.projectData?.serverId ?? 'unknown');
 
   watch(() => openQueryParam.current, (newValue) => {
@@ -64,9 +67,11 @@
     try {
       let remotePromise = service.resourcesPendingDownload();
       let localPromise = service.resourcesPendingUpload();
-      [localFiles, remoteFiles] = await Promise.all([
+      let allPromise = service.allResources();
+      [localFiles, remoteFiles, allFiles] = await Promise.all([
         localPromise,
         remotePromise,
+        allPromise,
       ]);
     } finally {
       loading = false;
@@ -218,6 +223,22 @@
           <Button onclick={uploadSelected}>Upload {selectedFilesToUpload.length} selected files</Button>
         </div>
         {/if}
+        <div class="col-span-full text-center">
+          ALL FILES
+        </div>
+        <div class="col-span-full text-center">
+          <ul>
+            {#each allFiles as file, idx (idx)}
+            <li>
+            {#await service.getFileMetadata(file.id)}
+              ...
+            {:then metadata}
+              <Icon icon={fileTypeIcon(metadata.mimeType)} /> {metadata.filename}
+            {/await}
+            </li>
+            {/each}
+          </ul>
+        </div>
       </div>
     {/if}
   </DialogContent>
