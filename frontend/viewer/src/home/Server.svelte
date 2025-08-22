@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
   import type {IServerStatus} from '$lib/dotnet-types';
   import type {Project} from '$lib/services/projects-service';
@@ -81,7 +81,7 @@
   }
 
   function validateCodeForDownload(projectCode: string): string | undefined {
-    if (localProjects.some(p => p.code === projectCode)) {
+    if (localProjects.some(p => p.code === projectCode && p.server?.id === server?.id)) {
       return $t`You have already downloaded the ${projectCode} project`;
     }
   }

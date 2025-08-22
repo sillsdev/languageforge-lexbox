@@ -1,4 +1,4 @@
-﻿using MiniLcm.Models;
+using MiniLcm.Models;
 using SIL.LCModel;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;

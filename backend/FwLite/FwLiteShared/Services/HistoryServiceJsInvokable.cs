@@ -1,4 +1,4 @@
-﻿using LcmCrdt;
+using LcmCrdt;
 using Microsoft.JSInterop;
 using MiniLcm.Models;
 using SIL.Harmony.Db;

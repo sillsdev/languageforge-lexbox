@@ -1,4 +1,4 @@
-﻿using MiniLcm.Models;
+using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;

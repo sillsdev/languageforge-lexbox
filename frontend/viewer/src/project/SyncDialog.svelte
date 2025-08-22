@@ -1,3 +1,7 @@
+<script lang="ts" module>
+  export const SYNC_DIALOG_QUERY_PARAM = 'syncDialogOpen';
+</script>
+
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
   import { Icon, PingingIcon } from '$lib/components/ui/icon';
@@ -33,7 +37,7 @@
   let server = $derived(projectContext.server);
   let loading = $state(false);
   const openQueryParam = new QueryParamStateBool(
-    { key: 'syncDialogOpen', replaceOnDefaultValue: true, allowBack: true },
+    { key: SYNC_DIALOG_QUERY_PARAM, replaceOnDefaultValue: true, allowBack: true },
     false,
   );
 

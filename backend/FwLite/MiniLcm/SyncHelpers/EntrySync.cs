@@ -1,6 +1,7 @@
-﻿using MiniLcm.Exceptions;
+using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
+using SystemTextJsonPatch.Operations;
 
 namespace MiniLcm.SyncHelpers;
 
@@ -88,6 +89,8 @@ public static class EntrySync
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.CitationForm), beforeEntry.CitationForm, afterEntry.CitationForm));
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.Note), beforeEntry.Note, afterEntry.Note));
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.LiteralMeaning), beforeEntry.LiteralMeaning, afterEntry.LiteralMeaning));
+        if (beforeEntry.MorphType != afterEntry.MorphType)
+            patchDocument.Operations.Add(new Operation<Entry>("replace", $"/{nameof(Entry.MorphType)}", null, afterEntry.MorphType));
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Entry>(patchDocument);
     }

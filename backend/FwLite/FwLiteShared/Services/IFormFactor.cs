@@ -1,4 +1,4 @@
-﻿namespace FwLiteShared.Services;
+namespace FwLiteShared.Services;
 
 public interface IFormFactor
 {

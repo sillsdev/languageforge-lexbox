@@ -1,4 +1,4 @@
-﻿using FwLiteProjectSync.Tests.Fixtures;
+using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;

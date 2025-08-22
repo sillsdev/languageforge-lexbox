@@ -29,6 +29,8 @@
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
   import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
+  import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
+  import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -46,7 +48,7 @@
       .replace(/-$/, '');
   }
 
-  let customExampleProjectName: string = $state('');
+  let customExampleProjectName = $state('');
 
   let createProjectLoading = $state(false);
 
@@ -68,10 +70,16 @@
     }
   }
 
-  let deletingProject: undefined | string = $state(undefined);
+  let deletingProject = $state<string>();
 
   async function deleteProject(project: IProjectModel) {
+    if (!deleteDialog) throw new Error('Delete dialog not initialized');
     try {
+      const syncDialogUrl = `/project/${project.code}/browse?${SYNC_DIALOG_QUERY_PARAM}=true`;
+      if (!await deleteDialog.prompt($t`Project`, $t`${project.name}`, {
+        isDangerous: true,
+        details: $t`Make sure your [changes are synced](${syncDialogUrl}) to Lexbox.`,
+      })) return;
       deletingProject = project.id;
       await projectsService.deleteProject(project.code);
       await refreshProjects();
@@ -129,12 +137,15 @@
 
   let feedbackOpen = $state(false);
 
+  let deleteDialog = $state<DeleteDialog>();
 </script>
+
+<DeleteDialog bind:this={deleteDialog}/>
 
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
     <div class="text-lg flex gap-2 items-center">
-      <Icon onclick={clickIcon} src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
+      <Icon onclick={clickIcon} src={mode.current === 'dark' ? logoLight : logoDark} class="size-8" alt={$t`Lexbox logo`}/>
       <h3>{$t`Dictionaries`}</h3>
     </div>
   {/snippet}
@@ -220,11 +231,9 @@
                         {$t`Troubleshoot`}
                       </ResponsiveMenu.Item>
                     {/if}
-                    {#if $isDev}
-                      <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={() => void deleteProject(project)}>
-                        {$t`Delete`}
-                      </ResponsiveMenu.Item>
-                    {/if}
+                    <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={() => void deleteProject(project)}>
+                      {$t`Delete`}
+                    </ResponsiveMenu.Item>
                   </ResponsiveMenu.Content>
                 </ResponsiveMenu.Root>
               </div>
@@ -239,7 +248,7 @@
               </Anchor>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ListItem onclick={() => createExampleProject()} disabled={createProjectLoading} class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
+              <ListItem onclick={() => createExampleProject()} loading={createProjectLoading} class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
                 <span>{$t`Create Example Project`}</span>
                 {#snippet actions()}
                   <div class="flex flex-nowrap items-center gap-2">

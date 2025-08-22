@@ -1,4 +1,4 @@
-﻿using LexBoxApi.Config;
+using LexBoxApi.Config;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 

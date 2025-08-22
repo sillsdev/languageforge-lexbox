@@ -17,6 +17,5 @@ export interface IWritingSystem extends IObjectWithId
 	deletedAt?: string;
 	type: WritingSystemType;
 	exemplars: string[];
-	order: number;
 }
 /* eslint-enable */

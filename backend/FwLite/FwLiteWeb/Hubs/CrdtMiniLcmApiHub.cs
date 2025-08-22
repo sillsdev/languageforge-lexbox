@@ -1,4 +1,4 @@
-﻿using FwLiteShared;
+using FwLiteShared;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using FwLiteShared.Sync;

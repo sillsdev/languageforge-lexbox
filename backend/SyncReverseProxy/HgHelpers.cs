@@ -1,4 +1,4 @@
-﻿namespace LexSyncReverseProxy;
+namespace LexSyncReverseProxy;
 
 public static class HgHelpers
 {

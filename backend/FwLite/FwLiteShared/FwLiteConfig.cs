@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 using LexCore.Entities;
 
 namespace FwLiteShared;
@@ -51,6 +51,7 @@ public class FwLiteConfig
     public TimeSpan UpdateCheckInterval { get; set; } = TimeSpan.FromHours(8);
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum FwLitePlatform
 {
     Windows,
