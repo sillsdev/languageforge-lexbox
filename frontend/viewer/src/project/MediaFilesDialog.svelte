@@ -106,6 +106,15 @@
       loadingUpload = false;
     }
   }
+
+  function fileTypeIcon(mimeType: string)
+  {
+    if (!mimeType) return 'i-mdi-file';
+    if (mimeType.startsWith('audio')) return 'i-mdi-file-music';
+    if (mimeType.startsWith('video')) return 'i-mdi-file-video';
+    if (mimeType.startsWith('image')) return 'i-mdi-file-image';
+    return 'i-mdi-file';
+  }
 </script>
 
 <Dialog bind:open={openQueryParam.current}>
@@ -122,7 +131,7 @@
       <!-- TODO: Make icon(s) pulse while downloading, perhaps show progress in notification... -->
       <!-- TODO: Detect not-logged-in status and provide login button similar to sync dialog -->
         <div class="col-span-1 text-center">
-          <Icon icon="i-mdi-folder-arrow-down" class="size-10" />
+          <Icon icon="i-mdi-folder-download" class="size-10" />
         </div>
         <div class="text-center content-center">
           {pendingDownloadCount ?? '?'} files to download
@@ -137,14 +146,14 @@
             {#await filePromise}
               ...
             {:then metadata}
-              {metadata.filename} of type {metadata.mimeType}
+              <Icon icon={fileTypeIcon(metadata.mimeType)} /> {metadata.filename}
             {/await}
             </li>
             {/each}
           </ul>
         </div>
         <div class="col-span-1 text-center">
-          <Icon icon="i-mdi-folder-arrow-up" class="size-10" />
+          <Icon icon="i-mdi-folder-upload" class="size-10" />
         </div>
         <div class="text-center content-center">
           {pendingUploadCount ?? '?'} files to upload
@@ -159,7 +168,7 @@
             {#await filePromise}
               ...
             {:then metadata}
-              {metadata.filename} of type {metadata.mimeType}
+              <Icon icon={fileTypeIcon(metadata.mimeType)} /> {metadata.filename}
             {/await}
             </li>
             {/each}
