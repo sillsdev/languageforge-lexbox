@@ -52,7 +52,6 @@
   import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
-  import * as stream from 'node:stream';
 
   const handled = Symbol();
   let {
