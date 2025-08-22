@@ -7,7 +7,9 @@ public class LcmThreadedProgress : IThreadedProgress
 {
     private readonly SingleThreadedSynchronizeInvoke _synchronizeInvoke = new();
 
+#pragma warning disable CS0067
     public event CancelEventHandler? Canceling; // this is part of the interface
+#pragma warning restore CS0067
 
     public void Step(int amount)
     {
