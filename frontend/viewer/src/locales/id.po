@@ -663,6 +663,10 @@ msgstr "Kata Baru"
 msgid "No activity found"
 msgstr "Tidak ada aktivitas yang ditemukan"
 
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "No audio"
+msgstr ""
+
 #: src/lib/history/HistoryView.svelte
 msgid "No change name"
 msgstr "Tidak ada perubahan nama"
@@ -815,6 +819,10 @@ msgstr "Buka kembali"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
 msgstr "Mengganti audio"
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "Save As"
+msgstr ""
 
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"

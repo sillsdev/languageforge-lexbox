@@ -663,6 +663,10 @@ msgstr "새 단어"
 msgid "No activity found"
 msgstr "활동을 찾을 수 없습니다."
 
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "No audio"
+msgstr ""
+
 #: src/lib/history/HistoryView.svelte
 msgid "No change name"
 msgstr "이름 변경 안 함"
@@ -815,6 +819,10 @@ msgstr "다시 열기"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
 msgstr "오디오 교체"
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "Save As"
+msgstr ""
 
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"

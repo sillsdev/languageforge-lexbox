@@ -658,6 +658,10 @@ msgstr "New Word"
 msgid "No activity found"
 msgstr "No activity found"
 
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "No audio"
+msgstr "No audio"
+
 #: src/lib/history/HistoryView.svelte
 msgid "No change name"
 msgstr "No change name"
@@ -810,6 +814,10 @@ msgstr "Reopen"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
 msgstr "Replace audio"
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "Save As"
+msgstr "Save As"
 
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
