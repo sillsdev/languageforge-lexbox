@@ -34,7 +34,6 @@
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
-  const fwLiteConfig = useFwLiteConfig();
   const exampleProjectName = 'Example-Project';
   const [send, receive] = crossfade({
     duration: 500,
