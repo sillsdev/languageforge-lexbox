@@ -41,4 +41,7 @@ export class MediaFilesService {
   uploadResources(resources: ILocalResource[]) {
     return this.mediaFilesApi.uploadResources(resources);
   }
+  getFileMetadata(id: string) {
+    return this.mediaFilesApi.getFileMetadata(id);
+  }
 }

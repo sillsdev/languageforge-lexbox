@@ -5,6 +5,7 @@
 
 import type {IRemoteResource} from '../../SIL/Harmony/Resource/IRemoteResource';
 import type {ILocalResource} from '../../SIL/Harmony/Resource/ILocalResource';
+import type {ILcmFileMetadata} from '../../MiniLcm/Media/ILcmFileMetadata';
 
 export interface IMediaFilesServiceJsInvokable
 {
@@ -14,5 +15,6 @@ export interface IMediaFilesServiceJsInvokable
 	uploadAllResources() : Promise<void>;
 	downloadResources(resources: IRemoteResource[]) : Promise<void>;
 	uploadResources(resources: ILocalResource[]) : Promise<void>;
+	getFileMetadata(fileId: string) : Promise<ILcmFileMetadata>;
 }
 /* eslint-enable */

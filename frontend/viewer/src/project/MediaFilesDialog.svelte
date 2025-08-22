@@ -33,10 +33,12 @@
   const projectContext = useProjectContext();
   const service = useMediaFilesService();
   const features = useFeatures();
-  let remoteFiles = $state<IRemoteResource[]>([]);
-  let localFiles = $state<ILocalResource[]>([]);
-  let pendingUploadCount = $derived(localFiles?.length ?? 0);
-  let pendingDownloadCount = $derived(remoteFiles?.length ?? 0);
+  let remoteFileIds = $state<IRemoteResource[]>([]);
+  let localFileIds = $state<ILocalResource[]>([]);
+  let pendingUploadCount = $derived(localFileIds?.length ?? 0);
+  let pendingDownloadCount = $derived(remoteFileIds?.length ?? 0);
+  const localFiles = $derived(localFileIds.map(localFile => service.getFileMetadata(localFile.id)));
+  const remoteFiles = $derived(remoteFileIds.map(remoteFile => service.getFileMetadata(remoteFile.id)));
   let server = $derived(projectContext.server);
   let loading = $state(false);
   const openQueryParam = new QueryParamStateBool(
@@ -60,7 +62,7 @@
     try {
       let remotePromise = service.resourcesPendingDownload();
       let localPromise = service.resourcesPendingUpload();
-      [localFiles, remoteFiles] = await Promise.all([
+      [localFileIds, remoteFileIds] = await Promise.all([
         localPromise,
         remotePromise,
       ]);
@@ -70,8 +72,8 @@
   }
 
   function onClose(): void {
-    localFiles = [];
-    remoteFiles = [];
+    localFileIds = [];
+    remoteFileIds = [];
   }
 
   let loadingDownload = $state(false);
@@ -104,12 +106,6 @@
       loadingUpload = false;
     }
   }
-
-  function onLoginStatusChange(status: 'logged-in' | 'logged-out') {
-    if (status === 'logged-in') {
-      onOpen();
-    }
-  }
 </script>
 
 <Dialog bind:open={openQueryParam.current}>
@@ -126,7 +122,7 @@
       <!-- TODO: Make icon(s) pulse while downloading, perhaps show progress in notification... -->
       <!-- TODO: Detect not-logged-in status and provide login button similar to sync dialog -->
         <div class="col-span-1 text-center">
-          <Icon icon="i-mdi-folder" class="size-10" />
+          <Icon icon="i-mdi-folder-arrow-down" class="size-10" />
         </div>
         <div class="text-center content-center">
           {pendingDownloadCount ?? '?'} files to download
@@ -134,14 +130,40 @@
         <div class="content-center text-center">
           <Button onclick={downloadAll}>DL</Button>
         </div>
+        <div class="col-span-full text-left">
+          <ul>
+            {#each remoteFiles as filePromise, idx (idx)}
+            <li>
+            {#await filePromise}
+              ...
+            {:then metadata}
+              {metadata.filename} of type {metadata.mimeType}
+            {/await}
+            </li>
+            {/each}
+          </ul>
+        </div>
         <div class="col-span-1 text-center">
-          <Icon icon="i-mdi-folder" class="size-10" />
+          <Icon icon="i-mdi-folder-arrow-up" class="size-10" />
         </div>
         <div class="text-center content-center">
           {pendingUploadCount ?? '?'} files to upload
         </div>
         <div class="content-center text-center">
           <Button onclick={uploadAll}>UL</Button>
+        </div>
+        <div class="col-span-full text-left">
+          <ul>
+            {#each localFiles as filePromise, idx (idx)}
+            <li>
+            {#await filePromise}
+              ...
+            {:then metadata}
+              {metadata.filename} of type {metadata.mimeType}
+            {/await}
+            </li>
+            {/each}
+          </ul>
         </div>
       </div>
     {/if}
