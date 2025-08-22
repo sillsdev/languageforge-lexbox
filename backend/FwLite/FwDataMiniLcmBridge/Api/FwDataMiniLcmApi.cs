@@ -956,8 +956,9 @@ public class FwDataMiniLcmApi(
         return Task.FromResult<Entry?>(FromLexEntry(EntriesRepository.GetObject(id)));
     }
 
-    public async Task<Entry> CreateEntry(Entry entry)
+    public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
+        options ??= CreateEntryOptions.Everything;
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
         try
         {
@@ -983,15 +984,18 @@ public class FwDataMiniLcmApi(
                         AddComplexFormType(lexEntry, complexFormType.Id);
                     }
 
-                    foreach (var component in entry.Components)
+                    if (options.IncludeComplexFormsAndComponents)
                     {
-                        AddComplexFormComponent(lexEntry, component);
-                    }
+                        foreach (var component in entry.Components)
+                        {
+                            AddComplexFormComponent(lexEntry, component);
+                        }
 
-                    foreach (var complexForm in entry.ComplexForms)
-                    {
-                        var complexLexEntry = EntriesRepository.GetObject(complexForm.ComplexFormEntryId);
-                        AddComplexFormComponent(complexLexEntry, complexForm);
+                        foreach (var complexForm in entry.ComplexForms)
+                        {
+                            var complexLexEntry = EntriesRepository.GetObject(complexForm.ComplexFormEntryId);
+                            AddComplexFormComponent(complexLexEntry, complexForm);
+                        }
                     }
                     // Subtract entry.Publications from Publications to get the publications that the entry should not be published in
                     var doNotPublishIn = Publications.PossibilitiesOS.Where(p => entry.PublishIn.All(ep => ep.Id != p.Guid));
@@ -1287,7 +1291,7 @@ public class FwDataMiniLcmApi(
             "Revert entry",
             async () =>
             {
-                await EntrySync.Sync(before, after, api ?? this);
+                await EntrySync.SyncFull(before, after, api ?? this);
             });
         return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }

@@ -89,10 +89,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         fwdataChanges += await ComplexFormTypeSync.Sync(currentFwDataComplexFormTypes, await crdtApi.GetComplexFormTypes().ToArrayAsync(), fwdataApi);
 
         var currentFwDataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtChanges += await EntrySync.Sync(projectSnapshot.Entries, currentFwDataEntries, crdtApi);
+        crdtChanges += await EntrySync.SyncFull(projectSnapshot.Entries, currentFwDataEntries, crdtApi);
         LogDryRun(crdtApi, "crdt");
 
-        fwdataChanges += await EntrySync.Sync(currentFwDataEntries, await crdtApi.GetAllEntries().ToArrayAsync(), fwdataApi);
+        fwdataChanges += await EntrySync.SyncFull(currentFwDataEntries, await crdtApi.GetAllEntries().ToArrayAsync(), fwdataApi);
         LogDryRun(fwdataApi, "fwdata");
 
         //todo push crdt changes to lexbox

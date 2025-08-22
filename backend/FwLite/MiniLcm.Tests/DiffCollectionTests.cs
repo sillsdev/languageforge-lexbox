@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using MiniLcm.SyncHelpers;
-using Moq;
 
 namespace MiniLcm.Tests;
 
@@ -205,7 +204,7 @@ public class DiffCollectionTests
     {
         var entry = new Entry(Guid.NewGuid(), "test");
         await DiffCollection.Diff([], [entry], _fakeApi);
-        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.Add)));
+        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.AddAndGet)));
     }
 
     [Fact]
@@ -225,60 +224,21 @@ public class DiffCollectionTests
         _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall((entry, updated), nameof(FakeDiffApi.Replace)));
     }
 
-    [Fact]
-    public async Task Diff_AddThenUpdate_CallsAddForNewRecords()
-    {
-        var entry = new Entry(Guid.NewGuid(), "test");
-        await DiffCollection.DiffAddThenUpdate([], [entry], _fakeApi);
-        _fakeApi.VerifyCalls(
-            new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.AddAndGet)),
-            new FakeDiffApi.MethodCall((entry, entry), nameof(FakeDiffApi.Replace))
-        );
-    }
-
-    [Fact]
-    public async Task DiffAddThenUpdate_CallsRemoveForMissingRecords()
-    {
-        var entry = new Entry(Guid.NewGuid(), "test");
-        await DiffCollection.DiffAddThenUpdate([entry], [], _fakeApi);
-        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.Remove)));
-    }
-
-    [Fact]
-    public async Task DiffAddThenUpdate_CallsReplaceForMatchingRecords()
-    {
-        var entry = new Entry(Guid.NewGuid(), "test");
-        var updated = entry with { Word = "new" };
-        await DiffCollection.DiffAddThenUpdate([entry], [updated], _fakeApi);
-        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall((entry, updated), nameof(FakeDiffApi.Replace)));
-    }
-
-    [Fact]
-    public async Task DiffAddThenUpdate_AddAlwaysBeforeReplace()
-    {
-        var newEntry = new Entry(Guid.NewGuid(), "new");
-        var oldEntry = new Entry(Guid.NewGuid(), "test");
-        var updated = oldEntry with { Word = "new" };
-        await DiffCollection.DiffAddThenUpdate([oldEntry], [updated, newEntry], _fakeApi);
-        //this order is required because the new entry must be created before the updated entry is modified.
-        //the updated entry might reference the newEntry and so must be updated after the new entry is created.
-        //the order that the replace calls are made is unimportant.
-        _fakeApi.VerifyCalls(
-            new FakeDiffApi.MethodCall(newEntry, nameof(FakeDiffApi.AddAndGet)),
-            new FakeDiffApi.MethodCall((oldEntry, updated), nameof(FakeDiffApi.Replace)),
-            new FakeDiffApi.MethodCall((newEntry, newEntry), nameof(FakeDiffApi.Replace))
-        );
-    }
-
     private class FakeDiffApi: CollectionDiffApi<Entry, Guid>
     {
         public record MethodCall(object Args, [CallerMemberName] string Name = "");
 
         public List<MethodCall> Calls { get; set; } = [];
-        public override Task<int> Add(Entry value)
+        public override Task<(int Changes, Entry Added)> AddAndGet(Entry value)
         {
             Calls.Add(new(value));
-            return Task.FromResult(1);
+            return Task.FromResult((1, value));
+        }
+
+        public override Task<int> Add(Entry value)
+        {
+            throw new InvalidOperationException(
+                $"{nameof(Add)} should never be called, because {nameof(AddAndGet)} is implemented");
         }
 
         public override Task<int> Remove(Entry value)
@@ -291,12 +251,6 @@ public class DiffCollectionTests
         {
             Calls.Add(new((before, after)));
             return Task.FromResult(1);
-        }
-
-        public override Task<(int, Entry)> AddAndGet(Entry value)
-        {
-            Calls.Add(new(value));
-            return Task.FromResult((1, value));
         }
 
         public override Guid GetId(Entry value)
