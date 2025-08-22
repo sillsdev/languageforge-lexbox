@@ -428,6 +428,7 @@ msgid "Failed to synchronize."
 msgstr "Gagal melakukan sinkronisasi."
 
 #: src/project/ProjectSidebar.svelte
+#: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
 msgid "Feedback"
 msgstr "Umpan balik"
@@ -500,6 +501,10 @@ msgstr "Temukan entri..."
 msgid "Find word..."
 msgstr "Temukan kata..."
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "For any other inquiries, feel free to send us an email."
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
@@ -550,6 +555,10 @@ msgstr "Perubahan terakhir: {0}"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Panjang:"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Let us know about any bugs or technical issues you encounter."
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -816,6 +825,10 @@ msgstr "Buka kembali"
 msgid "Replace audio"
 msgstr "Mengganti audio"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Report a technical problem"
+msgstr ""
+
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
 msgstr "Menyimpan audio"
@@ -845,6 +858,10 @@ msgstr "Pilih file"
 msgid "Semantic domains"
 msgstr "Domain semantik"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Send us a message"
+msgstr ""
+
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -872,6 +889,10 @@ msgstr "Bagikan file Log"
 msgid "Share project data file"
 msgstr "Berbagi file data proyek"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share your suggestions for new features or improvements."
+msgstr ""
+
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
 msgstr "Tampilkan"
@@ -897,6 +918,10 @@ msgstr "Dimulai dengan"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Kirim"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Suggest your ideas"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/activity/ActivityView.svelte

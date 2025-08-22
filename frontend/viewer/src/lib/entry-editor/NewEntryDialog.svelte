@@ -95,7 +95,7 @@
 
 {#if open}
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent onkeydown={handleKeydown}>
+  <Dialog.DialogContent onkeydown={handleKeydown} class="sm:min-h-[min(calc(100%-16px),30rem)]">
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`New ${entryLabel}`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>

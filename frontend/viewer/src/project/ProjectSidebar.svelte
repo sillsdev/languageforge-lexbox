@@ -15,6 +15,7 @@
   import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
+  import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
   import SyncDialog from './SyncDialog.svelte';
   import {useFeatures} from '$lib/services/feature-service';
   import {useProjectStats} from '$lib/project-stats';
@@ -52,6 +53,7 @@
   const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog = $state<TroubleshootDialog>();
   let syncDialog = $state<SyncDialog>();
+  let feedbackOpen = $state(false);
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string, stat?: string)}
@@ -103,7 +105,6 @@
         <Sidebar.GroupContent>
           <Sidebar.Menu>
               {#if features.sync}
-                <SyncDialog bind:this={syncDialog} {syncStatus} />
                 <Sidebar.MenuItem>
                   <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
                     {#snippet tooltipContent()}
@@ -165,7 +166,6 @@
     <Sidebar.Group>
       <Sidebar.Menu>
         {#if supportsTroubleshooting}
-          <TroubleshootDialog bind:this={troubleshootDialog}/>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
               <Icon icon="i-mdi-help-circle" />
@@ -174,13 +174,9 @@
           </Sidebar.MenuItem>
         {/if}
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton>
-            {#snippet child({ props })}
-              <a {...props} href={config.feedbackUrl} target="_blank">
-                <Icon icon="i-mdi-message" />
-                <span>{$t`Feedback`}</span>
-              </a>
-            {/snippet}
+          <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
+            <Icon icon="i-mdi-message" />
+            <span>{$t`Feedback`}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
         <Sidebar.MenuItem>
@@ -197,3 +193,15 @@
   </Sidebar.Footer>
   <Sidebar.Rail></Sidebar.Rail>
 </Sidebar.Root>
+
+<!--
+Keep dialogs out of the sidebar so they aren't destroyed
+e.g. when transitioning to mobile
+-->
+{#if supportsTroubleshooting}
+  <TroubleshootDialog bind:this={troubleshootDialog}/>
+{/if}
+{#if features.sync}
+  <SyncDialog bind:this={syncDialog} {syncStatus} />
+{/if}
+<FeedbackDialog bind:open={feedbackOpen} />
