@@ -11,23 +11,24 @@ public static class EntrySync
         Entry[] afterEntries,
         IMiniLcmApi api)
     {
-        var changes = await SyncWithoutComplexFormsAndComponents(beforeEntries, afterEntries, api);
-        changes += await SyncComplexFormsAndComponentsOfExistingEntries(beforeEntries, afterEntries, api);
+        var (changes, addedEntries) = await SyncWithoutComplexFormsAndComponents(beforeEntries, afterEntries, api);
+        var updatedBeforeEntries = beforeEntries.Where(before => afterEntries.Any(after => after.Id == before.Id));
+        changes += await SyncComplexFormsAndComponents([.. updatedBeforeEntries, .. addedEntries], afterEntries, api);
         return changes;
     }
 
-    public static async Task<int> SyncWithoutComplexFormsAndComponents(Entry[] beforeEntries,
+    public static async Task<(int Changes, ICollection<Entry> Added)> SyncWithoutComplexFormsAndComponents(Entry[] beforeEntries,
         Entry[] afterEntries,
         IMiniLcmApi api)
     {
-        return await DiffCollection.Diff(beforeEntries, afterEntries, new EntriesDiffApi(api));
+        return await DiffCollection.DiffAndGetAdded(beforeEntries, afterEntries, new EntriesDiffApi(api));
     }
 
     /// <summary>
     /// Syncs only the complex forms and components of the before and after entries.
-    /// Any entries that are NOT in before are assumed to have already been created and have NO complex forms or components.
+    /// <exception cref="InvalidOperationException">When the before and after entries do not match.</exception>
     /// </summary>
-    public static async Task<int> SyncComplexFormsAndComponentsOfExistingEntries(Entry[] beforeEntries,
+    public static async Task<int> SyncComplexFormsAndComponents(Entry[] beforeEntries,
         Entry[] afterEntries,
         IMiniLcmApi api)
     {
@@ -60,13 +61,8 @@ public static class EntrySync
         }
     }
 
-    /// <summary>
-    /// Syncs only the complex forms and components of the before and after entries.
-    /// If before is null it is assumed to have already been created and have NO complex forms or components.
-    /// </summary>
-    public static async Task<int> SyncComplexFormsAndComponents(Entry? beforeEntry, Entry afterEntry, IMiniLcmApi api)
+    public static async Task<int> SyncComplexFormsAndComponents(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
     {
-        beforeEntry ??= Entry.Empty;
         try
         {
             var changes = 0;
@@ -143,10 +139,10 @@ public static class EntrySync
 
     private class EntriesDiffApi(IMiniLcmApi api) : ObjectWithIdCollectionDiffApi<Entry>
     {
-        public override async Task<int> Add(Entry afterEntry)
+        public override async Task<(int, Entry)> AddAndGet(Entry afterEntry)
         {
-            await api.CreateEntry(afterEntry, CreateEntryOptions.WithoutComplexFormsAndComponents);
-            return 1;
+            var addedEntry = await api.CreateEntry(afterEntry, CreateEntryOptions.WithoutComplexFormsAndComponents);
+            return (1, addedEntry);
         }
 
         public override async Task<int> Remove(Entry entry)

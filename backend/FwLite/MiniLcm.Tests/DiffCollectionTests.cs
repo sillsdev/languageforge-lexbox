@@ -204,7 +204,7 @@ public class DiffCollectionTests
     {
         var entry = new Entry(Guid.NewGuid(), "test");
         await DiffCollection.Diff([], [entry], _fakeApi);
-        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.Add)));
+        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.AddAndGet)));
     }
 
     [Fact]
@@ -229,10 +229,16 @@ public class DiffCollectionTests
         public record MethodCall(object Args, [CallerMemberName] string Name = "");
 
         public List<MethodCall> Calls { get; set; } = [];
-        public override Task<int> Add(Entry value)
+        public override Task<(int Changes, Entry Added)> AddAndGet(Entry value)
         {
             Calls.Add(new(value));
-            return Task.FromResult(1);
+            return Task.FromResult((1, value));
+        }
+
+        public override Task<int> Add(Entry value)
+        {
+            throw new InvalidOperationException(
+                $"{nameof(Add)} should never be called, because {nameof(AddAndGet)} is implemented");
         }
 
         public override Task<int> Remove(Entry value)

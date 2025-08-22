@@ -2,8 +2,6 @@ namespace MiniLcm.Models;
 
 public record Entry : IObjectWithId<Entry>
 {
-    public static readonly Entry Empty = new();
-
     public Guid Id { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
 

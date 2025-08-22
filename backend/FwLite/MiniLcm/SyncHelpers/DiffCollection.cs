@@ -9,7 +9,16 @@ namespace MiniLcm.SyncHelpers;
 
 public abstract class CollectionDiffApi<T, TId> where TId : notnull
 {
-    public abstract Task<int> Add(T value);
+    public virtual async Task<(int Changes, T Added)> AddAndGet(T value)
+    {
+        var changes = await Add(value);
+        return (changes, value);
+    }
+    // Can be implemented instead of AddAndGet for simpler DX
+    public virtual Task<int> Add(T value)
+    {
+        throw new NotImplementedException();
+    }
     public abstract Task<int> Remove(T value);
     public abstract Task<int> Replace(T before, T after);
     public abstract TId GetId(T value);
@@ -23,17 +32,16 @@ public abstract class ObjectWithIdCollectionDiffApi<T> : CollectionDiffApi<T, Gu
     }
 }
 
-public class ObjectWithIdCollectionReplaceDiffApi<T>(Func<T?, T, Task<int>> ReplaceFunc) : ObjectWithIdCollectionDiffApi<T> where T : IObjectWithId
+public class ObjectWithIdCollectionReplaceDiffApi<T>(Func<T, T, Task<int>> ReplaceFunc) : ObjectWithIdCollectionDiffApi<T> where T : IObjectWithId
 {
-    public override async Task<int> Add(T value)
+    public override Task<(int, T)> AddAndGet(T value)
     {
-        return await ReplaceFunc(default, value);
+        throw new InvalidOperationException($"{nameof(AddAndGet)} should never be called");
     }
 
     public override Task<int> Remove(T value)
     {
-        // no op
-        return Task.FromResult(0);
+        throw new InvalidOperationException($"{nameof(Remove)} should never be called");
     }
 
     public override async Task<int> Replace(T before, T after)
@@ -57,7 +65,7 @@ public interface IOrderableCollectionDiffApi<T> where T : IOrderable
 
 public static class DiffCollection
 {
-    public static async Task<int> Diff<T, TId>(
+    public static async Task<(int Changes, ICollection<T> Added)> DiffAndGetAdded<T, TId>(
         IList<T> before,
         IList<T> after,
         CollectionDiffApi<T, TId> diffApi) where TId : notnull
@@ -78,11 +86,23 @@ public static class DiffCollection
             afterEntriesDict.Remove(diffApi.GetId(beforeEntry));
         }
 
-        foreach (var value in afterEntriesDict.Values)
+        foreach (var (id, value) in afterEntriesDict)
         {
-            changes += await diffApi.Add(value);
+            var (addChanges, added) = await diffApi.AddAndGet(value);
+            changes += addChanges;
+            afterEntriesDict[id] = added;
         }
 
+        return (changes, afterEntriesDict.Values);
+    }
+
+
+    public static async Task<int> Diff<T, TId>(
+        IList<T> before,
+        IList<T> after,
+        CollectionDiffApi<T, TId> diffApi) where TId : notnull
+    {
+        var (changes, _) = await DiffAndGetAdded(before, after, diffApi);
         return changes;
     }
 
