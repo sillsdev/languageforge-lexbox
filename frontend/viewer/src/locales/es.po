@@ -428,6 +428,7 @@ msgid "Failed to synchronize."
 msgstr "Error de sincronización."
 
 #: src/project/ProjectSidebar.svelte
+#: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
 msgid "Feedback"
 msgstr "Comentarios"
@@ -500,6 +501,10 @@ msgstr "Buscar entrada..."
 msgid "Find word..."
 msgstr "Encuentra la palabra..."
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "For any other inquiries, feel free to send us an email."
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
@@ -550,6 +555,10 @@ msgstr "Última modificación: {0}"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Longitud:"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Let us know about any bugs or technical issues you encounter."
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -816,6 +825,10 @@ msgstr "Vuelva a abrir"
 msgid "Replace audio"
 msgstr "Sustituir audio"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Report a technical problem"
+msgstr ""
+
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
 msgstr "Guardar audio"
@@ -845,6 +858,10 @@ msgstr "Seleccionar archivo"
 msgid "Semantic domains"
 msgstr "Dominios semánticos"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Send us a message"
+msgstr ""
+
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -872,6 +889,10 @@ msgstr "Compartir archivo de registro"
 msgid "Share project data file"
 msgstr "Compartir archivo de datos del proyecto"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share your suggestions for new features or improvements."
+msgstr ""
+
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
 msgstr "Mostrar"
@@ -897,6 +918,10 @@ msgstr "Empieza por"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Enviar"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Suggest your ideas"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/activity/ActivityView.svelte
