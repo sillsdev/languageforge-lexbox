@@ -350,20 +350,25 @@ public class MiniLcmJsInvokable(
     public const int TenMbFileLimit = 10 * 1024 * 1024;
 
     [JSInvokable]
-    public async Task<UploadFileResponse> SaveFile(IJSStreamReference streamReference, LcmFileMetadata metadata)
+    public Task<UploadFileResponse> SaveFile(IJSStreamReference streamReference, LcmFileMetadata metadata)
     {
-        if (streamReference.Length > TenMbFileLimit) return new(UploadFileResult.TooBig);
-        await using var stream = await streamReference.OpenReadStreamAsync(TenMbFileLimit);
-        var result =  await _wrappedApi.SaveFile(stream, metadata);
-        try
+        if (streamReference.Length > TenMbFileLimit)
+            return Task.FromResult(new UploadFileResponse(UploadFileResult.TooBig));
+
+        return Task.Run(async () =>
         {
-            await streamReference.DisposeAsync();
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Error disposing stream reference");
-        }
-        return result;
+            await using var stream = await streamReference.OpenReadStreamAsync(TenMbFileLimit);
+            var result = await _wrappedApi.SaveFile(stream, metadata);
+            try
+            {
+                await streamReference.DisposeAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Error disposing stream reference");
+            }
+            return result;
+        });
     }
 
     public void Dispose()
