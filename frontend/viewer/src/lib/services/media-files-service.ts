@@ -1,4 +1,5 @@
 import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
+import type {IHarmonyResource} from '$lib/dotnet-types/generated-types/SIL/Harmony/Resource/IHarmonyResource';
 import type {ILocalResource} from '$lib/dotnet-types/generated-types/SIL/Harmony/Resource/ILocalResource';
 import type {IRemoteResource} from '$lib/dotnet-types/generated-types/SIL/Harmony/Resource/IRemoteResource';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
@@ -22,6 +23,9 @@ export class MediaFilesService {
 
   constructor(projectContext: ProjectContext) {
     this.#projectContext = projectContext;
+  }
+  allResources() {
+    return this.mediaFilesApi.allResources();
   }
   resourcesPendingDownload() {
     return this.mediaFilesApi.resourcesPendingDownload();

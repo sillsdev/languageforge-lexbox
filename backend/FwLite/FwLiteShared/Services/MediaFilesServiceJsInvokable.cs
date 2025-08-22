@@ -8,6 +8,12 @@ namespace FwLiteShared.Services;
 public class MediaFilesServiceJsInvokable(LcmMediaService mediaService)
 {
     [JSInvokable]
+    public async Task<HarmonyResource[]> AllResources()
+    {
+        return await mediaService.AllResources();
+    }
+
+    [JSInvokable]
     public async Task<RemoteResource[]> ResourcesPendingDownload()
     {
         return await mediaService.ResourcesPendingDownload();

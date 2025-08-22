@@ -86,6 +86,7 @@ public static class ReinforcedFwLiteTypingConfig
 
                 typeof(MediaFile),
                 typeof(LcmFileMetadata),
+                typeof(HarmonyResource),
                 typeof(RemoteResource),
                 typeof(LocalResource)
             ],

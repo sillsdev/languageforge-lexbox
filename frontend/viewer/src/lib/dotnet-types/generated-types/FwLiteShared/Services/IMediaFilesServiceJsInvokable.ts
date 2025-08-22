@@ -3,12 +3,14 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {IHarmonyResource} from '../../SIL/Harmony/Resource/IHarmonyResource';
 import type {IRemoteResource} from '../../SIL/Harmony/Resource/IRemoteResource';
 import type {ILocalResource} from '../../SIL/Harmony/Resource/ILocalResource';
 import type {ILcmFileMetadata} from '../../MiniLcm/Media/ILcmFileMetadata';
 
 export interface IMediaFilesServiceJsInvokable
 {
+	allResources() : Promise<IHarmonyResource[]>;
 	resourcesPendingDownload() : Promise<IRemoteResource[]>;
 	resourcesPendingUpload() : Promise<ILocalResource[]>;
 	downloadAllResources() : Promise<void>;
