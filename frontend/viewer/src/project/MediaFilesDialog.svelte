@@ -25,6 +25,7 @@
   import {useMediaFilesService} from '$lib/services/media-files-service';
   import type {IRemoteResource} from '$lib/dotnet-types/generated-types/SIL/Harmony/Resource/IRemoteResource';
   import type {ILocalResource} from '$lib/dotnet-types/generated-types/SIL/Harmony/Resource/ILocalResource';
+  import {Checkbox, CheckboxGroup} from '$lib/components/ui/checkbox';
 
   const {
     syncStatus = SyncStatus.Success
@@ -33,18 +34,19 @@
   const projectContext = useProjectContext();
   const service = useMediaFilesService();
   const features = useFeatures();
-  let remoteFileIds = $state<IRemoteResource[]>([]);
-  let localFileIds = $state<ILocalResource[]>([]);
-  let pendingUploadCount = $derived(localFileIds?.length ?? 0);
-  let pendingDownloadCount = $derived(remoteFileIds?.length ?? 0);
-  const localFiles = $derived(localFileIds.map(localFile => service.getFileMetadata(localFile.id)));
-  const remoteFiles = $derived(remoteFileIds.map(remoteFile => service.getFileMetadata(remoteFile.id)));
+  let remoteFiles = $state<IRemoteResource[]>([]);
+  let localFiles = $state<ILocalResource[]>([]);
+  let pendingUploadCount = $derived(localFiles?.length ?? 0);
+  let pendingDownloadCount = $derived(remoteFiles?.length ?? 0);
   let server = $derived(projectContext.server);
   let loading = $state(false);
   const openQueryParam = new QueryParamStateBool(
     { key: MEDIA_FILES_DIALOG_QUERY_PARAM, replaceOnDefaultValue: true, allowBack: true },
     false,
   );
+
+  let selectedFilesToDownload = $state<string[]>([]);
+  let selectedFilesToUpload = $state<string[]>([]);
 
   const serverName = $derived(server?.displayName ?? projectContext.projectData?.serverId ?? 'unknown');
 
@@ -62,7 +64,7 @@
     try {
       let remotePromise = service.resourcesPendingDownload();
       let localPromise = service.resourcesPendingUpload();
-      [localFileIds, remoteFileIds] = await Promise.all([
+      [localFiles, remoteFiles] = await Promise.all([
         localPromise,
         remotePromise,
       ]);
@@ -72,14 +74,14 @@
   }
 
   function onClose(): void {
-    localFileIds = [];
-    remoteFileIds = [];
+    localFiles = [];
+    remoteFiles = [];
   }
 
   let loadingDownload = $state(false);
-  async function downloadAll() {
+  function downloadAll() {
     try {
-      const downloadPromise = service.downloadAllResources();
+      const downloadPromise = service.downloadAllResources().then(onOpen);
       const count = pendingDownloadCount; // Break reactivity before we set pending count to 0
       AppNotification.promise(downloadPromise, {
         loading: $t`Downloading files from remote...`,
@@ -87,14 +89,13 @@
         error: (error) => $t`Failed to download files.` + '\n' + (error as Error).message,
       });
     } finally {
-      pendingDownloadCount = 0;
       loadingDownload = false;
     }
   }
   let loadingUpload = $state(false);
-  async function uploadAll() {
+  function uploadAll() {
     try {
-      const uploadPromise = service.uploadAllResources();
+      const uploadPromise = service.uploadAllResources().then(onOpen);
       const count = pendingUploadCount; // Break reactivity before we set pending count to 0
       AppNotification.promise(uploadPromise, {
         loading: $t`Uploading files to remote...`,
@@ -102,7 +103,34 @@
         error: (error) => $t`Failed to upload files.` + '\n' + (error as Error).message,
       });
     } finally {
-      pendingUploadCount = 0;
+      loadingUpload = false;
+    }
+  }
+  function downloadSelected() {
+    try {
+      const downloadPromise = service.downloadResources(selectedFilesToDownload).then(onOpen);
+      const count = selectedFilesToDownload.length; // Break reactivity before we set selected count to 0
+      AppNotification.promise(downloadPromise, {
+        loading: $t`Downloading files from remote...`,
+        success: $t`${count} files downloaded.`,
+        error: (error) => $t`Failed to download files.` + '\n' + (error as Error).message,
+      });
+    } finally {
+      selectedFilesToDownload = [];
+      loadingDownload = false;
+    }
+  }
+  function uploadSelected() {
+    try {
+      const uploadPromise = service.uploadResources(selectedFilesToUpload).then(onOpen);
+      const count = selectedFilesToUpload.length; // Break reactivity before we set selected count to 0
+      AppNotification.promise(uploadPromise, {
+        loading: $t`Uploading files to remote...`,
+        success: $t`${count} files uploaded.`,
+        error: (error) => $t`Failed to upload files.` + '\n' + (error as Error).message,
+      });
+    } finally {
+      selectedFilesToUpload = [];
       loadingUpload = false;
     }
   }
@@ -126,7 +154,7 @@
       <Loading class="place-self-center size-10" />
     {:else}
       <div in:fade
-        class="grid grid-rows-[auto] grid-cols-[1fr_7fr_1fr] gap-y-6 gap-x-8"
+        class="grid grid-rows-[auto] grid-cols-[1fr_7fr_120px] gap-y-6 gap-x-8"
       >
       <!-- TODO: Make icon(s) pulse while downloading, perhaps show progress in notification... -->
       <!-- TODO: Detect not-logged-in status and provide login button similar to sync dialog -->
@@ -137,21 +165,29 @@
           {pendingDownloadCount ?? '?'} files to download
         </div>
         <div class="content-center text-center">
-          <Button onclick={downloadAll}>DL</Button>
+          <Button onclick={downloadAll}>Download All</Button>
         </div>
         <div class="col-span-full text-left">
           <ul>
-            {#each remoteFiles as filePromise, idx (idx)}
+            <CheckboxGroup bind:value={selectedFilesToDownload} >
+            {#each remoteFiles as file, idx (idx)}
             <li>
-            {#await filePromise}
+            {#await service.getFileMetadata(file.id)}
               ...
             {:then metadata}
+              <Checkbox value={file.id} />
               <Icon icon={fileTypeIcon(metadata.mimeType)} /> {metadata.filename}
             {/await}
             </li>
             {/each}
+            </CheckboxGroup>
           </ul>
         </div>
+        {#if selectedFilesToDownload?.length}
+        <div class="col-span-full text-center">
+          <Button onclick={downloadSelected}>Download {selectedFilesToDownload.length} selected files</Button>
+        </div>
+        {/if}
         <div class="col-span-1 text-center">
           <Icon icon="i-mdi-folder-upload" class="size-10" />
         </div>
@@ -159,21 +195,29 @@
           {pendingUploadCount ?? '?'} files to upload
         </div>
         <div class="content-center text-center">
-          <Button onclick={uploadAll}>UL</Button>
+          <Button onclick={uploadAll}>Upload all</Button>
         </div>
         <div class="col-span-full text-left">
           <ul>
-            {#each localFiles as filePromise, idx (idx)}
+            <CheckboxGroup bind:value={selectedFilesToUpload} >
+            {#each localFiles as file, idx (idx)}
             <li>
-            {#await filePromise}
+            {#await service.getFileMetadata(file.id)}
               ...
             {:then metadata}
+              <Checkbox value={file.id} />
               <Icon icon={fileTypeIcon(metadata.mimeType)} /> {metadata.filename}
             {/await}
             </li>
             {/each}
+            </CheckboxGroup>
           </ul>
         </div>
+        {#if selectedFilesToUpload?.length}
+        <div class="col-span-full text-center">
+          <Button onclick={uploadSelected}>Upload {selectedFilesToUpload.length} selected files</Button>
+        </div>
+        {/if}
       </div>
     {/if}
   </DialogContent>
