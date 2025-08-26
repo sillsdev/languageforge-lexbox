@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-15 08:29\n"
+"PO-Revision-Date: 2025-08-26 08:56\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -534,7 +534,7 @@ msgstr "Je ne vois pas mon projet"
 
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "I understand that this can't be undone"
-msgstr ""
+msgstr "Je comprends que cela ne peut pas être annulé"
 
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -604,7 +604,7 @@ msgstr "Réalisé avec ❤️ à partir de 🇦🇹 🇹🇭 🇺🇸"
 
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
-msgstr ""
+msgstr "Assurez-vous que vos [changements sont synchronisés]({0}) vers Lexbox."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
@@ -663,7 +663,7 @@ msgstr "Aucune activité trouvée"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
-msgstr ""
+msgstr "Pas de son"
 
 #: src/lib/history/HistoryView.svelte
 msgid "No change name"
@@ -774,7 +774,7 @@ msgstr "Avant-première"
 
 #: src/home/HomeView.svelte
 msgid "Project"
-msgstr ""
+msgstr "Projet"
 
 #: src/home/Server.svelte
 msgid "Project {0} not found on {1}"
@@ -820,7 +820,7 @@ msgstr "Remplacer l'audio"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
-msgstr ""
+msgstr "Enregistrer sous"
 
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"

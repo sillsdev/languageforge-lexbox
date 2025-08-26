@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-15 08:29\n"
+"PO-Revision-Date: 2025-08-26 08:57\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -534,7 +534,7 @@ msgstr "Saya tidak melihat proyek saya"
 
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "I understand that this can't be undone"
-msgstr ""
+msgstr "Saya memahami bahwa hal ini tidak dapat dibatalkan"
 
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -604,7 +604,7 @@ msgstr "Dibuat dengan ❤️ dari 🇦🇹 🇹🇭 🇺🇸"
 
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
-msgstr ""
+msgstr "Pastikan [perubahan telah disinkronkan]({0}) ke Lexbox."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
@@ -663,7 +663,7 @@ msgstr "Tidak ada aktivitas yang ditemukan"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
-msgstr ""
+msgstr "Tidak ada audio"
 
 #: src/lib/history/HistoryView.svelte
 msgid "No change name"
@@ -774,7 +774,7 @@ msgstr "Pratinjau"
 
 #: src/home/HomeView.svelte
 msgid "Project"
-msgstr ""
+msgstr "Proyek"
 
 #: src/home/Server.svelte
 msgid "Project {0} not found on {1}"
@@ -820,7 +820,7 @@ msgstr "Mengganti audio"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
-msgstr ""
+msgstr "Simpan Sebagai"
 
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"

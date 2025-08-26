@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-15 08:29\n"
+"PO-Revision-Date: 2025-08-26 08:57\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -534,7 +534,7 @@ msgstr "내 프로젝트가 보이지 않습니다."
 
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "I understand that this can't be undone"
-msgstr ""
+msgstr "이 작업은 되돌릴 수 없다는 것을 이해합니다."
 
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -604,7 +604,7 @@ msgstr "제작: ❤️ 출처: 🇦🇹 🇹🇭 🇺🇸"
 
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
-msgstr ""
+msgstr "변경 사항이 렉스박스에 동기화되었는지 확인합니다({0})."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
@@ -663,7 +663,7 @@ msgstr "활동을 찾을 수 없습니다."
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
-msgstr ""
+msgstr "오디오 없음"
 
 #: src/lib/history/HistoryView.svelte
 msgid "No change name"
@@ -774,7 +774,7 @@ msgstr "미리 보기"
 
 #: src/home/HomeView.svelte
 msgid "Project"
-msgstr ""
+msgstr "프로젝트"
 
 #: src/home/Server.svelte
 msgid "Project {0} not found on {1}"
@@ -820,7 +820,7 @@ msgstr "오디오 교체"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
-msgstr ""
+msgstr "다른 이름으로 저장"
 
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
