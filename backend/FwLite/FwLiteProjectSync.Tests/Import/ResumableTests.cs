@@ -158,10 +158,10 @@ internal partial class UnreliableApi(IMiniLcmApi api, Random random) : IMiniLcmA
         return _api.CreatePartOfSpeech(partOfSpeech);
     }
 
-    Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry)
+    Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry, CreateEntryOptions? options)
     {
         ResumableTests.MaybeThrowRandom(random, 0.2);
-        return _api.CreateEntry(entry);
+        return _api.CreateEntry(entry, options);
     }
 
     async Task IMiniLcmWriteApi.BulkCreateEntries(IAsyncEnumerable<Entry> entries)

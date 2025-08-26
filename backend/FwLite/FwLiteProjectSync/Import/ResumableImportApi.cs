@@ -45,9 +45,9 @@ public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
 
     // ********** Overrides go here **********
 
-    async Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry)
+    async Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry, CreateEntryOptions? options)
     {
-        return await HasCreated(entry, _api.GetAllEntries(), () => _api.CreateEntry(entry));
+        return await HasCreated(entry, _api.GetAllEntries(), () => _api.CreateEntry(entry, options));
     }
 
     async Task<PartOfSpeech> IMiniLcmWriteApi.CreatePartOfSpeech(PartOfSpeech partOfSpeech)

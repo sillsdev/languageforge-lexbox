@@ -58,10 +58,12 @@
     loader = defaultLoader,
     audioId = $bindable(),
     onchange = () => {},
+    readonly = false,
   }: {
-    loader?: (audioId: string) => Promise<ReadableStream | undefined | typeof handled>,
+    loader?: (audioId: string) => Promise<{stream: ReadableStream, filename: string} | undefined | typeof handled>,
     audioId: string | undefined,
     onchange?: (audioId: string | undefined) => void;
+    readonly?: boolean;
   } = $props();
 
   const projectContext = useProjectContext();
@@ -87,23 +89,24 @@
 
       return handled;
     }
-    return await file.stream.stream();
+    return {stream: await file.stream.stream(), filename: file.fileName ?? ''};
   }
 
   async function load() {
     if (!audio || loadedAudioId === audioId || !audioId) return !!audioId;
     playerState = 'loading';
     try {
-      const stream = await loader(audioId);
-      if (stream === handled) return false;
-      if (!stream) {
+      const result = await loader(audioId);
+      if (result === handled) return false;
+      if (!result) {
         AppNotification.error(`Failed to load audio ${audioId}`);
         return;
       }
-      let blob = await new Response(stream).blob();
+      let blob = await new Response(result.stream).blob();
       if (audio.src) URL.revokeObjectURL(audio.src);
       loadedAudioId = undefined;
       audio.src = URL.createObjectURL(blob);
+      filename = result.filename;
       loadedAudioId = audioId;
       return true;
     } finally {
@@ -182,6 +185,7 @@
 
 
   let loadedAudioId = $state<string>();
+  let filename = $state('');
   let audio = $state<HTMLAudioElement>();
   let audioRuned = $derived(audio ? new AudioRuned(audio) : null);
   useEventListener(() => audio, 'ended', () => playerState = 'paused');
@@ -233,6 +237,16 @@
     }
   }
 
+  async function onSaveAs() {
+    if (!audio) return;
+    await load();
+    //todo sadly this only works on desktop, not mobile, but it's the same with save as with the audio editor.
+    const a = document.createElement('a');
+    a.href = audio.src;
+    a.download = filename;
+    a.click();
+  }
+
   function onAudioError(event: Event) {
     if (audioHasKnownFlacSeekError()) {
       console.log('Ignoring known FLAC seek error. Will try to recover on next play.');
@@ -253,9 +267,15 @@
 </script>
 {#if supportsAudio}
   {#if !audioId}
-    <Button variant="secondary" icon="i-mdi-microphone-plus" size="sm" iconProps={{class: 'size-5'}} onclick={onGetAudioClick}>
-      {$t`Add audio`}
-    </Button>
+    {#if !readonly}
+      <Button variant="secondary" icon="i-mdi-microphone-plus" size="sm" iconProps={{class: 'size-5'}} onclick={onGetAudioClick}>
+        {$t`Add audio`}
+      </Button>
+    {:else}
+      <div class="text-muted-foreground p-1">
+        {$t`No audio`}
+      </div>
+    {/if}
   {:else if isNotFoundAudioId(audioId)}
     <div class="text-muted-foreground p-1">
       {$t`Audio file not included in Send & Receive`}
@@ -301,11 +321,16 @@
             {/snippet}
           </ResponsiveMenu.Trigger>
           <ResponsiveMenu.Content>
-            <ResponsiveMenu.Item icon="i-mdi-microphone-plus" onSelect={onGetAudioClick}>
-              {$t`Replace audio`}
-            </ResponsiveMenu.Item>
-            <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onRemoveAudio}>
-              {$t`Remove audio`}
+            {#if !readonly}
+              <ResponsiveMenu.Item icon="i-mdi-microphone-plus" onSelect={onGetAudioClick}>
+                {$t`Replace audio`}
+              </ResponsiveMenu.Item>
+              <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onRemoveAudio}>
+                {$t`Remove audio`}
+              </ResponsiveMenu.Item>
+            {/if}
+            <ResponsiveMenu.Item icon="i-mdi-download" onSelect={onSaveAs}>
+              {$t`Save As`}
             </ResponsiveMenu.Item>
           </ResponsiveMenu.Content>
         </ResponsiveMenu.Root>

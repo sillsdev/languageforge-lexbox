@@ -68,6 +68,7 @@
     if (!finalAudio) throw new Error('No audio to download');
     const url = URL.createObjectURL(finalAudio);
     try {
+      //todo only works on desktop, not mobile
       const a = document.createElement('a');
       a.href = url;
       a.download = `${finalAudio.name}`;

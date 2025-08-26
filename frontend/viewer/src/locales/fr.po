@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-15 08:29\n"
+"PO-Revision-Date: 2025-08-26 08:56\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -18,1032 +18,1038 @@ msgstr ""
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
-#: src/lib/activity/ActivityView.svelte:104
+#: src/lib/activity/ActivityView.svelte
 msgid "– ({0} changes)"
 msgstr "- ({0} changes)"
 
-#: src/lib/components/audio/audio-editor.svelte:86
-#: src/lib/components/audio/audio-editor.svelte:91
-#: src/lib/components/audio/audio-editor.svelte:95
-#: src/home/HomeView.svelte:78
+#: src/lib/components/audio/audio-editor.svelte
+#: src/lib/components/audio/audio-editor.svelte
+#: src/lib/components/audio/audio-editor.svelte
+#: src/home/HomeView.svelte
 msgid "{0}"
 msgstr "{0}"
 
-#: src/project/SyncDialog.svelte:253
+#: src/project/SyncDialog.svelte
 msgid "{0} - FieldWorks"
 msgstr "{0} - Travail sur le terrain"
 
-#: src/project/SyncDialog.svelte:213
+#: src/project/SyncDialog.svelte
 msgid "{0} - FieldWorks Lite"
 msgstr "{0} - FieldWorks Lite"
 
-#: src/lib/components/editor/field/field-title.svelte:22
+#: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
 msgstr "{0} (FieldWorks Lite)"
 
-#: src/lib/components/editor/field/field-title.svelte:23
+#: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
-#: src/lib/components/audio/audio-editor.svelte:88
+#: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
 
-#: src/home/Server.svelte:111
+#: src/home/Server.svelte
 msgid "{0} Server"
 msgstr "{0} Serveur"
 
-#: src/project/SyncDialog.svelte:97
+#: src/project/SyncDialog.svelte
 msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
 msgstr "{0} synchronisé avec FieldWorks. {1} synchronisé avec FieldWorks Lite."
 
-#: src/project/SyncDialog.svelte:95
-#: src/project/SyncDialog.svelte:96
+#: src/project/SyncDialog.svelte
+#: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {# change} other {# changes}}"
 
-#: src/lib/notifications/NotificationOutlet.svelte:21
+#: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks lite is available."
 msgstr "Une nouvelle version de FieldWorks lite est disponible."
 
-#: src/project/browse/BrowseView.svelte:102
+#: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr "un mot"
 
-#: src/lib/about/AboutDialog.svelte:22
+#: src/lib/about/AboutDialog.svelte
 msgid "About"
 msgstr "A propos de"
 
-#: src/project/ProjectSidebar.svelte:140
+#: src/project/ProjectSidebar.svelte
 msgid "Account"
 msgstr "Compte"
 
-#: src/project/ProjectSidebar.svelte:96
+#: src/project/ProjectSidebar.svelte
 msgid "Activity"
 msgstr "Activité"
 
-#: src/lib/components/field-editors/audio-input.svelte:257
-#: src/lib/components/audio/AudioDialog.svelte:143
+#: src/lib/components/field-editors/audio-input.svelte
+#: src/lib/components/audio/AudioDialog.svelte
 msgid "Add audio"
 msgstr "Ajouter de l'audio"
 
-#: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add complex form"
 msgstr "Ajouter un formulaire complexe"
 
-#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:57
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Add component"
 msgstr "Ajouter un composant"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte:212
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Example"
 msgstr "Ajouter un exemple"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Meaning"
 msgstr "Ajouter un sens"
 
-#: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Ajouter une partie de"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Sense"
 msgstr "Ajouter du sens"
 
-#: src/lib/history/HistoryView.svelte:92
-#: src/lib/activity/ActivityView.svelte:82
-#: src/lib/activity/ActivityView.svelte:110
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "ago"
 msgstr "il y a"
 
-#: src/project/browse/BrowseView.svelte:102
+#: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "une entrée"
 
-#: src/project/browse/filter/WsSelect.svelte:21
+#: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
 msgstr "Tous les W"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Application version"
 msgstr "Version de l'application"
 
-#: src/lib/entry-editor/DeleteDialog.svelte:69
+#: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
 msgstr "Êtes-vous sûr de vouloir supprimer {0}?"
 
-#: src/lib/components/field-editors/audio-input.svelte:261
+#: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr "Le fichier audio n'est pas inclus dans l'envoi et la réception"
 
-#: src/lib/components/audio/AudioDialog.svelte:84
+#: src/lib/components/audio/AudioDialog.svelte
 msgid "Audio saved and uploaded to Lexbox"
 msgstr "Audio enregistré et téléchargé dans Lexbox"
 
-#: src/lib/components/audio/AudioDialog.svelte:81
+#: src/lib/components/audio/AudioDialog.svelte
 msgid "Audio saved locally"
 msgstr "Audio enregistré localement"
 
-#: src/lib/history/HistoryView.svelte:104
-#: src/lib/activity/ActivityView.svelte:96
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "Author:"
 msgstr "Auteur :"
 
-#: src/project/browse/SortMenu.svelte:76
+#: src/project/browse/SortMenu.svelte
 msgid "Auto"
 msgstr "Auto"
 
-#: src/project/SyncDialog.svelte:187
+#: src/project/SyncDialog.svelte
 msgid "Auto synchronizing"
 msgstr "Synchronisation automatique"
 
-#: src/lib/history/HistoryView.svelte:86
-#: src/lib/activity/ActivityView.svelte:77
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "before"
 msgstr "avant"
 
-#: src/project/browse/SortMenu.svelte:9
+#: src/project/browse/SortMenu.svelte
 msgid "Best match"
 msgstr "Meilleure correspondance"
 
-#: src/project/ProjectSidebar.svelte:91
+#: src/project/ProjectSidebar.svelte
 msgid "Browse"
 msgstr "Parcourir"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:113
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:245
-#: src/lib/components/field-editors/select.svelte:164
-#: src/lib/components/field-editors/multi-select.svelte:277
-#: src/lib/components/audio/AudioDialog.svelte:153
-#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:86
+#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/audio/AudioDialog.svelte
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Cancel"
 msgstr "Annuler"
 
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:55
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
 msgstr "Formulaire de citation"
 
-#: src/project/browse/SearchFilter.svelte:41
+#: src/project/browse/SearchFilter.svelte
 msgid "Citation Form"
 msgstr "Formulaire de citation"
 
-#: src/home/HomeView.svelte:268
+#: src/home/HomeView.svelte
 msgid "Classic FieldWorks Projects"
 msgstr "Projets FieldWorks classiques"
 
-#: src/lib/components/field-editors/select.svelte:116
-#: src/lib/components/field-editors/multi-select.svelte:202
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
 msgstr "clair"
 
-#: src/lib/components/ui/button/x-button.svelte:14
-#: src/lib/components/field-editors/multi-select.svelte:212
-#: src/lib/about/AboutDialog.svelte:28
+#: src/lib/components/ui/button/x-button.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/about/AboutDialog.svelte
 msgid "Close"
 msgstr "Fermer"
 
-#: src/project/ProjectSidebar.svelte:159
+#: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Fermer le dictionnaire"
 
-#: src/lib/ThemePicker.svelte:38
+#: src/lib/ThemePicker.svelte
 msgid "Color"
 msgstr "Couleur"
 
-#: src/lib/entry-editor/field-editors/ComplexForms.svelte:55
-#: src/lib/entry-editor/field-editors/ComplexForms.svelte:44
-#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:45
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Complex Form"
 msgstr "Forme complexe"
 
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:88
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex form types"
 msgstr "Types de formulaires complexes"
 
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:67
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
 msgstr "Formes complexes"
 
-#: src/lib/entry-editor/field-editors/ComplexForms.svelte:43
-#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:61
-#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:44
-#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:50
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Component"
 msgstr "Composant"
 
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:77
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Components"
 msgstr "Composants"
 
-#: src/project/browse/filter/OpFilter.svelte:13
+#: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "Contient"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:115
+#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create {0}"
 msgstr "Créer {0}"
 
-#: src/lib/entry-editor/NewEntryButton.svelte:12
+#: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
 msgstr "Créer une entrée"
 
-#: src/home/HomeView.svelte:247
+#: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Créer un projet d'exemple"
 
-#: src/lib/entry-editor/NewEntryButton.svelte:12
+#: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create word"
 msgstr "Créer un mot"
 
-#: src/lib/entry-editor/field-editors/ComplexForms.svelte:42
-#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:43
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Entry"
 msgstr "Entrée actuelle"
 
-#: src/lib/entry-editor/field-editors/ComplexForms.svelte:42
-#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:43
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Word"
 msgstr "Mot actuel"
 
-#: src/project/ProjectSidebar.svelte:89
+#: src/project/ProjectSidebar.svelte
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:48
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Data Directory"
 msgstr "Répertoire de données"
 
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:52
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Definition"
 msgstr "Définition"
 
-#: src/home/HomeView.svelte:230
+#: src/home/HomeView.svelte
 msgid "Delete"
 msgstr "Supprimer"
 
-#: src/lib/entry-editor/DeleteDialog.svelte:64
-#: src/lib/entry-editor/DeleteDialog.svelte:83
+#: src/lib/entry-editor/DeleteDialog.svelte
+#: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Delete {0}"
 msgstr "Supprimer {0}"
 
-#: src/project/browse/EntryMenu.svelte:55
+#: src/project/browse/EntryMenu.svelte
 msgid "Delete Entry"
 msgstr "Supprimer l'entrée"
 
-#: src/project/browse/EntryMenu.svelte:55
+#: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
 msgstr "Supprimer un mot"
 
-#: src/home/HomeView.svelte:141
-#: src/home/HomeView.svelte:145
+#: src/home/HomeView.svelte
+#: src/home/HomeView.svelte
 msgid "Dictionaries"
 msgstr "Dictionnaires"
 
-#: src/project/ProjectSidebar.svelte:85
+#: src/project/ProjectSidebar.svelte
 msgid "Dictionary"
 msgstr "Dictionnaire"
 
-#: src/project/browse/ViewPicker.svelte:38
+#: src/project/browse/ViewPicker.svelte
 msgid "Dictionary Preview"
 msgstr "Aperçu du dictionnaire"
 
-#: src/lib/components/audio/audio-editor.svelte:107
+#: src/lib/components/audio/audio-editor.svelte
 msgid "Discard"
 msgstr "Rejeter"
 
-#: src/project/browse/SearchFilter.svelte:41
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:55
+#: src/project/browse/SearchFilter.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Display as"
 msgstr "Afficher comme"
 
-#: src/lib/entry-editor/DeleteDialog.svelte:82
+#: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
 msgstr "Ne pas supprimer"
 
-#: src/lib/notifications/NotificationOutlet.svelte:27
-#: src/lib/components/audio/audio-editor.svelte:106
-#: src/home/Server.svelte:167
+#: src/lib/notifications/NotificationOutlet.svelte
+#: src/lib/components/audio/audio-editor.svelte
+#: src/home/Server.svelte
 msgid "Download"
 msgstr "Télécharger"
 
-#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:88
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download {0}"
 msgstr "Télécharger {0}"
 
-#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:60
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "Télécharger un projet par code de projet"
 
-#: src/home/Server.svelte:143
-#: src/home/Server.svelte:149
-#: src/home/Server.svelte:177
-#: src/home/Server.svelte:183
-msgid "Download project not listed"
-msgstr "Télécharger le projet non listé"
+#: src/home/Server.svelte
+#: src/home/Server.svelte
+msgid "Download unlisted project"
+msgstr ""
 
-#: src/home/Server.svelte:52
+#: src/home/Server.svelte
 msgid "Downloaded {0}"
 msgstr "Téléchargé {0}"
 
-#: src/home/Server.svelte:51
+#: src/home/Server.svelte
 msgid "Downloading {0}..."
 msgstr "Télécharger {0}..."
 
-#: src/home/Server.svelte:167
+#: src/home/Server.svelte
 msgid "Downloading..."
 msgstr "Téléchargement..."
 
-#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:41
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "Editeur"
 
-#: src/project/browse/filter/OpFilter.svelte:14
+#: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Se termine par"
 
-#: src/project/browse/EntryMenu.svelte:37
-#: src/lib/entry-editor/NewEntryDialog.svelte:87
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:250
+#: src/project/browse/EntryMenu.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry"
 msgstr "Entrée"
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:211
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry Only"
 msgstr "Entrée seulement"
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:204
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry or sense:"
 msgstr "Entrée ou sens :"
 
-#: src/project/browse/filter/OpFilter.svelte:15
+#: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
 msgstr "Équivalents"
 
-#: src/project/ProjectSidebar.svelte:121
+#: src/project/ProjectSidebar.svelte
 msgid "Error getting sync status"
 msgstr "Erreur dans l'obtention de l'état de la synchronisation"
 
-#: src/project/SyncDialog.svelte:199
+#: src/project/SyncDialog.svelte
 msgid "Error getting sync status."
 msgstr "Erreur dans l'obtention de l'état de la synchronisation."
 
-#: src/project/SyncDialog.svelte:264
+#: src/project/SyncDialog.svelte
 msgid "Error: {0}"
 msgstr "Erreur : {0}"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte:184
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example"
 msgstr "Exemple"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte:91
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr "Exemple de phrase"
 
-#: src/home/Server.svelte:53
+#: src/home/Server.svelte
 msgid "Failed to download {0}"
 msgstr "Échec du téléchargement de {0}"
 
-#: src/project/browse/EntriesList.svelte:143
-#: src/project/browse/EntriesList.svelte:99
+#: src/project/browse/EntriesList.svelte
+#: src/project/browse/EntriesList.svelte
 msgid "Failed to load entries"
 msgstr "Échec du chargement des entrées"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:28
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to open data directory, use the path in the text field instead"
 msgstr "Échec de l'ouverture du répertoire de données, utilisez plutôt le chemin d'accès dans le champ texte."
 
-#: src/lib/services/url-opener.ts:16
+#: src/lib/services/url-opener.ts
 msgid "Failed to open URL: {0}"
 msgstr "Impossible d'ouvrir l'URL : {0}"
 
-#: src/project/SyncDialog.svelte:124
+#: src/project/SyncDialog.svelte
 msgid "Failed to synchronize"
 msgstr "Échec de la synchronisation"
 
-#: src/project/SyncDialog.svelte:99
+#: src/project/SyncDialog.svelte
 msgid "Failed to synchronize."
 msgstr "Échec de la synchronisation."
 
-#: src/project/ProjectSidebar.svelte:181
-#: src/home/HomeView.svelte:164
+#: src/project/ProjectSidebar.svelte
+#: src/home/HomeView.svelte
 msgid "Feedback"
 msgstr "Retour d'information"
 
-#: src/project/browse/SearchFilter.svelte:136
+#: src/project/browse/SearchFilter.svelte
 msgid "Field"
 msgstr "Champ d'application"
 
-#: src/project/browse/ViewPicker.svelte:32
+#: src/project/browse/ViewPicker.svelte
 msgid "Field Labels"
 msgstr "Étiquettes de champ"
 
-#: src/project/ProjectDropdown.svelte:69
-#: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:274
+#: src/project/ProjectDropdown.svelte
+#: src/lib/OpenInFieldWorksButton.svelte
+#: src/home/HomeView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
 
-#: src/lib/components/audio/AudioDialog.svelte:91
+#: src/lib/components/audio/AudioDialog.svelte
 msgid "File already exists"
 msgstr "Le fichier existe déjà"
 
-#: src/lib/components/audio/audio-editor.svelte:90
+#: src/lib/components/audio/audio-editor.svelte
 msgid "File name:"
 msgstr "Nom du fichier :"
 
-#: src/lib/components/field-editors/audio-input.svelte:78
+#: src/lib/components/field-editors/audio-input.svelte
 msgid "File not found"
 msgstr "Fichier non trouvé"
 
-#: src/lib/components/audio/AudioDialog.svelte:89
+#: src/lib/components/audio/AudioDialog.svelte
 msgid "File saving not supported"
 msgstr "L'enregistrement du fichier n'est pas pris en charge"
 
-#: src/lib/components/audio/AudioDialog.svelte:150
-#: src/lib/components/audio/AudioDialog.svelte:87
+#: src/lib/components/audio/AudioDialog.svelte
+#: src/lib/components/audio/AudioDialog.svelte
 msgid "File too big"
 msgstr "Fichier trop volumineux"
 
-#: src/project/browse/SearchFilter.svelte:100
+#: src/project/browse/SearchFilter.svelte
 msgid "Filter # entries"
 msgstr "Filtre # entrées"
 
-#: src/project/browse/SearchFilter.svelte:100
+#: src/project/browse/SearchFilter.svelte
 msgid "Filter # words"
 msgstr "Filtre # mots"
 
-#: src/project/browse/SearchFilter.svelte:106
+#: src/project/browse/SearchFilter.svelte
 msgid "Filter entries"
 msgstr "Filtrer les entrées"
 
-#: src/project/browse/SearchFilter.svelte:147
+#: src/project/browse/SearchFilter.svelte
 msgid "Filter for"
 msgstr "Filtre pour"
 
-#: src/project/browse/SearchFilter.svelte:106
+#: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
 msgstr "Mots filtres"
 
-#: src/lib/components/field-editors/select.svelte:112
-#: src/lib/components/field-editors/multi-select.svelte:198
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 msgid "Filter..."
 msgstr "Filtre..."
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:140
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find entry..."
 msgstr "Trouver l'entrée..."
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:140
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find word..."
 msgstr "Trouver un mot..."
 
-#: src/project/browse/SearchFilter.svelte:42
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:41
+#: src/project/browse/SearchFilter.svelte
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
 msgstr "Brillant"
 
-#: src/lib/entry-editor/EntryOrSenseItemList.svelte:26
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Aller sur {0}"
 
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:63
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Grammatical info."
 msgstr "Informations grammaticales."
 
-#: src/project/browse/SortMenu.svelte:10
+#: src/project/browse/SortMenu.svelte
 msgid "Headword"
 msgstr "Mot de tête"
 
-#: src/project/browse/ViewPicker.svelte:40
+#: src/project/browse/ViewPicker.svelte
 msgid "Hide"
 msgstr "Cacher"
 
-#: src/project/browse/EntryMenu.svelte:60
-#: src/lib/history/HistoryView.svelte:61
+#: src/project/browse/EntryMenu.svelte
+#: src/lib/history/HistoryView.svelte
 msgid "History"
 msgstr "L'histoire"
 
-#: src/lib/components/audio/audio-provider.svelte:85
+#: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or\\npress and release to start recording."
 msgstr "Maintenez la touche enfoncée pour enregistrer ou\\nappuyez et relâchez la touche pour démarrer l'enregistrement."
 
-#: src/home/Server.svelte:188
+#: src/home/Server.svelte
 msgid "I don't see my project"
 msgstr "Je ne vois pas mon projet"
 
-#: src/lib/entry-editor/DeleteDialog.svelte:78
+#: src/lib/entry-editor/DeleteDialog.svelte
 msgid "I understand that this can't be undone"
-msgstr ""
+msgstr "Je comprends que cela ne peut pas être annulé"
 
-#: src/home/HomeView.svelte:282
+#: src/home/HomeView.svelte
 msgid "Import"
 msgstr "Importation"
 
-#: src/project/SyncDialog.svelte:216
-#: src/project/SyncDialog.svelte:256
+#: src/project/SyncDialog.svelte
+#: src/project/SyncDialog.svelte
 msgid "Last change: {0}"
 msgstr "Dernière modification : {0}"
 
-#: src/lib/components/audio/audio-editor.svelte:86
+#: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Longueur :"
 
-#: src/home/HomeView.svelte:144
+#: src/home/HomeView.svelte
 msgid "Lexbox logo"
 msgstr "Logo Lexbox"
 
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:43
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Lexeme form"
 msgstr "Forme du lexème"
 
-#: src/project/browse/SearchFilter.svelte:40
+#: src/project/browse/SearchFilter.svelte
 msgid "Lexeme Form"
 msgstr "Forme du lexème"
 
-#: src/project/browse/BrowseView.svelte:63
+#: src/project/browse/BrowseView.svelte
 msgid "List mode"
 msgstr "Mode liste"
 
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:103
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Literal meaning"
 msgstr "Sens littéral"
 
-#: src/project/ProjectDropdown.svelte:105
+#: src/project/ProjectDropdown.svelte
 msgid "Loading Dictionaries..."
 msgstr "Chargement des dictionnaires..."
 
-#: src/home/HomeView.svelte:185
+#: src/home/HomeView.svelte
 msgid "loading..."
 msgstr "chargement..."
 
-#: src/home/HomeView.svelte:190
+#: src/home/HomeView.svelte
 msgid "Local"
 msgstr "Locale"
 
-#: src/home/HomeView.svelte:212
+#: src/home/HomeView.svelte
 msgid "Local only"
 msgstr "Uniquement au niveau local"
 
-#: src/project/SyncDialog.svelte:193
+#: src/project/SyncDialog.svelte
 msgid "Login"
 msgstr "Connexion"
 
-#: src/lib/auth/LoginButton.svelte:82
-#: src/lib/auth/LoginButton.svelte:90
+#: src/lib/auth/LoginButton.svelte
+#: src/lib/auth/LoginButton.svelte
 msgid "Login to see projects"
 msgstr "Se connecter pour voir les projets"
 
-#: src/lib/auth/LoginButton.svelte:72
+#: src/lib/auth/LoginButton.svelte
 msgid "Logout"
 msgstr "Déconnexion"
 
-#: src/project/ProjectSidebar.svelte:195
+#: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Réalisé avec ❤️ à partir de 🇦🇹 🇹🇭 🇺🇸"
 
-#: src/home/HomeView.svelte:80
+#: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
-msgstr ""
+msgstr "Assurez-vous que vos [changements sont synchronisés]({0}) vers Lexbox."
 
-#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:40
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
 msgstr "Responsable"
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:250
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte:166
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte:73
-#: src/lib/entry-editor/object-editors/AddSenseFab.svelte:15
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Meaning"
 msgstr "Signification"
 
-#: src/project/browse/SearchFilter.svelte:152
+#: src/project/browse/SearchFilter.svelte
 msgid "Missing Examples"
 msgstr "Exemples manquants"
 
-#: src/project/browse/SearchFilter.svelte:154
+#: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr "Partie du discours manquante"
 
-#: src/project/browse/SearchFilter.svelte:155
+#: src/project/browse/SearchFilter.svelte
 msgid "Missing Semantic Domains"
 msgstr "Domaines sémantiques manquants"
 
-#: src/project/browse/SearchFilter.svelte:153
+#: src/project/browse/SearchFilter.svelte
 msgid "Missing Senses"
 msgstr "Sens manquants"
 
-#: src/lib/entry-editor/ItemListItem.svelte:67
+#: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Déplacer"
 
-#: src/project/SyncDialog.svelte:257
+#: src/project/SyncDialog.svelte
 msgid "Never"
 msgstr "Jamais"
 
-#: src/project/NewEntryButton.svelte:51
+#: src/project/NewEntryButton.svelte
 msgid "New"
 msgstr "Nouveau"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte:100
+#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "New {0}"
 msgstr "Nouveau {0}"
 
-#: src/project/NewEntryButton.svelte:53
+#: src/project/NewEntryButton.svelte
 msgid "New Entry"
 msgstr "Nouvelle entrée"
 
-#: src/project/NewEntryButton.svelte:53
+#: src/project/NewEntryButton.svelte
 msgid "New Word"
 msgstr "Nouveau mot"
 
-#: src/lib/activity/ActivityView.svelte:89
+#: src/lib/activity/ActivityView.svelte
 msgid "No activity found"
 msgstr "Aucune activité trouvée"
 
-#: src/lib/history/HistoryView.svelte:78
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "No audio"
+msgstr "Pas de son"
+
+#: src/lib/history/HistoryView.svelte
 msgid "No change name"
 msgstr "Pas de changement de nom"
 
-#: src/project/ProjectDropdown.svelte:109
+#: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr "Aucun dictionnaire trouvé"
 
-#: src/project/browse/EntriesList.svelte:168
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:174
+#: src/project/browse/EntriesList.svelte
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No entries found"
 msgstr "Aucune entrée trouvée"
 
-#: src/lib/components/audio/AudioDialog.svelte:77
+#: src/lib/components/audio/AudioDialog.svelte
 msgid "No file to upload"
 msgstr "Aucun fichier à télécharger"
 
-#: src/lib/history/HistoryView.svelte:68
+#: src/lib/history/HistoryView.svelte
 msgid "No history found"
 msgstr "Aucun antécédent n'a été trouvé"
 
-#: src/lib/components/field-editors/select.svelte:124
-#: src/lib/components/field-editors/multi-select.svelte:217
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 msgid "No items found"
 msgstr "Aucun élément trouvé"
 
-#: src/project/SyncDialog.svelte:197
-#: src/project/ProjectSidebar.svelte:115
+#: src/project/SyncDialog.svelte
+#: src/project/ProjectSidebar.svelte
 msgid "No server configured"
 msgstr "Pas de serveur configuré"
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:174
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
 msgstr "Aucun mot trouvé"
 
-#: src/lib/components/field-editors/select.svelte:99
-#: src/lib/components/field-editors/multi-select.svelte:173
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 msgid "None"
 msgstr "Aucun"
 
-#: src/project/browse/filter/OpFilter.svelte:16
+#: src/project/browse/filter/OpFilter.svelte
 msgid "Not equal"
 msgstr "Pas d'égalité"
 
-#: src/project/SyncDialog.svelte:261
-#: src/project/ProjectSidebar.svelte:113
+#: src/project/SyncDialog.svelte
+#: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
 msgstr "Non connecté"
 
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:114
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
 msgstr "Note"
 
-#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:42
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
 msgstr "Observateur"
 
-#: src/project/SyncDialog.svelte:191
-#: src/project/ProjectSidebar.svelte:111
+#: src/project/SyncDialog.svelte
+#: src/project/ProjectSidebar.svelte
 msgid "Offline"
 msgstr "Hors ligne"
 
-#: src/lib/components/field-editors/audio-input.svelte:81
+#: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Hors ligne, impossible de télécharger"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:53
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Répertoire des données ouvertes"
 
-#: src/lib/OpenInFieldWorksButton.svelte:56
+#: src/lib/OpenInFieldWorksButton.svelte
 msgid "Open in FieldWorks"
 msgstr "Ouvrir dans FieldWorks"
 
-#: src/project/browse/EntryMenu.svelte:65
+#: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
 msgstr "Ouvrir dans une nouvelle fenêtre"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:68
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Ouvrir le fichier journal"
 
-#: src/lib/entry-editor/field-editors/ComplexForms.svelte:43
-#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:44
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Part"
 msgstr "Partie"
 
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:67
-#: src/lib/entry-editor/field-editors/ComplexForms.svelte:55
-#: src/lib/entry-editor/field-editors/ComplexForms.svelte:44
-#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:45
-#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:50
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Part of"
 msgstr "Une partie de"
 
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:63
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Partie du discours"
 
-#: src/project/browse/ViewPicker.svelte:41
+#: src/project/browse/ViewPicker.svelte
 msgid "Pinned"
 msgstr "Épinglé"
 
-#: src/project/browse/BrowseView.svelte:76
+#: src/project/browse/BrowseView.svelte
 msgid "Preview"
 msgstr "Avant-première"
 
-#: src/home/HomeView.svelte:78
+#: src/home/HomeView.svelte
 msgid "Project"
-msgstr ""
+msgstr "Projet"
 
-#: src/home/Server.svelte:77
+#: src/home/Server.svelte
 msgid "Project {0} not found on {1}"
 msgstr "Projet {0} introuvable sur {1}"
 
-#: src/home/Server.svelte:75
+#: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Le projet {0} sur {1} n'est pas encore configuré pour FieldWorks Lite"
 
-#: src/home/HomeView.svelte:253
+#: src/home/HomeView.svelte
 msgid "Project name..."
 msgstr "Nom du projet..."
 
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte:60
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Reference"
 msgstr "Référence"
 
-#: src/lib/components/field-editors/select.svelte:144
-#: src/lib/components/field-editors/multi-select.svelte:253
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 msgid "Refine your filter to see more..."
 msgstr "Affinez votre filtre pour voir plus..."
 
-#: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:194
+#: src/home/Server.svelte
+#: src/home/HomeView.svelte
 msgid "Refresh Projects"
 msgstr "Projets de rafraîchissement"
 
-#: src/lib/entry-editor/ItemListItem.svelte:79
+#: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
 msgstr "Retirer"
 
-#: src/lib/components/field-editors/audio-input.svelte:308
+#: src/lib/components/field-editors/audio-input.svelte
 msgid "Remove audio"
 msgstr "Supprimer l'audio"
 
-#: src/lib/OpenInFieldWorksButton.svelte:40
+#: src/lib/OpenInFieldWorksButton.svelte
 msgid "Reopen"
 msgstr "Réouverture"
 
-#: src/lib/components/field-editors/audio-input.svelte:305
+#: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
 msgstr "Remplacer l'audio"
 
-#: src/lib/components/audio/AudioDialog.svelte:155
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "Save As"
+msgstr "Enregistrer sous"
+
+#: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
 msgstr "Sauvegarder l'audio"
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
 msgstr "Recherche # ou #"
 
-#: src/project/ProjectDropdown.svelte:99
+#: src/project/ProjectDropdown.svelte
 msgid "Search Dictionaries"
 msgstr "Recherche dans les dictionnaires"
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:250
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Select {0}"
 msgstr "Sélectionnez {0}"
 
-#: src/project/browse/BrowseView.svelte:102
+#: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
 msgstr "Sélectionnez {0} pour voir les détails"
 
-#: src/lib/components/audio/audio-provider.svelte:66
-#: src/lib/components/audio/audio-provider.svelte:70
+#: src/lib/components/audio/audio-provider.svelte
+#: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "Sélectionner un fichier"
 
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:79
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr "Domaines sémantiques"
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:250
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte:166
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte:73
-#: src/lib/entry-editor/object-editors/AddSenseFab.svelte:15
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Sense"
 msgstr "Sens"
 
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte:37
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Sentence"
 msgstr "Phrase"
 
-#: src/project/ProjectSidebar.svelte:146
+#: src/project/ProjectSidebar.svelte
 msgid "Settings"
 msgstr "Paramètres"
 
-#: src/lib/sandbox/Sandbox.svelte:
+#: src/lib/sandbox/Sandbox.svelte
 msgid "Shadcn Sandbox # #"
 msgstr "Shadcn Sandbox # #"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:72
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share Log file"
 msgstr "Partager le fichier journal"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:61
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "Partager le fichier de données du projet"
 
-#: src/project/browse/ViewPicker.svelte:39
+#: src/project/browse/ViewPicker.svelte
 msgid "Show"
 msgstr "Afficher"
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:191
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Show {0} more..."
 msgstr "Afficher {0} plus..."
 
-#: src/project/browse/BrowseView.svelte:72
+#: src/project/browse/BrowseView.svelte
 msgid "Simple"
 msgstr "Simple"
 
-#: src/lib/components/audio/audio-editor.svelte:88
+#: src/lib/components/audio/audio-editor.svelte
 msgid "Size:"
 msgstr "Taille :"
 
-#: src/project/browse/filter/OpFilter.svelte:12
+#: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Commence par"
 
-#: src/lib/components/field-editors/multi-select.svelte:207
-#: src/lib/components/field-editors/multi-select.svelte:208
-#: src/lib/components/field-editors/multi-select.svelte:280
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Soumettre"
 
-#: src/project/ProjectSidebar.svelte:119
-#: src/lib/activity/ActivityView.svelte:108
+#: src/project/ProjectSidebar.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "Synced"
 msgstr "Synchronisé"
 
-#: src/home/HomeView.svelte:212
+#: src/home/HomeView.svelte
 msgid "Synced with {0}"
 msgstr "Synchronisé avec {0}"
 
-#: src/project/SyncDialog.svelte:153
-#: src/project/SyncDialog.svelte:238
-#: src/project/ProjectSidebar.svelte:126
+#: src/project/SyncDialog.svelte
+#: src/project/SyncDialog.svelte
+#: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
 msgstr "Synchroniser"
 
-#: src/project/SyncDialog.svelte:93
+#: src/project/SyncDialog.svelte
 msgid "Synchronizing FieldWorks Lite with FieldWorks..."
 msgstr "Synchronisation de FieldWorks Lite avec FieldWorks..."
 
-#: src/project/SyncDialog.svelte:185
-#: src/project/SyncDialog.svelte:236
+#: src/project/SyncDialog.svelte
+#: src/project/SyncDialog.svelte
 msgid "Synchronizing..."
 msgstr "Synchronisation..."
 
-#: src/project/ProjectSidebar.svelte:93
+#: src/project/ProjectSidebar.svelte
 msgid "Tasks"
 msgstr "Tâches"
 
-#: src/stories/i18n/i18n.stories.svelte:
+#: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "Cette date # et cet emoji # sont des extraits."
 
-#: src/lib/OpenInFieldWorksButton.svelte:39
+#: src/lib/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "Ce projet est maintenant ouvert dans FieldWorks. Pour continuer à travailler dans FieldWorks Lite, fermez le projet dans FieldWorks et cliquez sur Réouvrir."
 
-#: src/project/browse/SearchFilter.svelte:119
+#: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
 msgstr "Filtres à bascule"
 
-#: src/project/browse/EntryView.svelte:71
+#: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Activer/désactiver épinglé"
 
-#: src/lib/ThemePicker.svelte:30
+#: src/lib/ThemePicker.svelte
 msgid "Toggle theme"
 msgstr "Toggle theme"
 
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte:48
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"
 msgstr "Traduction"
 
-#: src/project/ProjectSidebar.svelte:172
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
-#: src/home/HomeView.svelte:170
-#: src/home/HomeView.svelte:226
+#: src/project/ProjectSidebar.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/home/HomeView.svelte
+#: src/home/HomeView.svelte
 msgid "Troubleshoot"
 msgstr "Dépannage"
 
-#: src/lib/components/audio/audio-editor.svelte:94
+#: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
 msgstr "Type :"
 
-#: src/lib/OpenInFieldWorksButton.svelte:44
+#: src/lib/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "Impossible d'ouvrir FieldWorks"
 
-#: src/project/SyncDialog.svelte:257
-#: src/project/SyncDialog.svelte:264
-#: src/lib/history/HistoryView.svelte:108
-#: src/lib/activity/ActivityView.svelte:100
+#: src/project/SyncDialog.svelte
+#: src/project/SyncDialog.svelte
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: src/project/ProjectSidebar.svelte:117
-#: src/lib/components/audio/AudioDialog.svelte:93
+#: src/project/ProjectSidebar.svelte
+#: src/lib/components/audio/AudioDialog.svelte
 msgid "Unknown error"
 msgstr "Erreur inconnue"
 
-#: src/lib/components/field-editors/audio-input.svelte:84
+#: src/lib/components/field-editors/audio-input.svelte
 msgid "Unknown error {0}"
 msgstr "Erreur inconnue {0}"
 
-#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:29
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Unknown error downloading {0}"
 msgstr "Erreur inconnue lors du téléchargement de {0}"
 
-#: src/project/SyncDialog.svelte:195
+#: src/project/SyncDialog.svelte
 msgid "Unknown server: {0}"
 msgstr "Serveur inconnu : {0}"
 
-#: src/project/browse/EntryView.svelte:49
-#: src/project/browse/EntryRow.svelte:57
-#: src/project/browse/EntryMenu.svelte:32
+#: src/project/browse/EntryView.svelte
+#: src/project/browse/EntryRow.svelte
+#: src/project/browse/EntryMenu.svelte
 msgid "Untitled"
 msgstr "Sans titre"
 
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:88
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
 msgstr "Utilise des composants tels que"
 
-#: src/project/ProjectSidebar.svelte:194
+#: src/project/ProjectSidebar.svelte
 msgid "Version {0}"
 msgstr "Version {0}"
 
-#: src/project/browse/ViewPicker.svelte:26
+#: src/project/browse/ViewPicker.svelte
 msgid "View Configuration"
 msgstr "Voir la configuration"
 
-#: src/home/Server.svelte:138
+#: src/home/Server.svelte
 msgid "Where are my projects?"
 msgstr "Où sont mes projets ?"
 
-#: src/project/browse/SearchFilter.svelte:40
-#: src/project/browse/EntryMenu.svelte:37
-#: src/lib/entry-editor/NewEntryDialog.svelte:87
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:250
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:43
+#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/EntryMenu.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Word"
 msgstr "Mot"
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:211
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word only"
 msgstr "Mot seulement"
 
-#: src/lib/entry-editor/EntryOrSensePicker.svelte:204
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Mot ou sens :"
 
-#: src/project/browse/filter/WsSelect.svelte:18
+#: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"
 msgstr "Système d'écriture"
 
-#: src/lib/components/lcm-rich-text-editor/editor-schema.ts:27
+#: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
 msgstr "Système d'écriture : {0}"
 
-#: src/project/browse/filter/WsSelect.svelte:29
+#: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Systèmes d'écriture"
 
-#: src/home/Server.svelte:73
+#: src/home/Server.svelte
 msgid "You don't have permission to download project {0} from {1}"
 msgstr "Vous n'avez pas la permission de télécharger le projet {0} depuis {1}"
 
-#: src/home/Server.svelte:79
-#: src/home/Server.svelte:85
+#: src/home/Server.svelte
+#: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"

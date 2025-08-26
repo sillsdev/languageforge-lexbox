@@ -13,4 +13,7 @@ export default defineConfig({
     },
   ],
   extractors: [jstsExtractor, svelteExtractor],
+  formatOptions: {
+    lineNumbers: false,
+  },
 });
