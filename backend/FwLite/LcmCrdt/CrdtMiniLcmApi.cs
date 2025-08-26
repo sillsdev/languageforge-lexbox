@@ -482,8 +482,9 @@ public class CrdtMiniLcmApi(
         }
     }
 
-    public async Task<Entry> CreateEntry(Entry entry)
+    public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
+        options ??= CreateEntryOptions.Everything;
         await using var repo = await repoFactory.CreateRepoAsync();
         await AddChanges([
             new CreateEntryChange(entry),
@@ -495,8 +496,12 @@ public class CrdtMiniLcmApi(
                 })
                 .ToArrayAsync(),
             ..await ToPublications(entry.PublishIn).ToArrayAsync(),
-            ..await ToComplexFormComponents(entry.Components).ToArrayAsync(),
-            ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
+            ..options.IncludeComplexFormsAndComponents ?
+                await ToComplexFormComponents(entry.Components).ToArrayAsync() :
+                Enumerable.Empty<AddEntryComponentChange>(),
+            ..options.IncludeComplexFormsAndComponents ?
+                await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync() :
+                Enumerable.Empty<AddEntryComponentChange>(),
             ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()
         ]);
         return await repo.GetEntry(entry.Id) ?? throw new NullReferenceException();
@@ -599,7 +604,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
-        await EntrySync.Sync(before, after, api ?? this);
+        await EntrySync.SyncFull(before, after, api ?? this);
         var updatedEntry = await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
         return updatedEntry;
     }
