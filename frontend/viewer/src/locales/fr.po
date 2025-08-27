@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-26 08:56\n"
+"PO-Revision-Date: 2025-08-27 09:37\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -340,7 +340,7 @@ msgstr "Télécharger un projet par code de projet"
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "Download unlisted project"
-msgstr ""
+msgstr "Télécharger le projet non listé"
 
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
@@ -1053,3 +1053,4 @@ msgstr "Vous n'avez pas la permission de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
+
