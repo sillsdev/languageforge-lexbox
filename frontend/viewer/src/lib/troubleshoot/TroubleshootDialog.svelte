@@ -47,6 +47,7 @@
         <CopyButton
           variant="ghost"
           size="xs-icon"
+          iconProps={{class: 'size-4'}}
           title={$t`Copy version`}
           text={`${config.appVersion} on ${config.os}`}
         />
