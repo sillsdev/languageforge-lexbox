@@ -8,7 +8,6 @@
   import {
     useImportFwdataService,
     useProjectsService,
-    useTroubleshootingService,
   } from '$lib/services/service-provider';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import ServersList from './ServersList.svelte';

@@ -6,7 +6,7 @@
   import * as Sidebar from '$lib/components/ui/sidebar';
   import { Icon } from '$lib/components/ui/icon';
   import type {IconClass} from '../lib/icon-class';
-  import {useFwLiteConfig, useTroubleshootingService} from '../lib/services/service-provider';
+  import {useFwLiteConfig} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
   import ThemePicker from '$lib/ThemePicker.svelte';
