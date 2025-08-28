@@ -3,37 +3,65 @@
   import { AppNotification } from '$lib/notifications/notifications';
   import { t } from 'svelte-i18n-lingui';
   import type {Snippet} from 'svelte';
+  import { onDestroy } from 'svelte';
+  import {mergeProps} from 'bits-ui';
+  import {cn} from '$lib/utils';
 
-  type Props = {
+  type Props = ButtonProps & {
     text?: string;
     notify?: boolean;
     children?: Snippet;
-    // plus any other Button props via rest
   };
 
-  // Svelte 5 props and children
-  const { text, notify = true, children = undefined, ...rest }: Props & ButtonProps = $props();
+  const { text, notify = true, children, ...rest }: Props = $props();
+
+  let copied = $state(false);
+  let resetTimer: ReturnType<typeof setTimeout> | undefined;
 
   async function handleClick(_event: MouseEvent) {
     try {
       if (!text) {
-        if (notify) AppNotification.display($t`Nothing to copy`, 'warning');
+        if (notify) AppNotification.display($t`Nothing to copy`, {
+          type: 'warning',
+          timeout: 'min',
+        });
         return;
       }
       await navigator.clipboard.writeText(text);
-      if (notify) AppNotification.display($t`Copied to clipboard`, 'success');
+      if (notify) AppNotification.display($t`Copied to clipboard`, {
+        type: 'success',
+        timeout: 'min',
+      });
+      copied = true;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(reset, 1500);
     } catch (error) {
-      if (notify) AppNotification.display($t`Failed to copy to clipboard`, 'error');
-      // In Svelte 5 we avoid createEventDispatcher; consumers can rely on notifications
-      // or we could later emit a CustomEvent from a DOM element if needed.
+      const detail = error instanceof Error ? error.message : String(error);
+      if (notify) AppNotification.error($t`Failed to copy to clipboard`, detail);
     }
   }
+
+  function reset() {
+    copied = false;
+    clearTimeout(resetTimer);
+    resetTimer = undefined;
+  }
+
+  onDestroy(() => {
+    clearTimeout(resetTimer);
+  });
 </script>
 
 <!--
-  A wrapper around our shared Button that copies `text` to the clipboard when clicked.
-  All other props are passed through to the underlying Button via Svelte 5 $props rest.
+  todo: once we've updated to tailwind 4 maybe wrap:
+  https://www.shadcn-svelte-extras.com/components/copy-button
 -->
-<Button onclick={handleClick} icon="i-mdi-content-copy" {...rest}>
+<Button
+  disabled={copied}
+  onclick={handleClick}
+  icon={copied ? 'i-mdi-check' : 'i-mdi-content-copy'}
+  {...rest}
+  iconProps={mergeProps({ class: cn(copied && 'text-primary') }, rest.iconProps)}
+>
   {@render children?.()}
 </Button>

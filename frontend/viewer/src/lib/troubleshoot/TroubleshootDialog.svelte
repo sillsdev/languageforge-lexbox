@@ -43,7 +43,9 @@
       <DialogTitle>{$t`Troubleshoot`}</DialogTitle>
     </DialogHeader>
     <div class="flex flex-col gap-4 items-start">
-      <p class="flex items-center gap-2">{$t`Application version`}: <span class="font-mono text-muted-foreground border-b">{config.appVersion}</span>
+      <p class="flex items-baseline gap-2">
+        {$t`Application version`}:
+        <span class="font-mono text-muted-foreground border-b">{config.appVersion}</span>
         <CopyButton
           variant="ghost"
           size="xs-icon"
