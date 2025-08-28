@@ -23,6 +23,7 @@
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
   import {useProjectContext} from '$lib/project-context.svelte';
+  import DevToolsDialog from '$lib/layout/DevToolsDialog.svelte';
 
   const config = useFwLiteConfig();
   const projectContext = useProjectContext();
@@ -98,6 +99,25 @@
       </Sidebar.GroupContent>
     </Sidebar.Group>
     <div class="grow"></div>
+    <DevContent>
+      <Sidebar.Group>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            <Sidebar.MenuItem>
+              <DevToolsDialog>
+                {#snippet trigger({ props })}
+                  <Sidebar.MenuButton {...props}>
+                    <Icon icon="i-mdi-code-tags" />
+                    Dev Tools
+                  </Sidebar.MenuButton>
+                {/snippet}
+              </DevToolsDialog>
+            </Sidebar.MenuItem>
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+      <div class="grow"></div>
+    </DevContent>
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
