@@ -76,11 +76,6 @@ public record Entry : IObjectWithId<Entry>
     public void RemoveReference(Guid id, DateTimeOffset time)
     {
     }
-
-    public Entry WithoutEntryRefs()
-    {
-        return this with { Components = [], ComplexForms = [] };
-    }
 }
 
 public class Variants

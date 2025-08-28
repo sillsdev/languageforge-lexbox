@@ -75,7 +75,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
             await fixture.DataModel.AddChange(Guid.NewGuid(), duplicateChange);
 
             var allEntries = await fixture.Api.GetEntries().ToArrayAsync();
-            var result = await EntrySync.Sync(allEntries, allEntries, fixture.Api);
+            var result = await EntrySync.SyncFull(allEntries, allEntries, fixture.Api);
             result.Should().Be(0);
 
             committedChanges.Add(change);

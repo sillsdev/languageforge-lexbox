@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-15 08:29\n"
+"PO-Revision-Date: 2025-08-26 08:56\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -339,10 +339,8 @@ msgstr "Télécharger un projet par code de projet"
 
 #: src/home/Server.svelte
 #: src/home/Server.svelte
-#: src/home/Server.svelte
-#: src/home/Server.svelte
-msgid "Download project not listed"
-msgstr "Télécharger le projet non listé"
+msgid "Download unlisted project"
+msgstr ""
 
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
@@ -428,7 +426,6 @@ msgid "Failed to synchronize."
 msgstr "Échec de la synchronisation."
 
 #: src/project/ProjectSidebar.svelte
-#: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
 msgid "Feedback"
 msgstr "Retour d'information"
@@ -501,10 +498,6 @@ msgstr "Trouver l'entrée..."
 msgid "Find word..."
 msgstr "Trouver un mot..."
 
-#: src/lib/about/FeedbackDialog.svelte
-msgid "For any other inquiries, feel free to send us an email."
-msgstr ""
-
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
@@ -541,7 +534,7 @@ msgstr "Je ne vois pas mon projet"
 
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "I understand that this can't be undone"
-msgstr ""
+msgstr "Je comprends que cela ne peut pas être annulé"
 
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -555,10 +548,6 @@ msgstr "Dernière modification : {0}"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Longueur :"
-
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Let us know about any bugs or technical issues you encounter."
-msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -615,7 +604,7 @@ msgstr "Réalisé avec ❤️ à partir de 🇦🇹 🇹🇭 🇺🇸"
 
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
-msgstr ""
+msgstr "Assurez-vous que vos [changements sont synchronisés]({0}) vers Lexbox."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
@@ -671,6 +660,10 @@ msgstr "Nouveau mot"
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity found"
 msgstr "Aucune activité trouvée"
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "No audio"
+msgstr "Pas de son"
 
 #: src/lib/history/HistoryView.svelte
 msgid "No change name"
@@ -781,7 +774,7 @@ msgstr "Avant-première"
 
 #: src/home/HomeView.svelte
 msgid "Project"
-msgstr ""
+msgstr "Projet"
 
 #: src/home/Server.svelte
 msgid "Project {0} not found on {1}"
@@ -825,9 +818,9 @@ msgstr "Réouverture"
 msgid "Replace audio"
 msgstr "Remplacer l'audio"
 
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Report a technical problem"
-msgstr ""
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "Save As"
+msgstr "Enregistrer sous"
 
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
@@ -858,10 +851,6 @@ msgstr "Sélectionner un fichier"
 msgid "Semantic domains"
 msgstr "Domaines sémantiques"
 
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Send us a message"
-msgstr ""
-
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -889,10 +878,6 @@ msgstr "Partager le fichier journal"
 msgid "Share project data file"
 msgstr "Partager le fichier de données du projet"
 
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Share your suggestions for new features or improvements."
-msgstr ""
-
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
 msgstr "Afficher"
@@ -918,10 +903,6 @@ msgstr "Commence par"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Soumettre"
-
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Suggest your ideas"
-msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/activity/ActivityView.svelte
