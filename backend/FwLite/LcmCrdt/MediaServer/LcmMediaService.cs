@@ -7,6 +7,7 @@ using SIL.Harmony.Resource;
 using LcmCrdt.RemoteSync;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Media;
+using System.Net.Http.Json;
 
 namespace LcmCrdt.MediaServer;
 
@@ -22,6 +23,16 @@ public class LcmMediaService(
     public async Task<HarmonyResource[]> AllResources()
     {
         return await resourceService.AllResources();
+    }
+
+    public async Task<RemoteResource[]> ResourcesPendingDownload()
+    {
+        return await resourceService.ListResourcesPendingDownload();
+    }
+
+    public async Task<LocalResource[]> ResourcesPendingUpload()
+    {
+        return await resourceService.ListResourcesPendingUpload();
     }
 
     /// <summary>
@@ -42,6 +53,74 @@ public class LcmMediaService(
         await resourceService.DeleteResource(currentProjectService.ProjectData.ClientId, fileId);
     }
 
+    public async Task<LocalResource?> DownloadResourceIfNeeded(Guid fileId)
+    {
+        var localResource = await resourceService.GetLocalResource(fileId);
+        if (localResource is null)
+        {
+            var connectionStatus = await httpClientProvider.ConnectionStatus();
+            if (connectionStatus == ConnectionStatus.Online)
+            {
+                return await resourceService.DownloadResource(fileId, this);
+            }
+        }
+        return localResource;
+    }
+
+    public async Task DownloadAllResources()
+    {
+        var connectionStatus = await httpClientProvider.ConnectionStatus();
+        if (connectionStatus == ConnectionStatus.Online)
+        {
+            var resources = await ResourcesPendingDownload();
+            foreach (var resource in resources)
+            {
+                if (resource.RemoteId is null) continue;
+                await resourceService.DownloadResource(resource.Id, this);
+            }
+        }
+        // TODO: Gracefully handle other connection statuses, e.g. "not logged in"
+    }
+
+    public async Task UploadAllResources()
+    {
+        await UploadResources((await ResourcesPendingUpload()).Select(r => r.Id));
+    }
+
+    public async Task DownloadResources(IEnumerable<Guid> resourceIds)
+    {
+        foreach (var resourceId in resourceIds)
+        {
+            await DownloadResourceIfNeeded(resourceId);
+        }
+    }
+
+    public async Task DownloadResources(IEnumerable<RemoteResource> resources)
+    {
+        foreach (var resource in resources)
+        {
+            await DownloadResourceIfNeeded(resource.Id);
+        }
+    }
+
+    public async Task UploadResources(IEnumerable<Guid> resourceIds)
+    {
+        var clientId = currentProjectService.ProjectData.ClientId;
+        foreach (var resourceId in resourceIds)
+        {
+            await resourceService.UploadPendingResource(resourceId, clientId, this);
+        }
+    }
+
+    public async Task UploadResources(IEnumerable<LocalResource> resources)
+    {
+        var clientId = currentProjectService.ProjectData.ClientId;
+        foreach (var resource in resources)
+        {
+            await resourceService.UploadPendingResource(resource, clientId, this);
+        }
+    }
+
     /// <summary>
     /// return a stream for the file, if it's not cached locally, it will be downloaded
     /// </summary>
@@ -50,23 +129,42 @@ public class LcmMediaService(
     /// <exception cref="FileNotFoundException"></exception>
     public async Task<ReadFileResponse> GetFileStream(Guid fileId)
     {
-        var localResource = await resourceService.GetLocalResource(fileId);
+        var localResource = await DownloadResourceIfNeeded(fileId);
         if (localResource is null)
         {
             var connectionStatus = await httpClientProvider.ConnectionStatus();
             if (connectionStatus == ConnectionStatus.Online)
             {
-                localResource = await resourceService.DownloadResource(fileId, this);
+                // Try again, maybe earlier failure was a blip
+                localResource = await DownloadResourceIfNeeded(fileId);
             }
             else
             {
                 return new ReadFileResponse(ReadFileResult.Offline);
             }
         }
-        //todo, consider trying to download the file again, maybe the cache was cleared
+        if (localResource is null || !File.Exists(localResource.LocalPath))
+        {
+            // One more attempt to download again, maybe the cache was cleared
+            localResource = await DownloadResourceIfNeeded(fileId);
+            // If still null then connection is offline or unreliable enough to consider as offline
+            if (localResource is null) return new ReadFileResponse(ReadFileResult.Offline);
+        }
+        // If still can't find local path then this is where we give up
         if (!File.Exists(localResource.LocalPath))
             throw new FileNotFoundException("Unable to find the file with Id" + fileId, localResource.LocalPath);
         return new(File.OpenRead(localResource.LocalPath), Path.GetFileName(localResource.LocalPath));
+    }
+
+    public async Task<LcmFileMetadata> GetFileMetadata(Guid fileId)
+    {
+        var mediaClient = await MediaServerClient();
+        var metadata = await mediaClient.GetFileMetadata(fileId);
+        if (metadata is null)
+        {
+            throw new Exception($"Failed to retrieve metadata for file {fileId}");
+        }
+        return metadata;
     }
 
     private async Task<(Stream? stream, string? filename)> RequestMediaFile(Guid fileId)

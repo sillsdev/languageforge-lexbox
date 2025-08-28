@@ -1,3 +1,4 @@
+using MiniLcm.Media;
 using Refit;
 
 namespace LcmCrdt.MediaServer;
@@ -7,6 +8,9 @@ public interface IMediaServerClient
 {
     [Get("/api/media/{fileId}")]
     Task<HttpResponseMessage> DownloadFile(Guid fileId);
+
+    [Get("/api/media/metadata/{fileId}")]
+    Task<LcmFileMetadata> GetFileMetadata(Guid fileId);
 
     [Post("/api/media")]
     [Multipart]

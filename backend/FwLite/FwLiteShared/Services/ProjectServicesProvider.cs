@@ -69,7 +69,8 @@ public class ProjectServicesProvider(
                 scope.Server = server;
                 scope.SetCrdtServices(
                     ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices),
-                    ActivatorUtilities.CreateInstance<SyncServiceJsInvokable>(scopedServices)
+                    ActivatorUtilities.CreateInstance<SyncServiceJsInvokable>(scopedServices),
+                    ActivatorUtilities.CreateInstance<MediaFilesServiceJsInvokable>(scopedServices)
                 );
                 _projectScopes.TryAdd(scope, scope);
                 return scope;
@@ -173,10 +174,12 @@ public class ProjectScope
 
     public void SetCrdtServices(
         HistoryServiceJsInvokable historyService,
-        SyncServiceJsInvokable syncService)
+        SyncServiceJsInvokable syncService,
+        MediaFilesServiceJsInvokable mediaFilesService)
     {
         HistoryService = DotNetObjectReference.Create(historyService);
         SyncService = DotNetObjectReference.Create(syncService);
+        MediaFilesService = DotNetObjectReference.Create(mediaFilesService);
     }
 
     public ValueTask CleanupAsync()
@@ -191,4 +194,5 @@ public class ProjectScope
     public DotNetObjectReference<MiniLcmJsInvokable> MiniLcm { get; set; }
     public DotNetObjectReference<HistoryServiceJsInvokable>? HistoryService { get; set; }
     public DotNetObjectReference<SyncServiceJsInvokable>? SyncService { get; set; }
+    public DotNetObjectReference<MediaFilesServiceJsInvokable>? MediaFilesService { get; set; }
 }
