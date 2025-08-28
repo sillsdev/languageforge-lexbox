@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-27 09:37\n"
+"PO-Revision-Date: 2025-08-28 09:37\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -426,6 +426,7 @@ msgid "Failed to synchronize."
 msgstr "Échec de la synchronisation."
 
 #: src/project/ProjectSidebar.svelte
+#: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
 msgid "Feedback"
 msgstr "Retour d'information"
@@ -498,6 +499,10 @@ msgstr "Trouver l'entrée..."
 msgid "Find word..."
 msgstr "Trouver un mot..."
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "For any other inquiries, feel free to send us an email."
+msgstr "Pour toute autre question, n'hésitez pas à nous envoyer un courriel."
+
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
@@ -548,6 +553,10 @@ msgstr "Dernière modification : {0}"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Longueur :"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Let us know about any bugs or technical issues you encounter."
+msgstr "Faites-nous part de tout bug ou problème technique que vous rencontrez."
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -818,6 +827,10 @@ msgstr "Réouverture"
 msgid "Replace audio"
 msgstr "Remplacer l'audio"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Report a technical problem"
+msgstr "Signaler un problème technique"
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
 msgstr "Enregistrer sous"
@@ -851,6 +864,10 @@ msgstr "Sélectionner un fichier"
 msgid "Semantic domains"
 msgstr "Domaines sémantiques"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Send us a message"
+msgstr "Envoyez-nous un message"
+
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -878,6 +895,10 @@ msgstr "Partager le fichier journal"
 msgid "Share project data file"
 msgstr "Partager le fichier de données du projet"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share your suggestions for new features or improvements."
+msgstr "Partagez vos suggestions pour de nouvelles fonctionnalités ou améliorations."
+
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
 msgstr "Afficher"
@@ -903,6 +924,10 @@ msgstr "Commence par"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Soumettre"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Suggest your ideas"
+msgstr "Suggérer vos idées"
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/activity/ActivityView.svelte
