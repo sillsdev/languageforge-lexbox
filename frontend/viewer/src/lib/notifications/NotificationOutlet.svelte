@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {AppNotification} from './notifications';
   import {useEventBus} from '$lib/services/event-bus';
   import type {IAppUpdateEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IAppUpdateEvent';

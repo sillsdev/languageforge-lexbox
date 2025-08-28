@@ -1,4 +1,4 @@
-﻿import type {LexboxServiceProvider, LexboxServiceRegistry} from './service-provider';
+import type {LexboxServiceProvider, LexboxServiceRegistry} from './service-provider';
 
 import type {DotNetServiceProvider} from './service-provider-dotnet';
 

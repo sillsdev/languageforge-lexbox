@@ -52,7 +52,7 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region Entry
-    Task<Entry> CreateEntry(Entry entry);
+    Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null);
     Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update);
 
     Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null);

@@ -1,4 +1,4 @@
-﻿using FwLiteShared;
+using FwLiteShared;
 using FwLiteShared.Events;
 using LcmCrdt;
 using FwLiteWeb.Hubs;

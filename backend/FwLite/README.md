@@ -1,4 +1,4 @@
-﻿# FieldWorks Lite
+# FieldWorks Lite
 
 ## Development
 

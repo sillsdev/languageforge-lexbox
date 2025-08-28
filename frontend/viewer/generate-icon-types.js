@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs'
+import fs from 'node:fs'
 import {getIconCollections} from '@egoist/tailwindcss-icons'
 
 const collections = getIconCollections([

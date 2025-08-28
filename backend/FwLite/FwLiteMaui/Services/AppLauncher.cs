@@ -1,4 +1,4 @@
-﻿using FwLiteShared.Services;
+using FwLiteShared.Services;
 using Microsoft.JSInterop;
 
 namespace FwLiteMaui.Services;

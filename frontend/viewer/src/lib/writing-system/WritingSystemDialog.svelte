@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import WritingSystemEditor from '$lib/writing-system/WritingSystemEditor.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {type IWritingSystem, WritingSystemType} from '$lib/dotnet-types';

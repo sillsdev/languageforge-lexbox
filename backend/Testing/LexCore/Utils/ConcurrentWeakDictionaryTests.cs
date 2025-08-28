@@ -1,4 +1,4 @@
-﻿using LexCore.Utils;
+using LexCore.Utils;
 using FluentAssertions;
 
 namespace Testing.LexCore.Utils;

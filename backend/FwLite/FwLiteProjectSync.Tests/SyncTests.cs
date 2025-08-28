@@ -1,4 +1,4 @@
-﻿using FluentAssertions.Equivalency;
+using FluentAssertions.Equivalency;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using Microsoft.EntityFrameworkCore;

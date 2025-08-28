@@ -1,4 +1,4 @@
-﻿create table __EFMigrationsHistory
+create table __EFMigrationsHistory
 (
     MigrationId    TEXT not null
         constraint PK___EFMigrationsHistory

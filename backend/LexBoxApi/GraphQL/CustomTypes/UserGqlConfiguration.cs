@@ -1,4 +1,4 @@
-﻿using HotChocolate.Data.Filters;
+using HotChocolate.Data.Filters;
 using HotChocolate.Data.Sorting;
 using LexBoxApi.Auth.Attributes;
 using LexCore.Entities;

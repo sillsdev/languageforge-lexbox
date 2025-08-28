@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
   import {t} from 'svelte-i18n-lingui';
   import EntryEditor from '../entry-editor/object-editors/EntryEditor.svelte';
@@ -56,7 +56,7 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.DialogContent interactOutsideBehavior={loading ? 'ignore' : 'close'} class="flex flex-col">
+  <Dialog.DialogContent interactOutsideBehavior={loading ? 'ignore' : 'close'} class="flex flex-col sm:min-h-[min(calc(100%-16px),30rem)]">
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`History`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>

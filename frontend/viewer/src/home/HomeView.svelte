@@ -6,7 +6,6 @@
   import storybookIcon from '../stories/assets/storybook-icon.svg';
   import DevContent, {isDev} from '$lib/layout/DevContent.svelte';
   import {
-    useFwLiteConfig,
     useImportFwdataService,
     useProjectsService,
     useTroubleshootingService,
@@ -28,10 +27,12 @@
   import {cubicOut} from 'svelte/easing';
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
+  import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
+  import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
+  import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
-  const fwLiteConfig = useFwLiteConfig();
   const exampleProjectName = 'Example-Project';
   const [send, receive] = crossfade({
     duration: 500,
@@ -45,9 +46,9 @@
       .replace(/-$/, '');
   }
 
-  let customExampleProjectName: string = '';
+  let customExampleProjectName = $state('');
 
-  let createProjectLoading = false;
+  let createProjectLoading = $state(false);
 
   async function createExampleProject() {
     try {
@@ -67,10 +68,16 @@
     }
   }
 
-  let deletingProject: undefined | string = undefined;
+  let deletingProject = $state<string>();
 
   async function deleteProject(project: IProjectModel) {
+    if (!deleteDialog) throw new Error('Delete dialog not initialized');
     try {
+      const syncDialogUrl = `/project/${project.code}/browse?${SYNC_DIALOG_QUERY_PARAM}=true`;
+      if (!await deleteDialog.prompt($t`Project`, $t`${project.name}`, {
+        isDangerous: true,
+        details: $t`Make sure your [changes are synced](${syncDialogUrl}) to Lexbox.`,
+      })) return;
       deletingProject = project.id;
       await projectsService.deleteProject(project.code);
       await refreshProjects();
@@ -79,7 +86,7 @@
     }
   }
 
-  let importing = '';
+  let importing = $state('');
 
   async function importFwDataProject(name: string) {
     if (importing) return;
@@ -92,9 +99,9 @@
     }
   }
 
-  let projectsPromise = projectsService
+  let projectsPromise = $state(projectsService
     .localProjects()
-    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name)));
+    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name))));
 
   async function refreshProjects() {
     let promise = projectsService.localProjects().then((p) => p.sort((p1, p2) => p1.name.localeCompare(p2.name)));
@@ -102,7 +109,7 @@
     projectsPromise = promise;
   }
 
-  let troubleshootDialog: TroubleshootDialog | undefined;
+  let troubleshootDialog = $state<TroubleshootDialog>();
 
   let clickCount = 0;
   let clickTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -125,7 +132,12 @@
     }
   }
 
+  let feedbackOpen = $state(false);
+
+  let deleteDialog = $state<DeleteDialog>();
 </script>
+
+<DeleteDialog bind:this={deleteDialog}/>
 
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
@@ -149,7 +161,7 @@
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
-          <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} target="_blank" icon="i-mdi-chat-question">
+          <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-chat-question">
             {$t`Feedback`}
           </ResponsiveMenu.Item>
           <ResponsiveMenu.Item
@@ -159,6 +171,7 @@
           </ResponsiveMenu.Item>
         </ResponsiveMenu.Content>
       </ResponsiveMenu.Root>
+      <FeedbackDialog bind:open={feedbackOpen}/>
       <TroubleshootDialog bind:this={troubleshootDialog}/>
     </div>
     {/snippet}
@@ -209,11 +222,9 @@
                     <ResponsiveMenu.Item icon="i-mdi-bug" onSelect={() => troubleshootDialog?.open(project.code)}>
                       {$t`Troubleshoot`}
                     </ResponsiveMenu.Item>
-                    {#if $isDev}
-                      <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={() => void deleteProject(project)}>
-                        {$t`Delete`}
-                      </ResponsiveMenu.Item>
-                    {/if}
+                    <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={() => void deleteProject(project)}>
+                      {$t`Delete`}
+                    </ResponsiveMenu.Item>
                   </ResponsiveMenu.Content>
                 </ResponsiveMenu.Root>
               </div>
@@ -228,7 +239,7 @@
               </Anchor>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ListItem onclick={() => createExampleProject()} disabled={createProjectLoading} class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
+              <ListItem onclick={() => createExampleProject()} loading={createProjectLoading}>
                 <span>{$t`Create Example Project`}</span>
                 {#snippet actions()}
                   <div class="flex flex-nowrap items-center gap-2">

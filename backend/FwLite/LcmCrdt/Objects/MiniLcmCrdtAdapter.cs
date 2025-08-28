@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using SIL.Harmony;
 using SIL.Harmony.Adapters;
 using SIL.Harmony.Core;

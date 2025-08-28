@@ -1,4 +1,4 @@
-﻿# https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
+# https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
