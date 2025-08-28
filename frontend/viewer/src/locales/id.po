@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-27 09:37\n"
+"PO-Revision-Date: 2025-08-28 09:37\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -426,6 +426,7 @@ msgid "Failed to synchronize."
 msgstr "Gagal melakukan sinkronisasi."
 
 #: src/project/ProjectSidebar.svelte
+#: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
 msgid "Feedback"
 msgstr "Umpan balik"
@@ -498,6 +499,10 @@ msgstr "Temukan entri..."
 msgid "Find word..."
 msgstr "Temukan kata..."
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "For any other inquiries, feel free to send us an email."
+msgstr "Untuk pertanyaan lainnya, silakan kirimkan email kepada kami."
+
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
@@ -548,6 +553,10 @@ msgstr "Perubahan terakhir: {0}"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Panjang:"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Let us know about any bugs or technical issues you encounter."
+msgstr "Beri tahu kami jika ada bug atau masalah teknis yang Anda temui."
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -818,6 +827,10 @@ msgstr "Buka kembali"
 msgid "Replace audio"
 msgstr "Mengganti audio"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Report a technical problem"
+msgstr "Melaporkan masalah teknis"
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
 msgstr "Simpan Sebagai"
@@ -851,6 +864,10 @@ msgstr "Pilih file"
 msgid "Semantic domains"
 msgstr "Domain semantik"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Send us a message"
+msgstr "Kirimkan pesan kepada kami"
+
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -878,6 +895,10 @@ msgstr "Bagikan file Log"
 msgid "Share project data file"
 msgstr "Berbagi file data proyek"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share your suggestions for new features or improvements."
+msgstr "Bagikan saran Anda untuk fitur baru atau peningkatan."
+
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
 msgstr "Tampilkan"
@@ -903,6 +924,10 @@ msgstr "Dimulai dengan"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Kirim"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Suggest your ideas"
+msgstr "Sarankan ide Anda"
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/activity/ActivityView.svelte
