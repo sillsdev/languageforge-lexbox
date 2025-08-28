@@ -6,7 +6,6 @@
   import storybookIcon from '../stories/assets/storybook-icon.svg';
   import DevContent, {isDev} from '$lib/layout/DevContent.svelte';
   import {
-    useFwLiteConfig,
     useImportFwdataService,
     useProjectsService,
     useTroubleshootingService,
@@ -28,12 +27,12 @@
   import {cubicOut} from 'svelte/easing';
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
+  import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
-  const fwLiteConfig = useFwLiteConfig();
   const exampleProjectName = 'Example-Project';
   const [send, receive] = crossfade({
     duration: 500,
@@ -133,6 +132,9 @@
       clickTimeout = setTimeout(resetClickCounter, 500);
     }
   }
+
+  let feedbackOpen = $state(false);
+
   let deleteDialog = $state<DeleteDialog>();
 </script>
 
@@ -160,7 +162,7 @@
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
-          <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} target="_blank" icon="i-mdi-chat-question">
+          <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-chat-question">
             {$t`Feedback`}
           </ResponsiveMenu.Item>
           {#if supportsTroubleshooting}
@@ -172,6 +174,7 @@
           {/if}
         </ResponsiveMenu.Content>
       </ResponsiveMenu.Root>
+      <FeedbackDialog bind:open={feedbackOpen}/>
       {#if supportsTroubleshooting}
         <TroubleshootDialog bind:this={troubleshootDialog}/>
       {/if}

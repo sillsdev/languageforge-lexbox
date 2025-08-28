@@ -426,6 +426,7 @@ msgid "Failed to synchronize."
 msgstr "동기화하지 못했습니다."
 
 #: src/project/ProjectSidebar.svelte
+#: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
 msgid "Feedback"
 msgstr "피드백"
@@ -498,6 +499,10 @@ msgstr "항목 찾기..."
 msgid "Find word..."
 msgstr "단어 찾기..."
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "For any other inquiries, feel free to send us an email."
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
@@ -548,6 +553,10 @@ msgstr "마지막 변경 사항: {0}"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "길이:"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Let us know about any bugs or technical issues you encounter."
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -818,6 +827,10 @@ msgstr "다시 열기"
 msgid "Replace audio"
 msgstr "오디오 교체"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Report a technical problem"
+msgstr ""
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
 msgstr "다른 이름으로 저장"
@@ -851,6 +864,10 @@ msgstr "파일 선택"
 msgid "Semantic domains"
 msgstr "시맨틱 도메인"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Send us a message"
+msgstr ""
+
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -878,6 +895,10 @@ msgstr "로그 파일 공유"
 msgid "Share project data file"
 msgstr "프로젝트 데이터 파일 공유"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share your suggestions for new features or improvements."
+msgstr ""
+
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
 msgstr "표시"
@@ -903,6 +924,10 @@ msgstr "다음으로 시작"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "제출하기"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Suggest your ideas"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/activity/ActivityView.svelte
