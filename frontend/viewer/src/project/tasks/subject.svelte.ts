@@ -1,9 +1,9 @@
 import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
 
 export class TaskSubject {
-  entry: IEntry = $state() as IEntry;
-  sense?: ISense = $state() as ISense;
-  exampleSentence?: IExampleSentence = $state() as IExampleSentence;
+  entry: IEntry = $state()!;
+  sense?: ISense = $state();
+  exampleSentence?: IExampleSentence = $state();
   get subject():  string | undefined {
     return this.getSubject?.(this);
   }

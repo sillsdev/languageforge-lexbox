@@ -2,9 +2,7 @@ import {asString, useWritingSystemService, type WritingSystemService} from '$lib
 import {useProjectContext} from '$lib/project-context.svelte';
 import type {FieldId} from '$lib/entry-editor/field-data';
 import {gt} from 'svelte-i18n-lingui';
-import {type IEntry, type IExampleSentence, type IRichString, type ISense, type IWritingSystem,
-  WritingSystemType
-} from '$lib/dotnet-types';
+import type {IEntry, IExampleSentence, IRichString, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
 import {defaultExampleSentence, defaultSense, isEntry, isSense} from '$lib/utils';
 import {TaskSubject} from './subject.svelte';
 
@@ -28,6 +26,7 @@ export interface Task {
   taskKind: 'provide-missing';
   gridifyFilter?: string;
   getSubjectValue: (subject: IEntry | ISense | IExampleSentence) => string | undefined;
+  isComplete: (subject: IEntry | ISense | IExampleSentence) => boolean;
 }
 
 export class TasksService {
@@ -59,7 +58,8 @@ export class TasksService {
         taskKind: 'provide-missing',
         prompt: gt`Type a Gloss`,
         gridifyFilter: `Senses=null|Senses.Gloss[${writingSystem.wsId}]=`,
-        getSubjectValue: s => TasksService.getSubjectValue(taskSense, s)
+        getSubjectValue: s => TasksService.getSubjectValue(taskSense, s),
+        isComplete: s => !!TasksService.getSubjectValue(taskSense, s)
       };
       yield taskSense;
     }
@@ -82,10 +82,17 @@ export class TasksService {
         prompt: gt`Type an example sentence`,
         taskKind: 'provide-missing',
         gridifyFilter: `Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${writingSystem.wsId}]=`,
-        getSubjectValue: s => TasksService.getSubjectValue(taskExample, s)
+        getSubjectValue: s => TasksService.getSubjectValue(taskExample, s),
+        isComplete: s => !!TasksService.getSubjectValue(taskExample, s)
       };
       yield taskExample;
     }
+  }
+
+  private static verifyHasValue(task: Task, subject: IEntry | ISense | IExampleSentence | undefined): boolean {
+    if (!subject) return false;
+    const value = TasksService.getSubjectValue(task, subject);
+    return !!value;
   }
 
   private static getSubjectValue(task: Task, subject: IEntry | ISense | IExampleSentence | undefined): string | undefined {

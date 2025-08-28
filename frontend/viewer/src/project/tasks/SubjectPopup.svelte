@@ -2,9 +2,8 @@
   import {type IEntry, WritingSystemType} from '$lib/dotnet-types';
   import * as Drawer from '$lib/components/ui/drawer';
   import * as Editor from '$lib/components/editor';
-  import {Button} from '$lib/components/ui/button';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
-  import {type Task, TasksService, type TaskSubject} from './tasks-service';
+  import {Button, XButton} from '$lib/components/ui/button';
+  import {type Task, TasksService} from './tasks-service';
   import OverrideFields from '$lib/OverrideFields.svelte';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
@@ -12,8 +11,10 @@
   import {Separator} from '$lib/components/ui/separator';
   import DictionaryEntry from '$lib/DictionaryEntry.svelte';
   import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
+  import {Progress} from '$lib/components/ui/progress';
+  import {t} from 'svelte-i18n-lingui';
+  import type {TaskSubject} from './subject.svelte';
 
-  const writingSystemService = useWritingSystemService();
   let {
     entry = $bindable(),
     progress = 0,
@@ -47,7 +48,7 @@
   //need to create a snapshot, otherwise changes to the subjects will trigger this derived and it will skip to the next subject
   let subjects = $derived(TasksService.subjects(task, $state.snapshot(entry)));
   let subjectIndex = $state(0);
-  let subject = $derived(subjects[subjectIndex]);
+  let subject = $derived(subjects.at(subjectIndex));
   $effect(() => {
     if (entry && subjects.length === 0) {
       onNextEntry();
@@ -58,6 +59,8 @@
 
   async function onNext(skip: boolean = false) {
     if (!skip) {
+      if (!subject || !isSubjectComplete()) return;
+
       switch (task.subjectType) {
         case 'example-sentence':
           if (!subject.exampleSentence) throw new Error('Example sentence is undefined');
@@ -74,10 +77,24 @@
       //update subject
       onCompletedSubject(subject);
     }
-    subjectIndex++;
-    if (subjectIndex >= subjects.length) {
+
+    if (subjectIndex + 1 >= subjects.length) {
       onNextEntry();
+    } else {
+      subjectIndex++;
     }
+  }
+
+  function isSubjectComplete() {
+    if (!subject) return false;
+
+    var subjectEntity = task.subjectType === 'example-sentence' ? subject.exampleSentence :
+                        task.subjectType === 'entry' ? subject.entry :
+                        task.subjectType === 'sense' ? subject.sense : null;
+
+    if (!subjectEntity) throw new Error('Subject entity is undefined');
+
+    return task.isComplete(subjectEntity);
   }
 
   let form = $state<HTMLFormElement>();
@@ -94,25 +111,20 @@
     }
   });
 </script>
-{@debug subjects}
+
 <Drawer.Root bind:open={() => !!entry, open => {if (!open) entry = undefined;}}>
-  <Drawer.Content>
-    <Drawer.Header class="relative">
-      <div class="absolute -z-10 inset-0 bg-primary rounded my-2 ml-1"
-           style="margin-right: {100 - (progress * 100)}%"></div>
+  <Drawer.Content class="mx-auto max-w-4xl">
+    <Drawer.Header class="relative flex flex-nowrap items-center">
+      <Progress value={progress * 100} class="h-8" />
 <!--      <Drawer.Title class="text-3xl text-center">{entry ? writingSystemService.headword(entry) : ''}</Drawer.Title>-->
-      <Drawer.Close>
-        {#snippet child({props})}
-          <Button {...props} icon="i-mdi-close" variant="ghost" class="absolute right-2"></Button>
-        {/snippet}
-      </Drawer.Close>
+      <XButton onclick={() => entry = undefined} />
     </Drawer.Header>
-    <div class=" mx-2 md:mx-8  shadow-inner rounded-md p-4">
+    <div class="mx-2 md:mx-4 shadow-inner rounded-md p-4">
       {#if entry}
-        <DictionaryEntry {entry} headwordClass="text-2xl" highlightSenseId={subject?.sense.id} hideExamples={task.subjectType !== 'example-sentence'}/>
+        <DictionaryEntry {entry} headwordClass="text-2xl" highlightSenseId={subject?.sense?.id} hideExamples={task.subjectType !== 'example-sentence'}/>
       {/if}
     </div>
-    <Drawer.Footer>
+    <Drawer.Footer class="gap-4">
       <Separator/>
       <p class="text-lg">
         {task.prompt}
@@ -145,11 +157,11 @@
       <div class="flex flex-row gap-2 justify-end">
         <Drawer.Close>
           {#snippet child({props})}
-            <Button {...props} variant="outline">Close</Button>
+            <Button {...props} variant="secondary">{$t`Close`}</Button>
           {/snippet}
         </Drawer.Close>
-        <Button variant="secondary" onclick={() => onNext(true)}>Skip</Button>
-        <Button onclick={() => onNext()}>Next</Button>
+        <Button variant="secondary" onclick={() => onNext(true)}>{$t`Skip`}</Button>
+        <Button onclick={() => onNext()} disabled={!isSubjectComplete()}>{progress < 1  ? $t`Next` : $t`Finish`}</Button>
       </div>
     </Drawer.Footer>
   </Drawer.Content>

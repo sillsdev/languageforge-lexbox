@@ -1,7 +1,8 @@
 <script lang="ts">
   import {Button} from '$lib/components/ui/button';
-  import type {Task, TaskSubject} from './tasks-service';
+  import type {Task} from './tasks-service';
   import ReviewList from './ReviewList.svelte';
+  import {type TaskSubject} from './subject.svelte';
 
   let {
     subjects,
@@ -56,7 +57,7 @@
     </div>
   </div>
   <div class="grow"></div>
-  <div class="mx-4 mt-4 mb-2 flex flex-col gap-2 self-stretch">
+  <div class="px-4 pt-4 pb-2 flex flex-col gap-2 self-stretch">
     <p>Do you want to:</p>
     <Button variant="secondary" onclick={onContinue}>Keep going</Button>
     <Button autofocus onclick={() => review = true}>Review</Button>

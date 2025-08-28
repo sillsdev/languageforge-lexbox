@@ -2,7 +2,7 @@
   import type {IEntry} from '$lib/dotnet-types';
   import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-  import {Debounced, resource, useDebounce} from 'runed';
+  import {Debounced, resource, useDebounce, watch} from 'runed';
   import {useMiniLcmApi} from '$lib/services/service-provider';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
@@ -19,7 +19,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {Icon} from '$lib/components/ui/icon';
 
-  const {
+  let {
     search = '',
     selectedEntryId = undefined,
     sort,
@@ -27,6 +27,7 @@
     gridifyFilter = undefined,
     previewDictionary = false,
     disableNewEntry = false,
+    entryCount = $bindable(null),
   }: {
     search?: string;
     selectedEntryId?: string;
@@ -35,6 +36,7 @@
     gridifyFilter?: string;
     previewDictionary?: boolean,
     disableNewEntry?: boolean,
+    entryCount?: number | null,
   } = $props();
   const miniLcmApi = useMiniLcmApi();
   const dialogsService = useDialogsService();
@@ -95,6 +97,9 @@
     () => ({ search, sort, gridifyFilter }),
     async () => await fetchCurrentEntries());
   const entries = $derived(entriesResource.current ?? []);
+  watch(() => entries, () => {
+    entryCount = entries.length;
+  });
 
   $effect(() => {
     if (entriesResource.error) {

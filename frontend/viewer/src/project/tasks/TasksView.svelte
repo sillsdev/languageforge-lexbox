@@ -36,6 +36,6 @@ const selectedTaskStorageKey = 'selectedTaskId';
   {#if selectedTaskId.current}
     <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.current = ''}/>
   {:else}
-    <p>{$t`Select a task`}</p>
+    <h1 class="text-xl p-4 mx-auto">{$t`Select a new task to work on`}</h1>
   {/if}
 </div>
