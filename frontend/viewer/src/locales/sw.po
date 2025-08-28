@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-26 08:57\n"
+"PO-Revision-Date: 2025-08-28 09:37\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -426,6 +426,7 @@ msgid "Failed to synchronize."
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
+#: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
 msgid "Feedback"
 msgstr "Maoni"
@@ -498,6 +499,10 @@ msgstr ""
 msgid "Find word..."
 msgstr ""
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "For any other inquiries, feel free to send us an email."
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
@@ -547,6 +552,10 @@ msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
+msgstr ""
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Let us know about any bugs or technical issues you encounter."
 msgstr ""
 
 #: src/home/HomeView.svelte
@@ -818,6 +827,10 @@ msgstr ""
 msgid "Replace audio"
 msgstr ""
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Report a technical problem"
+msgstr ""
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
 msgstr ""
@@ -851,6 +864,10 @@ msgstr "Chagua Folda"
 msgid "Semantic domains"
 msgstr ""
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Send us a message"
+msgstr ""
+
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -878,6 +895,10 @@ msgstr ""
 msgid "Share project data file"
 msgstr ""
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share your suggestions for new features or improvements."
+msgstr ""
+
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
 msgstr "Onyesha"
@@ -903,6 +924,10 @@ msgstr ""
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Wasilisha"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Suggest your ideas"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/activity/ActivityView.svelte
