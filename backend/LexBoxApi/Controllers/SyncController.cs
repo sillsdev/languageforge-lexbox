@@ -46,7 +46,7 @@ public class SyncController(
         {
             return await fwHeadlessClient.AwaitStatus(projectId, HttpContext.RequestAborted);
         }
-        catch (OperationCanceledException e)
+        catch (OperationCanceledException)
         {
             return Ok(new SyncJobResult(SyncJobStatusEnum.TimedOutAwaitingSyncStatus, "Timed out awaiting sync status"));
         }

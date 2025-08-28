@@ -17,8 +17,7 @@ public class ProjectServicesProvider(
     CrdtProjectsService crdtProjectsService,
     IServiceProvider serviceProvider,
     LexboxProjectService lexboxProjectService,
-    IEnumerable<IProjectProvider> projectProviders,
-    ILogger<ProjectServicesProvider> logger
+    IEnumerable<IProjectProvider> projectProviders
 ): IAsyncDisposable
 {
     private IProjectProvider? FwDataProjectProvider =>
@@ -153,14 +152,8 @@ public class ProjectScope
         {
             logger.LogInformation("Disposing project scope {ProjectName}", projectName);
             projectServicesProvider._projectScopes.TryRemove(this, out _);
-            if (HistoryService is not null)
-            {
-                HistoryService.Dispose();
-            }
-            if (SyncService is not null)
-            {
-                SyncService.Dispose();
-            }
+            HistoryService?.Dispose();
+            SyncService?.Dispose();
 
             MiniLcm.Value.Dispose();
             MiniLcm.Dispose();
