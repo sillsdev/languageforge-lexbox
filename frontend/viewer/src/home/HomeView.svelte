@@ -8,7 +8,6 @@
   import {
     useImportFwdataService,
     useProjectsService,
-    useTroubleshootingService,
   } from '$lib/services/service-provider';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import ServersList from './ServersList.svelte';
@@ -109,7 +108,6 @@
     projectsPromise = promise;
   }
 
-  const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog = $state<TroubleshootDialog>();
 
   let clickCount = 0;
@@ -165,19 +163,15 @@
           <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-chat-question">
             {$t`Feedback`}
           </ResponsiveMenu.Item>
-          {#if supportsTroubleshooting}
-            <ResponsiveMenu.Item
-              icon="i-mdi-face-agent"
-              onSelect={() => troubleshootDialog?.open()}>
-              {$t`Troubleshoot`}
-            </ResponsiveMenu.Item>
-          {/if}
+          <ResponsiveMenu.Item
+            icon="i-mdi-face-agent"
+            onSelect={() => troubleshootDialog?.open()}>
+            {$t`Troubleshoot`}
+          </ResponsiveMenu.Item>
         </ResponsiveMenu.Content>
       </ResponsiveMenu.Root>
       <FeedbackDialog bind:open={feedbackOpen}/>
-      {#if supportsTroubleshooting}
-        <TroubleshootDialog bind:this={troubleshootDialog}/>
-      {/if}
+      <TroubleshootDialog bind:this={troubleshootDialog}/>
     </div>
     {/snippet}
 </AppBar>
@@ -224,11 +218,9 @@
                     {/snippet}
                   </ResponsiveMenu.Trigger>
                   <ResponsiveMenu.Content>
-                    {#if supportsTroubleshooting}
-                      <ResponsiveMenu.Item icon="i-mdi-bug" onSelect={() => troubleshootDialog?.open(project.code)}>
-                        {$t`Troubleshoot`}
-                      </ResponsiveMenu.Item>
-                    {/if}
+                    <ResponsiveMenu.Item icon="i-mdi-bug" onSelect={() => troubleshootDialog?.open(project.code)}>
+                      {$t`Troubleshoot`}
+                    </ResponsiveMenu.Item>
                     <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={() => void deleteProject(project)}>
                       {$t`Delete`}
                     </ResponsiveMenu.Item>

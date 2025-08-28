@@ -6,7 +6,7 @@
   import * as Sidebar from '$lib/components/ui/sidebar';
   import { Icon } from '$lib/components/ui/icon';
   import type {IconClass} from '../lib/icon-class';
-  import {useFwLiteConfig, useTroubleshootingService} from '../lib/services/service-provider';
+  import {useFwLiteConfig} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
   import ThemePicker from '$lib/ThemePicker.svelte';
@@ -50,7 +50,6 @@
     navigate(newLocation);
   }
 
-  const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog = $state<TroubleshootDialog>();
   let syncDialog = $state<SyncDialog>();
   let feedbackOpen = $state(false);
@@ -165,14 +164,12 @@
 
     <Sidebar.Group>
       <Sidebar.Menu>
-        {#if supportsTroubleshooting}
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
-              <Icon icon="i-mdi-help-circle" />
-              <span>{$t`Troubleshoot`}</span>
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-        {/if}
+        <Sidebar.MenuItem>
+          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
+            <Icon icon="i-mdi-help-circle" />
+            <span>{$t`Troubleshoot`}</span>
+          </Sidebar.MenuButton>
+        </Sidebar.MenuItem>
         <Sidebar.MenuItem>
           <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
             <Icon icon="i-mdi-message" />
@@ -198,9 +195,7 @@
 Keep dialogs out of the sidebar so they aren't destroyed
 e.g. when transitioning to mobile
 -->
-{#if supportsTroubleshooting}
-  <TroubleshootDialog bind:this={troubleshootDialog}/>
-{/if}
+<TroubleshootDialog bind:this={troubleshootDialog}/>
 {#if features.sync}
   <SyncDialog bind:this={syncDialog} {syncStatus} />
 {/if}
