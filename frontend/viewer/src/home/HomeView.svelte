@@ -6,7 +6,6 @@
   import storybookIcon from '../stories/assets/storybook-icon.svg';
   import DevContent, {isDev} from '$lib/layout/DevContent.svelte';
   import {
-    useFwLiteConfig,
     useImportFwdataService,
     useProjectsService,
     useTroubleshootingService,
