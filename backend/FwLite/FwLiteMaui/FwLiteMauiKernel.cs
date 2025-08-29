@@ -165,7 +165,18 @@ public static class FwLiteMauiKernel
             logger.LogInformation("Initializing hosted services");
             foreach (var hostedService in hostedServices)
             {
-                _ = Task.Run(() => hostedService.StartAsync(_cts.Token), _cts.Token);
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+
+                        await hostedService.StartAsync(_cts.Token);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, "Error starting hosted service");
+                    }
+                }, _cts.Token);
             }
         }
 
