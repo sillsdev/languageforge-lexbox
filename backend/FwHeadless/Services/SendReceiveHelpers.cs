@@ -19,9 +19,14 @@ public static class SendReceiveHelpers
         public SendReceiveAuth(FwHeadlessConfig config) : this(config.LexboxUsername, config.LexboxPassword) { }
     };
 
-    public record LfMergeBridgeResult(string Output, bool ErrorEncountered)
+    public record LfMergeBridgeResult(string Output)
     {
-        public LfMergeBridgeResult(string output, IProgress progress) : this(output, progress.ErrorEncountered) { }
+        private readonly IProgress? _progress = null;
+        public bool ErrorEncountered => _progress?.ErrorEncountered ?? false;
+        public LfMergeBridgeResult(string output, IProgress progress) : this(output)
+        {
+            _progress = progress;
+        }
     }
 
     private static async Task<LfMergeBridgeResult> CallLfMergeBridge(string method, IDictionary<string, string> flexBridgeOptions, IProgress? progress = null)
