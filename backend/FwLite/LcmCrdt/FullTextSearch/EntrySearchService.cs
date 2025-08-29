@@ -212,23 +212,17 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public async Task RegenerateIfMissing()
     {
-        if (await QueryMissingEntries().AnyAsync())
+        if (await HasMissingEntries())
         {
             logger.LogWarning("Regenerating entry search table because it is missing entries. This may take a while.");
             await RegenerateEntrySearchTable();
         }
     }
 
-    public IAsyncEnumerable<Entry> EntriesMissingInSearchTable()
+    private async Task<bool> HasMissingEntries()
     {
-        return QueryMissingEntries()
-            .AsAsyncEnumerable();
-    }
-
-    private IQueryable<Entry> QueryMissingEntries()
-    {
-        return dbContext.Set<Entry>()
-            .Where(e => !EntrySearchRecords.Any(esr => esr.Id == e.Id));
+        //not using a query to check Ids because the Id on the search table isn't indexed so it will be slow
+        return await EntrySearchRecordsTable.CountAsync() != await dbContext.Set<Entry>().CountAsync();
     }
 
     private static EntrySearchRecord ToEntrySearchRecord(Entry entry, WritingSystem[] writingSystems)
