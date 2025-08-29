@@ -3,7 +3,7 @@ import {useProjectContext} from '$lib/project-context.svelte';
 import type {FieldId} from '$lib/entry-editor/field-data';
 import {gt} from 'svelte-i18n-lingui';
 import type {IEntry, IExampleSentence, IRichString, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
-import {defaultExampleSentence, defaultSense, isEntry, isSense} from '$lib/utils';
+import {defaultExampleSentence, defaultSense, firstTruthy, isEntry, isSense} from '$lib/utils';
 import {TaskSubject} from './subject.svelte';
 
 const symbol = Symbol.for('fw-lite-tasks');
@@ -20,8 +20,8 @@ export interface Task {
   subject?: string;
   subjectType: 'entry' | 'sense' | 'example-sentence';
   subjectFields: FieldId[];
-  subjectWritingSystemId: string;
-  subjectWritingSystemType: WritingSystemType;
+  subjectWritingSystemId?: string;
+  subjectWritingSystemType?: WritingSystemType;
   prompt: string;
   taskKind: 'provide-missing';
   gridifyFilter?: string;
@@ -46,11 +46,24 @@ export class TasksService {
   }
 
   public static *makeSenseTasks(analysis: IWritingSystem[]) {
+    const taskMissingPartOfSpeech: Task = {
+      id: 'missing-part-of-speech',
+      contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
+      subject: gt`Missing Part of Speech`,
+      subjectType: 'sense',
+      subjectFields: ['partOfSpeechId'],
+      prompt: gt`Pick a Part of Speech`,
+      taskKind: 'provide-missing',
+      gridifyFilter: `Senses.PartOfSpeechId=`,
+      getSubjectValue: s => firstTruthy(analysis, ws => asString((s as ISense).partOfSpeech?.name[ws.wsId])) ,
+      isComplete: s => !!(s as ISense).partOfSpeechId
+    };
+    yield taskMissingPartOfSpeech;
     for (const writingSystem of analysis) {
-      const taskSense: Task = {
-        id: `sense-${writingSystem.wsId}`,
+      const taskSenseGloss: Task = {
+        id: `sense-no-gloss-${writingSystem.wsId}`,
         contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
-        subject: gt`Missing Sense Gloss ${writingSystem.abbreviation}`,
+        subject: gt`Missing Gloss ${writingSystem.abbreviation}`,
         subjectType: 'sense',
         subjectFields: ['gloss'],
         subjectWritingSystemId: writingSystem.wsId,
@@ -58,10 +71,25 @@ export class TasksService {
         taskKind: 'provide-missing',
         prompt: gt`Type a Gloss`,
         gridifyFilter: `Senses=null|Senses.Gloss[${writingSystem.wsId}]=`,
-        getSubjectValue: s => TasksService.getSubjectValue(taskSense, s),
-        isComplete: s => !!TasksService.getSubjectValue(taskSense, s)
+        getSubjectValue: s => TasksService.getSubjectValue(taskSenseGloss, s),
+        isComplete: s => !!TasksService.getSubjectValue(taskSenseGloss, s)
       };
-      yield taskSense;
+      yield taskSenseGloss;
+      const taskSenseDefinition: Task = {
+        id: `sense-no-definition-${writingSystem.wsId}`,
+        contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
+        subject: gt`Missing Definition ${writingSystem.abbreviation}`,
+        subjectType: 'sense',
+        subjectFields: ['definition'],
+        subjectWritingSystemId: writingSystem.wsId,
+        subjectWritingSystemType: writingSystem.type,
+        taskKind: 'provide-missing',
+        prompt: gt`Type a Definition`,
+        gridifyFilter: `Senses=null|Senses.Definition[${writingSystem.wsId}]=`,
+        getSubjectValue: s => TasksService.getSubjectValue(taskSenseDefinition, s),
+        isComplete: s => !!TasksService.getSubjectValue(taskSenseDefinition, s)
+      };
+      yield taskSenseDefinition;
     }
   }
 
