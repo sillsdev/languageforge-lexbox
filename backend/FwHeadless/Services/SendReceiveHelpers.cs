@@ -4,6 +4,8 @@ using SIL.Progress;
 
 namespace FwHeadless.Services;
 
+public class SendReceiveException(string? message) : Exception(message);
+
 public static class SendReceiveHelpers
 {
     private const string HgUsername = "FieldWorks Lite";
@@ -17,17 +19,26 @@ public static class SendReceiveHelpers
         public SendReceiveAuth(FwHeadlessConfig config) : this(config.LexboxUsername, config.LexboxPassword) { }
     };
 
-    public record LfMergeBridgeResult(string Output, string ProgressMessages);
+    public record LfMergeBridgeResult(string Output)
+    {
+        private readonly IProgress? _progress = null;
+        public bool ErrorEncountered => _progress?.ErrorEncountered ?? false;
+        public LfMergeBridgeResult(string output, IProgress progress) : this(output)
+        {
+            _progress = progress;
+        }
+    }
 
     private static async Task<LfMergeBridgeResult> CallLfMergeBridge(string method, IDictionary<string, string> flexBridgeOptions, IProgress? progress = null)
     {
         var sbProgress = new StringBuilderProgress();
+        var combinedProgress = new CombiningProgress(sbProgress, progress);
         var lfMergeBridgeOutputForClient = await Task.Run(() =>
         {
-            LfMergeBridge.LfMergeBridge.Execute(method, progress ?? sbProgress, flexBridgeOptions.ToDictionary(), out var output);
+            LfMergeBridge.LfMergeBridge.Execute(method, combinedProgress, flexBridgeOptions.ToDictionary(), out var output);
             return output;
         });
-        return new LfMergeBridgeResult(lfMergeBridgeOutputForClient, progress == null ? sbProgress.ToString() : "");
+        return new LfMergeBridgeResult(lfMergeBridgeOutputForClient, sbProgress);
     }
 
     private static Uri BuildSendReceiveUrl(string baseUrl, string projectCode, SendReceiveAuth? auth, bool forChorus = true)
