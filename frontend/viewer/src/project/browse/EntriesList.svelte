@@ -3,7 +3,6 @@
   import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
   import {Debounced, resource, useDebounce} from 'runed';
-  import {useMiniLcmApi} from '$lib/services/service-provider';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import {cn} from '$lib/utils';
