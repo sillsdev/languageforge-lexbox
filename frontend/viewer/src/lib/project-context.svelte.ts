@@ -56,12 +56,15 @@ export class ProjectContext {
     return this.#api;
   }
   public get projectName(): string {
-    if (!this.#projectName) throw new Error('projectName not set');
+    if (!this.#projectName) return this.projectCode;
     return this.#projectName;
   }
   public get projectCode(): string {
     if (!this.#projectCode) throw new Error('projectCode not set');
     return this.#projectCode;
+  }
+  public set projectCode(value: string) {
+    this.#projectCode = value;
   }
   public get projectType(): ProjectType {
     return this.#projectType;

@@ -18,6 +18,7 @@
   import type {SortConfig} from './SortMenu.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import {Icon} from '$lib/components/ui/icon';
+  import {useProjectContext} from '$lib/project-context.svelte';
 
   const {
     search = '',
@@ -34,7 +35,8 @@
     gridifyFilter?: string;
     previewDictionary?: boolean
   } = $props();
-  const miniLcmApi = useMiniLcmApi();
+  const projectContext = useProjectContext();
+  const miniLcmApi = $derived(projectContext.maybeApi);
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
 
@@ -61,10 +63,11 @@
     entriesResource.mutate(updatedEntries);
   }
 
-  let loadingUndebounced = $state(false);
+  let loadingUndebounced = $state(true);
   const loading = new Debounced(() => loadingUndebounced, 50);
   const fetchCurrentEntries = useDebounce(async (silent = false) => {
     if (!silent) loadingUndebounced = true;
+    if (!miniLcmApi) return [];
     try {
       const queryOptions: IQueryOptions = {
         count: 10_000,
@@ -90,7 +93,7 @@
   }, 300);
 
   const entriesResource = resource(
-    () => ({ search, sort, gridifyFilter }),
+    () => ({ search, sort, gridifyFilter, miniLcmApi }),
     async () => await fetchCurrentEntries());
   const entries = $derived(entriesResource.current ?? []);
 
