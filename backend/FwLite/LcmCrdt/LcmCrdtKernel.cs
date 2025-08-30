@@ -29,7 +29,6 @@ using LcmCrdt.FullTextSearch;
 using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using MiniLcm.Filtering;
 
 namespace LcmCrdt;
 
@@ -43,16 +42,20 @@ public static class LcmCrdtKernel
         return services;
     }
 
-    public static IServiceCollection AddLcmCrdtClientCore(this IServiceCollection services)
+    private static string GetCurrentDbPath(IServiceProvider provider)
     {
-        AvoidTrimming();
-        LinqToDBForEFTools.Initialize();
+        var projectContext = provider.GetRequiredService<CurrentProjectService>();
+        projectContext.ValidateProjectScope();
+        return projectContext.Project.DbPath;
+    }
 
-
-        services.AddMemoryCache();
-        services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
-        services.AddSingleton<SetupCollationInterceptor>();
-        services.AddDbContextFactory<LcmCrdtDbContext>(ConfigureDbOptions, ServiceLifetime.Scoped);
+    public static IServiceCollection AddCrdtCore(this IServiceCollection services, Func<IServiceProvider, string> dbPathProvider)
+    {
+        services.AddDbContextFactory<LcmCrdtDbContext>((provider, builder) =>
+        {
+            var dbPath = dbPathProvider(provider);
+            ConfigureDbOptions(provider, builder, dbPath);
+        }, ServiceLifetime.Scoped);
         services.RemoveAll<LcmCrdtDbContext>();//we don't want to be able to inject these directly as they will leak.
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
@@ -63,6 +66,21 @@ public static class LcmCrdtKernel
         {
             crdtConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
         });
+        return services;
+    }
+
+    public static IServiceCollection AddLcmCrdtClientCore(this IServiceCollection services)
+    {
+        AvoidTrimming();
+        LinqToDBForEFTools.Initialize();
+
+
+        services.AddMemoryCache();
+        services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
+        services.AddSingleton<SetupCollationInterceptor>();
+
+        services.AddCrdtCore(GetCurrentDbPath);
+
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();
@@ -94,15 +112,13 @@ public static class LcmCrdtKernel
         SqliteConnection.ClearAllPools();
     }
 
-    private static void ConfigureDbOptions(IServiceProvider provider, DbContextOptionsBuilder builder)
+    private static void ConfigureDbOptions(IServiceProvider provider, DbContextOptionsBuilder builder, string dbPath)
     {
-        var projectContext = provider.GetRequiredService<CurrentProjectService>();
-        projectContext.ValidateProjectScope();
 #if DEBUG
         builder.EnableSensitiveDataLogging();
 #endif
         builder.EnableDetailedErrors();
-        builder.UseSqlite($"Data Source={projectContext.Project.DbPath}")
+        builder.UseSqlite($"Data Source={dbPath}")
             .UseLinqToDB(optionsBuilder =>
             {
                 var mappingSchema = new MappingSchema();
@@ -122,10 +138,10 @@ public static class LcmCrdtKernel
                     optionsBuilder.AddCustomOptions(dataOptions => dataOptions.UseLoggerFactory(loggerFactory));
             });
 
-        builder.AddInterceptors(new CustomSqliteFunctionInterceptor(), provider.GetRequiredService<SetupCollationInterceptor>());
-        var updateSearchTableInterceptor = provider.GetService<UpdateEntrySearchTableInterceptor>();
-        if (updateSearchTableInterceptor is not null)
-            builder.AddInterceptors(updateSearchTableInterceptor);
+        // builder.AddInterceptors(new CustomSqliteFunctionInterceptor(), provider.GetRequiredService<SetupCollationInterceptor>());
+        // var updateSearchTableInterceptor = provider.GetService<UpdateEntrySearchTableInterceptor>();
+        // if (updateSearchTableInterceptor is not null)
+        //     builder.AddInterceptors(updateSearchTableInterceptor);
     }
 
     private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainsExpression()
