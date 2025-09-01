@@ -8,6 +8,7 @@
   import {useCurrentView} from '$lib/views/view-service';
   import {pt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
+  import {AppNotification} from '$lib/notifications/notifications';
 
   const api = useMiniLcmApi();
   const currentView = useCurrentView();
@@ -23,14 +24,18 @@
     if (!entryId) return undefined;
     return api.getEntry(entryId);
   });
+  $effect(() => {
+    if (entryResource.error) {
+      AppNotification.error('Failed to load entry', entryResource.error.message);
+    }
+  });
   let entry = $derived(entryResource.current);
   const entryPersistence = new EntryPersistence(() => entry);
   let updating = $state(false);
 
   async function updateEntry() {
     updating = true;
-    await entryPersistence.updateEntry(entry);
-    updating = false;
+    await entryPersistence.updateEntry(entry).finally(() => updating = false);
     open = false;
   }
 </script>
@@ -41,8 +46,6 @@
     </Dialog.DialogHeader>
     {#if entryResource.loading}
       Loading...
-    {:else if entryResource.error}
-      Error: {entryResource.error}
     {:else if entry}
       <EntryEditor modalMode {entry} canAddSense={false} canAddExample={false}/>
     {/if}
