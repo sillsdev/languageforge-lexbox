@@ -51,7 +51,7 @@
     {/if}
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-      <Button onclick={() => updateEntry()} disabled={updating} loading={updating}>
+      <Button onclick={() => updateEntry()} disabled={updating || !entry || entryResource.loading} loading={updating}>
         {$t`Update ${entryLabel}`}
       </Button>
     </Dialog.DialogFooter>
