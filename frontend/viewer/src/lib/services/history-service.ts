@@ -4,8 +4,7 @@ import type {
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 import type {IProjectActivity} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectActivity';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
-import {isEntry, isEntry, isExample, isSense} from '$lib/utils';
-import {isExample} from '$lib/utils';
+import {isEntry,  isExample, isSense} from '$lib/utils';
 
 export function useHistoryService() {
   const projectContext = useProjectContext()
