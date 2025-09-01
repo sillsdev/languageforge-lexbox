@@ -79,18 +79,16 @@ export function defaultWritingSystem(type: WritingSystemType): IWritingSystem {
   };
 }
 
-export function isEntry(data: IEntry | ISense | IExampleSentence): data is IEntry {
-  return !isSense(data) && !isExample(data);
+export function isEntry(data: IEntry | ISense | IExampleSentence | undefined): data is IEntry {
+  return !!data && !isSense(data) && !isExample(data) && 'senses' in data && 'lexemeForm' in data;
 }
 
-export function isSense(data: IEntry | ISense | IExampleSentence): data is ISense {
-  if (data === undefined) return false;
-  return 'entryId' in data;
+export function isSense(data: IEntry | ISense | IExampleSentence | undefined): data is ISense {
+  return !!data && 'entryId' in data;
 }
 
-export function isExample(data: IEntry | ISense | IExampleSentence): data is IExampleSentence {
-  if (data === undefined) return false;
-  return 'senseId' in data;
+export function isExample(data: IEntry | ISense | IExampleSentence | undefined): data is IExampleSentence {
+  return !!data && 'senseId' in data;
 }
 export function makeHasHadValueTracker(): {store: Readable<boolean>, pushAndGet(currValueOrHasValue?: unknown): boolean} {
   const hasHadValueStore = writable<boolean>();
