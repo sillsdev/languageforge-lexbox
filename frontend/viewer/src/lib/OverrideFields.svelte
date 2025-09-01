@@ -33,7 +33,7 @@
         })
       ) as Record<FieldId, FieldView>,
       overrides: {
-        ...currentView,
+        ...currentView.overrides,
         ...overrides
       }
     };
