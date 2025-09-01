@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import type { ICommitMetadata } from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
   import { useHistoryService } from '$lib/services/history-service';
   import { t } from 'svelte-i18n-lingui';

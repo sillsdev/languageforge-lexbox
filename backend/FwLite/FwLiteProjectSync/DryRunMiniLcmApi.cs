@@ -151,10 +151,15 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public Task<Entry> CreateEntry(Entry entry)
+    public Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(CreateEntry), $"Create entry {entry.Headword()}"));
-        return Task.FromResult(entry);
+        options ??= new CreateEntryOptions();
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateEntry), $"Create entry {entry.Headword()} ({options})"));
+        // Only return what would have been persisted
+        if (options.IncludeComplexFormsAndComponents)
+            return Task.FromResult(entry);
+        else
+            return Task.FromResult(entry with { Components = [], ComplexForms = [] });
     }
 
     public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)

@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using SystemTextJsonPatch;
 
 namespace MiniLcm.Validators;

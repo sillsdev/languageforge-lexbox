@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

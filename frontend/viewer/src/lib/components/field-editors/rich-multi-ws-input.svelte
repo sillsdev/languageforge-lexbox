@@ -75,7 +75,9 @@
           aria-label={ws.abbreviation}
         />
       {:else}
-        <AudioInput {readonly} bind:audioId={() => getAudioId(value[ws.wsId]), audioId => setAudioId(audioId, ws.wsId)}/>
+        <AudioInput
+          bind:audioId={() => getAudioId(value[ws.wsId]), audioId => setAudioId(audioId, ws.wsId)}
+          {readonly} />
       {/if}
     </div>
   {/each}

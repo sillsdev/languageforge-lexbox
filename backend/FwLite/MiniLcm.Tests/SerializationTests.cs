@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Xunit.Abstractions;
 
 namespace MiniLcm.Tests;

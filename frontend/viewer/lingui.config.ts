@@ -1,4 +1,4 @@
-﻿import {jstsExtractor, svelteExtractor} from 'svelte-i18n-lingui/extractor';
+import {jstsExtractor, svelteExtractor} from 'svelte-i18n-lingui/extractor';
 
 import {defineConfig} from '@lingui/cli';
 
@@ -13,4 +13,7 @@ export default defineConfig({
     },
   ],
   extractors: [jstsExtractor, svelteExtractor],
+  formatOptions: {
+    lineNumbers: false,
+  },
 });

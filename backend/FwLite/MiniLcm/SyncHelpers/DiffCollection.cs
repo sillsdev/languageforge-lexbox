@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Text.Json.JsonDiffPatch;
 using System.Text.Json.JsonDiffPatch.Diffs;
 using System.Text.Json.JsonDiffPatch.Diffs.Formatters;
@@ -9,11 +9,15 @@ namespace MiniLcm.SyncHelpers;
 
 public abstract class CollectionDiffApi<T, TId> where TId : notnull
 {
-    public abstract Task<int> Add(T value);
-    public virtual async Task<(int, T)> AddAndGet(T value)
+    public virtual async Task<(int Changes, T Added)> AddAndGet(T value)
     {
         var changes = await Add(value);
         return (changes, value);
+    }
+    // Can be implemented instead of AddAndGet for simpler DX
+    public virtual Task<int> Add(T value)
+    {
+        throw new NotImplementedException();
     }
     public abstract Task<int> Remove(T value);
     public abstract Task<int> Replace(T before, T after);
@@ -25,6 +29,24 @@ public abstract class ObjectWithIdCollectionDiffApi<T> : CollectionDiffApi<T, Gu
     public override Guid GetId(T value)
     {
         return value.Id;
+    }
+}
+
+public class ObjectWithIdCollectionReplaceDiffApi<T>(Func<T, T, Task<int>> ReplaceFunc) : ObjectWithIdCollectionDiffApi<T> where T : IObjectWithId
+{
+    public override Task<(int, T)> AddAndGet(T value)
+    {
+        throw new InvalidOperationException($"{nameof(AddAndGet)} should never be called");
+    }
+
+    public override Task<int> Remove(T value)
+    {
+        throw new InvalidOperationException($"{nameof(Remove)} should never be called");
+    }
+
+    public override async Task<int> Replace(T before, T after)
+    {
+        return await ReplaceFunc(before, after);
     }
 }
 
@@ -43,48 +65,7 @@ public interface IOrderableCollectionDiffApi<T> where T : IOrderable
 
 public static class DiffCollection
 {
-    /// <summary>
-    /// Diffs a list, for new items calls add, it will then call update for the item returned from the add, using that as the before item for the replace call
-    /// </summary>
-    public static async Task<int> DiffAddThenUpdate<T, TId>(
-        IList<T> before,
-        IList<T> after,
-        CollectionDiffApi<T, TId> diffApi) where TId : notnull
-    {
-        var changes = 0;
-
-        var beforeEntriesDict = before.ToDictionary(diffApi.GetId);
-
-        var postAddUpdates = new List<(T created, T after)>(after.Count);
-        foreach (var afterEntry in after)
-        {
-            if (beforeEntriesDict.Remove(diffApi.GetId(afterEntry), out var beforeEntry))
-            {
-                postAddUpdates.Add((beforeEntry, afterEntry)); // defer updating existing entry
-            }
-            else
-            {
-                var (change, created) = await diffApi.AddAndGet(afterEntry); // create new entry
-                changes += change;
-                postAddUpdates.Add((created, afterEntry)); // defer updating new entry
-            }
-        }
-
-        foreach ((var createdItem, var afterItem) in postAddUpdates)
-        {
-            //todo this may do a lot more work than it needs to, eg sense will be created during add, but they will be checked again here when we know they didn't change
-            changes += await diffApi.Replace(createdItem, afterItem);
-        }
-
-        foreach (var beforeEntry in beforeEntriesDict.Values)
-        {
-            changes += await diffApi.Remove(beforeEntry);
-        }
-
-        return changes;
-    }
-
-    public static async Task<int> Diff<T, TId>(
+    public static async Task<(int Changes, ICollection<T> Added)> DiffAndGetAdded<T, TId>(
         IList<T> before,
         IList<T> after,
         CollectionDiffApi<T, TId> diffApi) where TId : notnull
@@ -105,11 +86,23 @@ public static class DiffCollection
             afterEntriesDict.Remove(diffApi.GetId(beforeEntry));
         }
 
-        foreach (var value in afterEntriesDict.Values)
+        foreach (var (id, value) in afterEntriesDict)
         {
-            changes += await diffApi.Add(value);
+            var (addChanges, added) = await diffApi.AddAndGet(value);
+            changes += addChanges;
+            afterEntriesDict[id] = added;
         }
 
+        return (changes, afterEntriesDict.Values);
+    }
+
+
+    public static async Task<int> Diff<T, TId>(
+        IList<T> before,
+        IList<T> after,
+        CollectionDiffApi<T, TId> diffApi) where TId : notnull
+    {
+        var (changes, _) = await DiffAndGetAdded(before, after, diffApi);
         return changes;
     }
 

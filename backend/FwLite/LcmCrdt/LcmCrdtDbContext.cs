@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
 using SIL.Harmony;

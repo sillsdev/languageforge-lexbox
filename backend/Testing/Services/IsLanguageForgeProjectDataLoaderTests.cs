@@ -1,4 +1,4 @@
-﻿using LexBoxApi.GraphQL.CustomTypes;
+using LexBoxApi.GraphQL.CustomTypes;
 using Microsoft.Extensions.Time.Testing;
 using Polly;
 using FluentAssertions;

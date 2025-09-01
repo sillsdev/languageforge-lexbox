@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.Project;
 using Microsoft.EntityFrameworkCore;

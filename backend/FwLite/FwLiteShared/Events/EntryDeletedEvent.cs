@@ -1,4 +1,4 @@
-﻿namespace FwLiteShared.Events;
+namespace FwLiteShared.Events;
 
 public class EntryDeletedEvent(Guid entryId) : IFwEvent
 {

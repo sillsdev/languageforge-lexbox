@@ -1,4 +1,4 @@
-﻿using FwDataMiniLcmBridge;
+using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteWeb.Hubs;
 using Microsoft.AspNetCore.Mvc;

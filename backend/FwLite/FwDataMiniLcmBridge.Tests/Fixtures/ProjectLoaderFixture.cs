@@ -1,4 +1,4 @@
-﻿using FwDataMiniLcmBridge.Api;
+using FwDataMiniLcmBridge.Api;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 

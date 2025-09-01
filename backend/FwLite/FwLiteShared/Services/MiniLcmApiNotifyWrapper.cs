@@ -80,10 +80,10 @@ public partial class MiniLcmApiNotifyWrapper(
 
     // ********** Overrides go here **********
 
-    async Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry)
+    async Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry, CreateEntryOptions? options)
     {
         await using var _ = BeginTrackingChanges();
-        var result = await _api.CreateEntry(entry);
+        var result = await _api.CreateEntry(entry, options);
         NotifyEntryChanged(result);
         return result;
     }

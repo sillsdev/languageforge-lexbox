@@ -1,4 +1,4 @@
-﻿using FluentAssertions.Equivalency;
+using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync.Tests.Fixtures;

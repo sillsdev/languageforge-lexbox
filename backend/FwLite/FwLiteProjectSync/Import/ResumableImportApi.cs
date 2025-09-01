@@ -45,9 +45,9 @@ public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
 
     // ********** Overrides go here **********
 
-    async Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry)
+    async Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry, CreateEntryOptions? options)
     {
-        return await HasCreated(entry, _api.GetAllEntries(), () => _api.CreateEntry(entry));
+        return await HasCreated(entry, _api.GetAllEntries(), () => _api.CreateEntry(entry, options));
     }
 
     async Task<PartOfSpeech> IMiniLcmWriteApi.CreatePartOfSpeech(PartOfSpeech partOfSpeech)
@@ -66,7 +66,7 @@ public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
     {
         return await HasCreated(publication, _api.GetPublications(), () => _api.CreatePublication(publication));
     }
-    async Task<WritingSystem> IMiniLcmWriteApi.CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
+    async Task<WritingSystem> IMiniLcmWriteApi.CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between)
     {
         return await HasCreated(writingSystem, AsyncWs(), () => _api.CreateWritingSystem(writingSystem, between), ws => ws.Type + ws.WsId.Code);
     }
