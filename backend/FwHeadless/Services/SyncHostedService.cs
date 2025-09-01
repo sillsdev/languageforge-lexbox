@@ -144,7 +144,15 @@ public class SyncWorker(
         logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
         logger.LogDebug("fwDataFile: {fwDataFile}", fwDataProject.FilePath);
 
-        var fwdataApi = await SetupFwData(fwDataProject, projectCode);
+        FwDataMiniLcmApi? fwdataApi;
+        try
+        {
+            fwdataApi = await SetupFwData(fwDataProject, projectCode);
+        }
+        catch (SendReceiveException e)
+        {
+            return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, e.Message);
+        }
         //always do this as existing projects need to run this even if they didn't S&R due to no pending changes
         await mediaFileService.SyncMediaFiles(fwdataApi.Cache);
 
@@ -181,6 +189,10 @@ public class SyncWorker(
         {
             var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
             logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
+            if (srResult2.ErrorEncountered)
+            {
+                return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, $"Send/Receive after CRDT sync failed: {srResult2.Output}");
+            }
         }
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
         return new SyncJobResult(result);
@@ -199,6 +211,10 @@ public class SyncWorker(
             {
                 var srResult = await srService.SendReceive(fwDataProject, projectCode);
                 logger.LogInformation("Send/Receive result before CRDT sync: {srResult}", srResult.Output);
+                if (srResult.ErrorEncountered)
+                {
+                    throw new SendReceiveException($"Send/Receive before CRDT sync failed: {srResult.Output}");
+                }
             }
         }
         else
