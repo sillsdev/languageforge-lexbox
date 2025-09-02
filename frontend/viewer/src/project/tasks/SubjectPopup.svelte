@@ -14,6 +14,7 @@
   import {Progress} from '$lib/components/ui/progress';
   import {t} from 'svelte-i18n-lingui';
   import type {TaskSubject} from './subject.svelte';
+  import type {Overrides} from '$lib/views/view-data';
 
   let {
     entry = $bindable(),
@@ -31,7 +32,8 @@
     onNextEntry?: () => void,
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
-  const overrides = $derived.by(() => {
+  const overrides = $derived.by((): Overrides => {
+    if (!task.subjectWritingSystemId) return {};
     if (task.subjectWritingSystemType === WritingSystemType.Analysis) {
       return {
         analysisWritingSystems: [task.subjectWritingSystemId],
@@ -137,12 +139,12 @@
             <Editor.Root>
               <Editor.Grid>
                 <OverrideFields shownFields={task.subjectFields} {overrides}>
-                  {#if task.subjectType === 'entry' && entry}
-                    <EntryEditorPrimitive modalMode {entry}/>
+                  {#if task.subjectType === 'entry' && subject.entry}
+                    <EntryEditorPrimitive modalMode bind:entry={subject.entry}/>
                   {:else if task.subjectType === 'sense' && subject.sense}
-                    <SenseEditorPrimitive sense={subject.sense}/>
+                    <SenseEditorPrimitive bind:sense={subject.sense}/>
                   {:else if task.subjectType === 'example-sentence' && subject.exampleSentence}
-                    <ExampleEditorPrimitive example={subject.exampleSentence}/>
+                    <ExampleEditorPrimitive bind:example={subject.exampleSentence}/>
                   {:else}
                     <p>Subject does not have suitable object of type: {task.subjectType}</p>
                   {/if}
