@@ -126,8 +126,13 @@ export class TasksService {
   private static getSubjectValue(task: Task, subject: IEntry | ISense | IExampleSentence | undefined): string | undefined {
     if (!subject) return undefined;
     const field = task.subjectFields[0];
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
-    return asString((subject as any)[field][task.subjectWritingSystemId] as string | undefined | IRichString);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
+    const fieldValue = (subject as any)[field];
+    if (task.subjectWritingSystemId) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      return asString(fieldValue[task.subjectWritingSystemId] as string | undefined | IRichString)
+    }
+    return asString(fieldValue as string | undefined | IRichString);
   }
 
   public static findNextSubjectIndex(task: Task, subjectParent: IEntry | ISense | IExampleSentence, startAt: number): number {
