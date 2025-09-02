@@ -59,7 +59,7 @@
   </div>
   <div class="grow"></div>
   <div class="px-4 pt-4 pb-2 flex flex-col gap-2 self-stretch">
-    <p>Do you want to:</p>
+    <p>{$t`Do you want to:`}</p>
     <Button variant="secondary" onclick={onContinue}>{$t`Keep going`}</Button>
     <Button autofocus onclick={() => review = true}>{$t`Review`}</Button>
   </div>

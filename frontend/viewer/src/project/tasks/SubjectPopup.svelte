@@ -146,7 +146,7 @@
                   {:else if task.subjectType === 'example-sentence' && subject.exampleSentence}
                     <ExampleEditorPrimitive bind:example={subject.exampleSentence}/>
                   {:else}
-                    <p>Subject does not have suitable object of type: {task.subjectType}</p>
+                    <p>{$t`Subject does not have suitable object of type: ${task.subjectType}`}</p>
                   {/if}
                 </OverrideFields>
               </Editor.Grid>
