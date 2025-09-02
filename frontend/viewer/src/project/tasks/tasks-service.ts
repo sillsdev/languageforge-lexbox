@@ -5,6 +5,7 @@ import {gt} from 'svelte-i18n-lingui';
 import type {IEntry, IExampleSentence, IRichString, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
 import {defaultExampleSentence, defaultSense, firstTruthy, isEntry, isSense} from '$lib/utils';
 import {TaskSubject} from './subject.svelte';
+import {subscribeLanguageChange} from '$lib/i18n';
 
 const symbol = Symbol.for('fw-lite-tasks');
 
@@ -42,6 +43,7 @@ export class TasksService {
   }
 
   public senseTasks() {
+    subscribeLanguageChange();
     return TasksService.makeSenseTasks(this.writingSystemService.analysis);
   }
 
@@ -94,6 +96,7 @@ export class TasksService {
   }
 
   public exampleSentenceTasks() {
+    subscribeLanguageChange();
     return TasksService.makeExampleSentenceTasks(this.writingSystemService.vernacular);
   }
 
