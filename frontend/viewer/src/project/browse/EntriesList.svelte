@@ -65,8 +65,8 @@
   let loadingUndebounced = $state(true);
   const loading = new Debounced(() => loadingUndebounced, 50);
   const fetchCurrentEntries = useDebounce(async (silent = false) => {
-    if (!silent) loadingUndebounced = true;
     if (!miniLcmApi) return [];
+    if (!silent) loadingUndebounced = true;
     try {
       const queryOptions: IQueryOptions = {
         count: 10_000,
