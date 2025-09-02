@@ -97,8 +97,9 @@
     () => ({ search, sort, gridifyFilter }),
     async () => await fetchCurrentEntries());
   const entries = $derived(entriesResource.current ?? []);
-  watch(() => entries, () => {
-    entryCount = entries.length;
+  watch(() => [entries, entriesResource.loading], () => {
+    if (!entriesResource.loading)
+      entryCount = entries.length;
   });
 
   $effect(() => {
