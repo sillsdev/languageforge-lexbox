@@ -167,14 +167,18 @@ public static class FwLiteMauiKernel
             {
                 _ = Task.Run(async () =>
                 {
+                    var hostedServiceName = hostedService.GetType().Name;
                     try
                     {
-
                         await hostedService.StartAsync(_cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        logger.LogInformation("Hosted service stopped before start completed for service {HostedService}", hostedServiceName);
                     }
                     catch (Exception e)
                     {
-                        logger.LogError(e, "Error starting hosted service");
+                        logger.LogError(e, "Error starting hosted service {HostedService}", hostedServiceName);;
                     }
                 }, _cts.Token);
             }
