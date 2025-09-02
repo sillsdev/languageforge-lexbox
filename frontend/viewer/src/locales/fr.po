@@ -439,6 +439,10 @@ msgstr "Champ d'application"
 msgid "Field Labels"
 msgstr "Étiquettes de champ"
 
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "FieldWorks lite has been updated successfully, please restart the app to apply the changes."
+msgstr ""
+
 #: src/project/ProjectDropdown.svelte
 #: src/lib/OpenInFieldWorksButton.svelte
 #: src/home/HomeView.svelte
