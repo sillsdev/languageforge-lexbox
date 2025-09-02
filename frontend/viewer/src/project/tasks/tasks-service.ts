@@ -164,7 +164,7 @@ export class TasksService {
   public static subjects(task: Task, entry?: IEntry): TaskSubject[] {
     if (!entry) return [];
     if (task.subjectType === 'entry') {
-      return [new TaskSubject(entry, undefined, undefined, s => TasksService.getSubjectValue(task, s.entry))];
+      return [new TaskSubject(entry, undefined, undefined, s => task.getSubjectValue(s.entry))];
     }
     const subjects: TaskSubject[] = [];
     if (task.subjectType === 'sense') {
@@ -172,7 +172,7 @@ export class TasksService {
       if (senses.length === 0) senses = [defaultSense(entry.id)];
       for (const sense of senses) {
         if (task.getSubjectValue(sense)) continue;
-        subjects.push(new TaskSubject(entry, sense, undefined, s => TasksService.getSubjectValue(task, s.sense)));
+        subjects.push(new TaskSubject(entry, sense, undefined, s => task.getSubjectValue(s.sense!)));
       }
     } else if (task.subjectType === 'example-sentence') {
       for (const sense of entry.senses) {
@@ -180,7 +180,7 @@ export class TasksService {
         if (examples.length === 0) examples = [defaultExampleSentence(sense.id)];
         for (const example of examples) {
           if (task.getSubjectValue(example)) continue;
-          subjects.push(new TaskSubject(entry, sense, example, (s) => TasksService.getSubjectValue(task, s.exampleSentence)));
+          subjects.push(new TaskSubject(entry, sense, example, (s) => task.getSubjectValue(s.exampleSentence!)));
         }
       }
     }
