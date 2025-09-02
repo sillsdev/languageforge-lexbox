@@ -23,7 +23,7 @@
 </script>
 <div class="flex flex-col">
   {#each subjects as subject (subject)}
-    <ListItem class="m-2" onclick={() => editSubject(subject)} icon="i-mdi-book-open-page-variant">
+    <ListItem class="my-2" onclick={() => editSubject(subject)} icon="i-mdi-book-open-page-variant">
       <p>{writingSystemService.headword(subject.entry)}</p>
       <p>{subject.subject}</p>
     </ListItem>

@@ -9,6 +9,7 @@
   import {watch} from 'runed';
   import type {TaskSubject} from './subject.svelte';
   import {t} from 'svelte-i18n-lingui';
+  import {cn} from '$lib/utils';
 
   const TASK_SUBJECT_COUNT = 10;
 
@@ -40,7 +41,7 @@
     completedSubjects = [];
   }
 </script>
-<div class="flex flex-col h-full gap-4">
+<div class="flex flex-col h-full gap-4 overflow-auto">
   {#if task}
     {#if !showDone}
       <DevContent>
@@ -52,29 +53,31 @@
       {#if entryCount === 0}
         <h1 class="text-xl p-4 mx-auto">{$t`This task is complete`} 🎊</h1>
       {/if}
-      <EntriesList bind:this={entriesList}
-                   bind:entryCount
-                   sort={{field: SortField.Headword, dir: 'asc'}}
-                   gridifyFilter={task?.gridifyFilter}
-                   disableNewEntry
-                   onSelectEntry={e => entry = e} selectedEntryId={entry?.id}/>
-      <Button onclick={onDone}>Done</Button>
-      <SubjectPopup
-        bind:entry
-        {task}
-        {progress}
-        onNextEntry={() => {
-          let next = entriesList?.selectNextEntry();
-          if (!next) onDone();
-        }}
-        onCompletedSubject={subject => {
-          completedSubjects.push(subject);
-          allCompletedSubjects.push(subject);
-          if (completedSubjects.length === TASK_SUBJECT_COUNT) {
-            onDone();
-          }
-        }}
-      />
+      <div class={cn('contents', entryCount === 0 && 'hidden')}>
+        <EntriesList bind:this={entriesList}
+                     bind:entryCount
+                     sort={{field: SortField.Headword, dir: 'asc'}}
+                     gridifyFilter={task?.gridifyFilter}
+                     disableNewEntry
+                     onSelectEntry={e => entry = e} selectedEntryId={entry?.id}/>
+        <Button onclick={onDone}>Done</Button>
+        <SubjectPopup
+          bind:entry
+          {task}
+          {progress}
+          onNextEntry={() => {
+            let next = entriesList?.selectNextEntry();
+            if (!next) onDone();
+          }}
+          onCompletedSubject={subject => {
+            completedSubjects.push(subject);
+            allCompletedSubjects.push(subject);
+            if (completedSubjects.length === TASK_SUBJECT_COUNT) {
+              onDone();
+            }
+          }}
+        />
+      </div>
     {:else}
       <DoneView subjects={completedSubjects}
                 allSubjects={allCompletedSubjects}
