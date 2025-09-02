@@ -28,7 +28,7 @@
   let entriesList = $state<EntriesList>();
   let entryCount = $state<number | null>(null);
   let completedSubjects = $state<TaskSubject[]>([]);
-  let progress = $derived((completedSubjects.length + 1) / Math.min(entryCount ?? TASK_SUBJECT_COUNT, TASK_SUBJECT_COUNT));
+  let progress = $derived((completedSubjects.length) / Math.min(entryCount ?? TASK_SUBJECT_COUNT, TASK_SUBJECT_COUNT));
   let showDone = $state(false);
   let allCompletedSubjects = $state<TaskSubject[]>([]);
 
@@ -44,9 +44,9 @@
   {#if task}
     {#if !showDone}
       <DevContent>
-        <details>
+        <details class="max-h-30 overflow-auto">
           <summary>Completed Subjects</summary>
-          {completedSubjects.map(s => s.subject).join(', ')}
+          <pre>{JSON.stringify(completedSubjects.map(s => ({entry: s.entry, sense: s.sense, example: s.exampleSentence, subject: s.subject})), undefined, '  ')}</pre>
         </details>
       </DevContent>
       {#if entryCount === 0}
