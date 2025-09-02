@@ -20,9 +20,9 @@
     entryId?: string,
     open: boolean,
   } = $props();
-  let entryResource = resource(() => entryId, (entryId) => {
+  let entryResource = resource(() => entryId, async (entryId) => {
     if (!entryId) return undefined;
-    return api.getEntry(entryId);
+    return await api.getEntry(entryId);
   });
   $effect(() => {
     if (entryResource.error) {
@@ -34,6 +34,7 @@
   let updating = $state(false);
 
   async function updateEntry() {
+    if (!entry) return;
     updating = true;
     await entryPersistence.updateEntry(entry).finally(() => updating = false);
     open = false;

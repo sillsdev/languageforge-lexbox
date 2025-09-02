@@ -35,7 +35,7 @@
 
   let basis = $derived.by(() => {
     const n = subjects.length;
-    const raws = subjects.map((_, i) => rawBasis(i, n));
+    const raws = subjects.map((_, i) => rawBasis(i));
     if (n < 3) return raws;
     const total = raws.reduce((a, b) => a + b, 0);
     // Scale up so the total width is at least 300% (i.e., 3 rows).

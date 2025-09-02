@@ -21,7 +21,7 @@
 
   const currentView = useCurrentView();
   const overrideView = initView(undefined, false);
-  watch(() => [shownFields, respectOrder, $currentView, overrides], ([shownFields, respectOrder, currentView, overrides]) => {
+  watch(() => [shownFields, respectOrder, $currentView, overrides] as const, ([shownFields, respectOrder, currentView, overrides]) => {
     $overrideView = {
       ...currentView,
       fields: Object.fromEntries((Object.entries(currentView.fields) as Array<[FieldId, FieldView]>).map(([id, field]) => {

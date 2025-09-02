@@ -8,7 +8,7 @@ export class EntryPersistence {
   lexboxApi = useLexboxApi();
   saveHandler = useSaveHandler();
   initialEntry: IEntry | undefined = undefined;
-  constructor(private entryGetter: Getter<IEntry | undefined>, private onUpdated: () => void = () => { }) {
+  constructor(private entryGetter: Getter<IEntry | undefined | null>, private onUpdated: () => void = () => { }) {
     watch(entryGetter, (entry) => {
       if (entry?.id !== this.initialEntry?.id) this.updateInitialEntry(entry);
     });
@@ -79,7 +79,7 @@ export class EntryPersistence {
     return updatedExample;
   }
 
-  private updateInitialEntry(entry: IEntry | undefined): void {
+  private updateInitialEntry(entry: IEntry | undefined | null): void {
     if (!entry) this.initialEntry = undefined;
     else this.initialEntry = this.copy(entry);
   }

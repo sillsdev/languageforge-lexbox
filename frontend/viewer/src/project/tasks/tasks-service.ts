@@ -18,7 +18,7 @@ export function useTasksService() {
 export interface Task {
   id: string;
   contextFields: FieldId[];
-  subject?: string;
+  subject: string;
   subjectType: 'entry' | 'sense' | 'example-sentence';
   subjectFields: FieldId[];
   subjectWritingSystemId?: string;
