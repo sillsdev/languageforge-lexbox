@@ -64,6 +64,15 @@ export class ProjectContext {
     return this.#projectCode;
   }
   public set projectCode(value: string) {
+    if (this.#projectCode === value) return;
+    if (this.#projectCode) {
+      if (import.meta.env.DEV) {
+        throw new Error('Cannot set projectCode after it is already set');
+      } else {
+        console.error('Cannot set projectCode after it is already set');
+        return;
+      }
+    }
     this.#projectCode = value;
   }
   public get projectType(): ProjectType {
