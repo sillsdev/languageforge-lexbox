@@ -71,10 +71,10 @@ describe('tasks service', () => {
         expect(subject.exampleSentence).toStrictEqual(example);
       });
       it('should skip filled examples', () => {
-        let sense: ISense;
+
         let example: IExampleSentence;
         const entry = newEntry({
-          senses: [sense = newSense({
+          senses: [newSense({
             exampleSentences: [
               newExample({
                 sentence: {
