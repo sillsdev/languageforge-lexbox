@@ -18,7 +18,7 @@
 
   eventBus.onEventType<IAppUpdateEvent>(FwEventType.AppUpdate, event => {
     if (event.result == UpdateResult.ManualUpdateRequired) {
-      AppNotification.displayAction($t`A new version of FieldWorks lite is available.`, {
+      AppNotification.displayAction($t`A new version of FieldWorks Lite is available.`, {
         callback: () => {
           const fwliteConfig = useFwLiteConfig();
           const url = updateUrls[fwliteConfig.os] ?? 'https://lexbox.org/fw-lite';
