@@ -1,14 +1,14 @@
 <script lang="ts">
   import {initView, useCurrentView} from '$lib/views/view-service';
   import type {FieldId} from '$lib/entry-editor/field-data';
-  import type {FieldView, View} from './views/view-data';
+  import type {FieldView, Overrides} from './views/view-data';
   import type {Snippet} from 'svelte';
   import {watch} from 'runed';
 
   interface Props {
     shownFields?: FieldId[];
     respectOrder?: boolean;
-    overrides?: View['overrides']
+    overrides?: Overrides
     children?: Snippet;
   }
 
