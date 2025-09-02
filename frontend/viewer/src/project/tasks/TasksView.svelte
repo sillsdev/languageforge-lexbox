@@ -26,7 +26,7 @@ const selectedTaskStorageKey = 'selectedTaskId';
 
 <div class="flex flex-col h-full p-4 gap-4">
   <Select.Root bind:open type="single" bind:value={selectedTaskId.current}>
-    <Select.Trigger>Task {selectedTask?.subject}</Select.Trigger>
+    <Select.Trigger>{$t`Task ${selectedTask?.subject}`}</Select.Trigger>
     <Select.Content>
       {#each tasks as task (task.id)}
         <Select.Item value={task.id}>{task.subject}</Select.Item>

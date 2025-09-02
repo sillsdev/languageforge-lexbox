@@ -60,7 +60,7 @@
                      gridifyFilter={task?.gridifyFilter}
                      disableNewEntry
                      onSelectEntry={e => entry = e} selectedEntryId={entry?.id}/>
-        <Button onclick={onDone}>Done</Button>
+        <Button onclick={onDone}>{$t`Done`}</Button>
         <SubjectPopup
           bind:entry
           {task}
@@ -89,8 +89,8 @@
   {:else}
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-4">
-        <h1 class="text-2xl font-bold">Task not found: {taskId}</h1>
-        <p>The task you are looking for does not exist.</p>
+        <h1 class="text-2xl font-bold">{$t`Task not found: ${taskId}`}</h1>
+        <p>{$t`The task you are looking for does not exist.`}</p>
       </div>
     </div>
   {/if}

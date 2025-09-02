@@ -3,6 +3,7 @@
   import type {Task} from './tasks-service';
   import ReviewList from './ReviewList.svelte';
   import {type TaskSubject} from './subject.svelte';
+  import {t} from 'svelte-i18n-lingui';
 
   let {
     subjects,
@@ -46,7 +47,7 @@
 {#if !review}
   <div class="flex flex-col items-center justify-center">
     <h1 class="text-8xl pb-2">🎊</h1>
-    <h2 class="text-lg">You completed {subjects.length} {task.subject}</h2>
+    <h2 class="text-lg">{$t`You completed ${subjects.length} ${task.subject}`}</h2>
     <div class="flex flex-wrap gap-2 justify-center mt-4 max-w-2xl">
       {#each subjects as subject, index (subject)}
         <span class="px-2 py-1 bg-primary rounded text-center min-w-max"
@@ -59,8 +60,8 @@
   <div class="grow"></div>
   <div class="px-4 pt-4 pb-2 flex flex-col gap-2 self-stretch">
     <p>Do you want to:</p>
-    <Button variant="secondary" onclick={onContinue}>Keep going</Button>
-    <Button autofocus onclick={() => review = true}>Review</Button>
+    <Button variant="secondary" onclick={onContinue}>{$t`Keep going`}</Button>
+    <Button autofocus onclick={() => review = true}>{$t`Review`}</Button>
   </div>
 {:else}
   <ReviewList subjects={allSubjects} onFinish={() => onFinish()}></ReviewList>

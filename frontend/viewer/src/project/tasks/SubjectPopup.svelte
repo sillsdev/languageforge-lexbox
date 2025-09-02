@@ -154,7 +154,7 @@
           </form>
         {/key}
       {:else}
-        <p>No subject, unable to create a new {task.subjectType}</p>
+        <p>{$t`No subject, unable to create a new {task.subjectType}`}</p>
       {/if}
       <div class="flex flex-row gap-2 justify-end">
         <Drawer.Close>
@@ -163,7 +163,7 @@
           {/snippet}
         </Drawer.Close>
         <Button variant="secondary" onclick={() => onNext(true)}>{$t`Skip`}</Button>
-        <Button onclick={() => onNext()} disabled={!isSubjectComplete()}>{progress < 1  ? $t`Next` : $t`Finish`}</Button>
+        <Button onclick={() => onNext()} disabled={!isSubjectComplete()}>{$t`Next`}</Button>
       </div>
     </Drawer.Footer>
   </Drawer.Content>
