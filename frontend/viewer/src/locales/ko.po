@@ -63,8 +63,8 @@ msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {#변경} other {#변경}}"
 
 #: src/lib/notifications/NotificationOutlet.svelte
-msgid "A new version of FieldWorks lite is available."
-msgstr "새로운 버전의 FieldWorks lite를 사용할 수 있습니다."
+msgid "A new version of FieldWorks Lite is available."
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte
 msgid "a word"

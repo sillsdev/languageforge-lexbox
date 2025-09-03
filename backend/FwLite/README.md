@@ -45,7 +45,7 @@ graph
     subgraph Lexbox
         Harmony[(Harmony)]
         Mercurial[(Mercurial)]
-        sync("Sync FieldWorks lite \n (manually triggered)")
+        sync("Sync FieldWorks Lite \n (manually triggered)")
         Harmony <---> sync
         Mercurial <---> sync
     end

@@ -3,7 +3,7 @@ import {jstsExtractor, svelteExtractor} from 'svelte-i18n-lingui/extractor';
 import {defineConfig} from '@lingui/cli';
 
 export default defineConfig({
-  locales: ['en', 'es', 'fr', 'ko', 'id'],
+  locales: ['en', 'es', 'fr', 'id', 'ko', 'ms', 'sw'],
   sourceLocale: 'en',
   catalogs: [
     {
