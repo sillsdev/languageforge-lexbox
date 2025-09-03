@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-28 09:37\n"
+"PO-Revision-Date: 2025-09-03 07:57\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -175,6 +175,7 @@ msgstr "Semak seimbas (Melihat-lihat)"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -199,6 +200,7 @@ msgstr "Projek FieldWorks Klasik"
 msgid "clear"
 msgstr "padam"
 
+#: src/project/tasks/SubjectPopup.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/about/AboutDialog.svelte
@@ -241,6 +243,14 @@ msgstr "Komponen-komponen"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "Mengandungi"
+
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Copied to clipboard"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Copy version"
+msgstr ""
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create {0}"
@@ -319,9 +329,17 @@ msgstr "Buang"
 msgid "Display as"
 msgstr "Papar sebagai"
 
+#: src/project/tasks/DoneView.svelte
+msgid "Do you want to:"
+msgstr ""
+
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
 msgstr "Jangan padam"
+
+#: src/project/tasks/TaskView.svelte
+msgid "Done"
+msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -365,6 +383,7 @@ msgstr "Berakhir dengan"
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Entry"
 msgstr "Entri"
 
@@ -399,6 +418,10 @@ msgstr "Contoh"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr "Ayat contoh"
+
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Failed to copy to clipboard"
+msgstr ""
 
 #: src/home/Server.svelte
 msgid "Failed to download {0}"
@@ -438,6 +461,10 @@ msgstr "Bidang"
 #: src/project/browse/ViewPicker.svelte
 msgid "Field Labels"
 msgstr "Label Medan"
+
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
+msgstr ""
 
 #: src/project/ProjectDropdown.svelte
 #: src/lib/OpenInFieldWorksButton.svelte
@@ -499,6 +526,10 @@ msgstr "Cari entri..."
 msgid "Find word..."
 msgstr "Cari perkataan..."
 
+#: src/project/tasks/ReviewList.svelte
+msgid "Finish"
+msgstr ""
+
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr ""
@@ -544,6 +575,10 @@ msgstr ""
 #: src/home/HomeView.svelte
 msgid "Import"
 msgstr "Import"
+
+#: src/project/tasks/DoneView.svelte
+msgid "Keep going"
+msgstr ""
 
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
@@ -626,10 +661,23 @@ msgstr "Pengurus"
 msgid "Meaning"
 msgstr "Erti"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Definition {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Example sentence {0}"
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 msgid "Missing Examples"
 msgstr "Contoh Tiada"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Gloss {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr "Jenis Perkataan Tiada"
@@ -665,6 +713,10 @@ msgstr "Entri Baru"
 #: src/project/NewEntryButton.svelte
 msgid "New Word"
 msgstr "Perkataan Baru"
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Next"
+msgstr ""
 
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity found"
@@ -705,6 +757,10 @@ msgstr "Tiada item ditemui"
 msgid "No server configured"
 msgstr "Tiada pelayan dikonfigurasikan"
 
+#: src/project/tasks/SubjectPopup.svelte
+msgid "No subject, unable to create a new {task.subjectType}"
+msgstr ""
+
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
 msgstr "Tiada perkataan ditemui"
@@ -726,6 +782,10 @@ msgstr "Tidak log masuk"
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
 msgstr "Nota"
+
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Nothing to copy"
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -772,6 +832,10 @@ msgstr "Sebahagian daripada"
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Jenis Perkataan"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick a Part of Speech"
+msgstr ""
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Pinned"
@@ -831,6 +895,10 @@ msgstr "Ganti audio"
 msgid "Report a technical problem"
 msgstr ""
 
+#: src/project/tasks/DoneView.svelte
+msgid "Review"
+msgstr ""
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
 msgstr ""
@@ -854,6 +922,10 @@ msgstr "Pilih {0}"
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
 msgstr "Pilih {0} untuk melihat butiran"
+
+#: src/project/tasks/TasksView.svelte
+msgid "Select a new task to work on"
+msgstr ""
 
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
@@ -915,9 +987,17 @@ msgstr "Mudah"
 msgid "Size:"
 msgstr "Saiz:"
 
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Skip"
+msgstr ""
+
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Bermula dengan"
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Subject does not have suitable object of type: {0}"
+msgstr ""
 
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -953,9 +1033,21 @@ msgstr "Menyegerakkan FieldWorks Lite dengan FieldWorks..."
 msgid "Synchronizing..."
 msgstr "Menyegerak..."
 
+#: src/project/tasks/TasksView.svelte
+msgid "Task {0}"
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+msgid "Task not found: {0}"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
 msgstr "Tugasan"
+
+#: src/project/tasks/TaskView.svelte
+msgid "The task you are looking for does not exist."
+msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -964,6 +1056,10 @@ msgstr "Tarikh ini # dan emoji ini # adalah coretan"
 #: src/lib/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "Projek ini kini dibuka dalam FieldWorks. Untuk terus bekerja dalam FieldWorks Lite, tutup projek dalam FieldWorks dan klik Buka Semula."
+
+#: src/project/tasks/TaskView.svelte
+msgid "This task is complete"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -987,6 +1083,18 @@ msgstr "Terjemahan"
 #: src/home/HomeView.svelte
 msgid "Troubleshoot"
 msgstr "Selesaikan masalah"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Definition"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Gloss"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type an example sentence"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
@@ -1026,6 +1134,11 @@ msgstr "Pelayan tidak diketahui: {0}"
 msgid "Untitled"
 msgstr "Tanpa Tajuk"
 
+#: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
+msgid "Update {0}"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
 msgstr "Menggunakan komponen sebagai"
@@ -1046,6 +1159,7 @@ msgstr "Di manakah projek saya?"
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Word"
 msgstr "Perkataan"
@@ -1069,6 +1183,10 @@ msgstr "Sistem penulisan: {0}"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Sistem Penulisan"
+
+#: src/project/tasks/DoneView.svelte
+msgid "You completed {0} {1}"
+msgstr ""
 
 #: src/home/Server.svelte
 msgid "You don't have permission to download project {0} from {1}"
