@@ -2,13 +2,13 @@
   import { Button } from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Icon } from '$lib/components/ui/icon';
-  import { useMiniLcmApi } from '$lib/services/service-provider';
   import { defaultEntry } from '$lib/utils';
   import { useWritingSystemService } from '$lib/writing-system-service.svelte';
   import type { Snippet } from 'svelte';
   import DevContent from './DevContent.svelte';
+  import {useProjectContext} from '$lib/project-context.svelte';
 
-  const api = useMiniLcmApi();
+  const projectContext = useProjectContext();
   const writingSystems = useWritingSystemService();
 
   type Props = {
@@ -22,7 +22,7 @@
       const entry = defaultEntry();
       const vWsId = writingSystems.defaultVernacular?.wsId;
       if (vWsId) entry.citationForm[vWsId] = `*Test ${Math.random().toString(36).substring(2, 7)}`;
-      await api.createEntry(entry);
+      await projectContext.api.createEntry(entry);
     }
   }
 </script>
