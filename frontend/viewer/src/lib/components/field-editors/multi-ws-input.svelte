@@ -52,6 +52,7 @@
       {:else}
         <AudioInput
           bind:audioId={value[ws.wsId]} onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)}
+          wsLabel={ws.abbreviation}
           {readonly} />
       {/if}
     </div>
