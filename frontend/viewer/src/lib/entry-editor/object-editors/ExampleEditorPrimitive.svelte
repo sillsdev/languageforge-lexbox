@@ -10,6 +10,7 @@
   import {RichMultiWsInput, RichWsInput} from '$lib/components/field-editors';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
   import {mergeProps} from 'bits-ui';
+  import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     example: IExampleSentence;
@@ -26,6 +27,7 @@
 
   const writingSystemService = useWritingSystemService();
   const currentView = useCurrentView();
+  initSubjectContext(() => example);
 
   function onFieldChanged(field: FieldId) {
     onchange?.(example, field);

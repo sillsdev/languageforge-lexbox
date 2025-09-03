@@ -12,6 +12,7 @@
   import {cn} from '$lib/utils';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
   import {mergeProps} from 'bits-ui';
+  import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     sense: ISense;
@@ -30,7 +31,7 @@
   const partsOfSpeech = usePartsOfSpeech();
   const semanticDomains = useSemanticDomains();
   const currentView = useCurrentView();
-
+  initSubjectContext(() => sense);
   function onFieldChanged(field: FieldId) {
     onchange?.(sense, field);
   }

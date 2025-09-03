@@ -13,6 +13,7 @@
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
   import {mergeProps} from 'bits-ui';
+  import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
@@ -32,6 +33,7 @@
   const writingSystemService = useWritingSystemService();
   const complexFormTypes = useComplexFormTypes();
   const currentView = useCurrentView();
+  initSubjectContext(() => entry);
 
   function onFieldChanged(field: FieldId) {
     onchange?.(entry, field);
