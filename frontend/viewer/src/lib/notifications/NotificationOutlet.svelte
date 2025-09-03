@@ -28,7 +28,7 @@
       });
     } else if (event.result == UpdateResult.Success) {
       AppNotification.display(
-        $t`FieldWorks lite has been updated successfully, please restart the app to apply the changes.`,
+        $t`FieldWorks Lite has been updated successfully. Please restart the app to apply the changes.`,
         {type: 'info', timeout: 'long'}
       );
     }
