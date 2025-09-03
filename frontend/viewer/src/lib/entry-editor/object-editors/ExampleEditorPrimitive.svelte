@@ -33,7 +33,7 @@
 </script>
 
 <Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas($currentView, example) } })}>
-  <Editor.Field.Root style="grid-area: sentence" class={cn($currentView.fields.sentence.show || 'hidden')}>
+  <Editor.Field.Root fieldId="sentence" class={cn($currentView.fields.sentence.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Sentence`)} helpId={fieldData.sentence.helpId} />
     <Editor.Field.Body subGrid>
       <RichMultiWsInput
@@ -44,7 +44,7 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root style="grid-area: translation" class={cn($currentView.fields.translation.show || 'hidden')}>
+  <Editor.Field.Root fieldId="translation" class={cn($currentView.fields.translation.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Translation`)} helpId={fieldData.translation.helpId} />
     <Editor.Field.Body subGrid>
       <RichMultiWsInput
@@ -56,7 +56,7 @@
   </Editor.Field.Root>
 
   {#if writingSystemService.defaultAnalysis}
-    <Editor.Field.Root style="grid-area: reference" class={cn($currentView.fields.reference.show || 'hidden')}>
+    <Editor.Field.Root fieldId="reference" class={cn($currentView.fields.reference.show || 'hidden')}>
       <Editor.Field.Title name={vt($t`Reference`)} helpId={fieldData.reference.helpId} />
       <Editor.Field.Body>
         <RichWsInput
