@@ -1,17 +1,41 @@
 <script lang="ts">
-  import { Icon } from '$lib/components/ui/icon';
+  import * as Select from '$lib/components/ui/select';
+  import {useTasksService} from './tasks-service';
+  import {t} from 'svelte-i18n-lingui';
+  import {QueryParamState} from '$lib/utils/url.svelte';
+  import TaskView from './TaskView.svelte';
+  import {watch} from 'runed';
+  import {onMount} from 'svelte';
+const selectedTaskStorageKey = 'selectedTaskId';
+  const tasksService = useTasksService();
+  const tasks = $derived(tasksService.listTasks());
+  const selectedTaskId = new QueryParamState({key: 'taskId', allowBack: true, replaceOnDefaultValue: true}, localStorage.getItem(selectedTaskStorageKey) ?? '');
+  watch(() => selectedTaskId.current, (selectedTaskId) => {
+    if (selectedTaskId) {
+      localStorage.setItem(selectedTaskStorageKey, selectedTaskId);
+    }
+  });
+  const selectedTask = $derived(tasks.find(task => task.id === selectedTaskId.current));
+  onMount(() => {
+    if (!selectedTaskId.current) {
+      open = true;
+    }
+  });
+  let open = $state(false);
 </script>
 
-<div class="flex flex-col h-full p-4">
-  <header class="flex items-center gap-2 mb-4">
-    <Icon icon="i-mdi-checkbox-marked" class="size-5" />
-    <h1 class="text-xl font-semibold">Tasks</h1>
-  </header>
-
-  <div class="flex-1 flex items-center justify-center text-muted-foreground">
-    <div class="text-center">
-      <Icon icon="i-mdi-checkbox-outline" class="size-12 mx-auto mb-2 opacity-50" />
-      <p>No tasks available</p>
-    </div>
-  </div>
+<div class="flex flex-col h-full p-4 gap-4">
+  <Select.Root bind:open type="single" bind:value={selectedTaskId.current}>
+    <Select.Trigger>{$t`Task ${selectedTask?.subject ?? ''}`}</Select.Trigger>
+    <Select.Content>
+      {#each tasks as task (task.id)}
+        <Select.Item value={task.id}>{task.subject}</Select.Item>
+      {/each}
+    </Select.Content>
+  </Select.Root>
+  {#if selectedTaskId.current}
+    <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.current = ''}/>
+  {:else}
+    <h1 class="text-xl p-4 mx-auto">{$t`Select a new task to work on`}</h1>
+  {/if}
 </div>

@@ -24,6 +24,7 @@
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
   import {useProjectContext} from '$lib/project-context.svelte';
+  import DevToolsDialog from '$lib/layout/DevToolsDialog.svelte';
 
   const config = useFwLiteConfig();
   const projectContext = useProjectContext();
@@ -90,9 +91,8 @@
             {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
           </DevContent>
           {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`, formatNumber(stats.current?.totalEntryCount))}
-          <DevContent>
-            {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
-          </DevContent>
+          {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
+
           {#if features.history}
             {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
           {/if}
@@ -100,6 +100,25 @@
       </Sidebar.GroupContent>
     </Sidebar.Group>
     <div class="grow"></div>
+    <DevContent>
+      <Sidebar.Group>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            <Sidebar.MenuItem>
+              <DevToolsDialog>
+                {#snippet trigger({ props })}
+                  <Sidebar.MenuButton {...props}>
+                    <Icon icon="i-mdi-code-tags" />
+                    Dev Tools
+                  </Sidebar.MenuButton>
+                {/snippet}
+              </DevToolsDialog>
+            </Sidebar.MenuItem>
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+      <div class="grow"></div>
+    </DevContent>
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>

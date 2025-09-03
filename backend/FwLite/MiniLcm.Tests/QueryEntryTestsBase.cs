@@ -216,11 +216,21 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana);
     }
 
-    [Fact(Skip = "Does not work due to Sentence being a rich string now")]
+    [Fact]
     public async Task CanFilterExampleSentenceText()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Sentence[en]=*phone" })).ToArrayAsync();
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToExampleSentenceWithMissingSentence()
+    {
+        var results = await Api
+            .GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Sentence[es]=" })).ToArrayAsync();
+        //Senses.ExampleSentences=null matches entries which have senses but no examples
+        //it does not include Apple because it has no senses, to include it a filter Senses=null is needed
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Kiwi, Banana);
     }
 
     [Theory]

@@ -96,6 +96,42 @@ public partial class MiniLcmApiNotifyWrapper(
         return result;
     }
 
+    async Task<Sense> IMiniLcmWriteApi.CreateSense(Guid entryId, Sense sense, BetweenPosition? position)
+    {
+        await using var _ = BeginTrackingChanges();
+        var result = await _api.CreateSense(entryId, sense, position);
+        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
+        NotifyEntryChanged(entry);
+        return result;
+    }
+
+    async Task<Sense> IMiniLcmWriteApi.UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api)
+    {
+        await using var _ = BeginTrackingChanges();
+        var result = await _api.UpdateSense(entryId, before, after, api ?? this);
+        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
+        NotifyEntryChanged(entry);
+        return result; 
+    }
+
+    async Task<ExampleSentence> IMiniLcmWriteApi.CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position)
+    {
+        await using var _ = BeginTrackingChanges();
+        var result = await _api.CreateExampleSentence(entryId, senseId, exampleSentence, position);
+        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
+        NotifyEntryChanged(entry);
+        return result;
+    }
+
+    async Task<ExampleSentence> IMiniLcmWriteApi.UpdateExampleSentence(Guid entryId, Guid senseId, ExampleSentence before, ExampleSentence after, IMiniLcmApi? api)
+    {
+        await using var _ = BeginTrackingChanges();
+        var result = await _api.UpdateExampleSentence(entryId, senseId, before, after, api ?? this);
+        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
+        NotifyEntryChanged(entry);
+        return result;
+    }
+
     async Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
     {
         var result = await _api.CreateComplexFormComponent(complexFormComponent, position);

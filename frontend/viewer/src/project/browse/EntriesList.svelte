@@ -2,7 +2,7 @@
   import type {IEntry} from '$lib/dotnet-types';
   import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-  import {Debounced, resource, useDebounce} from 'runed';
+  import {Debounced, resource, useDebounce, watch} from 'runed';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import {cn} from '$lib/utils';
@@ -19,20 +19,24 @@
   import {Icon} from '$lib/components/ui/icon';
   import {useProjectContext} from '$lib/project-context.svelte';
 
-  const {
+  let {
     search = '',
     selectedEntryId = undefined,
     sort,
     onSelectEntry,
     gridifyFilter = undefined,
-    previewDictionary = false
+    previewDictionary = false,
+    disableNewEntry = false,
+    entryCount = $bindable(null),
   }: {
     search?: string;
     selectedEntryId?: string;
     sort?: SortConfig;
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
-    previewDictionary?: boolean
+    previewDictionary?: boolean,
+    disableNewEntry?: boolean,
+    entryCount?: number | null,
   } = $props();
   const projectContext = useProjectContext();
   const miniLcmApi = $derived(projectContext.maybeApi);
@@ -95,6 +99,10 @@
     () => ({ search, sort, gridifyFilter, miniLcmApi }),
     async () => await fetchCurrentEntries());
   const entries = $derived(entriesResource.current ?? []);
+  watch(() => [entries, entriesResource.loading], () => {
+    if (!entriesResource.loading)
+      entryCount = entries.length;
+  });
 
   $effect(() => {
     if (entriesResource.error) {
@@ -123,6 +131,14 @@
     }
   });
 
+  export function selectNextEntry() {
+    const indexOfSelected = entries.findIndex(e => e.id === selectedEntryId);
+    const nextIndex = indexOfSelected === -1 ? 0 : indexOfSelected + 1;
+    let nextEntry = entries[nextIndex];
+    onSelectEntry(nextEntry);
+    return nextEntry;
+  }
+
 </script>
 
 <FabContainer>
@@ -135,7 +151,9 @@
       onclick={() => entriesResource.refetch()}
     />
   </DevContent>
-  <NewEntryButton onclick={handleNewEntry} shortForm />
+  {#if !disableNewEntry}
+    <NewEntryButton onclick={handleNewEntry} shortForm />
+  {/if}
 </FabContainer>
 
 <div class="flex-1 h-full" role="table">

@@ -195,6 +195,14 @@
       // mimic <input> 'next' behaviour
       const nextTabbable = findNextTabbable(editor.dom);
       nextTabbable?.focus();
+    } else {
+      //mimic submit
+      if (editor?.dom) {
+        const form = editor.dom.closest('form');
+        if (form) {
+          form.requestSubmit();
+        }
+      }
     }
   }
 

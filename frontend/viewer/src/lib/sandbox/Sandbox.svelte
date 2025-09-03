@@ -34,6 +34,7 @@
   import {SvelteDate} from 'svelte/reactivity';
   import {RichTextToggle} from '$lib/dotnet-types/generated-types/MiniLcm/Models/RichTextToggle';
   import {FFmpegApi} from '$lib/components/audio/ffmpeg';
+  import type {View} from '$lib/views/view-data';
   import {useDialogsService} from '$lib/services/dialogs-service';
 
   const testingService = tryUseService(DotnetService.TestingService);
@@ -57,6 +58,7 @@
   }
 
   let senseFields: ({ id: FieldId })[] = $state([{id: 'gloss'}, {id: 'definition'}]);
+  let overrides = $state<View['overrides']>({});
 
   function updateFields(e: CustomEvent<{ items: ({ id: FieldId })[] }>) {
     senseFields = e.detail.items;
@@ -328,6 +330,8 @@
         <h3>Override Fields</h3>
       </div>
       <div>
+        <Button onclick={() => overrides = {vernacularWritingSystems: ['en'], analysisWritingSystems: ['en']}}>Set en only</Button>
+        <Button onclick={() => overrides = {}}>Reset</Button>
         <p>Shown:</p>
         <div class="p-2" use:dndzone={{items: senseFields, flipDurationMs: 200}} onconsider={updateFields}
             onfinalize={updateFields}>
@@ -338,7 +342,7 @@
       </div>
       <svelte:boundary>
         <EditorGrid class="border p-4">
-          <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
+          <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder {overrides}>
             <SenseEditorPrimitive
               sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
           </OverrideFields>
