@@ -244,6 +244,14 @@ msgstr "Composants"
 msgid "Contains"
 msgstr "Contient"
 
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Copied to clipboard"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Copy version"
+msgstr ""
+
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create {0}"
 msgstr "Créer {0}"
@@ -410,6 +418,10 @@ msgstr "Exemple"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr "Exemple de phrase"
+
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Failed to copy to clipboard"
+msgstr ""
 
 #: src/home/Server.svelte
 msgid "Failed to download {0}"
@@ -766,6 +778,10 @@ msgstr "Non connecté"
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
 msgstr "Note"
+
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Nothing to copy"
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"

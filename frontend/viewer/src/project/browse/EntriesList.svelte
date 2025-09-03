@@ -3,7 +3,6 @@
   import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
   import {Debounced, resource, useDebounce, watch} from 'runed';
-  import {useMiniLcmApi} from '$lib/services/service-provider';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import {cn} from '$lib/utils';
@@ -18,6 +17,7 @@
   import type {SortConfig} from './SortMenu.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import {Icon} from '$lib/components/ui/icon';
+  import {useProjectContext} from '$lib/project-context.svelte';
 
   let {
     search = '',
@@ -38,7 +38,8 @@
     disableNewEntry?: boolean,
     entryCount?: number | null,
   } = $props();
-  const miniLcmApi = useMiniLcmApi();
+  const projectContext = useProjectContext();
+  const miniLcmApi = $derived(projectContext.maybeApi);
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
 
@@ -65,9 +66,10 @@
     entriesResource.mutate(updatedEntries);
   }
 
-  let loadingUndebounced = $state(false);
+  let loadingUndebounced = $state(true);
   const loading = new Debounced(() => loadingUndebounced, 50);
   const fetchCurrentEntries = useDebounce(async (silent = false) => {
+    if (!miniLcmApi) return [];
     if (!silent) loadingUndebounced = true;
     try {
       const queryOptions: IQueryOptions = {
@@ -94,7 +96,7 @@
   }, 300);
 
   const entriesResource = resource(
-    () => ({ search, sort, gridifyFilter }),
+    () => ({ search, sort, gridifyFilter, miniLcmApi }),
     async () => await fetchCurrentEntries());
   const entries = $derived(entriesResource.current ?? []);
   watch(() => [entries, entriesResource.loading], () => {

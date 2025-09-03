@@ -3,6 +3,8 @@
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import AudioDialog from './components/audio/AudioDialog.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
+  import {useProjectContext} from '$lib/project-context.svelte';
+  const projectContext = useProjectContext();
   const dialogsService = useDialogsService();
   let deleteDialog = $state<DeleteDialog>();
   $effect(() => {
@@ -10,6 +12,8 @@
   })
 </script>
 
-<NewEntryDialog/>
+{#if projectContext.maybeApi}
+  <NewEntryDialog/>
+  <AudioDialog/>
+{/if}
 <DeleteDialog bind:this={deleteDialog}/>
-<AudioDialog/>
