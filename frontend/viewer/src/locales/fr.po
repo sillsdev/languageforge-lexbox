@@ -62,6 +62,16 @@ msgstr "{0} synchronisé avec FieldWorks. {1} synchronisé avec FieldWorks Lite.
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {# change} other {# changes}}"
 
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "# ago"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "# before"
+msgstr ""
+
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks lite is available."
 msgstr "Une nouvelle version de FieldWorks lite est disponible."
@@ -113,12 +123,6 @@ msgstr "Ajouter une partie de"
 msgid "Add Sense"
 msgstr "Ajouter du sens"
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "ago"
-msgstr "il y a"
-
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "une entrée"
@@ -159,11 +163,6 @@ msgstr "Auto"
 #: src/project/SyncDialog.svelte
 msgid "Auto synchronizing"
 msgstr "Synchronisation automatique"
-
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "before"
-msgstr "avant"
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -1010,9 +1009,12 @@ msgid "Suggest your ideas"
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "Synced"
 msgstr "Synchronisé"
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Synced {0} ago"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"

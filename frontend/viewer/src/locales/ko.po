@@ -62,6 +62,16 @@ msgstr "{0} FieldWorks에 동기화됨. {1} FieldWorks Lite에 동기화됨."
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {#변경} other {#변경}}"
 
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "# ago"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "# before"
+msgstr ""
+
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks lite is available."
 msgstr "새로운 버전의 FieldWorks lite를 사용할 수 있습니다."
@@ -113,12 +123,6 @@ msgstr "의 일부를 추가합니다."
 msgid "Add Sense"
 msgstr "센스 추가"
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "ago"
-msgstr "전"
-
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "항목"
@@ -159,11 +163,6 @@ msgstr "자동"
 #: src/project/SyncDialog.svelte
 msgid "Auto synchronizing"
 msgstr "자동 동기화"
-
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "before"
-msgstr "전에"
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -1010,9 +1009,12 @@ msgid "Suggest your ideas"
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "Synced"
 msgstr "동기화"
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Synced {0} ago"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
