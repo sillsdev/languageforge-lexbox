@@ -152,7 +152,7 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         set => preferences.Set(LastUpdateCheckKey, value);
     }
 
-    public bool SupportsAutoUpdate => true;
+    public bool SupportsAutoUpdate => !FwLiteMauiKernel.IsPortableApp;
 
     public bool IsOnMeteredConnection()
     {

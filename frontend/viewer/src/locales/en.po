@@ -457,6 +457,10 @@ msgstr "Field"
 msgid "Field Labels"
 msgstr "Field Labels"
 
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
+msgstr "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
+
 #: src/project/ProjectDropdown.svelte
 #: src/lib/OpenInFieldWorksButton.svelte
 #: src/home/HomeView.svelte

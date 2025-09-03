@@ -26,6 +26,11 @@
         },
         label: $t`Download`
       });
+    } else if (event.result == UpdateResult.Success) {
+      AppNotification.display(
+        $t`FieldWorks Lite has been updated successfully. Please restart the app to apply the changes.`,
+        {type: 'info', timeout: 'long'}
+      );
     }
   }, {includeLast: true});
 </script>
