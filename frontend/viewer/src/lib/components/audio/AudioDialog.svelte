@@ -84,7 +84,7 @@
       case UploadFileResult.Error:
         throw new Error(response.errorMessage ?? $t`Unknown error`);
     }
-    if (!response.mediaUri) throw new Error($t`No mediaUri returned`);
+    if (!response.mediaUri) throw new Error(`No mediaUri returned`);
 
     return response.mediaUri;
   }

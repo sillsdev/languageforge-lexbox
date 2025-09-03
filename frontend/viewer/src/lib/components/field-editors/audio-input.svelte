@@ -274,8 +274,8 @@
 {#if supportsAudio}
   {#if !readonly}
     <AudioDialog title={dialogTitle} bind:open={audioDialogOpen} onSubmit={onAudioDialogSubmit}>
-      {#if subject.current}
-        <OverrideFields shownFields={[fieldProps.fieldId]}>
+      {#if subject?.current}
+        <OverrideFields shownFields={fieldProps?.fieldId ? [fieldProps.fieldId] : []}>
           <LexiconEditorPrimitive object={subject.current}/>
         </OverrideFields>
       {/if}
