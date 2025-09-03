@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
-  import {t} from 'svelte-i18n-lingui';
+  import {T, t} from 'svelte-i18n-lingui';
   import EntryEditor from '../entry-editor/object-editors/EntryEditor.svelte';
   import ExampleEditorPrimitive from '../entry-editor/object-editors/ExampleEditorPrimitive.svelte';
   import SenseEditorPrimitive from '../entry-editor/object-editors/SenseEditorPrimitive.svelte';
@@ -78,18 +78,18 @@
                     <span>{row.changeName ?? $t`No change name`}</span>
                     <div class="text-sm text-muted-foreground">
                       {#if row.previousTimestamp}
-                        <FormatDuration
-                          start={new Date(row.timestamp)}
-                          end={new Date(row.previousTimestamp)}
-                          smallestUnit="seconds"
-                          options={{style: 'narrow'}}/>
-                        {$t`before`}
+                        <T msg="# before">
+                          <FormatDuration start={new Date(row.timestamp)}
+                                          end={new Date(row.previousTimestamp)}
+                                          smallestUnit="seconds"
+                                          options={{style: 'narrow'}}/>
+                        </T>
                       {:else}
-                        <FormatDuration
-                          start={new Date(row.timestamp)}
-                          smallestUnit="seconds"
-                          options={{style: 'narrow'}}/>
-                        {$t`ago`}
+                        <T msg="# ago">
+                          <FormatDuration start={new Date(row.timestamp)}
+                                          smallestUnit="seconds"
+                                          options={{style: 'narrow'}}/>
+                        </T>
                       {/if}
                     </div>
                   </ListItem>
