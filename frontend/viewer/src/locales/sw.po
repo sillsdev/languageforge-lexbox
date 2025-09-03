@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-28 09:37\n"
+"PO-Revision-Date: 2025-09-03 07:57\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -175,6 +175,7 @@ msgstr "Angalia"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -199,6 +200,7 @@ msgstr ""
 msgid "clear"
 msgstr "futa"
 
+#: src/project/tasks/SubjectPopup.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/about/AboutDialog.svelte
@@ -240,6 +242,14 @@ msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
+msgstr ""
+
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Copied to clipboard"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Copy version"
 msgstr ""
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -319,8 +329,16 @@ msgstr "Kataa mabadiliko"
 msgid "Display as"
 msgstr ""
 
+#: src/project/tasks/DoneView.svelte
+msgid "Do you want to:"
+msgstr ""
+
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+msgid "Done"
 msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -365,6 +383,7 @@ msgstr ""
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Entry"
 msgstr "Ingizo"
 
@@ -398,6 +417,10 @@ msgstr "Mfano"
 
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
+msgstr ""
+
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Failed to copy to clipboard"
 msgstr ""
 
 #: src/home/Server.svelte
@@ -437,6 +460,10 @@ msgstr ""
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Field Labels"
+msgstr ""
+
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr ""
 
 #: src/project/ProjectDropdown.svelte
@@ -499,6 +526,10 @@ msgstr ""
 msgid "Find word..."
 msgstr ""
 
+#: src/project/tasks/ReviewList.svelte
+msgid "Finish"
+msgstr ""
+
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr ""
@@ -544,6 +575,10 @@ msgstr ""
 #: src/home/HomeView.svelte
 msgid "Import"
 msgstr "Agiza"
+
+#: src/project/tasks/DoneView.svelte
+msgid "Keep going"
+msgstr ""
 
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
@@ -626,10 +661,23 @@ msgstr ""
 msgid "Meaning"
 msgstr "Maana"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Definition {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Example sentence {0}"
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 msgid "Missing Examples"
 msgstr ""
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Gloss {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr ""
@@ -664,6 +712,10 @@ msgstr "Ingizo Mpya"
 
 #: src/project/NewEntryButton.svelte
 msgid "New Word"
+msgstr ""
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Next"
 msgstr ""
 
 #: src/lib/activity/ActivityView.svelte
@@ -705,6 +757,10 @@ msgstr ""
 msgid "No server configured"
 msgstr ""
 
+#: src/project/tasks/SubjectPopup.svelte
+msgid "No subject, unable to create a new {task.subjectType}"
+msgstr ""
+
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
 msgstr ""
@@ -726,6 +782,10 @@ msgstr ""
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
 msgstr "Tanbihi"
+
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Nothing to copy"
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -772,6 +832,10 @@ msgstr ""
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Sehemu za mazungumzo"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick a Part of Speech"
+msgstr ""
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Pinned"
@@ -831,6 +895,10 @@ msgstr ""
 msgid "Report a technical problem"
 msgstr ""
 
+#: src/project/tasks/DoneView.svelte
+msgid "Review"
+msgstr ""
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
 msgstr ""
@@ -853,6 +921,10 @@ msgstr ""
 
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
+msgstr ""
+
+#: src/project/tasks/TasksView.svelte
+msgid "Select a new task to work on"
 msgstr ""
 
 #: src/lib/components/audio/audio-provider.svelte
@@ -915,8 +987,16 @@ msgstr "Rahisi"
 msgid "Size:"
 msgstr "Ukubwa:"
 
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Skip"
+msgstr ""
+
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
+msgstr ""
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Subject does not have suitable object of type: {0}"
 msgstr ""
 
 #: src/lib/components/field-editors/multi-select.svelte
@@ -953,9 +1033,21 @@ msgstr ""
 msgid "Synchronizing..."
 msgstr ""
 
+#: src/project/tasks/TasksView.svelte
+msgid "Task {0}"
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+msgid "Task not found: {0}"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
 msgstr "Jukumu"
+
+#: src/project/tasks/TaskView.svelte
+msgid "The task you are looking for does not exist."
+msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -963,6 +1055,10 @@ msgstr ""
 
 #: src/lib/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+msgid "This task is complete"
 msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
@@ -986,6 +1082,18 @@ msgstr "Tafsiri"
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
 msgid "Troubleshoot"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Definition"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Gloss"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type an example sentence"
 msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
@@ -1026,6 +1134,11 @@ msgstr ""
 msgid "Untitled"
 msgstr ""
 
+#: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
+msgid "Update {0}"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
 msgstr ""
@@ -1046,6 +1159,7 @@ msgstr ""
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Word"
 msgstr "Neno"
@@ -1068,6 +1182,10 @@ msgstr ""
 
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
+msgstr ""
+
+#: src/project/tasks/DoneView.svelte
+msgid "You completed {0} {1}"
 msgstr ""
 
 #: src/home/Server.svelte
