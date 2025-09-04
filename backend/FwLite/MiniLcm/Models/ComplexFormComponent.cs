@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 using MiniLcm.Attributes;
 
@@ -28,7 +29,7 @@ public record ComplexFormComponent : IObjectWithId<ComplexFormComponent>, IOrder
     {
         get
         {
-            if (_id == Guid.Empty) throw new ArgumentNullException("Id is not set and should not be used");
+            Debug.Assert(_id != Guid.Empty, "Id is not set and should not be used");
             return _id;
         }
         set
