@@ -89,4 +89,10 @@ public record ComplexFormComponent : IObjectWithId<ComplexFormComponent>, IOrder
             DeletedAt = DeletedAt,
         };
     }
+
+    public override string ToString()
+    {
+        return
+            $"{nameof(Order)}: {Order}, {nameof(DeletedAt)}: {DeletedAt}, {nameof(ComplexFormEntryId)}: {ComplexFormEntryId}, {nameof(ComplexFormHeadword)}: {ComplexFormHeadword}, {nameof(ComponentEntryId)}: {ComponentEntryId}, {nameof(ComponentSenseId)}: {ComponentSenseId}, {nameof(ComponentHeadword)}: {ComponentHeadword}";
+    }
 }
