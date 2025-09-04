@@ -454,7 +454,12 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
         });
         var complexFormAfter = complexForm.Copy();
         complexFormAfter.Components[0].Order = 3;
-        complexFormAfter.Components = [..complexFormAfter.Components.OrderBy(c => c.Order)];
+        complexFormAfter.Components = [..complexFormAfter.Components.Select(c =>
+        {
+            //simulate components coming from FLEx without an Id, VERY IMPORTANT!
+            c.Id = Guid.Empty;
+            return c;
+        }).OrderBy(c => c.Order)];
 
         await EntrySync.SyncComplexFormsAndComponents([complexForm], [complexFormAfter], Api);
 
