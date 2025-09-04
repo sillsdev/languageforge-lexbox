@@ -65,6 +65,7 @@
     onchange?: (audioId: string | undefined) => void;
     readonly?: boolean;
   } = $props();
+  watch(() => audioId, () => loadedAudioId = undefined);
 
   const projectContext = useProjectContext();
   const api = $derived(projectContext?.maybeApi);
