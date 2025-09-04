@@ -421,4 +421,48 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
         // Assert
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
+
+    [Fact]
+    public async Task SyncComplexFormsAndComponents_MovesComponentsToCorrectPosition()
+    {
+        var componentA = await Api.CreateEntry(new() { LexemeForm = { { "en", "componentA" } } });
+        var componentB = await Api.CreateEntry(new() { LexemeForm = { { "en", "componentB" } } });
+        var complexFormId = Guid.NewGuid();
+        var complexForm = await Api.CreateEntry(new()
+        {
+            Id = complexFormId,
+            LexemeForm = { { "en", "complex form" } },
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    Id = Guid.NewGuid(),
+                    ComponentEntryId = componentA.Id,
+                    ComponentHeadword = componentA.Headword(),
+                    ComplexFormEntryId = complexFormId,
+                    ComplexFormHeadword = "complex form",
+                    Order = 1
+                },
+                new ComplexFormComponent()
+                {
+                    Id = Guid.NewGuid(),
+                    ComponentEntryId = componentB.Id,
+                    ComponentHeadword = componentB.Headword(),
+                    ComplexFormEntryId = complexFormId,
+                    ComplexFormHeadword = "complex form",
+                    Order = 2
+                }
+            ]
+        });
+        var complexFormAfter = complexForm.Copy();
+        complexFormAfter.Components[0].Order = 3;
+        complexFormAfter.Components = [..complexFormAfter.Components.OrderBy(c => c.Order)];
+
+        await EntrySync.SyncComplexFormsAndComponents([complexForm], [complexFormAfter], Api);
+
+        var actual = await Api.GetEntry(complexFormId);
+        actual.Should().NotBeNull();
+        actual.Components[0].ComponentHeadword.Should().Be("componentB");
+        actual.Components[1].ComponentHeadword.Should().Be("componentA");
+    }
 }
