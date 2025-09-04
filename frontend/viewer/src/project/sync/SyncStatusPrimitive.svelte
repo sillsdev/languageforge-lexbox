@@ -63,7 +63,6 @@
     });
   }
 </script>
-<!-- 1fr_7fr_1fr seems to be a reliable way to prevent the buttons states from resizing the dialog -->
 <div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-4 gap-x-8">
 
   <!-- Status local to remote -->
