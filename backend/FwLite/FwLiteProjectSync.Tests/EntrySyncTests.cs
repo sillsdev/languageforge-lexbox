@@ -460,6 +460,7 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
 
         var actual = await Api.GetEntry(complexFormId);
         actual.Should().NotBeNull();
+        actual.Components.Should().HaveCount(2);
         actual.Components[0].ComponentHeadword.Should().Be("componentB");
         actual.Components[1].ComponentHeadword.Should().Be("componentA");
     }
