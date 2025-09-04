@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-09-03 07:57\n"
+"PO-Revision-Date: 2025-09-04 07:52\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -60,11 +60,21 @@ msgstr "{0} synchronisé avec FieldWorks. {1} synchronisé avec FieldWorks Lite.
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
-msgstr "{num, plural, one {# change} other {# changes}}"
+msgstr "{num, plural, one {# changement} other {# changements}}"
+
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "# ago"
+msgstr "# il y a"
+
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "# before"
+msgstr "# avant"
 
 #: src/lib/notifications/NotificationOutlet.svelte
-msgid "A new version of FieldWorks lite is available."
-msgstr "Une nouvelle version de FieldWorks lite est disponible."
+msgid "A new version of FieldWorks Lite is available."
+msgstr "Une nouvelle version de FieldWorks Lite sera disponible."
 
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
@@ -113,12 +123,6 @@ msgstr "Ajouter une partie de"
 msgid "Add Sense"
 msgstr "Ajouter du sens"
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "ago"
-msgstr "il y a"
-
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "une entrée"
@@ -159,11 +163,6 @@ msgstr "Auto"
 #: src/project/SyncDialog.svelte
 msgid "Auto synchronizing"
 msgstr "Synchronisation automatique"
-
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "before"
-msgstr "avant"
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -1010,9 +1009,12 @@ msgid "Suggest your ideas"
 msgstr "Suggérer vos idées"
 
 #: src/project/ProjectSidebar.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "Synced"
 msgstr "Synchronisé"
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Synced {0} ago"
+msgstr "Synchronisé {0} il y a"
 
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
