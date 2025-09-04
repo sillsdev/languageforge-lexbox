@@ -1,10 +1,8 @@
 <script lang="ts">
-  import {cn} from '$lib/utils';
+  import * as Tabs from '$lib/components/ui/tabs';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import {formatDate} from '$lib/components/ui/format';
-  import {ProjectSyncStatusEnum} from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusEnum';
-  import {ProjectSyncStatusErrorCode} from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusErrorCode';
-  import {Icon, PingingIcon} from '$lib/components/ui/icon';
+  import {Icon} from '$lib/components/ui/icon';
   import LoginButton from '$lib/auth/LoginButton.svelte';
   import {Button} from '$lib/components/ui/button';
   import type {IProjectSyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
@@ -52,10 +50,12 @@
   let lastLocalSyncDate = $derived(latestCommitDate ? new Date(latestCommitDate) : undefined);
   const serverName = $derived(server?.displayName ?? serverId ?? 'unknown');
   const isOffline = $derived(syncStatus === SyncStatus.Offline);
+  const showRemote = $derived(server && !isOffline);
 
   let loadingSyncLexboxToFlex = $state(false);
 
   let loadingSyncLexboxToLocal = $state(false);
+
   function onSyncLexboxToLocal() {
     loadingSyncLexboxToLocal = true;
     void syncLexboxToLocal().finally(() => {
@@ -63,83 +63,93 @@
     });
   }
 </script>
-<div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-3 gap-x-8">
+<Tabs.Root value="local">
+  {#if showRemote}
+    <Tabs.List>
+      <Tabs.Trigger value="local">{$t`Local`}</Tabs.Trigger>
+      <Tabs.Trigger value="remote">{$t`Remote`}</Tabs.Trigger>
+    </Tabs.List>
+  {/if}
+  <Tabs.Content value="local">
+    <div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-3 gap-x-8">
 
-  <!-- Status local to remote -->
-  <div class="col-span-full text-center flex flex-col border rounded py-2">
-    <a href={server?.authority + '/project/' + projectCode} target="_blank">
-      <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}/>
-      <span class="underline">{serverName}</span>
-      {#if isOffline}
-        <span>(Offline)</span>
-      {/if}
-    </a>
-    <span class="text-foreground/80">
-      {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
-    </span>
-    {#if !isOffline && server}
-      <div>
-        <FwLiteToFwMergeDetails
-          {remoteStatus}
-          {syncLexboxToFlex}
-          bind:loadingSyncLexboxToFlex
-          {loadingSyncLexboxToLocal}
-          {serverName}
-          {canSyncLexboxToFlex}/>
-      </div>
-    {/if}
-  </div>
-
-<!--  arrows and sync counts -->
-  <div class="col-span-full text-center grid justify-center items-center" style="grid-template-columns: 1fr auto 1fr">
-    <div>
-<!--      blank spacer-->
-    </div>
-    <div class="grid justify-center items-center min-h-12" style="grid-template-columns: 1fr auto auto auto 1fr">
-      <span class="text-end">{remoteToLocalCount ?? '?'}</span>
-      <SyncArrow dir="down" tailLength={40} size={2} class="translate-y-[1px]"/>
-      {#if remoteToLocalCount === 0 && localToRemoteCount === 0}
-        <span>Up to date</span>
-      {:else}
-        <span>Pending</span>
-      {/if}
-      <SyncArrow dir="up" tailLength={40} size={2} class="translate-y-[-1px]"/>
-      <span class="text-start">{localToRemoteCount}</span>
-    </div>
-    <div class="content-center pl-2">
-      {#if syncStatus === SyncStatus.Success}
-        <Button
-          variant="outline"
-          class="border-primary text-primary hover:text-primary"
-          loading={loadingSyncLexboxToLocal}
-          disabled={loadingSyncLexboxToFlex}
-          onclick={onSyncLexboxToLocal}
-          icon="i-mdi-sync"
-          iconProps={{ class: 'size-5' }}>
-          {#if loadingSyncLexboxToLocal}
-            {$t`Syncing...`}
-          {:else}
-            {$t`Auto sync`}
+      <!-- Status local to remote -->
+      <div class="col-span-full text-center flex flex-col border rounded py-2">
+        <a href={server?.authority + '/project/' + projectCode} target="_blank">
+          <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}/>
+          <span class="underline">{serverName}</span>
+          {#if isOffline}
+            <span>(Offline)</span>
           {/if}
-        </Button>
-      {:else if syncStatus === SyncStatus.Offline}
-      <!--  nothing to show -->
-      {:else if syncStatus === SyncStatus.NotLoggedIn && server}
-        <LoginButton
-          text={$t`Login`}
-          status={{loggedIn: false, server: server}}
-          statusChange={s => onLoginStatusChange(s)}/>
-      {:else if syncStatus === SyncStatus.NoServer || !server}
-        <!-- nothing to show -->
-      {:else}
-        <div class="text-destructive">{$t`Error getting sync status.`}</div>
-      {/if}
-    </div>
-  </div>
+        </a>
+        <span class="text-foreground/80">
+          {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
+        </span>
+      </div>
+      <!--  arrows and sync counts -->
+      <div class="col-span-full text-center grid justify-center items-center"
+           style="grid-template-columns: 1fr auto 1fr">
+        <div>
+          <!--      blank spacer-->
+        </div>
+        <div class="grid justify-center items-center min-h-12" style="grid-template-columns: 1fr auto auto auto 1fr">
+          <span class="text-end">{remoteToLocalCount ?? '?'}</span>
+          <SyncArrow dir="down" tailLength={40} size={2} class="translate-y-[1px]"/>
+          {#if remoteToLocalCount === 0 && localToRemoteCount === 0}
+            <span>Up to date</span>
+          {:else}
+            <span>Pending</span>
+          {/if}
+          <SyncArrow dir="up" tailLength={40} size={2} class="translate-y-[-1px]"/>
+          <span class="text-start">{localToRemoteCount}</span>
+        </div>
+        <div class="content-center pl-2">
+          {#if syncStatus === SyncStatus.Success}
+            <Button
+              variant="outline"
+              class="border-primary text-primary hover:text-primary"
+              loading={loadingSyncLexboxToLocal}
+              disabled={loadingSyncLexboxToFlex}
+              onclick={onSyncLexboxToLocal}
+              icon="i-mdi-sync"
+              iconProps={{ class: 'size-5' }}>
+              {#if loadingSyncLexboxToLocal}
+                {$t`Syncing...`}
+              {:else}
+                {$t`Auto sync`}
+              {/if}
+            </Button>
+          {:else if syncStatus === SyncStatus.Offline}
+            <!--  nothing to show -->
+          {:else if syncStatus === SyncStatus.NotLoggedIn && server}
+            <LoginButton
+              text={$t`Login`}
+              status={{loggedIn: false, server: server}}
+              statusChange={s => onLoginStatusChange(s)}/>
+          {:else if syncStatus === SyncStatus.NoServer || !server}
+            <!-- nothing to show -->
+          {:else}
+            <div class="text-destructive">{$t`Error getting sync status.`}</div>
+          {/if}
+        </div>
+      </div>
 
-<!--  local box-->
-  <div class="text-center col-span-full border rounded py-2">
-    <Icon icon="i-mdi-cellphone" class="!size-10 md:i-mdi-monitor"/>
-    <p>Local</p>
-  </div>
-</div>
+      <!--  local box-->
+      <div class="text-center col-span-full border rounded py-2">
+        <Icon icon="i-mdi-cellphone" class="!size-10 md:i-mdi-monitor"/>
+        <p>Local</p>
+      </div>
+    </div>
+  </Tabs.Content>
+  {#if showRemote}
+    <Tabs.Content value="remote">
+      <FwLiteToFwMergeDetails
+        {remoteStatus}
+        {syncLexboxToFlex}
+        bind:loadingSyncLexboxToFlex
+        {loadingSyncLexboxToLocal}
+        {serverName}
+        {canSyncLexboxToFlex}/>
+    </Tabs.Content>
+  {/if}
+</Tabs.Root>

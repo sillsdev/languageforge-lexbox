@@ -27,6 +27,10 @@ if (!window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService)) {
   });
 }
 
+function delayAsync(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 </script>
 
 <Story name="Normal">
@@ -34,6 +38,8 @@ if (!window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService)) {
     canSyncLexboxToFlex
     serverId="test-server"
     projectCode="test-project"
+    syncLexboxToFlex={() => delayAsync(1000)}
+    syncLexboxToLocal={() => delayAsync(1000)}
     syncStatus={SyncStatus.Success}
     localStatus={{local: 1, remote: 200}}
     remoteStatus={{

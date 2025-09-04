@@ -8,7 +8,6 @@
   import {plural, t} from 'svelte-i18n-lingui';
   import {AppNotification} from '$lib/notifications/notifications';
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
-  import Loading from '$lib/components/Loading.svelte';
   import {useSyncStatusService} from '$lib/services/sync-status-service';
   import {watch} from 'runed';
   import {delay} from '$lib/utils/time';
