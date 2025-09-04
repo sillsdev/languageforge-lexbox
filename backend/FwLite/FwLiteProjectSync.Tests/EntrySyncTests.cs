@@ -436,7 +436,6 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
             [
                 new ComplexFormComponent()
                 {
-                    Id = Guid.NewGuid(),
                     ComponentEntryId = componentA.Id,
                     ComponentHeadword = componentA.Headword(),
                     ComplexFormEntryId = complexFormId,
@@ -445,7 +444,6 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
                 },
                 new ComplexFormComponent()
                 {
-                    Id = Guid.NewGuid(),
                     ComponentEntryId = componentB.Id,
                     ComponentHeadword = componentB.Headword(),
                     ComplexFormEntryId = complexFormId,
