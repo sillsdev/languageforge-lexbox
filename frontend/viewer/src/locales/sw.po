@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-09-03 07:57\n"
+"PO-Revision-Date: 2025-09-04 07:52\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -60,10 +60,20 @@ msgstr ""
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
+msgstr "{num, plural, other {# mabadiliko}}"
+
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "# ago"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "# before"
 msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
-msgid "A new version of FieldWorks lite is available."
+msgid "A new version of FieldWorks Lite is available."
 msgstr ""
 
 #: src/project/browse/BrowseView.svelte
@@ -113,12 +123,6 @@ msgstr ""
 msgid "Add Sense"
 msgstr ""
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "ago"
-msgstr ""
-
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr ""
@@ -159,11 +163,6 @@ msgstr ""
 #: src/project/SyncDialog.svelte
 msgid "Auto synchronizing"
 msgstr ""
-
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "before"
-msgstr "kabla"
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -1010,8 +1009,11 @@ msgid "Suggest your ideas"
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "Synced"
+msgstr ""
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Synced {0} ago"
 msgstr ""
 
 #: src/home/HomeView.svelte
