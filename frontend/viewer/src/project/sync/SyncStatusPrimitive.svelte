@@ -63,7 +63,7 @@
     });
   }
 </script>
-<div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-4 gap-x-8">
+<div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-3 gap-x-8">
 
   <!-- Status local to remote -->
   <div class="col-span-full text-center flex flex-col border rounded py-2">
@@ -97,13 +97,13 @@
     </div>
     <div class="grid justify-center items-center min-h-12" style="grid-template-columns: 1fr auto auto auto 1fr">
       <span class="text-end">{remoteToLocalCount ?? '?'}</span>
-      <SyncArrow dir="down" length="4em" class="translate-y-[-1px]"/>
+      <SyncArrow dir="down" tailLength={40} size={2} class="translate-y-[1px]"/>
       {#if remoteToLocalCount === 0 && localToRemoteCount === 0}
         <span>Up to date</span>
       {:else}
         <span>Pending</span>
       {/if}
-      <SyncArrow dir="up" length="4em" class="translate-y-[1px]"/>
+      <SyncArrow dir="up" tailLength={40} size={2} class="translate-y-[-1px]"/>
       <span class="text-start">{localToRemoteCount}</span>
     </div>
     <div class="content-center pl-2">
