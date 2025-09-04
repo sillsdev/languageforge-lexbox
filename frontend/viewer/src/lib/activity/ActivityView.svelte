@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ICommitMetadata } from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
   import { useHistoryService } from '$lib/services/history-service';
-  import { t } from 'svelte-i18n-lingui';
+  import { t, T } from 'svelte-i18n-lingui';
   import { useProjectContext } from '$lib/project-context.svelte';
   import { resource } from 'runed';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
@@ -70,16 +70,18 @@
             <span>{row.changeName}</span>
             <div class="text-sm text-muted-foreground">
               {#if row.previousTimestamp}
-                <FormatDuration start={new Date(row.timestamp)}
-                                end={new Date(row.previousTimestamp)}
-                                smallestUnit="seconds"
-                                options={{style: 'narrow'}}/>
-                {$t`before`}
+                <T msg="# before">
+                  <FormatDuration start={new Date(row.timestamp)}
+                                  end={new Date(row.previousTimestamp)}
+                                  smallestUnit="seconds"
+                                  options={{style: 'narrow'}}/>
+                </T>
               {:else}
-                <FormatDuration start={new Date(row.timestamp)}
-                                smallestUnit="seconds"
-                                options={{style: 'narrow'}}/>
-                {$t`ago`}
+                <T msg="# ago">
+                  <FormatDuration start={new Date(row.timestamp)}
+                                  smallestUnit="seconds"
+                                  options={{style: 'narrow'}}/>
+                </T>
               {/if}
             </div>
           </ListItem>
@@ -105,9 +107,7 @@
           {/if}
           {#if selectedRow.metadata.extraMetadata['SyncDate']}
             <span class="float-right">
-              {$t`Synced`}
-              {formatDuration({seconds: (new Date().getTime() - new Date(selectedRow.metadata.extraMetadata['SyncDate']).getTime()) / 1000}, 'seconds', {style: 'narrow'})}
-              {$t`ago`}
+              {$t`Synced ${formatDuration({seconds: (new Date().getTime() - new Date(selectedRow.metadata.extraMetadata['SyncDate']).getTime()) / 1000}, 'seconds', {style: 'narrow'})} ago`}
             </span>
           {/if}
         </div>
