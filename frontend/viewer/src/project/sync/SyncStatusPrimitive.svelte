@@ -13,6 +13,7 @@
   import {fade} from 'svelte/transition';
   import {t} from 'svelte-i18n-lingui';
   import SyncArrow from './SyncArrow.svelte';
+  import FwLiteToFwMergeDetails from './FwLiteToFwMergeDetails.svelte';
 
   interface Props {
     syncStatus: SyncStatus;
@@ -49,19 +50,11 @@
   let remoteToLocalCount = $derived(localStatus?.remote);
   let localToRemoteCount = $derived(localStatus?.local);
   let lastLocalSyncDate = $derived(latestCommitDate ? new Date(latestCommitDate) : undefined);
-  const lastFlexSyncDate = $derived(remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined);
-  let lexboxToFlexCount = $derived(remoteStatus?.pendingCrdtChanges);
-  let flexToLexboxCount = $derived(remoteStatus?.pendingMercurialChanges);
   const serverName = $derived(server?.displayName ?? serverId ?? 'unknown');
   const isOffline = $derived(syncStatus === SyncStatus.Offline);
 
   let loadingSyncLexboxToFlex = $state(false);
-  function onSyncLexboxToFlex() {
-    loadingSyncLexboxToFlex = true;
-    void syncLexboxToFlex().finally(() => {
-      loadingSyncLexboxToFlex = false;
-    });
-  }
+
   let loadingSyncLexboxToLocal = $state(false);
   function onSyncLexboxToLocal() {
     loadingSyncLexboxToLocal = true;
@@ -72,69 +65,6 @@
 </script>
 <!-- 1fr_7fr_1fr seems to be a reliable way to prevent the buttons states from resizing the dialog -->
 <div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-4 gap-x-8">
-  {#if false && server && syncStatus === SyncStatus.Success}
-    <div class="col-span-full text-center flex flex-col">
-      <span class="font-medium">
-        <Icon icon="i-mdi-cloud-outline"/>
-        {$t`${serverName} - FieldWorks`}
-      </span>
-      <span class="text-foreground/80">
-        {#if !remoteStatus}
-          <span class="animate-pulse inline-block h-4 dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-64"></span>
-        {:else}
-          {$t`Last change: ${formatDate(lastFlexSyncDate, undefined, remoteStatus.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
-        {/if}
-      </span>
-      {#if remoteStatus?.status === ProjectSyncStatusEnum.Unknown}
-        {#if remoteStatus.errorCode === ProjectSyncStatusErrorCode.NotLoggedIn}
-          {$t`Not logged in`}
-        {:else}
-          <span class="text-destructive brightness-200">
-            {$t`Error: ${remoteStatus.errorMessage ?? $t`Unknown`}`}
-          </span>
-        {/if}
-      {/if}
-    </div>
-
-    <div class="text-center content-center">
-      {#if !remoteStatus}
-        <div class="animate-pulse inline-block h-4 align-baseline dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-4"></div>
-      {:else}
-        {flexToLexboxCount}
-      {/if}
-      <PingingIcon
-        icon="i-mdi-arrow-down"
-        ping={loadingSyncLexboxToFlex && !!flexToLexboxCount}
-        class={cn(loadingSyncLexboxToFlex && !!flexToLexboxCount && 'text-primary')}
-      />
-    </div>
-    <div class="content-center text-center">
-      <Button
-        loading={loadingSyncLexboxToFlex}
-        disabled={loadingSyncLexboxToLocal || !canSyncLexboxToFlex || !remoteStatus}
-        onclick={onSyncLexboxToFlex}
-        icon="i-mdi-sync"
-        iconProps={{ class: 'size-5' }}>
-        {#if loadingSyncLexboxToFlex}
-          {$t`Synchronizing...`}
-        {:else}
-          {$t`Synchronize`}
-        {/if}
-      </Button>
-    </div>
-    <div class="text-center content-center">
-      <PingingIcon
-        icon="i-mdi-arrow-up"
-        ping={loadingSyncLexboxToFlex && !!lexboxToFlexCount}
-        class={cn(loadingSyncLexboxToFlex && !!lexboxToFlexCount && 'text-primary')}
-      />
-      {#if !remoteStatus}
-        <div class="animate-pulse inline-block h-4 align-baseline dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-4"></div>
-      {:else}
-        {lexboxToFlexCount}
-      {/if}
-    </div>
-  {/if}
 
   <!-- Status local to remote -->
   <div class="col-span-full text-center flex flex-col border rounded py-2">
@@ -148,7 +78,20 @@
     <span class="text-foreground/80">
       {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
     </span>
+    {#if !isOffline && server}
+      <div>
+        <FwLiteToFwMergeDetails
+          {remoteStatus}
+          {syncLexboxToFlex}
+          bind:loadingSyncLexboxToFlex
+          {loadingSyncLexboxToLocal}
+          {serverName}
+          {canSyncLexboxToFlex}/>
+      </div>
+    {/if}
   </div>
+
+<!--  arrows and sync counts -->
   <div class="col-span-full text-center grid justify-center items-center" style="grid-template-columns: 1fr auto 1fr">
     <div>
 <!--      blank spacer-->
@@ -181,6 +124,7 @@
           {/if}
         </Button>
       {:else if syncStatus === SyncStatus.Offline}
+      <!--  nothing to show -->
       {:else if syncStatus === SyncStatus.NotLoggedIn && server}
         <LoginButton
           text={$t`Login`}
@@ -194,8 +138,9 @@
     </div>
   </div>
 
+<!--  local box-->
   <div class="text-center col-span-full border rounded py-2">
-    <Icon icon="i-mdi-monitor-cellphone" class="size-10"/>
+    <Icon icon="i-mdi-cellphone" class="!size-10 md:i-mdi-monitor"/>
     <p>Local</p>
   </div>
 </div>
