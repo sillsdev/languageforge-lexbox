@@ -85,7 +85,7 @@
       service.getStatus().then(s => remoteStatus = s),
       delay(750)
     ]);
-    if (safeToCloseDialog && remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
+    if (safeToCloseDialog && remoteStatus?.pendingMercurialChanges === 0 && remoteStatus?.pendingCrdtChanges === 0) {
       openQueryParam.current = false;
     }
   }
