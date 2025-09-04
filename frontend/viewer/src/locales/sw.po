@@ -1,0 +1,1096 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2025-07-29 14:49+0700\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: sw\n"
+"Project-Id-Version: language-depot\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2025-08-26 08:57\n"
+"Last-Translator: \n"
+"Language-Team: Swahili\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: language-depot\n"
+"X-Crowdin-Project-ID: 575977\n"
+"X-Crowdin-Language: sw\n"
+"X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
+"X-Crowdin-File-ID: 21219\n"
+
+#: src/lib/activity/ActivityView.svelte
+msgid "– ({0} changes)"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte
+#: src/lib/components/audio/audio-editor.svelte
+#: src/lib/components/audio/audio-editor.svelte
+#: src/home/HomeView.svelte
+msgid "{0}"
+msgstr "{0}"
+
+#: src/project/SyncDialog.svelte
+msgid "{0} - FieldWorks"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "{0} - FieldWorks Lite"
+msgstr ""
+
+#: src/lib/components/editor/field/field-title.svelte
+msgid "{0} (FieldWorks Lite)"
+msgstr ""
+
+#: src/lib/components/editor/field/field-title.svelte
+msgid "{0} (FieldWorks)"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte
+msgid "{0} MB"
+msgstr ""
+
+#: src/home/Server.svelte
+msgid "{0} Server"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+#: src/project/SyncDialog.svelte
+msgid "{num, plural, one {# change} other {# changes}}"
+msgstr ""
+
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "A new version of FieldWorks Lite is available."
+msgstr ""
+
+#: src/project/browse/BrowseView.svelte
+msgid "a word"
+msgstr ""
+
+#: src/lib/about/AboutDialog.svelte
+msgid "About"
+msgstr "Kuhusu"
+
+#: src/project/ProjectSidebar.svelte
+msgid "Account"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+msgid "Activity"
+msgstr "Shughuli"
+
+#: src/lib/components/field-editors/audio-input.svelte
+#: src/lib/components/audio/AudioDialog.svelte
+msgid "Add audio"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+msgid "Add complex form"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+msgid "Add component"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Add Example"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Add Meaning"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+msgid "Add part of"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Add Sense"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "ago"
+msgstr ""
+
+#: src/project/browse/BrowseView.svelte
+msgid "an entry"
+msgstr ""
+
+#: src/project/browse/filter/WsSelect.svelte
+msgid "Any Ws"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Application version"
+msgstr ""
+
+#: src/lib/entry-editor/DeleteDialog.svelte
+msgid "Are you sure you want to delete {0}?"
+msgstr ""
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "Audio file not included in Send & Receive"
+msgstr ""
+
+#: src/lib/components/audio/AudioDialog.svelte
+msgid "Audio saved and uploaded to Lexbox"
+msgstr ""
+
+#: src/lib/components/audio/AudioDialog.svelte
+msgid "Audio saved locally"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "Author:"
+msgstr "Mwandishi:"
+
+#: src/project/browse/SortMenu.svelte
+msgid "Auto"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Auto synchronizing"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "before"
+msgstr "kabla"
+
+#: src/project/browse/SortMenu.svelte
+msgid "Best match"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+msgid "Browse"
+msgstr "Angalia"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/audio/AudioDialog.svelte
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Cancel"
+msgstr "Ghairi"
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Citation form"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Citation Form"
+msgstr "Fomu ya Manukuu"
+
+#: src/home/HomeView.svelte
+msgid "Classic FieldWorks Projects"
+msgstr ""
+
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "clear"
+msgstr "futa"
+
+#: src/lib/components/ui/button/x-button.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/about/AboutDialog.svelte
+msgid "Close"
+msgstr "Funga"
+
+#: src/project/ProjectSidebar.svelte
+msgid "Close Dictionary"
+msgstr ""
+
+#: src/lib/ThemePicker.svelte
+msgid "Color"
+msgstr "Rangi"
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+msgid "Complex Form"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Complex form types"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Complex forms"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+msgid "Component"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Components"
+msgstr ""
+
+#: src/project/browse/filter/OpFilter.svelte
+msgid "Contains"
+msgstr ""
+
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Copied to clipboard"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Copy version"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Create {0}"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Create entry"
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "Create Example Project"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Create word"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+msgid "Current Entry"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+msgid "Current Word"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+msgid "Dashboard"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Data Directory"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+msgid "Definition"
+msgstr "Maana"
+
+#: src/home/HomeView.svelte
+msgid "Delete"
+msgstr "Futa"
+
+#: src/lib/entry-editor/DeleteDialog.svelte
+#: src/lib/entry-editor/DeleteDialog.svelte
+msgid "Delete {0}"
+msgstr ""
+
+#: src/project/browse/EntryMenu.svelte
+msgid "Delete Entry"
+msgstr "Futa ingizo"
+
+#: src/project/browse/EntryMenu.svelte
+msgid "Delete Word"
+msgstr ""
+
+#: src/home/HomeView.svelte
+#: src/home/HomeView.svelte
+msgid "Dictionaries"
+msgstr "Kamusi"
+
+#: src/project/ProjectSidebar.svelte
+msgid "Dictionary"
+msgstr "Kamusi"
+
+#: src/project/browse/ViewPicker.svelte
+msgid "Dictionary Preview"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte
+msgid "Discard"
+msgstr "Kataa mabadiliko"
+
+#: src/project/browse/SearchFilter.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Display as"
+msgstr ""
+
+#: src/lib/entry-editor/DeleteDialog.svelte
+msgid "Don't delete"
+msgstr ""
+
+#: src/lib/notifications/NotificationOutlet.svelte
+#: src/lib/components/audio/audio-editor.svelte
+#: src/home/Server.svelte
+msgid "Download"
+msgstr "Pakua"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Download {0}"
+msgstr ""
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Download project by project code"
+msgstr ""
+
+#: src/home/Server.svelte
+#: src/home/Server.svelte
+msgid "Download unlisted project"
+msgstr ""
+
+#: src/home/Server.svelte
+msgid "Downloaded {0}"
+msgstr ""
+
+#: src/home/Server.svelte
+msgid "Downloading {0}..."
+msgstr "Inapakua {0}..."
+
+#: src/home/Server.svelte
+msgid "Downloading..."
+msgstr ""
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Editor"
+msgstr ""
+
+#: src/project/browse/filter/OpFilter.svelte
+msgid "Ends with"
+msgstr ""
+
+#: src/project/browse/EntryMenu.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "Entry"
+msgstr "Ingizo"
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "Entry Only"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "Entry or sense:"
+msgstr ""
+
+#: src/project/browse/filter/OpFilter.svelte
+msgid "Equals"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+msgid "Error getting sync status"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Error getting sync status."
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Error: {0}"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Example"
+msgstr "Mfano"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Example sentence"
+msgstr ""
+
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Failed to copy to clipboard"
+msgstr ""
+
+#: src/home/Server.svelte
+msgid "Failed to download {0}"
+msgstr ""
+
+#: src/project/browse/EntriesList.svelte
+#: src/project/browse/EntriesList.svelte
+msgid "Failed to load entries"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to open data directory, use the path in the text field instead"
+msgstr ""
+
+#: src/lib/services/url-opener.ts
+msgid "Failed to open URL: {0}"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Failed to synchronize"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Failed to synchronize."
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+#: src/lib/about/FeedbackDialog.svelte
+#: src/home/HomeView.svelte
+msgid "Feedback"
+msgstr "Maoni"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Field"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "Field Labels"
+msgstr ""
+
+#: src/project/ProjectDropdown.svelte
+#: src/lib/OpenInFieldWorksButton.svelte
+#: src/home/HomeView.svelte
+msgid "FieldWorks logo"
+msgstr ""
+
+#: src/lib/components/audio/AudioDialog.svelte
+msgid "File already exists"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte
+msgid "File name:"
+msgstr ""
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "File not found"
+msgstr "Faili haijapatikana"
+
+#: src/lib/components/audio/AudioDialog.svelte
+msgid "File saving not supported"
+msgstr ""
+
+#: src/lib/components/audio/AudioDialog.svelte
+#: src/lib/components/audio/AudioDialog.svelte
+msgid "File too big"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter # entries"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter # words"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter entries"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter for"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter words"
+msgstr ""
+
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Filter..."
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "Find entry..."
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "Find word..."
+msgstr ""
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "For any other inquiries, feel free to send us an email."
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+msgid "Gloss"
+msgstr "Glosi"
+
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
+msgid "Go to {0}"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+msgid "Grammatical info."
+msgstr ""
+
+#: src/project/browse/SortMenu.svelte
+msgid "Headword"
+msgstr "Neno la kichwa"
+
+#: src/project/browse/ViewPicker.svelte
+msgid "Hide"
+msgstr "Ficha"
+
+#: src/project/browse/EntryMenu.svelte
+#: src/lib/history/HistoryView.svelte
+msgid "History"
+msgstr "Historia"
+
+#: src/lib/components/audio/audio-provider.svelte
+msgid "Hold to record or\\npress and release to start recording."
+msgstr ""
+
+#: src/home/Server.svelte
+msgid "I don't see my project"
+msgstr ""
+
+#: src/lib/entry-editor/DeleteDialog.svelte
+msgid "I understand that this can't be undone"
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "Import"
+msgstr "Agiza"
+
+#: src/project/SyncDialog.svelte
+#: src/project/SyncDialog.svelte
+msgid "Last change: {0}"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte
+msgid "Length:"
+msgstr ""
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Let us know about any bugs or technical issues you encounter."
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "Lexbox logo"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Lexeme form"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Lexeme Form"
+msgstr "Fomu ya Lexeme"
+
+#: src/project/browse/BrowseView.svelte
+msgid "List mode"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Literal meaning"
+msgstr ""
+
+#: src/project/ProjectDropdown.svelte
+msgid "Loading Dictionaries..."
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "loading..."
+msgstr "inashughulikia..."
+
+#: src/home/HomeView.svelte
+msgid "Local"
+msgstr "Mitaa"
+
+#: src/home/HomeView.svelte
+msgid "Local only"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Login"
+msgstr ""
+
+#: src/lib/auth/LoginButton.svelte
+#: src/lib/auth/LoginButton.svelte
+msgid "Login to see projects"
+msgstr ""
+
+#: src/lib/auth/LoginButton.svelte
+msgid "Logout"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "Make sure your [changes are synced]({0}) to Lexbox."
+msgstr ""
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Manager"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseFab.svelte
+msgid "Meaning"
+msgstr "Maana"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Missing Examples"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Missing Part of Speech"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Missing Semantic Domains"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Missing Senses"
+msgstr ""
+
+#: src/lib/entry-editor/ItemListItem.svelte
+msgid "Move"
+msgstr "Sogeza"
+
+#: src/project/SyncDialog.svelte
+msgid "Never"
+msgstr "Kamwe"
+
+#: src/project/NewEntryButton.svelte
+msgid "New"
+msgstr "Mpya"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "New {0}"
+msgstr ""
+
+#: src/project/NewEntryButton.svelte
+msgid "New Entry"
+msgstr "Ingizo Mpya"
+
+#: src/project/NewEntryButton.svelte
+msgid "New Word"
+msgstr ""
+
+#: src/lib/activity/ActivityView.svelte
+msgid "No activity found"
+msgstr ""
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "No audio"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte
+msgid "No change name"
+msgstr ""
+
+#: src/project/ProjectDropdown.svelte
+msgid "No Dictionaries found"
+msgstr ""
+
+#: src/project/browse/EntriesList.svelte
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "No entries found"
+msgstr ""
+
+#: src/lib/components/audio/AudioDialog.svelte
+msgid "No file to upload"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte
+msgid "No history found"
+msgstr ""
+
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "No items found"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "No server configured"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "No words found"
+msgstr ""
+
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "None"
+msgstr "Hamna"
+
+#: src/project/browse/filter/OpFilter.svelte
+msgid "Not equal"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Not logged in"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Note"
+msgstr "Tanbihi"
+
+#: src/lib/components/ui/button/copy-button.svelte
+msgid "Nothing to copy"
+msgstr ""
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Observer"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Offline"
+msgstr ""
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "Offline, unable to download"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Open Data Directory"
+msgstr ""
+
+#: src/lib/OpenInFieldWorksButton.svelte
+msgid "Open in FieldWorks"
+msgstr ""
+
+#: src/project/browse/EntryMenu.svelte
+msgid "Open in new Window"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Open Log file"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+msgid "Part"
+msgstr "Sehemu"
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
+msgid "Part of"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+msgid "Part of speech"
+msgstr "Sehemu za mazungumzo"
+
+#: src/project/browse/ViewPicker.svelte
+msgid "Pinned"
+msgstr ""
+
+#: src/project/browse/BrowseView.svelte
+msgid "Preview"
+msgstr "Hakiki"
+
+#: src/home/HomeView.svelte
+msgid "Project"
+msgstr ""
+
+#: src/home/Server.svelte
+msgid "Project {0} not found on {1}"
+msgstr ""
+
+#: src/home/Server.svelte
+msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "Project name..."
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+msgid "Reference"
+msgstr "Rejeleo"
+
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Refine your filter to see more..."
+msgstr ""
+
+#: src/home/Server.svelte
+#: src/home/HomeView.svelte
+msgid "Refresh Projects"
+msgstr ""
+
+#: src/lib/entry-editor/ItemListItem.svelte
+msgid "Remove"
+msgstr "Ondoa"
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "Remove audio"
+msgstr ""
+
+#: src/lib/OpenInFieldWorksButton.svelte
+msgid "Reopen"
+msgstr ""
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "Replace audio"
+msgstr ""
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Report a technical problem"
+msgstr ""
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "Save As"
+msgstr ""
+
+#: src/lib/components/audio/AudioDialog.svelte
+msgid "Save audio"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "Search # or #"
+msgstr ""
+
+#: src/project/ProjectDropdown.svelte
+msgid "Search Dictionaries"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "Select {0}"
+msgstr ""
+
+#: src/project/browse/BrowseView.svelte
+msgid "Select {0} to view details"
+msgstr ""
+
+#: src/lib/components/audio/audio-provider.svelte
+#: src/lib/components/audio/audio-provider.svelte
+msgid "Select file"
+msgstr "Chagua Folda"
+
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+msgid "Semantic domains"
+msgstr ""
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Send us a message"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseFab.svelte
+msgid "Sense"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+msgid "Sentence"
+msgstr "Sentensi"
+
+#: src/project/ProjectSidebar.svelte
+msgid "Settings"
+msgstr "Mipangilio"
+
+#: src/lib/sandbox/Sandbox.svelte
+msgid "Shadcn Sandbox # #"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Share Log file"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Share project data file"
+msgstr ""
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share your suggestions for new features or improvements."
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "Show"
+msgstr "Onyesha"
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "Show {0} more..."
+msgstr ""
+
+#: src/project/browse/BrowseView.svelte
+msgid "Simple"
+msgstr "Rahisi"
+
+#: src/lib/components/audio/audio-editor.svelte
+msgid "Size:"
+msgstr "Ukubwa:"
+
+#: src/project/browse/filter/OpFilter.svelte
+msgid "Starts with"
+msgstr ""
+
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Submit"
+msgstr "Wasilisha"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Suggest your ideas"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "Synced"
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "Synced with {0}"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+#: src/project/SyncDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Synchronize"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Synchronizing FieldWorks Lite with FieldWorks..."
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+#: src/project/SyncDialog.svelte
+msgid "Synchronizing..."
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+msgid "Tasks"
+msgstr "Jukumu"
+
+#: src/stories/i18n/i18n.stories.svelte
+msgid "This date # and this emoji # are snippets"
+msgstr ""
+
+#: src/lib/OpenInFieldWorksButton.svelte
+msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Toggle filters"
+msgstr ""
+
+#: src/project/browse/EntryView.svelte
+msgid "Toggle pinned"
+msgstr ""
+
+#: src/lib/ThemePicker.svelte
+msgid "Toggle theme"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+msgid "Translation"
+msgstr "Tafsiri"
+
+#: src/project/ProjectSidebar.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/home/HomeView.svelte
+#: src/home/HomeView.svelte
+msgid "Troubleshoot"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte
+msgid "Type:"
+msgstr "Aina:"
+
+#: src/lib/OpenInFieldWorksButton.svelte
+msgid "Unable to open in FieldWorks"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+#: src/project/SyncDialog.svelte
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "Unknown"
+msgstr "Haijulikani"
+
+#: src/project/ProjectSidebar.svelte
+#: src/lib/components/audio/AudioDialog.svelte
+msgid "Unknown error"
+msgstr "Hitilafu isiyojulikana"
+
+#: src/lib/components/field-editors/audio-input.svelte
+msgid "Unknown error {0}"
+msgstr ""
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Unknown error downloading {0}"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Unknown server: {0}"
+msgstr ""
+
+#: src/project/browse/EntryView.svelte
+#: src/project/browse/EntryRow.svelte
+#: src/project/browse/EntryMenu.svelte
+msgid "Untitled"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Uses components as"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+msgid "Version {0}"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "View Configuration"
+msgstr ""
+
+#: src/home/Server.svelte
+msgid "Where are my projects?"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/EntryMenu.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Word"
+msgstr "Neno"
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "Word only"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte
+msgid "Word or meaning:"
+msgstr ""
+
+#: src/project/browse/filter/WsSelect.svelte
+msgid "Writing System"
+msgstr ""
+
+#: src/lib/components/lcm-rich-text-editor/editor-schema.ts
+msgid "Writing system: {0}"
+msgstr ""
+
+#: src/project/browse/filter/WsSelect.svelte
+msgid "Writing Systems"
+msgstr ""
+
+#: src/home/Server.svelte
+msgid "You don't have permission to download project {0} from {1}"
+msgstr ""
+
+#: src/home/Server.svelte
+#: src/home/Server.svelte
+msgid "You have already downloaded the {0} project"
+msgstr ""

@@ -1,4 +1,4 @@
-﻿using Microsoft.JSInterop;
+using Microsoft.JSInterop;
 
 namespace FwLiteShared.Services;
 
@@ -12,6 +12,7 @@ public interface IAppLauncher
 
     [JSInvokable]
     Task<bool> TryOpen(string uri);
+
     [JSInvokable]
     Task<bool> OpenInFieldWorks(Guid entryId, string projectName);
 }

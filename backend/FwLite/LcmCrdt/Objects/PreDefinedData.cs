@@ -1,4 +1,4 @@
-﻿using LcmCrdt.Changes;
+using LcmCrdt.Changes;
 using SIL.Harmony;
 
 namespace LcmCrdt.Objects;

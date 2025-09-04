@@ -1,4 +1,4 @@
-﻿import {type Writable, writable} from 'svelte/store';
+import {type Writable, writable} from 'svelte/store';
 import {type View, views} from './view-data';
 import {getContext, onDestroy, setContext} from 'svelte';
 
@@ -16,11 +16,12 @@ export function initViewSettings(defaultSettings: ViewSettings = {showEmptyField
   return viewSettingsStore;
 }
 
-export function initView(defaultView?: View): Writable<View> {
+export function initView(defaultView?: View, updateLocalStorage: boolean = true): Writable<View> {
   defaultView ??= views[0];
   const localView = localStorage.getItem('currentView');
   const currentViewStore = writable<View>(views.find(v => v.id === localView) ?? defaultView);
-  onDestroy(currentViewStore.subscribe(v => localStorage.setItem('currentView', v.id)));
+  if (updateLocalStorage)
+    onDestroy(currentViewStore.subscribe(v => localStorage.setItem('currentView', v.id)));
   setContext<Writable<View>>(currentViewContextName, currentViewStore);
   return currentViewStore;
 }

@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import type {ISense} from '$lib/dotnet-types';
   import {useSemanticDomains} from '$lib/semantic-domains';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
@@ -44,7 +44,7 @@
           onchange={() => onFieldChanged('gloss')}
           bind:value={sense.gloss}
           {readonly}
-          writingSystems={writingSystemService.analysis} />
+          writingSystems={writingSystemService.viewAnalysis($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
@@ -55,7 +55,7 @@
           onchange={() => onFieldChanged('definition')}
           bind:value={sense.definition}
           {readonly}
-          writingSystems={writingSystemService.analysis} />
+          writingSystems={writingSystemService.viewAnalysis($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 

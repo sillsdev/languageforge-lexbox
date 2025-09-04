@@ -1,4 +1,4 @@
-﻿using System.Net.Mail;
+using System.Net.Mail;
 using LexBoxApi.Services.Email;
 using LexCore.Auth;
 using LexCore.Entities;

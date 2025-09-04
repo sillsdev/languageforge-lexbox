@@ -1,3 +1,7 @@
+<script lang="ts" module>
+  export const SYNC_DIALOG_QUERY_PARAM = 'syncDialogOpen';
+</script>
+
 <script lang="ts">
   import type {IProjectSyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
   import {Dialog, DialogContent, DialogHeader, DialogTitle} from '$lib/components/ui/dialog';
@@ -25,7 +29,7 @@
   let localStatus = $state<IPendingCommits>();
   let server = $derived(projectContext.server);
   const openQueryParam = new QueryParamStateBool(
-    {key: 'syncDialogOpen', replaceOnDefaultValue: true, allowBack: true},
+    { key: SYNC_DIALOG_QUERY_PARAM, replaceOnDefaultValue: true, allowBack: true },
     false,
   );
   let latestCommitDate = $state<string>();

@@ -2,8 +2,18 @@
   import NewEntryDialog from '$lib/entry-editor/NewEntryDialog.svelte';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import AudioDialog from './components/audio/AudioDialog.svelte';
+  import {useDialogsService} from '$lib/services/dialogs-service';
+  import {useProjectContext} from '$lib/project-context.svelte';
+  const projectContext = useProjectContext();
+  const dialogsService = useDialogsService();
+  let deleteDialog = $state<DeleteDialog>();
+  $effect(() => {
+    dialogsService.invokeDeleteDialog = deleteDialog?.prompt;
+  })
 </script>
 
-<NewEntryDialog/>
-<DeleteDialog/>
-<AudioDialog/>
+{#if projectContext.maybeApi}
+  <NewEntryDialog/>
+  <AudioDialog/>
+{/if}
+<DeleteDialog bind:this={deleteDialog}/>

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.WebView;
+using Microsoft.AspNetCore.Components.WebView;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

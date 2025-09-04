@@ -1,4 +1,4 @@
-﻿using Soenneker.Utils.AutoBogus.Context;
+using Soenneker.Utils.AutoBogus.Context;
 using Soenneker.Utils.AutoBogus.Generators;
 
 namespace MiniLcm.Tests.AutoFakerHelpers;

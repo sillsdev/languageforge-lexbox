@@ -1,0 +1,18 @@
+{
+  "name": "fw-lite-extension",
+  "version": "0.0.1",
+  "publisher": "LexicalTools",
+  "displayData": "assets/displayData.json",
+  "author": "SIL Global's Lexical Tools",
+  "license": "MIT",
+  "main": "src/main.js",
+  "extensionDependencies": {},
+  "elevatedPrivileges": ["createProcess"],
+  "types": "src/types/fw-lite-extension.d.ts",
+  "menus": "contributions/menus.json",
+  "settings": "contributions/settings.json",
+  "projectSettings": "contributions/projectSettings.json",
+  "localizedStrings": "contributions/localizedStrings.json",
+  "themes": "contributions/themes.json",
+  "activationEvents": []
+}

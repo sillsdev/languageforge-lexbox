@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import type {IExampleSentence} from '$lib/dotnet-types';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import * as Editor from '$lib/components/editor';
@@ -40,7 +40,7 @@
           onchange={() => onFieldChanged('sentence')}
           bind:value={example.sentence}
           {readonly}
-          writingSystems={writingSystemService.vernacular} />
+          writingSystems={writingSystemService.viewVernacular($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
@@ -51,7 +51,7 @@
           onchange={() => onFieldChanged('translation')}
           bind:value={example.translation}
           {readonly}
-          writingSystems={writingSystemService.analysis} />
+          writingSystems={writingSystemService.viewAnalysis($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 

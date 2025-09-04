@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using LcmCrdt.MediaServer;
 using SIL.Harmony;

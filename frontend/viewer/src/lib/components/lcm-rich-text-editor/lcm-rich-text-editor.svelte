@@ -1,4 +1,4 @@
-﻿<script lang="ts" module>
+<script lang="ts" module>
   import {type Node} from 'prosemirror-model';
   import {cn} from '$lib/utils';
   import {textSchema} from './editor-schema';
@@ -195,6 +195,14 @@
       // mimic <input> 'next' behaviour
       const nextTabbable = findNextTabbable(editor.dom);
       nextTabbable?.focus();
+    } else {
+      //mimic submit
+      if (editor?.dom) {
+        const form = editor.dom.closest('form');
+        if (form) {
+          form.requestSubmit();
+        }
+      }
     }
   }
 

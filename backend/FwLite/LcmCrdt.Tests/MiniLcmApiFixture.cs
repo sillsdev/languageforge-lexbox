@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using LcmCrdt.MediaServer;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-﻿__base__ = ../json/map
+__base__ = ../json/map
 notfound = '\{"error": "not found"}'
 changelistentry = '\{
   "node": {node|json},

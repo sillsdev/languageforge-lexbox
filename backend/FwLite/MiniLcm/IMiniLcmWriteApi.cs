@@ -8,13 +8,14 @@ namespace MiniLcm;
 
 public interface IMiniLcmWriteApi
 {
-    Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem);
+    Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null);
 
     Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
         WritingSystemType type,
         UpdateObjectInput<WritingSystem> update);
     Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null);
     // Note there's no Task DeleteWritingSystem(Guid id) because deleting writing systems needs careful consideration, as it can cause a massive cascade of data deletion
+    Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between);
 
     #region PartOfSpeech
     Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);
@@ -36,13 +37,22 @@ public interface IMiniLcmWriteApi
     Task DeleteSemanticDomain(Guid id);
     #endregion
 
+    #region ComplexFormType
     Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType);
     Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update);
     Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api = null);
     Task DeleteComplexFormType(Guid id);
+    #endregion
+
+    #region MorphType
+    Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphType);
+    Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update);
+    Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null);
+    Task DeleteMorphTypeData(Guid id);
+    #endregion
 
     #region Entry
-    Task<Entry> CreateEntry(Entry entry);
+    Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null);
     Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update);
 
     Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null);

@@ -1,4 +1,4 @@
-﻿using FwDataMiniLcmBridge.LcmUtils;
+using FwDataMiniLcmBridge.LcmUtils;
 using FwDataMiniLcmBridge.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

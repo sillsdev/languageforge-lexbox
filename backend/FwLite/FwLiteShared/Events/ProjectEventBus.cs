@@ -1,4 +1,4 @@
-﻿using System.Reactive.Linq;
+using System.Reactive.Linq;
 using LcmCrdt;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Models;

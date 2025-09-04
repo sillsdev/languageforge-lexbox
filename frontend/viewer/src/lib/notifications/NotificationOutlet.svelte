@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {AppNotification} from './notifications';
   import {useEventBus} from '$lib/services/event-bus';
   import type {IAppUpdateEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IAppUpdateEvent';
@@ -8,6 +8,7 @@
   import {useFwLiteConfig} from '$lib/services/service-provider';
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
   import {Toaster} from '$lib/components/ui/sonner';
+  import {openUrl} from '$lib/services/url-opener';
 
   const eventBus = useEventBus();
 
@@ -17,14 +18,19 @@
 
   eventBus.onEventType<IAppUpdateEvent>(FwEventType.AppUpdate, event => {
     if (event.result == UpdateResult.ManualUpdateRequired) {
-      AppNotification.displayAction($t`A new version of FieldWorks lite is available.`, {
+      AppNotification.displayAction($t`A new version of FieldWorks Lite is available.`, {
         callback: () => {
           const fwliteConfig = useFwLiteConfig();
           const url = updateUrls[fwliteConfig.os] ?? 'https://lexbox.org/fw-lite';
-          window.open(url, '_blank');
+          void openUrl(url);
         },
         label: $t`Download`
       });
+    } else if (event.result == UpdateResult.Success) {
+      AppNotification.display(
+        $t`FieldWorks Lite has been updated successfully. Please restart the app to apply the changes.`,
+        {type: 'info', timeout: 'long'}
+      );
     }
   }, {includeLast: true});
 </script>

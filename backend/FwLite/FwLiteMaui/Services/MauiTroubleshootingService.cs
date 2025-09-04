@@ -1,11 +1,15 @@
-﻿using FwLiteShared.Services;
+using FwLiteShared.Services;
+using LcmCrdt;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 
 namespace FwLiteMaui.Services;
 
-public class MauiTroubleshootingService(IOptions<FwLiteMauiConfig> config, ILogger<MauiTroubleshootingService> logger) : ITroubleshootingService
+public class MauiTroubleshootingService(
+    IOptions<FwLiteMauiConfig> config,
+    ILogger<MauiTroubleshootingService> logger,
+    CrdtProjectsService projectsService) : ITroubleshootingService
 {
     private readonly ILauncher _launcher = Launcher.Default;
     private readonly IBrowser _browser = Browser.Default;
@@ -56,5 +60,15 @@ public class MauiTroubleshootingService(IOptions<FwLiteMauiConfig> config, ILogg
                 new ShareFileRequest("FieldWorks Lite logs", new ShareFile(Config.AppLogFilePath, "text/plain"));
             await _share.RequestAsync(shareRequest);
         }
+    }
+
+    [JSInvokable]
+    public async Task ShareCrdtProject(string projectCode)
+    {
+        var crdtProject = projectsService.GetProject(projectCode);
+        if (crdtProject is null) throw new ArgumentException($"Project {projectCode} not found");
+        var filePath = crdtProject.DbPath;
+        var shareTitle = $"FieldWorks Lite project {projectCode}";
+        await _share.RequestAsync(new ShareFileRequest(shareTitle, new ShareFile(filePath, "application/x-sqlite3")));
     }
 }

@@ -1,0 +1,32 @@
+version: 3
+output: prefixed
+includes:
+  viewer:
+    taskfile: ../frontend/viewer/Taskfile.yml
+    dir: ../frontend/viewer
+tasks:
+  install:
+    method: checksum
+    sources:
+      - package.json
+      - package-lock.json
+    cmds:
+      # platform.bible does not support pnpm
+      - npm install
+
+  package:
+    deps: [build-fw-lite-web, install]
+    cmds:
+      - npm run package
+
+  run:
+    deps: [build-fw-lite-web, install]
+    cmds:
+      - npm run start
+
+  build-fw-lite-web:
+    deps: [build-viewer]
+    cmds:
+      - dotnet publish ../backend/FwLite/FwLiteWeb/FwLiteWeb.csproj --configuration Release --sc --output ./public/fw-lite
+  build-viewer:
+    deps: [viewer:build]

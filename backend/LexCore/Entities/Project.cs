@@ -82,6 +82,10 @@ public record FieldWorksLiteProject(
     bool IsCrdtProject,
     [property:JsonConverter(typeof(JsonStringEnumConverter))]ProjectRole Role);
 
+public record ListProjectsResult(
+    FieldWorksLiteProject[] Projects,
+    bool CanDownloadByCode);
+
 public enum ProjectMigrationStatus
 {
     //default value

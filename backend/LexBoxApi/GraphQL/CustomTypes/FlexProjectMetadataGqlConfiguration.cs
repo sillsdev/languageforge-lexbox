@@ -1,4 +1,4 @@
-﻿using HotChocolate.Data.Sorting;
+using HotChocolate.Data.Sorting;
 using LexCore.Entities;
 
 namespace LexBoxApi.GraphQL.CustomTypes;

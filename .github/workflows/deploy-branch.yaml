@@ -1,4 +1,4 @@
-﻿name: Deploy to Develop
+name: Deploy to Develop
 run-name: Deploy ${{ github.ref_name }} to Develop
 on:
   workflow_dispatch:

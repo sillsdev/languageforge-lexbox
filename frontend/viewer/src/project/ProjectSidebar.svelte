@@ -6,7 +6,7 @@
   import * as Sidebar from '$lib/components/ui/sidebar';
   import { Icon } from '$lib/components/ui/icon';
   import type {IconClass} from '../lib/icon-class';
-  import {useFwLiteConfig, useTroubleshootingService} from '../lib/services/service-provider';
+  import {useFwLiteConfig} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
   import ThemePicker from '$lib/ThemePicker.svelte';
@@ -15,6 +15,7 @@
   import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
+  import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
   import SyncDialog from './SyncDialog.svelte';
   import {useFeatures} from '$lib/services/feature-service';
   import {useProjectStats} from '$lib/project-stats';
@@ -22,8 +23,11 @@
   import {useProjectEventBus} from '$lib/services/event-bus';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
+  import {useProjectContext} from '$lib/project-context.svelte';
+  import DevToolsDialog from '$lib/layout/DevToolsDialog.svelte';
 
   const config = useFwLiteConfig();
+  const projectContext = useProjectContext();
   const features = useFeatures();
   const stats = useProjectStats();
   const projectEventBus = useProjectEventBus();
@@ -47,9 +51,9 @@
     navigate(newLocation);
   }
 
-  const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog = $state<TroubleshootDialog>();
   let syncDialog = $state<SyncDialog>();
+  let feedbackOpen = $state(false);
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string, stat?: string)}
@@ -87,9 +91,8 @@
             {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
           </DevContent>
           {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`, formatNumber(stats.current?.totalEntryCount))}
-          <DevContent>
-            {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
-          </DevContent>
+          {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
+
           {#if features.history}
             {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
           {/if}
@@ -97,11 +100,29 @@
       </Sidebar.GroupContent>
     </Sidebar.Group>
     <div class="grow"></div>
+    <DevContent>
+      <Sidebar.Group>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            <Sidebar.MenuItem>
+              <DevToolsDialog>
+                {#snippet trigger({ props })}
+                  <Sidebar.MenuButton {...props}>
+                    <Icon icon="i-mdi-code-tags" />
+                    Dev Tools
+                  </Sidebar.MenuButton>
+                {/snippet}
+              </DevToolsDialog>
+            </Sidebar.MenuItem>
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+      <div class="grow"></div>
+    </DevContent>
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
               {#if features.sync}
-                <SyncDialog bind:this={syncDialog} {syncStatus} />
                 <Sidebar.MenuItem>
                   <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
                     {#snippet tooltipContent()}
@@ -162,27 +183,20 @@
 
     <Sidebar.Group>
       <Sidebar.Menu>
-        {#if supportsTroubleshooting}
-          <TroubleshootDialog bind:this={troubleshootDialog} />
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton onclick={() => troubleshootDialog?.open()}>
-              <Icon icon="i-mdi-help-circle" />
-              <span>{$t`Troubleshoot`}</span>
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-        {/if}
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton>
-            {#snippet child({ props })}
-              <a {...props} href={config.feedbackUrl} target="_blank">
-                <Icon icon="i-mdi-message" />
-                <span>{$t`Feedback`}</span>
-              </a>
-            {/snippet}
+          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
+            <Icon icon="i-mdi-help-circle" />
+            <span>{$t`Troubleshoot`}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
         <Sidebar.MenuItem>
-          <LocalizationPicker/>
+          <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
+            <Icon icon="i-mdi-message" />
+            <span>{$t`Feedback`}</span>
+          </Sidebar.MenuButton>
+        </Sidebar.MenuItem>
+        <Sidebar.MenuItem>
+          <LocalizationPicker inSidebar />
         </Sidebar.MenuItem>
       </Sidebar.Menu>
     </Sidebar.Group>
@@ -195,3 +209,13 @@
   </Sidebar.Footer>
   <Sidebar.Rail></Sidebar.Rail>
 </Sidebar.Root>
+
+<!--
+Keep dialogs out of the sidebar so they aren't destroyed
+e.g. when transitioning to mobile
+-->
+<TroubleshootDialog bind:this={troubleshootDialog}/>
+{#if features.sync}
+  <SyncDialog bind:this={syncDialog} {syncStatus} />
+{/if}
+<FeedbackDialog bind:open={feedbackOpen} />

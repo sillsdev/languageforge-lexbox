@@ -1,4 +1,4 @@
-﻿- op: replace
+- op: replace
   path: /spec/rules/0/host
   value: staging.languagedepot.org
 - op: replace

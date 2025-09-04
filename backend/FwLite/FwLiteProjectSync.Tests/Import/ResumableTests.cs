@@ -149,7 +149,7 @@ public class ResumableTests : IAsyncLifetime
 internal partial class UnreliableApi(IMiniLcmApi api, Random random) : IMiniLcmApi
 {
 
-    [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
+    [BeaKona.AutoInterface(IncludeBaseInterfaces = true, MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
 
     Task<PartOfSpeech> IMiniLcmWriteApi.CreatePartOfSpeech(PartOfSpeech partOfSpeech)
@@ -158,10 +158,10 @@ internal partial class UnreliableApi(IMiniLcmApi api, Random random) : IMiniLcmA
         return _api.CreatePartOfSpeech(partOfSpeech);
     }
 
-    Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry)
+    Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry, CreateEntryOptions? options)
     {
         ResumableTests.MaybeThrowRandom(random, 0.2);
-        return _api.CreateEntry(entry);
+        return _api.CreateEntry(entry, options);
     }
 
     async Task IMiniLcmWriteApi.BulkCreateEntries(IAsyncEnumerable<Entry> entries)
@@ -203,9 +203,9 @@ internal partial class UnreliableApi(IMiniLcmApi api, Random random) : IMiniLcmA
         ResumableTests.MaybeThrowRandom(random, 0.2);
         return _api.CreatePublication(publication);
     }
-    Task<WritingSystem> IMiniLcmWriteApi.CreateWritingSystem(WritingSystem writingSystems)
+    Task<WritingSystem> IMiniLcmWriteApi.CreateWritingSystem(WritingSystem writingSystems, BetweenPosition<WritingSystemId?>? between)
     {
         ResumableTests.MaybeThrowRandom(random, 0.2);
-        return _api.CreateWritingSystem(writingSystems);
+        return _api.CreateWritingSystem(writingSystems, between);
     }
 }

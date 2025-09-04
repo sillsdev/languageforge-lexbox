@@ -1,0 +1,17 @@
+[
+  {
+    "label": "%fwLiteExtension_projectSettings_title%",
+    "properties": {
+      "fw-lite-extension.fwAnalysisLanguage": {
+        "label": "%fwLiteExtension_projectSettings_analysisLanguage%",
+        "default": "",
+        "isHidden": true
+      },
+      "fw-lite-extension.fwDictionaryCode": {
+        "label": "%fwLiteExtension_projectSettings_dictionary%",
+        "description": "%fwLiteExtension_projectSettings_dictionaryDescription%",
+        "default": ""
+      }
+    }
+  }
+]

@@ -1,4 +1,4 @@
-﻿import {getContext, setContext} from 'svelte';
+import {getContext, setContext} from 'svelte';
 import type {ILexboxServer, IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
@@ -56,12 +56,24 @@ export class ProjectContext {
     return this.#api;
   }
   public get projectName(): string {
-    if (!this.#projectName) throw new Error('projectName not set');
+    if (!this.#projectName) return this.projectCode;
     return this.#projectName;
   }
   public get projectCode(): string {
     if (!this.#projectCode) throw new Error('projectCode not set');
     return this.#projectCode;
+  }
+  public set projectCode(value: string) {
+    if (this.#projectCode === value) return;
+    if (this.#projectCode) {
+      if (import.meta.env.DEV) {
+        throw new Error('Cannot set projectCode after it is already set');
+      } else {
+        console.error('Cannot set projectCode after it is already set');
+        return;
+      }
+    }
+    this.#projectCode = value;
   }
   public get projectType(): ProjectType {
     return this.#projectType;
