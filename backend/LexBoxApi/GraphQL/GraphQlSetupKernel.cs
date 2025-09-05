@@ -3,6 +3,7 @@ using HotChocolate.Diagnostics;
 using LexBoxApi.GraphQL.CustomFilters;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Services;
+using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using LexData;
 using LfClassicData;
@@ -60,6 +61,8 @@ public static class GraphQlSetupKernel
             })
             .AddAuthorization()
             .AddLexBoxApiTypes()
+            //ensures that Organization uses the OrgGqlConfiguration by default, and not OrgByIdGqlConfiguration
+            .BindRuntimeType<Organization, OrgGqlConfiguration>()
             .AddMutationConventions(false)
             .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>()
             .ModifyRequestOptions(options =>
