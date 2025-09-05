@@ -21,8 +21,8 @@ public static class GraphQlSetupKernel
         if (forceGenerateSchema || env.IsDevelopment())
             services.AddHostedService<DevGqlSchemaWriterService>();
 
-        services.AddScoped<IIsHarmonyProjectDataLoader, IsHarmonyProjectDataLoader>();
-        services.AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>();
+        services.AddScoped<IIsHarmonyProjectDataLoader>(provider => provider.GetRequiredService<IsHarmonyProjectDataLoader>());
+        services.AddScoped<IIsLanguageForgeProjectDataLoader>(provider => provider.GetRequiredService<IsLanguageForgeProjectDataLoader>());
         services.AddResiliencePipeline<string, IReadOnlyDictionary<string, bool>>(
             IsLanguageForgeProjectDataLoader.ResiliencePolicyName,
             (builder, context) =>
