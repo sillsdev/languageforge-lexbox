@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-26 08:56\n"
+"PO-Revision-Date: 2025-09-05 02:23\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: src/lib/activity/ActivityView.svelte
 msgid "– ({0} changes)"
-msgstr "- ({0} changes)"
+msgstr "– ({0} changements)"
 
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -31,7 +31,7 @@ msgstr "{0}"
 
 #: src/project/SyncDialog.svelte
 msgid "{0} - FieldWorks"
-msgstr "{0} - Travail sur le terrain"
+msgstr "{0} - FieldWorks"
 
 #: src/project/SyncDialog.svelte
 msgid "{0} - FieldWorks Lite"
@@ -60,21 +60,21 @@ msgstr "{0} synchronisé avec FieldWorks. {1} synchronisé avec FieldWorks Lite.
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
-msgstr "{num, plural, one {# change} other {# changes}}"
+msgstr "{num, plural, one {# changement} other {# changements}}"
 
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "# ago"
-msgstr ""
+msgstr "il y a #"
 
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "# before"
-msgstr ""
+msgstr "# avant"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
-msgstr ""
+msgstr "Une nouvelle version de FieldWorks Lite sera disponible."
 
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
@@ -245,11 +245,11 @@ msgstr "Contient"
 
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
-msgstr ""
+msgstr "Copié dans le presse-papiers"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
-msgstr ""
+msgstr "Copier la version"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create {0}"
@@ -330,7 +330,7 @@ msgstr "Afficher comme"
 
 #: src/project/tasks/DoneView.svelte
 msgid "Do you want to:"
-msgstr ""
+msgstr "Voulez-vous :"
 
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
@@ -338,7 +338,7 @@ msgstr "Ne pas supprimer"
 
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
-msgstr ""
+msgstr "Fait"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -357,7 +357,7 @@ msgstr "Télécharger un projet par code de projet"
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "Download unlisted project"
-msgstr ""
+msgstr "Télécharger le projet non listé"
 
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
@@ -420,7 +420,7 @@ msgstr "Exemple de phrase"
 
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
-msgstr ""
+msgstr "Échec de la copie dans le presse-papiers"
 
 #: src/home/Server.svelte
 msgid "Failed to download {0}"
@@ -463,7 +463,7 @@ msgstr "Étiquettes de champ"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
-msgstr ""
+msgstr "FieldWorks Lite a été mis à jour avec succès. Veuillez redémarrer l'application pour appliquer les modifications."
 
 #: src/project/ProjectDropdown.svelte
 #: src/lib/OpenInFieldWorksButton.svelte
@@ -527,11 +527,11 @@ msgstr "Trouver un mot..."
 
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
-msgstr ""
+msgstr "Terminer"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
-msgstr ""
+msgstr "Pour toute autre question, n'hésitez pas à nous envoyer un courriel."
 
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
@@ -577,7 +577,7 @@ msgstr "Importation"
 
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
-msgstr ""
+msgstr "Continuez"
 
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
@@ -590,7 +590,7 @@ msgstr "Longueur :"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Let us know about any bugs or technical issues you encounter."
-msgstr ""
+msgstr "Faites-nous part de tout bug ou problème technique que vous rencontrez."
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -662,11 +662,11 @@ msgstr "Signification"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
-msgstr ""
+msgstr "Définition manquante {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Example sentence {0}"
-msgstr ""
+msgstr "Phrase d'exemple {0} manquante"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Missing Examples"
@@ -674,7 +674,7 @@ msgstr "Exemples manquants"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
-msgstr ""
+msgstr "Glose {0} manquant"
 
 #: src/project/tasks/tasks-service.ts
 #: src/project/browse/SearchFilter.svelte
@@ -715,7 +715,7 @@ msgstr "Nouveau mot"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
-msgstr ""
+msgstr "Suivant"
 
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity found"
@@ -758,7 +758,7 @@ msgstr "Pas de serveur configuré"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {task.subjectType}"
-msgstr ""
+msgstr "Aucun sujet, impossible de créer un nouveau {task.subjectType}"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
@@ -784,7 +784,7 @@ msgstr "Note"
 
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
-msgstr ""
+msgstr "Rien à copier"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -834,7 +834,7 @@ msgstr "Partie du discours"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
-msgstr ""
+msgstr "Choisir une partie du discours"
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Pinned"
@@ -892,11 +892,11 @@ msgstr "Remplacer l'audio"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
-msgstr ""
+msgstr "Signaler un problème technique"
 
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
-msgstr ""
+msgstr "Évaluer"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -924,7 +924,7 @@ msgstr "Sélectionnez {0} pour voir les détails"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Select a new task to work on"
-msgstr ""
+msgstr "Sélectionnez une nouvelle tâche sur laquelle travailler"
 
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
@@ -937,7 +937,7 @@ msgstr "Domaines sémantiques"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Send us a message"
-msgstr ""
+msgstr "Envoyez-nous un message"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -968,7 +968,7 @@ msgstr "Partager le fichier de données du projet"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Share your suggestions for new features or improvements."
-msgstr ""
+msgstr "Partagez vos suggestions pour de nouvelles fonctionnalités ou améliorations."
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
@@ -988,7 +988,7 @@ msgstr "Taille :"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
-msgstr ""
+msgstr "Ignorer"
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
@@ -996,7 +996,7 @@ msgstr "Commence par"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
-msgstr ""
+msgstr "Le sujet n'a pas d'objet de type approprié : {0}"
 
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -1006,7 +1006,7 @@ msgstr "Soumettre"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Suggest your ideas"
-msgstr ""
+msgstr "Suggérer vos idées"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
@@ -1014,7 +1014,7 @@ msgstr "Synchronisé"
 
 #: src/lib/activity/ActivityView.svelte
 msgid "Synced {0} ago"
-msgstr ""
+msgstr "Synchronisé {0} il y a"
 
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
@@ -1037,11 +1037,11 @@ msgstr "Synchronisation..."
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
-msgstr ""
+msgstr "Tâche {0}"
 
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
-msgstr ""
+msgstr "Tâche introuvable : {0}"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
@@ -1049,7 +1049,7 @@ msgstr "Tâches"
 
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
-msgstr ""
+msgstr "La tâche que vous cherchez n'existe pas."
 
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -1061,7 +1061,7 @@ msgstr "Ce projet est maintenant ouvert dans FieldWorks. Pour continuer à trava
 
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
-msgstr ""
+msgstr "Cette tâche est terminée"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -1088,15 +1088,15 @@ msgstr "Dépannage"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
-msgstr ""
+msgstr "Tapez une définition"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
-msgstr ""
+msgstr "Tapez une Glose"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type an example sentence"
-msgstr ""
+msgstr "Tapez une phrase d'exemple"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
@@ -1139,7 +1139,7 @@ msgstr "Sans titre"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
-msgstr ""
+msgstr "Mettre à jour {0}"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
@@ -1188,7 +1188,7 @@ msgstr "Systèmes d'écriture"
 
 #: src/project/tasks/DoneView.svelte
 msgid "You completed {0} {1}"
-msgstr ""
+msgstr "Vous avez terminé {0} {1}"
 
 #: src/home/Server.svelte
 msgid "You don't have permission to download project {0} from {1}"
@@ -1198,3 +1198,4 @@ msgstr "Vous n'avez pas la permission de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
+

@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-26 08:57\n"
+"PO-Revision-Date: 2025-09-04 07:52\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -31,7 +31,7 @@ msgstr "{0}"
 
 #: src/project/SyncDialog.svelte
 msgid "{0} - FieldWorks"
-msgstr "{0} - Pekerjaan Lapangan"
+msgstr "{0} - FieldWorks"
 
 #: src/project/SyncDialog.svelte
 msgid "{0} - FieldWorks Lite"
@@ -43,7 +43,7 @@ msgstr "{0} (FieldWorks Lite)"
 
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
-msgstr "{0} (Pekerjaan Lapangan)"
+msgstr "{0} (FieldWorks)"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -60,21 +60,21 @@ msgstr "{0} disinkronkan ke FieldWorks. {1} disinkronkan ke FieldWorks Lite."
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
-msgstr "{num, plural, one {# perubahan} other {# perubahan}}"
+msgstr "{num, plural, other {# perubahan}}"
 
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "# ago"
-msgstr ""
+msgstr "# lalu"
 
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "# before"
-msgstr ""
+msgstr "# sebelum"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
-msgstr ""
+msgstr "Versi baru FieldWorks Lite telah tersedia."
 
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
@@ -192,7 +192,7 @@ msgstr "Formulir Kutipan"
 
 #: src/home/HomeView.svelte
 msgid "Classic FieldWorks Projects"
-msgstr "Proyek Pekerjaan Lapangan Klasik"
+msgstr "Proyek FieldWorks Klasik"
 
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -245,11 +245,11 @@ msgstr "Berisi"
 
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
-msgstr ""
+msgstr "Disalin ke papan klip"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
-msgstr ""
+msgstr "Versi salin"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create {0}"
@@ -330,7 +330,7 @@ msgstr "Tampilkan sebagai"
 
 #: src/project/tasks/DoneView.svelte
 msgid "Do you want to:"
-msgstr ""
+msgstr "Apakah Anda mau:"
 
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
@@ -338,7 +338,7 @@ msgstr "Jangan hapus"
 
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
-msgstr ""
+msgstr "Selesai."
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -357,7 +357,7 @@ msgstr "Unduh proyek berdasarkan kode proyek"
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "Download unlisted project"
-msgstr ""
+msgstr "Unduh proyek yang tidak terdaftar"
 
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
@@ -420,7 +420,7 @@ msgstr "Contoh kalimat"
 
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
-msgstr ""
+msgstr "Gagal menyalin ke papan klip"
 
 #: src/home/Server.svelte
 msgid "Failed to download {0}"
@@ -463,7 +463,7 @@ msgstr "Label Bidang"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
-msgstr ""
+msgstr "FieldWorks Lite telah berhasil diperbarui. Mulai ulang aplikasi untuk menerapkan perubahan."
 
 #: src/project/ProjectDropdown.svelte
 #: src/lib/OpenInFieldWorksButton.svelte
@@ -527,11 +527,11 @@ msgstr "Temukan kata..."
 
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
-msgstr ""
+msgstr "Selesai"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
-msgstr ""
+msgstr "Untuk pertanyaan lainnya, silakan kirimkan email kepada kami."
 
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
@@ -577,7 +577,7 @@ msgstr "Impor"
 
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
-msgstr ""
+msgstr "Teruskan."
 
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
@@ -590,7 +590,7 @@ msgstr "Panjang:"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Let us know about any bugs or technical issues you encounter."
-msgstr ""
+msgstr "Beri tahu kami jika ada bug atau masalah teknis yang Anda temui."
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -662,11 +662,11 @@ msgstr "Arti"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
-msgstr ""
+msgstr "Definisi yang hilang {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Example sentence {0}"
-msgstr ""
+msgstr "Hilang Contoh kalimat {0}"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Missing Examples"
@@ -674,7 +674,7 @@ msgstr "Contoh yang Hilang"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
-msgstr ""
+msgstr "Missing Gloss {0}"
 
 #: src/project/tasks/tasks-service.ts
 #: src/project/browse/SearchFilter.svelte
@@ -715,7 +715,7 @@ msgstr "Kata Baru"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
-msgstr ""
+msgstr "Berikutnya"
 
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity found"
@@ -758,7 +758,7 @@ msgstr "Tidak ada server yang dikonfigurasi"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {task.subjectType}"
-msgstr ""
+msgstr "Tidak ada subjek, tidak dapat membuat {task.subjectType}baru"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
@@ -784,7 +784,7 @@ msgstr "Catatan"
 
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
-msgstr ""
+msgstr "Tidak ada yang perlu disalin"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -834,7 +834,7 @@ msgstr "Bagian dari pidato"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
-msgstr ""
+msgstr "Pilih Bagian dari Pidato"
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Pinned"
@@ -892,11 +892,11 @@ msgstr "Mengganti audio"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
-msgstr ""
+msgstr "Melaporkan masalah teknis"
 
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
-msgstr ""
+msgstr "Ulasan"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -924,7 +924,7 @@ msgstr "Pilih {0} untuk melihat detailnya"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Select a new task to work on"
-msgstr ""
+msgstr "Pilih tugas baru untuk dikerjakan"
 
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
@@ -937,7 +937,7 @@ msgstr "Domain semantik"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Send us a message"
-msgstr ""
+msgstr "Kirimkan pesan kepada kami"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -968,7 +968,7 @@ msgstr "Berbagi file data proyek"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Share your suggestions for new features or improvements."
-msgstr ""
+msgstr "Bagikan saran Anda untuk fitur baru atau peningkatan."
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
@@ -988,7 +988,7 @@ msgstr "Ukuran:"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
-msgstr ""
+msgstr "Lewati"
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
@@ -996,7 +996,7 @@ msgstr "Dimulai dengan"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
-msgstr ""
+msgstr "Subjek tidak memiliki jenis objek yang sesuai: {0}"
 
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -1006,7 +1006,7 @@ msgstr "Kirim"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Suggest your ideas"
-msgstr ""
+msgstr "Sarankan ide Anda"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
@@ -1014,7 +1014,7 @@ msgstr "Disinkronkan"
 
 #: src/lib/activity/ActivityView.svelte
 msgid "Synced {0} ago"
-msgstr ""
+msgstr "Disinkronkan {0} lalu"
 
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
@@ -1037,11 +1037,11 @@ msgstr "Menyinkronkan..."
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
-msgstr ""
+msgstr "Tugas {0}"
 
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
-msgstr ""
+msgstr "Tugas tidak ditemukan: {0}"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
@@ -1049,7 +1049,7 @@ msgstr "Tugas"
 
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
-msgstr ""
+msgstr "Tugas yang Anda cari tidak ada."
 
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -1061,7 +1061,7 @@ msgstr "Proyek ini sekarang terbuka di FieldWorks. Untuk melanjutkan bekerja di 
 
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
-msgstr ""
+msgstr "Tugas ini selesai"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -1088,15 +1088,15 @@ msgstr "Memecahkan masalah"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
-msgstr ""
+msgstr "Ketik Definisi"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
-msgstr ""
+msgstr "Ketik Gloss"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type an example sentence"
-msgstr ""
+msgstr "Ketik contoh kalimat"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
@@ -1139,7 +1139,7 @@ msgstr "Tanpa judul"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
-msgstr ""
+msgstr "Perbarui {0}"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
@@ -1188,7 +1188,7 @@ msgstr "Sistem Penulisan"
 
 #: src/project/tasks/DoneView.svelte
 msgid "You completed {0} {1}"
-msgstr ""
+msgstr "Anda telah menyelesaikan {0} {1}"
 
 #: src/home/Server.svelte
 msgid "You don't have permission to download project {0} from {1}"
@@ -1198,3 +1198,4 @@ msgstr "Anda tidak memiliki izin untuk mengunduh proyek {0} dari {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah mengunduh proyek {0}"
+
