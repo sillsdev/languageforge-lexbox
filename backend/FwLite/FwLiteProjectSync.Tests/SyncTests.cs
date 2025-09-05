@@ -96,6 +96,8 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                     .When(info => info.RuntimeType == typeof(double) && info.Path.EndsWith(".Order") && excludeOrderTypes.Contains(info.ParentType))
                     .Using<Guid>(Exclude)
                     .When(info => info.RuntimeType == typeof(Guid) && info.Path.EndsWith(".Id") && excludeIds.Contains(info.ParentType))
+                    .Using<Guid?>(Exclude)
+                    .When(info => info.RuntimeType == typeof(Guid?) && info.Path.EndsWith(".MaybeId") && excludeIds.Contains(info.ParentType))
 
                     //exclude exemplars since they're not updated properly and we don't really support them for now.
                     .Using<string[]>(Exclude)

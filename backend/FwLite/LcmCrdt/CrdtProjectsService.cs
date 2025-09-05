@@ -23,6 +23,7 @@ public partial class CrdtProjectsService(
 {
     private static readonly Lock EnsureProjectDataCacheIsLoadedLock = new();
     public ProjectDataFormat DataFormat { get; } = ProjectDataFormat.Harmony;
+
     IEnumerable<IProjectIdentifier> IProjectProvider.ListProjects()
     {
         return ListProjects();
@@ -185,6 +186,7 @@ public partial class CrdtProjectsService(
 
             throw;
         }
+
         return crdtProject;
     }
 
@@ -210,8 +212,10 @@ public partial class CrdtProjectsService(
                     logger.LogError(exception, "Failed to delete sqlite file {SqliteFile}", sqliteFile);
                     return;
                 }
+
                 counter++;
             }
+
             logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", sqliteFile);
         });
     }
@@ -273,6 +277,17 @@ public partial class CrdtProjectsService(
         await lexboxApi.CreateWritingSystem(new()
         {
             Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "en-Zxxx-x-audio",
+            Name = "English (A)",
+            Abbreviation = "Eng 🔊",
+            Font = "Arial",
+            Exemplars = WritingSystem.LatinExemplars
+        });
+
+        await lexboxApi.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
             Type = WritingSystemType.Analysis,
             WsId = "en",
             Name = "English",
@@ -290,27 +305,100 @@ public partial class CrdtProjectsService(
             Font = "Arial",
             Exemplars = WritingSystem.LatinExemplars
         });
+        await lexboxApi.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Analysis,
+            WsId = "en-Zxxx-x-audio",
+            Name = "English (A)",
+            Abbreviation = "Eng 🔊",
+            Font = "Arial",
+            Exemplars = WritingSystem.LatinExemplars
+        });
 
         await lexboxApi.CreateEntry(new()
         {
             Id = Guid.NewGuid(),
-            LexemeForm = { { "en", "Apple" } },
-            CitationForm = { { "en", "Apple" } },
-            LiteralMeaning = { { "en", new RichString("Fruit") } },
+            LexemeForm = { ["en"] = "Apple" },
+            CitationForm = { ["en"] = "Apple" },
+            LiteralMeaning = { ["en"] = new RichString("Fruit") },
             Senses =
             [
                 new()
                 {
-                    Gloss = { { "en", "Fruit" } },
+                    Gloss = { ["en"] = "Fruit" },
                     Definition =
                     {
-                        {
-                            "en",
-                            new RichString("fruit with red, yellow, or green skin with a sweet or tart crispy white flesh")
-                        }
+                        ["en"] =
+                            new RichString(
+                                "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh")
                     },
                     SemanticDomains = [],
-                    ExampleSentences = [new() { Sentence = { { "en", new RichString("We ate an apple") } } }]
+                    ExampleSentences = [new() { Sentence = { ["en"] = new RichString("We ate an apple") } }]
+                }
+            ]
+        });
+
+        await lexboxApi.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { ["en"] = "Banana" },
+            CitationForm = { ["en"] = "Banana" },
+            LiteralMeaning = { ["en"] = new RichString("Fruit") },
+            Senses =
+            [
+                new()
+                {
+                    Gloss = { ["en"] = "Fruit" },
+                    Definition = { ["en"] = new RichString("long curved fruit with yellow skin and soft sweet flesh") },
+                    SemanticDomains = [],
+                    ExampleSentences =
+                        [new() { Sentence = { ["en"] = new RichString("The monkey peeled a banana") } }]
+                }
+            ]
+        });
+
+        await lexboxApi.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { ["en"] = "Orange" },
+            CitationForm = { ["en"] = "Orange" },
+            LiteralMeaning = { ["en"] = new RichString("Fruit") },
+            Senses =
+            [
+                new()
+                {
+                    Gloss = { ["en"] = "Fruit" },
+                    Definition =
+                    {
+                        ["en"] = new RichString("round citrus fruit with orange skin and juicy segments inside")
+                    },
+                    SemanticDomains = [],
+                    ExampleSentences =
+                        [new() { Sentence = { ["en"] = new RichString("I squeezed the orange for juice") } }]
+                }
+            ]
+        });
+
+        await lexboxApi.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { ["en"] = "Grape" },
+            CitationForm = { ["en"] = "Grape" },
+            LiteralMeaning = { ["en"] = new RichString("Fruit") },
+            Senses =
+            [
+                new()
+                {
+                    Gloss = { ["en"] = "Fruit" },
+                    Definition =
+                    {
+                        ["en"] =
+                            new RichString("small round or oval fruit growing in clusters, used for wine or eating")
+                    },
+                    SemanticDomains = [],
+                    ExampleSentences =
+                        [new() { Sentence = { ["en"] = new RichString("The vineyard was full of ripe grapes") } }]
                 }
             ]
         });

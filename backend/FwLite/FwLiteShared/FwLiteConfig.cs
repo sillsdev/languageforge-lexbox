@@ -13,7 +13,7 @@ public class FwLiteConfig
         PlatformID.MacOSX => FwLitePlatform.Mac,
         _ => FwLitePlatform.Other
     };
-    public string FeedbackUrl => $"https://docs.google.com/forms/d/e/1FAIpQLSdUdNufT3sdoBscY7vixguYnvtgpaw-hjX-z54BKi9KlYv4vw/viewform?usp=pp_url&entry.2102942583={AppVersion}&entry.1772086822={Os}";
+    public string FeedbackUrl => $"https://docs.google.com/forms/d/e/1FAIpQLSetM5LIjrwZ8ibmxz9gHwYDqTqpEzsr3ILzrf_dW1rOoRf9rw/viewform?usp=pp_url&entry.1159558932={AppVersion}&entry.866582270={Os}";
 
     private string? _updateUrl;
 

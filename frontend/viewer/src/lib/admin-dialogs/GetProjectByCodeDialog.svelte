@@ -55,7 +55,7 @@
 
 
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent hideClose={loading} class="!max-h-none !min-h-0" interactOutsideBehavior="ignore" escapeKeydownBehavior="ignore">
+  <Dialog.DialogContent hideClose={loading} interactOutsideBehavior="ignore" escapeKeydownBehavior="ignore">
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`Download project by project code`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>

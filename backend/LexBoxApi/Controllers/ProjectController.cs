@@ -170,15 +170,12 @@ public class ProjectController(
     [AdminRequired]
     public async Task<ActionResult<Project>> DeleteProject(Guid id)
     {
-        //this project is only for testing purposes. It will delete projects permanently from the database.
+        //this endpoint is only for testing purposes. It will delete projects permanently from the database.
         var project = await lexBoxDbContext.Projects.FindAsync(id);
         if (project is null) return NotFound();
         if (project.RetentionPolicy != RetentionPolicy.Dev) return Forbid();
-        lexBoxDbContext.Projects.Remove(project);
-        var hgService = HttpContext.RequestServices.GetRequiredService<IHgService>();
-        await hgService.DeleteRepo(project.Code);
-        project.UpdateUpdatedDate();
-        await lexBoxDbContext.SaveChangesAsync();
+        project = await projectService.DeleteProjectPermanently(id);
+        if (project is null) return NotFound();
         return project;
     }
 

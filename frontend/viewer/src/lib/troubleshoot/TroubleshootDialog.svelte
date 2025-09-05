@@ -7,6 +7,7 @@
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
   import InputShell from '$lib/components/ui/input/input-shell.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
+  import {CopyButton} from '$lib/components/ui/button';
 
   const openQueryParam = new QueryParamStateBool({
     key: 'troubleshootDialogOpen',
@@ -42,18 +43,29 @@
       <DialogTitle>{$t`Troubleshoot`}</DialogTitle>
     </DialogHeader>
     <div class="flex flex-col gap-4 items-start">
-      <p>{$t`Application version`}: <span class="font-mono text-muted-foreground border-b">{config.appVersion}</span>
+      <p class="flex items-baseline gap-2">
+        {$t`Application version`}:
+        <span class="font-mono text-muted-foreground border-b">{config.appVersion}</span>
+        <CopyButton
+          variant="ghost"
+          size="xs-icon"
+          iconProps={{class: 'size-4'}}
+          title={$t`Copy version`}
+          text={`${config.appVersion} on ${config.os}`}
+        />
       </p>
-      <div class="w-full">
-        <Label>{$t`Data Directory`}</Label>
-        <InputShell class="ps-2 pe-1">
-          {#await service?.getDataDirectory() then value}
-            {value}
-          {/await}
-          <Button variant="ghost" icon="i-mdi-folder-search" size="xs-icon" title={$t`Open Data Directory`}
-                  onclick={() => tryOpenDataDirectory()}/>
-        </InputShell>
-      </div>
+      {#if service}
+        <div class="w-full">
+          <Label>{$t`Data Directory`}</Label>
+          <InputShell class="ps-2 pe-1">
+            {#await service?.getDataDirectory() then value}
+              {value}
+            {/await}
+            <Button variant="ghost" icon="i-mdi-folder-search" size="xs-icon" title={$t`Open Data Directory`}
+                    onclick={() => tryOpenDataDirectory()}/>
+          </InputShell>
+        </div>
+      {/if}
       {#if projectCode}
         <div class="flex gap-2">
           <Button variant="outline" onclick={() => shareProject()}>
@@ -62,16 +74,18 @@
           </Button>
         </div>
       {/if}
-      <div class="flex gap-2">
-        <Button variant="outline" onclick={() => service?.openLogFile()}>
-          <i class="i-mdi-file-eye"></i>
-          {$t`Open Log file`}
-        </Button>
-        <Button variant="outline" onclick={() => service?.shareLogFile()}>
-          <i class="i-mdi-file-export"></i>
-          {$t`Share Log file`}
-        </Button>
-      </div>
+      {#if service}
+        <div class="flex gap-2">
+          <Button variant="outline" onclick={() => service?.openLogFile()}>
+            <i class="i-mdi-file-eye"></i>
+            {$t`Open Log file`}
+          </Button>
+          <Button variant="outline" onclick={() => service?.shareLogFile()}>
+            <i class="i-mdi-file-export"></i>
+            {$t`Share Log file`}
+          </Button>
+        </div>
+      {/if}
     </div>
   </DialogContent>
 </Dialog>

@@ -12,12 +12,18 @@
     lines = $bindable(),
     actions,
     class: className,
+    headwordClass = '',
+    highlightSenseId = undefined,
+    hideExamples = false,
     ...restProps
   }: HTMLAttributes<HTMLDivElement> & {
     entry: IEntry,
     showLinks?: boolean,
     lines?: number,
-    actions?: Snippet
+    actions?: Snippet,
+    headwordClass?: string,
+    highlightSenseId?: string,
+    hideExamples?: boolean,
   } = $props();
 
   $effect(() => {
@@ -101,7 +107,7 @@
   <div class="float-right group-[&:not(:hover)]/container:invisible relative -top-1">
     {@render actions?.()}
   </div>
-  <strong class="mr-1">
+  <strong class={cn('mr-1', headwordClass)}>
     {#each headwords as headword, i (headword.wsId)}
       <!-- eslint-disable-next-line svelte/no-useless-mustaches This mustache is not useless, it preserves whitespace -->
       {#if i > 0}{' / '}{/if}
@@ -110,32 +116,38 @@
   </strong>
   {#each senses as sense, i (sense.id)}
     {#if senses.length > 1}
-      <br />
-      {@render senseNumber(i)}
+      <br/>
     {/if}
-    {#if sense.partOfSpeech}
-      <i>{sense.partOfSpeech}</i>
-    {/if}
-    <span>
-      {#each sense.glossesAndDefs as glossAndDef (glossAndDef.wsId)}
-        <sub class="-mr-0.5">{glossAndDef.wsAbbr}</sub>
-        {#if glossAndDef.gloss}
-          <span class={glossAndDef.color}>{glossAndDef.gloss}</span>{#if glossAndDef.definition};{/if}
-        {/if}
-        {#if glossAndDef.definition}
-          <span class={glossAndDef.color}>{glossAndDef.definition}</span>
-        {/if}
-        <!-- eslint-disable-next-line svelte/no-useless-mustaches This mustache is not useless, it is deliberately an empty string with no whitespace -->
-        {''}
+    <span class={cn(highlightSenseId === sense.id && 'rounded bg-secondary')}>
+      {#if senses.length > 1}
+        {@render senseNumber(i)}
+      {/if}
+      {#if sense.partOfSpeech}
+        <i>{sense.partOfSpeech}</i>
+      {/if}
+      <span>
+        {#each sense.glossesAndDefs as glossAndDef (glossAndDef.wsId)}
+          <sub class="-mr-0.5">{glossAndDef.wsAbbr}</sub>
+          {#if glossAndDef.gloss}
+            <span class={glossAndDef.color}>{glossAndDef.gloss}</span>{#if glossAndDef.definition};{/if}
+          {/if}
+          {#if glossAndDef.definition}
+            <span class={glossAndDef.color}>{glossAndDef.definition}</span>
+          {/if}
+          <!-- eslint-disable-next-line svelte/no-useless-mustaches This mustache is not useless, it is deliberately an empty string with no whitespace -->
+          {''}
+        {/each}
+      </span>
+      {#if !hideExamples}
+        {#each sense.exampleSentences as example (example.id)}
+        {#each example.sentences as sentence, j (sentence)}
+          {@const first = j === 0}
+          {@const last = j === example.sentences.length - 1}
+          {#if j > 0};{/if}
+          {#if first}[{/if}<span class={sentence.color}>{sentence.text}</span>{#if last}]{/if}
+        {/each}
       {/each}
+      {/if}
     </span>
-    {#each sense.exampleSentences as example (example.id)}
-      {#each example.sentences as sentence, j (sentence)}
-        {@const first = j === 0}
-        {@const last = j === example.sentences.length - 1}
-        {#if j > 0};{/if}
-        {#if first}[{/if}<span class={sentence.color}>{sentence.text}</span>{#if last}]{/if}
-      {/each}
-    {/each}
   {/each}
 </div>

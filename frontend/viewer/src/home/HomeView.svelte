@@ -6,10 +6,8 @@
   import storybookIcon from '../stories/assets/storybook-icon.svg';
   import DevContent, {isDev} from '$lib/layout/DevContent.svelte';
   import {
-    useFwLiteConfig,
     useImportFwdataService,
     useProjectsService,
-    useTroubleshootingService,
   } from '$lib/services/service-provider';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import ServersList from './ServersList.svelte';
@@ -28,12 +26,12 @@
   import {cubicOut} from 'svelte/easing';
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
+  import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
-  const fwLiteConfig = useFwLiteConfig();
   const exampleProjectName = 'Example-Project';
   const [send, receive] = crossfade({
     duration: 500,
@@ -110,7 +108,6 @@
     projectsPromise = promise;
   }
 
-  const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog = $state<TroubleshootDialog>();
 
   let clickCount = 0;
@@ -133,6 +130,9 @@
       clickTimeout = setTimeout(resetClickCounter, 500);
     }
   }
+
+  let feedbackOpen = $state(false);
+
   let deleteDialog = $state<DeleteDialog>();
 </script>
 
@@ -160,21 +160,18 @@
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
-          <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} target="_blank" icon="i-mdi-chat-question">
+          <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-chat-question">
             {$t`Feedback`}
           </ResponsiveMenu.Item>
-          {#if supportsTroubleshooting}
-            <ResponsiveMenu.Item
-              icon="i-mdi-face-agent"
-              onSelect={() => troubleshootDialog?.open()}>
-              {$t`Troubleshoot`}
-            </ResponsiveMenu.Item>
-          {/if}
+          <ResponsiveMenu.Item
+            icon="i-mdi-face-agent"
+            onSelect={() => troubleshootDialog?.open()}>
+            {$t`Troubleshoot`}
+          </ResponsiveMenu.Item>
         </ResponsiveMenu.Content>
       </ResponsiveMenu.Root>
-      {#if supportsTroubleshooting}
-        <TroubleshootDialog bind:this={troubleshootDialog}/>
-      {/if}
+      <FeedbackDialog bind:open={feedbackOpen}/>
+      <TroubleshootDialog bind:this={troubleshootDialog}/>
     </div>
     {/snippet}
 </AppBar>
@@ -221,11 +218,9 @@
                     {/snippet}
                   </ResponsiveMenu.Trigger>
                   <ResponsiveMenu.Content>
-                    {#if supportsTroubleshooting}
-                      <ResponsiveMenu.Item icon="i-mdi-bug" onSelect={() => troubleshootDialog?.open(project.code)}>
-                        {$t`Troubleshoot`}
-                      </ResponsiveMenu.Item>
-                    {/if}
+                    <ResponsiveMenu.Item icon="i-mdi-bug" onSelect={() => troubleshootDialog?.open(project.code)}>
+                      {$t`Troubleshoot`}
+                    </ResponsiveMenu.Item>
                     <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={() => void deleteProject(project)}>
                       {$t`Delete`}
                     </ResponsiveMenu.Item>

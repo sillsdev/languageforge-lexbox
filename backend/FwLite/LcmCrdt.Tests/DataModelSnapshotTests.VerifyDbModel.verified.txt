@@ -42,7 +42,7 @@
       Relational:ViewSchema: 
   EntityType: ComplexFormComponent
     Properties: 
-      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      Id (_id, Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       ComplexFormEntryId (Guid) Required FK Index
       ComplexFormHeadword (string)
       ComponentEntryId (Guid) Required FK Index

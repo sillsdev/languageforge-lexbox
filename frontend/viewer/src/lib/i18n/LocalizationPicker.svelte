@@ -20,7 +20,9 @@
     'fr': 'Français',
     'es': 'Español',
     'id': 'Bahasa Indonesia',
-    'ko': '한국어'
+    'ko': '한국어',
+    'ms': 'Bahasa Malaysia, بهاس مليسيا',
+    'sw': 'Kiswahili'
   };
   const currentLanguage = $derived(languages[$locale] ?? 'Unknown: ' + $locale);
 </script>
