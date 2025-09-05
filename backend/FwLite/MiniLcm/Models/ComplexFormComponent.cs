@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Text.Json.Serialization;
 using MiniLcm.Attributes;
 
 namespace MiniLcm.Models;
@@ -21,7 +23,30 @@ public record ComplexFormComponent : IObjectWithId<ComplexFormComponent>, IOrder
         };
     }
 
-    public Guid Id { get; set; }
+    private Guid _id;
+    [MiniLcmInternal]
+    public Guid Id
+    {
+        get
+        {
+            Debug.Assert(_id != Guid.Empty, "Id is not set and should not be used");
+            return _id;
+        }
+        set
+        {
+            _id = value;
+        }
+    }
+
+    [MiniLcmInternal]
+    public Guid? MaybeId
+    {
+        get
+        {
+            return _id == Guid.Empty ? null : _id;
+        }
+    }
+
     // The order property applies to the component NOT the complex form. Complex forms are sorted alphabetically in FieldWorks.
     [MiniLcmInternal]
     public double Order { get; set; }
@@ -54,7 +79,7 @@ public record ComplexFormComponent : IObjectWithId<ComplexFormComponent>, IOrder
     {
         return new ComplexFormComponent
         {
-            Id = Id,
+            Id = _id,
             Order = Order,
             ComplexFormEntryId = ComplexFormEntryId,
             ComplexFormHeadword = ComplexFormHeadword,
@@ -63,5 +88,11 @@ public record ComplexFormComponent : IObjectWithId<ComplexFormComponent>, IOrder
             ComponentSenseId = ComponentSenseId,
             DeletedAt = DeletedAt,
         };
+    }
+
+    public override string ToString()
+    {
+        return
+            $"{nameof(Order)}: {Order}, {nameof(DeletedAt)}: {DeletedAt}, {nameof(ComplexFormEntryId)}: {ComplexFormEntryId}, {nameof(ComplexFormHeadword)}: {ComplexFormHeadword}, {nameof(ComponentEntryId)}: {ComponentEntryId}, {nameof(ComponentSenseId)}: {ComponentSenseId}, {nameof(ComponentHeadword)}: {ComponentHeadword}";
     }
 }
