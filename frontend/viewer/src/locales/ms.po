@@ -799,6 +799,10 @@ msgstr "Luar talian"
 msgid "Offline, unable to download"
 msgstr "Luar talian, tidak dapat memuat turun"
 
+#: src/home/Server.svelte
+msgid "Open"
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Buka Direktori Data"
@@ -1198,4 +1202,3 @@ msgstr "Anda tidak mempunyai kebenaran untuk memuat turun projek {0} daripada {1
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah pun memuat turun projek {0}"
-
