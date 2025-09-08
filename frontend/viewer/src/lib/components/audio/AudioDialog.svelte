@@ -10,6 +10,7 @@
   import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {Snippet} from 'svelte';
+  import {cn} from '$lib/utils';
 
   let {
     open = $bindable(false),
@@ -131,11 +132,15 @@
 
 
 <Dialog.Root bind:open>
-  <Dialog.DialogContent onOpenAutoFocus={(e) => e.preventDefault()} class="grid-rows-[auto_1fr_auto] sm:min-h-[min(calc(100%-16px),30rem)]">
+  <Dialog.DialogContent onOpenAutoFocus={(e) => e.preventDefault()} class={cn('sm:min-h-[min(calc(100%-16px),30rem)]',
+    children ? 'grid-rows-[auto_auto_1fr]' : 'grid-rows-[auto_1fr]')}>
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{title || $t`Add audio`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    {@render children?.()}
+    {#if children}
+      <!-- Ensure children only occupy 1 grid row -->
+      <div>{@render children?.()}</div>
+    {/if}
     {#if !selectedFile}
       <AudioProvider {onFileSelected} {onRecordingComplete}/>
     {:else}

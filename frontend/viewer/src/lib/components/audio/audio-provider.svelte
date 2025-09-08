@@ -89,13 +89,16 @@
       </div>
     </Recorder.Root>
   </div>
-</div>
 
-<!-- Hidden file input -->
-<input
-  bind:this={fileInputElement}
-  type="file"
-  accept="audio/*"
-  onchange={handleFileSelection}
-  class="hidden"
-/>
+  <!--
+  Hidden file input.
+  Should not be at root level as it might trigger a margin/gap.
+  -->
+  <input
+    bind:this={fileInputElement}
+    type="file"
+    accept="audio/*"
+    onchange={handleFileSelection}
+    class="hidden"
+  />
+</div>
