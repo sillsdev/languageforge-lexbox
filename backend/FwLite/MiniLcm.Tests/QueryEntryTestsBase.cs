@@ -96,7 +96,8 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     public async Task CanFilterToMissingSenses()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses=null" })).ToArrayAsync();
-        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Null_LexemeForm);
+        //using distinct since there may be 2 null lexeme forms but only on FLEx due to the null lexeme form
+        results.Select(e => e.LexemeForm["en"]).Distinct().Should().BeEquivalentTo(Apple, Null_LexemeForm);
     }
 
     [Fact]
@@ -148,14 +149,16 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     public async Task CanFilterToMissingComplexFormTypes()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=null" })).ToArrayAsync();
-        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
+        //using distinct since there may be 2 null lexeme forms but only on FLEx due to the null lexeme form
+        results.Select(e => e.LexemeForm["en"]).Distinct().Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
     }
 
     [Fact]
     public async Task CanFilterToMissingComplexFormTypesWithEmptyArray()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=[]" })).ToArrayAsync();
-        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
+        //using distinct since there may be 2 null lexeme forms but only on FLEx due to the null lexeme form
+        results.Select(e => e.LexemeForm["en"]).Distinct().Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
     }
 
     [Fact]
