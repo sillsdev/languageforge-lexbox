@@ -41,10 +41,11 @@
 </script>
 
 <DropdownMenu.Group {...mergedProps}>
-  {#each displayItems as item, i (item)}
+  <!-- using an each-key confuses the dropdown menu when we shuffle things around -->
+  <!-- eslint-disable-next-line svelte/require-each-key -->
+  {#each displayItems as item, i}
     {@const reorderName = getDisplayName(item) || '–'}
     <DropdownMenu.Item class="grid grid-cols-subgrid col-span-full justify-items-start items-center"
-      onmouseover={() => displayIndex = i}
       onfocus={() => displayIndex = i}
       onSelect={() => {
         if (i !== currIndex) move();
