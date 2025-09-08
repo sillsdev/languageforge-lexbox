@@ -154,7 +154,7 @@
           </form>
         {/key}
       {:else}
-        <p>{$t`No subject, unable to create a new {task.subjectType}`}</p>
+        <p>{$t`No subject, unable to create a new ${task.subjectType}`}</p>
       {/if}
       <div class="flex flex-row gap-2 justify-end">
         <Drawer.Close>

@@ -757,8 +757,8 @@ msgid "No server configured"
 msgstr "Pas de serveur configuré"
 
 #: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {task.subjectType}"
-msgstr "Aucun sujet, impossible de créer un nouveau {task.subjectType}"
+msgid "No subject, unable to create a new {0}"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
@@ -1198,4 +1198,3 @@ msgstr "Vous n'avez pas la permission de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
-

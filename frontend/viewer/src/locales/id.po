@@ -757,8 +757,8 @@ msgid "No server configured"
 msgstr "Tidak ada server yang dikonfigurasi"
 
 #: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {task.subjectType}"
-msgstr "Tidak ada subjek, tidak dapat membuat {task.subjectType}baru"
+msgid "No subject, unable to create a new {0}"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
@@ -1198,4 +1198,3 @@ msgstr "Anda tidak memiliki izin untuk mengunduh proyek {0} dari {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah mengunduh proyek {0}"
-

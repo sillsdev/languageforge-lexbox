@@ -757,8 +757,8 @@ msgid "No server configured"
 msgstr "구성된 서버 없음"
 
 #: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {task.subjectType}"
-msgstr "제목이 없습니다, 새로 만들 수 없습니다 {task.subjectType}"
+msgid "No subject, unable to create a new {0}"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
@@ -1198,4 +1198,3 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
-
