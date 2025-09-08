@@ -85,7 +85,7 @@
             {$t`Hold to record or\npress and release to start recording.`}
           </span>
         {/if}
-        <Recorder.Trigger bind:walkieTalkieMode />
+        <Recorder.Trigger autofocus bind:walkieTalkieMode />
       </div>
     </Recorder.Root>
   </div>

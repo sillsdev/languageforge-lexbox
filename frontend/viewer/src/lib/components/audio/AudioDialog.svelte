@@ -131,7 +131,7 @@
 
 
 <Dialog.Root bind:open>
-  <Dialog.DialogContent class="grid-rows-[auto_1fr_auto] sm:min-h-[min(calc(100%-16px),30rem)]">
+  <Dialog.DialogContent onOpenAutoFocus={(e) => e.preventDefault()} class="grid-rows-[auto_1fr_auto] sm:min-h-[min(calc(100%-16px),30rem)]">
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{title || $t`Add audio`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
