@@ -18,20 +18,20 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
             .Select(domain => LcmHelpers.GetSemanticDomainCode(domain));
     public override Func<string, object>? EntrySensesSemanticDomainsConverter => EntryFilter.NormalizeEmptyToNull<ICmSemanticDomain>;
     public override Expression<Func<ILexEntry, object?>> EntrySensesExampleSentences => e => e.AllSenses.Select(s => EmptyToNull(s.ExamplesOS));
-    public override Expression<Func<ILexEntry, string, object?>> EntrySensesExampleSentencesSentence => (entry, ws) =>
+    public override Expression<Func<ILexEntry, string, object>> EntrySensesExampleSentencesSentence => (entry, ws) =>
         entry.AllSenses.SelectMany(s => s.ExamplesOS).Select(example => example.PickText(example.Example, ws));
 
     public override Expression<Func<ILexEntry, object?>> EntrySensesPartOfSpeechId =>
         e => e.AllSenses.Select(s =>
             s.MorphoSyntaxAnalysisRA == null ? null : s.MorphoSyntaxAnalysisRA.GetPartOfSpeechId());
     public override Expression<Func<ILexEntry, object?>> EntrySenses => e => EmptyToNull(e.AllSenses);
-    public override Expression<Func<ILexEntry, string, object?>> EntrySensesGloss => (entry, ws) => entry.AllSenses.Select(s => s.PickText(s.Gloss, ws));
-    public override Expression<Func<ILexEntry, string, object?>> EntrySensesDefinition => (entry, ws) => entry.AllSenses.Select(s => s.PickText(s.Definition, ws));
-    public override Expression<Func<ILexEntry, string, object?>> EntryNote => (entry, ws) => entry.PickText(entry.Comment, ws);
-    public override Expression<Func<ILexEntry, string, object?>> EntryLexemeForm => (entry, ws) =>
-        entry.LexemeFormOA == null ? null : entry.PickText(entry.LexemeFormOA.Form, ws);
-    public override Expression<Func<ILexEntry, string, object?>> EntryCitationForm => (entry, ws) => entry.PickText(entry.CitationForm, ws);
-    public override Expression<Func<ILexEntry, string, object?>> EntryLiteralMeaning => (entry, ws) => entry.PickText(entry.LiteralMeaning, ws);
+    public override Expression<Func<ILexEntry, string, object>> EntrySensesGloss => (entry, ws) => entry.AllSenses.Select(s => s.PickText(s.Gloss, ws));
+    public override Expression<Func<ILexEntry, string, object>> EntrySensesDefinition => (entry, ws) => entry.AllSenses.Select(s => s.PickText(s.Definition, ws));
+    public override Expression<Func<ILexEntry, string, object>> EntryNote => (entry, ws) => entry.PickText(entry.Comment, ws);
+    public override Expression<Func<ILexEntry, string, object>> EntryLexemeForm => (entry, ws) => entry.LexemeFormOA == null ? string.Empty : entry.PickText(entry.LexemeFormOA.Form, ws);
+
+    public override Expression<Func<ILexEntry, string, object>> EntryCitationForm => (entry, ws) => entry.PickText(entry.CitationForm, ws);
+    public override Expression<Func<ILexEntry, string, object>> EntryLiteralMeaning => (entry, ws) => entry.PickText(entry.LiteralMeaning, ws);
     public override Expression<Func<ILexEntry, object?>> EntryComplexFormTypes => e => EmptyToNull(e.ComplexFormEntryRefs.SelectMany(r => r.ComplexEntryTypesRS));
     public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToNull<ILexEntryType>;
 }
