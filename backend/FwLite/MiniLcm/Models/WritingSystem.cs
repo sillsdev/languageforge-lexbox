@@ -11,6 +11,7 @@ public record WritingSystem: IObjectWithId<WritingSystem>, IOrderableNoId
     public required Guid Id { get; set; }
     public virtual required WritingSystemId WsId { get; set; }
     public bool IsAudio => WsId.IsAudio;
+    public string CodeWithoutScriptOrAudio => WsId.CodeWithoutScriptOrAudio ?? WsId.Code;
     public virtual required string Name { get; set; }
     public virtual required string Abbreviation { get; set; }
     public virtual required string Font { get; set; }

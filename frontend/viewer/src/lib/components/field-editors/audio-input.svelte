@@ -56,6 +56,10 @@
   import {useSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
   import LexiconEditorPrimitive from '$lib/entry-editor/object-editors/LexiconEditorPrimitive.svelte';
   import OverrideFields from '$lib/OverrideFields.svelte';
+  import {WritingSystemType, type IWritingSystem} from '$lib/dotnet-types';
+  import type {ReadonlyDeep} from 'type-fest';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import type {Overrides} from '$lib/views/view-data';
 
   const handled = Symbol();
   let {
@@ -63,18 +67,35 @@
     audioId = $bindable(),
     onchange = () => {},
     readonly = false,
-    wsLabel = undefined,
+    ws = undefined,
   }: {
     loader?: (audioId: string) => Promise<{stream: ReadableStream, filename: string} | undefined | typeof handled>,
     audioId: string | undefined,
     onchange?: (audioId: string | undefined) => void;
     readonly?: boolean;
-    wsLabel?: string;
+    ws?: ReadonlyDeep<IWritingSystem>;
   } = $props();
 
   const projectContext = useProjectContext();
   const api = $derived(projectContext?.maybeApi);
   const supportsAudio = $derived(projectContext?.features.audio);
+  const writingSystems = useWritingSystemService();
+  const overrides: Overrides = $derived.by(() => {
+    if (!ws) return {};
+    if (ws.type === WritingSystemType.Analysis) {
+      return {
+        analysisWritingSystems: writingSystems.analysisNoAudio
+          .filter(w => w.codeWithoutScriptOrAudio === ws.codeWithoutScriptOrAudio)
+          .map(w => w.wsId),
+      };
+    } else {
+      return {
+        vernacularWritingSystems: writingSystems.vernacularNoAudio
+          .filter(w => w.codeWithoutScriptOrAudio === ws.codeWithoutScriptOrAudio)
+          .map(w => w.wsId),
+      };
+    }
+  });
   const fieldProps = tryUseFieldBody();
 
   async function defaultLoader(audioId: string) {
@@ -268,15 +289,15 @@
     return audio.error.code === MediaError.MEDIA_ERR_NETWORK &&
       audio.error.message?.includes('demuxer seek failed');
   }
-  let dialogTitle = $derived(fieldProps?.label && wsLabel ? `${fieldProps.label}: ${wsLabel}` : fieldProps?.label || wsLabel);
+  let dialogTitle = $derived(fieldProps?.label && ws?.abbreviation ? `${fieldProps.label}: ${ws.abbreviation}` : fieldProps?.label || ws?.abbreviation);
   let subject = useSubjectContext();
 </script>
 {#if supportsAudio}
   {#if !readonly}
     <AudioDialog title={dialogTitle} bind:open={audioDialogOpen} onSubmit={onAudioDialogSubmit}>
       {#if subject?.current}
-        <OverrideFields shownFields={fieldProps?.fieldId ? [fieldProps.fieldId] : []}>
-          <LexiconEditorPrimitive object={subject.current}/>
+        <OverrideFields {overrides} shownFields={fieldProps?.fieldId ? [fieldProps.fieldId] : []}>
+            <LexiconEditorPrimitive object={subject.current}/>
         </OverrideFields>
       {/if}
     </AudioDialog>

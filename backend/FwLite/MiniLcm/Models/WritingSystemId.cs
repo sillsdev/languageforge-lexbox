@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SIL.WritingSystems;
@@ -35,6 +34,7 @@ public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<W
 {
     public string Code { get => field ?? "default"; init; }
     public bool IsAudio { get; } = false;
+    public string? CodeWithoutScriptOrAudio { get; }
 
     public static readonly WritingSystemId Default = "default";
 
@@ -62,6 +62,19 @@ public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<W
             Code = code;
             IsAudio = script?.Equals(WellKnownSubtags.AudioScript, StringComparison.OrdinalIgnoreCase) == true &&
                       variants?.Split('-').Any(v => v == WellKnownSubtags.AudioPrivateUse) == true;
+
+            if ((script is not null || IsAudio) && IetfLanguageTag.TryGetSubtags(code,
+            out var langSubtag,
+            out var scriptSubtag,
+            out var regionSubtag,
+            out var variantsSubtags))
+            {
+                CodeWithoutScriptOrAudio = IetfLanguageTag.Create(
+                    langSubtag,
+                    null, // remove script (e.g. Zxxxx (unwritten/audio), Latn, etc.)
+                    regionSubtag,
+                    variantsSubtags.Where(v => v.Code != WellKnownSubtags.AudioPrivateUse));
+            }
         }
         else
         {
