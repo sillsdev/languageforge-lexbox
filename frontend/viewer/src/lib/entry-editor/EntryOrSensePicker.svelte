@@ -26,6 +26,7 @@
   import {Badge} from '$lib/components/ui/badge';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
+  import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
 
   const currentView = useCurrentView();
   const dialogsService = useDialogsService();
@@ -68,7 +69,7 @@
       count: fetchCount,
       order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
     });
-  }, {initialValue: [], debounce: 300});
+  }, {initialValue: [], debounce: DEFAULT_DEBOUNCE_TIME});
   const displayedEntries = $derived(searchResource.current?.slice(0, displayCount) ?? []);
   $effect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions

@@ -18,6 +18,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {Icon} from '$lib/components/ui/icon';
   import {useProjectContext} from '$lib/project-context.svelte';
+  import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
 
   let {
     search = '',
@@ -93,7 +94,7 @@
     } finally {
       loadingUndebounced = false;
     }
-  }, 300);
+  }, DEFAULT_DEBOUNCE_TIME);
 
   const entriesResource = resource(
     () => ({ search, sort, gridifyFilter, miniLcmApi }),

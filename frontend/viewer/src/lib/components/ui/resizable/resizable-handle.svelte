@@ -7,6 +7,7 @@
   import {Debounced} from 'runed';
   import {type IconClass} from '$lib/icon-class';
   import {onMount, tick} from 'svelte';
+  import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
 
   let {
     ref = $bindable(null),
@@ -24,7 +25,7 @@
   } = $props();
 
   let dragging = $state(false);
-  const draggingDebounced = new Debounced(() => dragging, 300);
+  const draggingDebounced = new Debounced(() => dragging, DEFAULT_DEBOUNCE_TIME);
 
   type OnClickHandler = ButtonProps['onclick'];
   const leftResizerOnClick = $derived(getPaneResizerOnClick(leftPane, rightPane));
