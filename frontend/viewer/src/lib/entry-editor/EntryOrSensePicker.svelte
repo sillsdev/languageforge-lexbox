@@ -68,7 +68,7 @@
       count: fetchCount,
       order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
     });
-  }, {initialValue: []});
+  }, {initialValue: [], debounce: 300});
   const displayedEntries = $derived(searchResource.current?.slice(0, displayCount) ?? []);
   $effect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
