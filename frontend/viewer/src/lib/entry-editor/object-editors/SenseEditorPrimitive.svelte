@@ -12,6 +12,7 @@
   import {cn} from '$lib/utils';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
   import {mergeProps} from 'bits-ui';
+  import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     sense: ISense;
@@ -30,14 +31,14 @@
   const partsOfSpeech = usePartsOfSpeech();
   const semanticDomains = useSemanticDomains();
   const currentView = useCurrentView();
-
+  initSubjectContext(() => sense);
   function onFieldChanged(field: FieldId) {
     onchange?.(sense, field);
   }
 </script>
 
 <Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas($currentView, sense) } })}>
-  <Editor.Field.Root style="grid-area: gloss" class={cn($currentView.fields.gloss.show || 'hidden')}>
+  <Editor.Field.Root fieldId="gloss" class={cn($currentView.fields.gloss.show || 'hidden')}>
     <Editor.Field.Title name={$t`Gloss`} helpId={fieldData.gloss.helpId} />
     <Editor.Field.Body subGrid>
       <MultiWsInput
@@ -48,7 +49,7 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root style="grid-area: definition" class={cn($currentView.fields.definition.show || 'hidden')}>
+  <Editor.Field.Root fieldId="definition" class={cn($currentView.fields.definition.show || 'hidden')}>
     <Editor.Field.Title name={$t`Definition`} helpId={fieldData.definition.helpId} />
     <Editor.Field.Body subGrid>
       <RichMultiWsInput
@@ -59,7 +60,7 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root style="grid-area: partOfSpeechId" class={cn($currentView.fields.partOfSpeechId.show || 'hidden')}>
+  <Editor.Field.Root fieldId="partOfSpeechId" class={cn($currentView.fields.partOfSpeechId.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Grammatical info.`, $t`Part of speech`)} helpId={fieldData.partOfSpeechId.helpId}/>
     <Editor.Field.Body>
       <Select
@@ -75,7 +76,7 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root style="grid-area: semanticDomains" class={cn($currentView.fields.semanticDomains.show || 'hidden')}>
+  <Editor.Field.Root fieldId="semanticDomains" class={cn($currentView.fields.semanticDomains.show || 'hidden')}>
     <Editor.Field.Title name={$t`Semantic domains`} helpId={fieldData.semanticDomains.helpId} />
     <Editor.Field.Body>
       <MultiSelect

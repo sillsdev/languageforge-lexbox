@@ -77,6 +77,7 @@
       {:else}
         <AudioInput
           bind:audioId={() => getAudioId(value[ws.wsId]), audioId => setAudioId(audioId, ws.wsId)}
+          {ws}
           {readonly} />
       {/if}
     </div>

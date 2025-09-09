@@ -85,17 +85,20 @@
             {$t`Hold to record or\npress and release to start recording.`}
           </span>
         {/if}
-        <Recorder.Trigger bind:walkieTalkieMode />
+        <Recorder.Trigger autofocus bind:walkieTalkieMode />
       </div>
     </Recorder.Root>
   </div>
-</div>
 
-<!-- Hidden file input -->
-<input
-  bind:this={fileInputElement}
-  type="file"
-  accept="audio/*"
-  onchange={handleFileSelection}
-  class="hidden"
-/>
+  <!--
+  Hidden file input.
+  Should not be at root level as it might trigger a margin/gap.
+  -->
+  <input
+    bind:this={fileInputElement}
+    type="file"
+    accept="audio/*"
+    onchange={handleFileSelection}
+    class="hidden"
+  />
+</div>

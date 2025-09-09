@@ -96,11 +96,9 @@
       <span class="col-span-4">{$t`${finalAudio.type}`}</span>
     </DevContent>
   </span>
-    <!-- contain-size prevents wavesurfer from freaking out inside a grid
-    contain-inline-size would improve the height reactivity of the waveform, but
-    results in the waveform sometimes change its height unexpectedly -->
-    <!-- pb-8 ensures the timeline is in the bounds of the container -->
-    <div class="w-full grow max-h-32 pb-3 contain-size border-y">
+    <!-- contain-inline-size prevents wavesurfer from freaking out inside a grid -->
+    <!-- pb ensures the waveform timeline is in the bounds of this container -->
+    <div class="w-full h-32 pb-3 contain-inline-size border-y">
       <Waveform audio={finalAudio} bind:playing bind:audioApi bind:duration showTimeline autoplay class="size-full"/>
     </div>
     <div class="flex gap-2">

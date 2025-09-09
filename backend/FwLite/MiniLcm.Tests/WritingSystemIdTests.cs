@@ -27,6 +27,18 @@ public class WritingSystemIdTests
     }
 
     [Theory]
+    [InlineData("en-Zxxx-x-audio", "en")]
+    [InlineData("seh-Zxxx-x-audio-var", "seh-x-var")]
+    [InlineData("lwl-Zxxx-x-majority-audio", "lwl-x-majority")]
+    [InlineData("lwl-Latn-x-majority", "lwl-x-majority")]
+    [InlineData("lwl-Latn", "lwl")]
+    public void CalculatesScriptlessEquivalent(string audioCode, string expectedScriptlessCode)
+    {
+        var ws = new WritingSystemId(audioCode);
+        ws.CodeWithoutScriptOrAudio.Should().Be(expectedScriptlessCode);
+    }
+
+    [Theory]
     [InlineData("gx")]
     [InlineData("oo")]
     [InlineData("eng")] // Three-letter codes not allowed when there's a valid two-letter code

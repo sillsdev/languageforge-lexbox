@@ -23,10 +23,6 @@ export class DialogsService {
   set invokeNewEntryDialog(dialog: ((newEntry: Partial<IEntry>) => Promise<IEntry | undefined>)) {
     this.#invokeNewEntryDialog = dialog;
   }
-  #invokeAudioDialog: undefined | (() => Promise<string | undefined>);
-  set invokeAudioDialog(dialog: (() => Promise<string | undefined>)) {
-    this.#invokeAudioDialog = dialog;
-  }
 
   async createNewEntry(headword?: string): Promise<IEntry | undefined> {
     if (!this.#invokeNewEntryDialog) throw new Error('No new entry dialog');
@@ -42,9 +38,5 @@ export class DialogsService {
   async promptDelete(subject: string, subjectDescription?: string, options?: DeleteDialogOptions): Promise<boolean> {
     if (!this.#invokeDeleteDialog) throw new Error('No delete dialog');
     return this.#invokeDeleteDialog(subject, subjectDescription, options);
-  }
-  async getAudio(): Promise<string | undefined> {
-    if (!this.#invokeAudioDialog) throw new Error('No audio dialog');
-    return this.#invokeAudioDialog();
   }
 }
