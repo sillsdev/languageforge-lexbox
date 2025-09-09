@@ -116,7 +116,7 @@
 </script>
 
 <Dialog bind:open={openQueryParam.current}>
-  <DialogContent class="sm:min-h-80 sm:min-w-[35rem] grid-rows-[auto_1fr] items-center">
+  <DialogContent class="sm:min-w-[35rem] grid-rows-[auto_1fr] items-center">
     <DialogHeader>
       <DialogTitle>{$t`Sync Changes`}</DialogTitle>
     </DialogHeader>

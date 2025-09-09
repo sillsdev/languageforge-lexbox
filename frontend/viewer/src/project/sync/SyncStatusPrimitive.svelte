@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Tabs from '$lib/components/ui/tabs';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
-  import {formatDate, FormatRelativeDate} from '$lib/components/ui/format';
+  import {FormatRelativeDate} from '$lib/components/ui/format';
   import {Icon} from '$lib/components/ui/icon';
   import LoginButton from '$lib/auth/LoginButton.svelte';
   import {Button} from '$lib/components/ui/button';
@@ -65,13 +65,13 @@
 </script>
 <Tabs.Root value="lite">
   {#if showRemote}
-    <Tabs.List class="w-full">
-      <Tabs.Trigger class="w-full" value="lite">{$t`FieldWorks Lite`}</Tabs.Trigger>
-      <Tabs.Trigger class="w-full" value="classic">{$t`FieldWorks Classic`}</Tabs.Trigger>
+    <Tabs.List class="w-full mb-2">
+      <Tabs.Trigger class="flex-1" value="lite">{$t`FieldWorks Lite`}</Tabs.Trigger>
+      <Tabs.Trigger class="flex-1" value="classic">{$t`FieldWorks Classic`}</Tabs.Trigger>
     </Tabs.List>
   {/if}
   <Tabs.Content value="lite">
-    <div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-3 gap-x-8">
+    <div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-4 gap-x-8">
 
       <!-- Status local to remote -->
       <div class="col-span-full text-center flex flex-col border rounded py-2">

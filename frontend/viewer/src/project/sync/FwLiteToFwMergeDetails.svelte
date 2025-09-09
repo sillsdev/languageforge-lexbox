@@ -38,9 +38,9 @@
   }
 </script>
 
-<div class="grid grid-cols-[1fr_auto_1fr]">
-  <div class="border rounded flex flex-col items-center justify-center p-2">
-    <Icon src={flexLogo} class="size-10" alt={$t`FieldWorks logo`}/>
+<div class="grid grid-cols-[1fr_auto_1fr] gap-4">
+  <div class="border rounded flex flex-col items-center justify-center text-center p-2">
+    <Icon src={flexLogo} class="size-10 mb-1" alt={$t`FieldWorks logo`}/>
     <p>FieldWorks</p>
     <span class="text-sm text-foreground/80">
       <T msg="Last change: #">
@@ -48,7 +48,7 @@
       </T>
     </span>
   </div>
-  <div class="flex flex-col items-center px-2">
+  <div class="flex flex-col items-center gap-1">
     <span>{$t`${lexboxToFlexCount} Changes`}</span>
     <SyncArrow dir="left" tailLength={120} size={1.5}/>
     <Button
@@ -62,8 +62,8 @@
     <SyncArrow dir="right" tailLength={120} size={1.5}/>
     <span>{$t`${flexToLexboxCount} Commits`}</span>
   </div>
-  <div class="border rounded flex flex-col items-center justify-center p-2">
-    <Icon src={logoLight} class="size-10" alt={$t`FieldWorks logo`}/>
+  <div class="border rounded flex flex-col items-center justify-center text-center p-2">
+    <Icon src={logoLight} class="size-10 mb-1" alt={$t`FieldWorks logo`}/>
     <p>FW Lite</p>
     <span class="text-sm text-foreground/80">
       <T msg="Last change: #">
