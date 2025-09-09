@@ -38,7 +38,7 @@ public partial class MainPage
 
     private partial void BlazorWebViewOnUrlLoading(object? sender, UrlLoadingEventArgs e)
     {
-        if (e.Url.Scheme == "mailto")
+        if ("mailto".Equals(e.Url?.Scheme, StringComparison.OrdinalIgnoreCase))
         {
             var intent = new Intent(action: Intent.ActionSendto, Android.Net.Uri.Parse(e.Url.ToString()));
             intent.AddFlags(ActivityFlags.NewTask);
