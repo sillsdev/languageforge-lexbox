@@ -50,7 +50,9 @@ export class FwLiteLauncher implements FwLiteManager {
 
     // Try graceful shutdown first
     if (platform() === 'win32') {
-      this.process.kill('SIGTERM');
+      //windows sucks https://stackoverflow.com/a/41976985/1620542
+      this.process.stdin?.write('shutdown\n');
+      this.process.stdin?.end();
     } else {
       this.process.kill('SIGTERM');
     }
@@ -154,7 +156,7 @@ export class FwLiteLauncher implements FwLiteManager {
       ];
 
       this.process = spawn(config.binaryPath, args, {
-        stdio: ['ignore', 'pipe', 'pipe'],
+        stdio: ['pipe', 'pipe', 'pipe'],
         detached: false,
       });
 
