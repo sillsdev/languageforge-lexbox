@@ -63,14 +63,14 @@
     });
   }
 </script>
-<Tabs.Root value="local">
+<Tabs.Root value="lite">
   {#if showRemote}
-    <Tabs.List>
-      <Tabs.Trigger value="local">{$t`Local`}</Tabs.Trigger>
-      <Tabs.Trigger value="remote">{$t`Remote`}</Tabs.Trigger>
+    <Tabs.List class="w-full">
+      <Tabs.Trigger class="w-full" value="lite">{$t`FieldWorks Lite`}</Tabs.Trigger>
+      <Tabs.Trigger class="w-full" value="classic">{$t`FieldWorks Classic`}</Tabs.Trigger>
     </Tabs.List>
   {/if}
-  <Tabs.Content value="local">
+  <Tabs.Content value="lite">
     <div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-3 gap-x-8">
 
       <!-- Status local to remote -->
@@ -142,7 +142,7 @@
     </div>
   </Tabs.Content>
   {#if showRemote}
-    <Tabs.Content value="remote">
+    <Tabs.Content value="classic">
       <FwLiteToFwMergeDetails
         {remoteStatus}
         {syncLexboxToFlex}
