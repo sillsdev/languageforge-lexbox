@@ -26,8 +26,8 @@
   } = $props();
   const lastFlexSyncDate = $derived(remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined);
   const lastFwLiteSyncDate = $derived(remoteStatus?.lastCrdtCommitDate ? new Date(remoteStatus.lastCrdtCommitDate) : undefined);
-  let lexboxToFlexCount = $derived(remoteStatus?.pendingCrdtChanges);
-  let flexToLexboxCount = $derived(remoteStatus?.pendingMercurialChanges);
+  let lexboxToFlexCount = $derived(remoteStatus?.pendingCrdtChanges ?? '?');
+  let flexToLexboxCount = $derived(remoteStatus?.pendingMercurialChanges ?? '?');
 
   function onSyncLexboxToFlex() {
     loadingSyncLexboxToFlex = true;
@@ -46,7 +46,7 @@
       </span>
   </div>
   <div class="flex flex-col items-center px-2">
-    <span>{lexboxToFlexCount}</span>
+    <span>{$t`${lexboxToFlexCount} Changes`}</span>
     <SyncArrow dir="left" tailLength={120} size={1.5}/>
     <Button
       loading={loadingSyncLexboxToFlex}
@@ -57,7 +57,7 @@
       {$t`Sync`}
     </Button>
     <SyncArrow dir="right" tailLength={120} size={1.5}/>
-    <span>{flexToLexboxCount}</span>
+    <span>{$t`${flexToLexboxCount} Commits`}</span>
   </div>
   <div class="border rounded flex flex-col items-center justify-center p-2">
     <Icon src={logoLight} class="size-10" alt={$t`FieldWorks logo`}/>
