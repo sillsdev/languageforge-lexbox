@@ -2,7 +2,6 @@
   import {t} from 'svelte-i18n-lingui';
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
-  import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {watch} from 'runed';
   import AudioProvider from './audio-provider.svelte';
@@ -10,30 +9,27 @@
   import {useLexboxApi} from '$lib/services/service-provider';
   import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
   import {AppNotification} from '$lib/notifications/notifications';
+  import type {Snippet} from 'svelte';
+  import {cn} from '$lib/utils';
 
-  let open = $state(false);
+  let {
+    open = $bindable(false),
+    title = undefined,
+    onSubmit = () => {},
+    children = undefined
+  } : {
+    open: boolean,
+    title?: string,
+    onSubmit?: (audioId: string) => void,
+    children?: Snippet
+  } = $props();
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'audio-dialog'});
-  const dialogsService = useDialogsService();
-  dialogsService.invokeAudioDialog = getAudio;
   const lexboxApi = useLexboxApi();
 
   let submitting = $state(false);
   let selectedFile = $state<File>();
   let finalAudio = $state<File>();
   const tooBig = $derived((finalAudio?.size ?? 0) > 10 * 1024 * 1024);
-
-  let requester: {
-    resolve: (mediaUri: string | undefined) => void
-  } | undefined;
-
-
-  async function getAudio() {
-    reset();
-    return new Promise<string | undefined>((resolve) => {
-      requester = {resolve};
-      open = true;
-    });
-  }
 
   watch(() => open, () => {
     if (!open) reset();
@@ -49,8 +45,6 @@
   }
 
   function reset() {
-    requester?.resolve(undefined);
-    requester = undefined;
     clearAudio();
   }
 
@@ -61,12 +55,11 @@
 
   async function submitAudio() {
     if (!selectedFile) throw new Error('No audio to upload');
-    if (!requester) throw new Error('No requester');
 
     submitting = true;
     try {
       const audioId = await uploadAudio();
-      requester.resolve(audioId);
+      onSubmit(audioId);
       close();
     } finally {
       submitting = false;
@@ -92,6 +85,7 @@
       case UploadFileResult.Error:
         throw new Error(response.errorMessage ?? $t`Unknown error`);
     }
+    if (!response.mediaUri) throw new Error(`No mediaUri returned`);
 
     return response.mediaUri;
   }
@@ -138,10 +132,15 @@
 
 
 <Dialog.Root bind:open>
-  <Dialog.DialogContent class="grid-rows-[auto_1fr_auto] sm:min-h-[min(calc(100%-16px),30rem)]">
+  <Dialog.DialogContent onOpenAutoFocus={(e) => e.preventDefault()} class={cn('sm:min-h-[min(calc(100%-16px),30rem)]',
+    children ? 'grid-rows-[auto_auto_1fr]' : 'grid-rows-[auto_1fr]')}>
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>{$t`Add audio`}</Dialog.DialogTitle>
+      <Dialog.DialogTitle>{title || $t`Add audio`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
+    {#if children}
+      <!-- Ensure children only occupy 1 grid row -->
+      <div>{@render children?.()}</div>
+    {/if}
     {#if !selectedFile}
       <AudioProvider {onFileSelected} {onRecordingComplete}/>
     {:else}
