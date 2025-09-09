@@ -1,4 +1,4 @@
-﻿using LcmCrdt.Utils;
+using LcmCrdt.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Refit;

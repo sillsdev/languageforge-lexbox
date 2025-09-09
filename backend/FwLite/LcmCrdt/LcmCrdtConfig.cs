@@ -1,4 +1,4 @@
-﻿using Gridify;
+using Gridify;
 using MiniLcm.Filtering;
 
 namespace LcmCrdt;

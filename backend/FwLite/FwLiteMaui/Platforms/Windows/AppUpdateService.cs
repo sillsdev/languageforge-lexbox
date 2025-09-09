@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Windows.Management.Deployment;
@@ -152,7 +152,7 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         set => preferences.Set(LastUpdateCheckKey, value);
     }
 
-    public bool SupportsAutoUpdate => true;
+    public bool SupportsAutoUpdate => !FwLiteMauiKernel.IsPortableApp;
 
     public bool IsOnMeteredConnection()
     {

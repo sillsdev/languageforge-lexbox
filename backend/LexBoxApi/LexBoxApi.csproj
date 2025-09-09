@@ -8,7 +8,6 @@
   <ItemGroup>
     <PackageReference Include="CrystalQuartz.AspNetCore" />
     <PackageReference Include="DataAnnotatedModelValidations" />
-    <PackageReference Include="HotChocolate.Analyzers" />
     <PackageReference Include="HotChocolate.Types.Analyzers">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -17,6 +16,7 @@
     <PackageReference Include="HotChocolate.AspNetCore.Authorization" />
     <PackageReference Include="HotChocolate.Data.EntityFramework" />
     <PackageReference Include="HotChocolate.Diagnostics" />
+    <PackageReference Include="HotChocolate.Types.OffsetPagination" />
     <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="MailKit" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />

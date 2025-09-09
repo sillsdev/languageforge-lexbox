@@ -18,7 +18,9 @@
   import IfOnce from '$lib/components/if-once/if-once.svelte';
   import {SortField} from '$lib/dotnet-types';
   import SortMenu, {type SortConfig} from './SortMenu.svelte';
+  import {useProjectContext} from '$lib/project-context.svelte';
 
+  const projectContext = useProjectContext();
   const currentView = useCurrentView();
   const dialogsService = useDialogsService();
   const selectedEntryId = new QueryParamState({key: 'entryId', allowBack: true, replaceOnDefaultValue: true});
@@ -101,7 +103,7 @@
             <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
               <p>{$t`Select ${pt($t`an entry`, $t`a word`, $currentView)} to view details`}</p>
             </div>
-          {:else}
+          {:else if projectContext.maybeApi}
             <div class="md:p-4 md:pl-4 h-full">
               <EntryView
                 entryId={selectedEntryId.current}

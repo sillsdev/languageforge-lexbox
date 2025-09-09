@@ -33,7 +33,9 @@
   import {formatDate, FormatDate, formatNumber} from '$lib/components/ui/format';
   import {SvelteDate} from 'svelte/reactivity';
   import {RichTextToggle} from '$lib/dotnet-types/generated-types/MiniLcm/Models/RichTextToggle';
-
+  import {FFmpegApi} from '$lib/components/audio/ffmpeg';
+  import type {View} from '$lib/views/view-data';
+  import {useDialogsService} from '$lib/services/dialogs-service';
 
   const testingService = tryUseService(DotnetService.TestingService);
 
@@ -56,6 +58,7 @@
   }
 
   let senseFields: ({ id: FieldId })[] = $state([{id: 'gloss'}, {id: 'definition'}]);
+  let overrides = $state<View['overrides']>({});
 
   function updateFields(e: CustomEvent<{ items: ({ id: FieldId })[] }>) {
     senseFields = e.detail.items;
@@ -110,6 +113,21 @@
   let dialogOpen = $state(false);
   useBackHandler({addToStack: () => dialogOpen, onBack: () => dialogOpen = false, key: 'sandbox-dialog'});
 
+  // Dialogs service demo
+  const dialogsService = useDialogsService();
+  let deleteResult: string | undefined = $state(undefined);
+  async function showDelete() {
+    const res = await dialogsService.promptDelete('Example item', 'Normal example');
+    deleteResult = res ? 'Confirmed delete' : 'Cancelled delete';
+  }
+  async function showDangerous() {
+    const res = await dialogsService.promptDelete('Dangerous item', undefined, {
+      isDangerous: true,
+      details: 'This is irreversible',
+    });
+    deleteResult = res ? 'Confirmed dangerous delete' : 'Cancelled dangerous delete';
+  }
+
   const variants = Object.keys(buttonVariants.variants.variant) as unknown as (keyof typeof buttonVariants.variants.variant)[];
   const sizes = Object.keys(buttonVariants.variants.size) as unknown as (keyof typeof buttonVariants.variants.size)[];
 
@@ -125,6 +143,12 @@
   let reseter = $state(0);
 
   let currentDate = new SvelteDate();
+
+  async function preloadFFmpeg() {
+    console.log('Loading FFmpeg...');
+    let ffmpeg = await FFmpegApi.create();
+    console.log('FFmpeg loaded:', ffmpeg);
+  }
 </script>
 <DialogsProvider/>
 <div class="p-6 shadcn-root">
@@ -136,6 +160,7 @@
       {/snippet}
     </T>
   </h2>
+  <Button onclick={preloadFFmpeg}>Load FFmpeg</Button>
   <div class="grid grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
       <Button onclick={incrementAsync} {loading} icon="i-mdi-ab-testing">Shadcn FTW {count}</Button>
@@ -243,6 +268,16 @@
       </Dialog.Content>
     </Dialog.Root>
   </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <h3 class="font-medium">Delete dialog example</h3>
+    <div class="flex gap-2 flex-wrap">
+      <Button onclick={showDelete}>Show Delete Dialog</Button>
+      <Button variant="destructive" onclick={showDangerous}>Show Dangerous Delete Dialog</Button>
+    </div>
+    {#if deleteResult}
+      <div>Result: {deleteResult}</div>
+    {/if}
+  </div>
 </div>
 
 <hr class="border-t border-gray-200 my-6"/>
@@ -295,6 +330,8 @@
         <h3>Override Fields</h3>
       </div>
       <div>
+        <Button onclick={() => overrides = {vernacularWritingSystems: ['en'], analysisWritingSystems: ['en']}}>Set en only</Button>
+        <Button onclick={() => overrides = {}}>Reset</Button>
         <p>Shown:</p>
         <div class="p-2" use:dndzone={{items: senseFields, flipDurationMs: 200}} onconsider={updateFields}
             onfinalize={updateFields}>
@@ -305,7 +342,7 @@
       </div>
       <svelte:boundary>
         <EditorGrid class="border p-4">
-          <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
+          <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder {overrides}>
             <SenseEditorPrimitive
               sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
           </OverrideFields>

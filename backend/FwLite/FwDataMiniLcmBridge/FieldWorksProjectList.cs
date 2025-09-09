@@ -1,4 +1,4 @@
-﻿using FwDataMiniLcmBridge.LcmUtils;
+using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Models;

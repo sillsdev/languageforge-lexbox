@@ -1,4 +1,4 @@
-﻿using FwDataMiniLcmBridge;
+using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using SIL.Harmony;
 using FwLiteShared;

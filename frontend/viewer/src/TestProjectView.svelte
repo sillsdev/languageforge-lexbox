@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 import ProjectView from './ProjectView.svelte';
 import {InMemoryApiService} from '$lib/in-memory-api-service';
 import ProjectLoader from './ProjectLoader.svelte';

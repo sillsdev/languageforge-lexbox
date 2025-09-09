@@ -176,6 +176,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
     public void CreateDummyFile(string filename, long length)
     {
         using var stream = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+        stream.Write(Guid.NewGuid().ToByteArray());
         stream.SetLength(length);
         // Yes, that's it!
     }

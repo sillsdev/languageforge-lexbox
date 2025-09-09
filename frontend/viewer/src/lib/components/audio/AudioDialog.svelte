@@ -2,44 +2,42 @@
   import {t} from 'svelte-i18n-lingui';
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
-  import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {watch} from 'runed';
-  import {delay} from '$lib/utils/time';
   import AudioProvider from './audio-provider.svelte';
   import AudioEditor from './audio-editor.svelte';
-  import Loading from '$lib/components/Loading.svelte';
   import {useLexboxApi} from '$lib/services/service-provider';
   import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
   import {AppNotification} from '$lib/notifications/notifications';
+  import type {Snippet} from 'svelte';
+  import {cn} from '$lib/utils';
 
-  let open = $state(false);
+  let {
+    open = $bindable(false),
+    title = undefined,
+    onSubmit = () => {},
+    children = undefined
+  } : {
+    open: boolean,
+    title?: string,
+    onSubmit?: (audioId: string) => void,
+    children?: Snippet
+  } = $props();
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'audio-dialog'});
-  const dialogsService = useDialogsService();
-  dialogsService.invokeAudioDialog = getAudio;
   const lexboxApi = useLexboxApi();
 
   let submitting = $state(false);
   let selectedFile = $state<File>();
-  let audio = $state<Blob>();
-  const tooBig = $derived((audio?.size ?? 0) > 10 * 1024 * 1024);
-
-  let requester: {
-    resolve: (mediaUri: string | undefined) => void
-  } | undefined;
-
-
-  async function getAudio() {
-    reset();
-    return new Promise<string | undefined>((resolve) => {
-      requester = {resolve};
-      open = true;
-    });
-  }
+  let finalAudio = $state<File>();
+  const tooBig = $derived((finalAudio?.size ?? 0) > 10 * 1024 * 1024);
 
   watch(() => open, () => {
     if (!open) reset();
   });
+
+  watch(() => selectedFile, () => {
+    if (!selectedFile) finalAudio = undefined;
+  })
 
   function close() {
     open = false;
@@ -47,24 +45,21 @@
   }
 
   function reset() {
-    requester?.resolve(undefined);
-    requester = undefined;
     clearAudio();
   }
 
   function clearAudio() {
-    audio = selectedFile = undefined;
+    selectedFile = undefined;
     submitting = false;
   }
 
   async function submitAudio() {
-    if (!audio) throw new Error('No audio to upload');
-    if (!requester) throw new Error('No requester');
+    if (!selectedFile) throw new Error('No audio to upload');
 
     submitting = true;
     try {
       const audioId = await uploadAudio();
-      requester.resolve(audioId);
+      onSubmit(audioId);
       close();
     } finally {
       submitting = false;
@@ -72,14 +67,14 @@
   }
 
   async function uploadAudio() {
-    if (!audio || !selectedFile) throw new Error($t`No file selected`);
-    const response = await lexboxApi.saveFile(audio, {filename: selectedFile.name, mimeType: audio.type});
+    if (!finalAudio) throw new Error($t`No file to upload`);
+    const response = await lexboxApi.saveFile(finalAudio, {filename: finalAudio.name, mimeType: finalAudio.type});
     switch (response.result) {
       case UploadFileResult.SavedLocally:
-        AppNotification.display($t`Audio saved locally`, 'success');
+        AppNotification.display($t`Audio saved locally`, { type: 'success', timeout: 'short' });
         break;
       case UploadFileResult.SavedToLexbox:
-        AppNotification.display($t`Audio saved and uploaded to Lexbox`, 'success');
+        AppNotification.display($t`Audio saved and uploaded to Lexbox`, { type: 'success', timeout: 'short' });
         break;
       case UploadFileResult.TooBig:
         throw new Error($t`File too big`);
@@ -90,20 +85,18 @@
       case UploadFileResult.Error:
         throw new Error(response.errorMessage ?? $t`Unknown error`);
     }
+    if (!response.mediaUri) throw new Error(`No mediaUri returned`);
 
     return response.mediaUri;
   }
 
-  async function onFileSelected(file: File) {
+  function onFileSelected(file: File) {
     selectedFile = file;
-    audio = await processAudio(file);
   }
 
-  async function onRecordingComplete(blob: Blob) {
+  function onRecordingComplete(blob: Blob) {
     let fileExt = mimeTypeToFileExtension(blob.type);
     selectedFile = new File([blob], `recording-${Date.now()}.${fileExt}`, {type: blob.type});
-    if (!open) return;
-    audio = await processAudio(blob);
   }
 
   function mimeTypeToFileExtension(mimeType: string) {
@@ -133,39 +126,31 @@
   }
 
   function onDiscard() {
-    audio = undefined;
     selectedFile = undefined;
-  }
-
-  let loading = $state(false);
-  async function processAudio(blob: Blob): Promise<Blob> {
-    loading = true;
-    await delay(1000); // Simulate processing delay
-    loading = false;
-    return blob;
   }
 </script>
 
 
 <Dialog.Root bind:open>
-  <Dialog.DialogContent class="grid-rows-[auto_1fr_auto]">
+  <Dialog.DialogContent onOpenAutoFocus={(e) => e.preventDefault()} class={cn('sm:min-h-[min(calc(100%-16px),30rem)]',
+    children ? 'grid-rows-[auto_auto_1fr]' : 'grid-rows-[auto_1fr]')}>
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>{$t`Add audio`}</Dialog.DialogTitle>
+      <Dialog.DialogTitle>{title || $t`Add audio`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    {#if !audio || !selectedFile}
-      {#if loading}
-        <Loading class="self-center justify-self-center size-16"/>
-      {:else}
-        <AudioProvider {onFileSelected} {onRecordingComplete}/>
-      {/if}
+    {#if children}
+      <!-- Ensure children only occupy 1 grid row -->
+      <div>{@render children?.()}</div>
+    {/if}
+    {#if !selectedFile}
+      <AudioProvider {onFileSelected} {onRecordingComplete}/>
     {:else}
-      <AudioEditor {audio} name={selectedFile.name} onDiscard={onDiscard}/>
+      <AudioEditor audio={selectedFile} bind:finalAudio onDiscard={onDiscard}/>
       {#if tooBig}
         <p class="text-destructive text-lg text-end">{$t`File too big`}</p>
       {/if}
       <Dialog.DialogFooter>
         <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-        <Button onclick={() => submitAudio()} disabled={tooBig} loading={submitting}>
+        <Button onclick={() => submitAudio()} disabled={tooBig || !finalAudio} loading={submitting}>
           {$t`Save audio`}
         </Button>
       </Dialog.DialogFooter>

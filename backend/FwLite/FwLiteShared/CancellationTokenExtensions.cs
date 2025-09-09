@@ -1,4 +1,4 @@
-﻿namespace FwLiteShared;
+namespace FwLiteShared;
 
 public static class CancellationTokenExtensions
 {

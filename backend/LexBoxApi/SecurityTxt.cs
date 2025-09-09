@@ -1,4 +1,4 @@
-﻿namespace LexBoxApi;
+namespace LexBoxApi;
 
 public static class SecurityTxt
 {

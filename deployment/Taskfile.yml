@@ -37,7 +37,6 @@ tasks:
     interactive: true
     deps: [infra-forward, local-api-forward]
   local-db-forward:
-    internal: true
     cmds:
       - kubectl port-forward service/db 5433:5432 -n languagedepot --context docker-desktop
   local-otel-http-forward:

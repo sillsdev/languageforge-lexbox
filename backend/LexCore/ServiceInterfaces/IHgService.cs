@@ -1,4 +1,4 @@
-﻿using LexCore.Entities;
+using LexCore.Entities;
 using System.IO.Compression;
 
 namespace LexCore.ServiceInterfaces;

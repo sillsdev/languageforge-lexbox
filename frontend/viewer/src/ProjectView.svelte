@@ -3,10 +3,10 @@
   import type {HTMLAttributes} from 'svelte/elements';
 
   const {
-    onloaded,
+    onloaded = () => {},
     ...rest
   }: {
-    onloaded: (loaded: boolean) => void;
+    onloaded?: (loaded: boolean) => void;
   } & HTMLAttributes<HTMLDivElement> = $props();
 </script>
 

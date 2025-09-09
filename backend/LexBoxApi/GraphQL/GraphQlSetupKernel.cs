@@ -3,6 +3,7 @@ using HotChocolate.Diagnostics;
 using LexBoxApi.GraphQL.CustomFilters;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Services;
+using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using LexData;
 using LfClassicData;
@@ -20,8 +21,8 @@ public static class GraphQlSetupKernel
         if (forceGenerateSchema || env.IsDevelopment())
             services.AddHostedService<DevGqlSchemaWriterService>();
 
-        services.AddScoped<IIsHarmonyProjectDataLoader, IsHarmonyProjectDataLoader>();
-        services.AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>();
+        services.AddScoped<IIsHarmonyProjectDataLoader>(provider => provider.GetRequiredService<IsHarmonyProjectDataLoader>());
+        services.AddScoped<IIsLanguageForgeProjectDataLoader>(provider => provider.GetRequiredService<IsLanguageForgeProjectDataLoader>());
         services.AddResiliencePipeline<string, IReadOnlyDictionary<string, bool>>(
             IsLanguageForgeProjectDataLoader.ResiliencePolicyName,
             (builder, context) =>
@@ -60,6 +61,8 @@ public static class GraphQlSetupKernel
             })
             .AddAuthorization()
             .AddLexBoxApiTypes()
+            //ensures that Organization uses the OrgGqlConfiguration by default, and not OrgByIdGqlConfiguration
+            .BindRuntimeType<Organization, OrgGqlConfiguration>()
             .AddMutationConventions(false)
             .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>()
             .ModifyRequestOptions(options =>

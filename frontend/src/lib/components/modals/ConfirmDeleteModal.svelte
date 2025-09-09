@@ -41,7 +41,6 @@
 
   type Schema = typeof verify;
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let deletionFormModal: FormModal<Schema> | undefined = $state();
   let deletionForm = $derived(deletionFormModal?.form());
 </script>

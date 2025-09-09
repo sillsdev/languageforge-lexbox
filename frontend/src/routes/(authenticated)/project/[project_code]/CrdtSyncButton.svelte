@@ -14,9 +14,10 @@
   interface Props {
     project: Project;
     isEmpty: boolean;
+    canManageProject: boolean;
   }
 
-  const { project, isEmpty }: Props = $props();
+  const { project, isEmpty, canManageProject }: Props = $props();
   type SyncResult = { crdtChanges: number; fwdataChanges: number };
   type SyncJobResult = { status: string; error?: string; syncResult?: SyncResult };
 
@@ -91,6 +92,12 @@
   }
 
   async function onSubmit(): Promise<void> {
+    if (!canManageProject) {
+      // The button is disabled, but it's much easier to enable a button than send an http request
+      // and the result of this is ugly
+      error = $t('project.crdt.no_permission_to_manage');
+      return;
+    }
     error = await triggerSync();
   }
 
@@ -164,16 +171,21 @@
     <div class="prose max-w-none underline-links">
       <NewTabLinkMarkdown md={$t('project.crdt.try_info')} />
       {#if error}
-        <NewTabLinkMarkdown
-          md={`${$t('errors.apology')} ${$t('project.crdt.reach_out_for_help', { subject: encodeURIComponent($t('project.crdt.email_subject', { projectCode: project.code })) })}`}
-        />
+        <div class="contents text-error">
+          <NewTabLinkMarkdown
+            md={`${$t('errors.apology')} ${$t('project.crdt.reach_out_for_help', { subject: encodeURIComponent($t('project.crdt.email_subject', { projectCode: project.code })) })}`}
+          />
+        </div>
+        <FormError {error} right />
+      {/if}
+      {#if !canManageProject}
+        <FormError error={$t('project.crdt.no_permission_to_manage')} right />
       {/if}
     </div>
-    <FormError {error} right />
   {/if}
   {#snippet actions({ close })}
     {#if modalState === 'idle'}
-      <Button variant="btn-primary" onclick={onSubmit}>
+      <Button variant="btn-primary" onclick={onSubmit} disabled={!canManageProject}>
         {$t('project.crdt.submit')}
       </Button>
       <Button onclick={close}>

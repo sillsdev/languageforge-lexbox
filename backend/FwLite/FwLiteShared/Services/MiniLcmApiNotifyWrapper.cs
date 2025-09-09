@@ -3,10 +3,11 @@ using LexCore.Utils;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Wrappers;
 
 namespace FwLiteShared.Services;
 
-public class MiniLcmApiNotifyWrapperFactory(ProjectEventBus bus)
+public class MiniLcmApiNotifyWrapperFactory(ProjectEventBus bus) : IMiniLcmWrapperFactory
 {
     public IMiniLcmApi Create(IMiniLcmApi api, IProjectIdentifier project)
     {
@@ -19,7 +20,7 @@ public partial class MiniLcmApiNotifyWrapper(
     ProjectEventBus bus,
     IProjectIdentifier project) : IMiniLcmApi
 {
-    [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
+    [BeaKona.AutoInterface(IncludeBaseInterfaces = true, MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
 
     private PendingChangeNotifications? _pendingChanges;
@@ -79,10 +80,10 @@ public partial class MiniLcmApiNotifyWrapper(
 
     // ********** Overrides go here **********
 
-    async Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry)
+    async Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry, CreateEntryOptions? options)
     {
         await using var _ = BeginTrackingChanges();
-        var result = await _api.CreateEntry(entry);
+        var result = await _api.CreateEntry(entry, options);
         NotifyEntryChanged(result);
         return result;
     }
@@ -92,6 +93,42 @@ public partial class MiniLcmApiNotifyWrapper(
         await using var _ = BeginTrackingChanges();
         var result = await _api.UpdateEntry(before, after, api ?? this);
         NotifyEntryChanged(result);
+        return result;
+    }
+
+    async Task<Sense> IMiniLcmWriteApi.CreateSense(Guid entryId, Sense sense, BetweenPosition? position)
+    {
+        await using var _ = BeginTrackingChanges();
+        var result = await _api.CreateSense(entryId, sense, position);
+        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
+        NotifyEntryChanged(entry);
+        return result;
+    }
+
+    async Task<Sense> IMiniLcmWriteApi.UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api)
+    {
+        await using var _ = BeginTrackingChanges();
+        var result = await _api.UpdateSense(entryId, before, after, api ?? this);
+        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
+        NotifyEntryChanged(entry);
+        return result; 
+    }
+
+    async Task<ExampleSentence> IMiniLcmWriteApi.CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position)
+    {
+        await using var _ = BeginTrackingChanges();
+        var result = await _api.CreateExampleSentence(entryId, senseId, exampleSentence, position);
+        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
+        NotifyEntryChanged(entry);
+        return result;
+    }
+
+    async Task<ExampleSentence> IMiniLcmWriteApi.UpdateExampleSentence(Guid entryId, Guid senseId, ExampleSentence before, ExampleSentence after, IMiniLcmApi? api)
+    {
+        await using var _ = BeginTrackingChanges();
+        var result = await _api.UpdateExampleSentence(entryId, senseId, before, after, api ?? this);
+        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
+        NotifyEntryChanged(entry);
         return result;
     }
 

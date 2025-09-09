@@ -31,7 +31,6 @@
     usernamesText: z.string().trim().min(1, $t('org_page.bulk_add_members.empty_user_field')),
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<typeof schema> | undefined = $state();
   let form = $derived(formModal?.form());
 

@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using Microsoft.Net.Http.Headers;
 using Yarp.ReverseProxy.Forwarder;
 

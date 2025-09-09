@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json.Serialization.Metadata;
 using LinqToDB;
@@ -48,7 +48,7 @@ public static class Json
 
             var returnType = ((MethodInfo)builder.Member).ReturnType;
 
-            if (returnType != typeof(string))
+            if (returnType != typeof(string) && returnType != typeof(RichString))//bypass rich string so it can be used with .GetPlainText()
             {
                 valueExpression = PseudoFunctions.MakeTryConvert(new SqlDataType(new DbDataType(returnType)),
                     new SqlDataType(new DbDataType(typeof(string), DataType.Text)),
@@ -80,7 +80,7 @@ public static class Json
                         }
                         else
                         {
-                            throw new InvalidOperationException("Invalid property path.");
+                            throw new InvalidOperationException($"Invalid property path for expression {mce}.");
                         }
 
                         break;
@@ -180,6 +180,12 @@ public static class Json
     private static IQueryable<JsonEach<string>> QueryInternal(this MultiString value)
     {
         throw new NotImplementedException("only supported server side");
+    }
+
+    [Sql.Expression("(select group_concat(s.value->>'Text', '') from json_each({0}->>'Spans') as s)", PreferServerSide = true)]
+    public static string GetPlainText(RichString? richString)
+    {
+        return richString?.GetPlainText() ?? "";
     }
 
     //maps to a row from json_each

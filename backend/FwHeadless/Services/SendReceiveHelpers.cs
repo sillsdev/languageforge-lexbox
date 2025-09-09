@@ -4,8 +4,11 @@ using SIL.Progress;
 
 namespace FwHeadless.Services;
 
+public class SendReceiveException(string? message) : Exception(message);
+
 public static class SendReceiveHelpers
 {
+    private const string HgUsername = "FieldWorks Lite";
     public record ProjectPath(string Code, string Dir)
     {
         public string FwDataFile { get; } = Path.Join(Dir, $"{Code}.fwdata");
@@ -16,17 +19,26 @@ public static class SendReceiveHelpers
         public SendReceiveAuth(FwHeadlessConfig config) : this(config.LexboxUsername, config.LexboxPassword) { }
     };
 
-    public record LfMergeBridgeResult(string Output, string ProgressMessages);
+    public record LfMergeBridgeResult(string Output)
+    {
+        private readonly IProgress? _progress = null;
+        public bool ErrorEncountered => _progress?.ErrorEncountered ?? false;
+        public LfMergeBridgeResult(string output, IProgress progress) : this(output)
+        {
+            _progress = progress;
+        }
+    }
 
     private static async Task<LfMergeBridgeResult> CallLfMergeBridge(string method, IDictionary<string, string> flexBridgeOptions, IProgress? progress = null)
     {
         var sbProgress = new StringBuilderProgress();
+        var combinedProgress = new CombiningProgress(sbProgress, progress);
         var lfMergeBridgeOutputForClient = await Task.Run(() =>
         {
-            LfMergeBridge.LfMergeBridge.Execute(method, progress ?? sbProgress, flexBridgeOptions.ToDictionary(), out var output);
+            LfMergeBridge.LfMergeBridge.Execute(method, combinedProgress, flexBridgeOptions.ToDictionary(), out var output);
             return output;
         });
-        return new LfMergeBridgeResult(lfMergeBridgeOutputForClient, progress == null ? sbProgress.ToString() : "");
+        return new LfMergeBridgeResult(lfMergeBridgeOutputForClient, sbProgress);
     }
 
     private static Uri BuildSendReceiveUrl(string baseUrl, string projectCode, SendReceiveAuth? auth, bool forChorus = true)
@@ -81,6 +93,49 @@ public static class SendReceiveHelpers
         return lines.Count();
     }
 
+    public static async Task CommitFile(string filePath, string commitMessage, IProgress? progress = null)
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.file_path", filePath);
+        progress ??= new NullProgress();
+        if (!File.Exists(filePath)) throw new FileNotFoundException($"File not found: {filePath}");
+        var fileDir = Path.GetDirectoryName(filePath);
+        ArgumentNullException.ThrowIfNull(fileDir);
+
+        //we need to track the file, otherwise hg will not commit it
+        await ExecuteHgSuccess($"hg add --config ui.username={EscapeShellArg(HgUsername)} {EscapeShellArg(filePath)}", fileDir, progress);
+        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", fileDir, progress);
+    }
+
+    private static string EscapeShellArg(string arg)
+    {
+        var quote = """
+                    "
+                    """;
+        var escaped = arg.Replace(
+            quote,
+            """
+            \"
+            """);
+        return $"{quote}{escaped}{quote}";
+    }
+
+    private static async Task ExecuteHgSuccess(string cmd, string folder, IProgress? progress = null)
+    {
+        var result = await Task.Run(() => HgRunner.Run(cmd, folder, 5, progress));
+        //not using HgRepository because it does not fail when exit code is 1 because that means not added.
+        if (result.ExitCode != 0)
+        {
+            throw new Exception($"""
+                                 Failed to execute command {cmd}, with exit code {result.ExitCode},
+                                 ======= output =======
+                                 output: {result.StandardOutput}
+                                 ======= error =======
+                                 error: {result.StandardError}
+                                 """);
+        }
+    }
+
     public static async Task<LfMergeBridgeResult> SendReceive(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? commitMessage = null, IProgress? progress = null)
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
@@ -100,7 +155,7 @@ public static class SendReceiveHelpers
             { "languageDepotRepoName", "LexBox" },
             { "languageDepotRepoUri", repoUrl.AbsoluteUri },
             { "deleteRepoIfNoSuchBranch", "false" },
-            { "user", "FieldWorks Lite" }, // Not necessary if username was set at clone time, but why not
+            { "user", HgUsername }, // Not necessary if username was set at clone time, but why not
         };
         if (commitMessage is not null) flexBridgeOptions["commitMessage"] = commitMessage;
         return await CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions, progress);
@@ -123,7 +178,7 @@ public static class SendReceiveHelpers
             { "languageDepotRepoName", "LexBox" },
             { "languageDepotRepoUri", repoUrl.ToString() },
             { "deleteRepoIfNoSuchBranch", "false" },
-            { "user", "FieldWorks Lite" }
+            { "user", HgUsername }
         };
         return await CallLfMergeBridge("Language_Forge_Clone", flexBridgeOptions, progress);
     }

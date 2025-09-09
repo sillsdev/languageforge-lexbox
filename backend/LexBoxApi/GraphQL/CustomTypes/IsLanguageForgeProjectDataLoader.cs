@@ -59,12 +59,13 @@ public class IsLanguageForgeProjectDataLoader : BatchDataLoader<string, bool>, I
         IReadOnlyList<string> list,
         CancellationToken token)
     {
-        return await MongoExtensions.ToAsyncEnumerable(loader._systemDbContext.Projects.AsQueryable()
+        var actualProjects = await MongoExtensions.ToAsyncEnumerable(loader._systemDbContext.Projects.AsQueryable()
                 .Select(p => p.ProjectCode)
 #pragma warning disable MALinq2001
                 .Where(projectCode => list.Contains(projectCode)))
 #pragma warning restore MALinq2001
-            .ToDictionaryAsync(projectCode => projectCode, _ => true, token);
+            .ToHashSetAsync(token);
+        return list.ToDictionary(pc => pc, pc => actualProjects.Contains(pc));
     }
 
 

@@ -1,28 +1,56 @@
-﻿using MiniLcm.Exceptions;
+using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
+using SystemTextJsonPatch.Operations;
 
 namespace MiniLcm.SyncHelpers;
 
 public static class EntrySync
 {
-    public static async Task<int> Sync(Entry[] beforeEntries,
+    public static async Task<int> SyncFull(Entry[] beforeEntries,
         Entry[] afterEntries,
         IMiniLcmApi api)
     {
-        return await DiffCollection.DiffAddThenUpdate(beforeEntries, afterEntries, new EntriesDiffApi(api));
+        var (changes, addedEntries) = await SyncWithoutComplexFormsAndComponents(beforeEntries, afterEntries, api);
+        var updatedBeforeEntries = beforeEntries.Where(before => afterEntries.Any(after => after.Id == before.Id));
+        changes += await SyncComplexFormsAndComponents([.. updatedBeforeEntries, .. addedEntries], afterEntries, api);
+        return changes;
     }
 
-    public static async Task<int> Sync(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
+    public static async Task<(int Changes, ICollection<Entry> Added)> SyncWithoutComplexFormsAndComponents(Entry[] beforeEntries,
+        Entry[] afterEntries,
+        IMiniLcmApi api)
+    {
+        return await DiffCollection.DiffAndGetAdded(beforeEntries, afterEntries, new EntriesDiffApi(api));
+    }
+
+    /// <summary>
+    /// Syncs only the complex forms and components of the before and after entries.
+    /// <exception cref="InvalidOperationException">When the before and after entries do not match.</exception>
+    /// </summary>
+    public static async Task<int> SyncComplexFormsAndComponents(Entry[] beforeEntries,
+        Entry[] afterEntries,
+        IMiniLcmApi api)
+    {
+        return await DiffCollection.Diff(beforeEntries, afterEntries,
+            new ObjectWithIdCollectionReplaceDiffApi<Entry>(
+                (before, after) => SyncComplexFormsAndComponents(before, after, api)));
+    }
+
+    public static async Task<int> SyncFull(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
+    {
+        var changes = await SyncWithoutComplexFormsAndComponents(beforeEntry, afterEntry, api);
+        changes += await SyncComplexFormsAndComponents(beforeEntry, afterEntry, api);
+        return changes;
+    }
+
+    public static async Task<int> SyncWithoutComplexFormsAndComponents(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
     {
         try
         {
             var updateObjectInput = EntryDiffToUpdate(beforeEntry, afterEntry);
             if (updateObjectInput is not null) await api.UpdateEntry(afterEntry.Id, updateObjectInput);
             var changes = await SensesSync(afterEntry.Id, beforeEntry.Senses, afterEntry.Senses, api);
-
-            changes += await SyncComplexFormComponents(afterEntry, beforeEntry.Components, afterEntry.Components, api);
-            changes += await SyncComplexForms(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
             changes += await Sync(afterEntry.Id, beforeEntry.ComplexFormTypes, afterEntry.ComplexFormTypes, api);
             changes += await SyncPublications(afterEntry.Id, beforeEntry.PublishIn, afterEntry.PublishIn, api);
             return changes + (updateObjectInput is null ? 0 : 1);
@@ -30,6 +58,21 @@ public static class EntrySync
         catch (Exception e)
         {
             throw new SyncObjectException($"Failed to sync entry {afterEntry}", e);
+        }
+    }
+
+    public static async Task<int> SyncComplexFormsAndComponents(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
+    {
+        try
+        {
+            var changes = 0;
+            changes += await SyncComplexFormComponents(afterEntry, beforeEntry.Components, afterEntry.Components, api);
+            changes += await SyncComplexForms(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
+            return changes;
+        }
+        catch (Exception e)
+        {
+            throw new SyncObjectException($"Failed to sync complex forms and components of entry {afterEntry}", e);
         }
     }
 
@@ -88,6 +131,8 @@ public static class EntrySync
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.CitationForm), beforeEntry.CitationForm, afterEntry.CitationForm));
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.Note), beforeEntry.Note, afterEntry.Note));
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.LiteralMeaning), beforeEntry.LiteralMeaning, afterEntry.LiteralMeaning));
+        if (beforeEntry.MorphType != afterEntry.MorphType)
+            patchDocument.Operations.Add(new Operation<Entry>("replace", $"/{nameof(Entry.MorphType)}", null, afterEntry.MorphType));
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Entry>(patchDocument);
     }
@@ -96,17 +141,8 @@ public static class EntrySync
     {
         public override async Task<(int, Entry)> AddAndGet(Entry afterEntry)
         {
-            //create each entry without components.
-            //After each entry is created, then replace will be called to create those components
-            var entryWithoutEntryRefs = afterEntry.WithoutEntryRefs();
-            var changes = await Add(entryWithoutEntryRefs);
-            return (changes, entryWithoutEntryRefs);
-        }
-
-        public override async Task<int> Add(Entry afterEntry)
-        {
-            await api.CreateEntry(afterEntry);
-            return 1;
+            var addedEntry = await api.CreateEntry(afterEntry, CreateEntryOptions.WithoutComplexFormsAndComponents);
+            return (1, addedEntry);
         }
 
         public override async Task<int> Remove(Entry entry)
@@ -117,7 +153,7 @@ public static class EntrySync
 
         public override Task<int> Replace(Entry before, Entry after)
         {
-            return Sync(before, after, api);
+            return SyncWithoutComplexFormsAndComponents(before, after, api);
         }
     }
 

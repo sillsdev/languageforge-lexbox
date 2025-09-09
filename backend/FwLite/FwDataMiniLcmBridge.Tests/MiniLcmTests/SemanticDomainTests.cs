@@ -1,4 +1,4 @@
-﻿using FwDataMiniLcmBridge.Tests.Fixtures;
+using FwDataMiniLcmBridge.Tests.Fixtures;
 
 namespace FwDataMiniLcmBridge.Tests.MiniLcmTests;
 

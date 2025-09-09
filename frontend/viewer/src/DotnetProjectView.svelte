@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import ProjectView from './ProjectView.svelte';
   import {onDestroy, onMount} from 'svelte';
   import {DotnetService} from '$lib/dotnet-types';
@@ -11,27 +11,27 @@
   import type {
     ISyncServiceJsInvokable
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-  import ProjectLoader from './ProjectLoader.svelte';
   import {initProjectContext} from '$lib/project-context.svelte';
 
   const projectServicesProvider = useProjectServicesProvider();
-  const projectContext = initProjectContext();
 
   const {code, type: projectType, paratext = false}: {
     code: string; // Code for CRDTs, project-name for FWData
     type: 'fwdata' | 'crdt';
     paratext?: boolean;
   } = $props();
+  const projectContext = initProjectContext();
+  projectContext.projectCode = code;
 
 
 
   let projectName = $state<string>(code);
   let projectScope: IProjectScope;
   let serviceLoaded = $state(false);
-  let loading = $state(true);
   let destroyed = false;
   onMount(async () => {
     console.debug('ProjectView mounted');
+    projectContext.projectCode = code;
     if (projectType === 'crdt') {
       const maybeProjectName = await projectServicesProvider.tryGetCrdtProjectName(code);
       projectName = maybeProjectName ? maybeProjectName : code;
@@ -81,7 +81,7 @@
   }
 </script>
 
-<ProjectLoader readyToLoadProject={serviceLoaded} {loading} {projectName}>
-  <ProjectView onloaded={() => loading = false} data-paratext={paratext}></ProjectView>
-</ProjectLoader>
+
+<ProjectView data-paratext={paratext}/>
+
 

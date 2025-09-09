@@ -61,7 +61,7 @@
       newFilter.push('Senses=null')
     }
     if (missingPartOfSpeech) {
-      newFilter.push('Senses.PartOfSpeechId=null')
+      newFilter.push('Senses.PartOfSpeechId=')
     }
     if (missingSemanticDomains) {
       newFilter.push('Senses.SemanticDomains=null')

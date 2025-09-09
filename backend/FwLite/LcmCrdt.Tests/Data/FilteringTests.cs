@@ -1,4 +1,4 @@
-﻿using LcmCrdt.Data;
+using LcmCrdt.Data;
 using MiniLcm.Models;
 
 namespace LcmCrdt.Tests.Data;

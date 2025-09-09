@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm.Models;
 
@@ -76,6 +76,7 @@ public static class MiniLcmValidatorsExtensions
         services.AddTransient<IValidator<SemanticDomain>, SemanticDomainValidator>();
         services.AddTransient<IValidator<Publication>, PublicationValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<WritingSystem>>, WritingSystemUpdateValidator>();
+        services.AddTransient<MiniLcmApiStringNormalizationWrapperFactory>();
         return services;
     }
 }

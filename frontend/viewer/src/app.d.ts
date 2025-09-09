@@ -1,7 +1,7 @@
 export { }; // for some reason this is required in order to make global changes
 
 declare global {
-  function enableDevMode(): void;
+  function enableDevMode(enable = true): void;
   function enableShadcn(enable = true): void;
 
   // waiting on: https://github.com/microsoft/TypeScript/issues/60608

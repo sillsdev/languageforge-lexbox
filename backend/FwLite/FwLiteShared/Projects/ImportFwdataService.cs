@@ -10,7 +10,7 @@ public class ImportFwdataService(IEnumerable<IProjectProvider> projectProviders,
         projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
 
     [JSInvokable]
-    public async Task<IProjectIdentifier> Import(string projectName)
+    public Task<IProjectIdentifier> Import(string projectName)
     {
         if (miniLcmImport is null) throw new InvalidOperationException("MiniLcmImport is not available and import is not supported in this version");
         if (FwDataProjectProvider is null)
@@ -24,6 +24,9 @@ public class ImportFwdataService(IEnumerable<IProjectProvider> projectProviders,
             throw new InvalidOperationException($"Project {projectName} not found.");
         }
 
-        return await miniLcmImport.Import(fwDataProject);
+        return Task.Run(async () =>
+        {
+            return await miniLcmImport.Import(fwDataProject);
+        });
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace MiniLcm.Models;
+namespace MiniLcm.Models;
 
 public class PartOfSpeech : IObjectWithId<PartOfSpeech>
 {

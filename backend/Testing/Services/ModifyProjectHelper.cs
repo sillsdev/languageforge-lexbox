@@ -1,4 +1,4 @@
-﻿using Mono.Unix.Native;
+using Mono.Unix.Native;
 
 namespace Testing.Services;
 

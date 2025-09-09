@@ -1,6 +1,10 @@
 import {locale} from 'svelte-i18n-lingui';
+import {createSubscriber} from 'svelte/reactivity';
 
 const hasSetLang = {value: false};
+const subscriber = createSubscriber(update => {
+  return locale.subscribe(update);
+});
 
 export async function setLanguage(lang: string): Promise<void> {
   const wasDefault = lang === 'default';
@@ -11,4 +15,8 @@ export async function setLanguage(lang: string): Promise<void> {
   //only save when the user changes locale
   if (!wasDefault) localStorage.setItem('locale', lang);
   hasSetLang.value = true;
+}
+
+export function subscribeLanguageChange() {
+  subscriber();
 }

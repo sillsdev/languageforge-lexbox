@@ -93,19 +93,43 @@ public class CrdtController(
         return myProjects;
     }
 
+    [HttpGet("listProjectsV2")]
+    // Will eventually become `listProjects`, once current clients have been updated, at which point we'll
+    // retire the V2 endpoint
+    public async Task<ActionResult<ListProjectsResult>> ListProjectsWithDownloadRights()
+    {
+        var myProjects = await projectService.UserProjects(loggedInContext.User.Id)
+            .Where(p => p.Type == ProjectType.FLEx)
+            .Select(p => new FieldWorksLiteProject(p.Id,
+                p.Code,
+                p.Name,
+                p.LastCommit != null,
+                dbContext.Set<ServerCommit>().Any(c => c.ProjectId == p.Id),
+                p.Users.Where(u => u.UserId == loggedInContext.User.Id).Select(m => m.Role).FirstOrDefault()))
+            .ToArrayAsync();
+        if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects))
+        {
+            await lexAuthService.RefreshUser(LexAuthConstants.ProjectsClaimType);
+        }
+        return new ListProjectsResult(myProjects, loggedInContext.User.CanDownloadProjectsWithoutMembership());
+    }
+
     [HttpGet("lookupProjectId")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status406NotAcceptable)] // Closest HTTP code that fits the semantics for "not a CRDT project"
     [ProducesDefaultResponseType]
     public async Task<ActionResult<Guid>> GetProjectId(string code)
     {
-        await permissionService.AssertCanViewProject(code);
+        var allowed = await permissionService.CanViewProject(code);
+        if (!allowed) return Forbid();
         var projectId = await projectService.LookupProjectId(code);
-        if (projectId is null)
-        {
-            return NotFound();
-        }
-
+        if (projectId is null) return NotFound();
+        allowed = await permissionService.CanDownloadProject(projectId.Value);
+        if (!allowed) return Forbid();
+        var isCrdt = projectService.IsCrdtProject(projectId.Value);
+        if (!isCrdt) return StatusCode(StatusCodes.Status406NotAcceptable);
         return Ok(projectId.Value);
     }
 

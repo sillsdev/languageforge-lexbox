@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
 using FwLiteShared.Sync;
 using LcmCrdt;
@@ -8,6 +9,16 @@ using MiniLcm.Models;
 using MiniLcm.Project;
 
 namespace FwLiteShared.Projects;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum DownloadProjectByCodeResult
+{
+    Success,
+    Forbidden,
+    NotCrdtProject,
+    ProjectNotFound,
+    ProjectAlreadyDownloaded,
+}
 
 public record ProjectModel(
     string Name,
@@ -28,7 +39,7 @@ public record ProjectModel(
         };
 }
 
-public record ServerProjects(LexboxServer Server, ProjectModel[] Projects);
+public record ServerProjects(LexboxServer Server, ProjectModel[] Projects, bool CanDownloadByCode);
 public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     CrdtProjectsService crdtProjectsService,
     IEnumerable<IProjectProvider> projectProviders,
@@ -44,21 +55,20 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         ServerProjects[] serverProjects = new ServerProjects[lexboxServers.Length];
         for (var i = 0; i < lexboxServers.Length; i++)
         {
-            var server = lexboxServers[i];
-            var projectModels = await ServerProjects(server);
-            serverProjects[i] = new ServerProjects(server, projectModels);
+            serverProjects[i] = await ServerProjects(lexboxServers[i]);
         }
 
         return serverProjects;
     }
 
-    private async Task<ProjectModel[]> ServerProjects(LexboxServer server, bool forceRefresh = false)
+    private async Task<ServerProjects> ServerProjects(LexboxServer server, bool forceRefresh = false)
     {
         if (forceRefresh)
             lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
-        await UpdateProjectServerInfo(lexboxProjects, await lexboxProjectService.GetLexboxUser(server));
-        var projectModels = lexboxProjects.Select(p => new ProjectModel(
+        var user = await lexboxProjectService.GetLexboxUser(server);
+        await UpdateProjectServerInfo(lexboxProjects.Projects, user);
+        var projectModels = lexboxProjects.Projects.Select(p => new ProjectModel(
                 p.Name,
                 p.Code,
                 Crdt: p.IsCrdtProject,
@@ -68,7 +78,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 server,
                 p.Id))
             .ToArray();
-        return projectModels;
+        return new(server, projectModels, lexboxProjects.CanDownloadByCode);
     }
 
     private async Task UpdateProjectServerInfo(FieldWorksLiteProject[] lexboxProjects, LexboxUser? lexboxUser)
@@ -83,10 +93,10 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
 
 
     [JSInvokable]
-    public async Task<ProjectModel[]> ServerProjects(string serverId, bool forceRefresh)
+    public async Task<ServerProjects?> ServerProjects(string serverId, bool forceRefresh)
     {
         var server = lexboxProjectService.Servers().FirstOrDefault(s => s.Id == serverId);
-        if (server is null) return [];
+        if (server is null) return null;
         return await ServerProjects(server, forceRefresh);
     }
 
@@ -143,12 +153,38 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             _ => ProjectRole.Unknown
         };
 
-    public async Task DownloadProject(string code, LexboxServer server)
+    [JSInvokable]
+    public async Task<DownloadProjectByCodeResult> DownloadProjectByCode(string code, LexboxServer server, UserProjectRole? userRole = null)
     {
         var serverProjects = await ServerProjects(server, false);
-        var project = serverProjects.FirstOrDefault(p => p.Code == code)
-            ?? throw new InvalidOperationException($"Project {code} not found on server {server.Authority}");
+        var project = serverProjects.Projects.FirstOrDefault(p => p.Code == code);
+        if (project is null)
+        {
+            if (serverProjects.CanDownloadByCode)
+            {
+                var (status, projectId) = await lexboxProjectService.GetLexboxProjectId(server, code);
+                if (status != DownloadProjectByCodeResult.Success) return status;
+                // Note: the project might be from a different server, but that's current only relevant for devs
+                // and we still can't download two projects with the same code
+                if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
+                var role = userRole.HasValue ? FromRole(userRole.Value) : ProjectRole.Editor;
+                project = new ProjectModel(
+                    Name: code,
+                    Code: code,
+                    Crdt: true,
+                    Fwdata: false,
+                    Lexbox: true,
+                    Role: role,
+                    Server: server,
+                    Id: projectId
+                );
+                await DownloadProject(project);
+                return DownloadProjectByCodeResult.Success;
+            }
+            return DownloadProjectByCodeResult.ProjectNotFound;
+        }
         await DownloadProject(project);
+        return DownloadProjectByCodeResult.Success;
     }
 
     [JSInvokable]
@@ -172,14 +208,20 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     }
 
     [JSInvokable]
-    public async Task CreateProject(string name)
+    public Task CreateProject(string name)
     {
-        await crdtProjectsService.CreateExampleProject(name);
+        return Task.Run(async () =>
+        {
+            await crdtProjectsService.CreateExampleProject(name);
+        });
     }
 
     [JSInvokable]
-    public async Task DeleteProject(string code)
+    public Task DeleteProject(string code)
     {
-        await crdtProjectsService.DeleteProject(code);
+        return Task.Run(async () =>
+        {
+            await crdtProjectsService.DeleteProject(code);
+        });
     }
 }

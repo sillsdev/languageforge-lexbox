@@ -1,4 +1,4 @@
-﻿namespace LexCore.Auth;
+namespace LexCore.Auth;
 
 public enum LexboxAuthScope
 {

@@ -13,6 +13,7 @@
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
   import {mergeProps} from 'bits-ui';
+  import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
@@ -32,6 +33,7 @@
   const writingSystemService = useWritingSystemService();
   const complexFormTypes = useComplexFormTypes();
   const currentView = useCurrentView();
+  initSubjectContext(() => entry);
 
   function onFieldChanged(field: FieldId) {
     onchange?.(entry, field);
@@ -39,7 +41,7 @@
 </script>
 
 <Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas($currentView, entry) } })}>
-  <Editor.Field.Root style="grid-area: lexemeForm" class={cn($currentView.fields.lexemeForm.show || 'hidden')}>
+  <Editor.Field.Root fieldId="lexemeForm" class={cn($currentView.fields.lexemeForm.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Lexeme form`, $t`Word`)} helpId={fieldData.lexemeForm.helpId} />
     <Editor.Field.Body subGrid>
       <MultiWsInput
@@ -47,23 +49,23 @@
           bind:value={entry.lexemeForm}
           {readonly}
           autofocus={modalMode}
-          writingSystems={writingSystemService.vernacular} />
+          writingSystems={writingSystemService.viewVernacular($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root style="grid-area: citationForm" class={cn($currentView.fields.citationForm.show || 'hidden')}>
+  <Editor.Field.Root fieldId="citationForm" class={cn($currentView.fields.citationForm.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Citation form`, $t`Display as`)} helpId={fieldData.citationForm.helpId} />
     <Editor.Field.Body subGrid>
       <MultiWsInput
           onchange={() => onFieldChanged('citationForm')}
           bind:value={entry.citationForm}
           {readonly}
-          writingSystems={writingSystemService.vernacular} />
+          writingSystems={writingSystemService.viewVernacular($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
   {#if !modalMode}
-    <Editor.Field.Root style="grid-area: complexForms" class={cn($currentView.fields.complexForms.show || 'hidden')}>
+    <Editor.Field.Root fieldId="complexForms" class={cn($currentView.fields.complexForms.show || 'hidden')}>
       <Editor.Field.Title name={vt($t`Complex forms`, $t`Part of`)} helpId={fieldData.complexForms.helpId} />
       <Editor.Field.Body>
         <ComplexForms onchange={() => onFieldChanged('complexForms')}
@@ -73,7 +75,7 @@
       </Editor.Field.Body>
     </Editor.Field.Root>
 
-    <Editor.Field.Root style="grid-area: components" class={cn($currentView.fields.components.show || 'hidden')}>
+    <Editor.Field.Root fieldId="components" class={cn($currentView.fields.components.show || 'hidden')}>
       <Editor.Field.Title name={$t`Components`} helpId={fieldData.components.helpId} />
       <Editor.Field.Body>
         <ComplexFormComponents
@@ -84,7 +86,7 @@
       </Editor.Field.Body>
     </Editor.Field.Root>
 
-    <Editor.Field.Root style="grid-area: complexFormTypes" class={cn($currentView.fields.complexFormTypes.show || 'hidden')}>
+    <Editor.Field.Root fieldId="complexFormTypes" class={cn($currentView.fields.complexFormTypes.show || 'hidden')}>
       <Editor.Field.Title name={vt($t`Complex form types`, $t`Uses components as`)} helpId={fieldData.complexFormTypes.helpId} />
       <Editor.Field.Body>
         <MultiSelect
@@ -99,25 +101,25 @@
     </Editor.Field.Root>
   {/if}
 
-  <Editor.Field.Root style="grid-area: literalMeaning" class={cn($currentView.fields.literalMeaning.show || 'hidden')}>
+  <Editor.Field.Root fieldId="literalMeaning" class={cn($currentView.fields.literalMeaning.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Literal meaning`)} helpId={fieldData.literalMeaning.helpId} />
     <Editor.Field.Body subGrid>
       <RichMultiWsInput
           onchange={() => onFieldChanged('literalMeaning')}
           bind:value={entry.literalMeaning}
           {readonly}
-          writingSystems={writingSystemService.analysis} />
+          writingSystems={writingSystemService.viewAnalysis($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root style="grid-area: note" class={cn($currentView.fields.note.show || 'hidden')}>
+  <Editor.Field.Root fieldId="note" class={cn($currentView.fields.note.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Note`)} helpId={fieldData.note.helpId} />
     <Editor.Field.Body subGrid>
       <RichMultiWsInput
           onchange={() => onFieldChanged('note')}
           bind:value={entry.note}
           {readonly}
-          writingSystems={writingSystemService.analysis} />
+          writingSystems={writingSystemService.viewAnalysis($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>

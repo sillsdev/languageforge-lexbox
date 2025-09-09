@@ -5,7 +5,8 @@
   export let name: string;
   export let email: string;
   export let baseUrl: string;
-  let approveUrl = new URL(`/admin/?userSearch=${encodeURIComponent(email)}`, baseUrl);
+  const encodedEmail = encodeURIComponent(email);
+  let approveUrl = new URL(`/admin?userSearch=${encodedEmail}&memberSearch=${encodedEmail}`, baseUrl);
 </script>
 
 <Email subject={$t('emails.join_fw_lite_beta_request_email.subject', { name })}>

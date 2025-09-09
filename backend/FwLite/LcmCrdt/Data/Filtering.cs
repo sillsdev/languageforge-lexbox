@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using LcmCrdt.FullTextSearch;
 using LinqToDB;
 using LinqToDB.DataProvider.SQLite;

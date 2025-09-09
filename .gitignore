@@ -22,6 +22,8 @@ msal.json
 msal.cache
 artifacts/
 .vs/
+project-cache.json
+localResourcesCache/
 
 #Verify
 *.received.*

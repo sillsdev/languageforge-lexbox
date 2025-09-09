@@ -1,4 +1,4 @@
-﻿namespace MiniLcm.Models;
+namespace MiniLcm.Models;
 
 //todo support an order for the complex form types, might be here, or on the entry
 public record ComplexFormType : IObjectWithId<ComplexFormType>

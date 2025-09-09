@@ -42,7 +42,7 @@
       Relational:ViewSchema: 
   EntityType: ComplexFormComponent
     Properties: 
-      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      Id (_id, Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       ComplexFormEntryId (Guid) Required FK Index
       ComplexFormHeadword (string)
       ComponentEntryId (Guid) Required FK Index
@@ -116,6 +116,7 @@
       LiteralMeaning (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
+      MorphType (MorphType) Required
       Note (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
@@ -266,7 +267,7 @@
       Id PK
     Foreign keys: 
       Sense {'EntryId'} -> Entry {'Id'} Required Cascade ToDependent: Senses
-      Sense {'PartOfSpeechId'} -> PartOfSpeech {'Id'} ClientSetNull ToPrincipal: PartOfSpeech
+      Sense {'PartOfSpeechId'} -> PartOfSpeech {'Id'} SetNull ToPrincipal: PartOfSpeech
       Sense {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
     Indexes: 
       EntryId

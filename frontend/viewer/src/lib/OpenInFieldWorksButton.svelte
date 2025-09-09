@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import flexLogo from '$lib/assets/flex-logo.png';
   import {AppNotification} from '$lib/notifications/notifications';
   import {useAppLauncherService} from './services/app-launcher-service';
@@ -12,7 +12,6 @@
 
   type Props = {
     entry: IEntry
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   } & ButtonProps;
 
   const {

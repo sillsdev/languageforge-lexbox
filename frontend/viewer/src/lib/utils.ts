@@ -1,4 +1,4 @@
-import type {IEntry, IExampleSentence, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
+import {MorphType, type IEntry, type IExampleSentence, type ISense, type IWritingSystem, type WritingSystemType} from '$lib/dotnet-types';
 import {get, writable, type Readable} from 'svelte/store';
 import {type ClassValue, clsx} from 'clsx';
 import {twMerge} from 'tailwind-merge';
@@ -38,6 +38,7 @@ export function defaultEntry(): IEntry {
     complexFormTypes: [],
     components: [],
     publishIn: [],
+    morphType: MorphType.Stem,
   };
 }
 
@@ -73,12 +74,22 @@ export function defaultWritingSystem(type: WritingSystemType): IWritingSystem {
     abbreviation: 'en',
     font: 'Arial',
     exemplars: [],
-    order: 0,
     deletedAt: undefined,
     type
   };
 }
 
+export function isEntry(data: IEntry | ISense | IExampleSentence | undefined): data is IEntry {
+  return !!data && !isSense(data) && !isExample(data) && 'senses' in data && 'lexemeForm' in data;
+}
+
+export function isSense(data: IEntry | ISense | IExampleSentence | undefined): data is ISense {
+  return !!data && 'entryId' in data;
+}
+
+export function isExample(data: IEntry | ISense | IExampleSentence | undefined): data is IExampleSentence {
+  return !!data && 'senseId' in data;
+}
 export function makeHasHadValueTracker(): {store: Readable<boolean>, pushAndGet(currValueOrHasValue?: unknown): boolean} {
   const hasHadValueStore = writable<boolean>();
   function pushAndGet(currValueOrHasValue?: unknown) {

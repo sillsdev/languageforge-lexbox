@@ -1,4 +1,4 @@
-﻿namespace LexCore.Auth;
+namespace LexCore.Auth;
 
 /// <summary>
 /// this record represents a contract between FLEx and lexbox, take that into consideration before making any changes

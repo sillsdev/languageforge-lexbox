@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using Microsoft.Net.Http.Headers;
 using System.Globalization;
 using FwHeadless.Media;
+using LexCore.Exceptions;
 using MimeMapping;
 
 namespace FwHeadless.Controllers;
@@ -68,16 +69,12 @@ public static class MediaFileController
     public static async Task<Results<Ok, NotFound>> DeleteFile(
         Guid fileId,
         IOptions<FwHeadlessConfig> config,
+        MediaFileService mediaFileService,
         LexBoxDbContext lexBoxDb)
     {
-        var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
+        var mediaFile = await mediaFileService.FindMediaFileAsync(fileId);
         if (mediaFile is null) return TypedResults.NotFound();
-        var projectId = mediaFile.ProjectId;
-        var project = await lexBoxDb.Projects.FindAsync(projectId);
-        if (project is null) return TypedResults.NotFound();
-        var projectFolder = config.Value.GetFwDataProject(project.Code, projectId).ProjectFolder;
-        SafeDeleteMediaFile(mediaFile, projectFolder, lexBoxDb);
-        await lexBoxDb.SaveChangesAsync();
+        await mediaFileService.DeleteMediaFile(mediaFile);
         return TypedResults.Ok();
     }
 
@@ -90,9 +87,10 @@ public static class MediaFileController
         [FromForm] string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
+        MediaFileService mediaFileService,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, linkedFilesSubfolderOverride, httpContext, config, lexBoxDb, newFilesAllowed: false);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, linkedFilesSubfolderOverride, httpContext, config, lexBoxDb, mediaFileService, newFilesAllowed: false);
         return result;
     }
 
@@ -106,23 +104,26 @@ public static class MediaFileController
         [FromForm] string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
+        MediaFileService mediaFileService,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, linkedFilesSubfolderOverride, httpContext, config, lexBoxDb, newFilesAllowed: true);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, linkedFilesSubfolderOverride, httpContext, config, lexBoxDb, mediaFileService, newFilesAllowed: true);
         return result;
     }
 
-    public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> HandleFileUpload(
-        Guid? fileId,
-        Guid projectId,
-        string? filename,
-        IFormFile file,
-        FileMetadata? metadata,
-        string? linkedFilesSubfolderOverride,
-        HttpContext httpContext,
-        IOptions<FwHeadlessConfig> config,
-        LexBoxDbContext lexBoxDb,
-        bool newFilesAllowed)
+    public static async
+        Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>,
+            ProblemHttpResult>> HandleFileUpload(Guid? fileId,
+            Guid projectId,
+            string? filename,
+            IFormFile file,
+            FileMetadata? metadata,
+            string? linkedFilesSubfolderOverride,
+            HttpContext httpContext,
+            IOptions<FwHeadlessConfig> config,
+            LexBoxDbContext lexBoxDb,
+            MediaFileService mediaFileService,
+            bool newFilesAllowed)
     {
         if (CheckUploadSize(file, httpContext, config) is {} result) return result;
         MediaFile? mediaFile;
@@ -138,7 +139,7 @@ public static class MediaFileController
                 linkedFilesSubfolderOverride,
                 newFilesAllowed,
                 httpContext,
-                config);
+                mediaFileService);
         }
         catch (NotFoundException) { return TypedResults.NotFound(); }
         catch (UploadedFilesCannotBeMovedToNewProjects) { return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToNewProjects); }
@@ -178,54 +179,6 @@ public static class MediaFileController
         return null;
     }
 
-    private static async Task<long> WriteFileToDisk(string filePath, Stream contents)
-    {
-        if (contents is null) return 0;
-        long startPosition = 0;
-        try
-        {
-            startPosition = contents.Position;
-        }
-        catch { }
-        // First write to temp file, then move file into place, overwriting existing file
-        // That way files will be replaced atomically, and a failure halfway through the process won't result in the existing file being lost
-        string tempFile = "";
-        try
-        {
-            var dirName = Path.GetDirectoryName(filePath);
-            if (dirName is not null) Directory.CreateDirectory(dirName);
-            tempFile = Path.Join(dirName, Path.GetRandomFileName());
-            await using (var writeStream = File.Open(tempFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite))
-            {
-                await contents.CopyToAsync(writeStream);
-            }
-            File.Move(tempFile, filePath, overwrite: true);
-        }
-        finally
-        {
-            // If anything fails, delete temp file
-            if (!string.IsNullOrEmpty(tempFile) && File.Exists(tempFile)) SafeDelete(tempFile);
-        }
-        long endPosition = 0;
-        try
-        {
-            endPosition = contents.Position;
-        }
-        catch { }
-        var calcLength = endPosition - startPosition;
-        if (calcLength == 0)
-        {
-            // Either the stream was empty, or its Position attribute wasn't reliable, so we need
-            // to look at the file we just wrote to determine the size
-            var fileInfo = new FileInfo(filePath);
-            return fileInfo.Length;
-        }
-        else
-        {
-            return calcLength;
-        }
-    }
-
     private static async Task AddEntityTagMetadata(MediaFile mediaFile, string filePath)
     {
         mediaFile.InitializeMetadataIfNeeded(filePath);
@@ -238,7 +191,8 @@ public static class MediaFileController
     {
         if (mediaFile.Metadata?.Sha256Hash is null)
         {
-            await AddEntityTagMetadata(mediaFile, filePath);
+            mediaFile.InitializeMetadataIfNeeded(filePath);
+            mediaFile.Metadata.Sha256Hash = await MediaFileService.Sha256OfFile(filePath);
             return true;
         }
         return false;
@@ -284,13 +238,7 @@ public static class MediaFileController
         return metadata;
     }
 
-    private class NotFoundException : Exception;
-    private class UploadedFilesCannotBeMovedToNewProjects : Exception;
-    private class UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders : Exception;
-    private class ProjectFolderNotFoundInFwHeadless : Exception;
-    private class FileTooLarge : Exception;
-    private static async Task<(MediaFile, bool newFile)> CreateOrUpdateMediaFile(
-        LexBoxDbContext lexBoxDb,
+    private static async Task<(MediaFile, bool newFile)> CreateOrUpdateMediaFile(LexBoxDbContext lexBoxDb,
         Guid? fileId,
         Guid projectId,
         string? filename,
@@ -299,7 +247,7 @@ public static class MediaFileController
         string? subfolderOverride,
         bool newFilesAllowed,
         HttpContext httpContext,
-        IOptions<FwHeadlessConfig> config)
+        MediaFileService mediaFileService)
     {
         if (fileId is null || fileId.Value == default)
         {
@@ -310,7 +258,7 @@ public static class MediaFileController
         if (mediaFile is null && !newFilesAllowed)
         {
             // PUT requests must modify an existing file and return 404 if it doesn't exist
-            throw new NotFoundException();
+            throw NotFoundException.ForType<MediaFile>();
         }
 
         // If no filename specified in form, get it from uploaded file
@@ -343,40 +291,17 @@ public static class MediaFileController
         }
 
         var project = await lexBoxDb.Projects.FindAsync(projectId);
-        if (project is null) throw new NotFoundException();
-        var projectFolder = config.Value.GetFwDataProject(project.Code, projectId).ProjectFolder;
-        await WriteFileAndUpdateMediaFileMetadata(lexBoxDb, mediaFile, projectFolder, file, config.Value.MaxUploadFileSizeBytes);
+        if (project is null) throw NotFoundException.ForType<Project>();
+        await SaveMediaFile(mediaFileService, mediaFile, file);
         return (mediaFile, newFile);
     }
 
-    private static async Task WriteFileAndUpdateMediaFileMetadata(LexBoxDbContext lexBoxDb, MediaFile mediaFile, string projectFolder, IFormFile file, long maxUploadSize)
+    private static async Task SaveMediaFile(MediaFileService mediaFileService,
+        MediaFile mediaFile,
+        IFormFile file)
     {
-        if (!Directory.Exists(projectFolder))
-        {
-            throw new ProjectFolderNotFoundInFwHeadless();
-        }
-
-        var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        if (mediaFile.Metadata is not null) mediaFile.Metadata.SizeInBytes = (int)file.Length;
-        long writtenLength = 0;
-        await using (var readStream = file.OpenReadStream())
-        {
-            writtenLength = await WriteFileToDisk(filePath, readStream);
-        }
-        if (writtenLength > maxUploadSize)
-        {
-            SafeDeleteMediaFile(mediaFile, projectFolder, lexBoxDb);
-            await lexBoxDb.SaveChangesAsync();
-            throw new FileTooLarge();
-        }
-        if (writtenLength != file.Length)
-        {
-            // TODO: Log warning about mismatched length?
-            if (mediaFile.Metadata is not null) mediaFile.Metadata.SizeInBytes = (int)writtenLength;
-        }
-        await AddEntityTagMetadata(mediaFile, filePath);
-        mediaFile.UpdateUpdatedDate();
-        await lexBoxDb.SaveChangesAsync();
+        await using var readStream = file.OpenReadStream();
+        await mediaFileService.SaveMediaFile(mediaFile, readStream);
     }
 
     private static string? GuessSubfolderFromMimeType(string? mimeType)
@@ -388,28 +313,5 @@ public static class MediaFileController
         // Special cases
         if (mimeType == "application/mp4") return "AudioVisual"; // Some apps don't want to commit to audio/ or video/, but we don't care which it is
         return null;
-    }
-
-    private static void SafeDelete(string filePath)
-    {
-        // Delete file at path, ignoring all errors such as "file not found"
-        try { File.Delete(filePath); }
-        catch { }
-    }
-
-    private static void SafeDeleteDirectory(string dirPath, bool recursive = false)
-    {
-        // Delete file at path, ignoring all errors such as "directory not empty"
-        try { Directory.Delete(dirPath, recursive); }
-        catch { }
-    }
-
-    private static void SafeDeleteMediaFile(MediaFile mediaFile, string projectFolder, LexBoxDbContext lexBoxDb)
-    {
-        var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        SafeDelete(filePath);
-        var dirPath = Path.Join(projectFolder, mediaFile.Id.ToString());
-        SafeDeleteDirectory(dirPath); // Will not delete dir if not empty, but that's OK
-        lexBoxDb.Files.Remove(mediaFile);
     }
 }

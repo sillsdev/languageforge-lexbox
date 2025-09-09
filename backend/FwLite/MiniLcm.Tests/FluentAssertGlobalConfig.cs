@@ -13,6 +13,8 @@ public static class FluentAssertGlobalConfig
             //by default, assertion will use the overriden equality function
             //however that will result in very poor error messages, so we override it
             .ComparingByMembers<RichString>()
-            .ComparingByMembers<RichSpan>());
+            .ComparingByMembers<RichSpan>()
+            .Excluding(m => m.DeclaringType == typeof(ComplexFormComponent) && (m.Name == nameof(ComplexFormComponent.Id) || m.Name == nameof(ComplexFormComponent.MaybeId)))
+            );
     }
 }

@@ -113,3 +113,7 @@ tasks:
 
   fw-lite-win:
     deps: [fw-lite:maui-windows, ui:fw-lite-infr]
+
+  fw-lite-android:
+    aliases: [android]
+    deps: [fw-lite:run-maui-android]

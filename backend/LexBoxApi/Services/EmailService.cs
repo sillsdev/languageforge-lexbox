@@ -225,7 +225,7 @@ public class EmailService(
     public async Task SendJoinFwLiteBetaEmail(User user)
     {
         var email = StartUserEmail("Lexbox Support", "lexbox_support@groups.sil.org"); // TODO: Get from environment
-        await RenderEmail(email, new JoinFwLiteBetaEmail(user.Name, user.Email ?? ""), user.LocalizationCode);
+        await RenderEmail(email, new JoinFwLiteBetaEmail(user.Name, user.Email ?? user.Username ?? ""), user.LocalizationCode);
         await SendEmailWithRetriesAsync(email);
     }
 

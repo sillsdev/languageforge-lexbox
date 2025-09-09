@@ -132,7 +132,7 @@
 
 <Dialog.Root bind:open>
   <Dialog.Trigger child={trigger} />
-  <Dialog.Content class="pb-0 @container" style="grid-template-rows: auto 1fr auto">
+  <Dialog.Content class="pb-0 @container sm:min-h-[min(calc(100%-16px),30rem)]" style="grid-template-rows: auto 1fr auto">
     <Dialog.Header>
       <Dialog.Title class="mb-4">
         {title}

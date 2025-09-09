@@ -38,3 +38,16 @@ To run an end-to-end test in the frontend folder:
 ```bash
 pnpm test
 ```
+
+#### Linting
+
+Linting depends partially on generated code, so first:
+
+```bash
+pnpm run -r build
+```
+
+And then:
+```bash
+pnpm run -r lint
+```

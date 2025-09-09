@@ -1,4 +1,4 @@
-﻿using AppAny.Quartz.EntityFrameworkCore.Migrations;
+using AppAny.Quartz.EntityFrameworkCore.Migrations;
 using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
 using CrystalQuartz.Application;
 using CrystalQuartz.Application.Startup;

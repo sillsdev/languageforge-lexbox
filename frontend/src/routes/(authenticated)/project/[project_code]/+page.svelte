@@ -346,7 +346,7 @@
     {#snippet actions()}
       {#if project.type === ProjectType.FlEx}
         <FeatureFlagContent flag="FwLiteBeta">
-          <CrdtSyncButton {project} {isEmpty} />
+          <CrdtSyncButton {project} {isEmpty} canManageProject={canManage} />
         </FeatureFlagContent>
       {/if}
       {#if canAskToJoinProject}

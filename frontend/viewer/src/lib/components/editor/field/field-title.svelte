@@ -17,6 +17,9 @@
 
   const view = useCurrentView();
   const label = $derived(pickViewText(name, $view.type));
+  $effect(() => {
+    stateProps.label = label;
+  });
   const title = $derived(typeof name === 'string' ? undefined
     : $view.type === 'fw-classic'
       ? $t`${name.lite} (FieldWorks Lite)`

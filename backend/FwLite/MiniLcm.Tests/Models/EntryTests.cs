@@ -1,4 +1,4 @@
-﻿namespace MiniLcm.Tests.Models;
+namespace MiniLcm.Tests.Models;
 
 public class EntryTests
 {

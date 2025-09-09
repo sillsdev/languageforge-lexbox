@@ -1,4 +1,4 @@
-﻿import type {FieldId} from '$lib/entry-editor/field-data';
+import type {FieldId} from '$lib/entry-editor/field-data';
 
 export interface FieldView {
   show: boolean;
@@ -96,6 +96,11 @@ interface ViewDefinition {
   label: string;
 }
 
+export type Overrides = {
+  analysisWritingSystems?: string[];
+  vernacularWritingSystems?: string[];
+};
+
 interface CustomViewDefinition extends ViewDefinition {
   fieldOverrides: Partial<Record<FieldId, Partial<FieldView>>>;
   parentView: RootView;
@@ -103,6 +108,7 @@ interface CustomViewDefinition extends ViewDefinition {
 
 interface ViewBase extends ViewDefinition {
   fields: Record<FieldId, FieldView>;
+  overrides?: Overrides
 }
 
 interface RootView extends ViewBase {

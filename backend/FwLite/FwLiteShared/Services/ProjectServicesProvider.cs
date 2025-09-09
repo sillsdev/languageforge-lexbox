@@ -17,18 +17,18 @@ public class ProjectServicesProvider(
     CrdtProjectsService crdtProjectsService,
     IServiceProvider serviceProvider,
     LexboxProjectService lexboxProjectService,
-    IEnumerable<IProjectProvider> projectProviders,
-    ILogger<ProjectServicesProvider> logger
+    IEnumerable<IProjectProvider> projectProviders
 ): IAsyncDisposable
 {
     private IProjectProvider? FwDataProjectProvider =>
         projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
     internal readonly ConcurrentDictionary<ProjectScope, ProjectScope> _projectScopes = new();
+
     public async ValueTask DisposeAsync()
     {
         foreach (var projectScope in _projectScopes.Values)
         {
-            await (projectScope.Cleanup?.Value.DisposeAsync() ?? ValueTask.CompletedTask);
+            await projectScope.CleanupAsync();
         }
     }
 
@@ -46,81 +46,114 @@ public class ProjectServicesProvider(
     }
 
     [JSInvokable]
-    public async Task<ProjectScope> OpenCrdtProject(string code)
+    public Task<ProjectScope> OpenCrdtProject(string code)
     {
-        var serviceScope = serviceProvider.CreateAsyncScope();
-        var scopedServices = serviceScope.ServiceProvider;
-        var project = crdtProjectsService.GetProject(code)
-            ?? throw new InvalidOperationException($"Crdt Project {code} not found");
-        var server = lexboxProjectService.GetServer(project.Data);
-        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
-        var projectData = await currentProjectService.SetupProjectContext(project);
-        await scopedServices.GetRequiredService<SyncService>().SafeExecuteSync(true);
-        await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
-        var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project);
-        var scope = new ProjectScope(Defer.Async(() =>
+        return Task.Run(async () =>
         {
-            logger.LogInformation("Disposing project scope {ProjectName}", projectData.Name);
-            return Task.CompletedTask;
-        }), serviceScope, this, projectData.Name, miniLcm,
-                ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices),
-                ActivatorUtilities.CreateInstance<SyncServiceJsInvokable>(scopedServices))
-        {
-            ProjectData = projectData,
-            Server = server
-        };
-        _projectScopes.TryAdd(scope, scope);
-        return scope;
+            var serviceScope = serviceProvider.CreateAsyncScope();
+            ProjectScope? scope = null;
+            try
+            {
+                var scopedServices = serviceScope.ServiceProvider;
+                var project = crdtProjectsService.GetProject(code)
+                              ?? throw new InvalidOperationException($"Crdt Project {code} not found");
+                var server = lexboxProjectService.GetServer(project.Data);
+                var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
+                var projectData = await currentProjectService.SetupProjectContext(project);
+                await scopedServices.GetRequiredService<SyncService>().SafeExecuteSync(true);
+                await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
+                var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project);
+                scope = ProjectScope.Create(serviceScope, this, projectData.Name, miniLcm);
+                scope.ProjectData = projectData;
+                scope.Server = server;
+                scope.SetCrdtServices(
+                    ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices),
+                    ActivatorUtilities.CreateInstance<SyncServiceJsInvokable>(scopedServices)
+                );
+                _projectScopes.TryAdd(scope, scope);
+                return scope;
+            }
+            catch
+            {
+                if (scope is not null) await scope.CleanupAsync();
+                else await serviceScope.DisposeAsync();
+                throw;
+            }
+        });
     }
 
     [JSInvokable]
-    public async Task<ProjectScope> OpenFwDataProject(string projectName)
+    public Task<ProjectScope> OpenFwDataProject(string projectName)
     {
-        var serviceScope = serviceProvider.CreateAsyncScope();
-        var scopedServices = serviceScope.ServiceProvider;
-        if (FwDataProjectProvider is null)
-            throw new InvalidOperationException("FwData Project provider is not available");
-        var project = FwDataProjectProvider.GetProject(projectName) ??
-                      throw new InvalidOperationException($"FwData Project {projectName} not found");
-        var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices,
-            await FwDataProjectProvider.OpenProject(project, scopedServices),
-            project);
-        var scope = new ProjectScope(Defer.Async(() =>
+        return Task.Run(async () =>
         {
-            logger.LogInformation("Disposing fwdata project scope {ProjectName}", projectName);
-            return Task.CompletedTask;
-        }), serviceScope, this, projectName, miniLcm, null, null);
-        _projectScopes.TryAdd(scope, scope);
-        return scope;
+            var serviceScope = serviceProvider.CreateAsyncScope();
+            ProjectScope? scope = null;
+            try
+            {
+                var scopedServices = serviceScope.ServiceProvider;
+                if (FwDataProjectProvider is null)
+                    throw new InvalidOperationException("FwData Project provider is not available");
+                var project = FwDataProjectProvider.GetProject(projectName) ??
+                              throw new InvalidOperationException($"FwData Project {projectName} not found");
+                var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(
+                    scopedServices,
+                    await FwDataProjectProvider.OpenProject(project, scopedServices),
+                    project
+                );
+                scope = ProjectScope.Create(serviceScope, this, projectName, miniLcm);
+                _projectScopes.TryAdd(scope, scope);
+                return scope;
+            }
+            catch
+            {
+                if (scope is not null) await scope.CleanupAsync();
+                else await serviceScope.DisposeAsync();
+                throw;
+            }
+        });
     }
 }
 
 public class ProjectScope
 {
-    public ProjectScope(IAsyncDisposable cleanup,
+    private static readonly ObjectFactory<ProjectScope> ProjectScopeFactory =
+        ActivatorUtilities.CreateFactory<ProjectScope>(
+        [
+            typeof(AsyncServiceScope),
+            typeof(ProjectServicesProvider),
+            typeof(string),
+            typeof(MiniLcmJsInvokable)
+        ]);
+    public static ProjectScope Create(
         AsyncServiceScope serviceScope,
         ProjectServicesProvider projectServicesProvider,
         string projectName,
+        MiniLcmJsInvokable miniLcm)
+    {
+        return ProjectScopeFactory.Invoke(serviceScope.ServiceProvider,
+        [
+            serviceScope,
+            projectServicesProvider,
+            projectName,
+            miniLcm
+        ]);
+    }
+
+    public ProjectScope(AsyncServiceScope serviceScope,
+        ProjectServicesProvider projectServicesProvider,
+        string projectName,
         MiniLcmJsInvokable miniLcm,
-        HistoryServiceJsInvokable? historyService,
-        SyncServiceJsInvokable? syncService)
+        ILogger<ProjectScope> logger)
     {
         ProjectName = projectName;
         MiniLcm = DotNetObjectReference.Create(miniLcm);
-        HistoryService = historyService is null ? null : DotNetObjectReference.Create(historyService);
-        SyncService = syncService is null ? null : DotNetObjectReference.Create(syncService);
         Cleanup = DotNetObjectReference.Create(Defer.Async(async () =>
         {
+            logger.LogInformation("Disposing project scope {ProjectName}", projectName);
             projectServicesProvider._projectScopes.TryRemove(this, out _);
-            await cleanup.DisposeAsync();
-            if (HistoryService is not null)
-            {
-                HistoryService.Dispose();
-            }
-            if (SyncService is not null)
-            {
-                SyncService.Dispose();
-            }
+            HistoryService?.Dispose();
+            SyncService?.Dispose();
 
             MiniLcm.Value.Dispose();
             MiniLcm.Dispose();
@@ -131,10 +164,23 @@ public class ProjectScope
         }));
     }
 
+    public void SetCrdtServices(
+        HistoryServiceJsInvokable historyService,
+        SyncServiceJsInvokable syncService)
+    {
+        HistoryService = DotNetObjectReference.Create(historyService);
+        SyncService = DotNetObjectReference.Create(syncService);
+    }
+
+    public ValueTask CleanupAsync()
+    {
+        return Cleanup?.Value.DisposeAsync() ?? ValueTask.CompletedTask;
+    }
+
     public DotNetObjectReference<IAsyncDisposable>? Cleanup { get; set; }
     public string ProjectName { get; set; }
     public LexboxServer? Server { get; set; }
-    public ProjectData? ProjectData { get; init; }
+    public ProjectData? ProjectData { get; set; }
     public DotNetObjectReference<MiniLcmJsInvokable> MiniLcm { get; set; }
     public DotNetObjectReference<HistoryServiceJsInvokable>? HistoryService { get; set; }
     public DotNetObjectReference<SyncServiceJsInvokable>? SyncService { get; set; }

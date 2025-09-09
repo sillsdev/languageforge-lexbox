@@ -6,12 +6,9 @@
   import storybookIcon from '../stories/assets/storybook-icon.svg';
   import DevContent, {isDev} from '$lib/layout/DevContent.svelte';
   import {
-    useFwLiteConfig,
     useImportFwdataService,
     useProjectsService,
-    useTroubleshootingService,
   } from '$lib/services/service-provider';
-  import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import ServersList from './ServersList.svelte';
   import {t} from 'svelte-i18n-lingui';
@@ -25,12 +22,22 @@
   import ProjectListItem from './ProjectListItem.svelte';
   import ListItem from '$lib/components/ListItem.svelte';
   import {Input} from '$lib/components/ui/input';
+  import {crossfade} from 'svelte/transition';
+  import {cubicOut} from 'svelte/easing';
+  import {transitionContext} from './transitions';
+  import Anchor from '$lib/components/ui/anchor/anchor.svelte';
+  import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
+  import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
+  import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
-  const fwLiteConfig = useFwLiteConfig();
   const exampleProjectName = 'Example-Project';
-
+  const [send, receive] = crossfade({
+    duration: 500,
+    easing: cubicOut,
+  });
+  transitionContext.set([send, receive]);
   function dateTimeProjectSuffix(): string {
     return new Date()
       .toISOString()
@@ -38,9 +45,9 @@
       .replace(/-$/, '');
   }
 
-  let customExampleProjectName: string = '';
+  let customExampleProjectName = $state('');
 
-  let createProjectLoading = false;
+  let createProjectLoading = $state(false);
 
   async function createExampleProject() {
     try {
@@ -60,10 +67,16 @@
     }
   }
 
-  let deletingProject: undefined | string = undefined;
+  let deletingProject = $state<string>();
 
   async function deleteProject(project: IProjectModel) {
+    if (!deleteDialog) throw new Error('Delete dialog not initialized');
     try {
+      const syncDialogUrl = `/project/${project.code}/browse?${SYNC_DIALOG_QUERY_PARAM}=true`;
+      if (!await deleteDialog.prompt($t`Project`, $t`${project.name}`, {
+        isDangerous: true,
+        details: $t`Make sure your [changes are synced](${syncDialogUrl}) to Lexbox.`,
+      })) return;
       deletingProject = project.id;
       await projectsService.deleteProject(project.code);
       await refreshProjects();
@@ -72,7 +85,7 @@
     }
   }
 
-  let importing = '';
+  let importing = $state('');
 
   async function importFwDataProject(name: string) {
     if (importing) return;
@@ -85,9 +98,9 @@
     }
   }
 
-  let projectsPromise = projectsService
+  let projectsPromise = $state(projectsService
     .localProjects()
-    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name)));
+    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name))));
 
   async function refreshProjects() {
     let promise = projectsService.localProjects().then((p) => p.sort((p1, p2) => p1.name.localeCompare(p2.name)));
@@ -95,21 +108,46 @@
     projectsPromise = promise;
   }
 
-  const supportsTroubleshooting = useTroubleshootingService();
-  let troubleshootDialog: TroubleshootDialog | undefined;
+  let troubleshootDialog = $state<TroubleshootDialog>();
 
+  let clickCount = 0;
+  let clickTimeout: ReturnType<typeof setTimeout> | undefined;
+
+  function resetClickCounter() {
+    clickCount = 0;
+    clearTimeout(clickTimeout);
+  }
+
+  function clickIcon() {
+    //when a user triple clicks the logo it will enable dev mode, this makes it easier to enable on mobile
+    clickCount++;
+    clearTimeout(clickTimeout);
+
+    if (clickCount === 3) {
+      window.enableDevMode(!$isDev);
+      resetClickCounter();
+    } else {
+      clickTimeout = setTimeout(resetClickCounter, 500);
+    }
+  }
+
+  let feedbackOpen = $state(false);
+
+  let deleteDialog = $state<DeleteDialog>();
 </script>
+
+<DeleteDialog bind:this={deleteDialog}/>
 
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
     <div class="text-lg flex gap-2 items-center">
-      <Icon src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
+      <Icon onclick={clickIcon} src={mode.current === 'dark' ? logoLight : logoDark} class="size-8" alt={$t`Lexbox logo`}/>
       <h3>{$t`Dictionaries`}</h3>
     </div>
   {/snippet}
 
   {#snippet actions()}
-    <div class="flex">
+    <div class="flex gap-1">
       {#if import.meta.env.DEV}
         <Button href="http://localhost:6006/" target="_blank"
                 variant="ghost" size="icon" iconProps={{src: storybookIcon, alt: 'Storybook icon'}}/>
@@ -122,21 +160,18 @@
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
-          <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} target="_blank" icon="i-mdi-chat-question">
+          <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-chat-question">
             {$t`Feedback`}
           </ResponsiveMenu.Item>
-          {#if supportsTroubleshooting}
-            <ResponsiveMenu.Item
-              icon="i-mdi-face-agent"
-              onSelect={() => troubleshootDialog?.open()}>
-              {$t`Troubleshoot`}
-            </ResponsiveMenu.Item>
-          {/if}
+          <ResponsiveMenu.Item
+            icon="i-mdi-face-agent"
+            onSelect={() => troubleshootDialog?.open()}>
+            {$t`Troubleshoot`}
+          </ResponsiveMenu.Item>
         </ResponsiveMenu.Content>
       </ResponsiveMenu.Root>
-      {#if supportsTroubleshooting}
-        <TroubleshootDialog bind:this={troubleshootDialog}/>
-      {/if}
+      <FeedbackDialog bind:open={feedbackOpen}/>
+      <TroubleshootDialog bind:this={troubleshootDialog}/>
     </div>
     {/snippet}
 </AppBar>
@@ -159,64 +194,66 @@
                     variant="ghost"
                     onclick={() => refreshProjects()}/>
           </div>
-          <div class="shadow rounded">
-            {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
+          <div>
+            {#each projects.filter((p) => p.crdt) as project (project.id ?? project)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
-              <ButtonListItem href={`/project/${project.code}`}>
-                <ProjectListItem icon="i-mdi-book-edit-outline"
-                                 {project}
-                                 {loading}
-                                 subtitle={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
-                >
-                  {#snippet actions()}
-                    <div class="flex items-center">
-                      {#if $isDev}
-                        <Button
-                          icon="i-mdi-delete"
-                          variant="ghost"
-                          title={$t`Delete`}
-                          class="p-2 hover:bg-primary/20"
-                          onclick={(e) => {
-                          e.preventDefault();
-                          void deleteProject(project);
-                        }}
-                        />
-                      {/if}
-                      <Icon icon="i-mdi-chevron-right" class="p-2"/>
-                    </div>
-                  {/snippet}
-                </ProjectListItem>
-              </ButtonListItem>
+              <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
+                <ResponsiveMenu.Root contextMenu>
+                  <ResponsiveMenu.Trigger>
+                    {#snippet child({props})}
+                      <Anchor {...props} href={`/project/${project.code}`}>
+                        <ProjectListItem icon="i-mdi-book-edit-outline"
+                                         {project}
+                                         {loading}
+                                         subtitle={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
+                        >
+                          {#snippet actions()}
+                            <div class="flex items-center">
+                              <Icon icon="i-mdi-chevron-right" class="p-2"/>
+                            </div>
+                          {/snippet}
+                        </ProjectListItem>
+                      </Anchor>
+                    {/snippet}
+                  </ResponsiveMenu.Trigger>
+                  <ResponsiveMenu.Content>
+                    <ResponsiveMenu.Item icon="i-mdi-bug" onSelect={() => troubleshootDialog?.open(project.code)}>
+                      {$t`Troubleshoot`}
+                    </ResponsiveMenu.Item>
+                    <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={() => void deleteProject(project)}>
+                      {$t`Delete`}
+                    </ResponsiveMenu.Item>
+                  </ResponsiveMenu.Content>
+                </ResponsiveMenu.Root>
+              </div>
             {/each}
             <DevContent>
-              <ButtonListItem href="/testing/project-view">
+              <Anchor href="/testing/project-view">
                 <ProjectListItem icon="i-mdi-test-tube" project={{ name: 'Test Project', code: 'Test Project' }}>
                   {#snippet actions()}
                     <Icon icon="i-mdi-chevron-right" class="p-2"/>
                   {/snippet}
                 </ProjectListItem>
-              </ButtonListItem>
+              </Anchor>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ButtonListItem onclick={() => createExampleProject()} disabled={createProjectLoading}>
-                <ListItem class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
-                  <span>{$t`Create Example Project`}</span>
-                  {#snippet actions()}
-                    <div class="flex flex-nowrap items-center gap-2">
-                      {#if $isDev}
-                        <Input
-                          bind:value={customExampleProjectName}
-                          placeholder={$t`Project name...`}
-                          onclick={(e) => e.stopPropagation()}
-                        />
-                      {/if}
-                      <Icon icon="i-mdi-book-plus-outline" class="p-2"/>
-                    </div>
-                  {/snippet}
+              <ListItem onclick={() => createExampleProject()} loading={createProjectLoading}>
+                <span>{$t`Create Example Project`}</span>
+                {#snippet actions()}
+                  <div class="flex flex-nowrap items-center gap-2">
+                    {#if $isDev}
+                      <Input
+                        bind:value={customExampleProjectName}
+                        placeholder={$t`Project name...`}
+                        onclick={(e) => e.stopPropagation()}
+                      />
+                    {/if}
+                    <Icon icon="i-mdi-book-plus-outline" class="p-2"/>
+                  </div>
+                {/snippet}
 
-                </ListItem>
-              </ButtonListItem>
+              </ListItem>
             {/if}
           </div>
         </div>
@@ -224,9 +261,9 @@
         {#if projects.some((p) => p.fwdata)}
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
-            <div class="shadow rounded">
-              {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
-                <ButtonListItem href={`/fwdata/${project.code}`}>
+            <div>
+              {#each projects.filter((p) => p.fwdata) as project (project.name)}
+                <Anchor href={`/fwdata/${project.code}`}>
                   <ProjectListItem {project}>
                     {#snippet icon()}
                       <Icon src={flexLogo} alt={$t`FieldWorks logo`}/>
@@ -246,7 +283,7 @@
                       </DevContent>
                     {/snippet}
                   </ProjectListItem>
-                </ButtonListItem>
+                </Anchor>
               {/each}
             </div>
           </div>
@@ -264,11 +301,6 @@
   .project-list {
     display: flex;
     flex-direction: column;
-
-    :global(:is(.ListItem)) {
-      @apply max-md:!rounded-none;
-      @apply contrast-[0.95];
-    }
 
     :global(.sub-title) {
       @apply m-2;

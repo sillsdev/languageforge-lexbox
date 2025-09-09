@@ -1,4 +1,4 @@
-﻿using FwDataMiniLcmBridge.Api;
+using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Tests.Fixtures;
 using MiniLcm.Models;
 using SIL.LCModel;

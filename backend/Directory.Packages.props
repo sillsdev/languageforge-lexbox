@@ -4,6 +4,7 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <NoWarn>$(NoWarn);NU1507</NoWarn>
     <MauiVersion>9.0.50</MauiVersion>
+    <HotChocolateVersion>15.1.10</HotChocolateVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.5.1" />
@@ -16,12 +17,12 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
     <PackageVersion Include="Gridify" Version="2.16.3" />
     <PackageVersion Include="Gridify.EntityFramework" Version="2.16.3" />
-    <PackageVersion Include="HotChocolate.Analyzers" Version="13.9.14" />
-    <PackageVersion Include="HotChocolate.AspNetCore" Version="14.0.0" />
-    <PackageVersion Include="HotChocolate.AspNetCore.Authorization" Version="14.0.0" />
-    <PackageVersion Include="HotChocolate.Data.EntityFramework" Version="14.0.0" />
-    <PackageVersion Include="HotChocolate.Diagnostics" Version="14.0.0" />
-    <PackageVersion Include="HotChocolate.Types.Analyzers" Version="14.0.0" />
+    <PackageVersion Include="HotChocolate.AspNetCore" Version="$(HotChocolateVersion)" />
+    <PackageVersion Include="HotChocolate.AspNetCore.Authorization" Version="$(HotChocolateVersion)" />
+    <PackageVersion Include="HotChocolate.Data.EntityFramework" Version="$(HotChocolateVersion)" />
+    <PackageVersion Include="HotChocolate.Diagnostics" Version="$(HotChocolateVersion)" />
+    <PackageVersion Include="HotChocolate.Types.Analyzers" Version="$(HotChocolateVersion)" />
+    <PackageVersion Include="HotChocolate.Types.OffsetPagination" Version="$(HotChocolateVersion)" />
     <PackageVersion Include="Humanizer.Core" Version="2.14.1" />
     <PackageVersion Include="icu.net" Version="3.0.1" />
     <PackageVersion Include="linq2db.AspNet" Version="5.4.1" />
@@ -126,8 +127,8 @@
     <PackageVersion Include="xunit" Version="2.9.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageVersion Include="XunitXml.TestLogger" Version="3.1.17" />
-    <PackageVersion Include="Yarp.ReverseProxy" Version="2.2.0" />
-    <PackageVersion Include="Yarp.Telemetry.Consumption" Version="2.2.0" />
+    <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
+    <PackageVersion Include="Yarp.Telemetry.Consumption" Version="2.3.0" />
     <PackageVersion Include="zxcvbn-core" Version="7.0.92" />
   </ItemGroup>
   <ItemGroup>

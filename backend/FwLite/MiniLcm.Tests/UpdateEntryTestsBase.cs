@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 namespace MiniLcm.Tests;
 
@@ -79,6 +79,17 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         entry.Note.Remove("en");
         var updatedEntry = await Api.UpdateEntry(before, entry);
         updatedEntry.Note.Should().NotContainKey("en");
+    }
+
+    [Fact]
+    public async Task UpdateEntry_RoundTripsEmptyStrings()
+    {
+        var entry = await Api.GetEntry(Entry1Id);
+        ArgumentNullException.ThrowIfNull(entry);
+        var before = entry.Copy();
+        entry.CitationForm["en"] = string.Empty;
+        var updatedEntry = await Api.UpdateEntry(before, entry);
+        updatedEntry.CitationForm["en"].Should().Be(string.Empty);
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-﻿using FluentAssertions.Equivalency;
+using FluentAssertions.Equivalency;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +84,32 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         return options;
     }
 
+    internal static void AssertSnapshotsAreEquivalent(ProjectSnapshot expected, ProjectSnapshot actual)
+    {
+        var excludeOrderTypes = new[] { typeof(Sense), typeof(ExampleSentence), typeof(ComplexFormComponent), typeof(WritingSystem) };
+        var excludeIds = new[] { typeof(ComplexFormComponent), typeof(WritingSystem) };
+        actual.Should().BeEquivalentTo(expected,
+            options =>
+                options
+                    //when excluding properties consider https://github.com/sillsdev/languageforge-lexbox/issues/1912
+                    .Using<double>(Exclude)
+                    .When(info => info.RuntimeType == typeof(double) && info.Path.EndsWith(".Order") && excludeOrderTypes.Contains(info.ParentType))
+                    .Using<Guid>(Exclude)
+                    .When(info => info.RuntimeType == typeof(Guid) && info.Path.EndsWith(".Id") && excludeIds.Contains(info.ParentType))
+                    .Using<Guid?>(Exclude)
+                    .When(info => info.RuntimeType == typeof(Guid?) && info.Path.EndsWith(".MaybeId") && excludeIds.Contains(info.ParentType))
+
+                    //exclude exemplars since they're not updated properly and we don't really support them for now.
+                    .Using<string[]>(Exclude)
+                    .When(info => info.RuntimeType == typeof(string[]) && info.Path.EndsWith($".{nameof(WritingSystem.Exemplars)}") && info.ParentType == typeof(WritingSystem))
+        );
+
+        void Exclude<T>(IAssertionContext<T> context)
+        {
+            //don't compare
+        }
+    }
+
     [Fact]
     [Trait("Category", "Integration")]
     public async Task FirstSyncJustDoesAnImport()
@@ -92,9 +118,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
     }
 
     [Fact]
@@ -155,9 +179,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
     }
 
     [Fact]
@@ -220,22 +242,23 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 new Sense() { Gloss = { { "en", "Stand" } }, }
             ]
         });
-        var hatstand = await fwdataApi.CreateEntry(new Entry()
+        var hatstand = new Entry()
         {
+            Id = Guid.NewGuid(),
             LexemeForm = { { "en", "Hatstand" } },
             Senses =
             [
                 new Sense() { Gloss = { { "en", "Hatstand" } }, }
             ],
-        });
+        };
         var component1 = ComplexFormComponent.FromEntries(hatstand, hat);
         var component2 = ComplexFormComponent.FromEntries(hatstand, stand);
         hatstand.Components = [component1, component2];
+        await fwdataApi.CreateEntry(hatstand);
+
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
 
         // Sync again, ensure no problems or changes
         var secondSync = await _syncService.Sync(crdtApi, fwdataApi);
@@ -323,9 +346,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
     }
 
     [Fact]
@@ -402,9 +423,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
     }
 
     [Fact]
@@ -492,9 +511,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
     }
 
     [Fact]

@@ -48,7 +48,7 @@
 
 <EntryOrSenseItemList bind:items={value} {readonly} {onchange} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword}>
   {#snippet actions()}
-    <EntryOrSensePicker title={pt($t`Add component`, $t`Add part of`, $currentView)} mode="only-entries" pick={(e) => addComplexForm(e)}
+    <EntryOrSensePicker title={pt($t`Add complex form`, $t`Add part of`, $currentView)} mode="only-entries" pick={(e) => addComplexForm(e)}
       {disableEntry}>
       {#snippet trigger({ props })}
         <Button {...props} icon="i-mdi-plus" size="xs">

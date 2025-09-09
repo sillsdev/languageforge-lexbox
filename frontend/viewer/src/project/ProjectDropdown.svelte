@@ -107,7 +107,7 @@
           </Command.Loading>
         {:else}
           <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
-          {#each projectsResource.current ?? [] as project (project.id)}
+          {#each projectsResource.current ?? [] as project (project)}
             <Command.Item
               value={project.name + project.crdt}
               onSelect={() => handleSelect(project)}

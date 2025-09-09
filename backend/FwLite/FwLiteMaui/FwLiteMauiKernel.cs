@@ -59,7 +59,7 @@ public static class FwLiteMauiKernel
         //need to call them like this otherwise we need a using statement at the top of the file
         FwDataMiniLcmBridge.FwDataBridgeKernel.AddFwDataBridge(services);
         FwLiteProjectSync.FwLiteProjectSyncKernel.AddFwLiteProjectSync(services);
-        services.AddSingleton<FwLiteShared.Services.IAppLauncher, FwLiteMaui.Services.AppLauncher>();
+        services.AddSingleton<IFwLinker, FwLinker>();
 #endif
 #if WINDOWS
         services.AddFwLiteWindows(env);
@@ -67,6 +67,7 @@ public static class FwLiteMauiKernel
 #if ANDROID
         services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
 #endif
+        services.AddSingleton<IAppLauncher, AppLauncher>();
 
         services.Configure<FwLiteConfig>(config =>
         {
@@ -164,7 +165,22 @@ public static class FwLiteMauiKernel
             logger.LogInformation("Initializing hosted services");
             foreach (var hostedService in hostedServices)
             {
-                _ = Task.Run(() => hostedService.StartAsync(_cts.Token), _cts.Token);
+                _ = Task.Run(async () =>
+                {
+                    var hostedServiceName = hostedService.GetType().Name;
+                    try
+                    {
+                        await hostedService.StartAsync(_cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        logger.LogInformation("Hosted service stopped before start completed for service {HostedService}", hostedServiceName);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, "Error starting hosted service {HostedService}", hostedServiceName);;
+                    }
+                }, _cts.Token);
             }
         }
 

@@ -22,7 +22,6 @@
   import { DEFAULT_DEBOUNCE_TIME } from '$lib/util/time';
 
   type DumbFilters = $$Generic<Record<string, unknown>>;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   type Filters = DumbFilters & Record<typeof searchKey, string>;
 
   let searchInput: PlainInput | undefined = $state();

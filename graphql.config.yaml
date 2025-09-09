@@ -1,4 +1,4 @@
-﻿schema:
+schema:
   - ./frontend/schema.graphql
   - ./schema-extensions.graphql
 include:
@@ -7,6 +7,7 @@ include:
 exclude:
   - ./frontend/node_modules/**
   - ./frontend/.svelte-kit/**
+  - ./platform.bible-extension/**
 extensions:
   endpoints:
     Default GraphQL Endpoint:

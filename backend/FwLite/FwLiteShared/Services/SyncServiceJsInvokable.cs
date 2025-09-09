@@ -1,12 +1,13 @@
 using FwLiteShared.Auth;
 using FwLiteShared.Sync;
+using LcmCrdt.Data;
 using LexCore.Sync;
 using SIL.Harmony;
 using Microsoft.JSInterop;
 
 namespace FwLiteShared.Services;
 
-public class SyncServiceJsInvokable(SyncService syncService)
+public class SyncServiceJsInvokable(SyncService syncService, SyncRepository syncRepository)
 {
     [JSInvokable]
     public Task<ProjectSyncStatus> GetSyncStatus()
@@ -30,7 +31,7 @@ public class SyncServiceJsInvokable(SyncService syncService)
     [JSInvokable]
     public Task<DateTimeOffset?> GetLatestCommitDate()
     {
-        return syncService.GetLatestCommitDate();
+        return syncRepository.GetLatestCommitDate();
     }
 
     [JSInvokable]
