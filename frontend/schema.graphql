@@ -230,6 +230,7 @@ type LeaveProjectPayload {
 }
 
 type LexAuthUser {
+  canDownloadProjectsWithoutMembership: Boolean!
   hasFeature(feature: FeatureFlag!): Boolean!
   hasScope(scope: LexboxAuthScope!): Boolean!
   id: UUID!
@@ -503,10 +504,10 @@ type Query {
   projectByCode(code: String!): Project @cost(weight: "10")
   orgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
   myOrgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
-  usersICanSee(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersICanSeeCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
+  usersICanSee(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersICanSeeCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], slicingArgumentDefaultValue: 100, sizedFields: [ "items" ], requireOneSlicingArgument: false) @cost(weight: "10")
   orgById(orgId: UUID!): OrgById @cost(weight: "10")
-  mediaFiles(skip: Int take: Int where: MediaFileFilterInput @cost(weight: "10") orderBy: [MediaFileSortInput!] @cost(weight: "10")): MediaFilesCollectionSegment @authorize(policy: "AdminRequiredPolicy") @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
-  users(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy") @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
+  mediaFiles(skip: Int take: Int where: MediaFileFilterInput @cost(weight: "10") orderBy: [MediaFileSortInput!] @cost(weight: "10")): MediaFilesCollectionSegment @authorize(policy: "AdminRequiredPolicy") @listSize(assumedSize: 1000, slicingArguments: [ "take" ], slicingArgumentDefaultValue: 100, sizedFields: [ "items" ], requireOneSlicingArgument: false) @cost(weight: "10")
+  users(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy") @listSize(assumedSize: 1000, slicingArguments: [ "take" ], slicingArgumentDefaultValue: 100, sizedFields: [ "items" ], requireOneSlicingArgument: false) @cost(weight: "10")
   me: MeDto @cost(weight: "10")
   orgMemberById(orgId: UUID! userId: UUID!): OrgMemberDto @cost(weight: "10")
   meAuth: LexAuthUser!
@@ -1420,7 +1421,7 @@ directive @authorize("The name of the authorization policy that determines acces
 directive @cost("The `weight` argument defines what value to add to the overall cost for every appearance, or possible appearance, of a type, field, argument, etc." weight: String!) on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM | INPUT_FIELD_DEFINITION
 
 "The purpose of the `@listSize` directive is to either inform the static analysis about the size of returned lists (if that information is statically available), or to point the analysis to where to find that information."
-directive @listSize("The `assumedSize` argument can be used to statically define the maximum length of a list returned by a field." assumedSize: Int "The `slicingArguments` argument can be used to define which of the field's arguments with numeric type are slicing arguments, so that their value determines the size of the list returned by that field. It may specify a list of multiple slicing arguments." slicingArguments: [String!] "The `sizedFields` argument can be used to define that the value of the `assumedSize` argument or of a slicing argument does not affect the size of a list returned by a field itself, but that of a list returned by one of its sub-fields." sizedFields: [String!] "The `requireOneSlicingArgument` argument can be used to inform the static analysis that it should expect that exactly one of the defined slicing arguments is present in a query. If that is not the case (i.e., if none or multiple slicing arguments are present), the static analysis may throw an error." requireOneSlicingArgument: Boolean! = true) on FIELD_DEFINITION
+directive @listSize("The `assumedSize` argument can be used to statically define the maximum length of a list returned by a field." assumedSize: Int "The `slicingArguments` argument can be used to define which of the field's arguments with numeric type are slicing arguments, so that their value determines the size of the list returned by that field. It may specify a list of multiple slicing arguments." slicingArguments: [String!] "The `slicingArgumentDefaultValue` argument can be used to define a default value for a slicing argument, which is used if the argument is not present in a query." slicingArgumentDefaultValue: Int "The `sizedFields` argument can be used to define that the value of the `assumedSize` argument or of a slicing argument does not affect the size of a list returned by a field itself, but that of a list returned by one of its sub-fields." sizedFields: [String!] "The `requireOneSlicingArgument` argument can be used to inform the static analysis that it should expect that exactly one of the defined slicing arguments is present in a query. If that is not the case (i.e., if none or multiple slicing arguments are present), the static analysis may throw an error." requireOneSlicingArgument: Boolean! = true) on FIELD_DEFINITION
 
 "The `@specifiedBy` directive is used within the type system definition language to provide a URL for specifying the behavior of custom scalar definitions."
 directive @specifiedBy("The specifiedBy URL points to a human-readable specification. This field will only read a result for scalar types." url: String!) on SCALAR
