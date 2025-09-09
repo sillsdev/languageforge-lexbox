@@ -84,7 +84,7 @@
         </a>
         <span class="text-foreground/80">
           <T msg="Last change: #">
-            <FormatRelativeDate date={lastLocalSyncDate}/>
+            <FormatRelativeDate date={lastLocalSyncDate} showActualDate/>
           </T>
         </span>
       </div>

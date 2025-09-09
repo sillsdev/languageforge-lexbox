@@ -41,10 +41,10 @@
 <div class="grid grid-cols-[1fr_auto_1fr]">
   <div class="border rounded flex flex-col items-center justify-center p-2">
     <Icon src={flexLogo} class="size-10" alt={$t`FieldWorks logo`}/>
-    <p>FLEx</p>
+    <p>FieldWorks</p>
     <span class="text-sm text-foreground/80">
       <T msg="Last change: #">
-        <FormatRelativeDate date={lastFlexSyncDate} default={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`} />
+        <FormatRelativeDate date={lastFlexSyncDate} showActualDate default={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`} />
       </T>
     </span>
   </div>
@@ -67,7 +67,7 @@
     <p>FW Lite</p>
     <span class="text-sm text-foreground/80">
       <T msg="Last change: #">
-        <FormatRelativeDate date={lastFwLiteSyncDate} default={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`} />
+        <FormatRelativeDate date={lastFwLiteSyncDate} showActualDate default={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`} />
       </T>
     </span>
   </div>
