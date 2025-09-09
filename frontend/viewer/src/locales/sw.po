@@ -29,20 +29,24 @@ msgstr ""
 msgid "{0}"
 msgstr "{0}"
 
-#: src/project/SyncDialog.svelte
-msgid "{0} - FieldWorks"
-msgstr ""
-
-#: src/project/SyncDialog.svelte
-msgid "{0} - FieldWorks Lite"
-msgstr ""
-
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
 msgstr ""
 
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
+msgstr ""
+
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "{0} ago"
+msgstr ""
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{0} Changes"
+msgstr ""
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{0} Commits"
 msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
@@ -60,6 +64,16 @@ msgstr ""
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "# ago"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "# before"
 msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -113,12 +127,6 @@ msgstr ""
 msgid "Add Sense"
 msgstr ""
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "ago"
-msgstr ""
-
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr ""
@@ -156,14 +164,9 @@ msgstr "Mwandishi:"
 msgid "Auto"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-msgid "Auto synchronizing"
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Auto sync"
 msgstr ""
-
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "before"
-msgstr "kabla"
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -175,6 +178,7 @@ msgstr "Angalia"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -199,6 +203,7 @@ msgstr ""
 msgid "clear"
 msgstr "futa"
 
+#: src/project/tasks/SubjectPopup.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/about/AboutDialog.svelte
@@ -327,8 +332,16 @@ msgstr "Kataa mabadiliko"
 msgid "Display as"
 msgstr ""
 
+#: src/project/tasks/DoneView.svelte
+msgid "Do you want to:"
+msgstr ""
+
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+msgid "Done"
 msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -373,6 +386,7 @@ msgstr ""
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Entry"
 msgstr "Ingizo"
 
@@ -392,12 +406,8 @@ msgstr ""
 msgid "Error getting sync status"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
-msgstr ""
-
-#: src/project/SyncDialog.svelte
-msgid "Error: {0}"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -451,7 +461,21 @@ msgstr ""
 msgid "Field Labels"
 msgstr ""
 
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "FieldWorks Classic"
+msgstr ""
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "FieldWorks Lite"
+msgstr ""
+
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
+msgstr ""
+
 #: src/project/ProjectDropdown.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/lib/OpenInFieldWorksButton.svelte
 #: src/home/HomeView.svelte
 msgid "FieldWorks logo"
@@ -511,6 +535,10 @@ msgstr ""
 msgid "Find word..."
 msgstr ""
 
+#: src/project/tasks/ReviewList.svelte
+msgid "Finish"
+msgstr ""
+
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr ""
@@ -557,9 +585,18 @@ msgstr ""
 msgid "Import"
 msgstr "Agiza"
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
-msgid "Last change: {0}"
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "in {0}"
+msgstr ""
+
+#: src/project/tasks/DoneView.svelte
+msgid "Keep going"
+msgstr ""
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Last change: #"
 msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
@@ -606,7 +643,7 @@ msgstr "Mitaa"
 msgid "Local only"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Login"
 msgstr ""
 
@@ -638,10 +675,23 @@ msgstr ""
 msgid "Meaning"
 msgstr "Maana"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Definition {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Example sentence {0}"
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 msgid "Missing Examples"
 msgstr ""
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Gloss {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr ""
@@ -658,7 +708,8 @@ msgstr ""
 msgid "Move"
 msgstr "Sogeza"
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Never"
 msgstr "Kamwe"
 
@@ -676,6 +727,10 @@ msgstr "Ingizo Mpya"
 
 #: src/project/NewEntryButton.svelte
 msgid "New Word"
+msgstr ""
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Next"
 msgstr ""
 
 #: src/lib/activity/ActivityView.svelte
@@ -712,9 +767,12 @@ msgstr ""
 msgid "No items found"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "No server configured"
+msgstr ""
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "No subject, unable to create a new {task.subjectType}"
 msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -730,7 +788,6 @@ msgstr "Hamna"
 msgid "Not equal"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
 msgstr ""
@@ -747,7 +804,6 @@ msgstr ""
 msgid "Observer"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Offline"
 msgstr ""
@@ -788,6 +844,14 @@ msgstr ""
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Sehemu za mazungumzo"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Pending"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick a Part of Speech"
+msgstr ""
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Pinned"
@@ -847,6 +911,10 @@ msgstr ""
 msgid "Report a technical problem"
 msgstr ""
 
+#: src/project/tasks/DoneView.svelte
+msgid "Review"
+msgstr ""
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
 msgstr ""
@@ -869,6 +937,10 @@ msgstr ""
 
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
+msgstr ""
+
+#: src/project/tasks/TasksView.svelte
+msgid "Select a new task to work on"
 msgstr ""
 
 #: src/lib/components/audio/audio-provider.svelte
@@ -931,8 +1003,16 @@ msgstr "Rahisi"
 msgid "Size:"
 msgstr "Ukubwa:"
 
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Skip"
+msgstr ""
+
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
+msgstr ""
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Subject does not have suitable object of type: {0}"
 msgstr ""
 
 #: src/lib/components/field-editors/multi-select.svelte
@@ -945,17 +1025,26 @@ msgstr "Wasilisha"
 msgid "Suggest your ideas"
 msgstr ""
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Sync"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Sync Changes"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "Synced"
+msgstr ""
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Synced {0} ago"
 msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
 msgstr ""
@@ -964,14 +1053,25 @@ msgstr ""
 msgid "Synchronizing FieldWorks Lite with FieldWorks..."
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
-msgid "Synchronizing..."
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Syncing..."
+msgstr ""
+
+#: src/project/tasks/TasksView.svelte
+msgid "Task {0}"
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+msgid "Task not found: {0}"
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
 msgstr "Jukumu"
+
+#: src/project/tasks/TaskView.svelte
+msgid "The task you are looking for does not exist."
+msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -979,6 +1079,10 @@ msgstr ""
 
 #: src/lib/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+msgid "This task is complete"
 msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
@@ -1004,6 +1108,18 @@ msgstr "Tafsiri"
 msgid "Troubleshoot"
 msgstr ""
 
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Definition"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Gloss"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type an example sentence"
+msgstr ""
+
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
 msgstr "Aina:"
@@ -1012,8 +1128,8 @@ msgstr "Aina:"
 msgid "Unable to open in FieldWorks"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "Unknown"
@@ -1032,14 +1148,19 @@ msgstr ""
 msgid "Unknown error downloading {0}"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-msgid "Unknown server: {0}"
-msgstr ""
-
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Untitled"
+msgstr ""
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Up to date"
+msgstr ""
+
+#: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
+msgid "Update {0}"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1062,6 +1183,7 @@ msgstr ""
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Word"
 msgstr "Neno"
@@ -1084,6 +1206,10 @@ msgstr ""
 
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
+msgstr ""
+
+#: src/project/tasks/DoneView.svelte
+msgid "You completed {0} {1}"
 msgstr ""
 
 #: src/home/Server.svelte
