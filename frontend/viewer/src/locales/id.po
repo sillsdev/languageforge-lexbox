@@ -799,6 +799,10 @@ msgstr "Offline"
 msgid "Offline, unable to download"
 msgstr "Offline, tidak dapat mengunduh"
 
+#: src/home/Server.svelte
+msgid "Open"
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Direktori Data Terbuka"
@@ -1198,4 +1202,3 @@ msgstr "Anda tidak memiliki izin untuk mengunduh proyek {0} dari {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah mengunduh proyek {0}"
-

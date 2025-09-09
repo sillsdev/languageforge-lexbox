@@ -13,6 +13,7 @@
   import ProjectListItem from './ProjectListItem.svelte';
   import {transitionContext} from './transitions';
   import ListItem from '$lib/components/ListItem.svelte';
+  import {navigate} from 'svelte-routing';
 
   const [send, receive] = transitionContext.get();
 
@@ -55,6 +56,12 @@
         success: () => $t`Downloaded ${project.name}`,
         error: () => $t`Failed to download ${project.name}`,
         timeout: 'short',
+        action: {
+          label: $t`Open`,
+          onClick: () => {
+            navigate('/project/' + project.code);
+          },
+        }
       });
       await downloadPromise;
       refreshAll();

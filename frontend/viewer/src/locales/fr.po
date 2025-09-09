@@ -799,6 +799,10 @@ msgstr "Hors ligne"
 msgid "Offline, unable to download"
 msgstr "Hors ligne, impossible de télécharger"
 
+#: src/home/Server.svelte
+msgid "Open"
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Répertoire des données ouvertes"
@@ -1198,4 +1202,3 @@ msgstr "Vous n'avez pas la permission de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
-

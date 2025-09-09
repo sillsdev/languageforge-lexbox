@@ -799,6 +799,10 @@ msgstr ""
 msgid "Offline, unable to download"
 msgstr ""
 
+#: src/home/Server.svelte
+msgid "Open"
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr ""
@@ -1198,4 +1202,3 @@ msgstr ""
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr ""
-
