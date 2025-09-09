@@ -249,7 +249,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     // Services
     await entryService,
     // Other cleanup
-    () => fwLiteProcess?.kill(),
+    () => shutdownFwLite(fwLiteProcess),
   );
 
   logger.info('FieldWorks Lite is finished activating!');
@@ -275,8 +275,7 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
     context.executionToken,
     binaryPath,
     ['--urls', baseUrl, '--FwLiteWeb:OpenBrowser=false', '--FwLiteWeb:CorsAllowAny=true'],
-    // eslint-disable-next-line no-null/no-null
-    { stdio: [null, 'pipe', 'pipe'] },
+    { stdio: ['pipe', 'pipe', 'pipe'] },
   );
   fwLiteProcess.once('exit', (code, signal) => {
     logger.info(`[FwLiteWeb]: exited with code '${code}', signal '${signal}'`);
@@ -292,4 +291,25 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
     });
   }
   return { baseUrl, fwLiteProcess };
+}
+
+function shutdownFwLite(fwLiteProcess: ReturnType<typeof launchFwLiteFwLiteWeb>['fwLiteProcess']): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    fwLiteProcess.once('exit', (code, signal) => {
+      if (code === 0) {
+        resolve(true);
+      } else {
+        reject(new Error(`FwLiteWeb exited with code ${code}, signal ${signal}`));
+      }
+    });
+    fwLiteProcess.once('error', (error) => {
+      reject(error);
+    });
+
+    fwLiteProcess.stdin.write('shutdown\n');
+    fwLiteProcess.stdin.end();
+    setTimeout(() => {
+      fwLiteProcess.kill('SIGKILL');
+    }, 10000);
+  });
 }
