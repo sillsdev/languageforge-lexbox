@@ -757,7 +757,7 @@ msgid "No server configured"
 msgstr "Tiada pelayan dikonfigurasikan"
 
 #: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {task.subjectType}"
+msgid "No subject, unable to create a new {0}"
 msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
