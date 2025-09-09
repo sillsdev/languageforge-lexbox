@@ -294,22 +294,25 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
 }
 
 function shutdownFwLite(fwLiteProcess: ReturnType<typeof launchFwLiteFwLiteWeb>['fwLiteProcess']): Promise<boolean> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _) => {
     fwLiteProcess.once('exit', (code, signal) => {
       if (code === 0) {
         resolve(true);
       } else {
-        reject(new Error(`FwLiteWeb exited with code ${code}, signal ${signal}`));
+        logger.error(`[FwLiteWeb]: shutdown failed with code '${code}', signal '${signal}'`);
+        resolve(false);
       }
     });
     fwLiteProcess.once('error', (error) => {
-      reject(error);
+      logger.error(`[FwLiteWeb]: shutdown failed with error: ${error}`);
+      resolve(false);
     });
 
     fwLiteProcess.stdin.write('shutdown\n');
     fwLiteProcess.stdin.end();
     setTimeout(() => {
       fwLiteProcess.kill('SIGKILL');
+      resolve(true);
     }, 10000);
   });
 }
