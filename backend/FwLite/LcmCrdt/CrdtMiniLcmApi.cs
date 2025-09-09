@@ -82,7 +82,7 @@ public class CrdtMiniLcmApi(
     public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var entityId = Guid.NewGuid();
+        var entityId = writingSystem.MaybeId ?? Guid.NewGuid();
         var wsType = writingSystem.Type;
         var exists = await repo.WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == wsType);
         if (exists) throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
