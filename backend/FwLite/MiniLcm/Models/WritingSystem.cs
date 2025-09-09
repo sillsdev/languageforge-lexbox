@@ -53,7 +53,7 @@ public record WritingSystem: IObjectWithId<WritingSystem>, IOrderableNoId
     {
         return new WritingSystem
         {
-            Id = Id,
+            Id = _id,
             WsId = WsId,
             Name = Name,
             Abbreviation = Abbreviation,

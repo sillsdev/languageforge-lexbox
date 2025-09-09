@@ -14,7 +14,8 @@ public static class FluentAssertGlobalConfig
             //however that will result in very poor error messages, so we override it
             .ComparingByMembers<RichString>()
             .ComparingByMembers<RichSpan>()
-            .Excluding(m => m.DeclaringType == typeof(ComplexFormComponent) && (m.Name == nameof(ComplexFormComponent.Id) || m.Name == nameof(ComplexFormComponent.MaybeId)))
+            .Excluding(m => (m.DeclaringType == typeof(ComplexFormComponent) || m.DeclaringType == typeof(WritingSystem))
+                            && (m.Name == nameof(ComplexFormComponent.Id) || m.Name == nameof(ComplexFormComponent.MaybeId)))
             );
     }
 }
