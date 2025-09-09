@@ -17,5 +17,13 @@ await using (app)
         LocalAppLauncher.LaunchBrowser(url);
     }
 
+    _ = Task.Run(async () =>
+    {
+        // Wait for the "shutdown" command from stdin
+        while (await Console.In.ReadLineAsync() is not "shutdown") { }
+
+        await app.StopAsync();
+    });
+
     await app.WaitForShutdownAsync();
 }
