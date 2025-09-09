@@ -17,15 +17,15 @@ public class EntryFilter
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}", provider.EntrySensesSemanticDomains, provider.EntrySensesSemanticDomainsConverter);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}.{nameof(SemanticDomain.Code)}", provider.EntrySensesSemanticDomainsCode);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.PartOfSpeechId)}", provider.EntrySensesPartOfSpeechId);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}", provider.EntrySensesGloss);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", provider.EntrySensesDefinition);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}", provider.EntrySensesGloss!);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", provider.EntrySensesDefinition!);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}", provider.EntrySensesExampleSentences, NormalizeEmptyToNull<ExampleSentence>);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}.{nameof(ExampleSentence.Sentence)}", provider.EntrySensesExampleSentencesSentence);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}.{nameof(ExampleSentence.Sentence)}", provider.EntrySensesExampleSentencesSentence!);
 
-        mapper.AddMap(nameof(Entry.Note), provider.EntryNote);
-        mapper.AddMap(nameof(Entry.LexemeForm), provider.EntryLexemeForm);
-        mapper.AddMap(nameof(Entry.CitationForm), provider.EntryCitationForm);
-        mapper.AddMap(nameof(Entry.LiteralMeaning), provider.EntryLiteralMeaning);
+        mapper.AddMap(nameof(Entry.Note), provider.EntryNote!);
+        mapper.AddMap(nameof(Entry.LexemeForm), provider.EntryLexemeForm!);
+        mapper.AddMap(nameof(Entry.CitationForm), provider.EntryCitationForm!);
+        mapper.AddMap(nameof(Entry.LiteralMeaning), provider.EntryLiteralMeaning!);
         mapper.AddMap(nameof(Entry.ComplexFormTypes), provider.EntryComplexFormTypes, provider.EntryComplexFormTypesConverter);
         return mapper;
     }
