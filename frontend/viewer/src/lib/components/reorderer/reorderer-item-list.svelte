@@ -28,9 +28,12 @@
     return newDisplayItems;
   });
 
-  function move(): void {
-    itemListState.items = displayItems;
-    onchange?.(items, currIndex, displayIndex);
+  function move(newIndex: number): void {
+    if (newIndex !== displayIndex) throw new Error(`newIndex (${newIndex}) must match displayIndex (${displayIndex})`);
+    const from = currIndex;
+    const to = newIndex;
+    itemListState.items = displayItems; // this immediately updates/changes currIndex
+    onchange?.(items, from, to);
   }
 
   const mergedProps = $derived(mergeProps({
@@ -46,9 +49,10 @@
   {#each displayItems as item, i}
     {@const reorderName = getDisplayName(item) || '–'}
     <DropdownMenu.Item class="grid grid-cols-subgrid col-span-full justify-items-start items-center"
+      data-current={i === currIndex ? '' : null}
       onfocus={() => displayIndex = i}
       onSelect={() => {
-        if (i !== currIndex) move();
+        if (i !== currIndex) move(i);
       }}>
       <span class="justify-self-end">{i + 1}:</span>
       <span class="max-w-52 overflow-x-clip text-ellipsis whitespace-nowrap">{reorderName}</span>
