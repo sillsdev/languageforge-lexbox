@@ -78,9 +78,6 @@
         <a href={server?.authority + '/project/' + projectCode} target="_blank">
           <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}/>
           <span class="underline">{serverName}</span>
-          {#if isOffline}
-            <span>(Offline)</span>
-          {/if}
         </a>
         <span class="text-foreground/80">
           <T msg="Last change: #">
@@ -98,12 +95,12 @@
           <span class="text-end">{remoteToLocalCount ?? '?'}</span>
           <SyncArrow dir="down" tailLength={40} size={2} class="translate-y-[1px]"/>
           {#if remoteToLocalCount === 0 && localToRemoteCount === 0}
-            <span>Up to date</span>
+            <span>{$t`Up to date`}</span>
           {:else}
-            <span>Pending</span>
+            <span>{$t`Pending`}</span>
           {/if}
           <SyncArrow dir="up" tailLength={40} size={2} class="translate-y-[-1px]"/>
-          <span class="text-start">{localToRemoteCount}</span>
+          <span class="text-start">{localToRemoteCount ?? '?'}</span>
         </div>
         <div class="content-center pl-2">
           {#if syncStatus === SyncStatus.Success}
