@@ -5,6 +5,8 @@
       "%fwLiteExtension_addWord_title%": "Add to FieldWorks",
       "%fwLiteExtension_browseDictionary_title%": "FieldWorks Lite",
       "%fwLiteExtension_selectDictionary_title%": "Select FieldWorks dictionary",
+      "%fwLiteExtension_entryDisplay_partOfSpeech%": "Part of speech: ",
+      "%fwLiteExtension_entryDisplay_senses%": "Senses",
       "%fwLiteExtension_error_failedToAddEntry%": "Failed to add entry!",
       "%fwLiteExtension_error_gettingNetworkObject%": "Error getting network object:",
       "%fwLiteExtension_error_missingParam%": "Missing required parameter: ",

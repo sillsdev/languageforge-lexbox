@@ -6,7 +6,7 @@ import { Label, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
-import EntryList from '../components/entry-list';
+import DictionaryList from '../components/dictionary-list';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 /* eslint-disable react-hooks/rules-of-hooks */
@@ -106,12 +106,21 @@ globalThis.webViewComponent = function fwLiteFindWord({
   return (
     <div className="tw-flex tw-flex-col tw-h-[100dvh]">
       <div className="tw-sticky tw-bg-background tw-top-0 tw-z-10 tw-shrink-0 tw-p-2 tw-border-b tw-h-auto">
-        <div className="tw-flex tw-items-center tw-gap-2">
+        <div className="tw-flex tw-gap-2">
           <div className="tw-max-w-72">
             <SearchBar
               onSearch={onSearch}
               placeholder={localizedStrings['%fwLiteExtension_findWord_textField%']}
               value={searchTerm}
+            />
+          </div>
+
+          <div>
+            <AddNewEntry
+              addEntry={addEntry}
+              analysisLang={analysisLanguage ?? ''}
+              headword={searchTerm}
+              vernacularLang={vernacularLanguage ?? ''}
             />
           </div>
         </div>
@@ -127,14 +136,7 @@ globalThis.webViewComponent = function fwLiteFindWord({
           <Label>{localizedStrings['%fwLiteExtension_findWord_noMatchingEntries%']}</Label>
         </div>
       )}
-      {matchingEntries && <EntryList entries={matchingEntries} />}
-
-      <AddNewEntry
-        addEntry={addEntry}
-        analysisLang={analysisLanguage ?? ''}
-        headword={searchTerm}
-        vernacularLang={vernacularLanguage ?? ''}
-      />
+      {matchingEntries && <DictionaryList dictionaryData={matchingEntries} />}
     </div>
   );
 };
