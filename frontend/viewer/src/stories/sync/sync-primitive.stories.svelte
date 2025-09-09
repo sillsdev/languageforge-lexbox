@@ -31,6 +31,11 @@ function delayAsync(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+const now = new Date();
+const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
 </script>
 
 <Story name="Normal">
@@ -46,12 +51,12 @@ function delayAsync(ms: number): Promise<void> {
       status: ProjectSyncStatusEnum.ReadyToSync,
       pendingCrdtChanges: 1,
       pendingMercurialChanges: 2,
-      lastCrdtCommitDate: new Date().toISOString(),
-      lastMercurialCommitDate: new Date().toISOString(),
+      lastCrdtCommitDate: oneDayAgo.toISOString(),
+      lastMercurialCommitDate: oneWeekAgo.toISOString(),
       errorCode: undefined,
       errorMessage: undefined,
     }}
-    latestCommitDate={new Date().toISOString()}
+    latestCommitDate={oneHourAgo.toISOString()}
     server={{
       id: 'test-server',
       displayName: 'Lexbox',

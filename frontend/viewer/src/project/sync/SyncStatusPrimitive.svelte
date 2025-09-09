@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Tabs from '$lib/components/ui/tabs';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
-  import {formatDate} from '$lib/components/ui/format';
+  import {formatDate, FormatRelativeDate} from '$lib/components/ui/format';
   import {Icon} from '$lib/components/ui/icon';
   import LoginButton from '$lib/auth/LoginButton.svelte';
   import {Button} from '$lib/components/ui/button';
@@ -9,7 +9,7 @@
   import type {IPendingCommits} from '$lib/dotnet-types/generated-types/FwLiteShared/Sync/IPendingCommits';
   import type {ILexboxServer} from '$lib/dotnet-types';
   import {fade} from 'svelte/transition';
-  import {t} from 'svelte-i18n-lingui';
+  import {t, T} from 'svelte-i18n-lingui';
   import SyncArrow from './SyncArrow.svelte';
   import FwLiteToFwMergeDetails from './FwLiteToFwMergeDetails.svelte';
 
@@ -83,7 +83,9 @@
           {/if}
         </a>
         <span class="text-foreground/80">
-          {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
+          <T msg="Last change: #">
+            <FormatRelativeDate date={lastLocalSyncDate}/>
+          </T>
         </span>
       </div>
       <!--  arrows and sync counts -->

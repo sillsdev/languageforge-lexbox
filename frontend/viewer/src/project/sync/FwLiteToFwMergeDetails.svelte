@@ -4,10 +4,11 @@
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import type {IProjectSyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
-  import {t} from 'svelte-i18n-lingui';
+   import {t, T} from 'svelte-i18n-lingui';
   import SyncArrow from './SyncArrow.svelte';
   import flexLogo from '$lib/assets/flex-logo.png';
   import logoLight from '$lib/assets/logo-light.svg';
+  import {FormatRelativeDate} from '$lib/components/ui/format/index.js';
 
   let {
     remoteStatus,
@@ -42,8 +43,10 @@
     <Icon src={flexLogo} class="size-10" alt={$t`FieldWorks logo`}/>
     <p>FLEx</p>
     <span class="text-sm text-foreground/80">
-      {$t`Last change: ${formatDate(lastFlexSyncDate, undefined, remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
-      </span>
+      <T msg="Last change: #">
+        <FormatRelativeDate date={lastFlexSyncDate} default={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`} />
+      </T>
+    </span>
   </div>
   <div class="flex flex-col items-center px-2">
     <span>{$t`${lexboxToFlexCount} Changes`}</span>
@@ -63,7 +66,9 @@
     <Icon src={logoLight} class="size-10" alt={$t`FieldWorks logo`}/>
     <p>FW Lite</p>
     <span class="text-sm text-foreground/80">
-      {$t`Last change: ${formatDate(lastFwLiteSyncDate, undefined, remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
-      </span>
+      <T msg="Last change: #">
+        <FormatRelativeDate date={lastFwLiteSyncDate} default={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`} />
+      </T>
+    </span>
   </div>
 </div>
