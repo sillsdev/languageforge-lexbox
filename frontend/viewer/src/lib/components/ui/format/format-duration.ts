@@ -9,11 +9,18 @@ function limitDurationUnits(duration: Duration, maxUnits: number): Duration {
   const units: (keyof Duration)[] = ['days', 'hours', 'minutes', 'seconds', 'milliseconds'];
   const result: Duration = {};
   let unitCount = 0;
+  let foundFirstNonZeroUnit = false;
 
   for (const unit of units) {
     if (unitCount >= maxUnits) break;
-    if (duration[unit] && duration[unit] > 0) {
-      result[unit] = duration[unit];
+
+    const value = duration[unit] || 0;
+    if (value > 0) {
+      foundFirstNonZeroUnit = true;
+    }
+
+    if (foundFirstNonZeroUnit) {
+      result[unit] = value;
       unitCount++;
     }
   }

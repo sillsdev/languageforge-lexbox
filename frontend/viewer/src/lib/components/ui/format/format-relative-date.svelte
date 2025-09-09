@@ -23,7 +23,7 @@
     live = false,
     showActualDate = false,
     actualDateOptions,
-    maxUnits,
+    maxUnits = 2,
     ...restProps
   }: Props = $props();
 
