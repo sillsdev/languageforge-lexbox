@@ -476,3 +476,12 @@ jobs:
           FW_LITE_BINARY_PATH: ${{ steps.download-artifact.outputs.download-path }}/release_linux-x64/FwLiteWeb
           TEST_SERVER_PORT: 6579
         run: task test:e2e
+
+      - name: Upload Playwright test results and traces (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-e2e-test-results
+          if-no-files-found: ignore
+          path: |
+            frontend/viewer/tests/e2e/test-results/
