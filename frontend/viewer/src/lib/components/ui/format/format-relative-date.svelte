@@ -13,6 +13,7 @@
     live?: boolean | number;
     showActualDate?: boolean;
     actualDateOptions?: Intl.DateTimeFormatOptions;
+    maxUnits?: number;
   };
 
   const {
@@ -22,6 +23,7 @@
     live = false,
     showActualDate = false,
     actualDateOptions,
+    maxUnits,
     ...restProps
   }: Props = $props();
 
@@ -48,7 +50,7 @@
   });
 
   const formattedRelativeDate = $derived.by(() => {
-    return formatRelativeDate(date, options, {defaultValue: defaultValue || '', now});
+    return formatRelativeDate(date, options, {defaultValue: defaultValue || '', now, maxUnits});
   });
 
   const actualFormattedDate = $derived.by(() => {

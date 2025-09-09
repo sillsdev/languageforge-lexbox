@@ -5,6 +5,22 @@ import '@formatjs/intl-durationformat/polyfill';
 const currentLocale = fromStore(locale);
 type Duration = Pick<Intl.DurationLike, 'days' | 'hours' | 'minutes' | 'seconds' | 'milliseconds'>;
 
+function limitDurationUnits(duration: Duration, maxUnits: number): Duration {
+  const units: (keyof Duration)[] = ['days', 'hours', 'minutes', 'seconds', 'milliseconds'];
+  const result: Duration = {};
+  let unitCount = 0;
+
+  for (const unit of units) {
+    if (unitCount >= maxUnits) break;
+    if (duration[unit] && duration[unit] > 0) {
+      result[unit] = duration[unit];
+      unitCount++;
+    }
+  }
+
+  return result;
+}
+
 export function formatDigitalDuration(value: Duration) {
   const normalized = {
     hours: 0,
@@ -23,9 +39,11 @@ export function formatDigitalDuration(value: Duration) {
   });
 }
 
-export function formatDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds', options?: Intl.DurationFormatOptions) {
+export function formatDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds', options?: Intl.DurationFormatOptions, maxUnits?: number) {
   const formatter = new Intl.DurationFormat(currentLocale.current, options);//has been polyfilled in main.ts
-  return formatter.format(normalizeDuration(value, smallestUnit));
+  const normalized = normalizeDuration(value, smallestUnit);
+  const limitedDuration = maxUnits ? limitDurationUnits(normalized, maxUnits) : normalized;
+  return formatter.format(limitedDuration);
 }
 
 export function normalizeDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds'): Duration
