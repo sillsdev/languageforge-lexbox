@@ -6,9 +6,7 @@
   import {T} from 'svelte-i18n-lingui';
 
   // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
-  const { Story } = defineMeta({
-    title: 'i18n/examples',
-  });
+  const { Story } = defineMeta({});
 
   let currentDate = new SvelteDate();
 </script>

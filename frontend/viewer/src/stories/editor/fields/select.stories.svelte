@@ -17,7 +17,6 @@
   const partOfSpeech: PartOfSpeech = { label: 'Adjective' };
 
   const { Story } = defineMeta({
-    title: 'editor/fields/select',
     component: Select<typeof partsOfSpeech[number]>,
     parameters: fwliteStoryParameters({ showValue: false }),
     argTypes: {

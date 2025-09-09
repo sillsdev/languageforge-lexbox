@@ -11,7 +11,6 @@
   });
 
   const { Story } = defineMeta({
-    title: 'editor/fields/multi-ws-input',
     component: MultiWsInput,
     argTypes: {
       readonly: {

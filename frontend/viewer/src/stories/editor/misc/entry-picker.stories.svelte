@@ -8,7 +8,6 @@
 
   // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
   const { Story } = defineMeta({
-    title: 'editor/misc/entry-picker',
     component: EntryOrSensePicker,
     args: {
       pick(selection) {
