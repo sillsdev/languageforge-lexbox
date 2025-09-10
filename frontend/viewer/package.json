@@ -28,7 +28,7 @@
     "lint:report": "eslint . --output-file eslint_report.json --format json",
     "i18n:extract": "lingui extract --clean",
     "generate-icon-types": "node ./generate-icon-types.js",
-    "storybook": "storybook dev -p 6006 --host 0.0.0.0",
+    "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
   "devDependencies": {
