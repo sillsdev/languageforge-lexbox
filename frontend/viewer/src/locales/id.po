@@ -29,14 +29,6 @@ msgstr "- ({0} perubahan)"
 msgid "{0}"
 msgstr "{0}"
 
-#: src/project/SyncDialog.svelte
-msgid "{0} - FieldWorks"
-msgstr "{0} - FieldWorks"
-
-#: src/project/SyncDialog.svelte
-msgid "{0} - FieldWorks Lite"
-msgstr "{0} - FieldWorks Lite"
-
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
 msgstr "{0} (FieldWorks Lite)"
@@ -44,6 +36,18 @@ msgstr "{0} (FieldWorks Lite)"
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
+
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "{0} ago"
+msgstr ""
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{0} Changes"
+msgstr ""
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{0} Commits"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -160,9 +164,9 @@ msgstr "Penulis:"
 msgid "Auto"
 msgstr "Otomatis"
 
-#: src/project/SyncDialog.svelte
-msgid "Auto synchronizing"
-msgstr "Sinkronisasi otomatis"
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Auto sync"
+msgstr ""
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -402,13 +406,9 @@ msgstr "Sama"
 msgid "Error getting sync status"
 msgstr "Kesalahan mendapatkan status sinkronisasi"
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr "Kesalahan mendapatkan status sinkronisasi."
-
-#: src/project/SyncDialog.svelte
-msgid "Error: {0}"
-msgstr "Kesalahan: {0}"
 
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example"
@@ -461,11 +461,21 @@ msgstr "Bidang"
 msgid "Field Labels"
 msgstr "Label Bidang"
 
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "FieldWorks Classic"
+msgstr ""
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "FieldWorks Lite"
+msgstr ""
+
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr "FieldWorks Lite telah berhasil diperbarui. Mulai ulang aplikasi untuk menerapkan perubahan."
 
 #: src/project/ProjectDropdown.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/lib/OpenInFieldWorksButton.svelte
 #: src/home/HomeView.svelte
 msgid "FieldWorks logo"
@@ -575,14 +585,19 @@ msgstr "Saya memahami bahwa hal ini tidak dapat dibatalkan"
 msgid "Import"
 msgstr "Impor"
 
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "in {0}"
+msgstr ""
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "Teruskan."
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
-msgid "Last change: {0}"
-msgstr "Perubahan terakhir: {0}"
+#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Last change: #"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
@@ -628,7 +643,7 @@ msgstr "Lokal"
 msgid "Local only"
 msgstr "Hanya lokal"
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Login"
 msgstr "Masuk"
 
@@ -693,7 +708,8 @@ msgstr "Indera yang hilang"
 msgid "Move"
 msgstr "Pindah"
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Never"
 msgstr "Tidak pernah."
 
@@ -751,7 +767,6 @@ msgstr "Tidak ditemukan riwayat"
 msgid "No items found"
 msgstr "Tidak ada barang yang ditemukan"
 
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "No server configured"
 msgstr "Tidak ada server yang dikonfigurasi"
@@ -773,7 +788,6 @@ msgstr "Tidak ada"
 msgid "Not equal"
 msgstr "Tidak sama"
 
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
 msgstr "Tidak masuk"
@@ -790,7 +804,6 @@ msgstr "Tidak ada yang perlu disalin"
 msgid "Observer"
 msgstr "Pengamat"
 
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Offline"
 msgstr "Offline"
@@ -835,6 +848,10 @@ msgstr "Bagian dari"
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Bagian dari pidato"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Pending"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
@@ -1012,6 +1029,14 @@ msgstr "Kirim"
 msgid "Suggest your ideas"
 msgstr "Sarankan ide Anda"
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Sync"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Sync Changes"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
 msgstr "Disinkronkan"
@@ -1024,8 +1049,6 @@ msgstr "Disinkronkan {0} lalu"
 msgid "Synced with {0}"
 msgstr "Disinkronkan dengan {0}"
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
 msgstr "Sinkronisasi"
@@ -1034,10 +1057,9 @@ msgstr "Sinkronisasi"
 msgid "Synchronizing FieldWorks Lite with FieldWorks..."
 msgstr "Menyinkronkan FieldWorks Lite dengan FieldWorks..."
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
-msgid "Synchronizing..."
-msgstr "Menyinkronkan..."
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Syncing..."
+msgstr ""
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
@@ -1110,8 +1132,8 @@ msgstr "Ketik:"
 msgid "Unable to open in FieldWorks"
 msgstr "Tidak dapat dibuka di FieldWorks"
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "Unknown"
@@ -1130,15 +1152,15 @@ msgstr "Kesalahan tidak dikenal {0}"
 msgid "Unknown error downloading {0}"
 msgstr "Kesalahan pengunduhan yang tidak diketahui {0}"
 
-#: src/project/SyncDialog.svelte
-msgid "Unknown server: {0}"
-msgstr "Server tidak dikenal: {0}"
-
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Untitled"
 msgstr "Tanpa judul"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Up to date"
+msgstr ""
 
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte

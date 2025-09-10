@@ -196,4 +196,47 @@ describe('formatDuration', () => {
     expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'seconds')).toEqual('1 hr, 30 min, 45 sec');
     expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'milliseconds')).toEqual('1 hr, 30 min, 45 sec, 500 ms');
   });
+
+  describe('maxUnits parameter', () => {
+    it('should limit units for durations starting with days', () => {
+      expect(formatDuration({days: 7, hours: 10, minutes: 17, seconds: 30, milliseconds: 500}, undefined, {}, 2)).toEqual('7 days, 10 hr');
+      expect(formatDuration({days: 1, hours: 2, minutes: 30}, undefined, {}, 1)).toEqual('1 day');
+    });
+
+    it('should limit units for durations starting with minutes', () => {
+      expect(formatDuration({days: 0, hours: 0, minutes: 5, seconds: 30, milliseconds: 0}, undefined, {}, 2)).toEqual('5 min, 30 sec');
+      expect(formatDuration({days: 0, hours: 0, minutes: 5, seconds: 30, milliseconds: 250}, undefined, {}, 1)).toEqual('5 min');
+    });
+
+    it('should limit units for durations starting with seconds', () => {
+      expect(formatDuration({days: 0, hours: 0, minutes: 0, seconds: 45, milliseconds: 500}, undefined, {}, 2)).toEqual('45 sec, 500 ms');
+      expect(formatDuration({days: 0, hours: 0, minutes: 0, seconds: 45, milliseconds: 500}, undefined, {}, 1)).toEqual('45 sec');
+    });
+
+    it('should limit units for durations starting with milliseconds', () => {
+      expect(formatDuration({days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: 500}, undefined, {}, 1)).toEqual('500 ms');
+    });
+
+    it('should work with mixed scenarios', () => {
+      expect(formatDuration({days: 0, hours: 0, minutes: 2, seconds: 15, milliseconds: 250}, undefined, {}, 3)).toEqual('2 min, 15 sec, 250 ms');
+      expect(formatDuration({days: 0, hours: 1, minutes: 30, seconds: 45}, undefined, {}, 2)).toEqual('1 hr, 30 min');
+    });
+
+    it('should handle gaps where it starts with days, has no hours and has minutes', () => {
+      // Duration: 1 day, 0 hours, 5 minutes - this creates a gap at hours
+      const durationWithGap = {days: 1, hours: 0, minutes: 5, seconds: 0, milliseconds: 0};
+
+      // When maxUnits is 2, it should only display days (since hours is 0, we skip to the next non-zero unit but hit the limit)
+      expect(formatDuration(durationWithGap, undefined, {}, 2)).toEqual('1 day');
+
+      // When maxUnits is 3, it should display days and minutes (skipping the empty hours)
+      expect(formatDuration(durationWithGap, undefined, {}, 3)).toEqual('1 day, 5 min');
+
+      // Additional gap scenarios
+      expect(formatDuration({days: 2, hours: 0, minutes: 10, seconds: 0}, undefined, {}, 2)).toEqual('2 days');
+      expect(formatDuration({days: 2, hours: 0, minutes: 10, seconds: 0}, undefined, {}, 3)).toEqual('2 days, 10 min');
+      expect(formatDuration({days: 1, hours: 0, minutes: 0, seconds: 30}, undefined, {}, 3)).toEqual('1 day');
+      expect(formatDuration({days: 1, hours: 0, minutes: 0, seconds: 30}, undefined, {}, 4)).toEqual('1 day, 30 sec');
+    });
+  });
 });
