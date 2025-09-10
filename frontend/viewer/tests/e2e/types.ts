@@ -44,6 +44,7 @@ export interface LaunchConfig {
   serverUrl: string;
   port?: number;
   timeout?: number;
+  logFile?: string;
 }
 
 export interface TestResult {
