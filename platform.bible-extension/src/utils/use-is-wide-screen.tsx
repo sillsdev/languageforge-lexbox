@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export function useIsWideScreen() {
+export default function useIsWideScreen() {
   const [isWide, setIsWide] = useState(() => window.innerWidth >= 1024);
 
   useEffect(() => {

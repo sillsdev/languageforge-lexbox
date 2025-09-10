@@ -25,7 +25,7 @@ type BackToListButtonProps = {
  *
  * Clicking the button will return the user to the list view of all dictionary entries.
  */
-export function BackToListButton({
+export default function BackToListButton({
   handleBackToListButton,
   dictionaryEntry,
   isDrawer,
@@ -40,7 +40,7 @@ export function BackToListButton({
       variant="link"
     >
       <ArrowLeft className="tw-mr-1 tw-h-4 tw-w-4" />
-      {localizedStrings['%platformLexicalTools_dictionary_backToList%']}
+      {localizedStrings['%fwLiteExtension_dictionary_backToList%']}
     </Button>
   );
 

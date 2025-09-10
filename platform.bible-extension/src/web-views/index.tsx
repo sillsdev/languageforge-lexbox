@@ -4,7 +4,7 @@ import type {
   OpenWebViewOptionsWithProjectId,
   WordWebViewOptions,
 } from 'fw-lite-extension';
-import mainStyles from '../styles.css?inline';
+import mainStyles from '../tailwind.css?inline';
 import { WebViewType } from '../types/enums';
 import fwAddWordWindow from './add-word.web-view?inline';
 import fwDictionarySelectWindow from './dictionary-select.web-view?inline';

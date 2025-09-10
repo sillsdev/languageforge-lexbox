@@ -10,8 +10,8 @@ import {
   Separator,
   ListboxOption,
 } from 'platform-bible-react';
-import { BackToListButton } from './back-to-list-button';
-import { DomainsDisplay } from './domains-display';
+import BackToListButton from './back-to-list-button';
+import DomainsDisplay from './domains-display';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 import {
   entryGlossText,
@@ -38,7 +38,7 @@ export type DictionaryEntryDisplayProps = {
  * transliteration, Strong's number, part of speech, definition, and usage occurrences. Includes a
  * back button to navigate back to the list view.
  */
-export function DictionaryEntryDisplay({
+export default function DictionaryEntryDisplay({
   dictionaryEntry,
   isDrawer,
   handleBackToListButton,
