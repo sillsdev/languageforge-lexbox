@@ -135,6 +135,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
     {
         var snapshotPath = SnapshotPath(project);
         await using var file = File.Create(snapshotPath);
+        //not using our serialization options because we don't want to exclude MiniLcmInternal
         await JsonSerializer.SerializeAsync(file, projectSnapshot);
     }
 
