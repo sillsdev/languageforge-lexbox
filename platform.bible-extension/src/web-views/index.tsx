@@ -4,7 +4,8 @@ import type {
   OpenWebViewOptionsWithProjectId,
   WordWebViewOptions,
 } from 'fw-lite-extension';
-import mainStyles from '../tailwind.css?inline';
+import mainCssStyles from '../styles.css?inline';
+import tailwindCssStyles from '../tailwind.css?inline';
 import { WebViewType } from '../types/enums';
 import fwAddWordWindow from './add-word.web-view?inline';
 import fwDictionarySelectWindow from './dictionary-select.web-view?inline';
@@ -31,7 +32,7 @@ export const mainWebViewProvider: IWebViewProvider = {
       allowedFrameSources: ['http://localhost:*'],
       content: fwMainWindow,
       iconUrl,
-      styles: mainStyles,
+      styles: mainCssStyles,
       title: '%fwLiteExtension_browseDictionary_title%',
     };
   },
@@ -51,6 +52,7 @@ export const addWordWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwAddWordWindow,
       iconUrl,
+      styles: tailwindCssStyles,
       title: '%fwLiteExtension_addWord_title%',
     };
   },
@@ -70,6 +72,7 @@ export const dictionarySelectWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwDictionarySelectWindow,
       iconUrl,
+      styles: tailwindCssStyles,
       title: '%fwLiteExtension_selectDictionary_title%',
     };
   },
@@ -89,6 +92,7 @@ export const findWordWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwFindWordWindow,
       iconUrl,
+      styles: tailwindCssStyles,
       title: '%fwLiteExtension_findWord_title%',
     };
   },
@@ -108,6 +112,7 @@ export const findRelatedWordsWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwFindRelatedWordsWindow,
       iconUrl,
+      styles: tailwindCssStyles,
       title: '%fwLiteExtension_findRelatedWords_title%',
     };
   },

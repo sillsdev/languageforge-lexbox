@@ -1,7 +1,7 @@
 // Modified from paranext-core/extensions/src/components/dictionary/dictionary-entry-display.component.tsx
 
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { IEntry } from 'fw-lite-extension';
+import type { IEntry, ISemanticDomain } from 'fw-lite-extension';
 import { ChevronUpIcon } from 'lucide-react';
 import {
   Button,
@@ -31,6 +31,8 @@ export type DictionaryEntryDisplayProps = {
   handleBackToListButton?: (option: ListboxOption) => void;
   /** Callback function to handle scroll to top */
   onClickScrollToTop: () => void;
+  /** Callback function to handle click on a semantic domain */
+  onClickSemanticDomain?: (domain: ISemanticDomain) => void;
 };
 
 /**
@@ -43,6 +45,7 @@ export default function DictionaryEntryDisplay({
   isDrawer,
   handleBackToListButton,
   onClickScrollToTop,
+  onClickSemanticDomain,
 }: DictionaryEntryDisplayProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
@@ -84,7 +87,7 @@ export default function DictionaryEntryDisplay({
             .map((sense, senseIndex) => (
               <div
                 key={sense.id}
-                className="tw-flex tw-w-full tw-h-fit tw-flex-col tw-items-start tw-border tw-rounded-lg tw-shadow-sm tw-p-4 tw-cursor-pointer data-[state=on]:tw-border-accent data-[state=on]:tw-shadow-md tw-transition-colors"
+                className="tw-flex tw-w-full tw-h-fit tw-flex-col tw-items-start tw-border tw-rounded-lg tw-shadow-sm tw-p-4 tw-transition-colors"
               >
                 <div className="tw-flex tw-items-baseline tw-gap-2">
                   <span className="tw-font-bold tw-text-accent-foreground">{senseIndex + 1}</span>
@@ -103,7 +106,10 @@ export default function DictionaryEntryDisplay({
                   </div>
                 )}
 
-                <DomainsDisplay domains={sense.semanticDomains} />
+                <DomainsDisplay
+                  domains={sense.semanticDomains}
+                  onClickDomain={onClickSemanticDomain}
+                />
               </div>
             ))}
         </div>

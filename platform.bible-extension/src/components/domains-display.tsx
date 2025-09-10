@@ -1,7 +1,8 @@
 // Modified from paranext-core/extensions/src/platform-lexical-tools/src/components/dictionary/domains-display.component.tsx
 
-import { ISemanticDomain } from 'fw-lite-extension';
+import type { ISemanticDomain } from 'fw-lite-extension';
 import { Network } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { domainText } from '../utils/entry-display-text';
 
 /** Props for the DomainsDisplay component */
@@ -19,11 +20,20 @@ type DomainsDisplayProps = {
  * pill is the code of the domain, followed by the label.
  */
 export default function DomainsDisplay({ domains, onClickDomain }: DomainsDisplayProps) {
+  const [sortedDomains, setSortedDomains] = useState<ISemanticDomain[]>([]);
+
+  useEffect(() => {
+    const codes = [...new Set(domains.map((domain) => domain.code))].sort();
+    // eslint-disable-next-line no-type-assertion/no-type-assertion
+    setSortedDomains(codes.map((code) => domains.find((domain) => domain.code === code)!));
+  }, [domains]);
+
   return (
     <div className="tw-mt-2 tw-flex tw-flex-wrap tw-gap-2">
-      {domains.map((domain) => (
+      {sortedDomains.map((domain) => (
         <button
           className="tw-rounded tw-bg-accent tw-px-2 tw-py-0.5 tw-text-xs tw-accent-foreground tw-flex tw-items-center tw-gap-1"
+          disabled={!onClickDomain}
           key={domain.code}
           onClick={() => onClickDomain?.(domain)}
           type="button"

@@ -138,27 +138,3 @@
 }
 
 /* #endregion */
-
-@layer base {
-  /* Set 100% height/width and remove margin for html, body, div, iframe */
-  html,
-  body,
-  div,
-  iframe {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-  }
-
-  /* Prevent scrollbars by default */
-  html,
-  body,
-  div {
-    overflow: hidden;
-  }
-
-  /* Remove border from iframes */
-  iframe {
-    border: 0;
-  }
-}
