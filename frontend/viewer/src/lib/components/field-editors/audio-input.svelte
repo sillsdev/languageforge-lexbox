@@ -50,8 +50,12 @@
   import {formatDuration, normalizeDuration} from '$lib/components/ui/format';
   import {t} from 'svelte-i18n-lingui';
   import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
-  import {useDialogsService} from '$lib/services/dialogs-service';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
+  import AudioDialog from '$lib/components/audio/AudioDialog.svelte';
+  import {tryUseFieldBody} from '$lib/components/editor/field/field-root.svelte';
+  import {useSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
+  import LexiconEditorPrimitive from '$lib/entry-editor/object-editors/LexiconEditorPrimitive.svelte';
+  import OverrideFields from '$lib/OverrideFields.svelte';
 
   const handled = Symbol();
   let {
@@ -59,18 +63,20 @@
     audioId = $bindable(),
     onchange = () => {},
     readonly = false,
+    wsLabel = undefined,
   }: {
     loader?: (audioId: string) => Promise<{stream: ReadableStream, filename: string} | undefined | typeof handled>,
     audioId: string | undefined,
     onchange?: (audioId: string | undefined) => void;
     readonly?: boolean;
+    wsLabel?: string;
   } = $props();
   watch(() => audioId, () => loadedAudioId = undefined);
 
   const projectContext = useProjectContext();
   const api = $derived(projectContext?.maybeApi);
   const supportsAudio = $derived(projectContext?.features.audio);
-  const dialogService = useDialogsService();
+  const fieldProps = tryUseFieldBody();
 
   async function defaultLoader(audioId: string) {
     if (!api) throw new Error('No api, unable to load audio');
@@ -218,12 +224,10 @@
   });
   let smallestUnit = $derived(totalLength.minutes > 0 ? 'seconds' as const : 'milliseconds' as const);
 
-  async function onGetAudioClick() {
-    const result = await dialogService.getAudio();
-    if (result) {
-      audioId = result;
-      onchange(audioId)
-    }
+  let audioDialogOpen = $state(false);
+  function onAudioDialogSubmit(newAudioId: string) {
+    audioId = newAudioId;
+    onchange(newAudioId);
   }
 
   function onRemoveAudio() {
@@ -265,11 +269,26 @@
     return audio.error.code === MediaError.MEDIA_ERR_NETWORK &&
       audio.error.message?.includes('demuxer seek failed');
   }
+  let dialogTitle = $derived(fieldProps?.label && wsLabel ? `${fieldProps.label}: ${wsLabel}` : fieldProps?.label || wsLabel);
+  let subject = useSubjectContext();
 </script>
 {#if supportsAudio}
+  {#if !readonly}
+    <AudioDialog title={dialogTitle} bind:open={audioDialogOpen} onSubmit={onAudioDialogSubmit}>
+      {#if subject?.current}
+        <OverrideFields shownFields={fieldProps?.fieldId ? [fieldProps.fieldId] : []}>
+          <LexiconEditorPrimitive object={subject.current}/>
+        </OverrideFields>
+      {/if}
+    </AudioDialog>
+  {/if}
   {#if !audioId}
     {#if !readonly}
-      <Button variant="secondary" icon="i-mdi-microphone-plus" size="sm" iconProps={{class: 'size-5'}} onclick={onGetAudioClick}>
+      <Button variant="secondary"
+              icon="i-mdi-microphone-plus"
+              size="sm"
+              iconProps={{class: 'size-5'}}
+              onclick={() => audioDialogOpen = true}>
         {$t`Add audio`}
       </Button>
     {:else}
@@ -323,7 +342,7 @@
           </ResponsiveMenu.Trigger>
           <ResponsiveMenu.Content>
             {#if !readonly}
-              <ResponsiveMenu.Item icon="i-mdi-microphone-plus" onSelect={onGetAudioClick}>
+              <ResponsiveMenu.Item icon="i-mdi-microphone-plus" onSelect={() => audioDialogOpen = true}>
                 {$t`Replace audio`}
               </ResponsiveMenu.Item>
               <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onRemoveAudio}>

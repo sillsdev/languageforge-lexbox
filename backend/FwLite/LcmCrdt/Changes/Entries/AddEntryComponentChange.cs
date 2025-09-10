@@ -26,7 +26,7 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
         ComponentSenseId = componentSenseId;
     }
 
-    public AddEntryComponentChange(ComplexFormComponent component) : this(component.Id == default ? Guid.NewGuid() : component.Id,
+    public AddEntryComponentChange(ComplexFormComponent component) : this(component.MaybeId ?? Guid.NewGuid(),
         component.Order,
         component.ComplexFormEntryId,
         component.ComponentEntryId,

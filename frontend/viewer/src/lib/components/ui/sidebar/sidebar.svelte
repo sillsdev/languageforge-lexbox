@@ -25,6 +25,9 @@
   export function isOpen() {
     return sidebar.open;
   }
+  export function closeMobile() {
+    sidebar.openMobile = false;
+  }
 </script>
 
 {#if collapsible === 'none'}

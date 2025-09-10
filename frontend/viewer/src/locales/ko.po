@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-26 08:57\n"
+"PO-Revision-Date: 2025-09-04 07:52\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: src/lib/activity/ActivityView.svelte
 msgid "– ({0} changes)"
-msgstr "- ({0} 변경)"
+msgstr "- ({0}개 변경)"
 
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -31,11 +31,11 @@ msgstr "{0}"
 
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
-msgstr "{0} (필드웍스 라이트)"
+msgstr "{0} (FieldWorks Lite)"
 
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
-msgstr "{0} (필드웍스)"
+msgstr "{0} (FieldWorks)"
 
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
@@ -64,21 +64,21 @@ msgstr "{0} FieldWorks에 동기화됨. {1} FieldWorks Lite에 동기화됨."
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
-msgstr "{num, plural, one {#변경} other {#변경}}"
+msgstr "{num, plural, other {#개 변경}}"
 
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "# ago"
-msgstr ""
+msgstr "# 전"
 
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "# before"
-msgstr ""
+msgstr "# 전"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
-msgstr ""
+msgstr "새 버전의 FieldWorks Lite를 사용할 수 있습니다."
 
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
@@ -249,11 +249,11 @@ msgstr "포함 사항"
 
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
-msgstr ""
+msgstr "클립보드에 복사"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
-msgstr ""
+msgstr "복사 버전"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create {0}"
@@ -334,7 +334,7 @@ msgstr "다음으로 표시"
 
 #: src/project/tasks/DoneView.svelte
 msgid "Do you want to:"
-msgstr ""
+msgstr "원하시나요?"
 
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
@@ -342,7 +342,7 @@ msgstr "삭제하지 마세요."
 
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
-msgstr ""
+msgstr "완료"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -361,7 +361,7 @@ msgstr "프로젝트 코드별 프로젝트 다운로드"
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "Download unlisted project"
-msgstr ""
+msgstr "미등록 프로젝트 다운로드"
 
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
@@ -420,7 +420,7 @@ msgstr "문장 예시"
 
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
-msgstr ""
+msgstr "클립보드에 복사하지 못했습니다."
 
 #: src/home/Server.svelte
 msgid "Failed to download {0}"
@@ -471,7 +471,7 @@ msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
-msgstr ""
+msgstr "FieldWorks Lite가 성공적으로 업데이트되었습니다. 변경 사항을 적용하려면 앱을 다시 시작하세요."
 
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -537,11 +537,11 @@ msgstr "단어 찾기..."
 
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
-msgstr ""
+msgstr "완료"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
-msgstr ""
+msgstr "기타 문의 사항이 있으시면 언제든지 이메일을 보내주세요."
 
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
@@ -591,7 +591,7 @@ msgstr ""
 
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
-msgstr ""
+msgstr "계속 진행"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -605,7 +605,7 @@ msgstr "길이:"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Let us know about any bugs or technical issues you encounter."
-msgstr ""
+msgstr "버그나 기술적 문제가 발생하면 알려주세요."
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -662,7 +662,7 @@ msgstr "제작: ❤️ 출처: 🇦🇹 🇹🇭 🇺🇸"
 
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
-msgstr "변경 사항이 렉스박스에 동기화되었는지 확인합니다({0})."
+msgstr "변경 사항이 렉스박스에 [동기화되었는지]({0}) 확인합니다."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
@@ -677,11 +677,11 @@ msgstr "의미"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
-msgstr ""
+msgstr "정의 누락 {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Example sentence {0}"
-msgstr ""
+msgstr "누락된 예제 문장 {0}"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Missing Examples"
@@ -689,7 +689,7 @@ msgstr "누락된 예제"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
-msgstr ""
+msgstr "누락된 광택 {0}"
 
 #: src/project/tasks/tasks-service.ts
 #: src/project/browse/SearchFilter.svelte
@@ -731,7 +731,7 @@ msgstr "새 단어"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
-msgstr ""
+msgstr "다음"
 
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity found"
@@ -772,7 +772,7 @@ msgid "No server configured"
 msgstr "구성된 서버 없음"
 
 #: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {task.subjectType}"
+msgid "No subject, unable to create a new {0}"
 msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -798,7 +798,7 @@ msgstr "참고"
 
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
-msgstr ""
+msgstr "복사할 항목 없음"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -811,6 +811,10 @@ msgstr "오프라인"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "오프라인 상태, 다운로드할 수 없음"
+
+#: src/home/Server.svelte
+msgid "Open"
+msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
@@ -851,7 +855,7 @@ msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
-msgstr ""
+msgstr "품사 선택"
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Pinned"
@@ -909,11 +913,11 @@ msgstr "오디오 교체"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
-msgstr ""
+msgstr "기술 문제 신고하기"
 
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
-msgstr ""
+msgstr "검토"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -941,7 +945,7 @@ msgstr "자세한 내용을 보려면 {0} 을 선택하세요."
 
 #: src/project/tasks/TasksView.svelte
 msgid "Select a new task to work on"
-msgstr ""
+msgstr "작업할 새 작업 선택"
 
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
@@ -954,7 +958,7 @@ msgstr "시맨틱 도메인"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Send us a message"
-msgstr ""
+msgstr "메시지 보내기"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -985,7 +989,7 @@ msgstr "프로젝트 데이터 파일 공유"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Share your suggestions for new features or improvements."
-msgstr ""
+msgstr "새로운 기능이나 개선 사항에 대한 제안을 공유하세요."
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
@@ -1005,7 +1009,7 @@ msgstr "크기:"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
-msgstr ""
+msgstr "건너뛰기"
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
@@ -1013,7 +1017,7 @@ msgstr "다음으로 시작"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
-msgstr ""
+msgstr "제목에 적합한 객체 유형이 없습니다: {0}"
 
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -1023,7 +1027,7 @@ msgstr "제출하기"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Suggest your ideas"
-msgstr ""
+msgstr "아이디어 제안하기"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync"
@@ -1039,7 +1043,7 @@ msgstr "동기화"
 
 #: src/lib/activity/ActivityView.svelte
 msgid "Synced {0} ago"
-msgstr ""
+msgstr "동기화됨 {0} 전에"
 
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
@@ -1059,11 +1063,11 @@ msgstr ""
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
-msgstr ""
+msgstr "작업 {0}"
 
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
-msgstr ""
+msgstr "작업을 찾을 수 없음: {0}"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
@@ -1071,7 +1075,7 @@ msgstr "작업"
 
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
-msgstr ""
+msgstr "찾고 있는 작업이 존재하지 않습니다."
 
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -1083,7 +1087,7 @@ msgstr "이제 이 프로젝트가 FieldWorks에서 열렸습니다. FieldWorks 
 
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
-msgstr ""
+msgstr "이 작업이 완료되었습니다."
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -1110,15 +1114,15 @@ msgstr "문제 해결"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
-msgstr ""
+msgstr "정의 입력"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
-msgstr ""
+msgstr "광택 입력"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type an example sentence"
-msgstr ""
+msgstr "예제 문장을 입력합니다."
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
@@ -1161,7 +1165,7 @@ msgstr ""
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
-msgstr ""
+msgstr "업데이트 {0}"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
@@ -1210,7 +1214,7 @@ msgstr "쓰기 시스템"
 
 #: src/project/tasks/DoneView.svelte
 msgid "You completed {0} {1}"
-msgstr ""
+msgstr "완료했습니다 {0} {1}"
 
 #: src/home/Server.svelte
 msgid "You don't have permission to download project {0} from {1}"

@@ -7,7 +7,6 @@ import type {IObjectWithId} from './IObjectWithId';
 
 export interface IComplexFormComponent extends IObjectWithId
 {
-	id: string;
 	deletedAt?: string;
 	complexFormEntryId: string;
 	complexFormHeadword?: string;

@@ -330,9 +330,12 @@ public class CrdtMiniLcmApi(
     public async Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var betweenIds = new BetweenPosition(between.Previous?.Id, between.Next?.Id);
+        var betweenIds = await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
         var order = await OrderPicker.PickOrder(repo.ComplexFormComponents.Where(s => s.ComplexFormEntryId == component.ComplexFormEntryId), betweenIds);
-        await AddChange(new Changes.SetOrderChange<ComplexFormComponent>(component.Id, order));
+        var id = component.MaybeId ??
+                 (await repo.FindComplexFormComponent(component))?.Id
+                 ?? throw new NotFoundException($"Component {component}", nameof(ComplexFormComponent));
+        await AddChange(new Changes.SetOrderChange<ComplexFormComponent>(id, order));
     }
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)

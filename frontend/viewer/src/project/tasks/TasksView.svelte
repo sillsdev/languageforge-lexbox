@@ -6,6 +6,7 @@
   import TaskView from './TaskView.svelte';
   import {watch} from 'runed';
   import {onMount} from 'svelte';
+  import {SidebarTrigger} from '$lib/components/ui/sidebar';
 const selectedTaskStorageKey = 'selectedTaskId';
   const tasksService = useTasksService();
   const tasks = $derived(tasksService.listTasks());
@@ -25,14 +26,18 @@ const selectedTaskStorageKey = 'selectedTaskId';
 </script>
 
 <div class="flex flex-col h-full p-4 gap-4">
-  <Select.Root bind:open type="single" bind:value={selectedTaskId.current}>
-    <Select.Trigger>{$t`Task ${selectedTask?.subject ?? ''}`}</Select.Trigger>
-    <Select.Content>
-      {#each tasks as task (task.id)}
-        <Select.Item value={task.id}>{task.subject}</Select.Item>
-      {/each}
-    </Select.Content>
-  </Select.Root>
+  <div class="flex flex-row items-center">
+    <SidebarTrigger icon="i-mdi-menu" iconProps={{ class: 'size-5' }} class="aspect-square p-0 mr-2" size="xs"/>
+
+    <Select.Root bind:open type="single" bind:value={selectedTaskId.current}>
+      <Select.Trigger>{$t`Task ${selectedTask?.subject ?? ''}`}</Select.Trigger>
+      <Select.Content>
+        {#each tasks as task (task.id)}
+          <Select.Item value={task.id}>{task.subject}</Select.Item>
+        {/each}
+      </Select.Content>
+    </Select.Root>
+  </div>
   {#if selectedTaskId.current}
     <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.current = ''}/>
   {:else}

@@ -767,8 +767,8 @@ msgid "No server configured"
 msgstr "No server configured"
 
 #: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {task.subjectType}"
-msgstr "No subject, unable to create a new {task.subjectType}"
+msgid "No subject, unable to create a new {0}"
+msgstr "No subject, unable to create a new {0}"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
@@ -806,6 +806,10 @@ msgstr "Offline"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Offline, unable to download"
+
+#: src/home/Server.svelte
+msgid "Open"
+msgstr "Open"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
