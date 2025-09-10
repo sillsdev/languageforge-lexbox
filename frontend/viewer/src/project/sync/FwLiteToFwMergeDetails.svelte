@@ -40,16 +40,19 @@
 
 <div class="grid grid-cols-[1fr_auto_1fr] gap-4">
   <div class="border rounded flex flex-col items-center justify-center text-center p-2">
-    <Icon src={flexLogo} class="size-10 mb-1" alt={$t`FieldWorks logo`}/>
-    <p>FieldWorks</p>
+    <Icon src={logoLight} class="size-10 mb-1" alt={$t`FieldWorks logo`}/>
+    <p>FieldWorks Lite</p>
     <span class="text-sm text-foreground/80">
       <T msg="Last change: #">
-        <FormatRelativeDate date={lastFlexSyncDate} showActualDate default={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`} />
+        <FormatRelativeDate
+          date={lastFwLiteSyncDate}
+          showActualDate
+          defaultValue={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`}/>
       </T>
     </span>
   </div>
   <div class="flex flex-col items-center gap-1">
-    <span>{$t`${lexboxToFlexCount} Changes`}</span>
+    <span>{$t`${flexToLexboxCount} Commits`}</span>
     <SyncArrow dir="left" tailLength={120} size={1.5}/>
     <Button
       loading={loadingSyncLexboxToFlex}
@@ -60,14 +63,17 @@
       {$t`Sync`}
     </Button>
     <SyncArrow dir="right" tailLength={120} size={1.5}/>
-    <span>{$t`${flexToLexboxCount} Commits`}</span>
+    <span>{$t`${lexboxToFlexCount} Changes`}</span>
   </div>
   <div class="border rounded flex flex-col items-center justify-center text-center p-2">
-    <Icon src={logoLight} class="size-10 mb-1" alt={$t`FieldWorks logo`}/>
-    <p>FW Lite</p>
+    <Icon src={flexLogo} class="size-10 mb-1" alt={$t`FieldWorks logo`}/>
+    <p>FieldWorks Classic</p>
     <span class="text-sm text-foreground/80">
       <T msg="Last change: #">
-        <FormatRelativeDate date={lastFwLiteSyncDate} showActualDate default={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`} />
+        <FormatRelativeDate
+          date={lastFlexSyncDate}
+          showActualDate
+          defaultValue={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`}/>
       </T>
     </span>
   </div>
