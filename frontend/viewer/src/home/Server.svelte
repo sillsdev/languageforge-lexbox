@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
   import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
   import type {IServerStatus} from '$lib/dotnet-types';
   import type {Project} from '$lib/services/projects-service';
@@ -15,7 +15,7 @@
   import ListItem from '$lib/components/ListItem.svelte';
   import {navigate} from 'svelte-routing';
 
-  const [send, receive] = transitionContext.getOr([function(){}, function(){}]);
+  const [send, receive] = transitionContext.getOr([function(){return {}}, function(){return {}}]);
 
   const projectsService = useProjectsService();
 

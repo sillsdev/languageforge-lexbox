@@ -28,7 +28,7 @@
   }: Props = $props();
 
   const now = new SvelteDate();
-  let intervalId: number | undefined;
+  let intervalId: ReturnType<typeof setInterval> | undefined;
 
   $effect(() => {
     if (live) {
