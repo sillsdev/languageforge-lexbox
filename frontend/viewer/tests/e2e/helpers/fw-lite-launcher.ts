@@ -154,6 +154,9 @@ export class FwLiteLauncher implements FwLiteManager {
         '--environment', 'Development',//required to allow oauth to accept self signed certs
         '--FwLite:UseDevAssets', 'false',//in dev env we'd use dev assets normally
       ];
+      if (config.logFile) {
+        args.push('--FwLiteWeb:LogFileName', config.logFile);
+      }
 
       this.process = spawn(config.binaryPath, args, {
         stdio: ['pipe', 'pipe', 'pipe'],

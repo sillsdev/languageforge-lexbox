@@ -57,7 +57,7 @@ test.describe('FW Lite Integration Tests', () => {
     });
   });
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }, testInfo) => {
     console.log('Setting up individual test');
 
     // Initialize FW Lite launcher
@@ -67,7 +67,8 @@ test.describe('FW Lite Integration Tests', () => {
     await fwLiteLauncher.launch({
       binaryPath: config.fwLite.binaryPath,
       serverUrl: `${config.lexboxServer.protocol}://${config.lexboxServer.hostname}`,
-      timeout: config.fwLite.launchTimeout
+      timeout: config.fwLite.launchTimeout,
+      logFile: testInfo.outputPath('fw-lite-server.log'),
     });
 
     console.log(`FW Lite launched at: ${fwLiteLauncher.getBaseUrl()}`);
