@@ -147,7 +147,6 @@
         {syncLexboxToFlex}
         bind:loadingSyncLexboxToFlex
         {loadingSyncLexboxToLocal}
-        {serverName}
         {canSyncLexboxToFlex}/>
     </Tabs.Content>
   {/if}

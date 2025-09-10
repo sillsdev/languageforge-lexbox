@@ -1,14 +1,13 @@
 <script lang="ts">
-  import {formatDate} from '$lib/components/ui/format';
   import {ProjectSyncStatusEnum} from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusEnum';
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import type {IProjectSyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
-   import {t, T} from 'svelte-i18n-lingui';
+  import {t, T} from 'svelte-i18n-lingui';
   import SyncArrow from './SyncArrow.svelte';
   import flexLogo from '$lib/assets/flex-logo.png';
   import logoLight from '$lib/assets/logo-light.svg';
-  import {FormatRelativeDate} from '$lib/components/ui/format/index.js';
+  import {FormatRelativeDate} from '$lib/components/ui/format';
 
   let {
     remoteStatus,
@@ -19,7 +18,6 @@
     },
   }: {
     remoteStatus?: IProjectSyncStatus,
-    serverName: string,
     loadingSyncLexboxToFlex: boolean,
     loadingSyncLexboxToLocal: boolean,
     canSyncLexboxToFlex?: boolean,
