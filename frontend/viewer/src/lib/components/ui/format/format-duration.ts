@@ -1,6 +1,7 @@
+import '@formatjs/intl-durationformat/polyfill';
+
 import {fromStore} from 'svelte/store';
 import {locale} from 'svelte-i18n-lingui';
-import '@formatjs/intl-durationformat/polyfill';
 
 const currentLocale = fromStore(locale);
 type Duration = Pick<Intl.DurationLike, 'days' | 'hours' | 'minutes' | 'seconds' | 'milliseconds'>;
@@ -23,6 +24,11 @@ function limitDurationUnits(duration: Duration, maxUnits: number): Duration {
       result[unit] = value;
       unitCount++;
     }
+  }
+
+  if (!foundFirstNonZeroUnit) {
+    // ensure we return something that Intl.DurationFormat.format() doesn't error on
+    result[units.at(-1)!] = 0;
   }
 
   return result;
