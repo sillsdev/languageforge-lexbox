@@ -1,8 +1,9 @@
 // Modified from paranext-core/extensions/src/components/dictionary/dictionary-list-item.component.tsx
 
-import type { IEntry } from 'fw-lite-extension';
+import type { IEntry, ISemanticDomain } from 'fw-lite-extension';
 import { cn, Separator } from 'platform-bible-react';
-import { entryHeadwordText } from '../utils/entry-display-text';
+import DomainsDisplay from './domains-display';
+import { entryGlossText, entryHeadwordText } from '../utils/entry-display-text';
 
 /** Props for the DictionaryListItem component */
 type DictionaryListItemProps = {
@@ -12,6 +13,8 @@ type DictionaryListItemProps = {
   isSelected: boolean;
   /** Callback function to handle click on the entry */
   onClick: () => void;
+  /** Callback function to handle click on a semantic domain */
+  onClickSemanticDomain?: (domain: ISemanticDomain) => void;
 };
 
 /**
@@ -30,6 +33,7 @@ export default function DictionaryListItem({
   entry,
   isSelected,
   onClick,
+  onClickSemanticDomain,
 }: DictionaryListItemProps) {
   return (
     <>
@@ -54,13 +58,17 @@ export default function DictionaryListItem({
         </div>
 
         <div className="tw-flex tw-items-center tw-gap-2 tw-mt-0.5">
-          <p className="tw-text-sm tw-text-muted-foreground tw-truncate">
-            {entry.senses
-              .map((s) => Object.values(s.gloss).filter(Boolean).join('; '))
-              .filter(Boolean)
-              .join(' | ')}
-          </p>
+          <p className="tw-text-sm tw-text-muted-foreground tw-truncate">{entryGlossText(entry)}</p>
         </div>
+
+        {onClickSemanticDomain && (
+          <div className="tw-flex tw-items-center tw-gap-2 tw-mt-0.5">
+            <DomainsDisplay
+              domains={entry.senses.flatMap((s) => s.semanticDomains)}
+              onClickDomain={onClickSemanticDomain}
+            />
+          </div>
+        )}
       </li>
       <Separator />
     </>

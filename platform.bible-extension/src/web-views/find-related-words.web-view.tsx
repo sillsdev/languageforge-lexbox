@@ -9,9 +9,10 @@ import type {
 } from 'fw-lite-extension';
 import { Card, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
-import { type ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
-import EntryCard from '../components/entry-card';
+import DictionaryList from '../components/dictionary-list';
+import DictionaryListWrapper from '../components/dictionary-list-wrapper';
 
 /* eslint-disable react-hooks/rules-of-hooks */
 
@@ -131,60 +132,55 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
   );
 
   return (
-    <div>
-      <SearchBar
-        placeholder="Find related words in dictionary..."
-        value={searchTerm}
-        onSearch={onSearch}
-      />
+    <DictionaryListWrapper
+      elementHeader={
+        <div className="tw-flex tw-gap-2">
+          <div className="tw-max-w-72">
+            <SearchBar
+              onSearch={onSearch}
+              placeholder="Find related words in dictionary..."
+              value={searchTerm}
+            />
+          </div>
 
-      {isFetching && <p>Loading...</p>}
-      {!isFetching && !matchingEntries?.length && (
-        <p>No matching entries with a semantic domain.</p>
-      )}
-
-      {matchingEntries && !selectedDomain && (
+          {selectedDomain && (
+            <div>
+              <AddNewEntry
+                addEntry={addEntryInDomain}
+                analysisLang={analysisLanguage ?? ''}
+                headword={searchTerm}
+                vernacularLang={vernacularLanguage ?? ''}
+              />
+            </div>
+          )}
+        </div>
+      }
+      elementList={
         <>
-          <p>Select a semantic domain for related words in that domain</p>
-          {matchingEntries.map((e) => (
-            <EntryCard entry={e} key={e.id} onClickSemanticDomain={setSelectedDomain} />
-          ))}
+          {matchingEntries && !selectedDomain && (
+            <>
+              <p>Select a semantic domain for related words in that domain</p>
+              <DictionaryList
+                dictionaryData={matchingEntries}
+                onClickSemanticDomain={setSelectedDomain}
+              />
+            </>
+          )}
+
+          {selectedDomain && relatedEntries && (
+            <>
+              <Card>{`${selectedDomain.code}: ${JSON.stringify(selectedDomain.name)}`}</Card>
+              {relatedEntries.length ? (
+                <DictionaryList dictionaryData={relatedEntries} />
+              ) : (
+                <p>No entries in this semantic domain.</p>
+              )}
+            </>
+          )}
         </>
-      )}
-
-      {selectedDomain && relatedEntries && (
-        <EntriesInSemanticDomain entries={relatedEntries} semanticDomain={selectedDomain} />
-      )}
-
-      {selectedDomain && (
-        <AddNewEntry
-          addEntry={addEntryInDomain}
-          analysisLang={analysisLanguage ?? ''}
-          headword={searchTerm}
-          vernacularLang={vernacularLanguage ?? ''}
-        />
-      )}
-    </div>
+      }
+      isLoading={isFetching}
+      hasItems={!!matchingEntries?.length}
+    />
   );
 };
-
-interface EntriesInSemanticDomainProps {
-  entries: IEntry[];
-  semanticDomain: ISemanticDomain;
-}
-
-function EntriesInSemanticDomain({
-  entries,
-  semanticDomain,
-}: EntriesInSemanticDomainProps): ReactElement {
-  return (
-    <>
-      <Card>{`${semanticDomain.code}: ${JSON.stringify(semanticDomain.name)}`}</Card>
-      {entries.length ? (
-        entries.map((entry) => <EntryCard entry={entry} key={entry.id} />)
-      ) : (
-        <p>No entries in this semantic domain.</p>
-      )}
-    </>
-  );
-}

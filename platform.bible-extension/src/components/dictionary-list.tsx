@@ -1,6 +1,6 @@
 // Modified from paranext-core/extensions/src/components/dictionary/dictionary-list.component.tsx
 
-import type { IEntry } from 'fw-lite-extension';
+import type { IEntry, ISemanticDomain } from 'fw-lite-extension';
 import {
   cn,
   Drawer,
@@ -20,6 +20,8 @@ type DictionaryListProps = {
   dictionaryData: IEntry[];
   /** Callback function to handle character press */
   onCharacterPress?: (char: string) => void;
+  /** Callback function to handle click on a semantic domain */
+  onClickSemanticDomain?: (domain: ISemanticDomain) => void;
 };
 
 /**
@@ -33,7 +35,11 @@ type DictionaryListProps = {
  * The component uses the `useListbox` hook from the `listbox-keyboard-navigation.util` module to
  * handle keyboard navigation of the list.
  */
-export default function DictionaryList({ dictionaryData, onCharacterPress }: DictionaryListProps) {
+export default function DictionaryList({
+  dictionaryData,
+  onCharacterPress,
+  onClickSemanticDomain,
+}: DictionaryListProps) {
   const isWideScreen = useIsWideScreen();
   const [selectedEntryId, setSelectedEntryId] = useState<string | undefined>(undefined);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -99,6 +105,7 @@ export default function DictionaryList({ dictionaryData, onCharacterPress }: Dic
                   entry={entry}
                   isSelected={isSelected}
                   onClick={() => setSelectedEntryId(entry.id)}
+                  onClickSemanticDomain={onClickSemanticDomain}
                 />
               </div>
             );
@@ -114,12 +121,12 @@ export default function DictionaryList({ dictionaryData, onCharacterPress }: Dic
               dictionaryEntry={selectedEntry}
               handleBackToListButton={handleOptionSelect}
               onClickScrollToTop={scrollToTop}
+              onClickSemanticDomain={onClickSemanticDomain}
             />
           </div>
         ) : (
           <Drawer
             direction="right"
-            dismissible={false}
             open={drawerOpen}
             onOpenChange={() => setSelectedEntryId(undefined)}
           >
@@ -133,6 +140,7 @@ export default function DictionaryList({ dictionaryData, onCharacterPress }: Dic
                   dictionaryEntry={selectedEntry}
                   handleBackToListButton={() => setSelectedEntryId(undefined)}
                   onClickScrollToTop={scrollToTop}
+                  onClickSemanticDomain={onClickSemanticDomain}
                 />
               </div>
             </DrawerContent>
