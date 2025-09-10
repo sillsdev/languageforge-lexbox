@@ -16,6 +16,14 @@ const config: StorybookConfig = {
     "name": "@storybook/svelte-vite",
     "options": {}
   },
+  async viteFinal(config) {
+    config.server = {
+      ...config.server,
+      // specifying it here instead of the cli prevents the browser from trying to use 0.0.0.0
+      host: '0.0.0.0',
+    };
+    return config;
+  },
   experimental_indexers: (existingIndexers) => {
     existingIndexers?.forEach(indexer => {
       const currCreateIndex = indexer.createIndex;
