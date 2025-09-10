@@ -85,7 +85,7 @@ public class CrdtMiniLcmApi(
         var entityId = writingSystem.MaybeId ?? Guid.NewGuid();
         var wsType = writingSystem.Type;
         var exists = await repo.WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == wsType);
-        if (exists) throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
+        if (exists) throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} ({wsType}) already exists");
         var betweenIds = between is null ? null : await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, wsType))?.Id);
         var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(ws => ws.Type == wsType), betweenIds);
         await AddChange(new CreateWritingSystemChange(writingSystem, entityId, order));
