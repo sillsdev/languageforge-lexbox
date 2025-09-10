@@ -29,14 +29,6 @@ msgstr "– ({0} changements)"
 msgid "{0}"
 msgstr "{0}"
 
-#: src/project/SyncDialog.svelte
-msgid "{0} - FieldWorks"
-msgstr "{0} - FieldWorks"
-
-#: src/project/SyncDialog.svelte
-msgid "{0} - FieldWorks Lite"
-msgstr "{0} - FieldWorks Lite"
-
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
 msgstr "{0} (FieldWorks Lite)"
@@ -44,6 +36,18 @@ msgstr "{0} (FieldWorks Lite)"
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
+
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "{0} ago"
+msgstr ""
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{0} Changes"
+msgstr ""
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{0} Commits"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -160,9 +164,9 @@ msgstr "Auteur :"
 msgid "Auto"
 msgstr "Auto"
 
-#: src/project/SyncDialog.svelte
-msgid "Auto synchronizing"
-msgstr "Synchronisation automatique"
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Auto sync"
+msgstr ""
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -402,13 +406,9 @@ msgstr "Équivalents"
 msgid "Error getting sync status"
 msgstr "Erreur dans l'obtention de l'état de la synchronisation"
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr "Erreur dans l'obtention de l'état de la synchronisation."
-
-#: src/project/SyncDialog.svelte
-msgid "Error: {0}"
-msgstr "Erreur : {0}"
 
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example"
@@ -461,11 +461,21 @@ msgstr "Champ d'application"
 msgid "Field Labels"
 msgstr "Étiquettes de champ"
 
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "FieldWorks Classic"
+msgstr ""
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "FieldWorks Lite"
+msgstr ""
+
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr "FieldWorks Lite a été mis à jour avec succès. Veuillez redémarrer l'application pour appliquer les modifications."
 
 #: src/project/ProjectDropdown.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/lib/OpenInFieldWorksButton.svelte
 #: src/home/HomeView.svelte
 msgid "FieldWorks logo"
@@ -575,14 +585,19 @@ msgstr "Je comprends que cela ne peut pas être annulé"
 msgid "Import"
 msgstr "Importation"
 
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "in {0}"
+msgstr ""
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "Continuez"
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
-msgid "Last change: {0}"
-msgstr "Dernière modification : {0}"
+#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Last change: #"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
@@ -628,7 +643,7 @@ msgstr "Locale"
 msgid "Local only"
 msgstr "Uniquement au niveau local"
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Login"
 msgstr "Connexion"
 
@@ -693,7 +708,8 @@ msgstr "Sens manquants"
 msgid "Move"
 msgstr "Déplacer"
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Never"
 msgstr "Jamais"
 
@@ -751,7 +767,6 @@ msgstr "Aucun antécédent n'a été trouvé"
 msgid "No items found"
 msgstr "Aucun élément trouvé"
 
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "No server configured"
 msgstr "Pas de serveur configuré"
@@ -773,7 +788,6 @@ msgstr "Aucun"
 msgid "Not equal"
 msgstr "Pas d'égalité"
 
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
 msgstr "Non connecté"
@@ -790,7 +804,6 @@ msgstr "Rien à copier"
 msgid "Observer"
 msgstr "Observateur"
 
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Offline"
 msgstr "Hors ligne"
@@ -835,6 +848,10 @@ msgstr "Une partie de"
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Partie du discours"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Pending"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
@@ -1012,6 +1029,14 @@ msgstr "Soumettre"
 msgid "Suggest your ideas"
 msgstr "Suggérer vos idées"
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Sync"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Sync Changes"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
 msgstr "Synchronisé"
@@ -1024,8 +1049,6 @@ msgstr "Synchronisé {0} il y a"
 msgid "Synced with {0}"
 msgstr "Synchronisé avec {0}"
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
 msgstr "Synchroniser"
@@ -1034,10 +1057,9 @@ msgstr "Synchroniser"
 msgid "Synchronizing FieldWorks Lite with FieldWorks..."
 msgstr "Synchronisation de FieldWorks Lite avec FieldWorks..."
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
-msgid "Synchronizing..."
-msgstr "Synchronisation..."
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Syncing..."
+msgstr ""
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
@@ -1110,8 +1132,8 @@ msgstr "Type :"
 msgid "Unable to open in FieldWorks"
 msgstr "Impossible d'ouvrir FieldWorks"
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "Unknown"
@@ -1130,15 +1152,15 @@ msgstr "Erreur inconnue {0}"
 msgid "Unknown error downloading {0}"
 msgstr "Erreur inconnue lors du téléchargement de {0}"
 
-#: src/project/SyncDialog.svelte
-msgid "Unknown server: {0}"
-msgstr "Serveur inconnu : {0}"
-
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Untitled"
 msgstr "Sans titre"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Up to date"
+msgstr ""
 
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte

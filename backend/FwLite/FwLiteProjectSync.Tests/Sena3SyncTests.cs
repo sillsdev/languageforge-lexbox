@@ -63,6 +63,16 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     {
         var snapshot = ProjectSnapshot.Empty;
         if (wsImported) snapshot = snapshot with { WritingSystems = await _fwDataApi.GetWritingSystems() };
+
+        //saving the snapshot will try to read the Id but it will be empty when coming from FwData
+        foreach (var ws in snapshot.WritingSystems.Analysis)
+        {
+            if (ws.MaybeId is null) ws.Id = Guid.NewGuid();
+        }
+        foreach (var ws in snapshot.WritingSystems.Vernacular)
+        {
+            if (ws.MaybeId is null) ws.Id = Guid.NewGuid();
+        }
         await _syncService.SaveProjectSnapshot(_fwDataApi.Project, snapshot);
     }
 

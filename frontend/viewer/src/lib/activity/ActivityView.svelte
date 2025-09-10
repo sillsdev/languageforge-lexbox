@@ -8,6 +8,8 @@
   import ListItem from '$lib/components/ListItem.svelte';
   import {VList} from 'virtua/svelte';
   import {FormatDuration, formatDuration} from '$lib/components/ui/format';
+  import DevContent from '$lib/layout/DevContent.svelte';
+  import {Button} from '$lib/components/ui/button';
 
   const historyService = useHistoryService();
   const projectContext = useProjectContext();
@@ -117,6 +119,12 @@
             {#snippet children(change)}
               <div class="change whitespace-pre-wrap font-mono text-sm">
                 {formatJsonForUi(change)}
+                <DevContent>
+                  {#if 'entityId' in change}
+                    <Button href={`./browse?entryId=${change.entityId}`} icon="i-mdi-tag-search" size="icon"
+                      title="Go to entry (only works for entry changes)" />
+                  {/if}
+                </DevContent>
               </div>
             {/snippet}
           </VList>
