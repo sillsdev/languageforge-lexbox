@@ -19,6 +19,7 @@
     <SingleProject>true</SingleProject>
     <ImplicitUsings>enable</ImplicitUsings>
     <EnableDefaultCssItems>false</EnableDefaultCssItems>
+    <CompressionEnabled>false</CompressionEnabled>
     <Nullable>enable</Nullable>
     <SelfContained>true</SelfContained>
     <EnableWindowsTargeting Condition="$([MSBuild]::IsOSPlatform('linux'))">true</EnableWindowsTargeting>
