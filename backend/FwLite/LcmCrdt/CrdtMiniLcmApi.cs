@@ -82,14 +82,14 @@ public class CrdtMiniLcmApi(
     public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var entityId = Guid.NewGuid();
+        var entityId = writingSystem.MaybeId ?? Guid.NewGuid();
         var wsType = writingSystem.Type;
         var exists = await repo.WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == wsType);
         if (exists) throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
         var betweenIds = between is null ? null : await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, wsType))?.Id);
         var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(ws => ws.Type == wsType), betweenIds);
         await AddChange(new CreateWritingSystemChange(writingSystem, entityId, order));
-        return await repo.GetWritingSystem(writingSystem.WsId, wsType) ?? throw new NullReferenceException();
+        return await repo.GetWritingSystem(writingSystem.WsId, wsType) ?? throw new NotFoundException($"Writing system {writingSystem.WsId.Code} not found", nameof(WritingSystem));
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -99,7 +99,7 @@ public class CrdtMiniLcmApi(
         if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
         var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch);
         await AddChange(patchChange);
-        return await repo.GetWritingSystem(id, type) ?? throw new NullReferenceException();
+        return await repo.GetWritingSystem(id, type) ?? throw new NotFoundException($"Writing system {id.Code} not found", nameof(WritingSystem));
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)

@@ -38,7 +38,7 @@ public class WritingSystemChangeTests(MiniLcmApiFixture fixture) : IClassFixture
             Type = WritingSystemType.Analysis
         };
         await fixture.Api.CreateWritingSystem(writingSystem);
-        await fixture.Api.CreateWritingSystem(writingSystem with {Type = WritingSystemType.Vernacular});
+        await fixture.Api.CreateWritingSystem(writingSystem with {Type = WritingSystemType.Vernacular, Id = Guid.NewGuid()});
         var writingSystems = await fixture.Api.GetWritingSystems();
         writingSystems.Analysis.Should().ContainSingle(ws => ws.WsId == "de");
         writingSystems.Vernacular.Should().ContainSingle(ws => ws.WsId == "de");
