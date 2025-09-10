@@ -9,7 +9,6 @@
   let value = $state({ current: 'A fun example value' });
 
   const { Story } = defineMeta({
-    title: 'editor/fields/ws-input',
     component: WsInputWrapper,
     argTypes: {
       readonly: {

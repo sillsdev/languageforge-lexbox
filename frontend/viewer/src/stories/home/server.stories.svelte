@@ -2,9 +2,7 @@
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import Server from '../../home/Server.svelte';
 
-  const {Story} = defineMeta({
-    title: 'home/Server'
-  });
+  const {Story} = defineMeta({});
 </script>
 <script lang="ts">
   import type {IProjectModel, IServerStatus} from '$lib/dotnet-types';

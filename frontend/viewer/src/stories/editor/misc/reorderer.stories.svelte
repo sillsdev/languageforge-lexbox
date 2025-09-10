@@ -18,7 +18,6 @@
   }
 
   const { Story } = defineMeta({
-    title: 'editor/misc/reorderer',
     component: Reorderer<string>,
     args: {
       onchange: fn(),

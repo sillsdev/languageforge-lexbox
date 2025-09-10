@@ -24,5 +24,19 @@ const config: StorybookConfig = {
     };
     return config;
   },
+  experimental_indexers: (existingIndexers) => {
+    existingIndexers?.forEach(indexer => {
+      const currCreateIndex = indexer.createIndex;
+      indexer.createIndex = async (...args) => {
+        const entries = await currCreateIndex(...args);
+        entries.forEach(entry => {
+          // strip "stories/" prefix from titles, because it's an unnecessary nesting level
+          entry.title = entry.title?.replace(/^stories\//, '');
+        });
+        return entries;
+      };
+    });
+    return existingIndexers;
+  },
 };
 export default config;

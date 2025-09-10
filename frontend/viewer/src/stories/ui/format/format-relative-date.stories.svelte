@@ -6,7 +6,6 @@
 
   // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
   const { Story } = defineMeta({
-    title: 'ui/format/FormatRelativeDate',
     argTypes: {
       live: {
         control: { type: 'boolean' },

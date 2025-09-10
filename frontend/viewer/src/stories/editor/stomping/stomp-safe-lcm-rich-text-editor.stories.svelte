@@ -17,7 +17,6 @@
   }
 
   const { Story } = defineMeta({
-    title: 'editor/stomping/stomp-safe-lcm-rich-text-editor',
     component: StompSafeLcmRichTextEditor,
     argTypes: {
       readonly: {

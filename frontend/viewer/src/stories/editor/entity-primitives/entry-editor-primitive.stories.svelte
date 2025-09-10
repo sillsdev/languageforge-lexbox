@@ -43,7 +43,6 @@
   });
 
   const { Story } = defineMeta({
-    title: 'editor/entity-primitives/entry',
     component: EntryEditorPrimitive,
     parameters: fwliteStoryParameters({
       viewPicker: true,
