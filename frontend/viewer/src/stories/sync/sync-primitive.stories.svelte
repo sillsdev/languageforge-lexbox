@@ -2,9 +2,7 @@
   import {setupServiceProvider} from '$lib/services/service-provider';
   import {defineMeta} from '@storybook/addon-svelte-csf';
 
-  const {Story} = defineMeta({
-    title: 'sync/SyncPrimitive'
-  });
+  const {Story} = defineMeta({});
   setupServiceProvider();
 </script>
 <script lang="ts">
