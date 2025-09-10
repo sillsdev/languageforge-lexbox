@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-09-05 02:23\n"
+"PO-Revision-Date: 2025-09-10 05:19\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -39,15 +39,15 @@ msgstr "{0} (FieldWorks)"
 
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
-msgstr ""
+msgstr "{0} il y a"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{0} Changes"
-msgstr ""
+msgstr "Changements {0}"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{0} Commits"
-msgstr ""
+msgstr "Commits {0}"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -166,7 +166,7 @@ msgstr "Auto"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Auto sync"
-msgstr ""
+msgstr "Synchronisation automatique"
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -463,11 +463,11 @@ msgstr "Étiquettes de champ"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Classic"
-msgstr ""
+msgstr "FieldWorks Classique"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Lite"
-msgstr ""
+msgstr "FieldWorks Lite"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
@@ -587,7 +587,7 @@ msgstr "Importation"
 
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
-msgstr ""
+msgstr "dans {0}"
 
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
@@ -597,7 +597,7 @@ msgstr "Continuez"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Last change: #"
-msgstr ""
+msgstr "Dernier changement : #"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
@@ -773,7 +773,7 @@ msgstr "Pas de serveur configuré"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
-msgstr ""
+msgstr "Aucun sujet, impossible de créer un nouveau {0}"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
@@ -814,7 +814,7 @@ msgstr "Hors ligne, impossible de télécharger"
 
 #: src/home/Server.svelte
 msgid "Open"
-msgstr ""
+msgstr "Ouvert"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
@@ -851,7 +851,7 @@ msgstr "Partie du discours"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Pending"
-msgstr ""
+msgstr "En attente"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
@@ -1031,11 +1031,11 @@ msgstr "Suggérer vos idées"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync"
-msgstr ""
+msgstr "Synchroniser"
 
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
-msgstr ""
+msgstr "Synchroniser les modifications"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
@@ -1059,7 +1059,7 @@ msgstr "Synchronisation de FieldWorks Lite avec FieldWorks..."
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Syncing..."
-msgstr ""
+msgstr "Synchronisation en cours..."
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
@@ -1160,7 +1160,7 @@ msgstr "Sans titre"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Up to date"
-msgstr ""
+msgstr "À jour"
 
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
@@ -1224,3 +1224,4 @@ msgstr "Vous n'avez pas la permission de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
+
