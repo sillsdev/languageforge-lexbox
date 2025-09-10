@@ -10,9 +10,9 @@ import {
   type ListboxOption,
 } from 'platform-bible-react';
 import { useState, useEffect, RefObject, useMemo, useRef } from 'react';
-import { DictionaryEntryDisplay } from './dictionary-entry-display';
-import { DictionaryListItem } from './dictionary-list-item';
-import { useIsWideScreen } from '../utils/use-is-wide-screen';
+import DictionaryEntryDisplay from './dictionary-entry-display';
+import DictionaryListItem from './dictionary-list-item';
+import useIsWideScreen from '../utils/use-is-wide-screen';
 
 /** Props for the DictionaryList component */
 type DictionaryListProps = {

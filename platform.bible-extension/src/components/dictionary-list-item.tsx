@@ -26,7 +26,11 @@ type DictionaryListItemProps = {
  * The component uses the `useListbox` hook from the `listbox-keyboard-navigation.util` module to
  * handle keyboard navigation of the list.
  */
-export function DictionaryListItem({ entry, isSelected, onClick }: DictionaryListItemProps) {
+export default function DictionaryListItem({
+  entry,
+  isSelected,
+  onClick,
+}: DictionaryListItemProps) {
   return (
     <>
       {/* This component does have keyboard navigation, it is being handled through the useListbox hook */}

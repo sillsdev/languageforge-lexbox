@@ -18,7 +18,7 @@ type DomainsDisplayProps = {
  * The component displays each domain as a rounded, colored pill with a small icon. The text of the
  * pill is the code of the domain, followed by the label.
  */
-export function DomainsDisplay({ domains, onClickDomain }: DomainsDisplayProps) {
+export default function DomainsDisplay({ domains, onClickDomain }: DomainsDisplayProps) {
   return (
     <div className="tw-mt-2 tw-flex tw-flex-wrap tw-gap-2">
       {domains.map((domain) => (
