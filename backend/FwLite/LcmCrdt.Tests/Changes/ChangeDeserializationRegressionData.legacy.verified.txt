@@ -77,5 +77,34 @@
       "spans": []
     },
     "translation": {}
+  },
+  {
+    "$type": "CreateExampleSentenceChange",
+    "order": 1,
+    "senseId": "e9188e00-7088-48e3-84e8-526583e5d6b3",
+    "entityId": "f5db4283-2217-4123-8d5e-527d4c51adbe",
+    "sentence": {
+      "en": {
+        "spans": [
+          {
+            "text": "test",
+            "ws": "en"
+          }
+        ]
+      }
+    },
+    "reference": {
+      "spans": []
+    },
+    "translation": {
+      "en": {
+        "spans": [
+          {
+            "text": "test",
+            "ws": "en"
+          }
+        ]
+      }
+    }
   }
 ]
