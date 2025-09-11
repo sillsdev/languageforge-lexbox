@@ -11,9 +11,9 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
     private AsyncServiceScope _asyncScope;
     public IServiceProvider Services => _asyncScope.ServiceProvider;
 
-    private async Task InitDbFromScripts()
+    private async Task InitDbFromScripts(RegressionVersion version)
     {
-        var initialSqlFile = GetFilePath("Scripts/v1.sql");
+        var initialSqlFile = GetFilePath($"Scripts/{version}.sql");
         var projectsService = _asyncScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
         var crdtProject = new CrdtProject(dbName, $"{dbName}.sqlite");
         if (File.Exists(crdtProject.DbPath)) File.Delete(crdtProject.DbPath);
@@ -32,14 +32,20 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
 
         await projectsService.RefreshProjectData();
     }
-    public async Task InitializeAsync()
+
+    public Task InitializeAsync()
+    {
+        return InitializeAsync(RegressionVersion.v2);
+    }
+
+    public async Task InitializeAsync(RegressionVersion version)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
         builder.Services.AddTestLcmCrdtClient();
         _host = builder.Build();
         var services = _host.Services;
         _asyncScope = services.CreateAsyncScope();
-        await InitDbFromScripts();
+        await InitDbFromScripts(version);
     }
 
     public async Task DisposeAsync()
@@ -58,5 +64,11 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
             Path.GetDirectoryName(sourceFile) ??
             throw new InvalidOperationException("Could not get directory of source file"),
             name);
+    }
+
+    public enum RegressionVersion
+    {
+        v1,
+        v2
     }
 }
