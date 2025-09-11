@@ -1,4 +1,5 @@
 using MiniLcm.Models;
+using SIL.Extensions;
 using SIL.LCModel;
 using SIL.LCModel.Core.Text;
 
@@ -18,18 +19,21 @@ public class UpdateExampleSentenceProxy(ILexExampleSentence sentence, FwDataMini
         set => throw new NotImplementedException();
     }
 
-    public override RichMultiString Translation
+    public override IList<Translation> Translations
     {
         get
         {
-            var firstTranslation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
-            if (firstTranslation is null)
-            {
-                var translation = lexboxLcmApi.CreateExampleSentenceTranslation(sentence);
-                sentence.TranslationsOC.Add(translation);
-                firstTranslation = translation.Translation;
-            }
-            return new UpdateRichMultiStringProxy(firstTranslation, lexboxLcmApi);
+            return new UpdateListProxy<Translation>(newTranslation =>
+                {
+                    lexboxLcmApi.CreateExampleSentenceTranslation(sentence, newTranslation);
+                },
+                deleteTranslation =>
+                {
+                    sentence.TranslationsOC.RemoveAll(t => t.Guid == deleteTranslation.Id);
+                },
+                i => throw new NotImplementedException("need to create a translation proxy and return it here"),
+                sentence.TranslationsOC.Count
+            );
         }
         set => throw new NotImplementedException();
     }

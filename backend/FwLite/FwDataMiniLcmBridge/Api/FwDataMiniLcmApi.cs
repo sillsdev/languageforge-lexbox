@@ -786,14 +786,17 @@ public class FwDataMiniLcmApi(
 
     private ExampleSentence FromLexExampleSentence(Guid senseGuid, ILexExampleSentence sentence)
     {
-        var translation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
         return new ExampleSentence
         {
             Id = sentence.Guid,
             SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
             Reference = ToRichString(sentence.Reference),
-            Translation = translation is null ? [] : FromLcmMultiString(translation),
+            Translations = sentence.TranslationsOC.Select(t => new Translation
+            {
+                Id = t.Guid,
+                Text = t.Translation is null ? [] : FromLcmMultiString(t.Translation),
+            }).ToList()
         };
     }
 
@@ -1560,14 +1563,22 @@ public class FwDataMiniLcmApi(
         var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id);
         InsertExampleSentence(lexSense, lexExampleSentence, between);
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
-        var translation = CreateExampleSentenceTranslation(lexExampleSentence);
-        UpdateLcmMultiString(translation.Translation, exampleSentence.Translation);
+        foreach (var translation in exampleSentence.Translations)
+        {
+            CreateExampleSentenceTranslation(lexExampleSentence, translation);
+        }
         lexExampleSentence.Reference = exampleSentence.Reference is null
             ? null
             : RichTextMapping.ToTsString(exampleSentence.Reference, id => GetWritingSystemHandle(id));
     }
 
-    public ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent)
+    internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Translation translation)
+    {
+        var cmTranslation = CreateExampleSentenceTranslation(parent);
+        UpdateLcmMultiString(cmTranslation.Translation, translation.Text);
+        return cmTranslation;
+    }
+    internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent)
     {
         var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
         return CmTranslationFactory.Create(parent, freeTranslationType);

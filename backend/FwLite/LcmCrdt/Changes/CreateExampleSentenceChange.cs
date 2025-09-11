@@ -15,7 +15,7 @@ public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNa
         SenseId = senseId;
         Order = exampleSentence.Order;
         Sentence = exampleSentence.Sentence;
-        Translation = exampleSentence.Translation;
+        Translations = exampleSentence.Translations;
         Reference = exampleSentence.Reference;
     }
 
@@ -28,7 +28,7 @@ public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNa
     public Guid SenseId { get; init; }
     public double Order { get; set; }
     public RichMultiString? Sentence { get; set; }
-    public RichMultiString? Translation { get; set; }
+    public IList<Translation>? Translations { get; set; }
     public RichString? Reference { get; set; }
 
     public override async ValueTask<ExampleSentence> NewEntity(Commit commit, IChangeContext context)
@@ -39,7 +39,7 @@ public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNa
             SenseId = SenseId,
             Order = Order,
             Sentence = Sentence ?? new(),
-            Translation = Translation ?? new(),
+            Translations = Translations ?? [],
             Reference = Reference,
             DeletedAt = await context.IsObjectDeleted(SenseId) ? commit.DateTime : (DateTime?)null
         };

@@ -27,7 +27,7 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
             SenseId = _senseId,
             Reference = new RichString("This is a reference", "en"),
             Sentence = { { "en", new RichString("test", "en") } },
-            Translation = { { "en", new RichString("test", "en") } }
+            Translations = { new Translation() { Text = { { "en", new RichString("test", "en") } } } }
         };
         var actualSentence = await Api.CreateExampleSentence(_entryId, _senseId, expectedExampleSentence);
         actualSentence.Should().BeEquivalentTo(expectedExampleSentence);

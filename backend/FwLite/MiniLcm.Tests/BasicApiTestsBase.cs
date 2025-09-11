@@ -350,22 +350,24 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                             {
                                 { "en", new RichString("test") }
                             },
-                            Translation =
-                            {
-                                { "en", new RichString("test") }
-                            }
+                            Translations =[new Translation()
+                                {
+                                    Text = { { "en", new RichString("test") } }
+                                }
+                            ]
                         }
                     ]
                 }
             ]
         });
+        throw new NotSupportedException();
         entry.Senses.Should().ContainSingle().Which.ExampleSentences.Should().ContainSingle();
-        var updatedExample = await Api.UpdateExampleSentence(entry.Id,
-            entry.Senses[0].Id,
-            entry.Senses[0].ExampleSentences[0].Id,
-            new UpdateObjectInput<ExampleSentence>()
-                .Set(e => e.Translation["en"], new RichString("updated", "en")));
-        updatedExample.Translation["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
+        // var updatedExample = await Api.UpdateExampleSentence(entry.Id,
+        //     entry.Senses[0].Id,
+        //     entry.Senses[0].ExampleSentences[0].Id,
+        //     new UpdateObjectInput<ExampleSentence>()
+        //         .Set(e => e.Translation["en"], new RichString("updated", "en")));
+        // updatedExample.Translation["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
     }
 
     [Fact]

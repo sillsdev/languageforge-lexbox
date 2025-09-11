@@ -37,10 +37,10 @@ public static class ExampleSentenceSync
             nameof(ExampleSentence.Sentence),
             beforeExampleSentence.Sentence,
             afterExampleSentence.Sentence));
-        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<ExampleSentence>(
-            nameof(ExampleSentence.Translation),
-            beforeExampleSentence.Translation,
-            afterExampleSentence.Translation));
+        // patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<ExampleSentence>(
+        //     nameof(ExampleSentence.Translation),
+        //     beforeExampleSentence.Translation,
+        //     afterExampleSentence.Translation));
         if (!Equals(beforeExampleSentence.Reference, afterExampleSentence.Reference))
         {
             patchDocument.Replace(exampleSentence => exampleSentence.Reference, afterExampleSentence.Reference);
