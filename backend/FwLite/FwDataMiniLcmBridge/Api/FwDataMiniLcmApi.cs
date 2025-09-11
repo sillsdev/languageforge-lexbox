@@ -1580,7 +1580,9 @@ public class FwDataMiniLcmApi(
     }
     internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Guid? id = null)
     {
+
         var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
+        //todo this doesn't work, and CmTranslationFactory does not let you specify the Guid on creation
         var translation = Cache.ServiceLocator.GetInstance<ILcmFactory<ICmTranslation>>().Create(id ?? Guid.NewGuid());;
         translation.TypeRA = freeTranslationType;
         parent.TranslationsOC.Add(translation);
