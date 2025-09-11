@@ -638,6 +638,7 @@ msgstr "Memuatkan Kamus..."
 msgid "loading..."
 msgstr "memuat..."
 
+#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/home/HomeView.svelte
 msgid "Local"
 msgstr "Tempatan"

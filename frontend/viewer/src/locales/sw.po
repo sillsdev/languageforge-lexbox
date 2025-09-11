@@ -638,6 +638,7 @@ msgstr ""
 msgid "loading..."
 msgstr "inashughulikia..."
 
+#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/home/HomeView.svelte
 msgid "Local"
 msgstr "Mitaa"

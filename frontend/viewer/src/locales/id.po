@@ -638,6 +638,7 @@ msgstr "Memuat Kamus..."
 msgid "loading..."
 msgstr "Loading..."
 
+#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/home/HomeView.svelte
 msgid "Local"
 msgstr "Lokal"

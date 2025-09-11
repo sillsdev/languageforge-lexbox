@@ -135,7 +135,7 @@
       <!--  local box-->
       <div class="text-center col-span-full border rounded py-2">
         <Icon icon="i-mdi-cellphone" class="!size-10 md:i-mdi-monitor"/>
-        <p>Local</p>
+        <p>{$t`Local`}</p>
       </div>
     </div>
   </Tabs.Content>

@@ -633,6 +633,7 @@ msgstr "Loading Dictionaries..."
 msgid "loading..."
 msgstr "loading..."
 
+#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/home/HomeView.svelte
 msgid "Local"
 msgstr "Local"
