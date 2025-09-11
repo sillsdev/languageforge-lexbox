@@ -31,7 +31,7 @@ public class UpdateExampleSentenceProxy(ILexExampleSentence sentence, FwDataMini
                 {
                     sentence.TranslationsOC.RemoveAll(t => t.Guid == deleteTranslation.Id);
                 },
-                i => throw new NotImplementedException("need to create a translation proxy and return it here"),
+                i => new UpdateTranslationProxy(sentence.TranslationsOC.ElementAt(i), lexboxLcmApi),
                 sentence.TranslationsOC.Count
             );
         }

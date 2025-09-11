@@ -49,7 +49,7 @@ public class Translation
     }
 
     public Guid Id { get; set; }
-    public RichMultiString Text { get; set; } = new();
+    public virtual RichMultiString Text { get; set; } = new();
 
     public Translation Copy()
     {
