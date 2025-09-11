@@ -11,7 +11,7 @@ public static class MiniLcmJson
     {
         if (ignoreInternal)
             resolver = resolver.WithAddedModifier(IgnoreInternalMiniLcmProperties);
-        resolver = resolver.WithAddedModifier(RewriteMigratedProperties);
+        resolver = resolver.WithAddedModifier(ExampleTranslationHandling);
         return resolver;
     }
 
@@ -28,7 +28,7 @@ public static class MiniLcmJson
         }
     }
 
-    private static void RewriteMigratedProperties(JsonTypeInfo typeInfo)
+    private static void ExampleTranslationHandling(JsonTypeInfo typeInfo)
     {
         if (typeInfo.Type == typeof(ExampleSentence))
         {
@@ -43,7 +43,6 @@ public static class MiniLcmJson
                 exampleSentence.Translations = [Translation.FromMultiString(richString)];
             };
             typeInfo.Properties.Add(propertyInfo);
-
         }
     }
 }
