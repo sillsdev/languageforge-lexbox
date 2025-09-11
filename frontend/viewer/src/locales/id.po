@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-09-10 05:19\n"
+"PO-Revision-Date: 2025-09-11 05:31\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -125,7 +125,7 @@ msgstr "Tambahkan bagian dari"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Sense"
-msgstr "Tambahkan Sense"
+msgstr "Tambahkan Pengertian"
 
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
@@ -388,15 +388,15 @@ msgstr "Diakhiri dengan"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Entry"
-msgstr "Masuk"
+msgstr "Entri"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry Only"
-msgstr "Hanya Masuk"
+msgstr "Hanya Entri"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry or sense:"
-msgstr "Masuk atau masuk akal:"
+msgstr "Entri atau pengertian:"
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
@@ -546,7 +546,7 @@ msgstr "Untuk pertanyaan lainnya, silakan kirimkan email kepada kami."
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
-msgstr "Kilap"
+msgstr "Arti Singkat"
 
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
@@ -689,7 +689,7 @@ msgstr "Contoh yang Hilang"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
-msgstr "Missing Gloss {0}"
+msgstr "Arti Singkat yang hilang {0}"
 
 #: src/project/tasks/tasks-service.ts
 #: src/project/browse/SearchFilter.svelte
@@ -702,7 +702,7 @@ msgstr "Domain Semantik yang Hilang"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Missing Senses"
-msgstr "Indera yang hilang"
+msgstr "Pengertian yang hilang"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -965,7 +965,7 @@ msgstr "Kirimkan pesan kepada kami"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Sense"
-msgstr "Sense"
+msgstr "Pengertian"
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Sentence"
@@ -1118,7 +1118,7 @@ msgstr "Ketik Definisi"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
-msgstr "Ketik Gloss"
+msgstr "Ketik Arti Singkat"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type an example sentence"
