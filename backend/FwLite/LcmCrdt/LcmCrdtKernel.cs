@@ -4,6 +4,7 @@ using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
 using LcmCrdt.Objects;
@@ -228,7 +229,7 @@ public static class LcmCrdtKernel
 
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()
-            .Add<JsonPatchChange<ExampleSentence>>()
+            .Add<JsonPatchExampleSentenceChange>()
             .Add<JsonPatchChange<WritingSystem>>()
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()

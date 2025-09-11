@@ -19,11 +19,15 @@ public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class
         JsonPatchValidator.ValidatePatchDocument(PatchDocument);
     }
 
-    [JsonConstructor]
-    public JsonPatchChange(Guid entityId, JsonPatchDocument<T> patchDocument): base(entityId)
+    protected JsonPatchChange(Guid entityId, JsonPatchDocument<T> patchDocument, bool bypassValidation) : base(entityId)
     {
         PatchDocument = patchDocument;
-        JsonPatchValidator.ValidatePatchDocument(PatchDocument);
+        if (bypassValidation) JsonPatchValidator.ValidatePatchDocument(PatchDocument);
+    }
+
+    [JsonConstructor]
+    public JsonPatchChange(Guid entityId, JsonPatchDocument<T> patchDocument): this(entityId, patchDocument, false)
+    {
     }
 
 
@@ -36,16 +40,17 @@ public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class
     }
 }
 
-file static class JsonPatchValidator
+internal static class JsonPatchValidator
 {
 
     /// <summary>
     /// prevents the use of indexes in the path, as this will cause major problems with CRDTs.
     /// </summary>
-    public static void ValidatePatchDocument(IJsonPatchDocument patchDocument)
+    public static void ValidatePatchDocument(IJsonPatchDocument patchDocument, Func<Operation, bool>? where = null)
     {
         foreach (var operation in patchDocument.GetOperations())
         {
+            if (where != null && !where(operation)) continue;
             if (operation.OperationType == OperationType.Remove && char.IsDigit(operation.Path?[^1] ?? default))
             {
                 throw new NotSupportedException("remove at index not supported, op " + JsonSerializer.Serialize(operation));
