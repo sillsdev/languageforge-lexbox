@@ -80,6 +80,7 @@ export default function DictionaryEntryDisplay({
         <h3 className="tw-mb-1 tw-font-semibold">
           {localizedStrings['%fwLiteExtension_entryDisplay_senses%']}
         </h3>
+
         <div className="tw-flex tw-flex-col tw-gap-3">
           {Object.values(dictionaryEntry.senses)
             .flat()
@@ -102,7 +103,7 @@ export default function DictionaryEntryDisplay({
 
                 {sense.partOfSpeech?.id && (
                   <div className="tw-mt-1 tw-max-w-lg tw-text-start tw-text-sm tw-text-muted-foreground">
-                    <span>{`${localizedStrings['%fwLiteExtension_entryDisplay_partOfSpeech%']}${partOfSpeechText(sense.partOfSpeech)}`}</span>
+                    <span>{`${localizedStrings['%fwLiteExtension_entryDisplay_partOfSpeech%']}: ${partOfSpeechText(sense.partOfSpeech)}`}</span>
                   </div>
                 )}
 

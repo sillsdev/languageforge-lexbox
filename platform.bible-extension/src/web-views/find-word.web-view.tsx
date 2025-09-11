@@ -5,7 +5,7 @@ import type { IEntry, IEntryService, PartialEntry, WordWebViewOptions } from 'fw
 import { SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import AddNewEntry from '../components/add-new-entry';
+import AddNewEntryButton from '../components/add-new-entry-button';
 import DictionaryList from '../components/dictionary-list';
 import DictionaryListWrapper from '../components/dictionary-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
@@ -18,12 +18,13 @@ globalThis.webViewComponent = function fwLiteFindWord({
   vernacularLanguage,
   word,
 }: WordWebViewOptions) {
+  const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
+
   const [matchingEntries, setMatchingEntries] = useState<IEntry[] | undefined>();
   const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
   const [isFetching, setIsFetching] = useState(false);
-  const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
   const [searchTerm, setSearchTerm] = useState(word ?? '');
 
   useEffect(() => {
@@ -45,12 +46,9 @@ globalThis.webViewComponent = function fwLiteFindWord({
   const fetchEntries = useCallback(
     async (untrimmedSurfaceForm: string) => {
       if (!projectId || !fwLiteNetworkObject) {
-        if (!projectId)
-          logger.warn(`${localizedStrings['%fwLiteExtension_error_missingParam%']}projectId`);
-        if (!fwLiteNetworkObject)
-          logger.warn(
-            `${localizedStrings['%fwLiteExtension_error_missingParam%']}fwLiteNetworkObject`,
-          );
+        const errMissingParam = localizedStrings['%fwLiteExtension_error_missingParam%'];
+        if (!projectId) logger.warn(`${errMissingParam}projectId`);
+        if (!fwLiteNetworkObject) logger.warn(`${errMissingParam}fwLiteNetworkObject`);
         return;
       }
 
@@ -82,12 +80,9 @@ globalThis.webViewComponent = function fwLiteFindWord({
   const addEntry = useCallback(
     async (entry: PartialEntry) => {
       if (!projectId || !fwLiteNetworkObject) {
-        if (!projectId)
-          logger.warn(`${localizedStrings['%fwLiteExtension_error_missingParam%']}projectId`);
-        if (!fwLiteNetworkObject)
-          logger.warn(
-            `${localizedStrings['%fwLiteExtension_error_missingParam%']}fwLiteNetworkObject`,
-          );
+        const errMissingParam = localizedStrings['%fwLiteExtension_error_missingParam%'];
+        if (!projectId) logger.warn(`${errMissingParam}projectId`);
+        if (!fwLiteNetworkObject) logger.warn(`${errMissingParam}fwLiteNetworkObject`);
         return;
       }
 
@@ -116,7 +111,7 @@ globalThis.webViewComponent = function fwLiteFindWord({
           </div>
 
           <div>
-            <AddNewEntry
+            <AddNewEntryButton
               addEntry={addEntry}
               analysisLang={analysisLanguage ?? ''}
               headword={searchTerm}

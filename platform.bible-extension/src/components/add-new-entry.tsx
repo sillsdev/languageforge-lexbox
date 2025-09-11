@@ -1,13 +1,15 @@
 import { logger } from '@papi/frontend';
+import { useLocalizedStrings } from '@papi/frontend/react';
 import type { PartialEntry } from 'fw-lite-extension';
-import { Button, Card, CardContent, CardHeader, Input, Label } from 'platform-bible-react';
+import { Button, Input, Label } from 'platform-bible-react';
 import { type ReactElement, useCallback, useEffect, useState } from 'react';
+import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 interface AddNewEntryProps {
   addEntry: (entry: PartialEntry) => Promise<void>;
   analysisLang: string;
   headword?: string;
-  isAdding?: boolean;
+  onCancel?: () => void;
   vernacularLang: string;
 }
 
@@ -15,16 +17,15 @@ export default function AddNewEntry({
   addEntry,
   analysisLang,
   headword,
-  isAdding,
+  onCancel,
   vernacularLang,
 }: AddNewEntryProps): ReactElement {
-  const [adding, setAdding] = useState(isAdding);
+  const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
+
   const [definition, setDefinition] = useState('');
   const [gloss, setGloss] = useState('');
   const [ready, setReady] = useState(false);
   const [tempHeadword, setTempHeadword] = useState('');
-
-  useEffect(() => setAdding(isAdding), [isAdding]);
 
   useEffect(() => setTempHeadword(headword || ''), [headword]);
 
@@ -33,11 +34,11 @@ export default function AddNewEntry({
   }, [definition, gloss, tempHeadword, vernacularLang]);
 
   const clearEntry = useCallback((): void => {
-    setAdding(isAdding);
     setDefinition('');
     setGloss('');
     setTempHeadword(headword || '');
-  }, [headword, isAdding]);
+    onCancel?.();
+  }, [headword, onCancel]);
 
   async function onSubmit(): Promise<void> {
     const entry = createEntry(
@@ -52,40 +53,52 @@ export default function AddNewEntry({
       .catch((e) => logger.error('Error adding entry:', JSON.stringify(e)));
   }
 
-  return adding ? (
-    <Card>
-      <CardHeader>Adding new entry</CardHeader>
-      <CardContent>
+  return (
+    <div className="tw-flex tw-flex-col tw-items-start">
+      <h3 className="tw-font-semibold tw-mb-2">
+        {localizedStrings['%fwLiteExtension_addWord_title%']}
+      </h3>
+
+      <div className="tw-flex tw-flex-col tw-gap-1">
         <div>
-          <Label htmlFor="newEntryHeadword">Headword ({vernacularLang}):</Label>
+          <Label htmlFor="newEntryHeadword">
+            {localizedStrings['%fwLiteExtension_entryDisplay_headword%']} ({vernacularLang}):
+          </Label>
           <Input
             id="newEntryHeadword"
             onChange={(e) => setTempHeadword(e.target.value)}
             value={tempHeadword}
           />
         </div>
+
         <div>
-          <Label htmlFor="newEntryGloss">Gloss ({analysisLang}):</Label>
+          <Label htmlFor="newEntryGloss">
+            {localizedStrings['%fwLiteExtension_entryDisplay_gloss%']} ({analysisLang}):
+          </Label>
           <Input id="newEntryGloss" onChange={(e) => setGloss(e.target.value)} value={gloss} />
         </div>
+
         <div>
-          <Label htmlFor="newEntryDefinition">Definition ({analysisLang}):</Label>
+          <Label htmlFor="newEntryDefinition">
+            {localizedStrings['%fwLiteExtension_entryDisplay_definition%']} ({analysisLang}):
+          </Label>
           <Input
             id="newEntryDefinition"
             onChange={(e) => setDefinition(e.target.value)}
             value={definition}
           />
         </div>
-        <div>
+
+        <div className="tw-flex tw-gap-1 tw-mt-2">
           <Button disabled={!ready} onClick={() => onSubmit()}>
-            Submit new entry
+            {localizedStrings['%fwLiteExtension_addWord_buttonSubmit%']}
           </Button>
-          <Button onClick={clearEntry}>Cancel</Button>
+          <Button onClick={clearEntry}>
+            {localizedStrings['%fwLiteExtension_button_cancel%']}
+          </Button>
         </div>
-      </CardContent>
-    </Card>
-  ) : (
-    <Button onClick={() => setAdding(true)}>Add new entry</Button>
+      </div>
+    </div>
   );
 }
 
