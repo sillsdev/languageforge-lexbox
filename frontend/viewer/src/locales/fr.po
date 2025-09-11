@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-09-10 05:19\n"
+"PO-Revision-Date: 2025-09-11 05:31\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -39,7 +39,7 @@ msgstr "{0} (FieldWorks)"
 
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
-msgstr "{0} il y a"
+msgstr "il y a {0}"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{0} Changes"
@@ -546,7 +546,7 @@ msgstr "Pour toute autre question, n'hésitez pas à nous envoyer un courriel."
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
-msgstr "Brillant"
+msgstr "Glose"
 
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
