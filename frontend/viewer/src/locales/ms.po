@@ -647,6 +647,7 @@ msgid "Local only"
 msgstr "Tempatan sahaja"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Login"
 msgstr "Log masuk"
 

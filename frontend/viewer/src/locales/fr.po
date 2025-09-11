@@ -647,6 +647,7 @@ msgid "Local only"
 msgstr "Uniquement au niveau local"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Login"
 msgstr "Connexion"
 

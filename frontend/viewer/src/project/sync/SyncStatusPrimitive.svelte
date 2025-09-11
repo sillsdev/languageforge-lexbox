@@ -50,7 +50,7 @@
   let lastLocalSyncDate = $derived(latestCommitDate ? new Date(latestCommitDate) : undefined);
   const serverName = $derived(server?.displayName ?? serverId ?? 'unknown');
   const isOffline = $derived(syncStatus === SyncStatus.Offline);
-  const showRemote = $derived(server && !isOffline);
+  const showRemote = $derived(!!server);
 
   let loadingSyncLexboxToFlex = $state(false);
 
@@ -142,6 +142,9 @@
   {#if showRemote}
     <Tabs.Content value="classic">
       <FwLiteToFwMergeDetails
+        {syncStatus}
+        {server}
+        {onLoginStatusChange}
         {remoteStatus}
         {syncLexboxToFlex}
         bind:loadingSyncLexboxToFlex

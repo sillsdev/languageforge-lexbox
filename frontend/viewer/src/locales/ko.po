@@ -647,6 +647,7 @@ msgid "Local only"
 msgstr "로컬 전용"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Login"
 msgstr "로그인"
 
