@@ -47,14 +47,17 @@
   </Editor.Field.Root>
 
   <Editor.Field.Root fieldId="translation" class={cn($currentView.fields.translation.show || 'hidden')}>
-    <Editor.Field.Title name={vt($t`Translation`)} helpId={fieldData.translation.helpId} />
-    <Editor.Field.Body subGrid>
-      <RichMultiWsInput
+    {#each example.translations as translation, i (translation.id)}
+
+      <Editor.Field.Title name={vt($t`Translation ${i + 1}`)} helpId={fieldData.translation.helpId}/>
+      <Editor.Field.Body subGrid>
+        <RichMultiWsInput
           onchange={() => onFieldChanged('translation')}
-          bind:value={example.translation}
+          bind:value={translation.text}
           {readonly}
-          writingSystems={writingSystemService.viewAnalysis($currentView)} />
-    </Editor.Field.Body>
+          writingSystems={writingSystemService.viewAnalysis($currentView)}/>
+      </Editor.Field.Body>
+    {/each}
   </Editor.Field.Root>
 
   {#if writingSystemService.defaultAnalysis}
