@@ -7,9 +7,10 @@ namespace MiniLcm;
 
 public static class MiniLcmJson
 {
-    public static IJsonTypeInfoResolver AddExternalMiniLcmModifiers(this IJsonTypeInfoResolver resolver)
+    public static IJsonTypeInfoResolver AddExternalMiniLcmModifiers(this IJsonTypeInfoResolver resolver, bool ignoreInternal = true)
     {
-        resolver = resolver.WithAddedModifier(IgnoreInternalMiniLcmProperties);
+        if (ignoreInternal)
+            resolver = resolver.WithAddedModifier(IgnoreInternalMiniLcmProperties);
         return resolver;
     }
 
