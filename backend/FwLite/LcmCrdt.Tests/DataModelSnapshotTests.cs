@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions.Execution;
 using LcmCrdt.Objects;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
     private readonly LcmCrdtDbContext _crdtDbContext;
     private CrdtConfig _crdtConfig;
     private CrdtProject _crdtProject;
+    private readonly JsonSerializerOptions _jsonSerializerOptions = TestJsonOptions.Default();
 
     public DataModelSnapshotTests()
     {
@@ -63,29 +65,25 @@ public class DataModelSnapshotTests : IAsyncLifetime
     [Fact]
     public async Task VerifyChangeModels()
     {
-        var jsonSerializerOptions = _crdtConfig.JsonSerializerOptions;
-        await Verify(jsonSerializerOptions.GetTypeInfo(typeof(IChange)).PolymorphismOptions);
+        await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IChange)).PolymorphismOptions);
     }
 
     [Fact]
     public async Task VerifyIObjectBaseModels()
     {
-        var jsonSerializerOptions = _crdtConfig.JsonSerializerOptions;
-        await Verify(jsonSerializerOptions.GetTypeInfo(typeof(IObjectBase)).PolymorphismOptions);
+        await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IObjectBase)).PolymorphismOptions);
     }
 
     [Fact]
     public async Task VerifyIObjectWithIdModels()
     {
-        var jsonSerializerOptions = _crdtConfig.JsonSerializerOptions;
-        await Verify(jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions);
+        await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions);
     }
 
     [Fact]
     public void VerifyIObjectWithIdsMatchAdapterGetObjectTypeName()
     {
-        var jsonSerializerOptions = _crdtConfig.JsonSerializerOptions;
-        var types = jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions?.DerivedTypes ?? [];
+        var types = _jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions?.DerivedTypes ?? [];
         using (new AssertionScope())
         {
             foreach (var jsonDerivedType in types)

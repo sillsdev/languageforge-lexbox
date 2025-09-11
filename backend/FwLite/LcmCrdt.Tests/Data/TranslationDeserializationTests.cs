@@ -5,63 +5,58 @@ namespace LcmCrdt.Tests.Data;
 
 public class TranslationDeserializationTests
 {
-    private readonly JsonSerializerOptions _options;
+    private readonly JsonSerializerOptions _options = TestJsonOptions.Default();
 
-    public TranslationDeserializationTests()
-    {
-        var config = new CrdtConfig();
-        LcmCrdtKernel.ConfigureCrdt(config);
-        _options = config.JsonSerializerOptions;
-    }     public const string Example = """
-{
-  "$type": "MiniLcmCrdtAdapter",
-  "Obj": {
-    "$type": "ExampleSentence",
-    "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
-    "Order": 1,
-    "Sentence": {
-      "en": {
-        "Spans": [
-          {
-            "Text": "We ate an apple",
-            "Ws": "en"
-          }
-        ]
-      },
-      "de": {
-        "Spans": [
-          {
-            "Text": "de",
-            "Ws": "de"
-          }
-        ]
-      }
-    },
-    "Translation": {
-      "en": {
-        "Spans": [
-          {
-            "Text": "en",
-            "Ws": "en"
-          }
-        ]
-      }
-    },
-    "Reference": {
-      "Spans": [
-        {
-          "Text": "ref",
-          "Ws": "en"
-        }
-      ]
-    },
-    "SenseId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
-    "DeletedAt": null
-  },
-  "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
-  "DeletedAt": null
-}
-""";
+    public const string Example = """
+                                  {
+                                    "$type": "MiniLcmCrdtAdapter",
+                                    "Obj": {
+                                      "$type": "ExampleSentence",
+                                      "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+                                      "Order": 1,
+                                      "Sentence": {
+                                        "en": {
+                                          "Spans": [
+                                            {
+                                              "Text": "We ate an apple",
+                                              "Ws": "en"
+                                            }
+                                          ]
+                                        },
+                                        "de": {
+                                          "Spans": [
+                                            {
+                                              "Text": "de",
+                                              "Ws": "de"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "Translation": {
+                                        "en": {
+                                          "Spans": [
+                                            {
+                                              "Text": "en",
+                                              "Ws": "en"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "Reference": {
+                                        "Spans": [
+                                          {
+                                            "Text": "ref",
+                                            "Ws": "en"
+                                          }
+                                        ]
+                                      },
+                                      "SenseId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+                                      "DeletedAt": null
+                                    },
+                                    "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+                                    "DeletedAt": null
+                                  }
+                                  """;
 
     [Fact]
     public void CanDeserialize()

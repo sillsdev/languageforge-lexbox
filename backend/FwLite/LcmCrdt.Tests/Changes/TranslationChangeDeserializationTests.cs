@@ -7,14 +7,7 @@ namespace LcmCrdt.Tests.Changes;
 
 public class TranslationChangeDeserializationTests
 {
-    private readonly JsonSerializerOptions _options;
-
-    public TranslationChangeDeserializationTests()
-    {
-        var config = new CrdtConfig();
-        LcmCrdtKernel.ConfigureCrdt(config);
-        _options = config.JsonSerializerOptions;
-    }
+    private readonly JsonSerializerOptions _options = TestJsonOptions.Default();
 
     private const string CreateExampleJson = """
                                              {

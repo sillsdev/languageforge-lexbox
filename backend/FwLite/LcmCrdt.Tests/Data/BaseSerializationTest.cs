@@ -13,10 +13,9 @@ public abstract class BaseSerializationTest
 {
     protected static readonly Lazy<JsonSerializerOptions> LazyOptions = new(() =>
     {
-        var config = new CrdtConfig();
-        LcmCrdtKernel.ConfigureCrdt(config);
-        config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
-        return config.JsonSerializerOptions;
+        var options = TestJsonOptions.Default(ignoreInternal: false);
+        options.ReadCommentHandling = JsonCommentHandling.Skip;
+        return options;
     });
 
     protected static readonly JsonSerializerOptions Options = LazyOptions.Value;

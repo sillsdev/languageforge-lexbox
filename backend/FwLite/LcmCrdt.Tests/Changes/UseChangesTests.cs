@@ -16,10 +16,9 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
     private static readonly Randomizer random = new();
     private static readonly Lazy<JsonSerializerOptions> LazyOptions = new(() =>
     {
-        var config = new CrdtConfig();
-        LcmCrdtKernel.ConfigureCrdt(config);
-        config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
-        return config.JsonSerializerOptions;
+        var options = TestJsonOptions.Default(ignoreInternal: false);
+        options.ReadCommentHandling = JsonCommentHandling.Skip;
+        return options;
     });
     private static readonly JsonSerializerOptions Options = LazyOptions.Value;
 
