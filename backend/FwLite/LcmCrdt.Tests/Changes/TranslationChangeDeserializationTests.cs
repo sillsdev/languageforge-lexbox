@@ -12,28 +12,28 @@ public class TranslationChangeDeserializationTests
     private const string CreateExampleJson = """
                                              {
                                                "$type": "CreateExampleSentenceChange",
-                                               "order": 1,
-                                               "senseId": "e9188e00-7088-48e3-84e8-526583e5d6b3",
-                                               "entityId": "f5db4283-2217-4123-8d5e-527d4c51adbe",
-                                               "sentence": {
+                                               "Order": 1,
+                                               "SenseId": "e9188e00-7088-48e3-84e8-526583e5d6b3",
+                                               "EntityId": "f5db4283-2217-4123-8d5e-527d4c51adbe",
+                                               "Sentence": {
                                                  "en": {
-                                                   "spans": [
+                                                   "Spans": [
                                                      {
-                                                       "text": "test",
-                                                       "ws": "en"
+                                                       "Text": "test",
+                                                       "Ws": "en"
                                                      }
                                                    ]
                                                  }
                                                },
-                                               "reference": {
-                                                 "spans": []
+                                               "Reference": {
+                                                 "Spans": []
                                                },
-                                               "translation": {
+                                               "Translation": {
                                                  "en": {
-                                                   "spans": [
+                                                   "Spans": [
                                                      {
-                                                       "text": "test",
-                                                       "ws": "en"
+                                                       "Text": "test",
+                                                       "Ws": "en"
                                                      }
                                                    ]
                                                  }
