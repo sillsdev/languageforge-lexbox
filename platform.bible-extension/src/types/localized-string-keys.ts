@@ -16,5 +16,8 @@ export const LOCALIZED_STRING_KEYS: LocalizeKey[] = [
   '%fwLiteExtension_error_failedToAddEntry%',
   '%fwLiteExtension_error_gettingNetworkObject%',
   '%fwLiteExtension_error_missingParam%',
+  '%fwLiteExtension_findRelatedWord_noResultsInDomain%',
+  '%fwLiteExtension_findRelatedWord_selectInstruction%',
+  '%fwLiteExtension_findRelatedWord_textField%',
   '%fwLiteExtension_findWord_textField%',
 ];

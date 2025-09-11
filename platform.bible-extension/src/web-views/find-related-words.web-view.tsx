@@ -1,5 +1,6 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
+import { useLocalizedStrings } from '@papi/frontend/react';
 import type {
   IEntry,
   IEntryService,
@@ -7,12 +8,13 @@ import type {
   PartialEntry,
   WordWebViewOptions,
 } from 'fw-lite-extension';
-import { Card, SearchBar } from 'platform-bible-react';
+import { Label, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import AddNewEntryButton from '../components/add-new-entry-button';
 import DictionaryList from '../components/dictionary-list';
 import DictionaryListWrapper from '../components/dictionary-list-wrapper';
+import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 /* eslint-disable react-hooks/rules-of-hooks */
 
@@ -22,6 +24,8 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
   vernacularLanguage,
   word,
 }: WordWebViewOptions) {
+  const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
+
   const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
@@ -39,8 +43,13 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
         logger.info('Got network object:', networkObject);
         setFwLiteNetworkObject(networkObject);
       })
-      .catch((e) => logger.error('Error getting network object:', JSON.stringify(e)));
-  }, []);
+      .catch((e) =>
+        logger.error(
+          `${localizedStrings['%fwLiteExtension_error_gettingNetworkObject%']}:`,
+          JSON.stringify(e),
+        ),
+      );
+  }, [localizedStrings]);
 
   useEffect(() => {
     setSelectedDomain(undefined);
@@ -52,8 +61,9 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
   const fetchEntries = useCallback(
     async (untrimmedSurfaceForm: string) => {
       if (!projectId || !fwLiteNetworkObject) {
-        if (!projectId) logger.warn('Missing required parameter: projectId');
-        if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
+        const errMissingParam = localizedStrings['%fwLiteExtension_error_missingParam%'];
+        if (!projectId) logger.warn(`${errMissingParam}projectId`);
+        if (!fwLiteNetworkObject) logger.warn(`${errMissingParam}fwLiteNetworkObject`);
         return;
       }
 
@@ -73,14 +83,15 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
       setIsFetching(false);
       setMatchingEntries(entries);
     },
-    [fwLiteNetworkObject, projectId],
+    [fwLiteNetworkObject, localizedStrings, projectId],
   );
 
   const fetchRelatedEntries = useCallback(
     async (semanticDomain: string) => {
       if (!projectId || !fwLiteNetworkObject) {
-        if (!projectId) logger.warn('Missing required parameter: projectId');
-        if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
+        const errMissingParam = localizedStrings['%fwLiteExtension_error_missingParam%'];
+        if (!projectId) logger.warn(`${errMissingParam}projectId`);
+        if (!fwLiteNetworkObject) logger.warn(`${errMissingParam}fwLiteNetworkObject`);
         return;
       }
 
@@ -90,7 +101,7 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
       setIsFetching(false);
       setRelatedEntries(entries ?? []);
     },
-    [fwLiteNetworkObject, projectId],
+    [fwLiteNetworkObject, localizedStrings, projectId],
   );
 
   useEffect(() => {
@@ -110,9 +121,10 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
   const addEntryInDomain = useCallback(
     async (entry: PartialEntry) => {
       if (!fwLiteNetworkObject || !projectId || !selectedDomain || !entry.senses?.length) {
-        if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
-        if (!projectId) logger.warn('Missing required parameter: projectId');
-        if (!selectedDomain) logger.warn('Missing required parameter: selectedDomain');
+        const errMissingParam = localizedStrings['%fwLiteExtension_error_missingParam%'];
+        if (!fwLiteNetworkObject) logger.warn(`${errMissingParam}fwLiteNetworkObject`);
+        if (!projectId) logger.warn(`${errMissingParam}projectId`);
+        if (!selectedDomain) logger.warn(`${errMissingParam}selectedDomain`);
         if (!entry.senses?.length) logger.warn('Cannot add entry without senses');
         return;
       }
@@ -125,59 +137,62 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
         onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
         await papi.commands.sendCommand('fwLiteExtension.displayEntry', projectId, addedEntry.id);
       } else {
-        logger.error('Failed to add entry!');
+        logger.error(`${localizedStrings['%fwLiteExtension_error_failedToAddEntry%']}`);
       }
     },
-    [fwLiteNetworkObject, onSearch, projectId, selectedDomain],
+    [fwLiteNetworkObject, localizedStrings, onSearch, projectId, selectedDomain],
   );
 
   return (
     <DictionaryListWrapper
       elementHeader={
-        <div className="tw-flex tw-gap-2">
-          <div className="tw-max-w-72">
-            <SearchBar
-              onSearch={onSearch}
-              placeholder="Find related words in dictionary..."
-              value={searchTerm}
-            />
-          </div>
-
-          {selectedDomain && (
-            <div>
-              <AddNewEntryButton
-                addEntry={addEntryInDomain}
-                analysisLang={analysisLanguage ?? ''}
-                headword={searchTerm}
-                vernacularLang={vernacularLanguage ?? ''}
+        <div className="tw-flex tw-flex-col tw-gap-2">
+          <div className="tw-flex tw-gap-2">
+            <div className="tw-max-w-128">
+              <SearchBar
+                onSearch={onSearch}
+                placeholder={localizedStrings['%fwLiteExtension_findRelatedWord_textField%']}
+                value={searchTerm}
               />
             </div>
+
+            {selectedDomain && (
+              <div>
+                <AddNewEntryButton
+                  addEntry={addEntryInDomain}
+                  analysisLang={analysisLanguage ?? ''}
+                  headword={searchTerm}
+                  vernacularLang={vernacularLanguage ?? ''}
+                />
+              </div>
+            )}
+          </div>
+
+          {matchingEntries && !selectedDomain && (
+            <h4 className="tw-m-2">
+              {localizedStrings['%fwLiteExtension_findRelatedWord_selectInstruction%']}
+            </h4>
+          )}
+
+          {selectedDomain && (
+            <h4 className="tw-m-2">{`${selectedDomain.code}: ${JSON.stringify(selectedDomain.name)}`}</h4>
           )}
         </div>
       }
       elementList={
-        <>
-          {matchingEntries && !selectedDomain && (
-            <>
-              <p>Select a semantic domain for related words in that domain</p>
-              <DictionaryList
-                dictionaryData={matchingEntries}
-                onClickSemanticDomain={setSelectedDomain}
-              />
-            </>
-          )}
-
-          {selectedDomain && relatedEntries && (
-            <>
-              <Card>{`${selectedDomain.code}: ${JSON.stringify(selectedDomain.name)}`}</Card>
-              {relatedEntries.length ? (
-                <DictionaryList dictionaryData={relatedEntries} />
-              ) : (
-                <p>No entries in this semantic domain.</p>
-              )}
-            </>
-          )}
-        </>
+        /* eslint-disable no-nested-ternary */
+        !matchingEntries ? undefined : !selectedDomain ? (
+          <DictionaryList
+            dictionaryData={matchingEntries}
+            onClickSemanticDomain={setSelectedDomain}
+          />
+        ) : !relatedEntries?.length ? (
+          <div className="tw-m-4 tw-flex tw-justify-center">
+            <Label>{localizedStrings['%fwLiteExtension_findRelatedWord_noResultsInDomain%']}</Label>
+          </div>
+        ) : (
+          <DictionaryList dictionaryData={relatedEntries} />
+        )
       }
       isLoading={isFetching}
       hasItems={!!matchingEntries?.length}
