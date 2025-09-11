@@ -65,7 +65,7 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
                     Definition = { { "en", new RichString("test") } },
                     ExampleSentences =
                     [
-                        new ExampleSentence { Sentence = { { "en", new RichString("testing is good") } }, Translations = [new() { Text = {{ "en", new RichString("testing is good") }} }]}
+                        new ExampleSentence { Sentence = { { "en", new RichString("testing is good") } }, Translations = [new() { Id = Guid.NewGuid(), Text = {{ "en", new RichString("testing is good") }} }]}
                     ]
                 }
             ]
