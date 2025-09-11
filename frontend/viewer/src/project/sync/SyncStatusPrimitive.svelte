@@ -74,9 +74,9 @@
     <div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-4 gap-x-8">
 
       <!-- Status local to remote -->
-      <div class="col-span-full text-center flex flex-col border rounded py-2">
-        <a href={server?.authority + '/project/' + projectCode} target="_blank">
-          <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}/>
+      <div class="col-span-full text-center border rounded py-2">
+        <a class="inline-flex flex-col items-center" href={server?.authority + '/project/' + projectCode} target="_blank">
+          <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}  class="size-10" />
           <span class="underline">{serverName}</span>
         </a>
       </div>
