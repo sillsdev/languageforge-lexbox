@@ -588,11 +588,14 @@ msgstr "in {0}"
 msgid "Keep going"
 msgstr "Keep going"
 
-#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Last change: #"
 msgstr "Last change: #"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Last sync: #"
+msgstr "Last sync: #"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"

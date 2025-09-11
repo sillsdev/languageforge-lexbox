@@ -593,10 +593,13 @@ msgstr ""
 msgid "Keep going"
 msgstr "계속 진행"
 
-#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Last change: #"
+msgstr ""
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Last sync: #"
 msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte

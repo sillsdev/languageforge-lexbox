@@ -79,17 +79,16 @@
           <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}/>
           <span class="underline">{serverName}</span>
         </a>
-        <span class="text-foreground/80">
-          <T msg="Last change: #">
-            <FormatRelativeDate date={lastLocalSyncDate} showActualDate/>
-          </T>
-        </span>
       </div>
       <!--  arrows and sync counts -->
       <div class="col-span-full text-center grid justify-center items-center"
            style="grid-template-columns: 1fr auto 1fr">
-        <div>
-          <!--      blank spacer-->
+        <div class="px-4 max-w-56">
+          <span class="text-foreground/80">
+            <T msg="Last sync: #">
+              <FormatRelativeDate date={lastLocalSyncDate} showActualDate/>
+            </T>
+          </span>
         </div>
         <div class="grid justify-center items-center min-h-12" style="grid-template-columns: 1fr auto auto auto 1fr">
           <span class="text-end">{remoteToLocalCount ?? '?'}</span>
