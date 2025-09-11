@@ -5,13 +5,14 @@
 
 import type {IObjectWithId} from './IObjectWithId';
 import type {IRichMultiString} from '$lib/dotnet-types/i-multi-string';
+import type {ITranslation} from './ITranslation';
 import type {IRichString} from './IRichString';
 
 export interface IExampleSentence extends IObjectWithId
 {
 	id: string;
 	sentence: IRichMultiString;
-	translation: IRichMultiString;
+	translations: ITranslation[];
 	reference?: IRichString;
 	senseId: string;
 	deletedAt?: string;
