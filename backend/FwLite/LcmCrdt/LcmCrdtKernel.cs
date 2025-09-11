@@ -189,6 +189,10 @@ public static class LcmCrdtKernel
                 builder.HasOne<Sense>()
                     .WithMany(s => s.ExampleSentences)
                     .HasForeignKey(e => e.SenseId);
+                builder.Property(s => s.Translations)
+                    .HasColumnType("jsonb")
+                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<List<Translation>>(json, (JsonSerializerOptions?)null) ?? new List<Translation>());
             })
             .Add<WritingSystem>(builder =>
             {
