@@ -59,7 +59,7 @@ public class TranslationDeserializationTests
                                   """;
 
     [Fact]
-    public void CanDeserialize()
+    public void CanDeserializeFromExampleSentence()
     {
         var adapter = JsonSerializer.Deserialize<MiniLcmCrdtAdapter>(Example, _options);
         var example = adapter?.DbObject.Should().BeOfType<ExampleSentence>().Subject;

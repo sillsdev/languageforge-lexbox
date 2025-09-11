@@ -11,7 +11,7 @@ public static class TestJsonOptions
         return new JsonSerializerOptions(JsonSerializerDefaults.General)
         {
             TypeInfoResolver =
-                config.MakeLcmCrdtExternalJsonTypeResolver(ignoreInternal)
+                config.MakeLcmCrdtJsonTypeResolver(ignoreInternal)
         };
     }
 }

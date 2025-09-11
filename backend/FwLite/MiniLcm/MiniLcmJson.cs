@@ -7,10 +7,11 @@ namespace MiniLcm;
 
 public static class MiniLcmJson
 {
-    public static IJsonTypeInfoResolver AddExternalMiniLcmModifiers(this IJsonTypeInfoResolver resolver, bool ignoreInternal = true)
+    public static IJsonTypeInfoResolver AddMiniLcmModifiers(this IJsonTypeInfoResolver resolver, bool ignoreInternal = true)
     {
         if (ignoreInternal)
             resolver = resolver.WithAddedModifier(IgnoreInternalMiniLcmProperties);
+        resolver = resolver.WithAddedModifier(RewriteMigratedProperties);
         return resolver;
     }
 
@@ -24,6 +25,29 @@ public static class MiniLcmJson
                 //we probably don't need to set ShouldSerialize anymore, but we'll leave it for now
                 prop.ShouldSerialize = (_, _) => false;
             }
+        }
+    }
+
+    private static void RewriteMigratedProperties(JsonTypeInfo typeInfo)
+    {
+        if (typeInfo.Type == typeof(ExampleSentence))
+        {
+            //legacy property
+            var propertyInfo = typeInfo.CreateJsonPropertyInfo(typeof(RichMultiString), "Translation");
+            propertyInfo.Set = (obj, value) =>
+            {
+                var exampleSentence = (ExampleSentence)obj;
+                if (exampleSentence.Translations.Any()) throw new InvalidOperationException("Cannot set translations when they already exist.");
+                var richString = (RichMultiString?)value;
+                if (richString is null) return;
+                exampleSentence.Translations = [new Translation()
+                {
+                    //todo Id?
+                    Text = richString
+                }];
+            };
+            typeInfo.Properties.Add(propertyInfo);
+
         }
     }
 }
