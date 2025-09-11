@@ -72,4 +72,25 @@ public class TranslationDeserializationTests
         var translation = example.Translations.Should().ContainSingle().Subject;
         translation.Text["en"].Should().BeEquivalentTo(new RichString("en", "en"));
     }
+
+    [Fact]
+    public void CanDeserializeRichTextToTranslation()
+    {
+        //this simulates when EF core renames the column and tries to write data. There's regression tests which cover this also but this is simpler to test.
+        var json = """
+                    {
+                      "en": {
+                        "Spans": [
+                          {
+                            "Text": "en",
+                            "Ws": "en"
+                          }
+                        ]
+                      }
+                    }
+                   """;
+        var translations = JsonSerializer.Deserialize<DbTranslationDeserializationTarget>(json, _options)?.GetTranslations();
+        var translation = translations.Should().ContainSingle().Subject;
+        translation.Text["en"].Should().BeEquivalentTo(new RichString("en", "en"));
+    }
 }

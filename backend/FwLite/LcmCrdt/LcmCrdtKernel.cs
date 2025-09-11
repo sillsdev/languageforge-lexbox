@@ -1,7 +1,5 @@
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
@@ -29,7 +27,6 @@ using LcmCrdt.FullTextSearch;
 using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using MiniLcm.Filtering;
 
 namespace LcmCrdt;
 
@@ -192,7 +189,7 @@ public static class LcmCrdtKernel
                 builder.Property(s => s.Translations)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<Translation>>(json, (JsonSerializerOptions?)null) ?? new List<Translation>());
+                        json => DeserializeTranslations(json));
             })
             .Add<WritingSystem>(builder =>
             {
@@ -286,6 +283,13 @@ public static class LcmCrdtKernel
         var crdtConfig = new CrdtConfig();
         ConfigureCrdt(crdtConfig);
         return crdtConfig.ObjectTypes;
+    }
+
+    private static IList<Translation> DeserializeTranslations(string json)
+    {
+        //in the db Translations may be a list, or they could be a json object, so we need to deserialize it differently
+        var deserializationTarget = JsonSerializer.Deserialize<DbTranslationDeserializationTarget>(json);
+        return deserializationTarget?.GetTranslations() ?? [];
     }
 
     public static async Task<IMiniLcmApi> OpenCrdtProject(this IServiceProvider services, CrdtProject project)

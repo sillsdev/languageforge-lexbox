@@ -43,6 +43,11 @@ public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
 
 public class Translation
 {
+    public static Translation FromMultiString(RichMultiString richString)
+    {
+        return new Translation() { Text = richString };
+    }
+
     public Guid Id { get; set; }
     public RichMultiString Text { get; set; } = new();
 

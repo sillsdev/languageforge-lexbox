@@ -40,11 +40,7 @@ public static class MiniLcmJson
                 if (exampleSentence.Translations.Any()) throw new InvalidOperationException("Cannot set translations when they already exist.");
                 var richString = (RichMultiString?)value;
                 if (richString is null) return;
-                exampleSentence.Translations = [new Translation()
-                {
-                    //todo Id?
-                    Text = richString
-                }];
+                exampleSentence.Translations = [Translation.FromMultiString(richString)];
             };
             typeInfo.Properties.Add(propertyInfo);
 
