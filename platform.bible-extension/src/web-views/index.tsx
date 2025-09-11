@@ -33,7 +33,7 @@ export const mainWebViewProvider: IWebViewProvider = {
       content: fwMainWindow,
       iconUrl,
       styles: mainCssStyles,
-      title: '%fwLiteExtension_browseDictionary_title%',
+      title: '%fwLiteExtension_webViewTitle_browseDictionary%',
     };
   },
 };
@@ -53,7 +53,7 @@ export const addWordWebViewProvider: IWebViewProvider = {
       content: fwAddWordWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_addWord_title%',
+      title: '%fwLiteExtension_webViewTitle_addWord%',
     };
   },
 };
@@ -73,7 +73,7 @@ export const dictionarySelectWebViewProvider: IWebViewProvider = {
       content: fwDictionarySelectWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_selectDictionary_title%',
+      title: '%fwLiteExtension_webViewTitle_selectDictionary%',
     };
   },
 };
@@ -93,7 +93,7 @@ export const findWordWebViewProvider: IWebViewProvider = {
       content: fwFindWordWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_findWord_title%',
+      title: '%fwLiteExtension_webViewTitle_findWord%',
     };
   },
 };
@@ -113,7 +113,7 @@ export const findRelatedWordsWebViewProvider: IWebViewProvider = {
       content: fwFindRelatedWordsWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_findRelatedWords_title%',
+      title: '%fwLiteExtension_webViewTitle_findRelatedWords%',
     };
   },
 };

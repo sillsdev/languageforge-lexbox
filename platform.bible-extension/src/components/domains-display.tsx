@@ -28,7 +28,7 @@ export default function DomainsDisplay({ domains, onClickDomain }: DomainsDispla
     setSortedDomains(codes.map((code) => domains.find((domain) => domain.code === code)!));
   }, [domains]);
 
-  return (
+  return sortedDomains.length ? (
     <div className="tw-mt-2 tw-flex tw-flex-wrap tw-gap-2">
       {sortedDomains.map((domain) => (
         <button
@@ -43,5 +43,5 @@ export default function DomainsDisplay({ domains, onClickDomain }: DomainsDispla
         </button>
       ))}
     </div>
-  );
+  ) : undefined;
 }

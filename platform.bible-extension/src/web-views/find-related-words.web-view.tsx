@@ -10,7 +10,7 @@ import type {
 import { Card, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import AddNewEntry from '../components/add-new-entry';
+import AddNewEntryButton from '../components/add-new-entry-button';
 import DictionaryList from '../components/dictionary-list';
 import DictionaryListWrapper from '../components/dictionary-list-wrapper';
 
@@ -145,7 +145,7 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
 
           {selectedDomain && (
             <div>
-              <AddNewEntry
+              <AddNewEntryButton
                 addEntry={addEntryInDomain}
                 analysisLang={analysisLanguage ?? ''}
                 headword={searchTerm}
