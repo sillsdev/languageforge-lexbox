@@ -65,7 +65,7 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
                     Definition = { { "en", new RichString("test") } },
                     ExampleSentences =
                     [
-                        new ExampleSentence { Sentence = { { "en", new RichString("testing is good") } } }
+                        new ExampleSentence { Sentence = { { "en", new RichString("testing is good") } }, Translations = [new() { Text = {{ "en", new RichString("testing is good") }} }]}
                     ]
                 }
             ]
@@ -88,15 +88,15 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
 
         var before = entry.Copy();
         var exampleSentence = entry.Senses[0].ExampleSentences[0];
-        exampleSentence.Translation = new() { { "en", new RichString("updated") } };
+        exampleSentence.Translations = [new() { Text = {{ "en", new RichString("updated") }} }];
 
         // Act
         var updatedEntry = await Api.UpdateEntry(before, entry);
         var updatedExampleSentence = updatedEntry.Senses[0].ExampleSentences[0];
 
         // Assert
-        updatedExampleSentence.Translation.Should().ContainSingle();
-        updatedExampleSentence.Translation["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
+        var translation = updatedExampleSentence.Translations.Should().ContainSingle().Subject;
+        translation.Text["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
         updatedEntry.Should().BeEquivalentTo(entry, options => options);
     }
 

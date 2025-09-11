@@ -8,7 +8,7 @@ public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
     [MiniLcmInternal]
     public double Order { get; set; }
     public virtual RichMultiString Sentence { get; set; } = new();
-    public virtual RichMultiString Translation { get; set; } = new();
+    public virtual IList<Translation> Translations { get; set; } = [];
 
     public virtual RichString? Reference { get; set; }
 
@@ -35,8 +35,19 @@ public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
             DeletedAt = DeletedAt,
             SenseId = SenseId,
             Sentence = Sentence.Copy(),
-            Translation = Translation.Copy(),
+            Translations = [..Translations.Select(t => t.Copy())],
             Reference = Reference?.Copy()
         };
+    }
+}
+
+public class Translation
+{
+    public Guid Id { get; set; }
+    public RichMultiString Text { get; set; } = new();
+
+    public Translation Copy()
+    {
+        return new Translation() { Id = Id, Text = Text.Copy() };
     }
 }
