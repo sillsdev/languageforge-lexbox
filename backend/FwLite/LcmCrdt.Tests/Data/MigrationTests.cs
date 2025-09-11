@@ -9,9 +9,9 @@ public class MigrationTests: IAsyncLifetime
 {
     private readonly RegressionTestHelper _helper = new("MigrationTest");
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync()
     {
-        await _helper.InitializeAsync();
+        return Task.CompletedTask;
     }
 
     public async Task DisposeAsync()
@@ -19,9 +19,12 @@ public class MigrationTests: IAsyncLifetime
         await _helper.DisposeAsync();
     }
 
-    [Fact]
-    public async Task GetEntries_WorksAfterMigrationFromScriptedDb()
+    [Theory]
+    [InlineData(RegressionTestHelper.RegressionVersion.v1)]
+    [InlineData(RegressionTestHelper.RegressionVersion.v2)]
+    public async Task GetEntries_WorksAfterMigrationFromScriptedDb(RegressionTestHelper.RegressionVersion regressionVersion)
     {
+        await _helper.InitializeAsync(regressionVersion);
         var api = _helper.Services.GetRequiredService<IMiniLcmApi>();
         var hasEntries = false;
         await foreach (var entry in api.GetEntries(new(Count: 100)))
