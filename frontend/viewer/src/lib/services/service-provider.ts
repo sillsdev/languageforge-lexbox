@@ -17,6 +17,7 @@ import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Even
 import type {IHistoryServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {useProjectContext} from '../project-context.svelte';
+import type {IJsInvokableLogger} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IJsInvokableLogger';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
@@ -33,6 +34,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.TestingService]: ITestingService,
   [DotnetService.MultiWindowService]: IMultiWindowService,
   [DotnetService.JsEventListener]: IJsEventListener,
+  [DotnetService.JsInvokableLogger]: IJsInvokableLogger,
 };
 
 export const SERVICE_KEYS = Object.values(DotnetService);
