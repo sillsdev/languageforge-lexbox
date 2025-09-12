@@ -202,26 +202,6 @@ public static class Json
     {
         var resolver = config.MakeJsonTypeResolver();
         resolver = resolver.AddMiniLcmModifiers(ignoreInternal);
-        resolver = resolver.WithAddedModifier(CreateExampleTranslationHandling);
         return resolver;
-    }
-
-    private static void CreateExampleTranslationHandling(JsonTypeInfo typeInfo)
-    {
-        if (typeInfo.Type == typeof(CreateExampleSentenceChange))
-        {
-            //legacy property
-            var propertyInfo = typeInfo.CreateJsonPropertyInfo(typeof(RichMultiString), "Translation");
-            propertyInfo.Set = (obj, value) =>
-            {
-                var change = (CreateExampleSentenceChange)obj;
-                if (change.Translations is { Count: > 0 })
-                    throw new InvalidOperationException("Cannot set translations when they already exist.");
-                var richString = (RichMultiString?)value;
-                if (richString is null) return;
-                change.Translations = [Translation.FromMultiString(richString)];
-            };
-            typeInfo.Properties.Add(propertyInfo);
-        }
     }
 }
