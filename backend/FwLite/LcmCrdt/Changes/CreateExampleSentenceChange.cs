@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Text.Json.Serialization;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
@@ -29,17 +30,25 @@ public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNa
     public double Order { get; set; }
     public RichMultiString? Sentence { get; set; }
     public IList<Translation>? Translations { get; set; }
+    [Obsolete("Use Translations instead")]
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public RichMultiString? Translation { get; set; }
     public RichString? Reference { get; set; }
 
     public override async ValueTask<ExampleSentence> NewEntity(Commit commit, IChangeContext context)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
+        var translations = Translations ?? ((Translation is not null)
+            ? [MiniLcm.Models.Translation.FromMultiString(Translation)]
+            : []);
+#pragma warning restore CS0618 // Type or member is obsolete
         return new ExampleSentence
         {
             Id = EntityId,
             SenseId = SenseId,
             Order = Order,
             Sentence = Sentence ?? new(),
-            Translations = Translations ?? [],
+            Translations = translations,
             Reference = Reference,
             DeletedAt = await context.IsObjectDeleted(SenseId) ? commit.DateTime : (DateTime?)null
         };
