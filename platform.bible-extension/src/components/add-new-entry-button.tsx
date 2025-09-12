@@ -11,6 +11,7 @@ interface AddNewEntryButtonProps extends DictionaryLanguages {
   headword?: string;
 }
 
+/** A button that, when clicked, expands to the AddNewEntry component. */
 export default function AddNewEntryButton({
   addEntry,
   analysisLanguage,
