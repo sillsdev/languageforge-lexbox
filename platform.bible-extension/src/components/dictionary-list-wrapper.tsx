@@ -11,7 +11,7 @@ type DictionaryListWrapperProps = {
   hasItems: boolean;
 };
 
-/** A sticky header for above a dictionary list. */
+/** A wrapper layout with a sticky header and a loading/no-results/list body. */
 export default function DictionaryListWrapper({
   elementHeader,
   elementList,
