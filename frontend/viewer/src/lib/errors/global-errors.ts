@@ -55,6 +55,7 @@ export function setupGlobalErrorHandlers() {
 
 function onErrorEvent(event: ErrorEvent | PromiseRejectionEvent) {
   const errorEvent = unifyErrorEvent(event);
+  console.log(errorEvent);
   void tryLogErrorToDotNet(errorEvent);
   if (suppressErrorNotification(errorEvent.message)) return;
   const {message: simpleMessage, detail} = processErrorIntoDetails(errorEvent);
@@ -63,11 +64,10 @@ function onErrorEvent(event: ErrorEvent | PromiseRejectionEvent) {
 
 async function tryLogErrorToDotNet(error: UnifiedErrorEvent) {
   try {
+    const details = getErrorString(error);
+    if (details.includes('JsInvokableLogger')) return; // avoid potential infinite loop
     const logger = await tryGetLogger();
     if (!logger) return;
-    const details = getErrorString(error);
-    // todo: move this check to before tryGetLogger
-    if (details.includes('JsInvokableLogger')) return; // avoid infinite loop
     await logger.log(LogLevel.Error, details);
   } catch (err) {
     console.error('Failed to log error to DotNet', err);
