@@ -155,7 +155,7 @@
         Annotations: 
           Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
-      Translation (RichMultiString) Required
+      Translations (IList<Translation>) Required
         Annotations: 
           Relational:ColumnType: jsonb
     Keys: 

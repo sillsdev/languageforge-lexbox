@@ -25,7 +25,7 @@
       TypeDiscriminator: jsonPatch:Sense
     },
     {
-      DerivedType: JsonPatchChange<ExampleSentence>,
+      DerivedType: JsonPatchExampleSentenceChange,
       TypeDiscriminator: jsonPatch:ExampleSentence
     },
     {
