@@ -5,6 +5,7 @@ using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
  using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
+using LcmCrdt.Changes.ExampleSentences;
 using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.MediaServer;
@@ -746,23 +747,24 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<ExampleSentence>(exampleSentenceId));
     }
 
-    public Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
+    public async Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
     {
-        throw new NotImplementedException();
+        await AddChange(new AddTranslationChange(exampleSentenceId, translation));
     }
 
-    public Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId)
+    public async Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId)
     {
-        throw new NotImplementedException();
+        await AddChange(new RemoveTranslationChange(exampleSentenceId, translationId));
     }
 
-    public Task UpdateTranslation(Guid entryId,
+    public async Task UpdateTranslation(Guid entryId,
         Guid senseId,
         Guid exampleSentenceId,
         Guid translationId,
         UpdateObjectInput<Translation> update)
     {
-        throw new NotImplementedException();
+        var jsonPatch = update.Patch;
+        await AddChange(new UpdateTranslationChange(exampleSentenceId, translationId, jsonPatch));
     }
 
     public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)

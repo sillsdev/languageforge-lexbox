@@ -6,6 +6,7 @@ using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
+using LcmCrdt.Changes.ExampleSentences;
 using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LcmCrdt.RemoteSync;
@@ -229,7 +230,6 @@ public static class LcmCrdtKernel
 
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()
-            .Add<JsonPatchExampleSentenceChange>()
             .Add<JsonPatchChange<WritingSystem>>()
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
@@ -237,7 +237,6 @@ public static class LcmCrdtKernel
             .Add<JsonPatchChange<Publication>>()
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
-            .Add<DeleteChange<ExampleSentence>>()
             .Add<DeleteChange<WritingSystem>>()
             .Add<DeleteChange<PartOfSpeech>>()
             .Add<DeleteChange<SemanticDomain>>()
@@ -250,7 +249,16 @@ public static class LcmCrdtKernel
             .Add<ReplaceSemanticDomainChange>()
             .Add<CreateEntryChange>()
             .Add<CreateSenseChange>()
+
+            //example sentence changes
             .Add<CreateExampleSentenceChange>()
+            .Add<JsonPatchExampleSentenceChange>()
+            .Add<Changes.SetOrderChange<ExampleSentence>>()
+            .Add<DeleteChange<ExampleSentence>>()
+            .Add<AddTranslationChange>()
+            .Add<RemoveTranslationChange>()
+            .Add<UpdateTranslationChange>()
+
             .Add<CreatePartOfSpeechChange>()
             .Add<CreateSemanticDomainChange>()
             .Add<CreateWritingSystemChange>()
@@ -264,7 +272,6 @@ public static class LcmCrdtKernel
             .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
             .Add<Changes.SetOrderChange<Sense>>()
-            .Add<Changes.SetOrderChange<ExampleSentence>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()
             // When adding anything other than a Delete or JsonPatch change,
