@@ -277,6 +277,28 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddTranslation), $"Add translation {translation.Id} to example sentence {exampleSentenceId}"));
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemoveTranslation), $"Remove translation {translationId} from example sentence {exampleSentenceId}"));
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateTranslation(Guid entryId,
+        Guid senseId,
+        Guid exampleSentenceId,
+        Guid translationId,
+        UpdateObjectInput<Translation> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateTranslation), $"Update translation {translationId} in example sentence {exampleSentenceId}"));
+        return Task.CompletedTask;
+    }
+
     public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
         var previousId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;

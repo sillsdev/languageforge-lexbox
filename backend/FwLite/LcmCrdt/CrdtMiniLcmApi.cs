@@ -745,6 +745,25 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<ExampleSentence>(exampleSentenceId));
     }
 
+    public Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdateTranslation(Guid entryId,
+        Guid senseId,
+        Guid exampleSentenceId,
+        Guid translationId,
+        UpdateObjectInput<Translation> update)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
     {
         if (mediaUri == MediaUri.NotFound) return new ReadFileResponse(ReadFileResult.NotFound);
