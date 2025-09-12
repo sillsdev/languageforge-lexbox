@@ -70,6 +70,7 @@ public static class ExampleSentenceSync
                 nameof(Translation.Text),
                 before.Text,
                 after.Text));
+            if (patchDocument.Operations.Count == 0) return 0;
             await api.UpdateTranslation(entryId, senseId, exampleId, before.Id, new UpdateObjectInput<Translation>(patchDocument));
             return 1;
         }
