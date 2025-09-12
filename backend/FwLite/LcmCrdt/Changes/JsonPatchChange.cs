@@ -19,17 +19,12 @@ public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class
         JsonPatchValidator.ValidatePatchDocument(PatchDocument);
     }
 
-    protected JsonPatchChange(Guid entityId, JsonPatchDocument<T> patchDocument, bool bypassValidation) : base(entityId)
+    [JsonConstructor]
+    public JsonPatchChange(Guid entityId, JsonPatchDocument<T> patchDocument) : base(entityId)
     {
         PatchDocument = patchDocument;
-        if (bypassValidation) JsonPatchValidator.ValidatePatchDocument(PatchDocument);
+        JsonPatchValidator.ValidatePatchDocument(PatchDocument);
     }
-
-    [JsonConstructor]
-    public JsonPatchChange(Guid entityId, JsonPatchDocument<T> patchDocument): this(entityId, patchDocument, false)
-    {
-    }
-
 
     public JsonPatchDocument<T> PatchDocument { get; }
 
