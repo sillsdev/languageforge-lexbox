@@ -749,6 +749,7 @@ public class CrdtMiniLcmApi(
 
     public async Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
     {
+        if (translation.Id == Guid.Empty) translation.Id = Guid.NewGuid();
         await AddChange(new AddTranslationChange(exampleSentenceId, translation));
     }
 

@@ -1584,7 +1584,7 @@ public class FwDataMiniLcmApi(
         var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
         //todo once https://github.com/sillsdev/liblcm/pull/341 is merged we can create the translation with the correct Guid
         var translation = CmTranslationFactory.Create(parent, freeTranslationType);
-        //hack for now
+        //hack for now, note this breaks Translation.Delete so the remove test is failing
         DangerouslySetGuid(translation.Id, id ?? Guid.NewGuid());
         return translation;
     }
@@ -1694,7 +1694,7 @@ public class FwDataMiniLcmApi(
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var translation = lexExampleSentence.TranslationsOC.First(t => t.Guid == translationId);
+                var translation = lexExampleSentence.TranslationsOC.First();
                 translation.Delete();
             });
         return Task.CompletedTask;

@@ -8,10 +8,10 @@ public class AddTranslationChange(Guid entityId, Translation translation) : Edit
 {
     public Translation Translation { get; } = translation;
 
-    public override async ValueTask ApplyChange(ExampleSentence entity, IChangeContext context)
+    public override ValueTask ApplyChange(ExampleSentence entity, IChangeContext context)
     {
-        if (entity.Translations.Any(t => t.Id == Translation.Id)) return;
-        if (await context.IsObjectDeleted(Translation.Id)) return;
+        if (entity.Translations.Any(t => t.Id == Translation.Id)) return ValueTask.CompletedTask;
         entity.Translations.Add(Translation);
+        return ValueTask.CompletedTask;
     }
 }
