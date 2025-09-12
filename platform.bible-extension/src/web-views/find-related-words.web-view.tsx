@@ -15,6 +15,7 @@ import AddNewEntryButton from '../components/add-new-entry-button';
 import DictionaryList from '../components/dictionary-list';
 import DictionaryListWrapper from '../components/dictionary-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
+import { domainText } from '../utils/entry-display-text';
 
 /* eslint-disable react-hooks/rules-of-hooks */
 
@@ -160,9 +161,9 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
               <div>
                 <AddNewEntryButton
                   addEntry={addEntryInDomain}
-                  analysisLang={analysisLanguage ?? ''}
+                  analysisLanguage={analysisLanguage ?? ''}
                   headword={searchTerm}
-                  vernacularLang={vernacularLanguage ?? ''}
+                  vernacularLanguage={vernacularLanguage ?? ''}
                 />
               </div>
             )}
@@ -175,7 +176,7 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
           )}
 
           {selectedDomain && (
-            <h4 className="tw-m-2">{`${selectedDomain.code}: ${JSON.stringify(selectedDomain.name)}`}</h4>
+            <h4 className="tw-m-2">{domainText(selectedDomain, analysisLanguage)}</h4>
           )}
         </div>
       }
@@ -183,15 +184,21 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
         /* eslint-disable no-nested-ternary */
         !matchingEntries ? undefined : !selectedDomain ? (
           <DictionaryList
+            analysisLanguage={analysisLanguage ?? ''}
             dictionaryData={matchingEntries}
             onClickSemanticDomain={setSelectedDomain}
+            vernacularLanguage={vernacularLanguage ?? ''}
           />
         ) : !relatedEntries?.length ? (
           <div className="tw-m-4 tw-flex tw-justify-center">
             <Label>{localizedStrings['%fwLiteExtension_findRelatedWord_noResultsInDomain%']}</Label>
           </div>
         ) : (
-          <DictionaryList dictionaryData={relatedEntries} />
+          <DictionaryList
+            analysisLanguage={analysisLanguage ?? ''}
+            dictionaryData={relatedEntries}
+            vernacularLanguage={vernacularLanguage ?? ''}
+          />
         )
       }
       isLoading={isFetching}

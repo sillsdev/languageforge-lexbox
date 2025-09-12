@@ -113,15 +113,21 @@ globalThis.webViewComponent = function fwLiteFindWord({
           <div>
             <AddNewEntryButton
               addEntry={addEntry}
-              analysisLang={analysisLanguage ?? ''}
+              analysisLanguage={analysisLanguage ?? ''}
               headword={searchTerm}
-              vernacularLang={vernacularLanguage ?? ''}
+              vernacularLanguage={vernacularLanguage ?? ''}
             />
           </div>
         </div>
       }
       elementList={
-        matchingEntries ? <DictionaryList dictionaryData={matchingEntries} /> : undefined
+        matchingEntries ? (
+          <DictionaryList
+            analysisLanguage={analysisLanguage ?? ''}
+            dictionaryData={matchingEntries}
+            vernacularLanguage={vernacularLanguage ?? ''}
+          />
+        ) : undefined
       }
       isLoading={isFetching}
       hasItems={!!matchingEntries?.length}

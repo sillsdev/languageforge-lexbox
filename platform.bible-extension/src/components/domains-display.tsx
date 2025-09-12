@@ -7,6 +7,7 @@ import { domainText } from '../utils/entry-display-text';
 
 /** Props for the DomainsDisplay component */
 type DomainsDisplayProps = {
+  analysisLanguage: string;
   /** Domains to display */
   domains: ISemanticDomain[];
   /** Function to trigger when a domain is clicked */
@@ -19,7 +20,11 @@ type DomainsDisplayProps = {
  * The component displays each domain as a rounded, colored pill with a small icon. The text of the
  * pill is the code of the domain, followed by the label.
  */
-export default function DomainsDisplay({ domains, onClickDomain }: DomainsDisplayProps) {
+export default function DomainsDisplay({
+  analysisLanguage,
+  domains,
+  onClickDomain,
+}: DomainsDisplayProps) {
   const [sortedDomains, setSortedDomains] = useState<ISemanticDomain[]>([]);
 
   useEffect(() => {
@@ -39,7 +44,7 @@ export default function DomainsDisplay({ domains, onClickDomain }: DomainsDispla
           type="button"
         >
           <Network className="tw-inline tw-mr-1 tw-h-3 tw-w-3" />
-          <span>{domainText(domain)}</span>
+          <span>{domainText(domain, analysisLanguage)}</span>
         </button>
       ))}
     </div>
