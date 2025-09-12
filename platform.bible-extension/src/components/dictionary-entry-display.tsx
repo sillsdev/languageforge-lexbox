@@ -1,7 +1,7 @@
 // Modified from paranext-core/extensions/src/components/dictionary/dictionary-entry-display.component.tsx
 
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { IEntry, ISemanticDomain } from 'fw-lite-extension';
+import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'fw-lite-extension';
 import { ChevronUpIcon } from 'lucide-react';
 import {
   Button,
@@ -22,7 +22,7 @@ import {
 } from '../utils/entry-display-text';
 
 /** Props for the DictionaryEntryDisplay component */
-export type DictionaryEntryDisplayProps = {
+export type DictionaryEntryDisplayProps = DictionaryLanguages & {
   /** Dictionary entry object to display */
   dictionaryEntry: IEntry;
   /** Whether the display is in a drawer or just next to the list */
@@ -41,11 +41,13 @@ export type DictionaryEntryDisplayProps = {
  * back button to navigate back to the list view.
  */
 export default function DictionaryEntryDisplay({
+  analysisLanguage,
   dictionaryEntry,
   isDrawer,
   handleBackToListButton,
   onClickScrollToTop,
   onClickSemanticDomain,
+  vernacularLanguage,
 }: DictionaryEntryDisplayProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
@@ -65,10 +67,10 @@ export default function DictionaryEntryDisplay({
         <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2">
           <span className="tw-flex tw-flex-row tw-items-baseline tw-gap-2">
             <TitleComponent className="tw-text-2xl tw-font-bold">
-              {entryHeadwordText(dictionaryEntry)}
+              {entryHeadwordText(dictionaryEntry, vernacularLanguage)}
             </TitleComponent>
             <DescriptionComponent className="tw-text-lg tw-text-muted-foreground">
-              {entryGlossText(dictionaryEntry)}
+              {entryGlossText(dictionaryEntry, analysisLanguage)}
             </DescriptionComponent>
           </span>
         </div>
@@ -92,22 +94,23 @@ export default function DictionaryEntryDisplay({
               >
                 <div className="tw-flex tw-items-baseline tw-gap-2">
                   <span className="tw-font-bold tw-text-accent-foreground">{senseIndex + 1}</span>
-                  <span className="tw-text-base">{senseGlossText(sense)}</span>
+                  <span className="tw-text-base">{senseGlossText(sense, analysisLanguage)}</span>
                 </div>
 
                 {Object.values(sense.definition).some(Boolean) && (
                   <div className="tw-mt-1 tw-max-w-lg tw-text-start tw-text-sm tw-text-muted-foreground">
-                    <span>{senseDefinitionText(sense)}</span>
+                    <span>{senseDefinitionText(sense, analysisLanguage)}</span>
                   </div>
                 )}
 
                 {sense.partOfSpeech?.id && (
                   <div className="tw-mt-1 tw-max-w-lg tw-text-start tw-text-sm tw-text-muted-foreground">
-                    <span>{`${localizedStrings['%fwLiteExtension_entryDisplay_partOfSpeech%']}: ${partOfSpeechText(sense.partOfSpeech)}`}</span>
+                    <span>{`${localizedStrings['%fwLiteExtension_entryDisplay_partOfSpeech%']}: ${partOfSpeechText(sense.partOfSpeech, analysisLanguage)}`}</span>
                   </div>
                 )}
 
                 <DomainsDisplay
+                  analysisLanguage={analysisLanguage}
                   domains={sense.semanticDomains}
                   onClickDomain={onClickSemanticDomain}
                 />

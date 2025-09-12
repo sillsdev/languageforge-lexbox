@@ -1,12 +1,12 @@
 // Modified from paranext-core/extensions/src/components/dictionary/dictionary-list-item.component.tsx
 
-import type { IEntry, ISemanticDomain } from 'fw-lite-extension';
+import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'fw-lite-extension';
 import { cn, Separator } from 'platform-bible-react';
 import DomainsDisplay from './domains-display';
 import { entryGlossText, entryHeadwordText } from '../utils/entry-display-text';
 
 /** Props for the DictionaryListItem component */
-type DictionaryListItemProps = {
+type DictionaryListItemProps = DictionaryLanguages & {
   /** The dictionary entry to display */
   entry: IEntry;
   /** Whether the dictionary entry is selected */
@@ -30,10 +30,12 @@ type DictionaryListItemProps = {
  * handle keyboard navigation of the list.
  */
 export default function DictionaryListItem({
+  analysisLanguage,
   entry,
   isSelected,
   onClick,
   onClickSemanticDomain,
+  vernacularLanguage,
 }: DictionaryListItemProps) {
   return (
     <>
@@ -54,16 +56,19 @@ export default function DictionaryListItem({
         tabIndex={-1}
       >
         <div className="tw-flex tw-items-baseline tw-gap-2">
-          <span className="tw-text-sm">{entryHeadwordText(entry)}</span>
+          <span className="tw-text-sm">{entryHeadwordText(entry, vernacularLanguage)}</span>
         </div>
 
         <div className="tw-flex tw-items-center tw-gap-2 tw-mt-0.5">
-          <p className="tw-text-sm tw-text-muted-foreground tw-truncate">{entryGlossText(entry)}</p>
+          <p className="tw-text-sm tw-text-muted-foreground tw-truncate">
+            {entryGlossText(entry, analysisLanguage)}
+          </p>
         </div>
 
         {onClickSemanticDomain && (
           <div className="tw-flex tw-items-center tw-gap-2 tw-mt-0.5">
             <DomainsDisplay
+              analysisLanguage={analysisLanguage}
               domains={entry.senses.flatMap((s) => s.semanticDomains)}
               onClickDomain={onClickSemanticDomain}
             />

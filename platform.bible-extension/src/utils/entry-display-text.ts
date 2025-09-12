@@ -4,11 +4,8 @@ export function domainText(domain: ISemanticDomain, lang = 'en'): string {
   return `${domain.code}: ${domain.name[lang] || domain.name.en}`;
 }
 
-export function entryGlossText(entry: IEntry): string {
-  return entry.senses
-    .map((s) => Object.values(s.gloss).filter(Boolean).join('; '))
-    .filter(Boolean)
-    .join(' | ');
+export function entryGlossText(entry: IEntry, lang = 'en'): string {
+  return entry.senses.map((s) => senseGlossText(s, lang)).join(' | ');
 }
 
 export function entryHeadwordText(entry: IEntry, lang = 'en'): string {
@@ -25,10 +22,10 @@ export function partOfSpeechText(partOfSpeech: IPartOfSpeech, lang = 'en'): stri
   return partOfSpeech.name[lang] || partOfSpeech.name.en;
 }
 
-export function senseDefinitionText(sense: ISense): string {
-  return JSON.stringify(sense.definition);
+export function senseDefinitionText(sense: ISense, lang = 'en'): string {
+  return sense.definition[lang] || Object.values(sense.definition).join('; ');
 }
 
-export function senseGlossText(sense: ISense): string {
-  return JSON.stringify(sense.gloss);
+export function senseGlossText(sense: ISense, lang = 'en'): string {
+  return sense.gloss[lang] || Object.values(sense.gloss).join('; ');
 }

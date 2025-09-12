@@ -66,9 +66,9 @@ globalThis.webViewComponent = function fwLiteAddWord({
     <div className="tw-p-4">
       <AddNewEntry
         addEntry={addEntry}
-        analysisLang={analysisLanguage ?? ''}
+        analysisLanguage={analysisLanguage ?? ''}
         headword={word}
-        vernacularLang={vernacularLanguage ?? ''}
+        vernacularLanguage={vernacularLanguage ?? ''}
       />
       {isSubmitting && <p>Adding entry to FieldWorks...</p>}
       {isSubmitted && <p>Entry added!</p>}

@@ -1,6 +1,6 @@
 // Modified from paranext-core/extensions/src/components/dictionary/dictionary-list.component.tsx
 
-import type { IEntry, ISemanticDomain } from 'fw-lite-extension';
+import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'fw-lite-extension';
 import {
   cn,
   Drawer,
@@ -15,7 +15,7 @@ import DictionaryListItem from './dictionary-list-item';
 import useIsWideScreen from '../utils/use-is-wide-screen';
 
 /** Props for the DictionaryList component */
-type DictionaryListProps = {
+type DictionaryListProps = DictionaryLanguages & {
   /** Array of dictionary entries */
   dictionaryData: IEntry[];
   /** Callback function to handle character press */
@@ -36,17 +36,18 @@ type DictionaryListProps = {
  * handle keyboard navigation of the list.
  */
 export default function DictionaryList({
+  analysisLanguage,
   dictionaryData,
   onCharacterPress,
   onClickSemanticDomain,
+  vernacularLanguage,
 }: DictionaryListProps) {
   const isWideScreen = useIsWideScreen();
+
   const [selectedEntryId, setSelectedEntryId] = useState<string | undefined>(undefined);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const options: ListboxOption[] = dictionaryData.map((entry) => ({
-    id: entry.id,
-  }));
+  const options: ListboxOption[] = dictionaryData.map((entry) => ({ id: entry.id }));
 
   const selectedEntry = useMemo(() => {
     return dictionaryData.find((entry) => entry.id === selectedEntryId);
@@ -102,10 +103,12 @@ export default function DictionaryList({
             return (
               <div key={entry.id}>
                 <DictionaryListItem
+                  analysisLanguage={analysisLanguage}
                   entry={entry}
                   isSelected={isSelected}
                   onClick={() => setSelectedEntryId(entry.id)}
                   onClickSemanticDomain={onClickSemanticDomain}
+                  vernacularLanguage={vernacularLanguage}
                 />
               </div>
             );
@@ -118,10 +121,12 @@ export default function DictionaryList({
           <div ref={dictionaryEntryRef} className="tw-w-1/2 tw-overflow-y-auto tw-p-4">
             <DictionaryEntryDisplay
               isDrawer={false}
+              analysisLanguage={analysisLanguage}
               dictionaryEntry={selectedEntry}
               handleBackToListButton={handleOptionSelect}
               onClickScrollToTop={scrollToTop}
               onClickSemanticDomain={onClickSemanticDomain}
+              vernacularLanguage={vernacularLanguage}
             />
           </div>
         ) : (
@@ -137,10 +142,12 @@ export default function DictionaryList({
               <div ref={dictionaryEntryRef} className="tw-overflow-y-auto tw-p-4">
                 <DictionaryEntryDisplay
                   isDrawer
+                  analysisLanguage={analysisLanguage}
                   dictionaryEntry={selectedEntry}
                   handleBackToListButton={() => setSelectedEntryId(undefined)}
                   onClickScrollToTop={scrollToTop}
                   onClickSemanticDomain={onClickSemanticDomain}
+                  vernacularLanguage={vernacularLanguage}
                 />
               </div>
             </DrawerContent>

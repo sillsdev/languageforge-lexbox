@@ -1,24 +1,22 @@
 import { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { PartialEntry } from 'fw-lite-extension';
+import type { DictionaryLanguages, PartialEntry } from 'fw-lite-extension';
 import { Button, Input, Label } from 'platform-bible-react';
 import { type ReactElement, useCallback, useEffect, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
-interface AddNewEntryProps {
+interface AddNewEntryProps extends DictionaryLanguages {
   addEntry: (entry: PartialEntry) => Promise<void>;
-  analysisLang: string;
   headword?: string;
   onCancel?: () => void;
-  vernacularLang: string;
 }
 
 export default function AddNewEntry({
   addEntry,
-  analysisLang,
+  analysisLanguage,
   headword,
   onCancel,
-  vernacularLang,
+  vernacularLanguage,
 }: AddNewEntryProps): ReactElement {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
@@ -30,8 +28,8 @@ export default function AddNewEntry({
   useEffect(() => setTempHeadword(headword || ''), [headword]);
 
   useEffect(() => {
-    setReady(!!(vernacularLang && tempHeadword.trim() && (gloss.trim() || definition.trim())));
-  }, [definition, gloss, tempHeadword, vernacularLang]);
+    setReady(!!(vernacularLanguage && tempHeadword.trim() && (gloss.trim() || definition.trim())));
+  }, [definition, gloss, tempHeadword, vernacularLanguage]);
 
   const clearEntry = useCallback((): void => {
     setDefinition('');
@@ -42,9 +40,9 @@ export default function AddNewEntry({
 
   async function onSubmit(): Promise<void> {
     const entry = createEntry(
-      vernacularLang,
+      vernacularLanguage,
       tempHeadword.trim(),
-      analysisLang || 'en',
+      analysisLanguage || 'en',
       gloss.trim(),
       definition.trim(),
     );
@@ -62,7 +60,7 @@ export default function AddNewEntry({
       <div className="tw-flex tw-flex-col tw-gap-1">
         <div>
           <Label htmlFor="newEntryHeadword">
-            {localizedStrings['%fwLiteExtension_entryDisplay_headword%']} ({vernacularLang}):
+            {localizedStrings['%fwLiteExtension_entryDisplay_headword%']} ({vernacularLanguage}):
           </Label>
           <Input
             id="newEntryHeadword"
@@ -73,14 +71,14 @@ export default function AddNewEntry({
 
         <div>
           <Label htmlFor="newEntryGloss">
-            {localizedStrings['%fwLiteExtension_entryDisplay_gloss%']} ({analysisLang}):
+            {localizedStrings['%fwLiteExtension_entryDisplay_gloss%']} ({analysisLanguage}):
           </Label>
           <Input id="newEntryGloss" onChange={(e) => setGloss(e.target.value)} value={gloss} />
         </div>
 
         <div>
           <Label htmlFor="newEntryDefinition">
-            {localizedStrings['%fwLiteExtension_entryDisplay_definition%']} ({analysisLang}):
+            {localizedStrings['%fwLiteExtension_entryDisplay_definition%']} ({analysisLanguage}):
           </Label>
           <Input
             id="newEntryDefinition"

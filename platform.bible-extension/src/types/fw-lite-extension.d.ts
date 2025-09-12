@@ -48,21 +48,26 @@ declare module 'fw-lite-extension' {
     deleteEntry(projectId: string, id: string): Promise<void>;
   }
 
-  interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
+  export interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
     projectId?: string;
   }
 
-  interface BrowseWebViewOptions extends OpenWebViewOptionsWithProjectId {
+  export interface BrowseWebViewOptions extends OpenWebViewOptionsWithProjectId {
     url?: string;
   }
 
-  interface OpenWebViewOptionsWithDictionaryInfo extends OpenWebViewOptionsWithProjectId {
-    analysisLanguage?: string;
-    dictionaryCode?: string;
-    vernacularLanguage?: string;
+  export interface DictionaryLanguages {
+    analysisLanguage: string;
+    vernacularLanguage: string;
   }
 
-  interface WordWebViewOptions extends OpenWebViewOptionsWithDictionaryInfo {
+  export interface OpenWebViewOptionsWithDictionaryInfo
+    extends OpenWebViewOptionsWithProjectId,
+      Partial<DictionaryLanguages> {
+    dictionaryCode?: string;
+  }
+
+  export interface WordWebViewOptions extends OpenWebViewOptionsWithDictionaryInfo {
     word?: string;
   }
 
