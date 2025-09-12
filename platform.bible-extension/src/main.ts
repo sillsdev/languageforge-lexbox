@@ -195,7 +195,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         const langs = await fwLiteApi
           .getWritingSystems(dictionaryCode)
           .catch((e) => logger.error('Error fetching writing systems:', JSON.stringify(e)));
-        const analysisLang = langs?.analysis.pop()?.wsId ?? '';
+        const analysisLang = langs?.analysis[0]?.wsId ?? '';
         if (analysisLang) {
           logger.info(`Storing FieldWorks dictionary analysis language '${analysisLang}'`);
         } else {

@@ -8,6 +8,7 @@ import type {
   PartialEntry,
   WordWebViewOptions,
 } from 'fw-lite-extension';
+import { Network } from 'lucide-react';
 import { Label, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -170,13 +171,16 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
           </div>
 
           {matchingEntries && !selectedDomain && (
-            <h4 className="tw-m-2">
+            <h3 className="tw-font-semibold tw-m-2">
               {localizedStrings['%fwLiteExtension_findRelatedWord_selectInstruction%']}
-            </h4>
+            </h3>
           )}
 
           {selectedDomain && (
-            <h4 className="tw-m-2">{domainText(selectedDomain, analysisLanguage)}</h4>
+            <h3 className="tw-flex tw-font-semibold tw-gap-1 tw-items-center tw-m-2">
+              <Network className="tw-inline tw-mr-1 tw-h-4 tw-w-4" />
+              {domainText(selectedDomain, analysisLanguage)}
+            </h3>
           )}
         </div>
       }
@@ -190,7 +194,7 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
             vernacularLanguage={vernacularLanguage ?? ''}
           />
         ) : !relatedEntries?.length ? (
-          <div className="tw-m-4 tw-flex tw-justify-center">
+          <div className="tw-flex tw-justify-center tw-m-4 ">
             <Label>{localizedStrings['%fwLiteExtension_findRelatedWord_noResultsInDomain%']}</Label>
           </div>
         ) : (

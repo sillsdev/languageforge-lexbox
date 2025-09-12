@@ -45,7 +45,10 @@ export class ProjectManager {
     }
 
     logger.info(`FieldWorks dictionary not yet selected for project '${nameOrId}'`);
-    await this.openWebView(WebViewType.DictionarySelect, { type: 'float' });
+    await this.openWebView(WebViewType.DictionarySelect, {
+      floatSize: { height: 500, width: 400 },
+      type: 'float',
+    });
   }
 
   async setFwDictionaryCode(dictionaryCode: string): Promise<void> {
