@@ -40,14 +40,18 @@ export default function DictionaryComboBox({
 
   if (settingSaving) {
     return (
-      <p>
+      <h3 className="tw-font-semibold tw-m-2">
         {localizedStrings['%fwLiteExtension_dictionarySelect_saving%']} {selectedDictionaryCode} ...
-      </p>
+      </h3>
     );
   }
 
   if (settingSaved) {
-    return <p>{localizedStrings['%fwLiteExtension_dictionarySelect_saved%']}</p>;
+    return (
+      <h3 className="tw-font-semibold tw-m-2">
+        {localizedStrings['%fwLiteExtension_dictionarySelect_saved%']}
+      </h3>
+    );
   }
 
   return (
