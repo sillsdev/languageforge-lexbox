@@ -42,12 +42,13 @@ public class TranslationChangeDeserializationTests
  """;
 
     [Fact]
-    public void CanDeserializeCreateExampleJson()
+    public async Task CanDeserializeCreateExampleJson()
     {
         var change = JsonSerializer.Deserialize<IChange>(CreateExampleJson, _options);
         change.Should().NotBeNull();
-        var exampleSentenceChange = change.Should().BeOfType<CreateExampleSentenceChange>().Subject;
-        var translation = exampleSentenceChange.Translations.Should().ContainSingle().Subject;
+        var adapter = await change.NewEntity(null!, null!);//todo generate a mocked Context to pass in
+        var exampleSentence = adapter.DbObject.Should().BeOfType<ExampleSentence>().Subject;;
+        var translation = exampleSentence.Translations.Should().ContainSingle().Subject;
         translation.Text["en"].Should().BeEquivalentTo(new RichString("test", "en"));
     }
 
