@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
@@ -1580,13 +1581,19 @@ public class FwDataMiniLcmApi(
     }
     internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Guid? id = null)
     {
-
         var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
-        //todo this doesn't work, and CmTranslationFactory does not let you specify the Guid on creation
-        var translation = Cache.ServiceLocator.GetInstance<ILcmFactory<ICmTranslation>>().Create(id ?? Guid.NewGuid());;
-        translation.TypeRA = freeTranslationType;
-        parent.TranslationsOC.Add(translation);
+        //todo once https://github.com/sillsdev/liblcm/pull/341 is merged we can create the translation with the correct Guid
+        var translation = CmTranslationFactory.Create(parent, freeTranslationType);
+        //hack for now
+        DangerouslySetGuid(translation.Id, id ?? Guid.NewGuid());
         return translation;
+    }
+
+    private void DangerouslySetGuid(ICmObjectId cmObjectId, Guid newGuid)
+    {
+        var fieldInfo = cmObjectId.GetType().GetField("m_guid", BindingFlags.NonPublic | BindingFlags.Instance);
+        ArgumentNullException.ThrowIfNull(fieldInfo);
+        fieldInfo.SetValue(cmObjectId, newGuid);
     }
 
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? between = null)
