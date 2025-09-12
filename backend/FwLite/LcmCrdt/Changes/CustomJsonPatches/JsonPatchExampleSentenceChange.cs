@@ -1,31 +1,43 @@
 using LcmCrdt.Objects;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 using SystemTextJsonPatch;
+using SystemTextJsonPatch.Adapters;
+using SystemTextJsonPatch.Internal;
 using SystemTextJsonPatch.Operations;
 
 namespace LcmCrdt.Changes.CustomJsonPatches;
 
 public class JsonPatchExampleSentenceChange : JsonPatchChange<ExampleSentence>
 {
-    public JsonPatchExampleSentenceChange(Guid entityId, JsonPatchDocument<ExampleSentence> patchDocument) : base(entityId, patchDocument, bypassValidation: true)
+    public JsonPatchExampleSentenceChange(Guid entityId, JsonPatchDocument<ExampleSentence> patchDocument) : base(entityId, patchDocument)
     {
-        patchDocument.RewritePaths(PathMatchType.StartsWith, "/Translation/", Rewrite);
+    }
 
-        static IEnumerable<Operation<ExampleSentence>> Rewrite(Operation<ExampleSentence> operation)
+    public override ValueTask ApplyChange(ExampleSentence entity, IChangeContext context)
+    {
+        var adapter = new ObjectAdapter(PatchDocument.Options, null, new AdapterFactory());
+        //we don't want to modify the original document, so rather than removing the operations we just apply them in a loop ourselves skipping the translation ops
+        foreach (var op in PatchDocument.Operations)
         {
-            var newOp = new Operation<ExampleSentence>();
-            newOp.Op = operation.Op;
-            newOp.Path = operation.Path?.Replace("/Translation/", "/Translations/0/Text/");
-            newOp.Value = operation.Value;
-            if (operation.OperationType == OperationType.Add)
+            if (op.Path?.StartsWith("/Translation/") == true)
             {
-                yield return new Operation<ExampleSentence>("add", "/Translations/0", null, new Translation());
+                ApplyTranslationOp(op, entity, adapter);
+                continue;
             }
-
-            yield return newOp;
+            op.Apply(entity, adapter);
         }
+        return ValueTask.CompletedTask;
+    }
 
-        JsonPatchValidator.ValidatePatchDocument(patchDocument, operation => operation.Path?.StartsWith("/Translations/") != true);
+    private static void ApplyTranslationOp(Operation<ExampleSentence> op, ExampleSentence entity, IObjectAdapter adapter)
+    {
+        var wsId = new ParsedPath(op.Path).LastSegment;
+        var richString = op.Value;
+        if (!entity.Translations.Any()) entity.Translations.Add(new Translation());
+        var translation = entity.Translations[0];
+        var newOp = new Operation(op.Op ?? "replace", "/Text/" + wsId, null, richString);
+        newOp.Apply(translation, adapter);
     }
 }

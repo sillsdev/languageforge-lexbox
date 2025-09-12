@@ -3,6 +3,7 @@ using Gridify;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+ using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
@@ -718,7 +719,7 @@ public class CrdtMiniLcmApi(
         UpdateObjectInput<ExampleSentence> update)
     {
         var jsonPatch = update.Patch;
-        var patchChange = new JsonPatchChange<ExampleSentence>(exampleSentenceId, jsonPatch);
+        var patchChange = new JsonPatchExampleSentenceChange(exampleSentenceId, jsonPatch);
         await AddChange(patchChange);
         return await GetExampleSentence(entryId, senseId, exampleSentenceId) ?? throw new NullReferenceException();
     }
