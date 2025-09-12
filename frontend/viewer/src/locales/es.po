@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-09-11 05:31\n"
+"PO-Revision-Date: 2025-09-12 05:50\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -504,11 +504,11 @@ msgstr "Archivo demasiado grande"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # entries"
-msgstr "Filtro # entradas"
+msgstr "Filtrar # entradas"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # words"
-msgstr "Filtro # palabras"
+msgstr "Filtrar # palabras"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter entries"
@@ -867,7 +867,7 @@ msgstr "Vista previa"
 
 #: src/home/HomeView.svelte
 msgid "Project"
-msgstr "Projekt"
+msgstr "Proyecto"
 
 #: src/home/Server.svelte
 msgid "Project {0} not found on {1}"
