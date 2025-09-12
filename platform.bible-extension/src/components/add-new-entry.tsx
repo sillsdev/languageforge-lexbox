@@ -5,12 +5,14 @@ import { Button, Input, Label } from 'platform-bible-react';
 import { type ReactElement, useCallback, useEffect, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
+/** Props for the AddNewEntry component */
 interface AddNewEntryProps extends DictionaryLanguages {
   addEntry: (entry: PartialEntry) => Promise<void>;
   headword?: string;
   onCancel?: () => void;
 }
 
+/** A panel for creating a simple entry: headword with gloss and/or definition. */
 export default function AddNewEntry({
   addEntry,
   analysisLanguage,

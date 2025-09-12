@@ -5,6 +5,7 @@ import { type ReactElement, useState } from 'react';
 import AddNewEntry from './add-new-entry';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
+/** Props for the AddNewEntryButton component */
 interface AddNewEntryButtonProps extends DictionaryLanguages {
   addEntry: (entry: PartialEntry) => Promise<void>;
   headword?: string;

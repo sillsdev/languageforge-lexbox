@@ -5,11 +5,13 @@ import { Button, ComboBox } from 'platform-bible-react';
 import { type ReactElement, useCallback, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
+/** Props for the DictionaryComboBox component */
 interface DictionaryComboBoxProps {
   dictionaries?: IProjectModel[];
   selectDictionary: (dictionaryCode: string) => Promise<void>;
 }
 
+/** A combo-box for selecting a FieldWorks dictionary for a project. */
 export default function DictionaryComboBox({
   dictionaries,
   selectDictionary,

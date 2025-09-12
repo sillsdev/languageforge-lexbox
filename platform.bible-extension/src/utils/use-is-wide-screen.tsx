@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+// Copied from paranext-core/extensions/src/platform-lexical-tools/src/utils/dictionary.utils.ts
 export default function useIsWideScreen() {
   const [isWide, setIsWide] = useState(() => window.innerWidth >= 1024);
 
