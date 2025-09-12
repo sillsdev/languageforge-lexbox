@@ -95,7 +95,7 @@ public class TranslationChangeDeserializationTests
 
 
     [Theory]
-    //will not work with add because there's already a translation there
+    [InlineData(JsonPatchTranslation)]
     [InlineData(JsonPatchTranslationReplace)]
     public async Task CanDeserializeJsonPatchTranslation(string json)
     {
@@ -115,6 +115,7 @@ public class TranslationChangeDeserializationTests
 
     [Theory]
     [InlineData(JsonPatchTranslation)]
+    [InlineData(JsonPatchTranslationReplace)]
     public async Task CanDeserializeJsonPatchTranslation_NoStartingTranslation(string json)
     {
         var change = JsonSerializer.Deserialize<IChange>(json, _options);
