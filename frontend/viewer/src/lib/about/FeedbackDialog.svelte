@@ -35,7 +35,8 @@
           </div>
         </div>
       </Button>
-      <Button variant="ghost" href={mailtoUrl} class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
+<!--      need to use external because of how android handles links, if it's target _blank then the Blazor UrlLoading event will not fire-->
+      <Button variant="ghost" href={mailtoUrl} external class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
         <Icon icon="i-mdi-email-outline" class="size-10"/>
         <div>
           <div class="font-semibold underline">

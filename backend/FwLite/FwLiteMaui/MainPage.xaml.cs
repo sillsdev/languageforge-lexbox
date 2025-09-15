@@ -12,7 +12,10 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         blazorWebView.BlazorWebViewInitializing += BlazorWebViewInitializing;
         blazorWebView.BlazorWebViewInitialized += BlazorWebViewInitialized;
+        blazorWebView.UrlLoading += BlazorWebViewOnUrlLoading;
     }
+
+
 
     internal string StartPath
     {
@@ -31,5 +34,15 @@ public partial class MainPage : ContentPage
     private void BlazorWebViewInitialized(object? sender, BlazorWebViewInitializedEventArgs e)
     {
     }
+#endif
+
+#if ANDROID
+    private partial void BlazorWebViewOnUrlLoading(object? sender, UrlLoadingEventArgs e);
+#else
+
+    private void BlazorWebViewOnUrlLoading(object? sender, UrlLoadingEventArgs e)
+    {
+    }
+
 #endif
 }
