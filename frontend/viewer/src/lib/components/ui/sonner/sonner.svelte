@@ -3,7 +3,6 @@
   import {Toaster as Sonner, type ToasterProps as SonnerProps} from 'svelte-sonner';
   import {buttonVariants} from '../button';
   import {cn} from '$lib/utils';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import {Icon} from '../icon';
 
