@@ -30,7 +30,7 @@ I.e. If there's small, big, small, then sonner thinks the big one is small and p
 -->
 <Sonner
   theme={mode.current}
-  closeButton={!IsMobile.value}
+  closeButton
   class={cn('toaster group', className)}
   richColors
   toastOptions={{
