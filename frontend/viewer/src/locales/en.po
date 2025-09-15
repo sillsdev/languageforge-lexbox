@@ -588,11 +588,14 @@ msgstr "in {0}"
 msgid "Keep going"
 msgstr "Keep going"
 
-#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Last change: #"
 msgstr "Last change: #"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Last sync: #"
+msgstr "Last sync: #"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
@@ -630,6 +633,7 @@ msgstr "Loading Dictionaries..."
 msgid "loading..."
 msgstr "loading..."
 
+#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/home/HomeView.svelte
 msgid "Local"
 msgstr "Local"
@@ -639,6 +643,7 @@ msgid "Local only"
 msgstr "Local only"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Login"
 msgstr "Login"
 

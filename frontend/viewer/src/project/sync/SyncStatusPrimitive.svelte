@@ -20,7 +20,7 @@
     server?: ILexboxServer;
     serverId?: string;
     projectCode?: string;
-    latestCommitDate?: string;
+    latestSyncedCommitDate?: string;
     canSyncLexboxToFlex?: boolean;
     syncLexboxToFlex?: () => Promise<void>;
     syncLexboxToLocal?: () => Promise<void>;
@@ -34,7 +34,7 @@
     server,
     serverId,
     projectCode,
-    latestCommitDate,
+    latestSyncedCommitDate,
     canSyncLexboxToFlex,
     syncLexboxToFlex = async () => {
     },
@@ -47,10 +47,11 @@
 
   let remoteToLocalCount = $derived(localStatus?.remote);
   let localToRemoteCount = $derived(localStatus?.local);
-  let lastLocalSyncDate = $derived(latestCommitDate ? new Date(latestCommitDate) : undefined);
+  let lastLocalSyncDate = $derived(latestSyncedCommitDate ? new Date(latestSyncedCommitDate) : undefined);
   const serverName = $derived(server?.displayName ?? serverId ?? 'unknown');
+  const serverProjectUrl = $derived(`${server?.authority}/project/${encodeURIComponent(projectCode ?? '')}`);
   const isOffline = $derived(syncStatus === SyncStatus.Offline);
-  const showRemote = $derived(server && !isOffline);
+  const showRemote = $derived(!!server);
 
   let loadingSyncLexboxToFlex = $state(false);
 
@@ -74,22 +75,25 @@
     <div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-4 gap-x-8">
 
       <!-- Status local to remote -->
-      <div class="col-span-full text-center flex flex-col border rounded py-2">
-        <a href={server?.authority + '/project/' + projectCode} target="_blank">
-          <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}/>
+      <div class="col-span-full text-center border rounded py-2">
+        <a class="inline-flex flex-col items-center" href={serverProjectUrl} target="_blank">
+          <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}  class="size-10" />
           <span class="underline">{serverName}</span>
         </a>
-        <span class="text-foreground/80">
-          <T msg="Last change: #">
-            <FormatRelativeDate date={lastLocalSyncDate} showActualDate/>
-          </T>
-        </span>
       </div>
       <!--  arrows and sync counts -->
       <div class="col-span-full text-center grid justify-center items-center"
            style="grid-template-columns: 1fr auto 1fr">
-        <div>
-          <!--      blank spacer-->
+        <div class="px-4 max-w-56">
+          <span class="text-foreground/80">
+            <T msg="Last sync: #">
+              {#if !lastLocalSyncDate}
+                <span>{$t`Never`}</span>
+              {:else}
+                <FormatRelativeDate date={lastLocalSyncDate} showActualDate />
+              {/if}
+            </T>
+          </span>
         </div>
         <div class="grid justify-center items-center min-h-12" style="grid-template-columns: 1fr auto auto auto 1fr">
           <span class="text-end">{remoteToLocalCount ?? '?'}</span>
@@ -136,13 +140,16 @@
       <!--  local box-->
       <div class="text-center col-span-full border rounded py-2">
         <Icon icon="i-mdi-cellphone" class="!size-10 md:i-mdi-monitor"/>
-        <p>Local</p>
+        <p>{$t`Local`}</p>
       </div>
     </div>
   </Tabs.Content>
   {#if showRemote}
     <Tabs.Content value="classic">
       <FwLiteToFwMergeDetails
+        {syncStatus}
+        {server}
+        {onLoginStatusChange}
         {remoteStatus}
         {syncLexboxToFlex}
         bind:loadingSyncLexboxToFlex

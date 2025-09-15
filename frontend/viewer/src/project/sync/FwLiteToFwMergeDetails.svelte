@@ -8,20 +8,30 @@
   import flexLogo from '$lib/assets/flex-logo.png';
   import logoLight from '$lib/assets/logo-light.svg';
   import {FormatRelativeDate} from '$lib/components/ui/format';
+  import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
+  import LoginButton from '$lib/auth/LoginButton.svelte';
+  import type {ILexboxServer} from '$lib/dotnet-types';
 
   let {
+    syncStatus,
     remoteStatus,
+    server,
     loadingSyncLexboxToFlex = $bindable(false),
     loadingSyncLexboxToLocal,
     canSyncLexboxToFlex,
     syncLexboxToFlex = async () => {
     },
+    onLoginStatusChange = () => {
+    },
   }: {
+    syncStatus: SyncStatus;
     remoteStatus?: IProjectSyncStatus,
+    server?: ILexboxServer;
     loadingSyncLexboxToFlex: boolean,
     loadingSyncLexboxToLocal: boolean,
     canSyncLexboxToFlex?: boolean,
     syncLexboxToFlex?: () => Promise<void>
+      onLoginStatusChange?: (status: 'logged-in' | 'logged-out') => void;
   } = $props();
   const lastFlexSyncDate = $derived(remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined);
   const lastFwLiteSyncDate = $derived(remoteStatus?.lastCrdtCommitDate ? new Date(remoteStatus.lastCrdtCommitDate) : undefined);
@@ -49,19 +59,28 @@
       </T>
     </span>
   </div>
-  <div class="flex flex-col items-center gap-1">
-    <span>{$t`${flexToLexboxCount} Commits`}</span>
-    <SyncArrow dir="left" tailLength={120} size={1.5}/>
-    <Button
-      loading={loadingSyncLexboxToFlex}
-      disabled={loadingSyncLexboxToLocal || !canSyncLexboxToFlex || !remoteStatus}
-      onclick={onSyncLexboxToFlex}
-      icon="i-mdi-sync"
-      iconProps={{ class: 'size-5' }}>
-      {$t`Sync`}
-    </Button>
-    <SyncArrow dir="right" tailLength={120} size={1.5}/>
-    <span>{$t`${lexboxToFlexCount} Changes`}</span>
+  <div class="flex flex-col items-center justify-center gap-1">
+      {#if syncStatus === SyncStatus.Offline}
+        <Icon icon="i-mdi-cloud-off-outline"  class="size-10 m-4" />
+      {:else if syncStatus === SyncStatus.NotLoggedIn && server}
+        <LoginButton
+          text={$t`Login`}
+          status={{loggedIn: false, server: server}}
+          statusChange={s => onLoginStatusChange(s)}/>
+      {:else}
+        <span>{$t`${flexToLexboxCount} Commits`}</span>
+        <SyncArrow dir="left" tailLength={120} size={1.5}/>
+        <Button
+          loading={loadingSyncLexboxToFlex}
+          disabled={loadingSyncLexboxToLocal || !canSyncLexboxToFlex || !remoteStatus}
+          onclick={onSyncLexboxToFlex}
+          icon="i-mdi-sync"
+          iconProps={{ class: 'size-5' }}>
+          {$t`Sync`}
+        </Button>
+        <SyncArrow dir="right" tailLength={120} size={1.5}/>
+        <span>{$t`${lexboxToFlexCount} Changes`}</span>
+      {/if}
   </div>
   <div class="border rounded flex flex-col items-center justify-center text-center p-2">
     <Icon src={flexLogo} class="size-10 mb-1" alt={$t`FieldWorks logo`}/>
