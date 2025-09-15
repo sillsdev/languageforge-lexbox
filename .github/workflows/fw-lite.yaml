@@ -317,7 +317,7 @@ jobs:
         working-directory: backend/FwLite/artifacts/msix
         shell: pwsh
         run: |
-          $SdkVersion = '10.0.19041.0'
+          $SdkVersion = '10.0.26100.0'
           $Architecture = 'x86'
           $sdkToolsPath = Join-Path -Path 'C:\Program Files (x86)\Windows Kits\10\bin' -ChildPath $SdkVersion -AdditionalChildPath $Architecture
           $env:Path += ";$sdkToolsPath"
