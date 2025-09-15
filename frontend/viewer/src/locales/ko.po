@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-09-04 07:52\n"
+"PO-Revision-Date: 2025-09-11 05:31\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -39,15 +39,15 @@ msgstr "{0} (FieldWorks)"
 
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
-msgstr ""
+msgstr "{0} 전"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{0} Changes"
-msgstr ""
+msgstr "{0} 변경 사항"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{0} Commits"
-msgstr ""
+msgstr "{0} 커밋"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -166,7 +166,7 @@ msgstr "자동"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Auto sync"
-msgstr ""
+msgstr "자동 동기화"
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -463,11 +463,11 @@ msgstr "필드 레이블"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Classic"
-msgstr ""
+msgstr "FieldWorks 클래식"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Lite"
-msgstr ""
+msgstr "FieldWorks Lite"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
@@ -587,7 +587,7 @@ msgstr "가져오기"
 
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
-msgstr ""
+msgstr "in {0}"
 
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
@@ -596,7 +596,7 @@ msgstr "계속 진행"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Last change: #"
-msgstr ""
+msgstr "마지막 변경 사항: #"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Last sync: #"
@@ -778,7 +778,7 @@ msgstr "구성된 서버 없음"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
-msgstr ""
+msgstr "제목이 없습니다, 새로 만들 수 없습니다 {0}"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
@@ -819,7 +819,7 @@ msgstr "오프라인 상태, 다운로드할 수 없음"
 
 #: src/home/Server.svelte
 msgid "Open"
-msgstr ""
+msgstr "열기"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
@@ -856,7 +856,7 @@ msgstr "품사"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Pending"
-msgstr ""
+msgstr "보류 중"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
@@ -942,7 +942,7 @@ msgstr "사전 검색"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Select {0}"
-msgstr "{0}"
+msgstr "{0} 선택"
 
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
@@ -1036,11 +1036,11 @@ msgstr "아이디어 제안하기"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync"
-msgstr ""
+msgstr "동기화"
 
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
-msgstr ""
+msgstr "동기화 변경 사항"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
@@ -1064,7 +1064,7 @@ msgstr "FieldWorks Lite와 FieldWorks 동기화..."
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Syncing..."
-msgstr ""
+msgstr "동기화..."
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
@@ -1165,7 +1165,7 @@ msgstr "제목 없음"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Up to date"
-msgstr ""
+msgstr "최신 정보"
 
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
@@ -1229,3 +1229,4 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
+
