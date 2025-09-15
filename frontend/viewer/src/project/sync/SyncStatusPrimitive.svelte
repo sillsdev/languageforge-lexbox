@@ -49,6 +49,7 @@
   let localToRemoteCount = $derived(localStatus?.local);
   let lastLocalSyncDate = $derived(latestCommitDate ? new Date(latestCommitDate) : undefined);
   const serverName = $derived(server?.displayName ?? serverId ?? 'unknown');
+  const serverProjectUrl = $derived(`${server?.authority}/project/${encodeURIComponent(projectCode ?? '')}`);
   const isOffline = $derived(syncStatus === SyncStatus.Offline);
   const showRemote = $derived(!!server);
 
@@ -75,7 +76,7 @@
 
       <!-- Status local to remote -->
       <div class="col-span-full text-center border rounded py-2">
-        <a class="inline-flex flex-col items-center" href={server?.authority + '/project/' + projectCode} target="_blank">
+        <a class="inline-flex flex-col items-center" href={serverProjectUrl} target="_blank">
           <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}  class="size-10" />
           <span class="underline">{serverName}</span>
         </a>
@@ -86,7 +87,11 @@
         <div class="px-4 max-w-56">
           <span class="text-foreground/80">
             <T msg="Last sync: #">
-              <FormatRelativeDate date={lastLocalSyncDate} showActualDate/>
+              {#if !lastLocalSyncDate}
+                <span>{$t`Never`}</span>
+              {:else}
+                <FormatRelativeDate date={lastLocalSyncDate} showActualDate />
+              {/if}
             </T>
           </span>
         </div>

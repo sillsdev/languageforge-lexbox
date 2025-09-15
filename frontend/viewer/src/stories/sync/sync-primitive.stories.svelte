@@ -151,3 +151,14 @@ const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     }}
   />
 </Story>
+
+<Story name="Never synced">
+  <SyncStatusPrimitive
+    canSyncLexboxToFlex
+    serverId="test-server"
+    projectCode="test-project"
+    syncStatus={SyncStatus.Success}
+    localStatus={{local: 1}}
+    latestCommitDate={undefined}
+  />
+</Story>
