@@ -20,7 +20,7 @@
     server?: ILexboxServer;
     serverId?: string;
     projectCode?: string;
-    latestCommitDate?: string;
+    latestSyncedCommitDate?: string;
     canSyncLexboxToFlex?: boolean;
     syncLexboxToFlex?: () => Promise<void>;
     syncLexboxToLocal?: () => Promise<void>;
@@ -34,7 +34,7 @@
     server,
     serverId,
     projectCode,
-    latestCommitDate,
+    latestSyncedCommitDate,
     canSyncLexboxToFlex,
     syncLexboxToFlex = async () => {
     },
@@ -47,7 +47,7 @@
 
   let remoteToLocalCount = $derived(localStatus?.remote);
   let localToRemoteCount = $derived(localStatus?.local);
-  let lastLocalSyncDate = $derived(latestCommitDate ? new Date(latestCommitDate) : undefined);
+  let lastLocalSyncDate = $derived(latestSyncedCommitDate ? new Date(latestSyncedCommitDate) : undefined);
   const serverName = $derived(server?.displayName ?? serverId ?? 'unknown');
   const serverProjectUrl = $derived(`${server?.authority}/project/${encodeURIComponent(projectCode ?? '')}`);
   const isOffline = $derived(syncStatus === SyncStatus.Offline);

@@ -31,7 +31,7 @@
     { key: SYNC_DIALOG_QUERY_PARAM, replaceOnDefaultValue: true, allowBack: true },
     false,
   );
-  let latestCommitDate = $state<string>();
+  let latestSyncedCommitDate = $state<string>();
 
   watch(() => openQueryParam.current, (newValue) => {
     if (newValue) void onOpen();
@@ -46,7 +46,7 @@
     await Promise.all([
       service.getLocalStatus().then(s => localStatus = s),
       service.getStatus().then(s => remoteStatus = s),
-      service.getLatestCommitDate().then(s => latestCommitDate = s),
+      service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
       service.getCurrentServer().then(s => server = s),
     ]);
   }
@@ -54,7 +54,7 @@
   function onClose(): void {
     localStatus = undefined;
     remoteStatus = undefined;
-    latestCommitDate = undefined;
+    latestSyncedCommitDate = undefined;
   }
 
   async function syncLexboxToFlex() {
@@ -104,7 +104,7 @@
     await Promise.all([
       service.getLocalStatus().then(s => localStatus = s),
       service.getStatus().then(s => remoteStatus = s),
-      service.getLatestCommitDate().then(s => latestCommitDate = s),
+      service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
     ]);
   }
 
@@ -127,7 +127,7 @@
       {server}
       projectCode={projectContext.projectData?.code}
       serverId={projectContext.projectData?.serverId}
-      {latestCommitDate}
+      latestSyncedCommitDate={latestSyncedCommitDate}
       canSyncLexboxToFlex={features?.write}
       {syncLexboxToFlex}
       {syncLexboxToLocal}

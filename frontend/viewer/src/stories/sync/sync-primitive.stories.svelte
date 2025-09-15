@@ -54,7 +54,7 @@ const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       errorCode: undefined,
       errorMessage: undefined,
     }}
-    latestCommitDate={oneHourAgo.toISOString()}
+    latestSyncedCommitDate={oneHourAgo.toISOString()}
     server={{
       id: 'test-server',
       displayName: 'Lexbox',
@@ -78,7 +78,7 @@ const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       errorCode: undefined,
       errorMessage: undefined,
     }}
-    latestCommitDate={new Date().toISOString()}
+    latestSyncedCommitDate={new Date().toISOString()}
     server={{
       id: 'test-server',
       displayName: 'Lexbox',
@@ -93,7 +93,7 @@ const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     projectCode="test-project"
     syncStatus={SyncStatus.Success}
     localStatus={{local: 1, remote: 2}}
-    latestCommitDate={new Date().toISOString()}
+    latestSyncedCommitDate={new Date().toISOString()}
     server={{
       id: 'test-server',
       displayName: 'Lexbox',
@@ -108,7 +108,7 @@ const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     projectCode="test-project"
     syncStatus={SyncStatus.NoServer}
     localStatus={{local: 1}}
-    latestCommitDate={new Date().toISOString()}
+    latestSyncedCommitDate={new Date().toISOString()}
   />
 </Story>
 <Story name="Unknown Server">
@@ -118,7 +118,7 @@ const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     projectCode="test-project"
     syncStatus={SyncStatus.NoServer}
     localStatus={{local: 1}}
-    latestCommitDate={new Date().toISOString()}
+    latestSyncedCommitDate={new Date().toISOString()}
   />
 </Story>
 <Story name="Offline">
@@ -128,7 +128,7 @@ const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     projectCode="test-project"
     syncStatus={SyncStatus.Offline}
     localStatus={{local: 10}}
-    latestCommitDate={new Date().toISOString()}
+    latestSyncedCommitDate={new Date().toISOString()}
     server={{
       id: 'test-server',
       displayName: 'Lexbox',
@@ -143,7 +143,7 @@ const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     projectCode="test-project"
     syncStatus={SyncStatus.NotLoggedIn}
     localStatus={{local: 1}}
-    latestCommitDate={new Date().toISOString()}
+    latestSyncedCommitDate={new Date().toISOString()}
     server={{
       id: 'test-server',
       displayName: 'Lexbox',
@@ -159,6 +159,6 @@ const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     projectCode="test-project"
     syncStatus={SyncStatus.Success}
     localStatus={{local: 1}}
-    latestCommitDate={undefined}
+    latestSyncedCommitDate={undefined}
   />
 </Story>
