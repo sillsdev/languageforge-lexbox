@@ -2,7 +2,6 @@ import {AppNotification} from '$lib/notifications/notifications';
 import type {IJsInvokableLogger} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IJsInvokableLogger';
 import {LogLevel} from '$lib/dotnet-types/generated-types/Microsoft/Extensions/Logging/LogLevel';
 import {delay} from '$lib/utils/time';
-import {tick} from 'svelte';
 import {useJsInvokableLogger} from '$lib/services/js-invokable-logger';
 
 type UnifiedErrorEvent = {
@@ -55,7 +54,6 @@ export function setupGlobalErrorHandlers() {
 
 function onErrorEvent(event: ErrorEvent | PromiseRejectionEvent) {
   const errorEvent = unifyErrorEvent(event);
-  console.log(errorEvent);
   void tryLogErrorToDotNet(errorEvent);
   if (suppressErrorNotification(errorEvent.message)) return;
   const {message: simpleMessage, detail} = processErrorIntoDetails(errorEvent);
@@ -67,8 +65,8 @@ async function tryLogErrorToDotNet(error: UnifiedErrorEvent) {
     const details = getErrorString(error);
     if (details.includes('JsInvokableLogger')) return; // avoid potential infinite loop
     const logger = await tryGetLogger();
-    if (!logger) return;
-    await logger.log(LogLevel.Error, details);
+    if (logger) await logger.log(LogLevel.Error, details);
+    else console.warn('No DotNet logger available to log error', error);
   } catch (err) {
     console.error('Failed to log error to DotNet', err);
   }
@@ -80,11 +78,9 @@ async function tryGetLogger(): Promise<IJsInvokableLogger | undefined> {
   let logger = useJsInvokableLogger();
   if (logger) return logger;
   await delay(1);
-  await tick();
   logger = useJsInvokableLogger();
   if (logger) return logger;
   await delay(1000);
-  await tick();
   logger = useJsInvokableLogger();
   return logger;
 }
