@@ -26,6 +26,7 @@ using FwLiteShared.AppUpdate;
 using FwLiteShared.Sync;
 using MiniLcm.Media;
 using MediaFile = MiniLcm.Media.MediaFile;
+using Microsoft.Extensions.Logging;
 
 namespace FwLiteShared.TypeGen;
 
@@ -172,6 +173,7 @@ public static class ReinforcedFwLiteTypingConfig
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
         builder.ExportAsEnum<FwEventType>().UseString();
+        builder.ExportAsEnum<LogLevel>().UseString(false);
         var eventJsAttrs = typeof(IFwEvent).GetCustomAttributes<JsonDerivedTypeAttribute>();
         builder.ExportAsInterfaces(
             typeof(IFwEvent).Assembly.GetTypes()
