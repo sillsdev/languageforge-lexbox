@@ -166,22 +166,22 @@ internal static class LcmHelpers
         return cache.ServiceLocator.WritingSystemManager.Get(ws).Id;
     }
 
-    internal static int GetWritingSystemHandle(this LcmCache cache, WritingSystemId ws, WritingSystemType? type = null)
+    internal static CoreWritingSystemDefinition GetCoreWritingSystem(this LcmCache cache, WritingSystemId wsId, WritingSystemType? type = null)
     {
         var wsContainer = cache.ServiceLocator.WritingSystems;
-        if (ws == "default")
+        if (wsId == default)
         {
             return type switch
             {
-                WritingSystemType.Analysis => wsContainer.DefaultAnalysisWritingSystem.Handle,
-                WritingSystemType.Vernacular => wsContainer.DefaultVernacularWritingSystem.Handle,
+                WritingSystemType.Analysis => wsContainer.DefaultAnalysisWritingSystem,
+                WritingSystemType.Vernacular => wsContainer.DefaultVernacularWritingSystem,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
 
-        if (!cache.ServiceLocator.WritingSystemManager.TryGet(ws.Code, out var lcmWs))
+        if (!cache.ServiceLocator.WritingSystemManager.TryGet(wsId.Code, out var lcmWs))
         {
-            throw new NullReferenceException($"unable to find writing system with id '{ws.Code}'");
+            throw new NullReferenceException($"unable to find writing system with id '{wsId.Code}'");
         }
         if (lcmWs is not null && type is not null)
         {
@@ -193,15 +193,21 @@ internal static class LcmHelpers
             };
             if (!validWs.Contains(lcmWs))
             {
-                throw new InvalidOperationException($"Writing system {ws} is not of the requested type: {type}.");
+                throw new InvalidOperationException($"Writing system {wsId} is not of the requested type: {type}.");
             }
         }
         if (lcmWs is null)
         {
-            throw new NullReferenceException($"unable to find writing system with id {ws}");
+            throw new NullReferenceException($"unable to find writing system with id {wsId}");
         }
 
-        return lcmWs.Handle;
+        return lcmWs;
+    }
+
+    internal static int GetWritingSystemHandle(this LcmCache cache, WritingSystemId wsId, WritingSystemType? type = null)
+    {
+        var ws = GetCoreWritingSystem(cache, wsId, type);
+        return ws.Handle;
     }
 
     internal static string PickText(this ICmObject obj, ITsMultiString multiString, string ws)
