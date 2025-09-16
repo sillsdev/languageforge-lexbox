@@ -157,6 +157,20 @@ public class MiniLcmRepository(
         string? query,
         FilterQueryOptions options)
     {
+        if (options.Exemplar is not null)
+        {
+            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
+            if (ws is null)
+                throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
+            queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
+        }
+
+        if (options.Filter?.GridifyFilter != null)
+        {
+            // Do this BEFORE doing the FTS, which returns an expression that confuses the gridify query
+            queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, config.Value.Mapper);
+        }
+
         bool sortingHandled = false;
         if (!string.IsNullOrEmpty(query))
         {
@@ -176,18 +190,6 @@ public class MiniLcmRepository(
             }
         }
 
-        if (options.Exemplar is not null)
-        {
-            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
-            if (ws is null)
-                throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
-            queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
-        }
-
-        if (options.Filter?.GridifyFilter != null)
-        {
-            queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, config.Value.Mapper);
-        }
         return (queryable, sortingHandled);
     }
 

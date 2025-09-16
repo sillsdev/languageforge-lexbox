@@ -101,6 +101,13 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CanFilterToMissingSenses_AndSearch()
+    {
+        var results = await Api.SearchEntries(Apple, new(Filter: new() { GridifyFilter = "Senses=null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple);
+    }
+
+    [Fact]
     public async Task CanFilterToNotMissingSenses()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses!=null" })).ToArrayAsync();
@@ -108,9 +115,24 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CanFilterToNotMissingSenses_AndSearch()
+    {
+        var results = await Api.SearchEntries(Banana, new(Filter: new() { GridifyFilter = "Senses!=null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
     public async Task CanFilterToMissingPartOfSpeech()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.PartOfSpeechId=" })).ToArrayAsync();
+        //does not include entries with no senses
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingPartOfSpeech_AndSearch()
+    {
+        var results = await Api.SearchEntries(Peach, new(Filter: new() { GridifyFilter = "Senses.PartOfSpeechId=" })).ToArrayAsync();
         //does not include entries with no senses
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
     }
@@ -125,9 +147,25 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CanFilterToMissingExamples_AndSearch()
+    {
+        var results = await Api.SearchEntries(Banana, new(Filter: new() { GridifyFilter = "Senses.ExampleSentences=null" })).ToArrayAsync();
+        //Senses.ExampleSentences=null matches entries which have senses but no examples
+        //it does not include Apple because it has no senses, to include it a filter Senses=null is needed
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
     public async Task CanFilterToMissingSemanticDomains()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.SemanticDomains=null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingSemanticDomains_AndSearch()
+    {
+        var results = await Api.SearchEntries(Peach, new(Filter: new() { GridifyFilter = "Senses.SemanticDomains=null" })).ToArrayAsync();
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
     }
 
@@ -151,6 +189,13 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=null" })).ToArrayAsync();
         //using distinct since there may be 2 null lexeme forms but only on FLEx due to the null lexeme form
         results.Select(e => e.LexemeForm["en"]).Distinct().Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingComplexFormTypes_AndSearch()
+    {
+        var results = await Api.SearchEntries(Banana, new(Filter: new() { GridifyFilter = "ComplexFormTypes=null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
     }
 
     [Fact]
@@ -190,6 +235,13 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CanFilterLexemeFormContains_AndSearch()
+    {
+        var results = await Api.SearchEntries(Banana, new(Filter: new() { GridifyFilter = "LexemeForm[en]=*nan" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
     public async Task CanFilterGlossNull()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=null" })).ToArrayAsync();
@@ -206,10 +258,24 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CanFilterGlossEmptyOrNull_AndSearch()
+    {
+        var results = await Api.SearchEntries(Peach, new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
+    }
+
+    [Fact]
     public async Task CanFilterGlossEqualsFruit()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=Fruit" })).ToArrayAsync();
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana, Kiwi);
+    }
+
+    [Fact]
+    public async Task CanFilterGlossEqualsFruit_AndSearch()
+    {
+        var results = await Api.SearchEntries(Banana, new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=Fruit" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
     }
 
     [Fact]
@@ -223,6 +289,13 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     public async Task CanFilterExampleSentenceText()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Sentence[en]=*phone" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterExampleSentenceText_AndSearch()
+    {
+        var results = await Api.SearchEntries(Banana, new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Sentence[en]=*phone" })).ToArrayAsync();
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
     }
 
