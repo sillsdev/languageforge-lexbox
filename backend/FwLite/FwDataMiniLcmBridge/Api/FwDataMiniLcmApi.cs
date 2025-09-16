@@ -1694,7 +1694,7 @@ public class FwDataMiniLcmApi(
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var translation = lexExampleSentence.TranslationsOC.First();
+                var translation = lexExampleSentence.TranslationsOC.First(t => t.Guid == translationId);
                 translation.Delete();
             });
         return Task.CompletedTask;
