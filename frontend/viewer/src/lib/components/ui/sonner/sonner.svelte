@@ -55,7 +55,7 @@ I.e. If there's small, big, small, then sonner thinks the big one is small and p
     <Icon icon="i-mdi-check-circle" class="size-5" />
   {/snippet}
   {#snippet errorIcon()}
-    <Icon icon="i-mdi-close-circle" class="size-5" />
+    <Icon icon="i-mdi-alert-octagram" class="size-5" />
   {/snippet}
   {#snippet warningIcon()}
     <Icon icon="i-mdi-alert" class="size-5" />
