@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Linq.Expressions;
 using System.Text;
 using LcmCrdt.Data;
 using LinqToDB;
@@ -139,7 +137,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public async Task UpdateEntrySearchTable(Entry entry)
     {
-        var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
+        var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
         var record = ToEntrySearchRecord(entry, writingSystems);
         await InsertOrUpdateEntrySearchRecord(record, EntrySearchRecordsTable);
     }
@@ -181,7 +179,12 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             ..dbContext.WritingSystems,
             ..newWritingSystems
         ];
-        Array.Sort(writingSystems, (ws1, ws2) => ws1.Order.CompareTo(ws2.Order));
+        Array.Sort(writingSystems, (ws1, ws2) =>
+        {
+            var orderComparison = ws1.Order.CompareTo(ws2.Order);
+            if (orderComparison != 0) return orderComparison;
+            return ws1.Id.CompareTo(ws2.Id);
+        });
         var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
         var searchRecords = entries.Select(entry => ToEntrySearchRecord(entry, writingSystems));
         foreach (var entrySearchRecord in searchRecords)
@@ -200,7 +203,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         await EntrySearchRecordsTable.TruncateAsync();
 
-        var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
+        var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
         await EntrySearchRecordsTable
             .BulkCopyAsync(dbContext.Set<Entry>()
                 .LoadWith(e => e.Senses)

@@ -145,4 +145,34 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
         // we care about the order of return, not the internal Order property
         options => options.WithStrictOrdering().Excluding(ws => ws.Order));
     }
+
+    [Fact]
+    public async Task CanChangeDefaultWritingSystem()
+    {
+        // arrange
+        var currentDefault = await Api.GetWritingSystem(default, WritingSystemType.Vernacular);
+        var writingSystems = await Api.GetWritingSystems();
+        var en = writingSystems.Vernacular.Single(ws => ws.WsId.Code == "en");
+        currentDefault.Should().BeEquivalentTo(en);
+        writingSystems.Vernacular.First().Should().BeEquivalentTo(en);
+
+        // act
+        var es = await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            WsId = "es",
+            Type = WritingSystemType.Vernacular,
+            Name = "Spanish",
+            Abbreviation = "Es",
+            Font = "Arial"
+        }, new BetweenPosition<WritingSystemId?>(null, en.WsId));
+
+        //assert
+        var newDefault = await Api.GetWritingSystem(default, WritingSystemType.Vernacular);
+        newDefault.Should().BeEquivalentTo(es,
+            options => options.Excluding(ws => ws.Order));
+        writingSystems = await Api.GetWritingSystems();
+        writingSystems.Vernacular.First().Should().BeEquivalentTo(es,
+            options => options.Excluding(ws => ws.Order));
+    }
 }

@@ -14,7 +14,7 @@ using MiniLcm.SyncHelpers;
 namespace LcmCrdt.Data;
 
 public class MiniLcmRepositoryFactory(
-    Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory,
+    IDbContextFactory<LcmCrdtDbContext> dbContextFactory,
     IServiceProvider serviceProvider,
     EntrySearchServiceFactory? entrySearchServiceFactory = null)
 {
@@ -67,6 +67,7 @@ public class MiniLcmRepository(
     public IQueryable<Sense> Senses => dbContext.Senses;
     public IQueryable<ExampleSentence> ExampleSentences => dbContext.ExampleSentences;
     public IQueryable<WritingSystem> WritingSystems => dbContext.WritingSystems;
+    public IQueryable<WritingSystem> WritingSystemsOrdered => dbContext.WritingSystemsOrdered;
     public IQueryable<SemanticDomain> SemanticDomains => dbContext.SemanticDomains;
     public IQueryable<PartOfSpeech> PartsOfSpeech => dbContext.PartsOfSpeech;
     public IQueryable<Publication> Publications => dbContext.Publications;
@@ -81,14 +82,14 @@ public class MiniLcmRepository(
             return type switch
             {
                 WritingSystemType.Analysis => _defaultAnalysisWs ??=
-                    await AsyncExtensions.FirstOrDefaultAsync(dbContext.WritingSystems, ws => ws.Type == type),
+                    await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.Type == type),
                 WritingSystemType.Vernacular => _defaultVernacularWs ??=
-                    await AsyncExtensions.FirstOrDefaultAsync(dbContext.WritingSystems, ws => ws.Type == type),
+                    await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.Type == type),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             } ?? throw new NullReferenceException($"Unable to find a default writing system of type {type}");
         }
 
-        return await AsyncExtensions.FirstOrDefaultAsync(dbContext.WritingSystems, ws => ws.WsId == id && ws.Type == type);
+        return await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.WsId == id && ws.Type == type);
     }
 
     public async Task<AddEntryComponentChange> CreateComplexFormComponentChange(

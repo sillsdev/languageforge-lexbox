@@ -85,28 +85,24 @@ public class FwDataMiniLcmApi(
 
     public Task<WritingSystems> GetWritingSystems()
     {
-        var currentVernacularWs = WritingSystemContainer
-            .CurrentVernacularWritingSystems
-            .Select(ws => ws.Id).ToHashSet();
-        var currentAnalysisWs = WritingSystemContainer
-            .CurrentAnalysisWritingSystems
-            .Select(ws => ws.Id).ToHashSet();
         var writingSystems = new WritingSystems
         {
             Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select((definition, index) =>
-                FromLcmWritingSystem(definition, index, WritingSystemType.Vernacular)).ToArray(),
+                FromLcmWritingSystem(definition, WritingSystemType.Vernacular, index)).ToArray(),
             Analysis = WritingSystemContainer.CurrentAnalysisWritingSystems.Select((definition, index) =>
-                FromLcmWritingSystem(definition, index, WritingSystemType.Analysis)).ToArray()
+                FromLcmWritingSystem(definition, WritingSystemType.Analysis, index)).ToArray()
         };
         CompleteExemplars(writingSystems);
         return Task.FromResult(writingSystems);
     }
 
-    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, int index, WritingSystemType type)
+    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, WritingSystemType type, int index = default)
     {
         return new WritingSystem
         {
             Id = Guid.Empty,
+            // todo: Order probably shouldn't be relied on in fwdata, because it's implicit,
+            // so it probably shouldn't be used or set at all
             Order = index,
             Type = type,
             //todo determine current and create a property for that.
@@ -118,15 +114,12 @@ public class FwDataMiniLcmApi(
         };
     }
 
-    public async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    public Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
-        var writingSystems = await GetWritingSystems();
-        return type switch
-        {
-            WritingSystemType.Vernacular => writingSystems.Vernacular.FirstOrDefault(ws => ws.WsId == id),
-            WritingSystemType.Analysis => writingSystems.Analysis.FirstOrDefault(ws => ws.WsId == id),
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        };
+        var lcmWs = Cache.GetCoreWritingSystem(id, type);
+        if (lcmWs is null) return Task.FromResult<WritingSystem?>(null);
+        var ws = FromLcmWritingSystem(lcmWs, type);
+        return Task.FromResult<WritingSystem?>(ws);
     }
 
     internal void CompleteExemplars(WritingSystems writingSystems)
@@ -187,7 +180,7 @@ public class FwDataMiniLcmApi(
             WritingSystemType.Vernacular => WritingSystemContainer.CurrentVernacularWritingSystems.Count,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         } - 1;
-        return FromLcmWritingSystem(ws, index, type);
+        return FromLcmWritingSystem(ws, type, index);
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)

@@ -1,5 +1,4 @@
 using System.Text.Json;
-using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
 using SIL.Harmony;
 using SIL.Harmony.Db;
@@ -17,6 +16,8 @@ public class LcmCrdtDbContext(
 {
     public DbSet<ProjectData> ProjectData => Set<ProjectData>();
     public IQueryable<WritingSystem> WritingSystems => Set<WritingSystem>().AsNoTracking();
+    public IQueryable<WritingSystem> WritingSystemsOrdered => Set<WritingSystem>().AsNoTracking()
+        .OrderBy(ws => ws.Order).ThenBy(ws => ws.Id);
     public IQueryable<Entry> Entries => Set<Entry>().AsNoTracking();
     public IQueryable<ComplexFormComponent> ComplexFormComponents => Set<ComplexFormComponent>().AsNoTracking();
     public IQueryable<ComplexFormType> ComplexFormTypes => Set<ComplexFormType>().AsNoTracking();
