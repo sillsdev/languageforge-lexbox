@@ -54,10 +54,15 @@
   <PropertyGroup>
     <TargetPlatform>$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)'))</TargetPlatform>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetPlatform)' == 'ios' and '$(Configuration)' == 'Release'">
+    <CodesignKey>Apple Distribution: Summer Institute of Linguistics, Inc (SIL) (3YE4W86L3G)</CodesignKey>
+    <ArchiveOnBuild>true</ArchiveOnBuild>
+  </PropertyGroup>
   <ItemGroup>
     <!-- App Icon -->
     <!-- background color is required for mac per: https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-8.0&tabs=windows#recolor-the-background -->
-    <MauiIcon Condition="'$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst'" Include="Resources\AppIcon\logo_light.svg" Color="#1c4e80" />
+    <MauiIcon Condition="'$(TargetPlatform)' == 'ios'" Include="Resources\AppIcon\appicon.svg" Color="#1c4e80" />
+    <MauiIcon Condition="'$(TargetPlatform)' == 'maccatalyst'" Include="Resources\AppIcon\logo_light.svg" Color="#1c4e80" />
     <MauiIcon Condition="'$(TargetPlatform)' == 'android'" Include="Resources\AppIcon\logo_background.svg" ForegroundFile="Resources\AppIcon\logo_light_padding.svg" ForegroundScale="0.8" />
     <MauiIcon Condition="'$(TargetPlatform)' != 'ios' And '$(TargetPlatform)' != 'maccatalyst' And '$(TargetPlatform)' != 'android'" Include="Resources\AppIcon\logo_light.svg" />
     <!-- Splash Screen -->
