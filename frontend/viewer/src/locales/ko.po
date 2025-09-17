@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-09-11 05:31\n"
+"PO-Revision-Date: 2025-09-17 10:28\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -600,7 +600,7 @@ msgstr "마지막 변경 사항: #"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Last sync: #"
-msgstr ""
+msgstr "마지막 동기화: #"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
