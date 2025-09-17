@@ -69,6 +69,14 @@ spec:
           failureThreshold: 30
           periodSeconds: 10
           timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            port: 5158
+            path: /api/healthz
+          initialDelaySeconds: 300
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 5
         ports:
           - containerPort: 5158
 
