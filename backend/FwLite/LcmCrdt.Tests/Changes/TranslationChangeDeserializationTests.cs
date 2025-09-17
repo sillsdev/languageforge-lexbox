@@ -52,7 +52,7 @@ public class TranslationChangeDeserializationTests
         translation.Text["en"].Should().BeEquivalentTo(new RichString("test", "en"));
     }
 
-    private const string JsonPatchTranslation = """
+    private const string JsonPatchTranslation = /*lang=json,strict*/ """
 {
   "$type": "jsonPatch:ExampleSentence",
   "PatchDocument": [
@@ -62,7 +62,7 @@ public class TranslationChangeDeserializationTests
       "value": {
         "Spans": [
           {
-            "Text": "en",
+            "Text": "updated",
             "Ws": "en"
           }
         ]
@@ -73,7 +73,7 @@ public class TranslationChangeDeserializationTests
 }
 """;
 
-    private const string JsonPatchTranslationReplace = """
+    private const string JsonPatchTranslationReplace = /*lang=json,strict*/ """
 {
   "$type": "jsonPatch:ExampleSentence",
   "PatchDocument": [
@@ -83,7 +83,7 @@ public class TranslationChangeDeserializationTests
       "value": {
         "Spans": [
           {
-            "Text": "en",
+            "Text": "updated",
             "Ws": "en"
           }
         ]
@@ -111,7 +111,7 @@ public class TranslationChangeDeserializationTests
             }]
         };
         await change.ApplyChange(new MiniLcmCrdtAdapter(exampleSentence), null!);
-        exampleSentence.Translations.Should().ContainSingle().Which.Text["en"].Should().BeEquivalentTo(new RichString("en", "en"));
+        exampleSentence.Translations.Should().ContainSingle().Which.Text["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
     }
 
     [Theory]
@@ -126,6 +126,6 @@ public class TranslationChangeDeserializationTests
             Translations = []
         };
         await change.ApplyChange(new MiniLcmCrdtAdapter(exampleSentence), null!);
-        exampleSentence.Translations.Should().ContainSingle().Which.Text["en"].Should().BeEquivalentTo(new RichString("en", "en"));
+        exampleSentence.Translations.Should().ContainSingle().Which.Text["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
     }
 }
