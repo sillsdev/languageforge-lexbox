@@ -3,8 +3,10 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LcmCrdt.Changes;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
+using Soenneker.Utils.AutoBogus.Config;
 
 namespace LcmCrdt.Tests.Data;
 
@@ -23,9 +25,34 @@ public abstract class BaseSerializationTest
     {
         WriteIndented = true,
     };
+    private static AutoFakerConfig GetAutoFakerConfig()
+    {
+        var config = AutoFakerDefault.MakeConfig(repeatCount: 1, minimalRichSpans: true);
+        config.Overrides!.AddRange(
+            // We're generating object snapshots, which don't include related entities
+            // so we clear them to reflect real snapshots.
+            new SimpleOverride<Entry>(context =>
+            {
+                if (context.Instance is Entry entry)
+                {
+                    entry.Senses = [];
+                    entry.ComplexForms = [];
+                    entry.Components = [];
+                }
+            }, true),
+            new SimpleOverride<Sense>(context =>
+            {
+                if (context.Instance is Sense sense)
+                {
+                    sense.ExampleSentences = [];
+                }
+            }, true)
+        );
+        return config;
+    }
     protected static readonly AutoFaker Faker = new()
     {
-        Config = AutoFakerDefault.MakeConfig(repeatCount: 1, minimalRichSpans: true)
+        Config = GetAutoFakerConfig(),
     };
 
     protected static string GetJsonFilePath(string name, [CallerFilePath] string sourceFile = "")
