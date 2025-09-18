@@ -1,38 +1,18 @@
 using System.Buffers;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
-using MiniLcm.Tests.AutoFakerHelpers;
+using LcmCrdt.Tests.Data;
 using SIL.Harmony.Changes;
-using Soenneker.Utils.AutoBogus;
 using SystemTextJsonPatch;
 
 namespace LcmCrdt.Tests.Changes;
 
-public class ChangeSerializationTests
+public class ChangeSerializationTests : BaseSerializationTest
 {
-    private static readonly Lazy<JsonSerializerOptions> LazyOptions = new(() =>
-    {
-        var config = new CrdtConfig();
-        LcmCrdtKernel.ConfigureCrdt(config);
-        config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
-        return config.JsonSerializerOptions;
-    });
-    private static readonly JsonSerializerOptions Options = LazyOptions.Value;
-    private static readonly JsonSerializerOptions OptionsIndented = new(Options)
-    {
-        WriteIndented = true,
-    };
-    private static readonly AutoFaker Faker = new()
-    {
-        Config = AutoFakerDefault.MakeConfig(repeatCount: 1, minimalRichSpans: true)
-    };
-
     private static IEnumerable<IChange> GeneratedChangesForType(Type type)
     {
         //can't generate this type because there's no public constructor
@@ -225,7 +205,7 @@ public class ChangeSerializationTests
             }
         }
 
-        // add changes for any change types not already represented
+        // step 3: add changes for any change types not already represented
         foreach (var changeType in LcmCrdtKernel.AllChangeTypes()
             .Where(changeType => !seenChangeTypes.Contains(changeType)))
         {
@@ -246,18 +226,6 @@ public class ChangeSerializationTests
         );
     }
 
-    private static string SerializeRegressionData(JsonArray jsonArray)
-    {
-        return JsonSerializer.Serialize(jsonArray, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            Encoder = Options.Encoder,
-        })
-        // The "+" in DateTimeOffsets does not get escaped by our standard crdt serializer,
-        // but it does here. Presumably, because it's reading it as a string and not a DateTimeOffset
-        .Replace("\\u002B", "+");
-    }
-
     //helper method, can be called manually to regenerate the json file
     //Note: RegressionDataUpToDate() should generate new changes as necessary
     [Fact(Skip = "Only run manually")]
@@ -265,44 +233,5 @@ public class ChangeSerializationTests
     {
         using var jsonFile = File.Open(GetJsonFilePath("NewJson.json"), FileMode.Create);
         JsonSerializer.Serialize(jsonFile, GeneratedChanges(), OptionsIndented);
-    }
-
-    private static string GetJsonFilePath(string name, [CallerFilePath] string sourceFile = "")
-    {
-        return Path.Combine(
-            Path.GetDirectoryName(sourceFile) ?? throw new InvalidOperationException("Could not get directory of source file"),
-            name);
-    }
-
-    private static readonly JsonWriterOptions GenericJsonWriterOptions = new()
-    {
-        Indented = true,
-        Encoder = Options.Encoder,
-    };
-
-    private static string ToNormalizedIndentedJsonString(JsonNode element)
-    {
-        var buffer = new ArrayBufferWriter<byte>();
-        using (var writer = new Utf8JsonWriter(buffer, GenericJsonWriterOptions))
-        {
-            element.WriteTo(writer);
-        }
-        return Encoding.UTF8.GetString(buffer.WrittenSpan)
-        // The "+" in DateTimeOffsets does not get escaped by our standard crdt serializer,
-        // but it does here. Presumably, because it's reading it as a string and not a DateTimeOffset
-        .Replace("\\u002B", "+");
-    }
-
-    private static JsonArray ReadJsonArrayFromFile(string path)
-    {
-        if (!File.Exists(path)) return [];
-
-        using var stream = File.OpenRead(path);
-        var node = JsonNode.Parse(stream, null, new()
-        {
-            AllowTrailingCommas = true,
-            CommentHandling = JsonCommentHandling.Skip
-        }) ?? throw new InvalidOperationException("Could not parse json array");
-        return node.AsArray();
     }
 }
