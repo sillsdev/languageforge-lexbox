@@ -44,6 +44,16 @@ public abstract class BaseSerializationTest
                 {
                     sense.ExampleSentences = [];
                 }
+            }, true),
+new SimpleOverride<CreateExampleSentenceChange>(context =>
+            {
+                if (context.Instance is CreateExampleSentenceChange exampleSentenceChange)
+                {
+#pragma warning disable CS0618
+                    // Translation is obsolete and so populating it in new changes does not reflect reality
+                    exampleSentenceChange.Translation = null;
+#pragma warning restore CS0618
+                }
             }, true)
         );
         return config;
