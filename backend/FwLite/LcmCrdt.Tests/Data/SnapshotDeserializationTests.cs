@@ -13,9 +13,23 @@ public class SnapshotDeserializationTests : BaseSerializationTest
     {
         try
         {
-            var snapshot = Faker.Generate(type) as IObjectWithId;
-            snapshot.Should().NotBeNull($"Could not generate snapshot for type {type.Name}");
-            return new MiniLcmCrdtAdapter(snapshot);
+            if (typeof(IObjectWithId).IsAssignableFrom(type))
+            {
+                var snapshot = Faker.Generate(type) as IObjectWithId;
+                snapshot.Should().NotBeNull($"Could not generate {nameof(IObjectWithId)} snapshot for type {type.Name}");
+                return new MiniLcmCrdtAdapter(snapshot);
+            }
+            else if (typeof(IObjectBase).IsAssignableFrom(type))
+            {
+                var snapshot = Faker.Generate(type) as IObjectBase;
+                snapshot.Should().NotBeNull($"Could not generate {nameof(IObjectBase)} snapshot for type {type.Name}");
+                return snapshot;
+            }
+            else
+            {
+                throw new Exception($"Type {type.Name} does not implement IObjectBase or IObjectWithId");
+            }
+
         }
         catch (Exception e)
         {
@@ -51,7 +65,7 @@ public class SnapshotDeserializationTests : BaseSerializationTest
             var snapshotTypes = snapshots.Select(c => c.DbObject.GetType()).Distinct().ToHashSet();
             foreach (var objectType in LcmCrdtKernel.AllObjectTypes())
             {
-                // snapshotTypes.Should().Contain(objectType);
+                snapshotTypes.Should().Contain(objectType);
             }
         }
     }
@@ -110,7 +124,7 @@ public class SnapshotDeserializationTests : BaseSerializationTest
             latestJson.Should().NotBeNullOrWhiteSpace();
             var snapshot = JsonSerializer.Deserialize<IObjectBase>(latestJsonNode, Options);
             snapshot.Should().NotBeNull();
-            seenObjectTypes.Add(snapshot.GetType());
+            seenObjectTypes.Add(snapshot.DbObject.GetType());
             var newLatestJson = JsonSerializer.Serialize(snapshot, OptionsIndented);
 
             if (latestJson != newLatestJson)
@@ -137,6 +151,15 @@ public class SnapshotDeserializationTests : BaseSerializationTest
                 // it's still the latest
                 newLatestJsonArray.Add(latestJsonNode.DeepClone());
             }
+        }
+
+        // add snapshots for any snapshot types not already represented
+        foreach (var snapshotType in LcmCrdtKernel.AllObjectTypes()
+            .Where(snapshotType => !seenObjectTypes.Contains(snapshotType)))
+        {
+            var generatedSnapshot = GenerateSnapshotForType(snapshotType);
+            var serialized = JsonSerializer.Serialize(generatedSnapshot, OptionsIndented);
+            newLatestJsonArray.Add(JsonNode.Parse(serialized));
         }
 
         await Task.WhenAll(
