@@ -30,7 +30,7 @@ public class ChangeSerializationTests
     };
     private static readonly AutoFaker Faker = new()
     {
-        Config = AutoFakerDefault.MakeConfig(repeatCount: 1)
+        Config = AutoFakerDefault.MakeConfig(repeatCount: 1, minimalRichSpans: true)
     };
 
     private static IEnumerable<IChange> GeneratedChangesForType(Type type)

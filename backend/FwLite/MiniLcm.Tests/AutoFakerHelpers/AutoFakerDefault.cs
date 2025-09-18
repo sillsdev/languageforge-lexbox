@@ -8,7 +8,7 @@ public static class AutoFakerDefault
 {
     public static readonly AutoFakerConfig Config = MakeConfig();
 
-    public static AutoFakerConfig MakeConfig(string[]? validWs = null, int repeatCount = 5)
+    public static AutoFakerConfig MakeConfig(string[]? validWs = null, int repeatCount = 5, bool minimalRichSpans = false)
     {
         return new AutoFakerConfig()
         {
@@ -17,6 +17,7 @@ public static class AutoFakerDefault
             [
                 new MultiStringOverride(validWs),
                 new RichMultiStringOverride(validWs),
+                new RichSpanOverride(minimalRichSpans),
                 new WritingSystemIdOverride(validWs),
                 new ObjectWithIdOverride(),
                 new OrderableOverride(),
