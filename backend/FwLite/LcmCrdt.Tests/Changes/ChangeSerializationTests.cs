@@ -125,7 +125,7 @@ public class ChangeSerializationTests
         //it represents changes that could be out in the wild and we need to support
         //changes are updated and appended by RegressionDataUpToDate() whenever it finds a "latest" change that doesn't stably round-trip
         //or when it finds a change type that isn't represented
-        using var jsonFile = File.OpenRead(GetJsonFilePath("RegressionDeserializationData.latest.verified.txt"));
+        using var jsonFile = File.OpenRead(GetJsonFilePath("ChangeDeserializationRegressionData.latest.verified.txt"));
         var changes = JsonSerializer.Deserialize<List<IChange>>(jsonFile, Options);
         changes.Should().NotBeNullOrEmpty().And.NotContainNulls();
 
@@ -145,9 +145,9 @@ public class ChangeSerializationTests
     {
         //nothing should ever be removed from this file!
         //it represents changes that could be out in the wild and we need to support
-        //changes are moved here from RegressionDeserializationData.latest.verified.txt
+        //changes are moved here from ChangeDeserializationRegressionData.latest.verified.txt
         //when RegressionDataUpToDate() detects that it doesn't stably round-trip
-        using var jsonFile = File.OpenRead(GetJsonFilePath("RegressionDeserializationData.legacy.verified.txt"));
+        using var jsonFile = File.OpenRead(GetJsonFilePath("ChangeDeserializationRegressionData.legacy.verified.txt"));
         var changes = JsonSerializer.Deserialize<List<IChange>>(jsonFile, Options);
         changes.Should().NotBeNullOrEmpty().And.NotContainNulls();
     }
@@ -155,8 +155,8 @@ public class ChangeSerializationTests
     [Fact]
     public async Task RegressionDataUpToDate()
     {
-        var legacyJsonArray = ReadJsonArrayFromFile(GetJsonFilePath("RegressionDeserializationData.legacy.verified.txt"));
-        var latestJsonArray = ReadJsonArrayFromFile(GetJsonFilePath("RegressionDeserializationData.latest.verified.txt"));
+        var legacyJsonArray = ReadJsonArrayFromFile(GetJsonFilePath("ChangeDeserializationRegressionData.legacy.verified.txt"));
+        var latestJsonArray = ReadJsonArrayFromFile(GetJsonFilePath("ChangeDeserializationRegressionData.latest.verified.txt"));
         var newLatestJsonArray = new JsonArray();
 
         var seenChangeTypes = new HashSet<Type>();
@@ -176,8 +176,11 @@ public class ChangeSerializationTests
                 // I.e. it's no longer the latest. It's now legacy
                 legacyJsonArray.Add(latestJsonNode.DeepClone());
                 newLatestJsonArray.Add(JsonNode.Parse(newLatestJson));
-                // additionally we re-add generated changes, because it's much easier for a dev to remove unwanted changes than
-                // to manually generate and insert them. We can remove this if it's too noisy
+                // Additionally we add brand new generated changes of the type.
+                // If the new model only changes the representation of the same data then this might not be helpful.
+                // However, we typically change the model in order to add new data, so the generated change will exercise that new data.
+                // Anyhow, it's much easier for a dev to remove unwanted changes than
+                // to generate and insert them manually. We can remove this if it's too noisy.
                 foreach (var generatedChange in GeneratedChangesForType(change.GetType()))
                 {
                     var serialized = JsonSerializer.Serialize(generatedChange, OptionsIndented);
@@ -194,10 +197,10 @@ public class ChangeSerializationTests
         await Task.WhenAll(
             Verify(SerializeRegressionData(legacyJsonArray))
                 .UseStrictJson()
-                .UseFileName("RegressionDeserializationData.legacy"),
+                .UseFileName("ChangeDeserializationRegressionData.legacy"),
             Verify(SerializeRegressionData(newLatestJsonArray))
                 .UseStrictJson()
-                .UseFileName("RegressionDeserializationData.latest")
+                .UseFileName("ChangeDeserializationRegressionData.latest")
         );
     }
 
