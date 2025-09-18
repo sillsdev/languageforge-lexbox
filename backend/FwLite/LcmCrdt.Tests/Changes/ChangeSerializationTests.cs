@@ -194,6 +194,17 @@ public class ChangeSerializationTests
             }
         }
 
+        // add changes for any change types not already represented
+        foreach (var changeType in LcmCrdtKernel.AllChangeTypes()
+            .Where(changeType => !seenChangeTypes.Contains(changeType)))
+        {
+            foreach (var generatedChange in GeneratedChangesForType(changeType))
+            {
+                var serialized = JsonSerializer.Serialize(generatedChange, OptionsIndented);
+                newLatestJsonArray.Add(JsonNode.Parse(serialized));
+            }
+        }
+
         await Task.WhenAll(
             Verify(SerializeRegressionData(legacyJsonArray))
                 .UseStrictJson()
