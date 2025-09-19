@@ -41,11 +41,10 @@ internal static class JsonPatchValidator
     /// <summary>
     /// prevents the use of indexes in the path, as this will cause major problems with CRDTs.
     /// </summary>
-    public static void ValidatePatchDocument(IJsonPatchDocument patchDocument, Func<Operation, bool>? where = null)
+    public static void ValidatePatchDocument(IJsonPatchDocument patchDocument)
     {
         foreach (var operation in patchDocument.GetOperations())
         {
-            if (where != null && !where(operation)) continue;
             if (operation.OperationType == OperationType.Remove && char.IsDigit(operation.Path?[^1] ?? default))
             {
                 throw new NotSupportedException("remove at index not supported, op " + JsonSerializer.Serialize(operation));
