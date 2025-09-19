@@ -101,7 +101,7 @@ public class ChangeSerializationTests : BaseSerializationTest
     [Fact]
     public void CanDeserializeLatestRegressionData()
     {
-        //nothing should ever be removed from this file!
+        //nothing should ever be removed from this file except by moving it to the legacy file!
         //it represents changes that could be out in the wild and we need to support
         //changes are updated and appended by RegressionDataUpToDate() whenever it finds a "latest" change that doesn't stably round-trip
         //or when it finds a change type that isn't represented
