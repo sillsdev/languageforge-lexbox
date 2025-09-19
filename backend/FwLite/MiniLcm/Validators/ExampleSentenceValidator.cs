@@ -10,8 +10,7 @@ public class ExampleSentenceValidator : AbstractValidator<ExampleSentence>
         RuleFor(es => es.DeletedAt).Null();
         RuleFor(es => es.Sentence).NoEmptyValues(GetExampleSentenceIdentifier)
             .NoDefaultWritingSystems(GetExampleSentenceIdentifier);
-        RuleFor(es => es.Translation).NoEmptyValues(GetExampleSentenceIdentifier)
-            .NoDefaultWritingSystems(GetExampleSentenceIdentifier);
+        RuleForEach(es => es.Translations).SetValidator(sentence => new ExampleSentenceTranslationValidator(sentence));
     }
 
     public ExampleSentenceValidator(Sense sense) : this()
@@ -23,5 +22,27 @@ public class ExampleSentenceValidator : AbstractValidator<ExampleSentence>
     private string GetExampleSentenceIdentifier(ExampleSentence example)
     {
         return example.Id.ToString("D");
+    }
+}
+
+public class ExampleSentenceTranslationValidator : AbstractValidator<Translation>
+{
+    private readonly ExampleSentence _exampleSentence;
+
+    public ExampleSentenceTranslationValidator(ExampleSentence exampleSentence)
+    {
+        _exampleSentence = exampleSentence;
+        RuleFor(translation => translation.Text).NoEmptyValues(GetExampleSentenceTranslationIdentifier)
+            .NoDefaultWritingSystems(GetExampleSentenceTranslationIdentifier);
+    }
+
+    private string GetExampleSentenceTranslationIdentifier(Translation arg)
+    {
+        return $"Example: {_exampleSentence.Id:D} Translation #{_exampleSentence.Translations.IndexOf(arg) + 1}";
+    }
+
+    private string GetExampleSentenceIdentifier()
+    {
+        return _exampleSentence.Id.ToString("D");
     }
 }

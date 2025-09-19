@@ -20,12 +20,11 @@ public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class
     }
 
     [JsonConstructor]
-    public JsonPatchChange(Guid entityId, JsonPatchDocument<T> patchDocument): base(entityId)
+    public JsonPatchChange(Guid entityId, JsonPatchDocument<T> patchDocument) : base(entityId)
     {
         PatchDocument = patchDocument;
         JsonPatchValidator.ValidatePatchDocument(PatchDocument);
     }
-
 
     public JsonPatchDocument<T> PatchDocument { get; }
 
@@ -36,7 +35,7 @@ public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class
     }
 }
 
-file static class JsonPatchValidator
+internal static class JsonPatchValidator
 {
 
     /// <summary>

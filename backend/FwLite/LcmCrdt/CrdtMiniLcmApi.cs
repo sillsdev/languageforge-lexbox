@@ -3,7 +3,9 @@ using Gridify;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+ using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
+using LcmCrdt.Changes.ExampleSentences;
 using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.MediaServer;
@@ -718,7 +720,7 @@ public class CrdtMiniLcmApi(
         UpdateObjectInput<ExampleSentence> update)
     {
         var jsonPatch = update.Patch;
-        var patchChange = new JsonPatchChange<ExampleSentence>(exampleSentenceId, jsonPatch);
+        var patchChange = new JsonPatchExampleSentenceChange(exampleSentenceId, jsonPatch);
         await AddChange(patchChange);
         return await GetExampleSentence(entryId, senseId, exampleSentenceId) ?? throw new NullReferenceException();
     }
@@ -743,6 +745,36 @@ public class CrdtMiniLcmApi(
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
         await AddChange(new DeleteChange<ExampleSentence>(exampleSentenceId));
+    }
+
+    public async Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
+    {
+        if (translation.Id == Guid.Empty) translation.Id = Guid.NewGuid();
+        await AddChange(new AddTranslationChange(exampleSentenceId, translation));
+    }
+
+    public async Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId)
+    {
+        await AddChange(new RemoveTranslationChange(exampleSentenceId, translationId));
+    }
+
+    public async Task UpdateTranslation(Guid entryId,
+        Guid senseId,
+        Guid exampleSentenceId,
+        Guid translationId,
+        UpdateObjectInput<Translation> update)
+    {
+        var jsonPatch = update.Patch;
+        await AddChange(new UpdateTranslationChange(exampleSentenceId, translationId, jsonPatch));
+    }
+
+    [Obsolete($"Use {nameof(AddTranslation)} instead")]
+    public async Task SetFirstTranslationId(
+        Guid exampleSentenceId,
+        Guid translationId)
+    {
+        if (translationId == Translation.DefaultFirstTranslationId) throw new InvalidOperationException("Cannot set the first translation id to the default id");
+        await AddChange(new SetFirstTranslationIdChange(exampleSentenceId, translationId));
     }
 
     public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)

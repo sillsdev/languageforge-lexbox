@@ -61,3 +61,27 @@ public class RichMultiStringOverride(string[]? validWs = null): AutoFakerOverrid
         }
     }
 }
+
+public class RichSpanOverride(bool minimal = false) : AutoFakerOverride<RichSpan>
+{
+    public override bool Preinitialize => true;
+
+    public override void Generate(AutoFakerOverrideContext context)
+    {
+        if (!minimal || context.Instance is not RichSpan existing) return;
+
+        // A much less noisy representation that covers all the data types
+        var minimalSpan = new RichSpan
+        {
+            Text = existing.Text,
+            Ws = existing.Ws,
+            Tags = existing.Tags,
+            Bold = existing.Bold,
+            FontSize = existing.FontSize,
+            ForeColor = existing.ForeColor,
+            ObjData = existing.ObjData,
+        };
+
+        context.Instance = minimalSpan;
+    }
+}

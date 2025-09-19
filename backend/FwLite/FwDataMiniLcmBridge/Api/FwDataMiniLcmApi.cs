@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
@@ -786,14 +787,17 @@ public class FwDataMiniLcmApi(
 
     private ExampleSentence FromLexExampleSentence(Guid senseGuid, ILexExampleSentence sentence)
     {
-        var translation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
         return new ExampleSentence
         {
             Id = sentence.Guid,
             SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
             Reference = ToRichString(sentence.Reference),
-            Translation = translation is null ? [] : FromLcmMultiString(translation),
+            Translations = sentence.TranslationsOC.Select(t => new Translation
+            {
+                Id = t.Guid,
+                Text = t.Translation is null ? [] : FromLcmMultiString(t.Translation),
+            }).ToList()
         };
     }
 
@@ -1560,17 +1564,36 @@ public class FwDataMiniLcmApi(
         var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id);
         InsertExampleSentence(lexSense, lexExampleSentence, between);
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
-        var translation = CreateExampleSentenceTranslation(lexExampleSentence);
-        UpdateLcmMultiString(translation.Translation, exampleSentence.Translation);
+        foreach (var translation in exampleSentence.Translations)
+        {
+            CreateExampleSentenceTranslation(lexExampleSentence, translation);
+        }
         lexExampleSentence.Reference = exampleSentence.Reference is null
             ? null
             : RichTextMapping.ToTsString(exampleSentence.Reference, id => GetWritingSystemHandle(id));
     }
 
-    public ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent)
+    internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Translation translation)
+    {
+        var cmTranslation = CreateExampleSentenceTranslation(parent, translation.Id);
+        UpdateLcmMultiString(cmTranslation.Translation, translation.Text);
+        return cmTranslation;
+    }
+    internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Guid? id = null)
     {
         var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
-        return CmTranslationFactory.Create(parent, freeTranslationType);
+        //todo once https://github.com/sillsdev/liblcm/pull/341 is merged we can create the translation with the correct Guid
+        var translation = CmTranslationFactory.Create(parent, freeTranslationType);
+        //hack for now, note this breaks Translation.Delete so the remove test is failing
+        DangerouslySetGuid(translation.Id, id ?? Guid.NewGuid());
+        return translation;
+    }
+
+    private void DangerouslySetGuid(ICmObjectId cmObjectId, Guid newGuid)
+    {
+        var fieldInfo = cmObjectId.GetType().GetField("m_guid", BindingFlags.NonPublic | BindingFlags.Instance);
+        ArgumentNullException.ThrowIfNull(fieldInfo);
+        fieldInfo.SetValue(cmObjectId, newGuid);
     }
 
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? between = null)
@@ -1648,6 +1671,52 @@ public class FwDataMiniLcmApi(
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
             () => lexExampleSentence.Delete());
+        return Task.CompletedTask;
+    }
+
+    public Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
+    {
+        var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Translation",
+            "Revert add",
+            Cache.ServiceLocator.ActionHandler,
+            () => CreateExampleSentenceTranslation(lexExampleSentence, translation));
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId)
+    {
+        var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Remove Translation",
+            "Revert remove",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var translation = lexExampleSentence.TranslationsOC.First(t => t.Guid == translationId);
+                translation.Delete();
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateTranslation(Guid entryId,
+        Guid senseId,
+        Guid exampleSentenceId,
+        Guid translationId,
+        UpdateObjectInput<Translation> update)
+    {
+        var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Translation",
+            "Revert update",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var translation = lexExampleSentence.TranslationsOC.First(t => t.Guid == translationId);
+                var translationProxy = new UpdateTranslationProxy(translation, this);
+                update.Apply(translationProxy);
+            });
         return Task.CompletedTask;
     }
 

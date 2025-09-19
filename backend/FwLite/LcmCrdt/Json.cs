@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json.Serialization.Metadata;
+using LcmCrdt.Changes;
 using LinqToDB;
 using LinqToDB.Common;
 using LinqToDB.Mapping;
@@ -197,10 +198,10 @@ public static class Json
         [property: Column("fullkey")] string FullKey,
         [property: Column("path")] string Path);
 
-    public static IJsonTypeInfoResolver MakeLcmCrdtExternalJsonTypeResolver(this CrdtConfig config)
+    public static IJsonTypeInfoResolver MakeLcmCrdtJsonTypeResolver(this CrdtConfig config, bool ignoreInternal = true)
     {
         var resolver = config.MakeJsonTypeResolver();
-        resolver = resolver.AddExternalMiniLcmModifiers();
+        resolver = resolver.AddMiniLcmModifiers(ignoreInternal);
         return resolver;
     }
 }

@@ -3,10 +3,12 @@ using System.Text.Json;
 using Bogus;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Resource;
+using SystemTextJsonPatch;
 
 namespace LcmCrdt.Tests.Changes;
 
@@ -16,10 +18,9 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
     private static readonly Randomizer random = new();
     private static readonly Lazy<JsonSerializerOptions> LazyOptions = new(() =>
     {
-        var config = new CrdtConfig();
-        LcmCrdtKernel.ConfigureCrdt(config);
-        config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
-        return config.JsonSerializerOptions;
+        var options = TestJsonOptions.Default(ignoreInternal: false);
+        options.ReadCommentHandling = JsonCommentHandling.Skip;
+        return options;
     });
     private static readonly JsonSerializerOptions Options = LazyOptions.Value;
 
@@ -139,6 +140,13 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var exampleSentence = new ExampleSentence { Id = Guid.NewGuid(), Sentence = new() { { "en", new RichString("test sentence") } } };
         var createExampleSentenceChange = new CreateExampleSentenceChange(exampleSentence, sense.Id);
         yield return new ChangeWithDependencies(createExampleSentenceChange, [createSenseChange]);
+
+        var jsonPatchExampleSentenceChange = new JsonPatchExampleSentenceChange(
+            exampleSentence.Id,
+            new JsonPatchDocument<ExampleSentence>()
+                .Replace(sentence => sentence.Reference, new RichString("hello", "en"))
+            );
+        yield return new ChangeWithDependencies(jsonPatchExampleSentenceChange, [createExampleSentenceChange]);
 
         var semanticDomain = new SemanticDomain { Id = Guid.NewGuid(), Name = { { "en", "test sd" } } };
         var createSemanticDomainChange = new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, "1.1.1");

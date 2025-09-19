@@ -22,6 +22,6 @@ public static class FwLiteJson
         if (options is null) throw new InvalidOperationException("JSRuntime.JsonSerializerOptions returned null");
         options.TypeInfoResolver = (options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
             .WithAddedModifier(crdtConfig.MakeJsonTypeModifier())
-            .AddExternalMiniLcmModifiers();
+            .AddMiniLcmModifiers();
     }
 }

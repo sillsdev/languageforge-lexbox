@@ -71,7 +71,16 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
                             {
                                 Id = Guid.NewGuid(),
                                 Sentence = { ["en"] = new RichString(AutoFaker.Faker.Lorem.Sentence(), "en") },
-                                Translation = { ["en"] = new RichString(AutoFaker.Faker.Lorem.Sentence(), "en") }
+                                Translations =
+                                [
+                                    new()
+                                    {
+                                        Text =
+                                        {
+                                            ["en"] = new RichString(AutoFaker.Faker.Lorem.Sentence(), "en")
+                                        }
+                                    }
+                                ]
                             }).ToList()
                     }).ToList()
             };

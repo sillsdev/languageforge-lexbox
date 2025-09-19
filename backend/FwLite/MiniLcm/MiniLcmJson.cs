@@ -7,9 +7,11 @@ namespace MiniLcm;
 
 public static class MiniLcmJson
 {
-    public static IJsonTypeInfoResolver AddExternalMiniLcmModifiers(this IJsonTypeInfoResolver resolver)
+    public static IJsonTypeInfoResolver AddMiniLcmModifiers(this IJsonTypeInfoResolver resolver, bool ignoreInternal = true)
     {
-        resolver = resolver.WithAddedModifier(IgnoreInternalMiniLcmProperties);
+        if (ignoreInternal)
+            resolver = resolver.WithAddedModifier(IgnoreInternalMiniLcmProperties);
+        resolver = resolver.WithAddedModifier(ExampleTranslationHandling);
         return resolver;
     }
 
@@ -23,6 +25,26 @@ public static class MiniLcmJson
                 //we probably don't need to set ShouldSerialize anymore, but we'll leave it for now
                 prop.ShouldSerialize = (_, _) => false;
             }
+        }
+    }
+
+    private static void ExampleTranslationHandling(JsonTypeInfo typeInfo)
+    {
+        if (typeInfo.Type == typeof(ExampleSentence))
+        {
+            //legacy property
+            var propertyInfo = typeInfo.CreateJsonPropertyInfo(typeof(RichMultiString), "Translation");
+            propertyInfo.Set = (obj, value) =>
+            {
+                var exampleSentence = (ExampleSentence)obj;
+                if (exampleSentence.Translations.Any()) throw new InvalidOperationException("Cannot set translations when they already exist.");
+                var richString = (RichMultiString?)value;
+                if (richString is null) return;
+#pragma warning disable CS0618 // Type or member is obsolete
+                exampleSentence.Translations = [Translation.FromMultiString(richString)];
+#pragma warning restore CS0618 // Type or member is obsolete
+            };
+            typeInfo.Properties.Add(propertyInfo);
         }
     }
 }
