@@ -1,7 +1,9 @@
 using System.Text.Json;
 using LcmCrdt.Changes;
 using LcmCrdt.Objects;
+using Moq;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 
 namespace LcmCrdt.Tests.Changes;
 
@@ -44,15 +46,22 @@ public class TranslationChangeDeserializationTests
     [Fact]
     public async Task CanDeserializeCreateExampleJson()
     {
-        var change = JsonSerializer.Deserialize<IChange>(CreateExampleJson, _options);
+        // arrange
+        var change = JsonSerializer.Deserialize<CreateExampleSentenceChange>(CreateExampleJson, _options);
         change.Should().NotBeNull();
-        var adapter = await change.NewEntity(null!, null!);//todo generate a mocked Context to pass in
-        var exampleSentence = adapter.DbObject.Should().BeOfType<ExampleSentence>().Subject;;
+        var mockContext = new Mock<IChangeContext>(MockBehavior.Strict);
+        mockContext.Setup(c => c.IsObjectDeleted(It.IsAny<Guid>())).ReturnsAsync(false);
+
+        // act
+        var adapter = await change.NewEntity(null!, mockContext.Object);
+
+        // assert
+        var exampleSentence = adapter.Should().BeOfType<ExampleSentence>().Subject;
         var translation = exampleSentence.Translations.Should().ContainSingle().Subject;
         translation.Text["en"].Should().BeEquivalentTo(new RichString("test", "en"));
     }
 
-    private const string JsonPatchTranslation = /*lang=json,strict*/ """
+    private const string JsonPatchTranslationAdd = /*lang=json,strict*/ """
 {
   "$type": "jsonPatch:ExampleSentence",
   "PatchDocument": [
@@ -94,11 +103,10 @@ public class TranslationChangeDeserializationTests
 }
 """;
 
-
     [Theory]
-    [InlineData(JsonPatchTranslation)]
+    [InlineData(JsonPatchTranslationAdd)]
     [InlineData(JsonPatchTranslationReplace)]
-    public async Task CanDeserializeJsonPatchTranslation(string json)
+    public async Task CanDeserializeUpdateJsonPatchTranslation(string json)
     {
         var change = JsonSerializer.Deserialize<IChange>(json, _options);
         change.Should().NotBeNull();
@@ -115,9 +123,9 @@ public class TranslationChangeDeserializationTests
     }
 
     [Theory]
-    [InlineData(JsonPatchTranslation)]
+    [InlineData(JsonPatchTranslationAdd)]
     [InlineData(JsonPatchTranslationReplace)]
-    public async Task CanDeserializeJsonPatchTranslation_NoStartingTranslation(string json)
+    public async Task CanDeserializeUpdateJsonPatchTranslation_NoStartingTranslation(string json)
     {
         var change = JsonSerializer.Deserialize<IChange>(json, _options);
         change.Should().NotBeNull();
@@ -127,5 +135,48 @@ public class TranslationChangeDeserializationTests
         };
         await change.ApplyChange(new MiniLcmCrdtAdapter(exampleSentence), null!);
         exampleSentence.Translations.Should().ContainSingle().Which.Text["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
+    }
+
+    private const string JsonPatchTranslationRemove = /*lang=json,strict*/ """
+{
+  "$type": "jsonPatch:ExampleSentence",
+  "patchDocument": [
+    {
+      "op": "remove",
+      "path": "/Translation/en"
+    }
+  ],
+  "EntityId": "135d7c84-95d8-4707-a400-e1f3619d90fb"
+}
+""";
+
+    [Fact]
+    public async Task CanDeserializeRemoveJsonPatchTranslation()
+    {
+        var change = JsonSerializer.Deserialize<IChange>(JsonPatchTranslationRemove, _options);
+        change.Should().NotBeNull();
+        var exampleSentence = new ExampleSentence()
+        {
+            Translations = [
+            new Translation()
+            {
+                Text = { { "en", new RichString("old", "en") } }
+            }]
+        };
+        await change.ApplyChange(new MiniLcmCrdtAdapter(exampleSentence), null!);
+        exampleSentence.Translations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CanDeserializeRemoveJsonPatchTranslation_NoStartingTranslation()
+    {
+        var change = JsonSerializer.Deserialize<IChange>(JsonPatchTranslationRemove, _options);
+        change.Should().NotBeNull();
+        var exampleSentence = new ExampleSentence()
+        {
+            Translations = []
+        };
+        await change.ApplyChange(new MiniLcmCrdtAdapter(exampleSentence), null!);
+        exampleSentence.Translations.Should().BeEmpty();
     }
 }
