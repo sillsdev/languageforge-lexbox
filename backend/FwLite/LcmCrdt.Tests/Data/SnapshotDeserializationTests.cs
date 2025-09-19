@@ -50,7 +50,7 @@ public class SnapshotDeserializationTests : BaseSerializationTest
     [Fact]
     public void CanDeserializeLatestRegressionData()
     {
-        //nothing should ever be removed from this file!
+        //nothing should ever be removed from this file except by moving it to the legacy file!
         //it represents snapshots that could be out in the wild and we need to support
         //snapshots are updated and appended by RegressionDataUpToDate() whenever it finds a "latest" snapshot that doesn't stably round-trip
         //or when it finds a snapshot type that isn't represented
