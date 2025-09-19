@@ -768,6 +768,15 @@ public class CrdtMiniLcmApi(
         await AddChange(new UpdateTranslationChange(exampleSentenceId, translationId, jsonPatch));
     }
 
+    [Obsolete($"Use {nameof(AddTranslation)} instead")]
+    public async Task SetFirstTranslationId(
+        Guid exampleSentenceId,
+        Guid translationId)
+    {
+        if (translationId == Translation.DefaultFirstTranslationId) throw new InvalidOperationException("Cannot set the first translation id to the default id");
+        await AddChange(new SetFirstTranslationIdChange(exampleSentenceId, translationId));
+    }
+
     public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
     {
         if (mediaUri == MediaUri.NotFound) return new ReadFileResponse(ReadFileResult.NotFound);

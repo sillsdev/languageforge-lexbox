@@ -43,10 +43,6 @@ public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
 
 public class Translation
 {
-    public static Translation FromMultiString(RichMultiString richString)
-    {
-        return new Translation() { Text = richString };
-    }
 
     public Guid Id { get; set; }
     public virtual RichMultiString Text { get; set; } = new();
@@ -55,4 +51,13 @@ public class Translation
     {
         return new Translation() { Id = Id, Text = Text.Copy() };
     }
+
+    [Obsolete("Only for handling legacy data.")]
+    public static Translation FromMultiString(RichMultiString richString)
+    {
+        return new Translation() { Id = DefaultFirstTranslationId, Text = richString };
+    }
+
+    [Obsolete("Only for handling legacy data.")]
+    public static readonly Guid DefaultFirstTranslationId = new("3dce1982-8e93-44f1-b92c-e9c7bdf72801");
 }

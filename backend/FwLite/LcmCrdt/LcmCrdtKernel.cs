@@ -258,6 +258,7 @@ public static class LcmCrdtKernel
             .Add<AddTranslationChange>()
             .Add<RemoveTranslationChange>()
             .Add<UpdateTranslationChange>()
+            .Add<SetFirstTranslationIdChange>()
 
             .Add<CreatePartOfSpeechChange>()
             .Add<CreateSemanticDomainChange>()
