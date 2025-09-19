@@ -10,7 +10,8 @@ public class AddTranslationChange(Guid entityId, Translation translation) : Edit
 
     public override ValueTask ApplyChange(ExampleSentence entity, IChangeContext context)
     {
-        if (entity.Translations.Any(t => t.Id == Translation.Id)) return ValueTask.CompletedTask;
+        if (entity.Translations.Any(t => t.Id == Translation.Id))
+            throw new InvalidOperationException($"Translation with ID {Translation.Id} already exists in ExampleSentence with ID {entity.Id}");
         entity.Translations.Add(Translation);
         return ValueTask.CompletedTask;
     }

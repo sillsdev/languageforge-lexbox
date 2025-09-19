@@ -19,7 +19,7 @@ public class UpdateTranslationChange : EditChange<ExampleSentence>, ISelfNamedTy
 
     public override ValueTask ApplyChange(ExampleSentence entity, IChangeContext context)
     {
-        var translation = entity.Translations.FirstOrDefault(t => t.Id == TranslationId);
+        var translation = entity.Translations.SingleOrDefault(t => t.Id == TranslationId);
         if (translation == null) return ValueTask.CompletedTask;
         Patch.ApplyTo(translation);
         return ValueTask.CompletedTask;
