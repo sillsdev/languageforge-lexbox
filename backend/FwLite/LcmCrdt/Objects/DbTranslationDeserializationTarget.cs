@@ -41,7 +41,9 @@ public class DbTranslationDeserializationTarget
 
     public DbTranslationDeserializationTarget(RichMultiString translation)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         _translations = [Translation.FromMultiString(translation)];
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     public IList<Translation> GetTranslations()

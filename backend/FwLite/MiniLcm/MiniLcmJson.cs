@@ -40,7 +40,9 @@ public static class MiniLcmJson
                 if (exampleSentence.Translations.Any()) throw new InvalidOperationException("Cannot set translations when they already exist.");
                 var richString = (RichMultiString?)value;
                 if (richString is null) return;
+#pragma warning disable CS0618 // Type or member is obsolete
                 exampleSentence.Translations = [Translation.FromMultiString(richString)];
+#pragma warning restore CS0618 // Type or member is obsolete
             };
             typeInfo.Properties.Add(propertyInfo);
         }
