@@ -52,7 +52,10 @@ public class ProjectService(
                 FlexProjectMetadata = input.Type == ProjectType.FLEx ? new() : null
             });
         // Also delete draft project, if any
-        await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
+        if (draftProject is not null)
+        {
+            dbContext.DraftProjects.Remove(draftProject);
+        }
 
         var manager = input.ProjectManagerId.HasValue ? await dbContext.Users.FindAsync(input.ProjectManagerId.Value) : null;
         manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
