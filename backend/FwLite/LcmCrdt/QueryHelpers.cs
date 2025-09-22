@@ -4,20 +4,35 @@ namespace LcmCrdt;
 
 public static class QueryHelpers
 {
-    public static void ApplySortOrder(this Entry entry, IComparer<ComplexFormComponent> complexFormComparer)
+    public static void Finalize(this Entry entry, IComparer<ComplexFormComponent> complexFormComparer)
     {
         entry.Senses.ApplySortOrder();
         entry.Components.ApplySortOrder();
         entry.ComplexForms.Sort(complexFormComparer);
         foreach (var sense in entry.Senses)
         {
-            sense.ApplySortOrder();
+            sense.Finalize();
         }
     }
 
-    public static void ApplySortOrder(this Sense sense)
+    public static void Finalize(this Sense sense)
     {
         sense.ExampleSentences.ApplySortOrder();
+        foreach (var exampleSentence in sense.ExampleSentences)
+        {
+            exampleSentence.Finalize();
+        }
+    }
+
+    public static void Finalize(this ExampleSentence exampleSentence)
+    {
+        var firstTranslation = exampleSentence.Translations.FirstOrDefault();
+#pragma warning disable CS0618 // Type or member is obsolete
+        if (firstTranslation?.Id == Translation.MissingTranslationId)
+        {
+            firstTranslation.Id = exampleSentence.DefaultFirstTranslationId;
+        }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     private static void ApplySortOrder<T>(this List<T> items) where T : IOrderable

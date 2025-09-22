@@ -1,5 +1,4 @@
 using System.Data;
-using Gridify;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
@@ -10,7 +9,6 @@ using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.MediaServer;
 using LcmCrdt.Objects;
-using LcmCrdt.Utils;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,7 +18,6 @@ using MiniLcm.SyncHelpers;
 using SIL.Harmony.Core;
 using MiniLcm.Culture;
 using MiniLcm.Media;
-using SystemTextJsonPatch;
 
 namespace LcmCrdt;
 

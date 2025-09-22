@@ -1,4 +1,6 @@
+using System.Text.Json.Serialization;
 using MiniLcm.Attributes;
+using UUIDNext;
 
 namespace MiniLcm.Models;
 
@@ -39,6 +41,12 @@ public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
             Reference = Reference?.Copy()
         };
     }
+
+    private static readonly Guid TranslationIdNamespace = new("59d16a4c-cfca-4080-8ff6-cb9d12275b92");
+
+    [JsonIgnore]
+    [MiniLcmInternal]
+    public Guid DefaultFirstTranslationId => Uuid.NewNameBased(TranslationIdNamespace, Id.ToString());
 }
 
 public class Translation

@@ -148,7 +148,7 @@ public class MiniLcmRepository(
         await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
         await foreach (var entry in EfExtensions.SafeIterate(entries))
         {
-            entry.ApplySortOrder(complexFormComparer);
+            entry.Finalize(complexFormComparer);
             yield return entry;
         }
     }
@@ -225,7 +225,7 @@ public class MiniLcmRepository(
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
             var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
                 .AsComplexFormComparer();
-            entry.ApplySortOrder(complexFormComparer);
+            entry.Finalize(complexFormComparer);
         }
 
         return entry;
@@ -235,7 +235,7 @@ public class MiniLcmRepository(
     {
         var sense = await AsyncExtensions.SingleOrDefaultAsync(Senses.LoadWith(s => s.PartOfSpeech)
                 .AsQueryable(), e => e.Id == senseId);
-        sense?.ApplySortOrder();
+        sense?.Finalize();
         return sense;
     }
 
@@ -243,6 +243,7 @@ public class MiniLcmRepository(
     {
         var exampleSentence = await AsyncExtensions.SingleOrDefaultAsync(ExampleSentences
                 .AsQueryable(), e => e.Id == id);
+        exampleSentence?.Finalize();
         return exampleSentence;
     }
 
