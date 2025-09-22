@@ -61,15 +61,24 @@ public class ProjectService(
         manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
 
         await dbContext.SaveChangesAsync();
-        await hgService.InitRepo(input.Code);
-        InvalidateProjectOrgIdsCache(projectId);
-        InvalidateProjectConfidentialityCache(projectId);
-        InvalidateProjectCodeCache(input.Code);
+        try
+        {
+            await hgService.InitRepo(input.Code);
+            InvalidateProjectOrgIdsCache(projectId);
+            InvalidateProjectConfidentialityCache(projectId);
+            InvalidateProjectCodeCache(input.Code);
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            // CommitAsync() did not run [successfully], so we don't want a repo to exist
+            await hgService.DeleteRepo(input.Code);
+            throw;
+        }
         if (draftProject != null && manager != null)
         {
             await emailService.SendApproveProjectRequestEmail(manager, input);
         }
-        await transaction.CommitAsync();
         return projectId;
     }
 
