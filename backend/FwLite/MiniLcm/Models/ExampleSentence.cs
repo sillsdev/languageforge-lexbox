@@ -55,9 +55,9 @@ public class Translation
     [Obsolete("Only for handling legacy data.")]
     public static Translation FromMultiString(RichMultiString richString)
     {
-        return new Translation() { Id = DefaultFirstTranslationId, Text = richString };
+        return new Translation() { Id = MissingTranslationId, Text = richString };
     }
 
     [Obsolete("Only for handling legacy data.")]
-    public static readonly Guid DefaultFirstTranslationId = new("3dce1982-8e93-44f1-b92c-e9c7bdf72801");
+    public static readonly Guid MissingTranslationId = new("3dce1982-8e93-44f1-b92c-e9c7bdf72801");
 }

@@ -773,7 +773,7 @@ public class CrdtMiniLcmApi(
         Guid exampleSentenceId,
         Guid translationId)
     {
-        if (translationId == Translation.DefaultFirstTranslationId) throw new InvalidOperationException("Cannot set the first translation id to the default id");
+        if (translationId == Translation.MissingTranslationId) throw new InvalidOperationException("Cannot set the first translation id to the missing id");
         await AddChange(new SetFirstTranslationIdChange(exampleSentenceId, translationId));
     }
 

@@ -27,7 +27,7 @@ public static class CrdtRepairs
                         continue;
                     }
 
-                    if (snapshotTranslation.Id != Translation.DefaultFirstTranslationId)
+                    if (snapshotTranslation.Id != Translation.MissingTranslationId)
                     {
                         // already has a valid ID
                         continue;
@@ -67,7 +67,7 @@ public static class CrdtRepairs
                 {
                     var firstTranslation = exampleSentence.Translations.FirstOrDefault();
                     if (firstTranslation is null) continue;
-                    if (firstTranslation.Id != Translation.DefaultFirstTranslationId) continue;
+                    if (firstTranslation.Id != Translation.MissingTranslationId) continue;
                     if (!dryRun)
                     {
                         var newId = Guid.NewGuid();
