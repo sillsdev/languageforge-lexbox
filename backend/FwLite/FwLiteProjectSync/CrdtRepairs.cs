@@ -6,13 +6,11 @@ namespace FwLiteProjectSync;
 
 public static class CrdtRepairs
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     public static async Task<int> SyncMissingTranslationIds(Entry[] snapshotEntries, FwDataMiniLcmApi fwDataApi, CrdtMiniLcmApi crdtApi, bool dryRun)
     {
-        // Step 1: Sync any available IDs from fwdata to the snapshot and the crdt entries
-        // This step should only need to be run once per project
-        // Looking up fwdata example-sentences one-by-one might be slow,
-        // but after the first run there should be no more to do, so future runs will be fast.
-        // We don't want to diff the entire entry, sense and example-sentence collections every time.
+        // Sync any available IDs from fwdata to the snapshot and the crdt entries
+        // This should only need to be run once per project.
         var syncedIdCount = 0;
         foreach (var entry in snapshotEntries)
         {
@@ -33,6 +31,9 @@ public static class CrdtRepairs
                         continue;
                     }
 
+                    // Match the crdt API translation ID behaviour
+                    snapshotTranslation.Id = exampleSentence.DefaultFirstTranslationId;
+
                     var fwDataExampleSentence = await fwDataApi.GetExampleSentence(entry.Id, sense.Id, exampleSentence.Id);
                     if (fwDataExampleSentence is null)
                     {
@@ -41,42 +42,43 @@ public static class CrdtRepairs
                     }
 
                     var fwDataTranslation = fwDataExampleSentence.Translations.FirstOrDefault();
-                    var validTranslationId = fwDataTranslation?.Id
-                        // If there's no fwdata translation/ID then it was deleted.
-                        // If we don't update the ID here, then only the crdt ID will be updated in the loop below.
-                        // That would put the snapshot and crdt out of sync and break the delete.
-                        ?? Guid.NewGuid();
 
-                    if (!dryRun)
+                    if (fwDataTranslation?.Id is null)
                     {
-                        await crdtApi.SetFirstTranslationId(exampleSentence.Id, validTranslationId);
-                        snapshotTranslation.Id = validTranslationId;
+                        // fwdata translation was deleted.
+                        // Using the default translation ID will probably result in the deletion syncing to the crdt translation.
+                        // (it won't if the crdt translation with the default ID was deleted and a new one was created,
+                        // in which case, it arguably shouldn't be deleted.)
+                        continue;
                     }
-                    syncedIdCount++;
+
+                    var validTranslationId = fwDataTranslation.Id;
+                    snapshotTranslation.Id = validTranslationId;
+
+                    var crdtExampleSentence = await crdtApi.GetExampleSentence(entry.Id, sense.Id, exampleSentence.Id);
+                    var crdtTranslation = crdtExampleSentence?.Translations.FirstOrDefault();
+                    if (crdtTranslation is null)
+                    {
+                        // crdt translation was deleted.
+                        // nothing to do. The deletion will sync to the fwdata translation.
+                    }
+                    else
+                    {
+                        // There's a slight chance that the crdt translation does not have the default ID, because
+                        // it was deleted and recreated with a new valid ID. However, until this "repair" we see crdt's as only having
+                        // a single translation object/field. I.e. the ID is essentially meaningless and semantically the user was
+                        // actually just editing the synced fwdata translation.
+                        syncedIdCount++;
+                        if (!dryRun)
+                        {
+                            await crdtApi.SetFirstTranslationId(exampleSentence.Id, validTranslationId);
+                        }
+                    }
                 }
             }
         }
 
-        // Step 2: Any remaining translations were added in the crdt project, so they can be given a new valid ID that will be synced back to fwdata
-        // This step needs to be run until we've seen all crdt translations that were created without the model change
-        await foreach (var entry in crdtApi.GetAllEntries())
-        {
-            foreach (var sense in entry.Senses)
-            {
-                foreach (var exampleSentence in sense.ExampleSentences)
-                {
-                    var firstTranslation = exampleSentence.Translations.FirstOrDefault();
-                    if (firstTranslation is null) continue;
-                    if (firstTranslation.Id != Translation.MissingTranslationId) continue;
-                    if (!dryRun)
-                    {
-                        var newId = Guid.NewGuid();
-                        await crdtApi.SetFirstTranslationId(exampleSentence.Id, newId);
-                    }
-                    syncedIdCount++;
-                }
-            }
-        }
         return syncedIdCount;
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }
