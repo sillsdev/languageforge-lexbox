@@ -243,5 +243,47 @@
       "Reference": null,
       "EntityId": "00000000-0000-0000-0000-000000000000"
     }
+  },
+  {
+    "$type": "CreateExampleSentenceChange",
+    "SenseId": "f3e4f3fe-1a2c-7096-fdf6-64df12809e1a",
+    "Order": 0.18532264410517607,
+    "Sentence": {
+      "liq": {
+        "Spans": [
+          {
+            "Text": "Secured",
+            "Ws": "liq"
+          }
+        ]
+      },
+      "kax": {
+        "Spans": [
+          {
+            "Text": "ADP",
+            "Ws": "kax"
+          }
+        ]
+      }
+    },
+    "Translation": {
+      "xtq": {
+        "Spans": [
+          {
+            "Text": "New Jersey",
+            "Ws": "xtq"
+          }
+        ]
+      }
+    },
+    "Reference": {
+      "Spans": [
+        {
+          "Text": "Automotive",
+          "Ws": "default"
+        }
+      ]
+    },
+    "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
   }
 ]

@@ -285,6 +285,7 @@
         ]
       }
     },
+    "Translations": null,
     "Translation": {
       "xtq": {
         "Spans": [
@@ -304,6 +305,147 @@
       ]
     },
     "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
+  },
+  {
+    "$type": "CreateExampleSentenceChange",
+    "SenseId": "f1d3b192-64be-11b8-8dfc-3df47150c09c",
+    "Order": 0.6768870830787705,
+    "Sentence": {
+      "olk": {
+        "Spans": [
+          {
+            "Text": "target",
+            "Ws": "olk",
+            "Tags": [
+              "61298dad-439f-430c-a3df-c8f2e1a8d1f6"
+            ]
+          },
+          {
+            "Text": "Practical Rubber Sausages",
+            "Ws": "olk",
+            "Tags": [
+              "c7f4b16e-6c2f-4c71-86fb-72c591e1450c"
+            ]
+          }
+        ]
+      }
+    },
+    "Translations": [
+      {
+        "Id": "714e2449-0edd-bcbd-8d71-f84fd86fa5b1",
+        "Text": {
+          "aeb": {
+            "Spans": [
+              {
+                "Text": "distributed",
+                "Ws": "aeb",
+                "Tags": [
+                  "bc87876d-00af-4bf1-b98c-6a91ef6562b3"
+                ]
+              },
+              {
+                "Text": "matrix",
+                "Ws": "taz",
+                "Bold": "Off",
+                "FontSize": 1439371934,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "af8bd74d-e568-a5fa-7873-29e4e0ee39af"
+                ]
+              }
+            ]
+          },
+          "end": {
+            "Spans": [
+              {
+                "Text": "District",
+                "Ws": "end",
+                "Tags": [
+                  "891ae59b-b0d6-47c3-a91f-69f99e7959c9"
+                ]
+              },
+              {
+                "Text": "deliverables",
+                "Ws": "end",
+                "Tags": [
+                  "1db3e6f0-2f8a-4cbe-867a-5307460f342d"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "Id": "8a4e2449-0edd-bcbd-8d71-f84fd86fa5b1",
+        "Text": {
+          "aeb": {
+            "Spans": [
+              {
+                "Text": "distributed",
+                "Ws": "aeb",
+                "Tags": [
+                  "bc87876d-00af-4bf1-b98c-6a91ef6562b3"
+                ]
+              },
+              {
+                "Text": "matrix",
+                "Ws": "taz",
+                "Bold": "Off",
+                "FontSize": 1439371934,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "af8bd74d-e568-a5fa-7873-29e4e0ee39af"
+                ]
+              }
+            ]
+          },
+          "end": {
+            "Spans": [
+              {
+                "Text": "District",
+                "Ws": "end",
+                "Tags": [
+                  "891ae59b-b0d6-47c3-a91f-69f99e7959c9"
+                ]
+              },
+              {
+                "Text": "deliverables",
+                "Ws": "end",
+                "Tags": [
+                  "1db3e6f0-2f8a-4cbe-867a-5307460f342d"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "Translation": null,
+    "Reference": {
+      "Spans": [
+        {
+          "Text": "magnetic",
+          "Ws": "koi",
+          "Bold": "Off",
+          "FontSize": -1521068983,
+          "ForeColor": "#FF0000",
+          "Tags": [
+            "9adf3888-752f-7334-0e25-8028ddcbbfb4"
+          ]
+        },
+        {
+          "Text": "ivory",
+          "Ws": "xiy",
+          "Bold": "Off",
+          "FontSize": -965346019,
+          "ForeColor": "#00FFFF",
+          "Tags": [
+            "055cbb2f-3c34-f4db-eb10-5288041d6f60"
+          ]
+        }
+      ]
+    },
+    "EntityId": "2c502649-3304-0b5f-931b-33be6af4048b"
   },
   {
     "$type": "CreatePartOfSpeechChange",
@@ -497,5 +639,64 @@
   {
     "$type": "delete:RemoteResource",
     "EntityId": "e14de071-3ed0-b12a-7865-da43fbfe8f84"
+  },
+  {
+    "$type": "AddTranslationChange",
+    "Translation": {
+      "Id": "77512957-a5da-4148-e843-f7094ec1b98b",
+      "Text": {
+        "xzm": {
+          "Spans": [
+            {
+              "Text": "Hong Kong",
+              "Ws": "bic",
+              "Bold": "Off",
+              "FontSize": 1217222697,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "4602c095-86f6-8bf4-e1d7-33f9f53ad0c3"
+              ]
+            },
+            {
+              "Text": "Fresh",
+              "Ws": "xzm",
+              "Tags": [
+                "dc9cf1cb-1d8d-46ea-8074-86bcd09e667e"
+              ]
+            },
+            {
+              "Text": "matrix",
+              "Ws": "xzm",
+              "Tags": [
+                "ffb1aefe-7501-4a59-bd71-41276208e8cb"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "EntityId": "b5f3f828-7f9e-0fa9-5df3-b1d1551fbbe0"
+  },
+  {
+    "$type": "RemoveTranslationChange",
+    "TranslationId": "49b61619-fac7-1766-e16c-dd887e9db152",
+    "EntityId": "92e3f239-590a-f95a-e506-34eccc3b58d4"
+  },
+  {
+    "$type": "UpdateTranslationChange",
+    "TranslationId": "fa8fad05-434a-7ab0-bf08-7c55b2a1d012",
+    "Patch": [
+      {
+        "op": "green",
+        "path": "HTTP",
+        "from": "Personal Loan Account"
+      }
+    ],
+    "EntityId": "9ba07a94-295c-786c-24d7-dfffa3690f7e"
+  },
+  {
+    "$type": "SetFirstTranslationIdChange",
+    "TranslationId": "349419f8-65f4-1a81-42f4-b641837fa203",
+    "EntityId": "d5ddbafb-d417-5df1-f4a4-d1224bdfac42"
   }
 ]

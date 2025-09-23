@@ -5,6 +5,7 @@ using FluentAssertions.Execution;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
+using LcmCrdt.Changes.ExampleSentences;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Resource;
@@ -73,6 +74,12 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
             duplicateChange.GetType().Should().Be(change.GetType());
             // we can't create duplicate entities with the same ID
             if (IsCreateChange(change)) duplicateChange.EntityId = Guid.NewGuid();
+            else if (duplicateChange is AddTranslationChange addTranslationChange)
+            {
+                // translations aren't "primary entities" created with a CreateChange<>
+                // but they are still (correctly) enforced to have unique IDs (at least within a single ExampleSentence)
+                addTranslationChange.Translation.Id = Guid.NewGuid();
+            }
             await fixture.DataModel.AddChange(Guid.NewGuid(), duplicateChange);
 
             var allEntries = await fixture.Api.GetEntries().ToArrayAsync();
@@ -147,6 +154,21 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
                 .Replace(sentence => sentence.Reference, new RichString("hello", "en"))
             );
         yield return new ChangeWithDependencies(jsonPatchExampleSentenceChange, [createExampleSentenceChange]);
+
+        var translation = new Translation { Id = Guid.NewGuid(), Text = new() { { "en", new RichString("test translation") } } };
+        var createTranslationChange = new AddTranslationChange(exampleSentence.Id, translation);
+        yield return new ChangeWithDependencies(createTranslationChange, [createExampleSentenceChange]);
+
+        var updateTranslationChange = new UpdateTranslationChange(exampleSentence.Id, translation.Id,
+        new JsonPatchDocument<Translation>()
+            .Replace(sentence => sentence.Text, new() { { "en", new RichString("test translation update") } }));
+        yield return new ChangeWithDependencies(updateTranslationChange, [createTranslationChange]);
+
+        var setFirstTranslationIdChange = new SetFirstTranslationIdChange(exampleSentence.Id, Guid.NewGuid());
+        yield return new ChangeWithDependencies(setFirstTranslationIdChange, [createExampleSentenceChange]);
+
+        var removeTranslationChange = new RemoveTranslationChange(exampleSentence.Id, translation.Id);
+        yield return new ChangeWithDependencies(removeTranslationChange, [createTranslationChange]);
 
         var semanticDomain = new SemanticDomain { Id = Guid.NewGuid(), Name = { { "en", "test sd" } } };
         var createSemanticDomainChange = new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, "1.1.1");
