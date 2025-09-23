@@ -12,6 +12,10 @@ public class RemoveTranslationChange(Guid entityId, Guid translationId) : EditCh
     public override ValueTask ApplyChange(ExampleSentence entity, IChangeContext context)
     {
         entity.Translations.RemoveAll(t => t.Id == TranslationId);
+        if (TranslationId == entity.DefaultFirstTranslationId)
+        {
+            entity.Translations.RemoveAll(t => t.Id == Translation.MissingTranslationId);
+        }
         return ValueTask.CompletedTask;
     }
 }
