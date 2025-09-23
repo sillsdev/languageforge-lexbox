@@ -346,6 +346,7 @@ public class FwDataMiniLcmApi(
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
+        if (pub.Id == default) pub.Id = Guid.NewGuid();
         ICmPossibility? lcmPublication = null;
         NonUndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW(Cache.ServiceLocator.ActionHandler, () =>
             {
@@ -1313,6 +1314,7 @@ public class FwDataMiniLcmApi(
 
     internal void CreateSense(ILexEntry lexEntry, Sense sense, BetweenPosition? between = null)
     {
+        if (sense.Id == default) sense.Id = Guid.NewGuid();
         var lexSense = LexSenseFactory.Create(sense.Id);
         InsertSense(lexEntry, lexSense, between);
         var msa = new SandboxGenericMSA() { MsaType = lexSense.GetDesiredMsaType() };
@@ -1561,6 +1563,7 @@ public class FwDataMiniLcmApi(
 
     internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence, BetweenPosition? between = null)
     {
+        if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id);
         InsertExampleSentence(lexSense, lexExampleSentence, between);
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
@@ -1576,16 +1579,18 @@ public class FwDataMiniLcmApi(
     internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Translation translation)
     {
         var cmTranslation = CreateExampleSentenceTranslation(parent, translation.Id);
+        translation.Id = cmTranslation.Guid;
         UpdateLcmMultiString(cmTranslation.Translation, translation.Text);
         return cmTranslation;
     }
-    internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Guid? id = null)
+    internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Guid id)
     {
+        if (id == default) id = Guid.NewGuid();
         var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
         //todo once https://github.com/sillsdev/liblcm/pull/341 is merged we can create the translation with the correct Guid
         var translation = CmTranslationFactory.Create(parent, freeTranslationType);
         //hack for now, note this breaks Translation.Delete so the remove test is failing
-        DangerouslySetGuid(translation.Id, id ?? Guid.NewGuid());
+        DangerouslySetGuid(translation.Id, id);
         return translation;
     }
 
