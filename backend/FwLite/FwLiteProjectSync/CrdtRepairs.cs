@@ -7,7 +7,7 @@ namespace FwLiteProjectSync;
 public static class CrdtRepairs
 {
 #pragma warning disable CS0618 // Type or member is obsolete
-    public static async Task<int> SyncMissingTranslationIds(Entry[] snapshotEntries, FwDataMiniLcmApi fwDataApi, CrdtMiniLcmApi crdtApi, bool dryRun)
+    public static async Task<int> SyncMissingTranslationIds(Entry[] snapshotEntries, FwDataMiniLcmApi fwDataApi, CrdtMiniLcmApi crdtApi, bool dryRun = false)
     {
         // Sync any available IDs from fwdata to the snapshot and the crdt entries
         // This should only need to be run once per project.
@@ -32,6 +32,8 @@ public static class CrdtRepairs
                     }
 
                     // Match the crdt API translation ID behaviour
+                    // Change objects need to handle the Default ID rather than the MissingTranslationId,
+                    // because the API returns the Default ID and thus needs to anticipate it being passed back in.
                     snapshotTranslation.Id = exampleSentence.DefaultFirstTranslationId;
 
                     var fwDataExampleSentence = await fwDataApi.GetExampleSentence(entry.Id, sense.Id, exampleSentence.Id);
@@ -42,7 +44,6 @@ public static class CrdtRepairs
                     }
 
                     var fwDataTranslation = fwDataExampleSentence.Translations.FirstOrDefault();
-
                     if (fwDataTranslation?.Id is null)
                     {
                         // fwdata translation was deleted.
@@ -64,10 +65,10 @@ public static class CrdtRepairs
                     }
                     else
                     {
-                        // There's a slight chance that the crdt translation does not have the default ID, because
-                        // it was deleted and recreated with a new valid ID. However, until this "repair" we see crdt's as only having
-                        // a single translation object/field. I.e. the ID is essentially meaningless and semantically the user was
-                        // actually just editing the synced fwdata translation.
+                        // We assume we're overwriting Translation.MissingTranslationId/the Default ID.
+                        // But there's a slight change we're not, because the translation could have been deleted and recreated with a new valid ID.
+                        // However, until this "repair" we see crdt's as only having a single translation.
+                        // I.e. the ID is essentially meaningless and semantically the user was actually just editing the synced/only fwdata translation.
                         syncedIdCount++;
                         if (!dryRun)
                         {
