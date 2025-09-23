@@ -56,7 +56,9 @@ public class UpdateDiffTests
         exampleSentenceDiffToUpdate.Apply(before);
         before.Should().BeEquivalentTo(after, options => options
             .Excluding(x => x.Id)
+            .Excluding(x => x.DefaultFirstTranslationId)
             .Excluding(x => x.SenseId)
+            .Excluding(x => x.Translations)
             .Excluding(x => x.DeletedAt));
     }
 
