@@ -140,7 +140,7 @@ public class TranslationChangeDeserializationTests
     private const string JsonPatchTranslationRemove = /*lang=json,strict*/ """
 {
   "$type": "jsonPatch:ExampleSentence",
-  "patchDocument": [
+  "PatchDocument": [
     {
       "op": "remove",
       "path": "/Translation/en"
@@ -160,11 +160,15 @@ public class TranslationChangeDeserializationTests
             Translations = [
             new Translation()
             {
-                Text = { { "en", new RichString("old", "en") } }
+                Text = {
+                    { "es", new RichString("old", "es") },
+                    { "en", new RichString("old", "en") },
+                },
             }]
         };
         await change.ApplyChange(new MiniLcmCrdtAdapter(exampleSentence), null!);
-        exampleSentence.Translations.Should().BeEmpty();
+        exampleSentence.Translations.Should().ContainSingle().Which
+            .Text.Should().BeEquivalentTo(new RichMultiString() { { "es", new RichString("old", "es") } });
     }
 
     [Fact]

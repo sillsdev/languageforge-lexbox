@@ -35,7 +35,12 @@ public class JsonPatchExampleSentenceChange : JsonPatchChange<ExampleSentence>
     {
         var wsId = new ParsedPath(op.Path).LastSegment;
         var richString = op.Value;
-        if (!entity.Translations.Any()) entity.Translations.Add(new Translation());
+        if (!entity.Translations.Any())
+        {
+            if (op.Op == "remove")
+                return; //nothing to remove
+            entity.Translations.Add(new Translation());
+        }
         var translation = entity.Translations[0];
         var newOp = new Operation(op.Op ?? "replace", "/Text/" + wsId, null, richString);
         newOp.Apply(translation, adapter);
