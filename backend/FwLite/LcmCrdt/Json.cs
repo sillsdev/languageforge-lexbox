@@ -198,10 +198,10 @@ public static class Json
         [property: Column("fullkey")] string FullKey,
         [property: Column("path")] string Path);
 
-    public static IJsonTypeInfoResolver MakeLcmCrdtJsonTypeResolver(this CrdtConfig config, bool ignoreInternal = true)
+    public static IJsonTypeInfoResolver MakeLcmCrdtExternalJsonTypeResolver(this CrdtConfig config)
     {
         var resolver = config.MakeJsonTypeResolver();
-        resolver = resolver.AddMiniLcmModifiers(ignoreInternal);
+        resolver = resolver.AddExternalMiniLcmModifiers();
         return resolver;
     }
 }

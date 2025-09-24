@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text.Json.Serialization.Metadata;
 using MiniLcm.Attributes;
 using MiniLcm.Models;
@@ -7,11 +6,9 @@ namespace MiniLcm;
 
 public static class MiniLcmJson
 {
-    public static IJsonTypeInfoResolver AddMiniLcmModifiers(this IJsonTypeInfoResolver resolver, bool ignoreInternal = true)
+    public static IJsonTypeInfoResolver AddExternalMiniLcmModifiers(this IJsonTypeInfoResolver resolver)
     {
-        if (ignoreInternal)
-            resolver = resolver.WithAddedModifier(IgnoreInternalMiniLcmProperties);
-        resolver = resolver.WithAddedModifier(ExampleSentenceTranslationModifier);
+        resolver = resolver.WithAddedModifier(IgnoreInternalMiniLcmProperties);
         return resolver;
     }
 

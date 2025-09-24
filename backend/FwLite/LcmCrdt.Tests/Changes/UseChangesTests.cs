@@ -19,7 +19,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
     private static readonly Randomizer random = new();
     private static readonly Lazy<JsonSerializerOptions> LazyOptions = new(() =>
     {
-        var options = TestJsonOptions.Default(ignoreInternal: false);
+        var options = TestJsonOptions.Harmony();
         options.ReadCommentHandling = JsonCommentHandling.Skip;
         return options;
     });

@@ -4,15 +4,12 @@ using LcmCrdt.Objects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Tests.AutoFakerHelpers;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
-using SIL.Harmony.Entities;
 using Soenneker.Utils.AutoBogus;
-using Soenneker.Utils.AutoBogus.Config;
 
 namespace LcmCrdt.Tests;
 
@@ -24,7 +21,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
     private readonly LcmCrdtDbContext _crdtDbContext;
     private CrdtConfig _crdtConfig;
     private CrdtProject _crdtProject;
-    private readonly JsonSerializerOptions _jsonSerializerOptions = TestJsonOptions.Default();
+    private readonly JsonSerializerOptions _jsonSerializerOptions = TestJsonOptions.Harmony();
 
     public DataModelSnapshotTests()
     {

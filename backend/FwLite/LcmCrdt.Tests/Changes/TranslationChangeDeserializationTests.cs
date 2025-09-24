@@ -9,7 +9,7 @@ namespace LcmCrdt.Tests.Changes;
 
 public class TranslationChangeDeserializationTests
 {
-    private readonly JsonSerializerOptions _options = TestJsonOptions.Default();
+    private readonly JsonSerializerOptions _options = TestJsonOptions.Harmony();
 
     private const string CreateExampleJson = """
  {

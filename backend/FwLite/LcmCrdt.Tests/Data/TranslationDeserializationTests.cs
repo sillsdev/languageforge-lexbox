@@ -5,7 +5,7 @@ namespace LcmCrdt.Tests.Data;
 
 public class TranslationDeserializationTests
 {
-    private readonly JsonSerializerOptions _options = TestJsonOptions.Default();
+    private readonly JsonSerializerOptions _options = TestJsonOptions.Harmony();
 
     public const string Example = """
                                   {

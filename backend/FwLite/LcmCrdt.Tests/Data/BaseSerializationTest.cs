@@ -13,7 +13,7 @@ public abstract class BaseSerializationTest
 {
     protected static readonly Lazy<JsonSerializerOptions> LazyOptions = new(() =>
     {
-        var options = TestJsonOptions.Default(ignoreInternal: false);
+        var options = TestJsonOptions.Harmony();
         options.ReadCommentHandling = JsonCommentHandling.Skip;
         return options;
     });

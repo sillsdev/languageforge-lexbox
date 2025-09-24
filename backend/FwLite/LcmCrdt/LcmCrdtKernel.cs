@@ -79,7 +79,7 @@ public static class LcmCrdtKernel
             ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
             {
                 TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value
-                    .MakeLcmCrdtJsonTypeResolver()
+                    .MakeLcmCrdtExternalJsonTypeResolver()
             })
         });
         services.AddSingleton<CrdtHttpSyncService>();
