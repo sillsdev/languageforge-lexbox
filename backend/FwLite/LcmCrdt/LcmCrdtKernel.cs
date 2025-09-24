@@ -192,7 +192,7 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => DeserializeTranslations(json));
-            })
+            }, MiniLcmJson.ExampleSentenceTranslationModifier)
             .Add<WritingSystem>(builder =>
             {
                 builder.HasIndex(ws => new { ws.WsId, ws.Type }).IsUnique();

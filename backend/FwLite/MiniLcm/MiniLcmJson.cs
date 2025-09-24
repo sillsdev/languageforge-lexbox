@@ -11,7 +11,7 @@ public static class MiniLcmJson
     {
         if (ignoreInternal)
             resolver = resolver.WithAddedModifier(IgnoreInternalMiniLcmProperties);
-        resolver = resolver.WithAddedModifier(ExampleTranslationHandling);
+        resolver = resolver.WithAddedModifier(ExampleSentenceTranslationModifier);
         return resolver;
     }
 
@@ -28,7 +28,7 @@ public static class MiniLcmJson
         }
     }
 
-    private static void ExampleTranslationHandling(JsonTypeInfo typeInfo)
+    public static void ExampleSentenceTranslationModifier(JsonTypeInfo typeInfo)
     {
         if (typeInfo.Type == typeof(ExampleSentence))
         {
