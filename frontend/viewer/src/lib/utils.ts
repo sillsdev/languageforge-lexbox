@@ -60,7 +60,7 @@ export function defaultExampleSentence(senseId: string): IExampleSentence {
     id: randomId(),
     senseId,
     sentence: {},
-    translation: {},
+    translations: [],
     reference: {spans: []},
   };
 }

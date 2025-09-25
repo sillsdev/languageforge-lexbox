@@ -76,7 +76,7 @@
           })),
           ...wsService.analysis
             .filter(ws => !ws.isAudio).map(ws => ({
-            text: asString(example.translation[ws.wsId]),
+            text: asString(example.translations[0]?.text?.[ws.wsId]),
             color: wsService.wsColor(ws.wsId, 'analysis'),
           })),
         ].filter(({text}) => !!text),

@@ -174,7 +174,16 @@ export class WritingSystemService {
 
   firstSentenceOrTranslationVal(example: IExampleSentence | undefined): string {
     if (!example) return '';
-    return this.first(example.sentence, this.vernacular) || this.first(example.translation, this.analysis) || '';
+    return this.first(example.sentence, this.vernacular) || this.firstTranslationVal(example);
+  }
+
+  firstTranslationVal(example: IExampleSentence | undefined): string {
+    if (!example) return '';
+    for (const translation of example.translations) {
+      const text = this.first(translation.text, this.analysis);
+      if (text) return text;
+    }
+    return '';
   }
 
   wsColor(ws: string, type: 'vernacular' | 'analysis'): string {
