@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace LcmCrdt.Tests;
 
-public class MiniLcmApiFixture : IAsyncLifetime
+public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 {
     private readonly bool _seedWs = true;
     private AsyncServiceScope _services;
@@ -132,5 +132,10 @@ public class MiniLcmApiFixture : IAsyncLifetime
         if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         await (_crdtDbContext?.DisposeAsync() ?? ValueTask.CompletedTask);
         await _services.DisposeAsync();
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        await DisposeAsync();
     }
 }
