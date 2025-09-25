@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using SIL.Extensions;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
@@ -10,8 +12,10 @@ public class AddTranslationChange(Guid entityId, Translation translation) : Edit
 
     public override ValueTask ApplyChange(ExampleSentence entity, IChangeContext context)
     {
-        if (entity.Translations.Any(t => t.Id == Translation.Id))
-            throw new InvalidOperationException($"Translation with ID {Translation.Id} already exists in ExampleSentence with ID {entity.Id}");
+        var existingTranslation = entity.Translations.FirstOrDefault(t => t.Id == Translation.Id);
+        Debug.Assert(existingTranslation == null, $"Translation with ID {Translation.Id} already exists in the ExampleSentence with ID ({entity.Id})");
+        if (existingTranslation != null) entity.Translations.RemoveAll(t => t.Id == Translation.Id);
+
         entity.Translations.Add(Translation);
         return ValueTask.CompletedTask;
     }

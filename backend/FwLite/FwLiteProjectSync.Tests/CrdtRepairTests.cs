@@ -15,7 +15,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
     private CrdtMiniLcmApi CrdtApi => _fixture.CrdtApi;
     private FwDataMiniLcmApi FwDataApi => _fixture.FwDataApi;
     private CrdtFwdataProjectSyncService SyncService => _fixture.SyncService;
-    private static Entry TestEntry => new()
+    private static Entry TestEntry() => new()
     {
         Senses =
         [
@@ -216,7 +216,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
     public async Task CrdtEntryMissingTranslationId_NewCrdtEntry_SyncMissingTranslationIds()
     {
         // arrange
-        var entry = TestEntry;
+        var entry = TestEntry();
         entry.SingleTranslation().Id = Translation.MissingTranslationId;
         var crdtEntry = await CrdtApi.CreateEntry(entry);
 
@@ -234,7 +234,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
     public async Task CrdtEntryMissingTranslationId_NewCrdtEntry_FullSync()
     {
         // arrange
-        var entry = TestEntry;
+        var entry = TestEntry();
         entry.SingleTranslation().Id = Translation.MissingTranslationId;
         var crdtEntry = await CrdtApi.CreateEntry(entry);
 
@@ -251,7 +251,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
     private async Task<(Entry FwEntry, Entry CrdtEntry, Entry SnapshotEntry)> CreateSyncedEntryMissingTranslationId()
     {
         // arrange
-        var fwEntry = await FwDataApi.CreateEntry(TestEntry);
+        var fwEntry = await FwDataApi.CreateEntry(TestEntry());
         var fwTranslationId = fwEntry.SingleTranslation().Id;
         var crdtEntry = fwEntry.Copy();
         crdtEntry.SingleTranslation().Id = Translation.MissingTranslationId;
