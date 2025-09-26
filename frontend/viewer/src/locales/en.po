@@ -708,6 +708,7 @@ msgstr "Missing Senses"
 msgid "Move"
 msgstr "Move"
 
+#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Never"
@@ -1104,6 +1105,10 @@ msgstr "Toggle theme"
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"
 msgstr "Translation"
+
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+msgid "Translation {0}"
+msgstr "Translation {0}"
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte

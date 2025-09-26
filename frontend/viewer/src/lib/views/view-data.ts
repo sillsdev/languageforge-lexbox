@@ -25,7 +25,7 @@ export const allFields: Record<FieldId, FieldView> = {
 
   //example sentence
   sentence: {show: true, order: 1},
-  translation: {show: true, order: 2},
+  translations: {show: true, order: 2},
   reference: {show: false, order: 3},
 };
 

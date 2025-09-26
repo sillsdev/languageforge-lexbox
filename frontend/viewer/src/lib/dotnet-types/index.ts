@@ -11,6 +11,7 @@ export * from './generated-types/MiniLcm/Models/IComplexFormComponent';
 export * from './generated-types/MiniLcm/Models/IComplexFormType';
 export * from './generated-types/MiniLcm/Models/IEntry';
 export * from './generated-types/MiniLcm/Models/IExampleSentence';
+export * from './generated-types/MiniLcm/Models/ITranslation';
 export * from './generated-types/MiniLcm/Models/IObjectWithId';
 export * from './generated-types/MiniLcm/Models/IPartOfSpeech';
 export * from './generated-types/MiniLcm/Models/IProjectIdentifier';
