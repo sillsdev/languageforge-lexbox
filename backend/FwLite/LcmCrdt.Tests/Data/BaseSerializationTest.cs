@@ -45,7 +45,7 @@ public abstract class BaseSerializationTest
                     sense.ExampleSentences = [];
                 }
             }, true),
-new SimpleOverride<CreateExampleSentenceChange>(context =>
+            new SimpleOverride<CreateExampleSentenceChange>(context =>
             {
                 if (context.Instance is CreateExampleSentenceChange exampleSentenceChange)
                 {
