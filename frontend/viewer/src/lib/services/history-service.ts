@@ -4,7 +4,7 @@ import type {
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 import type {IProjectActivity} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectActivity';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
-import {isEntry,  isExample, isSense} from '$lib/utils';
+import {isEntry, isExample, isSense} from '$lib/utils';
 
 export function useHistoryService() {
   const projectContext = useProjectContext()
@@ -40,7 +40,7 @@ export class HistoryService {
   }
 
   async load(objectId: string) {
-    const data = await (this.historyApi?.getHistory(objectId) ?? fetch(`/api/history/${this.projectContext.projectName}/${objectId}`)
+    const data = await (this.historyApi?.getHistory(objectId) ?? fetch(`/api/history/${this.projectContext.projectCode}/${objectId}`)
       .then(res => res.json())) as HistoryItem[];
     if (!Array.isArray(data)) {
       console.error('Invalid history data', data);
