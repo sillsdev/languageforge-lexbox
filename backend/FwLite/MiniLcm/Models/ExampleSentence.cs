@@ -42,7 +42,7 @@ public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
         };
     }
 
-    private static readonly Guid TranslationIdNamespace = new("59d16a4c-cfca-4080-8ff6-cb9d12275b92");
+    private static Guid TranslationIdNamespace { get; } = new("59d16a4c-cfca-4080-8ff6-cb9d12275b92");
 
     [JsonIgnore]
     [MiniLcmInternal]

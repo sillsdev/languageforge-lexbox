@@ -14,6 +14,11 @@ public static class AutoFakerDefault
         return new AutoFakerConfig()
         {
             RepeatCount = repeatCount,
+            SkipPaths = [
+                // I opened an issue, because I would expect this to be WritingSystem instead of string[]
+                // https://github.com/soenneker/soenneker.utils.autobogus/issues/831
+                $"{typeof(string[]).FullName}.{nameof(WritingSystem.LatinExemplars)}"
+            ],
             Overrides =
             [
                 new MultiStringOverride(validWs),
