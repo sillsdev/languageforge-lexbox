@@ -1578,26 +1578,11 @@ public class FwDataMiniLcmApi(
 
     internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Translation translation)
     {
-        var cmTranslation = CreateExampleSentenceTranslation(parent, translation.Id);
-        translation.Id = cmTranslation.Guid;
+        if (translation.Id == default) translation.Id = Guid.NewGuid();
+        var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
+        var cmTranslation = CmTranslationFactory.Create(parent, freeTranslationType, translation.Id);
         UpdateLcmMultiString(cmTranslation.Translation, translation.Text);
         return cmTranslation;
-    }
-    internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Guid id)
-    {
-        var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
-        //todo once https://github.com/sillsdev/liblcm/pull/341 is merged we can create the translation with the correct Guid
-        var translation = CmTranslationFactory.Create(parent, freeTranslationType);
-        //hack for now, note this breaks Translation.Delete so the remove test is failing
-        if (id != default) DangerouslySetGuid(translation.Id, id);
-        return translation;
-    }
-
-    private void DangerouslySetGuid(ICmObjectId cmObjectId, Guid newGuid)
-    {
-        var fieldInfo = cmObjectId.GetType().GetField("m_guid", BindingFlags.NonPublic | BindingFlags.Instance);
-        ArgumentNullException.ThrowIfNull(fieldInfo);
-        fieldInfo.SetValue(cmObjectId, newGuid);
     }
 
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? between = null)
