@@ -115,11 +115,14 @@ public class TranslationChangeDeserializationTests
             Translations = [
             new Translation()
             {
+                Id = Guid.NewGuid(),
                 Text = { { "en", new RichString("old", "en") } }
             }]
         };
         await change.ApplyChange(new MiniLcmCrdtAdapter(exampleSentence), null!);
-        exampleSentence.Translations.Should().ContainSingle().Which.Text["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
+        var translation = exampleSentence.Translations.Should().ContainSingle().Subject;
+        translation.Text["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
+        translation.Id.Should().NotBeEmpty();
     }
 
     [Theory]
@@ -134,7 +137,9 @@ public class TranslationChangeDeserializationTests
             Translations = []
         };
         await change.ApplyChange(new MiniLcmCrdtAdapter(exampleSentence), null!);
-        exampleSentence.Translations.Should().ContainSingle().Which.Text["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
+        var translation = exampleSentence.Translations.Should().ContainSingle().Subject;
+        translation.Text["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
+        translation.Id.Should().NotBeEmpty();
     }
 
     private const string JsonPatchTranslationRemove = /*lang=json,strict*/ """

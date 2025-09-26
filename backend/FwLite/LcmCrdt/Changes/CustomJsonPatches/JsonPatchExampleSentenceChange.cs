@@ -39,7 +39,7 @@ public class JsonPatchExampleSentenceChange : JsonPatchChange<ExampleSentence>
         {
             if (op.Op == "remove")
                 return; //nothing to remove
-            entity.Translations.Add(new Translation());
+            entity.Translations.Add(new Translation() { Id = Guid.NewGuid() });
         }
         var translation = entity.Translations[0];
         var newOp = new Operation(op.Op ?? "replace", "/Text/" + wsId, null, richString);
