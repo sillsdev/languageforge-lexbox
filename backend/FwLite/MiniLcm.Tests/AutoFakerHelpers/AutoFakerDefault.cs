@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Soenneker.Utils.AutoBogus.Config;
 using Soenneker.Utils.AutoBogus.Context;
 using Soenneker.Utils.AutoBogus.Override;
@@ -43,6 +44,12 @@ public static class AutoFakerDefault
                     // these values map to null and get replaced with MorphType.Stem so they're no round-tripped
                     return morph is not MorphType.Unknown and not MorphType.Other;
                 }, true),
+                new SimpleOverride<JsonSerializerOptions>(context =>
+                {
+                    var typeName = context.GenerateType.Type?.FullName;
+                    throw new InvalidOperationException(
+                        $"You should not be generating JsonSerializerOptions. You're probably didn't intend to generate an instance of the current type: {typeName}.");
+                }, false)
             ]
         };
     }

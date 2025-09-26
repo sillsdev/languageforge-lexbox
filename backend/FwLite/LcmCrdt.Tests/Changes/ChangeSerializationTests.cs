@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Tests.Data;
 using SIL.Harmony.Changes;
@@ -21,6 +22,11 @@ public class ChangeSerializationTests : BaseSerializationTest
             yield return SetComplexFormComponentChange.NewComplexForm(Guid.NewGuid(), Guid.NewGuid());
             yield return SetComplexFormComponentChange.NewComponent(Guid.NewGuid(), Guid.NewGuid());
             yield return SetComplexFormComponentChange.NewComponentSense(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+            yield break;
+        }
+        else if (type == typeof(JsonPatchExampleSentenceChange))
+        {
+            yield return new JsonPatchExampleSentenceChange(Guid.NewGuid(), new JsonPatchDocument<ExampleSentence>());
             yield break;
         }
 
