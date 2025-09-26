@@ -3,6 +3,7 @@ using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using LinqToDB;
 using Microsoft.EntityFrameworkCore;
+using MiniLcm;
 using MiniLcm.Models;
 
 namespace FwLiteProjectSync.Tests;
@@ -101,6 +102,44 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
     }
 
     [Fact]
+    public async Task CrdtEntryMissingTranslationId_FwTranslationChanged_FullSync()
+    {
+        // arrange
+        var (fwEntry, crdtEntry, _) = await CreateSyncedEntryMissingTranslationId();
+        var fwTranslationId = fwEntry.SingleTranslation().Id;
+
+        // act
+        var translationUpdate = new UpdateObjectInput<Translation>().Set(t => t.Text["en"], new RichString("changed translation", "en"));
+        await FwDataApi.UpdateTranslation(fwEntry.Id, fwEntry.Senses.Single().Id, fwEntry.SingleExampleSentence().Id,
+            fwTranslationId, translationUpdate);
+        await SyncService.Sync(CrdtApi, FwDataApi);
+
+        // assert
+        var crdtEntryAfter = await CrdtApi.GetEntry(crdtEntry.Id);
+        crdtEntryAfter.Should().NotBeNull();
+        crdtEntryAfter.SingleTranslation().Text["en"].Should().BeEquivalentTo(new RichString("changed translation", "en"));
+    }
+
+    [Fact]
+    public async Task CrdtEntryMissingTranslationId_CrdtTranslationChanged_FullSync()
+    {
+        // arrange
+        var (fwEntry, crdtEntry, _) = await CreateSyncedEntryMissingTranslationId();
+        var fwTranslationId = fwEntry.SingleTranslation().Id;
+
+        // act
+        var translationUpdate = new UpdateObjectInput<Translation>().Set(t => t.Text["en"], new RichString("changed translation", "en"));
+        await CrdtApi.UpdateTranslation(crdtEntry.Id, crdtEntry.Senses.Single().Id, crdtEntry.SingleExampleSentence().Id,
+            crdtEntry.SingleTranslation().Id, translationUpdate);
+        await SyncService.Sync(CrdtApi, FwDataApi);
+
+        // assert
+        var fwEntryAfter = await FwDataApi.GetEntry(fwEntry.Id);
+        fwEntryAfter.Should().NotBeNull();
+        fwEntryAfter.SingleTranslation().Text["en"].Should().BeEquivalentTo(new RichString("changed translation", "en"));
+    }
+
+    [Fact]
     public async Task CrdtEntryMissingTranslationId_MultipleFwTranslations_FullSync()
     {
         // arrange
@@ -120,6 +159,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         var updatedCrdtEntry = await CrdtApi.GetEntry(crdtEntry.Id);
         updatedFwEntry.Should().NotBeNull();
         updatedFwEntry.SingleExampleSentence().Translations.First().Id.Should().Be(fwTranslationId);
+        updatedFwEntry!.SingleExampleSentence().Translations[1].Text["en"].Should().BeEquivalentTo(new RichString("another translation", "en"));
         updatedCrdtEntry.Should().NotBeNull();
         updatedCrdtEntry.SingleExampleSentence().Translations.First().Id.Should().Be(fwTranslationId);
         updatedCrdtEntry.Should().BeEquivalentTo(updatedFwEntry, SyncTests.SyncExclusions);
@@ -230,7 +270,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         updatedCrdtEntry.SingleTranslation().Id.Should().Be(exampleSentence.DefaultFirstTranslationId);
     }
 
-    [Fact] // fails, because it's not currently possible to set an fw-translation's ID
+    [Fact]
     public async Task CrdtEntryMissingTranslationId_NewCrdtEntry_FullSync()
     {
         // arrange

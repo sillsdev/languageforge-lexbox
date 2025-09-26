@@ -20,6 +20,12 @@ public class UpdateTranslationChange : EditChange<ExampleSentence>, ISelfNamedTy
     public override ValueTask ApplyChange(ExampleSentence entity, IChangeContext context)
     {
         var translation = entity.Translations.FirstOrDefault(t => t.Id == TranslationId);
+        if (translation == null && TranslationId == entity.DefaultFirstTranslationId)
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            translation = entity.Translations.FirstOrDefault(t => t.Id == Translation.MissingTranslationId);
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
         if (translation == null) return ValueTask.CompletedTask;
         Patch.ApplyTo(translation);
         return ValueTask.CompletedTask;
