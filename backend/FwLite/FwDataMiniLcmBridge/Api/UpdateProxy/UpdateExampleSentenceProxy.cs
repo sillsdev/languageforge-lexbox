@@ -1,7 +1,5 @@
 using MiniLcm.Models;
-using SIL.Extensions;
 using SIL.LCModel;
-using SIL.LCModel.Core.Text;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
@@ -21,20 +19,7 @@ public class UpdateExampleSentenceProxy(ILexExampleSentence sentence, FwDataMini
 
     public override IList<Translation> Translations
     {
-        get
-        {
-            return new UpdateListProxy<Translation>(newTranslation =>
-                {
-                    lexboxLcmApi.CreateExampleSentenceTranslation(sentence, newTranslation);
-                },
-                deleteTranslation =>
-                {
-                    sentence.TranslationsOC.RemoveAll(t => t.Guid == deleteTranslation.Id);
-                },
-                i => new UpdateTranslationProxy(sentence.TranslationsOC.ElementAt(i), lexboxLcmApi),
-                sentence.TranslationsOC.Count
-            );
-        }
+        get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
