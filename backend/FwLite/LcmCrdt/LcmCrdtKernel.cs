@@ -29,6 +29,7 @@ using LcmCrdt.FullTextSearch;
 using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Text.Json.Serialization.Metadata;
 
 namespace LcmCrdt;
 
@@ -192,7 +193,7 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => DeserializeTranslations(json));
-            }, Json.ExampleSentenceTranslationModifier)
+            })
             .Add<WritingSystem>(builder =>
             {
                 builder.HasIndex(ws => new { ws.WsId, ws.Type }).IsUnique();
@@ -278,6 +279,10 @@ public static class LcmCrdtKernel
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
+
+        config.JsonSerializerOptions.TypeInfoResolver =
+            (config.JsonSerializerOptions.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
+            .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
     }
 
     public static IEnumerable<Type> AllChangeTypes()
