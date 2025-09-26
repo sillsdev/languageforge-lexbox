@@ -340,7 +340,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             SenseId = senseId,
             Reference = new((example.Reference?.TryGetValue("en", out var value) == true) ? value.Value : string.Empty),
             Sentence = ToRichMultiString(example.Sentence),
-            Translations = [new Translation(){Text = ToRichMultiString(example.Translation)}]
+            Translations = [new Translation() { Id = Guid.NewGuid(), Text = ToRichMultiString(example.Translation) }]
         };
     }
 
