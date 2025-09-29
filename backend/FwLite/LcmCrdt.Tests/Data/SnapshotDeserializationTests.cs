@@ -153,7 +153,7 @@ public class SnapshotDeserializationTests : BaseSerializationTest
             }
         }
 
-        // add snapshots for any snapshot types not already represented
+        // step 3: add snapshots for any snapshot types not already represented
         foreach (var snapshotType in LcmCrdtKernel.AllObjectTypes()
             .Where(snapshotType => !seenObjectTypes.Contains(snapshotType)))
         {
