@@ -16,9 +16,11 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
     private CrdtMiniLcmApi CrdtApi => _fixture.CrdtApi;
     private FwDataMiniLcmApi FwDataApi => _fixture.FwDataApi;
     private CrdtFwdataProjectSyncService SyncService => _fixture.SyncService;
-    private static Entry TestEntry() => new()
+    private static Entry TestEntry()
     {
-        Senses =
+        return new()
+        {
+            Senses =
         [
             new()
             {
@@ -37,7 +39,8 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
                 ]
             }
         ]
-    };
+        };
+    }
 
     public async Task InitializeAsync()
     {
