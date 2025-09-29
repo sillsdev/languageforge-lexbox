@@ -140,16 +140,24 @@ public class ChangeSerializationTests
         }
     }
 
+    private record LegacyChangeRecord(IChange Input, IChange Output);
+
     [Fact]
     public void CanDeserializeLegacyRegressionData()
     {
         //nothing should ever be removed from this file!
-        //it represents changes that could be out in the wild and we need to support
-        //changes are moved here from RegressionDeserializationData.latest.verified.txt
-        //when RegressionDataUpToDate() detects that it doesn't stably round-trip
+        //the input fields represent changes that could be out in the wild and we need to support
+        //the output fields represent what these legacy changes currently "reserialize" to
+        //RegressionDataUpToDate()
+        // (1) moves changes here from RegressionDeserializationData.latest.verified.txt
+        // when it detects that they don't stably round-trip and
+        // (2) keeps the round-trip output of the changes up to date
         using var jsonFile = File.OpenRead(GetJsonFilePath("RegressionDeserializationData.legacy.verified.txt"));
-        var changes = JsonSerializer.Deserialize<List<IChange>>(jsonFile, Options);
+        var changes = JsonSerializer.Deserialize<List<LegacyChangeRecord>>(jsonFile, Options);
         changes.Should().NotBeNullOrEmpty().And.NotContainNulls();
+        changes.SelectMany(c => new[] { c.Input, c.Output })
+            .Should().NotContainNulls()
+            .And.HaveCount(changes.Count * 2);
     }
 
     [Fact]
@@ -159,6 +167,25 @@ public class ChangeSerializationTests
         var latestJsonArray = ReadJsonArrayFromFile(GetJsonFilePath("RegressionDeserializationData.latest.verified.txt"));
         var newLatestJsonArray = new JsonArray();
 
+        // step 1: validate the round-tripping/output of legacy changes
+        foreach (var legacyJsonNode in legacyJsonArray)
+        {
+            legacyJsonNode.Should().NotBeNull();
+            var legacyJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacyChangeRecord.Input)]!);
+            legacyJson.Should().NotBeNullOrWhiteSpace();
+            var legacyOutputJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacyChangeRecord.Output)]!);
+            legacyOutputJson.Should().NotBeNullOrWhiteSpace();
+            var change = JsonSerializer.Deserialize<IChange>(legacyJson, Options);
+            change.Should().NotBeNull();
+            var newLegacyOutputJson = JsonSerializer.Serialize(change, OptionsIndented);
+            if (legacyOutputJson != newLegacyOutputJson)
+            {
+                //the legacy change no longer round-trips to the same output, so we should verify the new output
+                legacyJsonNode[nameof(LegacyChangeRecord.Output)] = JsonNode.Parse(newLegacyOutputJson);
+            }
+        }
+
+        // step 2: validate the round-tripping/output of latest changes, moving any that don't to legacy
         var seenChangeTypes = new HashSet<Type>();
         foreach (var latestJsonNode in latestJsonArray)
         {
@@ -174,7 +201,11 @@ public class ChangeSerializationTests
             {
                 // The current "latest" json doesn't match it's reserialized form.
                 // I.e. it's no longer the latest. It's now legacy
-                legacyJsonArray.Add(latestJsonNode.DeepClone());
+                legacyJsonArray.Add(new JsonObject
+                {
+                    [nameof(LegacyChangeRecord.Input)] = latestJsonNode.DeepClone(),
+                    [nameof(LegacyChangeRecord.Output)] = JsonNode.Parse(newLatestJson)
+                });
                 newLatestJsonArray.Add(JsonNode.Parse(newLatestJson));
                 // additionally we re-add generated changes, because it's much easier for a dev to remove unwanted changes than
                 // to manually generate and insert them. We can remove this if it's too noisy
@@ -250,6 +281,8 @@ public class ChangeSerializationTests
 
     private static JsonArray ReadJsonArrayFromFile(string path)
     {
+        if (!File.Exists(path)) return [];
+
         using var stream = File.OpenRead(path);
         var node = JsonNode.Parse(stream, null, new()
         {
