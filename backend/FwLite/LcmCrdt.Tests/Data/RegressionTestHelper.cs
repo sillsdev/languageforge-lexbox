@@ -23,8 +23,12 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
         var dbConnection = lcmCrdtDbContext.Database.GetDbConnection();
         await dbConnection.OpenAsync();
         var dbCommand = dbConnection.CreateCommand();
-        dbCommand.CommandText = sql;
+        // Make virtual tables immediately useable (included here so we don't have to update future sql dumps)
+        // see: https://sqlite.org/forum/info/b68bc59ddd4aeca38d44823611fa931a671158403e4af522105bf2ba21a96327
+        var resetSchema = "PRAGMA writable_schema=RESET;";
+        dbCommand.CommandText = $"{sql}\n{resetSchema}";
         await dbCommand.ExecuteNonQueryAsync();
+
         //need to close the connection, otherwise the collations won't get created, they would normally be created on open or save, so we're closing so they get created when EF opens the connection.
         await dbConnection.CloseAsync();
 
