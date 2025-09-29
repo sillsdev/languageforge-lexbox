@@ -1,7 +1,6 @@
-using MiniLcm;
 using MiniLcm.Models;
 
-namespace FwLiteProjectSync;
+namespace MiniLcm;
 
 public static class MiniLcmExtensions
 {

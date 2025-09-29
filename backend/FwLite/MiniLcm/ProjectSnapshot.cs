@@ -1,6 +1,6 @@
 using MiniLcm.Models;
 
-namespace FwLiteProjectSync;
+namespace MiniLcm;
 
 public record ProjectSnapshot(
     Entry[] Entries,
@@ -10,5 +10,5 @@ public record ProjectSnapshot(
     ComplexFormType[] ComplexFormTypes,
     WritingSystems WritingSystems)
 {
-    internal static ProjectSnapshot Empty { get; } = new([], [], [], [], [], new WritingSystems());
+    public static ProjectSnapshot Empty { get; } = new([], [], [], [], [], new WritingSystems());
 }
