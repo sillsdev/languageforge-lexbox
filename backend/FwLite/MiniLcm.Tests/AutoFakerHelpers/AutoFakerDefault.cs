@@ -47,16 +47,6 @@ public static class AutoFakerDefault
         };
     }
 
-    private class SimpleOverride<T>(Action<AutoFakerOverrideContext> execute, bool preInit = false) : AutoFakerOverride<T>
-    {
-        public override bool Preinitialize { get; } = preInit;
-
-        public override void Generate(AutoFakerOverrideContext context)
-        {
-            execute(context);
-        }
-    }
-
     private class PredicateOverride<T>(Func<T, bool> predicate, bool preInit = false) : AutoFakerOverride<T>
     {
         public override bool Preinitialize { get; } = preInit;
@@ -70,5 +60,15 @@ public static class AutoFakerDefault
             }
             context.Instance = value;
         }
+    }
+}
+
+public class SimpleOverride<T>(Action<AutoFakerOverrideContext> execute, bool preInit = false) : AutoFakerOverride<T>
+{
+    public override bool Preinitialize { get; } = preInit;
+
+    public override void Generate(AutoFakerOverrideContext context)
+    {
+        execute(context);
     }
 }
