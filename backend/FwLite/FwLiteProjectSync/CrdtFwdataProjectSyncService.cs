@@ -5,13 +5,15 @@ using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
 using LexCore.Sync;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
+using SIL.Harmony;
 
 namespace FwLiteProjectSync;
 
-public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger,
+public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger, IOptions<CrdtConfig> crdtConfig,
     MiniLcmApiValidationWrapperFactory validationWrapperFactory, MiniLcmApiStringNormalizationWrapperFactory normalizationWrapperFactory)
 {
     public record DryRunSyncResult(
@@ -124,12 +126,12 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         return ((DryRunMiniLcmApi)api).DryRunRecords;
     }
 
-    public static async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
+    public async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
     {
         var snapshotPath = SnapshotPath(project);
         if (!File.Exists(snapshotPath)) return null;
         await using var file = File.OpenRead(snapshotPath);
-        return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file);
+        return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file, crdtConfig.Value.JsonSerializerOptions);
     }
 
     public async Task RegenerateProjectSnapshot(IMiniLcmApi crdtApi, FwDataProject project)

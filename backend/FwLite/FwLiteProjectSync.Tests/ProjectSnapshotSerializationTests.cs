@@ -1,13 +1,25 @@
-using LcmCrdt.Tests.Data;
 using FwDataMiniLcmBridge;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using FwLiteProjectSync.Tests.Fixtures;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FwLiteProjectSync.Tests;
 
-public class ProjectSnapshotSerializationTests : BaseSerializationTest
+public class ProjectSnapshotSerializationTests
 {
+
+    private readonly CrdtFwdataProjectSyncService syncService;
+
+    public ProjectSnapshotSerializationTests()
+    {
+        var crdtServices = new ServiceCollection()
+            .AddSyncServices(nameof(ProjectSnapshotSerializationTests));
+        syncService = crdtServices.BuildServiceProvider()
+            .GetRequiredService<CrdtFwdataProjectSyncService>();
+    }
+
     public static IEnumerable<object[]> GetSena3SnapshotNames()
     {
         return GetSena3SnapshotPaths()
@@ -33,7 +45,7 @@ public class ProjectSnapshotSerializationTests : BaseSerializationTest
         File.Copy(RelativePath($"Snapshots\\{sourceSnapshotName}"), snapshotPath, overwrite: true);
 
         // act - read the current snapshot
-        var snapshot = await CrdtFwdataProjectSyncService.GetProjectSnapshot(fwDataProject)
+        var snapshot = await syncService.GetProjectSnapshot(fwDataProject)
             ?? throw new InvalidOperationException("Failed to load verified snapshot");
 
         // assert - whatever about the snapshot (i.e. ensure deserialization does what we think)
@@ -78,7 +90,7 @@ public class ProjectSnapshotSerializationTests : BaseSerializationTest
         Directory.CreateDirectory(Path.GetDirectoryName(snapshotPath) ?? throw new InvalidOperationException("Could not get directory of snapshot path"));
         File.Copy(sourceSnapshotPath, snapshotPath, overwrite: true);
 
-        var snapshot = await CrdtFwdataProjectSyncService.GetProjectSnapshot(fwDataProject)
+        var snapshot = await syncService.GetProjectSnapshot(fwDataProject)
             ?? throw new InvalidOperationException("Failed to load verified snapshot");
         await CrdtFwdataProjectSyncService.SaveProjectSnapshot(fwDataProject, snapshot);
 

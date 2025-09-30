@@ -223,7 +223,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         var result = await _syncService.Sync(liveCrdtApi, _fwDataApi);
 
         // assert
-        var fwHeadlessSnapshot = await CrdtFwdataProjectSyncService.GetProjectSnapshot(_project.FwDataProject);
+        var fwHeadlessSnapshot = await _syncService.GetProjectSnapshot(_project.FwDataProject);
         Exception? verifyException = null;
         var throwAnyVerifyException = () => { if (verifyException is not null) throw verifyException; };
         try

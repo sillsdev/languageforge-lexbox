@@ -328,7 +328,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
 
     private async Task<Entry[]> GetSnapshotEntries()
     {
-        var snapshot = await CrdtFwdataProjectSyncService.GetProjectSnapshot(FwDataApi.Project);
+        var snapshot = await SyncService.GetProjectSnapshot(FwDataApi.Project);
         return snapshot?.Entries ?? [];
     }
 
