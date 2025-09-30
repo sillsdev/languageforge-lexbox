@@ -38,7 +38,7 @@ public class ProjectSnapshotSerializationTests : BaseSerializationTest
 
         // assert - whatever about the snapshot (i.e. ensure deserialization does what we think)
         snapshot.Entries.Single(e => e.Id == Guid.Parse("cd045907-e8fc-46a3-8f8d-f71bd956275f"))
-            .Senses.Single().ExampleSentences.Single().Translation.Should().NotBeEmpty();
+            .Senses.Single().ExampleSentences.Single().Translations.Single().Text.Should().NotBeEmpty();
     }
 
     [Fact]

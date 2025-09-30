@@ -302,7 +302,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         var snapshot = await CrdtApi.TakeProjectSnapshot();
         var snapshotEntry = snapshot.Entries.Single(e => e.Id == crdtEntry.Id);
         snapshotEntry.SingleTranslation().Id = Translation.MissingTranslationId;
-        await SyncService.SaveProjectSnapshot(FwDataApi.Project, snapshot);
+        await CrdtFwdataProjectSyncService.SaveProjectSnapshot(FwDataApi.Project, snapshot);
 
         // assert
         // snapshot reflects the missing ID
