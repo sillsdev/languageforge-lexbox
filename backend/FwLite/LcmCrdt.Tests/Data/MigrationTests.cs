@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using LcmCrdt.Changes;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,12 @@ namespace LcmCrdt.Tests.Data;
 public class MigrationTests : IAsyncLifetime
 {
     private readonly RegressionTestHelper _helper = new("MigrationTest");
+
+    [ModuleInitializer]
+    internal static void Init()
+    {
+        VerifySystemJson.Initialize();
+    }
 
     public Task InitializeAsync()
     {
@@ -139,7 +146,6 @@ public class MigrationTests : IAsyncLifetime
 
         // it would be nice to only scrub the snapshot Guid, because those are the only ones that should be different,
         // but Verify doesn't have a way to do that, so we just let it scrub all of them
-        if (!VerifySystemJson.Initialized) VerifySystemJson.Initialize();
         await Verify(snapshotsJson)
             .UseStrictJson()
             .UseFileName($"VerifyRegeneratedSnapshotsAfterMigrationFromScriptedDb.{regressionVersion}");
