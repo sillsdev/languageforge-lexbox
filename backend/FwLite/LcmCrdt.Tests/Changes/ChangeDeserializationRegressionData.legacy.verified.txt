@@ -184,6 +184,7 @@
           ]
         }
       },
+      "Translations": null,
       "Translation": {
         "xtq": {
           "Spans": [
@@ -239,51 +240,97 @@
       "SenseId": "00000000-0000-0000-0000-000000000000",
       "Order": 0,
       "Sentence": null,
+      "Translations": null,
       "Translation": null,
       "Reference": null,
       "EntityId": "00000000-0000-0000-0000-000000000000"
     }
   },
   {
-    "$type": "CreateExampleSentenceChange",
-    "SenseId": "f3e4f3fe-1a2c-7096-fdf6-64df12809e1a",
-    "Order": 0.18532264410517607,
-    "Sentence": {
-      "liq": {
+    "Input": {
+      "$type": "CreateExampleSentenceChange",
+      "SenseId": "f3e4f3fe-1a2c-7096-fdf6-64df12809e1a",
+      "Order": 0.18532264410517607,
+      "Sentence": {
+        "liq": {
+          "Spans": [
+            {
+              "Text": "Secured",
+              "Ws": "liq"
+            }
+          ]
+        },
+        "kax": {
+          "Spans": [
+            {
+              "Text": "ADP",
+              "Ws": "kax"
+            }
+          ]
+        }
+      },
+      "Translation": {
+        "xtq": {
+          "Spans": [
+            {
+              "Text": "New Jersey",
+              "Ws": "xtq"
+            }
+          ]
+        }
+      },
+      "Reference": {
         "Spans": [
           {
-            "Text": "Secured",
-            "Ws": "liq"
+            "Text": "Automotive",
+            "Ws": "default"
           }
         ]
       },
-      "kax": {
-        "Spans": [
-          {
-            "Text": "ADP",
-            "Ws": "kax"
-          }
-        ]
-      }
+      "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
     },
-    "Translation": {
-      "xtq": {
-        "Spans": [
-          {
-            "Text": "New Jersey",
-            "Ws": "xtq"
-          }
-        ]
-      }
-    },
-    "Reference": {
-      "Spans": [
-        {
-          "Text": "Automotive",
-          "Ws": "default"
+    "Output": {
+      "$type": "CreateExampleSentenceChange",
+      "SenseId": "f3e4f3fe-1a2c-7096-fdf6-64df12809e1a",
+      "Order": 0.18532264410517607,
+      "Sentence": {
+        "liq": {
+          "Spans": [
+            {
+              "Text": "Secured",
+              "Ws": "liq"
+            }
+          ]
+        },
+        "kax": {
+          "Spans": [
+            {
+              "Text": "ADP",
+              "Ws": "kax"
+            }
+          ]
         }
-      ]
-    },
-    "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
+      },
+      "Translations": null,
+      "Translation": {
+        "xtq": {
+          "Spans": [
+            {
+              "Text": "New Jersey",
+              "Ws": "xtq"
+            }
+          ]
+        }
+      },
+      "Reference": {
+        "Spans": [
+          {
+            "Text": "Automotive",
+            "Ws": "default"
+          }
+        ]
+      },
+      "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
+    }
   }
 ]

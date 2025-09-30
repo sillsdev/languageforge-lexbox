@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using LinqToDB.Common;
 
 namespace LcmCrdt.Objects;
 
@@ -20,7 +21,7 @@ public class DbTranslationDeserializationTarget
             if (reader.TokenType == JsonTokenType.StartObject)
             {
                 var translation = JsonSerializer.Deserialize<RichMultiString>(ref reader, options);
-                if (translation is null) return null;
+                if (translation.IsNullOrEmpty()) return null;
                 return new DbTranslationDeserializationTarget(translation);
             }
             return null;

@@ -216,7 +216,7 @@ public static class Json
                 var exampleSentence = (ExampleSentence)obj;
                 if (exampleSentence.Translations.Any()) throw new InvalidOperationException("Cannot set translations when they already exist.");
                 var richString = (RichMultiString?)value;
-                if (richString is null) return;
+                if (richString.IsNullOrEmpty()) return;
 #pragma warning disable CS0618 // Type or member is obsolete
                 exampleSentence.Translations = [Translation.FromMultiString(richString)];
 #pragma warning restore CS0618 // Type or member is obsolete

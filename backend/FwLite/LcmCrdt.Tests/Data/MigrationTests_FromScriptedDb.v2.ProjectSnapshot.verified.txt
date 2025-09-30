@@ -100,16 +100,21 @@
                   ]
                 }
               },
-              "Translation": {
-                "en": {
-                  "Spans": [
-                    {
-                      "Text": "en",
-                      "Ws": "en"
+              "Translations": [
+                {
+                  "Id": "8cb4a41d-c053-5c23-bf64-f831d2c77267",
+                  "Text": {
+                    "en": {
+                      "Spans": [
+                        {
+                          "Text": "en",
+                          "Ws": "en"
+                        }
+                      ]
                     }
-                  ]
+                  }
                 }
-              },
+              ],
               "Reference": {
                 "Spans": [
                   {
@@ -215,7 +220,7 @@
                   ]
                 }
               },
-              "Translation": {},
+              "Translations": [],
               "Reference": null,
               "SenseId": "241d95a7-6d90-411b-8569-5648cc40b42b",
               "DeletedAt": null
@@ -297,7 +302,7 @@
                   ]
                 }
               },
-              "Translation": {},
+              "Translations": [],
               "Reference": null,
               "SenseId": "1b423127-deb2-468d-8100-e1f1bff20826",
               "DeletedAt": null
@@ -367,7 +372,7 @@
                   ]
                 }
               },
-              "Translation": {},
+              "Translations": [],
               "Reference": null,
               "SenseId": "c77d7553-209d-45be-a83e-d07e69808873",
               "DeletedAt": null

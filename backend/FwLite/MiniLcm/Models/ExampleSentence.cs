@@ -51,7 +51,6 @@ public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
 
 public class Translation
 {
-
     public Guid Id { get; set; }
     public virtual RichMultiString Text { get; set; } = new();
 

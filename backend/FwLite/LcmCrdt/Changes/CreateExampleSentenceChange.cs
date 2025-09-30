@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Text.Json.Serialization;
+using LinqToDB.Common;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
@@ -38,7 +39,7 @@ public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNa
     public override async ValueTask<ExampleSentence> NewEntity(Commit commit, IChangeContext context)
     {
 #pragma warning disable CS0618 // Type or member is obsolete
-        var translations = Translations ?? ((Translation is not null)
+        var translations = Translations ?? (!Translation.IsNullOrEmpty()
             ? [MiniLcm.Models.Translation.FromMultiString(Translation)]
             : []);
 #pragma warning restore CS0618 // Type or member is obsolete

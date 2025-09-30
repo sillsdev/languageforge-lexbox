@@ -107,7 +107,7 @@
             ]
           }
         },
-        "Translation": {},
+        "Translations": [],
         "Reference": null,
         "SenseId": "d510aa82-5557-4dd4-8b1f-1ec89facb979",
         "DeletedAt": null
