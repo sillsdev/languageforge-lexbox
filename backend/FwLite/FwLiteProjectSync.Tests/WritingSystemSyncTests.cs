@@ -1,5 +1,6 @@
 using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
+using MiniLcm;
 
 namespace FwLiteProjectSync.Tests;
 

@@ -277,6 +277,12 @@ public static class LcmCrdtKernel
         return crdtConfig.ChangeTypes;
     }
 
+    public static IEnumerable<Type> AllObjectTypes()
+    {
+        var crdtConfig = new CrdtConfig();
+        ConfigureCrdt(crdtConfig);
+        return crdtConfig.ObjectTypes;
+    }
 
     public static async Task<IMiniLcmApi> OpenCrdtProject(this IServiceProvider services, CrdtProject project)
     {
