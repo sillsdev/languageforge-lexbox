@@ -131,7 +131,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         await SaveProjectSnapshot(project, await crdtApi.TakeProjectSnapshot());
     }
 
-    internal async Task SaveProjectSnapshot(FwDataProject project, ProjectSnapshot projectSnapshot)
+    internal static async Task SaveProjectSnapshot(FwDataProject project, ProjectSnapshot projectSnapshot)
     {
         var snapshotPath = SnapshotPath(project);
         await using var file = File.Create(snapshotPath);

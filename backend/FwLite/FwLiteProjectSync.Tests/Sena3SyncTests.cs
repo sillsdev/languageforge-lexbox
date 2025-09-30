@@ -77,7 +77,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         {
             if (ws.MaybeId is null) ws.Id = Guid.NewGuid();
         }
-        await _syncService.SaveProjectSnapshot(_fwDataApi.Project, snapshot);
+        await CrdtFwdataProjectSyncService.SaveProjectSnapshot(_fwDataApi.Project, snapshot);
     }
 
     //this lets us query entries when there is no writing system
