@@ -26,3 +26,5 @@ html-test-results
 
 *storybook.log
 storybook-static
+screenshots
+**/*-html-report
