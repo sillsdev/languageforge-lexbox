@@ -1,5 +1,7 @@
+using System.Runtime.CompilerServices;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
+using SIL.Extensions;
 
 namespace MiniLcm.Tests;
 
@@ -13,7 +15,7 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
         writingSystems.Analysis.Should().NotBeNullOrEmpty();
     }
 
-    [Fact]
+    [Fact(Skip = "Exemplars are not used, expensive and inconsistently populated (all WSs vs single WS). So we disabled populating them.")]
     public async Task GetWritingSystems_ReturnsExemplars()
     {
         var writingSystems = await Api.GetWritingSystems();
@@ -94,7 +96,6 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
             Abbreviation = "Fr",
             Font = "Arial"
         });
-        ws2.Order.Should().BeGreaterThan(ws1.Order);
 
         //act
         await Api.MoveWritingSystem(ws2.WsId, WritingSystemType.Vernacular, new(null, ws1.WsId));
@@ -104,7 +105,8 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
         ws1.Should().NotBeNull();
         ws2 = await Api.GetWritingSystem(ws2.WsId, WritingSystemType.Vernacular);
         ws2.Should().NotBeNull();
-        ws2.Order.Should().BeLessThan(ws1.Order);
+        var vernacularWSs = (await Api.GetWritingSystems())!.Vernacular.Select(ws => ws.WsId).ToList();
+        vernacularWSs.IndexOf(ws2.WsId).Should().BeLessThan(vernacularWSs.IndexOf(ws1.WsId));
 
         var writingSystems = await Api.GetWritingSystems();
         var en = writingSystems.Vernacular.Single(ws => ws.WsId.Code == "en");

@@ -92,7 +92,8 @@ public class FwDataMiniLcmApi(
             Analysis = WritingSystemContainer.CurrentAnalysisWritingSystems.Select((definition, index) =>
                 FromLcmWritingSystem(definition, WritingSystemType.Analysis, index)).ToArray()
         };
-        CompleteExemplars(writingSystems);
+        // Not used and not implemented in CRDT (also not done in GetWritingSystem())
+        // CompleteExemplars(writingSystems);
         return Task.FromResult(writingSystems);
     }
 
@@ -116,7 +117,7 @@ public class FwDataMiniLcmApi(
 
     public Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
-        var lcmWs = Cache.GetCoreWritingSystem(id, type);
+        var lcmWs = Cache.TryGetCoreWritingSystem(id, type);
         if (lcmWs is null) return Task.FromResult<WritingSystem?>(null);
         var ws = FromLcmWritingSystem(lcmWs, type);
         return Task.FromResult<WritingSystem?>(ws);
@@ -217,10 +218,10 @@ public class FwDataMiniLcmApi(
 
     public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
     {
-        var wsToUpdate = GetLexWritingSystem(id, type);
+        var wsToUpdate = GetNonDefaultLexWritingSystem(id, type);
         if (wsToUpdate is null) throw new NullReferenceException($"unable to find writing system with id {id}");
-        var previousWs = between.Previous is null ? null : GetLexWritingSystem(between.Previous.Value, type);
-        var nextWs = between.Next is null ? null : GetLexWritingSystem(between.Next.Value, type);
+        var previousWs = between.Previous is null ? null : GetNonDefaultLexWritingSystem(between.Previous.Value, type);
+        var nextWs = between.Next is null ? null : GetNonDefaultLexWritingSystem(between.Next.Value, type);
         if (nextWs is null && previousWs is null) throw new NullReferenceException($"unable to find writing system with id {between.Previous} or {between.Next}");
         await Cache.DoUsingNewOrCurrentUOW("Move WritingSystem",
             "Revert Move WritingSystem",
@@ -262,12 +263,10 @@ public class FwDataMiniLcmApi(
             });
     }
 
-    private CoreWritingSystemDefinition? GetLexWritingSystem(WritingSystemId id, WritingSystemType type)
+    private CoreWritingSystemDefinition? GetNonDefaultLexWritingSystem(WritingSystemId id, WritingSystemType type)
     {
-        var exitingWs = type == WritingSystemType.Analysis
-            ? WritingSystemContainer.AnalysisWritingSystems
-            : WritingSystemContainer.VernacularWritingSystems;
-        return exitingWs.FirstOrDefault(ws => ws.Id == id);
+        if (id == default) throw new ArgumentException("Cannot use default writing system ID", nameof(id));
+        return Cache.TryGetCoreWritingSystem(id, type);
     }
 
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
