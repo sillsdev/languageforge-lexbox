@@ -3,8 +3,13 @@ using FwLiteWeb;
 using Microsoft.Extensions.Options;
 
 //paratext won't let us change the working directory, and if it's not set correctly then loading js files doesn't work
-Directory.SetCurrentDirectory(Path.GetDirectoryName(typeof(Program).Assembly.Location)!);
-var app = FwLiteWebServer.SetupAppServer(new() {Args = args});
+var assemblyLocation = typeof(Program).Assembly.Location;
+var assemblyDirectory = !string.IsNullOrEmpty(assemblyLocation)
+    ? Path.GetDirectoryName(assemblyLocation) : null;
+var appDirectory = assemblyDirectory ?? AppContext.BaseDirectory;
+Directory.SetCurrentDirectory(appDirectory);
+
+var app = FwLiteWebServer.SetupAppServer(new() { Args = args });
 await using (app)
 {
     await app.StartAsync();

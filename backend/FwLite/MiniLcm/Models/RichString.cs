@@ -327,7 +327,7 @@ public record RichSpan
                BulNumTxtAft == other.BulNumTxtAft && BulNumFontInfo == other.BulNumFontInfo &&
                CustomBullet == other.CustomBullet && TabList == other.TabList && TableRule == other.TableRule &&
                FieldName == other.FieldName && Equals(ObjData, other.ObjData) &&
-               (Equals(Tags, other.Tags) || Tags.SequenceEqual(other.Tags));
+               (Equals(Tags, other.Tags) || (Tags is not null && other.Tags is not null && Tags.SequenceEqual(other.Tags)));
     }
 }
 
