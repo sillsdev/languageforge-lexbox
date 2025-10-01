@@ -713,6 +713,7 @@ msgstr "Sens manquants"
 msgid "Move"
 msgstr "Déplacer"
 
+#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Never"
@@ -1110,6 +1111,10 @@ msgstr "Toggle theme"
 msgid "Translation"
 msgstr "Traduction"
 
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+msgid "Translation {0}"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/home/HomeView.svelte
@@ -1229,4 +1234,3 @@ msgstr "Vous n'avez pas la permission de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
-

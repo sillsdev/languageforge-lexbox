@@ -713,6 +713,7 @@ msgstr "Makna Tiada"
 msgid "Move"
 msgstr "Gerak"
 
+#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Never"
@@ -1110,6 +1111,10 @@ msgstr "Togol tema"
 msgid "Translation"
 msgstr "Terjemahan"
 
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+msgid "Translation {0}"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/home/HomeView.svelte
@@ -1229,4 +1234,3 @@ msgstr "Anda tidak mempunyai kebenaran untuk memuat turun projek {0} daripada {1
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah pun memuat turun projek {0}"
-

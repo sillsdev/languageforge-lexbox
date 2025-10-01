@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
@@ -345,6 +346,7 @@ public class FwDataMiniLcmApi(
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
+        if (pub.Id == default) pub.Id = Guid.NewGuid();
         ICmPossibility? lcmPublication = null;
         NonUndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW(Cache.ServiceLocator.ActionHandler, () =>
             {
@@ -786,14 +788,17 @@ public class FwDataMiniLcmApi(
 
     private ExampleSentence FromLexExampleSentence(Guid senseGuid, ILexExampleSentence sentence)
     {
-        var translation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
         return new ExampleSentence
         {
             Id = sentence.Guid,
             SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
             Reference = ToRichString(sentence.Reference),
-            Translation = translation is null ? [] : FromLcmMultiString(translation),
+            Translations = sentence.TranslationsOC.Select(t => new Translation
+            {
+                Id = t.Guid,
+                Text = t.Translation is null ? [] : FromLcmMultiString(t.Translation),
+            }).ToList()
         };
     }
 
@@ -1309,6 +1314,7 @@ public class FwDataMiniLcmApi(
 
     internal void CreateSense(ILexEntry lexEntry, Sense sense, BetweenPosition? between = null)
     {
+        if (sense.Id == default) sense.Id = Guid.NewGuid();
         var lexSense = LexSenseFactory.Create(sense.Id);
         InsertSense(lexEntry, lexSense, between);
         var msa = new SandboxGenericMSA() { MsaType = lexSense.GetDesiredMsaType() };
@@ -1557,20 +1563,26 @@ public class FwDataMiniLcmApi(
 
     internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence, BetweenPosition? between = null)
     {
+        if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id);
         InsertExampleSentence(lexSense, lexExampleSentence, between);
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
-        var translation = CreateExampleSentenceTranslation(lexExampleSentence);
-        UpdateLcmMultiString(translation.Translation, exampleSentence.Translation);
+        foreach (var translation in exampleSentence.Translations)
+        {
+            CreateExampleSentenceTranslation(lexExampleSentence, translation);
+        }
         lexExampleSentence.Reference = exampleSentence.Reference is null
             ? null
             : RichTextMapping.ToTsString(exampleSentence.Reference, id => GetWritingSystemHandle(id));
     }
 
-    public ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent)
+    internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Translation translation)
     {
+        if (translation.Id == default) translation.Id = Guid.NewGuid();
         var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
-        return CmTranslationFactory.Create(parent, freeTranslationType);
+        var cmTranslation = CmTranslationFactory.Create(parent, freeTranslationType, translation.Id);
+        UpdateLcmMultiString(cmTranslation.Translation, translation.Text);
+        return cmTranslation;
     }
 
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? between = null)
@@ -1648,6 +1660,52 @@ public class FwDataMiniLcmApi(
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
             () => lexExampleSentence.Delete());
+        return Task.CompletedTask;
+    }
+
+    public Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
+    {
+        var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Translation",
+            "Revert add",
+            Cache.ServiceLocator.ActionHandler,
+            () => CreateExampleSentenceTranslation(lexExampleSentence, translation));
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId)
+    {
+        var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Remove Translation",
+            "Revert remove",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var translation = lexExampleSentence.TranslationsOC.First(t => t.Guid == translationId);
+                translation.Delete();
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateTranslation(Guid entryId,
+        Guid senseId,
+        Guid exampleSentenceId,
+        Guid translationId,
+        UpdateObjectInput<Translation> update)
+    {
+        var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Translation",
+            "Revert update",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var translation = lexExampleSentence.TranslationsOC.First(t => t.Guid == translationId);
+                var translationProxy = new UpdateTranslationProxy(translation, this);
+                update.Apply(translationProxy);
+            });
         return Task.CompletedTask;
     }
 

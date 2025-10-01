@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json.Serialization.Metadata;
+using LcmCrdt.Changes;
 using LinqToDB;
 using LinqToDB.Common;
 using LinqToDB.Mapping;
@@ -202,5 +203,25 @@ public static class Json
         var resolver = config.MakeJsonTypeResolver();
         resolver = resolver.AddExternalMiniLcmModifiers();
         return resolver;
+    }
+
+    internal static void ExampleSentenceTranslationModifier(JsonTypeInfo typeInfo)
+    {
+        if (typeInfo.Type == typeof(ExampleSentence))
+        {
+            //legacy property
+            var propertyInfo = typeInfo.CreateJsonPropertyInfo(typeof(RichMultiString), "Translation");
+            propertyInfo.Set = (obj, value) =>
+            {
+                var exampleSentence = (ExampleSentence)obj;
+                if (exampleSentence.Translations.Any()) throw new InvalidOperationException("Cannot set translations when they already exist.");
+                var richString = (RichMultiString?)value;
+                if (richString.IsNullOrEmpty()) return;
+#pragma warning disable CS0618 // Type or member is obsolete
+                exampleSentence.Translations = [Translation.FromMultiString(richString)];
+#pragma warning restore CS0618 // Type or member is obsolete
+            };
+            typeInfo.Properties.Add(propertyInfo);
+        }
     }
 }

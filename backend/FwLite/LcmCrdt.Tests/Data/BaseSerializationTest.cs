@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LcmCrdt.Changes;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
@@ -13,10 +14,9 @@ public abstract class BaseSerializationTest
 {
     protected static readonly Lazy<JsonSerializerOptions> LazyOptions = new(() =>
     {
-        var config = new CrdtConfig();
-        LcmCrdtKernel.ConfigureCrdt(config);
-        config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
-        return config.JsonSerializerOptions;
+        var options = TestJsonOptions.Harmony();
+        options.ReadCommentHandling = JsonCommentHandling.Skip;
+        return options;
     });
 
     protected static readonly JsonSerializerOptions Options = LazyOptions.Value;
@@ -44,6 +44,16 @@ public abstract class BaseSerializationTest
                 if (context.Instance is Sense sense)
                 {
                     sense.ExampleSentences = [];
+                }
+            }, true),
+            new SimpleOverride<CreateExampleSentenceChange>(context =>
+            {
+                if (context.Instance is CreateExampleSentenceChange exampleSentenceChange)
+                {
+#pragma warning disable CS0618
+                    // Translation is obsolete and so populating it in new changes does not reflect reality
+                    exampleSentenceChange.Translation = null;
+#pragma warning restore CS0618
                 }
             }, true)
         );

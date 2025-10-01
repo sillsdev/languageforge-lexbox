@@ -539,7 +539,7 @@
             ]
           }
         },
-        "Translation": {},
+        "Translations": [],
         "Reference": null,
         "SenseId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
         "DeletedAt": null
@@ -583,7 +583,7 @@
             ]
           }
         },
-        "Translation": {},
+        "Translations": [],
         "Reference": null,
         "SenseId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
         "DeletedAt": null
@@ -627,16 +627,21 @@
             ]
           }
         },
-        "Translation": {
-          "en": {
-            "Spans": [
-              {
-                "Text": "en",
-                "Ws": "en"
+        "Translations": [
+          {
+            "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+            "Text": {
+              "en": {
+                "Spans": [
+                  {
+                    "Text": "en",
+                    "Ws": "en"
+                  }
+                ]
               }
-            ]
+            }
           }
-        },
+        ],
         "Reference": null,
         "SenseId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
         "DeletedAt": null
@@ -680,16 +685,21 @@
             ]
           }
         },
-        "Translation": {
-          "en": {
-            "Spans": [
-              {
-                "Text": "en",
-                "Ws": "en"
+        "Translations": [
+          {
+            "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+            "Text": {
+              "en": {
+                "Spans": [
+                  {
+                    "Text": "en",
+                    "Ws": "en"
+                  }
+                ]
               }
-            ]
+            }
           }
-        },
+        ],
         "Reference": {
           "Spans": [
             {
@@ -732,7 +742,7 @@
             ]
           }
         },
-        "Translation": {},
+        "Translations": [],
         "Reference": null,
         "SenseId": "1b423127-deb2-468d-8100-e1f1bff20826",
         "DeletedAt": null
@@ -768,7 +778,7 @@
             ]
           }
         },
-        "Translation": {},
+        "Translations": [],
         "Reference": null,
         "SenseId": "241d95a7-6d90-411b-8569-5648cc40b42b",
         "DeletedAt": null
@@ -804,7 +814,7 @@
             ]
           }
         },
-        "Translation": {},
+        "Translations": [],
         "Reference": null,
         "SenseId": "c77d7553-209d-45be-a83e-d07e69808873",
         "DeletedAt": null

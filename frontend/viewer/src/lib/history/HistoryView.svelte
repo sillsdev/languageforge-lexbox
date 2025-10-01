@@ -61,7 +61,7 @@
       <Dialog.DialogTitle>{$t`History`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     {#if !loading}
-      <div class="grid gap-x-6 gap-y-1" style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 2fr);">
+      <div class="grid gap-x-6 gap-y-1 grow" style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 2fr);">
         <div class="flex flex-col gap-4 row-start-2">
           <div class="h-full rounded-md">
             {#if !history || history.length === 0}

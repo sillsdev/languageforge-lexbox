@@ -713,6 +713,7 @@ msgstr "미싱 센스"
 msgid "Move"
 msgstr "이동"
 
+#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Never"
@@ -1110,6 +1111,10 @@ msgstr "테마 토글"
 msgid "Translation"
 msgstr "번역"
 
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+msgid "Translation {0}"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/home/HomeView.svelte
@@ -1229,4 +1234,3 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
-

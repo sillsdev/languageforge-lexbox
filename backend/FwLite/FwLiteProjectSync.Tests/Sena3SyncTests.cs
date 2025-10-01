@@ -138,7 +138,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Integration")]
-    public async Task FirstSena3SyncJustDoesAnSync()
+    public async Task FirstSena3SyncJustDoesAnImport()
     {
         _fwDataApi.EntryCount.Should().BeGreaterThan(1000,
             "projects with less than 1000 entries don't trip over the default query limit");
@@ -223,7 +223,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         var result = await _syncService.Sync(liveCrdtApi, _fwDataApi);
 
         // assert
-        var fwHeadlessSnapshot = await CrdtFwdataProjectSyncService.GetProjectSnapshot(_project.FwDataProject);
+        var fwHeadlessSnapshot = await _syncService.GetProjectSnapshot(_project.FwDataProject);
         Exception? verifyException = null;
         var throwAnyVerifyException = () => { if (verifyException is not null) throw verifyException; };
         try

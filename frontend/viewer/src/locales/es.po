@@ -713,6 +713,7 @@ msgstr "Acepciones perdidas"
 msgid "Move"
 msgstr "Mover"
 
+#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Never"
@@ -1110,6 +1111,10 @@ msgstr "Alternar tema"
 msgid "Translation"
 msgstr "Traducción"
 
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+msgid "Translation {0}"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/home/HomeView.svelte
@@ -1229,4 +1234,3 @@ msgstr "No tiene permiso para descargar el proyecto {0} desde {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Ya has descargado el proyecto {0}"
-

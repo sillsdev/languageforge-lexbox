@@ -615,16 +615,21 @@
           ]
         }
       },
-      "Translation": {
-        "en": {
-          "Spans": [
-            {
-              "Text": "they think it\u0027s fun",
-              "Ws": "en"
+      "Translations": [
+        {
+          "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+          "Text": {
+            "en": {
+              "Spans": [
+                {
+                  "Text": "they think it\u0027s fun",
+                  "Ws": "en"
+                }
+              ]
             }
-          ]
+          }
         }
-      },
+      ],
       "Reference": {
         "Spans": [
           {
@@ -637,6 +642,114 @@
       "DeletedAt": null
     },
     "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "ExampleSentence",
+      "Id": "dc9f56b8-bcb4-0891-fd75-03fee950b5b7",
+      "Order": 0,
+      "Sentence": {
+        "acz": {
+          "Spans": [
+            {
+              "Text": "Handmade Metal Table",
+              "Ws": "acz",
+              "Tags": [
+                "26098bc4-6e0f-452d-898a-caf7f9f45f31"
+              ]
+            },
+            {
+              "Text": "Roads",
+              "Ws": "acz",
+              "Tags": [
+                "0df56985-c5bb-41eb-8da2-7980ab6ecbc3"
+              ]
+            }
+          ]
+        }
+      },
+      "Translations": [
+        {
+          "Id": "a4f249d2-a131-1928-b9f4-372c93a1003b",
+          "Text": {
+            "lbl": {
+              "Spans": [
+                {
+                  "Text": "Mission",
+                  "Ws": "lbl",
+                  "Tags": [
+                    "c9f9f34c-b84f-4276-afea-8f1e04e663b7"
+                  ]
+                }
+              ]
+            },
+            "dgu": {
+              "Spans": [
+                {
+                  "Text": "protocol",
+                  "Ws": "dgh",
+                  "Bold": "Off",
+                  "FontSize": 668770835,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "1cf9c25e-133c-0108-6fea-b397935e8da4"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "Id": "b5f249d2-a131-1928-b9f4-372c93a1003b",
+          "Text": {
+            "lbl": {
+              "Spans": [
+                {
+                  "Text": "Mission",
+                  "Ws": "lbl",
+                  "Tags": [
+                    "c9f9f34c-b84f-4276-afea-8f1e04e663b7"
+                  ]
+                }
+              ]
+            },
+            "dgu": {
+              "Spans": [
+                {
+                  "Text": "protocol",
+                  "Ws": "dgh",
+                  "Bold": "Off",
+                  "FontSize": 668770835,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "1cf9c25e-133c-0108-6fea-b397935e8da4"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "Reference": {
+        "Spans": [
+          {
+            "Text": "Games",
+            "Ws": "mch",
+            "Bold": "Invert",
+            "FontSize": 1710299943,
+            "ForeColor": "#ADFF2F",
+            "Tags": [
+              "1464ee3b-3aba-5afb-0405-88cbd542f39f"
+            ]
+          }
+        ]
+      },
+      "SenseId": "5d5254b0-d766-db1e-3e3a-14ae6f25ed17",
+      "DeletedAt": null
+    },
+    "Id": "dc9f56b8-bcb4-0891-fd75-03fee950b5b7",
     "DeletedAt": null
   },
   {
@@ -675,84 +788,89 @@
           ]
         }
       },
-      "Translation": {
-        "dby": {
-          "Spans": [
-            {
-              "Text": "Personal Loan Account",
-              "Ws": "dby",
-              "Tags": [
-                "879aa5eb-48ac-475c-9382-947b51d70ec8"
+      "Translations": [
+        {
+          "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+          "Text": {
+            "dby": {
+              "Spans": [
+                {
+                  "Text": "Personal Loan Account",
+                  "Ws": "dby",
+                  "Tags": [
+                    "879aa5eb-48ac-475c-9382-947b51d70ec8"
+                  ]
+                },
+                {
+                  "Text": "non-volatile",
+                  "Ws": "dby",
+                  "Tags": [
+                    "07d5e757-afd2-4021-8654-1c8122c454f1"
+                  ]
+                },
+                {
+                  "Text": "Awesome Granite Ball",
+                  "Ws": "ymi",
+                  "Bold": "Off",
+                  "FontSize": 1665030974,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "11e5b769-68c5-53bb-b7a2-6d9046df8be5"
+                  ]
+                }
               ]
             },
-            {
-              "Text": "non-volatile",
-              "Ws": "dby",
-              "Tags": [
-                "07d5e757-afd2-4021-8654-1c8122c454f1"
+            "bvp": {
+              "Spans": [
+                {
+                  "Text": "withdrawal",
+                  "Ws": "bpp",
+                  "Bold": "Off",
+                  "FontSize": -1191594913,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "54977e53-520a-da03-23ba-78918705632b"
+                  ]
+                },
+                {
+                  "Text": "Indiana",
+                  "Ws": "shd",
+                  "Bold": "On",
+                  "FontSize": 181106855,
+                  "ForeColor": "#FF0000",
+                  "Tags": [
+                    "011ec8e3-68ff-149e-54c7-c751b5eb4389"
+                  ]
+                },
+                {
+                  "Text": "Kwanza",
+                  "Ws": "lle",
+                  "Bold": "On",
+                  "FontSize": -1968726792,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "c8ee48e1-281b-085b-ebfa-e2fc03624198"
+                  ]
+                }
               ]
             },
-            {
-              "Text": "Awesome Granite Ball",
-              "Ws": "ymi",
-              "Bold": "Off",
-              "FontSize": 1665030974,
-              "ForeColor": "#00FFFF",
-              "Tags": [
-                "11e5b769-68c5-53bb-b7a2-6d9046df8be5"
+            "ysl": {
+              "Spans": [
+                {
+                  "Text": "Legacy",
+                  "Ws": "mvn",
+                  "Bold": "Invert",
+                  "FontSize": -645076025,
+                  "ForeColor": "#FF0000",
+                  "Tags": [
+                    "e818e92a-429b-1ce3-cd59-f6323fa43dcb"
+                  ]
+                }
               ]
             }
-          ]
-        },
-        "bvp": {
-          "Spans": [
-            {
-              "Text": "withdrawal",
-              "Ws": "bpp",
-              "Bold": "Off",
-              "FontSize": -1191594913,
-              "ForeColor": "#00FFFF",
-              "Tags": [
-                "54977e53-520a-da03-23ba-78918705632b"
-              ]
-            },
-            {
-              "Text": "Indiana",
-              "Ws": "shd",
-              "Bold": "On",
-              "FontSize": 181106855,
-              "ForeColor": "#FF0000",
-              "Tags": [
-                "011ec8e3-68ff-149e-54c7-c751b5eb4389"
-              ]
-            },
-            {
-              "Text": "Kwanza",
-              "Ws": "lle",
-              "Bold": "On",
-              "FontSize": -1968726792,
-              "ForeColor": "#0000FF",
-              "Tags": [
-                "c8ee48e1-281b-085b-ebfa-e2fc03624198"
-              ]
-            }
-          ]
-        },
-        "ysl": {
-          "Spans": [
-            {
-              "Text": "Legacy",
-              "Ws": "mvn",
-              "Bold": "Invert",
-              "FontSize": -645076025,
-              "ForeColor": "#FF0000",
-              "Tags": [
-                "e818e92a-429b-1ce3-cd59-f6323fa43dcb"
-              ]
-            }
-          ]
+          }
         }
-      },
+      ],
       "Reference": {
         "Spans": [
           {
@@ -1256,7 +1374,12 @@
           ]
         }
       },
-      "Translation": {},
+      "Translations": [
+        {
+          "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+          "Text": {}
+        }
+      ],
       "Reference": null,
       "SenseId": "00000000-0000-0000-0000-e3e012824c86",
       "DeletedAt": null
@@ -1331,81 +1454,86 @@
           ]
         }
       },
-      "Translation": {
-        "mzs": {
-          "Spans": [
-            {
-              "Text": "Small",
-              "Ws": "mzs",
-              "Tags": [
-                "9f8d3fbd-79cd-4650-a45d-e37b3a813715"
+      "Translations": [
+        {
+          "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+          "Text": {
+            "mzs": {
+              "Spans": [
+                {
+                  "Text": "Small",
+                  "Ws": "mzs",
+                  "Tags": [
+                    "9f8d3fbd-79cd-4650-a45d-e37b3a813715"
+                  ]
+                },
+                {
+                  "Text": "Field",
+                  "Ws": "mzs",
+                  "Tags": [
+                    "f68dc993-4800-437b-a1f9-6de730dc71a1"
+                  ]
+                },
+                {
+                  "Text": "Cambridgeshire",
+                  "Ws": "zgm",
+                  "Bold": "Invert",
+                  "FontSize": 881605744,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "26493a82-c598-72aa-d0c3-75220e1ac470"
+                  ]
+                }
               ]
             },
-            {
-              "Text": "Field",
-              "Ws": "mzs",
-              "Tags": [
-                "f68dc993-4800-437b-a1f9-6de730dc71a1"
+            "kgk": {
+              "Spans": [
+                {
+                  "Text": "National",
+                  "Ws": "oav",
+                  "Bold": "Invert",
+                  "FontSize": 2061172555,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "c22898e5-903a-bef3-737f-efbb33145be1"
+                  ]
+                },
+                {
+                  "Text": "Harbors",
+                  "Ws": "kgk",
+                  "Tags": [
+                    "9b240525-1ccb-4189-92d8-2b242938d393"
+                  ]
+                }
               ]
             },
-            {
-              "Text": "Cambridgeshire",
-              "Ws": "zgm",
-              "Bold": "Invert",
-              "FontSize": 881605744,
-              "ForeColor": "#A52A2A",
-              "Tags": [
-                "26493a82-c598-72aa-d0c3-75220e1ac470"
+            "xyb": {
+              "Spans": [
+                {
+                  "Text": "capability",
+                  "Ws": "sqr",
+                  "Bold": "Off",
+                  "FontSize": -792440808,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "b91636e3-0b60-dad5-6f71-446752fb7ff7"
+                  ]
+                },
+                {
+                  "Text": "Saint Helena",
+                  "Ws": "zro",
+                  "Bold": "Invert",
+                  "FontSize": -112975738,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "7918e5d5-5b2f-f46c-5426-fa8c057581ef"
+                  ]
+                }
               ]
             }
-          ]
-        },
-        "kgk": {
-          "Spans": [
-            {
-              "Text": "National",
-              "Ws": "oav",
-              "Bold": "Invert",
-              "FontSize": 2061172555,
-              "ForeColor": "#0000FF",
-              "Tags": [
-                "c22898e5-903a-bef3-737f-efbb33145be1"
-              ]
-            },
-            {
-              "Text": "Harbors",
-              "Ws": "kgk",
-              "Tags": [
-                "9b240525-1ccb-4189-92d8-2b242938d393"
-              ]
-            }
-          ]
-        },
-        "xyb": {
-          "Spans": [
-            {
-              "Text": "capability",
-              "Ws": "sqr",
-              "Bold": "Off",
-              "FontSize": -792440808,
-              "ForeColor": "#0000FF",
-              "Tags": [
-                "b91636e3-0b60-dad5-6f71-446752fb7ff7"
-              ]
-            },
-            {
-              "Text": "Saint Helena",
-              "Ws": "zro",
-              "Bold": "Invert",
-              "FontSize": -112975738,
-              "ForeColor": "#00FFFF",
-              "Tags": [
-                "7918e5d5-5b2f-f46c-5426-fa8c057581ef"
-              ]
-            }
-          ]
+          }
         }
-      },
+      ],
       "Reference": {
         "Spans": [
           {

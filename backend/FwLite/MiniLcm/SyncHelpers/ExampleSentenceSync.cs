@@ -24,9 +24,12 @@ public static class ExampleSentenceSync
         IMiniLcmApi api)
     {
         var updateObjectInput = DiffToUpdate(beforeExampleSentence, afterExampleSentence);
-        if (updateObjectInput is null) return 0;
-        await api.UpdateExampleSentence(entryId, senseId, beforeExampleSentence.Id, updateObjectInput);
-        return 1;
+        if (updateObjectInput is not null)
+            await api.UpdateExampleSentence(entryId, senseId, beforeExampleSentence.Id, updateObjectInput);
+        var translationChanges = await DiffCollection.Diff(beforeExampleSentence.Translations,
+            afterExampleSentence.Translations,
+            new TranslationDiffApi(api, entryId, senseId, beforeExampleSentence.Id));
+        return (updateObjectInput is not null ? 1 : 0) + translationChanges;
     }
 
     public static UpdateObjectInput<ExampleSentence>? DiffToUpdate(ExampleSentence beforeExampleSentence,
@@ -37,10 +40,6 @@ public static class ExampleSentenceSync
             nameof(ExampleSentence.Sentence),
             beforeExampleSentence.Sentence,
             afterExampleSentence.Sentence));
-        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<ExampleSentence>(
-            nameof(ExampleSentence.Translation),
-            beforeExampleSentence.Translation,
-            afterExampleSentence.Translation));
         if (!Equals(beforeExampleSentence.Reference, afterExampleSentence.Reference))
         {
             patchDocument.Replace(exampleSentence => exampleSentence.Reference, afterExampleSentence.Reference);
@@ -48,6 +47,45 @@ public static class ExampleSentenceSync
 
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<ExampleSentence>(patchDocument);
+    }
+
+    public static UpdateObjectInput<Translation>? DiffToUpdate(Translation before, Translation after)
+    {
+        JsonPatchDocument<Translation> patchDocument = new();
+        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Translation>(
+            nameof(Translation.Text),
+            before.Text,
+            after.Text));
+        if (patchDocument.Operations.Count == 0) return null;
+        return new UpdateObjectInput<Translation>(patchDocument);
+    }
+
+    private class TranslationDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId, Guid exampleId): CollectionDiffApi<Translation, Guid>
+    {
+        public override async Task<int> Add(Translation value)
+        {
+            await api.AddTranslation(entryId, senseId, exampleId, value);
+            return 1;
+        }
+
+        public override async Task<int> Remove(Translation value)
+        {
+            await api.RemoveTranslation(entryId, senseId, exampleId, value.Id);
+            return 1;
+        }
+
+        public override async Task<int> Replace(Translation before, Translation after)
+        {
+            var update = DiffToUpdate(before, after);
+            if (update is null) return 0;
+            await api.UpdateTranslation(entryId, senseId, exampleId, before.Id, update);
+            return 1;
+        }
+
+        public override Guid GetId(Translation value)
+        {
+            return value.Id;
+        }
     }
 
     private class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : IOrderableCollectionDiffApi<ExampleSentence>

@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using MiniLcm;
 using MiniLcm.Media;
 using MiniLcm.Models;
 using SIL.LCModel.Core.KernelInterfaces;
-using SIL.LCModel.Core.Text;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 

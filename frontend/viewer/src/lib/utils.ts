@@ -1,4 +1,4 @@
-import {MorphType, type IEntry, type IExampleSentence, type ISense, type IWritingSystem, type WritingSystemType} from '$lib/dotnet-types';
+import {MorphType, type IEntry, type IExampleSentence, type ISense, type ITranslation, type IWritingSystem, type WritingSystemType} from '$lib/dotnet-types';
 import {get, writable, type Readable} from 'svelte/store';
 import {type ClassValue, clsx} from 'clsx';
 import {twMerge} from 'tailwind-merge';
@@ -60,9 +60,34 @@ export function defaultExampleSentence(senseId: string): IExampleSentence {
     id: randomId(),
     senseId,
     sentence: {},
-    translation: {},
+    translations: [],
     reference: {spans: []},
   };
+}
+
+export function defaultTranslation(): ITranslation {
+  return {
+    id: randomId(),
+    text: {},
+  };
+}
+
+type Draft = {saveDraft: () => void};
+
+export function draftTranslation(exampleSentence: IExampleSentence): ITranslation & Draft {
+  const draftTranslation = defaultTranslation() as ITranslation & Draft;
+  draftTranslation.saveDraft = () => {
+    if (!exampleSentence.translations) {
+      exampleSentence.translations = [];
+    }
+    const {saveDraft, ...translation} = draftTranslation;
+    exampleSentence.translations.push(translation);
+  };
+  return draftTranslation;
+}
+
+export function isDraft(entity: object): entity is Draft {
+  return 'saveDraft' in entity && typeof entity.saveDraft === 'function';
 }
 
 export function defaultWritingSystem(type: WritingSystemType): IWritingSystem {

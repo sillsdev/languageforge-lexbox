@@ -1,13 +1,10 @@
 using System.Buffers;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using FluentAssertions.Execution;
-using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Tests.Data;
 using SIL.Harmony.Changes;
-using SystemTextJsonPatch;
 
 namespace LcmCrdt.Tests.Changes;
 
@@ -25,20 +22,13 @@ public class ChangeSerializationTests : BaseSerializationTest
         }
 
         object change;
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(JsonPatchChange<>))
+        try
         {
-            change = PatchMethod.MakeGenericMethod(type.GenericTypeArguments[0]).Invoke(null, null)!;
+            change = Faker.Generate(type);
         }
-        else
+        catch (Exception e)
         {
-            try
-            {
-                change = Faker.Generate(type);
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Failed to generate change of type {type.Name}", e);
-            }
+            throw new Exception($"Failed to generate change of type {type.Name}", e);
         }
 
         change.Should().NotBeNull($"change type {type.Name} should have been generated").And.BeAssignableTo<IChange>();
@@ -62,13 +52,6 @@ public class ChangeSerializationTests : BaseSerializationTest
         {
             yield return [change];
         }
-    }
-
-    private static readonly MethodInfo PatchMethod = new Func<IChange>(Patch<Entry>).Method.GetGenericMethodDefinition();
-
-    private static IChange Patch<T>() where T : class
-    {
-        return new JsonPatchChange<T>(Guid.NewGuid(), new JsonPatchDocument<T>());
     }
 
     [Theory]
@@ -101,7 +84,7 @@ public class ChangeSerializationTests : BaseSerializationTest
     [Fact]
     public void CanDeserializeLatestRegressionData()
     {
-        //nothing should ever be removed from this file!
+        //nothing should ever be removed from this file except by moving it to the legacy file!
         //it represents changes that could be out in the wild and we need to support
         //changes are updated and appended by RegressionDataUpToDate() whenever it finds a "latest" change that doesn't stably round-trip
         //or when it finds a change type that isn't represented

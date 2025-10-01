@@ -54,6 +54,23 @@ public class UpdateDiffTests
         var exampleSentenceDiffToUpdate = ExampleSentenceSync.DiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(exampleSentenceDiffToUpdate);
         exampleSentenceDiffToUpdate.Apply(before);
-        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id).Excluding(x => x.SenseId).Excluding(x => x.DeletedAt));
+        before.Should().BeEquivalentTo(after, options => options
+            .Excluding(x => x.Id)
+            .Excluding(x => x.DefaultFirstTranslationId)
+            .Excluding(x => x.SenseId)
+            .Excluding(x => x.Translations)
+            .Excluding(x => x.DeletedAt));
+    }
+
+    [Fact]
+    public void TranslationDiffShouldUpdateAllFields()
+    {
+        var before = new Translation();
+        var after = AutoFaker.Generate<Translation>();
+        var translationDiffToUpdate = ExampleSentenceSync.DiffToUpdate(before, after);
+        ArgumentNullException.ThrowIfNull(translationDiffToUpdate);
+        translationDiffToUpdate.Apply(before);
+        before.Should().BeEquivalentTo(after, options => options
+            .Excluding(x => x.Id));
     }
 }

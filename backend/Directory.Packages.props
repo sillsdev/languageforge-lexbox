@@ -101,8 +101,8 @@
     <PackageVersion Include="SIL.Chorus.Mercurial" Version="6.5.1.43" />
     <PackageVersion Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0028" />
     <PackageVersion Include="SIL.Core" Version="14.2.0-beta0022" />
-    <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0122" />
-    <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0122" />
+    <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0138" />
+    <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0138" />
     <PackageVersion Include="SIL.WritingSystems" Version="14.2.0-beta0022" />
     <PackageVersion Include="Soenneker.Utils.AutoBogus" Version="3.0.410" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />

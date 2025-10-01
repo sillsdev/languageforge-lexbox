@@ -331,13 +331,19 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     [Fact]
     public async Task UpdateExampleSentenceTranslation()
     {
+        var entryId = Guid.NewGuid();
+        var senseId = Guid.NewGuid();
+        var exampleId = Guid.NewGuid();
+        var translationId = Guid.NewGuid();
         var entry = await Api.CreateEntry(new Entry
         {
+            Id = entryId,
             LexemeForm = new MultiString { { "en", "test" } },
             Senses =
             [
                 new Sense()
                 {
+                    Id = senseId,
                     Definition = new()
                     {
                         { "en", new RichString("test") }
@@ -346,26 +352,37 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                     [
                         new ExampleSentence()
                         {
+                            Id = exampleId,
                             Sentence = new()
                             {
                                 { "en", new RichString("test") }
                             },
-                            Translation =
-                            {
-                                { "en", new RichString("test") }
-                            }
+                            Translations =
+                            [
+                                new Translation() { Id = translationId, Text = { { "en", new RichString("test") } } }
+                            ]
                         }
                     ]
                 }
             ]
         });
-        entry.Senses.Should().ContainSingle().Which.ExampleSentences.Should().ContainSingle();
-        var updatedExample = await Api.UpdateExampleSentence(entry.Id,
-            entry.Senses[0].Id,
-            entry.Senses[0].ExampleSentences[0].Id,
-            new UpdateObjectInput<ExampleSentence>()
-                .Set(e => e.Translation["en"], new RichString("updated", "en")));
-        updatedExample.Translation["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
+        entry.Senses.Should().ContainSingle().Which.ExampleSentences.Should().ContainSingle().Which.Translations
+            .Should().ContainSingle();
+
+
+        await Api.UpdateTranslation(entryId,
+            senseId,
+            exampleId,
+            translationId,
+            new UpdateObjectInput<Translation>().Set(t => t.Text["en"], new RichString("updated", "en"))
+        );
+
+
+        var exampleSentence = await Api.GetExampleSentence(entryId, senseId, exampleId);
+        exampleSentence.Should().NotBeNull();
+        var updatedTranslation = exampleSentence.Translations.Should().ContainSingle().Subject;
+        updatedTranslation.Id.Should().Be(translationId);
+        updatedTranslation.Text["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
     }
 
     [Fact]
