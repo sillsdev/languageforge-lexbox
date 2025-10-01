@@ -9,6 +9,7 @@ export default defineConfig(({ mode, command }) => {
     base: command == "build" ? '/_content/FwLiteShared/viewer' : '/',
     build: {
       outDir: '../../backend/FwLite/FwLiteShared/wwwroot/viewer',
+      emptyOutDir: true,
       manifest: true,
       minify: false,
       sourcemap: true,
