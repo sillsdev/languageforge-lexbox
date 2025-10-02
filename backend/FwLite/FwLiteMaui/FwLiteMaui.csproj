@@ -85,4 +85,13 @@
     <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
     <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!--
+      Only included so it can be excluded (from MiniLcm->SIL.WritingSystems)
+      as it "does not have a 16 KB page size" (https://devblogs.microsoft.com/dotnet/maui-google-play-16-kb-page-size-support).
+      It appears to have very minimal usage in SIL.LCMModel (setting execution bits and such), so excluding it is likely both safe and desirable.
+      Excluding it in MiniLcm.csproj did not silence the build warnings.
+    -->
+    <PackageReference Include="Mono.Unix" ExcludeAssets="all" />
+  </ItemGroup>
 </Project>

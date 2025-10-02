@@ -104,6 +104,8 @@
     <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0122" />
     <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0122" />
     <PackageVersion Include="SIL.WritingSystems" Version="14.2.0-beta0022" />
+    <!-- Only included so it can be excluded. See FwLiteMaui.csproj. -->
+    <PackageVersion Include="Mono.Unix" Version="7.1.0-final.1.21458.1" />
     <PackageVersion Include="Soenneker.Utils.AutoBogus" Version="3.0.410" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
     <PackageVersion Include="SQLitePCLRaw.core" Version="2.1.11" />
