@@ -78,6 +78,8 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
     [Fact]
     public async Task MoveWritingSystem_Works()
     {
+        var en = await Api.GetWritingSystem("en", WritingSystemType.Vernacular);
+        en.Should().NotBeNull();
         var ws1 = await Api.CreateWritingSystem(new()
         {
             Id = Guid.NewGuid(),
@@ -96,22 +98,16 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
             Abbreviation = "Fr",
             Font = "Arial"
         });
+        var vernacularWSs = (await Api.GetWritingSystems())!.Vernacular;
+        vernacularWSs.Should().BeEquivalentTo([en, ws1, ws2],
+            options => options.WithStrictOrdering().Excluding(ws => ws.Order));
 
         //act
-        await Api.MoveWritingSystem(ws2.WsId, WritingSystemType.Vernacular, new(null, ws1.WsId));
+        await Api.MoveWritingSystem(ws2.WsId, WritingSystemType.Vernacular, new(en.WsId, ws1.WsId));
 
         //assert
-        ws1 = await Api.GetWritingSystem(ws1.WsId, WritingSystemType.Vernacular);
-        ws1.Should().NotBeNull();
-        ws2 = await Api.GetWritingSystem(ws2.WsId, WritingSystemType.Vernacular);
-        ws2.Should().NotBeNull();
-        var vernacularWSs = (await Api.GetWritingSystems())!.Vernacular.Select(ws => ws.WsId).ToList();
-        vernacularWSs.IndexOf(ws2.WsId).Should().BeLessThan(vernacularWSs.IndexOf(ws1.WsId));
-
-        var writingSystems = await Api.GetWritingSystems();
-        var en = writingSystems.Vernacular.Single(ws => ws.WsId.Code == "en");
-        writingSystems.Vernacular.Should().BeEquivalentTo([en, ws2, ws1],
-        // we care about the order of return, not the internal Order property
+        vernacularWSs = (await Api.GetWritingSystems())!.Vernacular;
+        vernacularWSs.Should().BeEquivalentTo([en, ws2, ws1],
         options => options.WithStrictOrdering().Excluding(ws => ws.Order));
     }
 
