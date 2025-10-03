@@ -6,7 +6,7 @@ import type {
 import type {
   ISyncServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-import {resource, type ResourceOptions, type ResourceReturn} from 'runed';
+import {resource, watchOnce, type ResourceOptions, type ResourceReturn} from 'runed';
 import {SvelteMap} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
 
@@ -130,6 +130,23 @@ export class ProjectContext {
         if (!api) return Promise.resolve(initialValue);
         return factory(api);
       }), {initialValue, ...options});
+
+    // If throttling and the api is not yet defined, the resource will likely throttle/swallow the refetch
+    // call triggered by the api becoming defined. As a result it will never be loaded. So, we explicitly ensure an initial load.
+    if (options?.throttle && !this.#api) {
+      function initialLoad(api: IMiniLcmJsInvokable) {
+        factory(api).then(res.mutate).catch(console.error);
+      }
+
+      if (this.#api) {
+        initialLoad(this.#api);
+      } else {
+        watchOnce(() => this.#api, () => {
+          if (this.#api) initialLoad(this.#api);
+          else console.warn('apiResource: initialLoad expected api to be defined after watchOnce');
+        });
+      }
+    }
     return res;
   }
 

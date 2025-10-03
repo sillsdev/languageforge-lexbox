@@ -72,69 +72,78 @@
     </Tabs.List>
   {/if}
   <Tabs.Content value="lite">
+    <div class="text-center my-2">
+      <span class="text-foreground/80">
+        <T msg="Last sync: #">
+          {#if !lastLocalSyncDate}
+            <span>{$t`Never`}</span>
+          {:else}
+            <FormatRelativeDate date={lastLocalSyncDate} showActualDate />
+          {/if}
+        </T>
+      </span>
+    </div>
     <div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-4 gap-x-8">
-
       <!-- Status local to remote -->
-      <div class="col-span-full text-center border rounded py-2">
-        <a class="inline-flex flex-col items-center" href={serverProjectUrl} target="_blank">
-          <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}  class="size-10" />
+      <div class="col-span-full text-center border rounded pb-0.5">
+        <Button class="flex-col h-auto gap-0 text-foreground hover:text-primary text-base" variant="link" href={serverProjectUrl} target="_blank" rel="noopener">
+          <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}  class="size-10 -mb-0.5" />
           <span class="underline">{serverName}</span>
-        </a>
+        </Button>
       </div>
       <!--  arrows and sync counts -->
       <div class="col-span-full text-center grid justify-center items-center"
            style="grid-template-columns: 1fr auto 1fr">
-        <div class="px-4 max-w-56">
-          <span class="text-foreground/80">
-            <T msg="Last sync: #">
-              {#if !lastLocalSyncDate}
-                <span>{$t`Never`}</span>
-              {:else}
-                <FormatRelativeDate date={lastLocalSyncDate} showActualDate />
-              {/if}
-            </T>
-          </span>
+        <div>
+          <!-- blank spacer-->
         </div>
-        <div class="grid justify-center items-center min-h-12" style="grid-template-columns: 1fr auto auto auto 1fr">
+        <div class="grid justify-center items-center min-h-12 gap-2" style="grid-template-columns: 1fr auto auto auto 1fr">
           <span class="text-end">{remoteToLocalCount ?? '?'}</span>
-          <SyncArrow dir="down" tailLength={40} size={2} class="translate-y-[1px]"/>
-          {#if remoteToLocalCount === 0 && localToRemoteCount === 0}
-            <span>{$t`Up to date`}</span>
-          {:else}
-            <span>{$t`Pending`}</span>
-          {/if}
-          <SyncArrow dir="up" tailLength={40} size={2} class="translate-y-[-1px]"/>
-          <span class="text-start">{localToRemoteCount ?? '?'}</span>
-        </div>
-        <div class="content-center pl-2">
-          {#if syncStatus === SyncStatus.Success}
-            <Button
-              variant="outline"
-              class="border-primary text-primary hover:text-primary"
-              loading={loadingSyncLexboxToLocal}
-              disabled={loadingSyncLexboxToFlex}
-              onclick={onSyncLexboxToLocal}
-              icon="i-mdi-sync"
-              iconProps={{ class: 'size-5' }}>
-              {#if loadingSyncLexboxToLocal}
-                {$t`Syncing...`}
+          <SyncArrow dir="down" tailLength={40} size={1.5} class="translate-y-[1px]"/>
+          <div class="flex flex-col gap-2 mx-2">
+            {#if syncStatus === SyncStatus.Success}
+              {#if remoteToLocalCount === 0 && localToRemoteCount === 0}
+                <span>{$t`Up to date`}</span>
               {:else}
-                {$t`Auto sync`}
+                <span>{$t`Pending`}</span>
               {/if}
-            </Button>
-          {:else if syncStatus === SyncStatus.Offline}
-            <!--  nothing to show -->
-          {:else if syncStatus === SyncStatus.NotLoggedIn && server}
-            <LoginButton
-              text={$t`Login`}
-              status={{loggedIn: false, server: server}}
-              statusChange={s => onLoginStatusChange(s)}/>
-          {:else if syncStatus === SyncStatus.NoServer || !server}
-            <!-- nothing to show -->
-          {:else}
-            <div class="text-destructive">{$t`Error getting sync status.`}</div>
-          {/if}
-        </div>
+              <Button
+                variant="outline"
+                class="border-primary text-primary hover:text-primary"
+                loading={loadingSyncLexboxToLocal}
+                disabled={loadingSyncLexboxToFlex}
+                onclick={onSyncLexboxToLocal}
+                icon="i-mdi-sync"
+                iconProps={{ class: 'size-5' }}>
+                {#if loadingSyncLexboxToLocal}
+                  {$t`Syncing...`}
+                {:else}
+                  {$t`Auto sync`}
+                {/if}
+              </Button>
+            {:else if syncStatus === SyncStatus.Offline}
+              <span>{$t`Offline`}</span>
+            {:else if syncStatus === SyncStatus.NotLoggedIn && server}
+              <LoginButton
+                text={$t`Login`}
+                status={{loggedIn: false, server: server}}
+                statusChange={s => onLoginStatusChange(s)}/>
+            {:else if syncStatus === SyncStatus.NoServer || !server}
+              {#if serverId || server}
+                <span>{$t`Unknown server`}</span>
+              {:else}
+                <span>{$t`No server`}</span>
+              {/if}
+            {:else}
+              <div class="text-destructive">{$t`Error getting sync status.`}</div>
+            {/if}
+            </div>
+            <SyncArrow dir="up" tailLength={40} size={1.5} class="translate-y-[-1px]"/>
+            <span class="text-start">{localToRemoteCount ?? '?'}</span>
+          </div>
+          <div>
+            <!-- blank spacer-->
+          </div>
       </div>
 
       <!--  local box-->

@@ -88,7 +88,17 @@ internal class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, Guid cl
 
     async Task<ChangesResult<Commit>> ISyncable.GetChanges(SyncState otherHeads)
     {
-        var changes = await restSyncClient.GetChanges(projectId, otherHeads);
+        var changesResponse = await restSyncClient.GetChanges(projectId, otherHeads);
+        if (changesResponse.Error is not null)
+        {
+            // The inner exception is almost certainly more interesting than the wrapping ApiException
+            // (e.g. a JsonException if trying to download a change object that is too new for this version of FieldWorks Lite)
+            var error = changesResponse.Error?.InnerException ?? changesResponse.Error!;
+            throw new CrdtSyncException("FieldWorks Lite is likely out of date. Failed to download dictionary changes.",
+                CrdtSyncException.CrdtSyncStep.Download, error);
+        }
+
+        var changes = changesResponse.Content;
         ArgumentNullException.ThrowIfNull(changes);
         foreach (var commit in changes.MissingFromClient)
         {
@@ -128,5 +138,5 @@ public interface ISyncHttp
     internal Task<SyncState> GetSyncState(Guid id);
 
     [Post("/api/crdt/{id}/changes")]
-    internal Task<ChangesResult<Commit>> GetChanges(Guid id, SyncState otherHeads);
+    internal Task<ApiResponse<ChangesResult<Commit>>> GetChanges(Guid id, SyncState otherHeads);
 }

@@ -29,6 +29,8 @@
   import {extract} from 'runed';
   import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
   import {TooltipProvider} from '$lib/components/ui/tooltip';
+  import {initRootLocation} from '$lib/services/root-location-service';
+  import {readable} from 'svelte/store';
 
 
   let { children }: { children: Snippet } = $props();
@@ -39,6 +41,7 @@
   initView();
   const storyContext = useSvelteStoryContext();
   setupGlobalErrorHandlers();
+  initRootLocation(readable());
 
   const {
     themePicker = true,
