@@ -15,7 +15,7 @@ export function useProjectStats() {
       totalEntryCount,
     }
   }, {
-    throttle: 3000,
+    debounce: 500,
     onAdd: (resource) => {
       projectEventBus.onEntryDeleted(() => void resource.refetch());
       projectEventBus.onEntryUpdated(() => void resource.refetch());
