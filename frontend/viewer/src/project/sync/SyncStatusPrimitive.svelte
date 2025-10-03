@@ -72,6 +72,17 @@
     </Tabs.List>
   {/if}
   <Tabs.Content value="lite">
+    <div class="text-center my-2">
+      <span class="text-foreground/80">
+        <T msg="Last sync: #">
+          {#if !lastLocalSyncDate}
+            <span>{$t`Never`}</span>
+          {:else}
+            <FormatRelativeDate date={lastLocalSyncDate} showActualDate />
+          {/if}
+        </T>
+      </span>
+    </div>
     <div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-4 gap-x-8">
 
       <!-- Status local to remote -->
