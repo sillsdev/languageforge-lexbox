@@ -69,7 +69,7 @@
           statusChange={s => onLoginStatusChange(s)}/>
       {:else}
         <span>{$t`${flexToLexboxCount} Commits`}</span>
-        <SyncArrow dir="left" tailLength={120} size={1.5}/>
+        <SyncArrow dir="left" tailLength={120} size={1.25}/>
         <Button
           loading={loadingSyncLexboxToFlex}
           disabled={loadingSyncLexboxToLocal || !canSyncLexboxToFlex || !remoteStatus}
@@ -78,7 +78,7 @@
           iconProps={{ class: 'size-5' }}>
           {$t`Sync`}
         </Button>
-        <SyncArrow dir="right" tailLength={120} size={1.5}/>
+        <SyncArrow dir="right" tailLength={120} size={1.25}/>
         <span>{$t`${lexboxToFlexCount} Changes`}</span>
       {/if}
   </div>

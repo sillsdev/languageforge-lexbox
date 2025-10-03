@@ -9,17 +9,21 @@
   } = $props();
   const isVertical = $derived(dir === 'up' || dir === 'down');
   const isHorizontal = $derived(dir === 'left' || dir === 'right');
-  const height = $derived(isVertical ? tailLength : 20);
-  const width = $derived(isHorizontal ? tailLength : 20);
-  const boxHeight = $derived((size * 20) + height - 20);
-  const boxWidth = $derived((size * 20) + width - 20);
+  // Base arrow head box is effectively ~16x16 (path spans ~0.08..15.92). Use 16 so the viewBox hugs the graphic.
+  // This removes the horizontal whitespace we had when using 20.
+  const headSize = 16; // canonical arrow-head box size tightly wrapping path
+  const height = $derived(isVertical ? tailLength : headSize);
+  const width = $derived(isHorizontal ? tailLength : headSize);
+  // Actual rendered pixel dimensions: scale entire drawing uniformly by `size`.
+  const boxHeight = $derived(height * size);
+  const boxWidth = $derived(width * size);
 </script>
 <div class={cn(
     'block',
     (dir === 'down' || dir === 'right') && 'rotate-180',
     className,
 )}>
-  <svg xmlns="http://www.w3.org/2000/svg" width="{boxWidth}px" height="{boxHeight}px" viewBox="0 0 {width} {height}">
+  <svg xmlns="http://www.w3.org/2000/svg" width={boxWidth} height={boxHeight} viewBox="0 0 {width} {height}" preserveAspectRatio="xMidYMid meet">
     <rect width={width} height={height} fill="none"/>
     {#if isVertical}
       <path fill="currentColor"

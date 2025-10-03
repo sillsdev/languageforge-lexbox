@@ -97,13 +97,13 @@
         </div>
         <div class="grid justify-center items-center min-h-12" style="grid-template-columns: 1fr auto auto auto 1fr">
           <span class="text-end">{remoteToLocalCount ?? '?'}</span>
-          <SyncArrow dir="down" tailLength={40} size={2} class="translate-y-[1px]"/>
+          <SyncArrow dir="down" tailLength={40} size={1.5} class="translate-y-[1px]"/>
           {#if remoteToLocalCount === 0 && localToRemoteCount === 0}
             <span>{$t`Up to date`}</span>
           {:else}
             <span>{$t`Pending`}</span>
           {/if}
-          <SyncArrow dir="up" tailLength={40} size={2} class="translate-y-[-1px]"/>
+          <SyncArrow dir="up" tailLength={40} size={1.5} class="translate-y-[-1px]"/>
           <span class="text-start">{localToRemoteCount ?? '?'}</span>
         </div>
         <div class="content-center pl-2">
