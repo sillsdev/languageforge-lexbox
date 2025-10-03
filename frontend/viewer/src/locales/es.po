@@ -773,6 +773,10 @@ msgstr "No se han encontrado antecedentes"
 msgid "No items found"
 msgstr "No se han encontrado artículos"
 
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "No server"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "No server configured"
 msgstr "Ningún servidor configurado"
@@ -811,6 +815,7 @@ msgid "Observer"
 msgstr "Observador"
 
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Offline"
 msgstr "Fuera de línea"
 
@@ -1161,6 +1166,10 @@ msgstr "Error desconocido {0}"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Unknown error downloading {0}"
 msgstr "Error desconocido al descargar {0}"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Unknown server"
+msgstr ""
 
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
