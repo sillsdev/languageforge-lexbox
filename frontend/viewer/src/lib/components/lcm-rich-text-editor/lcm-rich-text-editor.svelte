@@ -54,7 +54,8 @@
     } & HTMLAttributes<HTMLDivElement> = $props();
 
   let elementRef: HTMLElement | null = $state(null);
-  let dirty = $state(false);
+  // should not be state unless we catch errors. See onBlur.
+  let dirty = false;
   let editor: EditorView | null = null;
 
   const isUsingKeyboard = new IsUsingKeyboard();
@@ -135,6 +136,9 @@
   }
 
   function onblur(editor: EditorView) {
+    // we cannot set and $state variables here, because if this is called due to navigation
+    // it's too late to update state and doing so will throw.
+    // See stomp-safe-lcm-rich-text-editor for how we handle that case.
     if (dirty && value) {
       onchange(value);
       dirty = false;
