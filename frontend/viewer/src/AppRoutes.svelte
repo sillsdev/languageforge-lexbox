@@ -1,6 +1,6 @@
 <script lang="ts">
   import { setupGlobalErrorHandlers } from '$lib/errors/global-errors';
-  import { navigate, Route, Router } from 'svelte-routing';
+  import { navigate, Route, Router, useLocation } from 'svelte-routing';
   import Sandbox from '$lib/sandbox/Sandbox.svelte';
   import DotnetProjectView from './DotnetProjectView.svelte';
   import HomeView from './home/HomeView.svelte';
@@ -10,7 +10,7 @@
   let url = '';
 
   setupGlobalErrorHandlers();
-  initRootLocation();
+  initRootLocation(useLocation());
 </script>
 
 <Route path="/project/:code/*" let:params>

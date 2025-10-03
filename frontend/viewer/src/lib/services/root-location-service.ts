@@ -1,10 +1,11 @@
 import {getContext, hasContext, setContext} from 'svelte';
 
-import {useLocation} from 'svelte-routing';
+import type {useLocation} from 'svelte-routing';
 
 const symbol = Symbol.for('fw-lite-location');
+type RootLocation = ReturnType<typeof useLocation>;
 
-export function initRootLocation(): ReturnType<typeof useLocation> {
+export function initRootLocation(location: RootLocation): RootLocation {
   if (hasContext(symbol)) {
     if (import.meta.env.DEV) {
       throw new Error('RootLocation already initialized');
@@ -12,12 +13,11 @@ export function initRootLocation(): ReturnType<typeof useLocation> {
     console.warn('RootLocation already initialized');
     return getContext(symbol);
   }
-  const locationStore = useLocation();
-  setContext(symbol, locationStore);
-  return locationStore;
+  setContext(symbol, location);
+  return location;
 }
 
-export function useRootLocation(): ReturnType<typeof useLocation> {
+export function useRootLocation(): RootLocation {
   if (!hasContext(symbol)) throw new Error('RootLocation not initialized');
   return getContext(symbol);
 }
