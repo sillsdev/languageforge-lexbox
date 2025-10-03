@@ -15,6 +15,7 @@
   import {t} from 'svelte-i18n-lingui';
   import type {TaskSubject} from './subject.svelte';
   import type {Overrides} from '$lib/views/view-data';
+  import {tick} from 'svelte';
 
   let {
     entry = $bindable(),
@@ -62,6 +63,15 @@
   async function onNext(skip: boolean = false) {
     if (!skip) {
       if (!subject || !isSubjectComplete()) return;
+
+      if (document.activeElement instanceof HTMLElement) {
+        // We have change rich-text change handlers that
+        // (1) add WS's to spans (i.e. finalize rich-strings. It's maybe a bad idea that we currently do that lazily) and
+        // (2) run into errors if triggered too late (e.g. via onDestroy)
+        // this is a simple way to ensure they run cleanly before we move on
+        document.activeElement.blur();
+        await tick();
+      }
 
       switch (task.subjectType) {
         case 'example-sentence':
