@@ -76,10 +76,10 @@
 
       <!-- Status local to remote -->
       <div class="col-span-full text-center border rounded py-2">
-        <a class="inline-flex flex-col items-center" href={serverProjectUrl} target="_blank">
+        <Button class="flex-col h-auto gap-0 text-foreground hover:text-primary text-base" variant="link" href={serverProjectUrl} target="_blank" rel="noopener">
           <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}  class="size-10" />
           <span class="underline">{serverName}</span>
-        </a>
+        </Button>
       </div>
       <!--  arrows and sync counts -->
       <div class="col-span-full text-center grid justify-center items-center"
