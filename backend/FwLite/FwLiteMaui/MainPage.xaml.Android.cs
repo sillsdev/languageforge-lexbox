@@ -32,8 +32,10 @@ public partial class MainPage
         e.WebView.Settings.AllowFileAccess = true;
         e.WebView.Settings.MediaPlaybackRequiresUserGesture = false;
         e.WebView.Settings.SetGeolocationEnabled(true);
-        e.WebView.Settings.SetGeolocationDatabasePath(e.WebView.Context?.FilesDir?.Path);
-        e.WebView.SetWebChromeClient(new PermissionManagingBlazorWebChromeClient(e.WebView.WebChromeClient!, activity));
+        var baseClient = OperatingSystem.IsAndroidVersionAtLeast(26)
+            ? (e.WebView.WebChromeClient ?? new Android.Webkit.WebChromeClient())
+            : new Android.Webkit.WebChromeClient();
+        e.WebView.SetWebChromeClient(new PermissionManagingBlazorWebChromeClient(baseClient, activity));
     }
 
     private partial void BlazorWebViewOnUrlLoading(object? sender, UrlLoadingEventArgs e)
