@@ -75,9 +75,9 @@
     <div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-4 gap-x-8">
 
       <!-- Status local to remote -->
-      <div class="col-span-full text-center border rounded py-2">
+      <div class="col-span-full text-center border rounded pb-0.5">
         <Button class="flex-col h-auto gap-0 text-foreground hover:text-primary text-base" variant="link" href={serverProjectUrl} target="_blank" rel="noopener">
-          <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}  class="size-10" />
+          <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}  class="size-10 -mb-0.5" />
           <span class="underline">{serverName}</span>
         </Button>
       </div>
