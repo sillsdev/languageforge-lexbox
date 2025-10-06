@@ -143,6 +143,10 @@ msgstr "애플리케이션 버전"
 msgid "Are you sure you want to delete {0}?"
 msgstr "{0}을 삭제하시겠습니까?"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Ask questions and get help on our community forum."
+msgstr ""
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr "보내기 및 받기에 포함되지 않은 오디오 파일"
@@ -450,8 +454,8 @@ msgstr "동기화하지 못했습니다."
 #: src/project/ProjectSidebar.svelte
 #: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
-msgid "Feedback"
-msgstr "피드백"
+msgid "Feedback & Support"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Field"
@@ -543,6 +547,10 @@ msgstr "완료"
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "기타 문의 사항이 있으시면 언제든지 이메일을 보내주세요."
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Get support"
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
@@ -606,10 +614,6 @@ msgstr ""
 msgid "Length:"
 msgstr "길이:"
 
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Let us know about any bugs or technical issues you encounter."
-msgstr "버그나 기술적 문제가 발생하면 알려주세요."
-
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
 msgstr "렉스박스 로고"
@@ -664,6 +668,10 @@ msgstr "로그아웃"
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "제작: ❤️ 출처: 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Make a suggestion"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
@@ -990,6 +998,10 @@ msgstr "설정"
 msgid "Shadcn Sandbox # #"
 msgstr "Shadcn 샌드박스 # #"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share ideas and vote on new features or improvements."
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share Log file"
 msgstr "로그 파일 공유"
@@ -997,10 +1009,6 @@ msgstr "로그 파일 공유"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "프로젝트 데이터 파일 공유"
-
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Share your suggestions for new features or improvements."
-msgstr "새로운 기능이나 개선 사항에 대한 제안을 공유하세요."
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
@@ -1035,10 +1043,6 @@ msgstr "제목에 적합한 객체 유형이 없습니다: {0}"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "제출하기"
-
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Suggest your ideas"
-msgstr "아이디어 제안하기"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync"
@@ -1083,6 +1087,10 @@ msgstr "작업을 찾을 수 없음: {0}"
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
 msgstr "작업"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Tell us about a bug or issue you’ve encountered."
+msgstr ""
 
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."

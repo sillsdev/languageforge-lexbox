@@ -160,11 +160,11 @@
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
-          <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-chat-question">
-            {$t`Feedback`}
+          <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-message">
+            {$t`Feedback & Support`}
           </ResponsiveMenu.Item>
           <ResponsiveMenu.Item
-            icon="i-mdi-face-agent"
+            icon="i-mdi-help-circle"
             onSelect={() => troubleshootDialog?.open()}>
             {$t`Troubleshoot`}
           </ResponsiveMenu.Item>
