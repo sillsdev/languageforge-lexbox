@@ -8,16 +8,16 @@
 </script>
 
 {#if $notifications.length > 0}
-  <div class="toast toast-center prose z-20">
+  <div class="toast toast-center prose z-20 max-h-full">
     {#if $notifications.length > 1}
       <div class="flex justify-end" in:slide out:blur>
         <BadgeButton onclick={removeAllNotifications}>{$t('notify.close_all')}<span class="ml-2">✕</span></BadgeButton>
       </div>
     {/if}
     {#each $notifications as note (note)}
-      <div class="alert {note.category ?? ''}" in:slide out:blur>
+      <div class="alert {note.category ?? ''} overflow-y-auto" in:slide out:blur>
         {note.message}
-        <button onclick={() => removeNotification(note)} class="btn btn-circle btn-sm btn-ghost">✕</button>
+        <button onclick={() => removeNotification(note)} class="btn btn-circle btn-sm btn-ghost sticky top-0 bottom-0">✕</button>
       </div>
     {/each}
   </div>
