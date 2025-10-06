@@ -21,6 +21,10 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     private FwDataMiniLcmApi _fwDataApi = null!;
     private TestProject _project = null!;
     private MiniLcmImport _miniLcmImport = null!;
+    private static readonly JsonSerializerOptions IndentedDefaultJsonOptions = new()
+    {
+        WriteIndented = true,
+    };
 
 
     public Sena3SyncTests(Sena3Fixture fixture)
@@ -228,10 +232,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         var throwAnyVerifyException = () => { if (verifyException is not null) throw verifyException; };
         try
         {
-            await Verify(JsonSerializer.Serialize(fwHeadlessSnapshot, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-            }))
+            await Verify(JsonSerializer.Serialize(fwHeadlessSnapshot, IndentedDefaultJsonOptions))
             .UseStrictJson()
             .UseFileName("sena-3-live_snapshot");
         }

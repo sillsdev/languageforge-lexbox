@@ -14,6 +14,10 @@ namespace LcmCrdt.Tests.Data;
 public class MigrationTests : IAsyncLifetime
 {
     private readonly RegressionTestHelper _helper = new("MigrationTest");
+    private static readonly JsonSerializerOptions IndentedHarmonyJsonOptions = new(TestJsonOptions.Harmony())
+    {
+        WriteIndented = true
+    };
 
     [ModuleInitializer]
     internal static void Init()
@@ -56,11 +60,6 @@ public class MigrationTests : IAsyncLifetime
         await _helper.InitializeAsync(regressionVersion);
         var api = _helper.Services.GetRequiredService<IMiniLcmApi>();
         var crdtConfig = _helper.Services.GetRequiredService<IOptions<CrdtConfig>>().Value;
-        // todo use TestJsonOptions instead
-        var jsonSerializerOptions = new JsonSerializerOptions(crdtConfig.JsonSerializerOptions)
-        {
-            WriteIndented = true
-        };
 
         await using var dbContext = await _helper.Services.GetRequiredService<ICrdtDbContextFactory>().CreateDbContextAsync();
         var snapshots = await dbContext.Snapshots.AsNoTracking()
@@ -86,9 +85,9 @@ public class MigrationTests : IAsyncLifetime
             .ToArray();
         var project = await TakeProjectSnapshot(api);
 
-        var snapshotsJson = JsonSerializer.Serialize(snapshots, jsonSerializerOptions);
-        var changesJson = JsonSerializer.Serialize(changes, jsonSerializerOptions);
-        var projectJson = JsonSerializer.Serialize(project, jsonSerializerOptions);
+        var snapshotsJson = JsonSerializer.Serialize(snapshots, IndentedHarmonyJsonOptions);
+        var changesJson = JsonSerializer.Serialize(changes, IndentedHarmonyJsonOptions);
+        var projectJson = JsonSerializer.Serialize(project, IndentedHarmonyJsonOptions);
 
         await Task.WhenAll(
             Verify(snapshotsJson)
@@ -112,11 +111,6 @@ public class MigrationTests : IAsyncLifetime
         await _helper.InitializeAsync(regressionVersion);
         var api = _helper.Services.GetRequiredService<IMiniLcmApi>();
         var crdtConfig = _helper.Services.GetRequiredService<IOptions<CrdtConfig>>().Value;
-        // todo use TestJsonOptions instead
-        var jsonSerializerOptions = new JsonSerializerOptions(crdtConfig.JsonSerializerOptions)
-        {
-            WriteIndented = true
-        };
 
         await using var dbContext = await _helper.Services.GetRequiredService<ICrdtDbContextFactory>().CreateDbContextAsync();
         await using var dataModel = _helper.Services.GetRequiredService<DataModel>();
@@ -142,7 +136,7 @@ public class MigrationTests : IAsyncLifetime
 
         // this happens to result in null properties being omitted, which is probably fine
         // strangely VerifyJson(string).UseStrictJson() keeps null properties, but omits empty arrays and objects, which seems bizarre
-        var snapshotsJson = JsonSerializer.SerializeToDocument(latestSnapshots, jsonSerializerOptions);
+        var snapshotsJson = JsonSerializer.SerializeToDocument(latestSnapshots, IndentedHarmonyJsonOptions);
 
         // it would be nice to only scrub the snapshot Guid, because those are the only ones that should be different,
         // but Verify doesn't have a way to do that, so we just let it scrub all of them

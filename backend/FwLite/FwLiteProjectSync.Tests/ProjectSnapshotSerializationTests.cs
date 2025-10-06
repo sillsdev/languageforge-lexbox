@@ -80,6 +80,10 @@ public class ProjectSnapshotSerializationTests
             name);
     }
 
+    private static readonly JsonSerializerOptions IndentedDefaultJsonOptions = new()
+    {
+        WriteIndented = true,
+    };
     private async Task<string> GetRoundTrippedIndentedSnapshot(string sourceSnapshotPath, [CallerMemberName] string fwDataProjectName = "")
     {
         var fwDataProject = new FwDataProject(
@@ -99,6 +103,6 @@ public class ProjectSnapshotSerializationTests
         {
             AllowTrailingCommas = true,
         }) ?? throw new InvalidOperationException("Could not parse json node");
-        return node.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+        return node.ToJsonString(IndentedDefaultJsonOptions);
     }
 }
