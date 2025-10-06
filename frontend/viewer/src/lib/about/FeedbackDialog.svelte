@@ -14,7 +14,7 @@
 
 <ResponsiveDialog bind:open title={$t`Feedback`}>
     <div class="flex flex-col gap-4">
-      <Button variant="ghost" href="https://lexbox.org/fw-lite/request-features" target="_blank" class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
+      <Button variant="ghost" href="https://community.software.sil.org/c/fwlite/fwlite-feature-requests/" target="_blank" class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
         <Icon icon="i-mdi-lightbulb-on-outline" class="size-10"/>
         <div>
           <div class="font-semibold underline">{$t`Suggest your ideas`}</div>
