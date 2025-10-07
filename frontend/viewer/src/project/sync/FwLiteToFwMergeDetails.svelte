@@ -37,6 +37,7 @@
   const lastFwLiteSyncDate = $derived(remoteStatus?.lastCrdtCommitDate ? new Date(remoteStatus.lastCrdtCommitDate) : undefined);
   let lexboxToFlexCount = $derived(remoteStatus?.pendingCrdtChanges ?? '?');
   let flexToLexboxCount = $derived(remoteStatus?.pendingMercurialChanges ?? '?');
+  let loading = $derived(remoteStatus === undefined);
 
   function onSyncLexboxToFlex() {
     loadingSyncLexboxToFlex = true;
@@ -55,6 +56,7 @@
         <FormatRelativeDate
           date={lastFwLiteSyncDate}
           showActualDate
+          {loading}
           defaultValue={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`}/>
       </T>
     </span>
@@ -68,7 +70,7 @@
           status={{loggedIn: false, server: server}}
           statusChange={s => onLoginStatusChange(s)}/>
       {:else}
-        <span>{$t`${flexToLexboxCount} Commits`}</span>
+        <span class:loading-text={loading}>{$t`${flexToLexboxCount} Commits`}</span>
         <SyncArrow dir="left" tailLength={120} size={1.25}/>
         <Button
           loading={loadingSyncLexboxToFlex}
@@ -79,7 +81,7 @@
           {$t`Sync`}
         </Button>
         <SyncArrow dir="right" tailLength={120} size={1.25}/>
-        <span>{$t`${lexboxToFlexCount} Changes`}</span>
+        <span class:loading-text={loading}>{$t`${lexboxToFlexCount} Commits`}</span>
       {/if}
   </div>
   <div class="border rounded flex flex-col items-center justify-center text-center p-2">
@@ -90,6 +92,7 @@
         <FormatRelativeDate
           date={lastFlexSyncDate}
           showActualDate
+          {loading}
           defaultValue={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`}/>
       </T>
     </span>

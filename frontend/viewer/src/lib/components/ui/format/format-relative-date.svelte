@@ -14,6 +14,7 @@
     showActualDate?: boolean;
     actualDateOptions?: Intl.DateTimeFormatOptions;
     maxUnits?: number;
+    loading?: boolean;
   };
 
   const {
@@ -24,6 +25,7 @@
     showActualDate = false,
     actualDateOptions,
     maxUnits = 2,
+    loading,
     ...restProps
   }: Props = $props();
 
@@ -60,7 +62,7 @@
 </script>
 
 {#if showActualDate && actualFormattedDate}
-  <span class="inline-flex items-center gap-1">
+  <span class:loading-text={loading} class="inline-flex items-center gap-1">
     <time {...restProps}>{formattedRelativeDate}</time>
     <Popover.Root>
       <Popover.Trigger>
@@ -73,5 +75,5 @@
     </Popover.Root>
   </span>
 {:else}
-  <time {...restProps}>{formattedRelativeDate}</time>
+  <time class:loading-text={loading} {...restProps}>{formattedRelativeDate}</time>
 {/if}
