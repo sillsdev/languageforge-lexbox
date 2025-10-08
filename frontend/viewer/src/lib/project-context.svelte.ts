@@ -78,6 +78,9 @@ export class ProjectContext {
   public get projectType(): ProjectType {
     return this.#projectType;
   }
+  public set projectType(value: ProjectType) {
+    this.#projectType = value;
+  }
   public get server(): ILexboxServer | undefined {
     return this.#server;
   }
