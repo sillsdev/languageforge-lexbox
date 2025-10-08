@@ -37,9 +37,6 @@ msgid "{0} ago"
 msgstr "{0} ago"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-msgid "{0} Changes"
-msgstr "{0} Changes"
-
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{0} Commits"
 msgstr "{0} Commits"
@@ -51,10 +48,6 @@ msgstr "{0} MB"
 #: src/home/Server.svelte
 msgid "{0} Server"
 msgstr "{0} Server"
-
-#: src/project/SyncDialog.svelte
-msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
-msgstr "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
 
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
@@ -1056,6 +1049,10 @@ msgstr "Sync"
 msgid "Sync Changes"
 msgstr "Sync Changes"
 
+#: src/project/SyncDialog.svelte
+msgid "Sync complete. {0} were applied to FieldWorks. {1} were applied to FieldWorks Lite."
+msgstr "Sync complete. {0} were applied to FieldWorks. {1} were applied to FieldWorks Lite."
+
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
 msgstr "Synced"
@@ -1073,8 +1070,8 @@ msgid "Synchronize"
 msgstr "Synchronize"
 
 #: src/project/SyncDialog.svelte
-msgid "Synchronizing FieldWorks Lite with FieldWorks..."
-msgstr "Synchronizing FieldWorks Lite with FieldWorks..."
+msgid "Synchronizing FieldWorks Lite and FieldWorks..."
+msgstr "Synchronizing FieldWorks Lite and FieldWorks..."
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Syncing..."

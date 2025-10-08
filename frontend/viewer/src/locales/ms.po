@@ -42,9 +42,6 @@ msgid "{0} ago"
 msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-msgid "{0} Changes"
-msgstr ""
-
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{0} Commits"
 msgstr ""
@@ -56,10 +53,6 @@ msgstr "{0} MB"
 #: src/home/Server.svelte
 msgid "{0} Server"
 msgstr "Pelayan {0}"
-
-#: src/project/SyncDialog.svelte
-msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
-msgstr "{0} disegerakkan ke FieldWorks. {1} disegerakkan ke FieldWorks Lite."
 
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
@@ -1061,6 +1054,10 @@ msgstr ""
 msgid "Sync Changes"
 msgstr ""
 
+#: src/project/SyncDialog.svelte
+msgid "Sync complete. {0} were applied to FieldWorks. {1} were applied to FieldWorks Lite."
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
 msgstr "Disegerakkan"
@@ -1078,8 +1075,8 @@ msgid "Synchronize"
 msgstr "Segerakkan"
 
 #: src/project/SyncDialog.svelte
-msgid "Synchronizing FieldWorks Lite with FieldWorks..."
-msgstr "Menyegerakkan FieldWorks Lite dengan FieldWorks..."
+msgid "Synchronizing FieldWorks Lite and FieldWorks..."
+msgstr ""
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Syncing..."
