@@ -66,7 +66,7 @@
       success: (result) => {
         const fwdataChangesText = $plural(result.syncResult?.fwdataChanges ?? 0, {one: '# change', other: '# changes'});
         const crdtChangesText = $plural(result.syncResult?.crdtChanges ?? 0, {one: '# change', other: '# changes'});
-        return $t`${fwdataChangesText} synced to FieldWorks. ${crdtChangesText} synced to FieldWorks Lite.`;
+        return $t`Sync complete. ${fwdataChangesText} were applied to FieldWorks. ${crdtChangesText} were applied to FieldWorks Lite.`;
       },
       error: (error) => $t`Failed to synchronize.` + '\n' + (error as Error).message,
       // TODO: Custom component that can expand or collapse the stacktrace
