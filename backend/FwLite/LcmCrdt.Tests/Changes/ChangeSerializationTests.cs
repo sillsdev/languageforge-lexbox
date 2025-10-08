@@ -61,8 +61,8 @@ public class ChangeSerializationTests : BaseSerializationTest
         //commit id is not serialized
         change.CommitId = Guid.Empty;
         var type = change.GetType();
-        var json = JsonSerializer.Serialize(change, Options);
-        var newChange = JsonSerializer.Deserialize(json, type, Options);
+        var json = JsonSerializer.Serialize(change, HarmonyJsonOptions);
+        var newChange = JsonSerializer.Deserialize(json, type, HarmonyJsonOptions);
         newChange.Should().BeEquivalentTo(change);
     }
 
@@ -89,7 +89,7 @@ public class ChangeSerializationTests : BaseSerializationTest
         //changes are updated and appended by RegressionDataUpToDate() whenever it finds a "latest" change that doesn't stably round-trip
         //or when it finds a change type that isn't represented
         using var jsonFile = File.OpenRead(GetJsonFilePath("ChangeDeserializationRegressionData.latest.verified.txt"));
-        var changes = JsonSerializer.Deserialize<List<IChange>>(jsonFile, Options);
+        var changes = JsonSerializer.Deserialize<List<IChange>>(jsonFile, HarmonyJsonOptions);
         changes.Should().NotBeNullOrEmpty().And.NotContainNulls();
 
         //ensure that all change types are represented and none should be removed from AllChangeTypes
@@ -116,7 +116,7 @@ public class ChangeSerializationTests : BaseSerializationTest
         // when it detects that they don't stably round-trip and
         // (2) keeps the round-trip output of the changes up to date
         using var jsonFile = File.OpenRead(GetJsonFilePath("ChangeDeserializationRegressionData.legacy.verified.txt"));
-        var changes = JsonSerializer.Deserialize<List<LegacyChangeRecord>>(jsonFile, Options);
+        var changes = JsonSerializer.Deserialize<List<LegacyChangeRecord>>(jsonFile, HarmonyJsonOptions);
         changes.Should().NotBeNullOrEmpty().And.NotContainNulls();
         changes.SelectMany(c => new[] { c.Input, c.Output })
             .Should().NotContainNulls()
@@ -138,9 +138,9 @@ public class ChangeSerializationTests : BaseSerializationTest
             legacyJson.Should().NotBeNullOrWhiteSpace();
             var legacyOutputJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacyChangeRecord.Output)]!);
             legacyOutputJson.Should().NotBeNullOrWhiteSpace();
-            var change = JsonSerializer.Deserialize<IChange>(legacyJson, Options);
+            var change = JsonSerializer.Deserialize<IChange>(legacyJson, HarmonyJsonOptions);
             change.Should().NotBeNull();
-            var newLegacyOutputJson = JsonSerializer.Serialize(change, OptionsIndented);
+            var newLegacyOutputJson = JsonSerializer.Serialize(change, IndentedHarmonyJsonOptions);
             if (legacyOutputJson != newLegacyOutputJson)
             {
                 //the legacy change no longer round-trips to the same output, so we should verify the new output
@@ -155,10 +155,10 @@ public class ChangeSerializationTests : BaseSerializationTest
             latestJsonNode.Should().NotBeNull();
             var latestJson = ToNormalizedIndentedJsonString(latestJsonNode);
             latestJson.Should().NotBeNullOrWhiteSpace();
-            var change = JsonSerializer.Deserialize<IChange>(latestJsonNode, Options);
+            var change = JsonSerializer.Deserialize<IChange>(latestJsonNode, HarmonyJsonOptions);
             change.Should().NotBeNull();
             seenChangeTypes.Add(change.GetType());
-            var newLatestJson = JsonSerializer.Serialize(change, OptionsIndented);
+            var newLatestJson = JsonSerializer.Serialize(change, IndentedHarmonyJsonOptions);
 
             if (latestJson != newLatestJson)
             {
@@ -177,7 +177,7 @@ public class ChangeSerializationTests : BaseSerializationTest
                 // to generate and insert them manually. We can remove this if it's too noisy.
                 foreach (var generatedChange in GeneratedChangesForType(change.GetType()))
                 {
-                    var serialized = JsonSerializer.Serialize(generatedChange, OptionsIndented);
+                    var serialized = JsonSerializer.Serialize(generatedChange, IndentedHarmonyJsonOptions);
                     newLatestJsonArray.Add(JsonNode.Parse(serialized));
                 }
             }
@@ -194,7 +194,7 @@ public class ChangeSerializationTests : BaseSerializationTest
         {
             foreach (var generatedChange in GeneratedChangesForType(changeType))
             {
-                var serialized = JsonSerializer.Serialize(generatedChange, OptionsIndented);
+                var serialized = JsonSerializer.Serialize(generatedChange, IndentedHarmonyJsonOptions);
                 newLatestJsonArray.Add(JsonNode.Parse(serialized));
             }
         }
@@ -215,6 +215,6 @@ public class ChangeSerializationTests : BaseSerializationTest
     public static void GenerateNewJsonFile()
     {
         using var jsonFile = File.Open(GetJsonFilePath("NewJson.json"), FileMode.Create);
-        JsonSerializer.Serialize(jsonFile, GeneratedChanges(), OptionsIndented);
+        JsonSerializer.Serialize(jsonFile, GeneratedChanges(), IndentedHarmonyJsonOptions);
     }
 }

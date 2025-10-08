@@ -12,15 +12,11 @@ namespace LcmCrdt.Tests.Data;
 
 public abstract class BaseSerializationTest
 {
-    protected static readonly Lazy<JsonSerializerOptions> LazyOptions = new(() =>
+    protected static readonly JsonSerializerOptions HarmonyJsonOptions = new(TestJsonOptions.Harmony())
     {
-        var options = TestJsonOptions.Harmony();
-        options.ReadCommentHandling = JsonCommentHandling.Skip;
-        return options;
-    });
-
-    protected static readonly JsonSerializerOptions Options = LazyOptions.Value;
-    protected static readonly JsonSerializerOptions OptionsIndented = new(Options)
+        ReadCommentHandling = JsonCommentHandling.Skip,
+    };
+    protected static readonly JsonSerializerOptions IndentedHarmonyJsonOptions = new(HarmonyJsonOptions)
     {
         WriteIndented = true,
     };
@@ -72,13 +68,14 @@ public abstract class BaseSerializationTest
             name);
     }
 
+    private static readonly JsonSerializerOptions RegressionJsonOptions = new()
+    {
+        WriteIndented = true,
+        Encoder = HarmonyJsonOptions.Encoder,
+    };
     protected static string SerializeRegressionData(JsonArray jsonArray)
     {
-        return JsonSerializer.Serialize(jsonArray, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            Encoder = Options.Encoder,
-        })
+        return JsonSerializer.Serialize(jsonArray, RegressionJsonOptions)
         // The "+" in DateTimeOffsets does not get escaped by our standard crdt serializer,
         // but it does here. Presumably, because it's reading it as a string and not a DateTimeOffset
         .Replace("\\u002B", "+");
@@ -87,7 +84,7 @@ public abstract class BaseSerializationTest
     private static readonly JsonWriterOptions GenericJsonWriterOptions = new()
     {
         Indented = true,
-        Encoder = Options.Encoder,
+        Encoder = HarmonyJsonOptions.Encoder,
     };
 
     protected static string ToNormalizedIndentedJsonString(JsonNode element)
