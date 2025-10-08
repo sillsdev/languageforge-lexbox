@@ -747,10 +747,6 @@ msgstr ""
 msgid "No audio"
 msgstr ""
 
-#: src/lib/history/HistoryView.svelte
-msgid "No change name"
-msgstr ""
-
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr ""

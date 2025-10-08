@@ -747,10 +747,6 @@ msgstr "활동을 찾을 수 없습니다."
 msgid "No audio"
 msgstr "오디오 없음"
 
-#: src/lib/history/HistoryView.svelte
-msgid "No change name"
-msgstr "이름 변경 안 함"
-
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr "사전을 찾을 수 없습니다."
