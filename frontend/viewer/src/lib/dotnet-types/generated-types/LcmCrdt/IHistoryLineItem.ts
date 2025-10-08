@@ -12,7 +12,7 @@ export interface IHistoryLineItem
 	timestamp: string;
 	snapshotId?: string;
 	changeIndex: number;
-	changeName?: string;
+	changeName: string;
 	entity?: IObjectWithId;
 	entityName?: string;
 	authorName?: string;

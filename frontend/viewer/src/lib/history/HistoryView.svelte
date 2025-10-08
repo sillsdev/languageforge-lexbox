@@ -75,7 +75,7 @@
                     onclick={() => showEntry(row)}
                     class="mb-2"
                     selected={record?.commitId === row.commitId}>
-                    <span>{row.changeName ?? $t`No change name`}</span>
+                    <span>{row.changeName}</span>
                     <div class="text-sm text-muted-foreground">
                       {#if row.previousTimestamp}
                         <T msg="# before">
