@@ -186,6 +186,10 @@ msgstr "찾아보기"
 msgid "Cancel"
 msgstr "취소"
 
+#: src/lib/ThemePicker.svelte
+msgid "Choose theme"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
 msgstr "인용 양식"
@@ -280,6 +284,10 @@ msgstr "현재 항목"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Word"
 msgstr "현재 단어"
+
+#: src/lib/ThemePicker.svelte
+msgid "Dark"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Dashboard"
@@ -621,6 +629,10 @@ msgstr "Lexeme 양식"
 #: src/project/browse/SearchFilter.svelte
 msgid "Lexeme Form"
 msgstr "Lexeme 양식"
+
+#: src/lib/ThemePicker.svelte
+msgid "Light"
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte
 msgid "List mode"
@@ -1072,6 +1084,10 @@ msgstr "FieldWorks Lite와 FieldWorks 동기화..."
 msgid "Syncing..."
 msgstr "동기화..."
 
+#: src/lib/ThemePicker.svelte
+msgid "System"
+msgstr ""
+
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
 msgstr "작업 {0}"
@@ -1107,10 +1123,6 @@ msgstr "필터 토글"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "고정 토글"
-
-#: src/lib/ThemePicker.svelte
-msgid "Toggle theme"
-msgstr "테마 토글"
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"

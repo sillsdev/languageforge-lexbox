@@ -186,6 +186,10 @@ msgstr "Visite"
 msgid "Cancel"
 msgstr "Cancelar"
 
+#: src/lib/ThemePicker.svelte
+msgid "Choose theme"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
 msgstr "Formulario de cita"
@@ -280,6 +284,10 @@ msgstr "Entrada actual"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Word"
 msgstr "Palabra actual"
+
+#: src/lib/ThemePicker.svelte
+msgid "Dark"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Dashboard"
@@ -621,6 +629,10 @@ msgstr "Forma del lexema"
 #: src/project/browse/SearchFilter.svelte
 msgid "Lexeme Form"
 msgstr "Forma del lexema"
+
+#: src/lib/ThemePicker.svelte
+msgid "Light"
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte
 msgid "List mode"
@@ -1072,6 +1084,10 @@ msgstr "Sincronización de FieldWorks Lite con FieldWorks..."
 msgid "Syncing..."
 msgstr "Sincronizando..."
 
+#: src/lib/ThemePicker.svelte
+msgid "System"
+msgstr ""
+
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
 msgstr "Tarea {0}"
@@ -1107,10 +1123,6 @@ msgstr "Alternar filtros"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Alternar fijado"
-
-#: src/lib/ThemePicker.svelte
-msgid "Toggle theme"
-msgstr "Alternar tema"
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"

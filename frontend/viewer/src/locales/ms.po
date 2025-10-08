@@ -186,6 +186,10 @@ msgstr "Semak seimbas (Melihat-lihat)"
 msgid "Cancel"
 msgstr "Batal"
 
+#: src/lib/ThemePicker.svelte
+msgid "Choose theme"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
 msgstr "Bentuk petikan"
@@ -280,6 +284,10 @@ msgstr "Entri Semasa"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Word"
 msgstr "Perkataan Semasa"
+
+#: src/lib/ThemePicker.svelte
+msgid "Dark"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Dashboard"
@@ -621,6 +629,10 @@ msgstr "Bentuk leksem"
 #: src/project/browse/SearchFilter.svelte
 msgid "Lexeme Form"
 msgstr "Bentuk Leksem"
+
+#: src/lib/ThemePicker.svelte
+msgid "Light"
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte
 msgid "List mode"
@@ -1072,6 +1084,10 @@ msgstr "Menyegerakkan FieldWorks Lite dengan FieldWorks..."
 msgid "Syncing..."
 msgstr ""
 
+#: src/lib/ThemePicker.svelte
+msgid "System"
+msgstr ""
+
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
 msgstr ""
@@ -1107,10 +1123,6 @@ msgstr "Togol penapis"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Togol disemat"
-
-#: src/lib/ThemePicker.svelte
-msgid "Toggle theme"
-msgstr "Togol tema"
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"

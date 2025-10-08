@@ -27,7 +27,7 @@
         <Icon icon="i-mdi-weather-night"
           class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary"
         />
-        <span class="sr-only">{$t`Toggle theme`}</span>
+        <span class="sr-only">{$t`Choose theme`}</span>
       </Button>
     {/snippet}
   </Popover.Trigger>
@@ -80,7 +80,7 @@
             class={cn(userPrefersMode.current === 'light' && 'border-primary border-2')}
             icon="i-mdi-white-balance-sunny"
           >
-            Light
+            {$t`Light`}
           </Button>
           <Button
             variant="outline"
@@ -89,7 +89,7 @@
             class={cn(userPrefersMode.current === 'dark' && 'border-primary border-2')}
             icon="i-mdi-weather-night"
           >
-            Dark
+            {$t`Dark`}
           </Button>
           <Button
             variant="outline"
@@ -98,7 +98,7 @@
             class={cn(userPrefersMode.current === 'system' && 'border-primary border-2')}
             icon="i-mdi-laptop"
           >
-            System
+            {$t`System`}
           </Button>
         </div>
       </div>

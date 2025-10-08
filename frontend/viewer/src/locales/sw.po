@@ -186,6 +186,10 @@ msgstr "Angalia"
 msgid "Cancel"
 msgstr "Ghairi"
 
+#: src/lib/ThemePicker.svelte
+msgid "Choose theme"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
 msgstr ""
@@ -279,6 +283,10 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Word"
+msgstr ""
+
+#: src/lib/ThemePicker.svelte
+msgid "Dark"
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
@@ -621,6 +629,10 @@ msgstr ""
 #: src/project/browse/SearchFilter.svelte
 msgid "Lexeme Form"
 msgstr "Fomu ya Lexeme"
+
+#: src/lib/ThemePicker.svelte
+msgid "Light"
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte
 msgid "List mode"
@@ -1072,6 +1084,10 @@ msgstr ""
 msgid "Syncing..."
 msgstr ""
 
+#: src/lib/ThemePicker.svelte
+msgid "System"
+msgstr ""
+
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
 msgstr ""
@@ -1106,10 +1122,6 @@ msgstr ""
 
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
-msgstr ""
-
-#: src/lib/ThemePicker.svelte
-msgid "Toggle theme"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
