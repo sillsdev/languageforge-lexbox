@@ -20,10 +20,10 @@
       "stopAtEntry": false,
     },
     {
-      "name": ".NET Core Launch (web)",
+      "name": "Lexbox API (Launch)",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build",
+      "preLaunchTask": "Build Lexbox API",
       "program": "${workspaceFolder}/backend/LexBoxApi/bin/Debug/net9.0/LexBoxApi.dll",
       "args": [],
       "cwd": "${workspaceFolder}/backend/LexBoxApi",
@@ -40,10 +40,26 @@
       }
     },
     {
-      "name": ".NET Core Attach",
+      "name": "Lexbox API (Attach)",
       "type": "coreclr",
       "request": "attach",
       "processName": "LexBoxApi"
-    }
+    },
+    {
+      "name": "FwHeadless",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build FwHeadless",
+      "program": "${workspaceFolder}/backend/FwHeadless/bin/Debug/net9.0/FwHeadless.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend/FwHeadless",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      }
+    },
   ]
 }
