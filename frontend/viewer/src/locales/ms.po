@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-10-04 15:47\n"
+"PO-Revision-Date: 2025-10-09 15:42\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -118,6 +118,10 @@ msgstr "Tambah Contoh"
 msgid "Add Meaning"
 msgstr "Tambah Erti"
 
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Add new word"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Tambah sebahagian daripada"
@@ -126,6 +130,10 @@ msgstr "Tambah sebahagian daripada"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Sense"
 msgstr "Tambah Makna"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Add Word"
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
@@ -185,6 +193,10 @@ msgstr "Semak seimbas (Melihat-lihat)"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Cancel"
 msgstr "Batal"
+
+#: src/lib/ThemePicker.svelte
+msgid "Choose theme"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
@@ -255,21 +267,17 @@ msgstr ""
 msgid "Copy version"
 msgstr ""
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Create {0}"
-msgstr "Cipta {0}"
-
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
 msgstr "Cipta entri"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Create Entry"
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Cipta Projek Contoh"
-
-#: src/lib/entry-editor/NewEntryButton.svelte
-msgid "Create word"
-msgstr "Cipta perkataan"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -280,6 +288,10 @@ msgstr "Entri Semasa"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Word"
 msgstr "Perkataan Semasa"
+
+#: src/lib/ThemePicker.svelte
+msgid "Dark"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Dashboard"
@@ -384,7 +396,6 @@ msgid "Ends with"
 msgstr "Berakhir dengan"
 
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Entry"
@@ -622,6 +633,10 @@ msgstr "Bentuk leksem"
 msgid "Lexeme Form"
 msgstr "Bentuk Leksem"
 
+#: src/lib/ThemePicker.svelte
+msgid "Light"
+msgstr ""
+
 #: src/project/browse/BrowseView.svelte
 msgid "List mode"
 msgstr "Mod senarai"
@@ -719,19 +734,17 @@ msgstr "Gerak"
 msgid "Never"
 msgstr "Tidak Pernah"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Baru"
 
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "New {0}"
-msgstr "Baru {0}"
-
-#: src/project/NewEntryButton.svelte
 msgid "New Entry"
 msgstr "Entri Baru"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "New Word"
 msgstr "Perkataan Baru"
 
@@ -746,10 +759,6 @@ msgstr "Tiada aktiviti ditemui"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr ""
-
-#: src/lib/history/HistoryView.svelte
-msgid "No change name"
-msgstr "Tiada nama perubahan"
 
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
@@ -1072,6 +1081,10 @@ msgstr "Menyegerakkan FieldWorks Lite dengan FieldWorks..."
 msgid "Syncing..."
 msgstr ""
 
+#: src/lib/ThemePicker.svelte
+msgid "System"
+msgstr ""
+
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
 msgstr ""
@@ -1107,10 +1120,6 @@ msgstr "Togol penapis"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Togol disemat"
-
-#: src/lib/ThemePicker.svelte
-msgid "Toggle theme"
-msgstr "Togol tema"
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"
@@ -1204,7 +1213,6 @@ msgstr "Di manakah projek saya?"
 
 #: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
