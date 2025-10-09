@@ -19,6 +19,7 @@
   import {Icon} from '$lib/components/ui/icon';
   import {useProjectContext} from '$lib/project-context.svelte';
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 
   let {
     search = '',
@@ -74,7 +75,7 @@
     if (!silent) loadingUndebounced = true;
     try {
       const queryOptions: IQueryOptions = {
-        count: 10_000,
+        count: IsMobile.value ? 1_000 : 5_000,
         offset: 0,
         filter: {
           gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
