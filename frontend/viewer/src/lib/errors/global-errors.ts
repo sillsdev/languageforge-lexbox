@@ -63,13 +63,22 @@ function onErrorEvent(event: ErrorEvent | PromiseRejectionEvent) {
 async function tryLogErrorToDotNet(error: UnifiedErrorEvent) {
   try {
     const details = getErrorString(error);
-    if (details.includes('JsInvokableLogger')) return; // avoid potential infinite loop
+    if (!safeToLogErrorToDotNet(details)) return;
     const logger = await tryGetLogger();
     if (logger) await logger.log(LogLevel.Error, details);
     else console.warn('No DotNet logger available to log error', error);
   } catch (err) {
     console.error('Failed to log error to DotNet', err);
   }
+}
+
+function safeToLogErrorToDotNet(details: string): boolean {
+  // likely cyclical errors
+  if (details.includes('JsInvokableLogger')) return false;
+  if (details.includes('tryLogErrorToDotNet')) return false;
+  // dotnet is not available (can also be cyclical)
+  if (details.includes('Cannot send data if the connection is not in the \'Connected\' State')) return false;
+  return true;
 }
 
 // some very cheap durability.
