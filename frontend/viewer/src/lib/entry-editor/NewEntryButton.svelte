@@ -9,5 +9,5 @@
 </script>
 
 <Button icon="i-mdi-book-plus-outline" variant="outline" {...restProps}>
-  {pt($t`Create entry`, $t`Create word`, $currentView)}
+  {pt($t`Create entry`, $t`Add new word`, $currentView)}
 </Button>

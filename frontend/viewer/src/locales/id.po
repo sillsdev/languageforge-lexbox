@@ -127,6 +127,10 @@ msgstr "Tambahkan bagian dari"
 msgid "Add Sense"
 msgstr "Tambahkan Pengertian"
 
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Add word"
+msgstr ""
+
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "sebuah entri"
@@ -270,10 +274,6 @@ msgstr "Buat entri"
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Buat Proyek Contoh"
-
-#: src/lib/entry-editor/NewEntryButton.svelte
-msgid "Create word"
-msgstr "Buat kata"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte

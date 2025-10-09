@@ -127,6 +127,10 @@ msgstr ""
 msgid "Add Sense"
 msgstr ""
 
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Add word"
+msgstr ""
+
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr ""
@@ -269,10 +273,6 @@ msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
-msgstr ""
-
-#: src/lib/entry-editor/NewEntryButton.svelte
-msgid "Create word"
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
