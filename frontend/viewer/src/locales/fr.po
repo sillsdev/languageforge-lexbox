@@ -118,6 +118,10 @@ msgstr "Ajouter un exemple"
 msgid "Add Meaning"
 msgstr "Ajouter un sens"
 
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Add new word"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Ajouter une partie de"
@@ -127,8 +131,8 @@ msgstr "Ajouter une partie de"
 msgid "Add Sense"
 msgstr "Ajouter du sens"
 
-#: src/lib/entry-editor/NewEntryButton.svelte
-msgid "Add word"
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Add Word"
 msgstr ""
 
 #: src/project/browse/BrowseView.svelte
@@ -263,13 +267,13 @@ msgstr "Copié dans le presse-papiers"
 msgid "Copy version"
 msgstr "Copier la version"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Create {0}"
-msgstr "Créer {0}"
-
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
 msgstr "Créer une entrée"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Create Entry"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
@@ -392,7 +396,6 @@ msgid "Ends with"
 msgstr "Se termine par"
 
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Entry"
@@ -731,19 +734,17 @@ msgstr "Déplacer"
 msgid "Never"
 msgstr "Jamais"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Nouveau"
 
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "New {0}"
-msgstr "Nouveau {0}"
-
-#: src/project/NewEntryButton.svelte
 msgid "New Entry"
 msgstr "Nouvelle entrée"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "New Word"
 msgstr "Nouveau mot"
 
@@ -1216,7 +1217,6 @@ msgstr "Où sont mes projets ?"
 
 #: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte

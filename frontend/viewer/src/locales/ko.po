@@ -118,6 +118,10 @@ msgstr "예제 추가"
 msgid "Add Meaning"
 msgstr "의미 추가"
 
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Add new word"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "의 일부를 추가합니다."
@@ -127,8 +131,8 @@ msgstr "의 일부를 추가합니다."
 msgid "Add Sense"
 msgstr "센스 추가"
 
-#: src/lib/entry-editor/NewEntryButton.svelte
-msgid "Add word"
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Add Word"
 msgstr ""
 
 #: src/project/browse/BrowseView.svelte
@@ -263,13 +267,13 @@ msgstr "클립보드에 복사"
 msgid "Copy version"
 msgstr "복사 버전"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Create {0}"
-msgstr "{0}만들기"
-
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
 msgstr "항목 만들기"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Create Entry"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
@@ -392,7 +396,6 @@ msgid "Ends with"
 msgstr "로 끝납니다."
 
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Entry"
@@ -731,19 +734,17 @@ msgstr "이동"
 msgid "Never"
 msgstr "절대로"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "신규"
 
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "New {0}"
-msgstr "신규 {0}"
-
-#: src/project/NewEntryButton.svelte
 msgid "New Entry"
 msgstr "새 항목"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "New Word"
 msgstr "새 단어"
 
@@ -1216,7 +1217,6 @@ msgstr "내 프로젝트는 어디에 있나요?"
 
 #: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte

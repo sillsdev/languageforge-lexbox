@@ -118,6 +118,10 @@ msgstr ""
 msgid "Add Meaning"
 msgstr ""
 
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Add new word"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr ""
@@ -127,8 +131,8 @@ msgstr ""
 msgid "Add Sense"
 msgstr ""
 
-#: src/lib/entry-editor/NewEntryButton.svelte
-msgid "Add word"
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Add Word"
 msgstr ""
 
 #: src/project/browse/BrowseView.svelte
@@ -263,12 +267,12 @@ msgstr ""
 msgid "Copy version"
 msgstr ""
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Create {0}"
-msgstr ""
-
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Create Entry"
 msgstr ""
 
 #: src/home/HomeView.svelte
@@ -392,7 +396,6 @@ msgid "Ends with"
 msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Entry"
@@ -731,19 +734,17 @@ msgstr "Sogeza"
 msgid "Never"
 msgstr "Kamwe"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Mpya"
 
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "New {0}"
-msgstr ""
-
-#: src/project/NewEntryButton.svelte
 msgid "New Entry"
 msgstr "Ingizo Mpya"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "New Word"
 msgstr ""
 
@@ -1216,7 +1217,6 @@ msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
