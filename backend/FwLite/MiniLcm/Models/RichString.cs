@@ -72,7 +72,10 @@ public class RichString(ICollection<RichSpan> spans) : IEquatable<RichString>
                 return new RichString(text);//ws is actually set when the string is assigned to a RichMultiString
             }
             var model = JsonSerializer.Deserialize<RichStringPrimitive>(ref reader, options);
-            return model?.Spans is null ? null : new RichString([..model.Spans]);
+
+            /// Same null mapping logic as <see cref="FwDataMiniLcmApi.ToRichString"/>
+            if (model?.Spans is null or { Count: 0 }) return null;
+            return new RichString([..model.Spans]);
         }
 
         public override void Write(Utf8JsonWriter writer, RichString value, JsonSerializerOptions options)

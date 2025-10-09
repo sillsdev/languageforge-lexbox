@@ -859,6 +859,7 @@ public class FwDataMiniLcmApi(
 
     internal RichString? ToRichString(ITsString? tsString)
     {
+        /// Same null mapping logic as <see cref="RichStringConverter"/>
         if (tsString is null or { Length: 0 }) return null;
         return RichTextMapping.FromTsString(tsString,
             h =>
