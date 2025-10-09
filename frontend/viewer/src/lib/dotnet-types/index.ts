@@ -33,3 +33,4 @@ export * from './generated-types/MiniLcm/ISortOptions';
 export * from './generated-types/MiniLcm/SortField';
 export * from './i-multi-string';
 export * from './generated-types/LcmCrdt';
+export * from './generated-types/SIL/Harmony';
