@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-10-04 15:47\n"
+"PO-Revision-Date: 2025-10-09 15:42\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -118,6 +118,10 @@ msgstr "Tambahkan Contoh"
 msgid "Add Meaning"
 msgstr "Tambahkan Makna"
 
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Add new word"
+msgstr "Tambahkan kata baru"
+
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Tambahkan bagian dari"
@@ -126,6 +130,10 @@ msgstr "Tambahkan bagian dari"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Sense"
 msgstr "Tambahkan Pengertian"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Add Word"
+msgstr "Tambahkan Kata"
 
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
@@ -185,6 +193,10 @@ msgstr "Jelajahi"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Cancel"
 msgstr "Batal"
+
+#: src/lib/ThemePicker.svelte
+msgid "Choose theme"
+msgstr "Pilih tema"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
@@ -255,21 +267,17 @@ msgstr "Disalin ke papan klip"
 msgid "Copy version"
 msgstr "Versi salin"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Create {0}"
-msgstr "Buat {0}"
-
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
 msgstr "Buat entri"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Create Entry"
+msgstr "Membuat Entri"
+
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Buat Proyek Contoh"
-
-#: src/lib/entry-editor/NewEntryButton.svelte
-msgid "Create word"
-msgstr "Buat kata"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -280,6 +288,10 @@ msgstr "Entri Saat Ini"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Word"
 msgstr "Kata saat ini"
+
+#: src/lib/ThemePicker.svelte
+msgid "Dark"
+msgstr "Gelap"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Dashboard"
@@ -384,7 +396,6 @@ msgid "Ends with"
 msgstr "Diakhiri dengan"
 
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Entry"
@@ -622,6 +633,10 @@ msgstr "Bentuk leksem"
 msgid "Lexeme Form"
 msgstr "Bentuk Leksem"
 
+#: src/lib/ThemePicker.svelte
+msgid "Light"
+msgstr "Cahaya"
+
 #: src/project/browse/BrowseView.svelte
 msgid "List mode"
 msgstr "Mode daftar"
@@ -719,19 +734,17 @@ msgstr "Pindah"
 msgid "Never"
 msgstr "Tidak pernah."
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Baru"
 
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "New {0}"
-msgstr "Baru {0}"
-
-#: src/project/NewEntryButton.svelte
 msgid "New Entry"
 msgstr "Entri Baru"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "New Word"
 msgstr "Kata Baru"
 
@@ -746,10 +759,6 @@ msgstr "Tidak ada aktivitas yang ditemukan"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "Tidak ada audio"
-
-#: src/lib/history/HistoryView.svelte
-msgid "No change name"
-msgstr "Tidak ada perubahan nama"
 
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
@@ -1072,6 +1081,10 @@ msgstr "Menyinkronkan FieldWorks Lite dengan FieldWorks..."
 msgid "Syncing..."
 msgstr "Menyinkronkan..."
 
+#: src/lib/ThemePicker.svelte
+msgid "System"
+msgstr "Sistem"
+
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
 msgstr "Tugas {0}"
@@ -1107,10 +1120,6 @@ msgstr "Beralih filter"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Beralih disematkan"
-
-#: src/lib/ThemePicker.svelte
-msgid "Toggle theme"
-msgstr "Beralih tema"
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"
@@ -1204,7 +1213,6 @@ msgstr "Di mana proyek saya?"
 
 #: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
