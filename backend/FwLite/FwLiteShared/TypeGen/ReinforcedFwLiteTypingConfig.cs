@@ -27,6 +27,7 @@ using FwLiteShared.Sync;
 using MiniLcm.Media;
 using MediaFile = MiniLcm.Media.MediaFile;
 using Microsoft.Extensions.Logging;
+using SIL.Harmony.Changes;
 
 namespace FwLiteShared.TypeGen;
 
@@ -168,6 +169,8 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
+            typeof(ChangeEntity<IChange>),
+            typeof(IChange),
             typeof(CommitMetadata),
             typeof(ObjectSnapshot),
             typeof(ProjectScope)

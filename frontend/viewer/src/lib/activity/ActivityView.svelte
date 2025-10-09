@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { ICommitMetadata } from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
   import { useHistoryService } from '$lib/services/history-service';
   import { t, T } from 'svelte-i18n-lingui';
   import { useProjectContext } from '$lib/project-context.svelte';
@@ -10,17 +9,13 @@
   import {FormatDuration, formatDuration} from '$lib/components/ui/format';
   import DevContent from '$lib/layout/DevContent.svelte';
   import {Button} from '$lib/components/ui/button';
+  import type {IProjectActivity} from '$lib/dotnet-types';
 
   const historyService = useHistoryService();
   const projectContext = useProjectContext();
 
-  type Activity = {
-    commitId: string;
-    changeName: string;
-    timestamp: string;
+  type Activity = IProjectActivity & {
     previousTimestamp?: string;
-    changes: object[];
-    metadata: ICommitMetadata;
   };
 
   const activity = resource(() => projectContext.projectCode, async (projectCode) => {
@@ -63,7 +58,7 @@
 
       <VList data={activity.current ?? []}
              class="h-full p-0.5 md:pr-3 after:h-12 after:block"
-             getKey={row => row.timestamp} overscan={10}>
+             getKey={row => row.commitId} overscan={10}>
         {#snippet children(row)}
           <ListItem
             onclick={() => selectedRow = row}
