@@ -25,6 +25,9 @@ tasks:
     deps: [ install ]
     cmd: pnpm run build --watch
 
+  i18n:
+    cmd: pnpm i18n:extract
+
   install:
     method: checksum
     sources:
