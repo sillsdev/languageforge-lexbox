@@ -1,8 +1,7 @@
-import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
+import type {IEntry, IExampleSentence, IHistoryLineItem, IProjectActivity, ISense} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
-import type {IProjectActivity} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectActivity';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
 import {isEntry, isExample, isSense} from '$lib/utils';
 
@@ -11,20 +10,14 @@ export function useHistoryService() {
   return new HistoryService(projectContext);
 }
 
-type EntityType = { entity: IEntry, entityName: 'Entry' } | { entity: ISense, entityName: 'Sense' } | {
-  entity: IExampleSentence,
-  entityName: 'ExampleSentence'
-} | { entity: undefined, entityName: undefined };
+type EntityType = {entity: IEntry, entityName: 'Entry'}
+  | {entity: ISense, entityName: 'Sense'}
+  | {entity: IExampleSentence, entityName: 'ExampleSentence'}
+  | {entity: undefined, entityName: undefined};
 
-export type HistoryItem = {
-  commitId: string,
-  timestamp: string,
+export type HistoryItem = IHistoryLineItem & EntityType & {
   previousTimestamp?: string,
-  snapshotId: string,
-  changeIndex: number,
-  changeName: string | undefined,
-  authorName: string | undefined,
-} & EntityType;
+};
 
 export class HistoryService {
   get historyApi(): IHistoryServiceJsInvokable | undefined {

@@ -760,10 +760,6 @@ msgstr "Tidak ada aktivitas yang ditemukan"
 msgid "No audio"
 msgstr "Tidak ada audio"
 
-#: src/lib/history/HistoryView.svelte
-msgid "No change name"
-msgstr "Tidak ada perubahan nama"
-
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr "Tidak ditemukan Kamus"

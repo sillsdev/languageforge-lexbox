@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Humanizer;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
@@ -6,7 +5,6 @@ using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
-using SIL.Harmony.Entities;
 using System.Text.RegularExpressions;
 
 namespace LcmCrdt;
@@ -25,7 +23,7 @@ public record HistoryLineItem(
     DateTimeOffset Timestamp,
     Guid? SnapshotId,
     int changeIndex,
-    string? ChangeName,
+    string ChangeName,
     IObjectWithId? Entity,
     string? EntityName,
     string? AuthorName)
@@ -36,7 +34,7 @@ public record HistoryLineItem(
         DateTimeOffset timestamp,
         Guid? snapshotId,
         int changeIndex,
-        IChange? change,
+        IChange change,
         IObjectBase? entity,
         string typeName,
         string? authorName) : this(commitId,
@@ -125,10 +123,8 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         };
     }
 
-    [return: NotNullIfNotNull("change")]
-    public static string? ChangeNameHelper(IChange? change)
+    public static string ChangeNameHelper(IChange change)
     {
-        if (change is null) return null;
         var type = change.GetType();
         //todo call JsonPatchChange.Summarize() instead of this
         if (type.Name.StartsWith("JsonPatchChange")) return $"Change{change.EntityType.Name}".Humanize();

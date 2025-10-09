@@ -755,10 +755,6 @@ msgstr "No activity found"
 msgid "No audio"
 msgstr "No audio"
 
-#: src/lib/history/HistoryView.svelte
-msgid "No change name"
-msgstr "No change name"
-
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr "No Dictionaries found"

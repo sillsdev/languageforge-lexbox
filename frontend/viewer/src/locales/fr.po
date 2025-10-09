@@ -760,10 +760,6 @@ msgstr "Aucune activité trouvée"
 msgid "No audio"
 msgstr "Pas de son"
 
-#: src/lib/history/HistoryView.svelte
-msgid "No change name"
-msgstr "Pas de changement de nom"
-
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr "Aucun dictionnaire trouvé"
