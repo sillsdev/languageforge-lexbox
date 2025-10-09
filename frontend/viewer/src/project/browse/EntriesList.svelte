@@ -8,7 +8,7 @@
   import {cn} from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import DevContent from '$lib/layout/DevContent.svelte';
-  import NewEntryButton from '../NewEntryButton.svelte';
+  import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import EntryMenu from './EntryMenu.svelte';
@@ -153,7 +153,7 @@
     />
   </DevContent>
   {#if !disableNewEntry}
-    <NewEntryButton onclick={handleNewEntry} shortForm />
+    <PrimaryNewEntryButton onclick={handleNewEntry} shortForm />
   {/if}
 </FabContainer>
 
