@@ -8,7 +8,7 @@
   import { t } from 'svelte-i18n-lingui';
   import SidebarPrimaryAction from '../SidebarPrimaryAction.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import NewEntryButton from '../NewEntryButton.svelte';
+  import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {Button} from '$lib/components/ui/button';
@@ -42,7 +42,7 @@
 </script>
 <SidebarPrimaryAction>
   {#snippet children(isOpen: boolean)}
-    <NewEntryButton active={!IsMobile.value && isOpen} onclick={newEntry}/>
+    <PrimaryNewEntryButton active={!IsMobile.value && isOpen} onclick={newEntry}/>
   {/snippet}
 </SidebarPrimaryAction>
 <div class="flex flex-col h-full">

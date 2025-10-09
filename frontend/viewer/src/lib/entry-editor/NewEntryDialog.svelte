@@ -84,8 +84,6 @@
     entry = defaultEntry();
   }
 
-  let entryLabel = $derived(pt($t`Entry`, $t`Word`, $currentView));
-
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter' && !IsMobile.value) {
       void createEntry(event);
@@ -97,7 +95,7 @@
 <Dialog.Root bind:open={open}>
   <Dialog.DialogContent onkeydown={handleKeydown} class="sm:min-h-[min(calc(100%-16px),30rem)]">
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>{$t`New ${entryLabel}`}</Dialog.DialogTitle>
+      <Dialog.DialogTitle>{pt($t`New Entry`, $t`New Word`, $currentView)}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
       <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
@@ -112,7 +110,7 @@
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
       <Button onclick={e => createEntry(e)} disabled={loading} {loading}>
-        {$t`Create ${entryLabel}`}
+        {pt($t`Create Entry`, $t`Add Word`, $currentView)}
       </Button>
     </Dialog.DialogFooter>
   </Dialog.DialogContent>

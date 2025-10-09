@@ -118,6 +118,10 @@ msgstr "Añadir ejemplo"
 msgid "Add Meaning"
 msgstr "Añadir significado"
 
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Add new word"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Añadir parte de"
@@ -126,6 +130,10 @@ msgstr "Añadir parte de"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Sense"
 msgstr "Añadir acepción"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Add Word"
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
@@ -259,21 +267,17 @@ msgstr "Copiado al portapapeles"
 msgid "Copy version"
 msgstr "Copiar versión"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Create {0}"
-msgstr "Crear {0}"
-
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
 msgstr "Crear entrada"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Create Entry"
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Crear un proyecto de ejemplo"
-
-#: src/lib/entry-editor/NewEntryButton.svelte
-msgid "Create word"
-msgstr "Crear palabra"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -392,7 +396,6 @@ msgid "Ends with"
 msgstr "Termina con"
 
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Entry"
@@ -731,19 +734,17 @@ msgstr "Mover"
 msgid "Never"
 msgstr "Nunca"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Nuevo"
 
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "New {0}"
-msgstr "Nuevo {0}"
-
-#: src/project/NewEntryButton.svelte
 msgid "New Entry"
 msgstr "Nueva entrada"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "New Word"
 msgstr "Nueva palabra"
 
@@ -1216,7 +1217,6 @@ msgstr "¿Dónde están mis proyectos?"
 
 #: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
