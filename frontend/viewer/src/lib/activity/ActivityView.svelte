@@ -63,7 +63,7 @@
 
       <VList data={activity.current ?? []}
              class="h-full p-0.5 md:pr-3 after:h-12 after:block"
-             getKey={row => row.timestamp} overscan={10}>
+             getKey={row => row.commitId} overscan={10}>
         {#snippet children(row)}
           <ListItem
             onclick={() => selectedRow = row}
