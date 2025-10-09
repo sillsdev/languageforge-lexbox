@@ -193,7 +193,7 @@
         </Button>
       {/if}
       {#if displayedEntries.length}
-        <NewEntryButton onclick={onClickCreateNewEntry} class="w-full h-14" variant="default"/>
+        <NewEntryButton onclick={onClickCreateNewEntry} class="w-full h-14 bg-primary/95" variant="default"/>
       {/if}
     </div>
 
