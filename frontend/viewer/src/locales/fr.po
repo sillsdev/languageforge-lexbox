@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-10-08 15:38\n"
+"PO-Revision-Date: 2025-10-09 15:42\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -118,6 +118,10 @@ msgstr "Ajouter un exemple"
 msgid "Add Meaning"
 msgstr "Ajouter une signification"
 
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Add new word"
+msgstr "Ajouter un nouveau mot"
+
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Ajouter une partie de"
@@ -126,6 +130,10 @@ msgstr "Ajouter une partie de"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Sense"
 msgstr "Ajouter du sens"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Add Word"
+msgstr "Ajouter un mot"
 
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
@@ -185,6 +193,10 @@ msgstr "Parcourir"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Cancel"
 msgstr "Annuler"
+
+#: src/lib/ThemePicker.svelte
+msgid "Choose theme"
+msgstr "Choisir un thème"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
@@ -255,21 +267,17 @@ msgstr "Copié dans le presse-papiers"
 msgid "Copy version"
 msgstr "Copier la version dans le presse-papiers"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Create {0}"
-msgstr "Créer {0}"
-
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
+msgstr "Créer une entrée"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Create Entry"
 msgstr "Créer une entrée"
 
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Créer un projet exemplaire"
-
-#: src/lib/entry-editor/NewEntryButton.svelte
-msgid "Create word"
-msgstr "Ajouter le mot"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -280,6 +288,10 @@ msgstr "Entrée actuelle"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Word"
 msgstr "Mot actuel"
+
+#: src/lib/ThemePicker.svelte
+msgid "Dark"
+msgstr "Sombre"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Dashboard"
@@ -384,7 +396,6 @@ msgid "Ends with"
 msgstr "Se termine par"
 
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Entry"
@@ -622,6 +633,10 @@ msgstr "Forme de lexème"
 msgid "Lexeme Form"
 msgstr "Forme de lexème"
 
+#: src/lib/ThemePicker.svelte
+msgid "Light"
+msgstr "Lumière"
+
 #: src/project/browse/BrowseView.svelte
 msgid "List mode"
 msgstr "Mode liste"
@@ -719,19 +734,17 @@ msgstr "Déplacer"
 msgid "Never"
 msgstr "Jamais"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Nouveau"
 
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "New {0}"
-msgstr "Nouveau {0}"
-
-#: src/project/NewEntryButton.svelte
 msgid "New Entry"
 msgstr "Nouvelle entrée"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "New Word"
 msgstr "Nouveau mot"
 
@@ -746,10 +759,6 @@ msgstr "Aucune activité trouvée"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "Aucun contenu audio"
-
-#: src/lib/history/HistoryView.svelte
-msgid "No change name"
-msgstr "Pas de changement de nom"
 
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
@@ -908,7 +917,7 @@ msgstr "Actualiser la liste de projets"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
-msgstr "Retirer"
+msgstr "Supprimer"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Remove audio"
@@ -1072,6 +1081,10 @@ msgstr "Synchronisation de FieldWorks Lite avec FieldWorks..."
 msgid "Syncing..."
 msgstr "Synchronisation en cours..."
 
+#: src/lib/ThemePicker.svelte
+msgid "System"
+msgstr "Système"
+
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
 msgstr "Tâche {0}"
@@ -1107,10 +1120,6 @@ msgstr "Basculer les filtres"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Activer/désactiver épinglé"
-
-#: src/lib/ThemePicker.svelte
-msgid "Toggle theme"
-msgstr "Toggle theme"
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"
@@ -1188,7 +1197,7 @@ msgstr "Mettre à jour {0}"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
-msgstr "Utilise des composants tels que"
+msgstr "Utilise des composants comme"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Version {0}"
@@ -1204,7 +1213,6 @@ msgstr "Où sont mes projets ?"
 
 #: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
