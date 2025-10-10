@@ -13,12 +13,11 @@
   import {useCurrentView} from '$lib/views/view-service';
   import {formatNumber} from '$lib/components/ui/format';
   import ViewT from '$lib/views/ViewT.svelte';
-  import Select from '$lib/components/field-editors/select.svelte';
   import { Input } from '$lib/components/ui/input';
-  import {watch} from 'runed';
   import OpFilter, {type Op} from './filter/OpFilter.svelte';
   import WsSelect from './filter/WsSelect.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import FieldSelect, {type SelectedField} from './filter/FieldSelect.svelte';
 
   const stats = useProjectStats();
   const currentView = useCurrentView();
@@ -36,19 +35,8 @@
   let missingPartOfSpeech = $state(false);
   let missingSemanticDomains = $state(false);
 
-  let fields: Array<{id: string, label: string, ws: 'vernacular-no-audio' | 'analysis-no-audio'}> = $derived([
-    { id: 'lexemeForm', label: pt($t`Lexeme Form`, $t`Word`, $currentView), ws: 'vernacular-no-audio' },
-    { id: 'citationForm', label: pt($t`Citation Form`, $t`Display as`, $currentView), ws: 'vernacular-no-audio' },
-    { id: 'senses.gloss', label: $t`Gloss`, ws: 'analysis-no-audio' },
-  ]);
-
-  // svelte-ignore state_referenced_locally
-  let selectedField = $state(fields[0]);
+  let selectedField = $state<SelectedField | null>(null);
   let selectedWs = $state<string[]>(wsService.vernacularNoAudio.map(ws => ws.wsId));
-  watch(() => fields, fields => {
-    //updates selected field when selected view changes
-    selectedField = fields.find(f => f.id === selectedField.id) ?? fields[0];
-  });
   let fieldFilterValue = $state('');
   let filterOp = $state<Op>('contains')
 
@@ -128,16 +116,9 @@
     <div class="flex flex-col @md/list:flex-row gap-2 items-stretch">
       <div class="flex flex-row gap-2 flex-1">
         <!-- Field Picker -->
-        <Select
-          bind:value={selectedField}
-          options={fields}
-          idSelector="id"
-          labelSelector="label"
-          placeholder={$t`Field`}
-          class="flex-1"
-        />
+        <FieldSelect bind:value={selectedField} />
         <!-- Writing System Picker -->
-        <WsSelect bind:value={selectedWs} wsType={selectedField.ws} />
+        <WsSelect bind:value={selectedWs} wsType={selectedField?.ws ?? 'analysis-vernacular'} />
       </div>
       <!-- Text Box: on mobile, wraps to new line -->
       <div class="flex flex-row gap-2 flex-1">
