@@ -36,11 +36,6 @@ msgstr "{0} (FieldWorks)"
 msgid "{0} ago"
 msgstr "{0} ago"
 
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-msgid "{0} Commits"
-msgstr "{0} Commits"
-
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
@@ -53,6 +48,14 @@ msgstr "{0} Server"
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {# change} other {# changes}}"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
+msgstr "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
+msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
@@ -185,6 +188,14 @@ msgstr "Browse"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Cancel"
 msgstr "Cancel"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Changes can also be the result of additional fields being added to new versions of FieldWorks Lite."
+msgstr "Changes can also be the result of additional fields being added to new versions of FieldWorks Lite."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Changing the same field twice (e.g.) can result in two commits, but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
+msgstr "Changing the same field twice (e.g.) can result in two commits, but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 
 #: src/lib/ThemePicker.svelte
 msgid "Choose theme"
@@ -734,6 +745,10 @@ msgstr "Never"
 msgid "New"
 msgstr "New"
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "New data"
+msgstr "New data"
+
 #: src/project/PrimaryNewEntryButton.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "New Entry"
@@ -777,6 +792,10 @@ msgstr "No history found"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "No items found"
 msgstr "No items found"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "No new data"
+msgstr "No new data"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "No server"
@@ -827,6 +846,10 @@ msgstr "Offline"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Offline, unable to download"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
+msgstr "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 
 #: src/home/Server.svelte
 msgid "Open"
@@ -1050,8 +1073,8 @@ msgid "Sync Changes"
 msgstr "Sync Changes"
 
 #: src/project/SyncDialog.svelte
-msgid "Sync complete. {0} were applied to FieldWorks. {1} were applied to FieldWorks Lite."
-msgstr "Sync complete. {0} were applied to FieldWorks. {1} were applied to FieldWorks Lite."
+msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
+msgstr "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
@@ -1096,6 +1119,14 @@ msgstr "Tasks"
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Tell us about a bug or issue you’ve encountered."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
+msgstr "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
+msgstr "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
@@ -1210,6 +1241,11 @@ msgstr "View Configuration"
 #: src/home/Server.svelte
 msgid "Where are my projects?"
 msgstr "Where are my projects?"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Why is that?"
+msgstr "Why is that?"
 
 #: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
