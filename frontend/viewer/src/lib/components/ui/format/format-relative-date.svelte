@@ -5,6 +5,7 @@
   import {SvelteDate} from 'svelte/reactivity';
   import Icon from '../icon/icon.svelte';
   import * as Popover from '../popover';
+  import type {SmallestUnit} from './format-duration';
 
   type Props = HTMLAttributes<HTMLTimeElement> & {
     date: Date | string | undefined | null;
@@ -14,6 +15,7 @@
     showActualDate?: boolean;
     actualDateOptions?: Intl.DateTimeFormatOptions;
     maxUnits?: number;
+    smallestUnit?: SmallestUnit,
     loading?: boolean;
   };
 
@@ -25,6 +27,7 @@
     showActualDate = false,
     actualDateOptions,
     maxUnits = 2,
+    smallestUnit = 'seconds',
     loading,
     ...restProps
   }: Props = $props();
@@ -52,7 +55,7 @@
   });
 
   const formattedRelativeDate = $derived.by(() => {
-    return formatRelativeDate(date, options, {defaultValue: defaultValue || '', now, maxUnits});
+    return formatRelativeDate(date, options, {defaultValue: defaultValue || '', now, maxUnits, smallestUnit});
   });
 
   const actualFormattedDate = $derived.by(() => {

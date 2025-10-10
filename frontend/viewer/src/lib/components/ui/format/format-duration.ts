@@ -5,6 +5,7 @@ import {locale} from 'svelte-i18n-lingui';
 
 const currentLocale = fromStore(locale);
 type Duration = Pick<Intl.DurationLike, 'days' | 'hours' | 'minutes' | 'seconds' | 'milliseconds'>;
+export type SmallestUnit = 'hours' | 'minutes' | 'seconds' | 'milliseconds';
 
 function limitDurationUnits(duration: Duration, maxUnits: number): Duration {
   const units: (keyof Duration)[] = ['days', 'hours', 'minutes', 'seconds', 'milliseconds'];
@@ -52,17 +53,17 @@ export function formatDigitalDuration(value: Duration) {
   });
 }
 
-export function formatDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds', options?: Intl.DurationFormatOptions, maxUnits?: number) {
+export function formatDuration(value: Duration, smallestUnit?: SmallestUnit, options?: Intl.DurationFormatOptions, maxUnits?: number) {
   const formatter = new Intl.DurationFormat(currentLocale.current, options);//has been polyfilled in main.ts
   const normalized = normalizeDuration(value, smallestUnit);
   const limitedDuration = maxUnits ? limitDurationUnits(normalized, maxUnits) : normalized;
   return formatter.format(limitedDuration);
 }
 
-export function normalizeDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds'): Duration
+export function normalizeDuration(value: Duration, smallestUnit?: SmallestUnit): Duration
 export function normalizeDuration(value: Duration, smallestUnit: 'seconds'): Omit<Duration, 'milliseconds'>
 export function normalizeDuration(value: Duration): Duration
-export function normalizeDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds'): Duration {
+export function normalizeDuration(value: Duration, smallestUnit?: SmallestUnit): Duration {
   const msPerHour = 3_600_000;
   const msPerMinute = 60_000;
   const msPerSecond = 1_000;
