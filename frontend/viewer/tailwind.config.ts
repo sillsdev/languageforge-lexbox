@@ -48,6 +48,7 @@ export default {
     extend: {
       screens: {
         'md': `${MOBILE_BREAKPOINT}px`,
+        'max-xs': {'max': '400px'},
         'max-sm': {'max': '639px'},
         'max-md': {'max': '767px'},
 

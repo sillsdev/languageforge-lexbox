@@ -4,7 +4,7 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {SvelteDate} from 'svelte/reactivity';
   import Icon from '../icon/icon.svelte';
-  import * as Popover from '../popover/index.js';
+  import * as Popover from '../popover';
 
   type Props = HTMLAttributes<HTMLTimeElement> & {
     date: Date | string | undefined | null;

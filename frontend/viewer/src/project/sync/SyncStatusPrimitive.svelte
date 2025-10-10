@@ -12,6 +12,7 @@
   import {t, T} from 'svelte-i18n-lingui';
   import SyncArrow from './SyncArrow.svelte';
   import FwLiteToFwMergeDetails from './FwLiteToFwMergeDetails.svelte';
+  import {cn} from '$lib/utils';
 
   interface Props {
     syncStatus: SyncStatus;
@@ -36,12 +37,9 @@
     projectCode,
     latestSyncedCommitDate,
     canSyncLexboxToFlex,
-    syncLexboxToFlex = async () => {
-    },
-    syncLexboxToLocal = async () => {
-    },
-    onLoginStatusChange = () => {
-    },
+    syncLexboxToFlex = async () => {},
+    syncLexboxToLocal = async () => {},
+    onLoginStatusChange = () => {},
   }: Props = $props();
 
 
@@ -98,8 +96,8 @@
           <!-- blank spacer-->
         </div>
         <div class="grid justify-center items-center min-h-12 gap-2" style="grid-template-columns: 1fr auto auto auto 1fr">
-          <span class="text-end">{remoteToLocalCount ?? '?'}</span>
-          <SyncArrow dir="down" tailLength={40} size={1.5} class="translate-y-[1px]"/>
+          <span class="text-end" class:font-bold={Number(remoteToLocalCount)} class:text-primary={Number(remoteToLocalCount)}>{remoteToLocalCount ?? '?'}</span>
+          <SyncArrow dir="down" tailLength={40}  size={1.5} class={cn('translate-y-[1px]', Number(remoteToLocalCount) && 'text-primary')} />
           <div class="flex flex-col gap-2 mx-2">
             {#if syncStatus === SyncStatus.Success}
               {#if remoteToLocalCount === 0 && localToRemoteCount === 0}
@@ -138,8 +136,8 @@
               <div class="text-destructive">{$t`Error getting sync status.`}</div>
             {/if}
             </div>
-            <SyncArrow dir="up" tailLength={40} size={1.5} class="translate-y-[-1px]"/>
-            <span class="text-start">{localToRemoteCount ?? '?'}</span>
+            <SyncArrow dir="up" tailLength={40} size={1.5} class={cn('translate-y-[-1px]', Number(localToRemoteCount) && 'text-primary')}/>
+            <span class="text-start" class:font-bold={Number(localToRemoteCount)} class:text-primary={Number(localToRemoteCount)}>{localToRemoteCount ?? '?'}</span>
           </div>
           <div>
             <!-- blank spacer-->
