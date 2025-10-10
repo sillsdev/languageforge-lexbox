@@ -26,8 +26,9 @@
     filterPlaceholder?: string;
     emptyResultsPlaceholder?: string;
     drawerTitle?: string;
-    onchange?: (value: Value) => void;
+    onchange?: (value: Value | undefined) => void;
     class?: string;
+    nullOption?: string;
   } = $props();
 
   const {
@@ -40,7 +41,8 @@
     emptyResultsPlaceholder,
     drawerTitle,
     onchange,
-    class: className
+    class: className,
+    nullOption,
   } = $derived(constProps);
 
   function getId(value: Value): Primitive {
@@ -66,7 +68,7 @@
     open = false;
   }
 
-  function selectValue(newValue: Value) {
+  function selectValue(newValue: Value | undefined) {
     value = newValue;
     onchange?.(newValue);
     open = false;
@@ -96,7 +98,7 @@
       </span>
     {:else}
       <span class="text-muted-foreground">
-        {placeholder ?? $t`None`}
+        {placeholder ?? nullOption ?? $t`None`}
         <!-- ensures that baseline alignment works for consumers of this component -->
         &nbsp;
       </span>
@@ -123,6 +125,18 @@
     <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
+        {#if nullOption}
+          <CommandItem
+            keywords={[nullOption]}
+            onSelect={() => selectValue(undefined)}
+            class="group max-md:h-12 text-muted-foreground"
+            data-value-index={-1}
+            aria-label={nullOption}
+          >
+            <Icon icon="i-mdi-check" class={cn('md:hidden', value === null || 'invisible')} />
+            {nullOption}
+          </CommandItem>
+        {/if}
         {#each renderedOptions as option, i (getId(option))}
           {@const label = getLabel(option)}
           {@const id = getId(option)}
