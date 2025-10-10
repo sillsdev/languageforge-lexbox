@@ -151,6 +151,10 @@ msgstr "Versi aplikasi"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Apakah Anda yakin ingin menghapus {0}?"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Ask questions and get help on our community forum."
+msgstr ""
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr "File audio tidak disertakan dalam Kirim & Terima"
@@ -461,8 +465,8 @@ msgstr "Gagal melakukan sinkronisasi."
 #: src/project/ProjectSidebar.svelte
 #: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
-msgid "Feedback"
-msgstr "Umpan balik"
+msgid "Feedback & Support"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Field"
@@ -554,6 +558,10 @@ msgstr "Selesai"
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Untuk pertanyaan lainnya, silakan kirimkan email kepada kami."
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Get support"
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
@@ -617,10 +625,6 @@ msgstr ""
 msgid "Length:"
 msgstr "Panjang:"
 
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Let us know about any bugs or technical issues you encounter."
-msgstr "Beri tahu kami jika ada bug atau masalah teknis yang Anda temui."
-
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
 msgstr "Logo Lexbox"
@@ -679,6 +683,10 @@ msgstr "Keluar"
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Dibuat dengan ❤️ dari 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Make a suggestion"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
@@ -999,6 +1007,10 @@ msgstr "Pengaturan"
 msgid "Shadcn Sandbox # #"
 msgstr "Kotak Pasir Shadcn # #"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share ideas and vote on new features or improvements."
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share Log file"
 msgstr "Bagikan file Log"
@@ -1006,10 +1018,6 @@ msgstr "Bagikan file Log"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "Berbagi file data proyek"
-
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Share your suggestions for new features or improvements."
-msgstr "Bagikan saran Anda untuk fitur baru atau peningkatan."
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
@@ -1044,10 +1052,6 @@ msgstr "Subjek tidak memiliki jenis objek yang sesuai: {0}"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Kirim"
-
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Suggest your ideas"
-msgstr "Sarankan ide Anda"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync"
@@ -1096,6 +1100,10 @@ msgstr "Tugas tidak ditemukan: {0}"
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
 msgstr "Tugas"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Tell us about a bug or issue you’ve encountered."
+msgstr ""
 
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."

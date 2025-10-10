@@ -184,15 +184,15 @@
     <Sidebar.Group>
       <Sidebar.Menu>
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
-            <Icon icon="i-mdi-help-circle" />
-            <span>{$t`Troubleshoot`}</span>
+          <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
+            <Icon icon="i-mdi-message" />
+            <span>{$t`Feedback & Support`}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
-            <Icon icon="i-mdi-message" />
-            <span>{$t`Feedback`}</span>
+          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
+            <Icon icon="i-mdi-help-circle" />
+            <span>{$t`Troubleshoot`}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
         <Sidebar.MenuItem>

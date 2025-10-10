@@ -151,6 +151,10 @@ msgstr "Versi Aplikasi"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Adakah anda pasti mahu memadam {0}?"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Ask questions and get help on our community forum."
+msgstr ""
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr "Fail audio tidak termasuk dalam Hantar & Terima"
@@ -461,8 +465,8 @@ msgstr "Gagal menyegerak."
 #: src/project/ProjectSidebar.svelte
 #: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
-msgid "Feedback"
-msgstr "Maklum balas"
+msgid "Feedback & Support"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Field"
@@ -554,6 +558,10 @@ msgstr ""
 msgid "For any other inquiries, feel free to send us an email."
 msgstr ""
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Get support"
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
@@ -617,10 +625,6 @@ msgstr ""
 msgid "Length:"
 msgstr "Panjang:"
 
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Let us know about any bugs or technical issues you encounter."
-msgstr ""
-
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
 msgstr "Logo Lexbox"
@@ -679,6 +683,10 @@ msgstr "Log keluar"
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Dibuat dengan ❤️ dari 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Make a suggestion"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
@@ -999,6 +1007,10 @@ msgstr "Tetapan"
 msgid "Shadcn Sandbox # #"
 msgstr "Kotak Pasir Shadcn # #"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share ideas and vote on new features or improvements."
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share Log file"
 msgstr "Kongsi fail Log"
@@ -1006,10 +1018,6 @@ msgstr "Kongsi fail Log"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "Kongsi fail data projek"
-
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Share your suggestions for new features or improvements."
-msgstr ""
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
@@ -1044,10 +1052,6 @@ msgstr ""
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Hantar"
-
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Suggest your ideas"
-msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync"
@@ -1096,6 +1100,10 @@ msgstr ""
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
 msgstr "Tugasan"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Tell us about a bug or issue you’ve encountered."
+msgstr ""
 
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."

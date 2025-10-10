@@ -151,6 +151,10 @@ msgstr "Versión de la aplicación"
 msgid "Are you sure you want to delete {0}?"
 msgstr "¿Estás seguro de que quieres borrar {0}?"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Ask questions and get help on our community forum."
+msgstr ""
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr "Archivo de audio no incluido en Enviar y Recibir"
@@ -461,8 +465,8 @@ msgstr "Error de sincronización."
 #: src/project/ProjectSidebar.svelte
 #: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
-msgid "Feedback"
-msgstr "Comentarios"
+msgid "Feedback & Support"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Field"
@@ -554,6 +558,10 @@ msgstr "Finalizar"
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Para cualquier otra consulta, no dude en enviarnos un correo electrónico."
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Get support"
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
@@ -617,10 +625,6 @@ msgstr ""
 msgid "Length:"
 msgstr "Longitud:"
 
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Let us know about any bugs or technical issues you encounter."
-msgstr "Háganos saber sobre cualquier error o problema técnico que encuentre."
-
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
 msgstr "Logotipo de Lexbox"
@@ -679,6 +683,10 @@ msgstr "Cierre de sesión"
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Hecho con ❤️ de 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Make a suggestion"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
@@ -999,6 +1007,10 @@ msgstr "Ajustes"
 msgid "Shadcn Sandbox # #"
 msgstr "Shadcn Sandbox # #"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share ideas and vote on new features or improvements."
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share Log file"
 msgstr "Compartir archivo de registro"
@@ -1006,10 +1018,6 @@ msgstr "Compartir archivo de registro"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "Compartir archivo de datos del proyecto"
-
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Share your suggestions for new features or improvements."
-msgstr "Comparta sus sugerencias para nuevas características o mejoras."
 
 #: src/project/browse/ViewPicker.svelte
 msgid "Show"
@@ -1044,10 +1052,6 @@ msgstr "El asunto no tiene un objeto de tipo adecuado: {0}"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Enviar"
-
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Suggest your ideas"
-msgstr "Sugerir tus ideas"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync"
@@ -1096,6 +1100,10 @@ msgstr "Tarea no encontrada: {0}"
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
 msgstr "Tareas"
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Tell us about a bug or issue you’ve encountered."
+msgstr ""
 
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
