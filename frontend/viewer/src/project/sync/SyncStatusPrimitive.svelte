@@ -64,9 +64,9 @@
     });
   }
 </script>
-<Tabs.Root value="lite">
+<Tabs.Root value="lite" class="flex md:flex-col flex-col-reverse">
   {#if showRemote}
-    <Tabs.List class="w-full mb-2">
+    <Tabs.List class="w-full md:mb-2 max-md:mt-4 max-md:sticky bottom-0 z-[1]">
       <Tabs.Trigger class="flex-1" value="lite">{$t`FieldWorks Lite`}</Tabs.Trigger>
       <Tabs.Trigger class="flex-1" value="classic">{$t`FieldWorks Classic`}</Tabs.Trigger>
     </Tabs.List>

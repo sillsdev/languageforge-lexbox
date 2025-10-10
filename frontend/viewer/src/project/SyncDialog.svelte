@@ -4,7 +4,6 @@
 
 <script lang="ts">
   import type {IProjectSyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
-  import {Dialog, DialogContent, DialogHeader, DialogTitle} from '$lib/components/ui/dialog';
   import {plural, t} from 'svelte-i18n-lingui';
   import {AppNotification} from '$lib/notifications/notifications';
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
@@ -16,6 +15,7 @@
   import type {IPendingCommits} from '$lib/dotnet-types/generated-types/FwLiteShared/Sync/IPendingCommits';
   import {useProjectContext} from '$lib/project-context.svelte';
   import SyncStatusPrimitive from './sync/SyncStatusPrimitive.svelte';
+  import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
 
   const {
     syncStatus = SyncStatus.Success
@@ -66,7 +66,7 @@
       success: (result) => {
         const fwdataChangesText = $plural(result.syncResult?.fwdataChanges ?? 0, {one: '# change', other: '# changes'});
         const crdtChangesText = $plural(result.syncResult?.crdtChanges ?? 0, {one: '# change', other: '# changes'});
-        return $t`Sync complete. ${fwdataChangesText} were applied to FieldWorks. ${crdtChangesText} were applied to FieldWorks Lite.`;
+        return $t`Sync complete. ${fwdataChangesText} were applied to FieldWorks Classic. ${crdtChangesText} were applied to FieldWorks Lite.`;
       },
       error: (error) => $t`Failed to synchronize.` + '\n' + (error as Error).message,
       // TODO: Custom component that can expand or collapse the stacktrace
@@ -115,23 +115,19 @@
   }
 </script>
 
-<Dialog bind:open={openQueryParam.current}>
-  <DialogContent class="sm:min-w-[35rem] grid-rows-[auto_1fr] items-center">
-    <DialogHeader>
-      <DialogTitle>{$t`Sync Changes`}</DialogTitle>
-    </DialogHeader>
-    <SyncStatusPrimitive
-      {syncStatus}
-      {remoteStatus}
-      {localStatus}
-      {server}
-      projectCode={projectContext.projectData?.code}
-      serverId={projectContext.projectData?.serverId}
-      latestSyncedCommitDate={latestSyncedCommitDate}
-      canSyncLexboxToFlex={features?.write}
-      {syncLexboxToFlex}
-      {syncLexboxToLocal}
-      {onLoginStatusChange}
-    />
-  </DialogContent>
-</Dialog>
+<ResponsiveDialog bind:open={openQueryParam.current} disableBackHandler title={$t`Sync Changes`}
+  contentProps={{ class: 'sm:min-w-[35rem] grid-rows-[auto_1fr] items-center' }}>
+  <SyncStatusPrimitive
+    {syncStatus}
+    {remoteStatus}
+    {localStatus}
+    {server}
+    projectCode={projectContext.projectData?.code}
+    serverId={projectContext.projectData?.serverId}
+    latestSyncedCommitDate={latestSyncedCommitDate}
+    canSyncLexboxToFlex={features?.write}
+    {syncLexboxToFlex}
+    {syncLexboxToLocal}
+    {onLoginStatusChange}
+  />
+</ResponsiveDialog>
