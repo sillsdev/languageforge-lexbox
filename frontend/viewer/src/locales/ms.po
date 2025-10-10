@@ -210,10 +210,10 @@ msgstr "Bentuk Petikan"
 msgid "Classic FieldWorks Projects"
 msgstr "Projek FieldWorks Klasik"
 
-#: src/lib/components/field-editors/select.svelte
-#: src/lib/components/field-editors/multi-select.svelte
+#. Button to clear/empty a text field e.g. when filtering for semantic domains
+#: src/lib/i18n/strings.svelte.ts
 msgid "clear"
-msgstr "padam"
+msgstr ""
 
 #: src/project/tasks/SubjectPopup.svelte
 #: src/lib/components/ui/button/x-button.svelte
