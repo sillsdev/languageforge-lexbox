@@ -39,7 +39,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Launch FieldWorks Lite and manage the api */
 
-  const { baseUrl, fwLiteProcess } = launchFwLiteFwLiteWeb(context);
+  const { baseUrl, fwLiteProcess } = launchFwLiteWeb(context);
   const fwLiteApi = new FwLiteApi(baseUrl);
 
   /* Set network services */
@@ -239,7 +239,7 @@ export async function deactivate(): Promise<boolean> {
   return true;
 }
 
-function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
+function launchFwLiteWeb(context: ExecutionActivationContext) {
   const binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
     throw new Error('FieldWorks Lite requires createProcess elevated privileges');
