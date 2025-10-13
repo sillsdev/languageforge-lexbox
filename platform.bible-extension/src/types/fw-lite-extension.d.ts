@@ -17,7 +17,7 @@ declare module 'fw-lite-extension' {
   export type ProjectSettingKey = import('./enums.ts').ProjectSettingKey;
   export type WebViewType = import('./enums.ts').WebViewType;
 
-  type PartialEntry = Omit<Partial<IEntry>, 'senses'> & {
+  export type PartialEntry = Omit<Partial<IEntry>, 'senses'> & {
     senses?: Partial<ISense>[];
   };
 
