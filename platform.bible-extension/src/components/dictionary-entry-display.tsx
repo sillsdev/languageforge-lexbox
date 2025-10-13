@@ -84,38 +84,35 @@ export default function DictionaryEntryDisplay({
         </h3>
 
         <div className="tw-flex tw-flex-col tw-gap-3">
-          {Object.values(dictionaryEntry.senses)
-            .flat()
-            .filter((sense) => sense !== undefined)
-            .map((sense, senseIndex) => (
-              <div
-                key={sense.id}
-                className="tw-flex tw-w-full tw-h-fit tw-flex-col tw-items-start tw-border tw-rounded-lg tw-shadow-sm tw-p-4 tw-transition-colors"
-              >
-                <div className="tw-flex tw-items-baseline tw-gap-2">
-                  <span className="tw-font-bold tw-text-accent-foreground">{senseIndex + 1}</span>
-                  <span className="tw-text-base">{senseGlossText(sense, analysisLanguage)}</span>
-                </div>
-
-                {Object.values(sense.definition).some(Boolean) && (
-                  <div className="tw-mt-1 tw-max-w-lg tw-text-start tw-text-sm tw-text-muted-foreground">
-                    <span>{senseDefinitionText(sense, analysisLanguage)}</span>
-                  </div>
-                )}
-
-                {sense.partOfSpeech?.id && (
-                  <div className="tw-mt-1 tw-max-w-lg tw-text-start tw-text-sm tw-text-muted-foreground">
-                    <span>{`${localizedStrings['%fwLiteExtension_entryDisplay_partOfSpeech%']}: ${partOfSpeechText(sense.partOfSpeech, analysisLanguage)}`}</span>
-                  </div>
-                )}
-
-                <DomainsDisplay
-                  analysisLanguage={analysisLanguage}
-                  domains={sense.semanticDomains}
-                  onClickDomain={onClickSemanticDomain}
-                />
+          {dictionaryEntry.senses.filter(Boolean).map((sense, senseIndex) => (
+            <div
+              key={sense.id}
+              className="tw-flex tw-w-full tw-h-fit tw-flex-col tw-items-start tw-border tw-rounded-lg tw-shadow-sm tw-p-4 tw-transition-colors"
+            >
+              <div className="tw-flex tw-items-baseline tw-gap-2">
+                <span className="tw-font-bold tw-text-accent-foreground">{senseIndex + 1}</span>
+                <span className="tw-text-base">{senseGlossText(sense, analysisLanguage)}</span>
               </div>
-            ))}
+
+              {Object.values(sense.definition).some(Boolean) && (
+                <div className="tw-mt-1 tw-max-w-lg tw-text-start tw-text-sm tw-text-muted-foreground">
+                  <span>{senseDefinitionText(sense, analysisLanguage)}</span>
+                </div>
+              )}
+
+              {sense.partOfSpeech?.id && (
+                <div className="tw-mt-1 tw-max-w-lg tw-text-start tw-text-sm tw-text-muted-foreground">
+                  <span>{`${localizedStrings['%fwLiteExtension_entryDisplay_partOfSpeech%']}: ${partOfSpeechText(sense.partOfSpeech, analysisLanguage)}`}</span>
+                </div>
+              )}
+
+              <DomainsDisplay
+                analysisLanguage={analysisLanguage}
+                domains={sense.semanticDomains}
+                onClickDomain={onClickSemanticDomain}
+              />
+            </div>
+          ))}
         </div>
       </div>
 
