@@ -131,6 +131,10 @@ msgstr "Ajouter du sens"
 msgid "Add Word"
 msgstr ""
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "After the sync, changes made in FW Classic will appear in FW Lite and changes made in FW Lite will appear in FW Classic after the next Send/Receive."
+msgstr ""
+
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "une entrée"
@@ -173,8 +177,8 @@ msgid "Auto"
 msgstr "Auto"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
-msgid "Auto sync"
-msgstr "Synchronisation automatique"
+msgid "Auto syncing"
+msgstr ""
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -481,10 +485,6 @@ msgid "Field Labels"
 msgstr "Étiquettes de champ"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
-msgid "FieldWorks Classic"
-msgstr "FieldWorks Classique"
-
-#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
@@ -628,6 +628,10 @@ msgstr ""
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Longueur :"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Lexbox"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -1081,6 +1085,14 @@ msgstr "Synchroniser les modifications"
 msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
 msgstr ""
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Sync FieldWorks Lite and FieldWorks Classic"
+msgstr ""
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Sync your changes with other FieldWorks Lite users"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
 msgstr "Synchronisé"
@@ -1148,6 +1160,10 @@ msgstr "Ce projet est maintenant ouvert dans FieldWorks. Pour continuer à trava
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Cette tâche est terminée"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
