@@ -66,9 +66,9 @@
 
 {#if showActualDate && actualFormattedDate}
   <span class:loading-text={loading} class="inline-flex items-center gap-1">
-    <time {...restProps}>{formattedRelativeDate}</time>
     <Popover.Root>
       <Popover.Trigger>
+        <time {...restProps}>{formattedRelativeDate}</time>
         <Icon icon="i-mdi-information-outline" class="size-4 text-muted-foreground hover:text-foreground" />
       </Popover.Trigger>
       <Popover.Content class="w-auto">
