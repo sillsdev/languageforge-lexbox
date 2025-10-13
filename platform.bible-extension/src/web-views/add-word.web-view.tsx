@@ -31,10 +31,7 @@ globalThis.webViewComponent = function fwLiteAddWord({
         setFwLiteNetworkObject(networkObject);
       })
       .catch((e) =>
-        logger.error(
-          `${localizedStrings['%fwLiteExtension_error_gettingNetworkObject%']}:`,
-          JSON.stringify(e),
-        ),
+        logger.error(`${localizedStrings['%fwLiteExtension_error_gettingNetworkObject%']}`, e),
       );
   }, [localizedStrings]);
 
