@@ -50,6 +50,7 @@
   const serverProjectUrl = $derived(`${server?.authority}/project/${encodeURIComponent(projectCode ?? '')}`);
   const isOffline = $derived(syncStatus === SyncStatus.Offline);
   const showRemote = $derived(!!server);
+  const cloudIcon = $derived(isOffline ? 'i-mdi-cloud-off-outline' : 'i-mdi-cloud-outline');
 
   let loadingSyncLexboxToFlex = $state(false);
 
@@ -66,10 +67,13 @@
   {#if showRemote}
     <Tabs.List class="w-full md:mb-2 max-md:mt-4 max-md:sticky bottom-0 z-[1]">
       <Tabs.Trigger class="flex-1" value="lite">{$t`FieldWorks Lite`}</Tabs.Trigger>
-      <Tabs.Trigger class="flex-1" value="classic">{$t`FieldWorks Classic`}</Tabs.Trigger>
+      <Tabs.Trigger class="flex-1 gap-2" value="classic"><Icon icon={cloudIcon} class="-my-1" /> {$t`Lexbox`}</Tabs.Trigger>
     </Tabs.List>
   {/if}
   <Tabs.Content value="lite">
+    <p class="mb-6 text-lg text-center">
+      {$t`Sync your changes with other FieldWorks Lite users`}
+    </p>
     <div class="text-center my-2">
       <span class="text-foreground/80">
         <T msg="Last sync: #">
@@ -85,7 +89,7 @@
       <!-- Status local to remote -->
       <div class="col-span-full text-center border rounded pb-0.5">
         <Button class="flex-col h-auto gap-0 text-foreground hover:text-primary text-base" variant="link" href={serverProjectUrl} target="_blank" rel="noopener">
-          <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}  class="size-10 -mb-0.5" />
+          <Icon icon={cloudIcon}  class="size-10 -mb-0.5" />
           <span class="underline">{serverName}</span>
         </Button>
       </div>
@@ -116,7 +120,7 @@
                 {#if loadingSyncLexboxToLocal}
                   {$t`Syncing...`}
                 {:else}
-                  {$t`Auto sync`}
+                  {$t`Auto syncing`}
                 {/if}
               </Button>
             {:else if syncStatus === SyncStatus.Offline}

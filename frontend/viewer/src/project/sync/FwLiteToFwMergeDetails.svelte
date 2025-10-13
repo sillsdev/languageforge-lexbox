@@ -58,6 +58,25 @@
   }
 </script>
 
+<p class="mb-6 text-lg text-center">
+  <Popover.Root>
+    <Popover.Trigger>
+      {$t`Sync FieldWorks Lite and FieldWorks Classic`}
+      <Icon icon="i-mdi-information-outline" class="size-4" />
+    </Popover.Trigger>
+    <Popover.Content class="max-w-md">
+      <div class="text-sm space-y-2">
+        <p>
+          {$t`This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox.`}
+        </p>
+        <p>
+          {$t`After the sync, changes made in FW Classic will appear in FW Lite and changes made in FW Lite will appear in FW Classic after the next Send/Receive.`}
+        </p>
+      </div>
+    </Popover.Content>
+  </Popover.Root>
+</p>
+
 <div class="grid grid-cols-[1fr_auto_1fr] gap-4">
   <div class="border rounded flex flex-col items-center justify-center text-center p-2">
     <Icon src={logoLight} class="size-10 mb-1" alt={$t`FieldWorks logo`} />
@@ -122,6 +141,7 @@
         loading={loadingSyncLexboxToFlex}
         disabled={loadingSyncLexboxToLocal || !canSyncLexboxToFlex || !remoteStatus}
         onclick={onSyncLexboxToFlex}
+        class="my-1"
         icon="i-mdi-sync"
         iconProps={{ class: 'size-5' }}
       >
