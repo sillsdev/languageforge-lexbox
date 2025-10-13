@@ -58,7 +58,9 @@ public static class MergeRoutes
     static async Task<Results<Ok, NotFound<string>>> SyncHarmonyProject(
         Guid projectId,
         ProjectLookupService projectLookupService,
-        CrdtSyncService crdtSyncService
+        CrdtSyncService crdtSyncService,
+        IServiceProvider services,
+        CancellationToken stoppingToken
     )
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
@@ -70,7 +72,8 @@ public static class MergeRoutes
             return TypedResults.NotFound("Project not found");
         }
 
-        await crdtSyncService.SyncHarmonyProject();
+        var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(services, projectId);
+        await syncWorker.ExecuteSync(stoppingToken, onlyHarmony: true);
 
         return TypedResults.Ok();
     }
