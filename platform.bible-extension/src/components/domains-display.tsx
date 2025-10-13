@@ -2,7 +2,7 @@
 
 import type { ISemanticDomain } from 'fw-lite-extension';
 import { Network } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { domainText } from '../utils/entry-display-text';
 
 /** Props for the DomainsDisplay component */
@@ -25,12 +25,10 @@ export default function DomainsDisplay({
   domains,
   onClickDomain,
 }: DomainsDisplayProps) {
-  const [sortedDomains, setSortedDomains] = useState<ISemanticDomain[]>([]);
-
-  useEffect(() => {
-    const codes = [...new Set(domains.map((domain) => domain.code))].sort();
-    // eslint-disable-next-line no-type-assertion/no-type-assertion
-    setSortedDomains(codes.map((code) => domains.find((domain) => domain.code === code)!));
+  const sortedDomains = useMemo(() => {
+    const domainsByCode = new Map<string, ISemanticDomain>();
+    domains.forEach((d) => d.code && !domainsByCode.has(d.code) && domainsByCode.set(d.code, d));
+    return Array.from(domainsByCode.values()).sort((a, b) => a.code.localeCompare(b.code));
   }, [domains]);
 
   return sortedDomains.length ? (
