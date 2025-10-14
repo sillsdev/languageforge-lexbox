@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-10-10 16:35\n"
+"PO-Revision-Date: 2025-10-14 10:47\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -43,11 +43,11 @@ msgstr "{0} hace"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{0} Changes"
-msgstr "Cambios {0}"
+msgstr "{0} cambios"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{0} Commits"
-msgstr "{0} Comandos"
+msgstr "{0} confirmaciones"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -1115,7 +1115,7 @@ msgstr "Esta fecha # y este emoji # son fragmentos"
 
 #: src/lib/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
-msgstr "Este proyecto está ahora abierto en FieldWorks. Para continuar trabajando en FieldWorks Lite, cierre el proyecto en FieldWorks y haga clic en Reabrir."
+msgstr "Este proyecto está ahora abierto en FieldWorks. Para continuar trabajando en FieldWorks Lite, cierre el proyecto en FieldWorks y haga clic en Vuelva a abrir."
 
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
