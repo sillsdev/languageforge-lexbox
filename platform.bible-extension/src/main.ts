@@ -253,7 +253,13 @@ function launchFwLiteWeb(context: ExecutionActivationContext) {
   const fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
-    ['--urls', baseUrl, '--FwLiteWeb:OpenBrowser=false', '--FwLiteWeb:CorsAllowAny=true'],
+    [
+      '--urls',
+      baseUrl,
+      '--FwLite:UpdateCheckCondition=Never',
+      '--FwLiteWeb:CorsAllowAny=true',
+      '--FwLiteWeb:OpenBrowser=false',
+    ],
     // eslint-disable-next-line no-null/no-null
     { stdio: [null, 'pipe', 'pipe'] },
   );
