@@ -41,12 +41,6 @@
             "group": "fw-lite-extension.editor",
             "order": 3,
             "command": "fwLiteExtension.findEntry"
-          },
-          {
-            "label": "%fwLiteExtension_menu_findRelatedEntries%",
-            "group": "fw-lite-extension.editor",
-            "order": 4,
-            "command": "fwLiteExtension.findRelatedEntries"
           }
         ]
       }
