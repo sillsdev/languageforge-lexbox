@@ -4,7 +4,8 @@ import type {
   OpenWebViewOptionsWithProjectId,
   WordWebViewOptions,
 } from 'fw-lite-extension';
-import mainStyles from '../styles.css?inline';
+import mainCssStyles from '../styles.css?inline';
+import tailwindCssStyles from '../tailwind.css?inline';
 import { WebViewType } from '../types/enums';
 import fwAddWordWindow from './add-word.web-view?inline';
 import fwDictionarySelectWindow from './dictionary-select.web-view?inline';
@@ -31,8 +32,8 @@ export const mainWebViewProvider: IWebViewProvider = {
       allowedFrameSources: ['http://localhost:*'],
       content: fwMainWindow,
       iconUrl,
-      styles: mainStyles,
-      title: '%fwLiteExtension_browseDictionary_title%',
+      styles: mainCssStyles,
+      title: '%fwLiteExtension_webViewTitle_browseDictionary%',
     };
   },
 };
@@ -51,7 +52,8 @@ export const addWordWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwAddWordWindow,
       iconUrl,
-      title: '%fwLiteExtension_addWord_title%',
+      styles: tailwindCssStyles,
+      title: '%fwLiteExtension_webViewTitle_addWord%',
     };
   },
 };
@@ -70,7 +72,8 @@ export const dictionarySelectWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwDictionarySelectWindow,
       iconUrl,
-      title: '%fwLiteExtension_selectDictionary_title%',
+      styles: tailwindCssStyles,
+      title: '%fwLiteExtension_webViewTitle_selectDictionary%',
     };
   },
 };
@@ -89,7 +92,8 @@ export const findWordWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwFindWordWindow,
       iconUrl,
-      title: '%fwLiteExtension_findWord_title%',
+      styles: tailwindCssStyles,
+      title: '%fwLiteExtension_webViewTitle_findWord%',
     };
   },
 };
@@ -108,7 +112,8 @@ export const findRelatedWordsWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwFindRelatedWordsWindow,
       iconUrl,
-      title: '%fwLiteExtension_findRelatedWords_title%',
+      styles: tailwindCssStyles,
+      title: '%fwLiteExtension_webViewTitle_findRelatedWords%',
     };
   },
 };

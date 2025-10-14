@@ -90,14 +90,18 @@ export class FwLiteApi {
     const projects = (await this.fetchPath('localProjects')) as IProjectModel[];
     if (!langTag?.trim()) return projects;
 
-    const matches = (
-      await Promise.all(
-        projects.map(async (p) =>
-          (await this.doesProjectMatchLangTag(p.code, langTag)) ? p : undefined,
-        ),
-      )
-    ).filter((p) => p) as IProjectModel[];
-    return matches.length ? matches : projects;
+    try {
+      const matches = (
+        await Promise.all(
+          projects.map(async (p) =>
+            (await this.doesProjectMatchLangTag(p.code, langTag)) ? p : undefined,
+          ),
+        )
+      ).filter((p) => p) as IProjectModel[];
+      return matches.length ? matches : projects;
+    } catch {
+      return projects;
+    }
   }
 
   async getWritingSystems(dictionaryCode?: string): Promise<IWritingSystems> {

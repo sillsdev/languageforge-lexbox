@@ -17,7 +17,7 @@ declare module 'fw-lite-extension' {
   export type ProjectSettingKey = import('./enums.ts').ProjectSettingKey;
   export type WebViewType = import('./enums.ts').WebViewType;
 
-  type PartialEntry = Omit<Partial<IEntry>, 'senses'> & {
+  export type PartialEntry = Omit<Partial<IEntry>, 'senses'> & {
     senses?: Partial<ISense>[];
   };
 
@@ -48,21 +48,26 @@ declare module 'fw-lite-extension' {
     deleteEntry(projectId: string, id: string): Promise<void>;
   }
 
-  interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
+  export interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
     projectId?: string;
   }
 
-  interface BrowseWebViewOptions extends OpenWebViewOptionsWithProjectId {
+  export interface BrowseWebViewOptions extends OpenWebViewOptionsWithProjectId {
     url?: string;
   }
 
-  interface OpenWebViewOptionsWithDictionaryInfo extends OpenWebViewOptionsWithProjectId {
-    analysisLanguage?: string;
-    dictionaryCode?: string;
-    vernacularLanguage?: string;
+  export interface DictionaryLanguages {
+    analysisLanguage: string;
+    vernacularLanguage: string;
   }
 
-  interface WordWebViewOptions extends OpenWebViewOptionsWithDictionaryInfo {
+  export interface OpenWebViewOptionsWithDictionaryInfo
+    extends OpenWebViewOptionsWithProjectId,
+      Partial<DictionaryLanguages> {
+    dictionaryCode?: string;
+  }
+
+  export interface WordWebViewOptions extends OpenWebViewOptionsWithDictionaryInfo {
     word?: string;
   }
 
@@ -79,13 +84,11 @@ declare module 'papi-shared-types' {
       dictionaryCode: string,
     ) => Promise<SuccessHolder>;
     'fwLiteExtension.fwDictionaries': (projectId?: string) => Promise<IProjectModel[] | undefined>;
-    'fwLiteExtension.openFWLite': () => Promise<SuccessHolder>; // TODO: Remove before publishing.
     'fwLiteExtension.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'fwLiteExtension.findRelatedEntries': (
       webViewId: string,
       entry: string,
     ) => Promise<SuccessHolder>;
-    'fwLiteExtension.getBaseUrl': () => string;
   }
 
   export interface ProjectSettingTypes {
