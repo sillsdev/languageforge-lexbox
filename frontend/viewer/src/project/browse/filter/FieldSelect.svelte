@@ -13,18 +13,22 @@
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
 
-  let {value = $bindable()}: { value: SelectedField | null } = $props();
-
-  type LabeledSelectedField = SelectedField & { label: string };
-
   const currentView = useCurrentView();
   let fields: LabeledSelectedField[] = $derived([
     { id: 'lexemeForm', label: pt($t`Lexeme Form`, $t`Word`, $currentView), ws: 'vernacular-no-audio' },
     { id: 'citationForm', label: pt($t`Citation Form`, $t`Display as`, $currentView), ws: 'vernacular-no-audio' },
     { id: 'senses.gloss', label: $t`Gloss`, ws: 'analysis-no-audio' },
   ]);
+
+  let {value = $bindable()}: { value: SelectedField | null } = $props();
+
+  type LabeledSelectedField = SelectedField & { label: string };
+
   const labeledValue = $derived(fields.find(f => f.id === value?.id) ?? fields[0]);
+  // svelte-ignore state_referenced_locally
+  value ??= labeledValue;
 </script>
+
 <Select.Root type="single" bind:value={() => (value ?? fields[0]).id, (newId) => value = fields.find(f => f.id === newId) ?? fields[0]}>
   <Select.Trigger class="flex-1">
     {labeledValue.label}
