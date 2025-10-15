@@ -83,7 +83,7 @@
     return v.replace(/([(),|\\]|\/i)/g, '\\$1');
   }
 
-  let filtersExpanded = $state(true);
+  let filtersExpanded = $state(false);
 </script>
 
 {#snippet placeholder()}
