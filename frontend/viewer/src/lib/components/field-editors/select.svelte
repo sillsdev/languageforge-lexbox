@@ -126,6 +126,7 @@
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
         {#if nullOption}
+          {@const selected = value === undefined || value === null}
           <CommandItem
             keywords={[nullOption]}
             onSelect={() => selectValue(undefined)}
@@ -133,7 +134,7 @@
             data-value-index={-1}
             aria-label={nullOption}
           >
-            <Icon icon="i-mdi-check" class={cn('md:hidden', value === null || 'invisible')} />
+            <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
             {nullOption}
           </CommandItem>
         {/if}

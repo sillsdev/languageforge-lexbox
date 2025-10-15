@@ -1,4 +1,6 @@
 <script lang="ts" module>
+  import type {WritingSystemSelection} from '$lib/writing-system-service.svelte';
+
   export type SelectedField = {
     id: string;
     ws: WritingSystemSelection;
@@ -10,7 +12,6 @@
   import {t} from 'svelte-i18n-lingui';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
-  import type {WritingSystemSelection} from '$lib/writing-system-service.svelte';
 
   let {value = $bindable()}: { value: SelectedField | null } = $props();
 
