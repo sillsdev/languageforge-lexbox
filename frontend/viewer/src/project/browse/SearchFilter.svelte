@@ -123,7 +123,7 @@
           <!-- Field Picker -->
           <FieldSelect bind:value={selectedField} />
           <!-- Writing System Picker -->
-          <WsSelect bind:value={selectedWs} wsType={selectedField?.ws ?? 'analysis-vernacular'} />
+          <WsSelect bind:value={selectedWs} wsType={selectedField?.ws} />
         </div>
         <!-- Text Box: on mobile, wraps to new line -->
         <div class="flex flex-row gap-2 flex-1">
