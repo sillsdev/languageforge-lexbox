@@ -4,6 +4,7 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
 {
     private readonly Guid _entryId = Guid.NewGuid();
     private readonly Guid _senseId = Guid.NewGuid();
+    private readonly Guid _exampleSentenceId = Guid.NewGuid();
 
     public override async Task InitializeAsync()
     {
@@ -14,9 +15,33 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
             LexemeForm = { { "en", "new-lexeme-form" } },
             Senses =
             [
-                new Sense() { Id = _senseId, Gloss = { { "en", "new-sense-gloss" } } }
+                new Sense()
+                {
+                    Id = _senseId,
+                    Gloss = { { "en", "new-sense-gloss" } },
+                    ExampleSentences = [ new()
+                    {
+                        Id = _exampleSentenceId,
+                        Sentence = { { "en", new("new-example-sentence") } },
+                    }]
+                }
             ]
         });
+    }
+
+    [Fact]
+    public async Task Get_MissingExampleSentence_ReturnsNull()
+    {
+        var exampleSentence = await Api.GetExampleSentence(_entryId, _senseId, Guid.NewGuid());
+        exampleSentence.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Get_ExistingExampleSentence_ReturnsExampleSentence()
+    {
+        var exampleSentence = await Api.GetExampleSentence(_entryId, _senseId, _exampleSentenceId);
+        exampleSentence.Should().NotBeNull();
+        exampleSentence.Sentence["en"].Should().BeEquivalentTo(new RichString("new-example-sentence", "en"));
     }
 
     [Fact]
