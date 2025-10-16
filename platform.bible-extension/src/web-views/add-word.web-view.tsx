@@ -1,7 +1,7 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { IEntryService, PartialEntry, WordWebViewOptions } from 'fw-lite-extension';
+import type { DictionaryWebViewProps, IEntryService, PartialEntry } from 'fw-lite-extension';
 import { useCallback, useEffect, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
@@ -11,7 +11,7 @@ globalThis.webViewComponent = function FwLiteAddWord({
   projectId,
   vernacularLanguage,
   word,
-}: WordWebViewOptions) {
+}: DictionaryWebViewProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<

@@ -1,11 +1,11 @@
 import { themes } from '@papi/frontend';
 import { useData } from '@papi/frontend/react';
-import type { BrowseWebViewOptions } from 'fw-lite-extension';
+import type { BrowseWebViewProps } from 'fw-lite-extension';
 import { useMemo, useRef } from 'react';
 
 const DEFAULT_THEME = themes.getCurrentThemeSync();
 
-globalThis.webViewComponent = function FwLiteMainWindow({ url }: BrowseWebViewOptions) {
+globalThis.webViewComponent = function FwLiteMainWindow({ url }: BrowseWebViewProps) {
   // eslint-disable-next-line no-null/no-null
   const iframe = useRef<HTMLIFrameElement | null>(null);
 

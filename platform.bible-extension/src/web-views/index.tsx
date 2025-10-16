@@ -1,8 +1,8 @@
 import type { IWebViewProvider, SavedWebViewDefinition, WebViewDefinition } from '@papi/core';
 import type {
   BrowseWebViewOptions,
-  OpenWebViewOptionsWithProjectId,
-  WordWebViewOptions,
+  DictionaryWebViewOptions,
+  ProjectWebViewOptions,
 } from 'fw-lite-extension';
 import mainCssStyles from '../styles.css?inline';
 import tailwindCssStyles from '../tailwind.css?inline';
@@ -41,7 +41,7 @@ export const mainWebViewProvider: IWebViewProvider = {
 export const addWordWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: WordWebViewOptions,
+    options: DictionaryWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.AddWord))
       throw new Error(
@@ -61,7 +61,7 @@ export const addWordWebViewProvider: IWebViewProvider = {
 export const dictionarySelectWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: OpenWebViewOptionsWithProjectId,
+    options: ProjectWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.DictionarySelect))
       throw new Error(
@@ -81,7 +81,7 @@ export const dictionarySelectWebViewProvider: IWebViewProvider = {
 export const findWordWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: WordWebViewOptions,
+    options: DictionaryWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.FindWord))
       throw new Error(
@@ -101,7 +101,7 @@ export const findWordWebViewProvider: IWebViewProvider = {
 export const findRelatedWordsWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: WordWebViewOptions,
+    options: DictionaryWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.FindRelatedWords))
       throw new Error(
