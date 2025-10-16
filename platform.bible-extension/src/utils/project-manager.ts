@@ -1,9 +1,9 @@
 import { logger, projectDataProviders, webViews } from '@papi/backend';
 import type { MandatoryProjectDataTypes } from '@papi/core';
 import type {
-  OpenWebViewOptionsWithProjectId,
+  DictionaryWebViewOptions,
+  ProjectWebViewOptions,
   WebViewIds,
-  WordWebViewOptions,
 } from 'fw-lite-extension';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
 // eslint-disable-next-line no-restricted-imports
@@ -68,7 +68,7 @@ export class ProjectManager {
     return (await this.getName()) || this.projectId;
   }
 
-  async getWordWebViewOptions(word?: string): Promise<WordWebViewOptions> {
+  async getDictionaryWebViewOptions(word?: string): Promise<DictionaryWebViewOptions> {
     return {
       analysisLanguage: await this.getFwAnalysisLanguage(),
       dictionaryCode: await this.getFwDictionaryCode(),
@@ -80,7 +80,7 @@ export class ProjectManager {
   async openWebView(
     webViewType: WebViewType,
     layout?: Layout,
-    options?: OpenWebViewOptionsWithProjectId,
+    options?: ProjectWebViewOptions,
   ): Promise<boolean> {
     const webViewId = this.webViewIds[webViewType];
     const newOptions = { ...options, projectId: this.projectId };

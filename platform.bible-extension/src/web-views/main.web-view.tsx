@@ -1,9 +1,7 @@
-import type { BrowseWebViewOptions } from 'fw-lite-extension';
+import type { BrowseWebViewProps } from 'fw-lite-extension';
 import { useRef } from 'react';
 
-/* eslint-disable react-hooks/rules-of-hooks */
-
-globalThis.webViewComponent = function fwLiteMainWindow({ url }: BrowseWebViewOptions) {
+globalThis.webViewComponent = function FwLiteMainWindow({ url }: BrowseWebViewProps) {
   // eslint-disable-next-line no-null/no-null
   const iframe = useRef<HTMLIFrameElement | null>(null);
 

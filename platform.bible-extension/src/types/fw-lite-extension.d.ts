@@ -1,4 +1,4 @@
-import type { OpenWebViewOptions } from '@papi/core';
+import type { OpenWebViewOptions, WebViewProps } from '@papi/core';
 import type { IEntryService, IProjectModel, SuccessHolder } from 'fw-lite-extension';
 
 // TODO: Sort out internal types and those that need to be exposed for other extensions.
@@ -48,28 +48,44 @@ declare module 'fw-lite-extension' {
     deleteEntry(projectId: string, id: string): Promise<void>;
   }
 
-  export interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
+  /** Additions for options/props of project-specific WebViews. */
+  interface ProjectOptions {
     projectId?: string;
   }
 
-  export interface BrowseWebViewOptions extends OpenWebViewOptionsWithProjectId {
+  /** Base extension of OpenWebViewOptions for all project-specific WebViews. */
+  export interface ProjectWebViewOptions extends OpenWebViewOptions, ProjectOptions {}
+
+  /** Base extension of WebViewProps for all project-specific WebViews. */
+  type ProjectWebViewProps = WebViewProps & ProjectOptions;
+
+  /** Additions for options/props of WebViews that browse FieldWorks Lite. */
+  interface BrowseOptions {
     url?: string;
   }
+
+  /** Options for WebViews that browse FieldWorks Lite. */
+  export interface BrowseWebViewOptions extends ProjectWebViewOptions, BrowseOptions {}
+
+  /** Props for WebViews that browse FieldWorks Lite. */
+  export type BrowseWebViewProps = ProjectWebViewProps & BrowseOptions;
 
   export interface DictionaryLanguages {
     analysisLanguage: string;
     vernacularLanguage: string;
   }
 
-  export interface OpenWebViewOptionsWithDictionaryInfo
-    extends OpenWebViewOptionsWithProjectId,
-      Partial<DictionaryLanguages> {
+  /** Additions for options/props of WebViews that interact with a dictionary via the FwLiteApi. */
+  interface DictionaryOptions extends Partial<DictionaryLanguages> {
     dictionaryCode?: string;
-  }
-
-  export interface WordWebViewOptions extends OpenWebViewOptionsWithDictionaryInfo {
     word?: string;
   }
+
+  /** Options for WebViews that interact with a dictionary via the FwLiteApi. */
+  export interface DictionaryWebViewOptions extends ProjectWebViewOptions, DictionaryOptions {}
+
+  /** Props for WebViews that interact with a dictionary via the FwLiteApi. */
+  export type DictionaryWebViewProps = ProjectWebViewProps & DictionaryOptions;
 
   /* eslint-enable @typescript-eslint/no-shadow */
 }

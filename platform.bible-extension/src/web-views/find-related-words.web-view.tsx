@@ -2,11 +2,11 @@ import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
 import type {
+  DictionaryWebViewProps,
   IEntry,
   IEntryService,
   ISemanticDomain,
   PartialEntry,
-  WordWebViewOptions,
 } from 'fw-lite-extension';
 import { Network } from 'lucide-react';
 import { Label, SearchBar } from 'platform-bible-react';
@@ -18,14 +18,12 @@ import DictionaryListWrapper from '../components/dictionary-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 import { domainText } from '../utils/entry-display-text';
 
-/* eslint-disable react-hooks/rules-of-hooks */
-
-globalThis.webViewComponent = function fwLiteFindRelatedWords({
+globalThis.webViewComponent = function FwLiteFindRelatedWords({
   analysisLanguage,
   projectId,
   vernacularLanguage,
   word,
-}: WordWebViewOptions) {
+}: DictionaryWebViewProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<

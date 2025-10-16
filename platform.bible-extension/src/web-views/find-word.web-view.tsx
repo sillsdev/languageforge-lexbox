@@ -1,7 +1,12 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { IEntry, IEntryService, PartialEntry, WordWebViewOptions } from 'fw-lite-extension';
+import type {
+  DictionaryWebViewProps,
+  IEntry,
+  IEntryService,
+  PartialEntry,
+} from 'fw-lite-extension';
 import { SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -10,14 +15,12 @@ import DictionaryList from '../components/dictionary-list';
 import DictionaryListWrapper from '../components/dictionary-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
-/* eslint-disable react-hooks/rules-of-hooks */
-
-globalThis.webViewComponent = function fwLiteFindWord({
+globalThis.webViewComponent = function FwLiteFindWord({
   analysisLanguage,
   projectId,
   vernacularLanguage,
   word,
-}: WordWebViewOptions) {
+}: DictionaryWebViewProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   const [matchingEntries, setMatchingEntries] = useState<IEntry[] | undefined>();
