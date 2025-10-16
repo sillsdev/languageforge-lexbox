@@ -215,6 +215,25 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
     }
 
     [Fact]
+    public async Task CrdtEntryMissingTranslationId_FwExampleSentenceRemoved_FullSync()
+    {
+        // arrange
+        var (fwEntry, crdtEntry, _) = await CreateSyncedEntryMissingTranslationId();
+        var entryId = fwEntry.Id;
+        var senseId = fwEntry.Senses.Single().Id;
+        var exampleSentenceId = fwEntry.SingleExampleSentence().Id;
+
+        // act
+        await FwDataApi.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
+        var result = await SyncService.Sync(CrdtApi, FwDataApi);
+        result.CrdtChanges.Should().Be(1, "the crdt translation was removed");
+
+        // assert - the crdt translation was also removed
+        var updatedCrdtEntry = await CrdtApi.GetEntry(crdtEntry.Id);
+        updatedCrdtEntry!.Senses.Single().ExampleSentences.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task CrdtEntryMissingTranslationId_CrdtTranslationRemoved_SyncMissingTranslationIds()
     {
         // arrange
@@ -253,6 +272,24 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         // assert - the fw translation was also removed
         var updatedFwEntry = await FwDataApi.GetEntry(crdtEntry.Id);
         updatedFwEntry!.SingleExampleSentence().Translations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CrdtEntryMissingTranslationId_CrdtExampleSentenceRemoved_FullSync()
+    {
+        // arrange
+        var (fwEntry, crdtEntry, _) = await CreateSyncedEntryMissingTranslationId();
+        var entryId = fwEntry.Id;
+        var senseId = fwEntry.Senses.Single().Id;
+        var exampleSentenceId = fwEntry.SingleExampleSentence().Id;
+
+        // act
+        await CrdtApi.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
+        await SyncService.Sync(CrdtApi, FwDataApi);
+
+        // assert - the fw translation was also removed
+        var updatedFwEntry = await FwDataApi.GetEntry(crdtEntry.Id);
+        updatedFwEntry!.Senses.Single().ExampleSentences.Should().BeEmpty();
     }
 
     [Fact]
