@@ -4,9 +4,7 @@ import type { IProjectModel } from 'fw-lite-extension';
 import { useCallback, useEffect, useState } from 'react';
 import DictionaryComboBox from '../components/dictionary-combo-box';
 
-/* eslint-disable react-hooks/rules-of-hooks */
-
-globalThis.webViewComponent = function fwDictionarySelect({ projectId }: WebViewProps) {
+globalThis.webViewComponent = function FwDictionarySelect({ projectId }: WebViewProps) {
   const [fwDictionaries, setFwDictionaries] = useState<IProjectModel[] | undefined>();
 
   const selectDictionary = useCallback(

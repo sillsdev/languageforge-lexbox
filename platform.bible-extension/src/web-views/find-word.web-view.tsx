@@ -10,9 +10,7 @@ import DictionaryList from '../components/dictionary-list';
 import DictionaryListWrapper from '../components/dictionary-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
-/* eslint-disable react-hooks/rules-of-hooks */
-
-globalThis.webViewComponent = function fwLiteFindWord({
+globalThis.webViewComponent = function FwLiteFindWord({
   analysisLanguage,
   projectId,
   vernacularLanguage,
