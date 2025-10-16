@@ -6,6 +6,7 @@ namespace MiniLcm.Tests;
 
 public abstract class QueryEntryTestsBase : MiniLcmTestBase
 {
+    private readonly Guid appleId = Guid.NewGuid();
     private readonly string Apple = "Apple";
     private readonly string Peach = "Peach";
     private readonly string Banana = "Banana";
@@ -23,7 +24,11 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateSemanticDomain(semanticDomain);
         var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "Very complex" } } };
         await Api.CreateComplexFormType(complexFormType);
-        await Api.CreateEntry(new Entry() { LexemeForm = { { "en", Apple } } });
+        await Api.CreateEntry(new Entry()
+        {
+            Id = appleId,
+            LexemeForm = { { "en", Apple } }
+        });
         await Api.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", Peach } },
@@ -90,6 +95,21 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         });
         // null / missing key - exposes potential NPEs
         await Api.CreateEntry(new Entry());
+    }
+
+    [Fact]
+    public async Task Get_MissingEntry_ReturnsNull()
+    {
+        var entry = await Api.GetEntry(Guid.NewGuid());
+        entry.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Get_ExistingEntry_ReturnsEntry()
+    {
+        var entry = await Api.GetEntry(appleId);
+        entry.Should().NotBeNull();
+        entry.LexemeForm["en"].Should().Be(Apple);
     }
 
     [Fact]
