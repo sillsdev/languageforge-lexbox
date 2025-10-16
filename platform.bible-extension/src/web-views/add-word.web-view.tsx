@@ -6,9 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
-/* eslint-disable react-hooks/rules-of-hooks */
-
-globalThis.webViewComponent = function fwLiteAddWord({
+globalThis.webViewComponent = function FwLiteAddWord({
   analysisLanguage,
   projectId,
   vernacularLanguage,

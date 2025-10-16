@@ -18,9 +18,7 @@ import DictionaryListWrapper from '../components/dictionary-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 import { domainText } from '../utils/entry-display-text';
 
-/* eslint-disable react-hooks/rules-of-hooks */
-
-globalThis.webViewComponent = function fwLiteFindRelatedWords({
+globalThis.webViewComponent = function FwLiteFindRelatedWords({
   analysisLanguage,
   projectId,
   vernacularLanguage,
