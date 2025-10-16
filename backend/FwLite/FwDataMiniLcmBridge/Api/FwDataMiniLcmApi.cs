@@ -953,7 +953,8 @@ public class FwDataMiniLcmApi(
 
     public Task<Entry?> GetEntry(Guid id)
     {
-        return Task.FromResult<Entry?>(FromLexEntry(EntriesRepository.GetObject(id)));
+        EntriesRepository.TryGetObject(id, out var lexEntry);
+        return Task.FromResult(lexEntry is null ? null : FromLexEntry(lexEntry));
     }
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
@@ -1423,7 +1424,7 @@ public class FwDataMiniLcmApi(
 
     public Task<Sense?> GetSense(Guid entryId, Guid id)
     {
-        var lcmSense = SenseRepository.GetObject(id);
+        SenseRepository.TryGetObject(id, out var lcmSense);
         return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
     }
 
@@ -1550,7 +1551,7 @@ public class FwDataMiniLcmApi(
 
     public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
-        var lcmExampleSentence = ExampleSentenceRepository.GetObject(id);
+        ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence);
         return Task.FromResult(lcmExampleSentence is null ? null : FromLexExampleSentence(senseId, lcmExampleSentence));
     }
 

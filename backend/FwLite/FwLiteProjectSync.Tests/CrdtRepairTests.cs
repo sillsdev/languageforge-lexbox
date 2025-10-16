@@ -226,7 +226,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         // act
         await FwDataApi.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
         var result = await SyncService.Sync(CrdtApi, FwDataApi);
-        result.CrdtChanges.Should().Be(1, "the crdt translation was removed");
+        result.CrdtChanges.Should().Be(1, "the crdt example-sentence was removed");
 
         // assert - the crdt translation was also removed
         var updatedCrdtEntry = await CrdtApi.GetEntry(crdtEntry.Id);
