@@ -450,12 +450,9 @@ msgid "Failed to open URL: {0}"
 msgstr "Failed to open URL: {0}"
 
 #: src/project/SyncDialog.svelte
+#: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
 msgstr "Failed to synchronize"
-
-#: src/project/SyncDialog.svelte
-msgid "Failed to synchronize."
-msgstr "Failed to synchronize."
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/about/FeedbackDialog.svelte
