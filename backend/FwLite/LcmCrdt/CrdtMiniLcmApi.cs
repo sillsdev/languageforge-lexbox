@@ -85,7 +85,7 @@ public class CrdtMiniLcmApi(
         var betweenIds = between is null ? null : await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, wsType))?.Id);
         var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(ws => ws.Type == wsType), betweenIds);
         await AddChange(new CreateWritingSystemChange(writingSystem, entityId, order));
-        return await repo.GetWritingSystem(writingSystem.WsId, wsType) ?? throw new NotFoundException($"Writing system {writingSystem.WsId.Code} not found", nameof(WritingSystem));
+        return await repo.GetWritingSystem(writingSystem.WsId, wsType) ?? throw NotFoundException.ForType<WritingSystem>($"{writingSystem.WsId.Code}: {wsType}");
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -95,7 +95,7 @@ public class CrdtMiniLcmApi(
         if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
         var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch);
         await AddChange(patchChange);
-        return await repo.GetWritingSystem(id, type) ?? throw new NotFoundException($"Writing system {id.Code} not found", nameof(WritingSystem));
+        return await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForType<WritingSystem>($"{id.Code}: {type}");
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
@@ -330,7 +330,7 @@ public class CrdtMiniLcmApi(
         var order = await OrderPicker.PickOrder(repo.ComplexFormComponents.Where(s => s.ComplexFormEntryId == component.ComplexFormEntryId), betweenIds);
         var id = component.MaybeId ??
                  (await repo.FindComplexFormComponent(component))?.Id
-                 ?? throw new NotFoundException($"Component {component}", nameof(ComplexFormComponent));
+                 ?? throw NotFoundException.ForType<ComplexFormComponent>("missing ID");
         await AddChange(new Changes.SetOrderChange<ComplexFormComponent>(id, order));
     }
 

@@ -114,7 +114,7 @@ public class MiniLcmRepository(
     public async Task<ComplexFormComponent> FindComplexFormComponent(Guid objectId)
     {
         return (await AsyncExtensions.SingleOrDefaultAsync(ComplexFormComponents, c => c.Id == objectId)) ??
-               throw NotFoundException.ForType<ComplexFormComponent>();
+               throw NotFoundException.ForType<ComplexFormComponent>(objectId);
     }
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)

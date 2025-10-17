@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 using System.Globalization;
-using System.Reflection;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
@@ -853,7 +852,7 @@ public class FwDataMiniLcmApi(
         //path includes `AudioVisual` currently
         var mediaUri = new MediaUri(mediaUriString);
         var path = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
-        if (path is null) throw new NotFoundException($"Unable to find file {mediaUri.FileId}.", nameof(MediaFile));
+        if (path is null) throw new NotFoundException($"File ID: {mediaUri.FileId}.", nameof(MediaFile));
         return Path.GetRelativePath(Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder), path);
     }
 
@@ -1229,7 +1228,7 @@ public class FwDataMiniLcmApi(
     internal void AddPublication(ILexEntry entry, Guid publicationId)
     {
         var lcmPublication = GetLcmPublication(publicationId);
-        if (lcmPublication is null) throw new NotFoundException("unable to find publication with id " + publicationId, nameof(Publication));
+        NotFoundException.ThrowIfNull<Publication>(lcmPublication, publicationId);
         entry.DoNotPublishInRC.Remove(lcmPublication);
     }
 
@@ -1248,8 +1247,7 @@ public class FwDataMiniLcmApi(
     internal void RemovePublication(ILexEntry entry, Guid publicationId)
     {
         var lcmPublication = GetLcmPublication(publicationId);
-        if (lcmPublication is null)
-            throw new NotFoundException("unable to find publication with id " + publicationId, nameof(Publication));
+        NotFoundException.ThrowIfNull<Publication>(lcmPublication, publicationId);
         entry.DoNotPublishInRC.Add(lcmPublication);
     }
 

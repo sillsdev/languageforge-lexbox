@@ -336,13 +336,13 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdatePublication), $"Update publication {id}"));
-        return await _api.GetPublication(id) ?? throw new NotFoundException("Publication not found", nameof(Publication));
+        return await _api.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
     }
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdatePublication), $"Update publication {before.Id}"));
-        return await _api.GetPublication(before.Id) ?? throw new NotFoundException("Publication not found", nameof(Publication));
+        return await _api.GetPublication(before.Id) ?? throw NotFoundException.ForType<Publication>(before.Id);
     }
 
     public Task DeletePublication(Guid id)
