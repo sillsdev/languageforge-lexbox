@@ -6,12 +6,12 @@ namespace LexBoxApi.Services;
 
 public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> logger)
 {
-    public async Task<bool> CrdtSync(Guid projectId)
+    public async Task<bool> SyncMercurialAndHarmony(Guid projectId)
     {
         var response = await httpClient.PostAsync($"/api/merge/execute?projectId={projectId}", null);
         if (response.IsSuccessStatusCode)
             return true;
-        logger.LogError("Failed to sync CRDT: {StatusCode} {StatusDescription}, projectId: {ProjectId}",
+        logger.LogError("Failed to sync Mercurial and Harmony: {StatusCode} {StatusDescription}, projectId: {ProjectId}",
             response.StatusCode,
             response.ReasonPhrase,
             projectId);
@@ -76,6 +76,23 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         {
             var responseBody = await response.Content.ReadAsStringAsync();
             logger.LogError("Failed to regenerate project snapshot: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                projectId,
+                responseBody);
+            return responseBody;
+        }
+
+        return null;
+    }
+
+    internal async Task<string?> SyncHarmony(Guid projectId)
+    {
+        var response = await httpClient.PostAsync($"/api/merge/sync-harmony?projectId={projectId}", null);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            logger.LogError("Failed to sync Harmony: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
                 response.StatusCode,
                 response.ReasonPhrase,
                 projectId,

@@ -32,7 +32,7 @@ public class SyncController(
     public async Task<ActionResult> TriggerSync(Guid projectId)
     {
         if (!await permissionService.CanSyncProject(projectId)) return Forbid();
-        var started = await fwHeadlessClient.CrdtSync(projectId);
+        var started = await fwHeadlessClient.SyncMercurialAndHarmony(projectId);
         if (!started) return Problem("Failed to sync CRDT");
         return Ok();
     }
@@ -49,6 +49,35 @@ public class SyncController(
         catch (OperationCanceledException)
         {
             return Ok(new SyncJobResult(SyncJobStatusEnum.TimedOutAwaitingSyncStatus, "Timed out awaiting sync status"));
+        }
+    }
+
+    /// <summary>
+    /// Syncs the fw-headless and Lexbox copies of the specified Harmony project.
+    /// If a project is reset, depending on the state of the Mercurial project,
+    /// doing this and then regenerating the snapshot is a possible approach to get back into a valid state.
+    /// This is somewhat experimental.
+    /// </summary>
+    [HttpPost("sync-harmony/{projectId}")]
+    [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> SyncHarmony(Guid projectId)
+    {
+        await permissionService.AssertCanSyncProject(projectId);
+        try
+        {
+            var result = await fwHeadlessClient.SyncHarmony(projectId);
+            if (result is not null)
+            {
+                return Problem(result);
+            }
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return Problem(e.Message);
         }
     }
 

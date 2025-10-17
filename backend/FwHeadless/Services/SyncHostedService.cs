@@ -109,7 +109,7 @@ public class SyncWorker(
     MediaFileService mediaFileService
 )
 {
-    public async Task<SyncJobResult> ExecuteSync(CancellationToken stoppingToken)
+    public async Task<SyncJobResult> ExecuteSync(CancellationToken stoppingToken, bool onlyHarmony = false)
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
         activity?.SetTag("app.project_id", projectId);
@@ -171,11 +171,18 @@ public class SyncWorker(
         var crdtSyncService = services.GetRequiredService<CrdtSyncService>();
 
         // If the last merge was successful, we can sync the Harmony project, otherwise we risk pushing a partial sync
-        if (CrdtFwdataProjectSyncService.HasSyncedSuccessfully(fwDataProject))
+        if (CrdtFwdataProjectSyncService.HasSyncedSuccessfully(fwDataProject) || onlyHarmony)
         {
             await crdtSyncService.SyncHarmonyProject();
         }
         await mediaFileService.SyncMediaFiles(projectId, services.GetRequiredService<LcmMediaService>());
+
+        if (onlyHarmony)
+        {
+            // Getting this far allows us to restore a reset project, so we can regenerate a snapshot from it
+            activity?.SetStatus(ActivityStatusCode.Ok, "Only Harmony sync requested, skipping Mercurial/Crdt sync");
+            return new SyncJobResult(SyncJobStatusEnum.Success, "Only Harmony sync requested, skipping Mercurial/Crdt sync");
+        }
 
         var result = await syncService.Sync(miniLcmApi, fwdataApi);
         logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",
