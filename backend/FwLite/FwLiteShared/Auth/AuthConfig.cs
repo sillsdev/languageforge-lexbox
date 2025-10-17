@@ -39,12 +39,14 @@ public class AuthConfig
     public bool TryGetServer(ProjectData projectData, [NotNullWhen(true)] out LexboxServer? server)
     {
         var originDomain = projectData.OriginDomain;
-        if (string.IsNullOrEmpty(originDomain))
+
+        if (Uri.TryCreate(originDomain, UriKind.Absolute, out var originUri))
         {
-            server = null;
-            return false;
+            return TryGetServerByAuthority(originUri.Authority, out server);
         }
-        return TryGetServerByAuthority(new Uri(originDomain).Authority, out server);
+
+        server = null;
+        return false;
     }
     public LexboxServer GetServer(string serverName)
     {
