@@ -192,13 +192,13 @@ public class SyncWorker(
             var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
             if (srResult2.ErrorEncountered)
             {
-                logger.LogError("Send/Receive after CRDT sync failed: {Message}", srResult2.Output);
+                logger.LogError("Send/Receive after CRDT sync failed: {Output}", srResult2.Output);
                 activity?.SetStatus(ActivityStatusCode.Error, "Send/Receive failed after CRDT sync");
                 return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, $"Send/Receive after CRDT sync failed: {srResult2.Output}");
             }
             else
             {
-                logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
+                logger.LogInformation("Send/Receive result after CRDT sync: {Output}", srResult2.Output);
             }
         }
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
@@ -219,12 +219,12 @@ public class SyncWorker(
                 var srResult = await srService.SendReceive(fwDataProject, projectCode);
                 if (srResult.ErrorEncountered)
                 {
-                    logger.LogError("Send/Receive before CRDT sync failed: {srResult}", srResult.Output);
+                    logger.LogError("Send/Receive before CRDT sync failed: {Output}", srResult.Output);
                     throw new SendReceiveException($"Send/Receive before CRDT sync failed: {srResult.Output}");
                 }
                 else
                 {
-                    logger.LogInformation("Send/Receive result before CRDT sync: {srResult}", srResult.Output);
+                    logger.LogInformation("Send/Receive result before CRDT sync: {Output}", srResult.Output);
                 }
 
             }
@@ -234,12 +234,12 @@ public class SyncWorker(
             var srResult = await srService.Clone(fwDataProject, projectCode);
             if (srResult.ErrorEncountered)
             {
-                logger.LogError("Clone before CRDT sync failed: {srResult}", srResult.Output);
+                logger.LogError("Clone before CRDT sync failed: {Output}", srResult.Output);
                 throw new SendReceiveException($"Clone before CRDT sync failed: {srResult.Output}");
             }
             else
             {
-                logger.LogInformation("Clone result before CRDT sync: {srResult}", srResult.Output);
+                logger.LogInformation("Clone result before CRDT sync: {Output}", srResult.Output);
             }
         }
 
