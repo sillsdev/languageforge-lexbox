@@ -70,7 +70,7 @@
           {$t`This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox.`}
         </p>
         <p>
-          {$t`After the sync, changes made in FW Classic will appear in FW Lite and changes made in FW Lite will appear in FW Classic after the next Send/Receive.`}
+          {$t`FieldWorks Lite users will automatically receive changes made in FieldWorks Classic. FieldWorks Classic users will see changes made in FieldWorks Lite after they do Send/Receive.`}
         </p>
       </div>
     </Popover.Content>
