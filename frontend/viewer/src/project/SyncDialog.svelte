@@ -62,7 +62,7 @@
 
     const syncPromise = service.triggerFwHeadlessSync();
     AppNotification.promise(syncPromise, {
-      loading: $t`Synchronizing FieldWorks Lite and FieldWorks...`,
+      loading: $t`Synchronizing FieldWorks Lite and FieldWorks Classic...`,
       success: (result) => {
         const fwdataChangesText = $plural(result.syncResult?.fwdataChanges ?? 0, {one: '# change', other: '# changes'});
         const crdtChangesText = $plural(result.syncResult?.crdtChanges ?? 0, {one: '# change', other: '# changes'});

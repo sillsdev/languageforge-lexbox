@@ -171,7 +171,7 @@
                 <Accordion.Content>
                   <div class="flex flex-col gap-2 text-balance">
                     <span>
-                      {$t`Changing the same field twice (e.g.) can result in two commits, but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes.`}
+                      {$t`Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes.`}
                     </span>
                   </div>
                 </Accordion.Content>
