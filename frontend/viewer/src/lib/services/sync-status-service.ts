@@ -41,7 +41,7 @@ export class SyncStatusService {
     if (result.status === SyncJobStatusEnum.Success && !result.error) return {status: SyncJobStatusEnum.Success, syncResult: result.syncResult};
     else {
       const syncError = result.error as string ?? `Sync failed with status ${result.status} but no error message`;
-      throw new Error(gt`Failed to synchronize.` + `\n${syncError}`);
+      throw new Error(gt`Failed to synchronize` + `\n${syncError}`);
     }
     // TODO: Tweak SyncJobResult to have an error *message* and error *details*, and put the details in the `cause` property of the JS Error that we throw
     // throw new Error(result.errorMessage, {cause: result.errorDetails});
