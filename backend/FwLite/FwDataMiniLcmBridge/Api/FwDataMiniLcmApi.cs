@@ -1309,14 +1309,6 @@ public class FwDataMiniLcmApi(
         if (sense.Id == default) sense.Id = Guid.NewGuid();
         var lexSense = LexSenseFactory.Create(sense.Id);
         InsertSense(lexEntry, lexSense, between);
-        var msa = new SandboxGenericMSA() { MsaType = lexSense.GetDesiredMsaType() };
-        if (sense.PartOfSpeechId.HasValue)
-        {
-            var found = PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out var pos);
-            if (!found) throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
-            msa.MainPOS = pos;
-        }
-        lexSense.SandboxMSA = msa;
         ApplySenseToLexSense(sense, lexSense);
     }
 
@@ -1397,15 +1389,7 @@ public class FwDataMiniLcmApi(
 
     private void ApplySenseToLexSense(Sense sense, ILexSense lexSense)
     {
-        if (lexSense.MorphoSyntaxAnalysisRA.GetPartOfSpeech()?.Guid != sense.PartOfSpeechId)
-        {
-            IPartOfSpeech? pos = null;
-            if (sense.PartOfSpeechId.HasValue)
-            {
-                PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out pos);
-            }
-            lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(pos);
-        }
+        SetSensePartOfSpeech(lexSense, sense.PartOfSpeechId);
         UpdateLcmMultiString(lexSense.Gloss, sense.Gloss);
         UpdateLcmMultiString(lexSense.Definition, sense.Definition);
         foreach (var senseSemanticDomain in sense.SemanticDomains)
@@ -1515,26 +1499,31 @@ public class FwDataMiniLcmApi(
             () =>
             {
                 var lexSense = SenseRepository.GetObject(senseId);
-                if (partOfSpeechId.HasValue)
-                {
-                    var partOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>()
-                        .GetObject(partOfSpeechId.Value);
-                    if (lexSense.MorphoSyntaxAnalysisRA == null)
-                    {
-                        lexSense.SandboxMSA = SandboxGenericMSA.Create(lexSense.GetDesiredMsaType(), partOfSpeech);
-                    }
-                    else
-                    {
-                        lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(partOfSpeech);
-                    }
-                }
-                else
-                {
-                    // if it's null already (?.), do nothing
-                    lexSense.MorphoSyntaxAnalysisRA?.SetMsaPartOfSpeech(null);
-                }
+                SetSensePartOfSpeech(lexSense, partOfSpeechId);
             });
         return Task.CompletedTask;
+    }
+
+    private void SetSensePartOfSpeech(ILexSense lexSense, Guid? partOfSpeechId)
+    {
+        if (partOfSpeechId.HasValue)
+        {
+            if (!PartOfSpeechRepository.TryGetObject(partOfSpeechId.Value, out var partOfSpeech))
+                throw new InvalidOperationException($"Part of speech not found ({partOfSpeechId.Value})");
+            if (lexSense.MorphoSyntaxAnalysisRA == null)
+            {
+                lexSense.SandboxMSA = SandboxGenericMSA.Create(lexSense.GetDesiredMsaType(), partOfSpeech);
+            }
+            else
+            {
+                lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(partOfSpeech);
+            }
+        }
+        else
+        {
+            // if it's null already (?.), do nothing
+            lexSense.MorphoSyntaxAnalysisRA?.SetMsaPartOfSpeech(null);
+        }
     }
 
     public Task DeleteSense(Guid entryId, Guid senseId)
