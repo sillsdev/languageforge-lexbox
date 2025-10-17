@@ -37,7 +37,7 @@ public record ProjectData(string Name, string Code, Guid Id, string? OriginDomai
         return uri?.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
     }
 
-    public string? ServerId => OriginDomain is not null ? new Uri(OriginDomain).Authority : null;
+    public string? ServerId => Uri.TryCreate(OriginDomain, UriKind.Absolute, out var uri) ? uri.Authority : null;
     public bool IsReadonly => Role is not UserProjectRole.Editor and not UserProjectRole.Manager;
 }
 
