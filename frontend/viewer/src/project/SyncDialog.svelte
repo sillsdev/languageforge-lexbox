@@ -68,17 +68,23 @@
         const crdtChangesText = $plural(result.syncResult?.crdtChanges ?? 0, {one: '# change', other: '# changes'});
         return $t`${fwdataChangesText} synced to FieldWorks. ${crdtChangesText} synced to FieldWorks Lite.`;
       },
-      error: (error) => $t`Failed to synchronize.` + '\n' + (error as Error).message,
       // TODO: Custom component that can expand or collapse the stacktrace
     });
-    safeToCloseDialog = await syncPromise.then(() => true).catch(() => false);
 
-
-    // Optimistically update status, then query it
-    if (remoteStatus) {
-      remoteStatus.pendingCrdtChanges = 0;
-      remoteStatus.pendingMercurialChanges = 0;
+    try {
+      await syncPromise;
+      safeToCloseDialog = true;
+      if (remoteStatus) {
+        // Optimistically update status, then query it
+        remoteStatus.pendingCrdtChanges = 0;
+        remoteStatus.pendingMercurialChanges = 0;
+      }
+    } catch (error) {
+      safeToCloseDialog = false;
+      void service.getStatus().then(s => remoteStatus = s);
+      throw error;
     }
+
     // Auto-close dialog after successful FieldWorks sync
     await Promise.all([
       service.getStatus().then(s => remoteStatus = s),

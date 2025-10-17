@@ -458,7 +458,7 @@ msgstr "Error al abrir la URL: {0}"
 msgid "Failed to synchronize"
 msgstr "Error de sincronización"
 
-#: src/project/SyncDialog.svelte
+#: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize."
 msgstr "Error de sincronización."
 

@@ -458,7 +458,7 @@ msgstr "Gagal membuka URL: {0}"
 msgid "Failed to synchronize"
 msgstr "Gagal menyegerak"
 
-#: src/project/SyncDialog.svelte
+#: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize."
 msgstr "Gagal menyegerak."
 

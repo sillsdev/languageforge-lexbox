@@ -458,7 +458,7 @@ msgstr "URL을 열지 못했습니다: {0}"
 msgid "Failed to synchronize"
 msgstr "동기화 실패"
 
-#: src/project/SyncDialog.svelte
+#: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize."
 msgstr "동기화하지 못했습니다."
 
