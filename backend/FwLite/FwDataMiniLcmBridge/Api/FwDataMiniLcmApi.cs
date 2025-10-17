@@ -1530,7 +1530,8 @@ public class FwDataMiniLcmApi(
                 }
                 else
                 {
-                    lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(null);
+                    // if it's null already (?.), do nothing
+                    lexSense.MorphoSyntaxAnalysisRA?.SetMsaPartOfSpeech(null);
                 }
             });
         return Task.CompletedTask;
