@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-10-10 16:35\n"
+"PO-Revision-Date: 2025-10-18 14:26\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -455,12 +455,9 @@ msgid "Failed to open URL: {0}"
 msgstr "Gagal membuka URL: {0}"
 
 #: src/project/SyncDialog.svelte
+#: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
 msgstr "Gagal menyegerak"
-
-#: src/project/SyncDialog.svelte
-msgid "Failed to synchronize."
-msgstr "Gagal menyegerak."
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/about/FeedbackDialog.svelte
