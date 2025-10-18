@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-10-14 10:47\n"
+"PO-Revision-Date: 2025-10-18 14:26\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -455,12 +455,9 @@ msgid "Failed to open URL: {0}"
 msgstr "Error al abrir la URL: {0}"
 
 #: src/project/SyncDialog.svelte
+#: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
 msgstr "Error de sincronización"
-
-#: src/project/SyncDialog.svelte
-msgid "Failed to synchronize."
-msgstr "Error de sincronización."
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/about/FeedbackDialog.svelte
