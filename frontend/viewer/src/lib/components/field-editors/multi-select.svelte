@@ -15,6 +15,7 @@
   import {slide} from 'svelte/transition';
   import {watch} from 'runed';
   import {computeCommandScore} from 'bits-ui';
+  import {s} from '$lib/i18n';
 
   type Value = ReadonlyDeep<MutableValue>;
 
@@ -199,7 +200,7 @@
       <div class="flex items-center gap-2 flex-nowrap">
         {#if IsMobile.value}
           {#if filterValue}
-            <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
+            <XButton onclick={() => (filterValue = '')} aria-label={$t(s.clear)} />
           {/if}
         {:else}
           {#if dirty}

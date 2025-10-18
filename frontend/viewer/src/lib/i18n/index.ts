@@ -1,5 +1,7 @@
-import {locale} from 'svelte-i18n-lingui';
 import {createSubscriber} from 'svelte/reactivity';
+import {locale} from 'svelte-i18n-lingui';
+
+export * from './strings.svelte'
 
 const hasSetLang = {value: false};
 const subscriber = createSubscriber(update => {
