@@ -9,9 +9,11 @@ public static class CrdtRepairs
 #pragma warning disable CS0618 // Type or member is obsolete
     public static async Task<int> SyncMissingTranslationIds(Entry[] snapshotEntries, FwDataMiniLcmApi fwDataApi, CrdtMiniLcmApi crdtApi, bool dryRun = false)
     {
+        using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
         // Sync any available IDs from fwdata to the snapshot and the crdt entries
         // This should only need to be run once per project.
         var syncedIdCount = 0;
+        var exampleSentenceIdToTranslationId = new Dictionary<Guid, Guid>();
         foreach (var entry in snapshotEntries)
         {
             foreach (var sense in entry.Senses)
@@ -70,15 +72,18 @@ public static class CrdtRepairs
                         // However, until this "repair" we see crdt's as only having a single translation.
                         // I.e. the ID is essentially meaningless and semantically the user was actually just editing the synced/only fwdata translation.
                         syncedIdCount++;
-                        if (!dryRun)
-                        {
-                            await crdtApi.SetFirstTranslationId(exampleSentence.Id, validTranslationId);
-                        }
+                        exampleSentenceIdToTranslationId.Add(exampleSentence.Id, validTranslationId);
                     }
                 }
             }
         }
 
+        if (!dryRun && exampleSentenceIdToTranslationId.Any())
+        {
+            await crdtApi.SetFirstTranslationIds(exampleSentenceIdToTranslationId);
+        }
+
+        activity?.AddTag("Sync.CrdtRepairs.SyncedTranslationIds", syncedIdCount);
         return syncedIdCount;
     }
 #pragma warning restore CS0618 // Type or member is obsolete
