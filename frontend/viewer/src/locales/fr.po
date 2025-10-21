@@ -136,7 +136,7 @@ msgid "an entry"
 msgstr "une entrée"
 
 #: src/project/browse/filter/SemanticDomainSelect.svelte
-msgid "Any"
+msgid "Any semantic domain"
 msgstr ""
 
 #: src/project/browse/filter/WsSelect.svelte
@@ -222,6 +222,7 @@ msgstr "Formulaire de citation"
 msgid "Classic FieldWorks Projects"
 msgstr "Projets FieldWorks classiques"
 
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
@@ -407,6 +408,10 @@ msgstr "Editeur"
 msgid "Ends with"
 msgstr "Se termine par"
 
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Entries missing..."
+msgstr ""
+
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
@@ -535,8 +540,8 @@ msgid "Filter entries"
 msgstr "Filtrer les entrées"
 
 #: src/project/browse/SearchFilter.svelte
-msgid "Filter for"
-msgstr "Filtre pour"
+msgid "Filter for..."
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
@@ -737,7 +742,7 @@ msgid "Missing Part of Speech"
 msgstr "Partie du discours manquante"
 
 #: src/project/browse/filter/MissingSelect.svelte
-msgid "Missing..."
+msgid "Missing: {0}"
 msgstr ""
 
 #: src/lib/entry-editor/ItemListItem.svelte
