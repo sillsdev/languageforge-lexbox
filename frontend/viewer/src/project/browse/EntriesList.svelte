@@ -99,7 +99,14 @@
 
   const entriesResource = resource(
     () => ({ search, sort, gridifyFilter, miniLcmApi }),
-    async () => await fetchCurrentEntries());
+    async (_curr, _prev, refetchInfo): Promise<IEntry[]> => {
+      const entries = await fetchCurrentEntries();
+      // don't let slow requests overwrite newer ones
+      // if the newer request is finished then entriesResource.current is up-to-date
+      // else entriesResource.current is out-of-date, but will be updated by the newer request
+      if (refetchInfo.signal.aborted) return entriesResource.current ?? [];
+      return entries;
+    });
   const entries = $derived(entriesResource.current ?? []);
   watch(() => [entries, entriesResource.loading], () => {
     if (!entriesResource.loading)
