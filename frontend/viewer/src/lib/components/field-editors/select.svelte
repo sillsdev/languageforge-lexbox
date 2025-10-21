@@ -92,7 +92,7 @@
 {#snippet trigger({ props }: { props: Record<string, unknown> })}
   <div class="relative">
     <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
-    class={cn('w-full h-auto px-2 justify-between disabled:opacity-100 disabled:border-transparent', className)}>
+    class={cn('w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent', className)}>
     {#if value}
       <span>
         {getLabel(value)}
