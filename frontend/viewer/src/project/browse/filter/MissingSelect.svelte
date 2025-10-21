@@ -18,7 +18,7 @@
   let {value = $bindable()}: { value: MissingOption | null } = $props();
 
 </script>
-<Select.Root type="single" bind:value={() => value?.id ?? null!, (newId) => value = missingOptions.find(f => f.id === newId) ?? null}>
+<Select.Root type="single" value={value?.id} onValueChange={(newId) => value = missingOptions.find(f => f.id === newId) ?? null}>
   <Select.Trigger class="flex-1" onClear={() => value = null}>
     {value?.label ? $t`Missing: ${value.label}` : $t`Entries missing...`}
   </Select.Trigger>
