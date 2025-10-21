@@ -763,17 +763,22 @@ public class CrdtMiniLcmApi(
     }
 
     [Obsolete($"Use {nameof(AddTranslation)} instead")]
-    public async Task SetFirstTranslationId(
-        Guid exampleSentenceId,
-        Guid translationId)
+    public async Task SetFirstTranslationIds(IDictionary<Guid, Guid> exampleSentenceIdToTranslationId)
     {
-        // When calling this, the first translation of the relevant example-sentence should almost definitely
-        // be Translation.MissingTranslationId, which the API maps to the example sentence's DefaultFirstTranslationId.
-        // However, there are edge cases, which are probably valid. See the comment above the caling code in CrdtRepairs.
-        if (translationId == Translation.MissingTranslationId) throw new InvalidOperationException("Cannot set the first translation id to the missing id placeholder");
-        // We could also validate that translationId is not the default first translation ID,
-        // but it doesn't really matter if it is. It would just be unexpected.
-        await AddChange(new SetFirstTranslationIdChange(exampleSentenceId, translationId));
+        var changes = exampleSentenceIdToTranslationId
+            .Select(kv => GetSetFirstTranslationIdChange(kv.Key, kv.Value));
+        await AddChanges(changes);
+
+        static SetFirstTranslationIdChange GetSetFirstTranslationIdChange(Guid exampleSentenceId, Guid translationId)
+        {
+            // When calling this, the first translation of the relevant example-sentence should almost definitely
+            // be Translation.MissingTranslationId, which the API maps to the example sentence's DefaultFirstTranslationId.
+            // However, there are edge cases, which are probably valid. See the comment above the caling code in CrdtRepairs.
+            if (translationId == Translation.MissingTranslationId) throw new InvalidOperationException("Cannot set the first translation id to the missing id placeholder");
+            // We could also validate that translationId is not the default first translation ID,
+            // but it doesn't really matter if it is. It would just be unexpected.
+            return new SetFirstTranslationIdChange(exampleSentenceId, translationId);
+        }
     }
 
     public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)

@@ -43,7 +43,6 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         {
             // Repair any missing translation IDs before doing the full sync, so the sync doesn't have to deal with them
             var syncedIdCount = await CrdtRepairs.SyncMissingTranslationIds(projectSnapshot.Entries, fwdataApi, crdt, dryRun);
-            activity?.AddTag("Sync.CrdtRepairs.SyncedTranslationIds", syncedIdCount);
         }
 
         SyncResult result = await Sync(crdtApi, fwdataApi, dryRun, fwdataApi.EntryCount, projectSnapshot);
