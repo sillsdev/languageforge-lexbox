@@ -102,6 +102,20 @@ tasks:
     cmds:
       - kubectl cp {{.pod}}:/var/lib/fw-headless/projects/{{.code}}-{{.id}}/crdt.sqlite ./{{.code}}.sqlite --context {{.context}} --namespace {{.namespace}}
 
+  download-fw-headless-project:
+    aliases: [download-project, dp]
+    desc: >
+      Download the entire project folder from a pod as .tar.gz and extract locally.
+      Example:
+      `task download-fw-headless-project id="<project id>" code="<project code>" context="dallas-stage" namespace="languagedepot"`.
+    requires:
+      vars: [id, code]
+    vars:
+      context: '{{.context | default "docker-desktop"}}'
+      namespace: '{{.namespace | default "languagedepot"}}'
+    cmds:
+      - node download-fw-headless-project.js "{{.id}}" "{{.code}}" "{{.context}}" "{{.namespace}}"
+
   diff-staging:
     dir: ./staging
     cmds:
