@@ -20,6 +20,7 @@
     value?: Value;
     options: ReadonlyArray<Value>;
     readonly?: boolean;
+    clearable?: boolean;
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
     labelSelector: ConditionalKeys<Value, string> | ((value: Value) => string);
     placeholder?: string;
@@ -28,12 +29,12 @@
     drawerTitle?: string;
     onchange?: (value: Value | undefined) => void;
     class?: string;
-    nullOption?: string;
   } = $props();
 
   const {
     options,
     readonly = false,
+    clearable = false,
     idSelector,
     labelSelector,
     placeholder,
@@ -42,7 +43,6 @@
     drawerTitle,
     onchange,
     class: className,
-    nullOption,
   } = $derived(constProps);
 
   function getId(value: Value): Primitive {
@@ -90,7 +90,8 @@
 </script>
 
 {#snippet trigger({ props }: { props: Record<string, unknown> })}
-  <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
+  <div class="relative">
+    <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
     class={cn('w-full h-auto px-2 justify-between disabled:opacity-100 disabled:border-transparent', className)}>
     {#if value}
       <span>
@@ -98,15 +99,21 @@
       </span>
     {:else}
       <span class="text-muted-foreground">
-        {placeholder ?? nullOption ?? $t`None`}
+        {placeholder ?? $t`None`}
         <!-- ensures that baseline alignment works for consumers of this component -->
         &nbsp;
       </span>
-    {/if}
+      {/if}
+    </Button>
     {#if !readonly}
-      <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+      <div class="absolute right-0 z-10 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
+        {#if clearable}
+          <XButton onclick={() => selectValue(undefined)} aria-label={$t`clear`} class={cn('pointer-events-auto', value || 'invisible')} />
+        {/if}
+        <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+      </div>
     {/if}
-  </Button>
+  </div>
 {/snippet}
 
 {#snippet command()}
@@ -125,19 +132,6 @@
     <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
-        {#if nullOption}
-          {@const selected = value === undefined || value === null}
-          <CommandItem
-            keywords={[nullOption]}
-            onSelect={() => selectValue(undefined)}
-            class="group max-md:h-12 text-muted-foreground"
-            data-value-index={-1}
-            aria-label={nullOption}
-          >
-            <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
-            {nullOption}
-          </CommandItem>
-        {/if}
         {#each renderedOptions as option, i (getId(option))}
           {@const label = getLabel(option)}
           {@const id = getId(option)}

@@ -24,5 +24,6 @@
   bind:value
   options={semanticDomains.current}
   labelSelector={(sd) => `${sd.code} ${writingSystemService.pickBestAlternative(sd.name, 'analysis')}`}
-  nullOption={$t`Any`}
+  placeholder={$t`Any semantic domain`}
+  clearable
   idSelector="id" />
