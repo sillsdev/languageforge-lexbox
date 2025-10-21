@@ -6,13 +6,13 @@
 
   const wsService = useWritingSystemService();
 
-  let {value = $bindable(), wsType}: { value: string[], wsType: WritingSystemSelection } = $props();
-  let writingSystems = $derived(wsService.pickWritingSystems(wsType));
+  let {value = $bindable(), wsType}: { value: string[], wsType: WritingSystemSelection | undefined } = $props();
+  let writingSystems = $derived(wsType ? wsService.pickWritingSystems(wsType) : []);
   watch(() => writingSystems, () => {
     value = writingSystems.map(ws => ws.wsId);
   });
 </script>
-<Select.Root type="multiple" bind:value>
+<Select.Root disabled={!wsType} type="multiple" bind:value>
   <Select.Trigger class="flex-1">
     {#if value.length === 0}
       <span class="text-muted-foreground">{$t`Writing System`}</span>

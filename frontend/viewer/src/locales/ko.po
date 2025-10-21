@@ -135,6 +135,10 @@ msgstr ""
 msgid "an entry"
 msgstr "항목"
 
+#: src/project/browse/filter/SemanticDomainSelect.svelte
+msgid "Any semantic domain"
+msgstr ""
+
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
 msgstr "모든 W"
@@ -210,7 +214,7 @@ msgstr ""
 msgid "Citation form"
 msgstr "인용 양식"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
 msgstr "인용 양식"
 
@@ -218,6 +222,7 @@ msgstr "인용 양식"
 msgid "Classic FieldWorks Projects"
 msgstr "클래식 FieldWorks 프로젝트"
 
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
@@ -347,7 +352,7 @@ msgstr "사전 미리보기"
 msgid "Discard"
 msgstr "폐기"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Display as"
 msgstr "다음으로 표시"
@@ -402,6 +407,10 @@ msgstr "편집기"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "로 끝납니다."
+
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Entries missing..."
+msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -469,7 +478,7 @@ msgstr "동기화 실패"
 msgid "Feedback & Support"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr "필드"
 
@@ -531,8 +540,8 @@ msgid "Filter entries"
 msgstr "항목 필터링"
 
 #: src/project/browse/SearchFilter.svelte
-msgid "Filter for"
-msgstr "필터링 대상"
+msgid "Filter for..."
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
@@ -563,7 +572,7 @@ msgstr "기타 문의 사항이 있으시면 언제든지 이메일을 보내주
 msgid "Get support"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
 msgstr "광택"
@@ -609,6 +618,14 @@ msgstr "가져오기"
 msgid "in {0}"
 msgstr "in {0}"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Include subdomains"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Incomplete entries"
+msgstr ""
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "계속 진행"
@@ -638,7 +655,7 @@ msgstr "렉스박스 로고"
 msgid "Lexeme form"
 msgstr "Lexeme 양식"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Lexeme 양식"
 
@@ -716,26 +733,17 @@ msgstr "정의 누락 {0}"
 msgid "Missing Example sentence {0}"
 msgstr "누락된 예제 문장 {0}"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Examples"
-msgstr "누락된 예제"
-
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
 msgstr "누락된 광택 {0}"
 
 #: src/project/tasks/tasks-service.ts
-#: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr "누락된 품사"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Semantic Domains"
-msgstr "누락된 시맨틱 도메인"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Senses"
-msgstr "미싱 센스"
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Missing: {0}"
+msgstr ""
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -997,6 +1005,10 @@ msgstr "작업할 새 작업 선택"
 msgid "Select file"
 msgstr "파일 선택"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Semantic domain"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr "시맨틱 도메인"
@@ -1055,6 +1067,10 @@ msgstr "크기:"
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
 msgstr "건너뛰기"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Specific field"
+msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
@@ -1265,8 +1281,8 @@ msgstr "내 프로젝트는 어디에 있나요?"
 msgid "Why is that?"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte

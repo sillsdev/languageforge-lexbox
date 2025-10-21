@@ -135,6 +135,10 @@ msgstr ""
 msgid "an entry"
 msgstr ""
 
+#: src/project/browse/filter/SemanticDomainSelect.svelte
+msgid "Any semantic domain"
+msgstr ""
+
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
 msgstr ""
@@ -210,7 +214,7 @@ msgstr ""
 msgid "Citation form"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
 msgstr "Fomu ya Manukuu"
 
@@ -218,6 +222,7 @@ msgstr "Fomu ya Manukuu"
 msgid "Classic FieldWorks Projects"
 msgstr ""
 
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
@@ -347,7 +352,7 @@ msgstr ""
 msgid "Discard"
 msgstr "Kataa mabadiliko"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Display as"
 msgstr ""
@@ -401,6 +406,10 @@ msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
+msgstr ""
+
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Entries missing..."
 msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
@@ -469,7 +478,7 @@ msgstr ""
 msgid "Feedback & Support"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr ""
 
@@ -531,7 +540,7 @@ msgid "Filter entries"
 msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
-msgid "Filter for"
+msgid "Filter for..."
 msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
@@ -563,7 +572,7 @@ msgstr ""
 msgid "Get support"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
 msgstr "Glosi"
@@ -609,6 +618,14 @@ msgstr "Agiza"
 msgid "in {0}"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Include subdomains"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Incomplete entries"
+msgstr ""
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr ""
@@ -638,7 +655,7 @@ msgstr ""
 msgid "Lexeme form"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Fomu ya Lexeme"
 
@@ -716,25 +733,16 @@ msgstr ""
 msgid "Missing Example sentence {0}"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Examples"
-msgstr ""
-
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
 msgstr ""
 
 #: src/project/tasks/tasks-service.ts
-#: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Semantic Domains"
-msgstr ""
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Senses"
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Missing: {0}"
 msgstr ""
 
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -997,6 +1005,10 @@ msgstr ""
 msgid "Select file"
 msgstr "Chagua Folda"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Semantic domain"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr ""
@@ -1054,6 +1066,10 @@ msgstr "Ukubwa:"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Specific field"
 msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte
@@ -1265,8 +1281,8 @@ msgstr ""
 msgid "Why is that?"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte

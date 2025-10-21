@@ -185,7 +185,7 @@
 
 {#snippet trigger({ props }: { props: Record<string, unknown> })}
   <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
-    class="w-full h-auto px-2 justify-between disabled:opacity-100 disabled:border-transparent">
+    class="w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent">
     {@render displayBadges()}
     {#if !readonly}
       <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />

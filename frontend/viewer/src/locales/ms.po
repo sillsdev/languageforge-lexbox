@@ -135,6 +135,10 @@ msgstr ""
 msgid "an entry"
 msgstr "satu entri"
 
+#: src/project/browse/filter/SemanticDomainSelect.svelte
+msgid "Any semantic domain"
+msgstr ""
+
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
 msgstr "Mana-mana Ws"
@@ -210,7 +214,7 @@ msgstr ""
 msgid "Citation form"
 msgstr "Bentuk petikan"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
 msgstr "Bentuk Petikan"
 
@@ -218,6 +222,7 @@ msgstr "Bentuk Petikan"
 msgid "Classic FieldWorks Projects"
 msgstr "Projek FieldWorks Klasik"
 
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
@@ -347,7 +352,7 @@ msgstr "Pratonton Kamus"
 msgid "Discard"
 msgstr "Buang"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Display as"
 msgstr "Papar sebagai"
@@ -402,6 +407,10 @@ msgstr "Editor"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Berakhir dengan"
+
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Entries missing..."
+msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -469,7 +478,7 @@ msgstr "Gagal menyegerak"
 msgid "Feedback & Support"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr "Bidang"
 
@@ -531,8 +540,8 @@ msgid "Filter entries"
 msgstr "Tapis entri"
 
 #: src/project/browse/SearchFilter.svelte
-msgid "Filter for"
-msgstr "Tapis bagi"
+msgid "Filter for..."
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
@@ -563,7 +572,7 @@ msgstr ""
 msgid "Get support"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
 msgstr "Glos"
@@ -609,6 +618,14 @@ msgstr "Import"
 msgid "in {0}"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Include subdomains"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Incomplete entries"
+msgstr ""
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr ""
@@ -638,7 +655,7 @@ msgstr "Logo Lexbox"
 msgid "Lexeme form"
 msgstr "Bentuk leksem"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Bentuk Leksem"
 
@@ -716,26 +733,17 @@ msgstr ""
 msgid "Missing Example sentence {0}"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Examples"
-msgstr "Contoh Tiada"
-
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
 msgstr ""
 
 #: src/project/tasks/tasks-service.ts
-#: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr "Jenis Perkataan Tiada"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Semantic Domains"
-msgstr "Domain Semantik Tiada"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Senses"
-msgstr "Makna Tiada"
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Missing: {0}"
+msgstr ""
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -997,6 +1005,10 @@ msgstr ""
 msgid "Select file"
 msgstr "Pilih fail"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Semantic domain"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr "Domain semantik"
@@ -1054,6 +1066,10 @@ msgstr "Saiz:"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Specific field"
 msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte
@@ -1265,8 +1281,8 @@ msgstr "Di manakah projek saya?"
 msgid "Why is that?"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte

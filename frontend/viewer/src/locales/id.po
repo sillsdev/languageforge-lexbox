@@ -135,6 +135,10 @@ msgstr ""
 msgid "an entry"
 msgstr "sebuah entri"
 
+#: src/project/browse/filter/SemanticDomainSelect.svelte
+msgid "Any semantic domain"
+msgstr ""
+
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
 msgstr "Setiap Ws"
@@ -210,7 +214,7 @@ msgstr ""
 msgid "Citation form"
 msgstr "Formulir kutipan"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
 msgstr "Formulir Kutipan"
 
@@ -218,6 +222,7 @@ msgstr "Formulir Kutipan"
 msgid "Classic FieldWorks Projects"
 msgstr "Proyek FieldWorks Klasik"
 
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
@@ -347,7 +352,7 @@ msgstr "Pratinjau Kamus"
 msgid "Discard"
 msgstr "Buang"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Display as"
 msgstr "Tampilkan sebagai"
@@ -402,6 +407,10 @@ msgstr "Editor"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Diakhiri dengan"
+
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Entries missing..."
+msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -469,7 +478,7 @@ msgstr "Gagal menyinkronkan"
 msgid "Feedback & Support"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr "Bidang"
 
@@ -531,8 +540,8 @@ msgid "Filter entries"
 msgstr "Menyaring entri"
 
 #: src/project/browse/SearchFilter.svelte
-msgid "Filter for"
-msgstr "Filter untuk"
+msgid "Filter for..."
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
@@ -563,7 +572,7 @@ msgstr "Untuk pertanyaan lainnya, silakan kirimkan email kepada kami."
 msgid "Get support"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
 msgstr "Arti Singkat"
@@ -609,6 +618,14 @@ msgstr "Impor"
 msgid "in {0}"
 msgstr "di {0}"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Include subdomains"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Incomplete entries"
+msgstr ""
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "Teruskan."
@@ -638,7 +655,7 @@ msgstr "Logo Lexbox"
 msgid "Lexeme form"
 msgstr "Bentuk leksem"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Bentuk Leksem"
 
@@ -716,26 +733,17 @@ msgstr "Definisi yang hilang {0}"
 msgid "Missing Example sentence {0}"
 msgstr "Hilang Contoh kalimat {0}"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Examples"
-msgstr "Contoh yang Hilang"
-
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
 msgstr "Arti Singkat yang hilang {0}"
 
 #: src/project/tasks/tasks-service.ts
-#: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr "Bagian Pidato yang Hilang"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Semantic Domains"
-msgstr "Domain Semantik yang Hilang"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Senses"
-msgstr "Pengertian yang hilang"
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Missing: {0}"
+msgstr ""
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -997,6 +1005,10 @@ msgstr "Pilih tugas baru untuk dikerjakan"
 msgid "Select file"
 msgstr "Pilih file"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Semantic domain"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr "Domain semantik"
@@ -1055,6 +1067,10 @@ msgstr "Ukuran:"
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
 msgstr "Lewati"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Specific field"
+msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
@@ -1265,8 +1281,8 @@ msgstr "Di mana proyek saya?"
 msgid "Why is that?"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte

@@ -135,6 +135,10 @@ msgstr ""
 msgid "an entry"
 msgstr "una entrada"
 
+#: src/project/browse/filter/SemanticDomainSelect.svelte
+msgid "Any semantic domain"
+msgstr ""
+
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
 msgstr "Cualquier W"
@@ -210,7 +214,7 @@ msgstr ""
 msgid "Citation form"
 msgstr "Formulario de cita"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
 msgstr "Formulario de citación"
 
@@ -218,6 +222,7 @@ msgstr "Formulario de citación"
 msgid "Classic FieldWorks Projects"
 msgstr "Proyectos clásicos de FieldWorks"
 
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
@@ -347,7 +352,7 @@ msgstr "Vista previa del diccionario"
 msgid "Discard"
 msgstr "Descartar"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Display as"
 msgstr "Mostrar como"
@@ -402,6 +407,10 @@ msgstr "Editor"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Termina con"
+
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Entries missing..."
+msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -469,7 +478,7 @@ msgstr "Error de sincronización"
 msgid "Feedback & Support"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr "Campo"
 
@@ -531,8 +540,8 @@ msgid "Filter entries"
 msgstr "Filtrar entradas"
 
 #: src/project/browse/SearchFilter.svelte
-msgid "Filter for"
-msgstr "Filtro para"
+msgid "Filter for..."
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
@@ -563,7 +572,7 @@ msgstr "Para cualquier otra consulta, no dude en enviarnos un correo electrónic
 msgid "Get support"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
 msgstr "Glosa"
@@ -609,6 +618,14 @@ msgstr "Importar"
 msgid "in {0}"
 msgstr "en {0}"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Include subdomains"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Incomplete entries"
+msgstr ""
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "Continuar"
@@ -638,7 +655,7 @@ msgstr "Logotipo de Lexbox"
 msgid "Lexeme form"
 msgstr "Forma del lexema"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Forma del lexema"
 
@@ -716,26 +733,17 @@ msgstr "Definición {0} perdida"
 msgid "Missing Example sentence {0}"
 msgstr "Frase de ejemplo {0} perdida"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Examples"
-msgstr "Ejemplos perdidos"
-
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
 msgstr "Glosa {0} perdida"
 
 #: src/project/tasks/tasks-service.ts
-#: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr "Parte de la oración perdido"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Semantic Domains"
-msgstr "Dominios semánticos perdidos"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Senses"
-msgstr "Acepciones perdidas"
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Missing: {0}"
+msgstr ""
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -997,6 +1005,10 @@ msgstr "Seleccione una nueva tarea en la que trabajar"
 msgid "Select file"
 msgstr "Seleccionar archivo"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Semantic domain"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr "Dominios semánticos"
@@ -1055,6 +1067,10 @@ msgstr "Tamaño:"
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
 msgstr "Saltar"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Specific field"
+msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
@@ -1265,8 +1281,8 @@ msgstr "¿Dónde están mis proyectos?"
 msgid "Why is that?"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
