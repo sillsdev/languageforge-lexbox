@@ -130,7 +130,7 @@
           <OpFilter bind:value={filterOp}/>
           <Input
             bind:value={fieldFilterValue}
-            placeholder={$t`Filter for`}
+            placeholder={$t`Filter for...`}
             class="flex-1"
           />
         </div>

@@ -2,10 +2,10 @@
   import {gt} from 'svelte-i18n-lingui';
 
   const missingOptions = [
-    { id: 'semanticDomains', label: gt`Semantic Domains` },
-    { id: 'partOfSpeech', label: gt`Part of Speech` },
+    { id: 'semanticDomains', label: gt`Semantic domain` },
+    { id: 'partOfSpeech', label: gt`Part of speech` },
     { id: 'senses', label: gt`Senses` },
-    { id: 'examples', label: gt`Example Sentences` },
+    { id: 'examples', label: gt`Example sentences` },
   ]
 
   export type MissingOption = typeof missingOptions[number];
@@ -20,7 +20,7 @@
 </script>
 <Select.Root type="single" bind:value={() => value?.id ?? null!, (newId) => value = missingOptions.find(f => f.id === newId) ?? null}>
   <Select.Trigger class="flex-1" onClear={() => value = null}>
-    {value?.label ?? $t`Missing...`}
+    {value?.label ? $t`Missing: ${value.label}` : $t`Entries missing...`}
   </Select.Trigger>
   <Select.Content>
     {#each missingOptions as option (option.id)}

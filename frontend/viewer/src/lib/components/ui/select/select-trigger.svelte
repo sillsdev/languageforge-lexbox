@@ -28,6 +28,8 @@
     bind:ref
     class={cn(
       'border-input bg-background ring-offset-background data-[placeholder]:text-muted-foreground focus:ring-ring flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+      // matches the Button 'outline' variant
+      'hover:bg-accent hover:text-accent-foreground',
     )}
     {...restProps}
   >
@@ -38,7 +40,7 @@
       <XButton class="pointer-events-auto group-has-[[data-placeholder]]:hidden" onclick={onClear} />
     {/if}
     {#if downIcon}
-      <Icon icon={downIcon} class="size-4 opacity-50" />
+      <Icon icon={downIcon} class="mr-2 size-5 shrink-0 opacity-50" />
     {/if}
   </div>
 </div>
