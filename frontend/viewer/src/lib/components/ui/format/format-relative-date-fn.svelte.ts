@@ -1,14 +1,15 @@
-import {formatDuration} from './format-duration';
-import {locale} from 'svelte-i18n-lingui';
+import {SvelteDate} from 'svelte/reactivity';
+import {formatDuration, type SmallestUnit} from './format-duration';
 import {fromStore} from 'svelte/store';
 import {gt} from 'svelte-i18n-lingui';
-import {SvelteDate} from 'svelte/reactivity';
+import {locale} from 'svelte-i18n-lingui';
 
 const currentLocale = fromStore(locale);
 type Config = {
   defaultValue: string,
   now: Date,
   maxUnits?: number,
+  smallestUnit?: SmallestUnit,
 }
 
 export function formatRelativeDate(value: Date | string | undefined | null, options?: Intl.DurationFormatOptions, config: Config = {defaultValue: '', now: new SvelteDate()}): string {
@@ -20,7 +21,7 @@ export function formatRelativeDate(value: Date | string | undefined | null, opti
   const isPast = diffMs < 0;
   const absDiffMs = Math.abs(diffMs);
 
-  const duration = formatDuration({milliseconds: absDiffMs}, undefined, options, config.maxUnits);
+  const duration = formatDuration({milliseconds: absDiffMs}, config.smallestUnit, options, config.maxUnits);
   if (!duration) return config.defaultValue;
 
   return isPast ? gt`${duration} ago` : gt`in ${duration}`;

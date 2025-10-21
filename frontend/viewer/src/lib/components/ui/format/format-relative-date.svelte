@@ -4,7 +4,8 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {SvelteDate} from 'svelte/reactivity';
   import Icon from '../icon/icon.svelte';
-  import * as Popover from '../popover/index.js';
+  import * as Popover from '../popover';
+  import type {SmallestUnit} from './format-duration';
 
   type Props = HTMLAttributes<HTMLTimeElement> & {
     date: Date | string | undefined | null;
@@ -14,6 +15,8 @@
     showActualDate?: boolean;
     actualDateOptions?: Intl.DateTimeFormatOptions;
     maxUnits?: number;
+    smallestUnit?: SmallestUnit,
+    loading?: boolean;
   };
 
   const {
@@ -24,6 +27,8 @@
     showActualDate = false,
     actualDateOptions,
     maxUnits = 2,
+    smallestUnit = 'seconds',
+    loading,
     ...restProps
   }: Props = $props();
 
@@ -50,7 +55,7 @@
   });
 
   const formattedRelativeDate = $derived.by(() => {
-    return formatRelativeDate(date, options, {defaultValue: defaultValue || '', now, maxUnits});
+    return formatRelativeDate(date, options, {defaultValue: defaultValue || '', now, maxUnits, smallestUnit});
   });
 
   const actualFormattedDate = $derived.by(() => {
@@ -60,10 +65,10 @@
 </script>
 
 {#if showActualDate && actualFormattedDate}
-  <span class="inline-flex items-center gap-1">
-    <time {...restProps}>{formattedRelativeDate}</time>
+  <span class:loading-text={loading} class="inline-flex items-center gap-1">
     <Popover.Root>
       <Popover.Trigger>
+        <time {...restProps}>{formattedRelativeDate}</time>
         <Icon icon="i-mdi-information-outline" class="size-4 text-muted-foreground hover:text-foreground" />
       </Popover.Trigger>
       <Popover.Content class="w-auto">
@@ -73,5 +78,5 @@
     </Popover.Root>
   </span>
 {:else}
-  <time {...restProps}>{formattedRelativeDate}</time>
+  <time class:loading-text={loading} {...restProps}>{formattedRelativeDate}</time>
 {/if}

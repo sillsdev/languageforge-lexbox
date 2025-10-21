@@ -37,5 +37,5 @@ For formatted values you can do this:
 Add a new component with this:
 
 ```bash
-pnpx shadcn-svelte@next add context-menu
+npx shadcn-svelte@next add context-menu
 ```

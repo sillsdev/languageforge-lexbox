@@ -23,7 +23,7 @@
     (dir === 'down' || dir === 'right') && 'rotate-180',
     className,
 )}>
-  <svg xmlns="http://www.w3.org/2000/svg" width={boxWidth} height={boxHeight} viewBox="0 0 {width} {height}" preserveAspectRatio="xMidYMid meet">
+  <svg xmlns="http://www.w3.org/2000/svg" class="max-w-full" width={boxWidth} height={boxHeight} viewBox="0 0 {width} {height}" preserveAspectRatio="xMidYMid meet">
     <rect width={width} height={height} fill="none"/>
     {#if isVertical}
       <path fill="currentColor"

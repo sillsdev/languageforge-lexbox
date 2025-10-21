@@ -12,6 +12,7 @@
   import {t, T} from 'svelte-i18n-lingui';
   import SyncArrow from './SyncArrow.svelte';
   import FwLiteToFwMergeDetails from './FwLiteToFwMergeDetails.svelte';
+  import {cn} from '$lib/utils';
 
   interface Props {
     syncStatus: SyncStatus;
@@ -36,12 +37,9 @@
     projectCode,
     latestSyncedCommitDate,
     canSyncLexboxToFlex,
-    syncLexboxToFlex = async () => {
-    },
-    syncLexboxToLocal = async () => {
-    },
-    onLoginStatusChange = () => {
-    },
+    syncLexboxToFlex = async () => {},
+    syncLexboxToLocal = async () => {},
+    onLoginStatusChange = () => {},
   }: Props = $props();
 
 
@@ -52,6 +50,7 @@
   const serverProjectUrl = $derived(`${server?.authority}/project/${encodeURIComponent(projectCode ?? '')}`);
   const isOffline = $derived(syncStatus === SyncStatus.Offline);
   const showRemote = $derived(!!server);
+  const cloudIcon = $derived(isOffline ? 'i-mdi-cloud-off-outline' : 'i-mdi-cloud-outline');
 
   let loadingSyncLexboxToFlex = $state(false);
 
@@ -64,14 +63,17 @@
     });
   }
 </script>
-<Tabs.Root value="lite">
+<Tabs.Root value="lite" class="flex md:flex-col flex-col-reverse">
   {#if showRemote}
-    <Tabs.List class="w-full mb-2">
+    <Tabs.List class="w-full md:mb-2 max-md:mt-4 max-md:sticky bottom-0 z-[1]">
       <Tabs.Trigger class="flex-1" value="lite">{$t`FieldWorks Lite`}</Tabs.Trigger>
-      <Tabs.Trigger class="flex-1" value="classic">{$t`FieldWorks Classic`}</Tabs.Trigger>
+      <Tabs.Trigger class="flex-1 gap-2" value="classic"><Icon icon={cloudIcon} class="-my-1" /> {$t`Lexbox`}</Tabs.Trigger>
     </Tabs.List>
   {/if}
   <Tabs.Content value="lite">
+    <p class="mb-6 text-lg text-center">
+      {$t`Sync your changes with other FieldWorks Lite users`}
+    </p>
     <div class="text-center my-2">
       <span class="text-foreground/80">
         <T msg="Last sync: #">
@@ -87,7 +89,7 @@
       <!-- Status local to remote -->
       <div class="col-span-full text-center border rounded pb-0.5">
         <Button class="flex-col h-auto gap-0 text-foreground hover:text-primary text-base" variant="link" href={serverProjectUrl} target="_blank" rel="noopener">
-          <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}  class="size-10 -mb-0.5" />
+          <Icon icon={cloudIcon}  class="size-10 -mb-0.5" />
           <span class="underline">{serverName}</span>
         </Button>
       </div>
@@ -98,8 +100,8 @@
           <!-- blank spacer-->
         </div>
         <div class="grid justify-center items-center min-h-12 gap-2" style="grid-template-columns: 1fr auto auto auto 1fr">
-          <span class="text-end">{remoteToLocalCount ?? '?'}</span>
-          <SyncArrow dir="down" tailLength={40} size={1.5} class="translate-y-[1px]"/>
+          <span class="text-end" class:font-bold={Number(remoteToLocalCount)} class:text-primary={Number(remoteToLocalCount)}>{remoteToLocalCount ?? '?'}</span>
+          <SyncArrow dir="down" tailLength={40}  size={1.5} class={cn('translate-y-[1px]', Number(remoteToLocalCount) && 'text-primary')} />
           <div class="flex flex-col gap-2 mx-2">
             {#if syncStatus === SyncStatus.Success}
               {#if remoteToLocalCount === 0 && localToRemoteCount === 0}
@@ -118,7 +120,7 @@
                 {#if loadingSyncLexboxToLocal}
                   {$t`Syncing...`}
                 {:else}
-                  {$t`Auto sync`}
+                  {$t`Auto syncing`}
                 {/if}
               </Button>
             {:else if syncStatus === SyncStatus.Offline}
@@ -138,8 +140,8 @@
               <div class="text-destructive">{$t`Error getting sync status.`}</div>
             {/if}
             </div>
-            <SyncArrow dir="up" tailLength={40} size={1.5} class="translate-y-[-1px]"/>
-            <span class="text-start">{localToRemoteCount ?? '?'}</span>
+            <SyncArrow dir="up" tailLength={40} size={1.5} class={cn('translate-y-[-1px]', Number(localToRemoteCount) && 'text-primary')}/>
+            <span class="text-start" class:font-bold={Number(localToRemoteCount)} class:text-primary={Number(localToRemoteCount)}>{localToRemoteCount ?? '?'}</span>
           </div>
           <div>
             <!-- blank spacer-->
