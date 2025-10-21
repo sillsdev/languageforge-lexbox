@@ -14,6 +14,7 @@
   import type { ILexboxServer } from '$lib/dotnet-types';
   import * as Popover from '$lib/components/ui/popover';
   import {cn} from '$lib/utils';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 
   let {
     syncStatus,
@@ -70,7 +71,7 @@
           {$t`This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox.`}
         </p>
         <p>
-          {$t`FieldWorks Lite users will automatically receive changes made in FieldWorks Classic. FieldWorks Classic users will see changes made in FieldWorks Lite after they do Send/Receive.`}
+          {$t`FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive.`}
         </p>
       </div>
     </Popover.Content>
@@ -86,6 +87,7 @@
         <FormatRelativeDate
           date={lastFwLiteSyncDate}
           showActualDate
+          maxUnits={IsMobile.value ? 1 : 2}
           {loading}
           defaultValue={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`}
         />
@@ -127,7 +129,7 @@
                       {$t`One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite.`}
                     </span>
                     <span>
-                      {$t`Changes can also be the result of additional fields being added to new versions of FieldWorks Lite.`}
+                      {$t`Changes can also be the result of fields being added to new versions of FieldWorks Lite.`}
                     </span>
                   </div>
                 </Accordion.Content>
@@ -190,6 +192,7 @@
         <FormatRelativeDate
           date={lastFlexSyncDate}
           showActualDate
+          maxUnits={IsMobile.value ? 1 : 2}
           {loading}
           defaultValue={remoteStatus?.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`}
         />

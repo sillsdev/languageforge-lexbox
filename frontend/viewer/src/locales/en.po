@@ -126,10 +126,6 @@ msgstr "Add Sense"
 msgid "Add Word"
 msgstr "Add Word"
 
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-msgid "After the sync, changes made in FW Classic will appear in FW Lite and changes made in FW Lite will appear in FW Classic after the next Send/Receive."
-msgstr "After the sync, changes made in FW Classic will appear in FW Lite and changes made in FW Lite will appear in FW Classic after the next Send/Receive."
-
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "an entry"
@@ -194,12 +190,12 @@ msgid "Cancel"
 msgstr "Cancel"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-msgid "Changes can also be the result of additional fields being added to new versions of FieldWorks Lite."
-msgstr "Changes can also be the result of additional fields being added to new versions of FieldWorks Lite."
+msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
+msgstr "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-msgid "Changing the same field twice (e.g.) can result in two commits, but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
-msgstr "Changing the same field twice (e.g.) can result in two commits, but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
+msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
+msgstr "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 
 #: src/lib/ThemePicker.svelte
 msgid "Choose theme"
@@ -486,6 +482,10 @@ msgstr "FieldWorks Lite"
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
+msgstr "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1105,8 +1105,8 @@ msgid "Synchronize"
 msgstr "Synchronize"
 
 #: src/project/SyncDialog.svelte
-msgid "Synchronizing FieldWorks Lite and FieldWorks..."
-msgstr "Synchronizing FieldWorks Lite and FieldWorks..."
+msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
+msgstr "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Syncing..."
