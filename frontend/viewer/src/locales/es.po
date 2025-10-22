@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-10-18 14:26\n"
+"PO-Revision-Date: 2025-10-22 10:29\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -41,14 +41,6 @@ msgstr "{0} (FieldWorks)"
 msgid "{0} ago"
 msgstr "{0} hace"
 
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-msgid "{0} Changes"
-msgstr "{0} cambios"
-
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-msgid "{0} Commits"
-msgstr "{0} confirmaciones"
-
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
@@ -58,13 +50,17 @@ msgid "{0} Server"
 msgstr "{0} Servidor"
 
 #: src/project/SyncDialog.svelte
-msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
-msgstr "{0} sincronizado con FieldWorks. {1} sincronizado con FieldWorks Lite."
-
-#: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {# cambio} other {# cambios}}"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
+msgstr "{num, plural, one {# nuevo FieldWorks Classic commit} other {# nuevos FieldWorks Classic commits}}"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
+msgstr "{num, plural, one {# nuevo commit de FieldWorks Lite} other {# nuevos commits de FieldWorks Lite}}"
 
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
@@ -139,6 +135,10 @@ msgstr "Añadir palabra"
 msgid "an entry"
 msgstr "una entrada"
 
+#: src/project/browse/filter/SemanticDomainSelect.svelte
+msgid "Any semantic domain"
+msgstr "Cualquier dominio semántico"
+
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
 msgstr "Cualquier W"
@@ -177,8 +177,8 @@ msgid "Auto"
 msgstr "Auto"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
-msgid "Auto sync"
-msgstr "Auto sincronización"
+msgid "Auto syncing"
+msgstr "Sincronización automática"
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -198,6 +198,14 @@ msgstr "Visite"
 msgid "Cancel"
 msgstr "Cancelar"
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
+msgstr "Los cambios también pueden ser el resultado de que los campos sean agregados a nuevas versiones de FieldWorks Lite."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
+msgstr "Cambiar el mismo campo dos veces, por ejemplo, puede resultar en dos commits pero sólo un cambio que necesita ser aplicado a FieldWorks Classic. Los commits también pueden consistir en varios cambios."
+
 #: src/lib/ThemePicker.svelte
 msgid "Choose theme"
 msgstr "Elegir tema"
@@ -206,7 +214,7 @@ msgstr "Elegir tema"
 msgid "Citation form"
 msgstr "Formulario de cita"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
 msgstr "Formulario de citación"
 
@@ -214,6 +222,7 @@ msgstr "Formulario de citación"
 msgid "Classic FieldWorks Projects"
 msgstr "Proyectos clásicos de FieldWorks"
 
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
@@ -343,7 +352,7 @@ msgstr "Vista previa del diccionario"
 msgid "Discard"
 msgstr "Descartar"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Display as"
 msgstr "Mostrar como"
@@ -398,6 +407,10 @@ msgstr "Editor"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Termina con"
+
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Entries missing..."
+msgstr "Entradas faltantes..."
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -465,7 +478,7 @@ msgstr "Error de sincronización"
 msgid "Feedback & Support"
 msgstr "Comentarios y Soporte"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr "Campo"
 
@@ -474,16 +487,16 @@ msgid "Field Labels"
 msgstr "Etiquetas de campo"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
-msgid "FieldWorks Classic"
-msgstr "FieldWorks clásico"
-
-#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr "FieldWorks Lite se ha actualizado correctamente. Reinicie la aplicación para aplicar los cambios."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
+msgstr "Los usuarios de FieldWorks Lite recibirán automáticamente cambios realizados en FieldWorks Classic. Los usuarios de FieldWorks Classic verán los cambios que se hicieron en FieldWorks Lite después de que hagan Enviar/Recibir."
 
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -527,8 +540,8 @@ msgid "Filter entries"
 msgstr "Filtrar entradas"
 
 #: src/project/browse/SearchFilter.svelte
-msgid "Filter for"
-msgstr "Filtro para"
+msgid "Filter for..."
+msgstr "Filtrar para..."
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
@@ -559,7 +572,7 @@ msgstr "Para cualquier otra consulta, no dude en enviarnos un correo electrónic
 msgid "Get support"
 msgstr "Obtener soporte"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
 msgstr "Glosa"
@@ -605,6 +618,14 @@ msgstr "Importar"
 msgid "in {0}"
 msgstr "en {0}"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Include subdomains"
+msgstr "Incluye subdominios"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Incomplete entries"
+msgstr "Entradas incompletas"
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "Continuar"
@@ -622,6 +643,10 @@ msgstr "Última sincronización: #"
 msgid "Length:"
 msgstr "Longitud:"
 
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Lexbox"
+msgstr "Lexbox"
+
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
 msgstr "Logotipo de Lexbox"
@@ -630,7 +655,7 @@ msgstr "Logotipo de Lexbox"
 msgid "Lexeme form"
 msgstr "Forma del lexema"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Forma del lexema"
 
@@ -708,26 +733,17 @@ msgstr "Definición {0} perdida"
 msgid "Missing Example sentence {0}"
 msgstr "Frase de ejemplo {0} perdida"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Examples"
-msgstr "Ejemplos perdidos"
-
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
 msgstr "Glosa {0} perdida"
 
 #: src/project/tasks/tasks-service.ts
-#: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr "Parte de la oración perdido"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Semantic Domains"
-msgstr "Dominios semánticos perdidos"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Senses"
-msgstr "Acepciones perdidas"
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Missing: {0}"
+msgstr "Falta: {0}"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -742,6 +758,10 @@ msgstr "Nunca"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Nuevo"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "New data"
+msgstr "Nuevos datos"
 
 #: src/project/PrimaryNewEntryButton.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -786,6 +806,10 @@ msgstr "No se han encontrado antecedentes"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "No items found"
 msgstr "No se han encontrado artículos"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "No new data"
+msgstr "No hay nuevos datos"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "No server"
@@ -836,6 +860,10 @@ msgstr "Fuera de línea"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Desconectado, no se puede descargar"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
+msgstr "Un commit de FieldWorks Classic puede consistir en cambios en múltiples entradas o campos. Por otro lado, un commit sólo puede afectar a los datos que no están sincronizados con FieldWorks Lite."
 
 #: src/home/Server.svelte
 msgid "Open"
@@ -977,6 +1005,10 @@ msgstr "Seleccione una nueva tarea en la que trabajar"
 msgid "Select file"
 msgstr "Seleccionar archivo"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Semantic domain"
+msgstr "Dominio semántico"
+
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr "Dominios semánticos"
@@ -1036,6 +1068,10 @@ msgstr "Tamaño:"
 msgid "Skip"
 msgstr "Saltar"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Specific field"
+msgstr "Campo específico"
+
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Empieza por"
@@ -1058,6 +1094,18 @@ msgstr "Sincronizar"
 msgid "Sync Changes"
 msgstr "Sincronizar Cambios"
 
+#: src/project/SyncDialog.svelte
+msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
+msgstr "Sincronización completa. {0} se aplicaron a FieldWorks Classic. {1} se aplicaron a FieldWorks Lite."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Sync FieldWorks Lite and FieldWorks Classic"
+msgstr "Sync FieldWorks Lite y FieldWorks Clásico"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Sync your changes with other FieldWorks Lite users"
+msgstr "Sincroniza tus cambios con otros usuarios de FieldWorks Lite"
+
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
 msgstr "Sincronizado"
@@ -1075,8 +1123,8 @@ msgid "Synchronize"
 msgstr "Sincronice"
 
 #: src/project/SyncDialog.svelte
-msgid "Synchronizing FieldWorks Lite with FieldWorks..."
-msgstr "Sincronización de FieldWorks Lite con FieldWorks..."
+msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
+msgstr "Sincronizando FieldWorks Lite y FieldWorks Classic..."
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Syncing..."
@@ -1102,6 +1150,14 @@ msgstr "Tareas"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Cuéntanos acerca de un error o problema que hayas encontrado."
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
+msgstr "El número de commits de FieldWorks Classic no necesariamente coincidirá con el número de cambios mostrados en el mensaje de resultado de sincronización."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
+msgstr "El número de commits de FieldWorks Lite no necesariamente coincidirá con el número de cambios mostrados en el mensaje de resultado de sincronización."
+
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
 msgstr "La tarea que buscas no existe."
@@ -1117,6 +1173,10 @@ msgstr "Este proyecto está ahora abierto en FieldWorks. Para continuar trabajan
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Esta tarea está completa"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
+msgstr "Esto sincronizará las copias de FieldWorks Lite y FieldWorks Classic de su proyecto en Lexbox."
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -1216,8 +1276,13 @@ msgstr "Ver configuración"
 msgid "Where are my projects?"
 msgstr "¿Dónde están mis proyectos?"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Why is that?"
+msgstr "¿Por qué?"
+
 #: src/project/browse/EntryMenu.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
