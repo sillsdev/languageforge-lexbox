@@ -23,5 +23,7 @@ using var app = builder.Build();
 await using var scope = app.Services.CreateAsyncScope();
 var services = scope.ServiceProvider;
 
-// await services.SyncDownloadedProject("uzb-flex-20251021141736/uzb-flex-64ae5ccc-97fb-4e0a-ba8c-7140b51393d8", dryRun: false);
+using var project = await services.OpenDownloadedProject("sena-3-aaac6f5f-7fc6-4e58-bc64-5e15a4b7c238_20251022120817", openCopy: true);
+await services.SyncFwHeadlessProject(project, dryRun: false);
+
 // await services.PrintAllEntries("sena-3");

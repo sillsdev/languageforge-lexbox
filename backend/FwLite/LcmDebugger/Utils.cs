@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using FwDataMiniLcmBridge;
+using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteProjectSync;
 using LcmCrdt;
@@ -7,6 +8,15 @@ using Microsoft.Extensions.DependencyInjection;
 using SIL.LCModel;
 
 namespace LcmDebugger;
+
+public record FwHeadlessProject(CrdtMiniLcmApi CrdtApi, FwDataMiniLcmApi FwApi) : IDisposable
+{
+    public void Dispose()
+    {
+        CrdtApi.Dispose();
+        FwApi.Dispose();
+    }
+}
 
 public static class Utils
 {
@@ -36,13 +46,23 @@ public static class Utils
         }
     }
 
-    public static async Task SyncDownloadedProject(this IServiceProvider services, string relativePath, bool dryRun = true, string? downloadsRoot = null)
+    public static async Task<FwHeadlessProject> OpenDownloadedProject(this IServiceProvider services, string relativePath, bool openCopy = false, string? downloadsRoot = null)
     {
         // Default to a path relative to the executing assembly, pointing to the deployment/_downloads folder
         var fwHeadlessRoot = downloadsRoot ?? GetDefaultDownloadsPath();
         var currProjRoot = Path.Combine(fwHeadlessRoot, relativePath);
-        var fwDataProject = new FwDataProject("fw", currProjRoot);
 
+        if (openCopy)
+        {
+            // Make a copy of the project to avoid modifying the original download
+            var tempDir = Path.Combine(Path.GetTempPath(), $"{relativePath}_{Guid.NewGuid().ToString().Split('-')[0]}");
+            Directory.CreateDirectory(tempDir);
+            Console.WriteLine($"Copying project to temporary directory: {tempDir}");
+            LexCore.Utils.FileUtils.CopyFilesRecursively(new DirectoryInfo(currProjRoot), new DirectoryInfo(tempDir));
+            currProjRoot = tempDir;
+        }
+
+        var fwDataProject = new FwDataProject("fw", currProjRoot);
         var fwDataMiniLcmApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
         Console.WriteLine($"Project ID: {fwDataMiniLcmApi.ProjectId}");
 
@@ -51,8 +71,14 @@ public static class Utils
         var crdtMiniLcmApi = (CrdtMiniLcmApi)await services.GetRequiredService<CrdtProjectsService>().OpenProject(crdtProject, services);
         Console.WriteLine($"Crdt Project: {crdtMiniLcmApi.ProjectData.Code}");
 
-        var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
+        return new FwHeadlessProject(crdtMiniLcmApi, fwDataMiniLcmApi);
+    }
 
+    public static async Task SyncFwHeadlessProject(this IServiceProvider services, FwHeadlessProject project, bool dryRun = true)
+    {
+        var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
+        var crdtMiniLcmApi = project.CrdtApi;
+        var fwDataMiniLcmApi = project.FwApi;
         var result = await syncService.Sync(crdtMiniLcmApi, fwDataMiniLcmApi, dryRun);
         Console.WriteLine($"Sync completed successfully. Crdt changes: {result.CrdtChanges}, Fwdata changes: {result.FwdataChanges}.");
     }
@@ -76,3 +102,4 @@ public static class Utils
     }
 
 }
+
