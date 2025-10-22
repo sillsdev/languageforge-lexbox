@@ -86,7 +86,7 @@ public class MiniLcmRepository(
                 WritingSystemType.Vernacular => _defaultVernacularWs ??=
                     await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.Type == type),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            } ?? throw new NullReferenceException($"Unable to find a default writing system of type {type}");
+            } ?? throw NotFoundException.ForType<WritingSystem>($"{id.Code}: {type}");
         }
 
         return await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.WsId == id && ws.Type == type);
@@ -162,7 +162,7 @@ public class MiniLcmRepository(
         {
             var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
             if (ws is null)
-                throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
+                throw NotFoundException.ForType<WritingSystem>($"{options.Exemplar.WritingSystem.Code}: {WritingSystemType.Vernacular}");
             queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
         }
 
@@ -198,7 +198,7 @@ public class MiniLcmRepository(
     {
         var sortWs = await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular);
         if (sortWs is null)
-            throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
+            throw NotFoundException.ForType<WritingSystem>($"{options.Order.WritingSystem.Code}: {WritingSystemType.Vernacular}");
 
         switch (options.Order.Field)
         {
