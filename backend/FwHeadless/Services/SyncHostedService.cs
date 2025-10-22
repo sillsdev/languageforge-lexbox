@@ -204,7 +204,6 @@ public class SyncWorker(
             result.CrdtChanges,
             result.FwdataChanges);
 
-        await crdtSyncService.SyncHarmonyProject();
         if (result.FwdataChanges == 0)
         {
             logger.LogInformation("No Send/Receive needed after CRDT sync as no FW changes were made by the sync");
@@ -238,6 +237,8 @@ public class SyncWorker(
         {
             logger.LogInformation("Skipping regenerating project snapshot, because there were no crdt changes"):
         }
+
+        await crdtSyncService.SyncHarmonyProject();
 
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
         return new SyncJobResult(result);
