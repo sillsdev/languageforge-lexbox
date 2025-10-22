@@ -94,13 +94,15 @@ tasks:
     desc: 'example: `task download-sqlite-file id="<project id here>" code="<project code here>" context="dallas-stage"` the namespace can also be set'
     requires:
       vars: [id, code]
+    env:
+      KUBECTL_REMOTE_COMMAND_WEBSOCKETS: false
     vars:
       context: '{{.context| default "docker-desktop"}}'
       namespace: '{{.namespace| default "languagedepot"}}'
       pod:
         sh: kubectl get pods -l app=fw-headless -o jsonpath='{.items[0].metadata.name}' --context {{.context}} --namespace {{.namespace}}
     cmds:
-      - kubectl cp {{.pod}}:/var/lib/fw-headless/projects/{{.code}}-{{.id}}/crdt.sqlite ./{{.code}}.sqlite --context {{.context}} --namespace {{.namespace}}
+      - kubectl cp --retries 10 {{.pod}}:/var/lib/fw-headless/projects/{{.code}}-{{.id}}/crdt.sqlite ./{{.code}}.sqlite --context {{.context}} --namespace {{.namespace}}
 
   download-fw-headless-project:
     aliases: [download-project, dp]
