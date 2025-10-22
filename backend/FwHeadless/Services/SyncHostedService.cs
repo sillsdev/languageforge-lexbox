@@ -223,6 +223,22 @@ public class SyncWorker(
                 logger.LogInformation("Send/Receive result after CRDT sync: {Output}", srResult2.Output);
             }
         }
+
+        //We only want to regenerate the snapshot if we know the changes applied to fwdata were successfully pushed.
+        //Otherwise, the changes might have been rolled back.
+        if (result.CrdtChanges > 0)
+        {
+            logger.LogInformation("Regenerating project snapshot to include crdt changes");
+            //note we are now using the crdt API, this avoids issues where some data isn't synced yet
+            //later when we add the ability to sync that data we need the snapshot to reflect the synced state, not what was in the FW project
+            //related to https://github.com/sillsdev/languageforge-lexbox/issues/1912
+            await syncService.RegenerateProjectSnapshot(miniLcmApi, fwdataApi.Project, keepBackup: false);
+        }
+        else
+        {
+            logger.LogInformation("Skipping regenerating project snapshot, because there were no crdt changes"):
+        }
+
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
         return new SyncJobResult(result);
     }

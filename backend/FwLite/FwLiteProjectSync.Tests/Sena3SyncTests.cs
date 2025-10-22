@@ -225,6 +225,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
         // act
         var result = await _syncService.Sync(liveCrdtApi, _fwDataApi);
+        await _syncService.RegenerateProjectSnapshot(liveCrdtApi, _fwDataApi.Project);
 
         // assert
         var fwHeadlessSnapshot = await _syncService.GetProjectSnapshot(_project.FwDataProject);
