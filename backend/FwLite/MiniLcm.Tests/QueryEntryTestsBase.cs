@@ -344,8 +344,6 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     public async Task SuccessfulMatches(string searchTerm, string word)
     {
         word = word.Normalize(NormalizationForm.FormD);
-        //should we be normalizing the search term internally?
-        searchTerm = searchTerm.Normalize(NormalizationForm.FormD);
         await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
         var words = await Api.SearchEntries(searchTerm).Select(e => e.LexemeForm["en"]).ToArrayAsync();
         words.Should().Contain(word);

@@ -1,6 +1,7 @@
+using MiniLcm.Normalization;
 using MiniLcm.Tests.AutoFakerHelpers;
+using MiniLcm.Wrappers;
 using Soenneker.Utils.AutoBogus;
-using Soenneker.Utils.AutoBogus.Config;
 
 namespace MiniLcm.Tests;
 
@@ -8,12 +9,15 @@ public abstract class MiniLcmTestBase : IAsyncLifetime
 {
     protected static readonly AutoFaker AutoFaker = new(AutoFakerDefault.MakeConfig(["en"], 5));
     protected IMiniLcmApi Api = null!;
+    protected IMiniLcmApi BaseApi = null!;
 
     protected abstract Task<IMiniLcmApi> NewApi();
 
     public virtual async Task InitializeAsync()
     {
-        Api = await NewApi();
+        BaseApi = await NewApi();
+        BaseApi.Should().NotBeNull();
+        Api = BaseApi.WrapWith([new MiniLcmApiStringNormalizationWrapperFactory()], null!);
         Api.Should().NotBeNull();
     }
 

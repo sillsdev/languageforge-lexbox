@@ -21,13 +21,13 @@ public class MediaTests : MediaTestsBase
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();
-        var projectFolder = ((FwDataMiniLcmApi)Api).Cache.LangProject.LinkedFilesRootDir;
+        var projectFolder = ((FwDataMiniLcmApi)BaseApi).Cache.LangProject.LinkedFilesRootDir;
         Directory.CreateDirectory(projectFolder);
     }
 
     public override async Task DisposeAsync()
     {
-        var projectFolder = ((FwDataMiniLcmApi)Api).Cache.ProjectId.ProjectFolder;
+        var projectFolder = ((FwDataMiniLcmApi)BaseApi).Cache.ProjectId.ProjectFolder;
         if (Directory.Exists(projectFolder)) Directory.Delete(projectFolder, true);
         await base.DisposeAsync();
     }
