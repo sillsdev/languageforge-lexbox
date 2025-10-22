@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-10-18 14:26\n"
+"PO-Revision-Date: 2025-10-22 10:29\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -41,14 +41,6 @@ msgstr "{0} (FieldWorks)"
 msgid "{0} ago"
 msgstr "{0} 전"
 
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-msgid "{0} Changes"
-msgstr "{0} 변경 사항"
-
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-msgid "{0} Commits"
-msgstr "{0} 커밋"
-
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
@@ -58,13 +50,17 @@ msgid "{0} Server"
 msgstr "{0} 서버"
 
 #: src/project/SyncDialog.svelte
-msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
-msgstr "{0} FieldWorks에 동기화됨. {1} FieldWorks Lite에 동기화됨."
-
-#: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {#개 변경}}"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
+msgstr "{num, plural, one {# 새 FieldWorks 클래식 커밋} other {# 새 FieldWorks 클래식 커밋}}"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
+msgstr "{num, plural, one {# 새 FieldWorks Lite 커밋} other {# 새 FieldWorks Lite 커밋}}"
 
 #: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityView.svelte
@@ -139,6 +135,10 @@ msgstr "단어 추가"
 msgid "an entry"
 msgstr "항목"
 
+#: src/project/browse/filter/SemanticDomainSelect.svelte
+msgid "Any semantic domain"
+msgstr "모든 시맨틱 도메인"
+
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
 msgstr "모든 W"
@@ -177,7 +177,7 @@ msgid "Auto"
 msgstr "자동"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
-msgid "Auto sync"
+msgid "Auto syncing"
 msgstr "자동 동기화"
 
 #: src/project/browse/SortMenu.svelte
@@ -198,6 +198,14 @@ msgstr "찾아보기"
 msgid "Cancel"
 msgstr "취소"
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
+msgstr "FieldWorks Lite의 새 버전에 필드가 추가되어 변경 사항이 발생할 수도 있습니다."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
+msgstr "예를 들어 동일한 필드를 두 번 변경하면 두 개의 커밋이 발생하지만 FieldWorks Classic에 적용해야 하는 변경 사항은 하나만 발생할 수 있습니다. 커밋은 여러 변경 사항으로 구성될 수도 있습니다."
+
 #: src/lib/ThemePicker.svelte
 msgid "Choose theme"
 msgstr "테마 선택"
@@ -206,7 +214,7 @@ msgstr "테마 선택"
 msgid "Citation form"
 msgstr "인용 양식"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
 msgstr "인용 양식"
 
@@ -214,6 +222,7 @@ msgstr "인용 양식"
 msgid "Classic FieldWorks Projects"
 msgstr "클래식 FieldWorks 프로젝트"
 
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
@@ -343,7 +352,7 @@ msgstr "사전 미리보기"
 msgid "Discard"
 msgstr "폐기"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Display as"
 msgstr "다음으로 표시"
@@ -398,6 +407,10 @@ msgstr "편집기"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "로 끝납니다."
+
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Entries missing..."
+msgstr "항목이 누락되었습니다..."
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -465,7 +478,7 @@ msgstr "동기화 실패"
 msgid "Feedback & Support"
 msgstr "피드백 및 지원"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr "필드"
 
@@ -474,16 +487,16 @@ msgid "Field Labels"
 msgstr "필드 레이블"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
-msgid "FieldWorks Classic"
-msgstr "FieldWorks 클래식"
-
-#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr "FieldWorks Lite가 성공적으로 업데이트되었습니다. 변경 사항을 적용하려면 앱을 다시 시작하세요."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
+msgstr "FieldWorks Lite 사용자는 FieldWorks Classic에서 변경된 내용을 자동으로 수신합니다. FieldWorks Classic 사용자는 보내기/받기를 수행한 후 FieldWorks Lite에서 수행한 변경 사항을 볼 수 있습니다."
 
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -527,8 +540,8 @@ msgid "Filter entries"
 msgstr "항목 필터링"
 
 #: src/project/browse/SearchFilter.svelte
-msgid "Filter for"
-msgstr "필터링 대상"
+msgid "Filter for..."
+msgstr "필터링 대상..."
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
@@ -559,7 +572,7 @@ msgstr "기타 문의 사항이 있으시면 언제든지 이메일을 보내주
 msgid "Get support"
 msgstr "지원 받기"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
 msgstr "광택"
@@ -605,6 +618,14 @@ msgstr "가져오기"
 msgid "in {0}"
 msgstr "in {0}"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Include subdomains"
+msgstr "하위 도메인 포함"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Incomplete entries"
+msgstr "불완전한 항목"
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "계속 진행"
@@ -622,6 +643,10 @@ msgstr "마지막 동기화: #"
 msgid "Length:"
 msgstr "길이:"
 
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Lexbox"
+msgstr "렉스박스"
+
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
 msgstr "렉스박스 로고"
@@ -630,7 +655,7 @@ msgstr "렉스박스 로고"
 msgid "Lexeme form"
 msgstr "Lexeme 양식"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Lexeme 양식"
 
@@ -708,26 +733,17 @@ msgstr "정의 누락 {0}"
 msgid "Missing Example sentence {0}"
 msgstr "누락된 예제 문장 {0}"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Examples"
-msgstr "누락된 예제"
-
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
 msgstr "누락된 광택 {0}"
 
 #: src/project/tasks/tasks-service.ts
-#: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr "누락된 품사"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Semantic Domains"
-msgstr "누락된 시맨틱 도메인"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Senses"
-msgstr "미싱 센스"
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Missing: {0}"
+msgstr "누락되었습니다: {0}"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -742,6 +758,10 @@ msgstr "절대로"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "신규"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "New data"
+msgstr "새로운 데이터"
 
 #: src/project/PrimaryNewEntryButton.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -786,6 +806,10 @@ msgstr "기록을 찾을 수 없습니다."
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "No items found"
 msgstr "항목을 찾을 수 없습니다."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "No new data"
+msgstr "새 데이터 없음"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "No server"
@@ -836,6 +860,10 @@ msgstr "오프라인"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "오프라인 상태, 다운로드할 수 없음"
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
+msgstr "하나의 FieldWorks Classic 커밋은 여러 항목 또는 필드에 대한 변경 사항으로 구성될 수 있습니다. 반면에 커밋은 FieldWorks Lite에 동기화되지 않은 데이터에만 영향을 미칠 수 있습니다."
 
 #: src/home/Server.svelte
 msgid "Open"
@@ -977,6 +1005,10 @@ msgstr "작업할 새 작업 선택"
 msgid "Select file"
 msgstr "파일 선택"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Semantic domain"
+msgstr "시맨틱 도메인"
+
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr "시맨틱 도메인"
@@ -1036,6 +1068,10 @@ msgstr "크기:"
 msgid "Skip"
 msgstr "건너뛰기"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Specific field"
+msgstr "특정 필드"
+
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "다음으로 시작"
@@ -1058,6 +1094,18 @@ msgstr "동기화"
 msgid "Sync Changes"
 msgstr "동기화 변경 사항"
 
+#: src/project/SyncDialog.svelte
+msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
+msgstr "동기화 완료. {0} 는 FieldWorks 클래식에 적용되었습니다. {1} 는 FieldWorks 라이트에 적용되었습니다."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Sync FieldWorks Lite and FieldWorks Classic"
+msgstr "FieldWorks Lite와 FieldWorks Classic 동기화"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Sync your changes with other FieldWorks Lite users"
+msgstr "다른 FieldWorks Lite 사용자와 변경 사항 동기화"
+
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
 msgstr "동기화"
@@ -1075,8 +1123,8 @@ msgid "Synchronize"
 msgstr "동기화"
 
 #: src/project/SyncDialog.svelte
-msgid "Synchronizing FieldWorks Lite with FieldWorks..."
-msgstr "FieldWorks Lite와 FieldWorks 동기화..."
+msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
+msgstr "FieldWorks Lite와 FieldWorks Classic 동기화..."
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Syncing..."
@@ -1102,6 +1150,14 @@ msgstr "작업"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "발생한 버그나 문제에 대해 알려주세요."
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
+msgstr "FieldWorks 클래식 커밋 수가 동기화 결과 메시지에 표시되는 변경 사항 수와 반드시 일치하지는 않습니다."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
+msgstr "FieldWorks Lite 커밋 수가 동기화 결과 메시지에 표시되는 변경 사항 수와 반드시 일치하지는 않습니다."
+
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
 msgstr "찾고 있는 작업이 존재하지 않습니다."
@@ -1117,6 +1173,10 @@ msgstr "이제 이 프로젝트가 FieldWorks에서 열렸습니다. FieldWorks 
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "이 작업이 완료되었습니다."
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
+msgstr "이렇게 하면 렉스박스에서 프로젝트의 FieldWorks Lite 및 FieldWorks Classic 사본이 동기화됩니다."
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -1216,8 +1276,13 @@ msgstr "구성 보기"
 msgid "Where are my projects?"
 msgstr "내 프로젝트는 어디에 있나요?"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Why is that?"
+msgstr "왜 그럴까요?"
+
 #: src/project/browse/EntryMenu.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
