@@ -34,4 +34,23 @@ public abstract class SenseTestsBase : MiniLcmTestBase
         sense.Should().NotBeNull();
         sense.Gloss["en"].Should().Be("new-sense-gloss");
     }
+
+    /// <summary>
+    /// Tests that a deleted sense can be recreated.
+    /// This is necessary if Chorus recreates a sense due to a merge conflict.
+    /// </summary>
+    [Fact]
+    public async Task RecreateDeletedSense()
+    {
+        var initial = await Api.GetSense(_entryId, _senseId);
+        initial.Should().NotBeNull();
+
+        await Api.DeleteSense(_entryId, _senseId);
+        var deleted = await Api.GetSense(_entryId, _senseId);
+        deleted.Should().BeNull();
+
+        var recreated = await Api.CreateSense(_entryId, initial);
+        recreated.Should().NotBeNull();
+        recreated.Should().BeEquivalentTo(initial);
+    }
 }
