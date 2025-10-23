@@ -154,4 +154,23 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
         reloaded.Should().NotBeNull();
         reloaded.Translations.Should().BeEmpty();
     }
+
+    /// <summary>
+    /// Tests that a deleted example-sentence can be recreated.
+    /// This is necessary if Chorus recreates an example-sentence due to a merge conflict.
+    /// </summary>
+    [Fact]
+    public async Task RecreateDeletedExampleSentence()
+    {
+        var initial = await Api.GetExampleSentence(_entryId, _senseId, _exampleSentenceId);
+        initial.Should().NotBeNull();
+
+        await Api.DeleteExampleSentence(_entryId, _senseId, _exampleSentenceId);
+        var deleted = await Api.GetExampleSentence(_entryId, _senseId, _exampleSentenceId);
+        deleted.Should().BeNull();
+
+        var recreated = await Api.CreateExampleSentence(_entryId, _senseId, initial);
+        recreated.Should().NotBeNull();
+        recreated.Should().BeEquivalentTo(initial);
+    }
 }

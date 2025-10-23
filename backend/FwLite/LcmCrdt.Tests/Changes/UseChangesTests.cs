@@ -72,15 +72,19 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
                 change.GetType()) as IChange;
             duplicateChange.Should().NotBeNull();
             duplicateChange.GetType().Should().Be(change.GetType());
-            // we can't create duplicate entities with the same ID
-            if (IsCreateChange(change)) duplicateChange.EntityId = Guid.NewGuid();
-            else if (duplicateChange is AddTranslationChange addTranslationChange)
-            {
-                // translations aren't "primary entities" created with a CreateChange<>
-                // but they are still (correctly) enforced to have unique IDs (at least within a single ExampleSentence)
-                addTranslationChange.Translation.Id = Guid.NewGuid();
-            }
             await fixture.DataModel.AddChange(Guid.NewGuid(), duplicateChange);
+
+            if (change.SupportsNewEntity())
+            {
+                // The previous duplicate change is presumably a no-op, so we'll make a duplicate entity with a different ID as well.
+                var duplicateCreateChange = JsonSerializer.Deserialize(
+                    JsonSerializer.Serialize(change, Options),
+                    change.GetType()) as IChange;
+                duplicateCreateChange.Should().NotBeNull();
+                duplicateCreateChange.EntityId = Guid.NewGuid();
+                duplicateCreateChange.GetType().Should().Be(change.GetType());
+                await fixture.DataModel.AddChange(Guid.NewGuid(), duplicateCreateChange);
+            }
 
             var allEntries = await fixture.Api.GetEntries().ToArrayAsync();
             var result = await EntrySync.SyncFull(allEntries, allEntries, fixture.Api);
@@ -255,19 +259,5 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         yield return new ChangeWithDependencies(
             new RemoteResourceUploadedChange(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
             [createRemoteResourcePendingUploadChange]);
-    }
-
-    private static bool IsCreateChange(IChange obj)
-    {
-        var type = obj.GetType();
-        while (type != null && type != typeof(object))
-        {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(CreateChange<>))
-            {
-                return true;
-            }
-            type = type.BaseType;
-        }
-        return false;
     }
 }

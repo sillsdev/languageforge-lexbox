@@ -311,7 +311,8 @@ public class CrdtMiniLcmApi(
         var existing = await repo.FindComplexFormComponent(complexFormComponent);
         if (existing is null)
         {
-            var betweenIds = between is null ? null : new BetweenPosition(between.Previous?.Id, between.Next?.Id);
+            // todo test between items missing IDs (i.e. from LibLCM)
+            var betweenIds = between is null ? null : await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
             var addEntryComponentChange = await repo.CreateComplexFormComponentChange(complexFormComponent, betweenIds);
             await AddChange(addEntryComponentChange);
             return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
@@ -336,7 +337,11 @@ public class CrdtMiniLcmApi(
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        await AddChange(new DeleteChange<ComplexFormComponent>(complexFormComponent.Id));
+        // todo test missing ID (i.e. from LibLCM)
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var existing = await repo.FindComplexFormComponent(complexFormComponent);
+        if (existing is null) return;
+        await AddChange(new DeleteChange<ComplexFormComponent>(existing.Id));
     }
 
     public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
