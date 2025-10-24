@@ -22,7 +22,7 @@ public class BasicApiTests(ProjectLoaderFixture fixture) : BasicApiTestsBase
             LexemeForm = new MultiString { { "en", "test" } }
         });
 
-        var fwApi = (FwDataMiniLcmApi)Api;
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwApi.EntriesRepository.GetObject(entry.Id);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Set LexemeFormOA to null",
             "Restore LexemeFormOA",

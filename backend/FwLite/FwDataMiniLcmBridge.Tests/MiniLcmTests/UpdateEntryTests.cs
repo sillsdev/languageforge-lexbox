@@ -26,7 +26,7 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
             LexemeForm = new MultiString { { "en", "test" } }
         });
 
-        var fwApi = (FwDataMiniLcmApi)Api;
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwApi.EntriesRepository.GetObject(entry.Id);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Set LexemeFormOA to null",
             "Restore LexemeFormOA",
@@ -75,7 +75,7 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
             ]
         });
 
-        var fwApi = (FwDataMiniLcmApi)Api;
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwApi.EntriesRepository.GetObject(entry.Id);
         lexEntry.SensesOS[0].ExamplesOS[0].TranslationsOC.Should().BeEmpty();
 
@@ -115,7 +115,7 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
             ]
         });
 
-        var fwApi = (FwDataMiniLcmApi)Api;
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwApi.EntriesRepository.GetObject(entryId);
         var senseFactory = fwApi.Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add subsenses to sense 1",
@@ -178,7 +178,7 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
             ]
         });
 
-        var fwApi = (FwDataMiniLcmApi)Api;
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwApi.EntriesRepository.GetObject(entryId);
         var senseFactory = fwApi.Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add subsenses to sense 1",

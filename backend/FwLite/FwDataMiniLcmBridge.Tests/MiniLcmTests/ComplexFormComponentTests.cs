@@ -27,7 +27,7 @@ public class ComplexFormComponentTestsMultipleRefs(ProjectLoaderFixture fixture)
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();
-        var fwDataApi = (FwDataMiniLcmApi)Api;
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
         var complexFormEntry = fwDataApi.EntriesRepository.GetObject(_complexFormEntryId);
         await fwDataApi.Cache.DoUsingNewOrCurrentUOW("Add ComplexFormEntryRef",
             "Remove ComplexFormEntryRef",
@@ -69,7 +69,7 @@ public class ComplexFormComponentTestsMultipleRefs(ProjectLoaderFixture fixture)
 
     private async Task AddDuplicateComponent()
     {
-        var fwDataApi = (FwDataMiniLcmApi)Api;
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
         var complexFormEntry = fwDataApi.EntriesRepository.GetObject(_complexFormEntryId);
         var componentEntry = fwDataApi.EntriesRepository.GetObject(_componentEntryId);
         await fwDataApi.Cache.DoUsingNewOrCurrentUOW("Add ComplexFormEntryRef",
@@ -107,7 +107,7 @@ public class ComplexFormComponentTestsMultipleRefs(ProjectLoaderFixture fixture)
 
     private async Task AddDuplicateFormType()
     {
-        var fwDataApi = (FwDataMiniLcmApi)Api;
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
         var complexFormEntry = fwDataApi.EntriesRepository.GetObject(_complexFormEntryId);
         var complexFormType = fwDataApi.ComplexFormTypesFlattened.First();
         await fwDataApi.Cache.DoUsingNewOrCurrentUOW("Add ComplexFormEntryRef",

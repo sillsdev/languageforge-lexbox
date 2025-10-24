@@ -330,25 +330,36 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Theory]
-    [InlineData("a", "a")]
-    [InlineData("a", "A")]
-    [InlineData("A", "Ã")]
-    [InlineData("ap", "apple")]
-    [InlineData("ap", "APPLE")]
-    [InlineData("ing", "walking")]
-    [InlineData("ing", "WALKING")]
-    [InlineData("Ãp", "Ãpple")]
-    [InlineData("Ãp", "ãpple")]
-    [InlineData("ap", "Ãpple")]
-    [InlineData("app", "Ãpple")]//crdt fts only kicks in at 3 chars
-    public async Task SuccessfulMatches(string searchTerm, string word)
+    [InlineData("a", "a", true)]
+    [InlineData("a", "A", false)]
+    [InlineData("A", "Ã", false)]
+    [InlineData("ap", "apple", false)]
+    [InlineData("ap", "APPLE", false)]
+    [InlineData("ing", "walking", false)]
+    [InlineData("ing", "WALKING", false)]
+    [InlineData("Ãp", "Ãpple", false)]
+    [InlineData("Ãp", "ãpple", false)]
+    [InlineData("ap", "Ãpple", false)]
+    [InlineData("app", "Ãpple", false)]//crdt fts only kicks in at 3 chars
+    [InlineData("й", "й", false)] // D, C
+    [InlineData("й", "й", false)] // C, D
+    [InlineData("й", "й", true)] // C, C
+    [InlineData("й", "й", true)] // D, D
+    [InlineData("ймыл", "ймыл", false)] // D, C
+    [InlineData("ймыл", "ймыл", false)] // C, D
+    [InlineData("ймыл", "ймыл", true)] // C, C
+    [InlineData("ймыл", "ймыл", true)] // D, D
+    public async Task SuccessfulMatches(string searchTerm, string word, bool identical)
     {
+        // identical is to make the test cases more readable when they only differ in their normalization
+        (searchTerm == word).Should().Be(identical);
+        // remove next line in https://github.com/sillsdev/languageforge-lexbox/issues/2065
         word = word.Normalize(NormalizationForm.FormD);
-        //should we be normalizing the search term internally?
-        searchTerm = searchTerm.Normalize(NormalizationForm.FormD);
         await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
         var words = await Api.SearchEntries(searchTerm).Select(e => e.LexemeForm["en"]).ToArrayAsync();
-        words.Should().Contain(word);
+        words.Should().NotBeEmpty();
+        // Like LicLCM the MiniLcm API should normalize to NFD
+        words.Should().Contain(word.Normalize(NormalizationForm.FormD));
     }
 
     [Theory]
