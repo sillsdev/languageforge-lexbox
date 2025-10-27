@@ -7,6 +7,7 @@ using LexCore.Sync;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm;
+using MiniLcm.Normalization;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
 using SIL.Harmony;

@@ -26,7 +26,7 @@ public class PartOfSpeechTests(ProjectLoaderFixture fixture) : PartOfSpeechTests
             ]
         });
 
-        var fwApi = (FwDataMiniLcmApi)Api;
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwApi.EntriesRepository.GetObject(entry.Id);
         var lexSense = lexEntry.SensesOS.First();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Set MorphoSyntaxAnalysisRA to null",
@@ -61,7 +61,7 @@ public class PartOfSpeechTests(ProjectLoaderFixture fixture) : PartOfSpeechTests
             ]
         });
 
-        var fwApi = (FwDataMiniLcmApi)Api;
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwApi.EntriesRepository.GetObject(entry.Id);
         var lexSense = lexEntry.SensesOS.First();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Set MorphoSyntaxAnalysisRA to null",

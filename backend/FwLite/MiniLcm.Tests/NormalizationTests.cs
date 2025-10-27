@@ -1,4 +1,4 @@
-using MiniLcm.Validators;
+using MiniLcm.Normalization;
 using Moq;
 
 namespace MiniLcm.Tests;

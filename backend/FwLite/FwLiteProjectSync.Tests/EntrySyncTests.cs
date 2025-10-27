@@ -1,3 +1,4 @@
+using System.Text;
 using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm;
 using MiniLcm.Models;
@@ -65,6 +66,39 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
 
     private readonly SyncFixture _fixture = fixture;
     protected IMiniLcmApi Api = null!;
+
+    [Fact]
+    public async Task NormalizesStringsToNFD()
+    {
+        // arrange
+        var formC = "ймыл";
+        var formD = "ймыл";
+
+        formC.Should().NotBe(formD);
+        formC.Should().Be(formC.Normalize(NormalizationForm.FormC));
+        formD.Should().Be(formD.Normalize(NormalizationForm.FormD));
+        formC.Normalize(NormalizationForm.FormD).Should().Be(formD);
+
+        var entry1Id = Guid.NewGuid();
+        await Api.CreateEntry(new() { Id = entry1Id });
+        var entry1_before_formC = new Entry() { Id = entry1Id, LexemeForm = { { "en", formC } } };
+        var entry1_after_formD = new Entry() { Id = entry1Id, LexemeForm = { { "en", formD } } };
+
+        var entry2Id = Guid.NewGuid();
+        var entry2_new_formC = new Entry() { Id = entry2Id, LexemeForm = { { "en", formC } } };
+
+        // act
+        await EntrySync.SyncWithoutComplexFormsAndComponents(
+            [entry1_before_formC],
+            [entry1_after_formD, entry2_new_formC], Api);
+
+        // assert
+        var entry1After = await Api.GetEntry(entry1Id);
+        entry1After!.LexemeForm["en"].Should().Be(formD);
+        // this fails for crdt - https://github.com/sillsdev/languageforge-lexbox/issues/2065
+        // var entry2After = await Api.GetEntry(entry2Id);
+        // entry2After!.LexemeForm["en"].Should().Be(formD);
+    }
 
     [Fact]
     public async Task CanChangeComplexFormViaSync_Components()

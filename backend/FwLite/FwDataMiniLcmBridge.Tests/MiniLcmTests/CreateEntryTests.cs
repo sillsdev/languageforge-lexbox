@@ -17,7 +17,7 @@ public class CreateEntryTests(ProjectLoaderFixture fixture) : CreateEntryTestsBa
     public async Task CreateEntry_SetsMorphType()
     {
         var entry = await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = "test" } });
-        var fwDataApi = (FwDataMiniLcmApi)Api;
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwDataApi.EntriesRepository.GetObject(entry.Id);
         lexEntry.Should().NotBeNull();
         lexEntry.LexemeFormOA.MorphTypeRA.Should().NotBeNull();
