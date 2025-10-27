@@ -12,6 +12,7 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="CrystalQuartz.AspNetCore" Version="7.2.0-beta" />
     <PackageVersion Include="DataAnnotatedModelValidations" Version="6.0.0" />
+    <PackageVersion Include="DeterministicGuids" Version="1.0.3" />
     <PackageVersion Include="FluentAssertions" Version="7.0.0-alpha.5" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
@@ -124,7 +125,6 @@
     <PackageVersion Include="SystemTextJson.JsonDiffPatch" Version="2.0.0" />
     <PackageVersion Include="SystemTextJsonPatch" Version="3.2.1" />
     <PackageVersion Include="tusdotnet" Version="2.8.0" />
-    <PackageVersion Include="UUIDNext" Version="4.1.2" />
     <PackageVersion Include="Verify.SystemJson" Version="1.4.1" />
     <PackageVersion Include="Verify.Xunit" Version="28.2.1" />
     <PackageVersion Include="xunit" Version="2.9.2" />

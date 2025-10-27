@@ -26,7 +26,7 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
 {
     protected string TemplatesFolder => config.Value.TemplatesFolder;
     private static bool _init;
-    private static readonly object _initLock = new();
+    private static readonly Lock _initLock = new();
 
     public static void Init()
     {

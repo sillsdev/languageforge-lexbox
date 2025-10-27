@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
+using DeterministicGuids;
 using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
 using MiniLcm.Exceptions;
 using MiniLcm.Media;
 using SIL.LCModel;
-using UUIDNext;
 
 namespace FwDataMiniLcmBridge.Media;
 
@@ -68,6 +68,6 @@ public class LocalMediaAdapter(IMemoryCache memoryCache) : IMediaAdapter
     // produces the same Guid for the same input name
     internal static Guid NewGuidV5(string name)
     {
-        return Uuid.NewNameBased(LocalMediaNamespace, name);
+        return DeterministicGuid.Create(LocalMediaNamespace, name);
     }
 }

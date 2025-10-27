@@ -3,6 +3,7 @@
     <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="DeterministicGuids" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
@@ -13,7 +14,6 @@
     <PackageReference Include="SIL.LCModel" />
     <PackageReference Include="structuremap.patched" />
     <PackageReference Include="System.Linq.Async" />
-    <PackageReference Include="UUIDNext" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="FwDataMiniLcmBridge.Tests" />

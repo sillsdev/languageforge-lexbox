@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
+using DeterministicGuids;
 using MiniLcm.Attributes;
-using UUIDNext;
 
 namespace MiniLcm.Models;
 
@@ -46,7 +46,7 @@ public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
 
     [JsonIgnore]
     [MiniLcmInternal]
-    public Guid DefaultFirstTranslationId => Uuid.NewNameBased(TranslationIdNamespace, Id.ToString());
+    public Guid DefaultFirstTranslationId => DeterministicGuid.Create(TranslationIdNamespace, Id.ToString());
 }
 
 public class Translation

@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BeaKona.AutoInterfaceGenerator" />
+    <PackageReference Include="DeterministicGuids" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="Gridify" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
@@ -13,7 +14,6 @@
     <PackageReference Include="SystemTextJson.JsonDiffPatch" />
     <PackageReference Include="SystemTextJsonPatch" />
     <PackageReference Include="System.Linq.Async" />
-    <PackageReference Include="UUIDNext" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="MiniLcm.Tests" />
