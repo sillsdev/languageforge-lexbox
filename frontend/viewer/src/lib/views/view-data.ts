@@ -16,6 +16,7 @@ export const allFields: Record<FieldId, FieldView> = {
   complexFormTypes: {show: false, order: 5},
   literalMeaning: {show: false, order: 6},
   note: {show: true, order: 7},
+  publishIn: {show: false, order: 8},
 
   //sense
   gloss: {show: true, order: 1},

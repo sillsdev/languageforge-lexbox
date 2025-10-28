@@ -9,6 +9,7 @@
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {MultiSelect, MultiWsInput, RichMultiWsInput} from '$lib/components/field-editors';
   import {useComplexFormTypes} from '$lib/complex-form-types';
+  import {usePublications} from '$lib/publications';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
@@ -32,6 +33,7 @@
 
   const writingSystemService = useWritingSystemService();
   const complexFormTypes = useComplexFormTypes();
+  const publications = usePublications();
   const currentView = useCurrentView();
   initSubjectContext(() => entry);
 
@@ -120,6 +122,20 @@
           bind:value={entry.note}
           {readonly}
           writingSystems={writingSystemService.viewAnalysis($currentView)} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+
+  <Editor.Field.Root fieldId="publishIn" class={cn($currentView.fields.publishIn.show || 'hidden')}>
+    <Editor.Field.Title name={$t`Publish in`} helpId={fieldData.publishIn.helpId} />
+    <Editor.Field.Body>
+      <MultiSelect
+          onchange={() => onFieldChanged('publishIn')}
+          bind:values={entry.publishIn}
+          options={publications.current}
+          labelSelector={(pub) => writingSystemService.pickBestAlternative(pub.name, 'analysis')}
+          idSelector="id"
+          sortValuesBy="selectionOrder"
+          {readonly} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
