@@ -365,7 +365,10 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   }
 
   getPublications(): Promise<IPublication[]> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve([
+      {id: '1', name: {en: 'Main Dictionary'}, deletedAt: undefined},
+      {id: '2', name: {en: 'School Dictionary'}, deletedAt: undefined},
+    ]);
   }
 
   dispose(): Promise<void> {
