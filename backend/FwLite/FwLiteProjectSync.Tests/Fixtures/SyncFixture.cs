@@ -13,6 +13,9 @@ namespace FwLiteProjectSync.Tests.Fixtures;
 public class ExtraWritingSystemsSyncFixture : SyncFixture
 {
     private static readonly string[] ExtraVernacularWritingSystems = ["es", "fr"];
+    // "en", "es", "fr" = sorted alphabetically.
+    // Otherwise, headwords would differ between fwdata and crdt.
+    // See: https://github.com/sillsdev/languageforge-lexbox/issues/1284
     public static readonly string[] VernacularWritingSystems = [
         DefaultVernacularWritingSystem,
         .. ExtraVernacularWritingSystems,
