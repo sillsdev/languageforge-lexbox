@@ -46,6 +46,7 @@ public static class FwLiteSharedKernel
         services.AddSingleton<UpdateChecker>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<UpdateChecker>());
         services.TryAddSingleton<IPlatformUpdateService, CorePlatformUpdateService>();
+        services.AddSingleton<UpdateService>();
         services.AddSingleton<TestingService>();
         services.AddOptions<FwLiteConfig>().BindConfiguration("FwLite");
         services.DecorateConstructor<IJSRuntime>((provider, runtime) =>
