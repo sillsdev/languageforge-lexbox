@@ -148,7 +148,7 @@
       <Switch class="mt-1.5" disabled={!semanticDomain} bind:checked={includeSubDomains} label={$t`Include subdomains`} />
     </div>
     <div class="flex flex-col">
-      <Label class="p-2">{$t`Part of speech`}</Label>
+      <Label class="p-2">{pt($t`Grammatical info.`, $t`Part of speech`, $currentView)}</Label>
       <PartOfSpeechSelect bind:value={partOfSpeech} />
     </div>
     <div class="flex flex-col">
