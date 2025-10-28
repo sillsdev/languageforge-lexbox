@@ -17,6 +17,22 @@
   let checking = $state(false);
   let updateResult = $state<UpdateResult | null>(null);
   let errorMessage = $state<string | null>(null);
+  let eventSubscription: Promise<void> | null = null;
+
+  async function subscribeToUpdateEvents() {
+    try {
+      while (checking) {
+        const event = await jsEventListener.nextEventAsync();
+        if (event && event.type === FwEventType.AppUpdate) {
+          const updateEvent = event as IAppUpdateEvent;
+          updateResult = updateEvent.result;
+          break;
+        }
+      }
+    } catch (error) {
+      console.error('Error subscribing to update events:', error);
+    }
+  }
 
   async function checkForUpdates() {
     checking = true;
@@ -24,14 +40,30 @@
     errorMessage = null;
     
     try {
+      // Start listening for update events before triggering the check
+      eventSubscription = subscribeToUpdateEvents();
+      
+      // Trigger the update check
       await updateService.checkForUpdates();
-      // Wait for the AppUpdate event
-      const event = await jsEventListener.lastEvent(FwEventType.AppUpdate) as IAppUpdateEvent | null;
-      if (event) {
-        updateResult = event.result;
-      } else {
-        // If no event yet, show checking state
-        updateResult = UpdateResult.Unknown;
+      
+      // Wait for the event (with a timeout)
+      const timeoutPromise = new Promise<void>((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 30000); // 30 second timeout
+      });
+      
+      await Promise.race([eventSubscription, timeoutPromise]);
+      
+      // If we still don't have a result after timeout, check lastEvent
+      if (updateResult === null) {
+        const event = await jsEventListener.lastEvent(FwEventType.AppUpdate) as IAppUpdateEvent | null;
+        if (event) {
+          updateResult = event.result;
+        } else {
+          errorMessage = $t`Update check timed out.`;
+          updateResult = UpdateResult.Failed;
+        }
       }
     } catch (error) {
       console.error('Error checking for updates:', error);
@@ -39,6 +71,7 @@
       updateResult = UpdateResult.Failed;
     } finally {
       checking = false;
+      eventSubscription = null;
     }
   }
 
@@ -61,9 +94,9 @@
       case UpdateResult.Failed:
         return $t`Failed to check for updates. Please try again later.`;
       case UpdateResult.Unknown:
-        return $t`You are running the latest version.`;
+        return $t`No updates available. You are running the latest version.`;
       default:
-        return $t`You are running the latest version.`;
+        return $t`Check completed. Status unknown.`;
     }
   }
 
