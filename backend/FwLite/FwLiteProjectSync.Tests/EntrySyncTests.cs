@@ -87,6 +87,8 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         {
             FwDataMiniLcmApi => ApiType.FwData,
             CrdtMiniLcmApi => ApiType.Crdt,
+            // This works now, because we're not currently wrapping Api,
+            // but if we ever do, then we want this to throw, so we know we need to detect the api differently.
             _ => throw new InvalidOperationException("Unknown API type")
         };
 
@@ -106,8 +108,10 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
 
         if (roundTripApi is not null && currentApiType != roundTripApiType)
         {
-            // we have to prepare before we start mixing parts of before into after
-            // otherwise "PrepareToCreateEntry" would fail due to trying to create duplicate related entities
+            // We have to prepare while before and after have no overlap (i.e. before we start mixing parts of before into after),
+            // otherwise "PrepareToCreateEntry" would fail due to trying to create duplicate related entities.
+            // After this we can't ADD anything to after that has dependencies
+            // (e.g. ExampleSentences are fine, because they're created as part of an entry, but Parts of speech aren't)
             await roundTripApi.PrepareToCreateEntry(before);
             await roundTripApi.PrepareToCreateEntry(after);
         }
@@ -197,7 +201,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order);
             if (currentApiType == ApiType.Crdt)
             {
-                // does not yet update Headwords
+                // does not yet update Headwords 😕
                 options = options
                     .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
                     .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
