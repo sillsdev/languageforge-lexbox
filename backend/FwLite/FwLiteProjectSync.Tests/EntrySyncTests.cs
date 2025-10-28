@@ -50,9 +50,10 @@ public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : Entr
 
 public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture) : IClassFixture<ExtraWritingSystemsSyncFixture>, IAsyncLifetime
 {
-    public async Task InitializeAsync()
+    public Task InitializeAsync()
     {
         Api = GetApi(_fixture);
+        return Task.CompletedTask;
     }
 
     public Task DisposeAsync()
