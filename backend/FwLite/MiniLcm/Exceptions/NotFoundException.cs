@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using MiniLcm.Models;
 
 namespace MiniLcm.Exceptions;
 
@@ -27,6 +28,16 @@ public class NotFoundException(string identifier, string type) : Exception($"Not
     public static NotFoundException ForType<T>(Guid identifier)
     {
         return ForType<T>(identifier.ToString());
+    }
+
+    public static NotFoundException ForWs(WritingSystemId id, WritingSystemType type)
+    {
+        return new($"{id.Code}: {type}", nameof(WritingSystem));
+    }
+
+    public static NotFoundException ForWs(WritingSystem ws)
+    {
+        return ForWs(ws.WsId.Code, ws.Type);
     }
 
     public string Type { get; set; } = type;

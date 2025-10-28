@@ -86,7 +86,7 @@ public class MiniLcmRepository(
                 WritingSystemType.Vernacular => _defaultVernacularWs ??=
                     await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.Type == type),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            } ?? throw NotFoundException.ForType<WritingSystem>($"{id.Code}: {type}");
+            } ?? throw NotFoundException.ForWs(id, type);
         }
 
         return await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.WsId == id && ws.Type == type);
@@ -160,10 +160,9 @@ public class MiniLcmRepository(
     {
         if (options.Exemplar is not null)
         {
-            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
-            if (ws is null)
-                throw NotFoundException.ForType<WritingSystem>($"{options.Exemplar.WritingSystem.Code}: {WritingSystemType.Vernacular}");
-            queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
+            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId
+                ?? throw NotFoundException.ForWs(options.Exemplar.WritingSystem, WritingSystemType.Vernacular);
+            queryable = queryable.WhereExemplar(ws, options.Exemplar.Value);
         }
 
         if (options.Filter?.GridifyFilter != null)
@@ -196,9 +195,8 @@ public class MiniLcmRepository(
 
     private async ValueTask<IQueryable<Entry>> ApplySorting(IQueryable<Entry> queryable, QueryOptions options, string? query = null)
     {
-        var sortWs = await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular);
-        if (sortWs is null)
-            throw NotFoundException.ForType<WritingSystem>($"{options.Order.WritingSystem.Code}: {WritingSystemType.Vernacular}");
+        var sortWs = await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular)
+            ?? throw NotFoundException.ForWs(options.Order.WritingSystem, WritingSystemType.Vernacular);
 
         switch (options.Order.Field)
         {

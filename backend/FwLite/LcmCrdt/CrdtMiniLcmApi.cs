@@ -85,30 +85,28 @@ public class CrdtMiniLcmApi(
         var betweenIds = between is null ? null : await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, wsType))?.Id);
         var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(ws => ws.Type == wsType), betweenIds);
         await AddChange(new CreateWritingSystemChange(writingSystem, entityId, order));
-        return await repo.GetWritingSystem(writingSystem.WsId, wsType) ?? throw NotFoundException.ForType<WritingSystem>($"{writingSystem.WsId.Code}: {wsType}");
+        return await repo.GetWritingSystem(writingSystem.WsId, wsType) ?? throw NotFoundException.ForWs(writingSystem);
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var ws = await repo.GetWritingSystem(id, type);
-        if (ws is null) throw NotFoundException.ForType<WritingSystem>($"{id.Code}: {type}");
+        var ws = await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
         var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch);
         await AddChange(patchChange);
-        return await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForType<WritingSystem>($"{id.Code}: {type}");
+        return await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
     {
         await WritingSystemSync.Sync(before, after, api ?? this);
-        return await GetWritingSystem(after.WsId, after.Type) ?? throw NotFoundException.ForType<WritingSystem>($"{after.WsId.Code}: {after.Type}");
+        return await GetWritingSystem(after.WsId, after.Type) ?? throw NotFoundException.ForWs(after);
     }
 
     public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var ws = await repo.GetWritingSystem(id, type);
-        if (ws is null) throw NotFoundException.ForType<WritingSystem>($"{id.Code}: {type}");
+        var ws = await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
         var betweenIds = await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, type))?.Id);
         var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(s => s.Type == type), betweenIds);
         await AddChange(new Changes.SetOrderChange<WritingSystem>(ws.Id, order));
@@ -144,8 +142,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
-        var pos = await GetPartOfSpeech(id);
-        if (pos is null) throw NotFoundException.ForType<PartOfSpeech>(id);
+        var pos = await GetPartOfSpeech(id) ?? throw NotFoundException.ForType<PartOfSpeech>(id);
 
         await AddChanges(update.Patch.ToChanges(pos.Id));
         return await GetPartOfSpeech(id) ?? throw NotFoundException.ForType<PartOfSpeech>(id);
@@ -238,9 +235,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        var semDom = await GetSemanticDomain(id);
-        if (semDom is null) throw NotFoundException.ForType<SemanticDomain>(id);
-
+        var semDom = await GetSemanticDomain(id) ?? throw NotFoundException.ForType<SemanticDomain>(id);
         await AddChanges(update.Patch.ToChanges(semDom.Id));
         return await GetSemanticDomain(id) ?? throw NotFoundException.ForType<SemanticDomain>(id);
     }
@@ -598,9 +593,7 @@ public class CrdtMiniLcmApi(
         UpdateObjectInput<Entry> update)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var entry = await repo.GetEntry(id);
-        if (entry is null) throw NotFoundException.ForType<Entry>(id);
-
+        var entry = await repo.GetEntry(id) ?? throw NotFoundException.ForType<Entry>(id);
         await AddChanges(update.Patch.ToChanges(entry.Id));
         var updatedEntry = await repo.GetEntry(id) ?? throw NotFoundException.ForType<Entry>(id);
         return updatedEntry;
@@ -657,8 +650,7 @@ public class CrdtMiniLcmApi(
         UpdateObjectInput<Sense> update)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var sense = await repo.GetSense(entryId, senseId);
-        if (sense is null) throw NotFoundException.ForType<Sense>(senseId);
+        var sense = await repo.GetSense(entryId, senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
         await AddChanges(update.Patch.ToChanges(sense.Id));
         return await repo.GetSense(entryId, senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
     }
