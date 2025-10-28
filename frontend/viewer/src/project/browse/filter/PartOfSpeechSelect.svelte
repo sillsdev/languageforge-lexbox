@@ -1,12 +1,3 @@
-<script lang="ts" module>
-  import type {WritingSystemSelection} from '$lib/writing-system-service.svelte';
-
-  export type SelectedField = {
-    id: string;
-    ws: WritingSystemSelection;
-  }
-</script>
-
 <script lang="ts">
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {usePartsOfSpeech} from '$lib/parts-of-speech.svelte';
