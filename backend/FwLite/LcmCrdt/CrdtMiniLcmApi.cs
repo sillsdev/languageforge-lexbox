@@ -337,7 +337,6 @@ public class CrdtMiniLcmApi(
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        // todo test missing ID (i.e. from LibLCM)
         await using var repo = await repoFactory.CreateRepoAsync();
         var existing = await repo.FindComplexFormComponent(complexFormComponent);
         if (existing is null) return;
