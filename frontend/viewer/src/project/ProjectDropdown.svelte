@@ -71,7 +71,7 @@
 {/snippet}
 
 <Popover.Root bind:open onOpenChange={handleOpen}>
-  <Popover.Trigger bind:ref={triggerRef}>
+  <Popover.Trigger bind:ref={triggerRef} title={projectName}>
     {#snippet child({ props })}
       <Button
         variant="ghost"
