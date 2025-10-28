@@ -17,6 +17,7 @@ export enum DotnetService {
 	TestingService = "TestingService",
 	MultiWindowService = "MultiWindowService",
 	JsEventListener = "JsEventListener",
-	JsInvokableLogger = "JsInvokableLogger"
+	JsInvokableLogger = "JsInvokableLogger",
+	UpdateService = "UpdateService"
 }
 /* eslint-enable */
