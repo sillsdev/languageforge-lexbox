@@ -130,6 +130,14 @@ msgstr "Add Word"
 msgid "an entry"
 msgstr "an entry"
 
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any grammatical info."
+msgstr "Any grammatical info."
+
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any part of speech"
+msgstr "Any part of speech"
+
 #: src/project/browse/filter/SemanticDomainSelect.svelte
 msgid "Any semantic domain"
 msgstr "Any semantic domain"
@@ -576,6 +584,7 @@ msgstr "Gloss"
 msgid "Go to {0}"
 msgstr "Go to {0}"
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Grammatical info."
 msgstr "Grammatical info."
@@ -893,6 +902,7 @@ msgstr "Part"
 msgid "Part of"
 msgstr "Part of"
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Part of speech"
@@ -1243,6 +1253,10 @@ msgstr "Unknown server"
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 msgid "Untitled"
 msgstr "Untitled"
 

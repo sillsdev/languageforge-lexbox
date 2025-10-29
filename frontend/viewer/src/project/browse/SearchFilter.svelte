@@ -19,8 +19,9 @@
   import FieldSelect, {type SelectedField} from './filter/FieldSelect.svelte';
   import MissingSelect, {type MissingOption} from './filter/MissingSelect.svelte';
   import SemanticDomainSelect from './filter/SemanticDomainSelect.svelte';
+  import PartOfSpeechSelect from './filter/PartOfSpeechSelect.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
-  import type {ISemanticDomain} from '$lib/dotnet-types';
+  import type {ISemanticDomain, IPartOfSpeech} from '$lib/dotnet-types';
   import {Switch} from '$lib/components/ui/switch';
 
   const stats = useProjectStats();
@@ -42,6 +43,7 @@
   let filterOp = $state<Op>('contains')
   let semanticDomain = $state<ISemanticDomain>();
   let includeSubDomains = $state(false);
+  let partOfSpeech = $state<IPartOfSpeech>();
 
   $effect(() => {
     let newFilter: string[] = [];
@@ -72,6 +74,10 @@
 
     if (semanticDomain) {
       newFilter.push(`Senses.SemanticDomains.Code${includeSubDomains ? '^' : '='}${semanticDomain.code}`);
+    }
+
+    if (partOfSpeech) {
+      newFilter.push(`Senses.PartOfSpeechId=${partOfSpeech.id}`);
     }
 
     gridifyFilter = newFilter.join(', ');
@@ -115,7 +121,7 @@
       {/snippet}
     </ComposableInput>
   </div>
-  <Collapsible.Content class="p-2 mb-2 space-y-2">
+  <Collapsible.Content class="p-2 mb-2 space-y-2 max-h-[calc(65vh-3rem)] overflow-y-auto">
     <div class="flex flex-col">
       <Label class="p-2">{$t`Specific field`}</Label>
       <div class="flex flex-col @md/list:flex-row gap-2 items-stretch">
@@ -140,6 +146,10 @@
       <Label class="p-2">{$t`Semantic domain`}</Label>
       <SemanticDomainSelect bind:value={semanticDomain} />
       <Switch class="mt-1.5" disabled={!semanticDomain} bind:checked={includeSubDomains} label={$t`Include subdomains`} />
+    </div>
+    <div class="flex flex-col">
+      <Label class="p-2">{pt($t`Grammatical info.`, $t`Part of speech`, $currentView)}</Label>
+      <PartOfSpeechSelect bind:value={partOfSpeech} />
     </div>
     <div class="flex flex-col">
       <Label class="p-2">{$t`Incomplete entries`}</Label>
