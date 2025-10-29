@@ -94,11 +94,11 @@
     <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
     class={cn('w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent', className)}>
     {#if value}
-      <span>
+      <span class="x-ellipsis mr-4">
         {getLabel(value) || $t`Untitled`}
       </span>
     {:else}
-      <span class="text-muted-foreground">
+      <span class="text-muted-foreground x-ellipsis mr-4">
         {placeholder ?? $t`None`}
         <!-- ensures that baseline alignment works for consumers of this component -->
         &nbsp;

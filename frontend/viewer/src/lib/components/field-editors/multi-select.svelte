@@ -163,13 +163,13 @@
 </script>
 
 {#snippet displayBadges()}
-  <div class="flex flex-wrap justify-start gap-2">
+  <div class="flex flex-wrap justify-start gap-2 overflow-hidden">
     {#each displayValues as value (getId(value))}
       <Badge>
         {getLabel(value) || $t`Untitled`}
       </Badge>
     {:else}
-      <span class="text-muted-foreground">
+      <span class="text-muted-foreground x-ellipsis">
         {placeholder ?? $t`None`}
         <!-- ensures that:
           1) baseline alignment works for consumers of this component
