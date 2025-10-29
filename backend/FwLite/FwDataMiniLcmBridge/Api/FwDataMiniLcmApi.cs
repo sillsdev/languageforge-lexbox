@@ -271,8 +271,9 @@ public class FwDataMiniLcmApi(
 
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
-        return PartOfSpeechRepository
-            .AllInstances()
+        return Cache.LangProject.PartsOfSpeechOA
+            .ReallyReallyAllPossibilities
+            .Cast<IPartOfSpeech>()
             .OrderBy(p => p.Name.BestAnalysisAlternative.Text)
             .ToAsyncEnumerable()
             .Select(FromLcmPartOfSpeech);
