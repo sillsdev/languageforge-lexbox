@@ -1,14 +1,39 @@
-import {useProjectContext} from '$lib/project-context.svelte';
+import type {IPublication} from '$lib/dotnet-types';
+import {useWritingSystemService, type WritingSystemService} from './writing-system-service.svelte';
+import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
+import {type ResourceReturn} from 'runed';
 
-const publicationsSymbol = Symbol.for('fw-lite-publications');
-export function usePublications() {
+type LabeledPublication = IPublication & { label: string };
+
+const symbol = Symbol.for('fw-lite-publications');
+export function usePublications(): PublicationService {
   const projectContext = useProjectContext();
-  return projectContext.getOrAddAsync(publicationsSymbol, [], async (api) => {
-    const publications = await api.getPublications();
-    return publications.sort((a, b) => {
-      const aName = Object.values(a.name)[0] || '';
-      const bName = Object.values(b.name)[0] || '';
-      return aName.localeCompare(bName);
-    });
+  const writingSystemService = useWritingSystemService();
+  return projectContext.getOrAdd(symbol, () => {
+    return new PublicationService(projectContext, writingSystemService);
   });
+}
+
+export class PublicationService {
+  constructor(projectContext: ProjectContext, private writingSystemService: WritingSystemService) {
+    this.#publicationsResource = projectContext.apiResource([], api => api.getPublications());
+  }
+
+  #publicationsResource: ResourceReturn<IPublication[], unknown, true>;
+
+  current: LabeledPublication[] = $derived.by(() => {
+    return this.#publicationsResource.current.map(pub => ({
+      ...pub,
+      label: this.getLabel(pub),
+    })).sort((a, b) => a.label.localeCompare(b.label));
+  });
+
+  async refetch() {
+    await this.#publicationsResource.refetch();
+    return this.current;
+  }
+
+  getLabel(pub: IPublication): string {
+    return this.writingSystemService.pickBestAlternative(pub.name, 'analysis');
+  }
 }
