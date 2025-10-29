@@ -95,7 +95,7 @@
     class={cn('w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent', className)}>
     {#if value}
       <span>
-        {getLabel(value)}
+        {getLabel(value) || $t`Untitled`}
       </span>
     {:else}
       <span class="text-muted-foreground">
@@ -140,12 +140,12 @@
             keywords={[label.toLocaleLowerCase()]}
             value={label.toLocaleLowerCase()}
             onSelect={() => selectValue(option)}
-            class="group max-md:h-12"
+            class={cn('group max-md:h-12', label || 'text-muted-foreground')}
             data-value-index={i}
             aria-label={label}
           >
             <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
-            {label}
+            {label || $t`Untitled`}
           </CommandItem>
         {/each}
         {#if renderedOptions.length < filteredOptions.length}

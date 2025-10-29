@@ -166,7 +166,7 @@
   <div class="flex flex-wrap justify-start gap-2">
     {#each displayValues as value (getId(value))}
       <Badge>
-        {getLabel(value)}
+        {getLabel(value) || $t`Untitled`}
       </Badge>
     {:else}
       <span class="text-muted-foreground">
@@ -224,7 +224,7 @@
             keywords={[label.toLocaleLowerCase()]}
             value={label.toLocaleLowerCase()}
             onSelect={() => toggleSelected(value, !dirty && !IsMobile.value)}
-            class="group max-md:h-12"
+            class={cn('group max-md:h-12', label || 'text-muted-foreground')}
             data-value-index={i}
             aria-label={label}
           >
@@ -245,7 +245,7 @@
               }}
               onCheckedChange={() => toggleSelected(value, false)}
             />
-            {label}
+            {label || $t`Untitled`}
           </CommandItem>
         {/each}
         {#if renderedOptions.length < filteredOptions.length}
