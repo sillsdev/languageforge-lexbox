@@ -132,7 +132,7 @@
           onchange={() => onFieldChanged('publishIn')}
           bind:values={entry.publishIn}
           options={publications.current}
-          labelSelector={(pub) => writingSystemService.pickBestAlternative(pub.name, 'analysis')}
+          labelSelector={(pub) => publications.getLabel(pub)}
           idSelector="id"
           sortValuesBy="selectionOrder"
           {readonly} />
