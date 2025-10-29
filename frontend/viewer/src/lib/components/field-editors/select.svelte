@@ -90,7 +90,7 @@
 </script>
 
 {#snippet trigger({ props }: { props: Record<string, unknown> })}
-  <div class="relative">
+  <div class="relative w-full">
     <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
     class={cn('w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent', className)}>
     {#if value}

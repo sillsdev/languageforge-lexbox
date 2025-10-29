@@ -23,7 +23,7 @@
   const style = $derived(mergeProps({style: styleProps}).style);
 </script>
 
-<div class={cn('relative group', className)} {style}>
+<div class={cn('relative group w-full', className)} {style}>
   <SelectPrimitive.Trigger
     bind:ref
     class={cn(
