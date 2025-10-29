@@ -75,8 +75,22 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         FwData
     }
 
-    // Not all of these cases are realistic, but they should all work
-    // An especially critical case is syncing data to crdt that has been round-tripped through fwdata first.
+    // The round-tripping api is not what is under test here. It's purely for preprocessing.
+    // It's so that that the data under test is being read from a real API (i.e. fwdata or crdt)
+    // and thus reflects whatever nuances that API may have.
+    //
+    // Not all of the test cases are realistic, but they should all work and they reflect the idea
+    // that "any MiniLcmApi implementation should be compatible with any other implementation".
+    // Even the unrealistic test cases could potentially expose unexpected, undesirable nuances in API behaviour.
+    // They also reflect the diversity of pipelines real entries might go through.
+    // For example, a currently real scenario is that "after" is read from fwdata and "before" is read from crdt
+    // and then round-tripped through a json file.
+    // That case is not explicitly covered here.
+    //
+    // The most critical test cases are:
+    // Api == CrdtApi and RoundTripApi == FwDataApi
+    // Api == FwDataApi and RoundTripApi == CrdtApi
+    // (though, as noted above, this case doesn't perfectly reflect real usage)
     [Theory]
     [InlineData(ApiType.Crdt)]
     [InlineData(ApiType.FwData)]
