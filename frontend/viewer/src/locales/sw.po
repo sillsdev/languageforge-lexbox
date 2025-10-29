@@ -934,6 +934,10 @@ msgstr ""
 msgid "Project name..."
 msgstr ""
 
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Publish in"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Reference"
 msgstr "Rejeleo"

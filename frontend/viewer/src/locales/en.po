@@ -929,6 +929,10 @@ msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgid "Project name..."
 msgstr "Project name..."
 
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Publish in"
+msgstr "Publish in"
+
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Reference"
 msgstr "Reference"
