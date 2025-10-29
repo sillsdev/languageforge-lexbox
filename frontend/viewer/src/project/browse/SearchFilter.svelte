@@ -121,7 +121,7 @@
       {/snippet}
     </ComposableInput>
   </div>
-  <Collapsible.Content class="p-2 mb-2 space-y-2">
+  <Collapsible.Content class="p-2 mb-2 space-y-2 max-h-[calc(65vh-3rem)] overflow-y-auto">
     <div class="flex flex-col">
       <Label class="p-2">{$t`Specific field`}</Label>
       <div class="flex flex-col @md/list:flex-row gap-2 items-stretch">
