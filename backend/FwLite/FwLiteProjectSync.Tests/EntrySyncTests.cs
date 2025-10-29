@@ -168,8 +168,8 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         ])];
 
         // expected should not be round-tripped, because an api might manipulate it somehow.
-        // We expect final result to be equivalent to this "raw"/untouched, requested state.
-        var expected = after;
+        // We expect the final result to be equivalent to this "raw"/untouched, requested state.
+        var expected = after.Copy();
 
         if (roundTripApi is not null)
         {
