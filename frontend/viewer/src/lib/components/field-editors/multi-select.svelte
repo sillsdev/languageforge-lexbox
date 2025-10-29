@@ -222,7 +222,7 @@
           {@const selected = pendingValues.some(v => v.id === id)}
           <CommandItem
             keywords={[label.toLocaleLowerCase()]}
-            value={label.toLocaleLowerCase()}
+            value={label.toLocaleLowerCase() + String(id)}
             onSelect={() => toggleSelected(value, !dirty && !IsMobile.value)}
             class={cn('group max-md:h-12', label || 'text-muted-foreground')}
             data-value-index={i}

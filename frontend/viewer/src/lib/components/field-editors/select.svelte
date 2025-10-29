@@ -138,7 +138,7 @@
           {@const selected = value && getId(value) === id}
           <CommandItem
             keywords={[label.toLocaleLowerCase()]}
-            value={label.toLocaleLowerCase()}
+            value={label.toLocaleLowerCase() + String(id)}
             onSelect={() => selectValue(option)}
             class={cn('group max-md:h-12', label || 'text-muted-foreground')}
             data-value-index={i}
