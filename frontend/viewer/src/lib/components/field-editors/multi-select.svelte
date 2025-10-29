@@ -213,7 +213,7 @@
         {/if}
       </div>
     </CommandInput>
-    <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
+    <CommandList class="max-md:h-[300px] md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
         {#each renderedOptions as value, i (getId(value))}
