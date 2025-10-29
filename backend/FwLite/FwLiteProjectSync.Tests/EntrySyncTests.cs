@@ -104,15 +104,15 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         var after = AutoFaker.Generate<Entry>();
         after.Id = before.Id;
 
+        // We have to "prepare" while before and after have no overlap (i.e. before we start mixing parts of before into after),
+        // otherwise "PrepareToCreateEntry" would fail due to trying to create duplicate related entities.
+        // After this we can't ADD anything to after that has dependencies
+        // (e.g. ExampleSentences are fine, because they're created as part of an entry, but Parts of speech aren't)
         await Api.PrepareToCreateEntry(before);
         await Api.PrepareToCreateEntry(after);
 
         if (roundTripApi is not null && currentApiType != roundTripApiType)
         {
-            // We have to prepare while before and after have no overlap (i.e. before we start mixing parts of before into after),
-            // otherwise "PrepareToCreateEntry" would fail due to trying to create duplicate related entities.
-            // After this we can't ADD anything to after that has dependencies
-            // (e.g. ExampleSentences are fine, because they're created as part of an entry, but Parts of speech aren't)
             await roundTripApi.PrepareToCreateEntry(before);
             await roundTripApi.PrepareToCreateEntry(after);
         }
