@@ -94,13 +94,29 @@ tasks:
     desc: 'example: `task download-sqlite-file id="<project id here>" code="<project code here>" context="dallas-stage"` the namespace can also be set'
     requires:
       vars: [id, code]
+    env:
+      KUBECTL_REMOTE_COMMAND_WEBSOCKETS: false
     vars:
       context: '{{.context| default "docker-desktop"}}'
       namespace: '{{.namespace| default "languagedepot"}}'
       pod:
         sh: kubectl get pods -l app=fw-headless -o jsonpath='{.items[0].metadata.name}' --context {{.context}} --namespace {{.namespace}}
     cmds:
-      - kubectl cp {{.pod}}:/var/lib/fw-headless/projects/{{.code}}-{{.id}}/crdt.sqlite ./{{.code}}.sqlite --context {{.context}} --namespace {{.namespace}}
+      - kubectl cp --retries 10 {{.pod}}:/var/lib/fw-headless/projects/{{.code}}-{{.id}}/crdt.sqlite ./{{.code}}.sqlite --context {{.context}} --namespace {{.namespace}}
+
+  download-fw-headless-project:
+    aliases: [download-project, dp]
+    desc: >
+      Download the entire project folder from a pod as .tar.gz and extract locally.
+      Example:
+      `task download-fw-headless-project id="<project id>" code="<project code>" context="dallas-stage" namespace="languagedepot"`.
+    requires:
+      vars: [id, code]
+    vars:
+      context: '{{.context | default "docker-desktop"}}'
+      namespace: '{{.namespace | default "languagedepot"}}'
+    cmds:
+      - node download-fw-headless-project.js "{{.id}}" "{{.code}}" "{{.context}}" "{{.namespace}}"
 
   diff-staging:
     dir: ./staging
