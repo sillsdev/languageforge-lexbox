@@ -34,8 +34,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         bool rankResults,
         bool orderAscending)
     {
-        // Escape the query for FTS5 if it contains problematic characters
-        var ftsQuery = EscapeForFts5IfNeeded(query);
+        // Escape the query for FTS5 to treat it as a literal string
+        // This prevents syntax errors from special characters
+        var ftsQuery = EscapeForFts5(query);
         
         //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
         var filtered = from searchRecord in EntrySearchRecordsTable
@@ -60,52 +61,11 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         return filtered.Select(t => t.entry);
     }
     
-    // Characters that cause FTS5 syntax errors when not properly escaped
-    private static readonly char[] ProblematicFts5Chars = ['"', ';'];
-    
-    // Valid FTS5 column names for EntrySearchRecord - must match the columns in the FTS table
-    private static readonly string[] ValidFts5Columns = ["Headword", "CitationForm", "LexemeForm", "Gloss", "Definition"];
-    
-    private static string EscapeForFts5IfNeeded(string query)
+    private static string EscapeForFts5(string query)
     {
-        // Check if the query contains characters that cause FTS5 syntax errors
-        // We need to wrap in quotes if the query contains problematic punctuation like ; or "
-        // For : we need to check if it's part of a valid column filter
-        
-        bool needsEscaping = query.IndexOfAny(ProblematicFts5Chars) >= 0;
-        
-        // Check for : but allow valid column filters
-        if (query.Contains(':'))
-        {
-            // Check if the : is part of a valid column filter (e.g., "CitationForm: text" or "CitationForm:text")
-            bool hasValidColumnFilter = false;
-            foreach (var column in ValidFts5Columns)
-            {
-                // Match "ColumnName:" or "ColumnName :" patterns at word boundaries
-                // This ensures "HeadwordTest:" won't match "Headword:"
-                if (query.Contains($"{column}:", StringComparison.OrdinalIgnoreCase) ||
-                    query.Contains($"{column} :", StringComparison.OrdinalIgnoreCase))
-                {
-                    hasValidColumnFilter = true;
-                    break;
-                }
-            }
-            
-            // If : is present but not part of a valid column filter, we need to escape
-            if (!hasValidColumnFilter)
-            {
-                needsEscaping = true;
-            }
-        }
-        
-        if (needsEscaping)
-        {
-            // Escape double quotes by doubling them, then wrap the entire query in quotes
-            // This makes the query a phrase search, which treats special characters as literals
-            return "\"" + query.Replace("\"", "\"\"") + "\"";
-        }
-        
-        return query;
+        // Per FTS5 documentation: escape double quotes by doubling them, 
+        // then wrap the entire query in quotes to treat it as a literal string
+        return "\"" + query.Replace("\"", "\"\"") + "\"";
     }
 
     public bool ValidSearchTerm(string query) => query.Normalize(NormalizationForm.FormC).Length >= 3;
@@ -294,10 +254,11 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public IAsyncEnumerable<EntrySearchRecord> Search(string query)
     {
-        var ftsQuery = EscapeForFts5IfNeeded(query);
+        // This method is for advanced queries with FTS5 syntax (wildcards, operators, etc.)
+        // Do not escape the query to allow these features
         return EntrySearchRecords
             .ToLinqToDB()
-            .Where(e => Sql.Ext.SQLite().Match(e, ftsQuery))
+            .Where(e => Sql.Ext.SQLite().Match(e, query))
             .OrderBy(e => Sql.Ext.SQLite().Rank(e))
             .AsAsyncEnumerable();
     }

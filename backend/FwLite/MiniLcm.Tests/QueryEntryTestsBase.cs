@@ -446,6 +446,8 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [InlineData("abc:", "abc:test")] // FTS with colon
     [InlineData("ab\"", "ab\"test")] // Non-FTS with quote
     [InlineData("abc\"", "abc\"test")] // FTS with quote
+    [InlineData("ab'", "ab'test")]  // Non-FTS with apostrophe (U+0027)
+    [InlineData("abc'", "abc'test")] // FTS with apostrophe (U+0027)
     public async Task PunctuationWorks(string searchTerm, string word)
     {
         await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
