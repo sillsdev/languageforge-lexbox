@@ -34,8 +34,8 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         bool rankResults,
         bool orderAscending)
     {
-        // Escape the query for FTS5 by wrapping it in double quotes and escaping internal quotes
-        var ftsQuery = EscapeForFts5(query);
+        // Escape the query for FTS5 if it contains problematic characters
+        var ftsQuery = EscapeForFts5IfNeeded(query);
         
         //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
         var filtered = from searchRecord in EntrySearchRecordsTable
@@ -60,11 +60,46 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         return filtered.Select(t => t.entry);
     }
     
-    private static string EscapeForFts5(string query)
+    private static string EscapeForFts5IfNeeded(string query)
     {
-        // Escape double quotes by doubling them, then wrap the entire query in quotes
-        // This makes the query a phrase search, which treats special characters as literals
-        return "\"" + query.Replace("\"", "\"\"") + "\"";
+        // Check if the query contains characters that cause FTS5 syntax errors
+        // We need to wrap in quotes if the query contains problematic punctuation like ; or "
+        // For : we need to check if it's part of a valid column filter
+        
+        bool needsEscaping = query.Contains('"') || query.Contains(';');
+        
+        // Check for : but allow valid column filters
+        if (query.Contains(':'))
+        {
+            // Valid FTS5 column names for EntrySearchRecord
+            string[] validColumns = { "Headword", "CitationForm", "LexemeForm", "Gloss", "Definition" };
+            
+            // Check if the : is part of a valid column filter (e.g., "CitationForm: text")
+            bool hasValidColumnFilter = false;
+            foreach (var column in validColumns)
+            {
+                if (query.Contains($"{column}:", StringComparison.OrdinalIgnoreCase))
+                {
+                    hasValidColumnFilter = true;
+                    break;
+                }
+            }
+            
+            // If : is present but not part of a valid column filter, we need to escape
+            if (!hasValidColumnFilter)
+            {
+                needsEscaping = true;
+            }
+        }
+        
+        if (needsEscaping)
+        {
+            // Escape double quotes by doubling them, then wrap the entire query in quotes
+            // This makes the query a phrase search, which treats special characters as literals
+            return "\"" + query.Replace("\"", "\"\"") + "\"";
+        }
+        
+        return query;
     }
 
     public bool ValidSearchTerm(string query) => query.Normalize(NormalizationForm.FormC).Length >= 3;
@@ -253,9 +288,10 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public IAsyncEnumerable<EntrySearchRecord> Search(string query)
     {
+        var ftsQuery = EscapeForFts5IfNeeded(query);
         return EntrySearchRecords
             .ToLinqToDB()
-            .Where(e => Sql.Ext.SQLite().Match(e, query))
+            .Where(e => Sql.Ext.SQLite().Match(e, ftsQuery))
             .OrderBy(e => Sql.Ext.SQLite().Rank(e))
             .AsAsyncEnumerable();
     }
