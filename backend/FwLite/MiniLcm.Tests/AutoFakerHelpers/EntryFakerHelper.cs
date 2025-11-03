@@ -18,6 +18,9 @@ public static class EntryFakerHelper
         return entry;
     }
 
+    /// <summary>
+    /// Makes the entry consistent/valid and creates any necessary dependencies using the provided API
+    /// </summary>
     public static async Task PrepareToCreateEntry(
         this IMiniLcmApi api,
         Entry entry,

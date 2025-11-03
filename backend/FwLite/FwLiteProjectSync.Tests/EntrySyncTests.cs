@@ -121,7 +121,8 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         // We have to "prepare" while before and after have no overlap (i.e. before we start mixing parts of before into after),
         // otherwise "PrepareToCreateEntry" would fail due to trying to create duplicate related entities.
         // After this we can't ADD anything to after that has dependencies
-        // (e.g. ExampleSentences are fine, because they're created as part of an entry, but Parts of speech aren't)
+        // e.g. ExampleSentences are fine, because they're owned/part of an entry.
+        // Parts of speech, on the other hand, are not owned by an entry.
         await Api.PrepareToCreateEntry(before);
         await Api.PrepareToCreateEntry(after);
 
@@ -131,55 +132,61 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
             await roundTripApi.PrepareToCreateEntry(after);
         }
 
-        after.Senses = [..
+        after.Senses = [
             // shuffle to cause moves
-            AutoFaker.Faker.Random.Shuffle([..
-            // keep some, remove others
-            AutoFaker.Faker.Random.ListItems(before.Senses).Select(createdSense =>
-            {
-                var copy = createdSense.Copy();
-                copy.ExampleSentences = [..
-                    // shuffle to cause moves
-                    AutoFaker.Faker.Random.Shuffle([..
-                    // keep some, remove others
-                    AutoFaker.Faker.Random.ListItems(copy.ExampleSentences),
-                    // add new
-                    AutoFaker.ExampleSentence(copy),
-                    AutoFaker.ExampleSentence(copy),
-                ])];
-                return copy;
-            }),
-            // keep new
-            ..after.Senses
-        ])];
+            ..AutoFaker.Faker.Random.Shuffle([
+                // keep some, remove others
+                ..AutoFaker.Faker.Random.ListItems(before.Senses)
+                .Select(createdSense =>
+                {
+                    var copy = createdSense.Copy();
+                    copy.ExampleSentences = [..
+                        // shuffle to cause moves
+                        AutoFaker.Faker.Random.Shuffle([..
+                        // keep some, remove others
+                        AutoFaker.Faker.Random.ListItems(copy.ExampleSentences),
+                        // add new
+                        AutoFaker.ExampleSentence(copy),
+                        AutoFaker.ExampleSentence(copy),
+                    ])];
+                    return copy;
+                }),
+                // keep new
+                ..after.Senses
+            ]),
+        ];
 
-        after.ComplexForms = [..
+        after.ComplexForms = [
             // shuffle to cause moves
-            AutoFaker.Faker.Random.Shuffle([..
-            // keep some, remove others
-            AutoFaker.Faker.Random.ListItems(before.ComplexForms).Select(createdCfc =>
-            {
-                var copy = createdCfc.Copy();
-                copy.ComponentHeadword = after.Headword();
-                return copy;
-            }),
-            // keep new
-            ..after.ComplexForms
-        ])];
+            ..AutoFaker.Faker.Random.Shuffle([
+                // keep some, remove others
+                ..AutoFaker.Faker.Random.ListItems(before.ComplexForms)
+                .Select(createdCfc =>
+                {
+                    var copy = createdCfc.Copy();
+                    copy.ComponentHeadword = after.Headword();
+                    return copy;
+                }),
+                // keep new
+                ..after.ComplexForms
+            ]),
+        ];
 
-        after.Components = [..
+        after.Components = [
             // shuffle to cause moves
-            AutoFaker.Faker.Random.Shuffle([..
-            // keep some, remove others
-            AutoFaker.Faker.Random.ListItems(before.Components).Select(createdCfc =>
-            {
-                var copy = createdCfc.Copy();
-                copy.ComplexFormHeadword = after.Headword();
-                return copy;
-            }),
-            // keep new
-            ..after.Components
-        ])];
+            ..AutoFaker.Faker.Random.Shuffle([
+                // keep some, remove others
+                ..AutoFaker.Faker.Random.ListItems(before.Components)
+                .Select(createdCfc =>
+                {
+                    var copy = createdCfc.Copy();
+                    copy.ComplexFormHeadword = after.Headword();
+                    return copy;
+                }),
+                // keep new
+                ..after.Components
+            ]),
+        ];
 
         // expected should not be round-tripped, because an api might manipulate it somehow.
         // We expect the final result to be equivalent to this "raw"/untouched, requested state.
