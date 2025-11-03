@@ -134,7 +134,7 @@
           options={publications.current}
           labelSelector={(pub) => publications.getLabel(pub)}
           idSelector="id"
-          sortValuesBy="selectionOrder"
+          sortValuesBy="optionOrder"
           {readonly} />
     </Editor.Field.Body>
   </Editor.Field.Root>
