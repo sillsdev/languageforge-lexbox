@@ -132,30 +132,24 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
             await roundTripApi.PrepareToCreateEntry(after);
         }
 
-        after.Senses = [
-            // shuffle to cause moves
-            ..AutoFaker.Faker.Random.Shuffle([
-                // keep some, remove others
-                ..AutoFaker.Faker.Random.ListItems(before.Senses)
-                .Select(createdSense =>
-                {
-                    var copy = createdSense.Copy();
-                    copy.ExampleSentences = [
-                        // shuffle to cause moves
-                        ..AutoFaker.Faker.Random.Shuffle([
-                            // keep some, remove others
-                            ..AutoFaker.Faker.Random.ListItems(copy.ExampleSentences),
-                            // add new
-                            AutoFaker.ExampleSentence(copy),
-                            AutoFaker.ExampleSentence(copy),
-                        ]),
-                    ];
-                    return copy;
-                }),
-                // keep new
-                ..after.Senses
-            ]),
-        ];
+        // keep some old senses, remove others
+        var someRandomBeforeSenses = AutoFaker.Faker.Random.ListItems(before.Senses).Select(createdSense =>
+        {
+            var copy = createdSense.Copy();
+            copy.ExampleSentences = [
+                // shuffle to cause moves
+                ..AutoFaker.Faker.Random.Shuffle([
+                    // keep some, remove others
+                    ..AutoFaker.Faker.Random.ListItems(copy.ExampleSentences),
+                    // add new
+                    AutoFaker.ExampleSentence(copy),
+                    AutoFaker.ExampleSentence(copy),
+                ]),
+            ];
+            return copy;
+        });
+        // keep new, and shuffle to cause moves
+        after.Senses = [.. AutoFaker.Faker.Random.Shuffle([.. someRandomBeforeSenses, .. after.Senses])];
 
         after.ComplexForms = [
             // shuffle to cause moves
