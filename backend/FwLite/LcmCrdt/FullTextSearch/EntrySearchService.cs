@@ -34,10 +34,13 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         bool rankResults,
         bool orderAscending)
     {
+        // Escape the query for FTS5 by wrapping it in double quotes and escaping internal quotes
+        var ftsQuery = EscapeForFts5(query);
+        
         //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
         var filtered = from searchRecord in EntrySearchRecordsTable
             from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
-            where Sql.Ext.SQLite().Match(searchRecord, query) && (entry.LexemeForm.SearchValue(query)
+            where Sql.Ext.SQLite().Match(searchRecord, ftsQuery) && (entry.LexemeForm.SearchValue(query)
                                                                   || entry.CitationForm.SearchValue(query)
                                                                   || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
             select new { entry, searchRecord };
@@ -55,6 +58,13 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         }
 
         return filtered.Select(t => t.entry);
+    }
+    
+    private static string EscapeForFts5(string query)
+    {
+        // Escape double quotes by doubling them, then wrap the entire query in quotes
+        // This makes the query a phrase search, which treats special characters as literals
+        return "\"" + query.Replace("\"", "\"\"") + "\"";
     }
 
     public bool ValidSearchTerm(string query) => query.Normalize(NormalizationForm.FormC).Length >= 3;

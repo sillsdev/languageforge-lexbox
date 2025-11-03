@@ -438,6 +438,20 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                 .Select(e => e.LexemeForm["en"]);
         string.Join(",", result).Should().Be(expectedOrder);
     }
+
+    [Theory]
+    [InlineData("ab;", "ab;test")]  // Non-FTS search (2 chars before semicolon)
+    [InlineData("abc;", "abc;test")] // FTS search (3 chars before semicolon)
+    [InlineData("ab:", "ab:test")]  // Non-FTS with colon
+    [InlineData("abc:", "abc:test")] // FTS with colon
+    [InlineData("ab\"", "ab\"test")] // Non-FTS with quote
+    [InlineData("abc\"", "abc\"test")] // FTS with quote
+    public async Task PunctuationWorks(string searchTerm, string word)
+    {
+        await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
+        var results = await Api.SearchEntries(searchTerm).Select(e => e.LexemeForm["en"]).ToArrayAsync();
+        results.Should().Contain(word);
+    }
 }
 
 // A seperate class to preserve the readability of the results in the main test class
