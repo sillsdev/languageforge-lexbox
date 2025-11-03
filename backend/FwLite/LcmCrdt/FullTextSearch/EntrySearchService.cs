@@ -34,14 +34,12 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         bool rankResults,
         bool orderAscending)
     {
-        // Escape the query for FTS5 to treat it as a literal string
-        // This prevents syntax errors from special characters
-        var ftsQuery = EscapeForFts5(query);
-        
+        var ftsString = ToFts5LiteralString(query);
+
         //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
         var filtered = from searchRecord in EntrySearchRecordsTable
             from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
-            where Sql.Ext.SQLite().Match(searchRecord, ftsQuery) && (entry.LexemeForm.SearchValue(query)
+            where Sql.Ext.SQLite().Match(searchRecord, ftsString) && (entry.LexemeForm.SearchValue(query)
                                                                   || entry.CitationForm.SearchValue(query)
                                                                   || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
             select new { entry, searchRecord };
@@ -60,12 +58,13 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
         return filtered.Select(t => t.entry);
     }
-    
-    private static string EscapeForFts5(string query)
+
+    private static string ToFts5LiteralString(string query)
     {
-        // Per FTS5 documentation: escape double quotes by doubling them, 
-        // then wrap the entire query in quotes to treat it as a literal string
-        return "\"" + query.Replace("\"", "\"\"") + "\"";
+        // https://sqlite.org/fts5.html#fts5_strings
+        // - escape double quotes by doubling them
+        // - wrap the entire query in quotes
+        return $"\"{query.Replace("\"", "\"\"")}\"";
     }
 
     public bool ValidSearchTerm(string query) => query.Normalize(NormalizationForm.FormC).Length >= 3;
@@ -254,8 +253,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public IAsyncEnumerable<EntrySearchRecord> Search(string query)
     {
-        // This method is for advanced queries with FTS5 syntax (wildcards, operators, etc.)
-        // Do not escape the query to allow these features
+        // (Currently only used by tests)
+        // This method is for advanced queries with FTS5 syntax (wildcards, operators, etc.).
+        // So, we don't use ToFts5LiteralString.
         return EntrySearchRecords
             .ToLinqToDB()
             .Where(e => Sql.Ext.SQLite().Match(e, query))
