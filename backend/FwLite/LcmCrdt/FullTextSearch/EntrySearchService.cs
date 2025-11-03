@@ -60,25 +60,31 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         return filtered.Select(t => t.entry);
     }
     
+    // Characters that cause FTS5 syntax errors when not properly escaped
+    private static readonly char[] ProblematicFts5Chars = ['"', ';'];
+    
+    // Valid FTS5 column names for EntrySearchRecord - must match the columns in the FTS table
+    private static readonly string[] ValidFts5Columns = ["Headword", "CitationForm", "LexemeForm", "Gloss", "Definition"];
+    
     private static string EscapeForFts5IfNeeded(string query)
     {
         // Check if the query contains characters that cause FTS5 syntax errors
         // We need to wrap in quotes if the query contains problematic punctuation like ; or "
         // For : we need to check if it's part of a valid column filter
         
-        bool needsEscaping = query.Contains('"') || query.Contains(';');
+        bool needsEscaping = query.IndexOfAny(ProblematicFts5Chars) >= 0;
         
         // Check for : but allow valid column filters
         if (query.Contains(':'))
         {
-            // Valid FTS5 column names for EntrySearchRecord
-            string[] validColumns = { "Headword", "CitationForm", "LexemeForm", "Gloss", "Definition" };
-            
-            // Check if the : is part of a valid column filter (e.g., "CitationForm: text")
+            // Check if the : is part of a valid column filter (e.g., "CitationForm: text" or "CitationForm:text")
             bool hasValidColumnFilter = false;
-            foreach (var column in validColumns)
+            foreach (var column in ValidFts5Columns)
             {
-                if (query.Contains($"{column}:", StringComparison.OrdinalIgnoreCase))
+                // Match "ColumnName:" or "ColumnName :" patterns at word boundaries
+                // This ensures "HeadwordTest:" won't match "Headword:"
+                if (query.Contains($"{column}:", StringComparison.OrdinalIgnoreCase) ||
+                    query.Contains($"{column} :", StringComparison.OrdinalIgnoreCase))
                 {
                     hasValidColumnFilter = true;
                     break;
