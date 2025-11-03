@@ -440,14 +440,14 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Theory]
-    [InlineData("ab;", "ab;test")]  // Non-FTS search (2 chars before semicolon)
-    [InlineData("abc;", "abc;test")] // FTS search (3 chars before semicolon)
-    [InlineData("ab:", "ab:test")]  // Non-FTS with colon
-    [InlineData("abc:", "abc:test")] // FTS with colon
-    [InlineData("ab\"", "ab\"test")] // Non-FTS with quote
-    [InlineData("abc\"", "abc\"test")] // FTS with quote
-    [InlineData("ab'", "ab'test")]  // Non-FTS with apostrophe (U+0027)
-    [InlineData("abc'", "abc'test")] // FTS with apostrophe (U+0027)
+    [InlineData("a;", "a;test")]  // Non-FTS search (2 chars total)
+    [InlineData("abc;", "abc;test")] // FTS search (4 chars total)
+    [InlineData("a:", "a:test")]  // Non-FTS with colon (2 chars total)
+    [InlineData("abc:", "abc:test")] // FTS with colon (4 chars total)
+    [InlineData("a\"", "a\"test")] // Non-FTS with quote (2 chars total)
+    [InlineData("abc\"", "abc\"test")] // FTS with quote (4 chars total)
+    [InlineData("a'", "a'test")]  // Non-FTS with apostrophe (U+0027, 2 chars total)
+    [InlineData("abc'", "abc'test")] // FTS with apostrophe (U+0027, 4 chars total)
     public async Task PunctuationWorks(string searchTerm, string word)
     {
         await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
