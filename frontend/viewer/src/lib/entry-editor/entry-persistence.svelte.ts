@@ -10,7 +10,7 @@ export class EntryPersistence {
   initialEntry: IEntry | undefined = undefined;
   constructor(private entryGetter: Getter<IEntry | undefined | null>, private onUpdated: () => void = () => { }) {
     watch(entryGetter, (entry) => {
-      if (entry?.id !== this.initialEntry?.id) this.updateInitialEntry(entry);
+      this.updateInitialEntry(entry);
     });
   }
 
