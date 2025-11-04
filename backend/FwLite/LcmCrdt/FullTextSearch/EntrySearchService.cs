@@ -26,7 +26,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 {
     internal IQueryable<EntrySearchRecord> EntrySearchRecords => dbContext.Set<EntrySearchRecord>();
 
-    //ling2db table
+    //linq2db table
     private ITable<EntrySearchRecord> EntrySearchRecordsTable => dbContext.GetTable<EntrySearchRecord>();
 
     public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable,
