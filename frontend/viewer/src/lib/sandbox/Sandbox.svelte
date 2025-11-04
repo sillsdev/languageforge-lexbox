@@ -5,7 +5,7 @@
   import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
   import type {FieldId} from '$lib/entry-editor/field-data';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
-  import {InMemoryApiService} from '$lib/in-memory-api-service';
+  import {InMemoryDemoApi} from '$lib/in-memory-demo-api';
   import {AppNotification} from '$lib/notifications/notifications';
   import {tryUseService} from '$lib/services/service-provider';
   import {delay} from '$lib/utils/time';
@@ -48,7 +48,7 @@
     AppNotification.error('This is a notification with a large detail', description);
   }
 
-  InMemoryApiService.setup();
+  InMemoryDemoApi.setup();
   initView();
   initViewSettings();
   const writingSystemService = useWritingSystemService();

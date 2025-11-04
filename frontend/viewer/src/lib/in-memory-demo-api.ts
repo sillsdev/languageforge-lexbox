@@ -63,7 +63,7 @@ export const mockFwLiteConfig: IFwLiteConfig = {
   updateUrl: ''
 };
 
-export class InMemoryApiService implements IMiniLcmJsInvokable {
+export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   #writingSystemService: WritingSystemService;
   constructor(private projectContext: ProjectContext) {
     this.#writingSystemService = new WritingSystemService(projectContext);
@@ -75,12 +75,12 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
 
   public static newProjectContext() {
     const projectContext = new ProjectContext();
-    projectContext.setup({api: new InMemoryApiService(projectContext), projectName, projectCode: projectName});
+    projectContext.setup({api: new InMemoryDemoApi(projectContext), projectName, projectCode: projectName});
     return projectContext;
   }
-  public static setup(): InMemoryApiService {
+  public static setup(): InMemoryDemoApi {
     const projectContext = initProjectContext();
-    const inMemoryLexboxApi = new InMemoryApiService(projectContext);
+    const inMemoryLexboxApi = new InMemoryDemoApi(projectContext);
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {

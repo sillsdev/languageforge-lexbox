@@ -11,7 +11,7 @@
   import {DotnetService, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
   import ProjectLoader from './ProjectLoader.svelte';
   import {initProjectContext} from '$lib/project-context.svelte';
-  import {mockFwLiteConfig} from '$lib/in-memory-api-service';
+  import {mockFwLiteConfig} from '$lib/in-memory-demo-api';
   import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
 
   let connecting = true;
