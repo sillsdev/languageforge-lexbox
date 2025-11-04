@@ -16,7 +16,7 @@
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useCurrentView} from '$lib/views/view-service';
   import {cn, defaultExampleSentence, defaultSense} from '$lib/utils';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import EntityListItemActions from '../EntityListItemActions.svelte';
   import AddSenseFab from './AddSenseFab.svelte';
   import ExampleEditorPrimitive from './ExampleEditorPrimitive.svelte';

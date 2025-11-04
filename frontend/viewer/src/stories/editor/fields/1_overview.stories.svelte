@@ -2,7 +2,7 @@
   import {MultiSelect, MultiWsInput, Select, WsInput, RichWsInput, RichMultiWsInput} from '$lib/components/field-editors';
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import * as Editor from '$lib/components/editor';
-  import {writingSystems as demoWritingSystems} from '$lib/demo-entry-data';
+  import {writingSystems as demoWritingSystems} from '$project/demo/demo-entry-data';
   import {inputVariants} from '$lib/components/ui/input/input.svelte';
 
   const { Story } = defineMeta({

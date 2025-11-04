@@ -16,7 +16,7 @@ import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteSha
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
 import type {IHistoryServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-import {useProjectContext} from '../project-context.svelte';
+import {useProjectContext} from '$project/project-context.svelte';
 import type {IJsInvokableLogger} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IJsInvokableLogger';
 
 export type ServiceKey = keyof LexboxServiceRegistry;

@@ -8,9 +8,9 @@
   import EntryMenu from './EntryMenu.svelte';
   import {ScrollArea} from '$lib/components/ui/scroll-area';
   import {cn} from '$lib/utils';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
-  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
+  import DictionaryEntry from '$project/DictionaryEntry.svelte';
   import {Toggle} from '$lib/components/ui/toggle';
   import {XButton} from '$lib/components/ui/button';
   import type {IEntry} from '$lib/dotnet-types';

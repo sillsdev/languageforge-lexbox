@@ -3,7 +3,7 @@
   import ListItem from '$lib/components/ListItem.svelte';
   import EditEntryDialog from '$lib/entry-editor/EditEntryDialog.svelte';
   import type {TaskSubject} from './subject.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
 
   const writingSystemService = useWritingSystemService();

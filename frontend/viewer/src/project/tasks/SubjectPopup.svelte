@@ -4,12 +4,12 @@
   import * as Editor from '$lib/components/editor';
   import {Button, XButton} from '$lib/components/ui/button';
   import {type Task, TasksService} from './tasks-service';
-  import OverrideFields from '$lib/OverrideFields.svelte';
+  import OverrideFields from '$lib/views/OverrideFields.svelte';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
   import ExampleEditorPrimitive from '$lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte';
   import {Separator} from '$lib/components/ui/separator';
-  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
+  import DictionaryEntry from '$project/DictionaryEntry.svelte';
   import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import {Progress} from '$lib/components/ui/progress';
   import {t} from 'svelte-i18n-lingui';

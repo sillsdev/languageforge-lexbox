@@ -13,7 +13,7 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import type {IPendingCommits} from '$lib/dotnet-types/generated-types/FwLiteShared/Sync/IPendingCommits';
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
   import SyncStatusPrimitive from './sync/SyncStatusPrimitive.svelte';
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
 

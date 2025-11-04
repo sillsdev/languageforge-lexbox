@@ -43,7 +43,7 @@
 <script lang="ts">
   import {onDestroy} from 'svelte';
   import {useEventListener, watch} from 'runed';
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import {Button} from '$lib/components/ui/button';
   import {Slider} from '$lib/components/ui/slider';
@@ -55,7 +55,7 @@
   import {tryUseFieldBody} from '$lib/components/editor/field/field-root.svelte';
   import {useSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
   import LexiconEditorPrimitive from '$lib/entry-editor/object-editors/LexiconEditorPrimitive.svelte';
-  import OverrideFields from '$lib/OverrideFields.svelte';
+  import OverrideFields from '$lib/views/OverrideFields.svelte';
 
   const handled = Symbol();
   let {
