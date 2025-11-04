@@ -80,8 +80,8 @@
     filterValue = '';
   });
 
-  watch([() => open, () => options], () => {
-    if (open && options) {
+  watch([() => open, () => decoratedValues], () => {
+    if (open && !dirty) {
       pendingValues = [...decoratedValues];
     }
   });
