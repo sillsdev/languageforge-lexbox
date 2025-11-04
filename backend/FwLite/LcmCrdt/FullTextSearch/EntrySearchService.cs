@@ -26,7 +26,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 {
     internal IQueryable<EntrySearchRecord> EntrySearchRecords => dbContext.Set<EntrySearchRecord>();
 
-    //ling2db table
+    //linq2db table
     private ITable<EntrySearchRecord> EntrySearchRecordsTable => dbContext.GetTable<EntrySearchRecord>();
 
     public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable,
@@ -34,10 +34,12 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         bool rankResults,
         bool orderAscending)
     {
+        var ftsString = ToFts5LiteralString(query);
+
         //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
         var filtered = from searchRecord in EntrySearchRecordsTable
             from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
-            where Sql.Ext.SQLite().Match(searchRecord, query) && (entry.LexemeForm.SearchValue(query)
+            where Sql.Ext.SQLite().Match(searchRecord, ftsString) && (entry.LexemeForm.SearchValue(query)
                                                                   || entry.CitationForm.SearchValue(query)
                                                                   || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
             select new { entry, searchRecord };
@@ -55,6 +57,14 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         }
 
         return filtered.Select(t => t.entry);
+    }
+
+    private static string ToFts5LiteralString(string query)
+    {
+        // https://sqlite.org/fts5.html#fts5_strings
+        // - escape double quotes by doubling them
+        // - wrap the entire query in quotes
+        return $"\"{query.Replace("\"", "\"\"")}\"";
     }
 
     public bool ValidSearchTerm(string query) => query.Normalize(NormalizationForm.FormC).Length >= 3;
@@ -243,6 +253,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public IAsyncEnumerable<EntrySearchRecord> Search(string query)
     {
+        // (Currently only used by tests)
+        // This method is for advanced queries with FTS5 syntax (wildcards, operators, etc.).
+        // So, we don't use ToFts5LiteralString.
         return EntrySearchRecords
             .ToLinqToDB()
             .Where(e => Sql.Ext.SQLite().Match(e, query))

@@ -438,6 +438,22 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                 .Select(e => e.LexemeForm["en"]);
         string.Join(",", result).Should().Be(expectedOrder);
     }
+
+    [Theory]
+    [InlineData("a;", "a;test")]  // Non-FTS search (2 chars total)
+    [InlineData("abc;", "abc;test")] // FTS search (4 chars total)
+    [InlineData("a:", "a:test")]  // Non-FTS with colon (2 chars total)
+    [InlineData("abc:", "abc:test")] // FTS with colon (4 chars total)
+    [InlineData("a\"", "a\"test")] // Non-FTS with quote (2 chars total)
+    [InlineData("abc\"", "abc\"test")] // FTS with quote (4 chars total)
+    [InlineData("a'", "a'test")]  // Non-FTS with apostrophe (U+0027, 2 chars total)
+    [InlineData("abc'", "abc'test")] // FTS with apostrophe (U+0027, 4 chars total)
+    public async Task PunctuationWorks(string searchTerm, string word)
+    {
+        await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
+        var results = await Api.SearchEntries(searchTerm).Select(e => e.LexemeForm["en"]).ToArrayAsync();
+        results.Should().Contain(word);
+    }
 }
 
 // A seperate class to preserve the readability of the results in the main test class
