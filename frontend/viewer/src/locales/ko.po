@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-10-22 10:29\n"
+"PO-Revision-Date: 2025-11-06 17:04\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -134,6 +134,14 @@ msgstr "단어 추가"
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "항목"
+
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any grammatical info."
+msgstr "모든 문법 정보."
+
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any part of speech"
+msgstr "모든 품사"
 
 #: src/project/browse/filter/SemanticDomainSelect.svelte
 msgid "Any semantic domain"
@@ -581,6 +589,7 @@ msgstr "광택"
 msgid "Go to {0}"
 msgstr "{0}으로 이동"
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Grammatical info."
 msgstr "문법 정보."
@@ -898,6 +907,7 @@ msgstr "Part"
 msgid "Part of"
 msgstr "의 일부"
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "품사"
@@ -1248,6 +1258,10 @@ msgstr "알 수 없는 서버"
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 msgid "Untitled"
 msgstr "제목 없음"
 
