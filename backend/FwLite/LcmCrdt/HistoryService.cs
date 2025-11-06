@@ -23,6 +23,7 @@ public record HistoryLineItem(
     DateTimeOffset Timestamp,
     Guid? SnapshotId,
     int changeIndex,
+    IChange change,
     string ChangeName,
     IObjectWithId? Entity,
     string? EntityName,
@@ -43,6 +44,7 @@ public record HistoryLineItem(
             TimeSpan.Zero), //todo this is a workaround for linq2db bug where it reads a date and assumes it's local when it's UTC
         snapshotId,
         changeIndex,
+        change,
         HistoryService.ChangeNameHelper(change),
         (IObjectWithId?) entity?.DbObject,
         typeName,
