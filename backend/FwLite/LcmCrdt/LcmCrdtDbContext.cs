@@ -8,12 +8,20 @@ using Microsoft.Extensions.Options;
 
 namespace LcmCrdt;
 
-public class LcmCrdtDbContext(
-    DbContextOptions<LcmCrdtDbContext> dbContextOptions,
-    IOptions<CrdtConfig> options
-    )
-    : DbContext(dbContextOptions), ICrdtDbContext
+public class LcmCrdtDbContext : DbContext, ICrdtDbContext
 {
+    private readonly IOptions<CrdtConfig> _crdtOptions;
+
+    public LcmCrdtDbContext(
+        DbContextOptions<LcmCrdtDbContext> dbContextOptions,
+        IOptions<CrdtConfig> options) : base(dbContextOptions)
+    {
+        _crdtOptions = options;
+        // OnTracked handler removed - causes issues with projected tables
+        // The alternative solution is to not set the PartOfSpeech navigation property
+        // in SetPartOfSpeechChange when it would cause tracking issues
+    }
+
     public DbSet<ProjectData> ProjectData => Set<ProjectData>();
     public IQueryable<WritingSystem> WritingSystems => Set<WritingSystem>().AsNoTracking();
     public IQueryable<WritingSystem> WritingSystemsOrdered => Set<WritingSystem>().AsNoTracking()
@@ -29,7 +37,7 @@ public class LcmCrdtDbContext(
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.UseCrdt(options.Value);
+        modelBuilder.UseCrdt(_crdtOptions.Value);
 
         var projectDataModel = modelBuilder.Entity<ProjectData>();
         projectDataModel.HasKey(p => p.Id);

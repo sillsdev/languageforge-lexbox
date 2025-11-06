@@ -138,7 +138,10 @@ public static class LcmCrdtKernel
 
     public static void ConfigureCrdt(CrdtConfig config)
     {
-        config.EnableProjectedTables = true;
+        // Disable projected tables to avoid EF Core tracking issues with navigation properties
+        // This is needed because we now populate PartOfSpeech navigation properties in snapshots
+        config.EnableProjectedTables = false;
+        
         config.ObjectTypeListBuilder
             .CustomAdapter<IObjectWithId, MiniLcmCrdtAdapter>()
             .Add<Entry>(builder =>
