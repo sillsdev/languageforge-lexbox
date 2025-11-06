@@ -176,13 +176,13 @@
 </script>
 
 {#snippet displayBadges()}
-  <div class="flex flex-wrap justify-start gap-2">
+  <div class="flex flex-wrap justify-start gap-2 overflow-hidden">
     {#each displayValues as value (value.id)}
       <Badge>
-        {value.label}
+        {value.label || $t`Untitled`}
       </Badge>
     {:else}
-      <span class="text-muted-foreground">
+      <span class="text-muted-foreground x-ellipsis">
         {placeholder ?? $t`None`}
         <!-- ensures that:
           1) baseline alignment works for consumers of this component
@@ -226,7 +226,7 @@
         {/if}
       </div>
     </CommandInput>
-    <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
+    <CommandList class="max-md:h-[300px] md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
         {#each renderedOptions as value, i (getId(value))}
@@ -235,9 +235,9 @@
           {@const selected = pendingValues.some(v => v.id === id)}
           <CommandItem
             keywords={[label.toLocaleLowerCase()]}
-            value={label.toLocaleLowerCase()}
+            value={label.toLocaleLowerCase() + String(id)}
             onSelect={() => toggleSelected(value, !dirty && !IsMobile.value)}
-            class="group max-md:h-12"
+            class={cn('group max-md:h-12', label || 'text-muted-foreground')}
             data-value-index={i}
             aria-label={label}
           >
@@ -258,7 +258,7 @@
               }}
               onCheckedChange={() => toggleSelected(value, false)}
             />
-            {label}
+            {label || $t`Untitled`}
           </CommandItem>
         {/each}
         {#if renderedOptions.length < filteredOptions.length}

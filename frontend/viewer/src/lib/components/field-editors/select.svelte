@@ -94,11 +94,11 @@
     <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
     class={cn('w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent', className)}>
     {#if value}
-      <span>
-        {getLabel(value)}
+      <span class="x-ellipsis mr-4">
+        {getLabel(value) || $t`Untitled`}
       </span>
     {:else}
-      <span class="text-muted-foreground">
+      <span class="text-muted-foreground x-ellipsis mr-4">
         {placeholder ?? $t`None`}
         <!-- ensures that baseline alignment works for consumers of this component -->
         &nbsp;
@@ -129,7 +129,7 @@
         {/if}
       </div>
     </CommandInput>
-    <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
+    <CommandList class="max-md:h-[300px] md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
         {#each renderedOptions as option, i (getId(option))}
@@ -138,14 +138,14 @@
           {@const selected = value && getId(value) === id}
           <CommandItem
             keywords={[label.toLocaleLowerCase()]}
-            value={label.toLocaleLowerCase()}
+            value={label.toLocaleLowerCase() + String(id)}
             onSelect={() => selectValue(option)}
-            class="group max-md:h-12"
+            class={cn('group max-md:h-12', label || 'text-muted-foreground')}
             data-value-index={i}
             aria-label={label}
           >
             <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
-            {label}
+            {label || $t`Untitled`}
           </CommandItem>
         {/each}
         {#if renderedOptions.length < filteredOptions.length}

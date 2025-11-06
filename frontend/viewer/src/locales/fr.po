@@ -135,6 +135,14 @@ msgstr ""
 msgid "an entry"
 msgstr "une entrée"
 
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any grammatical info."
+msgstr ""
+
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any part of speech"
+msgstr ""
+
 #: src/project/browse/filter/SemanticDomainSelect.svelte
 msgid "Any semantic domain"
 msgstr ""
@@ -581,6 +589,7 @@ msgstr "Glose"
 msgid "Go to {0}"
 msgstr "Aller sur {0}"
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Grammatical info."
 msgstr "Informations grammaticales."
@@ -898,6 +907,7 @@ msgstr "Partie"
 msgid "Part of"
 msgstr "Une partie de"
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Partie du discours"
@@ -1248,6 +1258,10 @@ msgstr ""
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 msgid "Untitled"
 msgstr "Sans titre"
 
