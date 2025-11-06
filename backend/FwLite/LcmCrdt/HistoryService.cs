@@ -129,7 +129,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
     {
         var type = change.GetType();
         //todo call JsonPatchChange.Summarize() instead of this
-        if (type.Name.StartsWith("JsonPatchChange")) return $"Change{change.EntityType.Name}".Humanize();
+        if (type.Name.Contains("JsonPatch")) return $"Edit{change.EntityType.Name}".Humanize();
         else if (type.Name.StartsWith("DeleteChange`")) return $"Delete{change.EntityType.Name}".Humanize();
         else if (type.Name.StartsWith("SetOrderChange`")) return $"Reorder{change.EntityType.Name}".Humanize();
         var changeName = type.Name.Humanize();
