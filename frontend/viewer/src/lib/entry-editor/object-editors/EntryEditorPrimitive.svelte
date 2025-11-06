@@ -2,7 +2,7 @@
   import * as Editor from '$lib/components/editor';
   import type {IEntry} from '$lib/dotnet-types';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
-  import {vt} from '$lib/views/view-text';
+  import {pt, vt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
   import {fieldData, type FieldId} from '../field-data';
   import {cn} from '$lib/utils';
@@ -126,7 +126,7 @@
   </Editor.Field.Root>
 
   <Editor.Field.Root fieldId="publishIn" class={cn($currentView.fields.publishIn.show || 'hidden')}>
-    <Editor.Field.Title name={$t`Publish in`} helpId={fieldData.publishIn.helpId} />
+    <Editor.Field.Title name={$t`Publish ${pt($t`Entry`, $t`Word`, $currentView)} in`} helpId={fieldData.publishIn.helpId} />
     <Editor.Field.Body>
       <MultiSelect
           onchange={() => onFieldChanged('publishIn')}
