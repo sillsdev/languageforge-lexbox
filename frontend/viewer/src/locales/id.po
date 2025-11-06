@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-10-22 10:29\n"
+"PO-Revision-Date: 2025-11-06 17:04\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -134,6 +134,14 @@ msgstr "Tambahkan Kata"
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "sebuah entri"
+
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any grammatical info."
+msgstr "Info tata bahasa apa pun."
+
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any part of speech"
+msgstr "Setiap bagian dari pidato"
 
 #: src/project/browse/filter/SemanticDomainSelect.svelte
 msgid "Any semantic domain"
@@ -581,6 +589,7 @@ msgstr "Arti Singkat"
 msgid "Go to {0}"
 msgstr "Buka {0}"
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Grammatical info."
 msgstr "Info tata bahasa."
@@ -898,6 +907,7 @@ msgstr "Bagian"
 msgid "Part of"
 msgstr "Bagian dari"
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Bagian dari pidato"
@@ -1248,6 +1258,10 @@ msgstr "Server tidak dikenal"
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 msgid "Untitled"
 msgstr "Tanpa judul"
 
