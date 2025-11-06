@@ -29,6 +29,29 @@ public class SenseChangeTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
     }
 
     [Fact]
+    public async Task SetPartOfSpeechChange_DoesNotTriggerDuplicateInsert()
+    {
+        // This test verifies that when we set a Sense's PartOfSpeech navigation property,
+        // EF Core doesn't try to insert the PartOfSpeech into the projected table
+        // (it should already exist there from when it was created).
+        // Without proper handling, this would fail with: SQLite Error 19: 'UNIQUE constraint failed: PartOfSpeech.Id'
+        
+        // arrange
+        var entry = await fixture.Api.CreateEntry(new() { LexemeForm = { { "en", "test entry" } }, });
+        var partOfSpeech = await fixture.Api.CreatePartOfSpeech(new() { Name = new() { { "en", "test pos" } } });
+        var sense = await fixture.Api.CreateSense(entry.Id, new Sense() { Gloss = new() { { "en", "test sense" } } });
+
+        // act - This should not throw a duplicate key exception
+        await fixture.Api.SetSensePartOfSpeech(sense.Id, partOfSpeech.Id);
+
+        // assert
+        var actualSense = await fixture.Api.GetSense(entry.Id, sense.Id);
+        actualSense.Should().NotBeNull();
+        actualSense!.PartOfSpeechId.Should().Be(partOfSpeech.Id);
+        actualSense.PartOfSpeech.Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task SetPartOfSpeechChange_PartOfSpeechIsAvailableInSnapshot()
     {
         // arrange

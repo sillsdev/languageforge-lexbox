@@ -1,10 +1,11 @@
 using System.Text.Json;
 using LcmCrdt.FullTextSearch;
-using SIL.Harmony;
-using SIL.Harmony.Db;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
+using SIL.Harmony;
+using SIL.Harmony.Db;
 
 namespace LcmCrdt;
 
@@ -17,9 +18,7 @@ public class LcmCrdtDbContext : DbContext, ICrdtDbContext
         IOptions<CrdtConfig> options) : base(dbContextOptions)
     {
         _crdtOptions = options;
-        // OnTracked handler removed - causes issues with projected tables
-        // The alternative solution is to not set the PartOfSpeech navigation property
-        // in SetPartOfSpeechChange when it would cause tracking issues
+        ChangeTracker.Tracked += OnTracked;
     }
 
     public DbSet<ProjectData> ProjectData => Set<ProjectData>();
@@ -94,4 +93,28 @@ public class LcmCrdtDbContext : DbContext, ICrdtDbContext
     private class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
         id => id.Code,
         code => new WritingSystemId(code));
+
+    private void OnTracked(object? sender, EntityTrackedEventArgs e)
+    {
+        // When navigation properties (like Sense.PartOfSpeech) are set and projected tables are enabled,
+        // EF Core may track the referenced entity and try to insert it into the projected table.
+        // These entities already exist in the database, so we detach them to prevent duplicate inserts.
+        if (e.Entry.State == EntityState.Added && e.FromQuery == false)
+        {
+            if (e.Entry.Entity is PartOfSpeech or SemanticDomain or ComplexFormType)
+            {
+                // Check if we're projecting snapshots by looking for other entities (like Sense) being added
+                // If a Sense is being added and it has a navigation property to this entity, we should detach
+                var hasReferencingEntity = ChangeTracker.Entries()
+                    .Any(entry => entry != e.Entry && 
+                          entry.State == EntityState.Added && 
+                          (entry.Entity is Sense || entry.Entity is Entry));
+                
+                if (hasReferencingEntity)
+                {
+                    e.Entry.State = EntityState.Detached;
+                }
+            }
+        }
+    }
 }
