@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-10-22 10:29\n"
+"PO-Revision-Date: 2025-11-06 17:04\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -133,6 +133,14 @@ msgstr ""
 
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
+msgstr ""
+
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any grammatical info."
+msgstr ""
+
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any part of speech"
 msgstr ""
 
 #: src/project/browse/filter/SemanticDomainSelect.svelte
@@ -581,6 +589,7 @@ msgstr "Glosi"
 msgid "Go to {0}"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Grammatical info."
 msgstr ""
@@ -898,6 +907,7 @@ msgstr "Sehemu"
 msgid "Part of"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Sehemu za mazungumzo"
@@ -1248,6 +1258,10 @@ msgstr ""
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 msgid "Untitled"
 msgstr ""
 
