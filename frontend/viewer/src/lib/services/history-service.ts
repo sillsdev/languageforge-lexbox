@@ -49,7 +49,7 @@ export class HistoryService {
 
   async fetchSnapshot(history: HistoryItem, objectId: string): Promise<HistoryItem> {
     const data = (await this.historyApi?.getObject(history.commitId, objectId)
-      ?? await fetch(`/api/history/${this.projectContext.projectName}/snapshot/commit/${history.commitId}?entityId=${objectId}`)
+      ?? await fetch(`/api/history/${this.projectContext.projectCode}/snapshot/commit/${history.commitId}?entityId=${objectId}`)
           .then(res => res.json())) as EntityType['entity'];
     if (isEntry(data)) {
       return {...history, entity: data, entityName: 'Entry'};
@@ -63,7 +63,7 @@ export class HistoryService {
     throw new Error('Unable to determine type of object ' + JSON.stringify(data));
   }
 
-  async activity(projectName: string): Promise<IProjectActivity[]> {
-    return await (this.historyApi?.projectActivity() ?? fetch(`/api/activity/${projectName}`).then(res => res.json())) as IProjectActivity[];
+  async activity(projectCode: string): Promise<IProjectActivity[]> {
+    return await (this.historyApi?.projectActivity() ?? fetch(`/api/activity/${projectCode}`).then(res => res.json())) as IProjectActivity[];
   }
 }
