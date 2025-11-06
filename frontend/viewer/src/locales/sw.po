@@ -18,8 +18,12 @@ msgstr ""
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(Deleted)"
 msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
@@ -63,12 +67,10 @@ msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks 
 msgstr ""
 
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "# ago"
 msgstr ""
 
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "# before"
 msgstr ""
 
@@ -168,7 +170,7 @@ msgid "Audio saved locally"
 msgstr ""
 
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
 msgstr "Mwandishi:"
 
@@ -253,6 +255,10 @@ msgstr ""
 msgid "Complex form types"
 msgstr ""
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Complex form:"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
 msgstr ""
@@ -262,6 +268,10 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Component"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Component:"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -295,6 +305,10 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Entry"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Current version"
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -333,6 +347,10 @@ msgstr "Futa ingizo"
 
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Details"
 msgstr ""
 
 #: src/home/HomeView.svelte
@@ -414,7 +432,9 @@ msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Entry"
 msgstr "Ingizo"
 
@@ -578,6 +598,7 @@ msgid "Gloss"
 msgstr "Glosi"
 
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Go to {0}"
 msgstr ""
 
@@ -836,6 +857,11 @@ msgstr "Hamna"
 msgid "Not equal"
 msgstr ""
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Not found"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
 msgstr ""
@@ -878,6 +904,8 @@ msgid "Open in FieldWorks"
 msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Open in new Window"
 msgstr ""
 
@@ -915,6 +943,7 @@ msgid "Pinned"
 msgstr ""
 
 #: src/project/browse/BrowseView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "Hakiki"
 
@@ -1110,8 +1139,8 @@ msgstr ""
 msgid "Synced"
 msgstr ""
 
-#: src/lib/activity/ActivityView.svelte
-msgid "Synced {0} ago"
+#: src/lib/activity/ActivityItem.svelte
+msgid "Synced #"
 msgstr ""
 
 #: src/home/HomeView.svelte
@@ -1160,6 +1189,10 @@ msgstr ""
 
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "The time when you uploaded or downloaded these changes"
 msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte
@@ -1224,7 +1257,7 @@ msgstr ""
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Unknown"
 msgstr "Haijulikani"
 
@@ -1248,6 +1281,7 @@ msgstr ""
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Untitled"
 msgstr ""
 
@@ -1284,8 +1318,10 @@ msgstr ""
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Word"
 msgstr "Neno"
 

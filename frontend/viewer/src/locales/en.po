@@ -13,9 +13,13 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(Deleted)"
+msgstr "(Deleted)"
 
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -58,12 +62,10 @@ msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks 
 msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "# ago"
 msgstr "# ago"
 
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "# before"
 msgstr "# before"
 
@@ -163,7 +165,7 @@ msgid "Audio saved locally"
 msgstr "Audio saved locally"
 
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
 msgstr "Author:"
 
@@ -248,6 +250,10 @@ msgstr "Complex Form"
 msgid "Complex form types"
 msgstr "Complex form types"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Complex form:"
+msgstr "Complex form:"
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
 msgstr "Complex forms"
@@ -258,6 +264,10 @@ msgstr "Complex forms"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Component"
 msgstr "Component"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Component:"
+msgstr "Component:"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Components"
@@ -291,6 +301,10 @@ msgstr "Create Example Project"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Entry"
 msgstr "Current Entry"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Current version"
+msgstr "Current version"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -329,6 +343,10 @@ msgstr "Delete Entry"
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
 msgstr "Delete Word"
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Details"
+msgstr "Details"
 
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
@@ -409,7 +427,9 @@ msgstr "Entries missing..."
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Entry"
 msgstr "Entry"
 
@@ -573,6 +593,7 @@ msgid "Gloss"
 msgstr "Gloss"
 
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Go to {0}"
 msgstr "Go to {0}"
 
@@ -831,6 +852,11 @@ msgstr "None"
 msgid "Not equal"
 msgstr "Not equal"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Not found"
+msgstr "Not found"
+
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
 msgstr "Not logged in"
@@ -873,6 +899,8 @@ msgid "Open in FieldWorks"
 msgstr "Open in FieldWorks"
 
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Open in new Window"
 msgstr "Open in new Window"
 
@@ -910,6 +938,7 @@ msgid "Pinned"
 msgstr "Pinned"
 
 #: src/project/browse/BrowseView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "Preview"
 
@@ -1105,9 +1134,9 @@ msgstr "Sync your changes with other FieldWorks Lite users"
 msgid "Synced"
 msgstr "Synced"
 
-#: src/lib/activity/ActivityView.svelte
-msgid "Synced {0} ago"
-msgstr "Synced {0} ago"
+#: src/lib/activity/ActivityItem.svelte
+msgid "Synced #"
+msgstr "Synced #"
 
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
@@ -1156,6 +1185,10 @@ msgstr "The number of FieldWorks Lite commits will not necessarily match the num
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
 msgstr "The task you are looking for does not exist."
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "The time when you uploaded or downloaded these changes"
+msgstr "The time when you uploaded or downloaded these changes"
 
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -1219,7 +1252,7 @@ msgstr "Unable to open in FieldWorks"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Unknown"
 msgstr "Unknown"
 
@@ -1243,6 +1276,7 @@ msgstr "Unknown server"
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Untitled"
 msgstr "Untitled"
 
@@ -1279,8 +1313,10 @@ msgstr "Why is that?"
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Word"
 msgstr "Word"
 

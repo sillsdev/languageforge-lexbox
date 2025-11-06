@@ -29,7 +29,12 @@ export class HistoryService {
     }
     return this.projectContext.historyService;
   }
+
   constructor(private projectContext: ProjectContext) {
+  }
+
+  get loaded() {
+    return Boolean(this.projectContext.historyService);
   }
 
   async load(objectId: string) {
@@ -65,5 +70,9 @@ export class HistoryService {
 
   async activity(projectCode: string): Promise<IProjectActivity[]> {
     return await (this.historyApi?.projectActivity() ?? fetch(`/api/activity/${projectCode}`).then(res => res.json())) as IProjectActivity[];
+  }
+
+  loadChangeContext(commitId: string, changeIndex: number) {
+    return this.projectContext.historyService!.loadChangeContext(commitId, changeIndex);
   }
 }

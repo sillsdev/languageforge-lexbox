@@ -6,8 +6,10 @@ using SIL.Harmony.Db;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using System.Text.RegularExpressions;
+using MiniLcm.Exceptions;
 
 namespace LcmCrdt;
+
 public record ProjectActivity(
     Guid CommitId,
     DateTimeOffset Timestamp,
@@ -15,6 +17,20 @@ public record ProjectActivity(
     CommitMetadata Metadata)
 {
     public string ChangeName => HistoryService.ChangesNameHelper(Changes);
+}
+
+public record ChangeContext(
+    Guid CommitId,
+    int ChangeIndex,
+    string ChangeName,
+    IObjectWithId Snapshot,
+    ICollection<Entry> AffectedEntries)
+{
+    public ChangeContext(ChangeEntity<IChange> change, IObjectWithId snapshot, ICollection<Entry> affectedEntries)
+        : this(change.CommitId, change.Index, HistoryService.ChangeNameHelper(change.Change), snapshot, affectedEntries)
+    {
+    }
+    public string EntityType => Snapshot?.GetType().Name ?? "Unknown";
 }
 
 public record HistoryLineItem(
@@ -40,29 +56,35 @@ public record HistoryLineItem(
         string typeName,
         string? authorName) : this(commitId,
         entityId,
-        new DateTimeOffset(timestamp.Ticks,
-            TimeSpan.Zero), //todo this is a workaround for linq2db bug where it reads a date and assumes it's local when it's UTC
+        timestamp,
         snapshotId,
         changeIndex,
         change,
         HistoryService.ChangeNameHelper(change),
-        (IObjectWithId?) entity?.DbObject,
+        (IObjectWithId?)entity?.DbObject,
         typeName,
         authorName)
     {
     }
 }
 
-public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory)
+public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory, IMiniLcmApi miniLcmApi)
 {
     public async IAsyncEnumerable<ProjectActivity> ProjectActivity()
     {
         await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
-        await foreach (var projectActivity in dbContext.Commits
-                       .DefaultOrderDescending()
-                       .Take(100)
-                       .Select(c => new ProjectActivity(c.Id, c.HybridDateTime.DateTime, c.ChangeEntities, c.Metadata))
-                       .AsAsyncEnumerable())
+        var changeEntities = dbContext.Set<ChangeEntity<IChange>>();
+        var query =
+            from commit in dbContext.Commits.DefaultOrderDescending()
+            join changeEntity in changeEntities
+                on commit.Id equals changeEntity.CommitId into changes
+            join snapshot in dbContext.Snapshots
+                on commit.Id equals snapshot.CommitId into snapshots
+            select new ProjectActivity(commit.Id,
+                NormalizeTimestamp(commit.HybridDateTime.DateTime),
+                changes.ToList(),
+                commit.Metadata);
+        await foreach (var projectActivity in query.Take(100).ToLinqToDB().AsAsyncEnumerable())
         {
             yield return projectActivity;
         }
@@ -101,7 +123,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
 #pragma warning restore CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
             select new HistoryLineItem(commit.Id,
                 entityId,
-                commit.HybridDateTime.DateTime,
+                NormalizeTimestamp(commit.HybridDateTime.DateTime),
                 snapshot.Id,
                 change.Index,
                 change.Change,
@@ -112,6 +134,76 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         {
             yield return historyLineItem;
         }
+    }
+
+    public async Task<ChangeContext> LoadChangeContext(Guid commitId, int changeIndex)
+    {
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        ICrdtDbContext crdtDbContext = dbContext;
+        var change = await crdtDbContext.Commits
+            .Where(c => c.Id == commitId)
+            .SelectMany(c => c.ChangeEntities)
+            .Where(ce => ce.Index == changeIndex)
+            .FirstOrDefaultAsync()
+            ?? throw new InvalidOperationException($"Change {changeIndex} not found in commit {commitId}");
+
+        var snapshot = await dataModel.GetAtCommit<IObjectWithId>(commitId, change.EntityId, changeIndex);
+
+        var affectedEntries = await GetAffectedEntryIds(change)
+            .SelectAwait(async entryId => await GetCurrentOrLatestEntry(entryId))
+            .ToArrayAsync();
+
+        return new ChangeContext(change, snapshot, affectedEntries);
+    }
+
+    private async Task<Entry> GetCurrentOrLatestEntry(Guid entryId)
+    {
+        var entry = await miniLcmApi.GetEntry(entryId);
+        if (entry is not null)
+        {
+            return entry;
+        }
+
+        // it was presumably deleted, so we'll fall back to the latest snapshot
+        // (which does not include senses or any other references)
+        return await dataModel.GetLatest<Entry>(entryId)
+            ?? throw NotFoundException.ForType<Entry>(entryId);
+    }
+
+    private async IAsyncEnumerable<Guid> GetAffectedEntryIds(ChangeEntity<IChange> changeEntity)
+    {
+        if (changeEntity.Change.EntityType == typeof(Entry))
+        {
+            yield return changeEntity.EntityId;
+        }
+        else if (changeEntity.Change.EntityType == typeof(Sense))
+        {
+            var sense = await dataModel.GetLatest<Sense>(changeEntity.EntityId)
+                ?? throw NotFoundException.ForType<Sense>(changeEntity.EntityId);
+            yield return sense.EntryId;
+        }
+        else if (changeEntity.Change.EntityType == typeof(ExampleSentence))
+        {
+            var example = await dataModel.GetLatest<ExampleSentence>(changeEntity.EntityId)
+                ?? throw NotFoundException.ForType<ExampleSentence>(changeEntity.EntityId);
+            var sense = await dataModel.GetLatest<Sense>(example.SenseId)
+                ?? throw NotFoundException.ForType<Sense>(example.SenseId);
+            yield return sense.EntryId;
+        }
+        else if (changeEntity.Change.EntityType == typeof(ComplexFormComponent))
+        {
+            var cfc = await dataModel.GetLatest<ComplexFormComponent>(changeEntity.EntityId)
+                ?? throw NotFoundException.ForType<ComplexFormComponent>(changeEntity.EntityId);
+            yield return cfc.ComplexFormEntryId;
+            yield return cfc.ComponentEntryId;
+        }
+    }
+
+    internal static DateTimeOffset NormalizeTimestamp(DateTimeOffset timestamp)
+    {
+        // Linq2DB materializes datetime columns as local time; reinterpret the captured ticks as UTC to avoid DST offsets.
+        // see: https://github.com/sillsdev/languageforge-lexbox/issues/2092
+        return new DateTimeOffset(timestamp.Ticks, TimeSpan.Zero);
     }
 
     public static string ChangesNameHelper(List<ChangeEntity<IChange>> changeEntities)

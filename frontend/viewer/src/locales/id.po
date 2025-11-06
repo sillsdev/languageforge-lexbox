@@ -18,9 +18,13 @@ msgstr ""
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
 msgstr "- ({0} perubahan)"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(Deleted)"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -63,12 +67,10 @@ msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks 
 msgstr ""
 
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "# ago"
 msgstr "# lalu"
 
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "# before"
 msgstr "# sebelum"
 
@@ -168,7 +170,7 @@ msgid "Audio saved locally"
 msgstr "Audio disimpan secara lokal"
 
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
 msgstr "Penulis:"
 
@@ -253,6 +255,10 @@ msgstr "Bentuk Kompleks"
 msgid "Complex form types"
 msgstr "Jenis formulir yang kompleks"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Complex form:"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
 msgstr "Bentuk kompleks"
@@ -263,6 +269,10 @@ msgstr "Bentuk kompleks"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Component"
 msgstr "Komponen"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Component:"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Components"
@@ -296,6 +306,10 @@ msgstr "Buat Proyek Contoh"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Entry"
 msgstr "Entri Saat Ini"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Current version"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -334,6 +348,10 @@ msgstr "Hapus Entri"
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
 msgstr "Menghapus kata"
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Details"
+msgstr ""
 
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
@@ -414,7 +432,9 @@ msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Entry"
 msgstr "Entri"
 
@@ -578,6 +598,7 @@ msgid "Gloss"
 msgstr "Arti Singkat"
 
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Go to {0}"
 msgstr "Buka {0}"
 
@@ -836,6 +857,11 @@ msgstr "Tidak ada"
 msgid "Not equal"
 msgstr "Tidak sama"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Not found"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
 msgstr "Tidak masuk"
@@ -878,6 +904,8 @@ msgid "Open in FieldWorks"
 msgstr "Buka di FieldWorks"
 
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Open in new Window"
 msgstr "Buka di jendela baru"
 
@@ -915,6 +943,7 @@ msgid "Pinned"
 msgstr "Disematkan"
 
 #: src/project/browse/BrowseView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "Pratinjau"
 
@@ -1110,9 +1139,9 @@ msgstr ""
 msgid "Synced"
 msgstr "Disinkronkan"
 
-#: src/lib/activity/ActivityView.svelte
-msgid "Synced {0} ago"
-msgstr "Disinkronkan {0} lalu"
+#: src/lib/activity/ActivityItem.svelte
+msgid "Synced #"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
@@ -1161,6 +1190,10 @@ msgstr ""
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
 msgstr "Tugas yang Anda cari tidak ada."
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "The time when you uploaded or downloaded these changes"
+msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -1224,7 +1257,7 @@ msgstr "Tidak dapat dibuka di FieldWorks"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Unknown"
 msgstr "Tidak diketahui"
 
@@ -1248,6 +1281,7 @@ msgstr ""
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Untitled"
 msgstr "Tanpa judul"
 
@@ -1284,8 +1318,10 @@ msgstr ""
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Word"
 msgstr "Kata"
 
