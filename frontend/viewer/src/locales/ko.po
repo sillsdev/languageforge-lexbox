@@ -423,6 +423,7 @@ msgstr ""
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Entry"
 msgstr "항목"
 
@@ -944,6 +945,10 @@ msgstr "{1} 의 프로젝트 {0} 는 아직 FieldWorks Lite용으로 설정되�
 msgid "Project name..."
 msgstr "프로젝트 이름..."
 
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Publish {0} in"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Reference"
 msgstr "참조"
@@ -1299,6 +1304,7 @@ msgstr ""
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Word"
 msgstr "Word"

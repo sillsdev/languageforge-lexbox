@@ -418,6 +418,7 @@ msgstr "Entries missing..."
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Entry"
 msgstr "Entry"
 
@@ -939,6 +940,10 @@ msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgid "Project name..."
 msgstr "Project name..."
 
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Publish {0} in"
+msgstr "Publish {0} in"
+
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Reference"
 msgstr "Reference"
@@ -1294,6 +1299,7 @@ msgstr "Why is that?"
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Word"
 msgstr "Word"
