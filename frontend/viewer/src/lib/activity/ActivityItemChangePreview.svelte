@@ -66,8 +66,8 @@
           {#if !deleted}
             <Icon icon="i-mdi-dots-vertical" />
           {:else}
-            <span class="text-destructive">
-              {$t`(Deleted)`}
+            <span class="text-destructive font-normal">
+              ({$t`Deleted`})
             </span>
           {/if}
         </Button>
@@ -94,25 +94,32 @@
   </DropdownMenu.Root>
 {/snippet}
 
-{#if affectedEntry}
+{#if affectedEntry || currentEntity}
   <div class="@container">
     <div class="flex flex-wrap gap-2 @lg:grid @lg:grid-cols-[2fr_4fr_auto] mb-3 items-center content-center justify-center">
       {#if context.affectedEntries.length === 1}
+        <!--
+        If there are more than 1 affected entries (e.g. complex-form-components that link two entries together)
+        then the preview should be more explicit about what role the entries have and thus should be handled below
+        based on the entity type.
+        -->
         {@const entry = context.affectedEntries[0]}
         {@render entryButton(entry)}
       {/if}
 
-      {#if currentEntity && !affectedEntry.deletedAt}
-        <label class="cursor-pointer w-fit flex items-center gap-2 border rounded p-2 px-4 bg-secondary/25">
-          <span>
-            <FormatRelativeDate date={activity.timestamp}
-                                live
-                                actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
-          </span>
-          <Switch disabled={!currentEntity} bind:checked={selectedShowCurrent} />
-          {$t`Current version`}
-        </label>
-      {/if}
+      <label class={cn(
+        'w-fit flex items-center gap-2 border rounded p-2 px-4 bg-secondary/25',
+        currentEntity && 'cursor-pointer')}>
+        <FormatRelativeDate date={activity.timestamp}
+                            live
+                            actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
+        <Switch disabled={!currentEntity} bind:checked={selectedShowCurrent} class="text-destructive" />
+        {#if currentEntity}
+          <span>{$t`Current version`}</span>
+        {:else}
+          <span class="text-destructive">{$t`Deleted`}</span>
+        {/if}
+      </label>
     </div>
   </div>
 {/if}
