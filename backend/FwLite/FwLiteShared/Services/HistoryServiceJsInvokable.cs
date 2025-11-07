@@ -14,9 +14,9 @@ public class HistoryServiceJsInvokable(HistoryService historyService)
     }
 
     [JSInvokable]
-    public async ValueTask<ProjectActivity[]> ProjectActivity()
+    public async ValueTask<ProjectActivity[]> ProjectActivity(int skip, int take)
     {
-        return await historyService.ProjectActivity().ToArrayAsync();
+        return await historyService.ProjectActivity(skip, take).ToArrayAsync();
     }
 
     [JSInvokable]
