@@ -61,11 +61,10 @@
 
 <p class="mb-6 text-lg text-center">
   <Popover.Root>
-    <Popover.Trigger>
+    <Popover.InfoTrigger>
       {$t`Sync FieldWorks Lite and FieldWorks Classic`}
-      <Icon icon="i-mdi-information-outline" class="size-4" />
-    </Popover.Trigger>
-    <Popover.Content class="max-w-md">
+    </Popover.InfoTrigger>
+    <Popover.Content class="max-w-md text-sm">
       <div class="text-sm space-y-2">
         <p>
           {$t`This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox.`}
@@ -106,10 +105,9 @@
     {:else}
       <span class="leading-tight" class:loading-text={loading} class:font-semibold={hgToCrdtCount} class:text-primary={hgToCrdtCount}>
         <Popover.Root>
-          <Popover.Trigger>
+          <Popover.InfoTrigger>
             {countToMessage(hgToCrdtCount)}
-            <Icon icon="i-mdi-information-outline" class="size-4" />
-          </Popover.Trigger>
+          </Popover.InfoTrigger>
           <Popover.Content class="max-w-full max-h-[40vh] overflow-y-auto text-sm border-primary space-y-2">
             <span class="text-primary font-semibold text-base">{$plural(hgToCrdtCount, {
               one: '# new FieldWorks Classic commit',
@@ -153,10 +151,9 @@
       <span class="leading-tight" class:loading-text={loading} class:font-semibold={crdtToHgCount} class:text-primary={crdtToHgCount}>
 
         <Popover.Root>
-          <Popover.Trigger>
+          <Popover.InfoTrigger>
             {countToMessage(crdtToHgCount)}
-            <Icon icon="i-mdi-information-outline" class="size-4" />
-          </Popover.Trigger>
+          </Popover.InfoTrigger>
           <Popover.Content class="max-w-full max-h-[40vh] overflow-y-auto text-sm border-primary space-y-2">
             <span class="text-primary font-semibold text-base">{$plural(crdtToHgCount, {
               one: '# new FieldWorks Lite commit',

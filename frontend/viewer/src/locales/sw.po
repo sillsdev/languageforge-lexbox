@@ -62,6 +62,18 @@ msgstr ""
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr ""
 
+#: src/project/browse/ViewPicker.svelte
+msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem*, *Particle*, *Phrase*, and *Discontiguous Phrase*)"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
+msgstr ""
+
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr ""
@@ -501,10 +513,6 @@ msgstr ""
 
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
-msgstr ""
-
-#: src/project/browse/ViewPicker.svelte
-msgid "Field Labels"
 msgstr ""
 
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1190,6 +1198,14 @@ msgstr "Jukumu"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr ""
 
+#: src/project/browse/ViewPicker.svelte
+msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
+msgstr ""
+
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
 msgstr ""
@@ -1318,6 +1334,10 @@ msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Version {0}"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "View"
 msgstr ""
 
 #: src/project/browse/ViewPicker.svelte

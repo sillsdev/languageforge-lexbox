@@ -11,7 +11,7 @@
   import {type IMultiString} from '$lib/dotnet-types';
   import {type IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import { fieldData } from '$lib/entry-editor/field-data';
-  import ViewPicker from '../../project/browse/ViewPicker.svelte';
+  import ViewPicker from '../../project/browse/EditorViewOptions.svelte';
   import WsInput from '$lib/components/field-editors/ws-input.svelte';
   import {vt} from '$lib/views/view-text';
 

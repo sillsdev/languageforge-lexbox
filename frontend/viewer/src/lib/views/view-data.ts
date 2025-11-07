@@ -41,7 +41,7 @@ export const FW_LITE_VIEW: RootView = {
 export const FW_CLASSIC_VIEW: RootView = {
   id: 'fieldworks',
   type: 'fw-classic',
-  label: 'FieldWorks',
+  label: 'FieldWorks Classic',
   fields: recursiveSpread(allFields, {
     complexFormTypes: {order: allFields.components.order - 0.1},
     [defaultDef]: {show: true}
