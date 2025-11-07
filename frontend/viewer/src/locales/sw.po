@@ -22,10 +22,6 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr ""
 
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "(Deleted)"
-msgstr ""
-
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -64,14 +60,6 @@ msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
-msgstr ""
-
-#: src/lib/history/HistoryView.svelte
-msgid "# ago"
-msgstr ""
-
-#: src/lib/history/HistoryView.svelte
-msgid "# before"
 msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -169,7 +157,6 @@ msgstr ""
 msgid "Audio saved locally"
 msgstr ""
 
-#: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
 msgstr "Mwandishi:"
@@ -347,6 +334,11 @@ msgstr "Futa ingizo"
 
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Deleted"
 msgstr ""
 
 #: src/lib/activity/ActivityItem.svelte
@@ -866,6 +858,10 @@ msgstr ""
 msgid "Not logged in"
 msgstr ""
 
+#: src/lib/activity/ActivityItem.svelte
+msgid "Not synced"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
 msgstr "Tanbihi"
@@ -1139,12 +1135,12 @@ msgstr ""
 msgid "Synced"
 msgstr ""
 
-#: src/lib/activity/ActivityItem.svelte
-msgid "Synced #"
-msgstr ""
-
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Synced: #"
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
@@ -1193,6 +1189,10 @@ msgstr ""
 
 #: src/lib/activity/ActivityItem.svelte
 msgid "The time when you uploaded or downloaded these changes"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte
@@ -1256,7 +1256,6 @@ msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Unknown"
 msgstr "Haijulikani"

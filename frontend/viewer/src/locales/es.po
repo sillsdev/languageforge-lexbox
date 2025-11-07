@@ -22,10 +22,6 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} cambios)"
 
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "(Deleted)"
-msgstr ""
-
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -65,14 +61,6 @@ msgstr ""
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr ""
-
-#: src/lib/history/HistoryView.svelte
-msgid "# ago"
-msgstr "hace #"
-
-#: src/lib/history/HistoryView.svelte
-msgid "# before"
-msgstr "# antes"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
@@ -169,7 +157,6 @@ msgstr "Audio guardado y subido a Lexbox"
 msgid "Audio saved locally"
 msgstr "Audio guardado localmente"
 
-#: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
 msgstr "Autor:"
@@ -348,6 +335,11 @@ msgstr "Borrar entrada"
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
 msgstr "Borrar palabra"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Deleted"
+msgstr ""
 
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
@@ -866,6 +858,10 @@ msgstr ""
 msgid "Not logged in"
 msgstr "No conectado"
 
+#: src/lib/activity/ActivityItem.svelte
+msgid "Not synced"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
 msgstr "Nota"
@@ -1139,13 +1135,13 @@ msgstr ""
 msgid "Synced"
 msgstr "Sincronizado"
 
-#: src/lib/activity/ActivityItem.svelte
-msgid "Synced #"
-msgstr ""
-
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
 msgstr "Sincronizado con {0}"
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Synced: #"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
@@ -1193,6 +1189,10 @@ msgstr "La tarea que buscas no existe."
 
 #: src/lib/activity/ActivityItem.svelte
 msgid "The time when you uploaded or downloaded these changes"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte
@@ -1256,7 +1256,6 @@ msgstr "No se puede abrir en FieldWorks"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/lib/history/HistoryView.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Unknown"
 msgstr "Desconocido"

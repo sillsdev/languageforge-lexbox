@@ -15,9 +15,7 @@ type EntityType = {entity: IEntry, entityName: 'Entry'}
   | {entity: IExampleSentence, entityName: 'ExampleSentence'}
   | {entity: undefined, entityName: undefined};
 
-export type HistoryItem = IHistoryLineItem & EntityType & {
-  previousTimestamp?: string,
-};
+export type HistoryItem = IHistoryLineItem & EntityType;
 
 export class HistoryService {
   get historyApi(): IHistoryServiceJsInvokable | undefined {
@@ -43,10 +41,6 @@ export class HistoryService {
     if (!Array.isArray(data)) {
       console.error('Invalid history data', data);
       return [];
-    }
-    for (let i = 0; i < data.length; i++) {
-      const historyElement = data[i];
-      historyElement.previousTimestamp = data[i + 1]?.timestamp;
     }
     // Reverse the history so that the most recent changes are at the top
     return data.toReversed();

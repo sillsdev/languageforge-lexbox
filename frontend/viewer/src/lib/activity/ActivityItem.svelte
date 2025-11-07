@@ -17,8 +17,18 @@
   import {VList} from 'virtua/svelte';
   import ActivityItemChangePreview from './ActivityItemChangePreview.svelte';
   import {formatJsonForUi} from './utils';
+  import type {HTMLAttributes} from 'svelte/elements';
+  import {cn} from '$lib/utils';
 
-  const { activity }: { activity: Activity } = $props();
+  type Props = HTMLAttributes<HTMLDivElement> & {
+    activity: IProjectActivity;
+  }
+
+  const {
+    activity,
+    class: className,
+    ...restProps
+  }: Props = $props();
 
   const historyService = useHistoryService();
 
@@ -31,9 +41,9 @@
   }));
 </script>
 
-<div class="grid grid-cols-subgrid grid-rows-subgrid col-start-2 row-span-2">
+<div {...restProps} class={cn(className, 'grid gap-2 grid-rows-[auto_1fr] h-full')}>
   {#if activity}
-    <div class="col-start-2 row-start-1 text-sm flex flex-wrap justify-between gap-2">
+    <div class="text-sm flex flex-wrap justify-between gap-2">
       <span>
         <span>
           {$t`Author:`}
@@ -51,21 +61,27 @@
         <FormatDate date={activity.timestamp}
                     options={{ dateStyle: 'medium', timeStyle: 'medium' }} />
       </span>
-      <span class="basis-48 whitespace-nowrap shrink">
+      <span class="whitespace-nowrap">
         {#if activity.metadata.extraMetadata['SyncDate']}
-          <span class="float-right" title={$t`The time when you uploaded or downloaded these changes`}>
-            <T msg="Synced #">
-              <FormatRelativeDate date={new Date(activity.metadata.extraMetadata['SyncDate'])}
-                                  showActualDate={true}
-                                  actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
+          <span title={$t`The time when you uploaded or downloaded these changes`}>
+            <T msg="Synced: #">
+              <FormatRelativeDate
+                class="font-semibold"
+                date={new Date(activity.metadata.extraMetadata['SyncDate'])}
+                showActualDate={true}
+                actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
             </T>
+          </span>
+        {:else}
+          <span class="text-red-500 font-semibold" title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`}>
+            {$t`Not synced`}
           </span>
         {/if}
       </span>
     </div>
     {#if changes?.current}
       <div
-        class="change-list col-start-2 row-start-2 flex flex-col gap-4 overflow-auto border rounded">
+        class="change-list flex flex-col gap-4 overflow-auto border rounded">
         <VList class="space-y-2" data={changes.current}>
           {#snippet children(changeWithContext)}
             {@const {change, context} = changeWithContext}

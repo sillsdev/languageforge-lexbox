@@ -62,7 +62,7 @@
       {/if}
     </div>
 
-    <ActivityItem activity={selectedRow} />
+    <ActivityItem class="sub-grid row-span-2 col-start-2" activity={selectedRow} />
 
   </div>
 {/if}

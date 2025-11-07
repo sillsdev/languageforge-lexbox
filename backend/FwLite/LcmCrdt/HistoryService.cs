@@ -35,35 +35,31 @@ public record ChangeContext(
 
 public record HistoryLineItem(
     Guid CommitId,
+    CommitMetadata Metadata,
     Guid EntityId,
     DateTimeOffset Timestamp,
     Guid? SnapshotId,
     int changeIndex,
-    IChange change,
+    ChangeEntity<IChange> change,
     string ChangeName,
-    IObjectWithId? Entity,
-    string? EntityName,
-    string? AuthorName)
+    IObjectWithId? Entity)
 {
     public HistoryLineItem(
-        Guid commitId,
+        Commit commit,
         Guid entityId,
         DateTimeOffset timestamp,
         Guid? snapshotId,
         int changeIndex,
-        IChange change,
-        IObjectBase? entity,
-        string typeName,
-        string? authorName) : this(commitId,
+        ChangeEntity<IChange> change,
+        IObjectBase? entity) : this(commit.Id,
+        commit.Metadata,
         entityId,
         timestamp,
         snapshotId,
         changeIndex,
         change,
-        HistoryService.ChangeNameHelper(change),
-        (IObjectWithId?)entity?.DbObject,
-        typeName,
-        authorName)
+        HistoryService.ChangeNameHelper(change.Change),
+        (IObjectWithId?)entity?.DbObject)
     {
     }
 }
@@ -121,15 +117,13 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
 #pragma warning disable CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
             where snapshot.Id != null || change.EntityId != null
 #pragma warning restore CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
-            select new HistoryLineItem(commit.Id,
+            select new HistoryLineItem(commit,
                 entityId,
                 NormalizeTimestamp(commit.HybridDateTime.DateTime),
                 snapshot.Id,
                 change.Index,
-                change.Change,
-                snapshot.Entity,
-                snapshot.TypeName,
-                commit.Metadata.AuthorName);
+                change,
+                snapshot.Entity);
         await foreach (var historyLineItem in query.ToLinqToDB().AsAsyncEnumerable())
         {
             yield return historyLineItem;
@@ -147,7 +141,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .FirstOrDefaultAsync()
             ?? throw new InvalidOperationException($"Change {changeIndex} not found in commit {commitId}");
 
-        var snapshot = await dataModel.GetAtCommit<IObjectWithId>(commitId, change.EntityId, changeIndex);
+        var snapshot = await dataModel.GetAtCommit<IObjectWithId>(commitId, change.EntityId);
 
         var affectedEntries = await GetAffectedEntryIds(change)
             .SelectAwait(async entryId => await GetCurrentOrLatestEntry(entryId))
