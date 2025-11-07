@@ -3,20 +3,16 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {ICommitMetadata} from '../SIL/Harmony/Core/ICommitMetadata';
-import type {IChangeEntity} from '../SIL/Harmony/Core/IChangeEntity';
 import type {IObjectWithId} from '../MiniLcm/Models/IObjectWithId';
+import type {IEntry} from '../MiniLcm/Models/IEntry';
 
-export interface IHistoryLineItem
+export interface IChangeContext
 {
 	commitId: string;
-	metadata: ICommitMetadata;
-	entityId: string;
-	timestamp: string;
-	snapshotId?: string;
 	changeIndex: number;
-	change: IChangeEntity;
 	changeName: string;
-	entity?: IObjectWithId;
+	snapshot: IObjectWithId;
+	affectedEntries: IEntry[];
+	entityType: string;
 }
 /* eslint-enable */

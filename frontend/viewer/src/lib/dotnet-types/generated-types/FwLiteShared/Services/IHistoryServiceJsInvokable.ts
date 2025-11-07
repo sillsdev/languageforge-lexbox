@@ -7,6 +7,7 @@ import type {IObjectWithId} from '../../MiniLcm/Models/IObjectWithId';
 import type {IProjectActivity} from '../../LcmCrdt/IProjectActivity';
 import type {IObjectSnapshot} from '../../SIL/Harmony/Db/IObjectSnapshot';
 import type {IHistoryLineItem} from '../../LcmCrdt/IHistoryLineItem';
+import type {IChangeContext} from '../../LcmCrdt/IChangeContext';
 
 export interface IHistoryServiceJsInvokable
 {
@@ -14,5 +15,6 @@ export interface IHistoryServiceJsInvokable
 	projectActivity() : Promise<IProjectActivity[]>;
 	getSnapshot(snapshotId: string) : Promise<IObjectSnapshot>;
 	getHistory(entityId: string) : Promise<IHistoryLineItem[]>;
+	loadChangeContext(commitId: string, changeIndex: number) : Promise<IChangeContext>;
 }
 /* eslint-enable */

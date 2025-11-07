@@ -18,7 +18,7 @@ msgstr ""
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
 msgstr "– ({0} changements)"
 
@@ -61,16 +61,6 @@ msgstr ""
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr ""
-
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "# ago"
-msgstr "il y a #"
-
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "# before"
-msgstr "# avant"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
@@ -175,8 +165,7 @@ msgstr "Audio enregistré et téléchargé dans Lexbox"
 msgid "Audio saved locally"
 msgstr "Audio enregistré localement"
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
 msgstr "Auteur :"
 
@@ -261,6 +250,10 @@ msgstr "Forme complexe"
 msgid "Complex form types"
 msgstr "Types de formulaires complexes"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Complex form:"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
 msgstr "Formes complexes"
@@ -271,6 +264,10 @@ msgstr "Formes complexes"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Component"
 msgstr "Composant"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Component:"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Components"
@@ -304,6 +301,10 @@ msgstr "Créer un projet d'exemple"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Entry"
 msgstr "Entrée actuelle"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Current version"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -342,6 +343,15 @@ msgstr "Supprimer l'entrée"
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
 msgstr "Supprimer un mot"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Deleted"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Details"
+msgstr ""
 
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
@@ -422,8 +432,10 @@ msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Entry"
 msgstr "Entrée"
 
@@ -587,6 +599,7 @@ msgid "Gloss"
 msgstr "Glose"
 
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Go to {0}"
 msgstr "Aller sur {0}"
 
@@ -846,9 +859,18 @@ msgstr "Aucun"
 msgid "Not equal"
 msgstr "Pas d'égalité"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Not found"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
 msgstr "Non connecté"
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Not synced"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
@@ -888,6 +910,8 @@ msgid "Open in FieldWorks"
 msgstr "Ouvrir dans FieldWorks"
 
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Open in new Window"
 msgstr "Ouvrir dans une nouvelle fenêtre"
 
@@ -926,6 +950,7 @@ msgid "Pinned"
 msgstr "Épinglé"
 
 #: src/project/browse/BrowseView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "Avant-première"
 
@@ -1125,13 +1150,13 @@ msgstr ""
 msgid "Synced"
 msgstr "Synchronisé"
 
-#: src/lib/activity/ActivityView.svelte
-msgid "Synced {0} ago"
-msgstr "Synchronisé {0} il y a"
-
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
 msgstr "Synchronisé avec {0}"
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Synced: #"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
@@ -1176,6 +1201,14 @@ msgstr ""
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
 msgstr "La tâche que vous cherchez n'existe pas."
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "The time when you uploaded or downloaded these changes"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
+msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -1238,8 +1271,7 @@ msgstr "Impossible d'ouvrir FieldWorks"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -1267,6 +1299,7 @@ msgstr ""
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Untitled"
 msgstr "Sans titre"
 
@@ -1303,9 +1336,11 @@ msgstr ""
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Word"
 msgstr "Mot"
 

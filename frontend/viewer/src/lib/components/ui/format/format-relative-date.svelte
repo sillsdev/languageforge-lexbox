@@ -71,7 +71,7 @@
         <time {...restProps}>{formattedRelativeDate}</time>
         <Icon icon="i-mdi-information-outline" class="size-4 text-muted-foreground hover:text-foreground" />
       </Popover.Trigger>
-      <Popover.Content class="w-auto">
+      <Popover.Content class="w-auto p-2">
         <Icon icon="i-mdi-calendar-clock" class="text-muted-foreground mr-1" />
         {actualFormattedDate}
       </Popover.Content>

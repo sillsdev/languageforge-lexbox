@@ -6,6 +6,7 @@
   import {Icon} from '$lib/components/ui/icon';
   import {cn} from '$lib/utils';
   import type {Snippet} from 'svelte';
+  import Headwords from './Headwords.svelte';
   let {
     entry,
     showLinks = false,
@@ -31,17 +32,6 @@
   });
 
   const wsService = useWritingSystemService();
-
-  let headwords = $derived.by(() => {
-    return wsService.vernacular
-      .filter(ws => !ws.isAudio)
-      .map(ws => ({
-        wsId: ws.wsId,
-        value: wsService.headword(entry, ws.wsId),
-        color: wsService.wsColor(ws.wsId, 'vernacular'),
-      }))
-      .filter(({value}) => !!value);
-  });
 
   let senses = $derived(entry.senses.map(getRenderedContent));
 
@@ -107,13 +97,7 @@
   <div class="float-right group-[&:not(:hover)]/container:invisible relative -top-1">
     {@render actions?.()}
   </div>
-  <strong class={cn('mr-1', headwordClass)}>
-    {#each headwords as headword, i (headword.wsId)}
-      <!-- eslint-disable-next-line svelte/no-useless-mustaches This mustache is not useless, it preserves whitespace -->
-      {#if i > 0}{' / '}{/if}
-      <span class={headword.color}>{headword.value}</span>
-    {/each}
-  </strong>
+  <Headwords {entry} class={cn('mr-1', headwordClass)} />
   {#each senses as sense, i (sense.id)}
     {#if senses.length > 1}
       <br/>

@@ -18,7 +18,7 @@ msgstr ""
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
 msgstr "- ({0}개 변경)"
 
@@ -61,16 +61,6 @@ msgstr ""
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr ""
-
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "# ago"
-msgstr "# 전"
-
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "# before"
-msgstr "# 전"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
@@ -175,8 +165,7 @@ msgstr "렉스박스에 오디오 저장 및 업로드"
 msgid "Audio saved locally"
 msgstr "로컬에 저장된 오디오"
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
 msgstr "작성자:"
 
@@ -261,6 +250,10 @@ msgstr "복잡한 양식"
 msgid "Complex form types"
 msgstr "복잡한 양식 유형"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Complex form:"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
 msgstr "복잡한 양식"
@@ -271,6 +264,10 @@ msgstr "복잡한 양식"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Component"
 msgstr "구성 요소"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Component:"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Components"
@@ -304,6 +301,10 @@ msgstr "예제 프로젝트 만들기"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Entry"
 msgstr "현재 항목"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Current version"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -342,6 +343,15 @@ msgstr "항목 삭제"
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
 msgstr "단어 삭제"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Deleted"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Details"
+msgstr ""
 
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
@@ -422,8 +432,10 @@ msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Entry"
 msgstr "항목"
 
@@ -587,6 +599,7 @@ msgid "Gloss"
 msgstr "광택"
 
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Go to {0}"
 msgstr "{0}으로 이동"
 
@@ -846,9 +859,18 @@ msgstr "없음"
 msgid "Not equal"
 msgstr "동일하지 않음"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Not found"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
 msgstr "로그인하지 않음"
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Not synced"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
@@ -888,6 +910,8 @@ msgid "Open in FieldWorks"
 msgstr "FieldWorks에서 열기"
 
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Open in new Window"
 msgstr "새 창에서 열기"
 
@@ -926,6 +950,7 @@ msgid "Pinned"
 msgstr "고정됨"
 
 #: src/project/browse/BrowseView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "미리 보기"
 
@@ -1125,13 +1150,13 @@ msgstr ""
 msgid "Synced"
 msgstr "동기화"
 
-#: src/lib/activity/ActivityView.svelte
-msgid "Synced {0} ago"
-msgstr "동기화됨 {0} 전에"
-
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
 msgstr "{0}으로 동기화"
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Synced: #"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
@@ -1176,6 +1201,14 @@ msgstr ""
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
 msgstr "찾고 있는 작업이 존재하지 않습니다."
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "The time when you uploaded or downloaded these changes"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
+msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -1238,8 +1271,7 @@ msgstr "FieldWorks에서 열 수 없음"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Unknown"
 msgstr "알 수 없음"
 
@@ -1267,6 +1299,7 @@ msgstr ""
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Untitled"
 msgstr "제목 없음"
 
@@ -1303,9 +1336,11 @@ msgstr ""
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Word"
 msgstr "Word"
 

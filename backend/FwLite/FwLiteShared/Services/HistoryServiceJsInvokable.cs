@@ -30,4 +30,10 @@ public class HistoryServiceJsInvokable(HistoryService historyService)
     {
         return await historyService.GetHistory(entityId).ToArrayAsync();
     }
+
+    [JSInvokable]
+    public async ValueTask<ChangeContext> LoadChangeContext(Guid commitId, int changeIndex)
+    {
+        return await historyService.LoadChangeContext(commitId, changeIndex);
+    }
 }
