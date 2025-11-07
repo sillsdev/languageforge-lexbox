@@ -4,7 +4,7 @@
   import {resource, Debounced, watch} from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import { fade } from 'svelte/transition';
-  import ViewPicker from './ViewPicker.svelte';
+  import ViewPicker from './EditorViewOptions.svelte';
   import EntryMenu from './EntryMenu.svelte';
   import {ScrollArea} from '$lib/components/ui/scroll-area';
   import {cn} from '$lib/utils';

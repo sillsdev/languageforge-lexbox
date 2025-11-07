@@ -21,7 +21,7 @@
   import {ModeWatcher} from 'mode-watcher';
   import {Context} from 'runed';
   import { type Snippet } from 'svelte';
-  import ViewPicker from '../../src/project/browse/ViewPicker.svelte';
+  import ViewPicker from '../../src/project/browse/EditorViewOptions.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';
   import {setupServiceProvider} from '$lib/services/service-provider';
   import {setupDotnetServiceProvider} from '$lib/services/service-provider-dotnet';
