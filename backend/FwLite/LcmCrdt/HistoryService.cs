@@ -66,7 +66,7 @@ public record HistoryLineItem(
 
 public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory, IMiniLcmApi miniLcmApi)
 {
-    public async IAsyncEnumerable<ProjectActivity> ProjectActivity()
+    public async IAsyncEnumerable<ProjectActivity> ProjectActivity(int skip = 0, int take = 100)
     {
         await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
         var changeEntities = dbContext.Set<ChangeEntity<IChange>>();
@@ -80,7 +80,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
                 NormalizeTimestamp(commit.HybridDateTime.DateTime),
                 changes.ToList(),
                 commit.Metadata);
-        await foreach (var projectActivity in query.Take(100).ToLinqToDB().AsAsyncEnumerable())
+        await foreach (var projectActivity in query.Skip(skip).Take(take).ToLinqToDB().AsAsyncEnumerable())
         {
             yield return projectActivity;
         }

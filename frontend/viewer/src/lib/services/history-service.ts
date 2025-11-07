@@ -62,8 +62,9 @@ export class HistoryService {
     throw new Error('Unable to determine type of object ' + JSON.stringify(data));
   }
 
-  async activity(projectCode: string): Promise<IProjectActivity[]> {
-    return await (this.historyApi?.projectActivity() ?? fetch(`/api/activity/${projectCode}`).then(res => res.json())) as IProjectActivity[];
+  async activity(projectCode: string, skip: number, take: number): Promise<IProjectActivity[]> {
+    return await (this.historyApi?.projectActivity(skip, take)
+        ?? fetch(`/api/activity/${projectCode}?skip=${skip}&take=${take}`).then(res => res.json())) as IProjectActivity[];
   }
 
   loadChangeContext(commitId: string, changeIndex: number) {

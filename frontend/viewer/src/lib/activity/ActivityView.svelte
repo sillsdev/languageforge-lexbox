@@ -8,36 +8,60 @@
   import {VList} from 'virtua/svelte';
   import {FormatRelativeDate} from '$lib/components/ui/format';
   import ActivityItem from './ActivityItem.svelte';
+  import type {IProjectActivity} from '$lib/dotnet-types';
 
   const historyService = useHistoryService();
   const projectContext = useProjectContext();
 
-  const activity = resource(() => projectContext.projectCode, async (projectCode) => {
-    if (!projectCode) return [];
-    const data = (await historyService.activity(projectContext.projectCode));
-    console.debug('Activity data', data);
-    if (!Array.isArray(data)) {
-      console.error('Invalid history data', data);
-      return [];
-    }
-    return data;
-  },
-  {
-    initialValue: [],
-  });
+  const THRESHOLD = 20;
+  const BATCH_SIZE = THRESHOLD * 4;
+  let loadCount = $state(BATCH_SIZE);
 
-  let selectedRow = $derived(activity.current[0]);
+  const activity = resource(
+    [() => projectContext.projectCode, () => loadCount],
+    async ([projectCode, loadCount], [_, prevLoadCount]): Promise<IProjectActivity[]> => {
+      if (!projectCode) return [];
+
+      prevLoadCount ??= 0;
+      const skip = prevLoadCount;
+      const take = loadCount - prevLoadCount;
+      const data = (await historyService.activity(projectCode, skip, take));
+      console.debug('Activity data', skip, take, data);
+      if (!Array.isArray(data)) {
+        console.error('Invalid history data', data);
+        return [];
+      }
+
+      const activityData = [...activity.current, ...data];
+      selectedRow ??= activityData[0];
+      return activityData;
+    },
+    {
+      initialValue: [],
+    },
+  );
+
+  let selectedRow = $state<IProjectActivity>();
+  let vlist = $state<VList<IProjectActivity>>();
+  function onListScroll() {
+    if (!vlist) return;
+
+    if (vlist.findEndIndex() + THRESHOLD >= loadCount) {
+      loadCount += BATCH_SIZE;
+    }
+  }
 </script>
 
-{#if !activity.loading}
+{#if activity.current.length}
   <div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
        style="grid-template-rows: auto minmax(0,100%); minmax(min-content, 1fr) minmax(min-content, 2fr); grid-template-columns: 1fr 2fr">
 
     <SidebarTrigger icon="i-mdi-menu" iconProps={{ class: 'size-5' }} class="aspect-square p-0" size="xs"/>
     <div class="gap-4 overflow-hidden row-start-2">
 
-      <VList data={activity.current ?? []}
+      <VList bind:this={vlist} data={activity.current ?? []}
              class="h-full p-0.5 md:pr-3 after:h-12 after:block"
+             onscroll={onListScroll}
              getKey={row => row.commitId} overscan={10}>
         {#snippet children(row)}
           <ListItem
@@ -61,8 +85,8 @@
         <div class="p-4 text-center opacity-75">{$t`No activity found`}</div>
       {/if}
     </div>
-
-    <ActivityItem class="sub-grid row-span-2 col-start-2" activity={selectedRow} />
-
+    {#if selectedRow}
+      <ActivityItem class="sub-grid row-span-2 col-start-2" activity={selectedRow} />
+    {/if}
   </div>
 {/if}
