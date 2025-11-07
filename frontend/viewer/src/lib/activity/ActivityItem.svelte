@@ -1,14 +1,10 @@
 <script lang="ts" module>
   import type {IChangeContext, IChangeEntity, IProjectActivity} from '$lib/dotnet-types';
 
-  export type Activity = IProjectActivity & {
-    previousTimestamp?: string;
-  };
-
   export type ChangeWithContext = {
     change: IChangeEntity;
     context: IChangeContext;
-    activity: Activity;
+    activity: IProjectActivity;
   };
 </script>
 

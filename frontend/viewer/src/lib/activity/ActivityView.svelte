@@ -7,29 +7,23 @@
   import ListItem from '$lib/components/ListItem.svelte';
   import {VList} from 'virtua/svelte';
   import {FormatRelativeDate} from '$lib/components/ui/format';
-  import ActivityItem, {type Activity} from './ActivityItem.svelte';
+  import ActivityItem from './ActivityItem.svelte';
 
   const historyService = useHistoryService();
   const projectContext = useProjectContext();
 
   const activity = resource(() => projectContext.projectCode, async (projectCode) => {
-    if (!projectCode) return [] as Activity[];
-    const data = (await historyService.activity(projectContext.projectCode)) as Activity[];
+    if (!projectCode) return [];
+    const data = (await historyService.activity(projectContext.projectCode));
     console.debug('Activity data', data);
     if (!Array.isArray(data)) {
       console.error('Invalid history data', data);
-      return [] as Activity[];
+      return [];
     }
-    data.reverse();
-    for (let i = 0; i < data.length; i++) {
-      let row = data[i];
-      row.previousTimestamp = data[i + 1]?.timestamp;
-    }
-    // Reverse the history so that the most recent changes are at the top
-    return data.toReversed();
+    return data;
   },
   {
-    initialValue: [] as Activity[],
+    initialValue: [],
   });
 
   let selectedRow = $derived(activity.current[0]);
