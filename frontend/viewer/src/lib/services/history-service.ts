@@ -67,6 +67,13 @@ export class HistoryService {
   }
 
   loadChangeContext(commitId: string, changeIndex: number) {
+    this.ensureLoaded();
     return this.projectContext.historyService!.loadChangeContext(commitId, changeIndex);
+  }
+
+  private ensureLoaded() {
+    if (!this.loaded) {
+      throw new Error('HistoryService not loaded');
+    }
   }
 }
