@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-06 17:04\n"
+"PO-Revision-Date: 2025-11-07 17:04\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
 msgstr ""
 
@@ -62,14 +62,16 @@ msgstr ""
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr ""
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "# ago"
+#: src/project/browse/ViewPicker.svelte
+msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
 msgstr ""
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "# before"
+#: src/project/browse/ViewPicker.svelte
+msgid "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem*, *Particle*, *Phrase*, and *Discontiguous Phrase*)"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -175,8 +177,7 @@ msgstr ""
 msgid "Audio saved locally"
 msgstr ""
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
 msgstr "Mwandishi:"
 
@@ -261,6 +262,10 @@ msgstr ""
 msgid "Complex form types"
 msgstr ""
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Complex form:"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
 msgstr ""
@@ -270,6 +275,10 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Component"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Component:"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -303,6 +312,10 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Entry"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Current version"
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -341,6 +354,15 @@ msgstr "Futa ingizo"
 
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Deleted"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Details"
 msgstr ""
 
 #: src/home/HomeView.svelte
@@ -422,7 +444,10 @@ msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Entry"
 msgstr "Ingizo"
 
@@ -488,10 +513,6 @@ msgstr ""
 
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
-msgstr ""
-
-#: src/project/browse/ViewPicker.svelte
-msgid "Field Labels"
 msgstr ""
 
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -586,6 +607,7 @@ msgid "Gloss"
 msgstr "Glosi"
 
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Go to {0}"
 msgstr ""
 
@@ -845,8 +867,17 @@ msgstr "Hamna"
 msgid "Not equal"
 msgstr ""
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Not found"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Not synced"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -887,6 +918,8 @@ msgid "Open in FieldWorks"
 msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Open in new Window"
 msgstr ""
 
@@ -925,6 +958,7 @@ msgid "Pinned"
 msgstr ""
 
 #: src/project/browse/BrowseView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "Hakiki"
 
@@ -942,6 +976,10 @@ msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Project name..."
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Publish {0} in"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -1120,12 +1158,12 @@ msgstr ""
 msgid "Synced"
 msgstr ""
 
-#: src/lib/activity/ActivityView.svelte
-msgid "Synced {0} ago"
-msgstr ""
-
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Synced: #"
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
@@ -1160,6 +1198,14 @@ msgstr "Jukumu"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr ""
 
+#: src/project/browse/ViewPicker.svelte
+msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
+msgstr ""
+
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
 msgstr ""
@@ -1170,6 +1216,14 @@ msgstr ""
 
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "The time when you uploaded or downloaded these changes"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte
@@ -1233,8 +1287,7 @@ msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Unknown"
 msgstr "Haijulikani"
 
@@ -1262,6 +1315,7 @@ msgstr ""
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Untitled"
 msgstr ""
 
@@ -1283,6 +1337,10 @@ msgid "Version {0}"
 msgstr ""
 
 #: src/project/browse/ViewPicker.svelte
+msgid "View"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
 msgid "View Configuration"
 msgstr ""
 
@@ -1298,8 +1356,11 @@ msgstr ""
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Word"
 msgstr "Neno"
 
