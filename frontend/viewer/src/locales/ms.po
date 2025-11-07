@@ -125,6 +125,14 @@ msgstr ""
 msgid "an entry"
 msgstr "satu entri"
 
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any grammatical info."
+msgstr ""
+
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any part of speech"
+msgstr ""
+
 #: src/project/browse/filter/SemanticDomainSelect.svelte
 msgid "Any semantic domain"
 msgstr ""
@@ -426,6 +434,7 @@ msgstr ""
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Entry"
 msgstr "Entri"
@@ -594,6 +603,7 @@ msgstr "Glos"
 msgid "Go to {0}"
 msgstr "Pergi ke {0}"
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Grammatical info."
 msgstr "Maklumat tatabahasa."
@@ -922,6 +932,7 @@ msgstr "Bahagian"
 msgid "Part of"
 msgstr "Sebahagian daripada"
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Jenis Perkataan"
@@ -958,6 +969,10 @@ msgstr "Projek {0} pada {1} belum disediakan untuk FieldWorks Lite"
 #: src/home/HomeView.svelte
 msgid "Project name..."
 msgstr "Nama projek..."
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Publish {0} in"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Reference"
@@ -1280,6 +1295,10 @@ msgstr ""
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Untitled"
 msgstr "Tanpa Tajuk"
@@ -1319,6 +1338,7 @@ msgstr ""
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Word"

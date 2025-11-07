@@ -12,5 +12,5 @@
 </script>
 
 <Button icon="i-mdi-close" variant="ghost" size="xs-icon" aria-label={$t`Close`}
-  class={cn('opacity-70 transition-opacity hover:opacity-100 ring-offset-background focus:ring-ring focus:outline-none focus:ring-2 disabled:pointer-events-none',
+  class={cn('bg-background opacity-70 transition-opacity hover:opacity-100 ring-offset-background focus:ring-ring focus:outline-none focus:ring-2 disabled:pointer-events-none',
   className)} {...restProps} />
