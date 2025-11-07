@@ -7,6 +7,10 @@
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {Button} from '$lib/components/ui/button';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import * as Popover from '$lib/components/ui/popover';
+  import Markdown from 'svelte-exmarkdown';
+  import NewTabLinKMarkdown from '$lib/markdown/NewTabLinKMarkdown.svelte';
+  import {delay} from '$lib/utils/time';
 
   let {
     dictionaryPreview = $bindable('show'),
@@ -22,6 +26,15 @@
   function setCurrentView(id: string) {
     currentView.set(views.find((v) => v.id === id) ?? views[0]);
   }
+
+  let popoverContent = $state<HTMLElement | null>(null);
+  // for some reason the popover is scrolled down when it opens
+  async function onPopoverOpenChange(isOpen: boolean) {
+    if (isOpen) {
+      await delay(0);
+      if (popoverContent) popoverContent.scrollTop = 0;
+    }
+  }
 </script>
 <ResponsivePopup title={$t`View Configuration`}>
   {#snippet trigger({props})}
@@ -29,7 +42,22 @@
   {/snippet}
   <div class="space-y-2 md:space-y-4">
     <RadioGroup.Root bind:value={getCurrentView, setCurrentView}>
-      <h3 class="font-normal max-md:mb-1">{$t`Field Labels`}</h3>
+      <Popover.Root onOpenChange={onPopoverOpenChange}>
+        <Popover.InfoTrigger class="text-start w-fit">
+          <h3 class="inline font-normal max-md:mb-1">{$t`View`}</h3>
+        </Popover.InfoTrigger>
+        <Popover.Content bind:ref={popoverContent} class="max-h-[40vh] overflow-y-auto text-sm flex flex-col gap-2">
+          <div>
+            <Markdown md={$t`The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:`} />
+            <ul class="text-sm pl-4 list-disc mt-0.5 [&_strong]:font-semibold">
+              <li><Markdown md={$t`**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)`} /></li>
+              <li><Markdown md={$t`**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)`} /></li>
+              <li><Markdown md={$t`**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem*, *Particle*, *Phrase*, and *Discontiguous Phrase*)`} /></li>
+            </ul>
+          </div>
+          <NewTabLinKMarkdown md={$t`The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*.`} />
+        </Popover.Content>
+      </Popover.Root>
       {#each views as view (view.id)}
         <RadioGroup.Item value={view.id} label={view.label} />
       {/each}
