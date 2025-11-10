@@ -1,11 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using LcmCrdt.Changes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 
@@ -116,17 +114,13 @@ public class MigrationTests : IAsyncLifetime
         await using var dataModel = _helper.Services.GetRequiredService<DataModel>();
         var syncable = dataModel as ISyncable;
 
-        // slighty hacky way to regenerate snapshots
-        // could also use dataModel.RegenerateSnapshots(), but that currently has a connection issue
-        // and it also doesn't support regenerating from a given point in time
-        var (noOpCommit, noOpEntityId) = NewNoOpCommit(new HybridDateTime(DateTimeOffset.MinValue, 0));
+        var noOpCommit = FakeCommit.NoOp(new HybridDateTime(DateTimeOffset.MinValue, 0));
         await syncable.AddRangeFromSync([noOpCommit]);
 
         var commits = await dbContext.Commits.AsNoTracking().ToArrayAsync();
         var commitIdToHybridDateTime = commits.ToDictionary(c => c.Id, c => c.HybridDateTime);
 
         var latestSnapshots = (await dataModel.GetLatestSnapshots()
-            .Where(s => s.EntityId != noOpEntityId)
             .ToArrayAsync())
             .OrderBy(s => s.TypeName)
             .ThenBy(s => s.EntityId)
@@ -166,37 +160,17 @@ public class MigrationTests : IAsyncLifetime
             await api.GetWritingSystems());
     }
 
-    private static (Commit Commit, Guid EntityId) NewNoOpCommit(HybridDateTime hybridDate)
-    {
-        var commitId = Guid.NewGuid();
-        var entityId = Guid.NewGuid();
-        return (new FakeCommit(commitId, hybridDate)
-        {
-            ClientId = Guid.NewGuid(),
-            ChangeEntities = [
-                new ChangeEntity<IChange>()
-                {
-                    Index = 0,
-                    CommitId = commitId,
-                    EntityId = entityId,
-                    Change = new CreateEntryChange(new Entry()
-                    {
-                        Id = entityId,
-                    }),
-                },
-                new ChangeEntity<IChange>()
-                {
-                    Index = 1,
-                    CommitId = commitId,
-                    EntityId = entityId,
-                    Change = new DeleteChange<Entry>(Guid.NewGuid()),
-                },
-            ],
-        }, entityId);
-    }
-
     private class FakeCommit : Commit
     {
+        public static Commit NoOp(HybridDateTime hybridDateTime)
+        {
+            return new FakeCommit(Guid.NewGuid(), hybridDateTime)
+            {
+                ClientId = Guid.NewGuid(),
+                ChangeEntities = [],
+            };
+        }
+
         [SetsRequiredMembers]
         public FakeCommit(Guid id, HybridDateTime hybridDateTime) : base(id, "", NullParentHash, hybridDateTime)
         {
