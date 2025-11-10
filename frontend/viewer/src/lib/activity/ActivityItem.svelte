@@ -94,7 +94,11 @@
       <div
         class="change-list flex flex-col gap-4 overflow-auto border rounded">
         {#key changes}
-          <VList class="space-y-2" data={changes} overscan={2} getKey={(item) => item.change.commitId + item.change.index}>
+          <VList
+            class="space-y-2"
+            data={changes}
+            overscan={2}
+            getKey={(item) => `${item.change.commitId}:${item.change.index}`}>
             {#snippet children(changeWithContext)}
               {@const {change, lazyContext} = changeWithContext}
               {#await lazyContext}
