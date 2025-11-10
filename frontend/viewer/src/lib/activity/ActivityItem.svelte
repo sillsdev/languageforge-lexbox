@@ -28,6 +28,7 @@
   import {formatJsonForUi} from './utils';
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
+  import * as Popover from '$lib/components/ui/popover';
 
   type Props = HTMLAttributes<HTMLDivElement> & {
     activity: IProjectActivity;
@@ -68,14 +69,19 @@
       </span>
       <span class="whitespace-nowrap">
         {#if activity.metadata.extraMetadata['SyncDate']}
-          <span title={$t`The time when you uploaded or downloaded these changes`}>
-            <T msg="Synced: #">
-              <FormatRelativeDate
-                class="font-semibold"
-                date={new Date(activity.metadata.extraMetadata['SyncDate'])}
-                showActualDate={true}
-                actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
-            </T>
+          <span>
+            <Popover.Root>
+              <Popover.InfoTrigger>
+                <T msg="Synced: #">
+                  <FormatRelativeDate
+                    class="font-semibold"
+                    date={new Date(activity.metadata.extraMetadata['SyncDate'])} />
+                </T>
+              </Popover.InfoTrigger>
+              <Popover.Content class="w-auto p-2 text-sm text-center max-w-48">
+                {$t`The time when you uploaded or downloaded these changes`}
+              </Popover.Content>
+            </Popover.Root>
           </span>
         {:else}
           <span class="text-red-500 font-semibold" title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`}>

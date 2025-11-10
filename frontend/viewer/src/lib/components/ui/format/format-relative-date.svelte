@@ -62,13 +62,18 @@
     if (!showActualDate || !date) return '';
     return formatDate(date, actualDateOptions);
   });
+
+  const fullDate = $derived.by(() => {
+    if (!date) return '';
+    return formatDate(date, { dateStyle: 'full', timeStyle: 'long' });
+  });
 </script>
 
 {#if showActualDate && actualFormattedDate}
   <span class:loading-text={loading} class="inline-flex items-center gap-1">
     <Popover.Root>
       <Popover.InfoTrigger>
-        <time {...restProps}>{formattedRelativeDate}</time>
+        <time title={fullDate} {...restProps}>{formattedRelativeDate}</time>
       </Popover.InfoTrigger>
       <Popover.Content class="w-auto p-2 text-sm">
         <Icon icon="i-mdi-calendar-clock" class="text-muted-foreground mr-1" />
@@ -77,5 +82,5 @@
     </Popover.Root>
   </span>
 {:else}
-  <time class:loading-text={loading} {...restProps}>{formattedRelativeDate}</time>
+  <time title={fullDate} class:loading-text={loading} {...restProps}>{formattedRelativeDate}</time>
 {/if}
