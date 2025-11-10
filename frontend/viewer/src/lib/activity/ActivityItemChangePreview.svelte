@@ -2,7 +2,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as Editor from '$lib/components/editor';
   import {Switch} from '$lib/components/ui/switch';
-  import {type IChangeContext, type IChangeEntity, type IComplexFormComponent, type IEntry, type IExampleSentence, type IProjectActivity, type ISense} from '$lib/dotnet-types';
+  import {type IChangeContext, type IComplexFormComponent, type IEntry, type IExampleSentence, type IProjectActivity, type ISense} from '$lib/dotnet-types';
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
   import ExampleEditorPrimitive from '$lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
@@ -19,7 +19,6 @@
   import {Link} from 'svelte-routing';
 
   type Props = {
-    change: IChangeEntity,
     activity: IProjectActivity,
     context: IChangeContext,
   }

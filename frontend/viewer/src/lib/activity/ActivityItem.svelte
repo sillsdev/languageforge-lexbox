@@ -116,7 +116,7 @@
                     </Tabs.List>
                     <div class="pt-1 pb-4 px-2">
                       <Tabs.Content value="preview">
-                        <ActivityItemChangePreview {...changeWithContext} {context} />
+                        <ActivityItemChangePreview {activity} {context} />
                       </Tabs.Content>
                       <Tabs.Content value="change">
                         <div class="whitespace-pre-wrap font-mono text-sm">
