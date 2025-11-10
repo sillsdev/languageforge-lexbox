@@ -2,12 +2,11 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as Editor from '$lib/components/editor';
   import {Switch} from '$lib/components/ui/switch';
-  import {type IComplexFormComponent, type IEntry, type IExampleSentence, type ISense} from '$lib/dotnet-types';
+  import {type IChangeContext, type IChangeEntity, type IComplexFormComponent, type IEntry, type IExampleSentence, type IProjectActivity, type ISense} from '$lib/dotnet-types';
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
   import ExampleEditorPrimitive from '$lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import {t} from 'svelte-i18n-lingui';
-  import type {ChangeWithContext} from './ActivityItem.svelte';
   import {formatJsonForUi} from './utils';
   import FormatRelativeDate from '$lib/components/ui/format/format-relative-date.svelte';
   import {useMultiWindowService} from '$lib/services/multi-window-service';
@@ -19,9 +18,13 @@
   import {cn} from '$lib/utils';
   import {Link} from 'svelte-routing';
 
-  const { change: changeWithContext }: { change: ChangeWithContext } = $props();
+  type Props = {
+    change: IChangeEntity,
+    activity: IProjectActivity,
+    context: IChangeContext,
+  }
 
-  const { activity, context } = $derived(changeWithContext);
+  const { activity, context }: Props = $props();
 
   const multiWindowService = useMultiWindowService();
   const currentView = useCurrentView();

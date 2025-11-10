@@ -1,10 +1,20 @@
 <script lang="ts" module>
   import type {IChangeContext, IChangeEntity, IProjectActivity} from '$lib/dotnet-types';
 
-  export type ChangeWithContext = {
-    change: IChangeEntity;
-    context: IChangeContext;
-    activity: IProjectActivity;
+  export class ChangeWithLazyContext {
+
+    #context?: Promise<IChangeContext>;
+
+    constructor(
+      public readonly change: IChangeEntity,
+      public readonly activity: IProjectActivity,
+      private readonly contextLoader: () => Promise<IChangeContext>,
+    ) {}
+
+    get lazyContext(): Promise<IChangeContext> {
+      this.#context ??= this.contextLoader();
+      return this.#context;
+    }
   };
 </script>
 
@@ -12,7 +22,6 @@
   import {FormatDate, FormatRelativeDate} from '$lib/components/ui/format';
   import * as Tabs from '$lib/components/ui/tabs';
   import {useHistoryService} from '$lib/services/history-service';
-  import {resource} from 'runed';
   import {T, t} from 'svelte-i18n-lingui';
   import {VList} from 'virtua/svelte';
   import ActivityItemChangePreview from './ActivityItemChangePreview.svelte';
@@ -32,12 +41,8 @@
 
   const historyService = useHistoryService();
 
-  const changes = $derived(!historyService.loaded ? undefined : resource(() => activity, async (activity) => {
-    const contextPromises = activity.changes.map(async change => {
-      const context = await historyService.loadChangeContext(activity.commitId, change.index);
-      return { change, context, activity };
-    });
-    return await Promise.all(contextPromises);
+  const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(change => {
+    return new ChangeWithLazyContext(change, activity, () => historyService.loadChangeContext(activity.commitId, change.index));
   }));
 </script>
 
@@ -79,37 +84,46 @@
         {/if}
       </span>
     </div>
-    {#if changes?.current}
+    {#if changes}
       <div
         class="change-list flex flex-col gap-4 overflow-auto border rounded">
-        <VList class="space-y-2" data={changes.current}>
-          {#snippet children(changeWithContext)}
-            {@const {change, context} = changeWithContext}
-            <div class="change">
-              <div class="px-4 pt-2 flex font-semibold">
-                <span>{context.changeName}</span>
-              </div>
-              <Tabs.Root value="preview" class="px-2 mt-2">
-                <Tabs.List class="w-full">
-                  <Tabs.Trigger class="flex-1" value="preview">
-                    {$t`Preview`}
-                  </Tabs.Trigger>
-                  <Tabs.Trigger class="flex-1" value="change">{$t`Details`}</Tabs.Trigger>
-                </Tabs.List>
-                <div class="pt-1 pb-4 px-2">
-                  <Tabs.Content value="preview">
-                    <ActivityItemChangePreview change={changeWithContext} />
-                  </Tabs.Content>
-                  <Tabs.Content value="change">
-                    <div class="whitespace-pre-wrap font-mono text-sm">
-                      {formatJsonForUi(change)}
+        {#key changes}
+          <VList class="space-y-2" data={changes} overscan={2} getKey={(item) => item.change.commitId + item.change.index}>
+            {#snippet children(changeWithContext)}
+              {@const {change, lazyContext} = changeWithContext}
+              {#await lazyContext}
+                <!-- determines how many rows are initially visible,
+                 which in turn determines how many changes will be loaded.
+                 Too big is not much of a problem, it will just stagger subsequent loads -->
+                <div class="h-[700px]"></div>
+              {:then context}
+                <div class="change">
+                  <div class="px-4 pt-2 flex font-semibold">
+                    <span>{context.changeName}</span>
+                  </div>
+                  <Tabs.Root value="preview" class="px-2 mt-2">
+                    <Tabs.List class="w-full">
+                      <Tabs.Trigger class="flex-1" value="preview">
+                        {$t`Preview`}
+                      </Tabs.Trigger>
+                      <Tabs.Trigger class="flex-1" value="change">{$t`Details`}</Tabs.Trigger>
+                    </Tabs.List>
+                    <div class="pt-1 pb-4 px-2">
+                      <Tabs.Content value="preview">
+                        <ActivityItemChangePreview {...changeWithContext} {context} />
+                      </Tabs.Content>
+                      <Tabs.Content value="change">
+                        <div class="whitespace-pre-wrap font-mono text-sm">
+                          {formatJsonForUi(change)}
+                        </div>
+                      </Tabs.Content>
                     </div>
-                  </Tabs.Content>
+                  </Tabs.Root>
                 </div>
-              </Tabs.Root>
-            </div>
-          {/snippet}
-        </VList>
+              {/await}
+            {/snippet}
+          </VList>
+        {/key}
       </div>
     {/if}
   {/if}
