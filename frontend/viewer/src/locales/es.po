@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-07 17:04\n"
+"PO-Revision-Date: 2025-11-10 10:20\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -374,7 +374,7 @@ msgstr "Diccionarios"
 msgid "Dictionary"
 msgstr "Diccionario"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr "Vista previa del diccionario"
 
@@ -620,7 +620,7 @@ msgstr "Información gramatical."
 msgid "Headword"
 msgstr "Palabra clave"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
 msgstr "Ocultar"
 
@@ -694,7 +694,7 @@ msgstr "Forma del lexema"
 msgid "Light"
 msgstr "Claro"
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
 msgstr "Modo lista"
 
@@ -953,11 +953,11 @@ msgstr "Pendiente"
 msgid "Pick a Part of Speech"
 msgstr "Escoge una parte de la voz"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Pinned"
 msgstr "Pinned"
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "Vista previa"
@@ -1096,7 +1096,7 @@ msgstr "Compartir archivo de registro"
 msgid "Share project data file"
 msgstr "Compartir archivo de datos del proyecto"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Show"
 msgstr "Mostrar"
 
@@ -1104,7 +1104,7 @@ msgstr "Mostrar"
 msgid "Show {0} more..."
 msgstr "Mostrar {0} más..."
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Simple"
 
@@ -1339,10 +1339,6 @@ msgstr "Versión {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Ver"
-
-#: src/project/browse/ViewPicker.svelte
-msgid "View Configuration"
-msgstr "Ver configuración"
 
 #: src/home/Server.svelte
 msgid "Where are my projects?"
