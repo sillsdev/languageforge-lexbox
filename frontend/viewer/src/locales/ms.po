@@ -374,7 +374,7 @@ msgstr "Kamus"
 msgid "Dictionary"
 msgstr "Kamus"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr "Pratonton Kamus"
 
@@ -620,7 +620,7 @@ msgstr "Maklumat tatabahasa."
 msgid "Headword"
 msgstr "Kata Utama"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
 msgstr "Sembunyi"
 
@@ -694,7 +694,7 @@ msgstr "Bentuk Leksem"
 msgid "Light"
 msgstr ""
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
 msgstr "Mod senarai"
 
@@ -953,11 +953,11 @@ msgstr ""
 msgid "Pick a Part of Speech"
 msgstr ""
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Pinned"
 msgstr "Disemat"
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "Pratonton"
@@ -1096,7 +1096,7 @@ msgstr "Kongsi fail Log"
 msgid "Share project data file"
 msgstr "Kongsi fail data projek"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Show"
 msgstr "Tunjukkan"
 
@@ -1104,7 +1104,7 @@ msgstr "Tunjukkan"
 msgid "Show {0} more..."
 msgstr "Tunjukkan {0} lagi..."
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Mudah"
 
@@ -1339,10 +1339,6 @@ msgstr "Versi {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr ""
-
-#: src/project/browse/ViewPicker.svelte
-msgid "View Configuration"
-msgstr "Lihat Konfigurasi"
 
 #: src/home/Server.svelte
 msgid "Where are my projects?"
