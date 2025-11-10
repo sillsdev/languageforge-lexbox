@@ -19,6 +19,7 @@
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
     readonly?: boolean;
+    autofocus?: boolean;
     modalMode?: boolean;
     onchange?: (entry: IEntry, field: FieldId) => void;
   }
@@ -27,6 +28,7 @@
     entry = $bindable(),
     onchange,
     readonly = false,
+    autofocus = false,
     modalMode = false,
     ...rest
   }: Props = $props();
@@ -50,7 +52,7 @@
           onchange={() => onFieldChanged('lexemeForm')}
           bind:value={entry.lexemeForm}
           {readonly}
-          autofocus={modalMode}
+          {autofocus}
           writingSystems={writingSystemService.viewVernacular($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>

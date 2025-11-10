@@ -48,7 +48,7 @@
     {#if entryResource.loading}
       Loading...
     {:else if entry}
-      <EntryEditor modalMode {entry} canAddSense={false} canAddExample={false}/>
+      <EntryEditor autofocus modalMode {entry} canAddSense={false} canAddExample={false}/>
     {/if}
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
