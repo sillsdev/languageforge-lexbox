@@ -369,7 +369,7 @@ msgstr "Dictionaries"
 msgid "Dictionary"
 msgstr "Dictionary"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr "Dictionary Preview"
 
@@ -615,7 +615,7 @@ msgstr "Grammatical info."
 msgid "Headword"
 msgstr "Headword"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
 msgstr "Hide"
 
@@ -689,7 +689,7 @@ msgstr "Lexeme Form"
 msgid "Light"
 msgstr "Light"
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
 msgstr "List mode"
 
@@ -948,11 +948,11 @@ msgstr "Pending"
 msgid "Pick a Part of Speech"
 msgstr "Pick a Part of Speech"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Pinned"
 msgstr "Pinned"
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "Preview"
@@ -1091,7 +1091,7 @@ msgstr "Share Log file"
 msgid "Share project data file"
 msgstr "Share project data file"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Show"
 msgstr "Show"
 
@@ -1099,7 +1099,7 @@ msgstr "Show"
 msgid "Show {0} more..."
 msgstr "Show {0} more..."
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Simple"
 
@@ -1334,10 +1334,6 @@ msgstr "Version {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "View"
-
-#: src/project/browse/ViewPicker.svelte
-msgid "View Configuration"
-msgstr "View Configuration"
 
 #: src/home/Server.svelte
 msgid "Where are my projects?"

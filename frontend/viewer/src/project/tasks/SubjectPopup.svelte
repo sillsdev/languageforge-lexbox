@@ -150,7 +150,7 @@
               <Editor.Grid>
                 <OverrideFields shownFields={task.subjectFields} {overrides}>
                   {#if task.subjectType === 'entry' && subject.entry}
-                    <EntryEditorPrimitive modalMode bind:entry={subject.entry}/>
+                    <EntryEditorPrimitive autofocus modalMode bind:entry={subject.entry}/>
                   {:else if task.subjectType === 'sense' && subject.sense}
                     <SenseEditorPrimitive bind:sense={subject.sense}/>
                   {:else if task.subjectType === 'example-sentence' && subject.exampleSentence}

@@ -2,6 +2,7 @@
   export type Props = {
     entry: IEntry;
     readonly?: boolean;
+    autofocus?: boolean;
     modalMode?: boolean;
     canAddSense?: boolean;
     canAddExample?: boolean;
@@ -35,6 +36,7 @@
     entry = $bindable(),
     ref = $bindable(null),
     readonly = false,
+    autofocus = false,
     modalMode = false,
     canAddSense = true,
     canAddExample = true,
@@ -157,7 +159,7 @@
 
 <Editor.Root bind:ref>
   <Editor.Grid bind:ref={editorElem}>
-    <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {modalMode} onchange={(entry) => onchange?.({entry})} />
+    <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
     {#each entry.senses as sense, i (sense.id)}
       <Editor.SubGrid class={cn(sense.id === highlighted?.entity.id && 'highlight')}>

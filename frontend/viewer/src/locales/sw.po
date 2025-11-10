@@ -374,7 +374,7 @@ msgstr "Kamusi"
 msgid "Dictionary"
 msgstr "Kamusi"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr ""
 
@@ -620,7 +620,7 @@ msgstr ""
 msgid "Headword"
 msgstr "Neno la kichwa"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
 msgstr "Ficha"
 
@@ -694,7 +694,7 @@ msgstr "Fomu ya Lexeme"
 msgid "Light"
 msgstr ""
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
 msgstr ""
 
@@ -953,11 +953,11 @@ msgstr ""
 msgid "Pick a Part of Speech"
 msgstr ""
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Pinned"
 msgstr ""
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "Hakiki"
@@ -1096,7 +1096,7 @@ msgstr ""
 msgid "Share project data file"
 msgstr ""
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Show"
 msgstr "Onyesha"
 
@@ -1104,7 +1104,7 @@ msgstr "Onyesha"
 msgid "Show {0} more..."
 msgstr ""
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Rahisi"
 
@@ -1338,10 +1338,6 @@ msgstr ""
 
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
-msgstr ""
-
-#: src/project/browse/ViewPicker.svelte
-msgid "View Configuration"
 msgstr ""
 
 #: src/home/Server.svelte

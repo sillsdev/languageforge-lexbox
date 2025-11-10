@@ -98,7 +98,7 @@
       <Dialog.DialogTitle>{pt($t`New Entry`, $t`New Word`, $currentView)}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
-      <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
+      <EntryEditor bind:entry={entry} autofocus modalMode canAddSense={false} canAddExample={false} />
     </OverrideFields>
     {#if errors.length}
       <div class="text-end space-y-2">
