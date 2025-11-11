@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import {execSync} from "child_process";
+import {execFileSync, execSync} from "child_process";
+
 import fs from "fs";
 import path from "path";
 
@@ -85,7 +86,7 @@ function extractTarFile() {
   fs.mkdirSync(localExtractDir, { recursive: true });
 
   // Use system tar command (available on Windows 10+ and Linux)
-  execSync(`tar -xzf ${localTar} -C ${localExtractDir}`, { stdio: "inherit" });
+  execFileSync("tar", ["-xzf", localTar, "-C", localExtractDir], { stdio: "inherit" });
 
   console.log(`Project extracted to ${localExtractDir}`);
 }
