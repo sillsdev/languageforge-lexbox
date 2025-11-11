@@ -1,6 +1,7 @@
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Tests.Fixtures;
 using MiniLcm.Models;
+using SIL.LCModel;
 using SIL.LCModel.Infrastructure;
 
 namespace FwDataMiniLcmBridge.Tests.MiniLcmTests;
@@ -80,5 +81,32 @@ public class PartOfSpeechTests(ProjectLoaderFixture fixture) : PartOfSpeechTests
         var retrievedEntry = await Api.GetSense(entry.Id, lexSense.Guid);
         retrievedEntry.Should().NotBeNull();
         retrievedEntry!.PartOfSpeechId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetPartsOfSpeech_DoesNotReturnReversalIndexPos()
+    {
+        // Arrange
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
+        var reversalIndexRepository = fwApi.Cache.ServiceLocator.GetInstance<IReversalIndexRepository>();
+        var analysisWs = fwApi.Cache.DefaultAnalWs;
+
+        var reversalPosGuid = Guid.NewGuid();
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Reversal Index POS",
+            "Remove Reversal Index POS",
+            fwApi.Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var reversalIndex = reversalIndexRepository.FindOrCreateIndexForWs(analysisWs);
+                var posFactory = fwApi.Cache.ServiceLocator.GetInstance<IPartOfSpeechFactory>();
+                var reversalPos = posFactory.Create(reversalPosGuid, reversalIndex.PartsOfSpeechOA);
+                reversalPos.Name.set_String(analysisWs, "Reversal Test POS");
+            });
+
+        // Act
+        var partsOfSpeech = await Api.GetPartsOfSpeech().ToArrayAsync();
+
+        // Assert
+        partsOfSpeech.Should().NotContain(pos => pos.Id == reversalPosGuid);
     }
 }
