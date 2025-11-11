@@ -22,6 +22,7 @@ public static class FwLiteSharedKernel
 {
     public static IServiceCollection AddFwLiteShared(this IServiceCollection services, IHostEnvironment environment)
     {
+        services.AddMemoryCache();
         services.AddHttpClient();
         services.AddAuthHelpers(environment);
         services.AddLcmCrdtClient();

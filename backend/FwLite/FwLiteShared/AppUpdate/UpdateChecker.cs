@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using FwLiteShared.Events;
 using LexCore.Entities;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,10 +15,10 @@ public class UpdateChecker(
     ILogger<UpdateChecker> logger,
     IOptions<FwLiteConfig> config,
     GlobalEventBus eventBus,
-    IPlatformUpdateService platformUpdateService) : BackgroundService
+    IPlatformUpdateService platformUpdateService,
+    IMemoryCache cache) : BackgroundService
 {
-    private AvailableUpdate? _cachedUpdate;
-    private DateTime? _cacheTime;
+    private const string CacheKey = "UpdateCheck";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,21 +36,17 @@ public class UpdateChecker(
 
     public async Task<AvailableUpdate?> CheckForUpdate()
     {
-        // Return cached result if still valid
-        if (_cacheTime.HasValue && DateTime.UtcNow - _cacheTime.Value < CacheDuration)
+        return await cache.GetOrCreateAsync(CacheKey, async entry =>
         {
-            logger.LogInformation("Returning cached update check result");
-            return _cachedUpdate;
-        }
-
-        var response = await ShouldUpdateAsync();
-        platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
-        
-        // Cache the result
-        _cachedUpdate = response.Update ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate) : null;
-        _cacheTime = DateTime.UtcNow;
-        
-        return _cachedUpdate;
+            entry.AbsoluteExpirationRelativeToNow = CacheDuration;
+            
+            var response = await ShouldUpdateAsync();
+            platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
+            
+            return response.Update 
+                ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate) 
+                : null;
+        });
     }
 
     public async Task ApplyUpdate(FwLiteRelease release)
