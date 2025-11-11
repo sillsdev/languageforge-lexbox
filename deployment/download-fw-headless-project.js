@@ -27,8 +27,6 @@ const timestamp = new Date().toISOString().replace(/[-:T]/g, "").split(".")[0]; 
 const localExtractDir = path.resolve(`_downloads/${projectCode}-${projectId}_${timestamp}`);
 const podLabel = "app=fw-headless";
 
-let pod;
-
 // ============================
 // Helper to run kubectl commands
 // ============================
@@ -42,7 +40,7 @@ function runKubectl(args, options = {}) {
 // 1️⃣ Find the pod
 // ============================
 function findPod() {
-  pod = runKubectl([
+  const pod = runKubectl([
     "--context", context,
     "get", "pod",
     "-n", namespace,
@@ -50,12 +48,13 @@ function findPod() {
     "-o", "jsonpath={.items[0].metadata.name}"
   ]);
   console.log(`Using pod: ${pod}`);
+  return pod;
 }
 
 // ============================
 // 2️⃣ Tar the project folder in the pod
 // ============================
-function tarProjectInPod() {
+function tarProjectInPod(pod) {
   console.log("Tarring project folder in pod...");
   runKubectl([
     "exec", "--context", context, "-n", namespace, "-c", "fw-headless", pod, "--",
@@ -67,7 +66,7 @@ function tarProjectInPod() {
 // ============================
 // 3️⃣ Copy tar file from pod to local machine
 // ============================
-function copyTarFromPod() {
+function copyTarFromPod(pod) {
   console.log("Copying tar file from pod...");
   runKubectl([
     "cp", "--retries", 10, "--context", context, "-n", namespace,
@@ -94,7 +93,7 @@ function extractTarFile() {
 // ============================
 // 5️⃣ Cleanup pod and local files
 // ============================
-function cleanup() {
+function cleanup(pod) {
   console.log("Cleaning up...");
 
   // Remove tar file from pod
@@ -120,16 +119,21 @@ function cleanup() {
 // ============================
 // Main sequence
 // ============================
-(async () => {
+function main() {
+  const pod = findPod();
+  if (!pod) throw new Error("No pod found.");
+
   try {
-    findPod();
-    tarProjectInPod();
-    copyTarFromPod();
+    tarProjectInPod(pod);
+    copyTarFromPod(pod);
     extractTarFile();
     console.log("✅ Done!");
   } catch (err) {
     console.error("❌ Error:", err);
   } finally {
-    cleanup();
+    cleanup(pod);
   }
-})();
+}
+
+// 🚀 Off we go!
+main();
