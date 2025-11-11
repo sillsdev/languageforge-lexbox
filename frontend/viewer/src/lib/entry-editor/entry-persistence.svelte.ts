@@ -87,7 +87,7 @@ export class EntryPersistence {
   private updateInitialEntry(entry: ReadonlyDeep<IEntry> | undefined | null): void {
     if (!entry) this.initialEntry = undefined;
     // no need to copy if it's immutable
-    // (the object is necessarily truly immutable, just the top layer is. So, it's more like a promise that the object won't change.)
+    // (Object.isFrozen only guarantees the top level is frozen, but the caller's freeze indicates a promise not to mutate nested properties.)
     else this.initialEntry = Object.isFrozen(entry) ? entry : copy(entry);
   }
 }

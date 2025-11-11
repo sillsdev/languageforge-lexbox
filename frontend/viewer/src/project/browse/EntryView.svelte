@@ -38,7 +38,7 @@
   const entryResource = resource(
     () => entryId,
     async (id) => {
-      var entry = await miniLcmApi.getEntry(id);
+      const entry = await miniLcmApi.getEntry(id);
       // IMMEDIATELY take a snapshot to ensure it doesn't get mutated by the editor before EntryPersistence gets it.
       // (dirty fields immediately push their current dirty value into the entry object, which can corrupt the update diff.)
       latestPersistedSnapshot = entry ? Object.freeze(copy(entry)) : undefined;
