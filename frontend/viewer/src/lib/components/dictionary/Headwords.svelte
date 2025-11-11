@@ -2,7 +2,7 @@
   import type {IEntry} from '$lib/dotnet-types';
   import {cn} from '$lib/utils';
   import type {HTMLAttributes} from 'svelte/elements';
-  import {useWritingSystemService} from './writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data/writing-system-service.svelte';
 
   let {
     entry,

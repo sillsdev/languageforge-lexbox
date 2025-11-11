@@ -10,7 +10,6 @@
   import {cn} from '$lib/utils';
   import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
-  import DictionaryEntry from '$project/DictionaryEntry.svelte';
   import {Toggle} from '$lib/components/ui/toggle';
   import {XButton} from '$lib/components/ui/button';
   import type {IEntry} from '$lib/dotnet-types';
@@ -19,6 +18,7 @@
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import {useFeatures} from '$lib/services/feature-service';
+  import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
 
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();

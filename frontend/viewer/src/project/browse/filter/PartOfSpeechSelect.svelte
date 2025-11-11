@@ -1,6 +1,6 @@
 <script lang="ts">
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
-  import {usePartsOfSpeech} from '$lib/parts-of-speech.svelte';
+  import {useWritingSystemService} from '$project/data/writing-system-service.svelte';
+  import {usePartsOfSpeech} from '$project/data/parts-of-speech.svelte';
   import type {IPartOfSpeech} from '$lib/dotnet-types';
   import {Select} from '$lib/components/field-editors';
   import { t } from 'svelte-i18n-lingui';

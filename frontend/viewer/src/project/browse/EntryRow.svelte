@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DictionaryEntry from '$project/DictionaryEntry.svelte';
+  import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
   import ListItem, {type ListItemProps} from '$lib/components/ListItem.svelte';
   import Badge from '$lib/components/ui/badge/badge.svelte';
   import type {IEntry} from '$lib/dotnet-types';

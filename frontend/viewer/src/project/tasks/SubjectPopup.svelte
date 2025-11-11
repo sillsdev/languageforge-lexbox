@@ -9,13 +9,13 @@
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
   import ExampleEditorPrimitive from '$lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte';
   import {Separator} from '$lib/components/ui/separator';
-  import DictionaryEntry from '$project/DictionaryEntry.svelte';
   import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import {Progress} from '$lib/components/ui/progress';
   import {t} from 'svelte-i18n-lingui';
   import type {TaskSubject} from './subject.svelte';
   import type {Overrides} from '$lib/views/view-data';
   import {tick} from 'svelte';
+  import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
 
   let {
     entry = $bindable(),
