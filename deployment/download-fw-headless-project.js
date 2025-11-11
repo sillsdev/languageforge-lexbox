@@ -69,7 +69,7 @@ function tarProjectInPod(pod) {
 function copyTarFromPod(pod) {
   console.log("Copying tar file from pod...");
   runKubectl([
-    "cp", "--retries", 10, "--context", context, "-n", namespace,
+    "cp", "--retries", 100, "--context", context, "-n", namespace,
     "-c", "fw-headless",
     `${pod}:${remoteTar}`,
     localTar
