@@ -16,6 +16,10 @@ public class UpdateChecker(
     GlobalEventBus eventBus,
     IPlatformUpdateService platformUpdateService) : BackgroundService
 {
+    private AvailableUpdate? _cachedUpdate;
+    private DateTime? _cacheTime;
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await TryUpdate();
@@ -31,11 +35,21 @@ public class UpdateChecker(
 
     public async Task<AvailableUpdate?> CheckForUpdate()
     {
-        // todo maybe there should be a memory cache here for at least a couple minutes?
+        // Return cached result if still valid
+        if (_cacheTime.HasValue && DateTime.UtcNow - _cacheTime.Value < CacheDuration)
+        {
+            logger.LogInformation("Returning cached update check result");
+            return _cachedUpdate;
+        }
+
         var response = await ShouldUpdateAsync();
         platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
-        if (!response.Update) return null;
-        return new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate);
+        
+        // Cache the result
+        _cachedUpdate = response.Update ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate) : null;
+        _cacheTime = DateTime.UtcNow;
+        
+        return _cachedUpdate;
     }
 
     public async Task ApplyUpdate(FwLiteRelease release)
