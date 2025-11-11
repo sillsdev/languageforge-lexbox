@@ -3,11 +3,11 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {IAvailableUpdate} from '../AppUpdate/IAvailableUpdate';
+import type {IFwLiteRelease} from '../../LexCore/Entities/IFwLiteRelease';
 
-export interface IUpdateService
+export interface IAvailableUpdate
 {
-	checkForUpdates() : Promise<IAvailableUpdate | null>;
-	applyUpdate(update: IAvailableUpdate) : Promise<void>;
+	release: IFwLiteRelease;
+	supportsAutoUpdate: boolean;
 }
 /* eslint-enable */

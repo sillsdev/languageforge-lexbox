@@ -7,27 +7,41 @@ using Microsoft.Extensions.Options;
 
 namespace FwLiteShared.AppUpdate;
 
+public record AvailableUpdate(FwLiteRelease Release, bool SupportsAutoUpdate);
+
 public class UpdateChecker(
     IHttpClientFactory httpClientFactory,
     ILogger<UpdateChecker> logger,
     IOptions<FwLiteConfig> config,
     GlobalEventBus eventBus,
-    IPlatformUpdateService platformUpdateService): BackgroundService
+    IPlatformUpdateService platformUpdateService) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await TryUpdate();
     }
 
-    public async Task TryUpdate(bool forceCheck = false)
+    public async Task TryUpdate()
     {
-        if (!ShouldCheckForUpdate() && !forceCheck) return;
-        var response = await ShouldUpdateAsync();
+        if (!ShouldCheckForUpdate()) return;
+        var update = await CheckForUpdate();
+        if (update is null) return;
+        await ApplyUpdate(update.Release);
+    }
 
+    public async Task<AvailableUpdate?> CheckForUpdate()
+    {
+        // todo maybe there should be a memory cache here for at least a couple minutes?
+        var response = await ShouldUpdateAsync();
         platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
-        if (!response.Update) return;
+        if (!response.Update) return null;
+        return new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate);
+    }
+
+    public async Task ApplyUpdate(FwLiteRelease release)
+    {
         if (ShouldPromptBeforeUpdate() &&
-            !await platformUpdateService.RequestPermissionToUpdate(response.Release))
+            !await platformUpdateService.RequestPermissionToUpdate(release))
         {
             return;
         }
@@ -35,7 +49,7 @@ public class UpdateChecker(
         UpdateResult updateResult = UpdateResult.ManualUpdateRequired;
         if (platformUpdateService.SupportsAutoUpdate)
         {
-            updateResult = await platformUpdateService.ApplyUpdate(response.Release);
+            updateResult = await platformUpdateService.ApplyUpdate(release);
         }
 
         NotifyResult(updateResult);

@@ -1,13 +1,21 @@
 using FwLiteShared.AppUpdate;
 using Microsoft.JSInterop;
+using Reinforced.Typings.Attributes;
 
 namespace FwLiteShared.Services;
 
 public class UpdateService(UpdateChecker updateChecker)
 {
     [JSInvokable]
-    public Task CheckForUpdates()
+    [TsFunction(Type = "Promise<IAvailableUpdate | null>")]
+    public Task<AvailableUpdate?> CheckForUpdates()
     {
-        return updateChecker.TryUpdate(forceCheck: true);
+        return updateChecker.CheckForUpdate();
+    }
+
+    [JSInvokable]
+    public async Task ApplyUpdate(AvailableUpdate update)
+    {
+        await updateChecker.ApplyUpdate(update.Release);
     }
 }
