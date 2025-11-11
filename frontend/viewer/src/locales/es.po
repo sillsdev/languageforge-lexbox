@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-10 10:20\n"
+"PO-Revision-Date: 2025-11-11 10:19\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -64,15 +64,15 @@ msgstr "{num, plural, one {# nuevo commit de FieldWorks Lite} other {# nuevos co
 
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
-msgstr "**Campos menores** (ej.: esconde *Tipos complejos de formularios*, *Significado literal*)"
+msgstr "**Menos campos** (p. ej. esconde *Tipos de formularios complejos*, *Significado literal*)"
 
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem*, *Particle*, *Phrase*, and *Discontiguous Phrase*)"
-msgstr "**Tipos de morfema más pequeños** (sólo *Raíz*, *Raíz vinculado*, *Tallo*, *Tema vinculado*, *Partícula*, *Fraseo *y *Frases descontiguas*)"
+msgstr "**Menos tipos de morfema** (sólo *Raíz*, *Raíz vinculado*, *Tallo*, *Tema vinculado*, *Partícula*, *Fraseo* y *Frase descontigua*)"
 
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
-msgstr "**Terminología más simple** (p. ej. *Word* en lugar de *formulario de Lexema*, *que brinde* en lugar de *Sense*)"
+msgstr "**Terminología más simple** (p. ej. *Palabra* en lugar de *Forma del lexema*, *Significado* en lugar de *Acepción*)"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
