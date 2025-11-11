@@ -293,10 +293,30 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
   return { baseUrl, fwLiteProcess };
 }
 
-function shutdownFwLite(fwLiteProcess: ReturnType<typeof launchFwLiteFwLiteWeb>['fwLiteProcess']): Promise<boolean> {
-  return new Promise((resolve, _) => {
+function shutdownFwLite(
+  fwLiteProcess: ReturnType<typeof launchFwLiteFwLiteWeb>['fwLiteProcess'],
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    // Already exited?
+    // eslint-disable-next-line no-null/no-null
+    if (fwLiteProcess.exitCode !== null) {
+      resolve(fwLiteProcess.exitCode === 0);
+      return;
+    }
+
+    let forced = false;
+    const killTimer = setTimeout(() => {
+      forced = true;
+      try {
+        fwLiteProcess.kill('SIGKILL');
+      } catch (e) {
+        logger.error(`[FwLiteWeb]: forced kill failed: ${e}`);
+      }
+    }, 10000);
+
     fwLiteProcess.once('exit', (code, signal) => {
-      if (code === 0) {
+      clearTimeout(killTimer);
+      if (code === 0 || forced) {
         resolve(true);
       } else {
         logger.error(`[FwLiteWeb]: shutdown failed with code '${code}', signal '${signal}'`);
@@ -304,15 +324,37 @@ function shutdownFwLite(fwLiteProcess: ReturnType<typeof launchFwLiteFwLiteWeb>[
       }
     });
     fwLiteProcess.once('error', (error) => {
+      clearTimeout(killTimer);
       logger.error(`[FwLiteWeb]: shutdown failed with error: ${error}`);
       resolve(false);
     });
 
-    fwLiteProcess.stdin.write('shutdown\n');
-    fwLiteProcess.stdin.end();
-    setTimeout(() => {
-      fwLiteProcess.kill('SIGKILL');
-      resolve(true);
-    }, 10000);
+    // Guard stdin operations
+    if (fwLiteProcess.stdin && !fwLiteProcess.stdin.destroyed) {
+      try {
+        fwLiteProcess.stdin.write('shutdown\n');
+        fwLiteProcess.stdin.end();
+      } catch (e) {
+        logger.error(`[FwLiteWeb]: stdin write failed: ${e}`);
+        // Fall back to immediate forced kill
+        forced = true;
+        clearTimeout(killTimer);
+        try {
+          fwLiteProcess.kill('SIGKILL');
+        } catch (killError) {
+          logger.error(`[FwLiteWeb]: forced kill failed: ${killError}`);
+        }
+      }
+    } else {
+      // No stdin available, force kill immediately
+      logger.warn('[FwLiteWeb]: stdin unavailable, forcing immediate kill');
+      forced = true;
+      clearTimeout(killTimer);
+      try {
+        fwLiteProcess.kill('SIGKILL');
+      } catch (e) {
+        logger.error(`[FwLiteWeb]: forced kill failed: ${e}`);
+      }
+    }
   });
 }
