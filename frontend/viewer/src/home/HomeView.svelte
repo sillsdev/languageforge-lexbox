@@ -27,6 +27,7 @@
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
   import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
+  import UpdateDialog from '$lib/about/UpdateDialog.svelte';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
 
@@ -132,6 +133,7 @@
   }
 
   let feedbackOpen = $state(false);
+  let updateDialogOpen = $state(false);
 
   let deleteDialog = $state<DeleteDialog>();
 </script>
@@ -160,6 +162,9 @@
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
+          <ResponsiveMenu.Item onSelect={() => updateDialogOpen = true} icon="i-mdi-update">
+            {$t`Check for Updates`}
+          </ResponsiveMenu.Item>
           <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-message">
             {$t`Feedback & Support`}
           </ResponsiveMenu.Item>
@@ -170,6 +175,7 @@
           </ResponsiveMenu.Item>
         </ResponsiveMenu.Content>
       </ResponsiveMenu.Root>
+      <UpdateDialog bind:open={updateDialogOpen}/>
       <FeedbackDialog bind:open={feedbackOpen}/>
       <TroubleshootDialog bind:this={troubleshootDialog}/>
     </div>
