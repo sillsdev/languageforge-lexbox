@@ -23,7 +23,7 @@ const tempDir = "/tmp";
 const tarFile = `${projectCode}-project.tar.gz`;
 const remoteTar = `${tempDir}/${tarFile}`;
 const localTar = `_downloads/_tars/${tarFile}`;
-const timestamp = new Date().toISOString().replace(/[-:T]/g, "").split(".")[0]; // e.g. 20251020_143522
+const timestamp = new Date().toISOString().replace(/[-:T]/g, "").split(".")[0]; // e.g. 20251020143522
 const localExtractDir = path.resolve(`_downloads/${projectCode}-${projectId}_${timestamp}`);
 const podLabel = "app=fw-headless";
 
