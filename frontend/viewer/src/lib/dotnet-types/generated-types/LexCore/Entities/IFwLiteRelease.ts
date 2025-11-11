@@ -3,11 +3,9 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {IAvailableUpdate} from '../AppUpdate/IAvailableUpdate';
-
-export interface IUpdateService
+export interface IFwLiteRelease
 {
-	checkForUpdates() : Promise<IAvailableUpdate | null>;
-	applyUpdate(update: IAvailableUpdate) : Promise<void>;
+	version: string;
+	url: string;
 }
 /* eslint-enable */
