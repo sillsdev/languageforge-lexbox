@@ -80,7 +80,7 @@ app.MapDefaultEndpoints();
 app.MapMediaFileRoutes();
 app.MapMergeRoutes();
 
-// DELETE endpoint to remove a project if it exists
+// DELETE endpoint to delete the FieldWorks repo/project (and nothing else)
 app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
     ProjectLookupService projectLookupService,
     IOptions<FwHeadlessConfig> config,
@@ -89,7 +89,7 @@ app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
 {
     if (syncJobStatusService.SyncStatus(projectId) is SyncJobStatus.Running)
     {
-        return Results.Conflict(new {message = "Sync job is running"});
+        return Results.Conflict(new { message = "Sync job is running" });
     }
     var projectCode = await projectLookupService.GetProjectCode(projectId);
     if (projectCode is null)
@@ -109,6 +109,37 @@ app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
         logger.LogInformation("Repository for project {ProjectCode} ({ProjectId}) does not exist", projectCode, projectId);
     }
     return Results.Ok(new { message = "Repo deleted" });
+});
+
+// DELETE endpoint to delete the entire fw-headless project (FieldWorks repo/project, CRDT DB and project snapshot)
+app.MapDelete("/api/manage/project/{projectId}", async (Guid projectId,
+    ProjectLookupService projectLookupService,
+    IOptions<FwHeadlessConfig> config,
+    SyncJobStatusService syncJobStatusService,
+    ILogger<Program> logger) =>
+{
+    if (syncJobStatusService.SyncStatus(projectId) is SyncJobStatus.Running)
+    {
+        return Results.Conflict(new {message = "Sync job is running"});
+    }
+    var projectCode = await projectLookupService.GetProjectCode(projectId);
+    if (projectCode is null)
+    {
+        logger.LogInformation("DELETE project request for non-existent project {ProjectId}", projectId);
+        return Results.NotFound(new { message = "Project not found" });
+    }
+    // Delete associated project folder if it exists
+    var projectFolder = config.Value.GetProjectFolder(projectCode, projectId);
+    if (Directory.Exists(projectFolder))
+    {
+        logger.LogInformation("Deleting project {ProjectCode} ({ProjectId})", projectCode, projectId);
+        Directory.Delete(projectFolder, true);
+    }
+    else
+    {
+        logger.LogInformation("Project {ProjectCode} ({ProjectId}) does not exist", projectCode, projectId);
+    }
+    return Results.Ok(new { message = "Project deleted" });
 });
 
 app.Run();

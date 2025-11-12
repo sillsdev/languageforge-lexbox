@@ -221,7 +221,7 @@ public class ProjectService(
         if (project.RetentionPolicy != RetentionPolicy.Dev) return null;
         dbContext.Projects.Remove(project);
         await hgService.DeleteRepo(project.Code);
-        await fwHeadless.DeleteRepo(projectId);
+        await fwHeadless.DeleteProject(projectId);
         project.UpdateUpdatedDate();
         // Don't forget to add more Invalidate calls here if we add new caches
         InvalidateProjectCodeCache(project.Code);

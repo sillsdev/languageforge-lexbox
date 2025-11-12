@@ -69,6 +69,21 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         return false;
     }
 
+    public async Task<bool> DeleteProject(Guid projectId, CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.DeleteAsync($"/api/manage/project/{projectId}", cancellationToken);
+        if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.NotFound)
+            return true;
+        if (response.StatusCode == HttpStatusCode.Conflict)
+            throw new ProjectSyncInProgressException(projectId);
+        logger.LogError("Failed to delete project: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+            response.StatusCode,
+            response.ReasonPhrase,
+            projectId,
+            await response.Content.ReadAsStringAsync(cancellationToken));
+        return false;
+    }
+
     public async Task<string?> RegenerateProjectSnapshot(Guid projectId)
     {
         var response = await httpClient.PostAsync($"/api/merge/regenerate-snapshot?projectId={projectId}", null);
