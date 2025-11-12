@@ -2,6 +2,11 @@ using Microsoft.Extensions.Options;
 
 namespace FwHeadless.Services;
 
+public class ProjectSyncInProgressException(Guid projectId)
+    : InvalidOperationException($"Cannot delete project {projectId} while sync job is running")
+{
+}
+
 /// <summary>
 /// Service for deleting FwHeadless project data.
 /// </summary>
@@ -44,7 +49,7 @@ public class ProjectDeletionService(
     {
         if (syncJobStatusService.SyncStatus(projectId) is SyncJobStatus.Running)
         {
-            throw new InvalidOperationException($"Cannot delete {resourceType} while sync job is running");
+            throw new ProjectSyncInProgressException(projectId);
         }
 
         var projectCode = await projectLookupService.GetProjectCode(projectId);

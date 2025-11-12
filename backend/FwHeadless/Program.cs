@@ -89,7 +89,7 @@ app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId, ProjectDele
             ? Results.Ok(new { message = "Repo deleted" })
             : Results.NotFound(new { message = "Project not found" });
     }
-    catch (InvalidOperationException ex)
+    catch (ProjectSyncInProgressException ex)
     {
         return Results.Conflict(new { message = ex.Message });
     }
@@ -104,7 +104,7 @@ app.MapDelete("/api/manage/project/{projectId}", async (Guid projectId, ProjectD
             ? Results.Ok(new { message = "Project deleted" })
             : Results.NotFound(new { message = "Project not found" });
     }
-    catch (InvalidOperationException ex)
+    catch (ProjectSyncInProgressException ex)
     {
         return Results.Conflict(new { message = ex.Message });
     }
