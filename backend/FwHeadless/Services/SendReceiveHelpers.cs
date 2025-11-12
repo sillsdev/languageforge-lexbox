@@ -23,6 +23,13 @@ public static class SendReceiveHelpers
     {
         private readonly IProgress? _progress = null;
         public bool ErrorEncountered => _progress?.ErrorEncountered ?? false;
+
+        /// <summary>
+        /// Indicates if the operation succeeded. Not all errors are fatal.
+        /// </summary>
+        public bool Success => !ErrorEncountered ||
+            Output.Contains("Clone success", StringComparison.OrdinalIgnoreCase);
+
         public LfMergeBridgeResult(string output, IProgress progress) : this(output)
         {
             _progress = progress;
