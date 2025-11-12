@@ -28,7 +28,7 @@ public static class SendReceiveHelpers
         /// Indicates if the operation succeeded. Not all errors are fatal.
         /// </summary>
         public bool Success => !ErrorEncountered ||
-            Output.Contains("Clone success", StringComparison.OrdinalIgnoreCase);
+            Output.Contains("Clone success", StringComparison.Ordinal);
 
         public LfMergeBridgeResult(string output, IProgress progress) : this(output)
         {
