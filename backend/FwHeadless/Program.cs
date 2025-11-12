@@ -81,65 +81,33 @@ app.MapMediaFileRoutes();
 app.MapMergeRoutes();
 
 // DELETE endpoint to delete the FieldWorks repo/project (and nothing else)
-app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
-    ProjectLookupService projectLookupService,
-    IOptions<FwHeadlessConfig> config,
-    SyncJobStatusService syncJobStatusService,
-    ILogger<Program> logger) =>
+app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId, ProjectDeletionService deletionService) =>
 {
-    if (syncJobStatusService.SyncStatus(projectId) is SyncJobStatus.Running)
+    try
     {
-        return Results.Conflict(new { message = "Sync job is running" });
+        return await deletionService.DeleteRepo(projectId)
+            ? Results.Ok(new { message = "Repo deleted" })
+            : Results.NotFound(new { message = "Project not found" });
     }
-    var projectCode = await projectLookupService.GetProjectCode(projectId);
-    if (projectCode is null)
+    catch (InvalidOperationException ex)
     {
-        logger.LogInformation("DELETE repo request for non-existent project {ProjectId}", projectId);
-        return Results.NotFound(new { message = "Project not found" });
+        return Results.Conflict(new { message = ex.Message });
     }
-    // Delete associated project folder if it exists
-    var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
-    if (Directory.Exists(fwDataProject.ProjectFolder))
-    {
-        logger.LogInformation("Deleting repository for project {ProjectCode} ({ProjectId})", projectCode, projectId);
-        Directory.Delete(fwDataProject.ProjectFolder, true);
-    }
-    else
-    {
-        logger.LogInformation("Repository for project {ProjectCode} ({ProjectId}) does not exist", projectCode, projectId);
-    }
-    return Results.Ok(new { message = "Repo deleted" });
 });
 
 // DELETE endpoint to delete the entire fw-headless project (FieldWorks repo/project, CRDT DB and project snapshot)
-app.MapDelete("/api/manage/project/{projectId}", async (Guid projectId,
-    ProjectLookupService projectLookupService,
-    IOptions<FwHeadlessConfig> config,
-    SyncJobStatusService syncJobStatusService,
-    ILogger<Program> logger) =>
+app.MapDelete("/api/manage/project/{projectId}", async (Guid projectId, ProjectDeletionService deletionService) =>
 {
-    if (syncJobStatusService.SyncStatus(projectId) is SyncJobStatus.Running)
+    try
     {
-        return Results.Conflict(new {message = "Sync job is running"});
+        return await deletionService.DeleteProject(projectId)
+            ? Results.Ok(new { message = "Project deleted" })
+            : Results.NotFound(new { message = "Project not found" });
     }
-    var projectCode = await projectLookupService.GetProjectCode(projectId);
-    if (projectCode is null)
+    catch (InvalidOperationException ex)
     {
-        logger.LogInformation("DELETE project request for non-existent project {ProjectId}", projectId);
-        return Results.NotFound(new { message = "Project not found" });
+        return Results.Conflict(new { message = ex.Message });
     }
-    // Delete associated project folder if it exists
-    var projectFolder = config.Value.GetProjectFolder(projectCode, projectId);
-    if (Directory.Exists(projectFolder))
-    {
-        logger.LogInformation("Deleting project {ProjectCode} ({ProjectId})", projectCode, projectId);
-        Directory.Delete(projectFolder, true);
-    }
-    else
-    {
-        logger.LogInformation("Project {ProjectCode} ({ProjectId}) does not exist", projectCode, projectId);
-    }
-    return Results.Ok(new { message = "Project deleted" });
 });
 
 app.Run();

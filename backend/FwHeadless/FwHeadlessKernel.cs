@@ -24,6 +24,7 @@ public static class FwHeadlessKernel
         services.AddSingleton<SyncJobStatusService>();
         services.AddScoped<SendReceiveService>();
         services.AddScoped<ProjectLookupService>();
+        services.AddScoped<ProjectDeletionService>();
         services.AddScoped<LogSanitizerService>();
         services.AddScoped<SafeLoggingProgress>();
         services
