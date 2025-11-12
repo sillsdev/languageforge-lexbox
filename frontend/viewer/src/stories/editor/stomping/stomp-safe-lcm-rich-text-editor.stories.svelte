@@ -1,6 +1,6 @@
 <script module lang="ts">
   import StompSafeLcmRichTextEditor from '$lib/components/stomp/stomp-safe-lcm-rich-text-editor.svelte';
-  import {asString} from '$lib/writing-system-service.svelte';
+  import {asString} from '$project/data';
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import {expect, fn, userEvent, within} from 'storybook/test';
   import {tick} from 'svelte';

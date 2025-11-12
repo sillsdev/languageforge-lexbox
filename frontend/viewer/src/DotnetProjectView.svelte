@@ -11,7 +11,7 @@
   import type {
     ISyncServiceJsInvokable
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-  import {initProjectContext} from '$lib/project-context.svelte';
+  import {initProjectContext} from '$project/project-context.svelte';
 
   const projectServicesProvider = useProjectServicesProvider();
 

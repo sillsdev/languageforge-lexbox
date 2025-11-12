@@ -11,7 +11,7 @@
   import {resource} from 'runed';
   import type {IProjectModel} from '$lib/dotnet-types';
   import ProjectTitle from '../home/ProjectTitle.svelte';
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
 
   let { onSelect } = $props<{
     onSelect: (project: IProjectModel) => void;

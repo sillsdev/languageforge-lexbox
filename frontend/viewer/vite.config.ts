@@ -32,7 +32,10 @@ export default defineConfig(({ mode, command }) => {
       },
     },
     resolve: {
-      alias: [{find: "$lib", replacement: "/src/lib"}]
+      alias: [
+        {find: "$lib", replacement: "/src/lib"},
+        {find: "$project", replacement: "/src/project"}
+      ]
     },
     plugins: [
       svelte(),

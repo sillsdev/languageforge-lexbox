@@ -26,7 +26,10 @@ export default defineConfig({
           exclude: [browserTestPattern, e2eTestPattern, ...defaultExcludeList],
         },
         resolve: {
-          alias: [{find: '$lib', replacement: '/src/lib'}]
+          alias: [
+            {find: '$lib', replacement: '/src/lib'},
+            {find: '$project', replacement: '/src/project'},
+          ]
         },
       },
       {
@@ -47,7 +50,10 @@ export default defineConfig({
           include: [browserTestPattern],
         },
         resolve: {
-          alias: [{find: '$lib', replacement: '/src/lib'}]
+          alias: [
+            {find: '$lib', replacement: '/src/lib'},
+            {find: '$project', replacement: '/src/project'},
+          ]
         },
       },
       {
@@ -72,7 +78,10 @@ export default defineConfig({
           setupFiles: ['./.storybook/vitest.setup.ts'],
         },
         resolve: {
-          alias: [{find: '$lib', replacement: '/src/lib'}]
+          alias: [
+            {find: '$lib', replacement: '/src/lib'},
+            {find: '$project', replacement: '/src/project'},
+          ]
         },
       }
     ],

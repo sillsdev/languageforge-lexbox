@@ -2,7 +2,7 @@
   import type {IExampleSentence} from '$lib/dotnet-types';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import * as Editor from '$lib/components/editor';
-  import {asString, useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {asString, useWritingSystemService} from '$project/data';
   import {fieldData, type FieldId} from '../field-data';
   import {cn, draftTranslation, isDraft} from '$lib/utils';
   import {vt} from '$lib/views/view-text';

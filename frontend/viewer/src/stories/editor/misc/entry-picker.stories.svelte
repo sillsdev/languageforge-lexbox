@@ -2,7 +2,7 @@
   import {Button} from '$lib/components/ui/button';
   import type {IEntry} from '$lib/dotnet-types';
   import EntryOrSensePicker, {type EntrySenseSelection} from '$lib/entry-editor/EntryOrSensePicker.svelte';
-  import {useWritingSystemService, type WritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService, type WritingSystemService} from '$project/data';
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import {onMount} from 'svelte';
 

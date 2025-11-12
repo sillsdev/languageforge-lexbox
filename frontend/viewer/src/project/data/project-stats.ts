@@ -1,5 +1,5 @@
-import {useProjectContext} from '$lib/project-context.svelte';
-import {useProjectEventBus} from './services/event-bus';
+import {useProjectContext} from '$project/project-context.svelte';
+import {useProjectEventBus} from '$lib/services/event-bus';
 
 export type ProjectStats = {
   totalEntryCount: number;

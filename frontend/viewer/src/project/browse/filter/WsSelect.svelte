@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Select from '$lib/components/ui/select';
-  import {useWritingSystemService, type WritingSystemSelection} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService, type WritingSystemSelection} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
   import {watch} from 'runed';
 

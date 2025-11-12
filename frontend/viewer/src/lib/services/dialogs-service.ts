@@ -1,6 +1,6 @@
-import {useProjectContext} from '$lib/project-context.svelte';
+import {useProjectContext} from '$project/project-context.svelte';
 import type {IEntry} from '$lib/dotnet-types';
-import {useWritingSystemService, type WritingSystemService} from '$lib/writing-system-service.svelte';
+import {useWritingSystemService, type WritingSystemService} from '$project/data';
 import type {DeleteDialogOptions} from '$lib/entry-editor/DeleteDialog.svelte';
 
 const symbol = Symbol.for('fw-lite-dialogs');

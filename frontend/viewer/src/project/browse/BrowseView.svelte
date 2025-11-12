@@ -14,7 +14,7 @@
   import IfOnce from '$lib/components/if-once/if-once.svelte';
   import {SortField} from '$lib/dotnet-types';
   import SortMenu, {type SortConfig} from './SortMenu.svelte';
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
   import type {EntryListViewMode} from './EntryListViewOptions.svelte';
   import EntryListViewOptions from './EntryListViewOptions.svelte';
 

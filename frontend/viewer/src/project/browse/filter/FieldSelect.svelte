@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import type {WritingSystemSelection} from '$lib/writing-system-service.svelte';
+  import type {WritingSystemSelection} from '$project/data';
 
   export type SelectedField = {
     id: string;

@@ -1,8 +1,6 @@
 <script lang="ts">
   import type {ISense} from '$lib/dotnet-types';
-  import {useSemanticDomains} from '$lib/semantic-domains';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
-  import {usePartsOfSpeech} from '$lib/parts-of-speech.svelte';
+  import {usePartsOfSpeech, useSemanticDomains, useWritingSystemService} from '$project/data';
   import {useCurrentView, objectTemplateAreas} from '$lib/views/view-service';
   import * as Editor from '$lib/components/editor';
   import {t} from 'svelte-i18n-lingui';
