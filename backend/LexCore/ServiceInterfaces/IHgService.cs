@@ -11,7 +11,7 @@ public interface IHgService
     Task<DateTimeOffset?> GetLastCommitTimeFromHg(ProjectCode projectCode);
     Task<Changeset[]> GetChangesets(ProjectCode projectCode);
     Task<ProjectType> DetermineProjectType(ProjectCode projectCode);
-    Task DeleteRepo(ProjectCode code);
+    Task DeleteRepoIfExists(ProjectCode code);
     Task SoftDeleteRepo(ProjectCode code, string deletedRepoSuffix);
     Task<ProjectWritingSystems?> GetProjectWritingSystems(ProjectCode code, CancellationToken token = default);
     Task<Guid?> GetProjectIdOfFlexProject(ProjectCode code, CancellationToken token = default);

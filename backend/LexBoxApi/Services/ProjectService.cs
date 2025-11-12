@@ -72,7 +72,7 @@ public class ProjectService(
         catch
         {
             // CommitAsync() did not run [successfully], so we don't want a repo to exist
-            await hgService.DeleteRepo(input.Code);
+            await hgService.DeleteRepoIfExists(input.Code);
             throw;
         }
         if (draftProject != null && manager != null)
@@ -220,7 +220,7 @@ public class ProjectService(
         if (project is null) return null;
         if (project.RetentionPolicy != RetentionPolicy.Dev) return null;
         dbContext.Projects.Remove(project);
-        await hgService.DeleteRepo(project.Code);
+        await hgService.DeleteRepoIfExists(project.Code);
         await fwHeadless.DeleteProject(projectId);
         project.UpdateUpdatedDate();
         // Don't forget to add more Invalidate calls here if we add new caches
