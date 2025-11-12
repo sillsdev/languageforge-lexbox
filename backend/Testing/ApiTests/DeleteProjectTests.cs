@@ -113,7 +113,7 @@ public class DeleteProjectTests : ApiTestBase
             var response = await HttpClient.DeleteAsync($"api/project/{projectId}");
 
             // Assert
-            response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Conflict);
+            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
         }
         finally
         {

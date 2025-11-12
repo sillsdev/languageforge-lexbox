@@ -219,9 +219,10 @@ public class ProjectService(
         // These checks *should* be redundant with the ProjectController's checks, but do them again anyway
         if (project is null) return null;
         if (project.RetentionPolicy != RetentionPolicy.Dev) return null;
+        // do this first, because it throws if a sync is happening
+        await fwHeadless.DeleteProject(projectId);
         dbContext.Projects.Remove(project);
         await hgService.DeleteRepoIfExists(project.Code);
-        await fwHeadless.DeleteProject(projectId);
         project.UpdateUpdatedDate();
         // Don't forget to add more Invalidate calls here if we add new caches
         InvalidateProjectCodeCache(project.Code);
