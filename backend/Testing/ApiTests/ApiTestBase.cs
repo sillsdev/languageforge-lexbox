@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using FluentAssertions;
 using LexCore.Auth;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
@@ -52,7 +51,7 @@ public class ApiTestBase
     {
         password ??= TestingEnvironmentVariables.DefaultPassword;
         var response = await JwtHelper.ExecuteLogin(new SendReceiveAuth(user, password), includeDefaultScope, HttpClient);
-        CurrJwt = JwtHelper.GetJwtFromLoginResponse(response);
+        CurrJwt = await JwtHelper.GetJwtFromLoginResponse(response);
         return CurrJwt;
     }
 
@@ -66,6 +65,7 @@ public class ApiTestBase
     {
         var jwtParam = overrideJwt is not null ? $"?jwt={overrideJwt}" : "";
         var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/api/graphql{jwtParam}", new { query = gql });
+        await JwtHelper.EnsureSuccessStatusCodeWithBody(response);
         if (JwtHelper.TryGetJwtFromLoginResponse(response, out var jwt)) CurrJwt = jwt;
         var jsonResponse = await response.Content.ReadFromJsonAsync<JsonObject>();
         jsonResponse.Should().NotBeNull($"for query {gql} ({(int)response.StatusCode} ({response.ReasonPhrase}))");

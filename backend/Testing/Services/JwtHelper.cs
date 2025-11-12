@@ -21,7 +21,7 @@ public class JwtHelper
     public static async Task<string> GetJwtForUser(SendReceiveAuth auth)
     {
         var response = await ExecuteLogin(auth, true, Client);
-        var jwt = GetJwtFromLoginResponse(response);
+        var jwt = await GetJwtFromLoginResponse(response);
         ClearCookies(Handler);
         return jwt;
     }
@@ -34,7 +34,7 @@ public class JwtHelper
         {
             Headers = { Authorization = new("Bearer", flexJwt) }
         });
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessStatusCodeWithBody(response);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>();
         return json.GetProperty("projectToken").GetString() ?? throw new NullReferenceException("projectToken was null");
     }
@@ -49,12 +49,13 @@ public class JwtHelper
             {
                 { "password", auth.Password }, { "emailOrUsername", auth.Username }, { "preHashedPassword", false }
             });
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessStatusCodeWithBody(response);
         return response;
     }
 
-    public static string GetJwtFromLoginResponse(HttpResponseMessage response)
+    public static async Task<string> GetJwtFromLoginResponse(HttpResponseMessage response)
     {
+        await EnsureSuccessStatusCodeWithBody(response);
         TryGetJwtFromLoginResponse(response, out var jwt);
         jwt.Should().NotBeNullOrEmpty();
         return jwt;
@@ -63,7 +64,6 @@ public class JwtHelper
     public static bool TryGetJwtFromLoginResponse(HttpResponseMessage response, out string? jwt)
     {
         jwt = null;
-        response.EnsureSuccessStatusCode();
         if (response.Headers.TryGetValues("Set-Cookie", out var cookies))
         {
             var cookieContainer = new CookieContainer();
@@ -73,6 +73,20 @@ public class JwtHelper
             jwt = authCookie?.Value;
         }
         return jwt is not null;
+    }
+
+    /// <summary>
+    /// Ensures the HTTP response has a success status code, including the response body in the exception message if it fails.
+    /// This is more helpful than HttpResponseMessage.EnsureSuccessStatusCode() which doesn't include the body.
+    /// </summary>
+    public static async Task EnsureSuccessStatusCodeWithBody(HttpResponseMessage response)
+    {
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException(
+                $"Response status code does not indicate success: {(int)response.StatusCode} ({response.ReasonPhrase}). Response body: {errorContent}");
+        }
     }
 
     public static void ClearCookies(SocketsHttpHandler httpClientHandler)

@@ -41,7 +41,12 @@ public static class FwHeadlessTestHelpers
             {
                 var result = await httpClient.GetAsync($"api/fw-lite/sync/await-sync-finished/{projectId}", new CancellationTokenSource(TimeSpan.FromSeconds(25)).Token);
                 result.EnsureSuccessStatusCode();
-                return await result.Content.ReadFromJsonAsync<SyncJobResult>();
+                var syncResult = await result.Content.ReadFromJsonAsync<SyncJobResult>();
+
+                if (syncResult?.Status != SyncJobStatusEnum.Success)
+                    Assert.Fail($"Sync failed with status: {syncResult?.Status}, Error: {syncResult?.Error}");
+
+                return syncResult;
             }
             catch (OperationCanceledException)
             {
