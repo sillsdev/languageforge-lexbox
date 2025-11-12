@@ -117,21 +117,21 @@ public class ProjectDeletionServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteRepo_WhenSyncRunning_ThrowsInvalidOperationException()
+    public async Task DeleteRepo_WhenSyncRunning_ThrowsProjectSyncInProgressException()
     {
         _projectLookupService.RegisterProject(_projectId, _projectCode);
         _syncJobStatusService.SetSyncStatus(_projectId, SyncJobStatus.Running);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _deletionService.DeleteRepo(_projectId));
+        await Assert.ThrowsAsync<ProjectSyncInProgressException>(() => _deletionService.DeleteRepo(_projectId));
     }
 
     [Fact]
-    public async Task DeleteProject_WhenSyncRunning_ThrowsInvalidOperationException()
+    public async Task DeleteProject_WhenSyncRunning_ThrowsProjectSyncInProgressException()
     {
         _projectLookupService.RegisterProject(_projectId, _projectCode);
         _syncJobStatusService.SetSyncStatus(_projectId, SyncJobStatus.Running);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _deletionService.DeleteProject(_projectId));
+        await Assert.ThrowsAsync<ProjectSyncInProgressException>(() => _deletionService.DeleteProject(_projectId));
     }
 
     [Fact]
