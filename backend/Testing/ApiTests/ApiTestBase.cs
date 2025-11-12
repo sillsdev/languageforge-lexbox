@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using LexCore.Auth;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
+using Testing.Fixtures;
 using Testing.LexCore.Utils;
 using Testing.Services;
 
@@ -65,13 +66,11 @@ public class ApiTestBase
     {
         var jwtParam = overrideJwt is not null ? $"?jwt={overrideJwt}" : "";
         var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/api/graphql{jwtParam}", new { query = gql });
-        await JwtHelper.EnsureSuccessStatusCodeWithBody(response);
+        if (expectSuccessCode) response.ShouldBeSuccessful();
         if (JwtHelper.TryGetJwtFromLoginResponse(response, out var jwt)) CurrJwt = jwt;
         var jsonResponse = await response.Content.ReadFromJsonAsync<JsonObject>();
         jsonResponse.Should().NotBeNull($"for query {gql} ({(int)response.StatusCode} ({response.ReasonPhrase}))");
         GqlUtils.ValidateGqlErrors(jsonResponse, expectGqlError);
-        if (expectSuccessCode)
-            response.IsSuccessStatusCode.Should().BeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
         return jsonResponse;
     }
 

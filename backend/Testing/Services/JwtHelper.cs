@@ -6,6 +6,7 @@ using System.Text.Json;
 using LexBoxApi.Auth;
 using LexCore.Auth;
 using Testing.ApiTests;
+using Testing.Fixtures;
 
 namespace Testing.Services;
 
@@ -34,7 +35,7 @@ public class JwtHelper
         {
             Headers = { Authorization = new("Bearer", flexJwt) }
         });
-        await EnsureSuccessStatusCodeWithBody(response);
+        response.ShouldBeSuccessful();
         var json = await response.Content.ReadFromJsonAsync<JsonElement>();
         return json.GetProperty("projectToken").GetString() ?? throw new NullReferenceException("projectToken was null");
     }
@@ -49,13 +50,13 @@ public class JwtHelper
             {
                 { "password", auth.Password }, { "emailOrUsername", auth.Username }, { "preHashedPassword", false }
             });
-        await EnsureSuccessStatusCodeWithBody(response);
+        response.ShouldBeSuccessful();
         return response;
     }
 
     public static async Task<string> GetJwtFromLoginResponse(HttpResponseMessage response)
     {
-        await EnsureSuccessStatusCodeWithBody(response);
+        response.ShouldBeSuccessful();
         TryGetJwtFromLoginResponse(response, out var jwt);
         jwt.Should().NotBeNullOrEmpty();
         return jwt;
@@ -73,20 +74,6 @@ public class JwtHelper
             jwt = authCookie?.Value;
         }
         return jwt is not null;
-    }
-
-    /// <summary>
-    /// Ensures the HTTP response has a success status code, including the response body in the exception message if it fails.
-    /// This is more helpful than HttpResponseMessage.EnsureSuccessStatusCode() which doesn't include the body.
-    /// </summary>
-    public static async Task EnsureSuccessStatusCodeWithBody(HttpResponseMessage response)
-    {
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            throw new HttpRequestException(
-                $"Response status code does not indicate success: {(int)response.StatusCode} ({response.ReasonPhrase}). Response body: {errorContent}");
-        }
     }
 
     public static void ClearCookies(SocketsHttpHandler httpClientHandler)

@@ -8,6 +8,5 @@ public static class AssertHttpResponse
         var stream = response.Content.ReadAsStream();
         var content = new StreamReader(stream).ReadToEnd();
         Assert.Fail($"Expected response to be successful, but was {response.StatusCode}, response body was: {content}");
-
     }
 }

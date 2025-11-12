@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using LexCore.Sync;
+using Testing.Fixtures;
 using Testing.Services;
 
 namespace Testing.FwHeadless;
@@ -19,17 +20,13 @@ public static class FwHeadlessTestHelpers
     public static async Task TriggerSync(HttpClient httpClient, Guid projectId)
     {
         var result = await httpClient.PostAsync($"api/fw-lite/sync/trigger/{projectId}", null);
-        if (result.IsSuccessStatusCode) return;
-        var responseString = await result.Content.ReadAsStringAsync();
-        Assert.Fail($"trigger failed with error {result.ReasonPhrase}, body: {responseString}");
+        result.ShouldBeSuccessful();
     }
 
     public static async Task CancelSync(HttpClient httpClient, Guid projectId)
     {
         var result = await httpClient.PostAsync($"api/fw-lite/sync/cancel/{projectId}", null);
-        if (result.IsSuccessStatusCode) return;
-        var responseString = await result.Content.ReadAsStringAsync();
-        Assert.Fail($"cancel failed with error {result.ReasonPhrase}, body: {responseString}");
+        result.ShouldBeSuccessful();
     }
 
     public static async Task<SyncJobResult?> AwaitSyncFinished(HttpClient httpClient, Guid projectId)
