@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { IEntry, ISense } from '$lib/dotnet-types';
-  import {asString, useWritingSystemService} from '$project/data/writing-system-service.svelte';
-  import { usePartsOfSpeech } from '$project/data/parts-of-speech.svelte';
+  import {usePartsOfSpeech, asString, useWritingSystemService} from '$project/data';
   import type {HTMLAttributes} from 'svelte/elements';
   import {Icon} from '$lib/components/ui/icon';
   import {cn} from '$lib/utils';
