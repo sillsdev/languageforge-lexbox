@@ -6,7 +6,7 @@ namespace FwHeadless.Services;
 public class ProjectDeletionService(
     IOptions<FwHeadlessConfig> config,
     ProjectLookupService projectLookupService,
-    SyncJobStatusService syncJobStatusService,
+    SyncHostedService syncHostedService,
     ILogger<ProjectDeletionService> logger)
 {
     private readonly FwHeadlessConfig _config = config.Value;
@@ -66,7 +66,7 @@ public class ProjectDeletionService(
 
     private void AssertSyncNotInProgress(Guid projectId)
     {
-        if (syncJobStatusService.SyncStatus(projectId) is SyncJobStatus.Running)
+        if (syncHostedService.IsJobQueuedOrRunning(projectId))
         {
             throw new ProjectSyncInProgressException(projectId);
         }
