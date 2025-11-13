@@ -146,9 +146,18 @@ public class ProjectController(
 
     [HttpPost("resetProject/{code}")]
     [AdminRequired]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult> ResetProject(string code)
     {
-        await projectService.ResetProject(new Models.Project.ResetProjectByAdminInput(code));
+        try
+        {
+            await projectService.ResetProject(new Models.Project.ResetProjectByAdminInput(code));
+        }
+        catch (ProjectSyncInProgressException ex)
+        {
+            return Conflict(ex.Message);
+        }
         return Ok();
     }
 
@@ -172,7 +181,14 @@ public class ProjectController(
         var project = await lexBoxDbContext.Projects.FindAsync(id);
         if (project is null) return NotFound();
         if (project.RetentionPolicy != RetentionPolicy.Dev) return Forbid();
-        project = await projectService.DeleteProjectPermanently(id);
+        try
+        {
+            project = await projectService.DeleteProjectPermanently(id);
+        }
+        catch (ProjectSyncInProgressException ex)
+        {
+            return Conflict(ex.Message);
+        }
         if (project is null) return NotFound();
         return project;
     }

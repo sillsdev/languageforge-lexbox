@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json.Nodes;
 using LexCore.Sync;
 using LexCore.Utils;
 using Testing.Fixtures;
@@ -225,6 +226,78 @@ public class DeleteProjectTests : ApiTestBase
         testSucceeded = true;
     }
 
+    [Fact]
+    public async Task SoftDeleteProject_DuringSyncInProgress_ReturnsGqlError()
+    {
+        // Arrange
+        await LoginAs("admin");
+        var projectCode = Utils.NewProjectCode();
+        var projectId = await FwHeadlessTestHelpers.CopyProjectToNewProject(HttpClient, projectCode, "sena-3");
+
+        var testSucceeded = false;
+        await using var cleanup = Defer.Async(async () =>
+        {
+            try
+            {
+                await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, projectId);
+            }
+            catch
+            {
+                // ignore: this is not what we're testing and we don't want exceptions here to prevent deletion
+            }
+
+            try
+            {
+                var cleanupResponse = await HttpClient.DeleteAsync($"api/project/{projectId}");
+                cleanupResponse.ShouldBeSuccessful();
+            }
+            catch
+            {
+                if (testSucceeded) throw;
+            }
+        });
+
+        // Act
+        await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
+        // no delay means the sync job might only be queued, but not actually be running yet
+        // this should return a GraphQL error, otherwise the deletion and sync could interfere with each other
+        var response = await ExecuteGql($$"""
+            mutation {
+                softDeleteProject(input: { projectId: "{{projectId}}" }) {
+                    project { id }
+                    errors {
+                        __typename
+                    }
+                }
+            }
+            """, expectGqlError: true);
+
+        // Assert
+        var softDeleteResult = response["data"]!["softDeleteProject"]?.AsObject();
+        AssertGqlErrorOfType(softDeleteResult, "ProjectSyncInProgressException");
+
+        // Act
+        // wait a bit to ensure the sync is actually in progress
+        await Task.Delay(3000);
+        await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
+        response = await ExecuteGql($$"""
+            mutation {
+                softDeleteProject(input: { projectId: "{{projectId}}" }) {
+                    project { id }
+                    errors {
+                        __typename
+                    }
+                }
+            }
+            """, expectGqlError: true);
+
+        // Assert
+        softDeleteResult = response["data"]!["softDeleteProject"]?.AsObject();
+        AssertGqlErrorOfType(softDeleteResult, "ProjectSyncInProgressException");
+
+        testSucceeded = true;
+    }
+
     private async Task AssertProjectStatus(Guid projectId, ProjectSyncStatusEnum expectedStatus)
     {
         var statusResponse = await HttpClient.GetAsync($"api/fw-lite/sync/status/{projectId}");
@@ -233,5 +306,14 @@ public class DeleteProjectTests : ApiTestBase
         var status = await statusResponse.Content.ReadFromJsonAsync<ProjectSyncStatus>();
         status.Should().NotBeNull();
         status.status.Should().Be(expectedStatus);
+    }
+
+    private void AssertGqlErrorOfType(JsonObject? gqlResponse, string expectedErrorTypeName)
+    {
+        gqlResponse.Should().NotBeNull();
+        var errors = gqlResponse["errors"]?.AsArray();
+        errors.Should().NotBeNullOrEmpty();
+        var errorTypeName = errors![0]!["__typename"]?.GetValue<string>();
+        errorTypeName.Should().Be(expectedErrorTypeName);
     }
 }

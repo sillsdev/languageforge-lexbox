@@ -95,8 +95,6 @@ builder.Services.AddExceptionHandler((options) =>
     {
         if (exception is UnauthorizedAccessException)
             return StatusCodes.Status401Unauthorized;
-        else if (exception is ProjectSyncInProgressException)
-            return StatusCodes.Status409Conflict;
         return StatusCodes.Status500InternalServerError;
     };
 });

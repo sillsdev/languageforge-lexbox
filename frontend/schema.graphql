@@ -476,6 +476,10 @@ type ProjectStatus {
   accessibleCode: String
 }
 
+type ProjectSyncInProgressError implements Error {
+  message: String!
+}
+
 type ProjectUsers {
   userId: UUID!
   user: User!
@@ -697,7 +701,7 @@ union SetRetentionPolicyError = NotFoundError | DbError
 
 union SetUserLockedError = NotFoundError
 
-union SoftDeleteProjectError = NotFoundError | DbError
+union SoftDeleteProjectError = NotFoundError | DbError | ProjectSyncInProgressError
 
 union UpdateFLExModelVersionError = NotFoundError | DbError | UnauthorizedAccessError
 
