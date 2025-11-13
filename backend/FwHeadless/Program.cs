@@ -1,23 +1,16 @@
-using System.Diagnostics;
 using FwHeadless;
 using FwHeadless.Routes;
 using FwHeadless.Services;
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
-using LcmCrdt.RemoteSync;
-using LexCore.Sync;
 using LexData;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
-using SIL.Harmony.Core;
-using SIL.Harmony;
-using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using OpenTelemetry.Trace;
 using WebServiceDefaults;
 using AppVersion = LexCore.AppVersion;
+using FwHeadless.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +19,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 builder.Services.AddHealthChecks();
+
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler(options =>
+{
+    options.StatusCodeSelector = (exception) =>
+    {
+        if (exception is ProjectSyncInProgressException)
+            return StatusCodes.Status409Conflict;
+        return StatusCodes.Status500InternalServerError;
+    };
+});
 
 builder.Services.AddLexData(
     autoApplyMigrations: false,
@@ -74,41 +78,27 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.MapDefaultEndpoints();
 app.MapMediaFileRoutes();
 app.MapMergeRoutes();
 
-// DELETE endpoint to remove a project if it exists
-app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
-    ProjectLookupService projectLookupService,
-    IOptions<FwHeadlessConfig> config,
-    SyncJobStatusService syncJobStatusService,
-    ILogger<Program> logger) =>
+// DELETE endpoint to delete the FieldWorks repo/project (and nothing else)
+app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId, ProjectDeletionService deletionService) =>
 {
-    if (syncJobStatusService.SyncStatus(projectId) is SyncJobStatus.Running)
-    {
-        return Results.Conflict(new {message = "Sync job is running"});
-    }
-    var projectCode = await projectLookupService.GetProjectCode(projectId);
-    if (projectCode is null)
-    {
-        logger.LogInformation("DELETE repo request for non-existent project {ProjectId}", projectId);
-        return Results.NotFound(new { message = "Project not found" });
-    }
-    // Delete associated project folder if it exists
-    var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
-    if (Directory.Exists(fwDataProject.ProjectFolder))
-    {
-        logger.LogInformation("Deleting repository for project {ProjectCode} ({ProjectId})", projectCode, projectId);
-        Directory.Delete(fwDataProject.ProjectFolder, true);
-    }
-    else
-    {
-        logger.LogInformation("Repository for project {ProjectCode} ({ProjectId}) does not exist", projectCode, projectId);
-    }
-    return Results.Ok(new { message = "Repo deleted" });
+    return await deletionService.DeleteRepo(projectId)
+        ? Results.Ok(new { message = "Repo deleted" })
+        : Results.NotFound(new { message = "Project not found" });
+});
+
+// DELETE endpoint to delete the entire fw-headless project (FieldWorks repo/project, CRDT DB and project snapshot)
+app.MapDelete("/api/manage/project/{projectId}", async (Guid projectId, ProjectDeletionService deletionService) =>
+{
+    return await deletionService.DeleteProject(projectId)
+        ? Results.Ok(new { message = "Project deleted" })
+        : Results.NotFound(new { message = "Project not found" });
 });
 
 app.Run();

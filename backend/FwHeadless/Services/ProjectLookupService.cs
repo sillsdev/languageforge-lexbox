@@ -6,7 +6,7 @@ namespace FwHeadless.Services;
 
 public class ProjectLookupService(LexBoxDbContext dbContext)
 {
-    public async ValueTask<string?> GetProjectCode(Guid projectId)
+    public virtual async ValueTask<string?> GetProjectCode(Guid projectId)
     {
         var projectCode = await dbContext.Projects
             .Where(p => p.Id == projectId)
@@ -15,12 +15,12 @@ public class ProjectLookupService(LexBoxDbContext dbContext)
         return projectCode;
     }
 
-    public async Task<bool> ProjectExists(Guid projectId)
+    public virtual async Task<bool> ProjectExists(Guid projectId)
     {
         return await dbContext.Projects.AnyAsync(p => p.Id == projectId);
     }
 
-    public async Task<bool> IsCrdtProject(Guid projectId)
+    public virtual async Task<bool> IsCrdtProject(Guid projectId)
     {
         return await dbContext.Set<ServerCommit>().AnyAsync(c => c.ProjectId == projectId);
     }

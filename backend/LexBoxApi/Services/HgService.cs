@@ -109,9 +109,13 @@ public partial class HgService : IHgService, IHostedService
         await WaitForRepoReady(destCode);
     }
 
-    public async Task DeleteRepo(ProjectCode code)
+    public async Task DeleteRepoIfExists(ProjectCode code)
     {
-        await Task.Run(() => Directory.Delete(PrefixRepoFilePath(code), true));
+        await Task.Run(() =>
+        {
+            if (Directory.Exists(PrefixRepoFilePath(code)))
+                Directory.Delete(PrefixRepoFilePath(code), true);
+        });
     }
 
     public BackupExecutor? BackupRepo(ProjectCode code)
@@ -172,7 +176,7 @@ public partial class HgService : IHgService, IHostedService
         await CleanupRepoFolder(tempRepo);
         SetPermissionsRecursively(tempRepo);
         // Now we're ready to move the new repo into place, replacing the old one
-        await DeleteRepo(code);
+        await DeleteRepoIfExists(code);
         tempRepo.MoveTo(PrefixRepoFilePath(code));
         await InvalidateDirCache(code);
         await WaitForRepoReady(code);

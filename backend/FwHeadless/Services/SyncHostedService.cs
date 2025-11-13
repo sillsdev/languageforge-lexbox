@@ -47,7 +47,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         }
     }
 
-    public bool IsJobQueuedOrRunning(Guid projectId)
+    public virtual bool IsJobQueuedOrRunning(Guid projectId)
     {
         return _projectsQueuedOrRunning.ContainsKey(projectId);
     }
@@ -197,7 +197,7 @@ public class SyncWorker(
         else
         {
             var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
-            if (srResult2.ErrorEncountered)
+            if (!srResult2.Success)
             {
                 logger.LogError("Send/Receive after CRDT sync failed: {Output}", srResult2.Output);
                 activity?.SetStatus(ActivityStatusCode.Error, "Send/Receive failed after CRDT sync");
@@ -224,7 +224,7 @@ public class SyncWorker(
             else
             {
                 var srResult = await srService.SendReceive(fwDataProject, projectCode);
-                if (srResult.ErrorEncountered)
+                if (!srResult.Success)
                 {
                     logger.LogError("Send/Receive before CRDT sync failed: {Output}", srResult.Output);
                     throw new SendReceiveException($"Send/Receive before CRDT sync failed: {srResult.Output}");
@@ -239,7 +239,7 @@ public class SyncWorker(
         else
         {
             var srResult = await srService.Clone(fwDataProject, projectCode);
-            if (srResult.ErrorEncountered)
+            if (!srResult.Success)
             {
                 logger.LogError("Clone before CRDT sync failed: {Output}", srResult.Output);
                 throw new SendReceiveException($"Clone before CRDT sync failed: {srResult.Output}");

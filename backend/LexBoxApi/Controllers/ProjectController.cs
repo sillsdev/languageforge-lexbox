@@ -1,14 +1,11 @@
-using System.Collections.Generic;
-using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Controllers.ActionResults;
 using LexBoxApi.Jobs;
 using LexBoxApi.Services;
 using LexCore.Entities;
+using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexData;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
@@ -149,9 +146,18 @@ public class ProjectController(
 
     [HttpPost("resetProject/{code}")]
     [AdminRequired]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult> ResetProject(string code)
     {
-        await projectService.ResetProject(new Models.Project.ResetProjectByAdminInput(code));
+        try
+        {
+            await projectService.ResetProject(new Models.Project.ResetProjectByAdminInput(code));
+        }
+        catch (ProjectSyncInProgressException ex)
+        {
+            return Conflict(ex.Message);
+        }
         return Ok();
     }
 
@@ -166,6 +172,7 @@ public class ProjectController(
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesDefaultResponseType]
     [AdminRequired]
     public async Task<ActionResult<Project>> DeleteProject(Guid id)
@@ -174,7 +181,14 @@ public class ProjectController(
         var project = await lexBoxDbContext.Projects.FindAsync(id);
         if (project is null) return NotFound();
         if (project.RetentionPolicy != RetentionPolicy.Dev) return Forbid();
-        project = await projectService.DeleteProjectPermanently(id);
+        try
+        {
+            project = await projectService.DeleteProjectPermanently(id);
+        }
+        catch (ProjectSyncInProgressException ex)
+        {
+            return Conflict(ex.Message);
+        }
         if (project is null) return NotFound();
         return project;
     }
