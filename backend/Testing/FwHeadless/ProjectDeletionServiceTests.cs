@@ -1,5 +1,5 @@
-using FluentAssertions;
 using FwHeadless;
+using FwHeadless.Exceptions;
 using FwHeadless.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;

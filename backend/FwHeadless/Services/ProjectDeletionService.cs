@@ -1,15 +1,8 @@
+using FwHeadless.Exceptions;
 using Microsoft.Extensions.Options;
 
 namespace FwHeadless.Services;
 
-public class ProjectSyncInProgressException(Guid projectId)
-    : InvalidOperationException($"Cannot delete project {projectId} while sync job is running")
-{
-}
-
-/// <summary>
-/// Service for deleting FwHeadless project data.
-/// </summary>
 public class ProjectDeletionService(
     IOptions<FwHeadlessConfig> config,
     ProjectLookupService projectLookupService,
@@ -24,11 +17,24 @@ public class ProjectDeletionService(
     /// </summary>
     public async Task<bool> DeleteRepo(Guid projectId)
     {
-        var projectCode = await ValidateAndGetProjectCode(projectId, "repo");
-        if (projectCode is null) return false;
+        AssertSyncNotInProgress(projectId);
+        var projectCode = await projectLookupService.GetProjectCode(projectId);
+        if (projectCode is null)
+        {
+            logger.LogInformation("DELETE repo request for non-existent project {ProjectId}", projectId);
+            return false;
+        }
 
         var fwDataFolder = _config.GetFwDataProject(projectCode, projectId).ProjectFolder;
-        DeleteFolderIfExists(fwDataFolder, "repository", projectCode, projectId);
+        if (Directory.Exists(fwDataFolder))
+        {
+            logger.LogInformation("Deleting repo for project {ProjectCode} ({ProjectId})", projectCode, projectId);
+            Directory.Delete(fwDataFolder, true);
+        }
+        else
+        {
+            logger.LogInformation("Repo for project {ProjectCode} ({ProjectId}) does not exist", projectCode, projectId);
+        }
         return true;
     }
 
@@ -37,39 +43,32 @@ public class ProjectDeletionService(
     /// </summary>
     public async Task<bool> DeleteProject(Guid projectId)
     {
-        var projectCode = await ValidateAndGetProjectCode(projectId, "project");
-        if (projectCode is null) return false;
+        AssertSyncNotInProgress(projectId);
+        var projectCode = await projectLookupService.GetProjectCode(projectId);
+        if (projectCode is null)
+        {
+            logger.LogInformation("DELETE project request for non-existent project {ProjectId}", projectId);
+            return false;
+        }
 
         var projectFolder = _config.GetProjectFolder(projectCode, projectId);
-        DeleteFolderIfExists(projectFolder, "project", projectCode, projectId);
+        if (Directory.Exists(projectFolder))
+        {
+            logger.LogInformation("Deleting entire project folder for project {ProjectCode} ({ProjectId})", projectCode, projectId);
+            Directory.Delete(projectFolder, true);
+        }
+        else
+        {
+            logger.LogInformation("Project folder for project {ProjectCode} ({ProjectId}) does not exist", projectCode, projectId);
+        }
         return true;
     }
 
-    private async Task<string?> ValidateAndGetProjectCode(Guid projectId, string resourceType)
+    private void AssertSyncNotInProgress(Guid projectId)
     {
         if (syncJobStatusService.SyncStatus(projectId) is SyncJobStatus.Running)
         {
             throw new ProjectSyncInProgressException(projectId);
-        }
-
-        var projectCode = await projectLookupService.GetProjectCode(projectId);
-        if (projectCode is null)
-        {
-            logger.LogInformation("DELETE {ResourceType} request for non-existent project {ProjectId}", resourceType, projectId);
-        }
-        return projectCode;
-    }
-
-    private void DeleteFolderIfExists(string folderPath, string resourceName, string projectCode, Guid projectId)
-    {
-        if (Directory.Exists(folderPath))
-        {
-            logger.LogInformation("Deleting {ResourceName} for project {ProjectCode} ({ProjectId})", resourceName, projectCode, projectId);
-            Directory.Delete(folderPath, true);
-        }
-        else
-        {
-            logger.LogInformation("{ResourceName} for project {ProjectCode} ({ProjectId}) does not exist", resourceName, projectCode, projectId);
         }
     }
 }

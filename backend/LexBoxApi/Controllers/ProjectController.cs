@@ -172,16 +172,7 @@ public class ProjectController(
         var project = await lexBoxDbContext.Projects.FindAsync(id);
         if (project is null) return NotFound();
         if (project.RetentionPolicy != RetentionPolicy.Dev) return Forbid();
-
-        try
-        {
-            project = await projectService.DeleteProjectPermanently(id);
-        }
-        catch (ProjectSyncInProgressException)
-        {
-            return Conflict(new { message = "Project sync is in progress" });
-        }
-
+        project = await projectService.DeleteProjectPermanently(id);
         if (project is null) return NotFound();
         return project;
     }
