@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 using LexCore.Sync;
+using LexCore.Utils;
+using Testing.Fixtures;
 using Testing.FwHeadless;
 using Testing.Services;
 
@@ -19,9 +21,7 @@ public class DeleteProjectTests : ApiTestBase
 
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
         await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, projectId);
-
-        var statusResponse = await HttpClient.GetAsync($"api/fw-lite/sync/status/{projectId}");
-        statusResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        await AssertProjectStatus(projectId, ProjectSyncStatusEnum.ReadyToSync);
 
         // Act
         var response = await HttpClient.DeleteAsync($"api/project/{projectId}");
@@ -76,24 +76,32 @@ public class DeleteProjectTests : ApiTestBase
 
         var projectId = Guid.Parse(gqlResponse["data"]!["createProject"]!["createProjectResponse"]!["id"]!.GetValue<string>());
 
-        try
+        var testSucceeded = false;
+        await using var cleanup = Defer.Async(async () =>
         {
-            // Act
-            var response = await HttpClient.DeleteAsync($"api/project/{projectId}");
+            try
+            {
 
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        }
-        finally
-        {
-            await ExecuteGql($$"""
+                await ExecuteGql($$"""
                 mutation {
                     softDeleteProject(input: { projectId: "{{projectId}}" }) {
                         project { id }
                     }
                 }
                 """);
-        }
+            }
+            catch
+            {
+                if (testSucceeded) throw;
+            }
+        });
+
+        // Act
+        var response = await HttpClient.DeleteAsync($"api/project/{projectId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        testSucceeded = true;
     }
 
     [Fact]
@@ -104,27 +112,48 @@ public class DeleteProjectTests : ApiTestBase
         var projectCode = Utils.NewProjectCode();
         var projectId = await FwHeadlessTestHelpers.CopyProjectToNewProject(HttpClient, projectCode, "sena-3");
 
-        await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
-        await Task.Delay(100);
-
-        try
+        var testSucceeded = false;
+        await using var cleanup = Defer.Async(async () =>
         {
-            // Act
-            var response = await HttpClient.DeleteAsync($"api/project/{projectId}");
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        }
-        finally
-        {
-            // Cleanup
-            await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, projectId);
-            var cleanupResponse = await HttpClient.DeleteAsync($"api/project/{projectId}");
-            if (cleanupResponse.StatusCode != HttpStatusCode.NotFound)
+            try
             {
-                cleanupResponse.EnsureSuccessStatusCode();
+                await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, projectId);
             }
-        }
+            catch
+            {
+                // ignore: this is not what we're testing and we don't want exceptions here to prevent deletion
+            }
+
+            try
+            {
+                var cleanupResponse = await HttpClient.DeleteAsync($"api/project/{projectId}");
+                cleanupResponse.ShouldBeSuccessful();
+            }
+            catch
+            {
+                if (testSucceeded) throw;
+            }
+        });
+
+        // Act
+        await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
+        // no delay means the sync job might only be queued, but not actually be running yet
+        // this should return Conflict as well, otherwise the deletion and sync could interfere with each other
+        var response = await HttpClient.DeleteAsync($"api/project/{projectId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        // Act
+        // wait a bit to ensure the sync is actually in progress
+        await Task.Delay(3000);
+        await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
+        response = await HttpClient.DeleteAsync($"api/project/{projectId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        testSucceeded = true;
     }
 
     [Fact]
@@ -134,6 +163,19 @@ public class DeleteProjectTests : ApiTestBase
         await LoginAs("admin");
         var projectCode = Utils.NewProjectCode();
         var projectId = await FwHeadlessTestHelpers.CopyProjectToNewProject(HttpClient, projectCode, "sena-3");
+        var testSucceeded = false;
+        await using var cleanup = Defer.Async(async () =>
+        {
+            try
+            {
+                await LoginAs("admin");
+                await HttpClient.DeleteAsync($"api/project/{projectId}");
+            }
+            catch
+            {
+                if (testSucceeded) throw;
+            }
+        });
 
         await LoginAs("manager");
 
@@ -143,9 +185,7 @@ public class DeleteProjectTests : ApiTestBase
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Unauthorized);
 
-        // Cleanup
-        await LoginAs("admin");
-        await HttpClient.DeleteAsync($"api/project/{projectId}");
+        testSucceeded = true;
     }
 
     [Fact]
@@ -155,6 +195,20 @@ public class DeleteProjectTests : ApiTestBase
         await LoginAs("admin");
         var projectCode = Utils.NewProjectCode();
         var projectId = await FwHeadlessTestHelpers.CopyProjectToNewProject(HttpClient, projectCode, "sena-3");
+        var testSucceeded = false;
+        await using var cleanup = Defer.Async(async () =>
+        {
+            try
+            {
+                await HttpClient.DeleteAsync($"api/project/{projectId}");
+            }
+            catch
+            {
+                if (testSucceeded) throw;
+            }
+        });
+        // this status should be different than after a sync a repo reset
+        await AssertProjectStatus(projectId, ProjectSyncStatusEnum.NeverSynced);
 
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
         await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, projectId);
@@ -166,14 +220,18 @@ public class DeleteProjectTests : ApiTestBase
         await StartLexboxProjectReset(projectCode);
 
         // Assert
-        var statusAfterReset = await HttpClient.GetAsync($"api/fw-lite/sync/status/{projectId}");
-        statusAfterReset.StatusCode.Should().Be(HttpStatusCode.OK);
+        await AssertProjectStatus(projectId, ProjectSyncStatusEnum.ReadyToSync);
 
-        var statusContent = await statusAfterReset.Content.ReadFromJsonAsync<ProjectSyncStatus>();
-        statusContent.Should().NotBeNull();
-        statusContent.status.Should().Be(ProjectSyncStatusEnum.ReadyToSync);
+        testSucceeded = true;
+    }
 
-        // Cleanup
-        await HttpClient.DeleteAsync($"api/project/{projectId}");
+    private async Task AssertProjectStatus(Guid projectId, ProjectSyncStatusEnum expectedStatus)
+    {
+        var statusResponse = await HttpClient.GetAsync($"api/fw-lite/sync/status/{projectId}");
+        statusResponse.ShouldBeSuccessful();
+
+        var status = await statusResponse.Content.ReadFromJsonAsync<ProjectSyncStatus>();
+        status.Should().NotBeNull();
+        status.status.Should().Be(expectedStatus);
     }
 }
