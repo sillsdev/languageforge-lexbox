@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
+using LexCore.Exceptions;
 using LexCore.Sync;
 using LexCore.Utils;
 using Testing.Fixtures;
@@ -274,7 +275,8 @@ public class DeleteProjectTests : ApiTestBase
 
         // Assert
         var softDeleteResult = response["data"]!["softDeleteProject"]?.AsObject();
-        AssertGqlErrorOfType(softDeleteResult, "ProjectSyncInProgressException");
+        var expectedErrorName = nameof(ProjectSyncInProgressException).Replace("Exception", "Error");
+        AssertGqlErrorOfType(softDeleteResult, expectedErrorName);
 
         // Act
         // wait a bit to ensure the sync is actually in progress
@@ -293,7 +295,7 @@ public class DeleteProjectTests : ApiTestBase
 
         // Assert
         softDeleteResult = response["data"]!["softDeleteProject"]?.AsObject();
-        AssertGqlErrorOfType(softDeleteResult, "ProjectSyncInProgressException");
+        AssertGqlErrorOfType(softDeleteResult, expectedErrorName);
 
         testSucceeded = true;
     }
