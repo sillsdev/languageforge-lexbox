@@ -16,7 +16,7 @@ public class SyncJobStatusService()
         Status.Remove(projectId, out _);
     }
 
-    public virtual SyncJobStatus SyncStatus(Guid projectId)
+    public SyncJobStatus SyncStatus(Guid projectId)
     {
         return Status.TryGetValue(projectId, out var status) ? status : SyncJobStatus.NotRunning;
     }

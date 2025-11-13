@@ -47,7 +47,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         }
     }
 
-    public bool IsJobQueuedOrRunning(Guid projectId)
+    public virtual bool IsJobQueuedOrRunning(Guid projectId)
     {
         return _projectsQueuedOrRunning.ContainsKey(projectId);
     }

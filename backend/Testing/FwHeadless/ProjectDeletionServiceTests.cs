@@ -1,6 +1,8 @@
 using FwHeadless;
 using FwHeadless.Exceptions;
 using FwHeadless.Services;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -19,7 +21,7 @@ public class ProjectDeletionServiceTests : IDisposable
     private readonly string _fwDataFolder;
     private readonly ProjectDeletionService _deletionService;
     private readonly TestProjectLookupService _projectLookupService;
-    private readonly TestSyncJobStatusService _syncJobStatusService;
+    private readonly TestSyncHostedService _syncHostedService;
 
     public ProjectDeletionServiceTests()
     {
@@ -43,12 +45,12 @@ public class ProjectDeletionServiceTests : IDisposable
         _fwDataFolder = _config.GetFwDataProject(_projectCode, _projectId).ProjectFolder;
 
         _projectLookupService = new TestProjectLookupService();
-        _syncJobStatusService = new TestSyncJobStatusService();
+        _syncHostedService = new TestSyncHostedService();
 
         _deletionService = new ProjectDeletionService(
             Options.Create(_config),
             _projectLookupService,
-            _syncJobStatusService,
+            _syncHostedService,
             NullLogger<ProjectDeletionService>.Instance);
     }
 
@@ -120,7 +122,7 @@ public class ProjectDeletionServiceTests : IDisposable
     public async Task DeleteRepo_WhenSyncRunning_ThrowsProjectSyncInProgressException()
     {
         _projectLookupService.RegisterProject(_projectId, _projectCode);
-        _syncJobStatusService.SetSyncStatus(_projectId, SyncJobStatus.Running);
+        _syncHostedService.SetJobQueuedOrRunning(_projectId, true);
 
         await Assert.ThrowsAsync<ProjectSyncInProgressException>(() => _deletionService.DeleteRepo(_projectId));
     }
@@ -129,7 +131,7 @@ public class ProjectDeletionServiceTests : IDisposable
     public async Task DeleteProject_WhenSyncRunning_ThrowsProjectSyncInProgressException()
     {
         _projectLookupService.RegisterProject(_projectId, _projectCode);
-        _syncJobStatusService.SetSyncStatus(_projectId, SyncJobStatus.Running);
+        _syncHostedService.SetJobQueuedOrRunning(_projectId, true);
 
         await Assert.ThrowsAsync<ProjectSyncInProgressException>(() => _deletionService.DeleteProject(_projectId));
     }
@@ -155,13 +157,22 @@ public class ProjectDeletionServiceTests : IDisposable
             ValueTask.FromResult(_projects.TryGetValue(projectId, out var code) ? code : null);
     }
 
-    private class TestSyncJobStatusService : SyncJobStatusService
+    private class TestSyncHostedService(IServiceProvider? services = null, ILogger<SyncHostedService>? logger = null, IMemoryCache? memoryCache = null)
+        : SyncHostedService(services ?? null!, logger ?? null!, memoryCache ?? null!)
     {
-        private readonly Dictionary<Guid, SyncJobStatus> _statuses = [];
+        private readonly HashSet<Guid> _queuedOrRunning = [];
 
-        public void SetSyncStatus(Guid projectId, SyncJobStatus status) => _statuses[projectId] = status;
+        public void SetJobQueuedOrRunning(Guid projectId, bool isQueuedOrRunning)
+        {
+            if (isQueuedOrRunning)
+                _queuedOrRunning.Add(projectId);
+            else
+                _queuedOrRunning.Remove(projectId);
+        }
 
-        public override SyncJobStatus SyncStatus(Guid projectId) =>
-            _statuses.TryGetValue(projectId, out var status) ? status : SyncJobStatus.NotRunning;
+        public override bool IsJobQueuedOrRunning(Guid projectId)
+        {
+            return _queuedOrRunning.Contains(projectId);
+        }
     }
 }
