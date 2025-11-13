@@ -29,7 +29,15 @@ public class ProjectDeletionService(
         if (Directory.Exists(fwDataFolder))
         {
             logger.LogInformation("Deleting repo for project {ProjectCode} ({ProjectId})", projectCode, projectId);
-            Directory.Delete(fwDataFolder, true);
+            try
+            {
+                await Task.Run(() => Directory.Delete(fwDataFolder, true));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to delete repo for project {ProjectCode} ({ProjectId})", projectCode, projectId);
+                throw;
+            }
         }
         else
         {
@@ -55,7 +63,15 @@ public class ProjectDeletionService(
         if (Directory.Exists(projectFolder))
         {
             logger.LogInformation("Deleting entire project folder for project {ProjectCode} ({ProjectId})", projectCode, projectId);
-            Directory.Delete(projectFolder, true);
+            try
+            {
+                await Task.Run(() => Directory.Delete(projectFolder, true));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to delete project for project {ProjectCode} ({ProjectId})", projectCode, projectId);
+                throw;
+            }
         }
         else
         {
