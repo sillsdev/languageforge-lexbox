@@ -106,8 +106,8 @@ msgstr "Add component"
 msgid "Add Example"
 msgstr "Add Example"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
 msgstr "Add Meaning"
 
@@ -119,8 +119,8 @@ msgstr "Add new word"
 msgid "Add part of"
 msgstr "Add part of"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
 msgstr "Add Sense"
 
@@ -466,7 +466,7 @@ msgstr "Error getting sync status"
 msgid "Error getting sync status."
 msgstr "Error getting sync status."
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Example"
 msgstr "Example"
 
@@ -591,6 +591,11 @@ msgstr "Finish"
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "For any other inquiries, feel free to send us an email."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "From active filter"
+msgstr "From active filter"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
@@ -745,7 +750,7 @@ msgid "Manager"
 msgstr "Manager"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Meaning"
@@ -1061,7 +1066,7 @@ msgid "Send us a message"
 msgstr "Send us a message"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Sense"
