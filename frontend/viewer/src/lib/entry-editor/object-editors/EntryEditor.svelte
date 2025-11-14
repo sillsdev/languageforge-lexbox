@@ -32,6 +32,7 @@
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import DevContent from '$lib/layout/DevContent.svelte';
   import ObjectHeader from './ObjectHeader.svelte';
+  import AddSenseButton from './AddSenseButton.svelte';
 
   let {
     entry = $bindable(),
@@ -220,7 +221,7 @@
         </FabContainer>
       {:else}
         <div class="col-span-full flex justify-end">
-          <Button onclick={addSense} icon="i-mdi-plus" size="xs" title={pt($t`Add Sense`, $t`Add Meaning`, $currentView)}>{pt($t`Add Sense`, $t`Add Meaning`, $currentView)}</Button>
+          <AddSenseButton onclick={addSense} />
         </div>
       {/if}
     {/if}

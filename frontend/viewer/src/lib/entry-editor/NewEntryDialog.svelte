@@ -23,6 +23,7 @@
   import EntryEditorPrimitive from './object-editors/EntryEditorPrimitive.svelte';
   import ObjectHeader from './object-editors/ObjectHeader.svelte';
   import SenseEditorPrimitive from './object-editors/SenseEditorPrimitive.svelte';
+  import AddSenseButton from './object-editors/AddSenseButton.svelte';
 
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'new-entry-dialog'});
@@ -98,20 +99,23 @@
       requester = { resolve };
 
       senseTemplate = newSense;
-      partOfSpeechIsFromTemplate = undefined;
-      semanticDomainIsFromTemplate = undefined;
 
       const tmpEntry = defaultEntry();
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
-
-      const tmpSense = defaultSense(entry.id);
-      const semanticDomains = [...senseTemplate?.semanticDomains ?? []];
-      sense = {...tmpSense, ...newSense, semanticDomains, id: tmpSense.id, entryId: entry.id};
-      entry.senses = [sense];
+      addSense();
 
       errors = [];
       open = true;
     });
+  }
+
+  function addSense() {
+      partOfSpeechIsFromTemplate = undefined;
+      semanticDomainIsFromTemplate = undefined;
+      const tmpSense = defaultSense(entry.id);
+      const semanticDomains = [...senseTemplate?.semanticDomains ?? []];
+      sense = {...tmpSense, ...senseTemplate, semanticDomains, id: tmpSense.id, entryId: entry.id};
+      entry.senses = [sense];
   }
 
   function onClosing() {
@@ -169,6 +173,10 @@
                   {/snippet}
                 </SenseEditorPrimitive>
               </Editor.SubGrid>
+            {:else}
+              <div class="col-span-full flex justify-end">
+                <AddSenseButton onclick={addSense} />
+              </div>
             {/if}
           </Editor.Grid>
         </Editor.Root>
