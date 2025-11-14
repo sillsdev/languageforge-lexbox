@@ -111,8 +111,8 @@ msgstr "구성 요소 추가"
 msgid "Add Example"
 msgstr "예제 추가"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
 msgstr "의미 추가"
 
@@ -124,8 +124,8 @@ msgstr ""
 msgid "Add part of"
 msgstr "의 일부를 추가합니다."
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
 msgstr "센스 추가"
 
@@ -471,7 +471,7 @@ msgstr "동기화 상태 가져오기 오류"
 msgid "Error getting sync status."
 msgstr "동기화 상태를 가져오는 중 오류가 발생했습니다."
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Example"
 msgstr "예"
 
@@ -596,6 +596,11 @@ msgstr "완료"
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "기타 문의 사항이 있으시면 언제든지 이메일을 보내주세요."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "From active filter"
+msgstr ""
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
@@ -750,7 +755,7 @@ msgid "Manager"
 msgstr "관리자"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Meaning"
@@ -1066,7 +1071,7 @@ msgid "Send us a message"
 msgstr "메시지 보내기"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Sense"
