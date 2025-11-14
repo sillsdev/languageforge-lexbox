@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { Icon } from '$lib/components/ui/icon';
+  import {Icon} from '$lib/components/ui/icon';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import {resource, Debounced, watch} from 'runed';
-  import { useMiniLcmApi } from '$lib/services/service-provider';
-  import { fade } from 'svelte/transition';
+  import {useMiniLcmApi} from '$lib/services/service-provider';
+  import {fade} from 'svelte/transition';
   import ViewPicker from './EditorViewOptions.svelte';
   import EntryMenu from './EntryMenu.svelte';
   import {ScrollArea} from '$lib/components/ui/scroll-area';
-  import {cn} from '$lib/utils';
+  import {cn, humanize} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {t} from 'svelte-i18n-lingui';
   import DictionaryEntry from '$lib/DictionaryEntry.svelte';
@@ -19,7 +19,12 @@
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import {useFeatures} from '$lib/services/feature-service';
+  import {Badge} from '$lib/components/ui/badge';
+  import {useCurrentView} from '$lib/views/view-service';
+  import FieldHelpIcon from '$lib/entry-editor/FieldHelpIcon.svelte';
+  import {fieldData} from '$lib/entry-editor/field-data';
 
+  const currentView = useCurrentView();
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
@@ -83,7 +88,15 @@
         {#if showClose && onClose}
           <XButton onclick={onClose} size="icon" />
         {/if}
-        <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
+        <h2 class="ml-4 text-2xl font-semibold mb-2 inline-flex items-center">
+          {headword}
+          {#if $currentView.type === 'fw-classic'}
+            <span class="inline-flex" title={$t`Morpheme type`}>
+              <Badge class="w-fit ml-4 text-sm">{humanize(entry.morphType)}</Badge>
+              <FieldHelpIcon helpId={fieldData.morphType.helpId} />
+            </span>
+          {/if}
+        </h2>
         <div class="flex">
           <ViewPicker bind:dictionaryPreview bind:readonly />
           <EntryMenu {entry} />

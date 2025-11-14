@@ -72,6 +72,11 @@ export function defaultTranslation(): ITranslation {
   };
 }
 
+export function humanize(text: string): string {
+  // insert spaces before capital letters
+  return text?.replace(/([a-z])([A-Z])/g, '$1 $2');
+}
+
 type Draft = {saveDraft: () => void};
 
 export function draftTranslation(exampleSentence: IExampleSentence): ITranslation & Draft {

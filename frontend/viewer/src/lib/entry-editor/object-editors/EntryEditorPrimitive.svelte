@@ -1,11 +1,11 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
-  import type {IEntry} from '$lib/dotnet-types';
+  import {MorphType, type IEntry} from '$lib/dotnet-types';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import {pt, vt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
   import {fieldData, type FieldId} from '../field-data';
-  import {cn} from '$lib/utils';
+  import {cn, humanize} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {MultiSelect, MultiWsInput, RichMultiWsInput} from '$lib/components/field-editors';
   import {useComplexFormTypes} from '$lib/complex-form-types';
@@ -15,6 +15,7 @@
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
   import {mergeProps} from 'bits-ui';
   import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
+  import Select from '$lib/components/field-editors/select.svelte';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
@@ -54,6 +55,19 @@
           {readonly}
           {autofocus}
           writingSystems={writingSystemService.viewVernacular($currentView)} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+
+  <Editor.Field.Root fieldId="morphType" class={cn($currentView.fields.morphType.show || 'hidden')}>
+    <Editor.Field.Title name={$t`Morph type`} helpId={fieldData.morphType.helpId} />
+    <Editor.Field.Body>
+      <Select
+          onchange={() => onFieldChanged('morphType')}
+          bind:value={entry.morphType}
+          options={Object.values(MorphType)}
+          idSelector={(morphType: MorphType) => morphType}
+          labelSelector={(morphType: MorphType) => humanize(morphType)}
+          {readonly} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 

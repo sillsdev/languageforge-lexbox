@@ -10,6 +10,7 @@ const defaultDef = Symbol('default spread values');
 export const allFields: Record<FieldId, FieldView> = {
   //entry
   lexemeForm: {show: true, order: 1},
+  morphType: {show: false, order: 1.5},
   citationForm: {show: true, order: 2},
   complexForms: {show: true, order: 3},
   components: {show: true, order: 4},
@@ -44,6 +45,7 @@ export const FW_CLASSIC_VIEW: RootView = {
   label: 'FieldWorks Classic',
   fields: recursiveSpread(allFields, {
     complexFormTypes: {order: allFields.components.order - 0.1},
+    morphType: {show: false},
     [defaultDef]: {show: true}
   }),
   alternateView: FW_LITE_VIEW,

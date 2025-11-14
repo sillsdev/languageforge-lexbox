@@ -144,7 +144,9 @@
         'lexemeForm', 'citationForm',
         'gloss', 'definition', 'partOfSpeechId',
         /* only show semantic domains if the "template" set it */
-        ...(senseTemplate?.semanticDomains?.length ? ['semanticDomains'] as const : [])
+        ...(senseTemplate?.semanticDomains?.length ? ['semanticDomains'] as const : []),
+        /* we only show and allow setting the morph type on creation */
+        ...($currentView.type === 'fw-classic' ? ['morphType'] as const : []),
         ]}>
         <Editor.Root>
           <Editor.Grid>

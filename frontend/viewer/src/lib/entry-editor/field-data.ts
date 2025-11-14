@@ -9,6 +9,7 @@ type PotentialFieldIds = keyof IEntry | keyof ISense | keyof IExampleSentence;
 const privateFieldData = {
   //entry
   lexemeForm: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Lexeme_Form_field.htm' },
+  morphType: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Morph_Type_Field.htm' },
   citationForm: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Citation_Form_field.htm' },
   complexForms: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Complex_Forms.htm' },
   complexFormTypes: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Complex_Form_Type_field.htm' },
