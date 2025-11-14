@@ -1,9 +1,9 @@
 <script lang="ts">
   import * as Collapsible from '$lib/components/ui/collapsible';
   import * as Sidebar from '$lib/components/ui/sidebar';
-  import { Icon } from '$lib/components/ui/icon';
-  import { ComposableInput } from '$lib/components/ui/input';
-  import { t } from 'svelte-i18n-lingui';
+  import {Icon} from '$lib/components/ui/icon';
+  import {ComposableInput} from '$lib/components/ui/input';
+  import {t} from 'svelte-i18n-lingui';
   import {Toggle} from '$lib/components/ui/toggle';
   import {cn} from '$lib/utils';
   import {mergeProps} from 'bits-ui';
@@ -12,7 +12,7 @@
   import {useCurrentView} from '$lib/views/view-service';
   import {formatNumber} from '$lib/components/ui/format';
   import ViewT from '$lib/views/ViewT.svelte';
-  import { Input } from '$lib/components/ui/input';
+  import {Input} from '$lib/components/ui/input';
   import OpFilter, {type Op} from './filter/OpFilter.svelte';
   import WsSelect from './filter/WsSelect.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
@@ -31,9 +31,13 @@
   let {
     search = $bindable(),
     gridifyFilter = $bindable(undefined),
+    semanticDomain = $bindable(),
+    partOfSpeech = $bindable(),
   }: {
     search: string;
-    gridifyFilter: string | undefined;
+    gridifyFilter?: string;
+    semanticDomain?: ISemanticDomain;
+    partOfSpeech?: IPartOfSpeech;
   } = $props();
 
   let missingField = $state<MissingOption | null>(null);
@@ -41,9 +45,7 @@
   let selectedWs = $state<string[]>(wsService.vernacularNoAudio.map(ws => ws.wsId));
   let fieldFilterValue = $state('');
   let filterOp = $state<Op>('contains')
-  let semanticDomain = $state<ISemanticDomain>();
   let includeSubDomains = $state(false);
-  let partOfSpeech = $state<IPartOfSpeech>();
 
   $effect(() => {
     let newFilter: string[] = [];

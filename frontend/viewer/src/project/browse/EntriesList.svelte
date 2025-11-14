@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {MorphType, type IEntry} from '$lib/dotnet-types';
+  import {MorphType, type IEntry, type IPartOfSpeech, type ISemanticDomain} from '$lib/dotnet-types';
   import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
   import {Debounced, resource, useDebounce, watch} from 'runed';
@@ -42,6 +42,8 @@
   let {
     search = '',
     selectedEntryId = undefined,
+    partOfSpeech = undefined,
+    semanticDomain = undefined,
     sort,
     onSelectEntry,
     gridifyFilter = undefined,
@@ -51,6 +53,8 @@
   }: {
     search?: string;
     selectedEntryId?: string;
+    partOfSpeech?: IPartOfSpeech;
+    semanticDomain?: ISemanticDomain;
     sort?: SortConfig;
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
@@ -148,7 +152,10 @@
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
 
   async function handleNewEntry() {
-    const entry = await dialogsService.createNewEntry();
+    const entry = await dialogsService.createNewEntry(undefined, {
+      semanticDomains: semanticDomain ? [semanticDomain] : [],
+      partOfSpeech: partOfSpeech,
+    });
     if (!entry) return;
     onSelectEntry(entry);
   }
