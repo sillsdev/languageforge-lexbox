@@ -2,6 +2,7 @@
   export type Props = {
     entry: IEntry;
     readonly?: boolean;
+    autofocus?: boolean;
     modalMode?: boolean;
     canAddSense?: boolean;
     canAddExample?: boolean;
@@ -15,7 +16,7 @@
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useCurrentView} from '$lib/views/view-service';
   import {cn, defaultExampleSentence, defaultSense} from '$lib/utils';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import EntityListItemActions from '../EntityListItemActions.svelte';
   import AddSenseFab from './AddSenseFab.svelte';
   import ExampleEditorPrimitive from './ExampleEditorPrimitive.svelte';
@@ -35,6 +36,7 @@
     entry = $bindable(),
     ref = $bindable(null),
     readonly = false,
+    autofocus = false,
     modalMode = false,
     canAddSense = true,
     canAddExample = true,
@@ -157,7 +159,7 @@
 
 <Editor.Root bind:ref>
   <Editor.Grid bind:ref={editorElem}>
-    <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {modalMode} onchange={(entry) => onchange?.({entry})} />
+    <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
     {#each entry.senses as sense, i (sense.id)}
       <Editor.SubGrid class={cn(sense.id === highlighted?.entity.id && 'highlight')}>

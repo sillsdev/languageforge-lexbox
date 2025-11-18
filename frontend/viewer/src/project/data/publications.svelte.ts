@@ -1,6 +1,6 @@
 import type {IPublication} from '$lib/dotnet-types';
 import {useWritingSystemService, type WritingSystemService} from './writing-system-service.svelte';
-import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
+import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {type ResourceReturn} from 'runed';
 
 type LabeledPublication = IPublication & { label: string };

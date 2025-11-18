@@ -4,13 +4,12 @@
   import {resource, Debounced, watch} from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import { fade } from 'svelte/transition';
-  import ViewPicker from './ViewPicker.svelte';
+  import ViewPicker from './EditorViewOptions.svelte';
   import EntryMenu from './EntryMenu.svelte';
   import {ScrollArea} from '$lib/components/ui/scroll-area';
   import {cn} from '$lib/utils';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
-  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
   import {Toggle} from '$lib/components/ui/toggle';
   import {XButton} from '$lib/components/ui/button';
   import type {IEntry} from '$lib/dotnet-types';
@@ -20,6 +19,7 @@
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import {useFeatures} from '$lib/services/feature-service';
   import type {ReadonlyDeep} from 'type-fest';
+  import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
 
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();

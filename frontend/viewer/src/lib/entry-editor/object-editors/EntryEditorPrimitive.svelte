@@ -6,10 +6,8 @@
   import {t} from 'svelte-i18n-lingui';
   import {fieldData, type FieldId} from '../field-data';
   import {cn} from '$lib/utils';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useComplexFormTypes, usePublications, useWritingSystemService} from '$project/data';
   import {MultiSelect, MultiWsInput, RichMultiWsInput} from '$lib/components/field-editors';
-  import {useComplexFormTypes} from '$lib/complex-form-types';
-  import {usePublications} from '$lib/publications.svelte';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
@@ -19,6 +17,7 @@
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
     readonly?: boolean;
+    autofocus?: boolean;
     modalMode?: boolean;
     onchange?: (entry: IEntry, field: FieldId) => void;
   }
@@ -27,6 +26,7 @@
     entry = $bindable(),
     onchange,
     readonly = false,
+    autofocus = false,
     modalMode = false,
     ...rest
   }: Props = $props();
@@ -50,7 +50,7 @@
           onchange={() => onFieldChanged('lexemeForm')}
           bind:value={entry.lexemeForm}
           {readonly}
-          autofocus={modalMode}
+          {autofocus}
           writingSystems={writingSystemService.viewVernacular($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>

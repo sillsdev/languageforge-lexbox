@@ -4,18 +4,18 @@
   import * as Editor from '$lib/components/editor';
   import {Button, XButton} from '$lib/components/ui/button';
   import {type Task, TasksService} from './tasks-service';
-  import OverrideFields from '$lib/OverrideFields.svelte';
+  import OverrideFields from '$lib/views/OverrideFields.svelte';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
   import ExampleEditorPrimitive from '$lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte';
   import {Separator} from '$lib/components/ui/separator';
-  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
   import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import {Progress} from '$lib/components/ui/progress';
   import {t} from 'svelte-i18n-lingui';
   import type {TaskSubject} from './subject.svelte';
   import type {Overrides} from '$lib/views/view-data';
   import {tick} from 'svelte';
+  import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
 
   let {
     entry = $bindable(),
@@ -150,7 +150,7 @@
               <Editor.Grid>
                 <OverrideFields shownFields={task.subjectFields} {overrides}>
                   {#if task.subjectType === 'entry' && subject.entry}
-                    <EntryEditorPrimitive modalMode bind:entry={subject.entry}/>
+                    <EntryEditorPrimitive autofocus modalMode bind:entry={subject.entry}/>
                   {:else if task.subjectType === 'sense' && subject.sense}
                     <SenseEditorPrimitive bind:sense={subject.sense}/>
                   {:else if task.subjectType === 'example-sentence' && subject.exampleSentence}

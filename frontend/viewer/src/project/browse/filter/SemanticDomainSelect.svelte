@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import type {WritingSystemSelection} from '$lib/writing-system-service.svelte';
+  import type {WritingSystemSelection} from '$project/data';
 
   export type SelectedField = {
     id: string;
@@ -8,8 +8,7 @@
 </script>
 
 <script lang="ts">
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
-  import {useSemanticDomains} from '$lib/semantic-domains';
+  import {useSemanticDomains, useWritingSystemService} from '$project/data';
   import type {ISemanticDomain} from '$lib/dotnet-types';
   import {Select} from '$lib/components/field-editors';
   import { t } from 'svelte-i18n-lingui';

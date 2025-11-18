@@ -1,13 +1,6 @@
-using Humanizer;
-using SIL.Harmony.Changes;
-using SIL.Harmony.Core;
-using SIL.Harmony.Db;
 using LcmCrdt;
-using LcmCrdt.Changes;
 using FwLiteWeb.Hubs;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using SIL.Harmony.Entities;
 
 namespace FwLiteWeb.Routes;
 
@@ -25,7 +18,7 @@ public static class ActivityRoutes
             });
             return operation;
         });
-        group.MapGet("/", (HistoryService historyService) => historyService.ProjectActivity());
+        group.MapGet("/", (HistoryService historyService, int skip, int take) => historyService.ProjectActivity(skip, take));
         return group;
     }
 }

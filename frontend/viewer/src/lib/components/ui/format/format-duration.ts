@@ -57,7 +57,12 @@ export function formatDuration(value: Duration, smallestUnit?: SmallestUnit, opt
   const formatter = new Intl.DurationFormat(currentLocale.current, options);//has been polyfilled in main.ts
   const normalized = normalizeDuration(value, smallestUnit);
   const limitedDuration = maxUnits ? limitDurationUnits(normalized, maxUnits) : normalized;
-  return formatter.format(limitedDuration);
+  try {
+    return formatter.format(limitedDuration);
+  } catch (e) {
+    console.error('Error formatting duration', limitedDuration);
+    throw e;
+  }
 }
 
 export function normalizeDuration(value: Duration, smallestUnit?: SmallestUnit): Duration

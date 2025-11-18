@@ -7,11 +7,11 @@
   import { ResizablePaneGroup, ResizablePane, ResizableHandle } from '$lib/components/ui/resizable';
   import { Switch } from '$lib/components/ui/switch';
   import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
-  import {writingSystems} from '$lib/demo-entry-data';
+  import {writingSystems} from '$project/demo/demo-entry-data';
   import {type IMultiString} from '$lib/dotnet-types';
   import {type IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import { fieldData } from '$lib/entry-editor/field-data';
-  import ViewPicker from '../../project/browse/ViewPicker.svelte';
+  import ViewPicker from '../../project/browse/EditorViewOptions.svelte';
   import WsInput from '$lib/components/field-editors/ws-input.svelte';
   import {vt} from '$lib/views/view-text';
 

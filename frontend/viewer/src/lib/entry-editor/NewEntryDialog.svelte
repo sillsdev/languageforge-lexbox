@@ -8,8 +8,8 @@
   import {useLexboxApi} from '../services/service-provider';
   import {defaultEntry, defaultSense} from '../utils';
   import EntryEditor from './object-editors/EntryEditor.svelte';
-  import OverrideFields from '$lib/OverrideFields.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import OverrideFields from '$lib/views/OverrideFields.svelte';
+  import {useWritingSystemService} from '$project/data';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
@@ -98,7 +98,7 @@
       <Dialog.DialogTitle>{pt($t`New Entry`, $t`New Word`, $currentView)}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
-      <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
+      <EntryEditor bind:entry={entry} autofocus modalMode canAddSense={false} canAddExample={false} />
     </OverrideFields>
     {#if errors.length}
       <div class="text-end space-y-2">

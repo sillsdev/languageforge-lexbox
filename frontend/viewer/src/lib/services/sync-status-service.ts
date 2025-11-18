@@ -1,6 +1,6 @@
 import {SyncJobStatusEnum, type ISyncResult} from '$lib/dotnet-types';
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services';
-import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
+import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {gt} from 'svelte-i18n-lingui';
 
 export function useSyncStatusService() {

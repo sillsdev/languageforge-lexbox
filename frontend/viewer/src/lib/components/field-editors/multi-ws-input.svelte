@@ -5,7 +5,7 @@
   import {Label} from '../ui/label';
   import StompSafeInput from '../stomp/stomp-safe-input.svelte';
   import AudioInput from './audio-input.svelte';
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
 
   const projectContext = useProjectContext();
   const supportsAudio = $derived(projectContext?.features.audio);

@@ -2,7 +2,7 @@ import type {IEntry, IExampleSentence, IHistoryLineItem, IProjectActivity, ISens
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
-import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
+import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {isEntry, isExample, isSense} from '$lib/utils';
 
 export function useHistoryService() {
@@ -15,9 +15,7 @@ type EntityType = {entity: IEntry, entityName: 'Entry'}
   | {entity: IExampleSentence, entityName: 'ExampleSentence'}
   | {entity: undefined, entityName: undefined};
 
-export type HistoryItem = IHistoryLineItem & EntityType & {
-  previousTimestamp?: string,
-};
+export type HistoryItem = IHistoryLineItem & EntityType;
 
 export class HistoryService {
   get historyApi(): IHistoryServiceJsInvokable | undefined {
@@ -29,7 +27,12 @@ export class HistoryService {
     }
     return this.projectContext.historyService;
   }
+
   constructor(private projectContext: ProjectContext) {
+  }
+
+  get loaded() {
+    return Boolean(this.projectContext.historyService);
   }
 
   async load(objectId: string) {
@@ -39,17 +42,13 @@ export class HistoryService {
       console.error('Invalid history data', data);
       return [];
     }
-    for (let i = 0; i < data.length; i++) {
-      const historyElement = data[i];
-      historyElement.previousTimestamp = data[i + 1]?.timestamp;
-    }
     // Reverse the history so that the most recent changes are at the top
     return data.toReversed();
   }
 
   async fetchSnapshot(history: HistoryItem, objectId: string): Promise<HistoryItem> {
     const data = (await this.historyApi?.getObject(history.commitId, objectId)
-      ?? await fetch(`/api/history/${this.projectContext.projectName}/snapshot/commit/${history.commitId}?entityId=${objectId}`)
+      ?? await fetch(`/api/history/${this.projectContext.projectCode}/snapshot/commit/${history.commitId}?entityId=${objectId}`)
           .then(res => res.json())) as EntityType['entity'];
     if (isEntry(data)) {
       return {...history, entity: data, entityName: 'Entry'};
@@ -63,7 +62,19 @@ export class HistoryService {
     throw new Error('Unable to determine type of object ' + JSON.stringify(data));
   }
 
-  async activity(projectName: string): Promise<IProjectActivity[]> {
-    return await (this.historyApi?.projectActivity() ?? fetch(`/api/activity/${projectName}`).then(res => res.json())) as IProjectActivity[];
+  async activity(projectCode: string, skip: number, take: number): Promise<IProjectActivity[]> {
+    return await (this.historyApi?.projectActivity(skip, take)
+        ?? fetch(`/api/activity/${projectCode}?skip=${skip}&take=${take}`).then(res => res.json())) as IProjectActivity[];
+  }
+
+  loadChangeContext(commitId: string, changeIndex: number) {
+    this.ensureLoaded();
+    return this.projectContext.historyService!.loadChangeContext(commitId, changeIndex);
+  }
+
+  private ensureLoaded() {
+    if (!this.loaded) {
+      throw new Error('HistoryService not loaded');
+    }
   }
 }
