@@ -3,7 +3,7 @@
   import {randomId} from '$lib/utils';
   import EntryOrSenseItemList from '../EntryOrSenseItemList.svelte';
   import type {IEntry, IComplexFormComponent} from '$lib/dotnet-types';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import {Button} from '$lib/components/ui/button';
   import {t} from 'svelte-i18n-lingui';
   import {pt} from '$lib/views/view-text';

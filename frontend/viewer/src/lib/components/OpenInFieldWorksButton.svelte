@@ -1,14 +1,14 @@
 <script lang="ts">
   import flexLogo from '$lib/assets/flex-logo.png';
   import {AppNotification} from '$lib/notifications/notifications';
-  import {useAppLauncherService} from './services/app-launcher-service';
-  import {useProjectContext} from './project-context.svelte';
-  import type {IEntry} from './dotnet-types';
-  import {buttonVariants, type ButtonProps} from './components/ui/button';
+  import {useAppLauncherService} from '../services/app-launcher-service';
+  import {useProjectContext} from '$project/project-context.svelte';
+  import type {IEntry} from '../dotnet-types';
+  import {buttonVariants, type ButtonProps} from './ui/button';
   import {t} from 'svelte-i18n-lingui';
   import {mergeProps} from 'bits-ui';
-  import {cn} from './utils';
-  import {Icon} from './components/ui/icon';
+  import {cn} from '../utils';
+  import {Icon} from './ui/icon';
 
   type Props = {
     entry: IEntry

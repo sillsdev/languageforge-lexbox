@@ -2,7 +2,7 @@
   import ListItem, {type ListItemProps} from '$lib/components/ListItem.svelte';
   import Badge from '$lib/components/ui/badge/badge.svelte';
   import type {ISense} from '$lib/dotnet-types';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import type {WithoutChildrenOrChild} from 'bits-ui';
   import type {Snippet} from 'svelte';
 

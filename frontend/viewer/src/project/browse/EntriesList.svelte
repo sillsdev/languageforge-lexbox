@@ -17,7 +17,7 @@
   import type {SortConfig} from './SortMenu.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import {Icon} from '$lib/components/ui/icon';
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {useCurrentView} from '$lib/views/view-service';

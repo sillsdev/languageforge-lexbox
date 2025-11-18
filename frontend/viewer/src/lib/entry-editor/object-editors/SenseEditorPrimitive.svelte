@@ -4,12 +4,10 @@
   import {MultiSelect, MultiWsInput, RichMultiWsInput, Select} from '$lib/components/field-editors';
   import type {ISense} from '$lib/dotnet-types';
   import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
-  import {usePartsOfSpeech} from '$lib/parts-of-speech.svelte';
-  import {useSemanticDomains} from '$lib/semantic-domains';
   import {cn} from '$lib/utils';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import {vt} from '$lib/views/view-text';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {usePartsOfSpeech, useSemanticDomains, useWritingSystemService} from '$project/data';
   import {mergeProps} from 'bits-ui';
   import type {Snippet} from 'svelte';
   import {t} from 'svelte-i18n-lingui';

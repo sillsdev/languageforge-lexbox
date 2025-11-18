@@ -7,7 +7,7 @@
   import {Toggle} from '$lib/components/ui/toggle';
   import {cn} from '$lib/utils';
   import {mergeProps} from 'bits-ui';
-  import {useProjectStats} from '$lib/project-stats';
+  import {useProjectStats, useWritingSystemService} from '$project/data';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
   import {formatNumber} from '$lib/components/ui/format';
@@ -15,7 +15,6 @@
   import {Input} from '$lib/components/ui/input';
   import OpFilter, {type Op} from './filter/OpFilter.svelte';
   import WsSelect from './filter/WsSelect.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import FieldSelect, {type SelectedField} from './filter/FieldSelect.svelte';
   import MissingSelect, {type MissingOption} from './filter/MissingSelect.svelte';
   import SemanticDomainSelect from './filter/SemanticDomainSelect.svelte';

@@ -3,7 +3,7 @@
   import {useMultiWindowService} from '$lib/services/multi-window-service';
   import type {IEntry} from '$lib/dotnet-types';
   import type {Snippet} from 'svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import {useMiniLcmApi} from '$lib/services/service-provider';
@@ -14,7 +14,7 @@
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import {useAppLauncherService} from '$lib/services/app-launcher-service';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-  import OpenInFieldWorksButton from '$lib/OpenInFieldWorksButton.svelte';
+  import OpenInFieldWorksButton from '$lib/components/OpenInFieldWorksButton.svelte';
 
   const multiWindowService = useMultiWindowService();
   const dialogsService = useDialogsService();

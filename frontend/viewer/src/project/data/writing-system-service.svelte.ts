@@ -8,8 +8,8 @@ import type {
   IWritingSystem,
   IWritingSystems
 } from '$lib/dotnet-types';
-import {firstTruthy} from './utils';
-import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
+import {firstTruthy} from '$lib/utils';
+import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {type ResourceReturn} from 'runed';
 import type {View} from '$lib/views/view-data';
 import type {ReadonlyDeep} from 'type-fest';

@@ -16,13 +16,13 @@
 
 <script lang="ts">
   import { ResizablePaneGroup, ResizablePane, ResizableHandle } from '$lib/components/ui/resizable';
-  import ThemePicker from '$lib/ThemePicker.svelte';
+  import ThemePicker from '$lib/components/ThemePicker.svelte';
   import {initView} from '$lib/views/view-service';
   import {ModeWatcher} from 'mode-watcher';
   import {Context} from 'runed';
   import { type Snippet } from 'svelte';
   import ViewPicker from '../../src/project/browse/EditorViewOptions.svelte';
-  import {InMemoryApiService} from '$lib/in-memory-api-service';
+  import {InMemoryDemoApi} from '$project/demo/in-memory-demo-api';
   import {setupServiceProvider} from '$lib/services/service-provider';
   import {setupDotnetServiceProvider} from '$lib/services/service-provider-dotnet';
   import {XButton} from '$lib/components/ui/button';
@@ -37,7 +37,7 @@
 
   setupServiceProvider();
   setupDotnetServiceProvider();
-  InMemoryApiService.setup();
+  InMemoryDemoApi.setup();
   initView();
   const storyContext = useSvelteStoryContext();
   setupGlobalErrorHandlers();
