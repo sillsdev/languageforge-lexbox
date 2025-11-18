@@ -11,12 +11,12 @@
   import FormatRelativeDate from '$lib/components/ui/format/format-relative-date.svelte';
   import {useMultiWindowService} from '$lib/services/multi-window-service';
   import {Button} from '$lib/components/ui/button';
-  import Headwords from '$lib/Headwords.svelte';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
   import {Icon} from '$lib/components/ui/icon';
   import {cn} from '$lib/utils';
   import {Link} from 'svelte-routing';
+  import Headwords from '$lib/components/dictionary/Headwords.svelte';
 
   type Props = {
     activity: IProjectActivity,

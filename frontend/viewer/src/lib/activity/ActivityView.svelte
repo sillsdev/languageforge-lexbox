@@ -1,7 +1,7 @@
 <script lang="ts">
   import { useHistoryService } from '$lib/services/history-service';
   import { t } from 'svelte-i18n-lingui';
-  import { useProjectContext } from '$lib/project-context.svelte';
+  import { useProjectContext } from '$project/project-context.svelte';
   import { resource } from 'runed';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
   import ListItem from '$lib/components/ListItem.svelte';

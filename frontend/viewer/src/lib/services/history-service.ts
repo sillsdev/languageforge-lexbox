@@ -2,7 +2,7 @@ import type {IEntry, IExampleSentence, IHistoryLineItem, IProjectActivity, ISens
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
-import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
+import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {isEntry, isExample, isSense} from '$lib/utils';
 
 export function useHistoryService() {

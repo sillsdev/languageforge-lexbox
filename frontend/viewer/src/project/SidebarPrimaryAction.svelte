@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
 
   const primaryActionSymbol = Symbol.for('fw-lite-primaryAction');
 
