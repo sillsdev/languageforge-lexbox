@@ -12,7 +12,7 @@
   import {useSaveHandler} from '../services/save-event-service.svelte';
   import {useLexboxApi} from '../services/service-provider';
   import {defaultEntry, defaultSense} from '../utils';
-  import OverrideFields from '$lib/OverrideFields.svelte';
+  import OverrideFields from '$lib/views/OverrideFields.svelte';
   import {useWritingSystemService} from '$project/data';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
