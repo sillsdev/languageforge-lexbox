@@ -13,6 +13,7 @@ public static class Sorting
                 .OrderByDescending(e => !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.Headword(order.WritingSystem), query!))
                 .ThenBy(e => e.Headword(order.WritingSystem).Length)
                 .ThenBy(e => e.Headword(order.WritingSystem))
+                //.ThenBy(e => e.MorphType.SecondaryOrder)
                 .ThenBy(e => e.Id);
         }
         else
@@ -21,6 +22,7 @@ public static class Sorting
                 .OrderBy(e => !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.Headword(order.WritingSystem), query!))
                 .ThenByDescending(e => e.Headword(order.WritingSystem).Length)
                 .ThenByDescending(e => e.Headword(order.WritingSystem))
+                //.ThenByDescending(e => e.MorphType.SecondaryOrder)
                 .ThenByDescending(e => e.Id);
         }
     }

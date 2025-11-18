@@ -47,12 +47,17 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         {
             if (orderAscending)
             {
-                filtered = filtered.OrderBy(t => Sql.Ext.SQLite().Rank(t.searchRecord)).ThenBy(t => t.entry.Id);
+                filtered = filtered
+                    .OrderBy(t => Sql.Ext.SQLite().Rank(t.searchRecord))
+                    // .ThenBy(t => t.entry.MorphType.SecondaryOrder)
+                    .ThenBy(t => t.entry.Id);
             }
             else
             {
-                filtered = filtered.OrderByDescending(t => Sql.Ext.SQLite().Rank(t.searchRecord))
-                    .ThenBy(t => t.entry.Id);
+                filtered = filtered
+                    .OrderByDescending(t => Sql.Ext.SQLite().Rank(t.searchRecord))
+                    // .ThenByDescending(t => t.entry.MorphType.SecondaryOrder)
+                    .ThenByDescending(t => t.entry.Id);
             }
         }
 
