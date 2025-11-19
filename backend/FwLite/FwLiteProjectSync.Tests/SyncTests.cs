@@ -64,6 +64,14 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             await _fixture.CrdtApi.DeleteEntry(entry.Id);
         }
+        await foreach (var pos in _fixture.FwDataApi.GetPartsOfSpeech())
+        {
+            await _fixture.FwDataApi.DeletePartOfSpeech(pos.Id);
+        }
+        foreach (var pos in await _fixture.CrdtApi.GetPartsOfSpeech().ToArrayAsync())
+        {
+            await _fixture.CrdtApi.DeletePartOfSpeech(pos.Id);
+        }
     }
 
     public SyncTests(SyncFixture fixture)
