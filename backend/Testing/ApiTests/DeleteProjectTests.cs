@@ -121,9 +121,10 @@ public class DeleteProjectTests : ApiTestBase
             {
                 await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, projectId);
             }
-            catch
+            catch (Exception ex)
             {
                 // ignore: this is not what we're testing and we don't want exceptions here to prevent deletion
+                Console.WriteLine($"[DeleteProjectTests] Ignored exception in cleanup: {ex}");
             }
 
             try
