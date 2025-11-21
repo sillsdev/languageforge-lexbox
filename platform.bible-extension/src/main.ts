@@ -295,24 +295,73 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
 
 function shutdownFwLite(fwLiteProcess: ReturnType<typeof launchFwLiteFwLiteWeb>['fwLiteProcess']): Promise<boolean> {
   return new Promise((resolve, _) => {
+    let shutdownResolved = false;
+    let timeoutId: NodeJS.Timeout | undefined;
+
+    function resolveShutdown(success: boolean) {
+      clearTimeout(timeoutId);
+      timeoutId = undefined;
+      if (shutdownResolved) return;
+      shutdownResolved = true;
+      resolve(success);
+    }
+
+    function resolveIfExited() {
+      if (fwLiteProcess.exitCode !== null) {
+        resolveShutdown(fwLiteProcess.exitCode === 0);
+        return true;
+      }
+      return false;
+    }
+
+    if (resolveIfExited()) {
+      logger.info('[FwLiteWeb]: process already exited');
+    }
+
+    function killProcess(reason: string) {
+      if (resolveIfExited()) return;
+
+      const killed = fwLiteProcess.kill('SIGKILL');
+      if (!killed) {
+        logger.error(`[FwLiteWeb]: failed to kill process ${reason}`);
+        resolveShutdown(false);
+      } else {
+        logger.warn(`[FwLiteWeb]: force killed process ${reason}`);
+        resolveShutdown(true);
+      }
+    }
+
     fwLiteProcess.once('exit', (code, signal) => {
       if (code === 0) {
-        resolve(true);
+        logger.info('[FwLiteWeb]: shutdown successful');
+        resolveShutdown(true);
       } else {
         logger.error(`[FwLiteWeb]: shutdown failed with code '${code}', signal '${signal}'`);
-        resolve(false);
+        resolveShutdown(false);
       }
     });
+
     fwLiteProcess.once('error', (error) => {
       logger.error(`[FwLiteWeb]: shutdown failed with error: ${error}`);
-      resolve(false);
+      // only kill if we're not waiting for a gracefull shutdown
+      if (!timeoutId) killProcess('on error');
     });
 
-    fwLiteProcess.stdin.write('shutdown\n');
-    fwLiteProcess.stdin.end();
-    setTimeout(() => {
-      fwLiteProcess.kill('SIGKILL');
-      resolve(true);
-    }, 10000);
+    if (!fwLiteProcess.stdin) {
+      logger.error('[FwLiteWeb]: shutdown failed because stdin is unavailable');
+      killProcess('because stdin is unavailable');
+      return;
+    }
+
+    try {
+      fwLiteProcess.stdin.write('shutdown\n');
+      fwLiteProcess.stdin.end();
+      timeoutId = setTimeout(() => {
+        killProcess('after shutdown timeout');
+      }, 10000);
+    } catch (error) {
+      logger.error(`[FwLiteWeb]: failed to send shutdown command: ${error}`);
+      killProcess('after failed shutdown command');
+    }
   });
 }
