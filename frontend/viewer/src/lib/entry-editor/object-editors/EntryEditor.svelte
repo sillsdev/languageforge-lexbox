@@ -31,6 +31,8 @@
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import ObjectHeader from './ObjectHeader.svelte';
+  import AddSenseButton from './AddSenseButton.svelte';
 
   let {
     entry = $bindable(),
@@ -164,16 +166,16 @@
     {#each entry.senses as sense, i (sense.id)}
       <Editor.SubGrid class={cn(sense.id === highlighted?.entity.id && 'highlight')}>
         <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
-        <div class:stick={!modalMode} class="col-span-full flex items-center py-2 mb-1 top-0 bg-background z-[1] w-[calc(100%+2px)] pr-[2px] animate-fade-out animation-scroll">
-          <h2 class="text-lg text-muted-foreground">{pt($t`Sense`, $t`Meaning`, $currentView)} {i + 1}</h2>
-          <hr class="grow border-t-2 mx-4">
+
+        <ObjectHeader type="sense" index={i + 1} class={cn(modalMode || 'sticky',
+          'top-0 bg-background z-[1] w-[calc(100%+2px)] pr-[2px] animate-fade-out animation-scroll')}>
           <EntityListItemActions {i}
               items={entry.senses}
               getDisplayName={(sense) => writingSystemService.firstDefOrGlossVal(sense)}
               {readonly}
               onmove={(newIndex) => moveSense(sense, newIndex)}
               ondelete={() => deleteSense(sense)} id={sense.id} />
-        </div>
+        </ObjectHeader>
 
         <SenseEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
 
@@ -182,21 +184,14 @@
             {#each sense.exampleSentences as example, j (example.id)}
               <Editor.SubGrid class={cn(example.id === highlighted?.entity.id && 'highlight')}>
                 <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
-                <div class="col-span-full flex items-center mb-2">
-                  <h3 class="text-muted-foreground">{$t`Example`} {j + 1}</h3>
-                  <!--
-                    <hr class="grow">
-                    collapse/expand toggle
-                  -->
-                  <hr class="grow mx-4">
+                <ObjectHeader type="example" index={j + 1}>
                   <EntityListItemActions i={j} {readonly}
                                         items={sense.exampleSentences}
                                         getDisplayName={example => writingSystemService.firstSentenceOrTranslationVal(example)}
                                         onmove={(newIndex) => moveExample(sense, example, newIndex)}
                                         ondelete={() => deleteExample(sense, example)}
-                                        id={example.id}
-                  />
-                </div>
+                                        id={example.id} />
+                </ObjectHeader>
 
                 <ExampleEditorPrimitive
                   class={ENTITY_FIELD_CONTAINER_CLASS}
@@ -226,7 +221,7 @@
         </FabContainer>
       {:else}
         <div class="col-span-full flex justify-end">
-          <Button onclick={addSense} icon="i-mdi-plus" size="xs" title={pt($t`Add Sense`, $t`Add Meaning`, $currentView)}>{pt($t`Add Sense`, $t`Add Meaning`, $currentView)}</Button>
+          <AddSenseButton onclick={addSense} />
         </div>
       {/if}
     {/if}

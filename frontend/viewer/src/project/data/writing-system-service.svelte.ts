@@ -12,6 +12,7 @@ import {firstTruthy} from '$lib/utils';
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {type ResourceReturn} from 'runed';
 import type {View} from '$lib/views/view-data';
+import type {ReadonlyDeep} from 'type-fest';
 
 export type WritingSystemSelection =
   | 'vernacular'
@@ -119,7 +120,7 @@ export class WritingSystemService {
     return this.defaultVernacular?.exemplars;
   }
 
-  headword(entry: IEntry, ws?: string): string {
+  headword(entry: ReadonlyDeep<IEntry>, ws?: string): string {
     if (ws) {
       return headword(entry, ws) || '';
     }
@@ -206,7 +207,7 @@ type WritingSystemColors = {
   analysis: Record<string, typeof analysisColors[number]>;
 }
 
-function headword(entry: IEntry, ws: string): string | undefined {
+function headword(entry: ReadonlyDeep<IEntry>, ws: string): string | undefined {
   return entry.citationForm[ws] || entry.lexemeForm[ws];
 }
 
