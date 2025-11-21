@@ -680,6 +680,9 @@ it's done, you should see your project in FieldWorks Lite and be able to use it.
     "user_not_in_beta": "FieldWorks Lite is currently in a beta testing phase. \n\
 Only selected early access users can download Lexbox projects in FieldWorks Lite. \n\
 Click the button below to request to join the early access program. It may take a few days for us to respond.",
+    "non_manager_not_in_beta": "FieldWorks Lite is currently in a beta testing phase. \n\
+Only selected early access users can download Lexbox projects in FieldWorks Lite. \n\
+You are not currently a project manager. Only project managers can request early access.",
     "request_beta_access": "Request early access to FieldWorks Lite",
     "access_request_sent": "Your request to join the early access program has been submitted",
     "already_in_beta": "You're already in the early access program",
