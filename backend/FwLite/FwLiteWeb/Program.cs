@@ -19,7 +19,7 @@ await using (app)
     _ = Task.Run(async () =>
          {
              // Wait for the "shutdown" command from stdin
-             while (await Console.In.ReadLineAsync() is not "shutdown") { }
+             while ((await Console.In.ReadLineAsync())?.Trim() is not ("shutdown" or null)) { }
 
              await app.StopAsync();
          });
