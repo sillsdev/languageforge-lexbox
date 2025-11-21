@@ -279,11 +279,11 @@ function launchFwLiteWeb(context: ExecutionActivationContext) {
 }
 
 function shutdownFwLite(
-  fwLiteProcess: ReturnType<typeof launchFwLiteFwLiteWeb>['fwLiteProcess'],
+  fwLiteProcess: ReturnType<typeof launchFwLiteWeb>['fwLiteProcess'],
 ): Promise<boolean> {
-  return new Promise((resolve, _) => {
+  return new Promise((resolve) => {
     let shutdownResolved = false;
-    let timeoutId: NodeJS.Timeout | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
     function resolveShutdown(success: boolean) {
       clearTimeout(timeoutId);
@@ -294,6 +294,7 @@ function shutdownFwLite(
     }
 
     function resolveIfExited() {
+      // eslint-disable-next-line no-null/no-null
       if (fwLiteProcess.exitCode !== null) {
         resolveShutdown(fwLiteProcess.exitCode === 0);
         return true;
