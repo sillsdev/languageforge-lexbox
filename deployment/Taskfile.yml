@@ -104,6 +104,8 @@ tasks:
     cmds:
       - kubectl cp --retries 10 {{.pod}}:/var/lib/fw-headless/projects/{{.code}}-{{.id}}/crdt.sqlite ./{{.code}}.sqlite --context {{.context}} --namespace {{.namespace}}
 
+# Bookmarklet that generates the appropriate task on a page like: https://lexbox.org/project/sena3?id=332cc58a-76ca-466a-a447-036e02e42df7
+# javascript:(function(){try{const u=new URL(window.location.href),p=u.pathname.split('/').filter(Boolean),c=p[p.length-1],i=u.searchParams.get('id');if(!i||!c){alert('Could not find project code or ID in URL');return}let ctx='docker-desktop',ns='languagedepot';const o=u.origin;if(o.includes('staging.languagedepot.org')||o.includes('lexbox.dev.languagetechnology.org'))ctx='dallas-stage';else if(o.includes('lexbox.org')||o.includes('languagedepot.org'))ctx='aws-prod';if(o.includes('lexbox.dev.languagetechnology.org'))ns='languagedepot-dev';const t=task k8s:download-fw-headless-project id="${i}" code="${c}" context="${ctx}" namespace="${ns}";navigator.clipboard.writeText(t).then(()=>alert('Copied to clipboard:\n'+t)).catch(e=>alert('Failed to copy to clipboard:\n'+e))}catch(e){alert('Error: '+e.message)}})();
   download-fw-headless-project:
     aliases: [download-project, dp]
     desc: >
