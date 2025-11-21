@@ -5,6 +5,7 @@
     <SelfContained>true</SelfContained>
     <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
     <LangVersion>preview</LangVersion>
+    <CompressionEnabled>false</CompressionEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
     <!--        single file disabled as it's less efficient for updates-->

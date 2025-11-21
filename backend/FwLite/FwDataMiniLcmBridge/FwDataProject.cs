@@ -12,6 +12,10 @@ namespace FwDataMiniLcmBridge;
 /// </param>
 public class FwDataProject(string name, string projectsPath) : IProjectIdentifier
 {
+    /// <summary>
+    /// Note: in fw-headless this is always "fw", which is not very useful for debugging.
+    /// So, the FilePath (which includes code and id) should be used for logging.
+    /// </summary>
     public string Name => name;
     public string FileName => name + ".fwdata";
     public string FilePath => Path.Combine(ProjectFolder, FileName);

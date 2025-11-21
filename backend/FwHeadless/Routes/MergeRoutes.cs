@@ -21,6 +21,7 @@ public static class MergeRoutes
         var group = app.MapGroup("/api/merge").WithOpenApi();
 
         group.MapPost("/execute", ExecuteMergeRequest);
+        group.MapPost("/sync-harmony", SyncHarmonyProject);
         group.MapPost("/regenerate-snapshot", RegenerateProjectSnapshot);
         group.MapGet("/status", GetMergeStatus);
         group.MapGet("/await-finished", AwaitSyncFinished);
@@ -53,6 +54,30 @@ public static class MergeRoutes
         syncHostedService.QueueJob(projectId);
         return TypedResults.Ok();
     }
+
+    static async Task<Results<Ok, NotFound<string>>> SyncHarmonyProject(
+        Guid projectId,
+        ProjectLookupService projectLookupService,
+        CrdtSyncService crdtSyncService,
+        IServiceProvider services,
+        CancellationToken stoppingToken
+    )
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_id", projectId);
+
+        if (!await projectLookupService.ProjectExists(projectId))
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Project not found");
+            return TypedResults.NotFound("Project not found");
+        }
+
+        var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(services, projectId);
+        await syncWorker.ExecuteSync(stoppingToken, onlyHarmony: true);
+
+        return TypedResults.Ok();
+    }
+
 
     static async Task<Results<Ok, NotFound<string>>> RegenerateProjectSnapshot(
         Guid projectId,

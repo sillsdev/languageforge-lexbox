@@ -14,9 +14,9 @@ public class HistoryServiceJsInvokable(HistoryService historyService)
     }
 
     [JSInvokable]
-    public async ValueTask<ProjectActivity[]> ProjectActivity()
+    public async ValueTask<ProjectActivity[]> ProjectActivity(int skip, int take)
     {
-        return await historyService.ProjectActivity().ToArrayAsync();
+        return await historyService.ProjectActivity(skip, take).ToArrayAsync();
     }
 
     [JSInvokable]
@@ -29,5 +29,11 @@ public class HistoryServiceJsInvokable(HistoryService historyService)
     public async ValueTask<HistoryLineItem[]> GetHistory(Guid entityId)
     {
         return await historyService.GetHistory(entityId).ToArrayAsync();
+    }
+
+    [JSInvokable]
+    public async ValueTask<ChangeContext> LoadChangeContext(Guid commitId, int changeIndex)
+    {
+        return await historyService.LoadChangeContext(commitId, changeIndex);
     }
 }

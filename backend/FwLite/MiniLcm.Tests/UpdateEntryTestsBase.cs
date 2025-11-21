@@ -333,4 +333,23 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
             actualOrderValues.Should().Be(expectedOrderValues);
         }
     }
+
+    /// <summary>
+    /// Tests that a deleted entry can be recreated.
+    /// This is necessary if Chorus recreates an entry due to a merge conflict.
+    /// </summary>
+    [Fact]
+    public async Task RecreateDeletedEntry()
+    {
+        var initial = await Api.GetEntry(Entry1Id);
+        initial.Should().NotBeNull();
+
+        await Api.DeleteEntry(Entry1Id);
+        var deleted = await Api.GetEntry(Entry1Id);
+        deleted.Should().BeNull();
+
+        var recreated = await Api.CreateEntry(initial);
+        recreated.Should().NotBeNull();
+        recreated.Should().BeEquivalentTo(initial);
+    }
 }

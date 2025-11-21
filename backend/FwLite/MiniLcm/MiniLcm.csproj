@@ -12,6 +12,8 @@
     <PackageReference Include="System.Text.Json" />
     <PackageReference Include="SystemTextJson.JsonDiffPatch" />
     <PackageReference Include="SystemTextJsonPatch" />
+    <PackageReference Include="System.Linq.Async" />
+    <PackageReference Include="UUIDNext" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="MiniLcm.Tests" />

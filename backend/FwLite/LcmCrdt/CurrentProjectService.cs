@@ -80,9 +80,9 @@ public class CurrentProjectService(
         return project.Data = await RefreshProjectData();
     }
 
-    public async ValueTask<ProjectData> SetupProjectContext(string projectName)
+    public async ValueTask<ProjectData> SetupProjectContext(string projectCode)
     {
-        return await SetupProjectContext(crdtProjectsService.GetProject(projectName) ?? throw new InvalidOperationException($"Crdt Project {projectName} not found"));
+        return await SetupProjectContext(crdtProjectsService.GetProject(projectCode) ?? throw new InvalidOperationException($"Crdt Project {projectCode} not found"));
     }
 
     public async ValueTask<ProjectData> RefreshProjectData()

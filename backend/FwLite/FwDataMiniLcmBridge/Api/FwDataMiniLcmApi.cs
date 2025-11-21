@@ -85,28 +85,25 @@ public class FwDataMiniLcmApi(
 
     public Task<WritingSystems> GetWritingSystems()
     {
-        var currentVernacularWs = WritingSystemContainer
-            .CurrentVernacularWritingSystems
-            .Select(ws => ws.Id).ToHashSet();
-        var currentAnalysisWs = WritingSystemContainer
-            .CurrentAnalysisWritingSystems
-            .Select(ws => ws.Id).ToHashSet();
         var writingSystems = new WritingSystems
         {
             Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select((definition, index) =>
-                FromLcmWritingSystem(definition, index, WritingSystemType.Vernacular)).ToArray(),
+                FromLcmWritingSystem(definition, WritingSystemType.Vernacular, index)).ToArray(),
             Analysis = WritingSystemContainer.CurrentAnalysisWritingSystems.Select((definition, index) =>
-                FromLcmWritingSystem(definition, index, WritingSystemType.Analysis)).ToArray()
+                FromLcmWritingSystem(definition, WritingSystemType.Analysis, index)).ToArray()
         };
-        CompleteExemplars(writingSystems);
+        // Not used and not implemented in CRDT (also not done in GetWritingSystem())
+        // CompleteExemplars(writingSystems);
         return Task.FromResult(writingSystems);
     }
 
-    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, int index, WritingSystemType type)
+    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, WritingSystemType type, int index = default)
     {
         return new WritingSystem
         {
             Id = Guid.Empty,
+            // todo: Order probably shouldn't be relied on in fwdata, because it's implicit,
+            // so it probably shouldn't be used or set at all
             Order = index,
             Type = type,
             //todo determine current and create a property for that.
@@ -118,15 +115,12 @@ public class FwDataMiniLcmApi(
         };
     }
 
-    public async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    public Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
-        var writingSystems = await GetWritingSystems();
-        return type switch
-        {
-            WritingSystemType.Vernacular => writingSystems.Vernacular.FirstOrDefault(ws => ws.WsId == id),
-            WritingSystemType.Analysis => writingSystems.Analysis.FirstOrDefault(ws => ws.WsId == id),
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        };
+        var lcmWs = Cache.TryGetCoreWritingSystem(id, type);
+        if (lcmWs is null) return Task.FromResult<WritingSystem?>(null);
+        var ws = FromLcmWritingSystem(lcmWs, type);
+        return Task.FromResult<WritingSystem?>(ws);
     }
 
     internal void CompleteExemplars(WritingSystems writingSystems)
@@ -187,7 +181,7 @@ public class FwDataMiniLcmApi(
             WritingSystemType.Vernacular => WritingSystemContainer.CurrentVernacularWritingSystems.Count,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         } - 1;
-        return FromLcmWritingSystem(ws, index, type);
+        return FromLcmWritingSystem(ws, type, index);
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -224,10 +218,10 @@ public class FwDataMiniLcmApi(
 
     public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
     {
-        var wsToUpdate = GetLexWritingSystem(id, type);
+        var wsToUpdate = GetNonDefaultLexWritingSystem(id, type);
         if (wsToUpdate is null) throw new NullReferenceException($"unable to find writing system with id {id}");
-        var previousWs = between.Previous is null ? null : GetLexWritingSystem(between.Previous.Value, type);
-        var nextWs = between.Next is null ? null : GetLexWritingSystem(between.Next.Value, type);
+        var previousWs = between.Previous is null ? null : GetNonDefaultLexWritingSystem(between.Previous.Value, type);
+        var nextWs = between.Next is null ? null : GetNonDefaultLexWritingSystem(between.Next.Value, type);
         if (nextWs is null && previousWs is null) throw new NullReferenceException($"unable to find writing system with id {between.Previous} or {between.Next}");
         await Cache.DoUsingNewOrCurrentUOW("Move WritingSystem",
             "Revert Move WritingSystem",
@@ -269,18 +263,15 @@ public class FwDataMiniLcmApi(
             });
     }
 
-    private CoreWritingSystemDefinition? GetLexWritingSystem(WritingSystemId id, WritingSystemType type)
+    private CoreWritingSystemDefinition? GetNonDefaultLexWritingSystem(WritingSystemId id, WritingSystemType type)
     {
-        var exitingWs = type == WritingSystemType.Analysis
-            ? WritingSystemContainer.AnalysisWritingSystems
-            : WritingSystemContainer.VernacularWritingSystems;
-        return exitingWs.FirstOrDefault(ws => ws.Id == id);
+        if (id == default) throw new ArgumentException("Cannot use default writing system ID", nameof(id));
+        return Cache.TryGetCoreWritingSystem(id, type);
     }
 
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
-        return PartOfSpeechRepository
-            .AllInstances()
+        return Cache.LangProject.AllPartsOfSpeech
             .OrderBy(p => p.Name.BestAnalysisAlternative.Text)
             .ToAsyncEnumerable()
             .Select(FromLcmPartOfSpeech);
@@ -345,6 +336,7 @@ public class FwDataMiniLcmApi(
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
+        if (pub.Id == default) pub.Id = Guid.NewGuid();
         ICmPossibility? lcmPublication = null;
         NonUndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW(Cache.ServiceLocator.ActionHandler, () =>
             {
@@ -786,14 +778,17 @@ public class FwDataMiniLcmApi(
 
     private ExampleSentence FromLexExampleSentence(Guid senseGuid, ILexExampleSentence sentence)
     {
-        var translation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
         return new ExampleSentence
         {
             Id = sentence.Guid,
             SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
             Reference = ToRichString(sentence.Reference),
-            Translation = translation is null ? [] : FromLcmMultiString(translation),
+            Translations = sentence.TranslationsOC.Select(t => new Translation
+            {
+                Id = t.Guid,
+                Text = t.Translation is null ? [] : FromLcmMultiString(t.Translation),
+            }).ToList()
         };
     }
 
@@ -856,12 +851,13 @@ public class FwDataMiniLcmApi(
         //path includes `AudioVisual` currently
         var mediaUri = new MediaUri(mediaUriString);
         var path = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
-        if (path is null) throw new NotFoundException($"Unable to find file {mediaUri.FileId}.", nameof(MediaFile));
+        if (path is null) throw new NotFoundException($"File ID: {mediaUri.FileId}.", nameof(MediaFile));
         return Path.GetRelativePath(Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder), path);
     }
 
     internal RichString? ToRichString(ITsString? tsString)
     {
+        /// Same null mapping logic as <see cref="RichStringConverter"/>
         if (tsString is null or { Length: 0 }) return null;
         return RichTextMapping.FromTsString(tsString,
             h =>
@@ -955,7 +951,8 @@ public class FwDataMiniLcmApi(
 
     public Task<Entry?> GetEntry(Guid id)
     {
-        return Task.FromResult<Entry?>(FromLexEntry(EntriesRepository.GetObject(id)));
+        EntriesRepository.TryGetObject(id, out var lexEntry);
+        return Task.FromResult(lexEntry is null ? null : FromLexEntry(lexEntry));
     }
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
@@ -1230,7 +1227,7 @@ public class FwDataMiniLcmApi(
     internal void AddPublication(ILexEntry entry, Guid publicationId)
     {
         var lcmPublication = GetLcmPublication(publicationId);
-        if (lcmPublication is null) throw new NotFoundException("unable to find publication with id " + publicationId, nameof(Publication));
+        NotFoundException.ThrowIfNull<Publication>(lcmPublication, publicationId);
         entry.DoNotPublishInRC.Remove(lcmPublication);
     }
 
@@ -1249,8 +1246,7 @@ public class FwDataMiniLcmApi(
     internal void RemovePublication(ILexEntry entry, Guid publicationId)
     {
         var lcmPublication = GetLcmPublication(publicationId);
-        if (lcmPublication is null)
-            throw new NotFoundException("unable to find publication with id " + publicationId, nameof(Publication));
+        NotFoundException.ThrowIfNull<Publication>(lcmPublication, publicationId);
         entry.DoNotPublishInRC.Add(lcmPublication);
     }
 
@@ -1309,16 +1305,9 @@ public class FwDataMiniLcmApi(
 
     internal void CreateSense(ILexEntry lexEntry, Sense sense, BetweenPosition? between = null)
     {
+        if (sense.Id == default) sense.Id = Guid.NewGuid();
         var lexSense = LexSenseFactory.Create(sense.Id);
         InsertSense(lexEntry, lexSense, between);
-        var msa = new SandboxGenericMSA() { MsaType = lexSense.GetDesiredMsaType() };
-        if (sense.PartOfSpeechId.HasValue)
-        {
-            var found = PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out var pos);
-            if (!found) throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
-            msa.MainPOS = pos;
-        }
-        lexSense.SandboxMSA = msa;
         ApplySenseToLexSense(sense, lexSense);
     }
 
@@ -1399,15 +1388,7 @@ public class FwDataMiniLcmApi(
 
     private void ApplySenseToLexSense(Sense sense, ILexSense lexSense)
     {
-        if (lexSense.MorphoSyntaxAnalysisRA.GetPartOfSpeech()?.Guid != sense.PartOfSpeechId)
-        {
-            IPartOfSpeech? pos = null;
-            if (sense.PartOfSpeechId.HasValue)
-            {
-                PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out pos);
-            }
-            lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(pos);
-        }
+        SetSensePartOfSpeech(lexSense, sense.PartOfSpeechId);
         UpdateLcmMultiString(lexSense.Gloss, sense.Gloss);
         UpdateLcmMultiString(lexSense.Definition, sense.Definition);
         foreach (var senseSemanticDomain in sense.SemanticDomains)
@@ -1424,7 +1405,7 @@ public class FwDataMiniLcmApi(
 
     public Task<Sense?> GetSense(Guid entryId, Guid id)
     {
-        var lcmSense = SenseRepository.GetObject(id);
+        SenseRepository.TryGetObject(id, out var lcmSense);
         return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
     }
 
@@ -1517,25 +1498,31 @@ public class FwDataMiniLcmApi(
             () =>
             {
                 var lexSense = SenseRepository.GetObject(senseId);
-                if (partOfSpeechId.HasValue)
-                {
-                    var partOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>()
-                        .GetObject(partOfSpeechId.Value);
-                    if (lexSense.MorphoSyntaxAnalysisRA == null)
-                    {
-                        lexSense.SandboxMSA = SandboxGenericMSA.Create(lexSense.GetDesiredMsaType(), partOfSpeech);
-                    }
-                    else
-                    {
-                        lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(partOfSpeech);
-                    }
-                }
-                else
-                {
-                    lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(null);
-                }
+                SetSensePartOfSpeech(lexSense, partOfSpeechId);
             });
         return Task.CompletedTask;
+    }
+
+    private void SetSensePartOfSpeech(ILexSense lexSense, Guid? partOfSpeechId)
+    {
+        if (partOfSpeechId.HasValue)
+        {
+            if (!PartOfSpeechRepository.TryGetObject(partOfSpeechId.Value, out var partOfSpeech))
+                throw new InvalidOperationException($"Part of speech not found ({partOfSpeechId.Value})");
+            if (lexSense.MorphoSyntaxAnalysisRA == null)
+            {
+                lexSense.SandboxMSA = SandboxGenericMSA.Create(lexSense.GetDesiredMsaType(), partOfSpeech);
+            }
+            else
+            {
+                lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(partOfSpeech);
+            }
+        }
+        else
+        {
+            // if it's null already (?.), do nothing
+            lexSense.MorphoSyntaxAnalysisRA?.SetMsaPartOfSpeech(null);
+        }
     }
 
     public Task DeleteSense(Guid entryId, Guid senseId)
@@ -1551,26 +1538,32 @@ public class FwDataMiniLcmApi(
 
     public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
-        var lcmExampleSentence = ExampleSentenceRepository.GetObject(id);
+        ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence);
         return Task.FromResult(lcmExampleSentence is null ? null : FromLexExampleSentence(senseId, lcmExampleSentence));
     }
 
     internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence, BetweenPosition? between = null)
     {
+        if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id);
         InsertExampleSentence(lexSense, lexExampleSentence, between);
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
-        var translation = CreateExampleSentenceTranslation(lexExampleSentence);
-        UpdateLcmMultiString(translation.Translation, exampleSentence.Translation);
+        foreach (var translation in exampleSentence.Translations)
+        {
+            CreateExampleSentenceTranslation(lexExampleSentence, translation);
+        }
         lexExampleSentence.Reference = exampleSentence.Reference is null
             ? null
             : RichTextMapping.ToTsString(exampleSentence.Reference, id => GetWritingSystemHandle(id));
     }
 
-    public ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent)
+    internal ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent, Translation translation)
     {
+        if (translation.Id == default) translation.Id = Guid.NewGuid();
         var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
-        return CmTranslationFactory.Create(parent, freeTranslationType);
+        var cmTranslation = CmTranslationFactory.Create(parent, freeTranslationType, translation.Id);
+        UpdateLcmMultiString(cmTranslation.Translation, translation.Text);
+        return cmTranslation;
     }
 
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? between = null)
@@ -1648,6 +1641,52 @@ public class FwDataMiniLcmApi(
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
             () => lexExampleSentence.Delete());
+        return Task.CompletedTask;
+    }
+
+    public Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
+    {
+        var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Translation",
+            "Revert add",
+            Cache.ServiceLocator.ActionHandler,
+            () => CreateExampleSentenceTranslation(lexExampleSentence, translation));
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId)
+    {
+        var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Remove Translation",
+            "Revert remove",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var translation = lexExampleSentence.TranslationsOC.First(t => t.Guid == translationId);
+                translation.Delete();
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateTranslation(Guid entryId,
+        Guid senseId,
+        Guid exampleSentenceId,
+        Guid translationId,
+        UpdateObjectInput<Translation> update)
+    {
+        var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Translation",
+            "Revert update",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var translation = lexExampleSentence.TranslationsOC.First(t => t.Guid == translationId);
+                var translationProxy = new UpdateTranslationProxy(translation, this);
+                update.Apply(translationProxy);
+            });
         return Task.CompletedTask;
     }
 

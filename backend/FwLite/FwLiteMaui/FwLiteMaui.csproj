@@ -19,6 +19,7 @@
     <SingleProject>true</SingleProject>
     <ImplicitUsings>enable</ImplicitUsings>
     <EnableDefaultCssItems>false</EnableDefaultCssItems>
+    <CompressionEnabled>false</CompressionEnabled>
     <Nullable>enable</Nullable>
     <SelfContained>true</SelfContained>
     <EnableWindowsTargeting Condition="$([MSBuild]::IsOSPlatform('linux'))">true</EnableWindowsTargeting>
@@ -34,7 +35,7 @@
     <ApplicationVersion>1</ApplicationVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</TargetPlatformMinVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
@@ -83,5 +84,14 @@
   <ItemGroup Condition="$(IncludeFwDataBridge)">
     <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
     <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!--
+      Only included so it can be excluded (from MiniLcm->SIL.WritingSystems)
+      as it "does not have a 16 KB page size" (https://devblogs.microsoft.com/dotnet/maui-google-play-16-kb-page-size-support).
+      It appears to have very minimal usage in SIL.LCMModel (setting execution bits and such), so excluding it is likely both safe and desirable.
+      Excluding it in MiniLcm.csproj did not silence the build warnings.
+    -->
+    <PackageReference Include="Mono.Unix" ExcludeAssets="all" />
   </ItemGroup>
 </Project>

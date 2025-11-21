@@ -1,13 +1,14 @@
-using FluentAssertions.Equivalency;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
 using FluentAssertions.Execution;
 using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
 using MiniLcm.Models;
-using SystemTextJsonPatch;
 
 namespace FwLiteProjectSync.Tests;
 
@@ -18,8 +19,12 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     private CrdtFwdataProjectSyncService _syncService = null!;
     private CrdtMiniLcmApi _crdtApi = null!;
     private FwDataMiniLcmApi _fwDataApi = null!;
-    private IDisposable? _cleanup;
+    private TestProject _project = null!;
     private MiniLcmImport _miniLcmImport = null!;
+    private static readonly JsonSerializerOptions IndentedDefaultJsonOptions = new()
+    {
+        WriteIndented = true,
+    };
 
 
     public Sena3SyncTests(Sena3Fixture fixture)
@@ -29,7 +34,10 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        (_crdtApi, _fwDataApi, var services, _cleanup) = await _fixture.SetupProjects();
+        _project = await _fixture.SetupProjects();
+        _crdtApi = _project.CrdtApi;
+        _fwDataApi = _project.FwDataApi;
+        var services = _project.Services;
         _syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
         _miniLcmImport = services.GetRequiredService<MiniLcmImport>();
         _fwDataApi.EntryCount.Should().BeGreaterThan(100, "project should be loaded and have entries");
@@ -37,7 +45,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
     public Task DisposeAsync()
     {
-        _cleanup?.Dispose();
+        _project.Dispose();
         return Task.CompletedTask;
     }
 
@@ -63,7 +71,17 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     {
         var snapshot = ProjectSnapshot.Empty;
         if (wsImported) snapshot = snapshot with { WritingSystems = await _fwDataApi.GetWritingSystems() };
-        await _syncService.SaveProjectSnapshot(_fwDataApi.Project, snapshot);
+
+        //saving the snapshot will try to read the Id but it will be empty when coming from FwData
+        foreach (var ws in snapshot.WritingSystems.Analysis)
+        {
+            if (ws.MaybeId is null) ws.Id = Guid.NewGuid();
+        }
+        foreach (var ws in snapshot.WritingSystems.Vernacular)
+        {
+            if (ws.MaybeId is null) ws.Id = Guid.NewGuid();
+        }
+        await CrdtFwdataProjectSyncService.SaveProjectSnapshot(_fwDataApi.Project, snapshot);
     }
 
     //this lets us query entries when there is no writing system
@@ -124,7 +142,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Integration")]
-    public async Task FirstSena3SyncJustDoesAnSync()
+    public async Task FirstSena3SyncJustDoesAnImport()
     {
         _fwDataApi.EntryCount.Should().BeGreaterThan(1000,
             "projects with less than 1000 entries don't trip over the default query limit");
@@ -172,5 +190,104 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         var secondSync = await _syncService.Sync(_crdtApi, _fwDataApi);
         secondSync.CrdtChanges.Should().Be(0);
         secondSync.FwdataChanges.Should().Be(0);
+    }
+
+    /// <summary>
+    /// This test maintains a "live" sena-3 crdt db and fw-headless snapshot
+    /// that walks through model changes and their sync result as they are made to the project.
+    /// By keeping both the db and snapshot in the repo we can observe and verify
+    /// the effects of any data changes over time (whether from serialization, new fields etc.)
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task LiveSena3Sync()
+    {
+        // arrange - put "live" crdt db and fw-headless snapshot in place
+        // we just ignore the crdt db that was created by the fixture and
+        // put in a copy of the "live" db in the same directory
+        var liveCrdtProject = new CrdtProject("sena-3-live",
+        Path.Join(Path.GetDirectoryName(_project.CrdtProject.DbPath), "sena-3-live.sqlite"));
+        File.Copy(
+            RelativePath("sena-3-live.verified.sqlite"),
+            liveCrdtProject.DbPath,
+            overwrite: true);
+        File.Copy(
+            RelativePath("sena-3-live_snapshot.verified.txt"),
+            CrdtFwdataProjectSyncService.SnapshotPath(_project.FwDataProject),
+            overwrite: true);
+        await using var liveScope = _project.Services.CreateAsyncScope();
+        var liveCrdtApi = await liveScope.ServiceProvider.OpenCrdtProject(liveCrdtProject);
+
+        // The default font used for the Analysis writing systems in our Sena 3 project differs when opened on
+        // Windows versus Linux. So, we standardize them to Charis SIL (which is the default on Linux).
+        // Otherwise, the snapshot verification isn't consistent.
+        await PatchAnalysisWsFontsWithCharisSIL(_fwDataApi);
+
+        // act
+        var result = await _syncService.Sync(liveCrdtApi, _fwDataApi);
+
+        // assert
+        var fwHeadlessSnapshot = await _syncService.GetProjectSnapshot(_project.FwDataProject);
+        Exception? verifyException = null;
+        var throwAnyVerifyException = () => { if (verifyException is not null) throw verifyException; };
+        try
+        {
+            await Verify(JsonSerializer.Serialize(fwHeadlessSnapshot, IndentedDefaultJsonOptions))
+            .UseStrictJson()
+            .UseFileName("sena-3-live_snapshot");
+        }
+        catch (Exception ex)
+        {
+            verifyException = ex;
+        }
+
+        if (result.CrdtChanges > 0)
+        {
+            // copy the updated "live" crdt db to a file for inspection,
+            // so the developer doesn't need to go find it and can decide if the changes are acceptable.
+            var dbContext = await liveScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+            BackupDatabase(dbContext, RelativePath("sena-3-live.received.sqlite"));
+        }
+
+        // updating the db and snapshot should always be done atomically
+        using (new AssertionScope())
+        {
+            result.CrdtChanges.Should().Be(0, "otherwise the live crdt db has changed and needs developer approval");
+            throwAnyVerifyException.Should().NotThrow("otherwise the fw-headless snapshot has changed and needs developer approval");
+        }
+
+        result.FwdataChanges.Should().Be(0);
+    }
+
+    private async Task PatchAnalysisWsFontsWithCharisSIL(FwDataMiniLcmApi fwDataApi)
+    {
+        var writingSystems = await fwDataApi.GetWritingSystems();
+        var analysisWs = writingSystems.Analysis;
+        analysisWs.Length.Should().Be(2);
+        await fwDataApi.UpdateWritingSystem(analysisWs[0].WsId, WritingSystemType.Analysis,
+            new UpdateObjectInput<WritingSystem>().Set(ws => ws.Font, "Charis SIL"));
+        await fwDataApi.UpdateWritingSystem(analysisWs[1].WsId, WritingSystemType.Analysis,
+            new UpdateObjectInput<WritingSystem>().Set(ws => ws.Font, "Charis SIL"));
+    }
+
+    private static string RelativePath(string name, [CallerFilePath] string sourceFile = "")
+    {
+        return Path.Combine(
+            Path.GetDirectoryName(sourceFile) ??
+            throw new InvalidOperationException("Could not get directory of source file"),
+            name);
+    }
+
+    private static void BackupDatabase(DbContext sourceContext, string destinationPath)
+    {
+        var source = (SqliteConnection)sourceContext.Database.GetDbConnection();
+        if (source.State != System.Data.ConnectionState.Open)
+            source.Open();
+
+        using var destination = new SqliteConnection($"Data Source={destinationPath}");
+        destination.Open();
+
+        source.BackupDatabase(destination);
+        source.Close();
     }
 }

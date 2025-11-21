@@ -8,7 +8,7 @@
 
   type TriggerSnippet = PopoverTriggerProps['child'];
 
-  let { open = $bindable(false), children, title, trigger }: WithChildren<{ open?: boolean, title: string, trigger: TriggerSnippet }> = $props();
+  let { open = $bindable(false), children, title, trigger }: WithChildren<{ open?: boolean, title?: string, trigger: TriggerSnippet }> = $props();
 </script>
 
 {#if !IsMobile.value}
@@ -16,7 +16,10 @@
     <Popover.Trigger child={trigger} />
     <Popover.Content class="w-64 sm:mr-4">
       <div class="space-y-3">
-        <h3 class="font-medium">{title}</h3>
+        {#if title}
+          <h3 class="font-medium">{title}</h3>
+        {/if}
+
         {#if children}
           {@render children()}
         {/if}
@@ -31,9 +34,11 @@
         <Icon icon="i-mdi-close" />
       </Drawer.Close>
       <div class="mx-auto w-full max-w-sm p-4">
-        <Drawer.Header>
-          <Drawer.Title>{title}</Drawer.Title>
-        </Drawer.Header>
+        {#if title}
+          <Drawer.Header>
+            <Drawer.Title>{title}</Drawer.Title>
+          </Drawer.Header>
+        {/if}
         {#if children}
           {@render children()}
         {/if}

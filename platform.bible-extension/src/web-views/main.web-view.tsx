@@ -1,29 +1,21 @@
-import papi from '@papi/frontend';
-import type { BrowseWebViewOptions } from 'fw-lite-extension';
-import { Button } from 'platform-bible-react';
-import { useEffect, useRef, useState } from 'react';
+import { themes } from '@papi/frontend';
+import { useData } from '@papi/frontend/react';
+import type { BrowseWebViewProps } from 'fw-lite-extension';
+import { useMemo, useRef } from 'react';
 
-/* eslint-disable react-hooks/rules-of-hooks */
+const DEFAULT_THEME = themes.getCurrentThemeSync();
 
-globalThis.webViewComponent = function fwLiteMainWindow({ url }: BrowseWebViewOptions) {
-  // TODO: Use of baseUrl for development; remove before publishing.
-  const [baseUrl, setBaseUrl] = useState('');
-  const [src, setSrc] = useState('');
-
+globalThis.webViewComponent = function FwLiteMainWindow({ url }: BrowseWebViewProps) {
   // eslint-disable-next-line no-null/no-null
   const iframe = useRef<HTMLIFrameElement | null>(null);
 
-  useEffect(() => {
-    updateUrl();
-  }, []);
-  useEffect(() => setSrc(url || baseUrl), [baseUrl, url]);
+  // Get the type (light vs dark) of the current theme.
+  const [theme] = useData(themes.dataProviderName).CurrentTheme(undefined, DEFAULT_THEME);
+  const themeType = useMemo(() => ('type' in theme ? theme.type : undefined), [theme]);
 
-  async function updateUrl(): Promise<void> {
-    setBaseUrl(await papi.commands.sendCommand('fwLiteExtension.getBaseUrl'));
-  }
-
-  if (!src) {
-    return <Button onClick={() => updateUrl()}>Loading</Button>;
-  }
-  return <iframe ref={iframe} src={src} title="FieldWorks Lite" />;
+  return url ? (
+    <iframe ref={iframe} src={url} style={{ colorScheme: themeType }} title="FieldWorks Lite" />
+  ) : (
+    <p>Loading...</p>
+  );
 };

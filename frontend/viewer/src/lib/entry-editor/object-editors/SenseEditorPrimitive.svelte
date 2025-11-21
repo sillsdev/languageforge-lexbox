@@ -1,29 +1,32 @@
 <script lang="ts">
-  import type {ISense} from '$lib/dotnet-types';
-  import {useSemanticDomains} from '$lib/semantic-domains';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
-  import {usePartsOfSpeech} from '$lib/parts-of-speech.svelte';
-  import {useCurrentView, objectTemplateAreas} from '$lib/views/view-service';
   import * as Editor from '$lib/components/editor';
-  import {t} from 'svelte-i18n-lingui';
-  import {vt} from '$lib/views/view-text';
-  import {MultiSelect, MultiWsInput, RichMultiWsInput, Select} from '$lib/components/field-editors';
-  import {fieldData, type FieldId} from '../field-data';
-  import {cn} from '$lib/utils';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
-  import {mergeProps} from 'bits-ui';
+  import {MultiSelect, MultiWsInput, RichMultiWsInput, Select} from '$lib/components/field-editors';
+  import type {ISense} from '$lib/dotnet-types';
   import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
+  import {cn} from '$lib/utils';
+  import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
+  import {vt} from '$lib/views/view-text';
+  import {usePartsOfSpeech, useSemanticDomains, useWritingSystemService} from '$project/data';
+  import {mergeProps} from 'bits-ui';
+  import type {Snippet} from 'svelte';
+  import {t} from 'svelte-i18n-lingui';
+  import {fieldData, type FieldId} from '../field-data';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     sense: ISense;
     readonly?: boolean;
     onchange?: (sense: ISense, field: FieldId) => void;
+    partOfSpeechDescription?: Snippet;
+    semanticDomainsDescription?: Snippet;
   };
 
   const {
     sense = $bindable(),
     readonly = false,
     onchange,
+    partOfSpeechDescription,
+    semanticDomainsDescription,
     ...rest
   }: Props = $props();
 
@@ -73,6 +76,7 @@
           labelSelector={(pos) => partsOfSpeech.getLabel(pos)}
           idSelector="id"
           {readonly} />
+      {@render partOfSpeechDescription?.()}
     </Editor.Field.Body>
   </Editor.Field.Root>
 
@@ -87,6 +91,7 @@
           idSelector="id"
           sortValuesBy="optionOrder"
           {readonly} />
+      {@render semanticDomainsDescription?.()}
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>

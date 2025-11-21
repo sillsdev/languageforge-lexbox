@@ -1,0 +1,702 @@
+﻿[
+  {
+    "$type": "jsonPatch:Entry",
+    "PatchDocument": [],
+    "EntityId": "818d2229-959c-487b-a51e-ccc0e9fa3a8c"
+  },
+  {
+    "$type": "jsonPatch:Sense",
+    "PatchDocument": [],
+    "EntityId": "337a280c-29ae-4058-bd5f-d9e82d0009e3"
+  },
+  {
+    "$type": "jsonPatch:ExampleSentence",
+    "PatchDocument": [],
+    "EntityId": "66bd3b4d-10a8-4486-9385-4267c226073a"
+  },
+  {
+    "$type": "jsonPatch:WritingSystem",
+    "PatchDocument": [],
+    "EntityId": "e2a389f6-c0b6-4661-b3df-2c9558ac51ad"
+  },
+  {
+    "$type": "jsonPatch:PartOfSpeech",
+    "PatchDocument": [],
+    "EntityId": "3528d3cc-6150-4c0a-8b7b-9bf08c19157b"
+  },
+  {
+    "$type": "jsonPatch:SemanticDomain",
+    "PatchDocument": [],
+    "EntityId": "ef6fc636-7a50-43a3-b781-1c3c4f1f3e35"
+  },
+  {
+    "$type": "jsonPatch:ComplexFormType",
+    "PatchDocument": [],
+    "EntityId": "21ff6635-5638-4420-aeff-c9fdd5600a9e"
+  },
+  {
+    "$type": "delete:Entry",
+    "EntityId": "03ff68d2-9a1b-26f7-b433-cb89b9ff3289"
+  },
+  {
+    "$type": "delete:Sense",
+    "EntityId": "711d0efc-09ca-2e92-26d0-5f7c5b077e3e"
+  },
+  {
+    "$type": "delete:ExampleSentence",
+    "EntityId": "5da803a8-55c1-849e-6a0b-cfe20f7942b7"
+  },
+  {
+    "$type": "delete:WritingSystem",
+    "EntityId": "b806c726-3c6d-401e-0d2c-b8518fa9ec25"
+  },
+  {
+    "$type": "delete:PartOfSpeech",
+    "EntityId": "31c96ad3-de02-9e51-f65f-cd66e201311e"
+  },
+  {
+    "$type": "delete:SemanticDomain",
+    "EntityId": "e9b60857-e72c-3db5-2cb2-e4f1ac100b2a"
+  },
+  {
+    "$type": "delete:ComplexFormType",
+    "EntityId": "d04588ae-5412-2395-7286-ce6e7d7deddf"
+  },
+  {
+    "$type": "delete:ComplexFormComponent",
+    "EntityId": "289b4991-ae48-d808-2004-34d618c7d647"
+  },
+  {
+    "$type": "SetPartOfSpeechChange",
+    "PartOfSpeechId": "43d86183-e45f-416a-8fc2-23e8dd210df7",
+    "EntityId": "855384fa-a2d7-248a-d7d8-e31e8ca72d16"
+  },
+  {
+    "$type": "AddSemanticDomainChange",
+    "SemanticDomain": {
+      "Id": "0b49530d-c00c-c850-fbcb-c310dd81aa25",
+      "Name": {
+        "nbp": "driver",
+        "ogc": "Credit Card Account",
+        "txr": "Zambia",
+        "sxm": "Buckinghamshire"
+      },
+      "Code": "Clothing, Industrial \u0026 Health",
+      "DeletedAt": "2025-01-19T21:09:19.0427134+07:00",
+      "Predefined": true
+    },
+    "EntityId": "f60faeb5-4d22-a8b0-a806-89347f2b7843"
+  },
+  {
+    "$type": "RemoveSemanticDomainChange",
+    "SemanticDomainId": "8eb5eeba-d107-1664-a659-d4c6bc90e074",
+    "EntityId": "5bb0d082-9de1-9091-284d-54f627b944e5"
+  },
+  {
+    "$type": "ReplaceSemanticDomainChange",
+    "OldSemanticDomainId": "730d80ed-5e26-070c-a172-8e714b6a9cbd",
+    "SemanticDomain": {
+      "Id": "4daa2f20-4140-1bd6-ac95-5801eab210aa",
+      "Name": {
+        "ngs": "turquoise",
+        "tvs": "azure",
+        "cco": "Implementation",
+        "rrt": "card"
+      },
+      "Code": "transition",
+      "DeletedAt": "2025-01-19T21:18:49.3256836+07:00",
+      "Predefined": false
+    },
+    "EntityId": "8291cde2-0fd2-3ebc-765b-c00c6c489c3a"
+  },
+  {
+    "$type": "CreateEntryChange",
+    "LexemeForm": {
+      "kof": "Kip",
+      "bbv": "Belarus"
+    },
+    "CitationForm": {
+      "ary": "Stand-alone",
+      "yat": "back up"
+    },
+    "LiteralMeaning": {
+      "ysm": {
+        "Spans": [
+          {
+            "Text": "withdrawal",
+            "Ws": "ysm"
+          }
+        ]
+      }
+    },
+    "Note": {
+      "zat": {
+        "Spans": [
+          {
+            "Text": "transmit",
+            "Ws": "zat"
+          }
+        ]
+      },
+      "mye": {
+        "Spans": [
+          {
+            "Text": "hacking",
+            "Ws": "mye"
+          }
+        ]
+      },
+      "hto": {
+        "Spans": [
+          {
+            "Text": "Jewelery",
+            "Ws": "hto"
+          }
+        ]
+      },
+      "juh": {
+        "Spans": [
+          {
+            "Text": "indigo",
+            "Ws": "juh"
+          }
+        ]
+      }
+    },
+    "MorphType": null,
+    "EntityId": "46d2a7aa-186e-0820-6ab7-9d9f2c4359fb"
+  },
+  {
+    "$type": "CreateEntryChange",
+    "LexemeForm": {
+      "kof": "Kip",
+      "bbv": "Belarus"
+    },
+    "CitationForm": {
+      "ary": "Stand-alone",
+      "yat": "back up"
+    },
+    "LiteralMeaning": {
+      "ysm": {
+        "Spans": [
+          {
+            "Text": "withdrawal",
+            "Ws": "ysm"
+          }
+        ]
+      }
+    },
+    "Note": {
+      "zat": {
+        "Spans": [
+          {
+            "Text": "transmit",
+            "Ws": "zat"
+          }
+        ]
+      },
+      "mye": {
+        "Spans": [
+          {
+            "Text": "hacking",
+            "Ws": "mye"
+          }
+        ]
+      },
+      "hto": {
+        "Spans": [
+          {
+            "Text": "Jewelery",
+            "Ws": "hto"
+          }
+        ]
+      },
+      "juh": {
+        "Spans": [
+          {
+            "Text": "indigo",
+            "Ws": "juh"
+          }
+        ]
+      }
+    },
+    "MorphType": "Infix",
+    "EntityId": "46d2a7aa-186e-0820-6ab7-9d9f2c4359fb"
+  },
+  {
+    "$type": "CreateSenseChange",
+    "EntryId": "9403f290-4497-4ecc-5744-1cf7f402498a",
+    "Order": 0.25164027577075543,
+    "Definition": {
+      "mmt": {
+        "Spans": [
+          {
+            "Text": "Customer",
+            "Ws": "mmt"
+          }
+        ]
+      },
+      "cdm": {
+        "Spans": [
+          {
+            "Text": "intranet",
+            "Ws": "cdm"
+          }
+        ]
+      }
+    },
+    "Gloss": {
+      "pix": "Small Steel Pizza",
+      "hmb": "auxiliary"
+    },
+    "PartOfSpeechId": "6f664799-1385-2bd8-077f-76d1206ac233",
+    "SemanticDomains": [
+      {
+        "Id": "de982bb2-22c1-a67d-af30-53278434b09d",
+        "Name": {
+          "ajs": "disintermediate"
+        },
+        "Code": "Open-architected",
+        "DeletedAt": "2025-01-20T05:49:30.5251959+07:00",
+        "Predefined": false
+      }
+    ],
+    "EntityId": "fb918ba0-ba5e-7977-312e-3028d1295dd8"
+  },
+  {
+    "$type": "CreateExampleSentenceChange",
+    "SenseId": "f3e4f3fe-1a2c-7096-fdf6-64df12809e1a",
+    "Order": 0.18532264410517607,
+    "Sentence": {
+      "liq": {
+        "Spans": [
+          {
+            "Text": "Secured",
+            "Ws": "liq"
+          }
+        ]
+      },
+      "kax": {
+        "Spans": [
+          {
+            "Text": "ADP",
+            "Ws": "kax"
+          }
+        ]
+      }
+    },
+    "Translations": null,
+    "Translation": {
+      "xtq": {
+        "Spans": [
+          {
+            "Text": "New Jersey",
+            "Ws": "xtq"
+          }
+        ]
+      }
+    },
+    "Reference": {
+      "Spans": [
+        {
+          "Text": "Automotive",
+          "Ws": "default"
+        }
+      ]
+    },
+    "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
+  },
+  {
+    "$type": "CreateExampleSentenceChange",
+    "SenseId": "f1d3b192-64be-11b8-8dfc-3df47150c09c",
+    "Order": 0.6768870830787705,
+    "Sentence": {
+      "olk": {
+        "Spans": [
+          {
+            "Text": "target",
+            "Ws": "olk",
+            "Tags": [
+              "61298dad-439f-430c-a3df-c8f2e1a8d1f6"
+            ]
+          },
+          {
+            "Text": "Practical Rubber Sausages",
+            "Ws": "olk",
+            "Tags": [
+              "c7f4b16e-6c2f-4c71-86fb-72c591e1450c"
+            ]
+          }
+        ]
+      }
+    },
+    "Translations": [
+      {
+        "Id": "714e2449-0edd-bcbd-8d71-f84fd86fa5b1",
+        "Text": {
+          "aeb": {
+            "Spans": [
+              {
+                "Text": "distributed",
+                "Ws": "aeb",
+                "Tags": [
+                  "bc87876d-00af-4bf1-b98c-6a91ef6562b3"
+                ]
+              },
+              {
+                "Text": "matrix",
+                "Ws": "taz",
+                "Bold": "Off",
+                "FontSize": 1439371934,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "af8bd74d-e568-a5fa-7873-29e4e0ee39af"
+                ]
+              }
+            ]
+          },
+          "end": {
+            "Spans": [
+              {
+                "Text": "District",
+                "Ws": "end",
+                "Tags": [
+                  "891ae59b-b0d6-47c3-a91f-69f99e7959c9"
+                ]
+              },
+              {
+                "Text": "deliverables",
+                "Ws": "end",
+                "Tags": [
+                  "1db3e6f0-2f8a-4cbe-867a-5307460f342d"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "Id": "8a4e2449-0edd-bcbd-8d71-f84fd86fa5b1",
+        "Text": {
+          "aeb": {
+            "Spans": [
+              {
+                "Text": "distributed",
+                "Ws": "aeb",
+                "Tags": [
+                  "bc87876d-00af-4bf1-b98c-6a91ef6562b3"
+                ]
+              },
+              {
+                "Text": "matrix",
+                "Ws": "taz",
+                "Bold": "Off",
+                "FontSize": 1439371934,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "af8bd74d-e568-a5fa-7873-29e4e0ee39af"
+                ]
+              }
+            ]
+          },
+          "end": {
+            "Spans": [
+              {
+                "Text": "District",
+                "Ws": "end",
+                "Tags": [
+                  "891ae59b-b0d6-47c3-a91f-69f99e7959c9"
+                ]
+              },
+              {
+                "Text": "deliverables",
+                "Ws": "end",
+                "Tags": [
+                  "1db3e6f0-2f8a-4cbe-867a-5307460f342d"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "Translation": null,
+    "Reference": {
+      "Spans": [
+        {
+          "Text": "magnetic",
+          "Ws": "koi",
+          "Bold": "Off",
+          "FontSize": -1521068983,
+          "ForeColor": "#FF0000",
+          "Tags": [
+            "9adf3888-752f-7334-0e25-8028ddcbbfb4"
+          ]
+        },
+        {
+          "Text": "ivory",
+          "Ws": "xiy",
+          "Bold": "Off",
+          "FontSize": -965346019,
+          "ForeColor": "#00FFFF",
+          "Tags": [
+            "055cbb2f-3c34-f4db-eb10-5288041d6f60"
+          ]
+        }
+      ]
+    },
+    "EntityId": "2c502649-3304-0b5f-931b-33be6af4048b"
+  },
+  {
+    "$type": "CreatePartOfSpeechChange",
+    "Name": {
+      "txh": "logistical",
+      "xcc": "International",
+      "guh": "Hryvnia",
+      "dbq": "parse"
+    },
+    "Predefined": true,
+    "EntityId": "6258cf11-4451-1362-a5a8-8cca65548880"
+  },
+  {
+    "$type": "CreateSemanticDomainChange",
+    "Name": {
+      "sgx": "Gateway",
+      "cmt": "Brand",
+      "ylo": "Intranet"
+    },
+    "Predefined": false,
+    "Code": "port",
+    "EntityId": "61d1a336-fe39-18b5-452a-4b192946cc51"
+  },
+  {
+    "$type": "CreateWritingSystemChange",
+    "WsId": "zms",
+    "Name": "quantify",
+    "Abbreviation": "Ergonomic",
+    "Font": "software",
+    "Exemplars": [
+      "Berkshire"
+    ],
+    "Type": 1,
+    "Order": 0.7988004089201804,
+    "EntityId": "0fccfaaa-1e55-f6fb-966f-5c1e6caedf45"
+  },
+  {
+    "$type": "AddComplexFormTypeChange",
+    "ComplexFormType": {
+      "Id": "d5f54e9f-65cf-360b-3955-071cd3910f4e",
+      "Name": {
+        "dag": "Handmade Concrete Table",
+        "dlm": "withdrawal"
+      },
+      "DeletedAt": "2025-01-20T08:42:21.2690032+07:00"
+    },
+    "EntityId": "5290a257-6efe-769b-1818-49529781e1d4"
+  },
+  {
+    "$type": "AddEntryComponentChange",
+    "Order": 0,
+    "ComplexFormEntryId": "5b1d27c0-8990-0417-5e31-071c5f48ac9a",
+    "ComponentEntryId": "e476003d-69b4-1e84-46f2-f2dee858388f",
+    "ComponentSenseId": "434e9e2b-dad3-5fcb-f1e3-cd00aae5df10",
+    "EntityId": "74c8a80a-8be4-c950-c9d0-ebbf5da1ec21"
+  },
+  {
+    "$type": "AddEntryComponentChange",
+    "Order": 0.5313593686857879,
+    "ComplexFormEntryId": "857a32f0-591b-6e64-4131-27b6af12d26c",
+    "ComponentEntryId": "8a0751c4-4997-9cd9-013a-32cfe45bc363",
+    "ComponentSenseId": "43bb0d17-fdcc-8560-9de8-786bad020ecd",
+    "EntityId": "e3e65484-d52c-50ae-5a9c-25db4d870bd6"
+  },
+  {
+    "$type": "AddEntryComponentChange",
+    "Order": 0.5345900716748275,
+    "ComplexFormEntryId": "5b1d27c0-8990-0417-5e31-071c5f48ac9a",
+    "ComponentEntryId": "e476003d-69b4-1e84-46f2-f2dee858388f",
+    "ComponentSenseId": "434e9e2b-dad3-5fcb-f1e3-cd00aae5df10",
+    "EntityId": "74c8a80a-8be4-c950-c9d0-ebbf5da1ec21"
+  },
+  {
+    "$type": "RemoveComplexFormTypeChange",
+    "ComplexFormTypeId": "d4b5503e-9381-a73d-6b18-eb3dae571f25",
+    "EntityId": "428b9279-8cbb-bcda-49e2-1ff80d8cba2f"
+  },
+  {
+    "$type": "AddPublicationChange",
+    "Publication": {
+      "Id": "84597629-7d00-a415-9ac1-2865b7efa9bf",
+      "DeletedAt": null,
+      "Name": {
+        "dgw": "Money Market Account",
+        "yrn": "parse"
+      }
+    },
+    "EntityId": "4dcbedc5-c4f1-54fd-f0b0-ede17a5af7e7"
+  },
+  {
+    "$type": "RemovePublicationChange",
+    "PublicationId": "26a3eeec-bd3d-fa76-c66d-7d41df729d1f",
+    "EntityId": "3f1e7bbf-ea5f-fdfd-6f24-2cf129fce912"
+  },
+  {
+    "$type": "ReplacePublicationChange",
+    "NewPublication": {
+      "Id": "09c00842-481a-516f-f9fc-e6732c9ada73",
+      "DeletedAt": null,
+      "Name": {
+        "iap": "whiteboard",
+        "jiy": "Trafficway",
+        "enu": "Kip",
+        "dtm": "optimize"
+      }
+    },
+    "OldPublicationId": "e0fca592-c089-8850-8026-0c34610352fa",
+    "EntityId": "727546c3-8a97-c721-4a9a-5205cc029c77"
+  },
+  {
+    "$type": "CreateComplexFormType",
+    "Name": {
+      "slu": "yellow"
+    },
+    "EntityId": "e03826fb-e6d2-6e3c-1f43-9fc6a0f6c4c6"
+  },
+  {
+    "$type": "SetOrderChange:WritingSystem",
+    "Order": 0.4870418422144669,
+    "EntityId": "9d3e9006-c4b4-4316-6628-faeede75af40"
+  },
+  {
+    "$type": "SetOrderChange:Sense",
+    "Order": 0.4870418422144669,
+    "EntityId": "9d3e9006-c4b4-4316-6628-faeede75af40"
+  },
+  {
+    "$type": "SetOrderChange:ExampleSentence",
+    "Order": 0.9610462315814435,
+    "EntityId": "56fb336c-5bcf-afc8-04b5-1df4176975f1"
+  },
+  {
+    "$type": "SetOrderChange:ComplexFormComponent",
+    "Order": 0.1655437666547228,
+    "EntityId": "e92d4673-888c-3204-0767-17adc2a2405e"
+  },
+  {
+    "$type": "SetComplexFormComponentChange",
+    "ComplexFormEntryId": "bf296463-7b81-4a33-b9e7-6f4f8179715e",
+    "ComponentEntryId": null,
+    "ComponentSenseId": null,
+    "EntityId": "d5c89801-cedc-403e-9ed6-f734ad0ddf23"
+  },
+  {
+    "$type": "SetComplexFormComponentChange",
+    "ComplexFormEntryId": null,
+    "ComponentEntryId": "470eb4a9-50d7-4c28-93b2-019b1e5cf9d6",
+    "ComponentSenseId": null,
+    "EntityId": "beaa8382-2b49-45a5-81eb-e5825004fb98"
+  },
+  {
+    "$type": "SetComplexFormComponentChange",
+    "ComplexFormEntryId": null,
+    "ComponentEntryId": "e0d469cd-9d2f-44f5-8147-102f683c18ed",
+    "ComponentSenseId": "7a1c054f-472a-473f-afed-16f75fe9a90f",
+    "EntityId": "01b98e0e-c95f-430d-9512-9db44fdf7b2a"
+  },
+  {
+    "$type": "jsonPatch:Publication",
+    "PatchDocument": [],
+    "EntityId": "da783ead-7895-42f5-958f-263816a3a1ef"
+  },
+  {
+    "$type": "delete:Publication",
+    "EntityId": "39673695-493d-93c1-50df-2f022c344665"
+  },
+  {
+    "$type": "CreatePublicationChange",
+    "Name": {
+      "mdy": "Small Soft Shoes",
+      "knc": "real-time",
+      "tre": "capacitor",
+      "xnu": "Multi-channelled"
+    },
+    "EntityId": "a024fdbe-52a4-6447-aae3-50fd8b815f10"
+  },
+  {
+    "$type": "uploaded:RemoteResource",
+    "RemoteId": "withdrawal",
+    "EntityId": "9c8b252c-d342-dfe8-c1dd-5899471ecbd1"
+  },
+  {
+    "$type": "create:remote-resource",
+    "RemoteId": "Buckinghamshire",
+    "EntityId": "188a57e7-7d61-8742-59eb-c0bfbf959737"
+  },
+  {
+    "$type": "create:pendingUpload",
+    "EntityId": "52d7432c-ad4f-430c-8304-925603b3fefa"
+  },
+  {
+    "$type": "delete:RemoteResource",
+    "EntityId": "e14de071-3ed0-b12a-7865-da43fbfe8f84"
+  },
+  {
+    "$type": "AddTranslationChange",
+    "Translation": {
+      "Id": "77512957-a5da-4148-e843-f7094ec1b98b",
+      "Text": {
+        "xzm": {
+          "Spans": [
+            {
+              "Text": "Hong Kong",
+              "Ws": "bic",
+              "Bold": "Off",
+              "FontSize": 1217222697,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "4602c095-86f6-8bf4-e1d7-33f9f53ad0c3"
+              ]
+            },
+            {
+              "Text": "Fresh",
+              "Ws": "xzm",
+              "Tags": [
+                "dc9cf1cb-1d8d-46ea-8074-86bcd09e667e"
+              ]
+            },
+            {
+              "Text": "matrix",
+              "Ws": "xzm",
+              "Tags": [
+                "ffb1aefe-7501-4a59-bd71-41276208e8cb"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "EntityId": "b5f3f828-7f9e-0fa9-5df3-b1d1551fbbe0"
+  },
+  {
+    "$type": "RemoveTranslationChange",
+    "TranslationId": "49b61619-fac7-1766-e16c-dd887e9db152",
+    "EntityId": "92e3f239-590a-f95a-e506-34eccc3b58d4"
+  },
+  {
+    "$type": "UpdateTranslationChange",
+    "TranslationId": "fa8fad05-434a-7ab0-bf08-7c55b2a1d012",
+    "Patch": [
+      {
+        "op": "green",
+        "path": "HTTP",
+        "from": "Personal Loan Account"
+      }
+    ],
+    "EntityId": "9ba07a94-295c-786c-24d7-dfffa3690f7e"
+  },
+  {
+    "$type": "SetFirstTranslationIdChange",
+    "TranslationId": "349419f8-65f4-1a81-42f4-b641837fa203",
+    "EntityId": "d5ddbafb-d417-5df1-f4a4-d1224bdfac42"
+  }
+]

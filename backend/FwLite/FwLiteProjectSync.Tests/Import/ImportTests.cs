@@ -41,10 +41,16 @@ public class ImportTests : IClassFixture<SyncFixture>
                             SenseId = senseId,
                             Order = 1,
                             Sentence = { ["en"] = new RichString("This is a test example sentence.", "en") },
-                            Translation =
-                            {
-                                ["en"] = new RichString("Ceci est une phrase d'exemple de test.", "en")
-                            }
+                            Translations =
+                            [
+                                new()
+                                {
+                                    Text =
+                                    {
+                                        ["en"] = new RichString("Ceci est une phrase d'exemple de test.", "en")
+                                    }
+                                }
+                            ]
                         }
                     ]
                 }

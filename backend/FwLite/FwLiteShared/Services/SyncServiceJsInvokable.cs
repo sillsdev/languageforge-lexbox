@@ -29,9 +29,9 @@ public class SyncServiceJsInvokable(SyncService syncService, SyncRepository sync
     }
 
     [JSInvokable]
-    public Task<DateTimeOffset?> GetLatestCommitDate()
+    public Task<DateTimeOffset?> GetLatestSyncedCommitDate()
     {
-        return syncRepository.GetLatestCommitDate();
+        return syncRepository.GetLatestSyncedCommitDate();
     }
 
     [JSInvokable]

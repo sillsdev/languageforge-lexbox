@@ -72,7 +72,10 @@ public class RichString(ICollection<RichSpan> spans) : IEquatable<RichString>
                 return new RichString(text);//ws is actually set when the string is assigned to a RichMultiString
             }
             var model = JsonSerializer.Deserialize<RichStringPrimitive>(ref reader, options);
-            return model?.Spans is null ? null : new RichString([..model.Spans]);
+
+            /// Same null mapping logic as <see cref="FwDataMiniLcmApi.ToRichString"/>
+            if (model?.Spans is null or { Count: 0 }) return null;
+            return new RichString([..model.Spans]);
         }
 
         public override void Write(Utf8JsonWriter writer, RichString value, JsonSerializerOptions options)
@@ -327,7 +330,7 @@ public record RichSpan
                BulNumTxtAft == other.BulNumTxtAft && BulNumFontInfo == other.BulNumFontInfo &&
                CustomBullet == other.CustomBullet && TabList == other.TabList && TableRule == other.TableRule &&
                FieldName == other.FieldName && Equals(ObjData, other.ObjData) &&
-               (Equals(Tags, other.Tags) || Tags.SequenceEqual(other.Tags));
+               (Equals(Tags, other.Tags) || (Tags is not null && other.Tags is not null && Tags.SequenceEqual(other.Tags)));
     }
 }
 

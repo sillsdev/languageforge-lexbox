@@ -1,17 +1,15 @@
+using System.Text.Json;
 using FluentAssertions.Execution;
 using LcmCrdt.Objects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Tests.AutoFakerHelpers;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
-using SIL.Harmony.Entities;
 using Soenneker.Utils.AutoBogus;
-using Soenneker.Utils.AutoBogus.Config;
 
 namespace LcmCrdt.Tests;
 
@@ -23,6 +21,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
     private readonly LcmCrdtDbContext _crdtDbContext;
     private CrdtConfig _crdtConfig;
     private CrdtProject _crdtProject;
+    private readonly JsonSerializerOptions _jsonSerializerOptions = TestJsonOptions.Harmony();
 
     public DataModelSnapshotTests()
     {
@@ -63,29 +62,25 @@ public class DataModelSnapshotTests : IAsyncLifetime
     [Fact]
     public async Task VerifyChangeModels()
     {
-        var jsonSerializerOptions = _crdtConfig.JsonSerializerOptions;
-        await Verify(jsonSerializerOptions.GetTypeInfo(typeof(IChange)).PolymorphismOptions);
+        await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IChange)).PolymorphismOptions);
     }
 
     [Fact]
     public async Task VerifyIObjectBaseModels()
     {
-        var jsonSerializerOptions = _crdtConfig.JsonSerializerOptions;
-        await Verify(jsonSerializerOptions.GetTypeInfo(typeof(IObjectBase)).PolymorphismOptions);
+        await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IObjectBase)).PolymorphismOptions);
     }
 
     [Fact]
     public async Task VerifyIObjectWithIdModels()
     {
-        var jsonSerializerOptions = _crdtConfig.JsonSerializerOptions;
-        await Verify(jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions);
+        await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions);
     }
 
     [Fact]
     public void VerifyIObjectWithIdsMatchAdapterGetObjectTypeName()
     {
-        var jsonSerializerOptions = _crdtConfig.JsonSerializerOptions;
-        var types = jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions?.DerivedTypes ?? [];
+        var types = _jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions?.DerivedTypes ?? [];
         using (new AssertionScope())
         {
             foreach (var jsonDerivedType in types)

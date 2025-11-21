@@ -3,14 +3,19 @@ import {useLexboxApi} from '$lib/services/service-provider';
 import {useSaveHandler} from '$lib/services/save-event-service.svelte';
 import {watch, type Getter} from 'runed';
 import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
+import type {ReadonlyDeep, WritableDeep} from 'type-fest';
+
+export function copy<T>(value: T): WritableDeep<T> {
+  return JSON.parse(JSON.stringify(value)) as WritableDeep<T>;
+}
 
 export class EntryPersistence {
   lexboxApi = useLexboxApi();
   saveHandler = useSaveHandler();
-  initialEntry: IEntry | undefined = undefined;
-  constructor(private entryGetter: Getter<IEntry | undefined | null>, private onUpdated: () => void = () => { }) {
+  initialEntry: ReadonlyDeep<IEntry> | undefined = undefined;
+  constructor(private entryGetter: Getter<ReadonlyDeep<IEntry> | undefined | null>, private onUpdated: () => void = () => { }) {
     watch(entryGetter, (entry) => {
-      if (entry?.id !== this.initialEntry?.id) this.updateInitialEntry(entry);
+      this.updateInitialEntry(entry);
     });
   }
 
@@ -38,7 +43,7 @@ export class EntryPersistence {
   public async updateEntry(entry: IEntry): Promise<IEntry> {
     if (this.initialEntry === undefined) throw new Error('Not sure what to compare against');
     if (this.initialEntry.id != entry.id) throw new Error('Entry id mismatch');
-    const updatedEntry = await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry!, $state.snapshot(entry)));
+    const updatedEntry = await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry as IEntry, $state.snapshot(entry)));
     this.onUpdated();
     // use the version from the server or else we might get unsaved changes in initialEntry
     this.updateInitialEntry(updatedEntry);
@@ -49,9 +54,9 @@ export class EntryPersistence {
     if (this.initialEntry === undefined) throw new Error('Not sure what to compare against');
     const initialSense = this.initialEntry.senses.find(s => s.id === sense.id);
     let updatedSense: ISense;
-    const entry: IEntry = this.copy(this.initialEntry);
+    const entry: IEntry = copy(this.initialEntry);
     if (initialSense) {
-      updatedSense = await this.saveHandler.handleSave(() => this.lexboxApi.updateSense(sense.entryId, initialSense, $state.snapshot(sense)));
+      updatedSense = await this.saveHandler.handleSave(() => this.lexboxApi.updateSense(sense.entryId, initialSense as ISense, $state.snapshot(sense)));
       entry.senses = entry.senses.map(s => s.id === sense.id ? updatedSense : s);
     } else {
       updatedSense = await this.saveHandler.handleSave(() => this.lexboxApi.createSense(sense.entryId, $state.snapshot(sense)));
@@ -63,7 +68,7 @@ export class EntryPersistence {
 
   public async updateExample(example: IExampleSentence): Promise<IExampleSentence> {
     if (this.initialEntry === undefined) throw new Error('Not sure what to compare against');
-    const entry: IEntry = this.copy(this.initialEntry);
+    const entry: IEntry = copy(this.initialEntry);
     const sense = entry.senses.find(s => s.id === example.senseId);
     if (!sense) throw new Error(`Sense ${example.senseId} not found`);
     const initialExample = sense.exampleSentences.find(e => e.id === example.id);
@@ -79,12 +84,10 @@ export class EntryPersistence {
     return updatedExample;
   }
 
-  private updateInitialEntry(entry: IEntry | undefined | null): void {
+  private updateInitialEntry(entry: ReadonlyDeep<IEntry> | undefined | null): void {
     if (!entry) this.initialEntry = undefined;
-    else this.initialEntry = this.copy(entry);
-  }
-
-  private copy<T>(value: T): T {
-    return JSON.parse(JSON.stringify(value)) as T;
+    // no need to copy if it's immutable
+    // (Object.isFrozen only guarantees the top level is frozen, but the caller's freeze indicates a promise not to mutate nested properties.)
+    else this.initialEntry = Object.isFrozen(entry) ? entry : copy(entry);
   }
 }

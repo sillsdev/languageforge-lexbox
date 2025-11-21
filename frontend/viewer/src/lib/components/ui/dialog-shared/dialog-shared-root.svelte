@@ -79,12 +79,12 @@
   });
   const overlayProps = $derived<DialogOverlayProps>({
     // Only ever use the first/bottom dialog's overlay otherwise there's a flash due to transitions on the appearing/disappearing overlays
-    class: cn('z-50', bottomDialog || 'hidden'),
+    class: cn('z-[49]', bottomDialog || 'hidden'),
     ...dataProps,
   });
   const contentProps = $derived<DialogContentProps>({
     // Ensure the top dialog is above the shared overlay and any other dialog is below it
-    class: topDialog ? 'z-[51]' : 'z-[49]',
+    class: topDialog ? 'z-[50]' : 'z-[48]',
     // The docs claim that this is the default behaviour, but it only seems to actually work if using <Dialog.Trigger>
     onCloseAutoFocus: (event: Event) => {
       if (trigger) {

@@ -101,9 +101,11 @@
     <PackageVersion Include="SIL.Chorus.Mercurial" Version="6.5.1.43" />
     <PackageVersion Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0028" />
     <PackageVersion Include="SIL.Core" Version="14.2.0-beta0022" />
-    <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0122" />
-    <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0122" />
+    <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0138" />
+    <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0138" />
     <PackageVersion Include="SIL.WritingSystems" Version="14.2.0-beta0022" />
+    <!-- Only included so it can be excluded. See FwLiteMaui.csproj. -->
+    <PackageVersion Include="Mono.Unix" Version="7.1.0-final.1.21458.1" />
     <PackageVersion Include="Soenneker.Utils.AutoBogus" Version="3.0.410" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
     <PackageVersion Include="SQLitePCLRaw.core" Version="2.1.11" />
@@ -123,6 +125,7 @@
     <PackageVersion Include="SystemTextJsonPatch" Version="3.2.1" />
     <PackageVersion Include="tusdotnet" Version="2.8.0" />
     <PackageVersion Include="UUIDNext" Version="4.1.2" />
+    <PackageVersion Include="Verify.SystemJson" Version="1.4.1" />
     <PackageVersion Include="Verify.Xunit" Version="28.2.1" />
     <PackageVersion Include="xunit" Version="2.9.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />

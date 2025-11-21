@@ -1,9 +1,9 @@
-import papi, { logger } from '@papi/backend';
+import { logger, projectDataProviders, webViews } from '@papi/backend';
 import type { MandatoryProjectDataTypes } from '@papi/core';
 import type {
-  OpenWebViewOptionsWithProjectId,
+  DictionaryWebViewOptions,
+  ProjectWebViewOptions,
   WebViewIds,
-  WordWebViewOptions,
 } from 'fw-lite-extension';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
 // eslint-disable-next-line no-restricted-imports
@@ -45,7 +45,10 @@ export class ProjectManager {
     }
 
     logger.info(`FieldWorks dictionary not yet selected for project '${nameOrId}'`);
-    await this.openWebView(WebViewType.DictionarySelect, { type: 'float' });
+    await this.openWebView(WebViewType.DictionarySelect, {
+      floatSize: { height: 500, width: 400 },
+      type: 'float',
+    });
   }
 
   async setFwDictionaryCode(dictionaryCode: string): Promise<void> {
@@ -65,7 +68,7 @@ export class ProjectManager {
     return (await this.getName()) || this.projectId;
   }
 
-  async getWordWebViewOptions(word?: string): Promise<WordWebViewOptions> {
+  async getDictionaryWebViewOptions(word?: string): Promise<DictionaryWebViewOptions> {
     return {
       analysisLanguage: await this.getFwAnalysisLanguage(),
       dictionaryCode: await this.getFwDictionaryCode(),
@@ -77,15 +80,17 @@ export class ProjectManager {
   async openWebView(
     webViewType: WebViewType,
     layout?: Layout,
-    options?: OpenWebViewOptionsWithProjectId,
+    options?: ProjectWebViewOptions,
   ): Promise<boolean> {
-    const existingId = this.webViewIds[webViewType];
-    const newOptions = { ...options, existingId, projectId: this.projectId };
+    const webViewId = this.webViewIds[webViewType];
+    const newOptions = { ...options, projectId: this.projectId };
     logger.info(`Opening ${webViewType} WebView for project ${this.projectId}`);
-    logger.info(`WebView options: ${JSON.stringify(options)}`);
-    const newId = await papi.webViews.openWebView(webViewType, layout, newOptions);
-    if (newId) {
-      this.webViewIds[webViewType] = newId;
+    logger.info(`WebView options: ${JSON.stringify(newOptions)}`);
+    if (webViewId && (await webViews.reloadWebView(webViewType, webViewId, newOptions))) {
+      return true;
+    }
+    this.webViewIds[webViewType] = await webViews.openWebView(webViewType, layout, newOptions);
+    if (this.webViewIds[webViewType]) {
       return true;
     }
     logger.warn(`Failed to open ${webViewType} WebView for project ${this.projectId}`);
@@ -95,7 +100,7 @@ export class ProjectManager {
   private async getDataProvider(): Promise<
     IBaseProjectDataProvider<MandatoryProjectDataTypes> | undefined
   > {
-    this.dataProvider ||= await papi.projectDataProviders.get('platform.base', this.projectId);
+    this.dataProvider ||= await projectDataProviders.get('platform.base', this.projectId);
     return this.dataProvider;
   }
 

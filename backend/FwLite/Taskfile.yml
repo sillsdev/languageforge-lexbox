@@ -51,10 +51,17 @@ tasks:
     cmd: dotnet run -f net9.0-windows10.0.19041.0
 
   publish-maui-windows:
+    deps: [ publish-maui-windows-msix, publish-maui-windows-portable]
+
+  publish-maui-windows-portable:
     dir: ./FwLiteMaui
     cmds:
-      - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None
-      - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts
+      - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:BuildAndroid=false
+
+  publish-maui-windows-msix:
+    dir: ./FwLiteMaui
+    cmds:
+      - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:BuildAndroid=false
 
   run-maui-android:
     dir: ./FwLiteMaui

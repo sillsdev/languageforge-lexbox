@@ -18,7 +18,6 @@
 
   // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
   const { Story } = defineMeta({
-    title: 'primitives/lcm-rich-text-editor',
     component: LcmRichTextEditor,
     parameters: {
       fwlite: {

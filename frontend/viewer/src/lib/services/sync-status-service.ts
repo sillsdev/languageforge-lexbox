@@ -1,6 +1,7 @@
-import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-import {SyncJobStatusEnum} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncJobStatusEnum';
-import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
+import {SyncJobStatusEnum, type ISyncResult} from '$lib/dotnet-types';
+import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services';
+import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
+import {gt} from 'svelte-i18n-lingui';
 
 export function useSyncStatusService() {
   const projectContext = useProjectContext();
@@ -35,17 +36,19 @@ export class SyncStatusService {
     return this.syncStatusApi.executeSync(skipNotifications);
   }
 
-  async triggerFwHeadlessSync() {
+  async triggerFwHeadlessSync(): Promise<{status: SyncJobStatusEnum.Success, syncResult?: ISyncResult}> {
     const result = await this.syncStatusApi.triggerFwHeadlessSync();
-    if (result.status === SyncJobStatusEnum.Success) return result;
-    else throw new Error(result.error as string ?? `Sync failed with status ${result.status} but no error message`, {cause: 'TODO: Exception should go here'});
+    if (result.status === SyncJobStatusEnum.Success && !result.error) return {status: SyncJobStatusEnum.Success, syncResult: result.syncResult};
+    else {
+      const syncError = result.error as string ?? `Sync failed with status ${result.status} but no error message`;
+      throw new Error(gt`Failed to synchronize` + `\n${syncError}`);
+    }
     // TODO: Tweak SyncJobResult to have an error *message* and error *details*, and put the details in the `cause` property of the JS Error that we throw
     // throw new Error(result.errorMessage, {cause: result.errorDetails});
-
   }
 
-  getLatestCommitDate() {
-    return this.syncStatusApi.getLatestCommitDate();
+  getLatestSyncedCommitDate() {
+    return this.syncStatusApi.getLatestSyncedCommitDate();
   }
 
   getCurrentServer() {

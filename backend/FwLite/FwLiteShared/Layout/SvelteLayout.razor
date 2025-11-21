@@ -36,13 +36,14 @@ else
 
 </script>
 <div id="svelte-app" class="contents">
+  @error
 </div>
 
 @Body
 
 @code {
     private bool useDevAssets => Config.Value.UseDevAssets;
-    // private bool useDevAssets => false;
+    private string? error;
     private Uri DevUri
     {
         get
@@ -70,13 +71,26 @@ else
 
             await FwLiteProvider.SetService(JS, DotnetService.ProjectServicesProvider, ProjectServicesProvider);
 
-            if (useDevAssets)
+            try
             {
-                await JS.InvokeAsync<IJSObjectReference>("import", $"{DevScheme}://{DevHostname}:5173/src/main.ts");
-            } else
+              if (useDevAssets)
+              {
+                    await JS.InvokeAsync<IJSObjectReference>("import", $"{DevScheme}://{DevHostname}:5173/src/main.ts");
+              }
+              else
+              {
+                  await JS.InvokeAsync<IJSObjectReference>("import",
+                      "/" + Assets["_content/FwLiteShared/viewer/main.js"]);
+              }
+            }
+            catch (Exception e)
             {
-                await JS.InvokeAsync<IJSObjectReference>("import",
-                    "/" + Assets["_content/FwLiteShared/viewer/main.js"]);
+                if (useDevAssets)
+                  error = $"Failed to load dev assets. Is the viewer running (pnpm run/app)?{Environment.NewLine}{e.Message}";
+                else
+                  error = $"Failed to load assets.{Environment.NewLine}{e.Message}";
+                StateHasChanged();
+                throw;
             }
         }
     }

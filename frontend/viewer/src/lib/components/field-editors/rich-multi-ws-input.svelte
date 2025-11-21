@@ -6,7 +6,7 @@
   import {Label} from '../ui/label';
   import StompSafeLcmRichTextEditor from '../stomp/stomp-safe-lcm-rich-text-editor.svelte';
   import AudioInput from '$lib/components/field-editors/audio-input.svelte';
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
 
   const projectContext = useProjectContext();
   const supportsAudio = $derived(projectContext?.features.audio);

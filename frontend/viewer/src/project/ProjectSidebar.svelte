@@ -9,7 +9,7 @@
   import {useFwLiteConfig} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
-  import ThemePicker from '$lib/ThemePicker.svelte';
+  import ThemePicker from '$lib/components/ThemePicker.svelte';
   import {navigate, useRouter} from 'svelte-routing';
   import type {IProjectModel} from '$lib/dotnet-types';
   import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
@@ -18,12 +18,12 @@
   import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
   import SyncDialog from './SyncDialog.svelte';
   import {useFeatures} from '$lib/services/feature-service';
-  import {useProjectStats} from '$lib/project-stats';
+  import {useProjectStats} from '$project/data';
   import {formatNumber} from '$lib/components/ui/format';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
   import DevToolsDialog from '$lib/layout/DevToolsDialog.svelte';
 
   const config = useFwLiteConfig();
@@ -184,15 +184,15 @@
     <Sidebar.Group>
       <Sidebar.Menu>
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
-            <Icon icon="i-mdi-help-circle" />
-            <span>{$t`Troubleshoot`}</span>
+          <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
+            <Icon icon="i-mdi-message" />
+            <span>{$t`Feedback & Support`}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
-            <Icon icon="i-mdi-message" />
-            <span>{$t`Feedback`}</span>
+          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
+            <Icon icon="i-mdi-help-circle" />
+            <span>{$t`Troubleshoot`}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
         <Sidebar.MenuItem>

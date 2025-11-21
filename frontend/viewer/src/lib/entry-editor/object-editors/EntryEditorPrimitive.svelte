@@ -2,13 +2,12 @@
   import * as Editor from '$lib/components/editor';
   import type {IEntry} from '$lib/dotnet-types';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
-  import {vt} from '$lib/views/view-text';
+  import {pt, vt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
   import {fieldData, type FieldId} from '../field-data';
   import {cn} from '$lib/utils';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useComplexFormTypes, usePublications, useWritingSystemService} from '$project/data';
   import {MultiSelect, MultiWsInput, RichMultiWsInput} from '$lib/components/field-editors';
-  import {useComplexFormTypes} from '$lib/complex-form-types';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
@@ -18,6 +17,7 @@
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
     readonly?: boolean;
+    autofocus?: boolean;
     modalMode?: boolean;
     onchange?: (entry: IEntry, field: FieldId) => void;
   }
@@ -26,12 +26,14 @@
     entry = $bindable(),
     onchange,
     readonly = false,
+    autofocus = false,
     modalMode = false,
     ...rest
   }: Props = $props();
 
   const writingSystemService = useWritingSystemService();
   const complexFormTypes = useComplexFormTypes();
+  const publications = usePublications();
   const currentView = useCurrentView();
   initSubjectContext(() => entry);
 
@@ -48,7 +50,7 @@
           onchange={() => onFieldChanged('lexemeForm')}
           bind:value={entry.lexemeForm}
           {readonly}
-          autofocus={modalMode}
+          {autofocus}
           writingSystems={writingSystemService.viewVernacular($currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
@@ -120,6 +122,20 @@
           bind:value={entry.note}
           {readonly}
           writingSystems={writingSystemService.viewAnalysis($currentView)} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+
+  <Editor.Field.Root fieldId="publishIn" class={cn($currentView.fields.publishIn.show || 'hidden')}>
+    <Editor.Field.Title name={$t`Publish ${pt($t`Entry`, $t`Word`, $currentView)} in`} helpId={fieldData.publishIn.helpId} />
+    <Editor.Field.Body>
+      <MultiSelect
+          onchange={() => onFieldChanged('publishIn')}
+          bind:values={entry.publishIn}
+          options={publications.current}
+          labelSelector={(pub) => publications.getLabel(pub)}
+          idSelector="id"
+          sortValuesBy="optionOrder"
+          {readonly} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>

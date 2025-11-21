@@ -2,13 +2,12 @@
   import {Button} from '$lib/components/ui/button';
   import type {IEntry} from '$lib/dotnet-types';
   import EntryOrSensePicker, {type EntrySenseSelection} from '$lib/entry-editor/EntryOrSensePicker.svelte';
-  import {useWritingSystemService, type WritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService, type WritingSystemService} from '$project/data';
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import {onMount} from 'svelte';
 
   // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
   const { Story } = defineMeta({
-    title: 'editor/misc/entry-picker',
     component: EntryOrSensePicker,
     args: {
       pick(selection) {

@@ -35,6 +35,10 @@
   const formattedDate = $derived.by(() => {
     return formatDate(date, options, defaultValue);
   });
+
+  const fullDate = $derived.by(() => {
+    return formatDate(date, { dateStyle: 'full', timeStyle: 'long' });
+  });
 </script>
 
-<span {...restProps}>{formattedDate}</span>
+<span title={fullDate} {...restProps}>{formattedDate}</span>

@@ -52,21 +52,33 @@ public class ProjectService(
                 FlexProjectMetadata = input.Type == ProjectType.FLEx ? new() : null
             });
         // Also delete draft project, if any
-        await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
+        if (draftProject is not null)
+        {
+            dbContext.DraftProjects.Remove(draftProject);
+        }
 
         var manager = input.ProjectManagerId.HasValue ? await dbContext.Users.FindAsync(input.ProjectManagerId.Value) : null;
         manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
 
         await dbContext.SaveChangesAsync();
-        await hgService.InitRepo(input.Code);
-        InvalidateProjectOrgIdsCache(projectId);
-        InvalidateProjectConfidentialityCache(projectId);
-        InvalidateProjectCodeCache(input.Code);
+        try
+        {
+            await hgService.InitRepo(input.Code);
+            InvalidateProjectOrgIdsCache(projectId);
+            InvalidateProjectConfidentialityCache(projectId);
+            InvalidateProjectCodeCache(input.Code);
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            // CommitAsync() did not run [successfully], so we don't want a repo to exist
+            await hgService.DeleteRepoIfExists(input.Code);
+            throw;
+        }
         if (draftProject != null && manager != null)
         {
             await emailService.SendApproveProjectRequestEmail(manager, input);
         }
-        await transaction.CommitAsync();
         return projectId;
     }
 
@@ -207,9 +219,10 @@ public class ProjectService(
         // These checks *should* be redundant with the ProjectController's checks, but do them again anyway
         if (project is null) return null;
         if (project.RetentionPolicy != RetentionPolicy.Dev) return null;
+        // do this first, because it throws if a sync is happening
+        await fwHeadless.DeleteProject(projectId);
         dbContext.Projects.Remove(project);
-        await hgService.DeleteRepo(project.Code);
-        await fwHeadless.DeleteRepo(projectId);
+        await hgService.DeleteRepoIfExists(project.Code);
         project.UpdateUpdatedDate();
         // Don't forget to add more Invalidate calls here if we add new caches
         InvalidateProjectCodeCache(project.Code);

@@ -20,7 +20,7 @@
     bind:checked
     class={cn(
       'focus-visible:ring-ring focus-visible:ring-offset-background data-[state=checked]:bg-primary data-[state=unchecked]:bg-input peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-      className,
+      !!label || className,
     )}
     {...restProps}
   >
@@ -35,7 +35,7 @@
 {/snippet}
 
 {#if label}
-  <Label class="cursor-pointer flex items-center gap-2">
+  <Label class={cn('cursor-pointer flex items-center gap-4 max-md:w-full max-md:h-10', className)}>
     {@render control()}
     <span>{label}</span>
   </Label>

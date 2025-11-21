@@ -217,6 +217,21 @@ jobs:
             dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
             dotnet publish -r linux-arm64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
 
+      - name: Test Linux executable
+        working-directory: backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64
+        run: |
+            set +e
+            chmod +x ./FwLiteWeb
+            output=$(timeout 10s ./FwLiteWeb 2>&1)
+            exit_code=$?
+            if [ $exit_code -eq 124 ] || [ $exit_code -eq 0 ]; then
+              echo "✅ Linux executable ran without crashing for 10s"
+            else
+              echo "❌ Linux executable exited with code $exit_code"
+              echo "$output"
+              exit 1
+            fi
+
       - name: Upload FWLite Linux artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -317,7 +332,7 @@ jobs:
         working-directory: backend/FwLite/artifacts/msix
         shell: pwsh
         run: |
-          $SdkVersion = '10.0.19041.0'
+          $SdkVersion = '10.0.26100.0'
           $Architecture = 'x86'
           $sdkToolsPath = Join-Path -Path 'C:\Program Files (x86)\Windows Kits\10\bin' -ChildPath $SdkVersion -AdditionalChildPath $Architecture
           $env:Path += ";$sdkToolsPath"

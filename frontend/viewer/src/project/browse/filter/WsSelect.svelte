@@ -1,18 +1,18 @@
 <script lang="ts">
   import * as Select from '$lib/components/ui/select';
-  import {useWritingSystemService, type WritingSystemSelection} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService, type WritingSystemSelection} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
   import {watch} from 'runed';
 
   const wsService = useWritingSystemService();
 
-  let {value = $bindable(), wsType}: { value: string[], wsType: WritingSystemSelection } = $props();
-  let writingSystems = $derived(wsService.pickWritingSystems(wsType));
+  let {value = $bindable(), wsType}: { value: string[], wsType: WritingSystemSelection | undefined } = $props();
+  let writingSystems = $derived(wsType ? wsService.pickWritingSystems(wsType) : []);
   watch(() => writingSystems, () => {
     value = writingSystems.map(ws => ws.wsId);
   });
 </script>
-<Select.Root type="multiple" bind:value>
+<Select.Root disabled={!wsType} type="multiple" bind:value>
   <Select.Trigger class="flex-1">
     {#if value.length === 0}
       <span class="text-muted-foreground">{$t`Writing System`}</span>

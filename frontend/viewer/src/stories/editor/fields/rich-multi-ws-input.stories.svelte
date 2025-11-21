@@ -1,6 +1,6 @@
 <script module lang="ts">
   import RichMultiWsInput from '$lib/components/field-editors/rich-multi-ws-input.svelte';
-  import { writingSystems } from '$lib/demo-entry-data';
+  import { writingSystems } from '$project/demo/demo-entry-data';
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import { expect, fn, userEvent, within } from 'storybook/test';
   import MultiStringFieldDecorator from './MultiStringFieldDecorator.svelte';
@@ -16,7 +16,6 @@
   });
 
   const { Story } = defineMeta({
-    title: 'editor/fields/rich-multi-ws-input',
     component: RichMultiWsInput,
     argTypes: {
       readonly: {

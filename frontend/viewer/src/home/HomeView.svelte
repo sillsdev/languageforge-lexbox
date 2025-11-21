@@ -14,7 +14,7 @@
   import {t} from 'svelte-i18n-lingui';
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
   import type {IProjectModel} from '$lib/dotnet-types';
-  import ThemePicker from '$lib/ThemePicker.svelte';
+  import ThemePicker from '$lib/components/ThemePicker.svelte';
   import {Button} from '$lib/components/ui/button';
   import {mode} from 'mode-watcher';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
@@ -160,11 +160,11 @@
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
-          <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-chat-question">
-            {$t`Feedback`}
+          <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-message">
+            {$t`Feedback & Support`}
           </ResponsiveMenu.Item>
           <ResponsiveMenu.Item
-            icon="i-mdi-face-agent"
+            icon="i-mdi-help-circle"
             onSelect={() => troubleshootDialog?.open()}>
             {$t`Troubleshoot`}
           </ResponsiveMenu.Item>

@@ -1,5 +1,5 @@
 <script module lang="ts">
-  import { writingSystems } from '$lib/demo-entry-data';
+  import { writingSystems } from '$project/demo/demo-entry-data';
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import { expect, fn, userEvent, within } from 'storybook/test';
   import FieldDecorator from './FieldDecorator.svelte';
@@ -9,7 +9,6 @@
   let value = $state({ current: 'A fun example value' });
 
   const { Story } = defineMeta({
-    title: 'editor/fields/ws-input',
     component: WsInputWrapper,
     argTypes: {
       readonly: {

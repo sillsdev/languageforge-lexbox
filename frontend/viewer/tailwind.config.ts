@@ -48,6 +48,7 @@ export default {
     extend: {
       screens: {
         'md': `${MOBILE_BREAKPOINT}px`,
+        'max-xs': {'max': '400px'},
         'max-sm': {'max': '639px'},
         'max-md': {'max': '767px'},
 
@@ -129,11 +130,26 @@ export default {
           '0%,70%,100%': {opacity: '1'},
           '20%,50%': {opacity: '0'},
         },
+        'shimmer': {
+          from: {
+            'background-position': '100% 0;'
+          },
+          to: {
+            'background-position': '-100% 0;'
+          }
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'caret-blink': 'caret-blink 1.25s ease-out infinite',
+        'shimmer': 'shimmer 2.0s linear infinite',
+      },
+      backgroundImage: {
+        'shimmer': 'linear-gradient(90deg, hsl(var(--muted-foreground)/0.2) 20%, hsl(var(--foreground)/0.3) 50%, hsl(var(--muted-foreground)/0.2) 65%)',
+      },
+      backgroundSize: {
+        'shimmer': '200% 100%',
       },
     },
   },

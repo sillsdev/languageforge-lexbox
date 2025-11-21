@@ -1,0 +1,1845 @@
+[
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "a4627ca8-f27b-44ce-91f5-cc992332bc86",
+        "Name": {
+          "en": "Husband, wife"
+        },
+        "Code": "4.1.9.2.1",
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "Id": "a4627ca8-f27b-44ce-91f5-cc992332bc86",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "a4627ca8-f27b-44ce-91f5-cc992332bc86",
+        "Name": {
+          "en": "Husband, wife"
+        },
+        "Code": "4.1.9.2.1",
+        "DeletedAt": null,
+        "Predefined": false
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "a4627ca8-f27b-44ce-91f5-cc992332bc86",
+        "Name": {
+          "en": "Husband, wife"
+        },
+        "Code": "4.1.9.2.1",
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "Id": "a4627ca8-f27b-44ce-91f5-cc992332bc86",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "962941b2-66bd-437f-aadc-b1921bcae5b4",
+        "Name": {
+          "en": "Poison"
+        },
+        "Code": "2.5.3.2",
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "Id": "962941b2-66bd-437f-aadc-b1921bcae5b4",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "962941b2-66bd-437f-aadc-b1921bcae5b4",
+        "Name": {
+          "en": "Poison"
+        },
+        "Code": "2.5.3.2",
+        "DeletedAt": null,
+        "Predefined": false
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "962941b2-66bd-437f-aadc-b1921bcae5b4",
+        "Name": {
+          "en": "Poison"
+        },
+        "Code": "2.5.3.2",
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "Id": "962941b2-66bd-437f-aadc-b1921bcae5b4",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "8f403ae3-9859-4a74-a52d-3c0736bb5917",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Pineapple"
+        },
+        "CitationForm": {},
+        "LiteralMeaning": {},
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [
+          {
+            "Id": "1f6ae209-141a-40db-983c-bee93af0ca3c",
+            "Name": {
+              "en": "Compound"
+            },
+            "DeletedAt": null
+          }
+        ]
+      },
+      "Id": "8f403ae3-9859-4a74-a52d-3c0736bb5917",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "8f403ae3-9859-4a74-a52d-3c0736bb5917",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Pineapple"
+        },
+        "CitationForm": {},
+        "LiteralMeaning": {},
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [
+          {
+            "Id": "1f6ae209-141a-40db-983c-bee93af0ca3c",
+            "Name": {
+              "en": "Compound"
+            },
+            "DeletedAt": null
+          }
+        ]
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "8f403ae3-9859-4a74-a52d-3c0736bb5917",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Pineapple"
+        },
+        "CitationForm": {},
+        "LiteralMeaning": {},
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [
+          {
+            "Id": "1f6ae209-141a-40db-983c-bee93af0ca3c",
+            "Name": {
+              "en": "Compound"
+            },
+            "DeletedAt": null
+          }
+        ],
+        "PublishIn": []
+      },
+      "Id": "8f403ae3-9859-4a74-a52d-3c0736bb5917",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "82cf7254-3a4f-497a-9e15-7d93fc830356",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "\uD83C\uDF4C",
+          "th": "\u0E01\u0E25\u0E49\u0E27\u0E22"
+        },
+        "CitationForm": {},
+        "LiteralMeaning": {
+          "en": "yellow fruit that comes in bunches."
+        },
+        "Senses": [],
+        "Note": {
+          "en": "often used in cartoon gags for slipping"
+        },
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": []
+      },
+      "Id": "82cf7254-3a4f-497a-9e15-7d93fc830356",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "82cf7254-3a4f-497a-9e15-7d93fc830356",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "\uD83C\uDF4C",
+          "th": "\u0E01\u0E25\u0E49\u0E27\u0E22"
+        },
+        "CitationForm": {},
+        "LiteralMeaning": {
+          "en": "yellow fruit that comes in bunches."
+        },
+        "Senses": [],
+        "Note": {
+          "en": "often used in cartoon gags for slipping"
+        },
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": []
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "82cf7254-3a4f-497a-9e15-7d93fc830356",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "\uD83C\uDF4C",
+          "th": "\u0E01\u0E25\u0E49\u0E27\u0E22"
+        },
+        "CitationForm": {},
+        "LiteralMeaning": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "yellow fruit that comes in bunches.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "often used in cartoon gags for slipping",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [],
+        "PublishIn": []
+      },
+      "Id": "82cf7254-3a4f-497a-9e15-7d93fc830356",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "PartOfSpeech",
+        "Id": "a3274cfd-225f-45fd-8851-a7b1a1e1037a",
+        "Name": {
+          "en": "Pronoun"
+        },
+        "DeletedAt": null,
+        "Predefined": true
+      },
+      "Id": "a3274cfd-225f-45fd-8851-a7b1a1e1037a",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "a3274cfd-225f-45fd-8851-a7b1a1e1037a",
+        "Name": {
+          "en": "Pronoun"
+        },
+        "DeletedAt": null,
+        "Predefined": true
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "PartOfSpeech",
+        "Id": "a3274cfd-225f-45fd-8851-a7b1a1e1037a",
+        "Name": {
+          "en": "Pronoun"
+        },
+        "DeletedAt": null,
+        "Predefined": true
+      },
+      "Id": "a3274cfd-225f-45fd-8851-a7b1a1e1037a",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormComponent",
+        "Id": "29ff092d-1e5a-4bc9-95b9-22be9d9143c5",
+        "DeletedAt": null,
+        "ComplexFormEntryId": "82cf7254-3a4f-497a-9e15-7d93fc830356",
+        "ComplexFormHeadword": "\uD83C\uDF4C",
+        "ComponentEntryId": "e5dbeb7f-4df4-4fc7-82c2-a1e14f49365a",
+        "ComponentSenseId": null,
+        "ComponentHeadword": "Pine apple"
+      },
+      "Id": "29ff092d-1e5a-4bc9-95b9-22be9d9143c5",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "29ff092d-1e5a-4bc9-95b9-22be9d9143c5",
+        "DeletedAt": null,
+        "ComplexFormEntryId": "82cf7254-3a4f-497a-9e15-7d93fc830356",
+        "ComplexFormHeadword": "\uD83C\uDF4C",
+        "ComponentEntryId": "e5dbeb7f-4df4-4fc7-82c2-a1e14f49365a",
+        "ComponentSenseId": null,
+        "ComponentHeadword": "Pine apple"
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormComponent",
+        "Id": "29ff092d-1e5a-4bc9-95b9-22be9d9143c5",
+        "MaybeId": "29ff092d-1e5a-4bc9-95b9-22be9d9143c5",
+        "Order": 0,
+        "DeletedAt": null,
+        "ComplexFormEntryId": "82cf7254-3a4f-497a-9e15-7d93fc830356",
+        "ComplexFormHeadword": "\uD83C\uDF4C",
+        "ComponentEntryId": "e5dbeb7f-4df4-4fc7-82c2-a1e14f49365a",
+        "ComponentSenseId": null,
+        "ComponentHeadword": "Pine apple"
+      },
+      "Id": "29ff092d-1e5a-4bc9-95b9-22be9d9143c5",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormType",
+        "Id": "35cee792-74c8-444e-a9b7-ed0461d4d3b7",
+        "Name": {
+          "en": "Phrasal Verb"
+        },
+        "DeletedAt": null
+      },
+      "Id": "35cee792-74c8-444e-a9b7-ed0461d4d3b7",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "35cee792-74c8-444e-a9b7-ed0461d4d3b7",
+        "Name": {
+          "en": "Phrasal Verb"
+        },
+        "DeletedAt": null
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormType",
+        "Id": "35cee792-74c8-444e-a9b7-ed0461d4d3b7",
+        "Name": {
+          "en": "Phrasal Verb"
+        },
+        "DeletedAt": null
+      },
+      "Id": "35cee792-74c8-444e-a9b7-ed0461d4d3b7",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormComponent",
+        "Id": "925daf31-61de-4330-8b90-23af0f5967f7",
+        "DeletedAt": null,
+        "ComplexFormEntryId": "8f403ae3-9859-4a74-a52d-3c0736bb5917",
+        "ComplexFormHeadword": "Pineapple",
+        "ComponentEntryId": "c06e7e0e-7822-41fa-9347-00f8115d5791",
+        "ComponentSenseId": null,
+        "ComponentHeadword": "Pine"
+      },
+      "Id": "925daf31-61de-4330-8b90-23af0f5967f7",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "925daf31-61de-4330-8b90-23af0f5967f7",
+        "DeletedAt": null,
+        "ComplexFormEntryId": "8f403ae3-9859-4a74-a52d-3c0736bb5917",
+        "ComplexFormHeadword": "Pineapple",
+        "ComponentEntryId": "c06e7e0e-7822-41fa-9347-00f8115d5791",
+        "ComponentSenseId": null,
+        "ComponentHeadword": "Pine"
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormComponent",
+        "Id": "925daf31-61de-4330-8b90-23af0f5967f7",
+        "MaybeId": "925daf31-61de-4330-8b90-23af0f5967f7",
+        "Order": 0,
+        "DeletedAt": null,
+        "ComplexFormEntryId": "8f403ae3-9859-4a74-a52d-3c0736bb5917",
+        "ComplexFormHeadword": "Pineapple",
+        "ComponentEntryId": "c06e7e0e-7822-41fa-9347-00f8115d5791",
+        "ComponentSenseId": null,
+        "ComponentHeadword": "Pine"
+      },
+      "Id": "925daf31-61de-4330-8b90-23af0f5967f7",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "PartOfSpeech",
+        "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+        "Name": {
+          "en": "Verb"
+        },
+        "DeletedAt": null,
+        "Predefined": true
+      },
+      "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+        "Name": {
+          "en": "Verb"
+        },
+        "DeletedAt": null,
+        "Predefined": true
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "PartOfSpeech",
+        "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+        "Name": {
+          "en": "Verb"
+        },
+        "DeletedAt": null,
+        "Predefined": true
+      },
+      "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormType",
+        "Id": "fec038ed-6a8c-4fa5-bc96-a4f515a98c50",
+        "Name": {
+          "en": "Unspecified Complex Form"
+        },
+        "DeletedAt": null
+      },
+      "Id": "fec038ed-6a8c-4fa5-bc96-a4f515a98c50",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "fec038ed-6a8c-4fa5-bc96-a4f515a98c50",
+        "Name": {
+          "en": "Unspecified Complex Form"
+        },
+        "DeletedAt": null
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormType",
+        "Id": "fec038ed-6a8c-4fa5-bc96-a4f515a98c50",
+        "Name": {
+          "en": "Unspecified Complex Form"
+        },
+        "DeletedAt": null
+      },
+      "Id": "fec038ed-6a8c-4fa5-bc96-a4f515a98c50",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
+        "Order": 1,
+        "Sentence": {
+          "en": "My kids love unwrapping gooseberries"
+        },
+        "Translation": {
+          "en": "they think it\u0027s fun"
+        },
+        "Reference": "Scott\u0027s head",
+        "SenseId": "413d9f9b-d389-42a1-822f-9d9dea06ba9e",
+        "DeletedAt": null
+      },
+      "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
+        "Order": 1,
+        "Sentence": {
+          "en": "My kids love unwrapping gooseberries"
+        },
+        "Translation": {
+          "en": "they think it\u0027s fun"
+        },
+        "Reference": "Scott\u0027s head",
+        "SenseId": "413d9f9b-d389-42a1-822f-9d9dea06ba9e",
+        "DeletedAt": null
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
+        "Order": 1,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "My kids love unwrapping gooseberries",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Translations": [
+          {
+            "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+            "Text": {
+              "en": {
+                "Spans": [
+                  {
+                    "Text": "they think it\u0027s fun",
+                    "Ws": "en"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "Reference": {
+          "Spans": [
+            {
+              "Text": "Scott\u0027s head",
+              "Ws": "default"
+            }
+          ]
+        },
+        "SenseId": "413d9f9b-d389-42a1-822f-9d9dea06ba9e",
+        "DeletedAt": null
+      },
+      "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "468b3fd0-3d9e-4cae-9e4f-842dec5fa74d",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "70855b06-0b28-4d36-9175-3d57200dd29d",
+        "Definition": {},
+        "Gloss": {
+          "en": "the sweet and fleshy product of a tree or other plant that contains seed and can be eaten as food"
+        },
+        "PartOfSpeech": "Noun",
+        "PartOfSpeechId": "a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5",
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "468b3fd0-3d9e-4cae-9e4f-842dec5fa74d",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "468b3fd0-3d9e-4cae-9e4f-842dec5fa74d",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "70855b06-0b28-4d36-9175-3d57200dd29d",
+        "Definition": {},
+        "Gloss": {
+          "en": "the sweet and fleshy product of a tree or other plant that contains seed and can be eaten as food"
+        },
+        "PartOfSpeech": "Noun",
+        "PartOfSpeechId": "a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5",
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "468b3fd0-3d9e-4cae-9e4f-842dec5fa74d",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "70855b06-0b28-4d36-9175-3d57200dd29d",
+        "Definition": {},
+        "Gloss": {
+          "en": "the sweet and fleshy product of a tree or other plant that contains seed and can be eaten as food"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": "a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5",
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "468b3fd0-3d9e-4cae-9e4f-842dec5fa74d",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "ac8c3b6f-9487-4949-ab7a-1ed078cadffe",
+        "Order": 1,
+        "DeletedAt": null,
+        "EntryId": "bf4fe0e2-5378-4425-9fba-9f66c32c438c",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "Fruit"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": null,
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "ac8c3b6f-9487-4949-ab7a-1ed078cadffe",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "ac8c3b6f-9487-4949-ab7a-1ed078cadffe",
+        "Order": 1,
+        "DeletedAt": null,
+        "EntryId": "bf4fe0e2-5378-4425-9fba-9f66c32c438c",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "Fruit"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": null,
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "ac8c3b6f-9487-4949-ab7a-1ed078cadffe",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "ff2f6647-0ff2-4d67-845b-c43baf851d93",
+        "Order": 2,
+        "DeletedAt": null,
+        "EntryId": "89c8b1e8-de9c-46cf-ba55-833b62f7a579",
+        "Definition": {
+          "en": "may or may not lay golden eggs"
+        },
+        "Gloss": {
+          "en": "brid"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": null,
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "ff2f6647-0ff2-4d67-845b-c43baf851d93",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "ff2f6647-0ff2-4d67-845b-c43baf851d93",
+        "Order": 2,
+        "DeletedAt": null,
+        "EntryId": "89c8b1e8-de9c-46cf-ba55-833b62f7a579",
+        "Definition": {
+          "en": "may or may not lay golden eggs"
+        },
+        "Gloss": {
+          "en": "brid"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": null,
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "ff2f6647-0ff2-4d67-845b-c43baf851d93",
+        "Order": 2,
+        "DeletedAt": null,
+        "EntryId": "89c8b1e8-de9c-46cf-ba55-833b62f7a579",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "may or may not lay golden eggs",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "brid"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": null,
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "ff2f6647-0ff2-4d67-845b-c43baf851d93",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "WsId": "en",
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
+        "DeletedAt": null,
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      },
+      "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "WsId": "en",
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
+        "DeletedAt": null,
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "MaybeId": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
+        "DeletedAt": null,
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      },
+      "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "WsId": "en",
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      },
+      "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "WsId": "en",
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "MaybeId": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      },
+      "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "00000000-0000-0000-0000-6038aa8174c3",
+        "Order": 0,
+        "Sentence": {
+          "en": "I \uD83D\uDC95 bananas"
+        },
+        "Translation": {},
+        "Reference": "",
+        "SenseId": "00000000-0000-0000-0000-e3e012824c86",
+        "DeletedAt": null
+      },
+      "Id": "00000000-0000-0000-0000-6038aa8174c3",
+      "DeletedAt": null,
+      "DbObject": {
+        "Id": "00000000-0000-0000-0000-6038aa8174c3",
+        "Order": 0,
+        "Sentence": {
+          "en": "I \uD83D\uDC95 bananas"
+        },
+        "Translation": {},
+        "Reference": "",
+        "SenseId": "00000000-0000-0000-0000-e3e012824c86",
+        "DeletedAt": null
+      }
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "00000000-0000-0000-0000-6038aa8174c3",
+        "Order": 0,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "I \uD83D\uDC95 bananas",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Translations": [],
+        "Reference": null,
+        "SenseId": "00000000-0000-0000-0000-e3e012824c86",
+        "DeletedAt": null
+      },
+      "Id": "00000000-0000-0000-0000-6038aa8174c3",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
+        "Order": 1,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "My kids love unwrapping gooseberries",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Translation": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "they think it\u0027s fun",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Reference": {
+          "Spans": [
+            {
+              "Text": "Scott\u0027s head",
+              "Ws": "default"
+            }
+          ]
+        },
+        "SenseId": "413d9f9b-d389-42a1-822f-9d9dea06ba9e",
+        "DeletedAt": null
+      },
+      "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
+        "Order": 1,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "My kids love unwrapping gooseberries",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Translations": [
+          {
+            "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+            "Text": {
+              "en": {
+                "Spans": [
+                  {
+                    "Text": "they think it\u0027s fun",
+                    "Ws": "en"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "Reference": {
+          "Spans": [
+            {
+              "Text": "Scott\u0027s head",
+              "Ws": "default"
+            }
+          ]
+        },
+        "SenseId": "413d9f9b-d389-42a1-822f-9d9dea06ba9e",
+        "DeletedAt": null
+      },
+      "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "803d70e9-7ca6-5a14-5776-955ea413f003",
+        "Order": 0,
+        "Sentence": {
+          "tql": {
+            "Spans": [
+              {
+                "Text": "pixel",
+                "Ws": "tql",
+                "Tags": [
+                  "1df469ef-5f08-424f-a9ce-72cd2c51e5c1"
+                ]
+              },
+              {
+                "Text": "South Carolina",
+                "Ws": "tql",
+                "Tags": [
+                  "26a80018-8c73-42e0-a5b1-d27c386c60ee"
+                ]
+              },
+              {
+                "Text": "Borders",
+                "Ws": "puw",
+                "Bold": "On",
+                "FontSize": 872537563,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "4020754c-d80d-3f46-89fb-900673d18692"
+                ]
+              }
+            ]
+          }
+        },
+        "Translation": {
+          "dby": {
+            "Spans": [
+              {
+                "Text": "Personal Loan Account",
+                "Ws": "dby",
+                "Tags": [
+                  "879aa5eb-48ac-475c-9382-947b51d70ec8"
+                ]
+              },
+              {
+                "Text": "non-volatile",
+                "Ws": "dby",
+                "Tags": [
+                  "07d5e757-afd2-4021-8654-1c8122c454f1"
+                ]
+              },
+              {
+                "Text": "Awesome Granite Ball",
+                "Ws": "ymi",
+                "Bold": "Off",
+                "FontSize": 1665030974,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "11e5b769-68c5-53bb-b7a2-6d9046df8be5"
+                ]
+              }
+            ]
+          },
+          "bvp": {
+            "Spans": [
+              {
+                "Text": "withdrawal",
+                "Ws": "bpp",
+                "Bold": "Off",
+                "FontSize": -1191594913,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "54977e53-520a-da03-23ba-78918705632b"
+                ]
+              },
+              {
+                "Text": "Indiana",
+                "Ws": "shd",
+                "Bold": "On",
+                "FontSize": 181106855,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "011ec8e3-68ff-149e-54c7-c751b5eb4389"
+                ]
+              },
+              {
+                "Text": "Kwanza",
+                "Ws": "lle",
+                "Bold": "On",
+                "FontSize": -1968726792,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "c8ee48e1-281b-085b-ebfa-e2fc03624198"
+                ]
+              }
+            ]
+          },
+          "ysl": {
+            "Spans": [
+              {
+                "Text": "Legacy",
+                "Ws": "mvn",
+                "Bold": "Invert",
+                "FontSize": -645076025,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "e818e92a-429b-1ce3-cd59-f6323fa43dcb"
+                ]
+              }
+            ]
+          }
+        },
+        "Reference": {
+          "Spans": [
+            {
+              "Text": "ADP",
+              "Ws": "csb",
+              "Bold": "Off",
+              "FontSize": 1972808377,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "8d6d49c7-37e3-923b-1704-308c455312d9"
+              ]
+            },
+            {
+              "Text": "payment",
+              "Ws": "btw",
+              "Bold": "On",
+              "FontSize": -1230510158,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "77493ed8-d1fd-7ccc-9e11-e056942297c6"
+              ]
+            }
+          ]
+        },
+        "SenseId": "44edb1ce-488b-3b73-1ee1-fa8340ce2b53",
+        "DeletedAt": null
+      },
+      "Id": "803d70e9-7ca6-5a14-5776-955ea413f003",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "803d70e9-7ca6-5a14-5776-955ea413f003",
+        "Order": 0,
+        "Sentence": {
+          "tql": {
+            "Spans": [
+              {
+                "Text": "pixel",
+                "Ws": "tql",
+                "Tags": [
+                  "1df469ef-5f08-424f-a9ce-72cd2c51e5c1"
+                ]
+              },
+              {
+                "Text": "South Carolina",
+                "Ws": "tql",
+                "Tags": [
+                  "26a80018-8c73-42e0-a5b1-d27c386c60ee"
+                ]
+              },
+              {
+                "Text": "Borders",
+                "Ws": "puw",
+                "Bold": "On",
+                "FontSize": 872537563,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "4020754c-d80d-3f46-89fb-900673d18692"
+                ]
+              }
+            ]
+          }
+        },
+        "Translations": [
+          {
+            "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+            "Text": {
+              "dby": {
+                "Spans": [
+                  {
+                    "Text": "Personal Loan Account",
+                    "Ws": "dby",
+                    "Tags": [
+                      "879aa5eb-48ac-475c-9382-947b51d70ec8"
+                    ]
+                  },
+                  {
+                    "Text": "non-volatile",
+                    "Ws": "dby",
+                    "Tags": [
+                      "07d5e757-afd2-4021-8654-1c8122c454f1"
+                    ]
+                  },
+                  {
+                    "Text": "Awesome Granite Ball",
+                    "Ws": "ymi",
+                    "Bold": "Off",
+                    "FontSize": 1665030974,
+                    "ForeColor": "#00FFFF",
+                    "Tags": [
+                      "11e5b769-68c5-53bb-b7a2-6d9046df8be5"
+                    ]
+                  }
+                ]
+              },
+              "bvp": {
+                "Spans": [
+                  {
+                    "Text": "withdrawal",
+                    "Ws": "bpp",
+                    "Bold": "Off",
+                    "FontSize": -1191594913,
+                    "ForeColor": "#00FFFF",
+                    "Tags": [
+                      "54977e53-520a-da03-23ba-78918705632b"
+                    ]
+                  },
+                  {
+                    "Text": "Indiana",
+                    "Ws": "shd",
+                    "Bold": "On",
+                    "FontSize": 181106855,
+                    "ForeColor": "#FF0000",
+                    "Tags": [
+                      "011ec8e3-68ff-149e-54c7-c751b5eb4389"
+                    ]
+                  },
+                  {
+                    "Text": "Kwanza",
+                    "Ws": "lle",
+                    "Bold": "On",
+                    "FontSize": -1968726792,
+                    "ForeColor": "#0000FF",
+                    "Tags": [
+                      "c8ee48e1-281b-085b-ebfa-e2fc03624198"
+                    ]
+                  }
+                ]
+              },
+              "ysl": {
+                "Spans": [
+                  {
+                    "Text": "Legacy",
+                    "Ws": "mvn",
+                    "Bold": "Invert",
+                    "FontSize": -645076025,
+                    "ForeColor": "#FF0000",
+                    "Tags": [
+                      "e818e92a-429b-1ce3-cd59-f6323fa43dcb"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "Reference": {
+          "Spans": [
+            {
+              "Text": "ADP",
+              "Ws": "csb",
+              "Bold": "Off",
+              "FontSize": 1972808377,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "8d6d49c7-37e3-923b-1704-308c455312d9"
+              ]
+            },
+            {
+              "Text": "payment",
+              "Ws": "btw",
+              "Bold": "On",
+              "FontSize": -1230510158,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "77493ed8-d1fd-7ccc-9e11-e056942297c6"
+              ]
+            }
+          ]
+        },
+        "SenseId": "44edb1ce-488b-3b73-1ee1-fa8340ce2b53",
+        "DeletedAt": null
+      },
+      "Id": "803d70e9-7ca6-5a14-5776-955ea413f003",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "00000000-0000-0000-0000-6038aa8174c3",
+        "Order": 0,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "I \uD83D\uDC95 bananas",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Translation": {},
+        "Reference": null,
+        "SenseId": "00000000-0000-0000-0000-e3e012824c86",
+        "DeletedAt": null
+      },
+      "Id": "00000000-0000-0000-0000-6038aa8174c3",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "00000000-0000-0000-0000-6038aa8174c3",
+        "Order": 0,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "I \uD83D\uDC95 bananas",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Translations": [],
+        "Reference": null,
+        "SenseId": "00000000-0000-0000-0000-e3e012824c86",
+        "DeletedAt": null
+      },
+      "Id": "00000000-0000-0000-0000-6038aa8174c3",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "22365a16-4766-423e-58be-aa8cc941cb54",
+        "Order": 0,
+        "Sentence": {
+          "mrx": {
+            "Spans": [
+              {
+                "Text": "Delaware",
+                "Ws": "xlb",
+                "Bold": "On",
+                "FontSize": 1748906228,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "1941f5c2-799f-0ce0-bca7-58bb65f21d73"
+                ]
+              }
+            ]
+          },
+          "amw": {
+            "Spans": [
+              {
+                "Text": "Triple-buffered",
+                "Ws": "mdf",
+                "Bold": "On",
+                "FontSize": -568584253,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "de01147d-c98f-2d8a-a830-5d23b1a27218"
+                ]
+              },
+              {
+                "Text": "navigating",
+                "Ws": "amw",
+                "Tags": [
+                  "b120a366-1502-4f51-870d-29101117c45a"
+                ]
+              }
+            ]
+          },
+          "dng": {
+            "Spans": [
+              {
+                "Text": "Frozen",
+                "Ws": "mul",
+                "Bold": "Off",
+                "FontSize": 2121728509,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "70a17c80-6dcd-aff2-9103-8af42c840b9a"
+                ]
+              },
+              {
+                "Text": "Personal Loan Account",
+                "Ws": "bcn",
+                "Bold": "Off",
+                "FontSize": -2006464735,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "eed71b05-fcf7-5232-5d66-95373cbfd5be"
+                ]
+              }
+            ]
+          }
+        },
+        "Translation": {
+          "mzs": {
+            "Spans": [
+              {
+                "Text": "Small",
+                "Ws": "mzs",
+                "Tags": [
+                  "9f8d3fbd-79cd-4650-a45d-e37b3a813715"
+                ]
+              },
+              {
+                "Text": "Field",
+                "Ws": "mzs",
+                "Tags": [
+                  "f68dc993-4800-437b-a1f9-6de730dc71a1"
+                ]
+              },
+              {
+                "Text": "Cambridgeshire",
+                "Ws": "zgm",
+                "Bold": "Invert",
+                "FontSize": 881605744,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "26493a82-c598-72aa-d0c3-75220e1ac470"
+                ]
+              }
+            ]
+          },
+          "kgk": {
+            "Spans": [
+              {
+                "Text": "National",
+                "Ws": "oav",
+                "Bold": "Invert",
+                "FontSize": 2061172555,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "c22898e5-903a-bef3-737f-efbb33145be1"
+                ]
+              },
+              {
+                "Text": "Harbors",
+                "Ws": "kgk",
+                "Tags": [
+                  "9b240525-1ccb-4189-92d8-2b242938d393"
+                ]
+              }
+            ]
+          },
+          "xyb": {
+            "Spans": [
+              {
+                "Text": "capability",
+                "Ws": "sqr",
+                "Bold": "Off",
+                "FontSize": -792440808,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "b91636e3-0b60-dad5-6f71-446752fb7ff7"
+                ]
+              },
+              {
+                "Text": "Saint Helena",
+                "Ws": "zro",
+                "Bold": "Invert",
+                "FontSize": -112975738,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "7918e5d5-5b2f-f46c-5426-fa8c057581ef"
+                ]
+              }
+            ]
+          }
+        },
+        "Reference": {
+          "Spans": [
+            {
+              "Text": "Kids",
+              "Ws": "khk",
+              "Bold": "On",
+              "FontSize": 959381480,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "f8102456-1315-360e-8dbd-f43e214058c7"
+              ]
+            },
+            {
+              "Text": "vortals",
+              "Ws": "bco",
+              "Bold": "Off",
+              "FontSize": -92347376,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "13590a24-9df3-c56d-0840-959080e7c732"
+              ]
+            }
+          ]
+        },
+        "SenseId": "f82fca1a-d3fa-14f5-e07e-3eef03c2fb7f",
+        "DeletedAt": null
+      },
+      "Id": "22365a16-4766-423e-58be-aa8cc941cb54",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "22365a16-4766-423e-58be-aa8cc941cb54",
+        "Order": 0,
+        "Sentence": {
+          "mrx": {
+            "Spans": [
+              {
+                "Text": "Delaware",
+                "Ws": "xlb",
+                "Bold": "On",
+                "FontSize": 1748906228,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "1941f5c2-799f-0ce0-bca7-58bb65f21d73"
+                ]
+              }
+            ]
+          },
+          "amw": {
+            "Spans": [
+              {
+                "Text": "Triple-buffered",
+                "Ws": "mdf",
+                "Bold": "On",
+                "FontSize": -568584253,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "de01147d-c98f-2d8a-a830-5d23b1a27218"
+                ]
+              },
+              {
+                "Text": "navigating",
+                "Ws": "amw",
+                "Tags": [
+                  "b120a366-1502-4f51-870d-29101117c45a"
+                ]
+              }
+            ]
+          },
+          "dng": {
+            "Spans": [
+              {
+                "Text": "Frozen",
+                "Ws": "mul",
+                "Bold": "Off",
+                "FontSize": 2121728509,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "70a17c80-6dcd-aff2-9103-8af42c840b9a"
+                ]
+              },
+              {
+                "Text": "Personal Loan Account",
+                "Ws": "bcn",
+                "Bold": "Off",
+                "FontSize": -2006464735,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "eed71b05-fcf7-5232-5d66-95373cbfd5be"
+                ]
+              }
+            ]
+          }
+        },
+        "Translations": [
+          {
+            "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+            "Text": {
+              "mzs": {
+                "Spans": [
+                  {
+                    "Text": "Small",
+                    "Ws": "mzs",
+                    "Tags": [
+                      "9f8d3fbd-79cd-4650-a45d-e37b3a813715"
+                    ]
+                  },
+                  {
+                    "Text": "Field",
+                    "Ws": "mzs",
+                    "Tags": [
+                      "f68dc993-4800-437b-a1f9-6de730dc71a1"
+                    ]
+                  },
+                  {
+                    "Text": "Cambridgeshire",
+                    "Ws": "zgm",
+                    "Bold": "Invert",
+                    "FontSize": 881605744,
+                    "ForeColor": "#A52A2A",
+                    "Tags": [
+                      "26493a82-c598-72aa-d0c3-75220e1ac470"
+                    ]
+                  }
+                ]
+              },
+              "kgk": {
+                "Spans": [
+                  {
+                    "Text": "National",
+                    "Ws": "oav",
+                    "Bold": "Invert",
+                    "FontSize": 2061172555,
+                    "ForeColor": "#0000FF",
+                    "Tags": [
+                      "c22898e5-903a-bef3-737f-efbb33145be1"
+                    ]
+                  },
+                  {
+                    "Text": "Harbors",
+                    "Ws": "kgk",
+                    "Tags": [
+                      "9b240525-1ccb-4189-92d8-2b242938d393"
+                    ]
+                  }
+                ]
+              },
+              "xyb": {
+                "Spans": [
+                  {
+                    "Text": "capability",
+                    "Ws": "sqr",
+                    "Bold": "Off",
+                    "FontSize": -792440808,
+                    "ForeColor": "#0000FF",
+                    "Tags": [
+                      "b91636e3-0b60-dad5-6f71-446752fb7ff7"
+                    ]
+                  },
+                  {
+                    "Text": "Saint Helena",
+                    "Ws": "zro",
+                    "Bold": "Invert",
+                    "FontSize": -112975738,
+                    "ForeColor": "#00FFFF",
+                    "Tags": [
+                      "7918e5d5-5b2f-f46c-5426-fa8c057581ef"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "Reference": {
+          "Spans": [
+            {
+              "Text": "Kids",
+              "Ws": "khk",
+              "Bold": "On",
+              "FontSize": 959381480,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "f8102456-1315-360e-8dbd-f43e214058c7"
+              ]
+            },
+            {
+              "Text": "vortals",
+              "Ws": "bco",
+              "Bold": "Off",
+              "FontSize": -92347376,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "13590a24-9df3-c56d-0840-959080e7c732"
+              ]
+            }
+          ]
+        },
+        "SenseId": "f82fca1a-d3fa-14f5-e07e-3eef03c2fb7f",
+        "DeletedAt": null
+      },
+      "Id": "22365a16-4766-423e-58be-aa8cc941cb54",
+      "DeletedAt": null
+    }
+  }
+]

@@ -20,6 +20,12 @@
     <PackageReference Include="Refit" />
     <PackageReference Include="Refit.HttpClientFactory" />
   </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform('linux'))">
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
+    <PackageReference Include="SQLitePCLRaw.core" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" />
+    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\harmony\src\SIL.Harmony\SIL.Harmony.csproj" />
     <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />

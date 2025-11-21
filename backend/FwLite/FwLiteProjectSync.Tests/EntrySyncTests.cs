@@ -1,4 +1,7 @@
+using System.Text;
+using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync.Tests.Fixtures;
+using LcmCrdt;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
@@ -7,53 +10,50 @@ using Soenneker.Utils.AutoBogus;
 
 namespace FwLiteProjectSync.Tests;
 
-public class CrdtEntrySyncTests(SyncFixture fixture) : EntrySyncTestsBase(fixture)
+public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntrySyncTestsBase(fixture)
 {
-    private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.Config);
-
     protected override IMiniLcmApi GetApi(SyncFixture fixture)
     {
         return fixture.CrdtApi;
     }
-
-    [Fact]
-    public async Task CanSyncRandomEntries()
-    {
-        var createdEntry = await Api.CreateEntry(await AutoFaker.EntryReadyForCreation(Api));
-        var after = await AutoFaker.EntryReadyForCreation(Api, entryId: createdEntry.Id);
-
-        after.Senses = [.. AutoFaker.Faker.Random.Shuffle([
-                // copy some senses over, so moves happen
-                ..AutoFaker.Faker.Random.ListItems(createdEntry.Senses),
-                ..after.Senses
-            ])];
-
-        await EntrySync.SyncFull(createdEntry, after, Api);
-        var actual = await Api.GetEntry(after.Id);
-        actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(after, options => options
-            .For(e => e.Senses).Exclude(s => s.Order)
-            .For(e => e.Components).Exclude(c => c.Order)
-            .For(e => e.ComplexForms).Exclude(c => c.Order)
-            .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order)
-            );
-    }
 }
 
-public class FwDataEntrySyncTests(SyncFixture fixture) : EntrySyncTestsBase(fixture)
+public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntrySyncTestsBase(fixture)
 {
     protected override IMiniLcmApi GetApi(SyncFixture fixture)
     {
         return fixture.FwDataApi;
     }
+
+    // this will notify us when we start syncing MorphType (if that ever happens)
+    [Fact]
+    public async Task FwDataApiDoesNotUpdateMorphType()
+    {
+        // arrange
+        var entry = await Api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "morph-type-test" } },
+            MorphType = MorphType.BoundStem
+        });
+
+        // act
+        var updatedEntry = entry.Copy();
+        updatedEntry.MorphType = MorphType.Suffix;
+        await EntrySync.SyncFull(entry, updatedEntry, Api);
+
+        // assert
+        var actual = await Api.GetEntry(entry.Id);
+        actual.Should().NotBeNull();
+        actual.MorphType.Should().Be(MorphType.BoundStem);
+    }
 }
 
-public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<SyncFixture>, IAsyncLifetime
+public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture) : IClassFixture<ExtraWritingSystemsSyncFixture>, IAsyncLifetime
 {
-    public async Task InitializeAsync()
+    public Task InitializeAsync()
     {
-        await _fixture.EnsureDefaultVernacularWritingSystemExistsInCrdt();
         Api = GetApi(_fixture);
+        return Task.CompletedTask;
     }
 
     public Task DisposeAsync()
@@ -65,6 +65,205 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
 
     private readonly SyncFixture _fixture = fixture;
     protected IMiniLcmApi Api = null!;
+
+    private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.MakeConfig(
+        ExtraWritingSystemsSyncFixture.VernacularWritingSystems));
+
+    public enum ApiType
+    {
+        Crdt,
+        FwData
+    }
+
+    // The round-tripping api is not what is under test here. It's purely for preprocessing.
+    // It's so that that the data under test is being read from a real API (i.e. fwdata or crdt)
+    // and thus reflects whatever nuances that API may have.
+    //
+    // Not all of the test cases are realistic, but they should all work and they reflect the idea
+    // that "any MiniLcmApi implementation should be compatible with any other implementation".
+    // Even the unrealistic test cases could potentially expose unexpected, undesirable nuances in API behaviour.
+    // They also reflect the diversity of pipelines real entries might go through.
+    // For example, a currently real scenario is that "after" is read from fwdata and "before" is read from crdt
+    // and then round-tripped through a json file.
+    // That case is not explicitly covered here.
+    //
+    // The most critical test cases are:
+    // Api == CrdtApi and RoundTripApi == FwDataApi
+    // Api == FwDataApi and RoundTripApi == CrdtApi
+    // (though, as noted above, this case doesn't perfectly reflect real usage)
+    [Theory]
+    [InlineData(ApiType.Crdt)]
+    [InlineData(ApiType.FwData)]
+    [InlineData(null)]
+    public async Task CanSyncRandomEntries(ApiType? roundTripApiType)
+    {
+        // arrange
+        var currentApiType = Api switch
+        {
+            FwDataMiniLcmApi => ApiType.FwData,
+            CrdtMiniLcmApi => ApiType.Crdt,
+            // This works now, because we're not currently wrapping Api,
+            // but if we ever do, then we want this to throw, so we know we need to detect the api differently.
+            _ => throw new InvalidOperationException("Unknown API type")
+        };
+
+        IMiniLcmApi? roundTripApi = roundTripApiType switch
+        {
+            ApiType.Crdt => _fixture.CrdtApi,
+            ApiType.FwData => _fixture.FwDataApi,
+            _ => null
+        };
+
+        var before = AutoFaker.Generate<Entry>();
+        var after = AutoFaker.Generate<Entry>();
+        after.Id = before.Id;
+
+        // We have to "prepare" while before and after have no overlap (i.e. before we start mixing parts of before into after),
+        // otherwise "PrepareToCreateEntry" would fail due to trying to create duplicate related entities.
+        // After this we can't ADD anything to after that has dependencies
+        // e.g. ExampleSentences are fine, because they're owned/part of an entry.
+        // Parts of speech, on the other hand, are not owned by an entry.
+        await Api.PrepareToCreateEntry(before);
+        await Api.PrepareToCreateEntry(after);
+
+        if (roundTripApi is not null && currentApiType != roundTripApiType)
+        {
+            await roundTripApi.PrepareToCreateEntry(before);
+            await roundTripApi.PrepareToCreateEntry(after);
+        }
+
+        // keep some old senses, remove others
+        var someRandomBeforeSenses = AutoFaker.Faker.Random.ListItems(before.Senses).Select(createdSense =>
+        {
+            var copy = createdSense.Copy();
+            copy.ExampleSentences = [
+                // shuffle to cause moves
+                ..AutoFaker.Faker.Random.Shuffle([
+                    // keep some, remove others
+                    ..AutoFaker.Faker.Random.ListItems(copy.ExampleSentences),
+                    // add new
+                    AutoFaker.ExampleSentence(copy),
+                    AutoFaker.ExampleSentence(copy),
+                ]),
+            ];
+            return copy;
+        });
+        // keep new, and shuffle to cause moves
+        after.Senses = [.. AutoFaker.Faker.Random.Shuffle([.. someRandomBeforeSenses, .. after.Senses])];
+
+        after.ComplexForms = [
+            // shuffle to cause moves
+            ..AutoFaker.Faker.Random.Shuffle([
+                // keep some, remove others
+                ..AutoFaker.Faker.Random.ListItems(before.ComplexForms)
+                .Select(createdCfc =>
+                {
+                    var copy = createdCfc.Copy();
+                    copy.ComponentHeadword = after.Headword();
+                    return copy;
+                }),
+                // keep new
+                ..after.ComplexForms
+            ]),
+        ];
+
+        after.Components = [
+            // shuffle to cause moves
+            ..AutoFaker.Faker.Random.Shuffle([
+                // keep some, remove others
+                ..AutoFaker.Faker.Random.ListItems(before.Components)
+                .Select(createdCfc =>
+                {
+                    var copy = createdCfc.Copy();
+                    copy.ComplexFormHeadword = after.Headword();
+                    return copy;
+                }),
+                // keep new
+                ..after.Components
+            ]),
+        ];
+
+        // expected should not be round-tripped, because an api might manipulate it somehow.
+        // We expect the final result to be equivalent to this "raw"/untouched, requested state.
+        var expected = after.Copy();
+
+        if (roundTripApi is not null)
+        {
+            // round-tripping ensures we're dealing with realistic data
+            // (e.g. in fwdata ComplexFormComponents do not have an Id)
+            before = await roundTripApi.CreateEntry(before);
+            await roundTripApi.DeleteEntry(before.Id);
+            after = await roundTripApi.CreateEntry(after);
+            await roundTripApi.DeleteEntry(after.Id);
+        }
+
+        // before should not be round-tripped here. That's handled above.
+        await Api.CreateEntry(before);
+
+        // act
+        await EntrySync.SyncFull(before, after, Api);
+        var actual = await Api.GetEntry(after.Id);
+
+        // assert
+        actual.Should().NotBeNull();
+        actual.Should().BeEquivalentTo(after, options =>
+        {
+            options = options
+                .WithStrictOrdering()
+                .WithoutStrictOrderingFor(e => e.ComplexForms) // sorted alphabetically
+                .WithoutStrictOrderingFor(e => e.Path.EndsWith($".{nameof(Sense.SemanticDomains)}")) // not sorted
+                .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Components).Exclude(c => c.Order)
+                .For(e => e.ComplexForms).Exclude(c => c.Order)
+                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order);
+            if (currentApiType == ApiType.Crdt)
+            {
+                // does not yet update Headwords 😕
+                options = options
+                    .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
+                    .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
+            }
+            if (currentApiType == ApiType.FwData)
+            {
+                // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)
+                options = options.Excluding(e => e.MorphType);
+            }
+            return options;
+        });
+    }
+
+    [Fact]
+    public async Task NormalizesStringsToNFD()
+    {
+        // arrange
+        var formC = "ймыл";
+        var formD = "ймыл";
+
+        formC.Should().NotBe(formD);
+        formC.Should().Be(formC.Normalize(NormalizationForm.FormC));
+        formD.Should().Be(formD.Normalize(NormalizationForm.FormD));
+        formC.Normalize(NormalizationForm.FormD).Should().Be(formD);
+
+        var entry1Id = Guid.NewGuid();
+        await Api.CreateEntry(new() { Id = entry1Id });
+        var entry1_before_formC = new Entry() { Id = entry1Id, LexemeForm = { { "en", formC } } };
+        var entry1_after_formD = new Entry() { Id = entry1Id, LexemeForm = { { "en", formD } } };
+
+        var entry2Id = Guid.NewGuid();
+        var entry2_new_formC = new Entry() { Id = entry2Id, LexemeForm = { { "en", formC } } };
+
+        // act
+        await EntrySync.SyncWithoutComplexFormsAndComponents(
+            [entry1_before_formC],
+            [entry1_after_formD, entry2_new_formC], Api);
+
+        // assert
+        var entry1After = await Api.GetEntry(entry1Id);
+        entry1After!.LexemeForm["en"].Should().Be(formD);
+        // this fails for crdt - https://github.com/sillsdev/languageforge-lexbox/issues/2065
+        // var entry2After = await Api.GetEntry(entry2Id);
+        // entry2After!.LexemeForm["en"].Should().Be(formD);
+    }
 
     [Fact]
     public async Task CanChangeComplexFormViaSync_Components()

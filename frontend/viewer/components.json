@@ -1,8 +1,9 @@
 {
-	"$schema": "https://next.shadcn-svelte.com/schema.json",
+	"$schema": "https://tw3.shadcn-svelte.com/schema.json",
 	"tailwind": {
 		"css": "src\\app.postcss",
-		"baseColor": "slate"
+		"baseColor": "slate",
+        "config": "./tailwind.config.ts"
 	},
 	"aliases": {
 		"components": "$lib/components",

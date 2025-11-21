@@ -23,6 +23,24 @@ public static class SendReceiveHelpers
     {
         private readonly IProgress? _progress = null;
         public bool ErrorEncountered => _progress?.ErrorEncountered ?? false;
+
+        /// <summary>
+        /// This string in the output unambiguously indicates that the operation ultimately succeeded.
+        /// </summary>
+        private const string SUCCESS_INDICATOR = "Clone success";
+
+        /// <summary>
+        /// Indicates if the operation succeeded.
+        ///
+        /// Not all errors are fatal. E.g. This logged exception:
+        /// https://github.com/sillsdev/chorus/blob/1ab24b9cd13563145e98a43e1551518c8f9cc303/src/LibChorus/VcsDrivers/Mercurial/HgRepository.cs#L2132
+        /// ...results in ErrorEncountered being set to true:
+        /// https://github.com/sillsdev/libpalaso/blob/a8fcda92501e349ac23db6dba179322eca7fe561/SIL.Core/Progress/MultiProgress.cs#L168
+        /// ...even though the exception does not prevent success.
+        /// </summary>
+        public bool Success => !ErrorEncountered ||
+            Output.Contains(SUCCESS_INDICATOR, StringComparison.Ordinal);
+
         public LfMergeBridgeResult(string output, IProgress progress) : this(output)
         {
             _progress = progress;

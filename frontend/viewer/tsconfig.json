@@ -17,7 +17,9 @@
     "baseUrl": ".", /* required by shadcn */
     "paths": {
       "$lib": ["./src/lib"],
-      "$lib/*": ["./src/lib/*"]
+      "$lib/*": ["./src/lib/*"],
+      "$project": ["./src/project"],
+      "$project/*": ["./src/project/*"]
     },
     "verbatimModuleSyntax": true,
   },

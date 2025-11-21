@@ -35,6 +35,7 @@ public record Entry : IObjectWithId<Entry>
     {
         //order by code to ensure the headword is stable
         //todo choose ws by preference based on ws order/default
+        //https://github.com/sillsdev/languageforge-lexbox/issues/1284
         var word = CitationForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
         if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
         return word?.Trim() ?? UnknownHeadword;

@@ -34,7 +34,7 @@ public class Sena3Fixture : IAsyncLifetime
         await DownloadSena3();
     }
 
-    public async Task<(CrdtMiniLcmApi CrdtApi, FwDataMiniLcmApi FwDataApi, IServiceProvider services, IDisposable cleanup)> SetupProjects()
+    public async Task<TestProject> SetupProjects()
     {
         var sena3MasterCopy = await DownloadSena3();
 
@@ -49,15 +49,14 @@ public class Sena3Fixture : IAsyncLifetime
             .Value
             .ProjectsFolder;
         var fwDataProject = new FwDataProject(projectName, projectsFolder);
-        var fwDataProjectPath = Path.Combine(fwDataProject.ProjectsPath, fwDataProject.Name);
-        DirectoryHelper.Copy(sena3MasterCopy, fwDataProjectPath);
-        File.Move(Path.Combine(fwDataProjectPath, "sena-3.fwdata"), fwDataProject.FilePath);
+        DirectoryHelper.Copy(sena3MasterCopy, fwDataProject.ProjectFolder);
+        File.Move(Path.Combine(fwDataProject.ProjectFolder, "sena-3.fwdata"), fwDataProject.FilePath);
         var fwDataMiniLcmApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
 
         var crdtProject = await services.GetRequiredService<CrdtProjectsService>()
             .CreateProject(new(projectName, projectName, FwProjectId: fwDataMiniLcmApi.ProjectId, SeedNewProjectData: false));
         var crdtMiniLcmApi = (CrdtMiniLcmApi)await services.OpenCrdtProject(crdtProject);
-        return (crdtMiniLcmApi, fwDataMiniLcmApi, services, cleanup);
+        return new TestProject(crdtMiniLcmApi, fwDataMiniLcmApi, crdtProject, fwDataProject, services, cleanup);
     }
 
     public Task DisposeAsync()

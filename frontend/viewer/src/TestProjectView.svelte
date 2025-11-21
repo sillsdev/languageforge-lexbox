@@ -1,9 +1,9 @@
 <script lang="ts">
 import ProjectView from './ProjectView.svelte';
-import {InMemoryApiService} from '$lib/in-memory-api-service';
+import {InMemoryDemoApi} from '$project/demo/in-memory-demo-api';
 import ProjectLoader from './ProjectLoader.svelte';
 
-const projectName = InMemoryApiService.setup().projectName;
+const projectName = InMemoryDemoApi.setup().projectName;
 let loading = $state(true);
 </script>
 

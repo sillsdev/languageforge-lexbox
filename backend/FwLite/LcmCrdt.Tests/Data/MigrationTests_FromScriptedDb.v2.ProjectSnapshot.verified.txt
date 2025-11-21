@@ -1,0 +1,728 @@
+﻿{
+  "Entries": [
+    {
+      "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "en": "Apple",
+        "de": "de"
+      },
+      "CitationForm": {
+        "en": "Apple",
+        "de": "de"
+      },
+      "LiteralMeaning": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "Fruit",
+              "Ws": "en"
+            }
+          ]
+        },
+        "fr": {
+          "Spans": [
+            {
+              "Text": "fr",
+              "Ws": "fr"
+            }
+          ]
+        }
+      },
+      "MorphType": "Stem",
+      "Senses": [
+        {
+          "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
+          "Definition": {
+            "en": {
+              "Spans": [
+                {
+                  "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh",
+                  "Ws": "en"
+                }
+              ]
+            },
+            "fr": {
+              "Spans": [
+                {
+                  "Text": "fr",
+                  "Ws": "fr"
+                }
+              ]
+            }
+          },
+          "Gloss": {
+            "en": "Fruit",
+            "fr": "fr"
+          },
+          "PartOfSpeech": {
+            "Id": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
+            "Name": {
+              "en": "Adverb"
+            },
+            "DeletedAt": null,
+            "Predefined": true
+          },
+          "PartOfSpeechId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
+          "SemanticDomains": [
+            {
+              "Id": "63403699-07c1-43f3-a47c-069d6e4316e5",
+              "Name": {
+                "en": "Universe, Creation"
+              },
+              "Code": "1",
+              "DeletedAt": null,
+              "Predefined": true
+            }
+          ],
+          "ExampleSentences": [
+            {
+              "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+              "Order": 1,
+              "Sentence": {
+                "en": {
+                  "Spans": [
+                    {
+                      "Text": "We ate an apple",
+                      "Ws": "en"
+                    }
+                  ]
+                },
+                "de": {
+                  "Spans": [
+                    {
+                      "Text": "de",
+                      "Ws": "de"
+                    }
+                  ]
+                }
+              },
+              "Translations": [
+                {
+                  "Id": "8cb4a41d-c053-5c23-bf64-f831d2c77267",
+                  "Text": {
+                    "en": {
+                      "Spans": [
+                        {
+                          "Text": "en",
+                          "Ws": "en"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "Reference": {
+                "Spans": [
+                  {
+                    "Text": "ref",
+                    "Ws": "en"
+                  }
+                ]
+              },
+              "SenseId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+              "DeletedAt": null
+            }
+          ]
+        }
+      ],
+      "Note": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "note",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "Components": [],
+      "ComplexForms": [
+        {
+          "Id": "a4a74738-3914-43ca-8c25-bee34eb517b7",
+          "MaybeId": "a4a74738-3914-43ca-8c25-bee34eb517b7",
+          "Order": 1,
+          "DeletedAt": null,
+          "ComplexFormEntryId": "75050583-70d7-4605-a6e6-872b8f36c482",
+          "ComplexFormHeadword": "Orange",
+          "ComponentEntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
+          "ComponentSenseId": null,
+          "ComponentHeadword": "de"
+        }
+      ],
+      "ComplexFormTypes": [
+        {
+          "Id": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
+          "Name": {
+            "en": "Compound"
+          },
+          "DeletedAt": null
+        }
+      ],
+      "PublishIn": []
+    },
+    {
+      "Id": "75050583-70d7-4605-a6e6-872b8f36c482",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "en": "Orange"
+      },
+      "CitationForm": {
+        "en": "Orange"
+      },
+      "LiteralMeaning": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "Fruit",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "MorphType": "Stem",
+      "Senses": [
+        {
+          "Id": "241d95a7-6d90-411b-8569-5648cc40b42b",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "75050583-70d7-4605-a6e6-872b8f36c482",
+          "Definition": {
+            "en": {
+              "Spans": [
+                {
+                  "Text": "round citrus fruit with orange skin and juicy segments inside",
+                  "Ws": "en"
+                }
+              ]
+            }
+          },
+          "Gloss": {
+            "en": "Fruit"
+          },
+          "PartOfSpeech": null,
+          "PartOfSpeechId": null,
+          "SemanticDomains": [],
+          "ExampleSentences": [
+            {
+              "Id": "9aa9f5a4-faea-45e9-bee7-42929eebf691",
+              "Order": 1,
+              "Sentence": {
+                "en": {
+                  "Spans": [
+                    {
+                      "Text": "I squeezed the orange for juice",
+                      "Ws": "en"
+                    }
+                  ]
+                }
+              },
+              "Translations": [],
+              "Reference": null,
+              "SenseId": "241d95a7-6d90-411b-8569-5648cc40b42b",
+              "DeletedAt": null
+            }
+          ]
+        }
+      ],
+      "Note": {},
+      "Components": [
+        {
+          "Id": "a4a74738-3914-43ca-8c25-bee34eb517b7",
+          "MaybeId": "a4a74738-3914-43ca-8c25-bee34eb517b7",
+          "Order": 1,
+          "DeletedAt": null,
+          "ComplexFormEntryId": "75050583-70d7-4605-a6e6-872b8f36c482",
+          "ComplexFormHeadword": "Orange",
+          "ComponentEntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
+          "ComponentSenseId": null,
+          "ComponentHeadword": "de"
+        }
+      ],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": []
+    },
+    {
+      "Id": "9e84db09-1885-4bbb-9482-4891a46f6f49",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "en": "Grape"
+      },
+      "CitationForm": {
+        "en": "Grape"
+      },
+      "LiteralMeaning": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "Fruit",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "MorphType": "Stem",
+      "Senses": [
+        {
+          "Id": "1b423127-deb2-468d-8100-e1f1bff20826",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "9e84db09-1885-4bbb-9482-4891a46f6f49",
+          "Definition": {
+            "en": {
+              "Spans": [
+                {
+                  "Text": "small round or oval fruit growing in clusters, used for wine or eating",
+                  "Ws": "en"
+                }
+              ]
+            }
+          },
+          "Gloss": {
+            "en": "Fruit"
+          },
+          "PartOfSpeech": null,
+          "PartOfSpeechId": null,
+          "SemanticDomains": [],
+          "ExampleSentences": [
+            {
+              "Id": "288d64c3-93f9-48a2-a014-d8773369b4a8",
+              "Order": 1,
+              "Sentence": {
+                "en": {
+                  "Spans": [
+                    {
+                      "Text": "The vineyard was full of ripe grapes",
+                      "Ws": "en"
+                    }
+                  ]
+                }
+              },
+              "Translations": [],
+              "Reference": null,
+              "SenseId": "1b423127-deb2-468d-8100-e1f1bff20826",
+              "DeletedAt": null
+            }
+          ]
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": []
+    },
+    {
+      "Id": "d9f70cf9-a479-4141-92e5-44155d063da2",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "en": "Banana"
+      },
+      "CitationForm": {
+        "en": "Banana"
+      },
+      "LiteralMeaning": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "Fruit",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "MorphType": "Stem",
+      "Senses": [
+        {
+          "Id": "c77d7553-209d-45be-a83e-d07e69808873",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "d9f70cf9-a479-4141-92e5-44155d063da2",
+          "Definition": {
+            "en": {
+              "Spans": [
+                {
+                  "Text": "long curved fruit with yellow skin and soft sweet flesh",
+                  "Ws": "en"
+                }
+              ]
+            }
+          },
+          "Gloss": {
+            "en": "Fruit"
+          },
+          "PartOfSpeech": null,
+          "PartOfSpeechId": null,
+          "SemanticDomains": [],
+          "ExampleSentences": [
+            {
+              "Id": "d9d515e8-d695-44c3-9766-afbeab8c470f",
+              "Order": 1,
+              "Sentence": {
+                "en": {
+                  "Spans": [
+                    {
+                      "Text": "The monkey peeled a banana",
+                      "Ws": "en"
+                    }
+                  ]
+                }
+              },
+              "Translations": [],
+              "Reference": null,
+              "SenseId": "c77d7553-209d-45be-a83e-d07e69808873",
+              "DeletedAt": null
+            }
+          ]
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": []
+    }
+  ],
+  "PartsOfSpeech": [
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
+      "Name": {
+        "en": "Adverb"
+      },
+      "DeletedAt": null,
+      "Predefined": true
+    }
+  ],
+  "Publications": [],
+  "SemanticDomains": [
+    {
+      "Id": "1bd42665-0610-4442-8d8d-7c666fee3a6d",
+      "Name": {
+        "en": "Person"
+      },
+      "Code": "2",
+      "DeletedAt": null,
+      "Predefined": true
+    },
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4",
+      "Name": {
+        "en": "Body"
+      },
+      "Code": "2.1",
+      "DeletedAt": null,
+      "Predefined": false
+    },
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5",
+      "Name": {
+        "en": "Head"
+      },
+      "Code": "2.1.1",
+      "DeletedAt": null,
+      "Predefined": false
+    },
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6",
+      "Name": {
+        "en": "Eye"
+      },
+      "Code": "2.1.1.1",
+      "DeletedAt": null,
+      "Predefined": false
+    },
+    {
+      "Id": "63403699-07c1-43f3-a47c-069d6e4316e5",
+      "Name": {
+        "en": "Universe, Creation"
+      },
+      "Code": "1",
+      "DeletedAt": null,
+      "Predefined": true
+    },
+    {
+      "Id": "999581c4-1611-4acb-ae1b-5e6c1dfe6f0c",
+      "Name": {
+        "en": "Sky"
+      },
+      "Code": "1.1",
+      "DeletedAt": null,
+      "Predefined": true
+    },
+    {
+      "Id": "dc1a2c6f-1b32-4631-8823-36dacc8cb7bb",
+      "Name": {
+        "en": "World"
+      },
+      "Code": "1.2",
+      "DeletedAt": null,
+      "Predefined": true
+    }
+  ],
+  "ComplexFormTypes": [
+    {
+      "Id": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
+      "Name": {
+        "en": "Compound"
+      },
+      "DeletedAt": null
+    },
+    {
+      "Id": "eeb78fce-6009-4932-aaa6-85faeb180c69",
+      "Name": {
+        "en": "Unspecified"
+      },
+      "DeletedAt": null
+    }
+  ],
+  "WritingSystems": {
+    "Analysis": [
+      {
+        "Id": "0b76099f-a102-4d24-8fd7-2c44b6eb3623",
+        "MaybeId": "0b76099f-a102-4d24-8fd7-2c44b6eb3623",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "English",
+        "Abbreviation": "en",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 1
+      },
+      {
+        "Id": "d4078989-6c7b-4cc5-8501-ce968405484a",
+        "MaybeId": "d4078989-6c7b-4cc5-8501-ce968405484a",
+        "WsId": "fr",
+        "IsAudio": false,
+        "Name": "French",
+        "Abbreviation": "fr",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 2
+      },
+      {
+        "Id": "abeaeb03-1a56-49d5-8cc8-a3afe5ffe89e",
+        "MaybeId": "abeaeb03-1a56-49d5-8cc8-a3afe5ffe89e",
+        "WsId": "en-Zxxx-x-audio",
+        "IsAudio": true,
+        "Name": "English (A)",
+        "Abbreviation": "Eng \uD83D\uDD0A",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 3
+      }
+    ],
+    "Vernacular": [
+      {
+        "Id": "33c8a15a-1bd4-429e-a400-3304a3e1d997",
+        "MaybeId": "33c8a15a-1bd4-429e-a400-3304a3e1d997",
+        "WsId": "de",
+        "IsAudio": false,
+        "Name": "German",
+        "Abbreviation": "de",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 1
+      },
+      {
+        "Id": "9fd79197-95ef-46d7-81a8-bb21aa2579c0",
+        "MaybeId": "9fd79197-95ef-46d7-81a8-bb21aa2579c0",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "English",
+        "Abbreviation": "en",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 2
+      },
+      {
+        "Id": "485bd12f-976e-40df-b66c-16d70ee916fa",
+        "MaybeId": "485bd12f-976e-40df-b66c-16d70ee916fa",
+        "WsId": "en-Zxxx-x-audio",
+        "IsAudio": true,
+        "Name": "English (A)",
+        "Abbreviation": "Eng \uD83D\uDD0A",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 3
+      }
+    ]
+  }
+}

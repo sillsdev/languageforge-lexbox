@@ -1,0 +1,431 @@
+﻿[
+  {
+    "Id": "Guid_1",
+    "TypeName": "ComplexFormType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormType",
+        "Id": "Guid_2",
+        "Name": {
+          "en": "Compound"
+        }
+      },
+      "Id": "Guid_2"
+    },
+    "References": [],
+    "EntityId": "Guid_2",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_3",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_4",
+    "TypeName": "ComplexFormType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormType",
+        "Id": "Guid_5",
+        "Name": {
+          "en": "Unspecified"
+        }
+      },
+      "Id": "Guid_5"
+    },
+    "References": [],
+    "EntityId": "Guid_5",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_3",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_6",
+    "TypeName": "Entry",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "Guid_7",
+        "LexemeForm": {
+          "en": "Apple"
+        },
+        "CitationForm": {
+          "en": "Apple"
+        },
+        "LiteralMeaning": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "Fruit",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [],
+        "PublishIn": []
+      },
+      "Id": "Guid_7"
+    },
+    "References": [],
+    "EntityId": "Guid_7",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_8",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_9",
+    "TypeName": "ExampleSentence",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "Guid_10",
+        "Order": 1,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "We ate an apple",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Translations": [],
+        "SenseId": "Guid_11"
+      },
+      "Id": "Guid_10"
+    },
+    "References": [
+      "Guid_11"
+    ],
+    "EntityId": "Guid_10",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_8",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_12",
+    "TypeName": "PartOfSpeech",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "PartOfSpeech",
+        "Id": "Guid_13",
+        "Name": {
+          "en": "Adverb"
+        },
+        "Predefined": true
+      },
+      "Id": "Guid_13"
+    },
+    "References": [],
+    "EntityId": "Guid_13",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_14",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_15",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "Guid_16",
+        "Name": {
+          "en": "Universe, Creation"
+        },
+        "Code": "1",
+        "Predefined": true
+      },
+      "Id": "Guid_16"
+    },
+    "References": [],
+    "EntityId": "Guid_16",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_17",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_18",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "Guid_19",
+        "Name": {
+          "en": "Sky"
+        },
+        "Code": "1.1",
+        "Predefined": true
+      },
+      "Id": "Guid_19"
+    },
+    "References": [],
+    "EntityId": "Guid_19",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_17",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_20",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "Guid_21",
+        "Name": {
+          "en": "World"
+        },
+        "Code": "1.2",
+        "Predefined": true
+      },
+      "Id": "Guid_21"
+    },
+    "References": [],
+    "EntityId": "Guid_21",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_17",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_22",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "Guid_23",
+        "Name": {
+          "en": "Person"
+        },
+        "Code": "2",
+        "Predefined": true
+      },
+      "Id": "Guid_23"
+    },
+    "References": [],
+    "EntityId": "Guid_23",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_17",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_24",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "Guid_25",
+        "Name": {
+          "en": "Body"
+        },
+        "Code": "2.1",
+        "Predefined": true
+      },
+      "Id": "Guid_25"
+    },
+    "References": [],
+    "EntityId": "Guid_25",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_17",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_26",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "Guid_27",
+        "Name": {
+          "en": "Head"
+        },
+        "Code": "2.1.1",
+        "Predefined": true
+      },
+      "Id": "Guid_27"
+    },
+    "References": [],
+    "EntityId": "Guid_27",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_17",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_28",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "Guid_29",
+        "Name": {
+          "en": "Eye"
+        },
+        "Code": "2.1.1.1",
+        "Predefined": true
+      },
+      "Id": "Guid_29"
+    },
+    "References": [],
+    "EntityId": "Guid_29",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_17",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_30",
+    "TypeName": "Sense",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "Guid_11",
+        "Order": 1,
+        "EntryId": "Guid_7",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "Fruit"
+        },
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "Guid_11"
+    },
+    "References": [
+      "Guid_7"
+    ],
+    "EntityId": "Guid_11",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_8",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_31",
+    "TypeName": "WritingSystem",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "Guid_32",
+        "MaybeId": "Guid_32",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "English",
+        "Abbreviation": "en",
+        "Font": "Arial",
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      },
+      "Id": "Guid_32"
+    },
+    "References": [],
+    "EntityId": "Guid_32",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_33",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_34",
+    "TypeName": "WritingSystem",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "Guid_35",
+        "MaybeId": "Guid_35",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "English",
+        "Abbreviation": "en",
+        "Font": "Arial",
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      },
+      "Id": "Guid_35"
+    },
+    "References": [],
+    "EntityId": "Guid_35",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_36",
+    "IsRoot": true
+  }
+]

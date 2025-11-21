@@ -1,15 +1,12 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
-  import {T, t} from 'svelte-i18n-lingui';
-  import EntryEditor from '../entry-editor/object-editors/EntryEditor.svelte';
-  import ExampleEditorPrimitive from '../entry-editor/object-editors/ExampleEditorPrimitive.svelte';
-  import SenseEditorPrimitive from '../entry-editor/object-editors/SenseEditorPrimitive.svelte';
+  import {t} from 'svelte-i18n-lingui';
   import {type HistoryItem, useHistoryService} from '../services/history-service';
-  import {EditorGrid} from '$lib/components/editor';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import ListItem from '$lib/components/ListItem.svelte';
   import {VList} from 'virtua/svelte';
-  import {FormatDuration} from '$lib/components/ui/format';
+  import {FormatRelativeDate} from '$lib/components/ui/format';
+  import ActivityItem from '$lib/activity/ActivityItem.svelte';
 
   export let id: string;
   export let open: boolean;
@@ -42,11 +39,11 @@
   }
 
   async function showEntry(row: HistoryItem) {
-    if (!row.entity || !row.snapshotId) {
-      record = await historyService.fetchSnapshot(row, id);
-    } else {
-      record = row;
+    if (!row.entity) {
+      const snapshot = await historyService.fetchSnapshot(row, id);
+      Object.assign(row, snapshot);
     }
+    record = row;
   }
 
   function reset() {
@@ -56,77 +53,42 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.DialogContent interactOutsideBehavior={loading ? 'ignore' : 'close'} class="flex flex-col sm:min-h-[min(calc(100%-16px),30rem)]">
+  <Dialog.DialogContent interactOutsideBehavior={loading ? 'ignore' : 'close'} class="flex flex-col sm:min-h-[min(calc(100%-16px),30rem)] overflow-hidden w-[70rem]">
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`History`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     {#if !loading}
-      <div class="grid gap-x-6 gap-y-1" style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 2fr);">
-        <div class="flex flex-col gap-4 row-start-2">
-          <div class="h-full rounded-md">
-            {#if !history || history.length === 0}
-              <div class="p-4 text-center opacity-75">{$t`No history found`}</div>
-            {:else}
-              <VList data={history}
-                     getKey={row => `${row.commitId}_${row.changeIndex}`}
-                     class="h-full p-0.5 md:pr-3 after:h-12 after:block">
-                {#snippet children(row)}
-                  <ListItem
-                    onclick={() => showEntry(row)}
-                    class="mb-2"
-                    selected={record?.commitId === row.commitId}>
-                    <span>{row.changeName ?? $t`No change name`}</span>
-                    <div class="text-sm text-muted-foreground">
-                      {#if row.previousTimestamp}
-                        <T msg="# before">
-                          <FormatDuration start={new Date(row.timestamp)}
-                                          end={new Date(row.previousTimestamp)}
-                                          smallestUnit="seconds"
-                                          options={{style: 'narrow'}}/>
-                        </T>
-                      {:else}
-                        <T msg="# ago">
-                          <FormatDuration start={new Date(row.timestamp)}
-                                          smallestUnit="seconds"
-                                          options={{style: 'narrow'}}/>
-                        </T>
-                      {/if}
-                    </div>
-                  </ListItem>
-                  {/snippet}
-              </VList>
-            {/if}
-          </div>
+      <div class="grid gap-x-6 gap-y-1 grow overflow-hidden" style="grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 2fr);">
+        <div class="h-full overflow-hidden rounded-md">
+          {#if !history || history.length === 0}
+            <div class="p-4 text-center opacity-75">{$t`No history found`}</div>
+          {:else}
+            <VList data={history}
+                    getKey={row => `${row.commitId}_${row.changeIndex}`}
+                    class="h-full p-0.5 md:pr-3 after:h-12 after:block !contain-content">
+              {#snippet children(row)}
+                <ListItem
+                  onclick={() => showEntry(row)}
+                  class="mb-2"
+                  selected={record?.commitId === row.commitId}>
+                  <span>{row.changeName}</span>
+                  <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between">
+                    <span>
+                      <FormatRelativeDate date={row.timestamp}
+                              actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
+                    </span>
+                    <span>
+                      {row.metadata.authorName}
+                    </span>
+                  </div>
+                </ListItem>
+                {/snippet}
+            </VList>
+          {/if}
         </div>
-        <div class="grid grid-cols-subgrid grid-rows-subgrid col-start-2 row-span-2">
-          {#if record?.entity && record?.entityName}
-            <div class="col-start-2 row-start-1 text-sm flex justify-between items-center px-2 pb-0.5">
-              <span>{$t`Author:`}
-                {#if record.authorName}
-                  <span class="font-semibold">{record.authorName}</span>
-                {:else}
-                  <span class="opacity-75 italic">{$t`Unknown`}</span>
-                {/if}
-              </span>
-<!--              <div class="hidden sm:contents">-->
-<!--                <ShowEmptyFieldsSwitch bind:value={showEmptyFields}/>-->
-<!--              </div>-->
-            </div>
-            <div class="col-start-2 row-start-2 overflow-auto p-3 pt-2 border rounded h-max max-h-full">
-              {#key record}
-                {#if record.entityName === 'Entry'}
-                  <EntryEditor entry={record.entity} modalMode readonly/>
-                {:else if record.entityName === 'Sense'}
-                  <EditorGrid>
-                        <SenseEditorPrimitive sense={record.entity} readonly/>
-                  </EditorGrid>
-                {:else if record.entityName === 'ExampleSentence'}
-                  <EditorGrid>
-                        <ExampleEditorPrimitive example={record.entity} readonly/>
-                  </EditorGrid>
-                {/if}
-              {/key}
-            </div>
+        <div class="w-full">
+          {#if record}
+            <ActivityItem activity={{...record, changes: [record.change]}} />
           {/if}
         </div>
       </div>

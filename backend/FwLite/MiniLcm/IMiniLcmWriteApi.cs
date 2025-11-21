@@ -106,6 +106,10 @@ public interface IMiniLcmWriteApi
     Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);
+
+    Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation);
+    Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId);
+    Task UpdateTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId, UpdateObjectInput<Translation> update);
     #endregion
 
 

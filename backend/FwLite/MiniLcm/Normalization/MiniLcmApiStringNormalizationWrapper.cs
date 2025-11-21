@@ -1,10 +1,8 @@
 using System.Text;
-using MiniLcm;
 using MiniLcm.Models;
-using MiniLcm.SyncHelpers;
 using MiniLcm.Wrappers;
 
-namespace MiniLcm.Validators;
+namespace MiniLcm.Normalization;
 
 public class MiniLcmApiStringNormalizationWrapperFactory() : IMiniLcmWrapperFactory
 {

@@ -1,8 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using MiniLcm.Models;
-using SIL.LCModel;
 using SIL.LCModel.Core.WritingSystems;
-using SIL.LCModel.DomainServices;
 using SIL.WritingSystems;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;

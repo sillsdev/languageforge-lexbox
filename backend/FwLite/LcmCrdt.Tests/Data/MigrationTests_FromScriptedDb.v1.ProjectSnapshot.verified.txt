@@ -1,0 +1,252 @@
+﻿{
+  "Entries": [
+    {
+      "Id": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "en": "Apple"
+      },
+      "CitationForm": {
+        "en": "Apple"
+      },
+      "LiteralMeaning": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "Fruit",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "MorphType": "Unknown",
+      "Senses": [
+        {
+          "Id": "d510aa82-5557-4dd4-8b1f-1ec89facb979",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1",
+          "Definition": {
+            "en": {
+              "Spans": [
+                {
+                  "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh",
+                  "Ws": "en"
+                }
+              ]
+            }
+          },
+          "Gloss": {
+            "en": "Fruit"
+          },
+          "PartOfSpeech": null,
+          "PartOfSpeechId": null,
+          "SemanticDomains": [],
+          "ExampleSentences": [
+            {
+              "Id": "30a0dcc4-06b1-4402-b78e-745712c4cd2d",
+              "Order": 1,
+              "Sentence": {
+                "en": {
+                  "Spans": [
+                    {
+                      "Text": "We ate an apple",
+                      "Ws": "en"
+                    }
+                  ]
+                }
+              },
+              "Translations": [],
+              "Reference": null,
+              "SenseId": "d510aa82-5557-4dd4-8b1f-1ec89facb979",
+              "DeletedAt": null
+            }
+          ]
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": []
+    }
+  ],
+  "PartsOfSpeech": [
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
+      "Name": {
+        "en": "Adverb"
+      },
+      "DeletedAt": null,
+      "Predefined": true
+    }
+  ],
+  "Publications": [],
+  "SemanticDomains": [
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d0",
+      "Name": {
+        "en": "Universe, Creation"
+      },
+      "Code": "1",
+      "DeletedAt": null,
+      "Predefined": true
+    },
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d1",
+      "Name": {
+        "en": "Sky"
+      },
+      "Code": "1.1",
+      "DeletedAt": null,
+      "Predefined": true
+    },
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d2",
+      "Name": {
+        "en": "World"
+      },
+      "Code": "1.2",
+      "DeletedAt": null,
+      "Predefined": true
+    },
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d3",
+      "Name": {
+        "en": "Person"
+      },
+      "Code": "2",
+      "DeletedAt": null,
+      "Predefined": true
+    },
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4",
+      "Name": {
+        "en": "Body"
+      },
+      "Code": "2.1",
+      "DeletedAt": null,
+      "Predefined": true
+    },
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5",
+      "Name": {
+        "en": "Head"
+      },
+      "Code": "2.1.1",
+      "DeletedAt": null,
+      "Predefined": true
+    },
+    {
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6",
+      "Name": {
+        "en": "Eye"
+      },
+      "Code": "2.1.1.1",
+      "DeletedAt": null,
+      "Predefined": true
+    }
+  ],
+  "ComplexFormTypes": [
+    {
+      "Id": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
+      "Name": {
+        "en": "Compound"
+      },
+      "DeletedAt": null
+    },
+    {
+      "Id": "eeb78fce-6009-4932-aaa6-85faeb180c69",
+      "Name": {
+        "en": "Unspecified"
+      },
+      "DeletedAt": null
+    }
+  ],
+  "WritingSystems": {
+    "Analysis": [
+      {
+        "Id": "1d6f788d-b5a7-4dd8-bdbc-e10b6ac78ef7",
+        "MaybeId": "1d6f788d-b5a7-4dd8-bdbc-e10b6ac78ef7",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "English",
+        "Abbreviation": "en",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      }
+    ],
+    "Vernacular": [
+      {
+        "Id": "e8b2b514-e1ee-4a2b-9b52-6e32291aa407",
+        "MaybeId": "e8b2b514-e1ee-4a2b-9b52-6e32291aa407",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "English",
+        "Abbreviation": "en",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      }
+    ]
+  }
+}

@@ -43,5 +43,8 @@
     ],
     "iconify.preview.exclude": [
       "**/icon-class.ts"
-    ]
+    ],
+    "search.exclude": {
+      "**/dist": true
+    }
 }

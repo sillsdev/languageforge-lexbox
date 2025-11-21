@@ -1,6 +1,6 @@
 <script lang="ts">
   import WritingSystemEditor from '$lib/writing-system/WritingSystemEditor.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import {type IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
   import {defaultWritingSystem} from '$lib/utils';
   import {Button} from '$lib/components/ui/button';

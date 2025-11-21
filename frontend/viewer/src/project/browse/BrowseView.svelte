@@ -1,24 +1,22 @@
 <script lang="ts">
-  import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '$lib/components/ui/resizable';
-  import { IsMobile } from '$lib/hooks/is-mobile.svelte';
+  import {ResizableHandle, ResizablePane, ResizablePaneGroup} from '$lib/components/ui/resizable';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import EntryView from './EntryView.svelte';
   import SearchFilter from './SearchFilter.svelte';
   import EntriesList from './EntriesList.svelte';
-  import { Icon } from '$lib/components/ui/icon';
-  import { t } from 'svelte-i18n-lingui';
+  import {t} from 'svelte-i18n-lingui';
   import SidebarPrimaryAction from '../SidebarPrimaryAction.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import NewEntryButton from '../NewEntryButton.svelte';
-  import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
-  import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
-  import {Button} from '$lib/components/ui/button';
+  import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
   import {QueryParamState} from '$lib/utils/url.svelte';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
   import IfOnce from '$lib/components/if-once/if-once.svelte';
-  import {SortField} from '$lib/dotnet-types';
+  import {SortField, type IPartOfSpeech, type ISemanticDomain} from '$lib/dotnet-types';
   import SortMenu, {type SortConfig} from './SortMenu.svelte';
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
+  import type {EntryListViewMode} from './EntryListViewOptions.svelte';
+  import EntryListViewOptions from './EntryListViewOptions.svelte';
 
   const projectContext = useProjectContext();
   const currentView = useCurrentView();
@@ -27,22 +25,26 @@
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
   let gridifyFilter = $state<string>();
+  let semanticDomain = $state<ISemanticDomain>();
+  let partOfSpeech = $state<IPartOfSpeech>();
   let sort = $state<SortConfig>();
-  let entryMode: 'preview' | 'simple' = $state('simple');
+  let entryMode: EntryListViewMode = $state('simple');
 
   async function newEntry() {
-    const entry = await dialogsService.createNewEntry();
+    const entry = await dialogsService.createNewEntry(undefined, {
+      semanticDomains: semanticDomain ? [semanticDomain] : undefined,
+      partOfSpeech,
+    });
     if (!entry) return;
     selectedEntryId.current = entry.id;
   }
 
   let leftPane: ResizablePane | undefined = $state();
   let rightPane: ResizablePane | undefined = $state();
-  let listModeOpen = $state(false);
 </script>
 <SidebarPrimaryAction>
   {#snippet children(isOpen: boolean)}
-    <NewEntryButton active={!IsMobile.value && isOpen} onclick={newEntry}/>
+    <PrimaryNewEntryButton active={!IsMobile.value && isOpen} onclick={newEntry}/>
   {/snippet}
 </SidebarPrimaryAction>
 <div class="flex flex-col h-full">
@@ -58,35 +60,19 @@
       >
         <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
           <div class="md:mr-3">
-            <SearchFilter bind:search bind:gridifyFilter />
+            <SearchFilter bind:search bind:gridifyFilter bind:semanticDomain bind:partOfSpeech />
             <div class="my-2 flex items-center justify-between">
               <SortMenu bind:value={sort}
                 autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
-              <ResponsivePopup bind:open={listModeOpen} title={$t`List mode`}>
-                {#snippet trigger({props})}
-                  <Button {...props} size="xs-icon" variant="ghost" icon="i-mdi-format-list-text" />
-                {/snippet}
-                <div class="space-y-6">
-                  <Tabs bind:value={entryMode} class="mb-1 text-center">
-                    <TabsList onkeydown={(e) => {if (e.key === 'Enter') listModeOpen = false}}>
-                      <TabsTrigger value="simple" onclick={() => listModeOpen = false}>
-                        <Icon icon="i-mdi-format-list-bulleted-square" class="mr-1"/>
-                        {$t`Simple`}
-                      </TabsTrigger>
-                      <TabsTrigger value="preview" onclick={() => listModeOpen = false}>
-                        <Icon icon="i-mdi-format-list-text" class="mr-1"/>
-                        {$t`Preview`}
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                </div>
-              </ResponsivePopup>
+              <EntryListViewOptions bind:entryMode />
             </div>
           </div>
           <EntriesList {search}
                        selectedEntryId={selectedEntryId.current}
                        {sort}
                        {gridifyFilter}
+                       {partOfSpeech}
+                       {semanticDomain}
                        onSelectEntry={(e) => (selectedEntryId.current = e?.id ?? '')}
                        previewDictionary={entryMode === 'preview'}/>
         </div>

@@ -6,7 +6,7 @@ namespace MiniLcm.Tests.RichText;
 
 public class ColorJsonConverterTests
 {
-    private JsonSerializerOptions options = new JsonSerializerOptions(JsonSerializerDefaults.General)
+    private static readonly JsonSerializerOptions ColorJsonOptions = new(JsonSerializerDefaults.General)
     {
         Converters = { new ColorJsonConverter() }
     };
@@ -15,13 +15,13 @@ public class ColorJsonConverterTests
     public void WritesTransparentToHexA()
     {
         Color? color = Color.Transparent;
-        JsonSerializer.Serialize(color, options).Should().Be("\"#00000000\"");
+        JsonSerializer.Serialize(color, ColorJsonOptions).Should().Be("\"#00000000\"");
     }
 
     [Fact]
     public void ReadsTransparentToAnUnNamedColor()
     {
-        var color = JsonSerializer.Deserialize<Color?>("\"#00000000\"", options);
+        var color = JsonSerializer.Deserialize<Color?>("\"#00000000\"", ColorJsonOptions);
         color.Should().NotBeNull();
         color.Value.IsKnownColor.Should().BeFalse();
         color.Value.IsNamedColor.Should().BeFalse();

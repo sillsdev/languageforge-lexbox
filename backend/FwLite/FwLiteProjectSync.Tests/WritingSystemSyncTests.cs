@@ -1,5 +1,6 @@
 using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
+using MiniLcm;
 
 namespace FwLiteProjectSync.Tests;
 
@@ -50,32 +51,25 @@ public class WritingSystemSyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     [Fact]
     public async Task SyncWs_UpdatesOrder()
     {
-        var en = await _fixture.FwDataApi.GetWritingSystem("en", WritingSystemType.Vernacular);
+        var fwVernacularWSs = (await _fixture.FwDataApi.GetWritingSystems())!.Vernacular;
+        var crdtVernacularWSs = (await _fixture.CrdtApi.GetWritingSystems())!.Vernacular;
+        fwVernacularWSs.Should().HaveCount(2);
+        crdtVernacularWSs.Should().HaveCount(2);
+        fwVernacularWSs.Should().BeEquivalentTo(crdtVernacularWSs, options => options.WithStrictOrdering().Excluding(ws => ws.Order));
+        var en = await _fixture.CrdtApi.GetWritingSystem("en", WritingSystemType.Vernacular);
+        var fr = await _fixture.CrdtApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
         en.Should().NotBeNull();
-        en.Order.Should().Be(0); // 1st - fw order starts at 0
-        var fr = await _fixture.FwDataApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
         fr.Should().NotBeNull();
-        fr.Order.Should().Be(1);
-        var crdtEn = await _fixture.CrdtApi.GetWritingSystem("en", WritingSystemType.Vernacular);
-        crdtEn.Should().NotBeNull();
-        crdtEn.Order.Should().Be(1); // 1st - crdt order starts at 1
-        var crdtFr = await _fixture.CrdtApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
-        crdtFr.Should().NotBeNull();
-        crdtFr.Order.Should().Be(2);
-
+        fwVernacularWSs.Should().BeEquivalentTo([en, fr], options => options.WithStrictOrdering().Excluding(ws => ws.Order));
 
         // act - move fr before en
         await _fixture.FwDataApi.MoveWritingSystem("fr", WritingSystemType.Vernacular, new(null, "en"));
-        fr = await _fixture.FwDataApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
-        fr.Should().NotBeNull();
-        fr.Order.Should().Be(0);
+        var updatedFwVernacularWSs = (await _fixture.FwDataApi.GetWritingSystems())!.Vernacular;
+        updatedFwVernacularWSs.Should().BeEquivalentTo([fr, en], options => options.WithStrictOrdering().Excluding(ws => ws.Order));
         await _syncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi);
 
         // assert
-        var updatedCrdtEn = await _fixture.CrdtApi.GetWritingSystem("en", WritingSystemType.Vernacular);
-        updatedCrdtEn.Should().NotBeNull();
-        var updatedCrdtFr = await _fixture.CrdtApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
-        updatedCrdtFr.Should().NotBeNull();
-        updatedCrdtFr.Order.Should().BeLessThan(updatedCrdtEn.Order);
+        var updatedCrdtVernacularWSs = (await _fixture.CrdtApi.GetWritingSystems())!.Vernacular;
+        updatedCrdtVernacularWSs.Should().BeEquivalentTo(updatedFwVernacularWSs, options => options.WithStrictOrdering().Excluding(ws => ws.Order));
     }
 }

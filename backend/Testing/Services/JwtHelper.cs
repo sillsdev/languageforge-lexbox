@@ -5,11 +5,8 @@ using System.Security.Claims;
 using System.Text.Json;
 using LexBoxApi.Auth;
 using LexCore.Auth;
-using Microsoft.Extensions.Http.Resilience;
-using Mono.Unix.Native;
-using Polly;
-using FluentAssertions;
 using Testing.ApiTests;
+using Testing.Fixtures;
 
 namespace Testing.Services;
 
@@ -38,7 +35,7 @@ public class JwtHelper
         {
             Headers = { Authorization = new("Bearer", flexJwt) }
         });
-        response.EnsureSuccessStatusCode();
+        response.ShouldBeSuccessful();
         var json = await response.Content.ReadFromJsonAsync<JsonElement>();
         return json.GetProperty("projectToken").GetString() ?? throw new NullReferenceException("projectToken was null");
     }
@@ -53,12 +50,13 @@ public class JwtHelper
             {
                 { "password", auth.Password }, { "emailOrUsername", auth.Username }, { "preHashedPassword", false }
             });
-        response.EnsureSuccessStatusCode();
+        response.ShouldBeSuccessful();
         return response;
     }
 
     public static string GetJwtFromLoginResponse(HttpResponseMessage response)
     {
+        response.ShouldBeSuccessful();
         TryGetJwtFromLoginResponse(response, out var jwt);
         jwt.Should().NotBeNullOrEmpty();
         return jwt;
@@ -67,7 +65,6 @@ public class JwtHelper
     public static bool TryGetJwtFromLoginResponse(HttpResponseMessage response, out string? jwt)
     {
         jwt = null;
-        response.EnsureSuccessStatusCode();
         if (response.Headers.TryGetValues("Set-Cookie", out var cookies))
         {
             var cookieContainer = new CookieContainer();

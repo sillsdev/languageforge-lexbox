@@ -4,6 +4,7 @@ using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -12,7 +13,6 @@ using LexCore.Utils;
 using LexData;
 using LexData.Entities;
 using Microsoft.EntityFrameworkCore;
-using LexBoxApi.Services.Email;
 using System.Diagnostics;
 
 namespace LexBoxApi.GraphQL;
@@ -509,6 +509,7 @@ public class ProjectMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
+    [Error<ProjectSyncInProgressException>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]

@@ -24,9 +24,9 @@ public class SyncRepositoryTests: IAsyncLifetime
     }
 
     [Fact]
-    public async Task GetLatestCommitDate_WhenNoCommits_ReturnsNull()
+    public async Task GetLatestSyncedCommitDate_WhenNoCommits_ReturnsNull()
     {
-        var latestCommitDate = await _syncRepository.GetLatestCommitDate();
+        var latestCommitDate = await _syncRepository.GetLatestSyncedCommitDate();
         latestCommitDate.Should().BeNull();
     }
 }

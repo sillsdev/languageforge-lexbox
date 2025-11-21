@@ -6,12 +6,12 @@ namespace LexBoxApi.Services;
 
 public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> logger)
 {
-    public async Task<bool> CrdtSync(Guid projectId)
+    public async Task<bool> SyncMercurialAndHarmony(Guid projectId)
     {
         var response = await httpClient.PostAsync($"/api/merge/execute?projectId={projectId}", null);
         if (response.IsSuccessStatusCode)
             return true;
-        logger.LogError("Failed to sync CRDT: {StatusCode} {StatusDescription}, projectId: {ProjectId}",
+        logger.LogError("Failed to sync Mercurial and Harmony: {StatusCode} {StatusDescription}, projectId: {ProjectId}",
             response.StatusCode,
             response.ReasonPhrase,
             projectId);
@@ -54,11 +54,11 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         return null;
     }
 
-    public async Task<bool> DeleteRepo(Guid projectId, CancellationToken cancellationToken = default)
+    public async Task DeleteRepo(Guid projectId, CancellationToken cancellationToken = default)
     {
         var response = await httpClient.DeleteAsync($"/api/manage/repo/{projectId}", cancellationToken);
         if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.NotFound)
-            return true;
+            return;
         if (response.StatusCode == HttpStatusCode.Conflict)
             throw new ProjectSyncInProgressException(projectId);
         logger.LogError("Failed to delete repo: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
@@ -66,7 +66,22 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             response.ReasonPhrase,
             projectId,
             await response.Content.ReadAsStringAsync(cancellationToken));
-        return false;
+        throw new InvalidOperationException($"Failed to delete repo {projectId}: {response.StatusCode} {response.ReasonPhrase}");
+    }
+
+    public async Task DeleteProject(Guid projectId, CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.DeleteAsync($"/api/manage/project/{projectId}", cancellationToken);
+        if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.NotFound)
+            return;
+        if (response.StatusCode == HttpStatusCode.Conflict)
+            throw new ProjectSyncInProgressException(projectId);
+        logger.LogError("Failed to delete project: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+            response.StatusCode,
+            response.ReasonPhrase,
+            projectId,
+            await response.Content.ReadAsStringAsync(cancellationToken));
+        throw new InvalidOperationException($"Failed to delete project {projectId}: {response.StatusCode} {response.ReasonPhrase}");
     }
 
     public async Task<string?> RegenerateProjectSnapshot(Guid projectId)
@@ -76,6 +91,23 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         {
             var responseBody = await response.Content.ReadAsStringAsync();
             logger.LogError("Failed to regenerate project snapshot: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                projectId,
+                responseBody);
+            return responseBody;
+        }
+
+        return null;
+    }
+
+    internal async Task<string?> SyncHarmony(Guid projectId)
+    {
+        var response = await httpClient.PostAsync($"/api/merge/sync-harmony?projectId={projectId}", null);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            logger.LogError("Failed to sync Harmony: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
                 response.StatusCode,
                 response.ReasonPhrase,
                 projectId,

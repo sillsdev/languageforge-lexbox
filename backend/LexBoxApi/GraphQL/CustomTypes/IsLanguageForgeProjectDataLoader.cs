@@ -5,7 +5,6 @@ using MongoDB.Driver.Linq;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Fallback;
-using Polly.Registry;
 
 namespace LexBoxApi.GraphQL.CustomTypes;
 
@@ -18,7 +17,7 @@ public class IsLanguageForgeProjectDataLoader : BatchDataLoader<string, bool>, I
     public IsLanguageForgeProjectDataLoader(
         SystemDbContext systemDbContext,
         IBatchScheduler batchScheduler,
-        [FromKeyedServices(ResiliencePolicyName)]
+        [Service(ResiliencePolicyName)]
         ResiliencePipeline<IReadOnlyDictionary<string, bool>> resiliencePipeline,
         DataLoaderOptions options)
         : base(batchScheduler, options)

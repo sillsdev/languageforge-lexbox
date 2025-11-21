@@ -12,14 +12,23 @@
   const mailtoUrl = `mailto:lexbox_support@groups.sil.org?subject=${encodeURIComponent('FW Lite Feedback')}&body=${encodeURIComponent(`App Version: ${appVersion} on ${config.os.toString()}`)}`;
 </script>
 
-<ResponsiveDialog bind:open title={$t`Feedback`}>
+<ResponsiveDialog bind:open title={$t`Feedback & Support`}>
     <div class="flex flex-col gap-4">
-      <Button variant="ghost" href="https://lexbox.org/fw-lite/request-features" target="_blank" class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
+      <Button variant="ghost" href="https://community.software.sil.org/c/fwlite/fwlite-feature-requests/" target="_blank" class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
         <Icon icon="i-mdi-lightbulb-on-outline" class="size-10"/>
         <div>
-          <div class="font-semibold underline">{$t`Suggest your ideas`}</div>
+          <div class="font-semibold underline">{$t`Make a suggestion`}</div>
           <div class="text-sm text-muted-foreground">
-            {$t`Share your suggestions for new features or improvements.`}
+            {$t`Share ideas and vote on new features or improvements.`}
+          </div>
+        </div>
+      </Button>
+      <Button variant="ghost" href="https://community.software.sil.org/c/fwlite/48" target="_blank" class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
+        <Icon icon="i-mdi-forum-outline" class="size-10"/>
+        <div>
+          <div class="font-semibold underline">{$t`Get support`}</div>
+          <div class="text-sm text-muted-foreground">
+            {$t`Ask questions and get help on our community forum.`}
           </div>
         </div>
       </Button>
@@ -31,11 +40,12 @@
           </div>
           <div
             class="text-sm text-muted-foreground">
-            {$t`Let us know about any bugs or technical issues you encounter.`}
+            {$t`Tell us about a bug or issue you’ve encountered.`}
           </div>
         </div>
       </Button>
-      <Button variant="ghost" href={mailtoUrl} class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
+<!--      need to use external because of how android handles links, if it's target _blank then the Blazor UrlLoading event will not fire-->
+      <Button variant="ghost" href={mailtoUrl} external class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
         <Icon icon="i-mdi-email-outline" class="size-10"/>
         <div>
           <div class="font-semibold underline">

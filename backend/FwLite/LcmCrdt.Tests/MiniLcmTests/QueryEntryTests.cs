@@ -67,7 +67,9 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         var timePerEntry = queryTime / count;
         outputHelper.WriteLine(
             $"Total query time: {queryTime.TotalMilliseconds}ms, time per entry: {timePerEntry.TotalMicroseconds}microseconds");
-        timePerEntry.TotalMicroseconds.Should().BeLessThan(1);//on my machine I got 0.2, so this is a safe margin
+        //Kevin H:  1   -- on my machine I got 0.2, so this is a safe margin
+        //Tim H:    1.3 -- bumped, because on CI we got 1 and then 1.1 (new gha Windows runner)
+        timePerEntry.TotalMicroseconds.Should().BeLessThan(1.3);
     }
 
     public override async Task DisposeAsync()

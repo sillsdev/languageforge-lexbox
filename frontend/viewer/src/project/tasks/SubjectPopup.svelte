@@ -4,17 +4,18 @@
   import * as Editor from '$lib/components/editor';
   import {Button, XButton} from '$lib/components/ui/button';
   import {type Task, TasksService} from './tasks-service';
-  import OverrideFields from '$lib/OverrideFields.svelte';
+  import OverrideFields from '$lib/views/OverrideFields.svelte';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
   import ExampleEditorPrimitive from '$lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte';
   import {Separator} from '$lib/components/ui/separator';
-  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
   import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import {Progress} from '$lib/components/ui/progress';
   import {t} from 'svelte-i18n-lingui';
   import type {TaskSubject} from './subject.svelte';
   import type {Overrides} from '$lib/views/view-data';
+  import {tick} from 'svelte';
+  import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
 
   let {
     entry = $bindable(),
@@ -62,6 +63,15 @@
   async function onNext(skip: boolean = false) {
     if (!skip) {
       if (!subject || !isSubjectComplete()) return;
+
+      if (document.activeElement instanceof HTMLElement) {
+        // We have change rich-text change handlers that
+        // (1) add WS's to spans (i.e. finalize rich-strings. It's maybe a bad idea that we currently do that lazily) and
+        // (2) run into errors if triggered too late (e.g. via onDestroy)
+        // this is a simple way to ensure they run cleanly before we move on
+        document.activeElement.blur();
+        await tick();
+      }
 
       switch (task.subjectType) {
         case 'example-sentence':
@@ -140,7 +150,7 @@
               <Editor.Grid>
                 <OverrideFields shownFields={task.subjectFields} {overrides}>
                   {#if task.subjectType === 'entry' && subject.entry}
-                    <EntryEditorPrimitive modalMode bind:entry={subject.entry}/>
+                    <EntryEditorPrimitive autofocus modalMode bind:entry={subject.entry}/>
                   {:else if task.subjectType === 'sense' && subject.sense}
                     <SenseEditorPrimitive bind:sense={subject.sense}/>
                   {:else if task.subjectType === 'example-sentence' && subject.exampleSentence}
@@ -154,7 +164,7 @@
           </form>
         {/key}
       {:else}
-        <p>{$t`No subject, unable to create a new {task.subjectType}`}</p>
+        <p>{$t`No subject, unable to create a new ${task.subjectType}`}</p>
       {/if}
       <div class="flex flex-row gap-2 justify-end">
         <Drawer.Close>

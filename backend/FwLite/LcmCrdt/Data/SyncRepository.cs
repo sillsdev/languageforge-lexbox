@@ -51,7 +51,7 @@ public class SyncRepository(IDbContextFactory<LcmCrdtDbContext> dbContextFactory
         }
     }
 
-    public async Task<DateTimeOffset?> GetLatestCommitDate()
+    public async Task<DateTimeOffset?> GetLatestSyncedCommitDate()
     {
         try
         {

@@ -1,12 +1,12 @@
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
+using LcmCrdt.Changes.ExampleSentences;
 using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LcmCrdt.RemoteSync;
@@ -29,7 +29,7 @@ using LcmCrdt.FullTextSearch;
 using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using MiniLcm.Filtering;
+using System.Text.Json.Serialization.Metadata;
 
 namespace LcmCrdt;
 
@@ -189,6 +189,10 @@ public static class LcmCrdtKernel
                 builder.HasOne<Sense>()
                     .WithMany(s => s.ExampleSentences)
                     .HasForeignKey(e => e.SenseId);
+                builder.Property(s => s.Translations)
+                    .HasColumnType("jsonb")
+                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => DeserializeTranslations(json));
             })
             .Add<WritingSystem>(builder =>
             {
@@ -227,7 +231,6 @@ public static class LcmCrdtKernel
 
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()
-            .Add<JsonPatchChange<ExampleSentence>>()
             .Add<JsonPatchChange<WritingSystem>>()
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
@@ -235,7 +238,6 @@ public static class LcmCrdtKernel
             .Add<JsonPatchChange<Publication>>()
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
-            .Add<DeleteChange<ExampleSentence>>()
             .Add<DeleteChange<WritingSystem>>()
             .Add<DeleteChange<PartOfSpeech>>()
             .Add<DeleteChange<SemanticDomain>>()
@@ -248,7 +250,17 @@ public static class LcmCrdtKernel
             .Add<ReplaceSemanticDomainChange>()
             .Add<CreateEntryChange>()
             .Add<CreateSenseChange>()
+
+            //example sentence changes
             .Add<CreateExampleSentenceChange>()
+            .Add<JsonPatchExampleSentenceChange>()
+            .Add<Changes.SetOrderChange<ExampleSentence>>()
+            .Add<DeleteChange<ExampleSentence>>()
+            .Add<AddTranslationChange>()
+            .Add<RemoveTranslationChange>()
+            .Add<UpdateTranslationChange>()
+            .Add<SetFirstTranslationIdChange>()
+
             .Add<CreatePartOfSpeechChange>()
             .Add<CreateSemanticDomainChange>()
             .Add<CreateWritingSystemChange>()
@@ -262,12 +274,15 @@ public static class LcmCrdtKernel
             .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
             .Add<Changes.SetOrderChange<Sense>>()
-            .Add<Changes.SetOrderChange<ExampleSentence>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
+
+        config.JsonSerializerOptions.TypeInfoResolver =
+            (config.JsonSerializerOptions.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
+            .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
     }
 
     public static IEnumerable<Type> AllChangeTypes()
@@ -277,6 +292,19 @@ public static class LcmCrdtKernel
         return crdtConfig.ChangeTypes;
     }
 
+    public static IEnumerable<Type> AllObjectTypes()
+    {
+        var crdtConfig = new CrdtConfig();
+        ConfigureCrdt(crdtConfig);
+        return crdtConfig.ObjectTypes;
+    }
+
+    private static IList<Translation> DeserializeTranslations(string json)
+    {
+        //in the db Translations may be a list, or they could be a json object, so we need to deserialize it differently
+        var deserializationTarget = JsonSerializer.Deserialize<DbTranslationDeserializationTarget>(json);
+        return deserializationTarget?.GetTranslations() ?? [];
+    }
 
     public static async Task<IMiniLcmApi> OpenCrdtProject(this IServiceProvider services, CrdtProject project)
     {

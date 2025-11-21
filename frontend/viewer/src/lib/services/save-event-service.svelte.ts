@@ -1,4 +1,4 @@
-import {useProjectContext} from '$lib/project-context.svelte';
+import {useProjectContext} from '$project/project-context.svelte';
 
 export type SaveEvent = { saving: true } | { saved: true } | { status: 'saved-to-disk' | 'failed-to-save' };
 

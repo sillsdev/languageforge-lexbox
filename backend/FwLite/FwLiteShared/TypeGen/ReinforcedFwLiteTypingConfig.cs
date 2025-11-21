@@ -26,6 +26,8 @@ using FwLiteShared.AppUpdate;
 using FwLiteShared.Sync;
 using MiniLcm.Media;
 using MediaFile = MiniLcm.Media.MediaFile;
+using Microsoft.Extensions.Logging;
+using SIL.Harmony.Changes;
 
 namespace FwLiteShared.TypeGen;
 
@@ -82,6 +84,7 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(IObjectWithId),
                 typeof(RichString),
                 typeof(RichTextObjectData),
+                typeof(Translation),
 
                 typeof(MediaFile),
                 typeof(LcmFileMetadata)
@@ -166,12 +169,16 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
+            typeof(ChangeContext),
+            typeof(ChangeEntity<IChange>),
+            typeof(IChange),
             typeof(CommitMetadata),
             typeof(ObjectSnapshot),
             typeof(ProjectScope)
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
         builder.ExportAsEnum<FwEventType>().UseString();
+        builder.ExportAsEnum<LogLevel>().UseString(false);
         var eventJsAttrs = typeof(IFwEvent).GetCustomAttributes<JsonDerivedTypeAttribute>();
         builder.ExportAsInterfaces(
             typeof(IFwEvent).Assembly.GetTypes()

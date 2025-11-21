@@ -1,10 +1,9 @@
 <script lang="ts">
-  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
+  import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
   import ListItem, {type ListItemProps} from '$lib/components/ListItem.svelte';
   import Badge from '$lib/components/ui/badge/badge.svelte';
   import type {IEntry} from '$lib/dotnet-types';
-  import {usePartsOfSpeech} from '$lib/parts-of-speech.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {usePartsOfSpeech, useWritingSystemService} from '$project/data';
   import type {WithoutChildrenOrChild} from 'bits-ui';
   import type {Snippet} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
@@ -45,10 +44,10 @@
 
 <ListItem bind:ref {...rest}>
   {#if rest.skeleton || !entry}
-    <div class="animate-pulse" style="animation-delay: {animationDelay}">
-      <div class="h-5 bg-muted-foreground/20 rounded mb-2" style="width: {headwordWidth}"></div>
-      <div class="h-4 bg-muted-foreground/20 rounded mb-2" style="width: {definitionWidth}"></div>
-      <div class="h-6 bg-muted-foreground/20 rounded-full" style="width: {badgeWidth}"></div>
+    <div>
+      <div class="h-5 motion-safe:animate-shimmer bg-shimmer rounded mb-2" style="width: {headwordWidth}"></div>
+      <div class="h-4 motion-safe:animate-pulse bg-muted-foreground/20 rounded mb-2" style="width: {definitionWidth}; animation-delay: {animationDelay}"></div>
+      <div class="h-6 motion-safe:animate-pulse bg-muted-foreground/20 rounded-full" style="width: {badgeWidth}; animation-delay: {animationDelay}"></div>
     </div>
   {:else if previewDictionary}
     <DictionaryEntry {entry}/>

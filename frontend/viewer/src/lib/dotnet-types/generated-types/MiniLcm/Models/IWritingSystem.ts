@@ -8,7 +8,6 @@ import type {WritingSystemType} from './WritingSystemType';
 
 export interface IWritingSystem extends IObjectWithId
 {
-	id: string;
 	wsId: string;
 	isAudio: boolean;
 	name: string;

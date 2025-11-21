@@ -39,13 +39,7 @@ public record ComplexFormComponent : IObjectWithId<ComplexFormComponent>, IOrder
     }
 
     [MiniLcmInternal]
-    public Guid? MaybeId
-    {
-        get
-        {
-            return _id == Guid.Empty ? null : _id;
-        }
-    }
+    public Guid? MaybeId => _id == Guid.Empty ? null : _id;
 
     // The order property applies to the component NOT the complex form. Complex forms are sorted alphabetically in FieldWorks.
     [MiniLcmInternal]

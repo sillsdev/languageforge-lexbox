@@ -1,5 +1,3 @@
-using Mono.Unix.Native;
-
 namespace Testing.Services;
 
 public class ModifyProjectHelper

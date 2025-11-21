@@ -1,14 +1,29 @@
-using System.Text.Json.Serialization;
+using System.Diagnostics;
 using MiniLcm.Attributes;
 
 namespace MiniLcm.Models;
 
 public record WritingSystem: IObjectWithId<WritingSystem>, IOrderableNoId
 {
+    private Guid _id;
+
     /// <summary>
     /// this ID is always empty when working with FW data, it is only used when working with CRDTs
     /// </summary>
-    public required Guid Id { get; set; }
+    [MiniLcmInternal]
+    public required Guid Id
+    {
+        get
+        {
+            Debug.Assert(_id != Guid.Empty, "Id is not set and should not be used");
+            return _id;
+        }
+        set => _id = value;
+    }
+
+    [MiniLcmInternal]
+    public Guid? MaybeId => _id == Guid.Empty ? null : _id;
+
     public virtual required WritingSystemId WsId { get; set; }
     public bool IsAudio => WsId.IsAudio;
     public virtual required string Name { get; set; }
@@ -38,7 +53,7 @@ public record WritingSystem: IObjectWithId<WritingSystem>, IOrderableNoId
     {
         return new WritingSystem
         {
-            Id = Id,
+            Id = _id,
             WsId = WsId,
             Name = Name,
             Abbreviation = Abbreviation,

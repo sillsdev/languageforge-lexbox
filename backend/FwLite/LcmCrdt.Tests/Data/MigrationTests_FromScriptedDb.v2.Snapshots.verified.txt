@@ -1,0 +1,1738 @@
+﻿[
+  {
+    "Id": "3823e325-8715-4da1-995d-8f39c8e3af29",
+    "TypeName": "ComplexFormComponent",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormComponent",
+        "Id": "a4a74738-3914-43ca-8c25-bee34eb517b7",
+        "MaybeId": "a4a74738-3914-43ca-8c25-bee34eb517b7",
+        "Order": 1,
+        "DeletedAt": null,
+        "ComplexFormEntryId": "75050583-70d7-4605-a6e6-872b8f36c482",
+        "ComplexFormHeadword": "Orange",
+        "ComponentEntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "ComponentSenseId": null,
+        "ComponentHeadword": "de"
+      },
+      "Id": "a4a74738-3914-43ca-8c25-bee34eb517b7",
+      "DeletedAt": null
+    },
+    "References": [
+      "75050583-70d7-4605-a6e6-872b8f36c482",
+      "00edefeb-173e-45cd-836c-eea2ba514429"
+    ],
+    "EntityId": "a4a74738-3914-43ca-8c25-bee34eb517b7",
+    "EntityIsDeleted": false,
+    "CommitId": "276ef0d5-677c-46aa-af7e-d518abba15b5",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "d9672868-5457-4132-acb1-40a736cb6286",
+    "TypeName": "ComplexFormType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormType",
+        "Id": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
+        "Name": {
+          "en": "Compound"
+        },
+        "DeletedAt": null
+      },
+      "Id": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
+    "EntityIsDeleted": false,
+    "CommitId": "dc60d2a9-0cc2-48ed-803c-a238a14b6eae",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "83ca281b-4698-4ddd-8c5e-45fe1a9b5128",
+    "TypeName": "ComplexFormType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ComplexFormType",
+        "Id": "eeb78fce-6009-4932-aaa6-85faeb180c69",
+        "Name": {
+          "en": "Unspecified"
+        },
+        "DeletedAt": null
+      },
+      "Id": "eeb78fce-6009-4932-aaa6-85faeb180c69",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "eeb78fce-6009-4932-aaa6-85faeb180c69",
+    "EntityIsDeleted": false,
+    "CommitId": "dc60d2a9-0cc2-48ed-803c-a238a14b6eae",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "99c1758f-1ce7-4fe7-b261-6af7c66a031a",
+    "TypeName": "Entry",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Apple"
+        },
+        "CitationForm": {
+          "en": "Apple"
+        },
+        "LiteralMeaning": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "Fruit",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [],
+        "PublishIn": []
+      },
+      "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429",
+    "EntityIsDeleted": false,
+    "CommitId": "6a5981b6-d840-44cf-adf2-d51d4908314b",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "32b90ac0-9184-487c-866a-8152a9ea17fc",
+    "TypeName": "Entry",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Apple",
+          "de": "de"
+        },
+        "CitationForm": {
+          "en": "Apple"
+        },
+        "LiteralMeaning": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "Fruit",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [],
+        "PublishIn": []
+      },
+      "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429",
+    "EntityIsDeleted": false,
+    "CommitId": "5dba93af-7604-410f-b109-ec4961bb608f",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "ebcc8e22-2ff8-4911-a1b3-a40b2c6606aa",
+    "TypeName": "Entry",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Apple",
+          "de": "de"
+        },
+        "CitationForm": {
+          "en": "Apple",
+          "de": "de"
+        },
+        "LiteralMeaning": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "Fruit",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [],
+        "PublishIn": []
+      },
+      "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429",
+    "EntityIsDeleted": false,
+    "CommitId": "64308e87-7710-48fe-b4d8-2fa131f2456d",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "8cde8dac-409c-4276-b018-499cf92409ca",
+    "TypeName": "Entry",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Apple",
+          "de": "de"
+        },
+        "CitationForm": {
+          "en": "Apple",
+          "de": "de"
+        },
+        "LiteralMeaning": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "Fruit",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [
+          {
+            "Id": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
+            "Name": {
+              "en": "Compound"
+            },
+            "DeletedAt": null
+          }
+        ],
+        "PublishIn": []
+      },
+      "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429",
+    "EntityIsDeleted": false,
+    "CommitId": "4e078d12-ba55-42a8-8772-f0db0891fa71",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "82afbbfd-3c0c-4465-a467-31242c50eecf",
+    "TypeName": "Entry",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Apple",
+          "de": "de"
+        },
+        "CitationForm": {
+          "en": "Apple",
+          "de": "de"
+        },
+        "LiteralMeaning": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "Fruit",
+                "Ws": "en"
+              }
+            ]
+          },
+          "fr": {
+            "Spans": [
+              {
+                "Text": "fr",
+                "Ws": "fr"
+              }
+            ]
+          }
+        },
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [
+          {
+            "Id": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
+            "Name": {
+              "en": "Compound"
+            },
+            "DeletedAt": null
+          }
+        ],
+        "PublishIn": []
+      },
+      "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429",
+    "EntityIsDeleted": false,
+    "CommitId": "df118748-6170-40fa-a38f-7addf0aa4b4d",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "2fda581c-6c02-4b64-908b-1e0509f9edbe",
+    "TypeName": "Entry",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Apple",
+          "de": "de"
+        },
+        "CitationForm": {
+          "en": "Apple",
+          "de": "de"
+        },
+        "LiteralMeaning": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "Fruit",
+                "Ws": "en"
+              }
+            ]
+          },
+          "fr": {
+            "Spans": [
+              {
+                "Text": "fr",
+                "Ws": "fr"
+              }
+            ]
+          }
+        },
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "note",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [
+          {
+            "Id": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
+            "Name": {
+              "en": "Compound"
+            },
+            "DeletedAt": null
+          }
+        ],
+        "PublishIn": []
+      },
+      "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429",
+    "EntityIsDeleted": false,
+    "CommitId": "2f476f0d-baae-4428-a534-2447a3e6338c",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "82c4e9d7-883b-46c3-8837-dd5e85065350",
+    "TypeName": "Entry",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "75050583-70d7-4605-a6e6-872b8f36c482",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Orange"
+        },
+        "CitationForm": {
+          "en": "Orange"
+        },
+        "LiteralMeaning": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "Fruit",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [],
+        "PublishIn": []
+      },
+      "Id": "75050583-70d7-4605-a6e6-872b8f36c482",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "75050583-70d7-4605-a6e6-872b8f36c482",
+    "EntityIsDeleted": false,
+    "CommitId": "191b4774-f571-4e57-8639-d215106e8abf",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "5e1e9631-d246-4a9d-8052-1084b2d07441",
+    "TypeName": "Entry",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "9e84db09-1885-4bbb-9482-4891a46f6f49",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Grape"
+        },
+        "CitationForm": {
+          "en": "Grape"
+        },
+        "LiteralMeaning": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "Fruit",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [],
+        "PublishIn": []
+      },
+      "Id": "9e84db09-1885-4bbb-9482-4891a46f6f49",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "9e84db09-1885-4bbb-9482-4891a46f6f49",
+    "EntityIsDeleted": false,
+    "CommitId": "cd77d4cb-fbb6-4004-9159-f7f28482ca75",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "ecf9a05c-0e55-4342-b674-16fa1b347fed",
+    "TypeName": "Entry",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Entry",
+        "Id": "d9f70cf9-a479-4141-92e5-44155d063da2",
+        "DeletedAt": null,
+        "LexemeForm": {
+          "en": "Banana"
+        },
+        "CitationForm": {
+          "en": "Banana"
+        },
+        "LiteralMeaning": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "Fruit",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "MorphType": "Stem",
+        "Senses": [],
+        "Note": {},
+        "Components": [],
+        "ComplexForms": [],
+        "ComplexFormTypes": [],
+        "PublishIn": []
+      },
+      "Id": "d9f70cf9-a479-4141-92e5-44155d063da2",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "d9f70cf9-a479-4141-92e5-44155d063da2",
+    "EntityIsDeleted": false,
+    "CommitId": "a867ff78-ba45-41fb-986b-6ffaf8e4d5b5",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "929ef062-41e8-45e5-abf3-3c20507a80dc",
+    "TypeName": "ExampleSentence",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+        "Order": 1,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "We ate an apple",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Translations": [],
+        "Reference": null,
+        "SenseId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+        "DeletedAt": null
+      },
+      "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+      "DeletedAt": null
+    },
+    "References": [
+      "b9440091-a9fc-4769-82b1-2ee8d030808d"
+    ],
+    "EntityId": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+    "EntityIsDeleted": false,
+    "CommitId": "6a5981b6-d840-44cf-adf2-d51d4908314b",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "94950c41-d5f9-442f-b91f-1807ee743904",
+    "TypeName": "ExampleSentence",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+        "Order": 1,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "We ate an apple",
+                "Ws": "en"
+              }
+            ]
+          },
+          "de": {
+            "Spans": [
+              {
+                "Text": "de",
+                "Ws": "de"
+              }
+            ]
+          }
+        },
+        "Translations": [],
+        "Reference": null,
+        "SenseId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+        "DeletedAt": null
+      },
+      "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+      "DeletedAt": null
+    },
+    "References": [
+      "b9440091-a9fc-4769-82b1-2ee8d030808d"
+    ],
+    "EntityId": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+    "EntityIsDeleted": false,
+    "CommitId": "5aac4ff6-0dd8-4266-875c-00f1800efad4",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "beb54e61-57f8-4227-9d2e-4ad56982cb70",
+    "TypeName": "ExampleSentence",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+        "Order": 1,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "We ate an apple",
+                "Ws": "en"
+              }
+            ]
+          },
+          "de": {
+            "Spans": [
+              {
+                "Text": "de",
+                "Ws": "de"
+              }
+            ]
+          }
+        },
+        "Translations": [
+          {
+            "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+            "Text": {
+              "en": {
+                "Spans": [
+                  {
+                    "Text": "en",
+                    "Ws": "en"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "Reference": null,
+        "SenseId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+        "DeletedAt": null
+      },
+      "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+      "DeletedAt": null
+    },
+    "References": [
+      "b9440091-a9fc-4769-82b1-2ee8d030808d"
+    ],
+    "EntityId": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+    "EntityIsDeleted": false,
+    "CommitId": "5b954c9f-c86f-463a-baa2-15ebb7a6074b",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "7d383194-90e8-45de-839b-e53fbc9bcfb7",
+    "TypeName": "ExampleSentence",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+        "Order": 1,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "We ate an apple",
+                "Ws": "en"
+              }
+            ]
+          },
+          "de": {
+            "Spans": [
+              {
+                "Text": "de",
+                "Ws": "de"
+              }
+            ]
+          }
+        },
+        "Translations": [
+          {
+            "Id": "3dce1982-8e93-44f1-b92c-e9c7bdf72801",
+            "Text": {
+              "en": {
+                "Spans": [
+                  {
+                    "Text": "en",
+                    "Ws": "en"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "Reference": {
+          "Spans": [
+            {
+              "Text": "ref",
+              "Ws": "en"
+            }
+          ]
+        },
+        "SenseId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+        "DeletedAt": null
+      },
+      "Id": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+      "DeletedAt": null
+    },
+    "References": [
+      "b9440091-a9fc-4769-82b1-2ee8d030808d"
+    ],
+    "EntityId": "135d7c84-95d8-4707-a400-e1f3619d90fb",
+    "EntityIsDeleted": false,
+    "CommitId": "baf9da29-2187-4d2e-9c67-92c295c3fbd7",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "4b52c42e-4781-45ec-bab9-a2c55d6d394d",
+    "TypeName": "ExampleSentence",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "288d64c3-93f9-48a2-a014-d8773369b4a8",
+        "Order": 1,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "The vineyard was full of ripe grapes",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Translations": [],
+        "Reference": null,
+        "SenseId": "1b423127-deb2-468d-8100-e1f1bff20826",
+        "DeletedAt": null
+      },
+      "Id": "288d64c3-93f9-48a2-a014-d8773369b4a8",
+      "DeletedAt": null
+    },
+    "References": [
+      "1b423127-deb2-468d-8100-e1f1bff20826"
+    ],
+    "EntityId": "288d64c3-93f9-48a2-a014-d8773369b4a8",
+    "EntityIsDeleted": false,
+    "CommitId": "cd77d4cb-fbb6-4004-9159-f7f28482ca75",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "8994d7ee-7ef6-4c19-9549-dfd8a40144c2",
+    "TypeName": "ExampleSentence",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "9aa9f5a4-faea-45e9-bee7-42929eebf691",
+        "Order": 1,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "I squeezed the orange for juice",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Translations": [],
+        "Reference": null,
+        "SenseId": "241d95a7-6d90-411b-8569-5648cc40b42b",
+        "DeletedAt": null
+      },
+      "Id": "9aa9f5a4-faea-45e9-bee7-42929eebf691",
+      "DeletedAt": null
+    },
+    "References": [
+      "241d95a7-6d90-411b-8569-5648cc40b42b"
+    ],
+    "EntityId": "9aa9f5a4-faea-45e9-bee7-42929eebf691",
+    "EntityIsDeleted": false,
+    "CommitId": "191b4774-f571-4e57-8639-d215106e8abf",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "2f77033c-f317-4d01-a486-2f976ce7850e",
+    "TypeName": "ExampleSentence",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "ExampleSentence",
+        "Id": "d9d515e8-d695-44c3-9766-afbeab8c470f",
+        "Order": 1,
+        "Sentence": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "The monkey peeled a banana",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Translations": [],
+        "Reference": null,
+        "SenseId": "c77d7553-209d-45be-a83e-d07e69808873",
+        "DeletedAt": null
+      },
+      "Id": "d9d515e8-d695-44c3-9766-afbeab8c470f",
+      "DeletedAt": null
+    },
+    "References": [
+      "c77d7553-209d-45be-a83e-d07e69808873"
+    ],
+    "EntityId": "d9d515e8-d695-44c3-9766-afbeab8c470f",
+    "EntityIsDeleted": false,
+    "CommitId": "a867ff78-ba45-41fb-986b-6ffaf8e4d5b5",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "659a8536-28da-4671-a63d-36ee158619a1",
+    "TypeName": "PartOfSpeech",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "PartOfSpeech",
+        "Id": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
+        "Name": {
+          "en": "Adverb"
+        },
+        "DeletedAt": null,
+        "Predefined": true
+      },
+      "Id": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
+    "EntityIsDeleted": false,
+    "CommitId": "023faebb-711b-4d2f-b34f-a15621fc66bb",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "9689dd1f-0084-464d-89f2-52a05361daec",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "1bd42665-0610-4442-8d8d-7c666fee3a6d",
+        "Name": {
+          "en": "Person"
+        },
+        "Code": "2",
+        "DeletedAt": null,
+        "Predefined": true
+      },
+      "Id": "1bd42665-0610-4442-8d8d-7c666fee3a6d",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "1bd42665-0610-4442-8d8d-7c666fee3a6d",
+    "EntityIsDeleted": false,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "eab8b267-9e9b-48a3-a593-c890771b743d",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4",
+        "Name": {
+          "en": "Body"
+        },
+        "Code": "2.1",
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4",
+    "EntityIsDeleted": false,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "d8f964b5-312d-4d2e-9d47-3a00c42b7b52",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5",
+        "Name": {
+          "en": "Head"
+        },
+        "Code": "2.1.1",
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5",
+    "EntityIsDeleted": false,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "b4940dd3-2ad6-4391-98bf-8c26cd6d9ba9",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6",
+        "Name": {
+          "en": "Eye"
+        },
+        "Code": "2.1.1.1",
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6",
+    "EntityIsDeleted": false,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "14acc90e-f0b8-4c54-a73a-d72e08d08319",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "63403699-07c1-43f3-a47c-069d6e4316e5",
+        "Name": {
+          "en": "Universe, Creation"
+        },
+        "Code": "1",
+        "DeletedAt": null,
+        "Predefined": true
+      },
+      "Id": "63403699-07c1-43f3-a47c-069d6e4316e5",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "63403699-07c1-43f3-a47c-069d6e4316e5",
+    "EntityIsDeleted": false,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "6984026f-f359-464b-8c0a-38911d6b432b",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "999581c4-1611-4acb-ae1b-5e6c1dfe6f0c",
+        "Name": {
+          "en": "Sky"
+        },
+        "Code": "1.1",
+        "DeletedAt": null,
+        "Predefined": true
+      },
+      "Id": "999581c4-1611-4acb-ae1b-5e6c1dfe6f0c",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "999581c4-1611-4acb-ae1b-5e6c1dfe6f0c",
+    "EntityIsDeleted": false,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "7edd8e1f-47fd-48bc-9b59-4cec9c1ad2a4",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "dc1a2c6f-1b32-4631-8823-36dacc8cb7bb",
+        "Name": {
+          "en": "World"
+        },
+        "Code": "1.2",
+        "DeletedAt": null,
+        "Predefined": true
+      },
+      "Id": "dc1a2c6f-1b32-4631-8823-36dacc8cb7bb",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "dc1a2c6f-1b32-4631-8823-36dacc8cb7bb",
+    "EntityIsDeleted": false,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "45ca39e0-64cd-4ee3-b721-476791cbcfed",
+    "TypeName": "Sense",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "1b423127-deb2-468d-8100-e1f1bff20826",
+        "Order": 1,
+        "DeletedAt": null,
+        "EntryId": "9e84db09-1885-4bbb-9482-4891a46f6f49",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "small round or oval fruit growing in clusters, used for wine or eating",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "Fruit"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": null,
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "1b423127-deb2-468d-8100-e1f1bff20826",
+      "DeletedAt": null
+    },
+    "References": [
+      "9e84db09-1885-4bbb-9482-4891a46f6f49"
+    ],
+    "EntityId": "1b423127-deb2-468d-8100-e1f1bff20826",
+    "EntityIsDeleted": false,
+    "CommitId": "cd77d4cb-fbb6-4004-9159-f7f28482ca75",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "abc7fa87-8a65-4c55-8243-719da4372bdb",
+    "TypeName": "Sense",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "241d95a7-6d90-411b-8569-5648cc40b42b",
+        "Order": 1,
+        "DeletedAt": null,
+        "EntryId": "75050583-70d7-4605-a6e6-872b8f36c482",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "round citrus fruit with orange skin and juicy segments inside",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "Fruit"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": null,
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "241d95a7-6d90-411b-8569-5648cc40b42b",
+      "DeletedAt": null
+    },
+    "References": [
+      "75050583-70d7-4605-a6e6-872b8f36c482"
+    ],
+    "EntityId": "241d95a7-6d90-411b-8569-5648cc40b42b",
+    "EntityIsDeleted": false,
+    "CommitId": "191b4774-f571-4e57-8639-d215106e8abf",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "c18904b3-5d12-4eec-a239-b5a3b5ae6a7d",
+    "TypeName": "Sense",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+        "Order": 1,
+        "DeletedAt": null,
+        "EntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "Fruit"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": null,
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+      "DeletedAt": null
+    },
+    "References": [
+      "00edefeb-173e-45cd-836c-eea2ba514429"
+    ],
+    "EntityId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+    "EntityIsDeleted": false,
+    "CommitId": "6a5981b6-d840-44cf-adf2-d51d4908314b",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "b0d152af-5fa5-4df4-81a6-630dd552499f",
+    "TypeName": "Sense",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+        "Order": 1,
+        "DeletedAt": null,
+        "EntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "Fruit",
+          "fr": "fr"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": null,
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+      "DeletedAt": null
+    },
+    "References": [
+      "00edefeb-173e-45cd-836c-eea2ba514429"
+    ],
+    "EntityId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+    "EntityIsDeleted": false,
+    "CommitId": "6c1e0dc4-e30b-43dc-889c-dc5787fbf282",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "04a68ec6-1b56-4303-a379-35da06346e0b",
+    "TypeName": "Sense",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+        "Order": 1,
+        "DeletedAt": null,
+        "EntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh",
+                "Ws": "en"
+              }
+            ]
+          },
+          "fr": {
+            "Spans": [
+              {
+                "Text": "fr",
+                "Ws": "fr"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "Fruit",
+          "fr": "fr"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": null,
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+      "DeletedAt": null
+    },
+    "References": [
+      "00edefeb-173e-45cd-836c-eea2ba514429"
+    ],
+    "EntityId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+    "EntityIsDeleted": false,
+    "CommitId": "241f2698-c899-4476-986b-b339fa50fce8",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "0a5be7b9-9c5c-4786-abe3-2310dae6ccca",
+    "TypeName": "Sense",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+        "Order": 1,
+        "DeletedAt": null,
+        "EntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh",
+                "Ws": "en"
+              }
+            ]
+          },
+          "fr": {
+            "Spans": [
+              {
+                "Text": "fr",
+                "Ws": "fr"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "Fruit",
+          "fr": "fr"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+      "DeletedAt": null
+    },
+    "References": [
+      "00edefeb-173e-45cd-836c-eea2ba514429",
+      "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9"
+    ],
+    "EntityId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+    "EntityIsDeleted": false,
+    "CommitId": "16f056b3-c19a-42d0-a824-ba2640597ac2",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "87f3bbad-ed5d-4cbe-987c-786746a94c06",
+    "TypeName": "Sense",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+        "Order": 1,
+        "DeletedAt": null,
+        "EntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh",
+                "Ws": "en"
+              }
+            ]
+          },
+          "fr": {
+            "Spans": [
+              {
+                "Text": "fr",
+                "Ws": "fr"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "Fruit",
+          "fr": "fr"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
+        "SemanticDomains": [
+          {
+            "Id": "63403699-07c1-43f3-a47c-069d6e4316e5",
+            "Name": {
+              "en": "Universe, Creation"
+            },
+            "Code": "1",
+            "DeletedAt": null,
+            "Predefined": true
+          }
+        ],
+        "ExampleSentences": []
+      },
+      "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+      "DeletedAt": null
+    },
+    "References": [
+      "00edefeb-173e-45cd-836c-eea2ba514429",
+      "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
+      "63403699-07c1-43f3-a47c-069d6e4316e5"
+    ],
+    "EntityId": "b9440091-a9fc-4769-82b1-2ee8d030808d",
+    "EntityIsDeleted": false,
+    "CommitId": "c2c3e5cc-4e0a-4e3d-a300-d004dacb5a7e",
+    "Commit": null,
+    "IsRoot": false
+  },
+  {
+    "Id": "dcfd50ce-413b-4d12-b4e7-6eed289d3ab2",
+    "TypeName": "Sense",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "c77d7553-209d-45be-a83e-d07e69808873",
+        "Order": 1,
+        "DeletedAt": null,
+        "EntryId": "d9f70cf9-a479-4141-92e5-44155d063da2",
+        "Definition": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "long curved fruit with yellow skin and soft sweet flesh",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "en": "Fruit"
+        },
+        "PartOfSpeech": null,
+        "PartOfSpeechId": null,
+        "SemanticDomains": [],
+        "ExampleSentences": []
+      },
+      "Id": "c77d7553-209d-45be-a83e-d07e69808873",
+      "DeletedAt": null
+    },
+    "References": [
+      "d9f70cf9-a479-4141-92e5-44155d063da2"
+    ],
+    "EntityId": "c77d7553-209d-45be-a83e-d07e69808873",
+    "EntityIsDeleted": false,
+    "CommitId": "a867ff78-ba45-41fb-986b-6ffaf8e4d5b5",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "0f01f15d-938d-495a-b3cb-948caede7540",
+    "TypeName": "WritingSystem",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "0b76099f-a102-4d24-8fd7-2c44b6eb3623",
+        "MaybeId": "0b76099f-a102-4d24-8fd7-2c44b6eb3623",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "English",
+        "Abbreviation": "en",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 1
+      },
+      "Id": "0b76099f-a102-4d24-8fd7-2c44b6eb3623",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "0b76099f-a102-4d24-8fd7-2c44b6eb3623",
+    "EntityIsDeleted": false,
+    "CommitId": "6917532b-c05c-481e-bed7-a0d075822e89",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "f001c69d-04b4-4b0f-b049-a56e94041caf",
+    "TypeName": "WritingSystem",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "33c8a15a-1bd4-429e-a400-3304a3e1d997",
+        "MaybeId": "33c8a15a-1bd4-429e-a400-3304a3e1d997",
+        "WsId": "de",
+        "IsAudio": false,
+        "Name": "German",
+        "Abbreviation": "de",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 1
+      },
+      "Id": "33c8a15a-1bd4-429e-a400-3304a3e1d997",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "33c8a15a-1bd4-429e-a400-3304a3e1d997",
+    "EntityIsDeleted": false,
+    "CommitId": "b76cb8f9-4854-4e93-af3c-1c2eec00e216",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "b03e10de-3708-4d19-8a9e-dac133fa1a74",
+    "TypeName": "WritingSystem",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "485bd12f-976e-40df-b66c-16d70ee916fa",
+        "MaybeId": "485bd12f-976e-40df-b66c-16d70ee916fa",
+        "WsId": "en-Zxxx-x-audio",
+        "IsAudio": true,
+        "Name": "English (A)",
+        "Abbreviation": "Eng \uD83D\uDD0A",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 3
+      },
+      "Id": "485bd12f-976e-40df-b66c-16d70ee916fa",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "485bd12f-976e-40df-b66c-16d70ee916fa",
+    "EntityIsDeleted": false,
+    "CommitId": "2c649b96-4aba-4d4d-9cca-3670d4469210",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "1a9e7520-9d95-476b-ba35-a4962ad9a0b6",
+    "TypeName": "WritingSystem",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "9fd79197-95ef-46d7-81a8-bb21aa2579c0",
+        "MaybeId": "9fd79197-95ef-46d7-81a8-bb21aa2579c0",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "English",
+        "Abbreviation": "en",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 2
+      },
+      "Id": "9fd79197-95ef-46d7-81a8-bb21aa2579c0",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "9fd79197-95ef-46d7-81a8-bb21aa2579c0",
+    "EntityIsDeleted": false,
+    "CommitId": "d341a388-62f7-41c2-af50-2854b2ed941f",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "2923d72f-238a-44ee-af1d-c5613d7cbe54",
+    "TypeName": "WritingSystem",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "abeaeb03-1a56-49d5-8cc8-a3afe5ffe89e",
+        "MaybeId": "abeaeb03-1a56-49d5-8cc8-a3afe5ffe89e",
+        "WsId": "en-Zxxx-x-audio",
+        "IsAudio": true,
+        "Name": "English (A)",
+        "Abbreviation": "Eng \uD83D\uDD0A",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 3
+      },
+      "Id": "abeaeb03-1a56-49d5-8cc8-a3afe5ffe89e",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "abeaeb03-1a56-49d5-8cc8-a3afe5ffe89e",
+    "EntityIsDeleted": false,
+    "CommitId": "98cac228-5353-4bd2-811f-e11119ac8694",
+    "Commit": null,
+    "IsRoot": true
+  },
+  {
+    "Id": "a2380046-bc58-4b62-9815-86e6e4d68304",
+    "TypeName": "WritingSystem",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "d4078989-6c7b-4cc5-8501-ce968405484a",
+        "MaybeId": "d4078989-6c7b-4cc5-8501-ce968405484a",
+        "WsId": "fr",
+        "IsAudio": false,
+        "Name": "French",
+        "Abbreviation": "fr",
+        "Font": "Arial",
+        "DeletedAt": null,
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 2
+      },
+      "Id": "d4078989-6c7b-4cc5-8501-ce968405484a",
+      "DeletedAt": null
+    },
+    "References": [],
+    "EntityId": "d4078989-6c7b-4cc5-8501-ce968405484a",
+    "EntityIsDeleted": false,
+    "CommitId": "6113b384-911c-4a3c-a8cc-85f36bb92106",
+    "Commit": null,
+    "IsRoot": true
+  }
+]

@@ -1,7 +1,10 @@
+import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
 
 interface FieldData {
   helpId: string;
 }
+
+type PotentialFieldIds = keyof IEntry | keyof ISense | keyof IExampleSentence;
 
 const privateFieldData = {
   //entry
@@ -12,6 +15,7 @@ const privateFieldData = {
   components: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Components_field.htm' },
   literalMeaning: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Literal_Meaning_field.htm' },
   note: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Note_field.htm' },
+  publishIn: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Publication_Settings_flds/Publish_In_(Publication_Settings).htm' },
 
   //sense
   gloss: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Gloss_field_Sense.htm' },
@@ -21,9 +25,9 @@ const privateFieldData = {
 
   //example sentence
   sentence: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/example_field.htm' },
-  translation: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Translation_field.htm' },
+  translations: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Translation_field.htm' },
   reference: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Reference_field.htm' },
-} satisfies Record<string, FieldData>;
+} satisfies Partial<Record<PotentialFieldIds, FieldData>>;
 /**
  * This is a list of all standard fields with fixed data that is constant across all views.
  */

@@ -1,0 +1,300 @@
+﻿[
+  {
+    "Index": 0,
+    "CommitId": "dc60d2a9-0cc2-48ed-803c-a238a14b6eae",
+    "EntityId": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
+    "Change": {
+      "$type": "CreateComplexFormType",
+      "Name": {
+        "en": "Compound"
+      },
+      "EntityId": "c36f55ed-d1ea-4069-90b3-3f35ff696273"
+    }
+  },
+  {
+    "Index": 1,
+    "CommitId": "dc60d2a9-0cc2-48ed-803c-a238a14b6eae",
+    "EntityId": "eeb78fce-6009-4932-aaa6-85faeb180c69",
+    "Change": {
+      "$type": "CreateComplexFormType",
+      "Name": {
+        "en": "Unspecified"
+      },
+      "EntityId": "eeb78fce-6009-4932-aaa6-85faeb180c69"
+    }
+  },
+  {
+    "Index": 0,
+    "CommitId": "0e5ca1d3-7502-43ec-b03d-fa83899e0972",
+    "EntityId": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1",
+    "Change": {
+      "$type": "CreateEntryChange",
+      "LexemeForm": {
+        "en": "Apple"
+      },
+      "CitationForm": {
+        "en": "Apple"
+      },
+      "LiteralMeaning": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "Fruit",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "Note": {},
+      "MorphType": null,
+      "EntityId": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1"
+    }
+  },
+  {
+    "Index": 2,
+    "CommitId": "0e5ca1d3-7502-43ec-b03d-fa83899e0972",
+    "EntityId": "30a0dcc4-06b1-4402-b78e-745712c4cd2d",
+    "Change": {
+      "$type": "CreateExampleSentenceChange",
+      "SenseId": "d510aa82-5557-4dd4-8b1f-1ec89facb979",
+      "Order": 1,
+      "Sentence": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "We ate an apple",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "Translations": null,
+      "Translation": {},
+      "Reference": null,
+      "EntityId": "30a0dcc4-06b1-4402-b78e-745712c4cd2d"
+    }
+  },
+  {
+    "Index": 0,
+    "CommitId": "023faebb-711b-4d2f-b34f-a15621fc66bb",
+    "EntityId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
+    "Change": {
+      "$type": "CreatePartOfSpeechChange",
+      "Name": {
+        "en": "Adverb"
+      },
+      "Predefined": true,
+      "EntityId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9"
+    }
+  },
+  {
+    "Index": 0,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d0",
+    "Change": {
+      "$type": "CreateSemanticDomainChange",
+      "Name": {
+        "en": "Universe, Creation"
+      },
+      "Predefined": true,
+      "Code": "1",
+      "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d0"
+    }
+  },
+  {
+    "Index": 1,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d1",
+    "Change": {
+      "$type": "CreateSemanticDomainChange",
+      "Name": {
+        "en": "Sky"
+      },
+      "Predefined": true,
+      "Code": "1.1",
+      "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d1"
+    }
+  },
+  {
+    "Index": 2,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d2",
+    "Change": {
+      "$type": "CreateSemanticDomainChange",
+      "Name": {
+        "en": "World"
+      },
+      "Predefined": true,
+      "Code": "1.2",
+      "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d2"
+    }
+  },
+  {
+    "Index": 3,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d3",
+    "Change": {
+      "$type": "CreateSemanticDomainChange",
+      "Name": {
+        "en": "Person"
+      },
+      "Predefined": true,
+      "Code": "2",
+      "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d3"
+    }
+  },
+  {
+    "Index": 4,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4",
+    "Change": {
+      "$type": "CreateSemanticDomainChange",
+      "Name": {
+        "en": "Body"
+      },
+      "Predefined": true,
+      "Code": "2.1",
+      "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4"
+    }
+  },
+  {
+    "Index": 5,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5",
+    "Change": {
+      "$type": "CreateSemanticDomainChange",
+      "Name": {
+        "en": "Head"
+      },
+      "Predefined": true,
+      "Code": "2.1.1",
+      "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5"
+    }
+  },
+  {
+    "Index": 6,
+    "CommitId": "023faebb-711b-4d2f-a14f-a15621fc66bc",
+    "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6",
+    "Change": {
+      "$type": "CreateSemanticDomainChange",
+      "Name": {
+        "en": "Eye"
+      },
+      "Predefined": true,
+      "Code": "2.1.1.1",
+      "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6"
+    }
+  },
+  {
+    "Index": 1,
+    "CommitId": "0e5ca1d3-7502-43ec-b03d-fa83899e0972",
+    "EntityId": "d510aa82-5557-4dd4-8b1f-1ec89facb979",
+    "Change": {
+      "$type": "CreateSenseChange",
+      "EntryId": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1",
+      "Order": 1,
+      "Definition": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "en": "Fruit"
+      },
+      "PartOfSpeechId": null,
+      "SemanticDomains": [],
+      "EntityId": "d510aa82-5557-4dd4-8b1f-1ec89facb979"
+    }
+  },
+  {
+    "Index": 0,
+    "CommitId": "edf0c210-1d19-49aa-977c-1c2b99c05a05",
+    "EntityId": "1d6f788d-b5a7-4dd8-bdbc-e10b6ac78ef7",
+    "Change": {
+      "$type": "CreateWritingSystemChange",
+      "WsId": "en",
+      "Name": "English",
+      "Abbreviation": "en",
+      "Font": "Arial",
+      "Exemplars": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z"
+      ],
+      "Type": 1,
+      "Order": 0,
+      "EntityId": "1d6f788d-b5a7-4dd8-bdbc-e10b6ac78ef7"
+    }
+  },
+  {
+    "Index": 0,
+    "CommitId": "b9ee0129-fe8a-48d4-95db-32548df39267",
+    "EntityId": "e8b2b514-e1ee-4a2b-9b52-6e32291aa407",
+    "Change": {
+      "$type": "CreateWritingSystemChange",
+      "WsId": "en",
+      "Name": "English",
+      "Abbreviation": "en",
+      "Font": "Arial",
+      "Exemplars": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z"
+      ],
+      "Type": 0,
+      "Order": 0,
+      "EntityId": "e8b2b514-e1ee-4a2b-9b52-6e32291aa407"
+    }
+  }
+]

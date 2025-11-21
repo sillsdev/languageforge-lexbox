@@ -97,10 +97,10 @@ public static class FwLiteWebServer
 
         app.Use(async (context, next) =>
         {
-            var projectName = context.GetProjectName();
-            if (!string.IsNullOrWhiteSpace(projectName))
+            var projectCode = context.GetProjectCode();
+            if (!string.IsNullOrWhiteSpace(projectCode))
             {
-                await context.RequestServices.GetRequiredService<CurrentProjectService>().SetupProjectContext(projectName);
+                await context.RequestServices.GetRequiredService<CurrentProjectService>().SetupProjectContext(projectCode);
             }
             var fwData = context.GetFwDataName();
             if (!string.IsNullOrWhiteSpace(fwData))

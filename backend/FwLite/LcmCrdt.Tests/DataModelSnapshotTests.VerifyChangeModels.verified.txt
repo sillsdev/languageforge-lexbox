@@ -25,10 +25,6 @@
       TypeDiscriminator: jsonPatch:Sense
     },
     {
-      DerivedType: JsonPatchChange<ExampleSentence>,
-      TypeDiscriminator: jsonPatch:ExampleSentence
-    },
-    {
       DerivedType: JsonPatchChange<WritingSystem>,
       TypeDiscriminator: jsonPatch:WritingSystem
     },
@@ -55,10 +51,6 @@
     {
       DerivedType: DeleteChange<Sense>,
       TypeDiscriminator: delete:Sense
-    },
-    {
-      DerivedType: DeleteChange<ExampleSentence>,
-      TypeDiscriminator: delete:ExampleSentence
     },
     {
       DerivedType: DeleteChange<WritingSystem>,
@@ -113,6 +105,34 @@
       TypeDiscriminator: CreateExampleSentenceChange
     },
     {
+      DerivedType: JsonPatchExampleSentenceChange,
+      TypeDiscriminator: jsonPatch:ExampleSentence
+    },
+    {
+      DerivedType: SetOrderChange<ExampleSentence>,
+      TypeDiscriminator: SetOrderChange:ExampleSentence
+    },
+    {
+      DerivedType: DeleteChange<ExampleSentence>,
+      TypeDiscriminator: delete:ExampleSentence
+    },
+    {
+      DerivedType: AddTranslationChange,
+      TypeDiscriminator: AddTranslationChange
+    },
+    {
+      DerivedType: RemoveTranslationChange,
+      TypeDiscriminator: RemoveTranslationChange
+    },
+    {
+      DerivedType: UpdateTranslationChange,
+      TypeDiscriminator: UpdateTranslationChange
+    },
+    {
+      DerivedType: SetFirstTranslationIdChange,
+      TypeDiscriminator: SetFirstTranslationIdChange
+    },
+    {
       DerivedType: CreatePartOfSpeechChange,
       TypeDiscriminator: CreatePartOfSpeechChange
     },
@@ -163,10 +183,6 @@
     {
       DerivedType: SetOrderChange<Sense>,
       TypeDiscriminator: SetOrderChange:Sense
-    },
-    {
-      DerivedType: SetOrderChange<ExampleSentence>,
-      TypeDiscriminator: SetOrderChange:ExampleSentence
     },
     {
       DerivedType: SetOrderChange<ComplexFormComponent>,

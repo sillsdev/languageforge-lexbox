@@ -1,11 +1,11 @@
 <script lang="ts">
-  import OverrideFields from '$lib/OverrideFields.svelte';
+  import OverrideFields from '$lib/views/OverrideFields.svelte';
   import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Checkbox} from '$lib/components/ui/checkbox';
   import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
   import type {FieldId} from '$lib/entry-editor/field-data';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
-  import {InMemoryApiService} from '$lib/in-memory-api-service';
+  import {InMemoryDemoApi} from '$project/demo/in-memory-demo-api';
   import {AppNotification} from '$lib/notifications/notifications';
   import {tryUseService} from '$lib/services/service-provider';
   import {delay} from '$lib/utils/time';
@@ -14,11 +14,11 @@
   import * as Resizable from '$lib/components/ui/resizable';
   import LcmRichTextEditor, {lineSeparator} from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
-  import ThemePicker from '$lib/ThemePicker.svelte';
+  import ThemePicker from '$lib/components/ThemePicker.svelte';
   import {EditorGrid} from '$lib/components/editor';
   import EditorSandbox from './EditorSandbox.svelte';
   import EntryOrSensePicker, {type EntrySenseSelection} from '$lib/entry-editor/EntryOrSensePicker.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
   import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {Reorderer} from '$lib/components/reorderer/index.js';
@@ -48,7 +48,7 @@
     AppNotification.error('This is a notification with a large detail', description);
   }
 
-  InMemoryApiService.setup();
+  InMemoryDemoApi.setup();
   initView();
   initViewSettings();
   const writingSystemService = useWritingSystemService();

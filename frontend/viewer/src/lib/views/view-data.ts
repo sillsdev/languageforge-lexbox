@@ -16,6 +16,7 @@ export const allFields: Record<FieldId, FieldView> = {
   complexFormTypes: {show: false, order: 5},
   literalMeaning: {show: false, order: 6},
   note: {show: true, order: 7},
+  publishIn: {show: false, order: 8},
 
   //sense
   gloss: {show: true, order: 1},
@@ -25,7 +26,7 @@ export const allFields: Record<FieldId, FieldView> = {
 
   //example sentence
   sentence: {show: true, order: 1},
-  translation: {show: true, order: 2},
+  translations: {show: true, order: 2},
   reference: {show: false, order: 3},
 };
 
@@ -40,7 +41,7 @@ export const FW_LITE_VIEW: RootView = {
 export const FW_CLASSIC_VIEW: RootView = {
   id: 'fieldworks',
   type: 'fw-classic',
-  label: 'FieldWorks',
+  label: 'FieldWorks Classic',
   fields: recursiveSpread(allFields, {
     complexFormTypes: {order: allFields.components.order - 0.1},
     [defaultDef]: {show: true}

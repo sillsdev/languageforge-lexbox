@@ -277,25 +277,51 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddTranslation), $"Add translation {translation.Id} to example sentence {exampleSentenceId}"));
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemoveTranslation), $"Remove translation {translationId} from example sentence {exampleSentenceId}"));
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateTranslation(Guid entryId,
+        Guid senseId,
+        Guid exampleSentenceId,
+        Guid translationId,
+        UpdateObjectInput<Translation> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateTranslation), $"Update translation {translationId} in example sentence {exampleSentenceId}"));
+        return Task.CompletedTask;
+    }
+
     public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
-        var previousId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;
-        var nextId = between?.Next?.ComponentSenseId ?? between?.Next?.ComponentEntryId;
-        DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormComponent), $"Create complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword} between {previousId} and {nextId}"));
+        var complexFormName = ComplexFormName(complexFormComponent);
+        var componentName = ComplexFormComponentName(complexFormComponent);
+        var previous = ComplexFormComponentName(between?.Previous);
+        var next = ComplexFormComponentName(between?.Next);
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormComponent), $"Create complex form component complex entry: {complexFormName}, component entry: {componentName}, between {previous} and {next}"));
         return Task.FromResult(complexFormComponent);
     }
 
     public Task MoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
     {
-        var previousId = between.Previous?.ComponentSenseId ?? between.Previous?.ComponentEntryId;
-        var nextId = between.Next?.ComponentSenseId ?? between.Next?.ComponentEntryId;
-        DryRunRecords.Add(new DryRunRecord(nameof(MoveComplexFormComponent), $"Move complex form component {complexFormComponent.Id} between {previousId} and {nextId}"));
+        var componentName = ComplexFormComponentName(complexFormComponent);
+        var previous = ComplexFormComponentName(between.Previous);
+        var next = ComplexFormComponentName(between.Next);
+        DryRunRecords.Add(new DryRunRecord(nameof(MoveComplexFormComponent), $"Move complex form component {componentName} between {previous} and {next}"));
         return Task.CompletedTask;
     }
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormComponent), $"Delete complex form component: {complexFormComponent}"));
+        var componentName = ComplexFormComponentName(complexFormComponent);
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormComponent), $"Delete complex form component: {componentName}"));
         return Task.CompletedTask;
     }
 
@@ -314,13 +340,13 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdatePublication), $"Update publication {id}"));
-        return await _api.GetPublication(id) ?? throw new NotFoundException("Publication not found", nameof(Publication));
+        return await _api.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
     }
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdatePublication), $"Update publication {before.Id}"));
-        return await _api.GetPublication(before.Id) ?? throw new NotFoundException("Publication not found", nameof(Publication));
+        return await _api.GetPublication(before.Id) ?? throw NotFoundException.ForType<Publication>(before.Id);
     }
 
     public Task DeletePublication(Guid id)
@@ -339,6 +365,18 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(RemovePublication), $"Remove publication {publicationId} from entry {entryId}"));
         return Task.CompletedTask;
+    }
+
+    private string ComplexFormComponentName(ComplexFormComponent? component)
+    {
+        if (component == null) return "null";
+        return $"{component.ComponentHeadword} ({component.ComponentEntryId}:{component.ComponentSenseId})";
+    }
+
+    private string ComplexFormName(ComplexFormComponent? component)
+    {
+        if (component == null) return "null";
+        return $"{component.ComplexFormHeadword} ({component.ComplexFormEntryId})";
     }
 
     //this is now called to this method from the ResumableImportApi, but calling GetEntries will fail because there's no writing systems

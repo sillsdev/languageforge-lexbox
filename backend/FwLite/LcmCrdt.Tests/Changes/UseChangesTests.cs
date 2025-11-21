@@ -3,10 +3,13 @@ using System.Text.Json;
 using Bogus;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
+using LcmCrdt.Changes.ExampleSentences;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Resource;
+using SystemTextJsonPatch;
 
 namespace LcmCrdt.Tests.Changes;
 
@@ -16,10 +19,9 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
     private static readonly Randomizer random = new();
     private static readonly Lazy<JsonSerializerOptions> LazyOptions = new(() =>
     {
-        var config = new CrdtConfig();
-        LcmCrdtKernel.ConfigureCrdt(config);
-        config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
-        return config.JsonSerializerOptions;
+        var options = TestJsonOptions.Harmony();
+        options.ReadCommentHandling = JsonCommentHandling.Skip;
+        return options;
     });
     private static readonly JsonSerializerOptions Options = LazyOptions.Value;
 
@@ -70,9 +72,19 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
                 change.GetType()) as IChange;
             duplicateChange.Should().NotBeNull();
             duplicateChange.GetType().Should().Be(change.GetType());
-            // we can't create duplicate entities with the same ID
-            if (IsCreateChange(change)) duplicateChange.EntityId = Guid.NewGuid();
             await fixture.DataModel.AddChange(Guid.NewGuid(), duplicateChange);
+
+            if (change.SupportsNewEntity())
+            {
+                // The previous duplicate change is presumably a no-op, so we'll make a duplicate entity with a different ID as well.
+                var duplicateCreateChange = JsonSerializer.Deserialize(
+                    JsonSerializer.Serialize(change, Options),
+                    change.GetType()) as IChange;
+                duplicateCreateChange.Should().NotBeNull();
+                duplicateCreateChange.EntityId = Guid.NewGuid();
+                duplicateCreateChange.GetType().Should().Be(change.GetType());
+                await fixture.DataModel.AddChange(Guid.NewGuid(), duplicateCreateChange);
+            }
 
             var allEntries = await fixture.Api.GetEntries().ToArrayAsync();
             var result = await EntrySync.SyncFull(allEntries, allEntries, fixture.Api);
@@ -139,6 +151,28 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var exampleSentence = new ExampleSentence { Id = Guid.NewGuid(), Sentence = new() { { "en", new RichString("test sentence") } } };
         var createExampleSentenceChange = new CreateExampleSentenceChange(exampleSentence, sense.Id);
         yield return new ChangeWithDependencies(createExampleSentenceChange, [createSenseChange]);
+
+        var jsonPatchExampleSentenceChange = new JsonPatchExampleSentenceChange(
+            exampleSentence.Id,
+            new JsonPatchDocument<ExampleSentence>()
+                .Replace(sentence => sentence.Reference, new RichString("hello", "en"))
+            );
+        yield return new ChangeWithDependencies(jsonPatchExampleSentenceChange, [createExampleSentenceChange]);
+
+        var translation = new Translation { Id = Guid.NewGuid(), Text = new() { { "en", new RichString("test translation") } } };
+        var createTranslationChange = new AddTranslationChange(exampleSentence.Id, translation);
+        yield return new ChangeWithDependencies(createTranslationChange, [createExampleSentenceChange]);
+
+        var updateTranslationChange = new UpdateTranslationChange(exampleSentence.Id, translation.Id,
+        new JsonPatchDocument<Translation>()
+            .Replace(sentence => sentence.Text, new() { { "en", new RichString("test translation update") } }));
+        yield return new ChangeWithDependencies(updateTranslationChange, [createTranslationChange]);
+
+        var setFirstTranslationIdChange = new SetFirstTranslationIdChange(exampleSentence.Id, Guid.NewGuid());
+        yield return new ChangeWithDependencies(setFirstTranslationIdChange, [createExampleSentenceChange]);
+
+        var removeTranslationChange = new RemoveTranslationChange(exampleSentence.Id, translation.Id);
+        yield return new ChangeWithDependencies(removeTranslationChange, [createTranslationChange]);
 
         var semanticDomain = new SemanticDomain { Id = Guid.NewGuid(), Name = { { "en", "test sd" } } };
         var createSemanticDomainChange = new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, "1.1.1");
@@ -225,19 +259,5 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         yield return new ChangeWithDependencies(
             new RemoteResourceUploadedChange(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
             [createRemoteResourcePendingUploadChange]);
-    }
-
-    private static bool IsCreateChange(IChange obj)
-    {
-        var type = obj.GetType();
-        while (type != null && type != typeof(object))
-        {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(CreateChange<>))
-            {
-                return true;
-            }
-            type = type.BaseType;
-        }
-        return false;
     }
 }

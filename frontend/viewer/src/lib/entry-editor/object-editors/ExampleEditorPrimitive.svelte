@@ -2,9 +2,9 @@
   import type {IExampleSentence} from '$lib/dotnet-types';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import * as Editor from '$lib/components/editor';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {asString, useWritingSystemService} from '$project/data';
   import {fieldData, type FieldId} from '../field-data';
-  import {cn} from '$lib/utils';
+  import {cn, draftTranslation, isDraft} from '$lib/utils';
   import {vt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
   import {RichMultiWsInput, RichWsInput} from '$lib/components/field-editors';
@@ -46,15 +46,25 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root fieldId="translation" class={cn($currentView.fields.translation.show || 'hidden')}>
-    <Editor.Field.Title name={vt($t`Translation`)} helpId={fieldData.translation.helpId} />
-    <Editor.Field.Body subGrid>
-      <RichMultiWsInput
-          onchange={() => onFieldChanged('translation')}
-          bind:value={example.translation}
-          {readonly}
-          writingSystems={writingSystemService.viewAnalysis($currentView)} />
-    </Editor.Field.Body>
+  <Editor.Field.Root fieldId="translations" class={cn($currentView.fields.translations.show || 'hidden', 'space-y-2 items-center')}>
+    {#each (example.translations.length ? example.translations : [draftTranslation(example)]) as translation, i (translation.id)}
+      {@const title = example.translations.length > 1 ? vt($t`Translation ${i + 1}`) : vt($t`Translation`)}
+      <Editor.SubGrid class="items-baseline">
+        <Editor.Field.Title name={title} helpId={fieldData.translations.helpId}/>
+        <Editor.Field.Body subGrid>
+          <RichMultiWsInput
+            onchange={(_, value) => {
+              if (isDraft(translation) && asString(value)) {
+                translation.saveDraft();
+              }
+              onFieldChanged('translations');
+            }}
+            bind:value={translation.text}
+            {readonly}
+            writingSystems={writingSystemService.viewAnalysis($currentView)}/>
+        </Editor.Field.Body>
+      </Editor.SubGrid>
+    {/each}
   </Editor.Field.Root>
 
   {#if writingSystemService.defaultAnalysis}

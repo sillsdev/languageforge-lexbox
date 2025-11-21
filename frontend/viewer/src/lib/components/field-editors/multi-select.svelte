@@ -59,17 +59,19 @@
   }
 
   // A wrapper for caching calculated values
-  type PendingValue = {
+  type DecoratedValue = {
     value: Value;
     optionIndex: number;
     id: Primitive;
+    label: string;
   };
 
   let open = $state(false);
   let dirty = $state(false);
   let filterValue = $state('');
-  let pendingValues = $state<PendingValue[]>([]);
-  let displayValues = $derived(dirty ? pendingValues.map(v => v.value) : values);
+  let decoratedValues = $derived(decorateAndSort([...values]));
+  let pendingValues = $state<DecoratedValue[]>([]);
+  let displayValues = $derived(dirty ? pendingValues : decoratedValues);
   let triggerRef = $state<HTMLButtonElement | null>(null);
   let commandRef = $state<HTMLElement | null>(null);
 
@@ -78,16 +80,33 @@
     filterValue = '';
   });
 
-  watch([() => open, () => options], () => {
-    if (open && options) {
-      pendingValues = values.map(toPendingValue);
+  watch([() => open, () => decoratedValues], () => {
+    if (open && !dirty) {
+      pendingValues = [...decoratedValues];
     }
   });
 
-  function toPendingValue(value: Value): PendingValue {
+  function decorateAndSort(values: Value[]): DecoratedValue[] {
+    var decoratedValues = values.map(decorateValue);
+    sortValues(decoratedValues);
+    return decoratedValues;
+  }
+
+  function decorateValue(value: Value): DecoratedValue {
     const id = getId(value);
+    const label = getLabel(value);
     const optionIndex = options.findIndex((option) => getId(option) === id);
-    return { value, optionIndex, id };
+    return { value, optionIndex, id, label };
+  }
+
+  function sortValues(values: DecoratedValue[]): void {
+    if (sortValuesBy === 'selectionOrder') {
+      // happens automatically
+    } else if (sortValuesBy === 'optionOrder') {
+      values.sort((a, b) => a.optionIndex - b.optionIndex);
+    } else {
+      values.sort((a, b) => sortValuesBy(a.value, b.value));
+    }
   }
 
   function dismiss() {
@@ -108,14 +127,8 @@
     const isSelected = pendingValues.some((v) => v.id === id);
 
     if (!isSelected) { // add
-      pendingValues = [...pendingValues, toPendingValue(value)];
-      if (sortValuesBy === 'selectionOrder') {
-        // happens automatically
-      } else if (sortValuesBy === 'optionOrder') {
-        pendingValues.sort((a, b) => a.optionIndex - b.optionIndex);
-      } else {
-        pendingValues.sort((a, b) => sortValuesBy(a.value, b.value));
-      }
+      pendingValues = [...pendingValues, decorateValue(value)];
+      sortValues(pendingValues);
     } else { // remove
       const index = pendingValues.findIndex((v) => v.id === id);
       if (index !== -1) pendingValues.splice(index, 1);
@@ -163,13 +176,13 @@
 </script>
 
 {#snippet displayBadges()}
-  <div class="flex flex-wrap justify-start gap-2">
-    {#each displayValues as value (getId(value))}
+  <div class="flex flex-wrap justify-start gap-2 overflow-hidden">
+    {#each displayValues as value (value.id)}
       <Badge>
-        {getLabel(value)}
+        {value.label || $t`Untitled`}
       </Badge>
     {:else}
-      <span class="text-muted-foreground">
+      <span class="text-muted-foreground x-ellipsis">
         {placeholder ?? $t`None`}
         <!-- ensures that:
           1) baseline alignment works for consumers of this component
@@ -185,7 +198,7 @@
 
 {#snippet trigger({ props }: { props: Record<string, unknown> })}
   <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
-    class="w-full h-auto px-2 justify-between disabled:opacity-100 disabled:border-transparent">
+    class="w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent">
     {@render displayBadges()}
     {#if !readonly}
       <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
@@ -213,7 +226,7 @@
         {/if}
       </div>
     </CommandInput>
-    <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
+    <CommandList class="max-md:h-[300px] md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
         {#each renderedOptions as value, i (getId(value))}
@@ -222,9 +235,9 @@
           {@const selected = pendingValues.some(v => v.id === id)}
           <CommandItem
             keywords={[label.toLocaleLowerCase()]}
-            value={label.toLocaleLowerCase()}
+            value={label.toLocaleLowerCase() + String(id)}
             onSelect={() => toggleSelected(value, !dirty && !IsMobile.value)}
-            class="group max-md:h-12"
+            class={cn('group max-md:h-12', label || 'text-muted-foreground')}
             data-value-index={i}
             aria-label={label}
           >
@@ -245,7 +258,7 @@
               }}
               onCheckedChange={() => toggleSelected(value, false)}
             />
-            {label}
+            {label || $t`Untitled`}
           </CommandItem>
         {/each}
         {#if renderedOptions.length < filteredOptions.length}

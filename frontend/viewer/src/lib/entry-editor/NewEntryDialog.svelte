@@ -1,5 +1,10 @@
+<script lang="ts" module>
+  // should not include partOfSpeechId, because the editor doesn't read that it only sets it
+  export type SenseTemplate = Partial<Pick<ISense, 'partOfSpeech' | 'semanticDomains'>>;
+</script>
+
 <script lang="ts">
-  import type {IEntry} from '$lib/dotnet-types';
+  import type {IEntry, ISense} from '$lib/dotnet-types';
   import {t} from 'svelte-i18n-lingui';
   import {useCurrentView} from '$lib/views/view-service';
   import {Button} from '$lib/components/ui/button';
@@ -7,18 +12,26 @@
   import {useSaveHandler} from '../services/save-event-service.svelte';
   import {useLexboxApi} from '../services/service-provider';
   import {defaultEntry, defaultSense} from '../utils';
-  import EntryEditor from './object-editors/EntryEditor.svelte';
-  import OverrideFields from '$lib/OverrideFields.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import OverrideFields from '$lib/views/OverrideFields.svelte';
+  import {useWritingSystemService} from '$project/data';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {pt} from '$lib/views/view-text';
+  import * as Editor from '$lib/components/editor';
+  import Icon from '$lib/components/ui/icon/icon.svelte';
+  import EntryEditorPrimitive from './object-editors/EntryEditorPrimitive.svelte';
+  import ObjectHeader from './object-editors/ObjectHeader.svelte';
+  import SenseEditorPrimitive from './object-editors/SenseEditorPrimitive.svelte';
+  import AddSenseButton from './object-editors/AddSenseButton.svelte';
 
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'new-entry-dialog'});
   let loading = $state(false);
-  let entry: IEntry = $state(defaultEntry());
+
+  let entry = $state(defaultEntry());
+  // svelte-ignore state_referenced_locally
+  let sense = $state<ISense | undefined>(defaultSense(entry.id));
 
   const currentView = useCurrentView();
   const writingSystemService = useWritingSystemService();
@@ -41,7 +54,10 @@
     e.preventDefault();
     e.stopPropagation();
     if (!requester) throw new Error('No requester');
+
+    entry.senses = sense ? [sense] : [];
     if (!validateEntry()) return;
+
     loading = true;
     console.debug('Creating entry', entry);
     await saveHandler.handleSave(() => lexboxApi.createEntry(entry));
@@ -62,18 +78,44 @@
     return errors.length === 0;
   }
 
-  export function openWithValue(newEntry: Partial<IEntry>): Promise<IEntry | undefined> {
+  let senseTemplate = $state<Partial<Omit<ISense, 'partOfSpeechId'>>>();
+  let partOfSpeechIsFromTemplate = $state<boolean>();
+  $effect(() => {
+    if (partOfSpeechIsFromTemplate !== false) { // never overwrite once set to false
+      partOfSpeechIsFromTemplate = Boolean(senseTemplate?.partOfSpeech?.id && senseTemplate.partOfSpeech.id === sense?.partOfSpeech?.id);
+    }
+  });
+  let semanticDomainIsFromTemplate = $state<boolean>();
+  $effect(() => {
+    if (semanticDomainIsFromTemplate !== false) { // never overwrite once set to false
+      semanticDomainIsFromTemplate = Boolean(senseTemplate?.semanticDomains?.length &&
+        senseTemplate.semanticDomains.some(sd => sense?.semanticDomains?.some(_sd => _sd.id === sd.id)));
+    }
+  });
+
+  function openWithValue(newEntry: Partial<IEntry>, newSense?: Partial<Omit<ISense, 'partOfSpeechId'>>): Promise<IEntry | undefined> {
     return new Promise<IEntry | undefined>((resolve) => {
       if (requester) requester.resolve(undefined);
       requester = { resolve };
+
+      senseTemplate = newSense;
+
       const tmpEntry = defaultEntry();
-      open = true;
-      entry = {...tmpEntry, ...newEntry, id: tmpEntry.id};
-      if (entry.senses.length === 0) {
-        entry.senses.push(defaultSense(entry.id));
-      }
+      entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
+      addSense();
+
       errors = [];
+      open = true;
     });
+  }
+
+  function addSense() {
+      partOfSpeechIsFromTemplate = undefined;
+      semanticDomainIsFromTemplate = undefined;
+      const tmpSense = defaultSense(entry.id);
+      const semanticDomains = [...senseTemplate?.semanticDomains ?? []];
+      sense = {...tmpSense, ...senseTemplate, semanticDomains, id: tmpSense.id, entryId: entry.id};
+      entry.senses = [sense];
   }
 
   function onClosing() {
@@ -84,8 +126,6 @@
     entry = defaultEntry();
   }
 
-  let entryLabel = $derived(pt($t`Entry`, $t`Word`, $currentView));
-
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter' && !IsMobile.value) {
       void createEntry(event);
@@ -95,13 +135,53 @@
 
 {#if open}
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent onkeydown={handleKeydown} class="sm:min-h-[min(calc(100%-16px),30rem)]">
+  <Dialog.DialogContent onkeydown={handleKeydown} class="sm:min-h-[min(calc(100%-16px),30rem)] max-md:px-2">
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>{$t`New ${entryLabel}`}</Dialog.DialogTitle>
+      <Dialog.DialogTitle>{pt($t`New Entry`, $t`New Word`, $currentView)}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
-      <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
-    </OverrideFields>
+    <div>
+      <OverrideFields shownFields={[
+        'lexemeForm', 'citationForm',
+        'gloss', 'definition', 'partOfSpeechId',
+        /* only show semantic domains if the "template" set it */
+        ...(senseTemplate?.semanticDomains?.length ? ['semanticDomains'] as const : [])
+        ]}>
+        <Editor.Root>
+          <Editor.Grid>
+            <EntryEditorPrimitive bind:entry autofocus modalMode />
+            {#if sense}
+              <Editor.SubGrid>
+                <ObjectHeader type="sense">
+                  <Button onclick={() => sense = undefined} size="icon" variant="secondary" icon="i-mdi-trash-can" />
+                </ObjectHeader>
+                <SenseEditorPrimitive bind:sense>
+                  {#snippet partOfSpeechDescription()}
+                    {#if partOfSpeechIsFromTemplate}
+                      <span class="text-sm text-primary/85 mt-0.5 inline-flex items-center gap-1">
+                        {$t`From active filter`}
+                        <Icon icon="i-mdi-filter-outline" class="size-4" />
+                      </span>
+                    {/if}
+                  {/snippet}
+                  {#snippet semanticDomainsDescription()}
+                    {#if semanticDomainIsFromTemplate}
+                      <span class="text-sm text-primary/85 mt-0.5 inline-flex items-center gap-1">
+                        {$t`From active filter`}
+                        <Icon icon="i-mdi-filter-outline" class="size-4" />
+                      </span>
+                    {/if}
+                  {/snippet}
+                </SenseEditorPrimitive>
+              </Editor.SubGrid>
+            {:else}
+              <div class="col-span-full flex justify-end">
+                <AddSenseButton onclick={addSense} />
+              </div>
+            {/if}
+          </Editor.Grid>
+        </Editor.Root>
+      </OverrideFields>
+    </div>
     {#if errors.length}
       <div class="text-end space-y-2">
         {#each errors as error (error)}
@@ -112,7 +192,7 @@
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
       <Button onclick={e => createEntry(e)} disabled={loading} {loading}>
-        {$t`Create ${entryLabel}`}
+        {pt($t`Create Entry`, $t`Add Word`, $currentView)}
       </Button>
     </Dialog.DialogFooter>
   </Dialog.DialogContent>

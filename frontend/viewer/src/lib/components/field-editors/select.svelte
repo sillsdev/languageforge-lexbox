@@ -20,19 +20,21 @@
     value?: Value;
     options: ReadonlyArray<Value>;
     readonly?: boolean;
+    clearable?: boolean;
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
     labelSelector: ConditionalKeys<Value, string> | ((value: Value) => string);
     placeholder?: string;
     filterPlaceholder?: string;
     emptyResultsPlaceholder?: string;
     drawerTitle?: string;
-    onchange?: (value: Value) => void;
+    onchange?: (value: Value | undefined) => void;
     class?: string;
   } = $props();
 
   const {
     options,
     readonly = false,
+    clearable = false,
     idSelector,
     labelSelector,
     placeholder,
@@ -40,7 +42,7 @@
     emptyResultsPlaceholder,
     drawerTitle,
     onchange,
-    class: className
+    class: className,
   } = $derived(constProps);
 
   function getId(value: Value): Primitive {
@@ -66,7 +68,7 @@
     open = false;
   }
 
-  function selectValue(newValue: Value) {
+  function selectValue(newValue: Value | undefined) {
     value = newValue;
     onchange?.(newValue);
     open = false;
@@ -88,23 +90,30 @@
 </script>
 
 {#snippet trigger({ props }: { props: Record<string, unknown> })}
-  <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
-    class={cn('w-full h-auto px-2 justify-between disabled:opacity-100 disabled:border-transparent', className)}>
+  <div class="relative w-full">
+    <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
+    class={cn('w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent', className)}>
     {#if value}
-      <span>
-        {getLabel(value)}
+      <span class="x-ellipsis mr-4">
+        {getLabel(value) || $t`Untitled`}
       </span>
     {:else}
-      <span class="text-muted-foreground">
+      <span class="text-muted-foreground x-ellipsis mr-4">
         {placeholder ?? $t`None`}
         <!-- ensures that baseline alignment works for consumers of this component -->
         &nbsp;
       </span>
-    {/if}
+      {/if}
+    </Button>
     {#if !readonly}
-      <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+      <div class="absolute right-0 z-10 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
+        {#if clearable}
+          <XButton onclick={() => selectValue(undefined)} aria-label={$t`clear`} class={cn('pointer-events-auto', value || 'invisible')} />
+        {/if}
+        <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+      </div>
     {/if}
-  </Button>
+  </div>
 {/snippet}
 
 {#snippet command()}
@@ -120,7 +129,7 @@
         {/if}
       </div>
     </CommandInput>
-    <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
+    <CommandList class="max-md:h-[300px] md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
         {#each renderedOptions as option, i (getId(option))}
@@ -129,14 +138,14 @@
           {@const selected = value && getId(value) === id}
           <CommandItem
             keywords={[label.toLocaleLowerCase()]}
-            value={label.toLocaleLowerCase()}
+            value={label.toLocaleLowerCase() + String(id)}
             onSelect={() => selectValue(option)}
-            class="group max-md:h-12"
+            class={cn('group max-md:h-12', label || 'text-muted-foreground')}
             data-value-index={i}
             aria-label={label}
           >
             <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
-            {label}
+            {label || $t`Untitled`}
           </CommandItem>
         {/each}
         {#if renderedOptions.length < filteredOptions.length}

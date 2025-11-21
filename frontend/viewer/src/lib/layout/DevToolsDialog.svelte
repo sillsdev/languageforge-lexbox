@@ -3,10 +3,10 @@
   import * as Dialog from '$lib/components/ui/dialog';
   import { Icon } from '$lib/components/ui/icon';
   import { defaultEntry } from '$lib/utils';
-  import { useWritingSystemService } from '$lib/writing-system-service.svelte';
+  import { useWritingSystemService } from '$project/data';
   import type { Snippet } from 'svelte';
   import DevContent from './DevContent.svelte';
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
 
   const projectContext = useProjectContext();
   const writingSystems = useWritingSystemService();

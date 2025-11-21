@@ -34,6 +34,7 @@ public class FwLiteProvider(
         DotnetService.TroubleshootingService,
         DotnetService.MultiWindowService,
         DotnetService.JsEventListener,
+        DotnetService.JsInvokableLogger,
     ];
 
     public static Type GetServiceType(DotnetService service) => service switch
@@ -51,6 +52,7 @@ public class FwLiteProvider(
         DotnetService.TestingService => typeof(TestingService),
         DotnetService.MultiWindowService => typeof(IMultiWindowService),
         DotnetService.JsEventListener => typeof(JsEventListener),
+        DotnetService.JsInvokableLogger => typeof(JsInvokableLogger),
         _ => throw new ArgumentOutOfRangeException(nameof(service), service, null)
     };
 
@@ -107,5 +109,6 @@ public enum DotnetService
     TroubleshootingService,
     TestingService,
     MultiWindowService,
-    JsEventListener
+    JsEventListener,
+    JsInvokableLogger,
 }

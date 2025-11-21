@@ -155,7 +155,7 @@
         Annotations: 
           Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
-      Translation (RichMultiString) Required
+      Translations (IList<Translation>) Required
         Annotations: 
           Relational:ColumnType: jsonb
     Keys: 
@@ -283,7 +283,7 @@
       Relational:ViewSchema: 
   EntityType: WritingSystem
     Properties: 
-      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      Id (_id, Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       Abbreviation (string) Required
       DeletedAt (DateTimeOffset?)
       Exemplars (string[]) Required

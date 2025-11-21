@@ -1,4 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <CompressionEnabled>false</CompressionEnabled>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BeaKona.AutoInterfaceGenerator" />
     <PackageReference Include="Humanizer.Core" />

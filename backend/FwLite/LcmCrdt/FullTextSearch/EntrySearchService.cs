@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Linq.Expressions;
 using System.Text;
 using LcmCrdt.Data;
 using LinqToDB;
@@ -28,7 +26,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 {
     internal IQueryable<EntrySearchRecord> EntrySearchRecords => dbContext.Set<EntrySearchRecord>();
 
-    //ling2db table
+    //linq2db table
     private ITable<EntrySearchRecord> EntrySearchRecordsTable => dbContext.GetTable<EntrySearchRecord>();
 
     public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable,
@@ -36,10 +34,12 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         bool rankResults,
         bool orderAscending)
     {
+        var ftsString = ToFts5LiteralString(query);
+
         //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
         var filtered = from searchRecord in EntrySearchRecordsTable
             from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
-            where Sql.Ext.SQLite().Match(searchRecord, query) && (entry.LexemeForm.SearchValue(query)
+            where Sql.Ext.SQLite().Match(searchRecord, ftsString) && (entry.LexemeForm.SearchValue(query)
                                                                   || entry.CitationForm.SearchValue(query)
                                                                   || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
             select new { entry, searchRecord };
@@ -57,6 +57,14 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         }
 
         return filtered.Select(t => t.entry);
+    }
+
+    private static string ToFts5LiteralString(string query)
+    {
+        // https://sqlite.org/fts5.html#fts5_strings
+        // - escape double quotes by doubling them
+        // - wrap the entire query in quotes
+        return $"\"{query.Replace("\"", "\"\"")}\"";
     }
 
     public bool ValidSearchTerm(string query) => query.Normalize(NormalizationForm.FormC).Length >= 3;
@@ -139,7 +147,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public async Task UpdateEntrySearchTable(Entry entry)
     {
-        var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
+        var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
         var record = ToEntrySearchRecord(entry, writingSystems);
         await InsertOrUpdateEntrySearchRecord(record, EntrySearchRecordsTable);
     }
@@ -181,7 +189,12 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             ..dbContext.WritingSystems,
             ..newWritingSystems
         ];
-        Array.Sort(writingSystems, (ws1, ws2) => ws1.Order.CompareTo(ws2.Order));
+        Array.Sort(writingSystems, (ws1, ws2) =>
+        {
+            var orderComparison = ws1.Order.CompareTo(ws2.Order);
+            if (orderComparison != 0) return orderComparison;
+            return ws1.Id.CompareTo(ws2.Id);
+        });
         var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
         var searchRecords = entries.Select(entry => ToEntrySearchRecord(entry, writingSystems));
         foreach (var entrySearchRecord in searchRecords)
@@ -200,7 +213,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         await EntrySearchRecordsTable.TruncateAsync();
 
-        var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
+        var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
         await EntrySearchRecordsTable
             .BulkCopyAsync(dbContext.Set<Entry>()
                 .LoadWith(e => e.Senses)
@@ -240,6 +253,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public IAsyncEnumerable<EntrySearchRecord> Search(string query)
     {
+        // (Currently only used by tests)
+        // This method is for advanced queries with FTS5 syntax (wildcards, operators, etc.).
+        // So, we don't use ToFts5LiteralString.
         return EntrySearchRecords
             .ToLinqToDB()
             .Where(e => Sql.Ext.SQLite().Match(e, query))

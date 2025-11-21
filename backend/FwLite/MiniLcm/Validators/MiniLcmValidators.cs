@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm.Models;
+using MiniLcm.Normalization;
 
 namespace MiniLcm.Validators;
 

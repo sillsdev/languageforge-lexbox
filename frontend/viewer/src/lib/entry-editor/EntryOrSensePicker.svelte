@@ -26,6 +26,7 @@
   import {Badge} from '$lib/components/ui/badge';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
+  import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
 
   const currentView = useCurrentView();
   const dialogsService = useDialogsService();
@@ -68,7 +69,7 @@
       count: fetchCount,
       order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
     });
-  }, {initialValue: []});
+  }, {initialValue: [], debounce: DEFAULT_DEBOUNCE_TIME});
   const displayedEntries = $derived(searchResource.current?.slice(0, displayCount) ?? []);
   $effect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -192,7 +193,7 @@
         </Button>
       {/if}
       {#if displayedEntries.length}
-        <NewEntryButton onclick={onClickCreateNewEntry} class="w-full h-14" variant="default"/>
+        <NewEntryButton onclick={onClickCreateNewEntry} class="w-full h-14 bg-primary/95" variant="default"/>
       {/if}
     </div>
 

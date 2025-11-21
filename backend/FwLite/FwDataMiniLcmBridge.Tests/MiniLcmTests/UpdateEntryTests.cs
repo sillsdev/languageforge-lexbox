@@ -26,7 +26,7 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
             LexemeForm = new MultiString { { "en", "test" } }
         });
 
-        var fwApi = (FwDataMiniLcmApi)Api;
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwApi.EntriesRepository.GetObject(entry.Id);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Set LexemeFormOA to null",
             "Restore LexemeFormOA",
@@ -48,7 +48,7 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
     }
 
     [Fact]
-    public async Task UpdateEntry_CanUpdateExampleSentenceTranslations_WhenNoTranslationObjectExists()
+    public async Task UpdateEntry_CanUpdateExampleSentenceTranslations_WhenNoTranslationsExists()
     {
         // Arrange
         var entry = await Api.CreateEntry(new Entry
@@ -65,38 +65,31 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
                     Definition = { { "en", new RichString("test") } },
                     ExampleSentences =
                     [
-                        new ExampleSentence { Sentence = { { "en", new RichString("testing is good") } } }
+                        new()
+                        {
+                            Sentence = { { "en", new RichString("testing is good") } },
+                            Translations = [],
+                        }
                     ]
                 }
             ]
         });
 
-        var fwApi = (FwDataMiniLcmApi)Api;
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwApi.EntriesRepository.GetObject(entry.Id);
-        ArgumentNullException.ThrowIfNull(entry);
-        ArgumentNullException.ThrowIfNull(lexEntry);
-        lexEntry.SensesOS[0].ExamplesOS[0].TranslationsOC.Should().ContainSingle();
-        // Reproduce the bug
-        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Clear TranslationsOC",
-            "Restore TranslationsOC",
-            fwApi.Cache.ServiceLocator.ActionHandler,
-            () =>
-            {
-                lexEntry.SensesOS[0].ExamplesOS[0].TranslationsOC.Clear();
-            });
         lexEntry.SensesOS[0].ExamplesOS[0].TranslationsOC.Should().BeEmpty();
 
         var before = entry.Copy();
         var exampleSentence = entry.Senses[0].ExampleSentences[0];
-        exampleSentence.Translation = new() { { "en", new RichString("updated") } };
+        exampleSentence.Translations = [new() { Text = { { "en", new RichString("updated") } } }];
 
         // Act
         var updatedEntry = await Api.UpdateEntry(before, entry);
         var updatedExampleSentence = updatedEntry.Senses[0].ExampleSentences[0];
 
         // Assert
-        updatedExampleSentence.Translation.Should().ContainSingle();
-        updatedExampleSentence.Translation["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
+        var translation = updatedExampleSentence.Translations.Should().ContainSingle().Subject;
+        translation.Text["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
         updatedEntry.Should().BeEquivalentTo(entry, options => options);
     }
 
@@ -122,7 +115,7 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
             ]
         });
 
-        var fwApi = (FwDataMiniLcmApi)Api;
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwApi.EntriesRepository.GetObject(entryId);
         var senseFactory = fwApi.Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add subsenses to sense 1",
@@ -185,7 +178,7 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
             ]
         });
 
-        var fwApi = (FwDataMiniLcmApi)Api;
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
         var lexEntry = fwApi.EntriesRepository.GetObject(entryId);
         var senseFactory = fwApi.Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add subsenses to sense 1",

@@ -3,7 +3,6 @@
   import {Toaster as Sonner, type ToasterProps as SonnerProps} from 'svelte-sonner';
   import {buttonVariants} from '../button';
   import {cn} from '$lib/utils';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import {Icon} from '../icon';
 
@@ -30,14 +29,14 @@ I.e. If there's small, big, small, then sonner thinks the big one is small and p
 -->
 <Sonner
   theme={mode.current}
-  closeButton={!IsMobile.value}
+  closeButton
   class={cn('toaster group', className)}
   richColors
   toastOptions={{
     classes: {
       toast: 'gap-3 group toast [&[data-expanded="true"]]:!h-max [&[data-expanded="true"]]:max-h-max group-[.toaster]:!bg-background group-[.toaster]:!border-border group-[.toaster]:shadow-lg',
-      description: 'group-[.toast]:!text-muted-foreground max-h-[30vh] overflow-y-auto whitespace-break-spaces',
-      actionButton: buttonVariants({size: 'sm', variant: 'default', class: 'group-[.toast]:!bg-primary group-[.toast]:!text-primary-foreground !h-9 min-h-9 !px-3 group-[.toast[data-type="error"]]:i-mdi-content-copy [&.copied]:!i-mdi-check'}),
+      description: 'group-[.toast]:!text-muted-foreground max-h-[30vh] overflow-y-auto whitespace-break-spaces touch-pan-y', /* pan-y means the browser should handle y-scrolling (and NOT x-scrolling, which is for swiping away) */
+      actionButton: buttonVariants({size: 'sm', variant: 'default', class: 'group-[.toast]:!bg-primary group-[.toast]:!text-primary-foreground !h-9 min-h-9 !px-3 group-[.toast[data-type="error"]]:i-mdi-content-copy [&.copied]:!i-mdi-check group-[.toast[data-promise="true"][data-type="loading"]]:hidden'}),
       cancelButton: buttonVariants({size: 'sm', variant: 'secondary', class: 'group-[.toast]:!bg-muted group-[.toast]:!text-muted-foreground !h-9 min-h-9 !px-3'}),
     },
   }}
@@ -56,7 +55,7 @@ I.e. If there's small, big, small, then sonner thinks the big one is small and p
     <Icon icon="i-mdi-check-circle" class="size-5" />
   {/snippet}
   {#snippet errorIcon()}
-    <Icon icon="i-mdi-close-circle" class="size-5" />
+    <Icon icon="i-mdi-alert-octagram" class="size-5" />
   {/snippet}
   {#snippet warningIcon()}
     <Icon icon="i-mdi-alert" class="size-5" />

@@ -1,10 +1,10 @@
-import papi, { logger } from '@papi/backend';
-import type { ExecutionActivationContext } from '@papi/core';
-import type { BrowseWebViewOptions } from 'fw-lite-extension';
-import { EntryService } from './services/entry-service';
-import { WebViewType } from './types/enums';
-import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
-import { ProjectManagers } from './utils/project-managers';
+import papi, {logger} from '@papi/backend';
+import type {ExecutionActivationContext} from '@papi/core';
+import type {BrowseWebViewOptions} from 'fw-lite-extension';
+import {EntryService} from './services/entry-service';
+import {WebViewType} from './types/enums';
+import {FwLiteApi, getBrowseUrl} from './utils/fw-lite-api';
+import {ProjectManagers} from './utils/project-managers';
 import * as webViewProviders from './web-views';
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
@@ -39,9 +39,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Launch FieldWorks Lite and manage the api */
 
-  const urlHolder = { baseUrl: '' };
-  const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
-  urlHolder.baseUrl = baseUrl;
+  const { baseUrl, fwLiteProcess } = launchFwLiteWeb(context);
   const fwLiteApi = new FwLiteApi(baseUrl);
 
   /* Set network services */
@@ -81,11 +79,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Register commands */
 
-  const getBaseUrlCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.getBaseUrl',
-    () => urlHolder.baseUrl,
-  );
-
   const addEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.addEntry',
     async (webViewId: string, word: string) => {
@@ -97,7 +90,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
       if (!dictionaryCode) return { success };
 
-      const options = await projectManager.getWordWebViewOptions(word);
+      const options = await projectManager.getDictionaryWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.AddWord, undefined, options);
       return { success };
     },
@@ -114,7 +107,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
       if (!dictionaryCode) return { success };
 
-      const url = getBrowseUrl(urlHolder.baseUrl, dictionaryCode);
+      const url = getBrowseUrl(baseUrl, dictionaryCode);
       const options: BrowseWebViewOptions = { url };
       success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       return { success };
@@ -133,7 +126,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       if (!dictionaryCode) return { success };
 
       logger.info(`Displaying entry '${entryId}' in FieldWorks dictionary '${dictionaryCode}'`);
-      const url = getBrowseUrl(urlHolder.baseUrl, dictionaryCode, entryId);
+      const url = getBrowseUrl(baseUrl, dictionaryCode, entryId);
       const options: BrowseWebViewOptions = { url };
       success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       return { success };
@@ -151,7 +144,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
       if (!dictionaryCode) return { success };
 
-      const options = await projectManager.getWordWebViewOptions(word);
+      const options = await projectManager.getDictionaryWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindWord, undefined, options);
       return { success };
     },
@@ -168,18 +161,9 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
       if (!dictionaryCode) return { success };
 
-      const options = await projectManager.getWordWebViewOptions(word);
+      const options = await projectManager.getDictionaryWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindRelatedWords, undefined, options);
       return { success };
-    },
-  );
-
-  // TODO: For development; remove before publishing.
-  const openFwLiteCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.openFWLite',
-    async () => {
-      await papi.webViews.openWebView(WebViewType.Main);
-      return { success: true };
     },
   );
 
@@ -195,7 +179,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         const langs = await fwLiteApi
           .getWritingSystems(dictionaryCode)
           .catch((e) => logger.error('Error fetching writing systems:', JSON.stringify(e)));
-        const analysisLang = langs?.analysis.pop()?.wsId ?? '';
+        const analysisLang = langs?.analysis[0]?.wsId ?? '';
         if (analysisLang) {
           logger.info(`Storing FieldWorks dictionary analysis language '${analysisLang}'`);
         } else {
@@ -221,9 +205,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  // TODO: For development; remove before publishing.
-  papi.webViews.openWebView(WebViewType.Main, undefined, { existingId: '?' });
-
   /* Register awaited unsubscribers (do this last, to not hold up anything else) */
 
   context.registrations.add(
@@ -242,8 +223,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,
-    await getBaseUrlCommandPromise,
-    await openFwLiteCommandPromise,
     await selectFwDictionaryCommandPromise,
     await fwDictionariesCommandPromise,
     // Services
@@ -260,7 +239,7 @@ export async function deactivate(): Promise<boolean> {
   return true;
 }
 
-function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
+function launchFwLiteWeb(context: ExecutionActivationContext) {
   const binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
     throw new Error('FieldWorks Lite requires createProcess elevated privileges');
@@ -274,7 +253,13 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
   const fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
-    ['--urls', baseUrl, '--FwLiteWeb:OpenBrowser=false', '--FwLiteWeb:CorsAllowAny=true'],
+    [
+      '--urls',
+      baseUrl,
+      '--FwLite:UpdateCheckCondition=Never',
+      '--FwLiteWeb:CorsAllowAny=true',
+      '--FwLiteWeb:OpenBrowser=false',
+    ],
     { stdio: ['pipe', 'pipe', 'pipe'] },
   );
   fwLiteProcess.once('exit', (code, signal) => {

@@ -1,4 +1,3 @@
-using MiniLcm.Models;
 using Soenneker.Utils.AutoBogus;
 
 namespace MiniLcm.Tests.AutoFakerHelpers;
@@ -15,6 +14,21 @@ public static class EntryFakerHelper
     {
         var entry = autoFaker.Generate<Entry>();
         if (entryId.HasValue) entry.Id = entryId.Value;
+        await PrepareToCreateEntry(api, entry, createComplexForms, createComplexFormTypes, createComponents, createPublications);
+        return entry;
+    }
+
+    /// <summary>
+    /// Makes the entry consistent/valid and creates any necessary dependencies using the provided API
+    /// </summary>
+    public static async Task PrepareToCreateEntry(
+        this IMiniLcmApi api,
+        Entry entry,
+        bool createComplexForms = true,
+        bool createComplexFormTypes = true,
+        bool createComponents = true,
+        bool createPublications = true)
+    {
         if (createComponents) await CreateComplexFormComponentEntry(entry, true, entry.Components, api);
         if (createComplexForms) await CreateComplexFormComponentEntry(entry, false, entry.ComplexForms, api);
         if (createComplexFormTypes) await CreateComplexFormTypes(entry.ComplexFormTypes, api);
@@ -47,75 +61,83 @@ public static class EntryFakerHelper
                 exampleSentence.SenseId = sense.Id;
             }
         }
-        return entry;
-        static async Task CreateComplexFormComponentEntry(Entry entry,
+    }
+
+    public static ExampleSentence ExampleSentence(this AutoFaker autoFaker, Sense sense)
+    {
+        var exampleSentence = autoFaker.Generate<ExampleSentence>();
+        exampleSentence.SenseId = sense.Id;
+        return exampleSentence;
+    }
+
+    private static async Task CreateComplexFormComponentEntry(Entry entry,
             bool isComponent,
             IList<ComplexFormComponent> complexFormComponents,
             IMiniLcmApi api)
+    {
+        int i = 1;
+        foreach (var complexFormComponent in complexFormComponents)
         {
-            int i = 1;
-            foreach (var complexFormComponent in complexFormComponents)
+            //generated entries won't have the expected ids, so fix them up here
+            if (isComponent)
             {
-                //generated entries won't have the expected ids, so fix them up here
-                if (isComponent)
-                {
-                    complexFormComponent.ComplexFormEntryId = entry.Id;
-                }
-                else
-                {
-                    complexFormComponent.ComponentEntryId = entry.Id;
-                    complexFormComponent.ComponentSenseId = null;
-                }
+                complexFormComponent.ComplexFormEntryId = entry.Id;
+            }
+            else
+            {
+                complexFormComponent.ComponentEntryId = entry.Id;
+                complexFormComponent.ComponentSenseId = null;
+            }
 
-                var name = $"test {(isComponent ? "component" : "complex form")} {i}";
-                var createdEntry = await api.CreateEntry(new()
-                {
-                    Id = isComponent
-                        ? complexFormComponent.ComponentEntryId
-                        : complexFormComponent.ComplexFormEntryId,
-                    LexemeForm = { { "en", name } },
-                    Senses =
-                    [
-                        ..complexFormComponent.ComponentSenseId.HasValue &&
-                          isComponent
-                            ?
-                            [
-                                new Sense
-                                {
-                                    Id = complexFormComponent.ComponentSenseId.Value, Gloss = { { "en", name } }
-                                }
-                            ]
-                            : (ReadOnlySpan<Sense>) []
-                    ]
-                });
-                if (isComponent)
-                {
-                    complexFormComponent.ComponentHeadword = createdEntry.Headword();
-                    complexFormComponent.ComplexFormHeadword = entry.Headword();
-                    complexFormComponent.Order = i++;
-                } else
-                {
-                    complexFormComponent.ComplexFormHeadword = createdEntry.Headword();
-                    complexFormComponent.ComponentHeadword = entry.Headword();
-                    complexFormComponent.Order = 1;
-                }
+            var name = $"test {(isComponent ? "component" : "complex form")} {i}";
+            var createdEntry = await api.CreateEntry(new()
+            {
+                Id = isComponent
+                    ? complexFormComponent.ComponentEntryId
+                    : complexFormComponent.ComplexFormEntryId,
+                LexemeForm = { { "en", name } },
+                Senses =
+                [
+                    ..complexFormComponent.ComponentSenseId.HasValue &&
+                        isComponent
+                        ?
+                        [
+                            new Sense
+                            {
+                                Id = complexFormComponent.ComponentSenseId.Value, Gloss = { { "en", name } }
+                            }
+                        ]
+                        : (ReadOnlySpan<Sense>) []
+                ]
+            });
+            if (isComponent)
+            {
+                complexFormComponent.ComponentHeadword = createdEntry.Headword();
+                complexFormComponent.ComplexFormHeadword = entry.Headword();
+                complexFormComponent.Order = i++;
+            }
+            else
+            {
+                complexFormComponent.ComplexFormHeadword = createdEntry.Headword();
+                complexFormComponent.ComponentHeadword = entry.Headword();
+                complexFormComponent.Order = 1;
             }
         }
+    }
 
-        static async Task CreateComplexFormTypes(IList<ComplexFormType> complexFormTypes, IMiniLcmApi api)
+    private static async Task CreateComplexFormTypes(IList<ComplexFormType> complexFormTypes, IMiniLcmApi api)
+    {
+        foreach (var complexFormType in complexFormTypes)
         {
-            foreach (var complexFormType in complexFormTypes)
-            {
-                await api.CreateComplexFormType(complexFormType);
-            }
+            await api.CreateComplexFormType(complexFormType);
         }
+    }
 
-        static async Task CreatePublications(IList<Publication> publications, IMiniLcmApi api)
+    private static async Task CreatePublications(IList<Publication> publications, IMiniLcmApi api)
+    {
+        foreach (var publication in publications)
         {
-            foreach (var publication in publications)
-            {
-                await api.CreatePublication(publication);
-            }
+            await api.CreatePublication(publication);
         }
     }
 }

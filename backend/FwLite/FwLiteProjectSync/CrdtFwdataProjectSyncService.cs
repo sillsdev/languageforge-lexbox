@@ -5,15 +5,16 @@ using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
 using LexCore.Sync;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MiniLcm;
+using MiniLcm.Normalization;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
-using SystemTextJsonPatch;
-using SystemTextJsonPatch.Operations;
+using SIL.Harmony;
 
 namespace FwLiteProjectSync;
 
-public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger,
+public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger, IOptions<CrdtConfig> crdtConfig,
     MiniLcmApiValidationWrapperFactory validationWrapperFactory, MiniLcmApiStringNormalizationWrapperFactory normalizationWrapperFactory)
 {
     public record DryRunSyncResult(
@@ -30,12 +31,21 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
     public async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
     {
         using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
-        if (crdtApi is CrdtMiniLcmApi crdt && crdt.ProjectData.FwProjectId != fwdataApi.ProjectId)
+        if (crdtApi is not CrdtMiniLcmApi crdt) // maybe the argument type should be changed?
+            throw new InvalidOperationException("CrdtApi must be of type CrdtMiniLcmApi to sync.");
+        if (crdt.ProjectData.FwProjectId != fwdataApi.ProjectId)
         {
             activity?.SetStatus(ActivityStatusCode.Error, $"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdataApi.ProjectId}");
             throw new InvalidOperationException($"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdataApi.ProjectId}");
         }
         var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project);
+
+        if (projectSnapshot is not null)
+        {
+            // Repair any missing translation IDs before doing the full sync, so the sync doesn't have to deal with them
+            var syncedIdCount = await CrdtRepairs.SyncMissingTranslationIds(projectSnapshot.Entries, fwdataApi, crdt, dryRun);
+        }
+
         SyncResult result = await Sync(crdtApi, fwdataApi, dryRun, fwdataApi.EntryCount, projectSnapshot);
         fwdataApi.Save();
 
@@ -116,12 +126,12 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         return ((DryRunMiniLcmApi)api).DryRunRecords;
     }
 
-    public static async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
+    public async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
     {
         var snapshotPath = SnapshotPath(project);
         if (!File.Exists(snapshotPath)) return null;
         await using var file = File.OpenRead(snapshotPath);
-        return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file);
+        return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file, crdtConfig.Value.JsonSerializerOptions);
     }
 
     public async Task RegenerateProjectSnapshot(IMiniLcmApi crdtApi, FwDataProject project)
@@ -131,10 +141,11 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         await SaveProjectSnapshot(project, await crdtApi.TakeProjectSnapshot());
     }
 
-    internal async Task SaveProjectSnapshot(FwDataProject project, ProjectSnapshot projectSnapshot)
+    internal static async Task SaveProjectSnapshot(FwDataProject project, ProjectSnapshot projectSnapshot)
     {
         var snapshotPath = SnapshotPath(project);
         await using var file = File.Create(snapshotPath);
+        //not using our serialization options because we don't want to exclude MiniLcmInternal
         await JsonSerializer.SerializeAsync(file, projectSnapshot);
     }
 

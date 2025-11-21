@@ -1,10 +1,11 @@
 import type { IWebViewProvider, SavedWebViewDefinition, WebViewDefinition } from '@papi/core';
 import type {
   BrowseWebViewOptions,
-  OpenWebViewOptionsWithProjectId,
-  WordWebViewOptions,
+  DictionaryWebViewOptions,
+  ProjectWebViewOptions,
 } from 'fw-lite-extension';
-import mainStyles from '../styles.css?inline';
+import mainCssStyles from '../styles.css?inline';
+import tailwindCssStyles from '../tailwind.css?inline';
 import { WebViewType } from '../types/enums';
 import fwAddWordWindow from './add-word.web-view?inline';
 import fwDictionarySelectWindow from './dictionary-select.web-view?inline';
@@ -31,8 +32,8 @@ export const mainWebViewProvider: IWebViewProvider = {
       allowedFrameSources: ['http://localhost:*'],
       content: fwMainWindow,
       iconUrl,
-      styles: mainStyles,
-      title: '%fwLiteExtension_browseDictionary_title%',
+      styles: mainCssStyles,
+      title: '%fwLiteExtension_webViewTitle_browseDictionary%',
     };
   },
 };
@@ -40,7 +41,7 @@ export const mainWebViewProvider: IWebViewProvider = {
 export const addWordWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: WordWebViewOptions,
+    options: DictionaryWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.AddWord))
       throw new Error(
@@ -51,7 +52,8 @@ export const addWordWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwAddWordWindow,
       iconUrl,
-      title: '%fwLiteExtension_addWord_title%',
+      styles: tailwindCssStyles,
+      title: '%fwLiteExtension_webViewTitle_addWord%',
     };
   },
 };
@@ -59,7 +61,7 @@ export const addWordWebViewProvider: IWebViewProvider = {
 export const dictionarySelectWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: OpenWebViewOptionsWithProjectId,
+    options: ProjectWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.DictionarySelect))
       throw new Error(
@@ -70,7 +72,8 @@ export const dictionarySelectWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwDictionarySelectWindow,
       iconUrl,
-      title: '%fwLiteExtension_selectDictionary_title%',
+      styles: tailwindCssStyles,
+      title: '%fwLiteExtension_webViewTitle_selectDictionary%',
     };
   },
 };
@@ -78,7 +81,7 @@ export const dictionarySelectWebViewProvider: IWebViewProvider = {
 export const findWordWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: WordWebViewOptions,
+    options: DictionaryWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.FindWord))
       throw new Error(
@@ -89,7 +92,8 @@ export const findWordWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwFindWordWindow,
       iconUrl,
-      title: '%fwLiteExtension_findWord_title%',
+      styles: tailwindCssStyles,
+      title: '%fwLiteExtension_webViewTitle_findWord%',
     };
   },
 };
@@ -97,7 +101,7 @@ export const findWordWebViewProvider: IWebViewProvider = {
 export const findRelatedWordsWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: WordWebViewOptions,
+    options: DictionaryWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.FindRelatedWords))
       throw new Error(
@@ -108,7 +112,8 @@ export const findRelatedWordsWebViewProvider: IWebViewProvider = {
       ...options,
       content: fwFindRelatedWordsWindow,
       iconUrl,
-      title: '%fwLiteExtension_findRelatedWords_title%',
+      styles: tailwindCssStyles,
+      title: '%fwLiteExtension_webViewTitle_findRelatedWords%',
     };
   },
 };

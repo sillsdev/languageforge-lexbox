@@ -30,7 +30,8 @@ type ToastOptions = {
   description?: string;
 }
 
-type PromiseToastOptions<T> = Omit<ToastOptions, 'type'> & Pick<NonNullable<Parameters<typeof toast.promise<T>>[1]>, 'loading' | 'success' | 'error'>;
+type PromiseToastOptions<T> = Omit<ToastOptions, 'type'> &
+  Pick<NonNullable<Parameters<typeof toast.promise<T>>[1]>, 'loading' | 'success' | 'error' | 'action'>;
 
 function getToaster(type: NotificationType): ToasterFn {
   return type === 'plain' ? toast : toast[type];

@@ -22,7 +22,6 @@
   const selectedDomains = [allDomains[0], allDomains[80]];
 
   const { Story } = defineMeta({
-    title: 'editor/fields/multi-select',
     component: MultiSelect<typeof allDomains[number]>,
     argTypes: {
       readonly: {

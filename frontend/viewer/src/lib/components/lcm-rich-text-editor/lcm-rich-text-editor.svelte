@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import {type Node} from 'prosemirror-model';
+  import {Fragment, Slice, type Node} from 'prosemirror-model';
   import {cn} from '$lib/utils';
   import {textSchema} from './editor-schema';
 
@@ -54,7 +54,8 @@
     } & HTMLAttributes<HTMLDivElement> = $props();
 
   let elementRef: HTMLElement | null = $state(null);
-  let dirty = $state(false);
+  // should not be state unless we catch errors. See onBlur.
+  let dirty = false;
   let editor: EditorView | null = null;
 
   const isUsingKeyboard = new IsUsingKeyboard();
@@ -92,6 +93,37 @@
       editable() {
         return !readonly;
       },
+      handlePaste(view, _event, slice) {
+        if (view.state.doc.content.size === 0) {
+          // if the field is cleared, the resulting selection breaks paste (on older devices at least)
+          selectAll(view);
+        }
+
+        // When a user copies a whole field. It includes the trailing <br>.
+        // Pasting it often causes errors, so we remove them.
+        function withoutBrs(nodes: readonly Node[]): Node[] {
+          return nodes
+            .filter(node => node.type.name !== textSchema.nodes.br.name)
+            .map(node => {
+              if (node.isText) return node;
+              return node.copy(Fragment.fromArray(withoutBrs(node.content.content)));
+            });
+        }
+        const cleanFragment = Fragment.fromArray(withoutBrs(slice.content.content));
+        const cleanSlice = new Slice(cleanFragment, slice.openStart, slice.openEnd);
+
+        // Below code is copied from prosemirror's doPaste
+        // https://github.com/ProseMirror/prosemirror-view/blob/381c163b0abde96cabd609a8c4fc72ed2891b0e1/src/input.ts#L624
+        function sliceSingleNode(slice: Slice): Node | null {
+            return slice.openStart == 0 && slice.openEnd == 0 && slice.content.childCount == 1 ? slice.content.firstChild : null;
+        }
+        let singleNode = sliceSingleNode(cleanSlice);
+        let tr = singleNode
+            ? view.state.tr.replaceSelectionWith(singleNode, false)
+            : view.state.tr.replaceSelection(cleanSlice);
+        view.dispatch(tr.scrollIntoView().setMeta('paste', true).setMeta('uiEvent', 'paste'));
+        return true;
+      },
       handleDOMEvents: {
         pointerdown() {
           pointerDown = true;
@@ -122,8 +154,16 @@
     if (usingKeyboard) { // tabbed in
       if (IsMobile.value) {
         if (prevSelection) {
-          const prevSelectionForCurrentDoc = Selection.fromJSON(editor.state.doc, prevSelection.toJSON());
-          setSelection(prevSelectionForCurrentDoc);
+          // We can land here when the field gets cleared for some reason.
+          // In that case fromJSON doesn't like the prevSelection (on older devices at least)
+          if (editor.state.doc.content.size) {
+            try {
+              const prevSelectionForCurrentDoc = Selection.fromJSON(editor.state.doc, prevSelection.toJSON());
+              setSelection(prevSelectionForCurrentDoc);
+            } catch {
+              console.warn('Could not restore previous selection', prevSelection.toJSON(), editor.state.doc);
+            }
+          }
           prevSelection = undefined;
         } else {
           setSelection(Selection.atEnd(editor.state.doc));
@@ -135,6 +175,9 @@
   }
 
   function onblur(editor: EditorView) {
+    // we cannot set and $state variables here, because if this is called due to navigation
+    // it's too late to update state and doing so will throw.
+    // See stomp-safe-lcm-rich-text-editor for how we handle that case.
     if (dirty && value) {
       onchange(value);
       dirty = false;
@@ -183,6 +226,11 @@
           'Shift-Enter': (state, dispatch) => {
             if (dispatch) dispatch(state.tr.insertText(newLine));
             return true;
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          'Backspace': (state) => {
+            // If the field is empty, backspace results in an error (on older devices at least)
+            return state.doc.content.size === 0;
           },
         }),
         keymap(baseKeymap)

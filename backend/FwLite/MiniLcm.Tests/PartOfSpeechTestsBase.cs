@@ -83,6 +83,21 @@ public abstract class PartOfSpeechTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task SetSensePartOfSpeech_HandlesMultipleNulls()
+    {
+        var entry = await Api.GetEntries().FirstAsync(e => e.Senses.Any(s => s.PartOfSpeech is not null));
+        var sense = entry.Senses.First(s => s.PartOfSpeech is not null);
+
+        await Api.SetSensePartOfSpeech(sense.Id, null);
+        await Api.SetSensePartOfSpeech(sense.Id, null);
+
+        entry = await Api.GetEntry(entry.Id);
+        ArgumentNullException.ThrowIfNull(entry);
+        var actualSense = entry.Senses.First(s => s.Id == sense.Id);
+        actualSense.PartOfSpeechId.Should().Be(null);
+    }
+
+    [Fact]
     public async Task DeletePartOfSpeech_Works()
     {
         var posId = Guid.NewGuid();

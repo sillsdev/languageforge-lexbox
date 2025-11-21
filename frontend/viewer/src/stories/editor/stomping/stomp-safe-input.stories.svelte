@@ -7,7 +7,6 @@
   let value = $state('A fun example value');
 
   const { Story } = defineMeta({
-    title: 'editor/stomping/stomp-safe-input',
     component: StompSafeInput,
     argTypes: {
       readonly: {

@@ -1,9 +1,39 @@
+import '@formatjs/intl-durationformat/polyfill';
+
 import {fromStore} from 'svelte/store';
 import {locale} from 'svelte-i18n-lingui';
-import '@formatjs/intl-durationformat/polyfill';
 
 const currentLocale = fromStore(locale);
 type Duration = Pick<Intl.DurationLike, 'days' | 'hours' | 'minutes' | 'seconds' | 'milliseconds'>;
+export type SmallestUnit = 'hours' | 'minutes' | 'seconds' | 'milliseconds';
+
+function limitDurationUnits(duration: Duration, maxUnits: number): Duration {
+  const units: (keyof Duration)[] = ['days', 'hours', 'minutes', 'seconds', 'milliseconds'];
+  const result: Duration = {};
+  let unitCount = 0;
+  let foundFirstNonZeroUnit = false;
+
+  for (const unit of units) {
+    if (unitCount >= maxUnits) break;
+
+    const value = duration[unit] || 0;
+    if (value > 0) {
+      foundFirstNonZeroUnit = true;
+    }
+
+    if (foundFirstNonZeroUnit) {
+      result[unit] = value;
+      unitCount++;
+    }
+  }
+
+  if (!foundFirstNonZeroUnit) {
+    // ensure we return something that Intl.DurationFormat.format() doesn't error on
+    result[units.at(-1)!] = 0;
+  }
+
+  return result;
+}
 
 export function formatDigitalDuration(value: Duration) {
   const normalized = {
@@ -23,15 +53,22 @@ export function formatDigitalDuration(value: Duration) {
   });
 }
 
-export function formatDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds', options?: Intl.DurationFormatOptions) {
+export function formatDuration(value: Duration, smallestUnit?: SmallestUnit, options?: Intl.DurationFormatOptions, maxUnits?: number) {
   const formatter = new Intl.DurationFormat(currentLocale.current, options);//has been polyfilled in main.ts
-  return formatter.format(normalizeDuration(value, smallestUnit));
+  const normalized = normalizeDuration(value, smallestUnit);
+  const limitedDuration = maxUnits ? limitDurationUnits(normalized, maxUnits) : normalized;
+  try {
+    return formatter.format(limitedDuration);
+  } catch (e) {
+    console.error('Error formatting duration', limitedDuration);
+    throw e;
+  }
 }
 
-export function normalizeDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds'): Duration
+export function normalizeDuration(value: Duration, smallestUnit?: SmallestUnit): Duration
 export function normalizeDuration(value: Duration, smallestUnit: 'seconds'): Omit<Duration, 'milliseconds'>
 export function normalizeDuration(value: Duration): Duration
-export function normalizeDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds'): Duration {
+export function normalizeDuration(value: Duration, smallestUnit?: SmallestUnit): Duration {
   const msPerHour = 3_600_000;
   const msPerMinute = 60_000;
   const msPerSecond = 1_000;

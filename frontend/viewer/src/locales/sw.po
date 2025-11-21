@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-09-04 07:52\n"
+"PO-Revision-Date: 2025-09-10 05:19\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
 msgstr ""
 
@@ -29,20 +29,16 @@ msgstr ""
 msgid "{0}"
 msgstr "{0}"
 
-#: src/project/SyncDialog.svelte
-msgid "{0} - FieldWorks"
-msgstr ""
-
-#: src/project/SyncDialog.svelte
-msgid "{0} - FieldWorks Lite"
-msgstr ""
-
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
 msgstr ""
 
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
+msgstr ""
+
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "{0} ago"
 msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
@@ -54,22 +50,28 @@ msgid "{0} Server"
 msgstr ""
 
 #: src/project/SyncDialog.svelte
-msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
-msgstr ""
-
-#: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {# mabadiliko}}"
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "# ago"
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
 msgstr ""
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
-msgid "# before"
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem*, *Particle*, *Phrase*, and *Discontiguous Phrase*)"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -109,22 +111,42 @@ msgstr ""
 msgid "Add Example"
 msgstr ""
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryButton.svelte
+msgid "Add new word"
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr ""
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Add Word"
 msgstr ""
 
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
+msgstr ""
+
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any grammatical info."
+msgstr ""
+
+#: src/project/browse/filter/PartOfSpeechSelect.svelte
+msgid "Any part of speech"
+msgstr ""
+
+#: src/project/browse/filter/SemanticDomainSelect.svelte
+msgid "Any semantic domain"
 msgstr ""
 
 #: src/project/browse/filter/WsSelect.svelte
@@ -139,6 +161,10 @@ msgstr ""
 msgid "Are you sure you want to delete {0}?"
 msgstr ""
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Ask questions and get help on our community forum."
+msgstr ""
+
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr ""
@@ -151,8 +177,7 @@ msgstr ""
 msgid "Audio saved locally"
 msgstr ""
 
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
 msgstr "Mwandishi:"
 
@@ -160,8 +185,8 @@ msgstr "Mwandishi:"
 msgid "Auto"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-msgid "Auto synchronizing"
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Auto syncing"
 msgstr ""
 
 #: src/project/browse/SortMenu.svelte
@@ -182,11 +207,23 @@ msgstr "Angalia"
 msgid "Cancel"
 msgstr "Ghairi"
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
+msgstr ""
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
+msgstr ""
+
+#: src/lib/ThemePicker.svelte
+msgid "Choose theme"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
 msgstr "Fomu ya Manukuu"
 
@@ -194,6 +231,7 @@ msgstr "Fomu ya Manukuu"
 msgid "Classic FieldWorks Projects"
 msgstr ""
 
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
@@ -224,6 +262,10 @@ msgstr ""
 msgid "Complex form types"
 msgstr ""
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Complex form:"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
 msgstr ""
@@ -233,6 +275,10 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Component"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Component:"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -251,20 +297,16 @@ msgstr ""
 msgid "Copy version"
 msgstr ""
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Create {0}"
-msgstr ""
-
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
 msgstr ""
 
-#: src/home/HomeView.svelte
-msgid "Create Example Project"
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Create Entry"
 msgstr ""
 
-#: src/lib/entry-editor/NewEntryButton.svelte
-msgid "Create word"
+#: src/home/HomeView.svelte
+msgid "Create Example Project"
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -272,9 +314,17 @@ msgstr ""
 msgid "Current Entry"
 msgstr ""
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Current version"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Word"
+msgstr ""
+
+#: src/lib/ThemePicker.svelte
+msgid "Dark"
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
@@ -306,6 +356,15 @@ msgstr "Futa ingizo"
 msgid "Delete Word"
 msgstr ""
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Deleted"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Details"
+msgstr ""
+
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
 msgid "Dictionaries"
@@ -315,7 +374,7 @@ msgstr "Kamusi"
 msgid "Dictionary"
 msgstr "Kamusi"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr ""
 
@@ -323,7 +382,7 @@ msgstr ""
 msgid "Discard"
 msgstr "Kataa mabadiliko"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Display as"
 msgstr ""
@@ -379,10 +438,16 @@ msgstr ""
 msgid "Ends with"
 msgstr ""
 
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Entries missing..."
+msgstr ""
+
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Entry"
 msgstr "Ingizo"
 
@@ -402,15 +467,11 @@ msgstr ""
 msgid "Error getting sync status"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-msgid "Error: {0}"
-msgstr ""
-
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Example"
 msgstr "Mfano"
 
@@ -440,32 +501,35 @@ msgid "Failed to open URL: {0}"
 msgstr ""
 
 #: src/project/SyncDialog.svelte
+#: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
-msgstr ""
-
-#: src/project/SyncDialog.svelte
-msgid "Failed to synchronize."
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
-msgid "Feedback"
-msgstr "Maoni"
+msgid "Feedback & Support"
+msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr ""
 
-#: src/project/browse/ViewPicker.svelte
-msgid "Field Labels"
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "FieldWorks Lite"
 msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr ""
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
+msgstr ""
+
 #: src/project/ProjectDropdown.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/lib/OpenInFieldWorksButton.svelte
 #: src/home/HomeView.svelte
 msgid "FieldWorks logo"
@@ -505,7 +569,7 @@ msgid "Filter entries"
 msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
-msgid "Filter for"
+msgid "Filter for..."
 msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
@@ -533,15 +597,26 @@ msgstr ""
 msgid "For any other inquiries, feel free to send us an email."
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "From active filter"
+msgstr ""
+
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Get support"
+msgstr ""
+
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
 msgstr "Glosi"
 
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Go to {0}"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Grammatical info."
 msgstr ""
@@ -550,7 +625,7 @@ msgstr ""
 msgid "Headword"
 msgstr "Neno la kichwa"
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
 msgstr "Ficha"
 
@@ -575,21 +650,37 @@ msgstr ""
 msgid "Import"
 msgstr "Agiza"
 
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "in {0}"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Include subdomains"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Incomplete entries"
+msgstr ""
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
-msgid "Last change: {0}"
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Last change: #"
+msgstr ""
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Last sync: #"
 msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr ""
 
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Let us know about any bugs or technical issues you encounter."
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Lexbox"
 msgstr ""
 
 #: src/home/HomeView.svelte
@@ -600,11 +691,15 @@ msgstr ""
 msgid "Lexeme form"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Fomu ya Lexeme"
 
-#: src/project/browse/BrowseView.svelte
+#: src/lib/ThemePicker.svelte
+msgid "Light"
+msgstr ""
+
+#: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
 msgstr ""
 
@@ -620,6 +715,7 @@ msgstr ""
 msgid "loading..."
 msgstr "inashughulikia..."
 
+#: src/project/sync/SyncStatusPrimitive.svelte
 #: src/home/HomeView.svelte
 msgid "Local"
 msgstr "Mitaa"
@@ -628,7 +724,8 @@ msgstr "Mitaa"
 msgid "Local only"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Login"
 msgstr ""
 
@@ -645,6 +742,10 @@ msgstr ""
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr ""
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Make a suggestion"
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr ""
@@ -654,7 +755,7 @@ msgid "Manager"
 msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Meaning"
@@ -668,48 +769,43 @@ msgstr ""
 msgid "Missing Example sentence {0}"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Examples"
-msgstr ""
-
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
 msgstr ""
 
 #: src/project/tasks/tasks-service.ts
-#: src/project/browse/SearchFilter.svelte
 msgid "Missing Part of Speech"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Semantic Domains"
-msgstr ""
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Missing Senses"
+#: src/project/browse/filter/MissingSelect.svelte
+msgid "Missing: {0}"
 msgstr ""
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Sogeza"
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Never"
 msgstr "Kamwe"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Mpya"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "New {0}"
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "New data"
 msgstr ""
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "New Entry"
 msgstr "Ingizo Mpya"
 
-#: src/project/NewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "New Word"
 msgstr ""
 
@@ -723,10 +819,6 @@ msgstr ""
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
-msgstr ""
-
-#: src/lib/history/HistoryView.svelte
-msgid "No change name"
 msgstr ""
 
 #: src/project/ProjectDropdown.svelte
@@ -751,13 +843,20 @@ msgstr ""
 msgid "No items found"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "No new data"
+msgstr ""
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "No server"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "No server configured"
 msgstr ""
 
 #: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {task.subjectType}"
+msgid "No subject, unable to create a new {0}"
 msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -773,9 +872,17 @@ msgstr "Hamna"
 msgid "Not equal"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Not found"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "Not synced"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -790,13 +897,21 @@ msgstr ""
 msgid "Observer"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Offline"
 msgstr ""
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
+msgstr ""
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
+msgstr ""
+
+#: src/home/Server.svelte
+msgid "Open"
 msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -808,6 +923,8 @@ msgid "Open in FieldWorks"
 msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Open in new Window"
 msgstr ""
 
@@ -828,19 +945,25 @@ msgstr "Sehemu"
 msgid "Part of"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "Sehemu za mazungumzo"
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Pending"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
 msgstr ""
 
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Pinned"
 msgstr ""
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "Hakiki"
 
@@ -858,6 +981,10 @@ msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Project name..."
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+msgid "Publish {0} in"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -931,6 +1058,10 @@ msgstr ""
 msgid "Select file"
 msgstr "Chagua Folda"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Semantic domain"
+msgstr ""
+
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr ""
@@ -940,7 +1071,7 @@ msgid "Send us a message"
 msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Sense"
@@ -958,6 +1089,10 @@ msgstr "Mipangilio"
 msgid "Shadcn Sandbox # #"
 msgstr ""
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Share ideas and vote on new features or improvements."
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share Log file"
 msgstr ""
@@ -966,11 +1101,7 @@ msgstr ""
 msgid "Share project data file"
 msgstr ""
 
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Share your suggestions for new features or improvements."
-msgstr ""
-
-#: src/project/browse/ViewPicker.svelte
+#: src/project/browse/EditorViewOptions.svelte
 msgid "Show"
 msgstr "Onyesha"
 
@@ -978,7 +1109,7 @@ msgstr "Onyesha"
 msgid "Show {0} more..."
 msgstr ""
 
-#: src/project/browse/BrowseView.svelte
+#: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Rahisi"
 
@@ -988,6 +1119,10 @@ msgstr "Ukubwa:"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Specific field"
 msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte
@@ -1004,35 +1139,52 @@ msgstr ""
 msgid "Submit"
 msgstr "Wasilisha"
 
-#: src/lib/about/FeedbackDialog.svelte
-msgid "Suggest your ideas"
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Sync"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Sync Changes"
+msgstr ""
+
+#: src/project/SyncDialog.svelte
+msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
+msgstr ""
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Sync FieldWorks Lite and FieldWorks Classic"
+msgstr ""
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Sync your changes with other FieldWorks Lite users"
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
 msgstr ""
 
-#: src/lib/activity/ActivityView.svelte
-msgid "Synced {0} ago"
-msgstr ""
-
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
+#: src/lib/activity/ActivityItem.svelte
+msgid "Synced: #"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
 msgstr ""
 
 #: src/project/SyncDialog.svelte
-msgid "Synchronizing FieldWorks Lite with FieldWorks..."
+msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
-msgid "Synchronizing..."
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Syncing..."
+msgstr ""
+
+#: src/lib/ThemePicker.svelte
+msgid "System"
 msgstr ""
 
 #: src/project/tasks/TasksView.svelte
@@ -1047,8 +1199,36 @@ msgstr ""
 msgid "Tasks"
 msgstr "Jukumu"
 
+#: src/lib/about/FeedbackDialog.svelte
+msgid "Tell us about a bug or issue you’ve encountered."
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte
+msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
+msgstr ""
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
+msgstr ""
+
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
+msgstr ""
+
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "The time when you uploaded or downloaded these changes"
+msgstr ""
+
+#: src/lib/activity/ActivityItem.svelte
+msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte
@@ -1063,6 +1243,10 @@ msgstr ""
 msgid "This task is complete"
 msgstr ""
 
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
 msgstr ""
@@ -1071,13 +1255,13 @@ msgstr ""
 msgid "Toggle pinned"
 msgstr ""
 
-#: src/lib/ThemePicker.svelte
-msgid "Toggle theme"
-msgstr ""
-
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"
 msgstr "Tafsiri"
+
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+msgid "Translation {0}"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1106,10 +1290,9 @@ msgstr "Aina:"
 msgid "Unable to open in FieldWorks"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
-#: src/lib/history/HistoryView.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/lib/activity/ActivityItem.svelte
 msgid "Unknown"
 msgstr "Haijulikani"
 
@@ -1126,14 +1309,23 @@ msgstr ""
 msgid "Unknown error downloading {0}"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
-msgid "Unknown server: {0}"
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Unknown server"
 msgstr ""
 
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Untitled"
+msgstr ""
+
+#: src/project/sync/SyncStatusPrimitive.svelte
+msgid "Up to date"
 msgstr ""
 
 #: src/lib/entry-editor/EditEntryDialog.svelte
@@ -1150,19 +1342,26 @@ msgid "Version {0}"
 msgstr ""
 
 #: src/project/browse/ViewPicker.svelte
-msgid "View Configuration"
+msgid "View"
 msgstr ""
 
 #: src/home/Server.svelte
 msgid "Where are my projects?"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwLiteToFwMergeDetails.svelte
+msgid "Why is that?"
+msgstr ""
+
 #: src/project/browse/EntryMenu.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Word"
 msgstr "Neno"
 
@@ -1198,4 +1397,3 @@ msgstr ""
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr ""
-

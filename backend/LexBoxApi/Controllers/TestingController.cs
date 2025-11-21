@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
@@ -81,9 +80,16 @@ public class TestingController(
 
     [HttpPost("copyToNewProject")]
     [AdminRequired]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult<Guid>> CopyToNewProject(string newProjectCode, string existingProjectCode)
     {
         var id = Guid.NewGuid();
+        if (!await projectService.ProjectExists(existingProjectCode)) return NotFound("Existing project code not found");
+        if (await projectService.ProjectExists(newProjectCode)) return BadRequest("New project code already in use");
+
         await projectService.CreateProject(new(id,
             newProjectCode,
             "Copy of " + existingProjectCode,

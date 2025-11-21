@@ -11,7 +11,7 @@
   import type {
     ISyncServiceJsInvokable
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-  import {initProjectContext} from '$lib/project-context.svelte';
+  import {initProjectContext} from '$project/project-context.svelte';
 
   const projectServicesProvider = useProjectServicesProvider();
 
@@ -32,6 +32,7 @@
   onMount(async () => {
     console.debug('ProjectView mounted');
     projectContext.projectCode = code;
+    projectContext.projectType = projectType;
     if (projectType === 'crdt') {
       const maybeProjectName = await projectServicesProvider.tryGetCrdtProjectName(code);
       projectName = maybeProjectName ? maybeProjectName : code;

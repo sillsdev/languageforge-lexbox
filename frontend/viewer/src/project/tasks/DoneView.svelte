@@ -50,7 +50,7 @@
     <h2 class="text-lg">{$t`You completed ${subjects.length} ${task.subject}`}</h2>
     <div class="flex flex-wrap gap-2 justify-center mt-4 max-w-2xl">
       {#each subjects as subject, index (subject)}
-        <span class="px-2 py-1 bg-primary rounded text-center min-w-max"
+        <span class="px-2 py-1 bg-primary text-primary-foreground rounded text-center min-w-max"
               style="flex: 0 0 {basis[index]}%">
           {subject.subject}
         </span>

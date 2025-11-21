@@ -1,0 +1,336 @@
+﻿[
+  {
+    "Input": {
+      "$type": "CreateEntryChange",
+      "LexemeForm": {
+        "kof": "Kip",
+        "bbv": "Belarus"
+      },
+      "CitationForm": {
+        "ary": "Stand-alone",
+        "yat": "back up"
+      },
+      "LiteralMeaning": {
+        "ysm": "withdrawal"
+      },
+      "Note": {
+        "zat": "transmit",
+        "mye": "hacking",
+        "hto": "Jewelery",
+        "juh": "indigo"
+      },
+      "EntityId": "46d2a7aa-186e-0820-6ab7-9d9f2c4359fb"
+    },
+    "Output": {
+      "$type": "CreateEntryChange",
+      "LexemeForm": {
+        "kof": "Kip",
+        "bbv": "Belarus"
+      },
+      "CitationForm": {
+        "ary": "Stand-alone",
+        "yat": "back up"
+      },
+      "LiteralMeaning": {
+        "ysm": {
+          "Spans": [
+            {
+              "Text": "withdrawal",
+              "Ws": "ysm"
+            }
+          ]
+        }
+      },
+      "Note": {
+        "zat": {
+          "Spans": [
+            {
+              "Text": "transmit",
+              "Ws": "zat"
+            }
+          ]
+        },
+        "mye": {
+          "Spans": [
+            {
+              "Text": "hacking",
+              "Ws": "mye"
+            }
+          ]
+        },
+        "hto": {
+          "Spans": [
+            {
+              "Text": "Jewelery",
+              "Ws": "hto"
+            }
+          ]
+        },
+        "juh": {
+          "Spans": [
+            {
+              "Text": "indigo",
+              "Ws": "juh"
+            }
+          ]
+        }
+      },
+      "MorphType": null,
+      "EntityId": "46d2a7aa-186e-0820-6ab7-9d9f2c4359fb"
+    }
+  },
+  {
+    "Input": {
+      "$type": "CreateSenseChange",
+      "EntryId": "9403f290-4497-4ecc-5744-1cf7f402498a",
+      "Order": 0.25164027577075543,
+      "Definition": {
+        "mmt": "Customer",
+        "cdm": "intranet"
+      },
+      "Gloss": {
+        "pix": "Small Steel Pizza",
+        "hmb": "auxiliary"
+      },
+      "PartOfSpeechId": "6f664799-1385-2bd8-077f-76d1206ac233",
+      "SemanticDomains": [
+        {
+          "Id": "de982bb2-22c1-a67d-af30-53278434b09d",
+          "Name": {
+            "ajs": "disintermediate"
+          },
+          "Code": "Open-architected",
+          "DeletedAt": "2025-01-20T05:49:30.5251959+07:00",
+          "Predefined": false
+        }
+      ],
+      "EntityId": "fb918ba0-ba5e-7977-312e-3028d1295dd8"
+    },
+    "Output": {
+      "$type": "CreateSenseChange",
+      "EntryId": "9403f290-4497-4ecc-5744-1cf7f402498a",
+      "Order": 0.25164027577075543,
+      "Definition": {
+        "mmt": {
+          "Spans": [
+            {
+              "Text": "Customer",
+              "Ws": "mmt"
+            }
+          ]
+        },
+        "cdm": {
+          "Spans": [
+            {
+              "Text": "intranet",
+              "Ws": "cdm"
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "pix": "Small Steel Pizza",
+        "hmb": "auxiliary"
+      },
+      "PartOfSpeechId": "6f664799-1385-2bd8-077f-76d1206ac233",
+      "SemanticDomains": [
+        {
+          "Id": "de982bb2-22c1-a67d-af30-53278434b09d",
+          "Name": {
+            "ajs": "disintermediate"
+          },
+          "Code": "Open-architected",
+          "DeletedAt": "2025-01-20T05:49:30.5251959+07:00",
+          "Predefined": false
+        }
+      ],
+      "EntityId": "fb918ba0-ba5e-7977-312e-3028d1295dd8"
+    }
+  },
+  {
+    "Input": {
+      "$type": "CreateExampleSentenceChange",
+      "SenseId": "f3e4f3fe-1a2c-7096-fdf6-64df12809e1a",
+      "Order": 0.18532264410517607,
+      "Sentence": {
+        "liq": "Secured",
+        "kax": "ADP"
+      },
+      "Translation": {
+        "xtq": "New Jersey"
+      },
+      "Reference": "Automotive",
+      "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
+    },
+    "Output": {
+      "$type": "CreateExampleSentenceChange",
+      "SenseId": "f3e4f3fe-1a2c-7096-fdf6-64df12809e1a",
+      "Order": 0.18532264410517607,
+      "Sentence": {
+        "liq": {
+          "Spans": [
+            {
+              "Text": "Secured",
+              "Ws": "liq"
+            }
+          ]
+        },
+        "kax": {
+          "Spans": [
+            {
+              "Text": "ADP",
+              "Ws": "kax"
+            }
+          ]
+        }
+      },
+      "Translations": null,
+      "Translation": {
+        "xtq": {
+          "Spans": [
+            {
+              "Text": "New Jersey",
+              "Ws": "xtq"
+            }
+          ]
+        }
+      },
+      "Reference": {
+        "Spans": [
+          {
+            "Text": "Automotive",
+            "Ws": "default"
+          }
+        ]
+      },
+      "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
+    }
+  },
+  {
+    "Input": {
+      "$type": "AddEntryComponentChange",
+      "ComplexFormEntryId": "5b1d27c0-8990-0417-5e31-071c5f48ac9a",
+      "ComponentEntryId": "e476003d-69b4-1e84-46f2-f2dee858388f",
+      "ComponentSenseId": "434e9e2b-dad3-5fcb-f1e3-cd00aae5df10",
+      "EntityId": "74c8a80a-8be4-c950-c9d0-ebbf5da1ec21"
+    },
+    "Output": {
+      "$type": "AddEntryComponentChange",
+      "Order": 0,
+      "ComplexFormEntryId": "5b1d27c0-8990-0417-5e31-071c5f48ac9a",
+      "ComponentEntryId": "e476003d-69b4-1e84-46f2-f2dee858388f",
+      "ComponentSenseId": "434e9e2b-dad3-5fcb-f1e3-cd00aae5df10",
+      "EntityId": "74c8a80a-8be4-c950-c9d0-ebbf5da1ec21"
+    }
+  },
+  {
+    "Input": {
+      "$type": "CreateExampleSentenceChange",
+      "order": 1,
+      "senseId": "e9188e00-7088-48e3-84e8-526583e5d6b3",
+      "entityId": "f5db4283-2217-4123-8d5e-527d4c51adbe",
+      "sentence": {},
+      "reference": {
+        "spans": []
+      },
+      "translation": {}
+    },
+    "Output": {
+      "$type": "CreateExampleSentenceChange",
+      "SenseId": "00000000-0000-0000-0000-000000000000",
+      "Order": 0,
+      "Sentence": null,
+      "Translations": null,
+      "Translation": null,
+      "Reference": null,
+      "EntityId": "00000000-0000-0000-0000-000000000000"
+    }
+  },
+  {
+    "Input": {
+      "$type": "CreateExampleSentenceChange",
+      "SenseId": "f3e4f3fe-1a2c-7096-fdf6-64df12809e1a",
+      "Order": 0.18532264410517607,
+      "Sentence": {
+        "liq": {
+          "Spans": [
+            {
+              "Text": "Secured",
+              "Ws": "liq"
+            }
+          ]
+        },
+        "kax": {
+          "Spans": [
+            {
+              "Text": "ADP",
+              "Ws": "kax"
+            }
+          ]
+        }
+      },
+      "Translation": {
+        "xtq": {
+          "Spans": [
+            {
+              "Text": "New Jersey",
+              "Ws": "xtq"
+            }
+          ]
+        }
+      },
+      "Reference": {
+        "Spans": [
+          {
+            "Text": "Automotive",
+            "Ws": "default"
+          }
+        ]
+      },
+      "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
+    },
+    "Output": {
+      "$type": "CreateExampleSentenceChange",
+      "SenseId": "f3e4f3fe-1a2c-7096-fdf6-64df12809e1a",
+      "Order": 0.18532264410517607,
+      "Sentence": {
+        "liq": {
+          "Spans": [
+            {
+              "Text": "Secured",
+              "Ws": "liq"
+            }
+          ]
+        },
+        "kax": {
+          "Spans": [
+            {
+              "Text": "ADP",
+              "Ws": "kax"
+            }
+          ]
+        }
+      },
+      "Translations": null,
+      "Translation": {
+        "xtq": {
+          "Spans": [
+            {
+              "Text": "New Jersey",
+              "Ws": "xtq"
+            }
+          ]
+        }
+      },
+      "Reference": {
+        "Spans": [
+          {
+            "Text": "Automotive",
+            "Ws": "default"
+          }
+        ]
+      },
+      "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
+    }
+  }
+]

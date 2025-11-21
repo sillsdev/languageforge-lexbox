@@ -4,15 +4,16 @@
   import EntryOrSenseItemList from '../EntryOrSenseItemList.svelte';
   import {Button} from '$lib/components/ui/button';
   import type { IEntry, ISense, IComplexFormComponent } from '$lib/dotnet-types';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
+  import type {ReadonlyDeep} from 'type-fest';
 
   type Props = {
     value: IComplexFormComponent[];
     readonly: boolean;
-    entry: IEntry;
+    entry: ReadonlyDeep<IEntry>;
     onchange: (value: IComplexFormComponent[]) => void;
   }
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type {IEntry} from '$lib/dotnet-types';
+  import {MorphType, type IEntry, type IPartOfSpeech, type ISemanticDomain} from '$lib/dotnet-types';
   import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
   import {Debounced, resource, useDebounce, watch} from 'runed';
@@ -8,7 +8,7 @@
   import {cn} from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import DevContent from '$lib/layout/DevContent.svelte';
-  import NewEntryButton from '../NewEntryButton.svelte';
+  import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import EntryMenu from './EntryMenu.svelte';
@@ -17,11 +17,33 @@
   import type {SortConfig} from './SortMenu.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import {Icon} from '$lib/components/ui/icon';
-  import {useProjectContext} from '$lib/project-context.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
+  import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {useCurrentView} from '$lib/views/view-service';
+
+  const LITE_MORPHEME_TYPES = new Set([
+    MorphType.Root, MorphType.BoundRoot,
+    MorphType.Stem, MorphType.BoundStem,
+    MorphType.Particle,
+    MorphType.Phrase, MorphType.DiscontiguousPhrase,
+  ]);
+
+  function filterLiteMorphemeTypes(entries: IEntry[]): IEntry[] {
+    // we could do this server-side, but doing it client-side provides better UX and presumably we'll
+    // only ever filter out a small portion of entries
+    const filteredEntries = entries.filter(entry =>
+      entry.morphType && LITE_MORPHEME_TYPES.has(entry.morphType));
+    const hiddenEntries = entries.length - filteredEntries.length;
+    console.debug(`Filtered out ${hiddenEntries} non-wordy morpheme entries (for FW Lite view)`);
+    return filteredEntries;
+  }
 
   let {
     search = '',
     selectedEntryId = undefined,
+    partOfSpeech = undefined,
+    semanticDomain = undefined,
     sort,
     onSelectEntry,
     gridifyFilter = undefined,
@@ -31,6 +53,8 @@
   }: {
     search?: string;
     selectedEntryId?: string;
+    partOfSpeech?: IPartOfSpeech;
+    semanticDomain?: ISemanticDomain;
     sort?: SortConfig;
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
@@ -42,6 +66,7 @@
   const miniLcmApi = $derived(projectContext.maybeApi);
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
+  const currentView = useCurrentView();
 
   projectEventBus.onEntryDeleted(entryId => {
     if (selectedEntryId === entryId) onSelectEntry(undefined);
@@ -73,7 +98,7 @@
     if (!silent) loadingUndebounced = true;
     try {
       const queryOptions: IQueryOptions = {
-        count: 10_000,
+        count: IsMobile.value ? 1_000 : 5_000,
         offset: 0,
         filter: {
           gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
@@ -93,12 +118,25 @@
     } finally {
       loadingUndebounced = false;
     }
-  }, 300);
+  }, DEFAULT_DEBOUNCE_TIME);
 
   const entriesResource = resource(
     () => ({ search, sort, gridifyFilter, miniLcmApi }),
-    async () => await fetchCurrentEntries());
-  const entries = $derived(entriesResource.current ?? []);
+    async (_curr, _prev, refetchInfo): Promise<IEntry[]> => {
+      const entries = await fetchCurrentEntries();
+      // don't let slow requests overwrite newer ones
+      // if the newer request is finished then entriesResource.current is up-to-date
+      // else entriesResource.current is out-of-date, but will be updated by the newer request
+      if (refetchInfo.signal.aborted) return entriesResource.current ?? [];
+      return entries;
+    });
+  const entries = $derived.by(() => {
+    let currEntries = entriesResource.current ?? [];
+    if (currEntries.length && $currentView.type === 'fw-lite') {
+      currEntries = filterLiteMorphemeTypes(currEntries);
+    }
+    return currEntries;
+  });
   watch(() => [entries, entriesResource.loading], () => {
     if (!entriesResource.loading)
       entryCount = entries.length;
@@ -114,7 +152,10 @@
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
 
   async function handleNewEntry() {
-    const entry = await dialogsService.createNewEntry();
+    const entry = await dialogsService.createNewEntry(undefined, {
+      semanticDomains: semanticDomain ? [semanticDomain] : [],
+      partOfSpeech: partOfSpeech,
+    });
     if (!entry) return;
     onSelectEntry(entry);
   }
@@ -152,7 +193,7 @@
     />
   </DevContent>
   {#if !disableNewEntry}
-    <NewEntryButton onclick={handleNewEntry} shortForm />
+    <PrimaryNewEntryButton onclick={handleNewEntry} shortForm />
   {/if}
 </FabContainer>
 

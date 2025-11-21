@@ -1,4 +1,5 @@
-import {createSubscriber, SvelteURL} from 'svelte/reactivity';
+import {SvelteURL, createSubscriber} from 'svelte/reactivity';
+
 import {queueHistoryChange} from './history';
 import {useLocation} from 'svelte-routing';
 
@@ -48,7 +49,8 @@ export class QueryParamState {
         if (this.config.replaceOnDefaultValue && isDefault) {
           if (this.config.allowBack) {
             if (!this.isOnTopOfHistoryStack()) {
-              console.warn(`${this.fullKey}: wanted to pop history, but not on top of history stack, ignoring, history entry not removed.`);
+              console.warn(`${this.fullKey}: wanted to pop history, but not on top of history stack. Pushing new state instead so change is applied.`);
+              history.pushState(null, '', currentUrl.href);
               return;
             }
             //the last history event was pushed by us so we need to just go back otherwise the next back will do nothing

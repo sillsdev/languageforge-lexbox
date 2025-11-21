@@ -4,11 +4,47 @@ using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using LcmCrdt;
 using LexCore.Utils;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using MiniLcm.Models;
 
 namespace FwLiteProjectSync.Tests.Fixtures;
+
+public class ExtraWritingSystemsSyncFixture : SyncFixture
+{
+    private static readonly string[] ExtraVernacularWritingSystems = ["es", "fr"];
+    // "en", "es", "fr" = sorted alphabetically.
+    // Otherwise, headwords would differ between fwdata and crdt.
+    // See: https://github.com/sillsdev/languageforge-lexbox/issues/1284
+    public static readonly string[] VernacularWritingSystems = [
+        DefaultVernacularWritingSystem,
+        .. ExtraVernacularWritingSystems,
+    ];
+
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        foreach (var ws in ExtraVernacularWritingSystems)
+        {
+            await FwDataApi.CreateWritingSystem(new WritingSystem
+            {
+                Id = Guid.NewGuid(),
+                WsId = ws,
+                Name = ws,
+                Abbreviation = ws,
+                Font = "Arial",
+                Type = WritingSystemType.Vernacular
+            });
+        }
+
+        // Crdt data doesn't strictly require writing-systems to exist in order for them to be used.
+        // However, a (default) vernacular writing system is required in order to query for entries.
+        // This is not part of SyncFixture, because our core sync integration tests benefit from having a CRDT project that's as empty as possible.
+        var firstVernacularWs = (await FwDataApi.GetWritingSystems()).Vernacular.First();
+        await CrdtApi.CreateWritingSystem(firstVernacularWs);
+    }
+}
 
 public class SyncFixture : IAsyncLifetime
 {
@@ -17,6 +53,7 @@ public class SyncFixture : IAsyncLifetime
     public CrdtFwdataProjectSyncService SyncService =>
         _services.ServiceProvider.GetRequiredService<CrdtFwdataProjectSyncService>();
     public IServiceProvider Services => _services.ServiceProvider;
+    protected static readonly string DefaultVernacularWritingSystem = "en";
     private readonly string _projectName;
     private readonly string _projectFolder;
     private readonly IDisposable _cleanup;
@@ -40,7 +77,7 @@ public class SyncFixture : IAsyncLifetime
     {
     }
 
-    public async Task InitializeAsync()
+    public virtual async Task InitializeAsync()
     {
         lock (_preCleanupLock)
         {
@@ -59,7 +96,7 @@ public class SyncFixture : IAsyncLifetime
         Directory.CreateDirectory(projectsFolder);
         var fwDataProject = new FwDataProject(_projectName, projectsFolder);
         _services.ServiceProvider.GetRequiredService<IProjectLoader>()
-            .NewProject(fwDataProject, "en", "en");
+            .NewProject(fwDataProject, "en", DefaultVernacularWritingSystem);
         FwDataApi = _services.ServiceProvider.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
 
         var crdtProjectsFolder =
@@ -68,7 +105,6 @@ public class SyncFixture : IAsyncLifetime
         var crdtProject = await _services.ServiceProvider.GetRequiredService<CrdtProjectsService>()
             .CreateProject(new(_projectName, _projectName, FwProjectId: FwDataApi.ProjectId, SeedNewProjectData: false));
         CrdtApi = (CrdtMiniLcmApi)await _services.ServiceProvider.OpenCrdtProject(crdtProject);
-
     }
 
     public async Task DisposeAsync()
@@ -84,31 +120,5 @@ public class SyncFixture : IAsyncLifetime
     {
         var snapshotPath = CrdtFwdataProjectSyncService.SnapshotPath(FwDataApi.Project);
         if (File.Exists(snapshotPath)) File.Delete(snapshotPath);
-    }
-
-    private readonly SemaphoreSlim _vernacularSemaphore = new(1, 1);
-
-    // a vernacular writing system is required in order to query for entries
-    // this is optional setup, because our core sync integration tests benefit from having a CRDT project that's as empty as possible
-    public async Task EnsureDefaultVernacularWritingSystemExistsInCrdt()
-    {
-        // This is optionally called from tests that consume this fixture, so it could get called multiple times in parallel
-        if (!await _vernacularSemaphore.WaitAsync(100))
-        {
-            throw new InvalidOperationException("Timeout waiting for vernacular semaphore");
-        }
-
-        try
-        {
-            if ((await CrdtApi.GetWritingSystems()).Vernacular.Length == 0)
-            {
-                var firstVernacularWs = (await FwDataApi.GetWritingSystems()).Vernacular.First();
-                await CrdtApi.CreateWritingSystem(firstVernacularWs);
-            }
-        }
-        finally
-        {
-            _vernacularSemaphore.Release();
-        }
     }
 }

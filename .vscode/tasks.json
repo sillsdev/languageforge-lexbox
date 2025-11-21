@@ -14,7 +14,7 @@
           "problemMatcher": "$msCompile"
         },
         {
-            "label": "build",
+            "label": "Build Lexbox API",
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -26,7 +26,7 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "publish",
+            "label": "Publish Lexbox API",
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -38,7 +38,7 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "watch",
+            "label": "Watch Lexbox API",
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -48,6 +48,18 @@
                 "${workspaceFolder}/backend/LexBoxApi/LexBoxApi.csproj"
             ],
             "problemMatcher": "$msCompile"
-        }
+        },
+        {
+            "label": "Build FwHeadless",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/backend/FwHeadless/FwHeadless.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
     ]
 }

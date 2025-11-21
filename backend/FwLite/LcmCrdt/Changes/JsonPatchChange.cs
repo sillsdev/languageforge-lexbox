@@ -12,20 +12,13 @@ namespace LcmCrdt.Changes;
 public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class
 {
     public static string TypeName => "jsonPatch:" + typeof(T).Name;
-    public JsonPatchChange(Guid entityId, Action<JsonPatchDocument<T>> action) : base(entityId)
-    {
-        PatchDocument = new();
-        action(PatchDocument);
-        JsonPatchValidator.ValidatePatchDocument(PatchDocument);
-    }
 
     [JsonConstructor]
-    public JsonPatchChange(Guid entityId, JsonPatchDocument<T> patchDocument): base(entityId)
+    public JsonPatchChange(Guid entityId, JsonPatchDocument<T> patchDocument) : base(entityId)
     {
         PatchDocument = patchDocument;
         JsonPatchValidator.ValidatePatchDocument(PatchDocument);
     }
-
 
     public JsonPatchDocument<T> PatchDocument { get; }
 
@@ -36,7 +29,7 @@ public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class
     }
 }
 
-file static class JsonPatchValidator
+internal static class JsonPatchValidator
 {
 
     /// <summary>

@@ -1,10 +1,8 @@
 using System.Collections.Frozen;
 using System.Drawing;
 using System.Globalization;
-using System.Text;
 using MiniLcm.Models;
 using MiniLcm.RichText;
-using Mono.Unix.Native;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
 using SIL.LCModel.Utils;

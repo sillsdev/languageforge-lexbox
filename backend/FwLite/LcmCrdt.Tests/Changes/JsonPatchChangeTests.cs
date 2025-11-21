@@ -1,7 +1,4 @@
-using System.Text.Json;
-using SIL.Harmony.Entities;
 using LcmCrdt.Changes;
-using LcmCrdt.Objects;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Operations;
 
@@ -9,17 +6,6 @@ namespace LcmCrdt.Tests.Changes;
 
 public class JsonPatchChangeTests
 {
-    [Fact]
-    public void NewChangeAction_ThrowsForRemoveAtIndex()
-    {
-        var act = () => new JsonPatchChange<Entry>(Guid.NewGuid(),
-            patch =>
-            {
-                patch.Operations.Add(new Operation<Entry>("remove", "/senses/1", null, null));
-            });
-        act.Should().Throw<NotSupportedException>();
-    }
-
     [Fact]
     public void NewChangeDirect_ThrowsForRemoveAtIndex()
     {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { PageData } from './$types';
   import { TitlePage } from '$lib/layout';
   import t from '$lib/i18n';
   import Markdown from 'svelte-exmarkdown';
@@ -7,8 +8,17 @@
   import { page } from '$app/state';
   import { _sendFWLiteBetaRequestEmail } from './+page';
   import type { UUID } from 'crypto';
-  import { SendFwLiteBetaRequestEmailResult } from '$lib/gql/generated/graphql';
+  import { ProjectRole, SendFwLiteBetaRequestEmailResult } from '$lib/gql/generated/graphql';
   import { useNotifications } from '$lib/notify';
+
+  interface Props {
+    data: PageData;
+  }
+
+  const { data }: Props = $props();
+
+  const user = $derived(data.user);
+  const managesProjects = $derived(user.isAdmin || user.projects.some(proj => proj.role === ProjectRole.Manager));
 
   const { notifySuccess } = useNotifications();
 
@@ -43,10 +53,14 @@
         <Markdown md={$t('where_is_my_project.body')} />
       {/snippet}
       {#snippet missingFlagContent()}
-        <Markdown md={$t('where_is_my_project.user_not_in_beta')} />
-        <div class="text-center">
-          <Button loading={requesting} variant="btn-primary" onclick={requestBetaAccess}>{$t('where_is_my_project.request_beta_access')}</Button>
-        </div>
+        {#if managesProjects}
+          <Markdown md={$t('where_is_my_project.user_not_in_beta')} />
+          <div class="text-center">
+            <Button loading={requesting} variant="btn-primary" onclick={requestBetaAccess}>{$t('where_is_my_project.request_beta_access')}</Button>
+          </div>
+        {:else}
+          <Markdown md={$t('where_is_my_project.non_manager_not_in_beta')} />
+        {/if}
       {/snippet}
     </FeatureFlagAlternateContent>
   </div>
