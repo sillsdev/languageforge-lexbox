@@ -52,7 +52,7 @@ public class ApiTestBase
     {
         password ??= TestingEnvironmentVariables.DefaultPassword;
         var response = await JwtHelper.ExecuteLogin(new SendReceiveAuth(user, password), includeDefaultScope, HttpClient);
-        CurrJwt = await JwtHelper.GetJwtFromLoginResponse(response);
+        CurrJwt = JwtHelper.GetJwtFromLoginResponse(response);
         return CurrJwt;
     }
 

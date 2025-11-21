@@ -22,7 +22,7 @@ public class JwtHelper
     public static async Task<string> GetJwtForUser(SendReceiveAuth auth)
     {
         var response = await ExecuteLogin(auth, true, Client);
-        var jwt = await GetJwtFromLoginResponse(response);
+        var jwt = GetJwtFromLoginResponse(response);
         ClearCookies(Handler);
         return jwt;
     }
@@ -54,7 +54,7 @@ public class JwtHelper
         return response;
     }
 
-    public static async Task<string> GetJwtFromLoginResponse(HttpResponseMessage response)
+    public static string GetJwtFromLoginResponse(HttpResponseMessage response)
     {
         response.ShouldBeSuccessful();
         TryGetJwtFromLoginResponse(response, out var jwt);
