@@ -53,13 +53,14 @@
         <Markdown md={$t('where_is_my_project.body')} />
       {/snippet}
       {#snippet missingFlagContent()}
-        <Markdown md={$t('where_is_my_project.user_not_in_beta')} />
-        <div class="text-center">
-          <Button disabled={!managesProjects} loading={requesting} variant="btn-primary" onclick={requestBetaAccess}>{$t('where_is_my_project.request_beta_access')}</Button>
-          {#if !managesProjects}
-            <p class="mt-2 text-error">{$t('where_is_my_project.only_managers_can_request_beta')}</p>
-          {/if}
-        </div>
+        {#if managesProjects}
+          <Markdown md={$t('where_is_my_project.user_not_in_beta')} />
+          <div class="text-center">
+            <Button loading={requesting} variant="btn-primary" onclick={requestBetaAccess}>{$t('where_is_my_project.request_beta_access')}</Button>
+          </div>
+        {:else}
+          <Markdown md={$t('where_is_my_project.non_manager_not_in_beta')} />
+        {/if}
       {/snippet}
     </FeatureFlagAlternateContent>
   </div>
