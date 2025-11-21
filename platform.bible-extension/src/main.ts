@@ -1,10 +1,10 @@
-import papi, {logger} from '@papi/backend';
-import type {ExecutionActivationContext} from '@papi/core';
-import type {BrowseWebViewOptions} from 'fw-lite-extension';
-import {EntryService} from './services/entry-service';
-import {WebViewType} from './types/enums';
-import {FwLiteApi, getBrowseUrl} from './utils/fw-lite-api';
-import {ProjectManagers} from './utils/project-managers';
+import papi, { logger } from '@papi/backend';
+import type { ExecutionActivationContext } from '@papi/core';
+import type { BrowseWebViewOptions } from 'fw-lite-extension';
+import { EntryService } from './services/entry-service';
+import { WebViewType } from './types/enums';
+import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
+import { ProjectManagers } from './utils/project-managers';
 import * as webViewProviders from './web-views';
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
@@ -278,7 +278,9 @@ function launchFwLiteWeb(context: ExecutionActivationContext) {
   return { baseUrl, fwLiteProcess };
 }
 
-function shutdownFwLite(fwLiteProcess: ReturnType<typeof launchFwLiteFwLiteWeb>['fwLiteProcess']): Promise<boolean> {
+function shutdownFwLite(
+  fwLiteProcess: ReturnType<typeof launchFwLiteFwLiteWeb>['fwLiteProcess'],
+): Promise<boolean> {
   return new Promise((resolve, _) => {
     let shutdownResolved = false;
     let timeoutId: NodeJS.Timeout | undefined;
