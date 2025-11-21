@@ -209,7 +209,7 @@ public class DeleteProjectTests : ApiTestBase
                 if (testSucceeded) throw;
             }
         });
-        // this status should be different than after a sync a repo reset
+        // this status should be different than after a sync and repo reset
         await AssertProjectStatus(projectId, ProjectSyncStatusEnum.NeverSynced);
 
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
