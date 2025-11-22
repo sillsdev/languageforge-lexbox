@@ -1,19 +1,26 @@
 using System.Text.Json;
 using LcmCrdt.FullTextSearch;
-using SIL.Harmony;
-using SIL.Harmony.Db;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
+using SIL.Harmony;
+using SIL.Harmony.Db;
 
 namespace LcmCrdt;
 
-public class LcmCrdtDbContext(
-    DbContextOptions<LcmCrdtDbContext> dbContextOptions,
-    IOptions<CrdtConfig> options
-    )
-    : DbContext(dbContextOptions), ICrdtDbContext
+public class LcmCrdtDbContext : DbContext, ICrdtDbContext
 {
+    private readonly IOptions<CrdtConfig> _crdtOptions;
+
+    public LcmCrdtDbContext(
+        DbContextOptions<LcmCrdtDbContext> dbContextOptions,
+        IOptions<CrdtConfig> options) : base(dbContextOptions)
+    {
+        _crdtOptions = options;
+        ChangeTracker.Tracked += OnTracked;
+    }
+
     public DbSet<ProjectData> ProjectData => Set<ProjectData>();
     public IQueryable<WritingSystem> WritingSystems => Set<WritingSystem>().AsNoTracking();
     public IQueryable<WritingSystem> WritingSystemsOrdered => Set<WritingSystem>().AsNoTracking()
@@ -29,7 +36,7 @@ public class LcmCrdtDbContext(
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.UseCrdt(options.Value);
+        modelBuilder.UseCrdt(_crdtOptions.Value);
 
         var projectDataModel = modelBuilder.Entity<ProjectData>();
         projectDataModel.HasKey(p => p.Id);
@@ -86,4 +93,28 @@ public class LcmCrdtDbContext(
     private class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
         id => id.Code,
         code => new WritingSystemId(code));
+
+    private void OnTracked(object? sender, EntityTrackedEventArgs e)
+    {
+        // When navigation properties (like Sense.PartOfSpeech) are set and projected tables are enabled,
+        // EF Core may track the referenced entity and try to insert it into the projected table.
+        // These entities already exist in the database, so we detach them to prevent duplicate inserts.
+        if (e.Entry.State == EntityState.Added && e.FromQuery == false)
+        {
+            if (e.Entry.Entity is PartOfSpeech or SemanticDomain or ComplexFormType)
+            {
+                // Check if we're projecting snapshots by looking for other entities (like Sense) being added
+                // If a Sense is being added and it has a navigation property to this entity, we should detach
+                var hasReferencingEntity = ChangeTracker.Entries()
+                    .Any(entry => entry != e.Entry && 
+                          entry.State == EntityState.Added && 
+                          (entry.Entity is Sense || entry.Entity is Entry));
+                
+                if (hasReferencingEntity)
+                {
+                    e.Entry.State = EntityState.Detached;
+                }
+            }
+        }
+    }
 }
