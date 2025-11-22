@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-11 10:19\n"
+"PO-Revision-Date: 2025-11-22 11:51\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -111,8 +111,8 @@ msgstr "Añadir componente"
 msgid "Add Example"
 msgstr "Añadir ejemplo"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
 msgstr "Añadir significado"
 
@@ -124,8 +124,8 @@ msgstr "Añadir nueva palabra"
 msgid "Add part of"
 msgstr "Añadir parte de"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
 msgstr "Añadir acepción"
 
@@ -471,7 +471,7 @@ msgstr "Error al obtener el estado de sincronización"
 msgid "Error getting sync status."
 msgstr "Error al obtener el estado de sincronización."
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Example"
 msgstr "Ejemplo"
 
@@ -596,6 +596,11 @@ msgstr "Finalizar"
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Para cualquier otra consulta, no dude en enviarnos un correo electrónico."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "From active filter"
+msgstr "De filtro activo"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
@@ -750,7 +755,7 @@ msgid "Manager"
 msgstr "Gerente"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Meaning"
@@ -1066,7 +1071,7 @@ msgid "Send us a message"
 msgstr "Envíenos un mensaje"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Sense"
