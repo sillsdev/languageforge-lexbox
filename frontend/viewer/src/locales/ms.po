@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-10 10:20\n"
+"PO-Revision-Date: 2025-11-22 11:51\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -111,8 +111,8 @@ msgstr "Tambah komponen"
 msgid "Add Example"
 msgstr "Tambah Contoh"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
 msgstr "Tambah Erti"
 
@@ -124,8 +124,8 @@ msgstr ""
 msgid "Add part of"
 msgstr "Tambah sebahagian daripada"
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
 msgstr "Tambah Makna"
 
@@ -471,7 +471,7 @@ msgstr "Ralat mendapatkan status penyegerakan"
 msgid "Error getting sync status."
 msgstr "Ralat mendapatkan status penyegerakan."
 
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Example"
 msgstr "Contoh"
 
@@ -595,6 +595,11 @@ msgstr ""
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "From active filter"
 msgstr ""
 
 #: src/lib/about/FeedbackDialog.svelte
@@ -750,7 +755,7 @@ msgid "Manager"
 msgstr "Pengurus"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Meaning"
@@ -1066,7 +1071,7 @@ msgid "Send us a message"
 msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 msgid "Sense"
