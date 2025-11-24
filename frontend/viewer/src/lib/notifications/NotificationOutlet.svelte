@@ -5,24 +5,16 @@
   import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
   import {UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate/UpdateResult';
   import {t} from 'svelte-i18n-lingui';
-  import {useFwLiteConfig} from '$lib/services/service-provider';
-  import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
   import {Toaster} from '$lib/components/ui/sonner';
-  import {openUrl} from '$lib/services/url-opener';
+  import {openReleaseUrl} from '$lib/updates/utils';
 
   const eventBus = useEventBus();
-
-  const updateUrls: Partial<Record<FwLitePlatform, string>> = {
-    [FwLitePlatform.Android]: 'https://play.google.com/store/apps/details?id=org.sil.FwLiteMaui',
-  };
 
   eventBus.onEventType<IAppUpdateEvent>(FwEventType.AppUpdate, event => {
     if (event.result == UpdateResult.ManualUpdateRequired) {
       AppNotification.displayAction($t`A new version of FieldWorks Lite is available.`, {
         callback: () => {
-          const fwliteConfig = useFwLiteConfig();
-          const url = updateUrls[fwliteConfig.os] ?? event.release.url;
-          void openUrl(url);
+          void openReleaseUrl(event.release);
         },
         label: $t`Download`
       });
