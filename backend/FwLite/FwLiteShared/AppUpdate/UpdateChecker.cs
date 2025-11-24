@@ -18,8 +18,8 @@ public class UpdateChecker(
     IPlatformUpdateService platformUpdateService,
     IMemoryCache cache) : BackgroundService
 {
-    private const string CacheKey = "UpdateCheck";
-    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+    private const string CacheKey = "ManualUpdateCheck";
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(2);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
