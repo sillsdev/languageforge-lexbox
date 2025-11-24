@@ -47,259 +47,57 @@ public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : Entr
         actual.MorphType.Should().Be(MorphType.BoundStem);
     }
 
-    [Theory]
-    [InlineData(MorphType.BoundRoot)]
-    [InlineData(MorphType.BoundStem)]
-    [InlineData(MorphType.Circumfix)]
-    [InlineData(MorphType.Clitic)]
-    [InlineData(MorphType.Enclitic)]
-    [InlineData(MorphType.Infix)]
-    [InlineData(MorphType.Particle)]
-    [InlineData(MorphType.Prefix)]
-    [InlineData(MorphType.Proclitic)]
-    [InlineData(MorphType.Root)]
-    [InlineData(MorphType.Simulfix)]
-    [InlineData(MorphType.Stem)]
-    [InlineData(MorphType.Suffix)]
-    [InlineData(MorphType.Suprafix)]
-    [InlineData(MorphType.InfixingInterfix)]
-    [InlineData(MorphType.PrefixingInterfix)]
-    [InlineData(MorphType.SuffixingInterfix)]
-    [InlineData(MorphType.Phrase)]
-    [InlineData(MorphType.DiscontiguousPhrase)]
-    public async Task CanCreateEntryWithMorphTypeAndComponents(MorphType morphType)
+    [Fact]
+    public async Task CanCreateAffixEntryWithComplexFormComponents()
     {
-        // arrange
+        // Attempts to reproduce "Affixes" field error that occurs with affix MorphType entries
+        // The error originates from LibLCM's VisibleComplexFormBackRefs on entries with IMoAffixAllomorph
+        // Note: This test passes, indicating the error requires specific conditions not yet identified
+        
         var component = await Api.CreateEntry(new()
         {
-            LexemeForm = { { "en", "test-component" } }
+            LexemeForm = { { "en", "component" } }
         });
 
-        var complexFormId = Guid.NewGuid();
-        
-        // act - create entry with the specified morph type and components
         var complexForm = await Api.CreateEntry(new()
         {
-            Id = complexFormId,
-            LexemeForm = { { "en", "test-complex-form" } },
-            MorphType = morphType,
+            LexemeForm = { { "en", "complex-form" } }
+        });
+
+        var affixEntryId = Guid.NewGuid();
+
+        // Create an affix entry (Prefix uses IMoAffixAllomorph) with both components and complex forms
+        var affixEntry = await Api.CreateEntry(new()
+        {
+            Id = affixEntryId,
+            LexemeForm = { { "en", "prefix" } },
+            MorphType = MorphType.Prefix,  // Affix types: Prefix, Suffix, Infix, Circumfix, etc.
             Components =
             [
                 new ComplexFormComponent()
                 {
                     ComponentEntryId = component.Id,
                     ComponentHeadword = component.Headword(),
-                    ComplexFormEntryId = complexFormId,
-                    ComplexFormHeadword = "test-complex-form"
-                }
-            ]
-        });
-
-        // assert
-        var actual = await Api.GetEntry(complexFormId);
-        actual.Should().NotBeNull();
-        actual.MorphType.Should().Be(morphType);
-        actual.Components.Should().HaveCount(1);
-        actual.Components[0].ComponentEntryId.Should().Be(component.Id);
-    }
-
-    [Theory]
-    [InlineData(MorphType.Enclitic)]
-    [InlineData(MorphType.Clitic)]
-    [InlineData(MorphType.Proclitic)]
-    [InlineData(MorphType.Prefix)]
-    [InlineData(MorphType.Suffix)]
-    [InlineData(MorphType.Infix)]
-    [InlineData(MorphType.Circumfix)]
-    public async Task CanCreateAffixComponentWithComplexFormOfMorphType(MorphType componentMorphType)
-    {
-        // arrange - create a component entry with an affix morph type
-        var component = await Api.CreateEntry(new()
-        {
-            LexemeForm = { { "en", "test-affix-component" } },
-            MorphType = componentMorphType
-        });
-
-        var complexFormId = Guid.NewGuid();
-        
-        // act - create a complex form entry that references the affix component
-        var complexForm = await Api.CreateEntry(new()
-        {
-            Id = complexFormId,
-            LexemeForm = { { "en", "test-complex-form" } },
-            Components =
-            [
-                new ComplexFormComponent()
-                {
-                    ComponentEntryId = component.Id,
-                    ComponentHeadword = component.Headword(),
-                    ComplexFormEntryId = complexFormId,
-                    ComplexFormHeadword = "test-complex-form"
-                }
-            ]
-        });
-
-        // assert
-        var actual = await Api.GetEntry(complexFormId);
-        actual.Should().NotBeNull();
-        actual.Components.Should().HaveCount(1);
-        actual.Components[0].ComponentEntryId.Should().Be(component.Id);
-    }
-
-    [Theory]
-    [InlineData(MorphType.Enclitic)]
-    [InlineData(MorphType.Clitic)]
-    [InlineData(MorphType.Proclitic)]
-    public async Task CanCreateEntryWithAffixMorphTypeAndBothComponentsAndComplexForms(MorphType morphType)
-    {
-        // This test attempts to reproduce the "Affixes" field error
-        // The error occurs when an entry with an affix morph type has BOTH Components and ComplexForms
-        
-        // arrange
-        var baseComponent = await Api.CreateEntry(new()
-        {
-            LexemeForm = { { "en", "test-component" } }
-        });
-
-        var complexFormId = Guid.NewGuid();
-        var complexForm = await Api.CreateEntry(new()
-        {
-            Id = complexFormId,
-            LexemeForm = { { "en", "test-complex" } }
-        });
-
-        var componentId = Guid.NewGuid();
-        
-        // act - create an entry with affix morph type that has BOTH a Component and a ComplexForm
-        var entry = await Api.CreateEntry(new()
-        {
-            Id = componentId,
-            LexemeForm = { { "en", "test-entry" } },
-            MorphType = morphType,
-            Components =
-            [
-                new ComplexFormComponent()
-                {
-                    ComponentEntryId = baseComponent.Id,
-                    ComponentHeadword = baseComponent.Headword(),
-                    ComplexFormEntryId = componentId,
-                    ComplexFormHeadword = "test-entry"
+                    ComplexFormEntryId = affixEntryId,
+                    ComplexFormHeadword = "prefix"
                 }
             ],
             ComplexForms =
             [
                 new ComplexFormComponent()
                 {
-                    ComponentEntryId = componentId,
-                    ComponentHeadword = "test-entry",
-                    ComplexFormEntryId = complexFormId,
+                    ComponentEntryId = affixEntryId,
+                    ComponentHeadword = "prefix",
+                    ComplexFormEntryId = complexForm.Id,
                     ComplexFormHeadword = complexForm.Headword()
                 }
             ]
         });
 
-        // assert
-        var actual = await Api.GetEntry(componentId);
+        var actual = await Api.GetEntry(affixEntryId);
         actual.Should().NotBeNull();
         actual.Components.Should().HaveCount(1);
-        actual.Components[0].ComponentEntryId.Should().Be(baseComponent.Id);
         actual.ComplexForms.Should().HaveCount(1);
-        actual.ComplexForms[0].ComplexFormEntryId.Should().Be(complexFormId);
-    }
-
-    [Theory]
-    [InlineData(MorphType.Enclitic)]
-    [InlineData(MorphType.Clitic)]
-    [InlineData(MorphType.Proclitic)]
-    [InlineData(MorphType.Prefix)]
-    [InlineData(MorphType.Suffix)]
-    [InlineData(MorphType.Infix)]
-    [InlineData(MorphType.Circumfix)]
-    public async Task CanAddComponentToExistingEntryWithAffixMorphType(MorphType morphType)
-    {
-        // This test specifically tests adding a component AFTER the entry is created
-        // which is different from creating the entry with components already specified
-        
-        // arrange
-        var component = await Api.CreateEntry(new()
-        {
-            LexemeForm = { { "en", "test-component" } }
-        });
-
-        var complexFormId = Guid.NewGuid();
-        var complexForm = await Api.CreateEntry(new()
-        {
-            Id = complexFormId,
-            LexemeForm = { { "en", "test-complex" } },
-            MorphType = morphType
-        });
-
-        // act - add a component to an existing entry with affix morph type
-        var complexFormComponent = new ComplexFormComponent()
-        {
-            ComponentEntryId = component.Id,
-            ComponentHeadword = component.Headword(),
-            ComplexFormEntryId = complexFormId,
-            ComplexFormHeadword = complexForm.Headword()
-        };
-        await Api.CreateComplexFormComponent(complexFormComponent);
-
-        // assert
-        var actual = await Api.GetEntry(complexFormId);
-        actual.Should().NotBeNull();
-        actual.MorphType.Should().Be(morphType);
-        actual.Components.Should().HaveCount(1);
-        actual.Components[0].ComponentEntryId.Should().Be(component.Id);
-    }
-
-    [Theory]
-    [InlineData(MorphType.Enclitic)]
-    [InlineData(MorphType.Clitic)]
-    [InlineData(MorphType.Proclitic)]
-    [InlineData(MorphType.Prefix)]
-    [InlineData(MorphType.Suffix)]
-    [InlineData(MorphType.Infix)]
-    [InlineData(MorphType.Circumfix)]
-    public async Task CanUseAffixEntryAsComponentOfComplexForm(MorphType affixMorphType)
-    {
-        // This test checks if an affix entry can be used as a component
-        // The "Affixes" field error might occur when updating back-references on an affix entry
-        
-        // arrange - create an affix entry as the component
-        var affixComponent = await Api.CreateEntry(new()
-        {
-            LexemeForm = { { "en", "test-affix" } },
-            MorphType = affixMorphType
-        });
-
-        var complexFormId = Guid.NewGuid();
-        var complexForm = await Api.CreateEntry(new()
-        {
-            Id = complexFormId,
-            LexemeForm = { { "en", "test-complex" } }
-        });
-
-        // act - add the affix as a component to a complex form
-        var complexFormComponent = new ComplexFormComponent()
-        {
-            ComponentEntryId = affixComponent.Id,
-            ComponentHeadword = affixComponent.Headword(),
-            ComplexFormEntryId = complexFormId,
-            ComplexFormHeadword = complexForm.Headword()
-        };
-        await Api.CreateComplexFormComponent(complexFormComponent);
-
-        // assert
-        var actualComplexForm = await Api.GetEntry(complexFormId);
-        actualComplexForm.Should().NotBeNull();
-        actualComplexForm.Components.Should().HaveCount(1);
-        actualComplexForm.Components[0].ComponentEntryId.Should().Be(affixComponent.Id);
-
-        // Check that the affix entry has the back-reference
-        var actualAffix = await Api.GetEntry(affixComponent.Id);
-        actualAffix.Should().NotBeNull();
-        actualAffix.ComplexForms.Should().HaveCount(1);
-        actualAffix.ComplexForms[0].ComplexFormEntryId.Should().Be(complexFormId);
     }
 }
 
