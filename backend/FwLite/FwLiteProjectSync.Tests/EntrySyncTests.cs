@@ -46,6 +46,166 @@ public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : Entr
         actual.Should().NotBeNull();
         actual.MorphType.Should().Be(MorphType.BoundStem);
     }
+
+    [Theory]
+    [InlineData(MorphType.BoundRoot)]
+    [InlineData(MorphType.BoundStem)]
+    [InlineData(MorphType.Circumfix)]
+    [InlineData(MorphType.Clitic)]
+    [InlineData(MorphType.Enclitic)]
+    [InlineData(MorphType.Infix)]
+    [InlineData(MorphType.Particle)]
+    [InlineData(MorphType.Prefix)]
+    [InlineData(MorphType.Proclitic)]
+    [InlineData(MorphType.Root)]
+    [InlineData(MorphType.Simulfix)]
+    [InlineData(MorphType.Stem)]
+    [InlineData(MorphType.Suffix)]
+    [InlineData(MorphType.Suprafix)]
+    [InlineData(MorphType.InfixingInterfix)]
+    [InlineData(MorphType.PrefixingInterfix)]
+    [InlineData(MorphType.SuffixingInterfix)]
+    [InlineData(MorphType.Phrase)]
+    [InlineData(MorphType.DiscontiguousPhrase)]
+    public async Task CanCreateEntryWithMorphTypeAndComponents(MorphType morphType)
+    {
+        // arrange
+        var component = await Api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "test-component" } }
+        });
+
+        var complexFormId = Guid.NewGuid();
+        
+        // act - create entry with the specified morph type and components
+        var complexForm = await Api.CreateEntry(new()
+        {
+            Id = complexFormId,
+            LexemeForm = { { "en", "test-complex-form" } },
+            MorphType = morphType,
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = component.Id,
+                    ComponentHeadword = component.Headword(),
+                    ComplexFormEntryId = complexFormId,
+                    ComplexFormHeadword = "test-complex-form"
+                }
+            ]
+        });
+
+        // assert
+        var actual = await Api.GetEntry(complexFormId);
+        actual.Should().NotBeNull();
+        actual.MorphType.Should().Be(morphType);
+        actual.Components.Should().HaveCount(1);
+        actual.Components[0].ComponentEntryId.Should().Be(component.Id);
+    }
+
+    [Theory]
+    [InlineData(MorphType.Enclitic)]
+    [InlineData(MorphType.Clitic)]
+    [InlineData(MorphType.Proclitic)]
+    [InlineData(MorphType.Prefix)]
+    [InlineData(MorphType.Suffix)]
+    [InlineData(MorphType.Infix)]
+    [InlineData(MorphType.Circumfix)]
+    public async Task CanCreateAffixComponentWithComplexFormOfMorphType(MorphType componentMorphType)
+    {
+        // arrange - create a component entry with an affix morph type
+        var component = await Api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "test-affix-component" } },
+            MorphType = componentMorphType
+        });
+
+        var complexFormId = Guid.NewGuid();
+        
+        // act - create a complex form entry that references the affix component
+        var complexForm = await Api.CreateEntry(new()
+        {
+            Id = complexFormId,
+            LexemeForm = { { "en", "test-complex-form" } },
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = component.Id,
+                    ComponentHeadword = component.Headword(),
+                    ComplexFormEntryId = complexFormId,
+                    ComplexFormHeadword = "test-complex-form"
+                }
+            ]
+        });
+
+        // assert
+        var actual = await Api.GetEntry(complexFormId);
+        actual.Should().NotBeNull();
+        actual.Components.Should().HaveCount(1);
+        actual.Components[0].ComponentEntryId.Should().Be(component.Id);
+    }
+
+    [Theory]
+    [InlineData(MorphType.Enclitic)]
+    [InlineData(MorphType.Clitic)]
+    [InlineData(MorphType.Proclitic)]
+    public async Task CanCreateEntryWithAffixMorphTypeAndBothComponentsAndComplexForms(MorphType morphType)
+    {
+        // This test attempts to reproduce the "Affixes" field error
+        // The error occurs when an entry with an affix morph type has BOTH Components and ComplexForms
+        
+        // arrange
+        var baseComponent = await Api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "test-component" } }
+        });
+
+        var complexFormId = Guid.NewGuid();
+        var complexForm = await Api.CreateEntry(new()
+        {
+            Id = complexFormId,
+            LexemeForm = { { "en", "test-complex" } }
+        });
+
+        var componentId = Guid.NewGuid();
+        
+        // act - create an entry with affix morph type that has BOTH a Component and a ComplexForm
+        var entry = await Api.CreateEntry(new()
+        {
+            Id = componentId,
+            LexemeForm = { { "en", "test-entry" } },
+            MorphType = morphType,
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = baseComponent.Id,
+                    ComponentHeadword = baseComponent.Headword(),
+                    ComplexFormEntryId = componentId,
+                    ComplexFormHeadword = "test-entry"
+                }
+            ],
+            ComplexForms =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = componentId,
+                    ComponentHeadword = "test-entry",
+                    ComplexFormEntryId = complexFormId,
+                    ComplexFormHeadword = complexForm.Headword()
+                }
+            ]
+        });
+
+        // assert
+        var actual = await Api.GetEntry(componentId);
+        actual.Should().NotBeNull();
+        actual.Components.Should().HaveCount(1);
+        actual.Components[0].ComponentEntryId.Should().Be(baseComponent.Id);
+        actual.ComplexForms.Should().HaveCount(1);
+        actual.ComplexForms[0].ComplexFormEntryId.Should().Be(complexFormId);
+    }
 }
 
 public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture) : IClassFixture<ExtraWritingSystemsSyncFixture>, IAsyncLifetime
