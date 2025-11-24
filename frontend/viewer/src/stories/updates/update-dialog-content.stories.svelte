@@ -14,6 +14,7 @@
 <script lang="ts">
   import type {IAvailableUpdate} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
   import {UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
+  import {DemoStoryError} from '../demo-story-error';
 
   const autoUpdate: IAvailableUpdate = {
     release: {
@@ -36,7 +37,7 @@
   }
 
   function failedCheck(message: string): Promise<never> {
-    return Promise.reject(new Error(message));
+    return Promise.reject(new DemoStoryError(message));
   }
 
   function completedCheck(update: IAvailableUpdate | null): Promise<IAvailableUpdate | null> {
