@@ -21,7 +21,7 @@
       AppNotification.displayAction($t`A new version of FieldWorks Lite is available.`, {
         callback: () => {
           const fwliteConfig = useFwLiteConfig();
-          const url = updateUrls[fwliteConfig.os] ?? 'https://lexbox.org/fw-lite';
+          const url = updateUrls[fwliteConfig.os] ?? event.release.url;
           void openUrl(url);
         },
         label: $t`Download`
