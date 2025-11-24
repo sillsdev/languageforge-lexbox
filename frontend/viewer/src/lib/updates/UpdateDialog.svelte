@@ -42,11 +42,11 @@
 <ResponsiveDialog bind:open title={$t`Updates`}>
   <div class="flex flex-col gap-4">
     <div>
-      <div class="text-muted-foreground">
+      <div>
         {$t`Application version`}: <span class="font-semibold">{appVersion}</span>
       </div>
       <DevContent>
-        <div class="text-muted-foreground">
+        <div>
           {$t`Platform`}:
           <span class="font-semibold">{config.os}</span>
         </div>
