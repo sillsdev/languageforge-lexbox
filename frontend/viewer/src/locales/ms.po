@@ -153,6 +153,7 @@ msgstr ""
 msgid "Any Ws"
 msgstr "Mana-mana Ws"
 
+#: src/lib/updates/UpdateDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Application version"
 msgstr "Versi Aplikasi"
@@ -215,7 +216,11 @@ msgstr ""
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr ""
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Checking for updates..."
+msgstr ""
+
+#: src/lib/components/ThemePicker.svelte
 msgid "Choose theme"
 msgstr ""
 
@@ -248,7 +253,7 @@ msgstr "Tutup"
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Color"
 msgstr "Warna"
 
@@ -323,7 +328,7 @@ msgstr ""
 msgid "Current Word"
 msgstr "Perkataan Semasa"
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Dark"
 msgstr ""
 
@@ -418,6 +423,10 @@ msgstr "Muat turun projek mengikut kod projek"
 msgid "Download unlisted project"
 msgstr ""
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Download Update"
+msgstr ""
+
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
 msgstr "Telah memuat turun {0}"
@@ -462,6 +471,10 @@ msgstr "Entri atau makna:"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
 msgstr "Sama dengan"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Error checking for updates: {0}"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Error getting sync status"
@@ -530,7 +543,7 @@ msgstr ""
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/home/HomeView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
@@ -662,6 +675,14 @@ msgstr ""
 msgid "Incomplete entries"
 msgstr ""
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Install Update"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Installing Update... {0}%"
+msgstr ""
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr ""
@@ -695,7 +716,7 @@ msgstr "Bentuk leksem"
 msgid "Lexeme Form"
 msgstr "Bentuk Leksem"
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Light"
 msgstr ""
 
@@ -753,6 +774,10 @@ msgstr ""
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
 msgstr "Pengurus"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Manual update is required. Please follow the instructions provided."
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
@@ -918,7 +943,7 @@ msgstr ""
 msgid "Open Data Directory"
 msgstr "Buka Direktori Data"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Open in FieldWorks"
 msgstr "Buka dalam FieldWorks"
 
@@ -962,6 +987,10 @@ msgstr ""
 msgid "Pinned"
 msgstr "Disemat"
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Platform"
+msgstr ""
+
 #: src/project/browse/EntryListViewOptions.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
@@ -1001,6 +1030,10 @@ msgstr "Perhalusi penapis anda untuk melihat lebih banyak..."
 msgid "Refresh Projects"
 msgstr "Segarkan Semula Projek"
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Release notes"
+msgstr ""
+
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
 msgstr "Tanggalkan"
@@ -1009,7 +1042,7 @@ msgstr "Tanggalkan"
 msgid "Remove audio"
 msgstr "Buang audio"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
 msgstr "Buka semula"
 
@@ -1183,7 +1216,7 @@ msgstr ""
 msgid "Syncing..."
 msgstr ""
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "System"
 msgstr ""
 
@@ -1235,7 +1268,7 @@ msgstr ""
 msgid "This date # and this emoji # are snippets"
 msgstr "Tarikh ini # dan emoji ini # adalah coretan"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "Projek ini kini dibuka dalam FieldWorks. Untuk terus bekerja dalam FieldWorks Lite, tutup projek dalam FieldWorks dan klik Buka Semula."
 
@@ -1286,7 +1319,7 @@ msgstr ""
 msgid "Type:"
 msgstr "Jenis:"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "Tidak dapat membuka dalam FieldWorks"
 
@@ -1313,6 +1346,10 @@ msgstr "Ralat tidak diketahui semasa memuat turun {0}"
 msgid "Unknown server"
 msgstr ""
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Unknown update result"
+msgstr ""
+
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1331,6 +1368,32 @@ msgstr ""
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update available: {0}"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update failed to install."
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update installed successfully! Please restart the application."
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update started in the background. Restart the application after the update is complete."
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update was disallowed by permission settings."
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+#: src/lib/updates/UpdateDialog.svelte
+#: src/home/HomeView.svelte
+msgid "Updates"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1384,6 +1447,10 @@ msgstr "Sistem penulisan: {0}"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Sistem Penulisan"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "You are running the latest version."
+msgstr ""
 
 #: src/project/tasks/DoneView.svelte
 msgid "You completed {0} {1}"

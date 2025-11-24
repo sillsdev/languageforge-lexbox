@@ -148,6 +148,7 @@ msgstr "Any semantic domain"
 msgid "Any Ws"
 msgstr "Any Ws"
 
+#: src/lib/updates/UpdateDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Application version"
 msgstr "Application version"
@@ -210,7 +211,11 @@ msgstr "Changes can also be the result of fields being added to new versions of 
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Checking for updates..."
+msgstr "Checking for updates..."
+
+#: src/lib/components/ThemePicker.svelte
 msgid "Choose theme"
 msgstr "Choose theme"
 
@@ -243,7 +248,7 @@ msgstr "Close"
 msgid "Close Dictionary"
 msgstr "Close Dictionary"
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Color"
 msgstr "Color"
 
@@ -318,7 +323,7 @@ msgstr "Current version"
 msgid "Current Word"
 msgstr "Current Word"
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Dark"
 msgstr "Dark"
 
@@ -413,6 +418,10 @@ msgstr "Download project by project code"
 msgid "Download unlisted project"
 msgstr "Download unlisted project"
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Download Update"
+msgstr "Download Update"
+
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
 msgstr "Downloaded {0}"
@@ -457,6 +466,10 @@ msgstr "Entry or sense:"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
 msgstr "Equals"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Error checking for updates: {0}"
+msgstr "Error checking for updates: {0}"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Error getting sync status"
@@ -525,7 +538,7 @@ msgstr "FieldWorks Lite users will automatically receive changes that were made 
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/home/HomeView.svelte
 msgid "FieldWorks logo"
 msgstr "FieldWorks logo"
@@ -657,6 +670,14 @@ msgstr "Include subdomains"
 msgid "Incomplete entries"
 msgstr "Incomplete entries"
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Install Update"
+msgstr "Install Update"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Installing Update... {0}%"
+msgstr "Installing Update... {0}%"
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "Keep going"
@@ -690,7 +711,7 @@ msgstr "Lexeme form"
 msgid "Lexeme Form"
 msgstr "Lexeme Form"
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Light"
 msgstr "Light"
 
@@ -748,6 +769,10 @@ msgstr "Make sure your [changes are synced]({0}) to Lexbox."
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
 msgstr "Manager"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Manual update is required. Please follow the instructions provided."
+msgstr "Manual update is required. Please follow the instructions provided."
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
@@ -913,7 +938,7 @@ msgstr "Open"
 msgid "Open Data Directory"
 msgstr "Open Data Directory"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Open in FieldWorks"
 msgstr "Open in FieldWorks"
 
@@ -957,6 +982,10 @@ msgstr "Pick a Part of Speech"
 msgid "Pinned"
 msgstr "Pinned"
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Platform"
+msgstr "Platform"
+
 #: src/project/browse/EntryListViewOptions.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
@@ -996,6 +1025,10 @@ msgstr "Refine your filter to see more..."
 msgid "Refresh Projects"
 msgstr "Refresh Projects"
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Release notes"
+msgstr "Release notes"
+
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
 msgstr "Remove"
@@ -1004,7 +1037,7 @@ msgstr "Remove"
 msgid "Remove audio"
 msgstr "Remove audio"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
 msgstr "Reopen"
 
@@ -1178,7 +1211,7 @@ msgstr "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgid "Syncing..."
 msgstr "Syncing..."
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "System"
 msgstr "System"
 
@@ -1230,7 +1263,7 @@ msgstr "These changes have not been uploaded yet. Ensure you're online and logge
 msgid "This date # and this emoji # are snippets"
 msgstr "This date # and this emoji # are snippets"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 
@@ -1281,7 +1314,7 @@ msgstr "Type an example sentence"
 msgid "Type:"
 msgstr "Type:"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "Unable to open in FieldWorks"
 
@@ -1308,6 +1341,10 @@ msgstr "Unknown error downloading {0}"
 msgid "Unknown server"
 msgstr "Unknown server"
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Unknown update result"
+msgstr "Unknown update result"
+
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1327,6 +1364,32 @@ msgstr "Up to date"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
 msgstr "Update {0}"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update available: {0}"
+msgstr "Update available: {0}"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update failed to install."
+msgstr "Update failed to install."
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update installed successfully! Please restart the application."
+msgstr "Update installed successfully! Please restart the application."
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update started in the background. Restart the application after the update is complete."
+msgstr "Update started in the background. Restart the application after the update is complete."
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update was disallowed by permission settings."
+msgstr "Update was disallowed by permission settings."
+
+#: src/project/ProjectSidebar.svelte
+#: src/lib/updates/UpdateDialog.svelte
+#: src/home/HomeView.svelte
+msgid "Updates"
+msgstr "Updates"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
@@ -1379,6 +1442,10 @@ msgstr "Writing system: {0}"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Writing Systems"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "You are running the latest version."
+msgstr "You are running the latest version."
 
 #: src/project/tasks/DoneView.svelte
 msgid "You completed {0} {1}"
