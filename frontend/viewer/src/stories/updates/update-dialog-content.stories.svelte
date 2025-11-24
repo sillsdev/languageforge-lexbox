@@ -3,7 +3,6 @@
   import UpdateDialogContent from '$lib/updates/UpdateDialogContent.svelte';
 
   const {Story} = defineMeta({
-    title: 'About/Update Dialog Content',
     component: UpdateDialogContent,
     args: {
       installUpdate: async () => {
