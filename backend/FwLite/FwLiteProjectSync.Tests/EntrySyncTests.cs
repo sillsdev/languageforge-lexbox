@@ -206,6 +206,101 @@ public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : Entr
         actual.ComplexForms.Should().HaveCount(1);
         actual.ComplexForms[0].ComplexFormEntryId.Should().Be(complexFormId);
     }
+
+    [Theory]
+    [InlineData(MorphType.Enclitic)]
+    [InlineData(MorphType.Clitic)]
+    [InlineData(MorphType.Proclitic)]
+    [InlineData(MorphType.Prefix)]
+    [InlineData(MorphType.Suffix)]
+    [InlineData(MorphType.Infix)]
+    [InlineData(MorphType.Circumfix)]
+    public async Task CanAddComponentToExistingEntryWithAffixMorphType(MorphType morphType)
+    {
+        // This test specifically tests adding a component AFTER the entry is created
+        // which is different from creating the entry with components already specified
+        
+        // arrange
+        var component = await Api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "test-component" } }
+        });
+
+        var complexFormId = Guid.NewGuid();
+        var complexForm = await Api.CreateEntry(new()
+        {
+            Id = complexFormId,
+            LexemeForm = { { "en", "test-complex" } },
+            MorphType = morphType
+        });
+
+        // act - add a component to an existing entry with affix morph type
+        var complexFormComponent = new ComplexFormComponent()
+        {
+            ComponentEntryId = component.Id,
+            ComponentHeadword = component.Headword(),
+            ComplexFormEntryId = complexFormId,
+            ComplexFormHeadword = complexForm.Headword()
+        };
+        await Api.CreateComplexFormComponent(complexFormComponent);
+
+        // assert
+        var actual = await Api.GetEntry(complexFormId);
+        actual.Should().NotBeNull();
+        actual.MorphType.Should().Be(morphType);
+        actual.Components.Should().HaveCount(1);
+        actual.Components[0].ComponentEntryId.Should().Be(component.Id);
+    }
+
+    [Theory]
+    [InlineData(MorphType.Enclitic)]
+    [InlineData(MorphType.Clitic)]
+    [InlineData(MorphType.Proclitic)]
+    [InlineData(MorphType.Prefix)]
+    [InlineData(MorphType.Suffix)]
+    [InlineData(MorphType.Infix)]
+    [InlineData(MorphType.Circumfix)]
+    public async Task CanUseAffixEntryAsComponentOfComplexForm(MorphType affixMorphType)
+    {
+        // This test checks if an affix entry can be used as a component
+        // The "Affixes" field error might occur when updating back-references on an affix entry
+        
+        // arrange - create an affix entry as the component
+        var affixComponent = await Api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "test-affix" } },
+            MorphType = affixMorphType
+        });
+
+        var complexFormId = Guid.NewGuid();
+        var complexForm = await Api.CreateEntry(new()
+        {
+            Id = complexFormId,
+            LexemeForm = { { "en", "test-complex" } }
+        });
+
+        // act - add the affix as a component to a complex form
+        var complexFormComponent = new ComplexFormComponent()
+        {
+            ComponentEntryId = affixComponent.Id,
+            ComponentHeadword = affixComponent.Headword(),
+            ComplexFormEntryId = complexFormId,
+            ComplexFormHeadword = complexForm.Headword()
+        };
+        await Api.CreateComplexFormComponent(complexFormComponent);
+
+        // assert
+        var actualComplexForm = await Api.GetEntry(complexFormId);
+        actualComplexForm.Should().NotBeNull();
+        actualComplexForm.Components.Should().HaveCount(1);
+        actualComplexForm.Components[0].ComponentEntryId.Should().Be(affixComponent.Id);
+
+        // Check that the affix entry has the back-reference
+        var actualAffix = await Api.GetEntry(affixComponent.Id);
+        actualAffix.Should().NotBeNull();
+        actualAffix.ComplexForms.Should().HaveCount(1);
+        actualAffix.ComplexForms[0].ComplexFormEntryId.Should().Be(complexFormId);
+    }
 }
 
 public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture) : IClassFixture<ExtraWritingSystemsSyncFixture>, IAsyncLifetime
