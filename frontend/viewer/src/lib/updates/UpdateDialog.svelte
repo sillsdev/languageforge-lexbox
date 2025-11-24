@@ -1,0 +1,72 @@
+<script lang="ts">
+  import {t} from 'svelte-i18n-lingui';
+  import {useFwLiteConfig, useUpdateService} from '$lib/services/service-provider';
+  import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
+  import {watch} from 'runed';
+  import DevContent from '$lib/layout/DevContent.svelte';
+  import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
+  import {Icon} from '$lib/components/ui/icon';
+  import UpdateDialogContent from './UpdateDialogContent.svelte';
+
+  let {open = $bindable()}: { open: boolean } = $props();
+  const config = useFwLiteConfig();
+  const updateService = useUpdateService();
+
+  let checkPromise = $state<Promise<IAvailableUpdate | null>>();
+  let installPromise = $state<Promise<UpdateResult>>();
+
+  watch(() => open, () => {
+    if (open) {
+      // this is cached on the backend for a short time
+      checkPromise = updateService.checkForUpdates();
+    }
+  });
+
+  async function installUpdate(update: IAvailableUpdate) {
+    installPromise = updateService.applyUpdate(update);
+    try {
+      const updateResult = await installPromise;
+      if (updateResult === UpdateResult.Success) {
+        checkPromise = undefined;
+      }
+    } catch (error) {
+      console.error('Error installing update:', error);
+      throw error;
+    }
+  }
+
+  const appVersion = config.appVersion;
+  const releaseNotesUrl = 'https://community.software.sil.org/t/10807';
+</script>
+
+<ResponsiveDialog bind:open title={$t`Updates`}>
+  <div class="flex flex-col gap-4">
+    <div>
+      <div class="text-muted-foreground">
+        {$t`Application version`}: <span class="font-semibold">{appVersion}</span>
+      </div>
+      <DevContent>
+        <div class="text-muted-foreground">
+          {$t`Platform`}:
+          <span class="font-semibold">{config.os}</span>
+        </div>
+      </DevContent>
+      <div>
+        <a
+          class="inline-flex items-center flex-nowrap gap-1 text-sm font-medium text-primary underline underline-offset-4 hover:text-foreground"
+          href={releaseNotesUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {$t`Release notes`}
+          <Icon icon="i-mdi-open-in-new" class="size-4" />
+        </a>
+      </div>
+    </div>
+
+    <UpdateDialogContent
+      {checkPromise}
+      {installPromise}
+      {installUpdate} />
+  </div>
+</ResponsiveDialog>
