@@ -63,12 +63,12 @@ public class UpdateChecker(
             updateResult = await platformUpdateService.ApplyUpdate(release);
         }
 
-        NotifyResult(updateResult);
+        NotifyResult(updateResult, release);
     }
 
-    private void NotifyResult(UpdateResult result)
+    private void NotifyResult(UpdateResult result, FwLiteRelease release)
     {
-        eventBus.PublishEvent(new AppUpdateEvent(result));
+        eventBus.PublishEvent(new AppUpdateEvent(result, release));
     }
 
     private bool ShouldCheckForUpdate()
