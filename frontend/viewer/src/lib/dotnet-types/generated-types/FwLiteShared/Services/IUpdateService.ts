@@ -3,11 +3,12 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {UpdateResult} from '../AppUpdate/UpdateResult';
 import type {IAvailableUpdate} from '../AppUpdate/IAvailableUpdate';
 
 export interface IUpdateService
 {
 	checkForUpdates() : Promise<IAvailableUpdate | null>;
-	applyUpdate(update: IAvailableUpdate) : Promise<void>;
+	applyUpdate(update: IAvailableUpdate) : Promise<UpdateResult>;
 }
 /* eslint-enable */
