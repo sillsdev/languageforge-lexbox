@@ -26,12 +26,12 @@ public class UpdateChecker(
         await TryUpdate();
     }
 
-    public async Task TryUpdate()
+    public async Task<UpdateResult?> TryUpdate()
     {
-        if (!ShouldCheckForUpdate()) return;
+        if (!ShouldCheckForUpdate()) return null;
         var update = await CheckForUpdate();
-        if (update is null) return;
-        await ApplyUpdate(update.Release);
+        if (update is null) return null;
+        return await ApplyUpdate(update.Release);
     }
 
     public async Task<AvailableUpdate?> CheckForUpdate()
@@ -39,31 +39,30 @@ public class UpdateChecker(
         return await cache.GetOrCreateAsync(CacheKey, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = CacheDuration;
-            
             var response = await ShouldUpdateAsync();
             platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
-            
-            return response.Update 
-                ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate) 
+            return response.Update
+                ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate)
                 : null;
         });
     }
 
-    public async Task ApplyUpdate(FwLiteRelease release)
+    public async Task<UpdateResult> ApplyUpdate(FwLiteRelease release)
     {
         if (ShouldPromptBeforeUpdate() &&
             !await platformUpdateService.RequestPermissionToUpdate(release))
         {
-            return;
+            return UpdateResult.Disallowed;
         }
 
-        UpdateResult updateResult = UpdateResult.ManualUpdateRequired;
+        var updateResult = UpdateResult.ManualUpdateRequired;
         if (platformUpdateService.SupportsAutoUpdate)
         {
             updateResult = await platformUpdateService.ApplyUpdate(release);
         }
 
         NotifyResult(updateResult, release);
+        return updateResult;
     }
 
     private void NotifyResult(UpdateResult result, FwLiteRelease release)
