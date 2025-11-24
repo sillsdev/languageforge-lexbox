@@ -153,6 +153,7 @@ msgstr ""
 msgid "Any Ws"
 msgstr ""
 
+#: src/lib/updates/UpdateDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Application version"
 msgstr ""
@@ -215,7 +216,11 @@ msgstr ""
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr ""
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Checking for updates..."
+msgstr ""
+
+#: src/lib/components/ThemePicker.svelte
 msgid "Choose theme"
 msgstr ""
 
@@ -248,7 +253,7 @@ msgstr "Funga"
 msgid "Close Dictionary"
 msgstr ""
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Color"
 msgstr "Rangi"
 
@@ -323,7 +328,7 @@ msgstr ""
 msgid "Current Word"
 msgstr ""
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Dark"
 msgstr ""
 
@@ -418,6 +423,10 @@ msgstr ""
 msgid "Download unlisted project"
 msgstr ""
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Download Update"
+msgstr ""
+
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
 msgstr ""
@@ -461,6 +470,10 @@ msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Error checking for updates: {0}"
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte
@@ -530,7 +543,7 @@ msgstr ""
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/home/HomeView.svelte
 msgid "FieldWorks logo"
 msgstr ""
@@ -662,6 +675,14 @@ msgstr ""
 msgid "Incomplete entries"
 msgstr ""
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Install Update"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Installing Update... {0}%"
+msgstr ""
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr ""
@@ -695,7 +716,7 @@ msgstr ""
 msgid "Lexeme Form"
 msgstr "Fomu ya Lexeme"
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Light"
 msgstr ""
 
@@ -752,6 +773,10 @@ msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Manual update is required. Please follow the instructions provided."
 msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -918,7 +943,7 @@ msgstr ""
 msgid "Open Data Directory"
 msgstr ""
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Open in FieldWorks"
 msgstr ""
 
@@ -962,6 +987,10 @@ msgstr ""
 msgid "Pinned"
 msgstr ""
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Platform"
+msgstr ""
+
 #: src/project/browse/EntryListViewOptions.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
@@ -1001,6 +1030,10 @@ msgstr ""
 msgid "Refresh Projects"
 msgstr ""
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Release notes"
+msgstr ""
+
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
 msgstr "Ondoa"
@@ -1009,7 +1042,7 @@ msgstr "Ondoa"
 msgid "Remove audio"
 msgstr ""
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
 msgstr ""
 
@@ -1183,7 +1216,7 @@ msgstr ""
 msgid "Syncing..."
 msgstr ""
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "System"
 msgstr ""
 
@@ -1235,7 +1268,7 @@ msgstr ""
 msgid "This date # and this emoji # are snippets"
 msgstr ""
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr ""
 
@@ -1286,7 +1319,7 @@ msgstr ""
 msgid "Type:"
 msgstr "Aina:"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr ""
 
@@ -1313,6 +1346,10 @@ msgstr ""
 msgid "Unknown server"
 msgstr ""
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Unknown update result"
+msgstr ""
+
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1331,6 +1368,32 @@ msgstr ""
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update available: {0}"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update failed to install."
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update installed successfully! Please restart the application."
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update started in the background. Restart the application after the update is complete."
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update was disallowed by permission settings."
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+#: src/lib/updates/UpdateDialog.svelte
+#: src/home/HomeView.svelte
+msgid "Updates"
 msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1383,6 +1446,10 @@ msgstr ""
 
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "You are running the latest version."
 msgstr ""
 
 #: src/project/tasks/DoneView.svelte
