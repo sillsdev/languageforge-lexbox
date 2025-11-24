@@ -27,8 +27,8 @@
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
   import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
-  import UpdateDialog from '$lib/about/UpdateDialog.svelte';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
+  import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
   import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
 
   const projectsService = useProjectsService();
@@ -163,7 +163,7 @@
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
           <ResponsiveMenu.Item onSelect={() => updateDialogOpen = true} icon="i-mdi-update">
-            {$t`Check for Updates`}
+            {$t`Updates`}
           </ResponsiveMenu.Item>
           <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-message">
             {$t`Feedback & Support`}
