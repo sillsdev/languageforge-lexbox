@@ -7,6 +7,8 @@
   import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
   import {Icon} from '$lib/components/ui/icon';
   import UpdateDialogContent from './UpdateDialogContent.svelte';
+  import {useEventBus} from '$lib/services/event-bus';
+  import {FwEventType, type IAppUpdateProgressEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events';
 
   let {open = $bindable()}: { open: boolean } = $props();
   const config = useFwLiteConfig();
@@ -14,6 +16,12 @@
 
   let checkPromise = $state<Promise<IAvailableUpdate | null>>();
   let installPromise = $state<Promise<UpdateResult>>();
+
+  const eventBus = useEventBus();
+  let installProgress = $state<number>();
+  eventBus.onEventType<IAppUpdateProgressEvent>(FwEventType.AppUpdateProgress, event => {
+    installProgress = event.percentage;
+  });
 
   watch(() => open, () => {
     if (open) {
@@ -67,6 +75,7 @@
     <UpdateDialogContent
       {checkPromise}
       {installPromise}
-      {installUpdate} />
+      {installUpdate}
+      {installProgress} />
   </div>
 </ResponsiveDialog>
