@@ -100,6 +100,7 @@
         {...args}
         checkPromise={completedCheck(autoUpdate)}
         installPromise={pendingInstall()}
+        installProgress={86}
       />
     </div>
   {/snippet}

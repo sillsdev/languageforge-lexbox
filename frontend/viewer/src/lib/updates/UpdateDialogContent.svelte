@@ -10,14 +10,15 @@
     checkPromise?: Promise<IAvailableUpdate | null>;
     installPromise?: Promise<UpdateResult>;
     installUpdate: (update: IAvailableUpdate) => Promise<void>;
+    installProgress?: number;
   }
 
   let {
     checkPromise,
     installPromise,
     installUpdate,
+    installProgress
   }: Props = $props();
-
 
 </script>
 
@@ -46,7 +47,7 @@
 {#if installPromise}
   {#await installPromise}
     <Button loading class="w-full" icon="i-mdi-download">
-      {$t`Installing Update...`}
+      {$t`Installing Update... ${installProgress ?? 0}%`}
     </Button>
   {:then updateResult}
     <div class="flex items-center gap-4 p-4 rounded-lg bg-muted">
@@ -55,11 +56,14 @@
         <p>{$t`Update installed successfully! Please restart the application.`}</p>
       {:else if updateResult === UpdateResult.Started}
         <Icon icon="i-mdi-information" />
-        <p>{$t`Update started in the background. Restart the application to complete the update.`}</p>
+        <!-- Apparently there's some unreliability in the update process.
+         Hopefully the progress above will work and help -->
+        <p>{$t`Update started in the background. Restart the application after the update is complete.`}</p>
       {:else if updateResult === UpdateResult.Failed}
         <Icon icon="i-mdi-alert-circle" />
         <p>{$t`Update failed to install.`}</p>
       {:else if updateResult === UpdateResult.ManualUpdateRequired}
+        <!-- this should never happen, because we only provide a Download button if auto updating isn't supported -->
         <Icon icon="i-mdi-information" />
         <p>{$t`Manual update is required. Please follow the instructions provided.`}</p>
       {:else if updateResult === UpdateResult.Disallowed}

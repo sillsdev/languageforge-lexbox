@@ -1,17 +1,15 @@
-using System.Buffers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using Windows.Management.Deployment;
 using Windows.Networking.Connectivity;
 using LexCore.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Uwp.Notifications;
-using FwLiteMaui.Services;
 using FwLiteShared.AppUpdate;
+using FwLiteShared.Events;
 
 namespace FwLiteMaui;
 
-public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences preferences)
+public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences preferences, GlobalEventBus eventBus)
     : IMauiInitializeService, IPlatformUpdateService
 {
     private const string LastUpdateCheckKey = "lastUpdateChecked";
@@ -118,6 +116,7 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
             });
         asyncOperation.Progress = (info, progressInfo) =>
         {
+            NotifyInstallProgress(progressInfo.percentage, latestRelease);
             if (progressInfo.state == DeploymentProgressState.Queued)
             {
                 logger.LogInformation("Queued update");
@@ -144,6 +143,11 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         }
 
         return UpdateResult.Started;
+    }
+
+    private void NotifyInstallProgress(uint percentage, FwLiteRelease release)
+    {
+        eventBus.PublishEvent(new AppUpdateProgressEvent(percentage, release));
     }
 
     public DateTime LastUpdateCheck
