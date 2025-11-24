@@ -14,8 +14,8 @@ public class UpdateService(UpdateChecker updateChecker)
     }
 
     [JSInvokable]
-    public async Task ApplyUpdate(AvailableUpdate update)
+    public Task<UpdateResult> ApplyUpdate(AvailableUpdate update)
     {
-        await updateChecker.ApplyUpdate(update.Release);
+        return updateChecker.ApplyUpdate(update.Release);
     }
 }
