@@ -9,6 +9,7 @@
   import UpdateDialogContent from './UpdateDialogContent.svelte';
   import {useEventBus} from '$lib/services/event-bus';
   import {FwEventType, type IAppUpdateProgressEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events';
+  import {getDownloadPageUrl, releaseNotesUrl} from './utils';
 
   let {open = $bindable()}: { open: boolean } = $props();
   const config = useFwLiteConfig();
@@ -44,24 +45,41 @@
   }
 
   const appVersion = config.appVersion;
-  const releaseNotesUrl = 'https://community.software.sil.org/t/10807';
 </script>
 
-<ResponsiveDialog bind:open title={$t`Updates`}>
-  <div class="flex flex-col gap-4">
-    <div>
+{#if open}
+  <ResponsiveDialog open title={$t`Updates`}>
+    <div class="flex flex-col gap-4">
       <div>
-        {$t`Application version`}: <span class="font-semibold">{appVersion}</span>
-      </div>
-      <DevContent>
         <div>
-          {$t`Platform`}:
-          <span class="font-semibold">{config.os}</span>
+          {$t`Application version`}: <span class="font-semibold">{appVersion}</span>
         </div>
-      </DevContent>
-      <div>
+        <DevContent>
+          <div>
+            {$t`Platform`}:
+            <span class="font-semibold">{config.os}</span>
+          </div>
+        </DevContent>
+      </div>
+
+      <UpdateDialogContent
+        {checkPromise}
+        {installPromise}
+        {installUpdate}
+        {installProgress} />
+
+      <div class="flex justify-center gap-3">
         <a
-          class="inline-flex items-center flex-nowrap gap-1 text-sm font-medium text-primary underline underline-offset-4 hover:text-foreground"
+          class="inline-flex items-center flex-nowrap gap-1 text-sm font-medium underline underline-offset-4 hover:text-primary"
+          href={getDownloadPageUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {$t`Download page`}
+          <Icon icon="i-mdi-open-in-new" class="size-4" />
+        </a>
+        <a
+          class="inline-flex items-center flex-nowrap gap-1 text-sm font-medium underline underline-offset-4 hover:text-primary"
           href={releaseNotesUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -71,11 +89,5 @@
         </a>
       </div>
     </div>
-
-    <UpdateDialogContent
-      {checkPromise}
-      {installPromise}
-      {installUpdate}
-      {installProgress} />
-  </div>
-</ResponsiveDialog>
+  </ResponsiveDialog>
+{/if}
