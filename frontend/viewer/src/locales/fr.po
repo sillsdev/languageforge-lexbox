@@ -414,6 +414,10 @@ msgstr "Télécharger"
 msgid "Download {0}"
 msgstr "Télécharger {0}"
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Download page"
+msgstr ""
+
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "Télécharger un projet par code de projet"
@@ -423,6 +427,7 @@ msgstr "Télécharger un projet par code de projet"
 msgid "Download unlisted project"
 msgstr "Télécharger un projet qui ne figure pas dans la liste"
 
+#: src/lib/updates/UpdateDialogContent.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
 msgstr ""
@@ -956,6 +961,10 @@ msgstr "Ouvrir dans une nouvelle fenêtre"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Ouvrir le fichier journal"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "or"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte

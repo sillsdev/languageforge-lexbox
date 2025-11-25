@@ -409,6 +409,10 @@ msgstr "Download"
 msgid "Download {0}"
 msgstr "Download {0}"
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Download page"
+msgstr "Download page"
+
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "Download project by project code"
@@ -418,6 +422,7 @@ msgstr "Download project by project code"
 msgid "Download unlisted project"
 msgstr "Download unlisted project"
 
+#: src/lib/updates/UpdateDialogContent.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
 msgstr "Download Update"
@@ -951,6 +956,10 @@ msgstr "Open in new Window"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Open Log file"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "or"
+msgstr "or"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte

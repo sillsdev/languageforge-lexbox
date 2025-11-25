@@ -414,6 +414,10 @@ msgstr "다운로드"
 msgid "Download {0}"
 msgstr "다운로드 {0}"
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Download page"
+msgstr ""
+
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "프로젝트 코드별 프로젝트 다운로드"
@@ -423,6 +427,7 @@ msgstr "프로젝트 코드별 프로젝트 다운로드"
 msgid "Download unlisted project"
 msgstr "미등록 프로젝트 다운로드"
 
+#: src/lib/updates/UpdateDialogContent.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
 msgstr ""
@@ -956,6 +961,10 @@ msgstr "새 창에서 열기"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "로그 파일 열기"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "or"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
