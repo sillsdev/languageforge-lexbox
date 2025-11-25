@@ -11,7 +11,6 @@ const downloadPageUrls: Partial<Record<FwLitePlatform, string>> = {
   [FwLitePlatform.Android]: 'https://play.google.com/store/apps/details?id=org.sil.FwLiteMaui',
 };
 
-
 export const releaseNotesUrl = 'https://community.software.sil.org/t/10807';
 
 /**
