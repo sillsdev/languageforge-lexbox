@@ -684,7 +684,7 @@ msgid "Install Update"
 msgstr ""
 
 #: src/lib/updates/UpdateDialogContent.svelte
-msgid "Installing Update... {0}%"
+msgid "Installing Update..."
 msgstr ""
 
 #: src/project/tasks/DoneView.svelte
