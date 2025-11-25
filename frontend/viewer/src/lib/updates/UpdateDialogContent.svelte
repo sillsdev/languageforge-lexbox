@@ -4,7 +4,7 @@
   import {Button} from '$lib/components/ui/button';
   import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
   import Loading from '$lib/components/Loading.svelte';
-  import {openReleaseUrl} from './utils';
+  import {getReleaseUrl} from './utils';
 
   type Props = {
     checkPromise?: Promise<IAvailableUpdate | null>;
@@ -81,11 +81,23 @@
   {#await checkPromise then availableUpdate}
     {#if availableUpdate}
       {#if availableUpdate.supportsAutoUpdate}
-        <Button onclick={() => installUpdate(availableUpdate)} class="w-full" icon="i-mdi-download">
-          {$t`Install Update`}
-        </Button>
+        <div class="flex flex-col items-center gap-1">
+          <Button onclick={() => installUpdate(availableUpdate)} class="w-full" icon="i-mdi-download">
+            {$t`Install Update`}
+          </Button>
+          <span>{$t`or`}</span>
+          <Button variant="outline" href={getReleaseUrl(availableUpdate.release)} target="_blank"
+            class="w-full"
+            icon="i-mdi-download"
+            rel="noopener noreferrer">
+            {$t`Download Update`}
+          </Button>
+        </div>
       {:else}
-        <Button onclick={() => openReleaseUrl(availableUpdate.release)} target="_blank" class="w-full" icon="i-mdi-download">
+        <Button href={getReleaseUrl(availableUpdate.release)} target="_blank"
+          class="w-full"
+          icon="i-mdi-download"
+          rel="noopener noreferrer">
           {$t`Download Update`}
         </Button>
       {/if}
