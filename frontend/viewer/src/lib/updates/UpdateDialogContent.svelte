@@ -47,7 +47,9 @@
 {#if installPromise}
   {#await installPromise}
     <Button loading class="w-full" icon="i-mdi-download">
-      {$t`Installing Update... ${installProgress ?? 0}%`}
+      {$t`Installing Update...`}
+      <!-- Don't show 0%, because that doesn't mean anything and we're not sure if the % actually works -->
+      {#if installProgress}{installProgress}%{/if}
     </Button>
   {:then updateResult}
     <div class="flex items-center gap-4 p-4 rounded-lg bg-muted">
