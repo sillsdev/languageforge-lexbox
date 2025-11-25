@@ -414,6 +414,10 @@ msgstr "Pakua"
 msgid "Download {0}"
 msgstr ""
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Download page"
+msgstr ""
+
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr ""
@@ -423,6 +427,7 @@ msgstr ""
 msgid "Download unlisted project"
 msgstr ""
 
+#: src/lib/updates/UpdateDialogContent.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
 msgstr ""
@@ -955,6 +960,10 @@ msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "or"
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte

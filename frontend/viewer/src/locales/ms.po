@@ -414,6 +414,10 @@ msgstr "Muat turun"
 msgid "Download {0}"
 msgstr "Muat turun {0}"
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Download page"
+msgstr ""
+
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "Muat turun projek mengikut kod projek"
@@ -423,6 +427,7 @@ msgstr "Muat turun projek mengikut kod projek"
 msgid "Download unlisted project"
 msgstr ""
 
+#: src/lib/updates/UpdateDialogContent.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
 msgstr ""
@@ -956,6 +961,10 @@ msgstr "Buka dalam Tetingkap baharu"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Buka fail Log"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "or"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
