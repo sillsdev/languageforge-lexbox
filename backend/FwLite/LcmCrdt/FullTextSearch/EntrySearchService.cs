@@ -44,7 +44,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             select new { entry, searchRecord };
         if (rankResults)
         {
-            filtered = filtered.OrderBy(t => Sql.Ext.SQLite().Rank(t.searchRecord)).ThenBy(t => t.entry.Id);
+            filtered = filtered
+                .OrderBy(t => SqlHelpers.ContainsIgnoreCaseAccents(t.searchRecord.Headword, query) ? t.searchRecord.Headword.Length : 10_000)
+                .ThenBy(t => Sql.Ext.SQLite().Rank(t.searchRecord)).ThenBy(t => t.entry.Id);
         }
 
         return filtered.Select(t => t.entry);

@@ -386,7 +386,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [InlineData("a", "a,da,ma,aa,c:a,ti:a", "a,aa,da,ma,c,ti")]//test non fts search
     [InlineData("ap", "app,apple,banana", "app,apple")]//test non fts search
     [InlineData("at", "battery,att,attack,zatt,rap:pratt", "att,zatt,attack,battery,rap")] //test non fts search
-    [InlineData("aap", "maap-aap,maap,liaap,aap:to-highly-penalize-the-gloss-this-is-very-very-very-very-very-very-very-very-very-long", "aap,maap,maap-aap,liaap")]
+    [InlineData("aap", "maap-aap,maap,liaap,aap:to-penalize-the-bm25-rank-this-gloss-is-very-very-very-very-very-very-very-very-very-long", "aap,maap,liaap,maap-aap")]
     public async Task RankedOrder(string searchTerm, string wordsAndGlosses, string expectedOrder)
     {
         var ids = new HashSet<Guid>();
