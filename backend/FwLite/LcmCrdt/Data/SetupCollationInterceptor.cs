@@ -122,7 +122,7 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         var compareInfo = cultureProvider.GetCompareInfo(writingSystem);
 
         //todo use custom comparison based on the writing system
-        CreateSpanCollation(connection, SqlSortingExtensions.CollationName(writingSystem),
+        CreateSpanCollation(connection, SqlSortingExtensions.CollationName(writingSystem.WsId),
             compareInfo,
             static (compareInfo, x, y) => compareInfo.Compare(x, y, CompareOptions.IgnoreCase));
     }
