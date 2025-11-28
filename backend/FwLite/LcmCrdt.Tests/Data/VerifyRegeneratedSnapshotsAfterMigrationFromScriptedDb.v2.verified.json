@@ -688,6 +688,13 @@
           "en": "Fruit",
           "fr": "fr"
         },
+        "PartOfSpeech": {
+          "Id": "Guid_36",
+          "Name": {
+            "en": "Adverb"
+          },
+          "Predefined": true
+        },
         "PartOfSpeechId": "Guid_36",
         "SemanticDomains": [
           {
