@@ -7,11 +7,10 @@ const updateUrls: Partial<Record<FwLitePlatform, string>> = {
   [FwLitePlatform.Android]: 'https://play.google.com/store/apps/details?id=org.sil.FwLiteMaui',
 };
 
-const downloadPageUrls: Partial<Record<FwLitePlatform, string>> = {
-  [FwLitePlatform.Android]: 'https://play.google.com/store/apps/details?id=org.sil.FwLiteMaui',
-};
-
 export const releaseNotesUrl = 'https://community.software.sil.org/t/10807';
+// For Android this could be a link to the Play Store page,
+// but the "Download Update" button in the app already goes there.
+export const downloadPageUrl = 'https://lexbox.org/fw-lite';
 
 /**
  * will start download directly or open the appropriate store page
@@ -27,12 +26,4 @@ export async function openReleaseUrl(release: IFwLiteRelease) {
 export function getReleaseUrl(release: IFwLiteRelease): string {
   const fwliteConfig = useFwLiteConfig();
   return updateUrls[fwliteConfig.os] ?? release.url;
-}
-
-/**
- * returns a url to the download page for the current platform
- */
-export function getDownloadPageUrl(): string {
-  const fwliteConfig = useFwLiteConfig();
-  return downloadPageUrls[fwliteConfig.os] ?? 'https://lexbox.org/fw-lite';
 }
