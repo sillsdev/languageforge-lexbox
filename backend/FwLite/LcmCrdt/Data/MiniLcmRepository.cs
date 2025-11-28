@@ -128,7 +128,8 @@ public class MiniLcmRepository(
         string? query = null,
         QueryOptions? options = null)
     {
-        options ??= QueryOptions.Default;
+        options = await EnsureWritingSystemIsPopulated(options ??= QueryOptions.Default);
+
         var queryable = Entries;
         (queryable, var sortingHandled) = await FilterEntries(queryable, query, options);
         if (!sortingHandled)
@@ -152,6 +153,16 @@ public class MiniLcmRepository(
             entry.Finalize(complexFormComparer);
             yield return entry;
         }
+    }
+
+    private async Task<QueryOptions> EnsureWritingSystemIsPopulated(QueryOptions queryOptions)
+    {
+        if (queryOptions.Order.WritingSystem != default) return queryOptions;
+
+        var writingSystem = await GetWritingSystem(default, WritingSystemType.Vernacular)
+            ?? throw NotFoundException.ForWs(default, WritingSystemType.Vernacular);
+        var order = queryOptions.Order with { WritingSystem = writingSystem.WsId };
+        return queryOptions with { Order = order };
     }
 
     private async Task<(IQueryable<Entry> queryable, bool sortingHandled)> FilterEntries(IQueryable<Entry> queryable,
@@ -195,15 +206,16 @@ public class MiniLcmRepository(
 
     private async ValueTask<IQueryable<Entry>> ApplySorting(IQueryable<Entry> queryable, QueryOptions options, string? query = null)
     {
-        var sortWs = await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular)
-            ?? throw NotFoundException.ForWs(options.Order.WritingSystem, WritingSystemType.Vernacular);
+        if (options.Order.WritingSystem == default)
+            throw new ArgumentException("Sorting writing system must be specified", nameof(options));
 
+        var wsId = options.Order.WritingSystem;
         switch (options.Order.Field)
         {
             case SortField.SearchRelevance:
-                return queryable.ApplyRoughBestMatchOrder(options.Order with { WritingSystem = sortWs.WsId }, query);
+                return queryable.ApplyRoughBestMatchOrder(options.Order, query);
             case SortField.Headword:
-                var ordered = options.ApplyOrder(queryable, e => e.Headword(sortWs.WsId).CollateUnicode(sortWs));
+                var ordered = options.ApplyOrder(queryable, e => e.Headword(wsId).CollateUnicode(wsId));
                 return ordered.ThenBy(e => e.Id);
             default:
                 throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field);
