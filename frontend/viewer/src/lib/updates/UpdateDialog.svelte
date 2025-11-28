@@ -9,7 +9,7 @@
   import UpdateDialogContent from './UpdateDialogContent.svelte';
   import {useEventBus} from '$lib/services/event-bus';
   import {FwEventType, type IAppUpdateProgressEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events';
-  import {getDownloadPageUrl, releaseNotesUrl} from './utils';
+  import {downloadPageUrl, releaseNotesUrl} from './utils';
 
   let {open = $bindable()}: { open: boolean } = $props();
   const config = useFwLiteConfig();
@@ -71,7 +71,7 @@
       <div class="flex justify-center gap-3">
         <a
           class="inline-flex items-center flex-nowrap gap-1 text-sm font-medium underline underline-offset-4 hover:text-primary"
-          href={getDownloadPageUrl()}
+          href={downloadPageUrl}
           target="_blank"
           rel="noopener noreferrer"
         >
