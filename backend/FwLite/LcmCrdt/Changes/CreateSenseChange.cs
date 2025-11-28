@@ -36,7 +36,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
     public override async ValueTask<Sense> NewEntity(Commit commit, IChangeContext context)
     {
         var partOfSpeech = PartOfSpeechId is null ? null : await context.GetCurrent<PartOfSpeech>(PartOfSpeechId.Value);
-        partOfSpeech = partOfSpeech is { DeletedAt: not null } ? partOfSpeech : null;
+        partOfSpeech = partOfSpeech is { DeletedAt: null } ? partOfSpeech : null;
         return new Sense
         {
             Id = EntityId,
