@@ -31,8 +31,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable,
         string query,
-        bool rankResults,
-        bool orderAscending)
+        bool rankResults)
     {
         var ftsString = ToFts5LiteralString(query);
 
@@ -45,15 +44,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             select new { entry, searchRecord };
         if (rankResults)
         {
-            if (orderAscending)
-            {
-                filtered = filtered.OrderBy(t => Sql.Ext.SQLite().Rank(t.searchRecord)).ThenBy(t => t.entry.Id);
-            }
-            else
-            {
-                filtered = filtered.OrderByDescending(t => Sql.Ext.SQLite().Rank(t.searchRecord))
-                    .ThenBy(t => t.entry.Id);
-            }
+            filtered = filtered.OrderBy(t => Sql.Ext.SQLite().Rank(t.searchRecord)).ThenBy(t => t.entry.Id);
         }
 
         return filtered.Select(t => t.entry);

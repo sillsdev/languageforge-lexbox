@@ -192,8 +192,7 @@ public class MiniLcmRepository(
                 sortingHandled = queryOptions?.Order.Field == SortField.SearchRelevance;
                 queryable = SearchService.FilterAndRank(queryable,
                     query,
-                    sortingHandled,
-                    queryOptions?.Order.Ascending == true);
+                    sortingHandled);
             }
             else
             {
