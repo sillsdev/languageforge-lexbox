@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import type {Snippet} from 'svelte';
   import Form from './Form.svelte';
   import ProtectedForm from './ProtectedForm.svelte';
-  import type { AnySuperForm } from './types';
+  import type {FormEnhance} from './types';
 
   interface Props {
-    enhance?: AnySuperForm['enhance'];
+    enhance?: FormEnhance;
     turnstileToken?: string;
     skipTurnstile?: boolean;
     children?: Snippet;

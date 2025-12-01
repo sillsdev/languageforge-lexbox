@@ -1,19 +1,19 @@
 <script lang="ts">
-  import { useEmailResult, useRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
-  import { DisplayLanguageSelect, Form, FormError, Input, SubmitButton, lexSuperForm } from '$lib/forms';
+  import {useEmailResult, useRequestedEmail} from '$lib/email/EmailVerificationStatus.svelte';
+  import {DisplayLanguageSelect, Form, FormError, Input, SubmitButton, lexSuperForm} from '$lib/forms';
   import t from '$lib/i18n';
-  import { TitlePage } from '$lib/layout';
-  import { _changeUserAccountData } from './+page';
-  import { useNotifications } from '$lib/notify';
+  import {TitlePage} from '$lib/layout';
+  import {_changeUserAccountData} from './+page';
+  import {useNotifications} from '$lib/notify';
   import z from 'zod';
-  import { goto } from '$app/navigation';
+  import {goto} from '$app/navigation';
   import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
-  import type { PageData } from './$types';
-  import { TrashIcon } from '$lib/icons';
-  import { onMount } from 'svelte';
-  import { DialogResponse } from '$lib/components/modals';
+  import type {PageData} from './$types';
+  import {TrashIcon} from '$lib/icons';
+  import {onMount} from 'svelte';
+  import {DialogResponse} from '$lib/components/modals';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import { delay } from '$lib/util/time';
+  import {delay} from '$lib/util/time';
 
   interface Props {
     data: PageData;

@@ -10,13 +10,14 @@
     passwordFormRules,
     DisplayLanguageSelect,
   } from '$lib/forms';
-  import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
-  import { type LexAuthUser, type RegisterResponse } from '$lib/user';
-  import { getSearchParamValues } from '$lib/util/query-params';
-  import { onMount } from 'svelte';
-  import { usernameRe } from '$lib/user';
-  import { z } from 'zod';
-  import type { StringifyValues } from '$lib/type.utils';
+  import type {FormEnhance} from '$lib/forms/types';
+  import t, {getLanguageCodeFromNavigator, locale} from '$lib/i18n';
+  import {type LexAuthUser, type RegisterResponse} from '$lib/user';
+  import {getSearchParamValues} from '$lib/util/query-params';
+  import {onMount} from 'svelte';
+  import {usernameRe} from '$lib/user';
+  import {z} from 'zod';
+  import type {StringifyValues} from '$lib/type.utils';
 
   interface Props {
     allowUsernames?: boolean;
@@ -105,6 +106,8 @@
     resetForm: false,
     taintedMessage: true,
   });
+  const enhanceAction = enhance as unknown as FormEnhance;
+
   $effect(() => {
     formTainted = !!$tainted;
   });
@@ -122,7 +125,7 @@
   });
 </script>
 
-<MaybeProtectedForm {skipTurnstile} {enhance} bind:turnstileToken>
+<MaybeProtectedForm {skipTurnstile} enhance={enhanceAction} bind:turnstileToken>
   <Input autofocus id="name" label={$t('register.label_name')} bind:value={$form.name} error={$errors.name} />
   <div class="contents email">
     <Input

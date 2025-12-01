@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Form, lexSuperForm, type ErrorMessage } from '$lib/forms';
-  import { type ZodString, z } from 'zod';
+  import {Form, lexSuperForm, type ErrorMessage} from '$lib/forms';
+  import {type ZodString, z} from 'zod';
   import IconButton from './IconButton.svelte';
 
   interface Props {

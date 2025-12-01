@@ -11,12 +11,12 @@
 </script>
 
 <script lang="ts">
-  import { Input } from '$lib/forms';
-  import { tTypeScoped, type I18nShapeKey } from '$lib/i18n';
-  import { z } from 'zod';
-  import { FormModal } from '$lib/components/modals';
-  import type { FormModalResult, FormSubmitCallback } from '$lib/components/modals/FormModal.svelte';
-  import { TrashIcon } from '$lib/icons';
+  import {Input} from '$lib/forms';
+  import {tTypeScoped, type I18nShapeKey} from '$lib/i18n';
+  import {z} from 'zod';
+  import {FormModal} from '$lib/components/modals';
+  import type {FormModalResult, FormSubmitCallback} from '$lib/components/modals/FormModal.svelte';
+  import {TrashIcon} from '$lib/icons';
   import tt from '$lib/i18n';
 
   interface Props {

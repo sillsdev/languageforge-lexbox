@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { DetailsPage, DetailItem, AdminContent, PageBreadcrumb } from '$lib/layout';
-  import t, { date } from '$lib/i18n';
-  import { z } from 'zod';
+  import {DetailsPage, DetailItem, AdminContent, PageBreadcrumb} from '$lib/layout';
+  import t, {date} from '$lib/i18n';
+  import {z} from 'zod';
   import EditableText from '$lib/components/EditableText.svelte';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
-  import { Button, type ErrorMessage } from '$lib/forms';
-  import type { PageData } from './$types';
-  import { OrgRole } from '$lib/gql/types';
-  import { useNotifications } from '$lib/notify';
+  import {Button, type ErrorMessage} from '$lib/forms';
+  import type {PageData} from './$types';
+  import {OrgRole} from '$lib/gql/types';
+  import {useNotifications} from '$lib/notify';
   import {
     _changeOrgName,
     _deleteOrg,
@@ -18,25 +18,25 @@
     _removeProjectFromOrg,
     _leaveOrg,
   } from './+page';
-  import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
-  import { getSearchParams, queryParam } from '$lib/util/query-params';
-  import { Icon, TrashIcon } from '$lib/icons';
+  import OrgTabs, {type OrgTabId} from './OrgTabs.svelte';
+  import {getSearchParams, queryParam} from '$lib/util/query-params';
+  import {Icon, TrashIcon} from '$lib/icons';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
-  import { goto } from '$app/navigation';
-  import { DialogResponse } from '$lib/components/modals';
+  import {goto} from '$app/navigation';
+  import {DialogResponse} from '$lib/components/modals';
   import AddOrgMemberModal from './AddOrgMemberModal.svelte';
   import ChangeOrgMemberRoleModal from './ChangeOrgMemberRoleModal.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import OrgMemberTable from './OrgMemberTable.svelte';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
-  import type { UUID } from 'crypto';
+  import type {UUID} from 'crypto';
   import BulkAddOrgMembers from './BulkAddOrgMembers.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import AddMyProjectsToOrgModal from './AddMyProjectsToOrgModal.svelte';
   import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
-  import { createGuestUserByAdmin, type LexAuthUser } from '$lib/user';
-  import { Duration } from '$lib/util/time';
+  import {createGuestUserByAdmin, type LexAuthUser} from '$lib/user';
+  import {Duration} from '$lib/util/time';
   import IconButton from '$lib/components/IconButton.svelte';
 
   interface Props {

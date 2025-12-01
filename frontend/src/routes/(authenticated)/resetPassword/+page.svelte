@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { Form, FormError, Input, SubmitButton, lexSuperForm, passwordFormRules } from '$lib/forms';
+  import {goto} from '$app/navigation';
+  import {Form, FormError, Input, SubmitButton, lexSuperForm, passwordFormRules} from '$lib/forms';
   import t from '$lib/i18n';
-  import { PageBreadcrumb, TitlePage } from '$lib/layout';
-  import { hash } from '$lib/util/hash';
-  import { z } from 'zod';
-  import { useNotifications } from '$lib/notify';
-  import type { PageData } from './$types';
-  import { getAspResponseErrorMessage } from '$lib/util/asp-response';
+  import {PageBreadcrumb, TitlePage} from '$lib/layout';
+  import {hash} from '$lib/util/hash';
+  import {z} from 'zod';
+  import {useNotifications} from '$lib/notify';
+  import type {PageData} from './$types';
+  import {getAspResponseErrorMessage} from '$lib/util/asp-response';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
   interface Props {

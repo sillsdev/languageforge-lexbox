@@ -5,15 +5,15 @@
 </script>
 
 <script lang="ts">
-  import type { Snippet } from 'svelte';
-  import { env } from '$env/dynamic/public';
-  import { Turnstile } from 'svelte-turnstile';
+  import type {Snippet} from 'svelte';
+  import {env} from '$env/dynamic/public';
+  import {Turnstile} from 'svelte-turnstile';
   import Form from './Form.svelte';
-  import type { AnySuperForm } from './types';
+  import type {FormEnhance} from './types';
 
   const siteKey = env.PUBLIC_TURNSTILE_SITE_KEY;
   interface Props {
-    enhance?: AnySuperForm['enhance'];
+    enhance?: FormEnhance;
     turnstileToken?: string;
     children?: Snippet;
   }
