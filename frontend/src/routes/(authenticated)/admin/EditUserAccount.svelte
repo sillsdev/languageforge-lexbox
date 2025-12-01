@@ -1,20 +1,20 @@
 <script lang="ts">
-  import { FormModal } from '$lib/components/modals';
-  import { TrashIcon } from '$lib/icons';
-  import { z } from 'zod';
-  import { Button, FormError, Input, SystemRoleSelect, emptyString, passwordFormRules } from '$lib/forms';
-  import { type FeatureFlag, UserRole } from '$lib/gql/types';
-  import { _changeUserAccountByAdmin, _setUserLocked, type User } from './+page';
-  import type { LexAuthUser } from '$lib/user';
+  import {FormModal} from '$lib/components/modals';
+  import {TrashIcon} from '$lib/icons';
+  import {z} from 'zod';
+  import {Button, FormError, Input, SystemRoleSelect, emptyString, passwordFormRules} from '$lib/forms';
+  import {type FeatureFlag, UserRole} from '$lib/gql/types';
+  import {_changeUserAccountByAdmin, _setUserLocked, type User} from './+page';
+  import type {LexAuthUser} from '$lib/user';
   import t from '$lib/i18n';
-  import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
-  import { hash } from '$lib/util/hash';
+  import type {FormModalResult} from '$lib/components/modals/FormModal.svelte';
+  import {hash} from '$lib/util/hash';
   import Icon from '$lib/icons/Icon.svelte';
   import UserLockedAlert from '$lib/components/Users/UserLockedAlert.svelte';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
-  import { allPossibleFlags } from '$lib/user';
+  import {allPossibleFlags} from '$lib/user';
   import AdminContent from '$lib/layout/AdminContent.svelte';
-  import { untrack } from 'svelte';
+  import {untrack} from 'svelte';
 
   interface Props {
     currUser: LexAuthUser;

@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { Badge, BadgeButton, BadgeList } from '$lib/components/Badges';
+  import {Badge, BadgeButton, BadgeList} from '$lib/components/Badges';
   import EditableText from '$lib/components/EditableText.svelte';
-  import { ProjectTypeBadge } from '$lib/components/ProjectType';
+  import {ProjectTypeBadge} from '$lib/components/ProjectType';
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
-  import t, { date, number } from '$lib/i18n';
-  import { z } from 'zod';
-  import type { PageData } from './$types';
+  import t, {date, number} from '$lib/i18n';
+  import {z} from 'zod';
+  import type {PageData} from './$types';
   import {
     _changeProjectDescription,
     _changeProjectName,
@@ -22,19 +22,19 @@
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import BulkAddProjectMembers from './BulkAddProjectMembers.svelte';
-  import { CircleArrowIcon, TrashIcon } from '$lib/icons';
-  import { useNotifications } from '$lib/notify';
-  import { DialogResponse, Modal } from '$lib/components/modals';
-  import { Button, type ErrorMessage } from '$lib/forms';
+  import {CircleArrowIcon, TrashIcon} from '$lib/icons';
+  import {useNotifications} from '$lib/notify';
+  import {DialogResponse, Modal} from '$lib/components/modals';
+  import {Button, type ErrorMessage} from '$lib/forms';
   import ResetProjectModal from './ResetProjectModal.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
-  import { _deleteProject } from '$lib/gql/mutations';
-  import { goto } from '$app/navigation';
+  import {_deleteProject} from '$lib/gql/mutations';
+  import {goto} from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import { AdminContent, FeatureFlagContent, PageBreadcrumb } from '$lib/layout';
+  import {AdminContent, FeatureFlagContent, PageBreadcrumb} from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
-  import { OrgRole, ProjectRole, ProjectType, ResetStatus, RetentionPolicy } from '$lib/gql/generated/graphql';
+  import {OrgRole, ProjectRole, ProjectType, ResetStatus, RetentionPolicy} from '$lib/gql/generated/graphql';
   import Icon from '$lib/icons/Icon.svelte';
   import OpenInFlexModal from './OpenInFlexModal.svelte';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
@@ -44,19 +44,20 @@
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import ProjectConfidentialityBadge from './ProjectConfidentialityBadge.svelte';
   import ProjectConfidentialityModal from './ProjectConfidentialityModal.svelte';
-  import { DetailItem, EditableDetailItem } from '$lib/layout';
+  import {DetailItem, EditableDetailItem} from '$lib/layout';
   import MembersList from './MembersList.svelte';
   import DetailsPage from '$lib/layout/DetailsPage.svelte';
   import OrgList from './OrgList.svelte';
   import AddOrganization from './AddOrganization.svelte';
   import AddPurpose from './AddPurpose.svelte';
   import WritingSystemList from '$lib/components/Projects/WritingSystemList.svelte';
-  import { onMount } from 'svelte';
-  import { getSearchParamValues } from '$lib/util/query-params';
+  import {onMount} from 'svelte';
+  import {getSearchParamValues} from '$lib/util/query-params';
   import FlexModelVersionText from '$lib/components/Projects/FlexModelVersionText.svelte';
   import CrdtSyncButton from './CrdtSyncButton.svelte';
-  import { _askToJoinProject } from '../create/+page'; // TODO: Should we duplicate this function in the project_code/+page.ts file, rather than importing it from elsewhere?
-  import { Duration } from '$lib/util/time';
+  import {_askToJoinProject} from '../create/+page';
+// TODO: Should we duplicate this function in the project_code/+page.ts file, rather than importing it from elsewhere?
+  import {Duration} from '$lib/util/time';
   import {hasFeatureFlag} from '$lib/user';
 
   interface Props {

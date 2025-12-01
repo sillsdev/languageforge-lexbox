@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { DialogResponse, FormModal } from '$lib/components/modals';
-  import { ProjectRoleSelect, isEmail } from '$lib/forms';
-  import { ProjectRole } from '$lib/gql/types';
+  import {DialogResponse, FormModal} from '$lib/components/modals';
+  import {ProjectRoleSelect, isEmail} from '$lib/forms';
+  import {ProjectRole} from '$lib/gql/types';
   import t from '$lib/i18n';
-  import { z } from 'zod';
-  import { _addProjectMember, type Project } from './+page';
-  import { useNotifications } from '$lib/notify';
-  import { page } from '$app/stores';
+  import {z} from 'zod';
+  import {_addProjectMember, type Project} from './+page';
+  import {useNotifications} from '$lib/notify';
+  import {page} from '$app/stores';
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
-  import { SupHelp, helpLinks } from '$lib/components/help';
+  import {SupHelp, helpLinks} from '$lib/components/help';
   import Checkbox from '$lib/forms/Checkbox.svelte';
 
   interface Props {

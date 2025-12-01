@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { Checkbox, type ErrorMessage, Form, FormError, Input, lexSuperForm, Button } from '$lib/forms';
-  import { tScoped } from '$lib/i18n';
-  import { z } from 'zod';
-  import { CircleArrowIcon } from '$lib/icons';
+  import {Checkbox, type ErrorMessage, Form, FormError, Input, lexSuperForm, Button} from '$lib/forms';
+  import {tScoped} from '$lib/i18n';
+  import {z} from 'zod';
+  import {CircleArrowIcon} from '$lib/icons';
   import Modal from '$lib/components/modals/Modal.svelte';
-  import TusUpload, { UploadStatus } from '$lib/components/TusUpload.svelte';
-  import { ResetStatus } from '$lib/gql/generated/graphql';
-  import { _refreshProjectRepoInfo } from './+page';
-  import { scale } from 'svelte/transition';
-  import { bounceIn } from 'svelte/easing';
-  import { getErrorMessage } from '$lib/error/utils';
+  import TusUpload, {UploadStatus} from '$lib/components/TusUpload.svelte';
+  import {ResetStatus} from '$lib/gql/generated/graphql';
+  import {_refreshProjectRepoInfo} from './+page';
+  import {scale} from 'svelte/transition';
+  import {bounceIn} from 'svelte/easing';
+  import {getErrorMessage} from '$lib/error/utils';
 
   // svelte-ignore non_reactive_update
   enum ResetSteps {

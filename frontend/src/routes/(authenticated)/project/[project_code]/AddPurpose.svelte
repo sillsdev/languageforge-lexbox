@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { z } from 'zod';
+  import {z} from 'zod';
   import t from '$lib/i18n';
-  import { useNotifications } from '$lib/notify';
-  import { BadgeButton } from '$lib/components/Badges';
-  import { Select } from '$lib/forms';
-  import { AdminContent } from '$lib/layout';
-  import { RetentionPolicy } from '$lib/gql/types';
-  import { _setRetentionPolicy } from './+page';
-  import { DialogResponse, FormModal } from '$lib/components/modals';
+  import {useNotifications} from '$lib/notify';
+  import {BadgeButton} from '$lib/components/Badges';
+  import {Select} from '$lib/forms';
+  import {AdminContent} from '$lib/layout';
+  import {RetentionPolicy} from '$lib/gql/types';
+  import {_setRetentionPolicy} from './+page';
+  import {DialogResponse, FormModal} from '$lib/components/modals';
 
   interface Props {
     projectId: string;

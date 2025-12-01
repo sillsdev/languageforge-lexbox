@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { DialogResponse, FormModal } from '$lib/components/modals';
-  import UserProjects, { type Project } from '$lib/components/Users/UserProjects.svelte';
+  import {DialogResponse, FormModal} from '$lib/components/modals';
+  import UserProjects, {type Project} from '$lib/components/Users/UserProjects.svelte';
   import Button from '$lib/forms/Button.svelte';
   import t from '$lib/i18n';
-  import { type LexAuthUser } from '$lib/user';
-  import { z } from 'zod';
-  import { _addProjectsToOrg, _getProjectsIManage, type Org } from './+page';
-  import { ProjectRole } from '$lib/gql/types';
-  import { useNotifications } from '$lib/notify';
-  import { type UUID } from 'crypto';
+  import {type LexAuthUser} from '$lib/user';
+  import {z} from 'zod';
+  import {_addProjectsToOrg, _getProjectsIManage, type Org} from './+page';
+  import {ProjectRole} from '$lib/gql/types';
+  import {useNotifications} from '$lib/notify';
+  import {type UUID} from 'crypto';
 
   interface Props {
     user: LexAuthUser;

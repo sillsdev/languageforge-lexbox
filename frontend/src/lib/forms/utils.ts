@@ -1,5 +1,5 @@
-import { type Translater } from '$lib/i18n';
-import { z, type ZodDefault, type ZodType } from 'zod';
+import {type Translater} from '$lib/i18n';
+import {z, type ZodDefault, type ZodType} from 'zod';
 
 export function randomFormId(): string {
   return crypto.randomUUID().split('-').at(-1) as string;

@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { z } from 'zod';
+  import {z} from 'zod';
   import t from '$lib/i18n';
-  import { Select } from '$lib/forms';
-  import { _addProjectToOrg, _getOrgs } from './+page';
-  import type { Organization } from '$lib/gql/types';
-  import { FormModal } from '$lib/components/modals';
-  import { BadgeButton } from '$lib/components/Badges';
+  import {Select} from '$lib/forms';
+  import {_addProjectToOrg, _getOrgs} from './+page';
+  import type {Organization} from '$lib/gql/types';
+  import {FormModal} from '$lib/components/modals';
+  import {BadgeButton} from '$lib/components/Badges';
 
   type Org = Pick<Organization, 'id' | 'name'>;
   interface Props {

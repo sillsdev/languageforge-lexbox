@@ -1,19 +1,19 @@
 <script lang="ts">
-  import { BadgeButton, MemberBadge } from '$lib/components/Badges';
-  import { DialogResponse, FormModal, type FormSubmitReturn } from '$lib/components/modals';
-  import { Input, TextArea, isEmail, passwordFormRules } from '$lib/forms';
-  import { ProjectRole, type BulkAddProjectMembersResult } from '$lib/gql/types';
+  import {BadgeButton, MemberBadge} from '$lib/components/Badges';
+  import {DialogResponse, FormModal, type FormSubmitReturn} from '$lib/components/modals';
+  import {Input, TextArea, isEmail, passwordFormRules} from '$lib/forms';
+  import {ProjectRole, type BulkAddProjectMembersResult} from '$lib/gql/types';
   import t from '$lib/i18n';
-  import { z } from 'zod';
-  import { _bulkAddProjectMembers } from './+page';
-  import { hash } from '$lib/util/hash';
-  import { AdminContent } from '$lib/layout';
+  import {z} from 'zod';
+  import {_bulkAddProjectMembers} from './+page';
+  import {hash} from '$lib/util/hash';
+  import {AdminContent} from '$lib/layout';
   import Icon from '$lib/icons/Icon.svelte';
   import BadgeList from '$lib/components/Badges/BadgeList.svelte';
-  import { distinct } from '$lib/util/array';
+  import {distinct} from '$lib/util/array';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
-  import { SupHelp, helpLinks } from '$lib/components/help';
-  import { usernameRe } from '$lib/user';
+  import {SupHelp, helpLinks} from '$lib/components/help';
+  import {usernameRe} from '$lib/user';
 
   // svelte-ignore non_reactive_update
   enum BulkAddSteps {

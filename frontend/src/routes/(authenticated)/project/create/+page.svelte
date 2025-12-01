@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import {goto} from '$app/navigation';
   import {
     Checkbox,
     Form,
@@ -20,22 +20,22 @@
     type CreateProjectInput,
   } from '$lib/gql/types';
   import t from '$lib/i18n';
-  import { TitlePage } from '$lib/layout';
-  import { z } from 'zod';
-  import { _askToJoinProject, _createProject, _projectCodeAvailable } from './+page';
+  import {TitlePage} from '$lib/layout';
+  import {z} from 'zod';
+  import {_askToJoinProject, _createProject, _projectCodeAvailable} from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
-  import { useNotifications } from '$lib/notify';
+  import {useNotifications} from '$lib/notify';
   import {Duration, DEFAULT_DEBOUNCE_TIME} from '$lib/util/time';
-  import { getSearchParamValues } from '$lib/util/query-params';
-  import { onMount } from 'svelte';
+  import {getSearchParamValues} from '$lib/util/query-params';
+  import {onMount} from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
-  import { concatAll } from '$lib/util/array';
-  import { browser } from '$app/environment';
-  import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
-  import { _getProjectsByLangCodeAndOrg, _getProjectsByNameAndOrg } from './+page';
-  import { NewTabLinkMarkdown } from '$lib/components/Markdown';
+  import {concatAll} from '$lib/util/array';
+  import {browser} from '$app/environment';
+  import {ProjectConfidentialityCombobox} from '$lib/components/Projects';
+  import {_getProjectsByLangCodeAndOrg, _getProjectsByNameAndOrg} from './+page';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
   import Button from '$lib/forms/Button.svelte';
-  import { projectUrl } from '$lib/util/project';
+  import {projectUrl} from '$lib/util/project';
   import DevContent from '$lib/layout/DevContent.svelte';
   import {resource, watch} from 'runed';
 
