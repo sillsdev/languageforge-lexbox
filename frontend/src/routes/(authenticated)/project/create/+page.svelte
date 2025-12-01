@@ -97,6 +97,9 @@
       notifyWarning($t('project.create.requested', { name: $form.name }), Duration.Persistent);
       await goto('/');
     }
+  }, {
+    resetForm: false,
+    taintedMessage: true,
   });
 
   const defaultCode = '-train-flex';

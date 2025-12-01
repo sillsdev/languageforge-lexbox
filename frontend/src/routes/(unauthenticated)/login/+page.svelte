@@ -45,7 +45,7 @@
       }
     },
     {
-      taintedMessage: null,
+      taintedMessage: false,
     }
   );
 

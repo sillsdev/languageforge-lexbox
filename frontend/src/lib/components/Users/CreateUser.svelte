@@ -101,6 +101,9 @@
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
+  }, {
+    resetForm: false,
+    taintedMessage: true,
   });
   $effect(() => {
     formTainted = !!$tainted;

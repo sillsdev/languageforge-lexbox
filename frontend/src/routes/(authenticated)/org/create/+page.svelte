@@ -23,6 +23,9 @@ let {form, errors, message, enhance, submitting} = lexSuperForm(formSchema, asyn
   } else {
     await goto(`/org/${result.data?.createOrganization.organization?.id}`);
   }
+}, {
+  resetForm: false,
+  taintedMessage: true,
 });
 </script>
 

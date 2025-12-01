@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { Input, ProtectedForm, SubmitButton, lexSuperForm, FormError } from '$lib/forms';
+  import {goto} from '$app/navigation';
+  import {Input, ProtectedForm, SubmitButton, lexSuperForm, FormError} from '$lib/forms';
   import t from '$lib/i18n';
-  import { TitlePage } from '$lib/layout';
-  import { z } from 'zod';
+  import {TitlePage} from '$lib/layout';
+  import {z} from 'zod';
 
   type ForgotPasswordResponseErrors = {
     errors: {
@@ -41,7 +41,7 @@
 
     await goto('/forgotPassword/emailSent');
   }, {
-    taintedMessage: null,
+    taintedMessage: false,
   });
 </script>
 

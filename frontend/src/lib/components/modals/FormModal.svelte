@@ -52,7 +52,10 @@
     doneText,
   }: Props = $props();
 
-  const superForm = lexSuperForm(schema, () => modal?.submitModal() ?? Promise.resolve(undefined));
+  const superForm = lexSuperForm(schema, () => modal?.submitModal() ?? Promise.resolve(undefined), {
+    resetForm: false,
+    taintedMessage: true,
+  });
   const { form: _form, errors, reset, message, enhance, formState, tainted } = superForm;
   let modal: Modal | undefined = $state();
   let done = $state(false);
@@ -68,7 +71,7 @@
   ): Promise<FormModalResult<Schema>> {
     done = false;
     const onSubmit = _onSubmit ?? (valueOrOnSubmit as SubmitCallback);
-    const value = _onSubmit ? (valueOrOnSubmit as Partial<FormType>) : undefined;
+    const value = _onSubmit ? (valueOrOnSubmit) : undefined;
 
     reset();
 
