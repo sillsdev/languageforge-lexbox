@@ -108,13 +108,5 @@
     "svelte-intl-precompile": "^0.12.3",
     "sveltekit-search-params": "^3.0.0",
     "tus-js-client": "^4.3.1"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "protobufjs",
-      "sharp",
-      "svelte-preprocess"
-    ]
   }
 }

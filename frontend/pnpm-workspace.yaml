@@ -27,3 +27,9 @@ catalog:
   '@playwright/test': ^1.54.0
   runed: ^0.27.0
   autoprefixer: ^10.4.21
+
+onlyBuiltDependencies:
+- "esbuild"
+- "protobufjs"
+- "sharp"
+- "svelte-preprocess"
