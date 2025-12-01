@@ -69,6 +69,9 @@
     if ($formState.name.tainted || $formState.locale.tainted) {
       notifySuccess($t('account_settings.update_success'));
     }
+  }, {
+    resetForm: false,
+    taintedMessage: true,
   });
 
   // This is a bit of a hack to make sure that the email field is not required if the user has no email
