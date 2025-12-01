@@ -1,14 +1,14 @@
-import { BatchSpanProcessor, WebTracerProvider } from '@opentelemetry/sdk-trace-web'
+import {ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION} from '@opentelemetry/semantic-conventions';
+import {BatchSpanProcessor, WebTracerProvider} from '@opentelemetry/sdk-trace-web';
 import {SERVICE_NAME, traceUserAttributes} from '.';
+import {defaultResource, resourceFromAttributes} from '@opentelemetry/resources';
 
-import { APP_VERSION } from '$lib/util/version';
-import { OTLPTraceExporterBrowserWithXhrRetry } from './trace-exporter-browser-with-xhr-retry';
-import { Resource } from '@opentelemetry/resources'
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
-import { ZoneContextManager } from '@opentelemetry/context-zone'
-import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web'
-import { instrumentGlobalFetch } from '$lib/util/fetch-proxy';
-import { registerInstrumentations } from '@opentelemetry/instrumentation'
+import {APP_VERSION} from '$lib/util/version';
+import {OTLPTraceExporterBrowserWithXhrRetry} from './trace-exporter-browser-with-xhr-retry';
+import {ZoneContextManager} from '@opentelemetry/context-zone';
+import {getWebAutoInstrumentations} from '@opentelemetry/auto-instrumentations-web';
+import {instrumentGlobalFetch} from '$lib/util/fetch-proxy';
+import {registerInstrumentations} from '@opentelemetry/instrumentation';
 
 export * from '.';
 
@@ -26,36 +26,38 @@ instrumentGlobalFetch(() => {
   });
 });
 
-const resource = Resource.default().merge(
-  new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
-    [SemanticResourceAttributes.SERVICE_VERSION]: APP_VERSION,
+const resource = defaultResource().merge(
+  resourceFromAttributes({
+    [ATTR_SERVICE_NAME]: SERVICE_NAME,
+    [ATTR_SERVICE_VERSION]: APP_VERSION,
   }),
 )
-const provider = new WebTracerProvider({
-  resource: resource,
-});
-provider.addSpanProcessor({
-forceFlush: () => Promise.resolve(),
-  onStart: (span) => {
-    traceUserAttributes(span);
-  },
-  onEnd: () => {},
-  shutdown: () => Promise.resolve(),
-});
+
 const exporter = new OTLPTraceExporterBrowserWithXhrRetry({
   url: '/v1/traces'
 });
-provider.addSpanProcessor(
-  new BatchSpanProcessor(exporter, {
-    // max number of spans pulled from the qeuue and exported in a single batch
-    // 30 is often too big for the sendBeacon() API, but we have a fallback to XHR.
-    maxExportBatchSize: 30,
-    // minimum time between exports
-    scheduledDelayMillis: 1000,
-    maxQueueSize: 5000, // default: 2048
-  }),
-);
+
+const provider = new WebTracerProvider({
+  resource: resource,
+  spanProcessors: [
+    {
+      forceFlush: () => Promise.resolve(),
+      onStart: (span) => {
+        traceUserAttributes(span);
+      },
+      onEnd: () => {},
+      shutdown: () => Promise.resolve(),
+    },
+    new BatchSpanProcessor(exporter, {
+      // max number of spans pulled from the qeuue and exported in a single batch
+      // 30 is often too big for the sendBeacon() API, but we have a fallback to XHR.
+      maxExportBatchSize: 30,
+      // minimum time between exports
+      scheduledDelayMillis: 1000,
+      maxQueueSize: 5000, // default: 2048
+    }),
+  ],
+});
 
 // Debugging:
 // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
