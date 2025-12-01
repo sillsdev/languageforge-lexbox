@@ -45,7 +45,13 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         if (rankResults)
         {
             filtered = filtered
-                .OrderBy(t => SqlHelpers.ContainsIgnoreCaseAccents(t.searchRecord.Headword, query) ? t.searchRecord.Headword.Length : 10_000)
+                .OrderBy(t =>
+                    // First headword matches... (this allows headword matches to trump long text penalizations)
+                    SqlHelpers.ContainsIgnoreCaseAccents(t.searchRecord.Headword, query)
+                    // ...in order of length (e.g. so exact matches are first).
+                    ? t.searchRecord.Headword.Length
+                    // Then everything else sorted by it's FTS rank.
+                    : int.MaxValue)
                 .ThenBy(t => Sql.Ext.SQLite().Rank(t.searchRecord)).ThenBy(t => t.entry.Id);
         }
 
