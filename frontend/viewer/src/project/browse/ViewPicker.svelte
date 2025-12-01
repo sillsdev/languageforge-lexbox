@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Popover from '$lib/components/ui/popover';
   import * as RadioGroup from '$lib/components/ui/radio-group';
-  import NewTabLinKMarkdown from '$lib/markdown/NewTabLinKMarkdown.svelte';
+  import NewTabLinKMarkdown from '$lib/markdown/NewTabLinkMarkdown.svelte';
   import {delay} from '$lib/utils/time';
   import {views} from '$lib/views/view-data';
   import {useCurrentView} from '$lib/views/view-service';
