@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Popover from '$lib/components/ui/popover';
   import * as RadioGroup from '$lib/components/ui/radio-group';
-  import NewTabLinKMarkdown from '$lib/markdown/NewTabLinkMarkdown.svelte';
+  import NewTabLinkMarkdown from '$lib/markdown/NewTabLinkMarkdown.svelte';
   import {delay} from '$lib/utils/time';
   import {views} from '$lib/views/view-data';
   import {useCurrentView} from '$lib/views/view-service';
@@ -39,7 +39,7 @@
           <li><Markdown md={$t`**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem*, *Particle*, *Phrase*, and *Discontiguous Phrase*)`} /></li>
         </ul>
       </div>
-      <NewTabLinKMarkdown md={$t`The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*.`} />
+      <NewTabLinkMarkdown md={$t`The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*.`} />
     </Popover.Content>
   </Popover.Root>
   {#each views as view (view.id)}
