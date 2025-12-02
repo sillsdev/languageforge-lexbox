@@ -34,14 +34,14 @@ export function traceIt(traceable: Traceable, spanContext: SpanContext, tracer: 
   }
 
   if (!spanContext) {
-    throw new TraceItError(traceable, `No spanContext provided.`);
+    throw new TraceItError(traceable, 'No spanContext provided.');
   }
 
   traceable.spanContext = spanContext;
   traceable.tracer = tracer;
 
   if (traceable.spanContext != spanContext) {
-    throw new TraceItError(traceable, `spanContext not writeable.`);
+    throw new TraceItError(traceable, 'spanContext not writeable.');
   }
 }
 

@@ -165,8 +165,13 @@
     if (!vList || !selectedEntryId) return;
     const indexOfSelected = entries.findIndex(e => e.id === selectedEntryId);
     if (indexOfSelected === -1) return;
-    if (indexOfSelected > vList.findEndIndex() || indexOfSelected < vList.findStartIndex())
-    {
+    const visibleStart = vList.getScrollOffset();
+    const visibleSize = vList.getViewportSize();
+    const visibleEnd = visibleStart + visibleSize;
+    const itemStart = vList.getItemOffset(indexOfSelected);
+    const itemSize = vList.getItemSize(indexOfSelected);
+    const itemEnd = itemStart + itemSize;
+    if (itemStart < visibleStart || itemEnd > visibleEnd) {
       //using smooth scroll caused lag, maybe only do it if scrolling a short distance?
       vList.scrollToIndex(indexOfSelected, {align: 'center'});
     }
@@ -213,7 +218,7 @@
           {/each}
         </div>
       {:else}
-        <VList bind:this={vList} data={entries ?? []} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={d => d.id} overscan={10}>
+        <VList bind:this={vList} data={entries ?? []} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={d => d.id} bufferSize={400}>
           {#snippet children(entry)}
             <EntryMenu {entry} contextMenu>
               <EntryRow {entry}

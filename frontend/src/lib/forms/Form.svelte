@@ -13,8 +13,7 @@
 
   const { id, enhance, children }: Props = $props();
   function enhanceIfRequested(...args: Parameters<FormEnhance>): void {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    enhance && enhance(...args);
+    enhance?.(...args);
   }
 
   export function requestSubmit(): void {

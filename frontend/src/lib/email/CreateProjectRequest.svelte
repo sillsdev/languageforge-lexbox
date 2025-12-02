@@ -19,7 +19,7 @@
         project,
         user
     }: Props = $props();
-    let createUrl = new URL(`/project/create?${toSearchParams<CreateProjectInput>(project)}`, baseUrl);
+    let createUrl = $derived(new URL(`/project/create?${toSearchParams<CreateProjectInput>(project)}`, baseUrl));
 </script>
 
 <Email subject={$t('emails.create_project_request_email.subject', {projectName: project.name})} {name}>

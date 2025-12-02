@@ -33,7 +33,7 @@
     role: z.enum([UserRole.User, UserRole.Admin]),
   });
   const refinedSchema = schema.refine((data) => data.role !== UserRole.Admin || (data.email && data.emailVerified), {
-    message: $t('admin_dashboard.form_modal.role_label.verified_email_required_for_admin'),
+    error: $t('admin_dashboard.form_modal.role_label.verified_email_required_for_admin'),
     path: ['role'],
   });
 

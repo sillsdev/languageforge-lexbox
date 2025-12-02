@@ -38,6 +38,7 @@
   import {projectUrl} from '$lib/util/project';
   import DevContent from '$lib/layout/DevContent.svelte';
   import {resource, watch} from 'runed';
+  import {resolve} from '$app/paths';
 
   const { data } = $props();
   let user = $derived(data.user);
@@ -92,10 +93,10 @@
       return;
     }
     if (result.data?.createProject.createProjectResponse?.result == CreateProjectResult.Created) {
-      await goto(projectUrl($form));
+      await goto(resolve(projectUrl($form)));
     } else {
       notifyWarning($t('project.create.requested', { name: $form.name }), Duration.Persistent);
-      await goto('/');
+      await goto(resolve('/'));
     }
   }, {
     resetForm: false,
@@ -208,7 +209,7 @@
     if (!joinResult.error) {
       notifySuccess($t('project.create.join_request_sent', { projectName }), Duration.Persistent);
       $tainted = undefined; // Prevent "are you sure you want to leave?" warning
-      await goto('/');
+      await goto(resolve('/'));
     }
   }
 </script>
@@ -223,7 +224,7 @@
         {/if}
       </div>
       {#if projectStatus.accessibleCode}
-        <a class="btn btn-primary mt-4" href={projectUrl({ code: projectStatus.accessibleCode })}
+        <a class="btn btn-primary mt-4" href={resolve(projectUrl({ code: projectStatus.accessibleCode }))}
           >{$t('project.create.go_to_project')}</a
         >
       {/if}

@@ -3,30 +3,29 @@
   import Modal, {DialogResponse} from '$lib/components/modals/Modal.svelte';
   import type {LexFormErrors, LexFormState} from '$lib/forms/superforms';
   import type {Infer, ValidationErrors} from 'sveltekit-superforms';
-  import type {ZodValidation} from 'sveltekit-superforms/adapters';
+  import type {ZodValidationSchema} from 'sveltekit-superforms/adapters';
   import type {ErrorMessage} from '$lib/forms';
 
-  export type FormModalResult<S extends ZodValidation> = {
+  export type FormModalResult<S extends ZodValidationSchema> = {
     response: DialogResponse;
-    formState: LexFormState<Infer<S, 'zod'>>;
+    formState: LexFormState<Infer<S, 'zod4'>>;
   };
 
-  export type FormSubmitReturn<Schema extends ZodValidation> =
+  export type FormSubmitReturn<Schema extends ZodValidationSchema> =
     | ErrorMessage
-    | Partial<LexFormErrors<Infer<Schema, 'zod'>>>;
-  export type FormSubmitCallback<Schema extends ZodValidation> = (
-    state: LexFormState<Infer<Schema, 'zod'>>,
+    | Partial<LexFormErrors<Infer<Schema, 'zod4'>>>;
+  export type FormSubmitCallback<Schema extends ZodValidationSchema> = (
+    state: LexFormState<Infer<Schema, 'zod4'>>,
   ) => Promise<FormSubmitReturn<Schema>>;
 </script>
 
 <script lang="ts">
   import type {SubmitVariant} from '$lib/forms/SubmitButton.svelte';
   import {Button, Form, FormError, lexSuperForm, SubmitButton} from '$lib/forms';
-  import type {FormEnhance} from '$lib/forms/types';
   import type {Readable} from 'svelte/store';
 
-  type Schema = $$Generic<ZodValidation>;
-  type FormType = Infer<Schema, 'zod'>;
+  type Schema = $$Generic<ZodValidationSchema>;
+  type FormType = Infer<Schema, 'zod4'>;
   type SubmitCallback = FormSubmitCallback<Schema>;
 
   interface Props {
@@ -53,12 +52,11 @@
     doneText,
   }: Props = $props();
 
-  const superForm = lexSuperForm(schema, () => modal?.submitModal() ?? Promise.resolve(undefined), {
+  const superForm = lexSuperForm((() => schema)(), () => modal?.submitModal() ?? Promise.resolve(undefined), {
     resetForm: false,
     taintedMessage: true,
   });
   const { form: _form, errors, reset, message, enhance, formState, tainted } = superForm;
-  const formEnhance = enhance as FormEnhance;
   let modal: Modal | undefined = $state();
   let done = $state(false);
 
@@ -115,7 +113,7 @@
 </script>
 
 <Modal bind:this={modal} onClose={() => reset()} bottom closeOnClickOutside={!$tainted} {hideActions}>
-  <Form id="modalForm" enhance={formEnhance}>
+  <Form id="modalForm" {enhance}>
     <p class="mb-4 text-lg font-bold">{@render title?.()}</p>
     {@render children?.({ errors: $errors })}
   </Form>

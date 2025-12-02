@@ -1,15 +1,16 @@
 <script lang="ts">
-  import { FilterBar } from '$lib/components/FilterBar';
-  import type { OrgListPageQuery } from '$lib/gql/types';
-  import t, { date, number } from '$lib/i18n';
-  import { Icon } from '$lib/icons';
-  import { HeaderPage } from '$lib/layout';
+  import {FilterBar} from '$lib/components/FilterBar';
+  import type {OrgListPageQuery} from '$lib/gql/types';
+  import t, {date, number} from '$lib/i18n';
+  import {Icon} from '$lib/icons';
+  import {HeaderPage} from '$lib/layout';
   import AdminContent from '$lib/layout/AdminContent.svelte';
-  import { getSearchParams, queryParam } from '$lib/util/query-params';
-  import type { PageData } from './$types';
-  import type { OrgListSearchParams } from './+page';
+  import {getSearchParams, queryParam} from '$lib/util/query-params';
+  import type {PageData} from './$types';
+  import type {OrgListSearchParams} from './+page';
   import orderBy from 'just-order-by';
-  import { partition } from '$lib/util/array';
+  import {partition} from '$lib/util/array';
+  import {resolve} from '$app/paths';
 
   interface Props {
     data: PageData;
@@ -81,7 +82,7 @@ TODO:
   {#snippet actions()}
 
       <AdminContent>
-        <a href="/org/create" class="btn btn-success">
+        <a href={resolve('/org/create')} class="btn btn-success">
           {$t('org.create.title')}
           <span class="i-mdi-plus text-2xl"></span>
         </a>
@@ -160,7 +161,7 @@ TODO:
             {/if}
             <tr>
               <td>
-                  <a class="link" href={`/org/${org.id}`}>
+                  <a class="link" href={resolve(`/org/${org.id}`)}>
                     {org.name}
                   </a>
               </td>

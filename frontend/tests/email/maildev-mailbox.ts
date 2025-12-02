@@ -16,9 +16,9 @@ export class MaildevMailbox extends Mailbox {
     super(email);
   }
 
-  async fetchEmails(subject: EmailSubjects | string): Promise<Email[]> {
+  async fetchEmails(subject: EmailSubjects | Omit<string, EmailSubjects>): Promise<Email[]> {
     const emails = await this.fetchMyEmails();
-    return emails.filter(email => email.subject.includes(subject))
+    return emails.filter(email => email.subject.includes(subject as string))
       .map(email => ({body: email.html}));
   }
 
@@ -28,7 +28,7 @@ export class MaildevMailbox extends Mailbox {
     for (let tries = 1; tries <= MAX_TRIES; tries++) {
       try {
         // Maildev REST API docs: https://github.com/maildev/maildev/blob/master/docs/rest.md
-        const response = await this.api.get(`http://localhost:1080/email`);
+        const response = await this.api.get('http://localhost:1080/email');
         const emails = await response.json() as MaildevEmail[];
         return emails.filter(email => email.to.some(to => to.address === this.email));
       } catch (error) {

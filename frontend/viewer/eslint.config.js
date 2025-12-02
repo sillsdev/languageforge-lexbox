@@ -5,11 +5,11 @@ import globals from 'globals';
 import js from '@eslint/js';
 import path from 'path';
 import storybook from "eslint-plugin-storybook";
+import stylistic from '@stylistic/eslint-plugin';
+import svelte from 'eslint-plugin-svelte';
 import svelteParser from 'svelte-eslint-parser';
 import tsParser from '@typescript-eslint/parser';
 import typescript from 'typescript-eslint';
-import stylistic from '@stylistic/eslint-plugin';
-import svelte from 'eslint-plugin-svelte';
 
 // mimic CommonJS variables
 const __filename = fileURLToPath(import.meta.url);
@@ -87,7 +87,7 @@ export default [
           'format': ['PascalCase'],
         }
       ],
-      '@stylistic/quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
+      '@stylistic/quotes': ['error', 'single', { 'allowTemplateLiterals': 'always' }],
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

@@ -15,12 +15,14 @@
 
   const projectServicesProvider = useProjectServicesProvider();
 
-  const {code, type: projectType, paratext = false}: {
+  const {code: _code, type: projectType, paratext = false}: {
     code: string; // Code for CRDTs, project-name for FWData
     type: 'fwdata' | 'crdt';
     paratext?: boolean;
   } = $props();
   const projectContext = initProjectContext();
+  // svelte-ignore state_referenced_locally
+  const code = _code;
   projectContext.projectCode = code;
 
 

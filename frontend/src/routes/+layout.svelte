@@ -1,19 +1,19 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
-  import { getStores, navigating } from '$app/stores';
+  import type {Snippet} from 'svelte';
+  import {getStores, navigating} from '$app/stores';
   import '$lib/app.postcss';
-  import { initErrorStore } from '$lib/error';
+  import {initErrorStore} from '$lib/error';
   import UnexpectedErrorAlert from '$lib/error/UnexpectedErrorAlert.svelte';
-  import type { LayoutData } from './$types';
+  import type {LayoutData} from './$types';
   import Notify from '$lib/notify/Notify.svelte';
-  import { Footer } from '$lib/layout';
-  import { initNotificationService } from '$lib/notify';
-  import { overlayContainer } from '$lib/overlay';
-  import { Duration } from '$lib/util/time';
-  import { browser } from '$app/environment';
-  import { onMount, setContext } from 'svelte';
-  import { derived, writable } from 'svelte/store';
-  import { initI18n } from '$lib/i18n';
+  import {Footer} from '$lib/layout';
+  import {initNotificationService} from '$lib/notify';
+  import {overlayContainer} from '$lib/overlay';
+  import {Duration} from '$lib/util/time';
+  import {browser} from '$app/environment';
+  import {onMount, setContext} from 'svelte';
+  import {derived, writable} from 'svelte/store';
+  import {initI18n} from '$lib/i18n';
 
   interface Props {
     data: LayoutData;
@@ -23,7 +23,7 @@
   const { data, children }: Props = $props();
   const { page, updated } = getStores();
 
-  const { t, locale } = initI18n(data.activeLocale);
+  const { t, locale } = initI18n((() => data.activeLocale)());
   $effect(() => {
     if (data.activeLocale) locale.set(data.activeLocale);
   });

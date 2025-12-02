@@ -2,9 +2,8 @@ import {FFmpeg} from '@ffmpeg/ffmpeg';
 import coreURL from '@ffmpeg/core?url';
 import {fetchFile} from '@ffmpeg/util';
 import inlineDataUrlWorker from './bundled-ffmpeg-worker.js?url&inline';
-import wasmUrl from '@ffmpeg/core/wasm?url';
 import {randomId} from '$lib/utils';
-
+import wasmUrl from '@ffmpeg/core/wasm?url';
 
 async function ensureLoaded(ffmpeg: FFmpeg) {
   if (ffmpeg.loaded) return;
@@ -95,7 +94,8 @@ export class FFmpegApi {
   async readFile(file: FFmpegFile, signal: AbortSignal): Promise<File> {
     console.log('Reading file from ffmpeg FS:', file.filename);
     const data = await this.ffmpeg.readFile(file.internalFilePath, undefined, {signal}) as Uint8Array;
-    return new File([data], file.filename, {type: file.mimeType});
+    const buffer = data instanceof Uint8Array ? data.slice().buffer : new Uint8Array(data).buffer;
+    return new File([buffer], file.filename, {type: file.mimeType});
   }
 
   async convertToWav(file: FFmpegFile, signal: AbortSignal): Promise<FFmpegFile> {

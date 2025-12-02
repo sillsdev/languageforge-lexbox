@@ -28,6 +28,7 @@ declare global {
       client: Client;
       getUser: (() => LexAuthUser | null);
       activeLocale: string;
+      projectViewMode?: 'table' | 'grid';
     }
 
     interface Error {

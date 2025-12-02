@@ -32,7 +32,7 @@
     autocomplete,
   }: Props = $props();
 
-  let currentType = $state(type);
+  let currentType = $derived(type);
 
   function togglePasswordVisibility(): void {
     if (type == 'password') {

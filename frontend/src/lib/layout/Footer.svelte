@@ -1,4 +1,5 @@
 <script>
+  import {resolve} from '$app/paths';
   import t from '$lib/i18n';
 
   import silLogo from '$lib/assets/sil_logo_glyph.png';
@@ -24,7 +25,7 @@
       </div>
     </div>
     <div class="grid grid-cols-2 gap-x-4 text-right">
-      <a class="hover:link" href="/about">{$t('about.title')}</a>
+      <a class="hover:link" href={resolve('/about')}>{$t('about.title')}</a>
       <a class="hover:link" href="https://software.sil.org/language-software-terms-of-use/">{$t('footer.terms_of_use')}</a>
       <a class="hover:link" href="mailto:admin@languagedepot.org" target="_blank">{$t('footer.contact')}</a>
       <a class="hover:link" href="https://software.sil.org/language-software-privacy-policy/">{$t('footer.privacy_policy')}</a>

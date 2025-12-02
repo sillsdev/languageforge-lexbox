@@ -7,6 +7,7 @@
   import {useNotifications} from '$lib/notify';
   import z from 'zod';
   import {goto} from '$app/navigation';
+  import {resolve} from '$app/paths';
   import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
   import type {PageData} from './$types';
   import {TrashIcon} from '$lib/icons';
@@ -37,7 +38,7 @@
     if (response == DialogResponse.Submit) {
       notifyWarning($t('account_settings.delete_success'));
       await delay();
-      await goto('/logout');
+      await goto(resolve('/logout'));
     }
   }
 
@@ -114,7 +115,7 @@
     <SubmitButton loading={$submitting}>{$t('account_settings.button_update')}</SubmitButton>
   </Form>
   <div class="mt-4">
-    <a class="link" href="/resetPassword">
+    <a class="link" href={resolve('/resetPassword')}>
       {$t('account_settings.reset_password')}
     </a>
   </div>

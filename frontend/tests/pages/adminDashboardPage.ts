@@ -8,7 +8,7 @@ export class AdminDashboardPage extends AuthenticatedBasePage {
   get projectFilterBarInput(): Locator { return this.page.locator('.filter-bar').nth(0).getByRole('textbox'); }
 
   constructor(page: Page) {
-    super(page, page.locator(`.breadcrumbs :text('Admin Dashboard')`), `/admin`);
+    super(page, page.locator(`.breadcrumbs :text('Admin Dashboard')`), '/admin');
   }
 
   async openProject(projectName: string, projectCode: string): Promise<ProjectPage> {

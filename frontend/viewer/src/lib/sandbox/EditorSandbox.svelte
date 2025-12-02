@@ -114,7 +114,7 @@
           </Editor.Field.Body>
         </Editor.Field.Root>
         <Editor.Field.Root>
-          <Editor.Field.Title name={`Order of semantic domains`} />
+          <Editor.Field.Title name={'Order of semantic domains'} />
           <Editor.Field.Body>
             <Tabs bind:value={semanticDomainOrder} class="mb-1">
               <TabsList>
@@ -140,10 +140,10 @@
               idSelector="label"
               labelSelector={(item) => item.label}
               sortValuesBy={sortSemanticDomainValuesBy}
-              drawerTitle={`Semantic domains`}
-              filterPlaceholder={`Filter semantic domains...`}
-              placeholder={`🤷 nothing here`}
-              emptyResultsPlaceholder={`Looked hard, found nothing`}
+              drawerTitle={'Semantic domains'}
+              filterPlaceholder={'Filter semantic domains...'}
+              placeholder={'🤷 nothing here'}
+              emptyResultsPlaceholder={'Looked hard, found nothing'}
               options={readonlyDomains}
             ></MultiSelect>
           </Editor.Field.Body>
@@ -168,10 +168,10 @@
               bind:value={entry.partOfSpeech}
               idSelector="label"
               labelSelector={(item) => item.label}
-              drawerTitle={`Part of speech`}
-              filterPlaceholder={`Filter parts of speech...`}
-              placeholder={`🤷 nothing here`}
-              emptyResultsPlaceholder={`Looked hard, found nothing`}
+              drawerTitle={'Part of speech'}
+              filterPlaceholder={'Filter parts of speech...'}
+              placeholder={'🤷 nothing here'}
+              emptyResultsPlaceholder={'Looked hard, found nothing'}
               options={partsOfSpeech}
             ></Select>
           </Editor.Field.Body>

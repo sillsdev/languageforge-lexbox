@@ -1,11 +1,11 @@
 <script lang="ts">
   /* eslint-disable svelte/no-dom-manipulating */
-  import { env } from '$env/dynamic/public';
-  import { useError } from '.';
+  import {env} from '$env/dynamic/public';
+  import {useError} from '.';
   import t from '$lib/i18n';
-  import { derived } from 'svelte/store';
-  import { onDestroy } from 'svelte';
-  import { browser } from '$app/environment';
+  import {derived} from 'svelte/store';
+  import {onDestroy} from 'svelte';
+  import {browser} from '$app/environment';
 
   let alertMessageElem: HTMLElement | undefined = $state();
   let traceIdElem: HTMLElement | undefined = $state();
@@ -26,7 +26,7 @@
     }
 
     const body = `${error.message}\r\nError code: ${error.traceId}`.replaceAll('\r\n', '%0D%0A%0D%0A');
-    const subject = `Lexbox - Unexpected error`;
+    const subject = 'Lexbox - Unexpected error';
     return `?subject=${subject}&body=${body}`;
   });
 
@@ -49,7 +49,7 @@
   const TIME_RANGE_2024_TO_2040 = 'trace_start_ts=1704286862&trace_end_ts=2209042862';
   function onTraceIdClick(event: MouseEvent): void {
     if (event.ctrlKey) {
-      const traceId = (event.target as HTMLElement).textContent as string;
+      const traceId = (event.target as HTMLElement).textContent;
       const honeyCombEnv = getHoneyCombEnv();
       const url = `https://ui.honeycomb.io/sil-language-forge/environments/${honeyCombEnv}/trace?trace_id=${traceId}&${TIME_RANGE_2024_TO_2040}`;
       window.open(url, '_blank')?.focus();

@@ -4,12 +4,13 @@
 </script>
 
 <script lang="ts">
-  import t, { date } from '$lib/i18n';
+  import {resolve} from '$app/paths';
+  import t, {date} from '$lib/i18n';
 
-  import type { Circle, Path } from './TrainTracks.svelte';
+  import type {Circle, Path} from './TrainTracks.svelte';
   import TrainTracks from './TrainTracks.svelte';
   import Loader from './Loader.svelte';
-  import type { ProjectChangesetsQuery } from '$lib/gql/types';
+  import type {ProjectChangesetsQuery} from '$lib/gql/types';
 
   type LogEntries = NonNullable<ProjectChangesetsQuery['projectByCode']>['changesets'];
   type LogEntry = NonNullable<LogEntries>[0];
@@ -143,7 +144,7 @@
               <TrainTracks {circles} {paths} rowHeights={heights} />
             </td>
           {/if}
-          <td><a href="/hg/{projectCode}/file/{log.node}" class="link link-info" target="_blank">{log.rev}</a></td>
+          <td><a href={resolve(`/hg/${projectCode}/file/${log.node}`)} class="link link-info" target="_blank">{log.rev}</a></td>
           <td bind:offsetHeight={heights[idx]}>{$date(log.date[0] * 1000)}</td>
           <td>{log.user}</td>
           <td>{log.trimmedLog}</td>

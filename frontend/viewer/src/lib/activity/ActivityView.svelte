@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { useHistoryService } from '$lib/services/history-service';
-  import { t } from 'svelte-i18n-lingui';
-  import { useProjectContext } from '$project/project-context.svelte';
-  import { resource } from 'runed';
+  import {useHistoryService} from '$lib/services/history-service';
+  import {t} from 'svelte-i18n-lingui';
+  import {useProjectContext} from '$project/project-context.svelte';
+  import {resource} from 'runed';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
   import ListItem from '$lib/components/ListItem.svelte';
   import {VList} from 'virtua/svelte';
@@ -45,8 +45,9 @@
   let vlist = $state<VList<IProjectActivity>>();
   function onListScroll() {
     if (!vlist) return;
-
-    if (vlist.findEndIndex() + THRESHOLD >= loadCount) {
+    const scrollOffset = vlist.getScrollOffset();
+    const endIndex = vlist.findItemIndex(scrollOffset + vlist.getViewportSize());
+    if (endIndex + THRESHOLD >= loadCount) {
       loadCount += BATCH_SIZE;
     }
   }
@@ -59,10 +60,10 @@
     <SidebarTrigger icon="i-mdi-menu" iconProps={{ class: 'size-5' }} class="aspect-square p-0" size="xs"/>
     <div class="gap-4 overflow-hidden row-start-2">
 
-      <VList bind:this={vlist} data={activity.current ?? []}
+            <VList bind:this={vlist} data={activity.current ?? []}
              class="h-full p-0.5 md:pr-3 after:h-12 after:block"
              onscroll={onListScroll}
-             getKey={row => row.commitId} overscan={10}>
+              getKey={row => row.commitId} bufferSize={400}>
         {#snippet children(row)}
           <ListItem
             onclick={() => selectedRow = row}

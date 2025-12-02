@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { page } from '$app/state';
+  import {page} from '$app/state';
   import UnexpectedError from '$lib/error/UnexpectedError.svelte';
   import t from '$lib/i18n';
-  import { Layout, Page, HomeBreadcrumb, PageBreadcrumb } from '$lib/layout';
+  import {Layout, Page, HomeBreadcrumb, PageBreadcrumb} from '$lib/layout';
+  import {resolve} from '$app/paths';
 
   const status = page.status;
 </script>
@@ -28,7 +29,7 @@
         <UnexpectedError />
       {/if}
       <div class="mt-8 text-center">
-        <a class="btn btn-success" href="/" rel="external">{$t('errors.go_home')} <span class="i-mdi-home-outline text-xl"></span></a>
+        <a class="btn btn-success" href={resolve('/')} rel="external">{$t('errors.go_home')} <span class="i-mdi-home-outline text-xl"></span></a>
       </div>
     </div>
   </Page>

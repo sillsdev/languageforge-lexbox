@@ -57,7 +57,7 @@ export const handle: Handle = ({event, resolve}) => {
     }
     //when at home
     if (routeId == `/${AUTHENTICATED_ROOT}`) {
-      setViewMode(event.params, cookies);
+      setViewMode(event, cookies);
     }
 
     return resolve(event, options);

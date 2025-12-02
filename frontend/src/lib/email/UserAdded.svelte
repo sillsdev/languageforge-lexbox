@@ -15,7 +15,7 @@
     projectName,
     projectCode
   }: Props = $props();
-  let projectUrl = new URL(`/?projectSearch=${encodeURIComponent(projectCode)}`, baseUrl);
+  let projectUrl = $derived(new URL(`/?projectSearch=${encodeURIComponent(projectCode)}`, baseUrl));
 </script>
 
 <Email subject={$t('emails.user_added.subject', {projectName})} {name}>

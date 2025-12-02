@@ -82,7 +82,7 @@
     });
 
     if (response === DialogResponse.Submit) {
-      const notification = `project_page.notifications.role_change`;
+      const notification = 'project_page.notifications.role_change';
       const role = formState.role.currentValue;
       notifySuccess(
         $t(notification, {

@@ -10,8 +10,8 @@
   }
 
   const { name, baseUrl, project }: Props = $props();
-  let projectUrl = new URL(`/?projectSearch=${encodeURIComponent(project.code)}`, baseUrl);
-  let projectName = project.name;
+  let projectUrl = $derived(new URL(`/?projectSearch=${encodeURIComponent(project.code)}`, baseUrl));
+  let projectName = $derived(project.name);
 </script>
 
 <Email subject={$t('emails.approve_project_request_email.subject', {projectName})} {name}>

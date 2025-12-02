@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import type { Snippet } from 'svelte';
+  import type {Snippet} from 'svelte';
   export type Filter<T = Record<string, unknown>> = Readonly<
     NonNullable<
       {
@@ -11,15 +11,15 @@
 </script>
 
 <script lang="ts">
-  import type { ConditionalPick } from 'type-fest';
+  import type {ConditionalPick} from 'type-fest';
   import Loader from '$lib/components/Loader.svelte';
-  import { PlainInput } from '$lib/forms';
-  import { pick } from '$lib/util/object';
+  import {PlainInput} from '$lib/forms';
+  import {pick} from '$lib/util/object';
   import t from '$lib/i18n';
-  import type { Writable } from 'svelte/store';
+  import type {Writable} from 'svelte/store';
   import Dropdown from '../Dropdown.svelte';
-  import { Previous, Debounced, watch } from 'runed';
-  import { DEFAULT_DEBOUNCE_TIME } from '$lib/util/time';
+  import {Previous, Debounced, watch} from 'runed';
+  import {DEFAULT_DEBOUNCE_TIME} from '$lib/util/time';
 
   type DumbFilters = $$Generic<Record<string, unknown>>;
   type Filters = DumbFilters & Record<typeof searchKey, string>;
@@ -56,16 +56,19 @@
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
-  let undebouncedSearch: string | undefined = $state($allFilters[searchKey]);
-  let watcher: () => string | undefined;
-  if (debounce === false) {
-    watcher = () => undebouncedSearch;
-  } else {
-    const debounceTime: number = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
-    const debouncer = new Debounced(() => undebouncedSearch, debounceTime);
-    watcher = () => debouncer.current;
-  }
-  watch(watcher, (value) => {
+  let undebouncedSearch: string | undefined = $derived($allFilters[searchKey]);
+
+  const watcher = $derived.by(() => {
+    if (debounce === false) {
+      return () => undebouncedSearch;
+    } else {
+      const debounceTime: number = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
+      const debouncer = new Debounced(() => undebouncedSearch, debounceTime);
+      return () => debouncer.current;
+    }
+  })
+
+  watch(() => watcher(), (value) => {
     if ($allFilters[searchKey] === value) return;
     $allFilters[searchKey] = value as Filters[typeof searchKey];
   });

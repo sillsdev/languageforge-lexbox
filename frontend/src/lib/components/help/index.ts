@@ -8,6 +8,6 @@ export const helpLinks = {
   confidentiality: 'https://scribehow.com/shared/Project_Confidentiality__s6TX8_wFQ1ejVpH1s5Bsmw',
   bulkAddCreate: 'https://scribehow.com/shared/Bulk_AddCreate_Project_Members__3wwDKk3TTGaAwMEmT4rrXQ',
   projectRequest: 'https://scribehow.com/shared/Project_requests__zOdcHT8KRGygGmPgr5z2_A',
-};
+} as const;
 
 export type HelpLink = typeof helpLinks[keyof typeof helpLinks];

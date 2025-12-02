@@ -19,7 +19,7 @@
     projectName,
     baseUrl
   }: Props = $props();
-  let approveUrl = new URL(`/project/${projectCode}?addUserId=${requestingUserId}&addUserName=${requestingUserName}`, baseUrl);
+  let approveUrl = $derived(new URL(`/project/${projectCode}?addUserId=${requestingUserId}&addUserName=${requestingUserName}`, baseUrl));
 
 </script>
 
