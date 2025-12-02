@@ -1,5 +1,5 @@
 import type {APIRequestContext} from '@playwright/test';
-import {type EmailSubjects} from './email-page';
+import type {EmailSubjects} from './email-page';
 import {Mailbox, type Email} from './mailbox';
 import {delay} from '$lib/util/time';
 import {getErrorMessage} from '$lib/error/utils';
@@ -16,9 +16,9 @@ export class MaildevMailbox extends Mailbox {
     super(email);
   }
 
-  async fetchEmails(subject: EmailSubjects | Omit<string, EmailSubjects>): Promise<Email[]> {
+  async fetchEmails(subject: EmailSubjects | string): Promise<Email[]> {
     const emails = await this.fetchMyEmails();
-    return emails.filter(email => email.subject.includes(subject as string))
+    return emails.filter(email => email.subject.includes(subject))
       .map(email => ({body: email.html}));
   }
 
