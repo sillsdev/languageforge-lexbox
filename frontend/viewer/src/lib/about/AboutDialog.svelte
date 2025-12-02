@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
-  import NewTabLinkMarkdown from '../markdown/NewTabLinKMarkdown.svelte';
+  import NewTabLinkMarkdown from '../markdown/NewTabLinkMarkdown.svelte';
   import { onMount } from 'svelte';
   import { t } from 'svelte-i18n-lingui';
 
