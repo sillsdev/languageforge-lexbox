@@ -49,7 +49,7 @@ const provider = new WebTracerProvider({
       shutdown: () => Promise.resolve(),
     },
     new BatchSpanProcessor(exporter, {
-      // max number of spans pulled from the qeuue and exported in a single batch
+      // max number of spans pulled from the queue and exported in a single batch
       // 30 is often too big for the sendBeacon() API, but we have a fallback to XHR.
       maxExportBatchSize: 30,
       // minimum time between exports

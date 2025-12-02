@@ -36,12 +36,11 @@ export class OTLPTraceExporterBrowserWithXhrRetry extends OTLPTraceExporter {
           }
 
           const xhrError = result.error ?? new Error('OTLPTraceExporterBrowserWithXhrRetry: Unknown XHR export error');
+          const augmentedError = new Error(`${error.message} --- [XHR retry message: ${xhrError.message}].`);
+          augmentedError.stack = error.stack; // Preserve original stack trace
           onResult({
             ...result,
-            error: {
-              ...error,
-              message: `${error.message} --- [XHR retry message: ${xhrError.message}].`,
-            }
+            error: augmentedError,
           });
         });
       } else {

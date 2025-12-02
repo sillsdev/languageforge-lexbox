@@ -31,10 +31,10 @@
   function open(): void {
     try {
       dialog?.showModal?.call(dialog);
+      dialog?.classList.add('modal-open');
     } catch (e) {
       console.error('Dialog open failed', e);
     }
-    dialog?.classList.add('modal-open');
   }
 
   function close(): void {
