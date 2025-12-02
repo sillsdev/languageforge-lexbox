@@ -27,7 +27,7 @@
 
   let formElem: Form | undefined = $state();
 
-  const formSchema = z.object({ value: validation });
+  const formSchema = z.object({ value: (() => validation)() });
   let { form, errors, reset, enhance, message } = lexSuperForm(
     formSchema,
     async () => {

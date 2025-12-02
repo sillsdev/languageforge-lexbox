@@ -1,4 +1,5 @@
 <script lang="ts">
+  import {resolve} from '$app/paths';
   import TusUpload from '$lib/components/TusUpload.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import {Button, Form, Input, lexSuperForm, SubmitButton} from '$lib/forms';
@@ -57,20 +58,20 @@
 <h2 class="text-lg">Sandbox</h2>
 <div class="grid gap-2 grid-cols-3">
   <div class="card w-96 bg-base-200 shadow-lg">
-    <a rel="external" class="btn" href="/">Go home</a>
+    <a rel="external" class="btn" href={resolve('/')}>Go home</a>
     <div class="divider"></div>
-    <a rel="external" class="btn" href="/sandbox/403">Goto page load 403</a>
-    <a rel="external" target="_blank" class="btn" href="/sandbox/403">Goto page load 403 new tab</a>
-    <a rel="external" class="btn" href="/api/AuthTesting/403">Goto API 403</a>
-    <a rel="external" target="_blank" class="btn" href="/api/AuthTesting/403">Goto API 403 new tab</a>
+    <a rel="external" class="btn" href={resolve('/sandbox/403')}>Goto page load 403</a>
+    <a rel="external" target="_blank" class="btn" href={resolve('/sandbox/403')}>Goto page load 403 new tab</a>
+    <a rel="external" class="btn" href={resolve('/api/AuthTesting/403')}>Goto API 403</a>
+    <a rel="external" target="_blank" class="btn" href={resolve('/api/AuthTesting/403')}>Goto API 403 new tab</a>
     <button class="btn" onclick={fetch403}>Fetch 403</button>
 
     <div class="divider"></div>
 
-    <a rel="external" class="btn" href="/sandbox/500">Goto page load 500</a>
-    <a rel="external" target="_blank" class="btn" href="/sandbox/500">Goto page load 500 new tab</a>
-    <a rel="external" class="btn" href="/api/testing/test500NoException">Goto API 500</a>
-    <a rel="external" target="_blank" class="btn" href="/api/testing/test500NoException">Goto API 500 new tab</a>
+    <a rel="external" class="btn" href={resolve('/sandbox/500')}>Goto page load 500</a>
+    <a rel="external" target="_blank" class="btn" href={resolve('/sandbox/500')}>Goto page load 500 new tab</a>
+    <a rel="external" class="btn" href={resolve('/api/testing/test500NoException')}>Goto API 500</a>
+    <a rel="external" target="_blank" class="btn" href={resolve('/api/testing/test500NoException')}>Goto API 500 new tab</a>
     <button class="btn" onclick={fetch500}>Fetch 500</button>
     <button class="btn" onclick={gqlThrows500}>GQL 500</button>
   </div>

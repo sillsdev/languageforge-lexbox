@@ -52,7 +52,7 @@ import {
 let globalClient: GqlClient | null = null;
 
 function createGqlClient(_gqlEndpoint?: string): Client {
-  const url = `/api/graphql`;
+  const url = '/api/graphql';
   return createClient({
     url,
     exchanges: [

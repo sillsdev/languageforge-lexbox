@@ -1,5 +1,6 @@
 <script lang="ts">
   import {goto} from '$app/navigation';
+  import {resolve} from '$app/paths';
   import {Form, FormError, Input, SubmitButton, lexSuperForm, passwordFormRules} from '$lib/forms';
   import t from '$lib/i18n';
   import {PageBreadcrumb, TitlePage} from '$lib/layout';
@@ -36,11 +37,11 @@
       return $t('reset_password.failed', { errorMessage });
     }
     notifySuccess($t('reset_password.password_reset'));
-    await goto(data.home);
+    await goto(resolve(data.home));
   });
 </script>
 
-<PageBreadcrumb href="/user">{$t('account_settings.title')}</PageBreadcrumb>
+<PageBreadcrumb href={resolve('/user')}>{$t('account_settings.title')}</PageBreadcrumb>
 
 <TitlePage title={$t('reset_password.title')}>
   <Form {enhance}>

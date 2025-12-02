@@ -76,7 +76,7 @@ export function toSearchParams<T extends PrimitiveRecord>(params: T): string {
 /**
  * @param defaultValue The value to return if the specified parameter is `null`
  */
-export function getBoolSearchParam<T extends PrimitiveRecord>(key: keyof ConditionalPick<T, boolean> & string, params: URLSearchParams, defaultValue = false): boolean {
+export function getBoolSearchParam<T extends PrimitiveRecord>(key: keyof ConditionalPick<T, boolean>, params: URLSearchParams, defaultValue = false): boolean {
   const value = getSearchParam<T, boolean>(key, params);
   if (value === true.toString()) {
     return true;
@@ -88,7 +88,7 @@ export function getBoolSearchParam<T extends PrimitiveRecord>(key: keyof Conditi
 }
 
 export function getSearchParam<T extends PrimitiveRecord, R = string | undefined | null>(
-  key: keyof ConditionalPick<T, (R extends StandardEnum<unknown> ? R[keyof R] : R)> & string,
+  key: Exclude<keyof ConditionalPick<T, (R extends StandardEnum<unknown> ? R[keyof R] : R)>, number | symbol>,
   params: URLSearchParams): EnumOrString<R> | undefined {
   const value = params.get(key);
   return value as EnumOrString<R> | undefined;

@@ -20,6 +20,7 @@
 </script>
 
   {#if target === '_blank' || external || !href}
+    <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
     <a bind:this={ref} {href} {target} {...rest}>
       {@render children?.()}
     </a>

@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { ProjectTypeIcon } from '$lib/components/ProjectType';
-  import { ProjectType } from '$lib/gql/types';
+  import {resolve} from '$app/paths';
+  import {ProjectTypeIcon} from '$lib/components/ProjectType';
+  import {ProjectType} from '$lib/gql/types';
   import t from '$lib/i18n';
 
   interface Props {
@@ -13,7 +14,7 @@
 
 <a
   class="btn btn-primary whitespace-nowrap open-in-flex"
-  href={`/api/integration/openWithFlex?projectId=${projectId}`}
+  href={resolve(`/api/integration/openWithFlex?projectId=${projectId}`)}
   data-sveltekit-reload
   {onclick}
 >

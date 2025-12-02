@@ -3,8 +3,8 @@ import {expect, type Page} from '@playwright/test';
 
 export class OidcDebuggerPage extends BasePage {
   static readonly redirectUrl = 'https://oidcdebugger.com/debug';
-  static readonly clientId = `oidc-debugger`;
-  static readonly scopes = `openid profile`;
+  static readonly clientId = 'oidc-debugger';
+  static readonly scopes = 'openid profile';
 
   readonly successPage = new OidcDebuggerSuccessPage(this.page);
   constructor(page: Page) {

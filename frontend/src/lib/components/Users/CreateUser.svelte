@@ -10,7 +10,6 @@
     passwordFormRules,
     DisplayLanguageSelect,
   } from '$lib/forms';
-  import type {FormEnhance} from '$lib/forms/types';
   import t, {getLanguageCodeFromNavigator, locale} from '$lib/i18n';
   import {type LexAuthUser, type RegisterResponse} from '$lib/user';
   import {getSearchParamValues} from '$lib/util/query-params';
@@ -61,14 +60,15 @@
   // getLanguageCodeFromNavigator() gives us the language/locale they probably actually want. Maybe we'll support it in the future.
   const userLocale = getLanguageCodeFromNavigator() ?? $locale;
   const formSchema = z.object({
-    name: z.string().trim().min(1, $t('register.name_missing')),
+    name: z.string().trim().min(1, $t('register.name_missing')
+  ),
     email: z
       .string()
       .trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
-      .refine((value) => !errorOnChangingEmail || !urlValues.email || value == urlValues.email, errorOnChangingEmail)
-      .refine((value) => !validateAsEmail(value) || isEmail(value), $t('form.invalid_email'))
-      .refine((value) => validateAsEmail(value) || usernameRe.test(value), $t('register.invalid_username')),
+      .refine((value) => !errorOnChangingEmail || !urlValues.email || value == urlValues.email, { error: (() => errorOnChangingEmail)() })
+      .refine((value) => !validateAsEmail(value) || isEmail(value), { error: $t('form.invalid_email') })
+      .refine((value) => validateAsEmail(value) || usernameRe.test(value), { error: $t('register.invalid_username') }),
     password: passwordFormRules($t),
     score: z.number(),
     locale: z.string().trim().min(2).default(userLocale),
@@ -106,7 +106,6 @@
     resetForm: false,
     taintedMessage: true,
   });
-  const enhanceAction = enhance as unknown as FormEnhance;
 
   $effect(() => {
     formTainted = !!$tainted;
@@ -125,7 +124,7 @@
   });
 </script>
 
-<MaybeProtectedForm {skipTurnstile} enhance={enhanceAction} bind:turnstileToken>
+<MaybeProtectedForm {skipTurnstile} {enhance} bind:turnstileToken>
   <Input autofocus id="name" label={$t('register.label_name')} bind:value={$form.name} error={$errors.name} />
   <div class="contents email">
     <Input

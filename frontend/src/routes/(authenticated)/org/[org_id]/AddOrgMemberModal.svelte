@@ -24,7 +24,7 @@
       .string()
       .trim()
       .min(1, $t('org_page.add_user.empty_user_field'))
-      .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
+      .refine((value) => !value.includes('@') || isEmail(value), { error: $t('form.invalid_email') }),
     role: z.enum([OrgRole.User, OrgRole.Admin]).default(OrgRole.User),
     canInvite: z.boolean().default(false),
   });

@@ -1,9 +1,9 @@
-import { browser } from '$app/environment';
-import { type Cookies, redirect } from '@sveltejs/kit';
-import { jwtDecode } from 'jwt-decode';
-import { deleteCookie, getCookie } from './util/cookies';
-import { hash } from '$lib/util/hash';
-import { ensureErrorIsTraced, errorSourceTag } from './otel';
+import {browser} from '$app/environment';
+import {type Cookies, redirect} from '@sveltejs/kit';
+import {jwtDecode} from 'jwt-decode';
+import {deleteCookie, getCookie} from './util/cookies';
+import {hash} from '$lib/util/hash';
+import {ensureErrorIsTraced, errorSourceTag} from './otel';
 import zxcvbn from 'zxcvbn';
 import {
   type AuthUserOrg,
@@ -15,7 +15,7 @@ import {
   ProjectRole,
   UserRole
 } from './gql/types';
-import { _createGuestUserByAdmin } from '../routes/(authenticated)/admin/+page';
+import {_createGuestUserByAdmin} from '../routes/(authenticated)/admin/+page';
 
 type LoginError = 'BadCredentials' | 'Locked';
 type LoginResult = {
@@ -80,7 +80,7 @@ export const AUTH_COOKIE_NAME = '.LexBoxAuth';
 
 export const usernameRe = /^[a-zA-Z0-9_]+$/;
 
-export function getHomePath(user: LexAuthUser | null): string {
+export function getHomePath(user: LexAuthUser | null): '/admin' | '/' {
   return user?.isAdmin ? '/admin' : '/';
 }
 

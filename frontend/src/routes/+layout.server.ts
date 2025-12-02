@@ -18,6 +18,7 @@ export async function load({ locals, depends, fetch }: LayoutServerLoadEvent) {
   return {
     user,
     activeLocale: locals.activeLocale,
+    projectViewMode: locals.projectViewMode,
     traceParent,
     serverVersion: APP_VERSION,
     apiVersion: apiVersion.value

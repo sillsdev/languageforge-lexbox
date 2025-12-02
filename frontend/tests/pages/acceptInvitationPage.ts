@@ -3,7 +3,7 @@ import { BasePage } from './basePage';
 
 export class AcceptInvitationPage extends BasePage {
   constructor(page: Page) {
-    super(page, page.getByRole('heading', {name: 'Accept Invitation'}), `/acceptInvitation`);
+    super(page, page.getByRole('heading', {name: 'Accept Invitation'}), '/acceptInvitation');
   }
 
   async fillForm(name: string, password: string, email?: string): Promise<void> {

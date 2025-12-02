@@ -1,21 +1,22 @@
-import {browser} from '$app/environment';
+import type {Cookies as KitCookies, RequestEvent} from '@sveltejs/kit';
+
 import Cookies from 'js-cookie';
-import type {LoadEvent, Cookies as KitCookies, RequestEvent} from '@sveltejs/kit';
+import type {PageLoadEvent} from './$types';
+import {browser} from '$app/environment';
 
 export const STORAGE_VIEW_MODE_KEY = 'projectViewMode';
-export function getViewMode(event: LoadEvent): ViewMode | undefined {
+
+export async function getViewMode(event: PageLoadEvent): Promise<ViewMode | undefined> {
   if (browser) {
     return Cookies.get(STORAGE_VIEW_MODE_KEY) as ViewMode | undefined;
   } else {
-    //stored in params by hooks.server.ts calling setViewMode
-    return event.params[STORAGE_VIEW_MODE_KEY] as ViewMode | undefined;
+    const parentData = await event.parent();
+    // stored in locals by hooks.server.ts calling setViewMode
+    return parentData.projectViewMode;
   }
 }
 
-export function setViewMode(params: RequestEvent['params'], cookies: KitCookies): void {
-  params[STORAGE_VIEW_MODE_KEY] = cookies.get(STORAGE_VIEW_MODE_KEY);
+export function setViewMode(params: RequestEvent, cookies: KitCookies): void {
+  params.locals.projectViewMode = cookies.get(STORAGE_VIEW_MODE_KEY) as ViewMode | undefined;
 }
-export const enum ViewMode {
-  Table = 'table',
-  Grid = 'grid',
-}
+export type ViewMode = 'table' | 'grid';

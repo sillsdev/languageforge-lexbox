@@ -2,6 +2,7 @@
   import {type Snippet, untrack} from 'svelte';
 
   const {show, children}: { show: boolean, children: Snippet } = $props();
+  // svelte-ignore state_referenced_locally
   let render = $state(show);
   $effect(() => {
     //this should cleanup the effect so it only runs once

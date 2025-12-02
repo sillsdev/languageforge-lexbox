@@ -2,7 +2,7 @@ import type {ActionResult} from '@sveltejs/kit';
 import {derived, get, type Readable} from 'svelte/store';
 import {superForm, type FormOptions, type SuperForm} from 'sveltekit-superforms/client';
 import type {Infer, InferIn, SuperValidated} from 'sveltekit-superforms';
-import {type ZodValidation, zod} from 'sveltekit-superforms/adapters';
+import {type ZodValidationSchema, zod4} from 'sveltekit-superforms/adapters';
 import {defaults} from 'sveltekit-superforms/client';
 import type {ErrorMessage} from './types';
 import {randomFormId} from './utils';
@@ -18,26 +18,26 @@ export type LexFormState<S extends Record<string, unknown>> = Required<{ [field 
 
 export type LexFormErrors<S extends Record<string, unknown>> = SuperValidated<S, string>['errors'];
 
-type LexSuperForm<S extends ZodValidation> =
-  SuperForm<Infer<S, 'zod'>, string> & {
-    formState: Readable<LexFormState<Infer<S, 'zod'>>>
+type LexSuperForm<S extends ZodValidationSchema> =
+  SuperForm<Infer<S, 'zod4'>, string> & {
+    formState: Readable<LexFormState<Infer<S, 'zod4'>>>
   };
 
 type LexOnSubmit<S extends Record<string, unknown>> =
   (...args: Parameters<NonNullable<FormOptions<S, string>['onResult']>>) => Promise<ErrorMessage>;
 
 //we've got to wrap this in our own version because we're not using the server side component, which this expects
-export function lexSuperForm<S extends ZodValidation>(
+export function lexSuperForm<S extends ZodValidationSchema>(
   schema: S,
-  onSubmit: LexOnSubmit<Infer<S, 'zod'>>,
-  options: Omit<FormOptions<Infer<S, 'zod'>, string, InferIn<S, 'zod'>>, 'validators'> = {},
+  onSubmit: LexOnSubmit<Infer<S, 'zod4'>>,
+  options: Omit<FormOptions<Infer<S, 'zod4'>, string, InferIn<S, 'zod4'>>, 'validators'> = {},
 ): LexSuperForm<S> {
 
-  const adapter = zod(schema);
+  const adapter = zod4(schema);
   const form = defaults(adapter, {
     id: options.id ?? randomFormId(),
   });
-  const sf = superForm<Infer<S, 'zod'>, string, InferIn<S, 'zod'>>(form, {
+  const sf = superForm<Infer<S, 'zod4'>, string, InferIn<S, 'zod4'>>(form, {
     validators: adapter,
     dataType: 'json',
     SPA: true, // eslint-disable-line @typescript-eslint/naming-convention
@@ -45,7 +45,7 @@ export function lexSuperForm<S extends ZodValidation>(
     ...options,
     onResult: async (event) => {
       await options.onResult?.(event);
-      const result = event.result as ActionResult<{ form: SuperValidated<Infer<S, 'zod'>, string, InferIn<S, 'zod'>> }>;
+      const result = event.result as ActionResult<{ form: SuperValidated<Infer<S, 'zod4'>, string, InferIn<S, 'zod4'>> }>;
       if (result.type == 'success' && result.data) {
         const error = await onSubmit(event);
         if (error) {
@@ -72,20 +72,28 @@ function formHasMessageOrErrors<S extends Record<string, unknown>>(form: SuperFo
 }
 
 function getFormState<S extends Record<string, unknown>>(sf: SuperForm<S, string>): Readable<LexFormState<S>> {
+  // todo: this is buggy, the form is not necessarily initialized. We sometimes init in onMount with taint: false.
+  // we should update with the last untainted values
   const untaintedValues = { ...get(sf.form) };
   const fieldStateStore: Readable<LexFormState<S>> = derived([sf.form, sf.tainted], ([form, tainted]) => {
     const capture = sf.capture();
-    const fields = Object.keys(capture.shape ?? capture.data) as FieldKeys<S>[];
-    const taintedFields = Object.keys(tainted ?? {}) as FieldKeys<S>[];
+    const fields = Object.keys({
+      // a messy way to be 99% sure we get all field keys
+      ...capture.data,
+      ...capture.constraints,
+  }) as FieldKeys<S>[];
+    const taintedFields = Object.keys(tainted ?? {})
+      .filter(key => Boolean(tainted?.[key as keyof typeof tainted])) as FieldKeys<S>[];
     const untaintedFields = fields.filter(field => !taintedFields.includes(field));
     for (const untaintedField of untaintedFields) {
       untaintedValues[untaintedField] = form[untaintedField];
     }
 
     return fields.reduce<LexFormState<S>>((result, field) => {
+      const tainted = taintedFields.includes(field);
       result[field] = {
-        tainted: taintedFields.includes(field),
-        changed: form[field] !== untaintedValues[field],
+        tainted,
+        changed: tainted && form[field] !== untaintedValues[field],
         originalValue: untaintedValues[field],
         currentValue: form[field],
       };

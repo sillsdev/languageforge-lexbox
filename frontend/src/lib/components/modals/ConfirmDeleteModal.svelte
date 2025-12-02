@@ -36,7 +36,10 @@
   const verify = z.object({
     keyphrase: z
       .string()
-      .refine((value) => value.match(`^${$t('enter_to_delete.value')}$`), $tt('form.value_is_incorrect')),
+      .refine(
+        (value) => value.match(`^${$t('enter_to_delete.value')}$`),
+        { error: $tt('form.value_is_incorrect') },
+      ),
   });
 
   type Schema = typeof verify;

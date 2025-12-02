@@ -9,9 +9,10 @@
 </script>
 
 <script lang="ts">
-  import { ProjectRole } from '$lib/gql/types';
-  import { writable } from 'svelte/store';
-  import { onMount } from 'svelte';
+  import {resolve} from '$app/paths';
+  import {ProjectRole} from '$lib/gql/types';
+  import {writable} from 'svelte/store';
+  import {onMount} from 'svelte';
   import t from '$lib/i18n';
   import FormatUserProjectRole from '../Projects/FormatUserProjectRole.svelte';
   import {projectUrl} from '$lib/util/project';
@@ -82,7 +83,7 @@
               </label>
             </td>
             <td>
-              <a class="link" href={projectUrl(proj)} target="_blank">
+              <a class="link" href={resolve(projectUrl(proj))} target="_blank">
                 {proj.name}
               </a>
             </td>

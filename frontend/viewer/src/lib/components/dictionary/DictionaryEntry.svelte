@@ -78,6 +78,7 @@
 
 {#snippet senseNumber(index: number)}
   {#if showLinks}
+    <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
     <a href={`${location.href.replace(location.hash, '')}#sense${index+1}`} class="font-bold group/sense underline">
       <Icon icon="i-mdi-link" class={cn(
           'opacity-0',

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import {resolve} from '$app/paths';
   import {Checkbox, type ErrorMessage, Form, FormError, Input, lexSuperForm, Button} from '$lib/forms';
   import {tScoped} from '$lib/i18n';
   import {z} from 'zod';
@@ -50,11 +51,11 @@
   let verify = z.object({
     confirmProjectCode: z.string().refine(
       (value) => value === code,
-      () => ({ message: $t('confirm_project_code_error') }),
+      { error: $t('confirm_project_code_error') },
     ),
     confirmDownloaded: z.boolean().refine(
       (value) => value,
-      () => ({ message: $t('confirm_downloaded_error') }),
+      { error: $t('confirm_downloaded_error') },
     ),
   });
 
@@ -133,7 +134,7 @@
       <p class="mb-2 label">
         {$t('download_instruction')}
       </p>
-      <a rel="external" href="/api/project/backupProject/{code}" class="btn btn-success" download>
+      <a rel="external" href={resolve(`/api/project/backupProject/${code}`)} class="btn btn-success" download>
         {$t('download_button')}
         <span class="i-mdi-download text-2xl"></span>
       </a>

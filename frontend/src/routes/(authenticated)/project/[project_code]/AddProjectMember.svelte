@@ -21,7 +21,7 @@
       .string()
       .trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
-      .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
+      .refine((value) => !value.includes('@') || isEmail(value), { error: $t('form.invalid_email') }),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.Observer]).default(ProjectRole.Editor),
     canInvite: z.boolean().default(false),
   });

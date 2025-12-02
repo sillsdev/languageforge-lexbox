@@ -1,10 +1,10 @@
-import type { Page } from '@playwright/test';
-import { AuthenticatedBasePage } from './authenticatedBasePage';
-import { ResetPasswordPage } from './resetPasswordPage';
+import {AuthenticatedBasePage} from './authenticatedBasePage';
+import type {Page} from '@playwright/test';
+import {ResetPasswordPage} from './resetPasswordPage';
 
 export class UserAccountSettingsPage extends AuthenticatedBasePage {
   constructor(page: Page) {
-    super(page, page.getByRole('heading', {name: 'Account Settings'}), `/user`);
+    super(page, page.getByRole('heading', {name: 'Account Settings'}), '/user');
   }
 
   fillDisplayName(name: string): Promise<void> {

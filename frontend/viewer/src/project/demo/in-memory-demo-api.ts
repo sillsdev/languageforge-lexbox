@@ -53,7 +53,7 @@ function filterEntries(entries: IEntry[], query: string): IEntry[] {
 }
 
 export const mockFwLiteConfig: IFwLiteConfig = {
-  appVersion: `dev`,
+  appVersion: 'dev',
   feedbackUrl: '',
   os: FwLitePlatform.Web,
   useDevAssets: true,

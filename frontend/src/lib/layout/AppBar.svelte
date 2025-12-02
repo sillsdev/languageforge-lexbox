@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { env } from '$env/dynamic/public';
+  import {resolve} from '$app/paths';
+  import {env} from '$env/dynamic/public';
   import t from '$lib/i18n';
-  import { AuthenticatedUserIcon, UserAddOutline } from '$lib/icons';
-  import { onMount } from 'svelte';
-  import type { LexAuthUser } from '$lib/user';
-  import { page } from '$app/state';
+  import {AuthenticatedUserIcon, UserAddOutline} from '$lib/icons';
+  import {onMount} from 'svelte';
+  import type {LexAuthUser} from '$lib/user';
+  import {page} from '$app/state';
   import AppLogo from '$lib/icons/AppLogo.svelte';
 
   onMount(() => {
@@ -30,7 +31,7 @@
     </a>
   {/if}
   <div class="navbar justify-between bg-primary text-primary-content md:pl-3 md:pr-6">
-    <a id="home" href={loggedIn ? '/' : '/login'} class="flex btn btn-primary text-left font-normal px-2">
+    <a id="home" href={resolve(loggedIn ? '/' : '/login')} class="flex btn btn-primary text-left font-normal px-2">
       <AppLogo class="h-[3em] w-[3em]" mono />
       <div class="flex flex-col text-2xl md:text-3xl tracking-wider">
         <span class="md:leading-none">{$t('appbar.app_name')}</span>
@@ -48,14 +49,14 @@
         </label>
       {:else}
         {#if page.url.pathname !== '/login'}
-          <a href="/login" class="btn btn-primary">
+          <a href={resolve('/login')} class="btn btn-primary">
             {$t('login.button_login')}
           <span class="i-mdi-logout text-3xl"></span>
           </a>
         {/if}
 
         {#if page.url.pathname !== '/register'}
-          <a href="/register" class="btn btn-primary">
+          <a href={resolve('/register')} class="btn btn-primary">
             {$t('register.button_register')}
             <UserAddOutline/>
           </a>

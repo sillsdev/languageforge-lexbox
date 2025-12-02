@@ -1,10 +1,9 @@
 // We explicitly reference the browser version so that we have proper types
 
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http/build/src/platform/browser';
-import type { ReadableSpan } from '@opentelemetry/sdk-trace-web';
+import {ExportResultCode, type ExportResult} from '@opentelemetry/core';
+import {OTLPTraceExporter} from '@opentelemetry/exporter-trace-otlp-http/build/src/platform/browser';
+import type {ReadableSpan} from '@opentelemetry/sdk-trace-web';
 
-// these save us a dependency
-type SendOnErrorCallback = Parameters<OTLPTraceExporter['send']>[2];
 type ExporterConfig = ConstructorParameters<typeof OTLPTraceExporter>[0];
 
 export class OTLPTraceExporterBrowserWithXhrRetry extends OTLPTraceExporter {
@@ -20,19 +19,33 @@ export class OTLPTraceExporterBrowserWithXhrRetry extends OTLPTraceExporter {
     });
   }
 
-  send(items: ReadableSpan[], onSuccess: () => void, onError: SendOnErrorCallback): void {
-    super.send(items, onSuccess, (error) => {
+  export(items: ReadableSpan[], onResult: (result: ExportResult) => void): void {
+    super.export(items, (result) => {
+      if (result.code === ExportResultCode.SUCCESS) {
+        onResult(result);
+        return;
+      }
+
+      const error = result.error ?? new Error('OTLPTraceExporterBrowserWithXhrRetry: Unknown export error');
       if (error.message.toLocaleLowerCase().includes('beacon')) {
-        this.xhrTraceExporter.send(items, onSuccess, (xhrError) => {
-          onError({
-            ...error,
-            message: `${error.message} --- [XHR retry message: ${xhrError.message}; code: ${xhrError.code}].`,
-            code: error.code,
-            data: `${error.data} --- [XHR retry data: ${xhrError.data}].`,
+        // retry with XHR
+        this.xhrTraceExporter.export(items, (result) => {
+          if (result.code === ExportResultCode.SUCCESS) {
+            onResult(result);
+            return;
+          }
+
+          const xhrError = result.error ?? new Error('OTLPTraceExporterBrowserWithXhrRetry: Unknown XHR export error');
+          onResult({
+            ...result,
+            error: {
+              ...error,
+              message: `${error.message} --- [XHR retry message: ${xhrError.message}].`,
+            }
           });
         });
       } else {
-        onError(error);
+        onResult(result);
       }
     });
   }

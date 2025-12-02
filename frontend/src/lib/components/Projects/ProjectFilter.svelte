@@ -1,11 +1,11 @@
 <script module lang="ts">
-  import { type Project, type ProjectType } from '$lib/gql/types';
-  import type { DraftProject } from '../../../routes/(authenticated)/admin/+page';
+  import {type Project, type ProjectType} from '$lib/gql/types';
+  import type {DraftProject} from '../../../routes/(authenticated)/admin/+page';
 
   export type ProjectItem = Pick<Project, 'id' | 'name' | 'code' | 'type'> & Partial<Project>;
   export type ProjectItemWithDraftStatus =
     | (ProjectItem & { isDraft?: false })
-    | (DraftProject & { isDraft: true; createUrl: string });
+    | (DraftProject & { isDraft: true; createUrl?: `/project/create?${string}` });
 
   export type Confidentiality = `${boolean}` | 'unset';
 
@@ -40,17 +40,17 @@
 </script>
 
 <script lang="ts">
-  import { FormField, ProjectTypeSelect } from '$lib/forms';
-  import type { Writable } from 'svelte/store';
-  import { ProjectTypeIcon } from '../ProjectType';
+  import {FormField, ProjectTypeSelect} from '$lib/forms';
+  import type {Writable} from 'svelte/store';
+  import {ProjectTypeIcon} from '../ProjectType';
   import ActiveFilter from '../FilterBar/ActiveFilter.svelte';
-  import FilterBar, { type OnFiltersChanged } from '../FilterBar/FilterBar.svelte';
-  import { AuthenticatedUserIcon, Icon, TrashIcon } from '$lib/icons';
+  import FilterBar, {type OnFiltersChanged} from '../FilterBar/FilterBar.svelte';
+  import {AuthenticatedUserIcon, Icon, TrashIcon} from '$lib/icons';
   import t from '$lib/i18n';
   import IconButton from '../IconButton.svelte';
   import ProjectConfidentialityFilterSelect from './ProjectConfidentialityFilterSelect.svelte';
   import SupHelp from '../help/SupHelp.svelte';
-  import { helpLinks } from '../help';
+  import {helpLinks} from '../help';
   import BypassCloudflareEmailObfuscation from '$lib/components/BypassCloudflareEmailObfuscation.svelte';
 
   type Filters = Partial<ProjectFilters> & Pick<ProjectFilters, 'projectSearch'>;

@@ -38,6 +38,7 @@
   import {createGuestUserByAdmin, type LexAuthUser} from '$lib/user';
   import {Duration} from '$lib/util/time';
   import IconButton from '$lib/components/IconButton.svelte';
+  import {resolve} from '$app/paths';
 
   interface Props {
     data: PageData;
@@ -45,7 +46,7 @@
 
   const { data }: Props = $props();
   let user = $derived(data.user);
-  let orgStore = data.org;
+  let orgStore = $derived(data.org);
   let org = $derived($orgStore);
 
   const queryParams = getSearchParams<OrgSearchParams>({
@@ -102,7 +103,7 @@
     });
     if (result.response === DialogResponse.Submit) {
       notifyWarning($t('org_page.notifications.delete_org', { name: org.name }));
-      await goto('/');
+      await goto(resolve('/'));
     }
   }
 
@@ -129,12 +130,12 @@
       if (result.error?.byType('LastMemberCantLeaveError')) {
         return $t('org_page.leave.last_to_leave');
       }
-      return result.error?.message ? $t(`org_page.leave.error`) : undefined;
+      return result.error?.message ? $t('org_page.leave.error') : undefined;
     });
 
     if (left) {
-      notifySuccess($t(`org_page.leave.success`, { name: org.name }));
-      await goto('/');
+      notifySuccess($t('org_page.leave.success', { name: org.name }));
+      await goto(resolve('/'));
     }
   }
 
@@ -155,7 +156,7 @@
   }
 </script>
 
-<PageBreadcrumb href="/org/list">{$t('org.table.title')}</PageBreadcrumb>
+<PageBreadcrumb href={resolve('/org/list')}>{$t('org.table.title')}</PageBreadcrumb>
 
 <DetailsPage wide titleText={org.name}>
   {#snippet actions()}

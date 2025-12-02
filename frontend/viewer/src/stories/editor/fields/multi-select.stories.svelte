@@ -35,10 +35,10 @@
       readonly: false,
       idSelector: 'label',
       labelSelector: (item) => item.label,
-      drawerTitle: `Semantic domains`,
-      filterPlaceholder: `Filter semantic domains...`,
-      placeholder: `🤷 nothing here`,
-      emptyResultsPlaceholder: `Looked hard, found nothing`,
+      drawerTitle: 'Semantic domains',
+      filterPlaceholder: 'Filter semantic domains...',
+      placeholder: '🤷 nothing here',
+      emptyResultsPlaceholder: 'Looked hard, found nothing',
     },
   });
 </script>

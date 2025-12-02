@@ -5,7 +5,7 @@ import {ProjectPage} from './projectPage';
 
 export class UserDashboardPage extends AuthenticatedBasePage {
   constructor(page: Page) {
-    super(page, page.getByRole('heading', {name: 'My Projects'}), `/`);
+    super(page, page.getByRole('heading', {name: 'My Projects'}), '/');
   }
 
   async openProject(projectName: string, projectCode: string): Promise<ProjectPage> {

@@ -56,7 +56,7 @@ export class TasksService {
       subjectFields: ['partOfSpeechId'],
       prompt: gt`Pick a Part of Speech`,
       taskKind: 'provide-missing',
-      gridifyFilter: `Senses.PartOfSpeechId=`,
+      gridifyFilter: 'Senses.PartOfSpeechId=',
       getSubjectValue: s => firstTruthy(analysis, ws => asString((s as ISense).partOfSpeech?.name[ws.wsId])) ,
       isComplete: s => !!(s as ISense).partOfSpeechId
     };

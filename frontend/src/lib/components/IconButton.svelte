@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IconString } from '$lib/icons';
+  import type {IconString} from '$lib/icons';
   import Loader from './Loader.svelte';
 
   interface Props {
@@ -25,15 +25,16 @@
     join = false,
     variant,
     size,
-    outline = variant !== 'btn-ghost',
+    outline: _outline,
     fake = false,
     onclick,
     ...rest
   }: Props = $props();
-  let loadingSize = size === 'btn-sm' ? ('loading-xs' as const) : undefined;
+  const outline = $derived(_outline ?? variant !== 'btn-ghost');
+  const loadingSize = $derived(size === 'btn-sm' ? ('loading-xs' as const) : undefined);
 
   const xlIcons: IconString[] = ['i-mdi-refresh'];
-  let textSize = $derived(xlIcons.includes(icon) ? 'text-xl' : 'text-lg');
+  const textSize = $derived(xlIcons.includes(icon) ? 'text-xl' : 'text-lg');
 </script>
 
 <!-- type="button" ensures the button doen't act as a submit button when in a form -->

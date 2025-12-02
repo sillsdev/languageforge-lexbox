@@ -1,13 +1,14 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import type {Snippet} from 'svelte';
 
-  import type { Writable } from 'svelte/store';
-  import { getContext } from 'svelte';
-  import { page } from '$app/state';
-  import type { Action } from 'svelte/action';
+  import type {Writable} from 'svelte/store';
+  import {getContext} from 'svelte';
+  import {page} from '$app/state';
+  import type {Action} from 'svelte/action';
+  import type {ResolvedPathname} from '$app/types';
 
   interface Props {
-    href?: string;
+    href?: ResolvedPathname;
     children?: Snippet;
   }
 
@@ -40,6 +41,7 @@
 <div class="hidden">
   <span use:makeBreadCrumb>
     {#if href && !isCurrentPath}
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve the href is already resolved -->
       <a {href} class="hover:border-b">
         {@render children?.()}
       </a>

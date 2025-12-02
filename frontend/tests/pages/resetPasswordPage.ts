@@ -4,7 +4,7 @@ import { UserDashboardPage } from './userDashboardPage';
 
 export class ResetPasswordPage extends AuthenticatedBasePage {
   constructor(page: Page) {
-    super(page, page.getByRole('heading', {name: 'Reset Password', exact: true}), `/resetPassword`);
+    super(page, page.getByRole('heading', {name: 'Reset Password', exact: true}), '/resetPassword');
   }
 
   fillForm(newPassword: string): Promise<void> {

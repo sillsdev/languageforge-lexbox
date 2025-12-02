@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { FormField, PlainInput, randomFormId } from '$lib/forms';
-  import { _userTypeaheadSearch, _usersTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserICanSeeTypeaheadResult } from '$lib/gql/typeahead-queries';
-  import { overlay } from '$lib/overlay';
+  import {FormField, PlainInput, randomFormId} from '$lib/forms';
+  import {_userTypeaheadSearch, _usersTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserICanSeeTypeaheadResult} from '$lib/gql/typeahead-queries';
+  import {overlay} from '$lib/overlay';
   import {resource} from 'runed';
 
   type UserTypeaheadResult = SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult;
@@ -40,7 +40,11 @@
   // making this explicit allows us to only react to input events,
   // rather than programmatic changes like selecting a user
   let trigger = $state('');
-  const _typeaheadResults = resource(() => trigger, (value) => typeaheadSearch(value), {initialValue: [], debounce: debounceMs});
+
+  const _typeaheadResults = resource(() => trigger,
+    (value) => typeaheadSearch(value),
+    {initialValue: [], debounce: (() => debounceMs)()},
+  );
 
   let selectedUser = $state<UserTypeaheadResult | null>(null);
 

@@ -1,7 +1,8 @@
 <script lang="ts">
+  import {resolve} from '$app/paths';
   import t from '$lib/i18n';
   interface Props {
-    href: string;
+    href: `/api/login/google${string}`;
     text?: 'sign_in_with_google' | 'register_with_google';
   }
 
@@ -17,7 +18,7 @@
   - commented out overflow: hidden, because it's unnecessary and makes text ugly on click (due to .btn)
   - added media query for dark mode using colors from the guidelines
 -->
-<a data-sveltekit-preload-data="false" data-sveltekit-reload {href} class="gsi-material-button btn">
+<a data-sveltekit-preload-data="false" data-sveltekit-reload href={resolve(href)} class="gsi-material-button btn">
   <div class="gsi-material-button-state"></div>
   <div class="gsi-material-button-content-wrapper">
     <div class="gsi-material-button-icon">

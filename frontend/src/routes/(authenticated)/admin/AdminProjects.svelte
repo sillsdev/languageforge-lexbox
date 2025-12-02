@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { navigating } from '$app/stores';
-  import { Badge } from '$lib/components/Badges';
+  import {navigating} from '$app/stores';
+  import {Badge} from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import { DEFAULT_PAGE_SIZE, limit } from '$lib/components/Paging';
+  import {DEFAULT_PAGE_SIZE, limit} from '$lib/components/Paging';
   import {
     filterProjects,
     ProjectFilter,
@@ -11,19 +11,20 @@
     type ProjectItemWithDraftStatus,
     ProjectTable,
   } from '$lib/components/Projects';
-  import { RefineFilterMessage } from '$lib/components/Table';
-  import { DialogResponse } from '$lib/components/modals';
+  import {RefineFilterMessage} from '$lib/components/Table';
+  import {DialogResponse} from '$lib/components/modals';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
-  import { Button } from '$lib/forms';
-  import { _deleteProject, _deleteDraftProject } from '$lib/gql/mutations';
-  import t, { number } from '$lib/i18n';
-  import { TrashIcon } from '$lib/icons';
-  import { useNotifications } from '$lib/notify';
-  import { type QueryParams, toSearchParams } from '$lib/util/query-params';
-  import { derived as derivedStore } from 'svelte/store';
-  import type { AdminSearchParams, DraftProject } from './+page';
+  import {Button} from '$lib/forms';
+  import {_deleteProject, _deleteDraftProject} from '$lib/gql/mutations';
+  import t, {number} from '$lib/i18n';
+  import {TrashIcon} from '$lib/icons';
+  import {useNotifications} from '$lib/notify';
+  import {type QueryParams, toSearchParams} from '$lib/util/query-params';
+  import {derived as derivedStore} from 'svelte/store';
+  import type {AdminSearchParams, DraftProject} from './+page';
   import AdminTabs from './AdminTabs.svelte';
-  import type { CreateProjectInput } from '$lib/gql/types';
+  import type {CreateProjectInput} from '$lib/gql/types';
+  import {resolve} from '$app/paths';
 
   interface Props {
     projects: ProjectItem[];
@@ -57,7 +58,7 @@
     ...draftProjects.map((p) => ({
       ...p,
       isDraft: true as const,
-      createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p as CreateProjectInput)}` /* TODO #737 - Remove unnecessary cast */,
+      createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p as CreateProjectInput)}` as const /* TODO #737 - Remove unnecessary cast */,
     })),
     ...projects.map((p) => ({ ...p, isDraft: false as const })),
   ]);
@@ -96,7 +97,7 @@
           </Badge>
         </div>
       </div>
-      <a class="btn btn-sm btn-success max-xs:btn-square" href="/project/create">
+      <a class="btn btn-sm btn-success max-xs:btn-square" href={resolve('/project/create')}>
         <span class="admin-tabs:hidden">
           {$t('project.create.title')}
         </span>

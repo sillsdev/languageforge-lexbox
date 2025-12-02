@@ -1,5 +1,5 @@
-import type { LayoutLoadEvent } from './$types';
-import { logout, type LexAuthUser, getHomePath } from '$lib/user';
+import type {LayoutLoadEvent} from './$types';
+import {logout, type LexAuthUser, getHomePath} from '$lib/user';
 
 export async function load(event: LayoutLoadEvent) {
   const parentData = await event.parent();
@@ -12,5 +12,5 @@ export async function load(event: LayoutLoadEvent) {
   // (by explicitly navigating to /home)
   const home = getHomePath(user);
 
-  return { user: user as LexAuthUser, home };
+  return { user: user as LexAuthUser, home, projectViewMode: parentData.projectViewMode };
 }

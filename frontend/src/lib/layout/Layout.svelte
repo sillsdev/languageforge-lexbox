@@ -1,19 +1,20 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import type {Snippet} from 'svelte';
   import EmailVerificationStatus, {
     initEmailResult,
     initRequestedEmail,
   } from '$lib/email/EmailVerificationStatus.svelte';
   import t from '$lib/i18n';
-  import { AdminIcon, HomeIcon, Icon } from '$lib/icons';
-  import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
-  import { onMount } from 'svelte';
-  import { ensureClientMatchesUser } from '$lib/gql';
-  import { beforeNavigate } from '$app/navigation';
-  import { page } from '$app/state';
-  import type { LayoutData } from '../../routes/$types';
+  import {AdminIcon, HomeIcon, Icon} from '$lib/icons';
+  import {AdminContent, AppBar, AppMenu, Breadcrumbs, Content} from '$lib/layout';
+  import {onMount} from 'svelte';
+  import {ensureClientMatchesUser} from '$lib/gql';
+  import {beforeNavigate} from '$app/navigation';
+  import {resolve} from '$app/paths';
+  import {page} from '$app/state';
+  import type {LayoutData} from '../../routes/$types';
   import DevContent from './DevContent.svelte';
-  import { helpLinks } from '$lib/components/help';
+  import {helpLinks} from '$lib/components/help';
 
   interface Props {
     hideToolbar?: boolean;
@@ -55,12 +56,12 @@
           <Breadcrumbs />
           <div class="flex gap-2 items-center">
             <DevContent>
-              <a href="/sandbox" class="btn btn-sm btn-neutral glass">
+              <a href={resolve('/sandbox')} class="btn btn-sm btn-neutral glass">
                 <Icon size="text-2xl" icon="i-mdi-package-variant" />
               </a>
             </DevContent>
-            <a
-              href={helpLinks.helpList}
+            <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+            <a href={helpLinks.helpList}
               target="_blank"
               rel="external"
               class="btn btn-sm btn-info btn-outline hidden lg:flex"
@@ -68,20 +69,20 @@
               {$t('appmenu.help')}
               <Icon icon="i-mdi-open-in-new" size="text-lg" />
             </a>
-            <a href="/org/list" class="btn btn-sm btn-secondary">
+            <a href={resolve('/org/list')} class="btn btn-sm btn-secondary">
               <span class="max-md:hidden">
                 {$t('appmenu.orgs')}
               </span>
               <Icon icon="i-mdi-account-group-outline" size="text-xl" />
             </a>
-            <a href="/" class="btn btn-sm btn-primary">
+            <a href={resolve('/')} class="btn btn-sm btn-primary">
               <span class="max-md:hidden">
                 {$t('user_dashboard.title')}
               </span>
               <HomeIcon size="text-xl" />
             </a>
             <AdminContent>
-              <a href="/admin" class="btn btn-sm btn-accent">
+              <a href={resolve('/admin')} class="btn btn-sm btn-accent">
                 <span class="max-md:hidden">
                   {$t('admin_dashboard.title')}
                 </span>

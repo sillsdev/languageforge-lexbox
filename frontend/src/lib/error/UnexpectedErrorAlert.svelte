@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { beforeNavigate } from '$app/navigation';
-  import { useDismiss, useError } from '.';
+  import {beforeNavigate} from '$app/navigation';
+  import {resolve} from '$app/paths';
+  import {useDismiss, useError} from '.';
   import t from '$lib/i18n';
   import UnexpectedError from './UnexpectedError.svelte';
-  import { onDestroy } from 'svelte';
-  import { browser } from '$app/environment';
+  import {onDestroy} from 'svelte';
+  import {browser} from '$app/environment';
 
   let dialog: HTMLDialogElement | undefined = $state();
   const error = useError();
@@ -28,7 +29,11 @@
   }
 
   function open(): void {
-    dialog?.showModal?.call(dialog);
+    try {
+      dialog?.showModal?.call(dialog);
+    } catch (e) {
+      console.error('Dialog open failed', e);
+    }
     dialog?.classList.add('modal-open');
   }
 
@@ -42,7 +47,7 @@
   <div class="modal-box bg-error text-error-content max-w-[95vw] w-[unset]">
     <UnexpectedError />
     <div class="flex justify-end gap-4 modal-action">
-      <a class="btn btn-outline" href="/" rel="external">
+      <a class="btn btn-outline" href={resolve('/')} rel="external">
         {$t('errors.go_home')}
         <span class="i-mdi-home-outline text-xl"></span>
       </a>

@@ -1,6 +1,7 @@
 <script lang="ts">
+  import {resolve} from '$app/paths';
   import t from '$lib/i18n';
-  import { TitlePage } from '$lib/layout';
+  import {TitlePage} from '$lib/layout';
 </script>
 
 <TitlePage title={$t('forgot_password.email_sent.title')}>
@@ -9,6 +10,6 @@
   </p>
 
   <div class="text-center mt-8">
-    <a href="/login" class="btn btn-primary">{$t('forgot_password.email_sent.back_to_login')}</a>
+    <a href={resolve('/login')} class="btn btn-primary">{$t('forgot_password.email_sent.back_to_login')}</a>
   </div>
 </TitlePage>
