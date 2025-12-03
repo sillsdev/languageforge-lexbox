@@ -36,7 +36,7 @@ test.describe('oauth tests', () => {
       }
 
       const oauthTestPage = await new OidcDebuggerPage(page).goto();
-      await oauthTestPage.fillForm(serverBaseUrl);
+      const { codeVerifier } = await oauthTestPage.fillForm(serverBaseUrl);
       await oauthTestPage.submit();
       const approvalPage = new OauthApprovalPage(page);
 
@@ -56,7 +56,7 @@ test.describe('oauth tests', () => {
       }
 
       const successPage = await oauthTestPage.waitForSuccessPage();
-      const idToken = await successPage.getDebuggerIdToken();
+      const idToken = await successPage.getDebuggerIdToken(codeVerifier);
       expect(idToken).not.toBeFalsy();
       const idTokenUser = jwtDecode<JwtPayload & {name: string}>(idToken);
       expect(idTokenUser).toBeTruthy();
@@ -91,11 +91,11 @@ test.describe('oauth tests', () => {
     // the token hasn't been refreshed since the user was added to the project, so we shouldn't have any projects yet
     expect(userProjectCountBefore).toBe(0);
     const oauthTestPage = await new OidcDebuggerPage(page).goto();
-    await oauthTestPage.fillForm(serverBaseUrl);
+    const { codeVerifier } = await oauthTestPage.fillForm(serverBaseUrl);
     await oauthTestPage.submit();
     const successPage = await oauthTestPage.waitForSuccessPage();
 
-    const token = await successPage.getDebuggerAccessToken();
+    const token = await successPage.getDebuggerAccessToken(codeVerifier);
     const userProjectCountAfter = await userProjectCount(token);
     expect(userProjectCountAfter).toBe(userProjectCountBefore + 1);
   });
@@ -106,11 +106,11 @@ test.describe('oauth tests', () => {
     await preApproveOauthApp(page.request, OidcDebuggerPage.clientId, OidcDebuggerPage.scopes);
 
     const oauthTestPage = await new OidcDebuggerPage(page).goto();
-    await oauthTestPage.fillForm(serverBaseUrl);
+    const { codeVerifier } = await oauthTestPage.fillForm(serverBaseUrl);
     await oauthTestPage.submit();
     const successPage = await oauthTestPage.waitForSuccessPage();
 
-    const token = await successPage.getDebuggerAccessToken();
+    const token = await successPage.getDebuggerAccessToken(codeVerifier);
 
     const response = await fetch(`${serverBaseUrl}/api/login/refresh`, {
       method: 'POST',

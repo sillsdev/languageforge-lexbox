@@ -48,7 +48,7 @@ const config: PlaywrightTestConfig = {
       cookies: [],
       origins: [
         {
-          origin: testEnv.serverHostname,
+          origin: testEnv.serverBaseUrl,
           localStorage: [
             {
               name: "isPlaywright",
