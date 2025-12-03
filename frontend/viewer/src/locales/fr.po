@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-09-11 05:31\n"
+"PO-Revision-Date: 2025-11-22 11:51\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -56,27 +56,27 @@ msgstr "{num, plural, one {# changement} other {# changements}}"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
-msgstr ""
+msgstr "{num, plural, one {# nouveau FieldWorks Classic commit} other {# nouveaux FieldWorks Classic commits}}"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
-msgstr ""
+msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite communique}}"
 
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
-msgstr ""
+msgstr "**Moins de champs** (par exemple, masque les *types de formulaires complexes*, *signification littérale*)"
 
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem*, *Particle*, *Phrase*, and *Discontiguous Phrase*)"
-msgstr ""
+msgstr "**Moins de types de morphèmes** (seulement *Racine*, *Racines liées*, *Stem*, *Stem*, *Particible*, *Phrase*, et *Phrase Discontigue*)"
 
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
-msgstr ""
+msgstr "**terminologie plus simple** (par exemple *Mot* au lieu de *forme de lexème*, *Signification* au lieu de *Sense*)"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
-msgstr "Une nouvelle version de FieldWorks Lite sera disponible."
+msgstr "Une nouvelle version de FieldWorks Lite est disponible."
 
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
@@ -101,7 +101,7 @@ msgstr "Ajouter de l'audio"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add complex form"
-msgstr "Ajouter un formulaire complexe"
+msgstr "Ajouter une forme complexe"
 
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Add component"
@@ -114,11 +114,11 @@ msgstr "Ajouter un exemple"
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
-msgstr "Ajouter un sens"
+msgstr "Ajouter une signification"
 
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Add new word"
-msgstr ""
+msgstr "Ajouter un nouveau mot"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
@@ -131,7 +131,7 @@ msgstr "Ajouter du sens"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
-msgstr ""
+msgstr "Ajouter un mot"
 
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
@@ -139,19 +139,19 @@ msgstr "une entrée"
 
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any grammatical info."
-msgstr ""
+msgstr "N'importe quelle information grammaticale."
 
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any part of speech"
-msgstr ""
+msgstr "N'importe quelle partie du discours"
 
 #: src/project/browse/filter/SemanticDomainSelect.svelte
 msgid "Any semantic domain"
-msgstr ""
+msgstr "N'importe quel domaine sémantique"
 
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
-msgstr "Tous les W"
+msgstr "Tous les Systèmes d'Ecriture"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Application version"
@@ -163,11 +163,11 @@ msgstr "Êtes-vous sûr de vouloir supprimer {0}?"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Ask questions and get help on our community forum."
-msgstr ""
+msgstr "Posez des questions et obtenez de l'aide sur notre forum communautaire."
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
-msgstr "Le fichier audio n'est pas inclus dans l'envoi et la réception"
+msgstr "Le fichier audio n'est pas inclus dans l'envoi/recevoir"
 
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Audio saved and uploaded to Lexbox"
@@ -187,7 +187,7 @@ msgstr "Auto"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Auto syncing"
-msgstr ""
+msgstr "Synchronisation automatique"
 
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
@@ -209,23 +209,23 @@ msgstr "Annuler"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
-msgstr ""
+msgstr "Les modifications peuvent également résulter de l'ajout de champs à de nouvelles versions de FieldWorks Lite."
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
-msgstr ""
+msgstr "Changer le même champ deux fois, par exemple, peut entraîner deux livraisons mais un seul changement qui doit être appliqué à FieldWorks Classic. Les commits peuvent également comporter de multiples changements."
 
 #: src/lib/ThemePicker.svelte
 msgid "Choose theme"
-msgstr ""
+msgstr "Choisir un thème"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
-msgstr "Formulaire de citation"
+msgstr "Autonyme"
 
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
-msgstr "Formulaire de citation"
+msgstr "Autonyme"
 
 #: src/home/HomeView.svelte
 msgid "Classic FieldWorks Projects"
@@ -235,7 +235,7 @@ msgstr "Projets FieldWorks classiques"
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
-msgstr "clair"
+msgstr "effacer"
 
 #: src/project/tasks/SubjectPopup.svelte
 #: src/lib/components/ui/button/x-button.svelte
@@ -260,11 +260,11 @@ msgstr "Forme complexe"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex form types"
-msgstr "Types de formulaires complexes"
+msgstr "Types de formes complexes"
 
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Complex form:"
-msgstr ""
+msgstr "Forme complexe :"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
@@ -279,7 +279,7 @@ msgstr "Composant"
 
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Component:"
-msgstr ""
+msgstr "Composant :"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Components"
@@ -295,7 +295,7 @@ msgstr "Copié dans le presse-papiers"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
-msgstr "Copier la version"
+msgstr "Copier la version dans le presse-papiers"
 
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
@@ -303,11 +303,11 @@ msgstr "Créer une entrée"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create Entry"
-msgstr ""
+msgstr "Créer une entrée"
 
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
-msgstr "Créer un projet d'exemple"
+msgstr "Créer un projet exemplaire"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -316,7 +316,7 @@ msgstr "Entrée actuelle"
 
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Current version"
-msgstr ""
+msgstr "Version actuelle"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -325,7 +325,7 @@ msgstr "Mot actuel"
 
 #: src/lib/ThemePicker.svelte
 msgid "Dark"
-msgstr ""
+msgstr "Sombre"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Dashboard"
@@ -359,11 +359,11 @@ msgstr "Supprimer un mot"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Deleted"
-msgstr ""
+msgstr "Supprimé"
 
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
-msgstr ""
+msgstr "Détails du produit"
 
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
@@ -416,7 +416,7 @@ msgstr "Télécharger un projet par code de projet"
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "Download unlisted project"
-msgstr "Télécharger le projet non listé"
+msgstr "Télécharger un projet qui ne figure pas dans la liste"
 
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
@@ -424,11 +424,11 @@ msgstr "Téléchargé {0}"
 
 #: src/home/Server.svelte
 msgid "Downloading {0}..."
-msgstr "Télécharger {0}..."
+msgstr "Téléchargement en cours {0}..."
 
 #: src/home/Server.svelte
 msgid "Downloading..."
-msgstr "Téléchargement..."
+msgstr "Téléchargement en cours..."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
@@ -440,7 +440,7 @@ msgstr "Se termine par"
 
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Entries missing..."
-msgstr ""
+msgstr "Entrées manquantes..."
 
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -461,7 +461,7 @@ msgstr "Entrée ou sens :"
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
-msgstr "Équivalents"
+msgstr "Égale à"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Error getting sync status"
@@ -477,24 +477,24 @@ msgstr "Exemple"
 
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
-msgstr "Exemple de phrase"
+msgstr "Phrase exemplaire"
 
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
-msgstr "Échec de la copie dans le presse-papiers"
+msgstr "Copie dans le presse-papiers échouée"
 
 #: src/home/Server.svelte
 msgid "Failed to download {0}"
-msgstr "Échec du téléchargement de {0}"
+msgstr "Téléchargement échoué {0}"
 
 #: src/project/browse/EntriesList.svelte
 #: src/project/browse/EntriesList.svelte
 msgid "Failed to load entries"
-msgstr "Échec du chargement des entrées"
+msgstr "Chargement des entrées échoué"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to open data directory, use the path in the text field instead"
-msgstr "Échec de l'ouverture du répertoire de données, utilisez plutôt le chemin d'accès dans le champ texte."
+msgstr "Ouverture du répertoire de données échouée ; utilisez plutôt le chemin d'accès dans le champ texte"
 
 #: src/lib/services/url-opener.ts
 msgid "Failed to open URL: {0}"
@@ -503,17 +503,17 @@ msgstr "Impossible d'ouvrir l'URL : {0}"
 #: src/project/SyncDialog.svelte
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
-msgstr "Échec de la synchronisation"
+msgstr "Synchronisation échouée"
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
 msgid "Feedback & Support"
-msgstr ""
+msgstr "Commentaires & Support"
 
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
-msgstr "Champ d'application"
+msgstr "Champ"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Lite"
@@ -525,7 +525,7 @@ msgstr "FieldWorks Lite a été mis à jour avec succès. Veuillez redémarrer l
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
-msgstr ""
+msgstr "Les utilisateurs de FieldWorks Lite recevront automatiquement les modifications qui ont été apportées dans FieldWorks Classic. Les utilisateurs de FieldWorks Classic verront les changements qui ont été faits dans FieldWorks Lite après avoir fait Envoyer/Recevoir."
 
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -549,7 +549,7 @@ msgstr "Fichier non trouvé"
 
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File saving not supported"
-msgstr "L'enregistrement du fichier n'est pas pris en charge"
+msgstr "L'enregistrement du fichier n'est pas une option valable"
 
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -558,11 +558,11 @@ msgstr "Fichier trop volumineux"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # entries"
-msgstr "Filtre # entrées"
+msgstr "Filtrer # entrées"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # words"
-msgstr "Filtre # mots"
+msgstr "Filtrer # mots"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter entries"
@@ -570,24 +570,24 @@ msgstr "Filtrer les entrées"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter for..."
-msgstr ""
+msgstr "Filtrer pour..."
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
-msgstr "Mots filtres"
+msgstr "Filtrer mots"
 
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Filter..."
-msgstr "Filtre..."
+msgstr "Filtrer..."
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find entry..."
-msgstr "Trouver l'entrée..."
+msgstr "Rechercher une entrée..."
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find word..."
-msgstr "Trouver un mot..."
+msgstr "Rechercher un mot..."
 
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
@@ -600,11 +600,11 @@ msgstr "Pour toute autre question, n'hésitez pas à nous envoyer un courriel."
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
-msgstr ""
+msgstr "Depuis le filtre actif"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
-msgstr ""
+msgstr "Obtenir de l'aide"
 
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
@@ -614,7 +614,7 @@ msgstr "Glose"
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Go to {0}"
-msgstr "Aller sur {0}"
+msgstr "Naviguer à {0}"
 
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
@@ -623,7 +623,7 @@ msgstr "Informations grammaticales."
 
 #: src/project/browse/SortMenu.svelte
 msgid "Headword"
-msgstr "Mot de tête"
+msgstr "Entrée de dictionnaire"
 
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
@@ -648,7 +648,7 @@ msgstr "Je comprends que cela ne peut pas être annulé"
 
 #: src/home/HomeView.svelte
 msgid "Import"
-msgstr "Importation"
+msgstr "Importer"
 
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
@@ -656,11 +656,11 @@ msgstr "dans {0}"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Include subdomains"
-msgstr ""
+msgstr "Inclure les sous-domaines"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Incomplete entries"
-msgstr ""
+msgstr "Entrées incomplètes"
 
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
@@ -673,7 +673,7 @@ msgstr "Dernier changement : #"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Last sync: #"
-msgstr ""
+msgstr "Synchronisation la plus récente : #"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
@@ -681,7 +681,7 @@ msgstr "Longueur :"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Lexbox"
-msgstr ""
+msgstr "Lexbox"
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -689,15 +689,15 @@ msgstr "Logo Lexbox"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Lexeme form"
-msgstr "Forme du lexème"
+msgstr "Forme de lexème"
 
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
-msgstr "Forme du lexème"
+msgstr "Forme de lexème"
 
 #: src/lib/ThemePicker.svelte
 msgid "Light"
-msgstr ""
+msgstr "Lumière"
 
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
@@ -718,7 +718,7 @@ msgstr "chargement..."
 #: src/project/sync/SyncStatusPrimitive.svelte
 #: src/home/HomeView.svelte
 msgid "Local"
-msgstr "Locale"
+msgstr "Local"
 
 #: src/home/HomeView.svelte
 msgid "Local only"
@@ -744,7 +744,7 @@ msgstr "Réalisé avec ❤️ à partir de 🇦🇹 🇹🇭 🇺🇸"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Make a suggestion"
-msgstr ""
+msgstr "Faire une suggestion"
 
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
@@ -752,7 +752,7 @@ msgstr "Assurez-vous que vos [changements sont synchronisés]({0}) vers Lexbox."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
-msgstr "Responsable"
+msgstr "Gestionnaire"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
@@ -767,11 +767,11 @@ msgstr "Définition manquante {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Example sentence {0}"
-msgstr "Phrase d'exemple {0} manquante"
+msgstr "Phrase exemplaire {0} manquante"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
-msgstr "Glose {0} manquant"
+msgstr "Glose {0} manquante"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of Speech"
@@ -779,7 +779,7 @@ msgstr "Partie du discours manquante"
 
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Missing: {0}"
-msgstr ""
+msgstr "Manquant : {0}"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -797,7 +797,7 @@ msgstr "Nouveau"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "New data"
-msgstr ""
+msgstr "Nouvelles données"
 
 #: src/project/PrimaryNewEntryButton.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -819,7 +819,7 @@ msgstr "Aucune activité trouvée"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
-msgstr "Pas de son"
+msgstr "Aucun contenu audio"
 
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
@@ -845,11 +845,11 @@ msgstr "Aucun élément trouvé"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
-msgstr ""
+msgstr "Aucune nouvelle donnée"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "No server"
-msgstr ""
+msgstr "Aucun serveur"
 
 #: src/project/ProjectSidebar.svelte
 msgid "No server configured"
@@ -870,12 +870,12 @@ msgstr "Aucun"
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Not equal"
-msgstr "Pas d'égalité"
+msgstr "Pas égal à"
 
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Not found"
-msgstr ""
+msgstr "Non trouvé"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
@@ -883,7 +883,7 @@ msgstr "Non connecté"
 
 #: src/lib/activity/ActivityItem.svelte
 msgid "Not synced"
-msgstr ""
+msgstr "Non synchronisé"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
@@ -900,15 +900,15 @@ msgstr "Observateur"
 #: src/project/ProjectSidebar.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Offline"
-msgstr "Hors ligne"
+msgstr "Déconnecté"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
-msgstr "Hors ligne, impossible de télécharger"
+msgstr "Déconnecté, impossible de télécharger"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
-msgstr ""
+msgstr "Un commit FieldWorks Classic peut contenir des modifications à plusieurs entrées ou champs. D'un autre côté, un commit ne peut affecter que les données qui ne sont pas synchronisées avec FieldWorks Lite."
 
 #: src/home/Server.svelte
 msgid "Open"
@@ -985,7 +985,7 @@ msgstr "Nom du projet..."
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Publish {0} in"
-msgstr ""
+msgstr "Publier {0} dans"
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Reference"
@@ -999,11 +999,11 @@ msgstr "Affinez votre filtre pour voir plus..."
 #: src/home/Server.svelte
 #: src/home/HomeView.svelte
 msgid "Refresh Projects"
-msgstr "Projets de rafraîchissement"
+msgstr "Actualiser la liste de projets"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
-msgstr "Retirer"
+msgstr "Supprimer"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Remove audio"
@@ -1011,7 +1011,7 @@ msgstr "Supprimer l'audio"
 
 #: src/lib/OpenInFieldWorksButton.svelte
 msgid "Reopen"
-msgstr "Réouverture"
+msgstr "Rouvrir"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
@@ -1035,23 +1035,23 @@ msgstr "Sauvegarder l'audio"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
-msgstr "Recherche # ou #"
+msgstr "Rechercher # ou #"
 
 #: src/project/ProjectDropdown.svelte
 msgid "Search Dictionaries"
-msgstr "Recherche dans les dictionnaires"
+msgstr "Rechercher dans les dictionnaires"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Select {0}"
-msgstr "Sélectionnez {0}"
+msgstr "Sélectionner {0}"
 
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
-msgstr "Sélectionnez {0} pour voir les détails"
+msgstr "Sélectionner {0} pour voir les détails"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Select a new task to work on"
-msgstr "Sélectionnez une nouvelle tâche sur laquelle travailler"
+msgstr "Sélectionner une nouvelle tâche à effectuer"
 
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
@@ -1060,7 +1060,7 @@ msgstr "Sélectionner un fichier"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
-msgstr ""
+msgstr "Domaine sémantique"
 
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
@@ -1091,7 +1091,7 @@ msgstr "Shadcn Sandbox # #"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Share ideas and vote on new features or improvements."
-msgstr ""
+msgstr "Partagez vos idées et votez pour de nouvelles fonctionnalités ou améliorations."
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share Log file"
@@ -1123,7 +1123,7 @@ msgstr "Ignorer"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
-msgstr ""
+msgstr "Champ spécifique"
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
@@ -1149,15 +1149,15 @@ msgstr "Synchroniser les modifications"
 
 #: src/project/SyncDialog.svelte
 msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
-msgstr ""
+msgstr "Synchronisation terminée. {0} a été appliqué à FieldWorks Classic. {1} ont été appliqués à FieldWorks Lite."
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
-msgstr ""
+msgstr "Synchroniser FieldWorks Lite et FieldWorks Classique"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
-msgstr ""
+msgstr "Synchronisez vos modifications avec d'autres utilisateurs FieldWorks Lite"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
@@ -1169,7 +1169,7 @@ msgstr "Synchronisé avec {0}"
 
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
-msgstr ""
+msgstr "Synchronisé : #"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
@@ -1177,7 +1177,7 @@ msgstr "Synchroniser"
 
 #: src/project/SyncDialog.svelte
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
-msgstr ""
+msgstr "Synchronisation de FieldWorks Lite et FieldWorks Classic..."
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Syncing..."
@@ -1185,7 +1185,7 @@ msgstr "Synchronisation en cours..."
 
 #: src/lib/ThemePicker.svelte
 msgid "System"
-msgstr ""
+msgstr "Système"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
@@ -1201,23 +1201,23 @@ msgstr "Tâches"
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Tell us about a bug or issue you’ve encountered."
-msgstr ""
+msgstr "Parlez-nous d'un bug ou d'un problème que vous avez rencontré."
 
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
-msgstr ""
+msgstr "La vue *FieldWorks Classic* est par contre destinée aux utilisateurs familiers avec *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
 
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
-msgstr ""
+msgstr "La vue *FieldWorks Lite* est conçue pour les non-linguistes et diffère de la vue *FieldWorks Classic* des manières suivantes :"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
-msgstr ""
+msgstr "Le nombre de commits FieldWorks Classic ne correspond pas nécessairement au nombre de modifications affichées dans le message de résultat de synchronisation."
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
-msgstr ""
+msgstr "Le nombre de livraisons FieldWorks Lite ne correspond pas nécessairement au nombre de modifications affichées dans le message de résultat de synchronisation."
 
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
@@ -1225,11 +1225,11 @@ msgstr "La tâche que vous cherchez n'existe pas."
 
 #: src/lib/activity/ActivityItem.svelte
 msgid "The time when you uploaded or downloaded these changes"
-msgstr ""
+msgstr "L'heure où vous avez téléchargé ou téléchargé ces modifications"
 
 #: src/lib/activity/ActivityItem.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
-msgstr ""
+msgstr "Ces modifications n'ont pas encore été téléchargées. Assurez-vous que vous êtes connecté et que vous êtes connecté pour partager vos modifications."
 
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -1237,7 +1237,7 @@ msgstr "Cette date # et cet emoji # sont des extraits."
 
 #: src/lib/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
-msgstr "Ce projet est maintenant ouvert dans FieldWorks. Pour continuer à travailler dans FieldWorks Lite, fermez le projet dans FieldWorks et cliquez sur Réouvrir."
+msgstr "Ce projet est maintenant ouvert dans FieldWorks. Pour continuer à travailler dans FieldWorks Lite, fermez le projet dans FieldWorks et cliquez sur Rouvrir."
 
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
@@ -1245,11 +1245,11 @@ msgstr "Cette tâche est terminée"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
-msgstr ""
+msgstr "Cela synchronisera les copies FieldWorks Lite et FieldWorks Classic de votre projet dans Lexbox."
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
-msgstr "Filtres à bascule"
+msgstr "Basculer les filtres"
 
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
@@ -1261,7 +1261,7 @@ msgstr "Traduction"
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
-msgstr ""
+msgstr "Traduction {0}"
 
 #: src/project/ProjectSidebar.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1272,15 +1272,15 @@ msgstr "Dépannage"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
-msgstr "Tapez une définition"
+msgstr "Saisir une définition"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
-msgstr "Tapez une Glose"
+msgstr "Saisir une Glose"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type an example sentence"
-msgstr "Tapez une phrase d'exemple"
+msgstr "Saisir une phrase exemplaire"
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
@@ -1311,7 +1311,7 @@ msgstr "Erreur inconnue lors du téléchargement de {0}"
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Unknown server"
-msgstr ""
+msgstr "Serveur inconnu"
 
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
@@ -1335,7 +1335,7 @@ msgstr "Mettre à jour {0}"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
-msgstr "Utilise des composants tels que"
+msgstr "Utilise des composants comme"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Version {0}"
@@ -1343,7 +1343,7 @@ msgstr "Version {0}"
 
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
-msgstr ""
+msgstr "Voir"
 
 #: src/home/Server.svelte
 msgid "Where are my projects?"
@@ -1352,7 +1352,7 @@ msgstr "Où sont mes projets ?"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Why is that?"
-msgstr ""
+msgstr "Pourquoi?"
 
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/filter/FieldSelect.svelte
@@ -1391,9 +1391,10 @@ msgstr "Vous avez terminé {0} {1}"
 
 #: src/home/Server.svelte
 msgid "You don't have permission to download project {0} from {1}"
-msgstr "Vous n'avez pas la permission de télécharger le projet {0} depuis {1}"
+msgstr "Vous n'êtes pas autorisé(e) de télécharger le projet {0} depuis {1}"
 
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
+

@@ -1,1 +1,1 @@
-FieldWorks Lite pour Platform.Bible. Propulsé par Webpack.
+FieldWorks Lite pour Platform.Bible. Équipé de Webpack.

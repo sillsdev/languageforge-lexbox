@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-09-10 05:19\n"
+"PO-Revision-Date: 2025-11-22 11:51\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -299,7 +299,11 @@ msgstr ""
 
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
-msgstr "Cipta entri"
+msgstr "Cipta kemasukan"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Create Entry"
+msgstr "Cipta kemasukan"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create Entry"
@@ -648,7 +652,7 @@ msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Import"
-msgstr "Import"
+msgstr "Masukkan"
 
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
