@@ -22,9 +22,9 @@
 </script>
 
 <script lang="ts">
-  import { cn } from '$lib/utils';
-  import { Context, watch } from 'runed';
-  import { onDestroy, type Snippet } from 'svelte';
+  import {cn} from '$lib/utils';
+  import {Context, watch} from 'runed';
+  import {onDestroy, type Snippet} from 'svelte';
   import {AppNotification} from '$lib/notifications/notifications';
 
   type Props = {
@@ -71,7 +71,7 @@
   }
 
   const bottomDialog = $derived(index === 1);
-  const topDialog = $derived(index && index >= openDialogs);
+  const topDialog = $derived(!openDialogs || index && index >= openDialogs);
   const dataProps = $derived({
     'data-dialog-index': index,
     'data-dialog-top': topDialog,
