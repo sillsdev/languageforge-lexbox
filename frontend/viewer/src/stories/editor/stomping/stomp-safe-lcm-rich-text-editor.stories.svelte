@@ -50,7 +50,7 @@
     const input = await canvas.findByRole<HTMLDivElement>('textbox');
     await expect(input).toBeInTheDocument();
     focusAtEnd(input);
-    await userEvent.type(input, ' new text'); // dirty => locked
+    await userEvent.type(input, ' new text', { delay: 10 }); // dirty => locked
     await tick();
     await expect(input.textContent).toMatch(/new text$/);
     value = { spans: [span('A different value')] }; // parent change while locked
@@ -79,7 +79,7 @@
     await userEvent.clear(input);
     await expect(input.textContent).toBe('');
     input.click();
-    await userEvent.type(input, 'abc');
+    await userEvent.type(input, 'abc', { delay: 10 });
     await expect(input.textContent).toBe('abc');
   }}
 >
