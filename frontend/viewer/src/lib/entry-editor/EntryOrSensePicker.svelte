@@ -67,7 +67,7 @@
     return lexboxApi.searchEntries(search ?? '', {
       offset: 0,
       count: fetchCount,
-      order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
+      order: {field: SortField.SearchRelevance, writingSystem: 'default', ascending: true},
     });
   }, {initialValue: [], debounce: DEFAULT_DEBOUNCE_TIME});
   const displayedEntries = $derived(searchResource.current?.slice(0, displayCount) ?? []);
