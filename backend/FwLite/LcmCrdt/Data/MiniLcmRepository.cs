@@ -131,7 +131,7 @@ public class MiniLcmRepository(
         options = await EnsureWritingSystemIsPopulated(options ??= QueryOptions.Default);
 
         var queryable = Entries;
-        (queryable, var sortingHandled) = await FilterEntries(queryable, query, options);
+        (queryable, var sortingHandled) = await FilterEntries(queryable, query, options, options.Order);
         if (!sortingHandled)
             queryable = await ApplySorting(queryable, options, query);
 
@@ -167,7 +167,8 @@ public class MiniLcmRepository(
 
     private async Task<(IQueryable<Entry> queryable, bool sortingHandled)> FilterEntries(IQueryable<Entry> queryable,
         string? query,
-        FilterQueryOptions options)
+        FilterQueryOptions options,
+        SortOptions? sortOptions = null)
     {
         if (options.Exemplar is not null)
         {
@@ -187,12 +188,16 @@ public class MiniLcmRepository(
         {
             if (SearchService is not null && SearchService.ValidSearchTerm(query))
             {
-                var queryOptions = options as QueryOptions;
-                //ranking must be done at the same time as part of the full-text search, so we can't use normal sorting
-                sortingHandled = queryOptions?.Order.Field == SortField.SearchRelevance;
-                queryable = SearchService.FilterAndRank(queryable,
-                    query,
-                    sortingHandled);
+                if (sortOptions is not null && sortOptions.Field == SortField.SearchRelevance)
+                {
+                    //ranking must be done at the same time as part of the full-text search, so we can't use normal sorting
+                    sortingHandled = true;
+                    queryable = SearchService.FilterAndRank(queryable, query, sortOptions.WritingSystem);
+                }
+                else
+                {
+                    queryable = SearchService.Filter(queryable, query);
+                }
             }
             else
             {

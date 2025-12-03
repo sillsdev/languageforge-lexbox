@@ -29,33 +29,52 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     //linq2db table
     private ITable<EntrySearchRecord> EntrySearchRecordsTable => dbContext.GetTable<EntrySearchRecord>();
 
+    public IQueryable<Entry> Filter(IQueryable<Entry> queryable, string query)
+    {
+        return FilterInternal(queryable, query).Select(t => t.Entry);
+    }
+
     public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable,
         string query,
-        bool rankResults)
+        WritingSystemId wsId)
+    {
+        var filtered = FilterInternal(queryable, query);
+        var ordered = filtered
+            .OrderBy(t =>
+                // First headword matches... (this allows headword matches to trump long text penalizations)
+                t.HeadwordMatches
+                // ...in order of length (e.g. so exact matches are first).
+                ? t.SearchRecord.Headword.Length
+                // Everything else falls back to FTS rank.
+                : int.MaxValue)
+            .ThenBy(t =>
+                // For headword matches of identical length...
+                t.HeadwordMatches
+                // ...order by headword text (this prevents confusing results like "maap", "baap", "maap").
+                ? t.SearchRecord.Headword.CollateUnicode(wsId)
+                // Everything else falls back to FTS rank.
+                : string.Empty)
+            .ThenBy(t => Sql.Ext.SQLite().Rank(t.SearchRecord)).ThenBy(t => t.Entry.Id);
+
+        return ordered.Select(t => t.Entry);
+    }
+
+    private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, bool HeadwordMatches);
+
+    private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query)
     {
         var ftsString = ToFts5LiteralString(query);
 
         //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
-        var filtered = from searchRecord in EntrySearchRecordsTable
+        return
+            from searchRecord in EntrySearchRecordsTable
             from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
-            where Sql.Ext.SQLite().Match(searchRecord, ftsString) && (entry.LexemeForm.SearchValue(query)
-                                                                  || entry.CitationForm.SearchValue(query)
-                                                                  || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
-            select new { entry, searchRecord };
-        if (rankResults)
-        {
-            filtered = filtered
-                .OrderBy(t =>
-                    // First headword matches... (this allows headword matches to trump long text penalizations)
-                    SqlHelpers.ContainsIgnoreCaseAccents(t.searchRecord.Headword, query)
-                    // ...in order of length (e.g. so exact matches are first).
-                    ? t.searchRecord.Headword.Length
-                    // Then everything else sorted by it's FTS rank.
-                    : int.MaxValue)
-                .ThenBy(t => Sql.Ext.SQLite().Rank(t.searchRecord)).ThenBy(t => t.entry.Id);
-        }
-
-        return filtered.Select(t => t.entry);
+            where Sql.Ext.SQLite().Match(searchRecord, ftsString) &&
+                (entry.LexemeForm.SearchValue(query)
+                || entry.CitationForm.SearchValue(query)
+                || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
+            let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(searchRecord.Headword, query)
+            select new FilterProjection(entry, searchRecord, headwordMatches);
     }
 
     private static string ToFts5LiteralString(string query)
@@ -154,23 +173,23 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     private static async Task InsertOrUpdateEntrySearchRecord(EntrySearchRecord record, ITable<EntrySearchRecord> table)
     {
         await table.InsertOrUpdateAsync(() => new EntrySearchRecord()
-            {
-                Id = record.Id,
-                Headword = record.Headword,
-                LexemeForm = record.LexemeForm,
-                CitationForm = record.CitationForm,
-                Definition = record.Definition,
-                Gloss = record.Gloss,
-            },
-            exiting => new EntrySearchRecord()
-            {
-                Id = record.Id,
-                Headword = record.Headword,
-                LexemeForm = record.LexemeForm,
-                CitationForm = record.CitationForm,
-                Definition = record.Definition,
-                Gloss = record.Gloss,
-            });
+        {
+            Id = record.Id,
+            Headword = record.Headword,
+            LexemeForm = record.LexemeForm,
+            CitationForm = record.CitationForm,
+            Definition = record.Definition,
+            Gloss = record.Gloss,
+        },
+        exiting => new EntrySearchRecord()
+        {
+            Id = record.Id,
+            Headword = record.Headword,
+            LexemeForm = record.LexemeForm,
+            CitationForm = record.CitationForm,
+            Definition = record.Definition,
+            Gloss = record.Gloss,
+        });
     }
 
     public async Task UpdateEntrySearchTable(IEnumerable<Entry> entries)
