@@ -1,10 +1,7 @@
 import {APP_VERSION} from '$lib/util/version';
 import {
-  DiagConsoleLogger,
-  DiagLogLevel,
   TraceFlags,
   context,
-  diag,
   propagation,
   trace,
   type Context,
@@ -128,7 +125,8 @@ let traceExporter: SpanExporter;
 
 if (!env.OTEL_ENDPOINT) {
   console.warn('OTEL_ENDPOINT is not set; server traces will not be exported.');
-  diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.ALL)
+  // Debugging:
+  // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.ALL)
   traceExporter = new ConsoleSpanExporter()
 } else {
   traceExporter = new OTLPTraceExporter({
