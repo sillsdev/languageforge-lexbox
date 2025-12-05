@@ -66,6 +66,8 @@
     entryCount?: number | null,
   } = $props();
 
+  import { VirtualListHelper } from '$lib/components/virtual-list-manager.svelte';
+
   const projectContext = useProjectContext();
   const miniLcmApi = $derived(projectContext.maybeApi);
   const dialogsService = useDialogsService();
@@ -77,6 +79,12 @@
   let windowOffset = $state(0);
   let totalCount = $state(0);
   let isLoadingMore = $state(false);
+
+  // Virtual scrolling helper (stateless utilities)
+  const virtualListHelper = new VirtualListHelper({
+    pageSize: PAGE_SIZE,
+    loadThreshold: LOAD_THRESHOLD,
+  });
 
   // Handle entry events
   projectEventBus.onEntryDeleted(entryId => {
@@ -211,32 +219,8 @@
   });
 
   // Create padded entries array with placeholders for accurate scrollbar representation
-  // VList scrollbar is based on array length, so we pad to show true total
-  const entries = $derived.by(() => {
-    if (totalCount <= filteredEntries.length) {
-      // All entries loaded or total is less than loaded
-      return filteredEntries;
-    }
-    // Create array with loaded entries + placeholder entries
-    const paddedLength = totalCount;
-    const result: IEntry[] = [];
-    
-    // Add placeholder entries before the window
-    for (let i = 0; i < windowOffset; i++) {
-      result.push({ id: `placeholder-before-${i}`, headword: { default: '' } } as IEntry);
-    }
-    
-    // Add actual loaded entries
-    result.push(...filteredEntries);
-    
-    // Add placeholder entries after the window
-    const remainingAfter = totalCount - (windowOffset + filteredEntries.length);
-    for (let i = 0; i < remainingAfter; i++) {
-      result.push({ id: `placeholder-after-${i}`, headword: { default: '' } } as IEntry);
-    }
-    
-    return result;
-  });
+  // Uses VirtualListHelper to manage padding logic
+  const entries = $derived(virtualListHelper.createPaddedEntries(filteredEntries, windowOffset, totalCount));
 
   // Update entry count when loading completes
   watch(() => [entries, loadingUndebounced], () => {
