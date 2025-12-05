@@ -91,8 +91,13 @@ The demo project contains 1464 sample entries from Swahili. Used for testing:
 
 Use the Chrome MCP server to test interactive UI features not easily covered by Storybook:
 
+**Start dev server in background (required for CLI-based testing):**
+
 ```bash
-# Ensure pnpm dev is running, then use Chrome MCP to:
+# Windows - run in background (required)
+start pnpm run dev
+
+# Then wait a few seconds for server to start, then use Chrome MCP
 mcp_chrome__navigate_page "http://localhost:5174/testing/project-view/browse"
 mcp_chrome__fill "[selector]" "search text"
 mcp_chrome__click "[selector]"
