@@ -30,7 +30,7 @@ cd frontend && pnpm dev
 
 ## Project Structure
 
-```
+```text
 languageforge-lexbox/
 ├── backend/
 │   ├── LexBoxApi/       # Main API (ASP.NET Core + GraphQL)
@@ -149,7 +149,7 @@ AI assistants often create planning and design documents during development:
 - Only access `history/` when explicitly asked to review past planning
 
 **Example .gitignore entry (optional):**
-```
+```gitignore
 # AI planning documents (ephemeral)
 history/
 ```
@@ -219,7 +219,7 @@ git remote prune origin            # Clean up deleted remote branches
 - `git status` shows clean working tree
 
 **7. Provide handoff for next session**
-```
+```markdown
 ## Next Session Context
 - Current branch: <branch-name>
 - Ready work: `bd ready` shows <N> issues

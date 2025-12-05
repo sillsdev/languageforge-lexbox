@@ -30,7 +30,7 @@ cd frontend && pnpm dev
 
 ## Project Structure
 
-```
+```text
 languageforge-lexbox/
 ├── backend/
 │   ├── LexBoxApi/       # Main API (ASP.NET Core + GraphQL)
