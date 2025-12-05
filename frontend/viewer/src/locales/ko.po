@@ -153,6 +153,7 @@ msgstr "모든 시맨틱 도메인"
 msgid "Any Ws"
 msgstr "모든 W"
 
+#: src/lib/updates/UpdateDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Application version"
 msgstr "애플리케이션 버전"
@@ -215,7 +216,11 @@ msgstr "FieldWorks Lite의 새 버전에 필드가 추가되어 변경 사항이
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "예를 들어 동일한 필드를 두 번 변경하면 두 개의 커밋이 발생하지만 FieldWorks Classic에 적용해야 하는 변경 사항은 하나만 발생할 수 있습니다. 커밋은 여러 변경 사항으로 구성될 수도 있습니다."
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Checking for updates..."
+msgstr ""
+
+#: src/lib/components/ThemePicker.svelte
 msgid "Choose theme"
 msgstr "테마 선택"
 
@@ -248,7 +253,7 @@ msgstr "닫기"
 msgid "Close Dictionary"
 msgstr "사전 닫기"
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Color"
 msgstr "색상"
 
@@ -323,7 +328,7 @@ msgstr "현재 버전"
 msgid "Current Word"
 msgstr "현재 단어"
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Dark"
 msgstr "Dark"
 
@@ -409,6 +414,10 @@ msgstr "다운로드"
 msgid "Download {0}"
 msgstr "다운로드 {0}"
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Download page"
+msgstr ""
+
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "프로젝트 코드별 프로젝트 다운로드"
@@ -417,6 +426,11 @@ msgstr "프로젝트 코드별 프로젝트 다운로드"
 #: src/home/Server.svelte
 msgid "Download unlisted project"
 msgstr "미등록 프로젝트 다운로드"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Download Update"
+msgstr ""
 
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
@@ -462,6 +476,10 @@ msgstr "입력 또는 센스:"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
 msgstr "같음"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Error checking for updates: {0}"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Error getting sync status"
@@ -530,7 +548,7 @@ msgstr "FieldWorks Lite 사용자는 FieldWorks Classic에서 변경된 내용�
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/home/HomeView.svelte
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
@@ -662,6 +680,14 @@ msgstr "하위 도메인 포함"
 msgid "Incomplete entries"
 msgstr "불완전한 항목"
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Install Update"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Installing Update..."
+msgstr ""
+
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "계속 진행"
@@ -695,7 +721,7 @@ msgstr "Lexeme 양식"
 msgid "Lexeme Form"
 msgstr "Lexeme 양식"
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "Light"
 msgstr "빛"
 
@@ -753,6 +779,10 @@ msgstr "변경 사항이 렉스박스에 [동기화되었는지]({0}) 확인합�
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
 msgstr "관리자"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Manual update is required. Please follow the instructions provided."
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
@@ -918,7 +948,7 @@ msgstr "열기"
 msgid "Open Data Directory"
 msgstr "오픈 데이터 디렉터리"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Open in FieldWorks"
 msgstr "FieldWorks에서 열기"
 
@@ -931,6 +961,10 @@ msgstr "새 창에서 열기"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "로그 파일 열기"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "or"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -961,6 +995,10 @@ msgstr "품사 선택"
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Pinned"
 msgstr "고정됨"
+
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Platform"
+msgstr ""
 
 #: src/project/browse/EntryListViewOptions.svelte
 #: src/lib/activity/ActivityItem.svelte
@@ -1001,6 +1039,10 @@ msgstr "필터를 세분화하여 자세히 보기..."
 msgid "Refresh Projects"
 msgstr "프로젝트 새로 고침"
 
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Release notes"
+msgstr ""
+
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
 msgstr "제거"
@@ -1009,7 +1051,7 @@ msgstr "제거"
 msgid "Remove audio"
 msgstr "오디오 제거"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
 msgstr "다시 열기"
 
@@ -1183,7 +1225,7 @@ msgstr "FieldWorks Lite와 FieldWorks Classic 동기화..."
 msgid "Syncing..."
 msgstr "동기화..."
 
-#: src/lib/ThemePicker.svelte
+#: src/lib/components/ThemePicker.svelte
 msgid "System"
 msgstr "시스템"
 
@@ -1235,7 +1277,7 @@ msgstr "변경 내용이 아직 업로드되지 않았습니다. 변경 내용�
 msgid "This date # and this emoji # are snippets"
 msgstr "이 날짜 #와 이 이모티콘 #은 스니펫입니다."
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "이제 이 프로젝트가 FieldWorks에서 열렸습니다. FieldWorks Lite에서 계속 작업하려면 FieldWorks에서 프로젝트를 닫고 다시 열기를 클릭합니다."
 
@@ -1286,7 +1328,7 @@ msgstr "예제 문장을 입력합니다."
 msgid "Type:"
 msgstr "유형:"
 
-#: src/lib/OpenInFieldWorksButton.svelte
+#: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "FieldWorks에서 열 수 없음"
 
@@ -1313,6 +1355,10 @@ msgstr "알 수 없는 오류 다운로드 중 {0}"
 msgid "Unknown server"
 msgstr "알 수 없는 서버"
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Unknown update result"
+msgstr ""
+
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1332,6 +1378,32 @@ msgstr "최신 정보"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
 msgstr "업데이트 {0}"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update available: {0}"
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update failed to install."
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update installed successfully! Please restart the application."
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update started in the background. Restart the application after the update is complete."
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update was disallowed by permission settings."
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte
+#: src/lib/updates/UpdateDialog.svelte
+#: src/home/HomeView.svelte
+msgid "Updates"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
@@ -1384,6 +1456,10 @@ msgstr "쓰기 시스템: {0}"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "쓰기 시스템"
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "You are running the latest version."
+msgstr ""
 
 #: src/project/tasks/DoneView.svelte
 msgid "You completed {0} {1}"

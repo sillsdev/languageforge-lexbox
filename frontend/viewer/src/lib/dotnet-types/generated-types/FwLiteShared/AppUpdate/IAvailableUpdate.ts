@@ -3,16 +3,11 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {IFwEvent} from './IFwEvent';
-import type {UpdateResult} from '../AppUpdate/UpdateResult';
 import type {IFwLiteRelease} from '../../LexCore/Entities/IFwLiteRelease';
-import type {FwEventType} from './FwEventType';
 
-export interface IAppUpdateEvent extends IFwEvent
+export interface IAvailableUpdate
 {
-	result: UpdateResult;
 	release: IFwLiteRelease;
-	type: FwEventType;
-	isGlobal: boolean;
+	supportsAutoUpdate: boolean;
 }
 /* eslint-enable */

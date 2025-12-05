@@ -32,6 +32,8 @@ import type {ILcmFileMetadata} from '$lib/dotnet-types/generated-types/MiniLcm/M
 import type {IUploadFileResponse} from '$lib/dotnet-types/generated-types/MiniLcm/Media/IUploadFileResponse';
 import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
 import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
+import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
+import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -63,6 +65,22 @@ export const mockFwLiteConfig: IFwLiteConfig = {
   updateUrl: ''
 };
 
+export const mockUpdateService: IUpdateService = {
+  checkForUpdates(): Promise<IAvailableUpdate | null> {
+    return Promise.resolve({
+      supportsAutoUpdate: true,
+      release: {
+        version: '1.0.1',
+        url: 'https://lexbox.org/fw-lite',
+      }
+    });
+  },
+  async applyUpdate(_update: IAvailableUpdate): Promise<UpdateResult> {
+    await delay(2000);
+    return Promise.resolve(UpdateResult.Success);
+  }
+};
+
 export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   #writingSystemService: WritingSystemService;
   constructor(private projectContext: ProjectContext) {
@@ -83,6 +101,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const inMemoryLexboxApi = new InMemoryDemoApi(projectContext);
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
+    window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
       localProjects(): Promise<IProjectModel[]> {
         return Promise.resolve([]);

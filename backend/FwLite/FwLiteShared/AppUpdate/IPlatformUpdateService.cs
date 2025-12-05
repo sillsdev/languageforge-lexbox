@@ -19,5 +19,6 @@ public enum UpdateResult
     Success,
     Failed,
     Started,
-    ManualUpdateRequired
+    ManualUpdateRequired,
+    Disallowed
 }
