@@ -21,6 +21,26 @@ public interface IMiniLcmReadApi
     Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null);
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
+
+    /// <summary>
+    /// Gets a paginated window of entries along with the total count.
+    /// Optionally finds the index of a specific entry.
+    /// </summary>
+    /// <param name="query">Search query string (optional)</param>
+    /// <param name="options">Query options including sorting and filtering</param>
+    /// <param name="targetEntryId">If provided, the index of this entry will be returned</param>
+    /// <returns>A window of entries with pagination info</returns>
+    Task<EntriesWindow> GetEntriesWindow(string? query = null, QueryOptions? options = null, Guid? targetEntryId = null);
+
+    /// <summary>
+    /// Gets the 0-based index of an entry within the sorted/filtered result set.
+    /// </summary>
+    /// <param name="entryId">The entry ID to find</param>
+    /// <param name="query">Search query string (optional)</param>
+    /// <param name="options">Query options including sorting and filtering (offset/count are ignored)</param>
+    /// <returns>The 0-based index, or -1 if not found</returns>
+    Task<int> GetEntryIndex(Guid entryId, string? query = null, FilterQueryOptions? options = null);
+
     Task<Entry?> GetEntry(Guid id);
     Task<Sense?> GetSense(Guid entryId, Guid id);
     Task<PartOfSpeech?> GetPartOfSpeech(Guid id);

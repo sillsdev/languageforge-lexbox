@@ -166,6 +166,51 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return await entries.CountAsync();
     }
 
+    public async Task<EntriesWindow> GetEntriesWindow(string? query = null, QueryOptions? options = null, Guid? targetEntryId = null)
+    {
+        options ??= QueryOptions.Default;
+
+        // Get total count without pagination
+        var countOptions = options with { Count = QueryOptions.QueryAll, Offset = 0 };
+        var allEntries = await Query(countOptions, query).ToListAsync();
+        var totalCount = allEntries.Count;
+
+        int? targetIndex = null;
+        if (targetEntryId.HasValue)
+        {
+            targetIndex = allEntries.FindIndex(e => e.Id == targetEntryId.Value);
+            if (targetIndex == -1) targetIndex = null;
+        }
+
+        // Apply pagination
+        var pagedEntries = allEntries.Skip(options.Offset);
+        if (options.Count != QueryOptions.QueryAll)
+        {
+            pagedEntries = pagedEntries.Take(options.Count);
+        }
+
+        return new EntriesWindow(pagedEntries.ToArray(), totalCount, options.Offset, targetIndex);
+    }
+
+    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, FilterQueryOptions? options = null)
+    {
+        var queryOptions = new QueryOptions
+        {
+            Count = QueryOptions.QueryAll,
+            Exemplar = options?.Exemplar,
+            Filter = options?.Filter
+        };
+
+        var entries = Query(queryOptions, query);
+        int index = 0;
+        await foreach (var entry in entries)
+        {
+            if (entry.Id == entryId) return index;
+            index++;
+        }
+        return -1;
+    }
+
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return Query(options);

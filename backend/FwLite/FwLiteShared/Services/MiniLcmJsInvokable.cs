@@ -96,6 +96,18 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public Task<EntriesWindow> GetEntriesWindow(string? query = null, QueryOptions? options = null, Guid? targetEntryId = null)
+    {
+        return Task.Run(() => _wrappedApi.GetEntriesWindow(query, options, targetEntryId));
+    }
+
+    [JSInvokable]
+    public Task<int> GetEntryIndex(Guid entryId, string? query = null, FilterQueryOptions? options = null)
+    {
+        return Task.Run(() => _wrappedApi.GetEntryIndex(entryId, query, options));
+    }
+
+    [JSInvokable]
     public Task<Entry[]> GetEntries(QueryOptions? options = null)
     {
         return Task.Run(async () => await _wrappedApi.GetEntries(options).ToArrayAsync());

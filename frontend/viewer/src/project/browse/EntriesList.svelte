@@ -1,8 +1,8 @@
 <script lang="ts">
-  import {MorphType, type IEntry, type IPartOfSpeech, type ISemanticDomain} from '$lib/dotnet-types';
+  import {MorphType, type IEntry, type IPartOfSpeech, type ISemanticDomain, type IEntriesWindow} from '$lib/dotnet-types';
   import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-  import {Debounced, resource, useDebounce, watch} from 'runed';
+  import {Debounced, resource, watch} from 'runed';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import {cn} from '$lib/utils';
@@ -18,7 +18,6 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {Icon} from '$lib/components/ui/icon';
   import {useProjectContext} from '$project/project-context.svelte';
-  import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {useCurrentView} from '$lib/views/view-service';
 
@@ -28,6 +27,11 @@
     MorphType.Particle,
     MorphType.Phrase, MorphType.DiscontiguousPhrase,
   ]);
+
+  // Page size for virtual scrolling
+  const PAGE_SIZE = 100;
+  // Buffer before edge to trigger loading more entries
+  const LOAD_THRESHOLD = 20;
 
   function filterLiteMorphemeTypes(entries: IEntry[]): IEntry[] {
     // we could do this server-side, but doing it client-side provides better UX and presumably we'll
@@ -68,78 +72,201 @@
   const projectEventBus = useProjectEventBus();
   const currentView = useCurrentView();
 
+  // Virtual scrolling state
+  // entries currently loaded in memory (a sliding window)
+  let loadedEntries = $state<IEntry[]>([]);
+  // offset of the first loaded entry in the full list
+  let windowOffset = $state(0);
+  // total count of entries matching the current query/filter
+  let totalCount = $state(0);
+  // tracks if we're currently loading more entries (to prevent duplicate fetches)
+  let isLoadingMore = $state(false);
+  // tracks which direction we're loading (for proper state management)
+  let loadingDirection = $state<'initial' | 'before' | 'after' | 'target'>('initial');
+
   projectEventBus.onEntryDeleted(entryId => {
     if (selectedEntryId === entryId) onSelectEntry(undefined);
-    if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
-    const currentIndex = entriesResource.current?.findIndex(e => e.id === entryId) ?? -1;
+    if (loadingUndebounced || !loadedEntries.some(e => e.id === entryId)) return;
+    const currentIndex = loadedEntries.findIndex(e => e.id === entryId);
     if (currentIndex >= 0) {
-      entriesResource.current!.splice(currentIndex, 1);
+      loadedEntries.splice(currentIndex, 1);
+      totalCount = Math.max(0, totalCount - 1);
     }
   });
   projectEventBus.onEntryUpdated(_entry => {
-    if (entriesResource.loading) return;
-    const currentIndex = entriesResource.current?.findIndex(e => e.id === _entry.id) ?? -1;
+    if (loadingUndebounced) return;
+    const currentIndex = loadedEntries.findIndex(e => e.id === _entry.id);
     if (currentIndex >= 0) {
-      entriesResource.current![currentIndex] = _entry;
+      loadedEntries[currentIndex] = _entry;
     } else {
+      // Entry might be newly in range, do a silent refresh
       void silentlyRefreshEntries();
     }
   });
 
   async function silentlyRefreshEntries() {
-    const updatedEntries = await fetchCurrentEntries(true);
-    entriesResource.mutate(updatedEntries);
+    if (!miniLcmApi) return;
+    const window = await fetchEntriesWindow(windowOffset, PAGE_SIZE);
+    if (window) {
+      loadedEntries = window.entries;
+      totalCount = window.totalCount;
+    }
   }
 
   let loadingUndebounced = $state(true);
   const loading = new Debounced(() => loadingUndebounced, 50);
-  const fetchCurrentEntries = useDebounce(async (silent = false) => {
-    if (!miniLcmApi) return [];
-    if (!silent) loadingUndebounced = true;
-    try {
-      const queryOptions: IQueryOptions = {
-        count: IsMobile.value ? 1_000 : 5_000,
-        offset: 0,
-        filter: {
-          gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
-        },
-        order: {
-          field: sort?.field ?? SortField.SearchRelevance,
-          writingSystem: 'default',
-          ascending: sort?.dir !== 'desc',
-        },
-      };
 
-      const entries = search
-        ? miniLcmApi.searchEntries(search, queryOptions)
-        : miniLcmApi.getEntries(queryOptions);
-      await entries; // ensure the entries have arrived before toggling the loading flag
-      return entries;
+  function buildQueryOptions(offset: number, count: number): IQueryOptions {
+    return {
+      count,
+      offset,
+      filter: {
+        gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
+      },
+      order: {
+        field: sort?.field ?? SortField.SearchRelevance,
+        writingSystem: 'default',
+        ascending: sort?.dir !== 'desc',
+      },
+    };
+  }
+
+  async function fetchEntriesWindow(offset: number, count: number, targetEntryId?: string): Promise<IEntriesWindow | null> {
+    if (!miniLcmApi) return null;
+    const queryOptions = buildQueryOptions(offset, count);
+    return miniLcmApi.getEntriesWindow(search || undefined, queryOptions, targetEntryId);
+  }
+
+  // Initial load: fetch first page, or center on selected entry if provided
+  async function loadInitialEntries(targetEntryId?: string): Promise<IEntriesWindow | null> {
+    if (!miniLcmApi) return null;
+    loadingUndebounced = true;
+    loadingDirection = targetEntryId ? 'target' : 'initial';
+
+    try {
+      // If we have a target entry, request entries centered around it
+      // The API will return targetIndex telling us where the entry is in the result
+      const window = await fetchEntriesWindow(0, PAGE_SIZE, targetEntryId);
+      if (!window) return null;
+
+      // API returns entries starting from an offset that includes the target entry
+      windowOffset = window.offset;
+      loadedEntries = window.entries;
+      totalCount = window.totalCount;
+
+      return window;
     } finally {
       loadingUndebounced = false;
+      loadingDirection = 'initial';
     }
-  }, DEFAULT_DEBOUNCE_TIME);
+  }
+
+  // Load more entries before the current window
+  async function loadEntriesBefore(): Promise<void> {
+    if (isLoadingMore || windowOffset <= 0) return;
+    isLoadingMore = true;
+    loadingDirection = 'before';
+
+    try {
+      const newOffset = Math.max(0, windowOffset - PAGE_SIZE);
+      const countToLoad = windowOffset - newOffset;
+      if (countToLoad <= 0) return;
+
+      const window = await fetchEntriesWindow(newOffset, countToLoad);
+      if (!window || window.entries.length === 0) return;
+
+      // Prepend new entries
+      loadedEntries = [...window.entries, ...loadedEntries];
+      windowOffset = newOffset;
+      totalCount = window.totalCount;
+    } finally {
+      isLoadingMore = false;
+      loadingDirection = 'initial';
+    }
+  }
+
+  // Load more entries after the current window
+  async function loadEntriesAfter(): Promise<void> {
+    const currentEnd = windowOffset + loadedEntries.length;
+    if (isLoadingMore || currentEnd >= totalCount) return;
+    isLoadingMore = true;
+    loadingDirection = 'after';
+
+    try {
+      const window = await fetchEntriesWindow(currentEnd, PAGE_SIZE);
+      if (!window || window.entries.length === 0) return;
+
+      // Append new entries
+      loadedEntries = [...loadedEntries, ...window.entries];
+      totalCount = window.totalCount;
+    } finally {
+      isLoadingMore = false;
+      loadingDirection = 'initial';
+    }
+  }
+
+  // Triggered when a new search/sort/filter is applied
+  // Note: We track initialSelectedEntryId separately to avoid refetching when user selects a different entry
+  // eslint-disable-next-line svelte/valid-compile -- intentionally capturing initial value
+  let initialSelectedEntryId = $state(selectedEntryId);
+  
+  // Update initialSelectedEntryId only when search/sort/filter changes
+  $effect(() => {
+    // When search/sort/filter changes, reset to current selection
+    void search; void sort; void gridifyFilter;
+    initialSelectedEntryId = selectedEntryId;
+  });
 
   const entriesResource = resource(
     () => ({ search, sort, gridifyFilter, miniLcmApi }),
     async (_curr, _prev, refetchInfo): Promise<IEntry[]> => {
-      const entries = await fetchCurrentEntries();
-      // don't let slow requests overwrite newer ones
-      // if the newer request is finished then entriesResource.current is up-to-date
-      // else entriesResource.current is out-of-date, but will be updated by the newer request
-      if (refetchInfo.signal.aborted) return entriesResource.current ?? [];
-      return entries;
+      // On dependency change, load initial entries (centering on selected if available)
+      const window = await loadInitialEntries(initialSelectedEntryId);
+      if (refetchInfo.signal.aborted) return loadedEntries;
+
+      // If we got a targetIndex, scroll to it after render
+      if (window?.targetIndex !== undefined && window.targetIndex !== null) {
+        // targetIndex is relative to the start of the returned window
+        pendingScrollToIndex = window.targetIndex;
+      }
+
+      return window?.entries ?? [];
     });
+
   const entries = $derived.by(() => {
-    let currEntries = entriesResource.current ?? [];
+    let currEntries = loadedEntries;
     if (currEntries.length && $currentView.type === 'fw-lite') {
       currEntries = filterLiteMorphemeTypes(currEntries);
     }
     return currEntries;
   });
-  watch(() => [entries, entriesResource.loading], () => {
-    if (!entriesResource.loading)
-      entryCount = entries.length;
+
+  // Convert global entry index to local array index
+  function globalToLocalIndex(globalIndex: number): number {
+    return globalIndex - windowOffset;
+  }
+
+  // Check if we need to load more entries based on visible range
+  function handleVisibleRangeChange(startIndex: number, endIndex: number): void {
+    const localStart = startIndex;
+    const localEnd = endIndex;
+
+    // Check if we need to load entries before
+    if (localStart < LOAD_THRESHOLD && windowOffset > 0 && !isLoadingMore) {
+      void loadEntriesBefore();
+    }
+
+    // Check if we need to load entries after
+    const remainingAfter = loadedEntries.length - localEnd;
+    const globalEnd = windowOffset + loadedEntries.length;
+    if (remainingAfter < LOAD_THRESHOLD && globalEnd < totalCount && !isLoadingMore) {
+      void loadEntriesAfter();
+    }
+  }
+
+  watch(() => [entries, loadingUndebounced], () => {
+    if (!loadingUndebounced)
+      entryCount = totalCount;
   });
 
   $effect(() => {
@@ -161,10 +288,41 @@
   }
 
   let vList = $state<VListHandle>();
+
+  // Handle scroll events to trigger loading more entries
+  function handleScroll(): void {
+    if (!vList) return;
+    const scrollOffset = vList.getScrollOffset();
+    const viewportSize = vList.getViewportSize();
+    // Find visible range using scroll position
+    const startIndex = vList.findItemIndex(scrollOffset);
+    const endIndex = vList.findItemIndex(scrollOffset + viewportSize);
+    handleVisibleRangeChange(startIndex, endIndex);
+  }
+
+  // Scroll to selected entry after initial load
+  // The API returns targetIndex which tells us where in the loaded window the entry is
+  let pendingScrollToIndex = $state<number | null>(null);
+
   $effect(() => {
-    if (!vList || !selectedEntryId) return;
+    if (pendingScrollToIndex !== null && vList && !loading.current) {
+      vList.scrollToIndex(pendingScrollToIndex, {align: 'center'});
+      pendingScrollToIndex = null;
+    }
+  });
+
+  // When selectedEntryId changes and entry is already loaded, scroll to it
+  // If not loaded, fetch a window centered around that entry
+  $effect(() => {
+    if (!vList || !selectedEntryId || loading.current || isLoadingMore) return;
     const indexOfSelected = entries.findIndex(e => e.id === selectedEntryId);
-    if (indexOfSelected === -1) return;
+    
+    if (indexOfSelected === -1) {
+      // Entry not in current window - need to load entries around it
+      void loadEntriesAroundEntry(selectedEntryId);
+      return;
+    }
+    
     const visibleStart = vList.getScrollOffset();
     const visibleSize = vList.getViewportSize();
     const visibleEnd = visibleStart + visibleSize;
@@ -177,12 +335,51 @@
     }
   });
 
+  // Load entries centered around a specific entry (when navigating to an entry not in current window)
+  async function loadEntriesAroundEntry(entryId: string): Promise<void> {
+    if (!miniLcmApi || isLoadingMore) return;
+    isLoadingMore = true;
+    loadingDirection = 'target';
+
+    try {
+      const window = await fetchEntriesWindow(0, PAGE_SIZE, entryId);
+      if (!window) return;
+
+      windowOffset = window.offset;
+      loadedEntries = window.entries;
+      totalCount = window.totalCount;
+
+      // Scroll to the target entry after state updates
+      if (window.targetIndex !== undefined && window.targetIndex !== null) {
+        pendingScrollToIndex = window.targetIndex;
+      }
+    } finally {
+      isLoadingMore = false;
+      loadingDirection = 'initial';
+    }
+  }
+
   export function selectNextEntry() {
     const indexOfSelected = entries.findIndex(e => e.id === selectedEntryId);
     const nextIndex = indexOfSelected === -1 ? 0 : indexOfSelected + 1;
-    let nextEntry = entries[nextIndex];
-    onSelectEntry(nextEntry);
-    return nextEntry;
+
+    // Check if next entry is within loaded window
+    if (nextIndex < entries.length) {
+      const nextEntry = entries[nextIndex];
+      onSelectEntry(nextEntry);
+      return nextEntry;
+    }
+
+    // Need to load more entries - trigger load and select first of new batch
+    if (windowOffset + loadedEntries.length < totalCount) {
+      void loadEntriesAfter().then(() => {
+        if (nextIndex < entries.length) {
+          const nextEntry = entries[nextIndex];
+          onSelectEntry(nextEntry);
+        }
+      });
+    }
+    return undefined;
   }
 
 </script>
@@ -218,7 +415,7 @@
           {/each}
         </div>
       {:else}
-        <VList bind:this={vList} data={entries ?? []} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={d => d.id} bufferSize={400}>
+        <VList bind:this={vList} data={entries ?? []} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={d => d.id} onscroll={handleScroll}>
           {#snippet children(entry)}
             <EntryMenu {entry} contextMenu>
               <EntryRow {entry}

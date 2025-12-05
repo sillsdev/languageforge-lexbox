@@ -14,6 +14,7 @@ using LinqToDB.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Exceptions;
+using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Core;
 using MiniLcm.Culture;
@@ -383,6 +384,18 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         return await repo.CountEntries(query, options);
+    }
+
+    public async Task<EntriesWindow> GetEntriesWindow(string? query = null, QueryOptions? options = null, Guid? targetEntryId = null)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetEntriesWindow(query, options, targetEntryId);
+    }
+
+    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, FilterQueryOptions? options = null)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetEntryIndex(entryId, query, options);
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)

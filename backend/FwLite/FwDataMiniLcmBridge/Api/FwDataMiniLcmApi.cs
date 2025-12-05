@@ -874,6 +874,47 @@ public class FwDataMiniLcmApi(
         return Task.FromResult(EntriesRepository.Count);
     }
 
+    public async Task<EntriesWindow> GetEntriesWindow(string? query = null, QueryOptions? options = null, Guid? targetEntryId = null)
+    {
+        options ??= QueryOptions.Default;
+        var allEntries = GetLexEntries(EntrySearchPredicate(query), options);
+        allEntries = ApplySorting(options, allEntries, query);
+
+        var allEntriesList = allEntries.ToList();
+        var totalCount = allEntriesList.Count;
+
+        int? targetIndex = null;
+        if (targetEntryId.HasValue)
+        {
+            targetIndex = allEntriesList.FindIndex(e => e.Guid == targetEntryId.Value);
+            if (targetIndex == -1) targetIndex = null;
+        }
+
+        var pagedEntries = options.ApplyPaging(allEntriesList).Select(FromLexEntry).ToArray();
+
+        return new EntriesWindow(pagedEntries, totalCount, options.Offset, targetIndex);
+    }
+
+    public Task<int> GetEntryIndex(Guid entryId, string? query = null, FilterQueryOptions? options = null)
+    {
+        var queryOptions = QueryOptions.Default with
+        {
+            Filter = options?.Filter,
+            Exemplar = options?.Exemplar
+        };
+
+        var entries = GetLexEntries(EntrySearchPredicate(query), options);
+        entries = ApplySorting(queryOptions, entries, query);
+
+        int index = 0;
+        foreach (var entry in entries)
+        {
+            if (entry.Guid == entryId) return Task.FromResult(index);
+            index++;
+        }
+        return Task.FromResult(-1);
+    }
+
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return GetEntries(null, options);

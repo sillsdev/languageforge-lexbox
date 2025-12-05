@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MiniLcm.Culture;
 using MiniLcm.Exceptions;
+using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 
 namespace LcmCrdt.Data;
@@ -122,6 +123,61 @@ public class MiniLcmRepository(
         options ??= FilterQueryOptions.Default;
         var (queryable, _) = await FilterEntries(Entries, query, options);
         return await AsyncExtensions.CountAsync(queryable);
+    }
+
+    public async Task<EntriesWindow> GetEntriesWindow(
+        string? query = null,
+        QueryOptions? options = null,
+        Guid? targetEntryId = null)
+    {
+        options = await EnsureWritingSystemIsPopulated(options ?? QueryOptions.Default);
+
+        // First get the total count (without paging)
+        var countQueryable = Entries;
+        (countQueryable, _) = await FilterEntries(countQueryable, query, options, options.Order);
+        var totalCount = await AsyncExtensions.CountAsync(countQueryable);
+
+        // Find the target entry index if requested
+        int? targetIndex = null;
+        if (targetEntryId.HasValue)
+        {
+            targetIndex = await GetEntryIndexInternal(targetEntryId.Value, query, options);
+        }
+
+        // Now get the actual entries with paging
+        var entries = await GetEntries(query, options).ToArrayAsync();
+
+        return new EntriesWindow(entries, totalCount, options.Offset, targetIndex);
+    }
+
+    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, FilterQueryOptions? options = null)
+    {
+        var queryOptions = await EnsureWritingSystemIsPopulated(QueryOptions.Default);
+        queryOptions = queryOptions with
+        {
+            Filter = options?.Filter,
+            Exemplar = options?.Exemplar
+        };
+        return await GetEntryIndexInternal(entryId, query, queryOptions);
+    }
+
+    private async Task<int> GetEntryIndexInternal(Guid entryId, string? query, QueryOptions options)
+    {
+        var queryable = Entries;
+        (queryable, var sortingHandled) = await FilterEntries(queryable, query, options, options.Order);
+        if (!sortingHandled)
+            queryable = await ApplySorting(queryable, options, query);
+
+        // Get just the IDs in order and find the index
+        var ids = queryable.Select(e => e.Id);
+
+        int index = 0;
+        await foreach (var id in AsyncExtensions.AsAsyncEnumerable(ids))
+        {
+            if (id == entryId) return index;
+            index++;
+        }
+        return -1; // Not found
     }
 
     public async IAsyncEnumerable<Entry> GetEntries(

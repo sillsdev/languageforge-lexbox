@@ -122,6 +122,7 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(SortOptions),
                 typeof(ExemplarOptions),
                 typeof(EntryFilter),
+                typeof(EntriesWindow),
                 typeof(MiniLcmJsInvokable.ReadFileResponseJs),
                 typeof(UploadFileResponse)
             ],
