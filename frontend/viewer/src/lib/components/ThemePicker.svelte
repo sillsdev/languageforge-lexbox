@@ -8,8 +8,7 @@
   import {t, msg} from 'svelte-i18n-lingui';
   import {mergeProps} from 'bits-ui';
 
-  // Extract theme names: msg`Green` msg`Blue` msg`Rose` msg`Orange` msg`Violet` msg`Stone`
-  const themes = ['green', 'blue', 'rose', 'orange', 'violet', 'stone'];
+  const themes = [msg`green`, msg`blue`, msg`rose`, msg`orange`, msg`violet`, msg`stone`];
   let {
     buttonProps = {}
   }: {
