@@ -25,7 +25,7 @@ dotnet test
 dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj --framework net9.0-windows10.0.19041.0
 
 # Frontend
-cd frontend && npm run dev
+cd frontend && pnpm dev
 ```
 
 ## Project Structure

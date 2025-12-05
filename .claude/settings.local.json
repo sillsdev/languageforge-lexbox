@@ -1,4 +1,5 @@
 {
+  "$comment": "Claude Code hooks for Beads integration. 'bd prime' outputs workflow context for AI agents. See .beads/README.md for documentation.",
   "hooks": {
     "PreCompact": [
       {

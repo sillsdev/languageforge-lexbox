@@ -28,7 +28,19 @@ bd update <issue-id> --status done
 
 # Sync with git remote
 bd sync
+
+# Output workflow context for AI agents (used in Claude Code hooks)
+bd prime
 ```
+
+### AI Agent Integration
+
+The `bd prime` command outputs essential Beads workflow context in AI-optimized markdown format. It's designed to be run at the start of AI coding sessions (SessionStart) and after context compaction (PreCompact) to ensure AI agents remember the bd workflow.
+
+- **MCP mode**: When MCP server is active, outputs brief workflow reminders (~50 tokens)
+- **CLI mode**: Outputs full command reference (~1-2k tokens)
+
+This repository configures Claude Code hooks in `.claude/settings.local.json` to run `bd prime` automatically.
 
 ### Working with Issues
 
