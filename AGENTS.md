@@ -297,7 +297,9 @@ Key documentation for this project:
 - ✅ Run `bd <cmd> --help` to discover available flags
 - ✅ Follow session-ending protocol before finishing work
 - ✅ Use `gh` CLI for GitHub issues/PRs, not browser tools
+- ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)
 - ❌ Do NOT create markdown TODO lists
 - ❌ Do NOT use external issue trackers
 - ❌ Do NOT duplicate tracking systems
 - ❌ Do NOT clutter repo root with planning documents
+- ❌ Do NOT use ASCII art for diagrams (use Mermaid instead)

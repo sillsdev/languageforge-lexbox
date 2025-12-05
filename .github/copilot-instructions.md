@@ -138,9 +138,11 @@ You MUST complete ALL steps. NEVER stop before `git push` succeeds. NEVER say "r
 - ✅ Store AI planning docs in `history/` directory
 - ✅ Run `bd <cmd> --help` to discover available flags
 - ✅ Follow session-ending protocol before finishing
+- ✅ Use **Mermaid diagrams** for flowcharts/architecture
 - ❌ Do NOT create markdown TODO lists
 - ❌ Do NOT duplicate tracking systems
 - ❌ Do NOT clutter repo root with planning documents
+- ❌ Do NOT use ASCII art for diagrams
 
 ---
 

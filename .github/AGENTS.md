@@ -52,31 +52,17 @@ The CI/CD setup is:
 
 ## Workflow Dependencies
 
-```
-                    ┌─────────────────┐
-                    │ release-pipeline│
-                    │     .yaml       │
-                    └────────┬────────┘
-                             │ calls
-         ┌───────────────────┼───────────────────┐
-         │                   │                   │
-         ▼                   ▼                   ▼
-┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│ lexbox-api.yaml │ │ lexbox-ui.yaml  │ │lexbox-fw-headless│
-└────────┬────────┘ └────────┬────────┘ └────────┬────────┘
-         │                   │                   │
-         └───────────────────┼───────────────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │integration-test │
-                    │   -gha.yaml     │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │   deploy.yaml   │
-                    └─────────────────┘
+```mermaid
+flowchart TD
+    RP[release-pipeline.yaml] -->|calls| API[lexbox-api.yaml]
+    RP -->|calls| UI[lexbox-ui.yaml]
+    RP -->|calls| FWH[lexbox-fw-headless.yaml]
+    
+    API --> IT[integration-test-gha.yaml]
+    UI --> IT
+    FWH --> IT
+    
+    IT --> DEP[deploy.yaml]
 ```
 
 ### FwLite is Separate
@@ -143,21 +129,31 @@ This separation provides:
 
 ### Kustomize Structure
 
+```mermaid
+flowchart TD
+    subgraph deployment/
+        BASE[base/] -->|included by| DEV[develop/]
+        BASE -->|included by| STG[staging/]
+        BASE -->|included by| PROD[production/]
+        BASE -->|included by| GHA[gha/]
+        BASE -->|included by| LOCAL[local-dev/]
+    end
+    
+    BASE --- B1[kustomization.yaml]
+    BASE --- B2[lexbox-deployment.yaml]
+    BASE --- B3[db-deployment.yaml]
+    
+    DEV --- D1[kustomization.yaml]
+    DEV --- D2[patches...]
 ```
-deployment/
-├── base/              # Shared K8s manifests
-│   ├── kustomization.yaml
-│   ├── lexbox-deployment.yaml
-│   ├── db-deployment.yaml
-│   └── ...
-├── develop/           # Develop overlays
-│   ├── kustomization.yaml
-│   └── patches...
-├── staging/           # Staging overlays
-├── production/        # Production overlays
-├── gha/               # GitHub Actions K8s (for integration tests)
-└── local-dev/         # Local development
-```
+
+**Folder purposes:**
+- `base/` - Shared K8s manifests
+- `develop/` - Develop environment overlays
+- `staging/` - Staging environment overlays  
+- `production/` - Production environment overlays
+- `gha/` - GitHub Actions K8s (for integration tests)
+- `local-dev/` - Local development
 
 Each environment folder:
 - Includes `base/` via kustomization

@@ -44,30 +44,23 @@ dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net9.0-windows10.0.19041.0
 
 ## Architecture
 
+```mermaid
+flowchart TD
+    MAUI[FwLite MAUI] --> ML[MiniLcm<br/>Core API - IMiniLcmApi]
+    WEB[FwLite Web] --> ML
+    
+    ML --> CRDT[LcmCrdt<br/>SQLite DB]
+    ML --> BRIDGE[FwDataBridge<br/>FwData XML]
+    
+    CRDT --> SYNC[FwLiteProjectSync<br/>Syncs between them]
+    BRIDGE --> SYNC
+    
+    style CRDT fill:#f9f,stroke:#333
+    style BRIDGE fill:#f9f,stroke:#333
+    style SYNC fill:#ff9,stroke:#333
 ```
-┌─────────────────┐     ┌─────────────────┐
-│  FwLite MAUI    │     │   FwLite Web    │
-└────────┬────────┘     └────────┬────────┘
-         │                       │
-         └───────────┬───────────┘
-                     │
-              ┌──────▼──────┐
-              │   MiniLcm   │  ← Core API (IMiniLcmApi)
-              └──────┬──────┘
-                     │
-         ┌───────────┼───────────┐
-         │                       │
-  ┌──────▼──────┐         ┌──────▼──────┐
-  │   LcmCrdt   │         │FwDataBridge │  ← Two implementations!
-  │ (SQLite DB) │         │ (FwData XML)│
-  └──────┬──────┘         └──────┬──────┘
-         │                       │
-         └───────────┬───────────┘
-                     │
-         ┌───────────▼───────────┐
-         │  FwLiteProjectSync    │  ← Syncs between them
-         └───────────────────────┘
-```
+
+**Note:** Two implementations of `IMiniLcmApi` exist - LcmCrdt (SQLite) and FwDataBridge (FwData XML). FwLiteProjectSync syncs between them.
 
 ---
 
@@ -132,12 +125,14 @@ The app can enter a state where it stops automatically downloading changes from 
 
 ### Sync Flow
 
-```
-User edits → CrdtMiniLcmApi → AddChange() → DataModel
-                                              ↓
-                                        SyncWith() → Server
-                                              ↓
-                                        Other clients
+```mermaid
+flowchart LR
+    USER[User edits] --> CRDT[CrdtMiniLcmApi]
+    CRDT --> ADD[AddChange]
+    ADD --> DM[DataModel]
+    DM --> SYNC[SyncWith]
+    SYNC --> SERVER[Server]
+    SERVER --> CLIENTS[Other clients]
 ```
 
 ### Testing Sync

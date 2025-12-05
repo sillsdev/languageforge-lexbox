@@ -29,35 +29,31 @@ dotnet test ../FwLite/FwLiteProjectSync.Tests
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                     LexBox Server                        │
-│                   (Harmony/CRDT sync)                    │
-└─────────────────────────┬───────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│                     FwHeadless                           │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
-│  │ CrdtSync    │  │ SendReceive │  │ FwData Bridge   │  │
-│  │ Service     │  │ Service     │  │ (via FwLite)    │  │
-│  └──────┬──────┘  └──────┬──────┘  └────────┬────────┘  │
-│         │                │                   │          │
-│         └────────────────┼───────────────────┘          │
-│                          │                              │
-└──────────────────────────┼──────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│              Mercurial Repository (hgweb)                │
-│                    (FwData XML)                          │
-└─────────────────────────┬───────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│              FieldWorks Desktop                          │
-│            (Classic Send/Receive)                        │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph LEXBOX[LexBox Server]
+        HARMONY[Harmony/CRDT sync]
+    end
+    
+    subgraph HEADLESS[FwHeadless]
+        CRDT[CrdtSync Service]
+        SR[SendReceive Service]
+        FWBRIDGE[FwData Bridge<br/>via FwLite]
+    end
+    
+    subgraph HG[Mercurial Repository - hgweb]
+        FWDATA[FwData XML]
+    end
+    
+    subgraph FW[FieldWorks Desktop]
+        CLASSIC[Classic Send/Receive]
+    end
+    
+    LEXBOX <--> HEADLESS
+    HEADLESS <--> HG
+    HG <--> FW
+    
+    style HEADLESS fill:#ff9,stroke:#333
 ```
 
 ## Project Structure
@@ -77,21 +73,20 @@ dotnet test ../FwLite/FwLiteProjectSync.Tests
 
 ### Full Sync Cycle
 
+```mermaid
+flowchart TD
+    A[1. FieldWorks user does Send/Receive] --> B[2. FwHeadless detects Mercurial changes<br/>SyncHostedService]
+    B --> C[3. Load FwData project<br/>FwDataFactory]
+    C --> D[4. Sync FwData → CRDT<br/>CrdtFwdataProjectSyncService]
+    D --> E[5. Sync CRDT → LexBox server<br/>CrdtSyncService]
+    E --> F[6. Later: Sync LexBox → CRDT → FwData → Mercurial]
+    F --> G[7. FieldWorks user gets changes on next S/R]
+    
+    style D fill:#f99,stroke:#333
+    style E fill:#f99,stroke:#333
 ```
-1. FieldWorks user does Send/Receive
-   ↓
-2. FwHeadless detects Mercurial changes (SyncHostedService)
-   ↓
-3. Load FwData project (FwDataFactory)
-   ↓
-4. Sync FwData → CRDT (CrdtFwdataProjectSyncService)
-   ↓
-5. Sync CRDT → LexBox server (CrdtSyncService)
-   ↓
-6. Later: Sync LexBox → CRDT → FwData → Mercurial
-   ↓
-7. FieldWorks user gets changes on next S/R
-```
+
+**Critical steps highlighted** - Steps 4 and 5 are where data loss can occur.
 
 ### Key Services
 
