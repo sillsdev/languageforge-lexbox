@@ -18,7 +18,6 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {Icon} from '$lib/components/ui/icon';
   import {useProjectContext} from '$project/project-context.svelte';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {useCurrentView} from '$lib/views/view-service';
 
   const LITE_MORPHEME_TYPES = new Set([
@@ -271,6 +270,7 @@
 
   $effect(() => {
     if (entriesResource.error) {
+      console.error('Failed to load entries:', entriesResource.error);
       AppNotification.error($t`Failed to load entries`, entriesResource.error.message);
     }
   });

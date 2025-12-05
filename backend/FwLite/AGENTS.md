@@ -64,6 +64,29 @@ flowchart TD
 
 ---
 
+## ⚠️ IMPORTANT: Blazor JSInterop Parameter Types
+
+**JSInterop does NOT support nullable value types properly.** When `undefined` is passed from JavaScript for a nullable parameter like `Guid?`, it gets serialized as an empty string `""` which fails to parse.
+
+### Rules for `[JSInvokable]` methods in `MiniLcmJsInvokable.cs`:
+
+1. **Never use nullable value types** (`Guid?`, `int?`, `bool?`, etc.) as parameters
+2. **Use `string?` instead** and parse manually:
+   ```csharp
+   // ❌ Wrong - undefined from JS becomes "" which fails Guid? parsing
+   public Task<Foo> GetFoo(Guid? optionalId = null)
+   
+   // ✅ Correct - handle empty string explicitly
+   public Task<Foo> GetFoo(string? optionalId = null)
+   {
+       Guid? parsedId = string.IsNullOrEmpty(optionalId) ? null : Guid.Parse(optionalId);
+       return _api.GetFoo(parsedId);
+   }
+   ```
+3. **Nullable reference types are fine** (`string?`, `QueryOptions?`) - these work correctly
+
+---
+
 ## 🔴 CRITICAL AREA: Adding Features to MiniLcm Model
 
 When adding a new field/property to the model (Entry, Sense, etc.):
