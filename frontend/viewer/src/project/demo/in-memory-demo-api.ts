@@ -1,38 +1,38 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import {
-  DotnetService,
-  type IComplexFormComponent,
-  type IComplexFormType,
-  type IEntry,
-  type IEntriesWindow,
-  type IExampleSentence,
-  type IFilterQueryOptions,
-  type IMiniLcmJsInvokable,
-  type IPartOfSpeech,
-  type IProjectModel,
-  type IPublication,
-  type IQueryOptions,
-  type ISemanticDomain,
-  type ISense,
-  type IServerProjects,
-  type IWritingSystem,
-  type IWritingSystems,
-  type WritingSystemType
+    DotnetService,
+    type IComplexFormComponent,
+    type IComplexFormType,
+    type IEntry,
+    type IEntriesWindow,
+    type IExampleSentence,
+    type IFilterQueryOptions,
+    type IMiniLcmJsInvokable,
+    type IPartOfSpeech,
+    type IProjectModel,
+    type IPublication,
+    type IQueryOptions,
+    type ISemanticDomain,
+    type ISense,
+    type IServerProjects,
+    type IWritingSystem,
+    type IWritingSystems,
+    type WritingSystemType
 } from '$lib/dotnet-types';
-import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
+import { entries, partsOfSpeech, projectName, writingSystems } from './demo-entry-data';
 
-import {WritingSystemService} from '../data/writing-system-service.svelte';
-import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
-import {delay} from '$lib/utils/time';
-import {initProjectContext, ProjectContext} from '$project/project-context.svelte';
-import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
-import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
-import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
-import type {ILcmFileMetadata} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ILcmFileMetadata';
-import type {IUploadFileResponse} from '$lib/dotnet-types/generated-types/MiniLcm/Media/IUploadFileResponse';
-import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
-import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
+import { WritingSystemService } from '../data/writing-system-service.svelte';
+import { FwLitePlatform } from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
+import { delay } from '$lib/utils/time';
+import { initProjectContext, ProjectContext } from '$project/project-context.svelte';
+import type { IFwLiteConfig } from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
+import type { IReadFileResponseJs } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
+import { ReadFileResult } from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
+import type { ILcmFileMetadata } from '$lib/dotnet-types/generated-types/MiniLcm/Media/ILcmFileMetadata';
+import type { IUploadFileResponse } from '$lib/dotnet-types/generated-types/MiniLcm/Media/IUploadFileResponse';
+import { UploadFileResult } from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
+import { DownloadProjectByCodeResult } from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -99,6 +99,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     }
 
     const entries = allEntries.slice(offset, offset + count);
+    console.log(`[DemoAPI] getEntriesWindow: totalCount=${totalCount}, offset=${offset}, count=${count}, returning=${entries.length}, targetEntryId=${targetEntryId}, targetIndex=${targetIndex}`);
     return {
       entries,
       totalCount,

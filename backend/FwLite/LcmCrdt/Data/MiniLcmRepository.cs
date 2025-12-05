@@ -137,11 +137,24 @@ public class MiniLcmRepository(
         (countQueryable, _) = await FilterEntries(countQueryable, query, options, options.Order);
         var totalCount = await AsyncExtensions.CountAsync(countQueryable);
 
-        // Find the target entry index if requested
+        // If a target entry is requested, find its index and adjust offset to center around it
         int? targetIndex = null;
         if (targetEntryId.HasValue)
         {
-            targetIndex = await GetEntryIndexInternal(targetEntryId.Value, query, options);
+            var globalIndex = await GetEntryIndexInternal(targetEntryId.Value, query, options);
+            if (globalIndex >= 0)
+            {
+                // Center the window around the target entry
+                var count = options.Count;
+                var centeredOffset = Math.Max(0, globalIndex - count / 2);
+                // Adjust if we'd go past the end
+                if (centeredOffset + count > totalCount)
+                    centeredOffset = Math.Max(0, totalCount - count);
+
+                options = options with { Offset = centeredOffset };
+                targetIndex = globalIndex - centeredOffset; // Convert to local index within window
+            }
+            // If entry not found (globalIndex == -1), just use original offset and targetIndex stays null
         }
 
         // Now get the actual entries with paging
@@ -150,15 +163,14 @@ public class MiniLcmRepository(
         return new EntriesWindow(entries, totalCount, options.Offset, targetIndex);
     }
 
-    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, FilterQueryOptions? options = null)
+    /// <summary>
+    /// Get the index of an entry in the filtered/sorted list.
+    /// </summary>
+    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, FilterQueryOptions? filterOptions = null)
     {
-        var queryOptions = await EnsureWritingSystemIsPopulated(QueryOptions.Default);
-        queryOptions = queryOptions with
-        {
-            Filter = options?.Filter,
-            Exemplar = options?.Exemplar
-        };
-        return await GetEntryIndexInternal(entryId, query, queryOptions);
+        var options = await EnsureWritingSystemIsPopulated(QueryOptions.Default);
+        options = options with { Filter = filterOptions?.Filter };
+        return await GetEntryIndexInternal(entryId, query, options);
     }
 
     private async Task<int> GetEntryIndexInternal(Guid entryId, string? query, QueryOptions options)
@@ -168,8 +180,8 @@ public class MiniLcmRepository(
         if (!sortingHandled)
             queryable = await ApplySorting(queryable, options, query);
 
-        // Get just the IDs in order and find the index
-        var ids = queryable.Select(e => e.Id);
+        // Use LoadWith to ensure we're using Linq2Db provider, then get just the IDs in order
+        var ids = queryable.LoadWith(e => e.Senses).AsQueryable().Select(e => e.Id);
 
         int index = 0;
         await foreach (var id in AsyncExtensions.AsAsyncEnumerable(ids))
