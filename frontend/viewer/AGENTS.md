@@ -66,3 +66,59 @@ npx shadcn-svelte@next add context-menu
 - `components.json` - ShadCN-svelte config
 - `src/lib/entry-editor/` - Entry editing components
 - `src/routes/` - Page routes
+
+## Testing UI Components
+
+### Demo Project & In-Memory API
+
+The viewer includes an in-memory demo API for local testing without a backend:
+
+```bash
+# Start dev server (http://localhost:5174)
+pnpm run dev
+
+# Access the demo project at:
+# http://localhost:5174/testing/project-view/browse
+```
+
+The demo project contains 1464 sample entries from Swahili. Used for testing:
+- Virtual scrolling behavior
+- Entry filtering and search
+- Selection persistence
+- Large list performance
+
+### Chrome MCP for UI Testing
+
+Use the Chrome MCP server to test interactive UI features not easily covered by Storybook:
+
+```bash
+# Ensure pnpm dev is running, then use Chrome MCP to:
+mcp_chrome__navigate_page "http://localhost:5174/testing/project-view/browse"
+mcp_chrome__fill "[selector]" "search text"
+mcp_chrome__click "[selector]"
+mcp_chrome__take_snapshot  # For visual verification
+```
+
+**When to use Chrome MCP:**
+- Testing multi-step user flows (search → click → verify detail panel updates)
+- Verifying scroll behavior in virtual lists
+- Checking that state persists across navigations
+- Testing filter/sort interactions with selection
+
+**Not for Chrome MCP:**
+- Simple component rendering → Use Storybook
+- Unit logic → Use Vitest
+- E2E workflows with real backend → Use Playwright in `tests/`
+
+### Running Tests Locally
+
+```bash
+# Unit tests
+pnpm test
+
+# Storybook (visual component testing)
+pnpm run storybook
+
+# E2E tests (requires backend or demo mode)
+pnpm run playwright
+```
