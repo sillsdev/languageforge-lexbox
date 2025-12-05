@@ -203,11 +203,39 @@
     });
 
   // Apply fw-lite filter if needed
-  const entries = $derived.by(() => {
+  const filteredEntries = $derived.by(() => {
     if (loadedEntries.length && $currentView.type === 'fw-lite') {
       return filterLiteMorphemeTypes(loadedEntries);
     }
     return loadedEntries;
+  });
+
+  // Create padded entries array with placeholders for accurate scrollbar representation
+  // VList scrollbar is based on array length, so we pad to show true total
+  const entries = $derived.by(() => {
+    if (totalCount <= filteredEntries.length) {
+      // All entries loaded or total is less than loaded
+      return filteredEntries;
+    }
+    // Create array with loaded entries + placeholder entries
+    const paddedLength = totalCount;
+    const result: IEntry[] = [];
+    
+    // Add placeholder entries before the window
+    for (let i = 0; i < windowOffset; i++) {
+      result.push({ id: `placeholder-before-${i}`, headword: { default: '' } } as IEntry);
+    }
+    
+    // Add actual loaded entries
+    result.push(...filteredEntries);
+    
+    // Add placeholder entries after the window
+    const remainingAfter = totalCount - (windowOffset + filteredEntries.length);
+    for (let i = 0; i < remainingAfter; i++) {
+      result.push({ id: `placeholder-after-${i}`, headword: { default: '' } } as IEntry);
+    }
+    
+    return result;
   });
 
   // Update entry count when loading completes
@@ -258,6 +286,8 @@
   });
 
   // Handle scroll to load more entries
+  // The padded entries array ensures the scrollbar represents the full list (1464 items)
+  // Placeholders are rendered as empty divs for unloaded regions
   function handleScroll(): void {
     if (!vList || loading.current) return;
     const scrollOffset = vList.getScrollOffset();
@@ -265,14 +295,29 @@
     const startIndex = vList.findItemIndex(scrollOffset);
     const endIndex = vList.findItemIndex(scrollOffset + viewportSize);
 
+    // Check if user is scrolling through placeholder regions and fetch if needed
+    const windowStart = windowOffset;
+    const windowEnd = windowOffset + loadedEntries.length;
+
+    // If scrolled before window, load more before
+    if (startIndex < windowStart) {
+      void loadEntriesBefore();
+      return;
+    }
+
+    // If scrolled after window, load more after
+    if (endIndex >= windowEnd && windowEnd < totalCount) {
+      void loadEntriesAfter();
+      return;
+    }
+
     // Load more before if near start
-    if (startIndex < LOAD_THRESHOLD && windowOffset > 0) {
+    if (startIndex < windowStart + LOAD_THRESHOLD && windowStart > 0) {
       void loadEntriesBefore();
     }
 
     // Load more after if near end
-    const remainingAfter = loadedEntries.length - endIndex;
-    if (remainingAfter < LOAD_THRESHOLD && windowOffset + loadedEntries.length < totalCount) {
+    if (endIndex > windowEnd - LOAD_THRESHOLD && windowEnd < totalCount) {
       void loadEntriesAfter();
     }
   }
@@ -347,13 +392,18 @@
       {:else}
         <VList bind:this={vList} data={entries} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={d => d.id} onscroll={handleScroll}>
           {#snippet children(entry)}
-            <EntryMenu {entry} contextMenu>
-              <EntryRow {entry}
-                        class="mb-2"
-                        selected={selectedEntryId === entry.id}
-                        onclick={() => { userSelectedEntryId = entry.id; onSelectEntry(entry); }}
-                        {previewDictionary}/>
-            </EntryMenu>
+            {#if entry.id.startsWith('placeholder-')}
+              <!-- Placeholder for unloaded entry region - invisible but takes up space for scrollbar -->
+              <div class="mb-2 h-14"></div>
+            {:else}
+              <EntryMenu {entry} contextMenu>
+                <EntryRow {entry}
+                          class="mb-2"
+                          selected={selectedEntryId === entry.id}
+                          onclick={() => { userSelectedEntryId = entry.id; onSelectEntry(entry); }}
+                          {previewDictionary}/>
+              </EntryMenu>
+            {/if}
           {/snippet}
         </VList>
         {#if entries.length === 0}
