@@ -193,6 +193,10 @@ msgstr ""
 msgid "Best match"
 msgstr ""
 
+#: src/lib/components/ThemePicker.svelte
+msgid "blue"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
 msgstr "Angalia"
@@ -625,6 +629,10 @@ msgstr ""
 msgid "Grammatical info."
 msgstr ""
 
+#: src/lib/components/ThemePicker.svelte
+msgid "green"
+msgstr ""
+
 #: src/project/browse/SortMenu.svelte
 msgid "Headword"
 msgstr "Neno la kichwa"
@@ -940,6 +948,10 @@ msgstr ""
 msgid "Open Log file"
 msgstr ""
 
+#: src/lib/components/ThemePicker.svelte
+msgid "orange"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Part"
@@ -1031,6 +1043,10 @@ msgstr ""
 
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
+msgstr ""
+
+#: src/lib/components/ThemePicker.svelte
+msgid "rose"
 msgstr ""
 
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1135,6 +1151,10 @@ msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
+msgstr ""
+
+#: src/lib/components/ThemePicker.svelte
+msgid "stone"
 msgstr ""
 
 #: src/project/tasks/SubjectPopup.svelte
@@ -1351,6 +1371,10 @@ msgstr ""
 
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
+msgstr ""
+
+#: src/lib/components/ThemePicker.svelte
+msgid "violet"
 msgstr ""
 
 #: src/home/Server.svelte

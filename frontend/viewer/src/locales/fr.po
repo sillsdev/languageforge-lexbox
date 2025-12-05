@@ -193,6 +193,10 @@ msgstr "Synchronisation automatique"
 msgid "Best match"
 msgstr "Meilleure correspondance"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "blue"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
 msgstr "Parcourir"
@@ -625,6 +629,10 @@ msgstr "Naviguer à {0}"
 msgid "Grammatical info."
 msgstr "Informations grammaticales."
 
+#: src/lib/components/ThemePicker.svelte
+msgid "green"
+msgstr ""
+
 #: src/project/browse/SortMenu.svelte
 msgid "Headword"
 msgstr "Entrée de dictionnaire"
@@ -940,6 +948,10 @@ msgstr "Ouvrir dans une nouvelle fenêtre"
 msgid "Open Log file"
 msgstr "Ouvrir le fichier journal"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "orange"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Part"
@@ -1032,6 +1044,10 @@ msgstr "Signaler un problème technique"
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "Évaluer"
+
+#: src/lib/components/ThemePicker.svelte
+msgid "rose"
+msgstr ""
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1136,6 +1152,10 @@ msgstr "Champ spécifique"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Commence par"
+
+#: src/lib/components/ThemePicker.svelte
+msgid "stone"
+msgstr ""
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
@@ -1352,6 +1372,10 @@ msgstr "Version {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Voir"
+
+#: src/lib/components/ThemePicker.svelte
+msgid "violet"
+msgstr ""
 
 #: src/home/Server.svelte
 msgid "Where are my projects?"

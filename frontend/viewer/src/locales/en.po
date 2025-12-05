@@ -188,6 +188,10 @@ msgstr "Auto syncing"
 msgid "Best match"
 msgstr "Best match"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "blue"
+msgstr "blue"
+
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
 msgstr "Browse"
@@ -620,6 +624,10 @@ msgstr "Go to {0}"
 msgid "Grammatical info."
 msgstr "Grammatical info."
 
+#: src/lib/components/ThemePicker.svelte
+msgid "green"
+msgstr "green"
+
 #: src/project/browse/SortMenu.svelte
 msgid "Headword"
 msgstr "Headword"
@@ -935,6 +943,10 @@ msgstr "Open in new Window"
 msgid "Open Log file"
 msgstr "Open Log file"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "orange"
+msgstr "orange"
+
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Part"
@@ -1027,6 +1039,10 @@ msgstr "Report a technical problem"
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "Review"
+
+#: src/lib/components/ThemePicker.svelte
+msgid "rose"
+msgstr "rose"
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1131,6 +1147,10 @@ msgstr "Specific field"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Starts with"
+
+#: src/lib/components/ThemePicker.svelte
+msgid "stone"
+msgstr "stone"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
@@ -1347,6 +1367,10 @@ msgstr "Version {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "View"
+
+#: src/lib/components/ThemePicker.svelte
+msgid "violet"
+msgstr "violet"
 
 #: src/home/Server.svelte
 msgid "Where are my projects?"

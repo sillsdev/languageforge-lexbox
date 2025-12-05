@@ -193,6 +193,10 @@ msgstr "자동 동기화"
 msgid "Best match"
 msgstr "베스트 매치"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "blue"
+msgstr ""
+
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
 msgstr "찾아보기"
@@ -625,6 +629,10 @@ msgstr "{0}으로 이동"
 msgid "Grammatical info."
 msgstr "문법 정보."
 
+#: src/lib/components/ThemePicker.svelte
+msgid "green"
+msgstr ""
+
 #: src/project/browse/SortMenu.svelte
 msgid "Headword"
 msgstr "헤드워드"
@@ -940,6 +948,10 @@ msgstr "새 창에서 열기"
 msgid "Open Log file"
 msgstr "로그 파일 열기"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "orange"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Part"
@@ -1032,6 +1044,10 @@ msgstr "기술 문제 신고하기"
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "검토"
+
+#: src/lib/components/ThemePicker.svelte
+msgid "rose"
+msgstr ""
 
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1136,6 +1152,10 @@ msgstr "특정 필드"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "다음으로 시작"
+
+#: src/lib/components/ThemePicker.svelte
+msgid "stone"
+msgstr ""
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
@@ -1352,6 +1372,10 @@ msgstr "버전 {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "보기"
+
+#: src/lib/components/ThemePicker.svelte
+msgid "violet"
+msgstr ""
 
 #: src/home/Server.svelte
 msgid "Where are my projects?"
