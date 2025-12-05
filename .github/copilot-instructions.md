@@ -145,3 +145,8 @@ You MUST complete ALL steps. NEVER stop before `git push` succeeds. NEVER say "r
 ---
 
 **For detailed workflows and advanced features, see [AGENTS.md](../AGENTS.md)**
+
+**For critical code areas:**
+- [FwLite/CRDT Guide](../backend/FwLite/AGENTS.md) - Data sync, model changes (HIGH RISK)
+- [FwHeadless Guide](../backend/FwHeadless/AGENTS.md) - Mercurial sync, FwData processing
+- [CI/CD Guide](./AGENTS.md) - Workflows, deployments, K8s

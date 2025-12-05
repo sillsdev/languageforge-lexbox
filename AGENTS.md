@@ -271,10 +271,13 @@ Key documentation for this project:
 - `README.md` - Project overview and setup
 - `AGENTS.md` - You are here! Agent instructions
 - `.github/copilot-instructions.md` - GitHub Copilot auto-loaded instructions
+- `.github/AGENTS.md` - **CI/CD and deployment guide** (workflows, K8s, Docker)
 - `docs/DEVELOPER-win.md` - Windows development setup
 - `docs/DEVELOPER-linux.md` - Linux development setup
 - `docs/DEVELOPER-osx.md` - macOS development setup
 - `backend/README.md` - Backend architecture
+- `backend/FwLite/AGENTS.md` - **FwLite/CRDT critical code guide** (data loss risks!)
+- `backend/FwHeadless/AGENTS.md` - **FwHeadless sync guide**
 - `deployment/README.md` - Deployment and infrastructure
 
 ### Questions?
