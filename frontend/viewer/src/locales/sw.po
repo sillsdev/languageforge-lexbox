@@ -1033,6 +1033,10 @@ msgstr "Sehemu ya mazungumzo yenye kushindwa"
 msgid "Missing: {0}"
 msgstr "Yenye kushindwa: {0}"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "Mode"
+msgstr ""
+
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Sogeza"

@@ -1033,6 +1033,10 @@ msgstr "Partie du discours manquante"
 msgid "Missing: {0}"
 msgstr "Manquant : {0}"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "Mode"
+msgstr ""
+
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Déplacer"

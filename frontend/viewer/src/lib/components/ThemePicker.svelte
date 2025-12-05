@@ -64,14 +64,14 @@
                 {/if}
               </span>
               <span class="capitalize">
-                {themeName}
+                {$t(themeName)}
               </span>
             </Button>
           {/each}
         </div>
       </div>
       <div class="space-y-1.5">
-        <Label class="text-xs">Mode</Label>
+        <Label class="text-xs">{$t`Mode`}</Label>
         <div class="grid grid-cols-3 gap-2">
           <Button
             variant="outline"

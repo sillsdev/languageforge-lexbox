@@ -1028,6 +1028,10 @@ msgstr "Missing Part of Speech"
 msgid "Missing: {0}"
 msgstr "Missing: {0}"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "Mode"
+msgstr "Mode"
+
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Move"

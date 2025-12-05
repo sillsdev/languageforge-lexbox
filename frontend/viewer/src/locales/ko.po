@@ -1033,6 +1033,10 @@ msgstr "누락된 품사"
 msgid "Missing: {0}"
 msgstr "누락되었습니다: {0}"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "Mode"
+msgstr ""
+
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "이동"

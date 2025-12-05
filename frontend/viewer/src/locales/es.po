@@ -1033,6 +1033,10 @@ msgstr "Parte de la oración perdido"
 msgid "Missing: {0}"
 msgstr "Falta: {0}"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "Mode"
+msgstr ""
+
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Mover"
