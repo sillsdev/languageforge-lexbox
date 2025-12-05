@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { Input, ProtectedForm, SubmitButton, lexSuperForm, FormError } from '$lib/forms';
+  import {goto} from '$app/navigation';
+  import {resolve} from '$app/paths';
+  import {Input, ProtectedForm, SubmitButton, lexSuperForm, FormError} from '$lib/forms';
   import t from '$lib/i18n';
-  import { TitlePage } from '$lib/layout';
-  import { z } from 'zod';
+  import {TitlePage} from '$lib/layout';
+  import {z} from 'zod';
 
   type ForgotPasswordResponseErrors = {
     errors: {
@@ -20,7 +21,7 @@
   let turnstileToken = $state('');
 
   let { form, errors, enhance, submitting, message } = lexSuperForm(formSchema, async () => {
-    const response = await fetch(`api/login/forgotPassword`, {
+    const response = await fetch('api/login/forgotPassword', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -39,9 +40,9 @@
       return;
     }
 
-    await goto('/forgotPassword/emailSent');
+    await goto(resolve('/forgotPassword/emailSent'));
   }, {
-    taintedMessage: null,
+    taintedMessage: false,
   });
 </script>
 

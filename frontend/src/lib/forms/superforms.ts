@@ -1,45 +1,51 @@
-import type { ActionResult } from '@sveltejs/kit';
-import { derived, get, type Readable } from 'svelte/store';
-import { superForm, type FormOptions, type SuperForm } from 'sveltekit-superforms/client';
-import type { SuperValidated, ZodValidation } from 'sveltekit-superforms';
-import { superValidateSync } from 'sveltekit-superforms/client';
-import type { AnyZodObject, z } from 'zod';
-import type { ErrorMessage } from './types';
-import { randomFormId } from './utils';
+import type {ActionResult} from '@sveltejs/kit';
+import {derived, get, type Readable} from 'svelte/store';
+import {superForm, type FormOptions, type SuperForm} from 'sveltekit-superforms/client';
+import type {Infer, InferIn, SuperValidated} from 'sveltekit-superforms';
+import {type ZodValidationSchema, zod4} from 'sveltekit-superforms/adapters';
+import {defaults} from 'sveltekit-superforms/client';
+import type {ErrorMessage} from './types';
+import {randomFormId} from './utils';
 
-export type LexFormState<S extends ZodValidation<AnyZodObject>> = Required<{ [field in (keyof z.infer<S>)]: {
+type FieldKeys<T extends Record<string, unknown>> = Extract<keyof T, string>;
+
+export type LexFormState<S extends Record<string, unknown>> = Required<{ [field in FieldKeys<S>]: {
   tainted: boolean; // has ever been touched/edited
   changed: boolean; // whether the current value is different than the last untainted value
-  originalValue: z.infer<S>[field]; // last value that was considered untainted
-  currentValue: z.infer<S>[field];
+  originalValue: S[field]; // last value that was considered untainted
+  currentValue: S[field];
 } }>;
 
-export type LexFormErrors<S extends ZodValidation<AnyZodObject>> = SuperValidated<S, string>['errors'];
+export type LexFormErrors<S extends Record<string, unknown>> = SuperValidated<S, string>['errors'];
 
-type LexSuperForm<S extends ZodValidation<AnyZodObject>> =
-  SuperForm<S, string> & {
-    formState: Readable<LexFormState<S>>
+type LexSuperForm<S extends ZodValidationSchema> =
+  SuperForm<Infer<S, 'zod4'>, string> & {
+    formState: Readable<LexFormState<Infer<S, 'zod4'>>>
   };
 
-type LexOnSubmit<S extends ZodValidation<AnyZodObject>> =
+type LexOnSubmit<S extends Record<string, unknown>> =
   (...args: Parameters<NonNullable<FormOptions<S, string>['onResult']>>) => Promise<ErrorMessage>;
 
 //we've got to wrap this in our own version because we're not using the server side component, which this expects
-export function lexSuperForm<S extends ZodValidation<AnyZodObject>>(
+export function lexSuperForm<S extends ZodValidationSchema>(
   schema: S,
-  onSubmit: LexOnSubmit<S>,
-  options: Omit<FormOptions<S, string>, 'validators'> = {},
+  onSubmit: LexOnSubmit<Infer<S, 'zod4'>>,
+  options: Omit<FormOptions<Infer<S, 'zod4'>, string, InferIn<S, 'zod4'>>, 'validators'> = {},
 ): LexSuperForm<S> {
-  const form = superValidateSync(schema, { id: options.id ?? randomFormId() });
-  const sf: SuperForm<S, string> = superForm<S>(form, {
-    validators: schema as any, // eslint-disable-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+
+  const adapter = zod4(schema);
+  const form = defaults(adapter, {
+    id: options.id ?? randomFormId(),
+  });
+  const sf = superForm<Infer<S, 'zod4'>, string, InferIn<S, 'zod4'>>(form, {
+    validators: adapter,
     dataType: 'json',
     SPA: true, // eslint-disable-line @typescript-eslint/naming-convention
     invalidateAll: false,
     ...options,
     onResult: async (event) => {
       await options.onResult?.(event);
-      const result = event.result as ActionResult<{ form: SuperValidated<S> }>;
+      const result = event.result as ActionResult<{ form: SuperValidated<Infer<S, 'zod4'>, string, InferIn<S, 'zod4'>> }>;
       if (result.type == 'success' && result.data) {
         const error = await onSubmit(event);
         if (error) {
@@ -53,10 +59,10 @@ export function lexSuperForm<S extends ZodValidation<AnyZodObject>>(
   });
 
   const formState = getFormState(sf);
-  return { formState, ...sf };
+  return { formState, ...sf } as LexSuperForm<S>;
 }
 
-function formHasMessageOrErrors<S extends ZodValidation<AnyZodObject>>(form: SuperForm<S, string>): boolean {
+function formHasMessageOrErrors<S extends Record<string, unknown>>(form: SuperForm<S, string>): boolean {
   if (get(form.message)) {
     return true;
   }
@@ -65,19 +71,29 @@ function formHasMessageOrErrors<S extends ZodValidation<AnyZodObject>>(form: Sup
   return !!allErrors.find(error => error.messages.find(e => e));
 }
 
-function getFormState<S extends ZodValidation<AnyZodObject>>(sf: SuperForm<S, string>): Readable<LexFormState<S>> {
+function getFormState<S extends Record<string, unknown>>(sf: SuperForm<S, string>): Readable<LexFormState<S>> {
+  // todo: this is buggy, the form is not necessarily initialized. We sometimes init in onMount with taint: false.
+  // we should update with the last untainted values
   const untaintedValues = { ...get(sf.form) };
   const fieldStateStore: Readable<LexFormState<S>> = derived([sf.form, sf.tainted], ([form, tainted]) => {
-    const fields = Object.keys(sf.fields) as (keyof S)[];
-    const taintedFields = Object.keys(tainted ?? {}) as (keyof S)[];
+    const capture = sf.capture();
+    const fields = Object.keys({
+      // a messy way to be 99% sure we get all field keys
+      ...capture.data,
+      ...capture.constraints,
+  }) as FieldKeys<S>[];
+    const taintedFields = Object.keys(tainted ?? {})
+      .filter(key => Boolean(tainted?.[key as keyof typeof tainted])) as FieldKeys<S>[];
     const untaintedFields = fields.filter(field => !taintedFields.includes(field));
     for (const untaintedField of untaintedFields) {
       untaintedValues[untaintedField] = form[untaintedField];
     }
+
     return fields.reduce<LexFormState<S>>((result, field) => {
+      const tainted = taintedFields.includes(field);
       result[field] = {
-        tainted: taintedFields.includes(field),
-        changed: form[field] !== untaintedValues[field],
+        tainted,
+        changed: tainted && form[field] !== untaintedValues[field],
         originalValue: untaintedValues[field],
         currentValue: form[field],
       };

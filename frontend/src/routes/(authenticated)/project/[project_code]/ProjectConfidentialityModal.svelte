@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { DialogResponse, FormModal } from '$lib/components/modals';
-  import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
-  import { useNotifications } from '$lib/notify';
-  import { z } from 'zod';
-  import { _setProjectConfidentiality } from './+page';
+  import {DialogResponse, FormModal} from '$lib/components/modals';
+  import {ProjectConfidentialityCombobox} from '$lib/components/Projects';
+  import {useNotifications} from '$lib/notify';
+  import {z} from 'zod';
+  import {_setProjectConfidentiality} from './+page';
   import t from '$lib/i18n';
 
   interface Props {

@@ -2,7 +2,7 @@ import {type Locator, type Page} from '@playwright/test';
 import {BasePage} from '../pages/basePage';
 import {serverBaseUrl} from '../envVars';
 
-export enum EmailSubjects {
+export const enum EmailSubjects {
   VerifyEmail = 'Verify your e-mail address',
   ForgotPassword = 'Forgot your password?',
   PasswordChanged = 'Your password was changed',

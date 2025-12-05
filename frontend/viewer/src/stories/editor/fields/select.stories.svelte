@@ -31,10 +31,10 @@
       readonly: false,
       idSelector: 'label',
       labelSelector: (item) => item.label,
-      drawerTitle: `Part of speech`,
-      filterPlaceholder: `Filter parts of speech...`,
-      placeholder: `🤷 nothing here`,
-      emptyResultsPlaceholder: `Looked hard, found nothing`,
+      drawerTitle: 'Part of speech',
+      filterPlaceholder: 'Filter parts of speech...',
+      placeholder: '🤷 nothing here',
+      emptyResultsPlaceholder: 'Looked hard, found nothing',
     },
   });
 </script>

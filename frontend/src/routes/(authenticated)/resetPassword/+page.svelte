@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { Form, FormError, Input, SubmitButton, lexSuperForm, passwordFormRules } from '$lib/forms';
+  import {goto} from '$app/navigation';
+  import {resolve} from '$app/paths';
+  import {Form, FormError, Input, SubmitButton, lexSuperForm, passwordFormRules} from '$lib/forms';
   import t from '$lib/i18n';
-  import { PageBreadcrumb, TitlePage } from '$lib/layout';
-  import { hash } from '$lib/util/hash';
-  import { z } from 'zod';
-  import { useNotifications } from '$lib/notify';
-  import type { PageData } from './$types';
-  import { getAspResponseErrorMessage } from '$lib/util/asp-response';
+  import {PageBreadcrumb, TitlePage} from '$lib/layout';
+  import {hash} from '$lib/util/hash';
+  import {z} from 'zod';
+  import {useNotifications} from '$lib/notify';
+  import type {PageData} from './$types';
+  import {getAspResponseErrorMessage} from '$lib/util/asp-response';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
   interface Props {
@@ -36,11 +37,11 @@
       return $t('reset_password.failed', { errorMessage });
     }
     notifySuccess($t('reset_password.password_reset'));
-    await goto(data.home);
+    await goto(resolve(data.home));
   });
 </script>
 
-<PageBreadcrumb href="/user">{$t('account_settings.title')}</PageBreadcrumb>
+<PageBreadcrumb href={resolve('/user')}>{$t('account_settings.title')}</PageBreadcrumb>
 
 <TitlePage title={$t('reset_password.title')}>
   <Form {enhance}>

@@ -1,10 +1,11 @@
 <script lang="ts">
+  import {resolve} from '$app/paths';
   import t from '$lib/i18n';
   import Icon from '$lib/icons/Icon.svelte';
   import {projectUrl} from '$lib/util/project';
-  import { Badge } from './Badges';
-  import { getProjectTypeIcon } from './ProjectType';
-  import type { ProjectItemWithDraftStatus } from './Projects';
+  import {Badge} from './Badges';
+  import {getProjectTypeIcon} from './ProjectType';
+  import type {ProjectItemWithDraftStatus} from './Projects';
 
   interface Props {
     projects: ProjectItemWithDraftStatus[];
@@ -38,7 +39,7 @@
         </div>
       </div>
     {:else}
-      <a class="card aspect-square bg-base-200 shadow-base-300 overflow-hidden" href={projectUrl(project)}>
+      <a class="card aspect-square bg-base-200 shadow-base-300 overflow-hidden" href={resolve(projectUrl(project))}>
         <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')"></div>
         <div class="card-body z-[1] max-sm:p-6">
           <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>

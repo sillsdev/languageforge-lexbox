@@ -19,8 +19,7 @@
     projectName,
     baseUrl
   }: Props = $props();
-  let approveUrl = new URL(`/project/${projectCode}?addUserId=${requestingUserId}&addUserName=${requestingUserName}`, baseUrl);
-
+  let approveUrl = $derived(new URL(`/project/${projectCode}?addUserId=${requestingUserId}&addUserName=${encodeURIComponent(requestingUserName)}`, baseUrl));
 </script>
 
 <Email subject={$t('emails.join_project_request_email.subject', {requestingUserName, projectName})} name={managerName}>

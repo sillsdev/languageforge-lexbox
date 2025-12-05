@@ -1,9 +1,8 @@
 <script lang="ts">
+  import type {ComponentProps} from 'svelte';
   import SigninWithGoogleButton from './SigninWithGoogleButton.svelte';
 
-  interface Props {
-    href: string;
-  }
+  type Props = Omit<ComponentProps<typeof SigninWithGoogleButton>, 'text'>;
 
   const { href }: Props = $props();
 </script>

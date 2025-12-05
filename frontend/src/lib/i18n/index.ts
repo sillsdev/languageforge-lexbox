@@ -1,6 +1,6 @@
-import type { DeepPathsToType, DeepPaths, DeepPathsToString } from '$lib/type.utils';
+import type {DeepPathsToType, DeepPaths, DeepPathsToString} from '$lib/type.utils';
 // eslint-disable-next-line no-restricted-imports
-import { date as _date, number as _number, getLocaleFromAcceptLanguageHeader as _getLocaleFromAcceptLanguageHeader, getLocaleFromNavigator, init, t as translate, waitLocale } from 'svelte-intl-precompile';
+import {date as _date, number as _number, getLocaleFromAcceptLanguageHeader as _getLocaleFromAcceptLanguageHeader, getLocaleFromNavigator, init, t as translate, waitLocale} from 'svelte-intl-precompile';
 
 import type I18nShape from '../i18n/locales/en.json';
 import {
@@ -11,10 +11,10 @@ import {
   type Unsubscriber,
   type Subscriber,
 } from 'svelte/store';
-import { availableLocales, registerAll } from '$locales';
-import type { Get } from 'type-fest';
-import { defineContext } from '$lib/util/context';
-import { browser } from '$app/environment';
+import {availableLocales, registerAll} from '$locales';
+import type {Get, Paths} from 'type-fest';
+import {defineContext} from '$lib/util/context';
+import {browser} from '$app/environment';
 
 export function buildRegionalLocaleRegex(supportedLocales: string[]): RegExp {
   return RegExp(`\\b(${supportedLocales.join('|')})[-a-zA-Z0-9]+`, 'g');
@@ -124,7 +124,7 @@ export const date = withLocale(_date, (dateFunc, value, options) => dateFunc(new
   ...options,
 }));
 
-function withLocale<T, O extends { locale?: string, nullLabel?: string }>(
+function withLocale<T, O extends { locale?: string }>(
   store: Readable<(value: T, options?: O) => string>,
   formatter: (func: (value: T, options?: O) => string, value: T | string, options: O) => string
 ): Readable<(value: T | string | null | undefined, options?: O & { nullLabel?: string }) => string> {
@@ -156,6 +156,7 @@ export type Translater = {
 }
 type I18n = Readable<Translater>;
 export type I18nKey = DeepPaths<typeof I18nShape>;
-type I18nScope = DeepPathsToType<typeof I18nShape, I18nKey, object>;
+type I18nPaths = Paths<typeof I18nShape>;
+type I18nScope = DeepPathsToType<typeof I18nShape, I18nPaths, object>;
 type I18nScopedShape<Scope extends I18nScope> = Get<typeof I18nShape, Scope>;
-export type I18nShapeKey<Shape> = DeepPathsToType<typeof I18nShape, I18nKey, Shape>;
+export type I18nShapeKey<Shape> = DeepPathsToType<typeof I18nShape, I18nPaths, Shape>;

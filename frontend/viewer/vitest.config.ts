@@ -1,6 +1,7 @@
 import {defineConfig} from 'vitest/config';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
+import {playwright} from '@vitest/browser-playwright';
 import {storybookTest} from '@storybook/addon-vitest/vitest-plugin';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
 
@@ -41,7 +42,7 @@ export default defineConfig({
           browser: {
             enabled: true,
             headless: true,
-            provider: 'playwright',
+            provider: playwright(),
             instances: [
               {browser: 'chromium'},
               {browser: 'firefox'},
@@ -69,7 +70,7 @@ export default defineConfig({
           browser: {
             enabled: true,
             headless: true,
-            provider: 'playwright',
+            provider: playwright(),
             instances: [
               {browser: 'chromium'},
               {browser: 'firefox'},

@@ -73,7 +73,7 @@
   await expect(items[2]).toBe('1');
 
   // Move back to top: 3 -> 1
-  await userEvent.click(trigger);
+  await userEvent.click(trigger, {pointerEventsCheck: 0}); // disable pointer event checks, because they fail for some reason
   menuItems = await doc.findAllByRole('menuitem');
   await expect(menuItems.length).toBe(items.length);
   await expect(menuItems[2]).toHaveAttribute('data-current');

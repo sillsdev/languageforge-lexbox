@@ -4,6 +4,7 @@ import {TitlePage} from '$lib/layout';
 import {Form, FormError, Input, lexSuperForm, SubmitButton} from '$lib/forms';
 import {z} from 'zod';
 import {goto} from '$app/navigation';
+import {resolve} from '$app/paths';
 import {_createOrg} from './+page';
 import {DbErrorCode} from '$lib/gql/types';
 
@@ -21,8 +22,12 @@ let {form, errors, message, enhance, submitting} = lexSuperForm(formSchema, asyn
       $message = result.error.message;
     }
   } else {
-    await goto(`/org/${result.data?.createOrganization.organization?.id}`);
+    const destination = `/org/${result.data?.createOrganization.organization?.id}` as const;
+    await goto(resolve(destination));
   }
+}, {
+  resetForm: false,
+  taintedMessage: true,
 });
 </script>
 

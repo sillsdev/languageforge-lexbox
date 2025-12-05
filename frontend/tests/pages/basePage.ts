@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import {expect, type Locator, type Page} from '@playwright/test';
 
 // Javascript doesn't have Regex.Escape() so we have to roll our own
 // Implementation from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions

@@ -97,7 +97,7 @@
           <VList
             class="space-y-2"
             data={changes}
-            overscan={2}
+            bufferSize={1400}
             getKey={(item) => `${item.change.commitId}:${item.change.index}`}>
             {#snippet children(changeWithContext)}
               {@const {change, lazyContext} = changeWithContext}

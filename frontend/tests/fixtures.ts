@@ -88,7 +88,7 @@ function addUnexpectedResponseListener(context: BrowserContext): void {
     if (response.request().isNavigationRequest()) {
       if (status >= 400) expect.soft(status, unexpectedResponseMessage).toBeLessThan(400);
     }
-    if (url.endsWith('/api/graphql') && response.ok()) { // response.ok() filters out redirects, which don't have a response body
+    if (url.includes('/api/graphql') && response.ok()) { // response.ok() filters out redirects, which don't have a response body
       const result = await response.json() as GqlResult;
       expect.soft(result.errors?.[0]?.message).not.toBe('Unexpected Execution Error');
     }

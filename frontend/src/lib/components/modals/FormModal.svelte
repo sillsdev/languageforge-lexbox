@@ -1,31 +1,31 @@
 <script module lang="ts">
-  import type { Snippet } from 'svelte';
-  import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
-  import type { LexFormErrors, LexFormState } from '$lib/forms/superforms';
-  import type { AnyZodObject, ZodObject, z } from 'zod';
-  import type { UnwrapEffects, ValidationErrors, ZodValidation } from 'sveltekit-superforms';
-  import type { ErrorMessage } from '$lib/forms';
+  import type {Snippet} from 'svelte';
+  import Modal, {DialogResponse} from '$lib/components/modals/Modal.svelte';
+  import type {LexFormErrors, LexFormState} from '$lib/forms/superforms';
+  import type {Infer, ValidationErrors} from 'sveltekit-superforms';
+  import type {ZodValidationSchema} from 'sveltekit-superforms/adapters';
+  import type {ErrorMessage} from '$lib/forms';
 
-  export type FormModalResult<S extends AnyZodObject> = {
+  export type FormModalResult<S extends ZodValidationSchema> = {
     response: DialogResponse;
-    formState: LexFormState<S>;
+    formState: LexFormState<Infer<S, 'zod4'>>;
   };
 
-  export type FormSubmitReturn<Schema extends ZodValidation<AnyZodObject>> =
+  export type FormSubmitReturn<Schema extends ZodValidationSchema> =
     | ErrorMessage
-    | Partial<LexFormErrors<Schema>>;
-  export type FormSubmitCallback<Schema extends ZodValidation<AnyZodObject>> = (
-    state: LexFormState<Schema>,
+    | Partial<LexFormErrors<Infer<Schema, 'zod4'>>>;
+  export type FormSubmitCallback<Schema extends ZodValidationSchema> = (
+    state: LexFormState<Infer<Schema, 'zod4'>>,
   ) => Promise<FormSubmitReturn<Schema>>;
 </script>
 
 <script lang="ts">
-  import type { SubmitVariant } from '$lib/forms/SubmitButton.svelte';
-  import { Button, Form, FormError, lexSuperForm, SubmitButton } from '$lib/forms';
-  import type { Readable } from 'svelte/store';
+  import type {SubmitVariant} from '$lib/forms/SubmitButton.svelte';
+  import {Button, Form, FormError, lexSuperForm, SubmitButton} from '$lib/forms';
+  import type {Readable} from 'svelte/store';
 
-  type Schema = $$Generic<ZodObject>;
-  type FormType = z.infer<Schema>;
+  type Schema = $$Generic<ZodValidationSchema>;
+  type FormType = Infer<Schema, 'zod4'>;
   type SubmitCallback = FormSubmitCallback<Schema>;
 
   interface Props {
@@ -34,7 +34,7 @@
     hideActions?: boolean;
     showDoneState?: boolean;
     title?: Snippet;
-    children?: Snippet<[{ errors: ValidationErrors<UnwrapEffects<Schema>> }]>;
+    children?: Snippet<[{ errors: ValidationErrors<FormType> }]>;
     extraActions?: Snippet;
     submitText?: Snippet;
     doneText?: Snippet;
@@ -52,7 +52,10 @@
     doneText,
   }: Props = $props();
 
-  const superForm = lexSuperForm(schema, () => modal?.submitModal() ?? Promise.resolve(undefined));
+  const superForm = lexSuperForm((() => schema)(), () => modal?.submitModal() ?? Promise.resolve(undefined), {
+    resetForm: false,
+    taintedMessage: true,
+  });
   const { form: _form, errors, reset, message, enhance, formState, tainted } = superForm;
   let modal: Modal | undefined = $state();
   let done = $state(false);
@@ -68,7 +71,7 @@
   ): Promise<FormModalResult<Schema>> {
     done = false;
     const onSubmit = _onSubmit ?? (valueOrOnSubmit as SubmitCallback);
-    const value = _onSubmit ? (valueOrOnSubmit as Partial<FormType>) : undefined;
+    const value = _onSubmit ? (valueOrOnSubmit) : undefined;
 
     reset();
 

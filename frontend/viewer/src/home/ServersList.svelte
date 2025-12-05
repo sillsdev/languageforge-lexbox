@@ -36,7 +36,7 @@
   }
 
   fetchRemoteProjects().catch((error) => {
-    console.error(`Failed to fetch remote projects`, error);
+    console.error('Failed to fetch remote projects', error);
     throw error;
   });
 

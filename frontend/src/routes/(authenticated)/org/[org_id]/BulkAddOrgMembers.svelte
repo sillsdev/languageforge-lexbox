@@ -1,18 +1,18 @@
 <script lang="ts">
-  import { DialogResponse, FormModal, type FormSubmitReturn } from '$lib/components/modals';
-  import { TextArea, isEmail } from '$lib/forms';
-  import { OrgRole, type BulkAddOrgMembersResult } from '$lib/gql/types';
+  import {DialogResponse, FormModal, type FormSubmitReturn} from '$lib/components/modals';
+  import {TextArea, isEmail} from '$lib/forms';
+  import {OrgRole, type BulkAddOrgMembersResult} from '$lib/gql/types';
   import t from '$lib/i18n';
-  import { z } from 'zod';
-  import { _bulkAddOrgMembers } from './+page';
+  import {z} from 'zod';
+  import {_bulkAddOrgMembers} from './+page';
   import Icon from '$lib/icons/Icon.svelte';
   import BadgeList from '$lib/components/Badges/BadgeList.svelte';
-  import { distinct } from '$lib/util/array';
-  import { SupHelp, helpLinks } from '$lib/components/help';
-  import { usernameRe } from '$lib/user';
+  import {distinct} from '$lib/util/array';
+  import {SupHelp, helpLinks} from '$lib/components/help';
+  import {usernameRe} from '$lib/user';
   import OrgMemberBadge from '$lib/components/Badges/OrgMemberBadge.svelte';
-  import type { UUID } from 'crypto';
-  import { invalidate } from '$app/navigation';
+  import type {UUID} from 'crypto';
+  import {invalidate} from '$app/navigation';
 
   // svelte-ignore non_reactive_update
   enum BulkAddSteps {

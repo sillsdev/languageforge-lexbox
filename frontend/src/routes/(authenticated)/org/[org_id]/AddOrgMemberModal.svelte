@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { DialogResponse, FormModal } from '$lib/components/modals';
-  import { Checkbox, Input, OrgRoleSelect, isEmail } from '$lib/forms';
-  import { OrgRole } from '$lib/gql/types';
+  import {DialogResponse, FormModal} from '$lib/components/modals';
+  import {Checkbox, Input, OrgRoleSelect, isEmail} from '$lib/forms';
+  import {OrgRole} from '$lib/gql/types';
   import t from '$lib/i18n';
-  import { z } from 'zod';
-  import { useNotifications } from '$lib/notify';
-  import { page } from '$app/stores';
+  import {z} from 'zod';
+  import {useNotifications} from '$lib/notify';
+  import {page} from '$app/stores';
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
-  import { SupHelp, helpLinks } from '$lib/components/help';
-  import type { UUID } from 'crypto';
-  import { _addOrgMember, type Org } from './+page';
-  import type { SingleUserICanSeeTypeaheadResult, SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
-  import UserProjects, { type Project } from '$lib/components/Users/UserProjects.svelte';
+  import {SupHelp, helpLinks} from '$lib/components/help';
+  import type {UUID} from 'crypto';
+  import {_addOrgMember, type Org} from './+page';
+  import type {SingleUserICanSeeTypeaheadResult, SingleUserTypeaheadResult} from '$lib/gql/typeahead-queries';
+  import UserProjects, {type Project} from '$lib/components/Users/UserProjects.svelte';
 
   interface Props {
     org: Org;
@@ -24,7 +24,7 @@
       .string()
       .trim()
       .min(1, $t('org_page.add_user.empty_user_field'))
-      .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
+      .refine((value) => !value.includes('@') || isEmail(value), { error: $t('form.invalid_email') }),
     role: z.enum([OrgRole.User, OrgRole.Admin]).default(OrgRole.User),
     canInvite: z.boolean().default(false),
   });

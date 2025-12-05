@@ -15,6 +15,7 @@
   import {AUTHENTICATED_ROOT} from '../..';
   import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
   import AppLogo from '$lib/icons/AppLogo.svelte';
+  import {resolve} from '$app/paths';
 
   //return url should be a relative path, or empty string
   let returnUrl: string = $state('');
@@ -35,7 +36,7 @@
         if (returnUrl) {
           window.location.assign(returnUrl);
         } else {
-          await goto('/home', {invalidateAll: true}); // invalidate so we get the user from the server
+          await goto(resolve('/home'), {invalidateAll: true}); // invalidate so we get the user from the server
         }
       } else if (loginResult.error === 'Locked') {
         $message = $t('login.your_account_is_locked');
@@ -45,7 +46,7 @@
       }
     },
     {
-      taintedMessage: null,
+      taintedMessage: false,
     }
   );
 
@@ -107,7 +108,7 @@
             <FormError error={$message} markdown/>
           </div>
 
-          <a class="link mt-0" href="/forgotPassword">
+          <a class="link mt-0" href={resolve('/forgotPassword')}>
             {$t('login.forgot_password')}
           </a>
 
@@ -115,7 +116,7 @@
             {badCredentials ? $t('login.button_login_again') : $t('login.button_login')}
           </SubmitButton>
 
-          <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
+          <a class="btn btn-primary" href={resolve('/register')}>{$t('register.title')}</a>
         </Form>
         <div class="divider lowercase">{$t('common.or')}</div>
         <SigninWithGoogleButton href={`/api/login/google?redirectTo=${encodeURIComponent(returnUrl)}`}/>

@@ -2,12 +2,12 @@ import {fileURLToPath} from 'url';
 import globals from 'globals';
 import js from '@eslint/js';
 import path from 'path';
-import svelteParser from 'svelte-eslint-parser';
-import tsParser from '@typescript-eslint/parser';
-import svelteConfig from './svelte.config.js';
-import typescript from 'typescript-eslint';
 import stylistic from '@stylistic/eslint-plugin';
 import svelte from 'eslint-plugin-svelte';
+import svelteConfig from './svelte.config.js';
+import svelteParser from 'svelte-eslint-parser';
+import tsParser from '@typescript-eslint/parser';
+import typescript from 'typescript-eslint';
 
 // mimic CommonJS variables
 const __filename = fileURLToPath(import.meta.url);
@@ -81,7 +81,7 @@ export default [
           'format': ['camelCase', 'PascalCase'],
         }
       ],
-      '@stylistic/quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
+      '@stylistic/quotes': ['error', 'single', { 'allowTemplateLiterals': 'always' }],
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

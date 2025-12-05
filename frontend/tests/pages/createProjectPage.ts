@@ -13,7 +13,7 @@ type ProjectConfig = {
 
 export class CreateProjectPage extends BasePage {
   constructor(page: Page) {
-    super(page, page.getByRole('heading', { name: /(Create|Request) Project/ }), `/project/create`);
+    super(page, page.getByRole('heading', { name: /(Create|Request) Project/ }), '/project/create');
   }
   get extraProjectsDiv(): Locator { return this.page.locator('#group-extra-projects'); }
   get askToJoinBtn(): Locator { return this.page.getByRole('button', {name: 'Ask to join', exact: true}); }

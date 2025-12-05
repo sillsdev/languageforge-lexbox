@@ -1,20 +1,19 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import type {Snippet} from 'svelte';
 
-  import type { AnySuperForm } from './types';
+  import type {FormEnhance} from './types';
 
   let formElem: HTMLFormElement | undefined = $state();
 
   interface Props {
     id?: string;
-    enhance?: AnySuperForm['enhance'];
+    enhance?: FormEnhance;
     children?: Snippet;
   }
 
   const { id, enhance, children }: Props = $props();
-  function enhanceIfRequested(...args: Parameters<AnySuperForm['enhance']>): void {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    enhance && enhance(...args);
+  function enhanceIfRequested(...args: Parameters<FormEnhance>): void {
+    enhance?.(...args);
   }
 
   export function requestSubmit(): void {

@@ -10,13 +10,13 @@
     passwordFormRules,
     DisplayLanguageSelect,
   } from '$lib/forms';
-  import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
-  import { type LexAuthUser, type RegisterResponse } from '$lib/user';
-  import { getSearchParamValues } from '$lib/util/query-params';
-  import { onMount } from 'svelte';
-  import { usernameRe } from '$lib/user';
-  import { z } from 'zod';
-  import type { StringifyValues } from '$lib/type.utils';
+  import t, {getLanguageCodeFromNavigator, locale} from '$lib/i18n';
+  import {type LexAuthUser, type RegisterResponse} from '$lib/user';
+  import {getSearchParamValues} from '$lib/util/query-params';
+  import {onMount} from 'svelte';
+  import {usernameRe} from '$lib/user';
+  import {z} from 'zod';
+  import type {StringifyValues} from '$lib/type.utils';
 
   interface Props {
     allowUsernames?: boolean;
@@ -60,14 +60,15 @@
   // getLanguageCodeFromNavigator() gives us the language/locale they probably actually want. Maybe we'll support it in the future.
   const userLocale = getLanguageCodeFromNavigator() ?? $locale;
   const formSchema = z.object({
-    name: z.string().trim().min(1, $t('register.name_missing')),
+    name: z.string().trim().min(1, $t('register.name_missing')
+  ),
     email: z
       .string()
       .trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
-      .refine((value) => !errorOnChangingEmail || !urlValues.email || value == urlValues.email, errorOnChangingEmail)
-      .refine((value) => !validateAsEmail(value) || isEmail(value), $t('form.invalid_email'))
-      .refine((value) => validateAsEmail(value) || usernameRe.test(value), $t('register.invalid_username')),
+      .refine((value) => !errorOnChangingEmail || !urlValues.email || value == urlValues.email, { error: (() => errorOnChangingEmail)() })
+      .refine((value) => !validateAsEmail(value) || isEmail(value), { error: $t('form.invalid_email') })
+      .refine((value) => validateAsEmail(value) || usernameRe.test(value), { error: $t('register.invalid_username') }),
     password: passwordFormRules($t),
     score: z.number(),
     locale: z.string().trim().min(2).default(userLocale),
@@ -101,7 +102,11 @@
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
+  }, {
+    resetForm: false,
+    taintedMessage: true,
   });
+
   $effect(() => {
     formTainted = !!$tainted;
   });

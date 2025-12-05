@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { Badge, BadgeButton, BadgeList } from '$lib/components/Badges';
+  import {Badge, BadgeButton, BadgeList} from '$lib/components/Badges';
   import EditableText from '$lib/components/EditableText.svelte';
-  import { ProjectTypeBadge } from '$lib/components/ProjectType';
+  import {ProjectTypeBadge} from '$lib/components/ProjectType';
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
-  import t, { date, number } from '$lib/i18n';
-  import { z } from 'zod';
-  import type { PageData } from './$types';
+  import t, {date, number} from '$lib/i18n';
+  import {z} from 'zod';
+  import type {PageData} from './$types';
   import {
     _changeProjectDescription,
     _changeProjectName,
@@ -22,19 +22,19 @@
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import BulkAddProjectMembers from './BulkAddProjectMembers.svelte';
-  import { CircleArrowIcon, TrashIcon } from '$lib/icons';
-  import { useNotifications } from '$lib/notify';
-  import { DialogResponse, Modal } from '$lib/components/modals';
-  import { Button, type ErrorMessage } from '$lib/forms';
+  import {CircleArrowIcon, TrashIcon} from '$lib/icons';
+  import {useNotifications} from '$lib/notify';
+  import {DialogResponse, Modal} from '$lib/components/modals';
+  import {Button, type ErrorMessage} from '$lib/forms';
   import ResetProjectModal from './ResetProjectModal.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
-  import { _deleteProject } from '$lib/gql/mutations';
-  import { goto } from '$app/navigation';
+  import {_deleteProject} from '$lib/gql/mutations';
+  import {goto} from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import { AdminContent, FeatureFlagContent, PageBreadcrumb } from '$lib/layout';
+  import {AdminContent, FeatureFlagContent, PageBreadcrumb} from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
-  import { OrgRole, ProjectRole, ProjectType, ResetStatus, RetentionPolicy } from '$lib/gql/generated/graphql';
+  import {OrgRole, ProjectRole, ProjectType, ResetStatus, RetentionPolicy} from '$lib/gql/generated/graphql';
   import Icon from '$lib/icons/Icon.svelte';
   import OpenInFlexModal from './OpenInFlexModal.svelte';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
@@ -44,20 +44,23 @@
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import ProjectConfidentialityBadge from './ProjectConfidentialityBadge.svelte';
   import ProjectConfidentialityModal from './ProjectConfidentialityModal.svelte';
-  import { DetailItem, EditableDetailItem } from '$lib/layout';
+  import {DetailItem, EditableDetailItem} from '$lib/layout';
   import MembersList from './MembersList.svelte';
   import DetailsPage from '$lib/layout/DetailsPage.svelte';
   import OrgList from './OrgList.svelte';
   import AddOrganization from './AddOrganization.svelte';
   import AddPurpose from './AddPurpose.svelte';
   import WritingSystemList from '$lib/components/Projects/WritingSystemList.svelte';
-  import { onMount } from 'svelte';
-  import { getSearchParamValues } from '$lib/util/query-params';
+  import {onMount} from 'svelte';
+  import {getSearchParamValues} from '$lib/util/query-params';
   import FlexModelVersionText from '$lib/components/Projects/FlexModelVersionText.svelte';
   import CrdtSyncButton from './CrdtSyncButton.svelte';
-  import { _askToJoinProject } from '../create/+page'; // TODO: Should we duplicate this function in the project_code/+page.ts file, rather than importing it from elsewhere?
-  import { Duration } from '$lib/util/time';
+  import {_askToJoinProject} from '../create/+page';
+// TODO: Should we duplicate this function in the project_code/+page.ts file, rather than importing it from elsewhere?
+  import {Duration} from '$lib/util/time';
   import {hasFeatureFlag} from '$lib/user';
+  import {resolve} from '$app/paths';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
 
   interface Props {
     data: PageData;
@@ -65,7 +68,7 @@
 
   const { data }: Props = $props();
   let user = $derived(data.user);
-  let projectStore = data.project;
+  let projectStore = $derived(data.project);
   let project = $derived($projectStore);
   let changesetStore = $derived(data.changesets);
   // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the `$changesetStore.fetching` part
@@ -237,7 +240,7 @@
       if (result.response === DialogResponse.Submit) {
         deleted = true;
         notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
-        await goto(data.home);
+        await goto(resolve(data.home));
       }
     } finally {
       if (!deleted) {
@@ -327,7 +330,7 @@
       });
       if (left) {
         notifySuccess($t('project_page.leave.leave_success', { projectName: project.name }));
-        await goto(data.home);
+        await goto(resolve(data.home));
       }
     } finally {
       if (!left) {
@@ -379,7 +382,7 @@
                     </h3>
                     {#if project.type === ProjectType.WeSay}
                       {#if isEmpty}
-                        <Markdown
+                        <NewTabLinkMarkdown
                           md={$t('project_page.get_project.instructions_wesay_empty', {
                               code: project.code,
                               login: encodeURIComponent(user.emailOrUsername),
@@ -396,7 +399,7 @@
                         />
                       {/if}
                     {:else if isEmpty}
-                      <Markdown
+                      <NewTabLinkMarkdown
                         md={$t('project_page.get_project.instructions_flex_empty', {
                             code: project.code,
                             login: user.emailOrUsername,
@@ -617,7 +620,7 @@
       <div class="space-y-2">
         <p class="text-2xl mb-4 flex gap-4 items-baseline">
           {$t('project_page.history')}
-          <a class="btn btn-sm btn-outline btn-info" href="/hg/{project.code}" target="_blank">
+          <a class="btn btn-sm btn-outline btn-info" href={resolve(`/hg/${project.code}`)} target="_blank">
             {$t('project_page.hg.open_in_hgweb')}<span class="i-mdi-open-in-new text-2xl"></span>
           </a>
         </p>

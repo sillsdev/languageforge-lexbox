@@ -2,7 +2,7 @@ import type { Primitive } from 'type-fest';
 import type { Redirect } from '@sveltejs/kit';
 
 export type PrimitiveRecord = Record<string, Primitive>;
-type IndexableObject<T = unknown> = unknown extends T ? PrimitiveRecord & object : T;
+type IndexableObject<T = unknown> = unknown extends T ? PrimitiveRecord : T;
 
 export function isObject(v: unknown): v is IndexableObject {
   return v !== undefined && v !== null && typeof v === 'object';

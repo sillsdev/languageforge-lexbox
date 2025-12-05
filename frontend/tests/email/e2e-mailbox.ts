@@ -1,7 +1,7 @@
 import {Mailbox, type Email} from './mailbox';
 
 import type {E2EMailboxApi} from './e2e-mailbox-module-patched';
-import type {EmailSubjects} from './email-page';
+import {type EmailSubjects} from './email-page';
 
 export class E2EMailbox extends Mailbox {
 

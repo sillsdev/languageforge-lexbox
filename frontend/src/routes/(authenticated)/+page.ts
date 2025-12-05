@@ -37,7 +37,7 @@ export async function load(event: PageLoadEvent) {
         }
   `), {});
 
-  const projectViewMode = getViewMode(event);
+  const projectViewMode = await getViewMode(event);
 
   return {
     projects: results.myProjects,

@@ -1,6 +1,6 @@
 <script lang="ts" module>
-  import { writable, type Writable } from 'svelte/store';
-  import { defineContext } from '$lib/util/context';
+  import {writable, type Writable} from 'svelte/store';
+  import {defineContext} from '$lib/util/context';
 
   export const { use: useRequestedEmail, init: initRequestedEmail } = defineContext<Writable<string | null>>(() =>
     writable(),
@@ -11,12 +11,13 @@
 </script>
 
 <script lang="ts">
+  import {onNavigate} from '$app/navigation';
+  import {resolve} from '$app/paths';
   import t from '$lib/i18n';
-  import { slide } from 'svelte/transition';
-  import type { LexAuthUser } from '$lib/user';
-  import { EmailResult } from '.';
-  import { Button } from '$lib/forms';
-  import { onNavigate } from '$app/navigation';
+  import {slide} from 'svelte/transition';
+  import type {LexAuthUser} from '$lib/user';
+  import {EmailResult} from '.';
+  import {Button} from '$lib/forms';
 
   interface Props {
     user: LexAuthUser;
@@ -63,7 +64,7 @@
       <span>{$t('account_settings.verify_email.change_success')}</span>
     {/if}
     <span class="i-mdi-check-circle-outline"></span>
-    <a class="btn" href="/">{$t('account_settings.verify_email.go_to_projects')}</a>
+    <a class="btn" href={resolve('/')}>{$t('account_settings.verify_email.go_to_projects')}</a>
   </div>
 {:else if !user?.emailVerified}
   {#if sentVerificationEmail}

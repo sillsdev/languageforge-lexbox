@@ -1,11 +1,12 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
-  import t, { date, number } from '$lib/i18n';
-  import { getProjectTypeI18nKey, ProjectTypeIcon } from '$lib/components/ProjectType';
+  import type {Snippet} from 'svelte';
+  import t, {date, number} from '$lib/i18n';
+  import {getProjectTypeI18nKey, ProjectTypeIcon} from '$lib/components/ProjectType';
   import TrashIcon from '$lib/icons/TrashIcon.svelte';
-  import type { ProjectItemWithDraftStatus } from '$lib/components/Projects';
+  import type {ProjectItemWithDraftStatus} from '$lib/components/Projects';
   import Icon from '$lib/icons/Icon.svelte';
-  import { projectUrl } from '$lib/util/project';
+  import {projectUrl} from '$lib/util/project';
+  import {resolve} from '$app/paths';
 
   const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'type', 'actions'] as const;
   type ProjectTableColumn = typeof allColumns extends Readonly<Array<infer T>> ? T : never;
@@ -61,9 +62,14 @@
             <td>
               <span class="flex gap-2 items-center">
                 {#if project.isDraft}
-                  <a class="link" href={project.createUrl}>
+                  {#if project.createUrl}
+                    <!-- Only set if on admin dashboard -->
+                    <a class="link" href={resolve(project.createUrl)}>
+                      {project.name}
+                    </a>
+                  {:else}
                     {project.name}
-                  </a>
+                  {/if}
                   <span
                     class="tooltip text-warning text-xl shrink-0 leading-0"
                     data-tip={$t('admin_dashboard.is_draft')}
@@ -76,7 +82,7 @@
                     <TrashIcon pale />
                   </span>
                 {:else}
-                  <a class="link" href={projectUrl(project)}>
+                  <a class="link" href={resolve(projectUrl(project))}>
                     {project.name}
                   </a>
                 {/if}

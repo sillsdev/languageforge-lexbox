@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import {goto} from '$app/navigation';
   import {
     Checkbox,
     Form,
@@ -20,24 +20,25 @@
     type CreateProjectInput,
   } from '$lib/gql/types';
   import t from '$lib/i18n';
-  import { TitlePage } from '$lib/layout';
-  import { z } from 'zod';
-  import { _askToJoinProject, _createProject, _projectCodeAvailable } from './+page';
+  import {TitlePage} from '$lib/layout';
+  import {z} from 'zod';
+  import {_askToJoinProject, _createProject, _projectCodeAvailable} from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
-  import { useNotifications } from '$lib/notify';
+  import {useNotifications} from '$lib/notify';
   import {Duration, DEFAULT_DEBOUNCE_TIME} from '$lib/util/time';
-  import { getSearchParamValues } from '$lib/util/query-params';
-  import { onMount } from 'svelte';
+  import {getSearchParamValues} from '$lib/util/query-params';
+  import {onMount} from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
-  import { concatAll } from '$lib/util/array';
-  import { browser } from '$app/environment';
-  import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
-  import { _getProjectsByLangCodeAndOrg, _getProjectsByNameAndOrg } from './+page';
-  import { NewTabLinkMarkdown } from '$lib/components/Markdown';
+  import {concatAll} from '$lib/util/array';
+  import {browser} from '$app/environment';
+  import {ProjectConfidentialityCombobox} from '$lib/components/Projects';
+  import {_getProjectsByLangCodeAndOrg, _getProjectsByNameAndOrg} from './+page';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
   import Button from '$lib/forms/Button.svelte';
-  import { projectUrl } from '$lib/util/project';
+  import {projectUrl} from '$lib/util/project';
   import DevContent from '$lib/layout/DevContent.svelte';
   import {resource, watch} from 'runed';
+  import {resolve} from '$app/paths';
 
   const { data } = $props();
   let user = $derived(data.user);
@@ -92,11 +93,14 @@
       return;
     }
     if (result.data?.createProject.createProjectResponse?.result == CreateProjectResult.Created) {
-      await goto(projectUrl($form));
+      await goto(resolve(projectUrl($form)));
     } else {
       notifyWarning($t('project.create.requested', { name: $form.name }), Duration.Persistent);
-      await goto('/');
+      await goto(resolve('/'));
     }
+  }, {
+    resetForm: false,
+    taintedMessage: true,
   });
 
   const defaultCode = '-train-flex';
@@ -205,7 +209,7 @@
     if (!joinResult.error) {
       notifySuccess($t('project.create.join_request_sent', { projectName }), Duration.Persistent);
       $tainted = undefined; // Prevent "are you sure you want to leave?" warning
-      await goto('/');
+      await goto(resolve('/'));
     }
   }
 </script>
@@ -220,7 +224,7 @@
         {/if}
       </div>
       {#if projectStatus.accessibleCode}
-        <a class="btn btn-primary mt-4" href={projectUrl({ code: projectStatus.accessibleCode })}
+        <a class="btn btn-primary mt-4" href={resolve(projectUrl({ code: projectStatus.accessibleCode }))}
           >{$t('project.create.go_to_project')}</a
         >
       {/if}

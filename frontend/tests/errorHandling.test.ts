@@ -61,7 +61,7 @@ test('client-side gql 500 does not break the application', async ({ page }) => {
   await loginAs(page.request, 'admin');
   await new SandboxPage(page).goto();
   // Create promise first before triggering the action
-  const responsePromise = page.waitForResponse('/api/graphql');
+  const responsePromise = page.waitForResponse(/\/api\/graphql/);
   await page.getByText('GQL 500').click();
   await responsePromise.catch(() => { });// Ignore the error
   await expect(page.locator(':text-matches("Unexpected Execution Error", "g")').first()).toBeVisible();
@@ -95,7 +95,7 @@ test('client page load 401 is redirected to login', async ({ page }) => {
   // Now mess up the login cookie and watch the redirect
 
   await page.context().addCookies([{name: testEnv.authCookieName, value: testEnv.invalidJwt, url: testEnv.serverBaseUrl}]);
-  const responsePromise = page.waitForResponse('/api/graphql');
+  const responsePromise = page.waitForResponse(/\/api\/graphql/);
   await adminDashboardPage.clickProject('Sena 3');
   const graphqlResponse = await responsePromise;
   expect(graphqlResponse.status()).toBe(401);
@@ -162,7 +162,7 @@ test('page load 403 on home page is redirected to login', async ({ page, tempUse
   // (3) Update cookie with the reset-password JWT and try to go home
   await page.context().addCookies([{name: testEnv.authCookieName, value: forgotPasswordJwt, url: testEnv.serverBaseUrl}]);
 
-  const responsePromise = page.waitForResponse('/api/graphql');
+  const responsePromise = page.waitForResponse(/\/api\/graphql/);
   await userAccountPage.clickHome();
   const response = await responsePromise;
   expect(response.status()).toBe(403);

@@ -8,13 +8,13 @@ import {
   type Span,
 } from '@opentelemetry/api';
 
-import { env } from '$env/dynamic/private';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { Resource } from '@opentelemetry/resources';
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { SemanticAttributes, SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import type { RequestEvent, NavigationEvent } from '@sveltejs/kit';
+import {env} from '$env/dynamic/private';
+import {getNodeAutoInstrumentations} from '@opentelemetry/auto-instrumentations-node';
+import {OTLPTraceExporter} from '@opentelemetry/exporter-trace-otlp-http';
+import {resourceFromAttributes} from '@opentelemetry/resources';
+import {NodeSDK} from '@opentelemetry/sdk-node';
+import {ATTR_HTTP_REQUEST_METHOD, ATTR_HTTP_RESPONSE_HEADER, ATTR_HTTP_RESPONSE_STATUS_CODE, ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION, ATTR_URL_FULL} from '@opentelemetry/semantic-conventions';
+import type {RequestEvent, NavigationEvent} from '@sveltejs/kit';
 import {
   traceFetch as _traceFetch,
   traceEventAttributes,
@@ -22,6 +22,7 @@ import {
   SERVICE_NAME,
   tracer,
 } from '.';
+import {ConsoleSpanExporter, type SpanExporter} from '@opentelemetry/sdk-trace-web';
 
 export * from '.';
 
@@ -98,8 +99,8 @@ export async function traceFetch(
       .startActiveSpan(`${request.method} ${request.url}`, async (span) => {
         try {
           span.setAttributes({
-            [SemanticAttributes.HTTP_METHOD]: request.method,
-            [SemanticAttributes.HTTP_URL]: request.url,
+            [ATTR_HTTP_REQUEST_METHOD]: request.method,
+            [ATTR_URL_FULL]: request.url,
           });
           traceHeaders(span, 'request', request.headers);
           const traceparent = buildTraceparent(span);
@@ -112,24 +113,31 @@ export async function traceFetch(
 }
 
 function traceResponseAttributes(span: Span, response: Response): void {
-  span.setAttribute(SemanticAttributes.HTTP_STATUS_CODE, response.status);
+  span.setAttribute(ATTR_HTTP_RESPONSE_STATUS_CODE, response.status);
   span.setAttribute(
-      SemanticAttributes.HTTP_RESPONSE_CONTENT_LENGTH,
+      ATTR_HTTP_RESPONSE_HEADER('content-length'),
       response.headers.get('Content-Length') ?? 0,
   );
   traceHeaders(span, 'response', response.headers);
 }
 
-// Debugging:
-// diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.ALL)
-// const traceExporter = new ConsoleSpanExporter()
-const traceExporter = new OTLPTraceExporter({
-  url: env.OTEL_ENDPOINT + '/v1/traces',
-});
+let traceExporter: SpanExporter;
+
+if (!env.OTEL_ENDPOINT) {
+  console.warn('OTEL_ENDPOINT is not set; server traces will not be exported.');
+  // Debugging:
+  // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.ALL)
+  traceExporter = new ConsoleSpanExporter()
+} else {
+  traceExporter = new OTLPTraceExporter({
+    url: env.OTEL_ENDPOINT + '/v1/traces',
+  });
+}
+
 const sdk = new NodeSDK({
-  resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
-    [SemanticResourceAttributes.SERVICE_VERSION]: APP_VERSION,
+  resource: resourceFromAttributes({
+    [ATTR_SERVICE_NAME]: SERVICE_NAME,
+    [ATTR_SERVICE_VERSION]: APP_VERSION,
   }),
   traceExporter,
   instrumentations: [

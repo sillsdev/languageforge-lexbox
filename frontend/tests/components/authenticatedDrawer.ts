@@ -9,7 +9,7 @@ export class AuthenticatedDrawer extends BaseComponent {
   }
 
   constructor(page: Page) {
-    super(page, page.locator(`.drawer .drawer-side:has-text("Log out")`));
+    super(page, page.locator('.drawer .drawer-side:has-text("Log out")'));
   }
 
   async logout(): Promise<LoginPage> {

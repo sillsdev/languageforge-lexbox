@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { FormModal, type FormModalResult } from '$lib/components/modals';
-  import { OrgRoleSelect, tryParse } from '$lib/forms';
-  import { OrgRole } from '$lib/gql/types';
+  import {FormModal, type FormModalResult} from '$lib/components/modals';
+  import {OrgRoleSelect, tryParse} from '$lib/forms';
+  import {OrgRole} from '$lib/gql/types';
   import t from '$lib/i18n';
-  import { z } from 'zod';
-  import { _changeOrgMemberRole } from './+page';
+  import {z} from 'zod';
+  import {_changeOrgMemberRole} from './+page';
 
   interface Props {
     orgId: string;

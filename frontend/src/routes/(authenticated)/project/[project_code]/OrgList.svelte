@@ -1,10 +1,11 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import {resolve} from '$app/paths';
+  import type {Snippet} from 'svelte';
   import t from '$lib/i18n';
-  import { Badge, BadgeList } from '$lib/components/Badges';
-  import type { Organization } from '$lib/gql/types';
+  import {Badge, BadgeList} from '$lib/components/Badges';
+  import type {Organization} from '$lib/gql/types';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import { Icon, TrashIcon } from '$lib/icons';
+  import {Icon, TrashIcon} from '$lib/icons';
   import ActionBadge from '$lib/components/Badges/ActionBadge.svelte';
 
   type Org = Pick<Organization, 'id' | 'name'>;
@@ -48,7 +49,7 @@
           {#snippet content()}
             <ul class="menu">
               <li>
-                <a href={`/org/${org.id}`}>
+                <a href={resolve(`/org/${org.id}`)}>
                   <Icon icon="i-mdi-link" />
                   {$t('project_page.view_org', { orgName: org.name })}
                 </a>
