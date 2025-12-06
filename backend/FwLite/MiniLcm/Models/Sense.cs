@@ -31,7 +31,10 @@ public class Sense : IObjectWithId<Sense>, IOrderable
         if (id == EntryId)
             DeletedAt = time;
         if (id == PartOfSpeechId)
+        {
             PartOfSpeechId = null;
+            PartOfSpeech = null;
+        }
         SemanticDomains = [..SemanticDomains.Where(sd => sd.Id != id)];
     }
 

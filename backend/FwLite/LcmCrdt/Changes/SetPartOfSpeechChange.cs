@@ -13,6 +13,7 @@ public class SetPartOfSpeechChange(Guid entityId, Guid? partOfSpeechId) : EditCh
         if (PartOfSpeechId is null)
         {
             entity.PartOfSpeechId = null;
+            entity.PartOfSpeech = null;
             return;
         }
 
@@ -24,7 +25,6 @@ public class SetPartOfSpeechChange(Guid entityId, Guid? partOfSpeechId) : EditCh
             return;
         }
         entity.PartOfSpeechId = partOfSpeech.Id;
-        //don't set the part of speech, it may trigger an insert of that part of speech
-        //I wasn't able to figure out how to write a test to cover this sadly, I only saw it live.
+        entity.PartOfSpeech = partOfSpeech;
     }
 }
