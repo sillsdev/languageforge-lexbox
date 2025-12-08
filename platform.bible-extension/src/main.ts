@@ -1,11 +1,17 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
+import { ChildProcessByStdio } from 'child_process';
 import type { BrowseWebViewOptions } from 'fw-lite-extension';
+import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
 import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
 import { ProjectManagers } from './utils/project-managers';
 import * as webViewProviders from './web-views';
+
+let baseUrl: string;
+
+let fwLiteProcess: ChildProcessByStdio<Stream.Writable, Stream.Readable, Stream.Readable>;
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('FieldWorks Lite is activating!');
@@ -39,7 +45,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Launch FieldWorks Lite and manage the api */
 
-  const { baseUrl, fwLiteProcess } = launchFwLiteWeb(context);
+  launchFwLiteWeb(context);
   const fwLiteApi = new FwLiteApi(baseUrl);
 
   /* Set network services */
@@ -208,6 +214,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   /* Register awaited unsubscribers (do this last, to not hold up anything else) */
 
   context.registrations.add(
+    () => {
+      console.error('FieldWorks Lite unsubscribing!');
+      return true;
+    },
     // WebViews
     await mainWebViewProviderPromise,
     await addWordWebViewProviderPromise,
@@ -227,16 +237,15 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await fwDictionariesCommandPromise,
     // Services
     await entryService,
-    // Other cleanup
-    () => shutdownFwLite(fwLiteProcess),
   );
 
   logger.info('FieldWorks Lite is finished activating!');
+  console.error('FieldWorks Lite is finished activating!');
 }
 
 export async function deactivate(): Promise<boolean> {
-  logger.info('FieldWorks Lite is deactivating!');
-  return true;
+  console.error('FieldWorks Lite is deactivating!');
+  return await shutDownFwLite();
 }
 
 function launchFwLiteWeb(context: ExecutionActivationContext) {
@@ -248,9 +257,9 @@ function launchFwLiteWeb(context: ExecutionActivationContext) {
     throw new Error('FieldWorks Lite only supports launching on Windows for now');
   }
   // TODO: Instead of hardcoding the URL and port we should run it and find them in the output.
-  const baseUrl = 'http://localhost:29348';
+  baseUrl = 'http://localhost:29348';
 
-  const fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
+  fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
     [
@@ -275,12 +284,9 @@ function launchFwLiteWeb(context: ExecutionActivationContext) {
       logger.error(`[FwLiteWeb]: ${data.toString().trim()}`);
     });
   }
-  return { baseUrl, fwLiteProcess };
 }
 
-function shutdownFwLite(
-  fwLiteProcess: ReturnType<typeof launchFwLiteWeb>['fwLiteProcess'],
-): Promise<boolean> {
+function shutDownFwLite(): Promise<boolean> {
   return new Promise((resolve) => {
     let shutdownResolved = false;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -331,7 +337,7 @@ function shutdownFwLite(
 
     fwLiteProcess.once('error', (error) => {
       logger.error(`[FwLiteWeb]: shutdown failed with error: ${error}`);
-      // only kill if we're not waiting for a gracefull shutdown
+      // only kill if we're not waiting for a graceful shutdown
       if (!timeoutId) killProcess('on error');
     });
 
