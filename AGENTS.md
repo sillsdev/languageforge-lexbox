@@ -131,7 +131,8 @@ bd close bd-42 --reason "Completed" --json
 4. **Discover new work?** Create linked issue:
    - `bd create "Found bug" -p 1 --deps discovered-from:<parent-id> --json`
 5. **Complete**: `bd close <id> --reason "Done" --json`
-6. **Sync issues**: `bd sync` - This commits all issue changes to `beads-sync` branch
+6. **Sync issues**: `bd sync` - Automatically commits all issue changes to `beads-sync` branch
+   - No manual branch switching needed (bd handles it via git worktrees)
    - Issue changes are committed to `beads-sync` only
    - Feature branch remains clean
    - Both branches are pushed with `git push`
@@ -258,10 +259,10 @@ git pull --rebase
 #   - bd import -i .beads/issues.jsonl (re-import)
 #   - Or manual merge, then import
 
-# Sync the database (commits to beads-sync branch, not your feature branch)
+# Sync the database (automatically commits to beads-sync, no branch switching needed)
 bd sync
 
-# MANDATORY: Push everything to remote (pushes both your feature branch AND beads-sync)
+# MANDATORY: Push everything to remote (pushes both branches: feature branch AND beads-sync)
 git push
 
 # MANDATORY: Verify push succeeded
