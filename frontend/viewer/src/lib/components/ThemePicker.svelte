@@ -5,10 +5,10 @@
   import * as Popover from '$lib/components/ui/popover';
   import {cn} from '$lib/utils';
   import {mode, resetMode, setMode, setTheme, theme, userPrefersMode} from 'mode-watcher';
-  import {t} from 'svelte-i18n-lingui';
+  import {t, msg} from 'svelte-i18n-lingui';
   import {mergeProps} from 'bits-ui';
 
-  const themes = ['green', 'blue', 'rose', 'orange', 'violet', 'stone'];
+  const themes = [msg`green`, msg`blue`, msg`rose`, msg`orange`, msg`violet`, msg`stone`];
   let {
     buttonProps = {}
   }: {
@@ -64,14 +64,14 @@
                 {/if}
               </span>
               <span class="capitalize">
-                {themeName}
+                {$t(themeName)}
               </span>
             </Button>
           {/each}
         </div>
       </div>
       <div class="space-y-1.5">
-        <Label class="text-xs">Mode</Label>
+        <Label class="text-xs">{$t`Mode`}</Label>
         <div class="grid grid-cols-3 gap-2">
           <Button
             variant="outline"
