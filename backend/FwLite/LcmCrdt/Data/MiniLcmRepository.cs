@@ -208,22 +208,20 @@ public class MiniLcmRepository(
         return (queryable, sortingHandled);
     }
 
-    private async ValueTask<IQueryable<Entry>> ApplySorting(IQueryable<Entry> queryable, QueryOptions options, string? query = null)
+    private ValueTask<IQueryable<Entry>> ApplySorting(IQueryable<Entry> queryable, QueryOptions options, string? query = null)
     {
         if (options.Order.WritingSystem == default)
             throw new ArgumentException("Sorting writing system must be specified", nameof(options));
 
         var wsId = options.Order.WritingSystem;
-        switch (options.Order.Field)
+        IQueryable<Entry> result = options.Order.Field switch
         {
-            case SortField.SearchRelevance:
-                return queryable.ApplyRoughBestMatchOrder(options.Order, query);
-            case SortField.Headword:
-                var ordered = options.ApplyOrder(queryable, e => e.Headword(wsId).CollateUnicode(wsId));
-                return ordered.ThenBy(e => e.Id);
-            default:
-                throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field);
-        }
+            SortField.SearchRelevance => queryable.ApplyRoughBestMatchOrder(options.Order, query),
+            SortField.Headword =>
+                options.ApplyOrder(queryable, e => e.Headword(wsId).CollateUnicode(wsId)).ThenBy(e => e.Id),
+            _ => throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field)
+        };
+        return new ValueTask<IQueryable<Entry>>(result);
     }
 
     public async Task<Entry?> GetEntry(Guid id)
@@ -260,6 +258,29 @@ public class MiniLcmRepository(
                 .AsQueryable(), e => e.Id == id);
         exampleSentence?.Finalize();
         return exampleSentence;
+    }
+
+    public async Task<(int RowIndex, Entry Entry)> GetEntryRowIndex(Guid entryId, string? query = null, QueryOptions? options = null)
+    {
+        // This is a fallback implementation that's not optimal for large datasets,
+        // but it works correctly. Ideally, we'd use ROW_NUMBER() window function with linq2db
+        // for better performance on large entry lists. For now, we enumerate through sorted entries
+        // and count until we find the target entry.
+        
+        var rowIndex = 0;
+        await foreach (var entry in GetEntries(query, options))
+        {
+            if (entry.Id == entryId)
+            {
+                var fullEntry = await GetEntry(entryId);
+                if (fullEntry is null)
+                    throw NotFoundException.ForType<Entry>(entryId);
+                return (rowIndex, fullEntry);
+            }
+            rowIndex++;
+        }
+
+        throw NotFoundException.ForType<Entry>(entryId);
     }
 
     public async Task<Publication?> GetPublication(Guid publicationId)

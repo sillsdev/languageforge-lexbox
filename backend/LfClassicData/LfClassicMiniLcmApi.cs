@@ -424,4 +424,33 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         if (exampleSentence is null) return null;
         return ToExampleSentence(sense.Guid, exampleSentence);
     }
+
+    public async Task<EntryWindowResponse> GetEntriesWindow(int start, int size, string? query = null, QueryOptions? options = null)
+    {
+        var entries = new List<Entry>();
+        await foreach (var entry in GetEntries(options))
+        {
+            entries.Add(entry);
+        }
+        // Apply manual paging after getting all entries (not optimal but compatible with Lfclassic)
+        var pagedEntries = entries.Skip(start).Take(size).ToList();
+        return new EntryWindowResponse(pagedEntries, start);
+    }
+
+    public async Task<EntryRowIndexResponse> GetEntryRowIndex(Guid entryId, string? query = null, QueryOptions? options = null)
+    {
+        var rowIndex = 0;
+        await foreach (var entry in GetEntries(options))
+        {
+            if (entry.Id == entryId)
+            {
+                var fullEntry = await GetEntry(entryId);
+                if (fullEntry is null)
+                    throw new KeyNotFoundException($"Entry {entryId} not found");
+                return new EntryRowIndexResponse(rowIndex, fullEntry);
+            }
+            rowIndex++;
+        }
+        throw new KeyNotFoundException($"Entry {entryId} not found");
+    }
 }

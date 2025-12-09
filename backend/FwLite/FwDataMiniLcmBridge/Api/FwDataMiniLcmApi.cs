@@ -955,6 +955,44 @@ public class FwDataMiniLcmApi(
         return Task.FromResult(lexEntry is null ? null : FromLexEntry(lexEntry));
     }
 
+    public async Task<EntryWindowResponse> GetEntriesWindow(int start, int size, string? query = null, QueryOptions? options = null)
+    {
+        var windowOptions = new QueryOptions(
+            options?.Order ?? QueryOptions.Default.Order,
+            options?.Exemplar,
+            size,
+            start,
+            options?.Filter
+        );
+        var entries = new List<Entry>();
+        await foreach (var entry in GetEntries(EntrySearchPredicate(query), windowOptions, query))
+        {
+            entries.Add(entry);
+        }
+        return new EntryWindowResponse(entries, start);
+    }
+
+    public Task<EntryRowIndexResponse> GetEntryRowIndex(Guid entryId, string? query = null, QueryOptions? options = null)
+    {
+        options ??= QueryOptions.Default;
+        var predicate = EntrySearchPredicate(query);
+        var entries = GetLexEntries(predicate, options);
+        entries = ApplySorting(options, entries, query);
+
+        var rowIndex = 0;
+        foreach (var entry in entries)
+        {
+            if (entry.Guid == entryId)
+            {
+                var result = FromLexEntry(entry);
+                return Task.FromResult(new EntryRowIndexResponse(rowIndex, result));
+            }
+            rowIndex++;
+        }
+
+        throw NotFoundException.ForType<Entry>(entryId);
+    }
+
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
         options ??= CreateEntryOptions.Everything;
