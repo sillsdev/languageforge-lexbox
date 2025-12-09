@@ -46,14 +46,24 @@ languageforge-lexbox/
 
 ## Issue Tracking with bd (beads)
 
-**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
+**CRITICAL**: This project uses **bd (beads)** for ALL issue tracking. **ONLY AI agents should run bd commands**. Humans should not use beads directly.
 
 ### Why bd?
 
 - Dependency-aware: Track blockers and relationships between issues
-- Git-friendly: Auto-syncs to JSONL for version control
+- Git-friendly: Auto-syncs to JSONL for version control via git
 - Agent-optimized: JSON output, ready work detection, discovered-from links
+- Multi-agent coordination: Multiple agents on different branches share one logical database
 - Prevents duplicate tracking systems and confusion
+
+### CRITICAL RULE: Humans Must Not Touch Beads
+
+**DO NOT run bd commands manually.** The beads database is maintained exclusively by AI agents. If you need to:
+- Create an issue → Tell your AI agent: "Create an issue for..."
+- Update an issue → Tell your AI agent: "Update issue lb-123 to..."
+- Close an issue → Tell your AI agent: "Close lb-123 because..."
+
+**WHY?** Human edits to beads can pollute feature branch PRs and corrupt the issue database state across branches.
 
 ### Quick Start
 
@@ -96,22 +106,58 @@ bd close bd-42 --reason "Completed" --json
 - `3` - Low (polish, optimization)
 - `4` - Backlog (future ideas)
 
+### Git Branch Strategy
+
+**IMPORTANT**: This project uses a separate **`beads-sync` branch** for issue tracking metadata.
+
+**How it works:**
+- Feature branches contain ONLY code changes
+- Issue tracking changes go to `beads-sync` branch
+- `bd sync` automatically commits issue updates to `beads-sync`, NOT the feature branch
+- Feature branch PRs stay clean (no `.beads/issues.jsonl` pollution)
+- When feature branches merge to develop, `beads-sync` is merged separately
+
+**Why this matters:**
+- Prevents third-party PR pollution (external contributors' issue edits don't leak into PRs)
+- Keeps issue history organized on dedicated branch
+- Allows multiple agents to work on different feature branches without conflicts
+- Separates code review from metadata review
+
 ### Workflow for AI Agents
 
-1. **Check ready work**: `bd ready` shows unblocked issues
-2. **Claim your task**: `bd update <id> --status in_progress`
-3. **Work on it**: Implement, test, document
+1. **Check ready work**: `bd ready --json` shows unblocked issues
+2. **Claim your task**: `bd update <id> --status in_progress --json`
+3. **Work on it**: Implement, test, document (on your feature branch)
 4. **Discover new work?** Create linked issue:
-   - `bd create "Found bug" -p 1 --deps discovered-from:<parent-id>`
-5. **Complete**: `bd close <id> --reason "Done"`
-6. **Commit together**: Always commit the `.beads/issues.jsonl` file together with the code changes so issue state stays in sync with code state
+   - `bd create "Found bug" -p 1 --deps discovered-from:<parent-id> --json`
+5. **Complete**: `bd close <id> --reason "Done" --json`
+6. **Sync issues**: `bd sync` - This commits all issue changes to `beads-sync` branch
+   - Issue changes are committed to `beads-sync` only
+   - Feature branch remains clean
+   - Both branches are pushed with `git push`
 
 ### Auto-Sync
 
 bd automatically syncs with git:
 - Exports to `.beads/issues.jsonl` after changes (5s debounce)
 - Imports from JSONL when newer (e.g., after `git pull`)
+- `bd sync` commits to `beads-sync` branch, not feature branch
 - No manual export/import needed!
+
+### Multi-Worktree Support
+
+This project uses **JSONL-only mode** for beads to support multiple git worktrees without database locking conflicts.
+
+**Configuration:**
+- `no-db: true` in `.beads/config.yaml`
+- All worktrees read/write the same `issues.jsonl`
+- No SQLite database files (faster, simpler, worktree-safe)
+
+**For agents using multiple worktrees:**
+- Each worktree works seamlessly with the shared JSONL
+- `bd ready`, `bd create`, `bd update` all work the same way
+- `bd sync` syncs to `beads-sync` regardless of which worktree you're on
+- No special configuration needed
 
 ### MCP Server (Optional)
 
@@ -197,10 +243,10 @@ git pull --rebase
 #   - bd import -i .beads/issues.jsonl (re-import)
 #   - Or manual merge, then import
 
-# Sync the database
+# Sync the database (commits to beads-sync branch, not your feature branch)
 bd sync
 
-# MANDATORY: Push everything to remote
+# MANDATORY: Push everything to remote (pushes both your feature branch AND beads-sync)
 git push
 
 # MANDATORY: Verify push succeeded
