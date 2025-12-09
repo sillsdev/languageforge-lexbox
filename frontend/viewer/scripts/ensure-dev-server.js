@@ -4,10 +4,12 @@
  * Starts it if not already running, then waits for it to be ready
  */
 
-const http = require('http');
-const { spawn } = require('child_process');
-const path = require('path');
+import http from 'http';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = 5173;
 const MAX_WAIT = 30000; // 30 seconds
 const CHECK_INTERVAL = 500; // 500ms
@@ -37,15 +39,13 @@ async function waitForServer(maxWait = MAX_WAIT) {
 async function startServer() {
   console.log(`Starting dev server on port ${PORT}...`);
   
-  // Determine OS-specific command
   const isWindows = process.platform === 'win32';
-  const cmd = isWindows ? 'pnpm.cmd' : 'pnpm';
-  const args = ['run', 'dev'];
   
-  const server = spawn(cmd, args, {
-    cwd: __dirname + '/..',
+  // Just use pnpm without .cmd extension, Node will find it
+  const server = spawn('pnpm', ['run', 'dev'], {
+    cwd: dirname(__dirname),
     stdio: 'inherit',
-    shell: isWindows,
+    shell: true,
   });
 
   // Let it run in background
