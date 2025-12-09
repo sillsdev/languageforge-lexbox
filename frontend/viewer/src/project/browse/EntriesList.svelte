@@ -230,13 +230,18 @@
   // Create padded entries array with placeholders for accurate scrollbar representation
   // Uses VirtualListHelper to manage padding logic
   // NOTE: When filtering, we don't pad because totalCount doesn't match filtered entries
+  // NOTE: Don't pad until we have at least some loaded entries (avoid all-placeholder list)
   const entries = $derived.by(() => {
     if (isFilteringEntries) {
       // During filtering, show only filtered entries without padding
       // The scrollbar will only represent the filtered subset
       return filteredEntries;
     }
-    return virtualListHelper.createPaddedEntries(filteredEntries, windowOffset, totalCount);
+    // Only pad if we have loaded entries, otherwise show what we have (may be empty initially)
+    if (filteredEntries.length > 0) {
+      return virtualListHelper.createPaddedEntries(filteredEntries, windowOffset, totalCount);
+    }
+    return filteredEntries;
   });
 
   // Update entry count when loading completes
