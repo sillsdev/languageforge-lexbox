@@ -141,7 +141,7 @@ You MUST complete ALL steps. NEVER stop before `git push` succeeds. NEVER say "r
 - ✅ Use **Mermaid diagrams** for flowcharts/architecture
 - ❌ Do NOT create markdown TODO lists
 - ❌ Do NOT duplicate tracking systems
-- ❌ Do NOT clutter repo root with planning documents
+- ❌ Do NOT clutter repo with planning documents, they should be in dedicated `history/` directorydocuments
 - ❌ Do NOT use ASCII art for diagrams
 
 ---

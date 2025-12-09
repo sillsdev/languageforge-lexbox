@@ -35,3 +35,6 @@ failedSyncs/
 
 # just ignore everything rider related
 .idea
+
+# AI session artifacts (ephemeral planning/review documents)
+history/

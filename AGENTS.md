@@ -301,5 +301,5 @@ Key documentation for this project:
 - ❌ Do NOT create markdown TODO lists
 - ❌ Do NOT use external issue trackers
 - ❌ Do NOT duplicate tracking systems
-- ❌ Do NOT clutter repo root with planning documents
+- ❌ Do NOT clutter repo with planning documents, they should be in dedicated `history/` directory
 - ❌ Do NOT use ASCII art for diagrams (use Mermaid instead)
