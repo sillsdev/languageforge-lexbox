@@ -13,7 +13,7 @@
     "build": "vite build",
     "build-ffmpeg-worker": "vite build --config vite.config.ffmpeg-worker.ts",
     "preview": "vite preview",
-    "pretest:playwright": "playwright install",
+    "pretest:playwright": "playwright install && node scripts/ensure-dev-server.js",
     "test:playwright": "playwright test",
     "test:playwright-report": "playwright show-report html-test-results",
     "test:playwright-record": "playwright codegen",

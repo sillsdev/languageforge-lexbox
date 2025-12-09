@@ -107,9 +107,11 @@ pnpm test
 # Storybook (visual component testing)
 pnpm run storybook
 
-# E2E tests (requires dev server running on port 5173)
+# E2E tests (dev server auto-started if needed)
 pnpm run test:playwright
 ```
+
+**Note**: `pnpm run test:playwright` automatically checks if the dev server is running and starts it if needed (via `scripts/ensure-dev-server.js`).
 
 ### Chrome MCP for UI Testing
 
