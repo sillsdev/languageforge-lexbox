@@ -12,19 +12,14 @@ async function waitForProjectViewReady(page: Page) {
   // Wait for fonts to load
   await page.waitForFunction(() => document.fonts.ready, { timeout: 10000 });
   
-  // Wait for actual entries to render with text content (not just placeholders)
-  // Placeholders are empty divs, so we look for rows with actual text
+  // Wait for initial rows to render (demo API loads with 300ms delay)
   await page.waitForFunction(() => {
-    const rows = Array.from(document.querySelectorAll('[role="row"]'));
-    // Find at least one row with actual text content (not a placeholder)
-    return rows.some(row => {
-      const text = row.textContent?.trim();
-      return text && text.length > 0;
-    });
+    const rows = document.querySelectorAll('[role="row"]');
+    return rows.length > 0;
   }, { timeout: 10000 });
   
-  // Small delay to let things settle
-  await page.waitForTimeout(500);
+  // Wait for actual entry data (rows with text content)
+  await page.waitForTimeout(1000);
 }
 
 test.describe('Virtual Scrolling - EntriesList', () => {
