@@ -4,13 +4,12 @@
 //     the code is regenerated.
 
 import type {IFwEvent} from './IFwEvent';
-import type {UpdateResult} from '../AppUpdate/UpdateResult';
 import type {IFwLiteRelease} from '../../LexCore/Entities/IFwLiteRelease';
 import type {FwEventType} from './FwEventType';
 
-export interface IAppUpdateEvent extends IFwEvent
+export interface IAppUpdateProgressEvent extends IFwEvent
 {
-	result: UpdateResult;
+	percentage: number;
 	release: IFwLiteRelease;
 	type: FwEventType;
 	isGlobal: boolean;

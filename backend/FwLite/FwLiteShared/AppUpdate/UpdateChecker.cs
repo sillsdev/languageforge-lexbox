@@ -1,49 +1,73 @@
 using System.Net.Http.Json;
 using FwLiteShared.Events;
 using LexCore.Entities;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FwLiteShared.AppUpdate;
 
+public record AvailableUpdate(FwLiteRelease Release, bool SupportsAutoUpdate);
+
 public class UpdateChecker(
     IHttpClientFactory httpClientFactory,
     ILogger<UpdateChecker> logger,
     IOptions<FwLiteConfig> config,
     GlobalEventBus eventBus,
-    IPlatformUpdateService platformUpdateService): BackgroundService
+    IPlatformUpdateService platformUpdateService,
+    IMemoryCache cache) : BackgroundService
 {
+    private const string CacheKey = "ManualUpdateCheck";
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(2);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await TryUpdate();
     }
 
-    public async Task TryUpdate(bool forceCheck = false)
+    public async Task<UpdateResult?> TryUpdate()
     {
-        if (!ShouldCheckForUpdate() && !forceCheck) return;
-        var response = await ShouldUpdateAsync();
-
-        platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
-        if (!response.Update) return;
-        if (ShouldPromptBeforeUpdate() &&
-            !await platformUpdateService.RequestPermissionToUpdate(response.Release))
-        {
-            return;
-        }
-
-        UpdateResult updateResult = UpdateResult.ManualUpdateRequired;
-        if (platformUpdateService.SupportsAutoUpdate)
-        {
-            updateResult = await platformUpdateService.ApplyUpdate(response.Release);
-        }
-
-        NotifyResult(updateResult);
+        if (!ShouldCheckForUpdate()) return null;
+        var update = await CheckForUpdate();
+        if (update is null) return null;
+        return await ApplyUpdate(update.Release);
     }
 
-    private void NotifyResult(UpdateResult result)
+    public async Task<AvailableUpdate?> CheckForUpdate()
     {
-        eventBus.PublishEvent(new AppUpdateEvent(result));
+        return await cache.GetOrCreateAsync(CacheKey, async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = CacheDuration;
+            var response = await ShouldUpdateAsync();
+            platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
+            return response.Update
+                ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate)
+                : null;
+        });
+    }
+
+    public async Task<UpdateResult> ApplyUpdate(FwLiteRelease release)
+    {
+        if (ShouldPromptBeforeUpdate() &&
+            !await platformUpdateService.RequestPermissionToUpdate(release))
+        {
+            return UpdateResult.Disallowed;
+        }
+
+        var updateResult = UpdateResult.ManualUpdateRequired;
+        if (platformUpdateService.SupportsAutoUpdate)
+        {
+            updateResult = await platformUpdateService.ApplyUpdate(release);
+        }
+
+        NotifyResult(updateResult, release);
+        return updateResult;
+    }
+
+    private void NotifyResult(UpdateResult result, FwLiteRelease release)
+    {
+        eventBus.PublishEvent(new AppUpdateEvent(result, release));
     }
 
     private bool ShouldCheckForUpdate()

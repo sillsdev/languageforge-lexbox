@@ -19,6 +19,8 @@ import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/Fw
 import {useProjectContext} from '$project/project-context.svelte';
 import type {IJsInvokableLogger} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IJsInvokableLogger';
 
+import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
+
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
   [DotnetService.MiniLcmApi]: IMiniLcmJsInvokable,
@@ -35,6 +37,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.MultiWindowService]: IMultiWindowService,
   [DotnetService.JsEventListener]: IJsEventListener,
   [DotnetService.JsInvokableLogger]: IJsInvokableLogger,
+  [DotnetService.UpdateService]: IUpdateService,
 };
 
 export const SERVICE_KEYS = Object.values(DotnetService);
@@ -120,6 +123,10 @@ export function useProjectServicesProvider(): IProjectServicesProvider {
 
 export function useTroubleshootingService(): ITroubleshootingService | undefined {
   return window.lexbox.ServiceProvider.tryGetService(DotnetService.TroubleshootingService);
+}
+
+export function useUpdateService(): IUpdateService {
+  return window.lexbox.ServiceProvider.getService(DotnetService.UpdateService);
 }
 
 export function useService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {
