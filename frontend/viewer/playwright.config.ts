@@ -2,8 +2,9 @@ import { defineConfig, devices, type ReporterDescription } from '@playwright/tes
 import * as testEnv from '../tests/envVars';
 const vitePort = '5173';
 const dotnetPort = '5137';
-const autoStartServer = process.env.AUTO_START_SERVER ? Boolean(process.env.AUTO_START_SERVER) : false;
-const serverPort = process.env.SERVER_PORT ?? (autoStartServer ? vitePort : dotnetPort);
+// Default to Vite port (5173) for local testing with demo project
+// The dev server is started automatically by Playwright (see webServer config below)
+const serverPort = process.env.SERVER_PORT ?? vitePort;
 const allReporters: ReporterDescription[] = [
   ['list'],
 ];

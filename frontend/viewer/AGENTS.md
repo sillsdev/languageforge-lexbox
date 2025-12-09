@@ -10,10 +10,18 @@ SvelteKit application for the **FwLite dictionary editor**. This is the web UI f
 # Typical workflow (from repo root)
 task fw-lite-web
 
-# Or manually:
+# Or manually (from frontend/viewer):
 pnpm install
-pnpm run dev
+start pnpm run dev    # On Windows: use 'start' to run in background, otherwise CLI will block
+# Or on Linux/macOS:
+pnpm run dev &
 ```
+
+**Dev Server Details:**
+- **Port**: 5173 (SvelteKit/Vite dev server)
+- **URL**: http://localhost:5173
+- **Demo Project**: Available at `/testing/project-view/browse` (1464 Swahili entries)
+- **Note**: Always use port 5173 for development. Port 5137 is the .NET FwLiteWeb backend (not used for UI testing)
 
 ## Tech Stack
 
@@ -67,25 +75,41 @@ npx shadcn-svelte@next add context-menu
 - `src/lib/entry-editor/` - Entry editing components
 - `src/routes/` - Page routes
 
-## Testing UI Components
+## Demo Project
 
-### Demo Project & In-Memory API
+The viewer includes a **demo project** with 1464 Swahili dictionary entries for local testing:
 
-The viewer includes an in-memory demo API for local testing without a backend:
+- **Location**: `/testing/project-view/browse`
+- **Entries**: 1464 realistic Swahili entries (full dictionary structure)
+- **No backend required**: Uses in-memory API from `src/project/demo/in-memory-demo-api.ts`
+- **Use cases**: Virtual scrolling, filtering, search, selection, detail panels
+
+**To access the demo project:**
 
 ```bash
-# Start dev server (http://localhost:5174)
-pnpm run dev
+# Start the dev server (required)
+start pnpm run dev    # Windows
+# or
+pnpm run dev &        # Linux/macOS
 
-# Access the demo project at:
-# http://localhost:5174/testing/project-view/browse
+# Then open browser:
+# http://localhost:5173/testing/project-view/browse
 ```
 
-The demo project contains 1464 sample entries from Swahili. Used for testing:
-- Virtual scrolling behavior
-- Entry filtering and search
-- Selection persistence
-- Large list performance
+## Testing UI Components
+
+### Running Tests Locally
+
+```bash
+# Unit tests
+pnpm test
+
+# Storybook (visual component testing)
+pnpm run storybook
+
+# E2E tests (requires dev server running on port 5173)
+pnpm run test:playwright
+```
 
 ### Chrome MCP for UI Testing
 
@@ -98,7 +122,7 @@ Use the Chrome MCP server to test interactive UI features not easily covered by 
 start pnpm run dev
 
 # Then wait a few seconds for server to start, then use Chrome MCP
-mcp_chrome__navigate_page "http://localhost:5174/testing/project-view/browse"
+mcp_chrome__navigate_page "http://localhost:5173/testing/project-view/browse"
 mcp_chrome__fill "[selector]" "search text"
 mcp_chrome__click "[selector]"
 mcp_chrome__take_snapshot  # For visual verification
@@ -114,16 +138,3 @@ mcp_chrome__take_snapshot  # For visual verification
 - Simple component rendering → Use Storybook
 - Unit logic → Use Vitest
 - E2E workflows with real backend → Use Playwright in `tests/`
-
-### Running Tests Locally
-
-```bash
-# Unit tests
-pnpm test
-
-# Storybook (visual component testing)
-pnpm run storybook
-
-# E2E tests (requires backend or demo mode)
-pnpm run playwright
-```

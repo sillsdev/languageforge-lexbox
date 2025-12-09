@@ -210,17 +210,34 @@
       }
     });
 
+  // Track if filtering is active (affects padding calculations)
+  let isFilteringEntries = $state(false);
+  let filteredCount = $state(0);
+
   // Apply fw-lite filter if needed
   const filteredEntries = $derived.by(() => {
     if (loadedEntries.length && $currentView.type === 'fw-lite') {
-      return filterLiteMorphemeTypes(loadedEntries);
+      const filtered = filterLiteMorphemeTypes(loadedEntries);
+      isFilteringEntries = filtered.length !== loadedEntries.length;
+      filteredCount = filtered.length;
+      return filtered;
     }
+    isFilteringEntries = false;
+    filteredCount = loadedEntries.length;
     return loadedEntries;
   });
 
   // Create padded entries array with placeholders for accurate scrollbar representation
   // Uses VirtualListHelper to manage padding logic
-  const entries = $derived(virtualListHelper.createPaddedEntries(filteredEntries, windowOffset, totalCount));
+  // NOTE: When filtering, we don't pad because totalCount doesn't match filtered entries
+  const entries = $derived.by(() => {
+    if (isFilteringEntries) {
+      // During filtering, show only filtered entries without padding
+      // The scrollbar will only represent the filtered subset
+      return filteredEntries;
+    }
+    return virtualListHelper.createPaddedEntries(filteredEntries, windowOffset, totalCount);
+  });
 
   // Update entry count when loading completes
   watch(() => [entries, loadingUndebounced], () => {
@@ -241,6 +258,10 @@
 
   // Track when user explicitly selects an entry (vs programmatic/load)
   let userSelectedEntryId = $state<string | undefined>(undefined);
+
+  // Track last scroll position to detect large jumps (user dragging scrollbar)
+  let lastScrollOffset = $state(0);
+  const SCROLL_JUMP_THRESHOLD = 1000; // px - consider it a "jump" if scroll moved this much
 
   // Execute pending scroll after render (only for initial load centering)
   $effect(() => {
@@ -273,9 +294,49 @@
   // The padded entries array ensures the scrollbar represents the full list (1464 items)
   // Placeholders are rendered as empty divs for unloaded regions
   function handleScroll(): void {
-    if (!vList || loading.current) return;
+    if (!vList || loading.current || isFilteringEntries) return;
     const scrollOffset = vList.getScrollOffset();
     const viewportSize = vList.getViewportSize();
+    const scrollHeight = vList.getScrollSize();
+    
+    // Detect large scroll jumps (user dragging scrollbar) and load the target window
+    const scrollDelta = Math.abs(scrollOffset - lastScrollOffset);
+    if (scrollDelta > SCROLL_JUMP_THRESHOLD && scrollHeight > 0) {
+      // Calculate which entry region user is targeting based on scroll position
+      // Estimate: scroll position is proportional to position in the list
+      const scrollProgress = scrollOffset / (scrollHeight - viewportSize); // 0 to 1
+      const estimatedIndex = Math.floor(scrollProgress * totalCount);
+      
+      // Calculate desired window offset (center the estimated index)
+      const desiredWindowOffset = Math.max(0, Math.min(
+        estimatedIndex - Math.floor(PAGE_SIZE / 2),
+        Math.max(0, totalCount - PAGE_SIZE)
+      ));
+      
+      console.log(`[EntriesList] Large scroll jump detected: offset=${scrollOffset}, estimated entry ${estimatedIndex}, loading from offset=${desiredWindowOffset}`);
+      
+      // If the desired offset is far from current window, load it
+      const windowStart = windowOffset;
+      const windowEnd = windowOffset + loadedEntries.length;
+      if (desiredWindowOffset < windowStart || desiredWindowOffset >= windowEnd) {
+        // Jump to that window
+        isLoadingMore = true;
+        void fetchEntriesWindow(desiredWindowOffset, PAGE_SIZE).then(window => {
+          if (window) {
+            windowOffset = window.offset;
+            loadedEntries = window.entries;
+            totalCount = window.totalCount;
+          }
+          isLoadingMore = false;
+        });
+        lastScrollOffset = scrollOffset;
+        return;
+      }
+    }
+    
+    lastScrollOffset = scrollOffset;
+
+    // Try to find the item indices at the scroll position
     const startIndex = vList.findItemIndex(scrollOffset);
     const endIndex = vList.findItemIndex(scrollOffset + viewportSize);
 
