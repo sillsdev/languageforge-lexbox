@@ -272,10 +272,7 @@ public class MiniLcmRepository(
         {
             if (entry.Id == entryId)
             {
-                var fullEntry = await GetEntry(entryId);
-                if (fullEntry is null)
-                    throw NotFoundException.ForType<Entry>(entryId);
-                return (rowIndex, fullEntry);
+                return (rowIndex, entry);
             }
             rowIndex++;
         }
