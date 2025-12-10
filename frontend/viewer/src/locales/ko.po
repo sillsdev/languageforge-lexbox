@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-22 11:51\n"
+"PO-Revision-Date: 2025-12-10 16:00\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -18,10 +18,12 @@ msgstr ""
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
+#. Shows count of changes in an activity entry
 #: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
 msgstr "- ({0}개 변경)"
 
+#. Generic placeholder for dynamic content
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -29,174 +31,216 @@ msgstr "- ({0}개 변경)"
 msgid "{0}"
 msgstr "{0}"
 
+#. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
 msgstr "{0} (FieldWorks Lite)"
 
+#. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
+#. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "{0} 전"
 
+#. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#. Display name for server
 #: src/home/Server.svelte
 msgid "{0} Server"
 msgstr "{0} 서버"
 
+#. Number of changes in sync operation
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {#개 변경}}"
 
+#. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
 msgstr "{num, plural, one {# 새 FieldWorks 클래식 커밋} other {# 새 FieldWorks 클래식 커밋}}"
 
+#. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, one {# 새 FieldWorks Lite 커밋} other {# 새 FieldWorks Lite 커밋}}"
 
+#. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
 msgstr "**필드 수 감소**(예: *복잡한 양식 유형*, *리터럴 의미* 숨기기)"
 
+#. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem*, *Particle*, *Phrase*, and *Discontiguous Phrase*)"
 msgstr "**형태소 유형 감소** (*뿌리*, *결합된 뿌리*, *줄기*, *결합된 줄기*, *입자*, *구* 및 *불연속 구*만 해당)"
 
+#. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**간단한 용어 사용** (예: *어휘 형태* 대신 *단어*, *의미* 대신 *의미*)"
 
+#. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "새 버전의 FieldWorks Lite를 사용할 수 있습니다."
 
+#. Placeholder/suggestion in search field
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr "한 마디"
 
+#. Dialog title
 #: src/lib/about/AboutDialog.svelte
 msgid "About"
 msgstr "정보"
 
+#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
 msgstr "계정"
 
+#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Activity"
 msgstr "활동"
 
+#. Button to add audio file to entry
 #: src/lib/components/field-editors/audio-input.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Add audio"
 msgstr "오디오 추가"
 
+#. Button to add complex form entry
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add complex form"
 msgstr "복잡한 양식 추가"
 
+#. Button to add component
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Add component"
 msgstr "구성 요소 추가"
 
+#. Button to add example sentence
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Example"
 msgstr "예제 추가"
 
+#. Button label
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
 msgstr "의미 추가"
 
+#. Button in toolbar
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Add new word"
 msgstr "새 단어 추가"
 
+#. Button to add part-of relationship
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "의 일부를 추가합니다."
 
+#. Button label
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
 msgstr "센스 추가"
 
+#. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
 msgstr "단어 추가"
 
+#. Placeholder/suggestion in search field
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "항목"
 
+#. Filter dropdown option
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any grammatical info."
 msgstr "모든 문법 정보."
 
+#. Filter dropdown option
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any part of speech"
 msgstr "모든 품사"
 
+#. Filter dropdown option
 #: src/project/browse/filter/SemanticDomainSelect.svelte
 msgid "Any semantic domain"
 msgstr "모든 시맨틱 도메인"
 
+#. Filter dropdown option
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
 msgstr "모든 W"
 
+#. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Application version"
 msgstr "애플리케이션 버전"
 
+#. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
 msgstr "{0}을 삭제하시겠습니까?"
 
+#. Button description
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Ask questions and get help on our community forum."
 msgstr "커뮤니티 포럼에서 질문하고 도움을 받으세요."
 
+#. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr "보내기 및 받기에 포함되지 않은 오디오 파일"
 
+#. Success message for audio sync
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Audio saved and uploaded to Lexbox"
 msgstr "렉스박스에 오디오 저장 및 업로드"
 
+#. Status message for local audio save
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Audio saved locally"
 msgstr "로컬에 저장된 오디오"
 
+#. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
 msgstr "작성자:"
 
+#. Sort option
 #: src/project/browse/SortMenu.svelte
 msgid "Auto"
 msgstr "자동"
 
+#. Status indicator
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Auto syncing"
 msgstr "자동 동기화"
 
+#. Sort option
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
 msgstr "베스트 매치"
 
+#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
 msgstr "찾아보기"
 
+#. Button to close dialog without saving
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
@@ -207,36 +251,44 @@ msgstr "찾아보기"
 msgid "Cancel"
 msgstr "취소"
 
+#. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 msgstr "FieldWorks Lite의 새 버전에 필드가 추가되어 변경 사항이 발생할 수도 있습니다."
 
+#. Explanation of commits vs changes
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "예를 들어 동일한 필드를 두 번 변경하면 두 개의 커밋이 발생하지만 FieldWorks Classic에 적용해야 하는 변경 사항은 하나만 발생할 수 있습니다. 커밋은 여러 변경 사항으로 구성될 수도 있습니다."
 
+#. Button label
 #: src/lib/ThemePicker.svelte
 msgid "Choose theme"
 msgstr "테마 선택"
 
+#. Field label in entry editor
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
 msgstr "인용 양식"
 
+#. Filter option
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
 msgstr "인용 양식"
 
+#. Section header for projects from FieldWorks
 #: src/home/HomeView.svelte
 msgid "Classic FieldWorks Projects"
 msgstr "클래식 FieldWorks 프로젝트"
 
+#. Button to clear selection
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "clear"
 msgstr "clear"
 
+#. Button to close popup
 #: src/project/tasks/SubjectPopup.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -244,32 +296,39 @@ msgstr "clear"
 msgid "Close"
 msgstr "닫기"
 
+#. Menu option to close project
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "사전 닫기"
 
+#. Tab or section
 #: src/lib/ThemePicker.svelte
 msgid "Color"
 msgstr "색상"
 
+#. Field label
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Complex Form"
 msgstr "복잡한 양식"
 
+#. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex form types"
 msgstr "복잡한 양식 유형"
 
+#. Label in change preview
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Complex form:"
 msgstr "복잡한 양식:"
 
+#. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
 msgstr "복잡한 양식"
 
+#. Field label in complex forms editor
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -277,171 +336,211 @@ msgstr "복잡한 양식"
 msgid "Component"
 msgstr "구성 요소"
 
+#. Label in change preview
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Component:"
 msgstr "컴포넌트:"
 
+#. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Components"
 msgstr "구성 요소"
 
+#. Filter operator
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "포함 사항"
 
+#. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
 msgstr "클립보드에 복사"
 
+#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
 msgstr "복사 버전"
 
+#. Button label (view-dependent: "Create entry" in Classic, "Add new word" in Lite)
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
 msgstr "항목 만들기"
 
+#. Dialog button to create
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create Entry"
 msgstr "항목 만들기"
 
+#. Button to create sample project
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "예제 프로젝트 만들기"
 
+#. Label in picker
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Entry"
 msgstr "현재 항목"
 
+#. Column header
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Current version"
 msgstr "현재 버전"
 
+#. Label in picker
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Current Word"
 msgstr "현재 단어"
 
+#. Theme option
 #: src/lib/ThemePicker.svelte
 msgid "Dark"
 msgstr "Dark"
 
+#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Dashboard"
 msgstr "대시보드"
 
+#. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Data Directory"
 msgstr "데이터 디렉토리"
 
+#. Field label
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Definition"
 msgstr "정의"
 
+#. Button to delete project from local list
 #: src/home/HomeView.svelte
 msgid "Delete"
 msgstr "삭제"
 
+#. Dialog title with item name
 #: src/lib/entry-editor/DeleteDialog.svelte
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Delete {0}"
 msgstr "삭제 {0}"
 
+#. Menu option
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Entry"
 msgstr "항목 삭제"
 
+#. Menu option
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
 msgstr "단어 삭제"
 
+#. Change type indicator
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Deleted"
 msgstr "삭제됨"
 
+#. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
 msgstr "세부 정보"
 
+#. Page header/section title
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
 msgid "Dictionaries"
 msgstr "사전"
 
+#. Sidebar header
 #: src/project/ProjectSidebar.svelte
 msgid "Dictionary"
 msgstr "사전"
 
+#. View option
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr "사전 미리보기"
 
+#. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Discard"
 msgstr "폐기"
 
+#. Dropdown label
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Display as"
 msgstr "다음으로 표시"
 
+#. Prompt text
 #: src/project/tasks/DoneView.svelte
 msgid "Do you want to:"
 msgstr "원하시나요?"
 
+#. Button to cancel deletion
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
 msgstr "삭제하지 마세요."
 
+#. Tab label
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
 msgstr "완료"
 
+#. Notification action button
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/components/audio/audio-editor.svelte
 #: src/home/Server.svelte
 msgid "Download"
 msgstr "다운로드"
 
+#. Button with project code
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download {0}"
 msgstr "다운로드 {0}"
 
+#. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "프로젝트 코드별 프로젝트 다운로드"
 
+#. Menu option
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "Download unlisted project"
 msgstr "미등록 프로젝트 다운로드"
 
+#. Success notification with project name
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
 msgstr "다운로드 {0}"
 
+#. Progress message
 #: src/home/Server.svelte
 msgid "Downloading {0}..."
 msgstr "다운로드 {0}..."
 
+#. Generic progress message
 #: src/home/Server.svelte
 msgid "Downloading..."
 msgstr "다운로드 중..."
 
+#. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "편집기"
 
+#. Filter operator
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "로 끝납니다."
 
+#. Filter option label
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Entries missing..."
 msgstr "항목이 누락되었습니다..."
 
+#. Item type label
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
@@ -451,70 +550,86 @@ msgstr "항목이 누락되었습니다..."
 msgid "Entry"
 msgstr "항목"
 
+#. Filter option
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry Only"
 msgstr "입장 전용"
 
+#. Label
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry or sense:"
 msgstr "입력 또는 센스:"
 
+#. Filter operator
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
 msgstr "같음"
 
+#. Error notification
 #: src/project/ProjectSidebar.svelte
 msgid "Error getting sync status"
 msgstr "동기화 상태 가져오기 오류"
 
+#. Error notification
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr "동기화 상태를 가져오는 중 오류가 발생했습니다."
 
+#. Section header
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Example"
 msgstr "예"
 
+#. Field label
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr "문장 예시"
 
+#. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
 msgstr "클립보드에 복사하지 못했습니다."
 
+#. Error notification
 #: src/home/Server.svelte
 msgid "Failed to download {0}"
 msgstr "다운로드에 실패했습니다 {0}"
 
+#. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
 #: src/project/browse/EntriesList.svelte
 msgid "Failed to load entries"
 msgstr "항목을 로드하지 못했습니다."
 
+#. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to open data directory, use the path in the text field instead"
 msgstr "데이터 디렉토리를 열지 못했습니다. 대신 텍스트 필드에 경로를 사용하세요."
 
+#. Error message with URL
 #: src/lib/services/url-opener.ts
 msgid "Failed to open URL: {0}"
 msgstr "URL을 열지 못했습니다: {0}"
 
+#. Error notification
 #: src/project/SyncDialog.svelte
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
 msgstr "동기화 실패"
 
+#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 #: src/lib/about/FeedbackDialog.svelte
 #: src/home/HomeView.svelte
 msgid "Feedback & Support"
 msgstr "피드백 및 지원"
 
+#. Column header in filters
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr "필드"
 
+#. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
@@ -527,6 +642,7 @@ msgstr "FieldWorks Lite가 성공적으로 업데이트되었습니다. 변경 �
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 msgstr "FieldWorks Lite 사용자는 FieldWorks Classic에서 변경된 내용을 자동으로 수신합니다. FieldWorks Classic 사용자는 보내기/받기를 수행한 후 FieldWorks Lite에서 수행한 변경 사항을 볼 수 있습니다."
 
+#. Alt text for FieldWorks logo image
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -535,92 +651,113 @@ msgstr "FieldWorks Lite 사용자는 FieldWorks Classic에서 변경된 내용�
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
 
+#. Error message for duplicate file upload
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File already exists"
 msgstr "파일이 이미 존재합니다."
 
+#. Label for audio file name input
 #: src/lib/components/audio/audio-editor.svelte
 msgid "File name:"
 msgstr "파일 이름:"
 
+#. Error message when file is missing
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "File not found"
 msgstr "파일을 찾을 수 없음"
 
+#. Error for browser storage limitation
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File saving not supported"
 msgstr "파일 저장이 지원되지 않음"
 
+#. Error message for oversized file
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File too big"
 msgstr "파일이 너무 큼"
 
+#. Placeholder text showing filtered count
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # entries"
 msgstr "필터링 항목 수"
 
+#. Placeholder text showing filtered count
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # words"
 msgstr "필터 # 단어"
 
+#. Button to filter entry list
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter entries"
 msgstr "항목 필터링"
 
+#. Search field placeholder
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter for..."
 msgstr "필터링 대상..."
 
+#. Button to filter word list
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
 msgstr "단어 필터링"
 
+#. Search field placeholder in dropdown
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Filter..."
 msgstr "필터..."
 
+#. Search field placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find entry..."
 msgstr "항목 찾기..."
 
+#. Search field placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find word..."
 msgstr "단어 찾기..."
 
+#. Button to complete task review
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
 msgstr "완료"
 
+#. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "기타 문의 사항이 있으시면 언제든지 이메일을 보내주세요."
 
+#. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
 msgstr "활성 필터에서"
 
+#. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
 msgstr "지원 받기"
 
+#. Filter/field option for word glosses
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Gloss"
 msgstr "광택"
 
+#. Button link to navigate to entry
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Go to {0}"
 msgstr "{0}으로 이동"
 
+#. Filter option label
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Grammatical info."
 msgstr "문법 정보."
 
+#. Sort option
 #: src/project/browse/SortMenu.svelte
 msgid "Headword"
 msgstr "헤드워드"
@@ -638,6 +775,7 @@ msgstr "역사"
 msgid "Hold to record or\\npress and release to start recording."
 msgstr "길게 눌러 녹화하거나\\n을 눌렀다 놓으면 녹화가 시작됩니다."
 
+#. External link button text for help
 #: src/home/Server.svelte
 msgid "I don't see my project"
 msgstr "내 프로젝트가 보이지 않습니다."
@@ -662,6 +800,7 @@ msgstr "하위 도메인 포함"
 msgid "Incomplete entries"
 msgstr "불완전한 항목"
 
+#. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "계속 진행"
@@ -679,6 +818,7 @@ msgstr "마지막 동기화: #"
 msgid "Length:"
 msgstr "길이:"
 
+#. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Lexbox"
 msgstr "렉스박스"
@@ -703,6 +843,7 @@ msgstr "빛"
 msgid "List mode"
 msgstr "목록 모드"
 
+#. Field name shown in advanced view
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Literal meaning"
 msgstr "문자 그대로의 의미"
@@ -754,6 +895,7 @@ msgstr "변경 사항이 렉스박스에 [동기화되었는지]({0}) 확인합�
 msgid "Manager"
 msgstr "관리자"
 
+#. Field label for word senses
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -817,6 +959,7 @@ msgstr "다음"
 msgid "No activity found"
 msgstr "활동을 찾을 수 없습니다."
 
+#. Placeholder when no audio file
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "오디오 없음"
@@ -863,6 +1006,7 @@ msgstr "제목이 없습니다, 새로 만들 수 없습니다 {0}"
 msgid "No words found"
 msgstr "단어를 찾을 수 없습니다."
 
+#. Selection option for optional fields
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "None"
@@ -897,46 +1041,56 @@ msgstr "복사할 항목 없음"
 msgid "Observer"
 msgstr "옵저버"
 
+#. Status indicator
 #: src/project/ProjectSidebar.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Offline"
 msgstr "오프라인"
 
+#. Error when offline and trying to download audio
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "오프라인 상태, 다운로드할 수 없음"
 
+#. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "하나의 FieldWorks Classic 커밋은 여러 항목 또는 필드에 대한 변경 사항으로 구성될 수 있습니다. 반면에 커밋은 FieldWorks Lite에 동기화되지 않은 데이터에만 영향을 미칠 수 있습니다."
 
+#. Button to open downloaded project
 #: src/home/Server.svelte
 msgid "Open"
 msgstr "열기"
 
+#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "오픈 데이터 디렉터리"
 
+#. Button label
 #: src/lib/OpenInFieldWorksButton.svelte
 msgid "Open in FieldWorks"
 msgstr "FieldWorks에서 열기"
 
+#. Menu option
 #: src/project/browse/EntryMenu.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Open in new Window"
 msgstr "새 창에서 열기"
 
+#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "로그 파일 열기"
 
+#. Column header
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Part"
 msgstr "Part"
 
+#. Relationship field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -945,127 +1099,157 @@ msgstr "Part"
 msgid "Part of"
 msgstr "의 일부"
 
+#. Filter option
 #: src/project/browse/SearchFilter.svelte
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Part of speech"
 msgstr "품사"
 
+#. Sync status
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Pending"
 msgstr "보류 중"
 
+#. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
 msgstr "품사 선택"
 
+#. Filter/sort option
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Pinned"
 msgstr "고정됨"
 
+#. View option
 #: src/project/browse/EntryListViewOptions.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Preview"
 msgstr "미리 보기"
 
+#. Label in project card
 #: src/home/HomeView.svelte
 msgid "Project"
 msgstr "프로젝트"
 
+#. Error when project doesn't exist on server
 #: src/home/Server.svelte
 msgid "Project {0} not found on {1}"
 msgstr "프로젝트 {0} {1}에서 찾을 수 없음"
 
+#. Error for non-CRDT project
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "{1} 의 프로젝트 {0} 는 아직 FieldWorks Lite용으로 설정되지 않았습니다."
 
+#. Placeholder for project search
 #: src/home/HomeView.svelte
 msgid "Project name..."
 msgstr "프로젝트 이름..."
 
+#. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Publish {0} in"
 msgstr "에 {0} 게시"
 
+#. Field label for citation source
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Reference"
 msgstr "참조"
 
+#. Help text in dropdown
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Refine your filter to see more..."
 msgstr "필터를 세분화하여 자세히 보기..."
 
+#. Button to reload project list
 #: src/home/Server.svelte
 #: src/home/HomeView.svelte
 msgid "Refresh Projects"
 msgstr "프로젝트 새로 고침"
 
+#. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
 msgstr "제거"
 
+#. Button to delete audio from entry
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Remove audio"
 msgstr "오디오 제거"
 
+#. Button to reopen in FieldWorks
 #: src/lib/OpenInFieldWorksButton.svelte
 msgid "Reopen"
 msgstr "다시 열기"
 
+#. Button to overwrite audio file
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
 msgstr "오디오 교체"
 
+#. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
 msgstr "기술 문제 신고하기"
 
+#. Button option
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "검토"
 
+#. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
 msgstr "다른 이름으로 저장"
 
+#. Button to save audio file
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
 msgstr "오디오 저장"
 
+#. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
 msgstr "검색 # 또는 #"
 
+#. Search placeholder
 #: src/project/ProjectDropdown.svelte
 msgid "Search Dictionaries"
 msgstr "사전 검색"
 
+#. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Select {0}"
 msgstr "{0} 선택"
 
+#. Empty state instruction text
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
 msgstr "자세한 내용을 보려면 {0} 을 선택하세요."
 
+#. Empty state message
 #: src/project/tasks/TasksView.svelte
 msgid "Select a new task to work on"
 msgstr "작업할 새 작업 선택"
 
+#. Dialog button
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "파일 선택"
 
+#. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
 msgstr "시맨틱 도메인"
 
+#. Field label
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr "시맨틱 도메인"
 
+#. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Send us a message"
 msgstr "메시지 보내기"
@@ -1077,84 +1261,104 @@ msgstr "메시지 보내기"
 msgid "Sense"
 msgstr "Sense"
 
+#. Field label for example text
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Sentence"
 msgstr "문장"
 
+#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Settings"
 msgstr "설정"
 
+#. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
 msgid "Shadcn Sandbox # #"
 msgstr "Shadcn 샌드박스 # #"
 
+#. Button description
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Share ideas and vote on new features or improvements."
 msgstr "아이디어를 공유하고 새로운 기능이나 개선 사항에 투표하세요."
 
+#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share Log file"
 msgstr "로그 파일 공유"
 
+#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "프로젝트 데이터 파일 공유"
 
+#. Button label
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Show"
 msgstr "표시"
 
+#. Expand button with count
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Show {0} more..."
 msgstr "보기 {0} 더보기..."
 
+#. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Simple"
 
+#. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Size:"
 msgstr "크기:"
 
+#. Button to skip question
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
 msgstr "건너뛰기"
 
+#. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "특정 필드"
 
+#. Filter operator
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "다음으로 시작"
 
+#. Error message
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
 msgstr "제목에 적합한 객체 유형이 없습니다: {0}"
 
+#. Button to confirm selection
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "제출하기"
 
+#. Button or tab label
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync"
 msgstr "동기화"
 
+#. Dialog title
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
 msgstr "동기화 변경 사항"
 
+#. Success message showing change counts
 #: src/project/SyncDialog.svelte
 msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
 msgstr "동기화 완료. {0} 는 FieldWorks 클래식에 적용되었습니다. {1} 는 FieldWorks 라이트에 적용되었습니다."
 
+#. Section title
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "FieldWorks Lite와 FieldWorks Classic 동기화"
 
+#. Introductory text for sync status panel
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
 msgstr "다른 FieldWorks Lite 사용자와 변경 사항 동기화"
@@ -1163,38 +1367,47 @@ msgstr "다른 FieldWorks Lite 사용자와 변경 사항 동기화"
 msgid "Synced"
 msgstr "동기화"
 
+#. Status showing sync source server
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
 msgstr "{0}으로 동기화"
 
+#. Label showing sync timestamp in activity
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
 msgstr "동기화: #"
 
+#. Menu item to start sync
 #: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
 msgstr "동기화"
 
+#. Progress message during sync
 #: src/project/SyncDialog.svelte
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "FieldWorks Lite와 FieldWorks Classic 동기화..."
 
+#. Progress indicator
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Syncing..."
 msgstr "동기화..."
 
+#. Theme option
 #: src/lib/ThemePicker.svelte
 msgid "System"
 msgstr "시스템"
 
+#. Page title with task name
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
 msgstr "작업 {0}"
 
+#. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
 msgstr "작업을 찾을 수 없음: {0}"
 
+#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
 msgstr "작업"
@@ -1203,66 +1416,82 @@ msgstr "작업"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "발생한 버그나 문제에 대해 알려주세요."
 
+#. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
 msgstr "반면 *[FieldWorks 클래식* 뷰는 *[FieldWorks 언어 탐색기](https://software.sil.org/fieldworks/)*에 익숙한 사용자를 위해 설계되었습니다."
 
+#. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "필드웍스 라이트* 뷰는 언어 전문가가 아닌 사용자를 위해 설계되었으며 다음과 같은 점에서 필드웍스 클래식* 뷰와 다릅니다:"
 
+#. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "FieldWorks 클래식 커밋 수가 동기화 결과 메시지에 표시되는 변경 사항 수와 반드시 일치하지는 않습니다."
 
+#. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "FieldWorks Lite 커밋 수가 동기화 결과 메시지에 표시되는 변경 사항 수와 반드시 일치하지는 않습니다."
 
+#. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
 msgstr "찾고 있는 작업이 존재하지 않습니다."
 
+#. Explanation text in popover for activity timestamp
 #: src/lib/activity/ActivityItem.svelte
 msgid "The time when you uploaded or downloaded these changes"
 msgstr "이러한 변경 사항을 업로드하거나 다운로드한 시간"
 
+#. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "변경 내용이 아직 업로드되지 않았습니다. 변경 내용을 공유하려면 온라인 상태이고 로그인했는지 확인하세요."
 
+#. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "이 날짜 #와 이 이모티콘 #은 스니펫입니다."
 
+#. Help message
 #: src/lib/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "이제 이 프로젝트가 FieldWorks에서 열렸습니다. FieldWorks Lite에서 계속 작업하려면 FieldWorks에서 프로젝트를 닫고 다시 열기를 클릭합니다."
 
+#. Status message
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "이 작업이 완료되었습니다."
 
+#. Description of sync operation
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "이렇게 하면 렉스박스에서 프로젝트의 FieldWorks Lite 및 FieldWorks Classic 사본이 동기화됩니다."
 
+#. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
 msgstr "필터 토글"
 
+#. Button tooltip
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "고정 토글"
 
+#. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"
 msgstr "번역"
 
+#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "번역 {0}"
 
+#. Menu item for help/debug
 #: src/project/ProjectSidebar.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/home/HomeView.svelte
@@ -1270,22 +1499,27 @@ msgstr "번역 {0}"
 msgid "Troubleshoot"
 msgstr "문제 해결"
 
+#. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
 msgstr "정의 입력"
 
+#. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
 msgstr "광택 입력"
 
+#. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type an example sentence"
 msgstr "예제 문장을 입력합니다."
 
+#. Label for audio file type
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
 msgstr "유형:"
 
+#. Error message
 #: src/lib/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "FieldWorks에서 열 수 없음"
@@ -1296,23 +1530,28 @@ msgstr "FieldWorks에서 열 수 없음"
 msgid "Unknown"
 msgstr "알 수 없음"
 
+#. Generic error notification
 #: src/project/ProjectSidebar.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Unknown error"
 msgstr "알 수 없는 오류"
 
+#. Generic error message with error code
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Unknown error {0}"
 msgstr "알 수 없는 오류 {0}"
 
+#. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Unknown error downloading {0}"
 msgstr "알 수 없는 오류 다운로드 중 {0}"
 
+#. Error placeholder
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Unknown server"
 msgstr "알 수 없는 서버"
 
+#. Placeholder for missing value
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1324,36 +1563,44 @@ msgstr "알 수 없는 서버"
 msgid "Untitled"
 msgstr "제목 없음"
 
+#. Sync status - no pending changes
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Up to date"
 msgstr "최신 정보"
 
+#. Dialog button with entry name
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
 msgstr "업데이트 {0}"
 
+#. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
 msgstr "구성 요소를 다음과 같이 사용합니다."
 
+#. Version display
 #: src/project/ProjectSidebar.svelte
 msgid "Version {0}"
 msgstr "버전 {0}"
 
+#. Button label
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "보기"
 
+#. External link button text for help
 #: src/home/Server.svelte
 msgid "Where are my projects?"
 msgstr "내 프로젝트는 어디에 있나요?"
 
+#. Expandable help question
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Why is that?"
 msgstr "왜 그럴까요?"
 
+#. Column header/section title
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1365,14 +1612,17 @@ msgstr "왜 그럴까요?"
 msgid "Word"
 msgstr "Word"
 
+#. Filter option
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word only"
 msgstr "단어 전용"
 
+#. Label
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "단어 또는 의미:"
 
+#. Column header
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"
 msgstr "쓰기 시스템"
@@ -1381,18 +1631,22 @@ msgstr "쓰기 시스템"
 msgid "Writing system: {0}"
 msgstr "쓰기 시스템: {0}"
 
+#. Filter section title
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "쓰기 시스템"
 
+#. Success message with task and count
 #: src/project/tasks/DoneView.svelte
 msgid "You completed {0} {1}"
 msgstr "완료했습니다 {0} {1}"
 
+#. Permission error
 #: src/home/Server.svelte
 msgid "You don't have permission to download project {0} from {1}"
 msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없습니다."
 
+#. Error message when user attempts to download a project that has already been downloaded locally
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
