@@ -1642,7 +1642,6 @@ msgid "You don't have permission to download project {0} from {1}"
 msgstr "You don't have permission to download project {0} from {1}"
 
 #. Error message when user attempts to download a project that has already been downloaded locally
-#. Error when project already local
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
