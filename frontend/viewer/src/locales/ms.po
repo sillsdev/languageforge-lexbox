@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-22 11:51\n"
+"PO-Revision-Date: 2025-12-10 14:15\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -304,10 +304,6 @@ msgstr "Cipta kemasukan"
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create Entry"
 msgstr "Cipta kemasukan"
-
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Create Entry"
-msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
@@ -1401,3 +1397,4 @@ msgstr "Anda tidak mempunyai kebenaran untuk memuat turun projek {0} daripada {1
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah pun memuat turun projek {0}"
+
