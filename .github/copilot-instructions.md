@@ -44,39 +44,44 @@ languageforge-lexbox/
 └── .beads/              # Issue tracking database
 ```
 
-## Issue Tracking with bd
+## Issue Tracking with bd (beads)
 
-**CRITICAL**: This project uses **bd** for ALL task tracking. Do NOT create markdown TODO lists.
+**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
 
-### Essential Commands
+### Quick Start
 
+**Check for ready work:**
 ```bash
-# Find work
-bd ready --json                    # Unblocked issues
-bd stale --days 30 --json          # Forgotten issues
-
-# Create and manage
-bd create "Title" -t bug|feature|task -p 0-4 --json
-bd create "Subtask" --parent <epic-id> --json  # Hierarchical subtask
-bd update <id> --status in_progress --json
-bd close <id> --reason "Done" --json
-
-# Search
-bd list --status open --priority 1 --json
-bd show <id> --json
-
-# Sync (CRITICAL at end of session!)
-bd sync  # Force immediate export/commit/push
+bd ready --json
 ```
 
-### Workflow
+**Create new issues:**
+```bash
+bd create "Issue title" -t bug|feature|task -p 0-4 --json
+bd create "Issue title" -p 1 --deps discovered-from:bd-123 --json
+bd create "Subtask" --parent <epic-id> --json  # Hierarchical subtask (gets ID like epic-id.1)
+```
 
-1. **Check ready work**: `bd ready --json`
-2. **Claim task**: `bd update <id> --status in_progress`
+**Claim and update:**
+```bash
+bd update bd-42 --status in_progress --json
+bd update bd-42 --priority 1 --json
+```
+
+**Complete work:**
+```bash
+bd close bd-42 --reason "Completed" --json
+```
+
+### Workflow for AI Agents
+
+1. **Check ready work**: `bd ready` shows unblocked issues
+2. **Claim your task**: `bd update <id> --status in_progress`
 3. **Work on it**: Implement, test, document
-4. **Discover new work?** `bd create "Found bug" -p 1 --deps discovered-from:<parent-id> --json`
-5. **Complete**: `bd close <id> --reason "Done" --json`
-6. **Sync**: `bd sync` (flushes changes to git immediately)
+4. **Discover new work?** Create linked issue:
+   - `bd create "Found bug" -p 1 --deps discovered-from:<parent-id>`
+5. **Complete**: `bd close <id> --reason "Done"`
+6. **Commit together**: Always commit the `.beads/issues.jsonl` file together with the code changes so issue state stays in sync with code state
 
 ### Priorities
 
@@ -98,12 +103,31 @@ Then use `mcp__beads__*` functions instead of CLI commands.
 
 ### Managing AI-Generated Planning Documents
 
-AI assistants often create planning and design documents during development.
+AI assistants often create planning and design documents during development:
+- PLAN.md, IMPLEMENTATION.md, ARCHITECTURE.md
+- DESIGN.md, CODEBASE_SUMMARY.md, INTEGRATION_PLAN.md
+- TESTING_GUIDE.md, TECHNICAL_DESIGN.md, and similar files
+
+**Best Practice: Use a dedicated directory for these ephemeral files**
 
 **Recommended approach:**
 - Create a `history/` directory in the project root
 - Store ALL AI-generated planning/design docs in `history/`
 - Keep the repository root clean and focused on permanent project files
+- Only access `history/` when explicitly asked to review past planning
+
+**Example .gitignore entry (optional):**
+```gitignore
+# AI planning documents (ephemeral)
+history/
+```
+
+**Benefits:**
+- ✅ Clean repository root
+- ✅ Clear separation between ephemeral and permanent documentation
+- ✅ Easy to exclude from version control if desired
+- ✅ Preserves planning history for archeological research
+- ✅ Reduces noise when browsing the project
 
 ## CLI Help
 
@@ -112,37 +136,82 @@ For example: `bd create --help` shows `--parent`, `--deps`, `--assignee`, etc.
 
 ## Session-Ending Protocol ("Landing the Plane")
 
-You MUST complete ALL steps. NEVER stop before `git push` succeeds. NEVER say "ready to push when you are!"
+When ending a session, you MUST complete ALL steps below. The session is NOT complete until `git push` succeeds, but do not push until the human has verified the changes and requests the session to be ended/the plane to be landed.
 
-1. **File issues** for discovered bugs, TODOs, follow-up tasks
-2. **Close/update** completed and in-progress issues  
-3. **Run quality gates** (if code changed): `dotnet build` and `dotnet test`
-4. **PUSH TO REMOTE** (MANDATORY):
-   ```bash
-   git pull --rebase
-   bd sync
-   git push
-   git status  # Verify "up to date with origin"
-   ```
-5. **Clean up**: `git stash clear` and `git remote prune origin`
-6. **Handoff**: Provide context summary and recommended prompt for next session
+**MANDATORY WORKFLOW - COMPLETE ALL STEPS:**
 
-**CRITICAL**: Session is NOT complete until `git push` succeeds. If it fails, fix and retry.
+**1. File issues for remaining work**
+- Create issues for any discovered bugs, TODOs, or follow-up tasks
+- Use `bd create "..." -t bug|task|feature -p 0-4 --json`
+
+**2. Update issue status**
+- Close completed issues: `bd close <id> --reason "Done" --json`
+- Update in-progress work: `bd update <id> --status in_progress --json`
+
+**3. Run quality gates (if code was changed)**
+```bash
+dotnet build backend/LexBoxApi/LexBoxApi.csproj
+dotnet test
+# File P0 issues if builds are broken
+```
+
+**4. PAUSE HERE and WAIT for user to verify and sign off before moving on!**
+
+E.g. by asking "Are you ready to move on?"
+User can jump here or confirm by e.g. "Landing the plane"
+
+**5. Push to remote**
+```bash
+# Pull first to catch any remote changes
+git pull --rebase
+
+# If conflicts in .beads/issues.jsonl, resolve thoughtfully:
+#   - git checkout --theirs .beads/issues.jsonl (accept remote)
+#   - bd import -i .beads/issues.jsonl (re-import)
+#   - Or manual merge, then import
+
+# Sync the database
+bd sync
+
+# Push everything to remote
+git push
+
+# Verify push succeeded
+git status  # MUST show "up to date with origin"
+```
+
+**6. Verify clean state**
+- All changes committed AND PUSHED
+- No untracked files remain
+- `git status` shows clean working tree
+
+**7. Provide handoff for next session**
+```markdown
+## Next Session Context
+- Current branch: <branch-name>
+- Ready work: `bd ready` shows <N> issues
+- In progress: <issue-id> - <description>
+- Blockers: <any issues or questions>
+
+Recommended prompt: "Continue work on <issue-id>: [issue title]. [Brief context]"
+```
 
 ## Important Rules
 
 - ✅ Use bd for ALL task tracking
 - ✅ Always use `--json` flag for programmatic use
-- ✅ Run `bd sync` at end of sessions
 - ✅ Link discovered work with `discovered-from` dependencies
+- ✅ Check `bd ready` before asking "what should I work on?"
 - ✅ Store AI planning docs in `history/` directory
 - ✅ Run `bd <cmd> --help` to discover available flags
-- ✅ Follow session-ending protocol before finishing
-- ✅ Use **Mermaid diagrams** for flowcharts/architecture
+- ✅ Follow session-ending protocol before finishing work
+- ✅ Use `gh` CLI for GitHub issues/PRs, not browser tools
+- ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)
 - ❌ Do NOT create markdown TODO lists
+- ❌ Do NOT use external issue trackers
 - ❌ Do NOT duplicate tracking systems
-- ❌ Do NOT clutter repo with planning documents, they should be in dedicated `history/` directorydocuments
-- ❌ Do NOT use ASCII art for diagrams
+- ❌ Do NOT clutter repo with planning documents, they should be in dedicated `history/` directory
+- ❌ Do NOT use ASCII art for diagrams (use Mermaid instead)
 
 ---
 

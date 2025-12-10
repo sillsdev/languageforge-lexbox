@@ -168,7 +168,7 @@ For example: `bd create --help` shows `--parent`, `--deps`, `--assignee`, etc.
 
 ### Session-Ending Protocol ("Landing the Plane")
 
-When ending a session, you MUST complete ALL steps below. The session is NOT complete until `git push` succeeds. NEVER stop before pushing. NEVER say "ready to push when you are!" - that is a FAILURE.
+When ending a session, you MUST complete ALL steps below. The session is NOT complete until `git push` succeeds, but do not push until the human has verified the changes and requests the session to be ended/the plane to be landed.
 
 **MANDATORY WORKFLOW - COMPLETE ALL STEPS:**
 
@@ -187,7 +187,12 @@ dotnet test
 # File P0 issues if builds are broken
 ```
 
-**4. PUSH TO REMOTE - NON-NEGOTIABLE**
+**4. PAUSE HERE and WAIT for user to verify and sign off before moving on!**
+
+E.g. by asking "Are you ready to move on?"
+User can jump here or confirm by e.g. "Landing the plane"
+
+**5. Push to remote**
 ```bash
 # Pull first to catch any remote changes
 git pull --rebase
@@ -200,17 +205,11 @@ git pull --rebase
 # Sync the database
 bd sync
 
-# MANDATORY: Push everything to remote
+# Push everything to remote
 git push
 
-# MANDATORY: Verify push succeeded
+# Verify push succeeded
 git status  # MUST show "up to date with origin"
-```
-
-**5. Clean up git state**
-```bash
-git stash clear                    # Remove old stashes
-git remote prune origin            # Clean up deleted remote branches
 ```
 
 **6. Verify clean state**
@@ -228,12 +227,6 @@ git remote prune origin            # Clean up deleted remote branches
 
 Recommended prompt: "Continue work on <issue-id>: [issue title]. [Brief context]"
 ```
-
-**CRITICAL RULES:**
-- The session is NOT complete until `git push` succeeds
-- NEVER stop before `git push` - that leaves work stranded locally
-- NEVER say "ready to push when you are!" - YOU must push, not the user
-- If `git push` fails, resolve the issue and retry until it succeeds
 
 ### Before Committing
 
