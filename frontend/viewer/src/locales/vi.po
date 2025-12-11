@@ -2,21 +2,26 @@ msgid ""
 msgstr ""
 "POT-Creation-Date: 2025-07-29 14:49+0700\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
-"Language: en\n"
-"Project-Id-Version: \n"
+"Language: vi\n"
+"Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2025-12-11 08:09\n"
 "Last-Translator: \n"
-"Language-Team: \n"
-"Plural-Forms: \n"
+"Language-Team: Vietnamese\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: language-depot\n"
+"X-Crowdin-Project-ID: 575977\n"
+"X-Crowdin-Language: vi\n"
+"X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
+"X-Crowdin-File-ID: 21219\n"
 
 #. Shows count of changes in an activity entry
 #: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
-msgstr "– ({0} changes)"
+msgstr "test"
 
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
@@ -24,216 +29,216 @@ msgstr "– ({0} changes)"
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0}"
-msgstr "{0}"
+msgstr ""
 
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
-msgstr "{0} (FieldWorks Lite)"
+msgstr ""
 
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
-msgstr "{0} (FieldWorks)"
+msgstr ""
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
-msgstr "{0} ago"
+msgstr ""
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
-msgstr "{0} MB"
+msgstr ""
 
 #. Display name for server
 #: src/home/Server.svelte
 msgid "{0} Server"
-msgstr "{0} Server"
+msgstr ""
 
 #. Number of changes in sync operation
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
-msgstr "{num, plural, one {# change} other {# changes}}"
+msgstr ""
 
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
-msgstr "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
+msgstr ""
 
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
-msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
+msgstr ""
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
-msgstr "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
+msgstr ""
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem*, *Particle*, *Phrase*, and *Discontiguous Phrase*)"
-msgstr "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem*, *Particle*, *Phrase*, and *Discontiguous Phrase*)"
+msgstr ""
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
-msgstr "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
+msgstr ""
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
-msgstr "A new version of FieldWorks Lite is available."
+msgstr ""
 
 #. Placeholder/suggestion in search field
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
-msgstr "a word"
+msgstr ""
 
 #. Dialog title
 #: src/lib/about/AboutDialog.svelte
 msgid "About"
-msgstr "About"
+msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
-msgstr "Account"
+msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Activity"
-msgstr "Activity"
+msgstr ""
 
 #. Button to add audio file to entry
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Add audio"
-msgstr "Add audio"
+msgstr ""
 
 #. Button to add complex form entry
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add complex form"
-msgstr "Add complex form"
+msgstr ""
 
 #. Button to add component
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Add component"
-msgstr "Add component"
+msgstr ""
 
 #. Button to add example sentence
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Example"
-msgstr "Add Example"
+msgstr ""
 
 #. Button label
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
-msgstr "Add Meaning"
+msgstr ""
 
 #. Button in toolbar
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Add new word"
-msgstr "Add new word"
+msgstr ""
 
 #. Button to add part-of relationship
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
-msgstr "Add part of"
+msgstr ""
 
 #. Button label
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
-msgstr "Add Sense"
+msgstr ""
 
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
-msgstr "Add Word"
+msgstr ""
 
 #. Placeholder/suggestion in search field
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
-msgstr "an entry"
+msgstr ""
 
 #. Filter dropdown option
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any grammatical info."
-msgstr "Any grammatical info."
+msgstr ""
 
 #. Filter dropdown option
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any part of speech"
-msgstr "Any part of speech"
+msgstr ""
 
 #. Filter dropdown option
 #: src/project/browse/filter/SemanticDomainSelect.svelte
 msgid "Any semantic domain"
-msgstr "Any semantic domain"
+msgstr ""
 
 #. Filter dropdown option
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
-msgstr "Any Ws"
+msgstr ""
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Application version"
-msgstr "Application version"
+msgstr ""
 
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
-msgstr "Are you sure you want to delete {0}?"
+msgstr ""
 
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Ask questions and get help on our community forum."
-msgstr "Ask questions and get help on our community forum."
+msgstr ""
 
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
-msgstr "Audio file not included in Send & Receive"
+msgstr ""
 
 #. Success message for audio sync
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Audio saved and uploaded to Lexbox"
-msgstr "Audio saved and uploaded to Lexbox"
+msgstr ""
 
 #. Status message for local audio save
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Audio saved locally"
-msgstr "Audio saved locally"
+msgstr ""
 
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
-msgstr "Author:"
+msgstr ""
 
 #. Sort option
 #: src/project/browse/SortMenu.svelte
 msgid "Auto"
-msgstr "Auto"
+msgstr ""
 
 #. Status indicator
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Auto syncing"
-msgstr "Auto syncing"
+msgstr ""
 
 #. Sort option
 #: src/project/browse/SortMenu.svelte
 msgid "Best match"
-msgstr "Best match"
+msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
-msgstr "Browse"
+msgstr ""
 
 #. Button to close dialog without saving
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -244,44 +249,44 @@ msgstr "Browse"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Cancel"
-msgstr "Cancel"
+msgstr ""
 
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
-msgstr "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
+msgstr ""
 
 #. Explanation of commits vs changes
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
-msgstr "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
+msgstr ""
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
 msgid "Choose theme"
-msgstr "Choose theme"
+msgstr ""
 
 #. Field label in entry editor
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
-msgstr "Citation form"
+msgstr ""
 
 #. Filter option
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
-msgstr "Citation Form"
+msgstr ""
 
 #. Section header for projects from FieldWorks
 #: src/home/HomeView.svelte
 msgid "Classic FieldWorks Projects"
-msgstr "Classic FieldWorks Projects"
+msgstr ""
 
 #. Button to clear selection
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "clear"
-msgstr "clear"
+msgstr ""
 
 #. Button to close popup
 #: src/lib/about/AboutDialog.svelte
@@ -289,39 +294,39 @@ msgstr "clear"
 #: src/lib/components/ui/button/x-button.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
-msgstr "Close"
+msgstr ""
 
 #. Menu option to close project
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
-msgstr "Close Dictionary"
+msgstr ""
 
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
-msgstr "Color"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Complex Form"
-msgstr "Complex Form"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex form types"
-msgstr "Complex form types"
+msgstr ""
 
 #. Label in change preview
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Complex form:"
-msgstr "Complex form:"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
-msgstr "Complex forms"
+msgstr ""
 
 #. Field label in complex forms editor
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -329,211 +334,211 @@ msgstr "Complex forms"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Component"
-msgstr "Component"
+msgstr ""
 
 #. Label in change preview
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Component:"
-msgstr "Component:"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Components"
-msgstr "Components"
+msgstr ""
 
 #. Filter operator
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
-msgstr "Contains"
+msgstr ""
 
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
-msgstr "Copied to clipboard"
+msgstr ""
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
-msgstr "Copy version"
+msgstr ""
 
 #. Button label (view-dependent: "Create entry" in Classic, "Add new word" in Lite)
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
-msgstr "Create entry"
+msgstr ""
 
 #. Dialog button to create
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create Entry"
-msgstr "Create Entry"
+msgstr ""
 
 #. Button to create sample project
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
-msgstr "Create Example Project"
+msgstr ""
 
 #. Label in picker
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Current Entry"
-msgstr "Current Entry"
+msgstr ""
 
 #. Column header
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Current version"
-msgstr "Current version"
+msgstr ""
 
 #. Label in picker
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Current Word"
-msgstr "Current Word"
+msgstr ""
 
 #. Theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "Dark"
-msgstr "Dark"
+msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Dashboard"
-msgstr "Dashboard"
+msgstr ""
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Data Directory"
-msgstr "Data Directory"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Definition"
-msgstr "Definition"
+msgstr ""
 
 #. Button to delete project from local list
 #: src/home/HomeView.svelte
 msgid "Delete"
-msgstr "Delete"
+msgstr ""
 
 #. Dialog title with item name
 #: src/lib/entry-editor/DeleteDialog.svelte
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Delete {0}"
-msgstr "Delete {0}"
+msgstr ""
 
 #. Menu option
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Entry"
-msgstr "Delete Entry"
+msgstr ""
 
 #. Menu option
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
-msgstr "Delete Word"
+msgstr ""
 
 #. Change type indicator
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Deleted"
-msgstr "Deleted"
+msgstr ""
 
 #. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
-msgstr "Details"
+msgstr ""
 
 #. Page header/section title
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
 msgid "Dictionaries"
-msgstr "Dictionaries"
+msgstr ""
 
 #. Sidebar header
 #: src/project/ProjectSidebar.svelte
 msgid "Dictionary"
-msgstr "Dictionary"
+msgstr ""
 
 #. View option
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
-msgstr "Dictionary Preview"
+msgstr ""
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Discard"
-msgstr "Discard"
+msgstr ""
 
 #. Dropdown label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Display as"
-msgstr "Display as"
+msgstr ""
 
 #. Prompt text
 #: src/project/tasks/DoneView.svelte
 msgid "Do you want to:"
-msgstr "Do you want to:"
+msgstr ""
 
 #. Button to cancel deletion
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
-msgstr "Don't delete"
+msgstr ""
 
 #. Tab label
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
-msgstr "Done"
+msgstr ""
 
 #. Notification action button
 #: src/home/Server.svelte
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "Download"
-msgstr "Download"
+msgstr ""
 
 #. Button with project code
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download {0}"
-msgstr "Download {0}"
+msgstr ""
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
-msgstr "Download project by project code"
+msgstr ""
 
 #. Menu option
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "Download unlisted project"
-msgstr "Download unlisted project"
+msgstr ""
 
 #. Success notification with project name
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
-msgstr "Downloaded {0}"
+msgstr ""
 
 #. Progress message
 #: src/home/Server.svelte
 msgid "Downloading {0}..."
-msgstr "Downloading {0}..."
+msgstr ""
 
 #. Generic progress message
 #: src/home/Server.svelte
 msgid "Downloading..."
-msgstr "Downloading..."
+msgstr ""
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
-msgstr "Editor"
+msgstr ""
 
 #. Filter operator
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
-msgstr "Ends with"
+msgstr ""
 
 #. Filter option label
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Entries missing..."
-msgstr "Entries missing..."
+msgstr ""
 
 #. Item type label
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -543,99 +548,99 @@ msgstr "Entries missing..."
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Entry"
-msgstr "Entry"
+msgstr ""
 
 #. Filter option
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry Only"
-msgstr "Entry Only"
+msgstr ""
 
 #. Label
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry or sense:"
-msgstr "Entry or sense:"
+msgstr ""
 
 #. Filter operator
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
-msgstr "Equals"
+msgstr ""
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
 msgid "Error getting sync status"
-msgstr "Error getting sync status"
+msgstr ""
 
 #. Error notification
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
-msgstr "Error getting sync status."
+msgstr ""
 
 #. Section header
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Example"
-msgstr "Example"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
-msgstr "Example sentence"
+msgstr ""
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
-msgstr "Failed to copy to clipboard"
+msgstr ""
 
 #. Error notification
 #: src/home/Server.svelte
 msgid "Failed to download {0}"
-msgstr "Failed to download {0}"
+msgstr ""
 
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
 #: src/project/browse/EntriesList.svelte
 msgid "Failed to load entries"
-msgstr "Failed to load entries"
+msgstr ""
 
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to open data directory, use the path in the text field instead"
-msgstr "Failed to open data directory, use the path in the text field instead"
+msgstr ""
 
 #. Error message with URL
 #: src/lib/services/url-opener.ts
 msgid "Failed to open URL: {0}"
-msgstr "Failed to open URL: {0}"
+msgstr ""
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 #: src/project/SyncDialog.svelte
 msgid "Failed to synchronize"
-msgstr "Failed to synchronize"
+msgstr ""
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
 #: src/lib/about/FeedbackDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Feedback & Support"
-msgstr "Feedback & Support"
+msgstr ""
 
 #. Column header in filters
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
-msgstr "Field"
+msgstr ""
 
 #. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Lite"
-msgstr "FieldWorks Lite"
+msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
-msgstr "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
+msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
-msgstr "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
+msgstr ""
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
@@ -644,251 +649,251 @@ msgstr "FieldWorks Lite users will automatically receive changes that were made 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "FieldWorks logo"
-msgstr "FieldWorks logo"
+msgstr ""
 
 #. Error message for duplicate file upload
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File already exists"
-msgstr "File already exists"
+msgstr ""
 
 #. Label for audio file name input
 #: src/lib/components/audio/audio-editor.svelte
 msgid "File name:"
-msgstr "File name:"
+msgstr ""
 
 #. Error message when file is missing
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "File not found"
-msgstr "File not found"
+msgstr ""
 
 #. Error for browser storage limitation
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File saving not supported"
-msgstr "File saving not supported"
+msgstr ""
 
 #. Error message for oversized file
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File too big"
-msgstr "File too big"
+msgstr ""
 
 #. Placeholder text showing filtered count
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # entries"
-msgstr "Filter # entries"
+msgstr ""
 
 #. Placeholder text showing filtered count
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # words"
-msgstr "Filter # words"
+msgstr ""
 
 #. Button to filter entry list
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter entries"
-msgstr "Filter entries"
+msgstr ""
 
 #. Search field placeholder
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter for..."
-msgstr "Filter for..."
+msgstr ""
 
 #. Button to filter word list
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
-msgstr "Filter words"
+msgstr ""
 
 #. Search field placeholder in dropdown
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "Filter..."
-msgstr "Filter..."
+msgstr ""
 
 #. Search field placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find entry..."
-msgstr "Find entry..."
+msgstr ""
 
 #. Search field placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find word..."
-msgstr "Find word..."
+msgstr ""
 
 #. Button to complete task review
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
-msgstr "Finish"
+msgstr ""
 
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
-msgstr "For any other inquiries, feel free to send us an email."
+msgstr ""
 
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
-msgstr "From active filter"
+msgstr ""
 
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
-msgstr "Get support"
+msgstr ""
 
 #. Filter/field option for word glosses
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Gloss"
-msgstr "Gloss"
+msgstr ""
 
 #. Button link to navigate to entry
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
-msgstr "Go to {0}"
+msgstr ""
 
 #. Filter option label
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
-msgstr "Grammatical info."
+msgstr ""
 
 #. Sort option
 #: src/project/browse/SortMenu.svelte
 msgid "Headword"
-msgstr "Headword"
+msgstr ""
 
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
-msgstr "Hide"
+msgstr ""
 
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "History"
-msgstr "History"
+msgstr ""
 
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or\\npress and release to start recording."
-msgstr "Hold to record or\\npress and release to start recording."
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte
 msgid "I don't see my project"
-msgstr "I don't see my project"
+msgstr ""
 
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "I understand that this can't be undone"
-msgstr "I understand that this can't be undone"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Import"
-msgstr "Import"
+msgstr ""
 
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
-msgstr "in {0}"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Include subdomains"
-msgstr "Include subdomains"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Incomplete entries"
-msgstr "Incomplete entries"
+msgstr ""
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
-msgstr "Keep going"
+msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Last change: #"
-msgstr "Last change: #"
+msgstr ""
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Last sync: #"
-msgstr "Last sync: #"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
-msgstr "Length:"
+msgstr ""
 
 #. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Lexbox"
-msgstr "Lexbox"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
-msgstr "Lexbox logo"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Lexeme form"
-msgstr "Lexeme form"
+msgstr ""
 
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
-msgstr "Lexeme Form"
+msgstr ""
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Light"
-msgstr "Light"
+msgstr ""
 
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
-msgstr "List mode"
+msgstr ""
 
 #. Field name shown in advanced view
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Literal meaning"
-msgstr "Literal meaning"
+msgstr ""
 
 #: src/project/ProjectDropdown.svelte
 msgid "Loading Dictionaries..."
-msgstr "Loading Dictionaries..."
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "loading..."
-msgstr "loading..."
+msgstr ""
 
 #: src/home/HomeView.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Local"
-msgstr "Local"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Local only"
-msgstr "Local only"
+msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Login"
-msgstr "Login"
+msgstr ""
 
 #: src/lib/auth/LoginButton.svelte
 #: src/lib/auth/LoginButton.svelte
 msgid "Login to see projects"
-msgstr "Login to see projects"
+msgstr ""
 
 #: src/lib/auth/LoginButton.svelte
 msgid "Logout"
-msgstr "Logout"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
-msgstr "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
+msgstr ""
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Make a suggestion"
-msgstr "Make a suggestion"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
-msgstr "Make sure your [changes are synced]({0}) to Lexbox."
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
-msgstr "Manager"
+msgstr ""
 
 #. Field label for word senses
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -896,194 +901,194 @@ msgstr "Manager"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Meaning"
-msgstr "Meaning"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
-msgstr "Missing Definition {0}"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Example sentence {0}"
-msgstr "Missing Example sentence {0}"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
-msgstr "Missing Gloss {0}"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of Speech"
-msgstr "Missing Part of Speech"
+msgstr ""
 
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Missing: {0}"
-msgstr "Missing: {0}"
+msgstr ""
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
-msgstr "Move"
+msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Never"
-msgstr "Never"
+msgstr ""
 
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
-msgstr "New"
+msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "New data"
-msgstr "New data"
+msgstr ""
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
-msgstr "New Entry"
+msgstr ""
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Word"
-msgstr "New Word"
+msgstr ""
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
-msgstr "Next"
+msgstr ""
 
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity found"
-msgstr "No activity found"
+msgstr ""
 
 #. Placeholder when no audio file
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
-msgstr "No audio"
+msgstr ""
 
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
-msgstr "No Dictionaries found"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/project/browse/EntriesList.svelte
 msgid "No entries found"
-msgstr "No entries found"
+msgstr ""
 
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "No file to upload"
-msgstr "No file to upload"
+msgstr ""
 
 #: src/lib/history/HistoryView.svelte
 msgid "No history found"
-msgstr "No history found"
+msgstr ""
 
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "No items found"
-msgstr "No items found"
+msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
-msgstr "No new data"
+msgstr ""
 
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "No server"
-msgstr "No server"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "No server configured"
-msgstr "No server configured"
+msgstr ""
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
-msgstr "No subject, unable to create a new {0}"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
-msgstr "No words found"
+msgstr ""
 
 #. Selection option for optional fields
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
-msgstr "None"
+msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Not equal"
-msgstr "Not equal"
+msgstr ""
 
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Not found"
-msgstr "Not found"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
-msgstr "Not logged in"
+msgstr ""
 
 #: src/lib/activity/ActivityItem.svelte
 msgid "Not synced"
-msgstr "Not synced"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
-msgstr "Note"
+msgstr ""
 
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
-msgstr "Nothing to copy"
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
-msgstr "Observer"
+msgstr ""
 
 #. Status indicator
 #: src/project/ProjectSidebar.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Offline"
-msgstr "Offline"
+msgstr ""
 
 #. Error when offline and trying to download audio
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
-msgstr "Offline, unable to download"
+msgstr ""
 
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
-msgstr "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
+msgstr ""
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
 msgid "Open"
-msgstr "Open"
+msgstr ""
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
-msgstr "Open Data Directory"
+msgstr ""
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Open in FieldWorks"
-msgstr "Open in FieldWorks"
+msgstr ""
 
 #. Menu option
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
-msgstr "Open in new Window"
+msgstr ""
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
-msgstr "Open Log file"
+msgstr ""
 
 #. Column header
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Part"
-msgstr "Part"
+msgstr ""
 
 #. Relationship field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -1092,399 +1097,399 @@ msgstr "Part"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Part of"
-msgstr "Part of"
+msgstr ""
 
 #. Filter option
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
-msgstr "Part of speech"
+msgstr ""
 
 #. Sync status
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Pending"
-msgstr "Pending"
+msgstr ""
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
-msgstr "Pick a Part of Speech"
+msgstr ""
 
 #. Filter/sort option
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Pinned"
-msgstr "Pinned"
+msgstr ""
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
-msgstr "Preview"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
 msgid "Project"
-msgstr "Project"
+msgstr ""
 
 #. Error when project doesn't exist on server
 #: src/home/Server.svelte
 msgid "Project {0} not found on {1}"
-msgstr "Project {0} not found on {1}"
+msgstr ""
 
 #. Error for non-CRDT project
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
-msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
+msgstr ""
 
 #. Placeholder for project search
 #: src/home/HomeView.svelte
 msgid "Project name..."
-msgstr "Project name..."
+msgstr ""
 
 #. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Publish {0} in"
-msgstr "Publish {0} in"
+msgstr ""
 
 #. Field label for citation source
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Reference"
-msgstr "Reference"
+msgstr ""
 
 #. Help text in dropdown
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "Refine your filter to see more..."
-msgstr "Refine your filter to see more..."
+msgstr ""
 
 #. Button to reload project list
 #: src/home/HomeView.svelte
 #: src/home/Server.svelte
 msgid "Refresh Projects"
-msgstr "Refresh Projects"
+msgstr ""
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
-msgstr "Remove"
+msgstr ""
 
 #. Button to delete audio from entry
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Remove audio"
-msgstr "Remove audio"
+msgstr ""
 
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
-msgstr "Reopen"
+msgstr ""
 
 #. Button to overwrite audio file
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
-msgstr "Replace audio"
+msgstr ""
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
-msgstr "Report a technical problem"
+msgstr ""
 
 #. Button option
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
-msgstr "Review"
+msgstr ""
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
-msgstr "Save As"
+msgstr ""
 
 #. Button to save audio file
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
-msgstr "Save audio"
+msgstr ""
 
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
-msgstr "Search # or #"
+msgstr ""
 
 #. Search placeholder
 #: src/project/ProjectDropdown.svelte
 msgid "Search Dictionaries"
-msgstr "Search Dictionaries"
+msgstr ""
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Select {0}"
-msgstr "Select {0}"
+msgstr ""
 
 #. Empty state instruction text
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
-msgstr "Select {0} to view details"
+msgstr ""
 
 #. Empty state message
 #: src/project/tasks/TasksView.svelte
 msgid "Select a new task to work on"
-msgstr "Select a new task to work on"
+msgstr ""
 
 #. Dialog button
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
-msgstr "Select file"
+msgstr ""
 
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
-msgstr "Semantic domain"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
-msgstr "Semantic domains"
+msgstr ""
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Send us a message"
-msgstr "Send us a message"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Sense"
-msgstr "Sense"
+msgstr ""
 
 #. Field label for example text
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Sentence"
-msgstr "Sentence"
+msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Settings"
-msgstr "Settings"
+msgstr ""
 
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
 msgid "Shadcn Sandbox # #"
-msgstr "Shadcn Sandbox # #"
+msgstr ""
 
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Share ideas and vote on new features or improvements."
-msgstr "Share ideas and vote on new features or improvements."
+msgstr ""
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share Log file"
-msgstr "Share Log file"
+msgstr ""
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
-msgstr "Share project data file"
+msgstr ""
 
 #. Button label
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Show"
-msgstr "Show"
+msgstr ""
 
 #. Expand button with count
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Show {0} more..."
-msgstr "Show {0} more..."
+msgstr ""
 
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
-msgstr "Simple"
+msgstr ""
 
 #. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Size:"
-msgstr "Size:"
+msgstr ""
 
 #. Button to skip question
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
-msgstr "Skip"
+msgstr ""
 
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
-msgstr "Specific field"
+msgstr ""
 
 #. Filter operator
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
-msgstr "Starts with"
+msgstr ""
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
-msgstr "Subject does not have suitable object of type: {0}"
+msgstr ""
 
 #. Button to confirm selection
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
-msgstr "Submit"
+msgstr ""
 
 #. Button or tab label
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync"
-msgstr "Sync"
+msgstr ""
 
 #. Dialog title
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
-msgstr "Sync Changes"
+msgstr ""
 
 #. Success message showing change counts
 #: src/project/SyncDialog.svelte
 msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
-msgstr "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
+msgstr ""
 
 #. Section title
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
-msgstr "Sync FieldWorks Lite and FieldWorks Classic"
+msgstr ""
 
 #. Introductory text for sync status panel
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
-msgstr "Sync your changes with other FieldWorks Lite users"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte
 msgid "Synced"
-msgstr "Synced"
+msgstr ""
 
 #. Status showing sync source server
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
-msgstr "Synced with {0}"
+msgstr ""
 
 #. Label showing sync timestamp in activity
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
-msgstr "Synced: #"
+msgstr ""
 
 #. Menu item to start sync
 #: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
-msgstr "Synchronize"
+msgstr ""
 
 #. Progress message during sync
 #: src/project/SyncDialog.svelte
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
-msgstr "Synchronizing FieldWorks Lite and FieldWorks Classic..."
+msgstr ""
 
 #. Progress indicator
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Syncing..."
-msgstr "Syncing..."
+msgstr ""
 
 #. Theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "System"
-msgstr "System"
+msgstr ""
 
 #. Page title with task name
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
-msgstr "Task {0}"
+msgstr ""
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
-msgstr "Task not found: {0}"
+msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
-msgstr "Tasks"
+msgstr ""
 
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Tell us about a bug or issue you’ve encountered."
-msgstr "Tell us about a bug or issue you’ve encountered."
+msgstr ""
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
-msgstr "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
+msgstr ""
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
-msgstr "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
+msgstr ""
 
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
-msgstr "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
+msgstr ""
 
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
-msgstr "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
+msgstr ""
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
-msgstr "The task you are looking for does not exist."
+msgstr ""
 
 #. Explanation text in popover for activity timestamp
 #: src/lib/activity/ActivityItem.svelte
 msgid "The time when you uploaded or downloaded these changes"
-msgstr "The time when you uploaded or downloaded these changes"
+msgstr ""
 
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
-msgstr "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
+msgstr ""
 
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
-msgstr "This date # and this emoji # are snippets"
+msgstr ""
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
-msgstr "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
+msgstr ""
 
 #. Status message
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
-msgstr "This task is complete"
+msgstr ""
 
 #. Description of sync operation
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
-msgstr "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
+msgstr ""
 
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
-msgstr "Toggle filters"
+msgstr ""
 
 #. Button tooltip
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
-msgstr "Toggle pinned"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"
-msgstr "Translation"
+msgstr ""
 
 #. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
-msgstr "Translation {0}"
+msgstr ""
 
 #. Menu item for help/debug
 #: src/home/HomeView.svelte
@@ -1492,59 +1497,59 @@ msgstr "Translation {0}"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Troubleshoot"
-msgstr "Troubleshoot"
+msgstr ""
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
-msgstr "Type a Definition"
+msgstr ""
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
-msgstr "Type a Gloss"
+msgstr ""
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type an example sentence"
-msgstr "Type an example sentence"
+msgstr ""
 
 #. Label for audio file type
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
-msgstr "Type:"
+msgstr ""
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
-msgstr "Unable to open in FieldWorks"
+msgstr ""
 
 #: src/lib/activity/ActivityItem.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Unknown"
-msgstr "Unknown"
+msgstr ""
 
 #. Generic error notification
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Unknown error"
-msgstr "Unknown error"
+msgstr ""
 
 #. Generic error message with error code
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Unknown error {0}"
-msgstr "Unknown error {0}"
+msgstr ""
 
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Unknown error downloading {0}"
-msgstr "Unknown error downloading {0}"
+msgstr ""
 
 #. Error placeholder
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Unknown server"
-msgstr "Unknown server"
+msgstr ""
 
 #. Placeholder for missing value
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -1556,44 +1561,44 @@ msgstr "Unknown server"
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Untitled"
-msgstr "Untitled"
+msgstr ""
 
 #. Sync status - no pending changes
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Up to date"
-msgstr "Up to date"
+msgstr ""
 
 #. Dialog button with entry name
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
-msgstr "Update {0}"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
-msgstr "Uses components as"
+msgstr ""
 
 #. Version display
 #: src/project/ProjectSidebar.svelte
 msgid "Version {0}"
-msgstr "Version {0}"
+msgstr ""
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
-msgstr "View"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte
 msgid "Where are my projects?"
-msgstr "Where are my projects?"
+msgstr ""
 
 #. Expandable help question
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Why is that?"
-msgstr "Why is that?"
+msgstr ""
 
 #. Column header/section title
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -1605,44 +1610,45 @@ msgstr "Why is that?"
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Word"
-msgstr "Word"
+msgstr ""
 
 #. Filter option
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word only"
-msgstr "Word only"
+msgstr ""
 
 #. Label
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
-msgstr "Word or meaning:"
+msgstr ""
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"
-msgstr "Writing System"
+msgstr ""
 
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
-msgstr "Writing system: {0}"
+msgstr ""
 
 #. Filter section title
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
-msgstr "Writing Systems"
+msgstr ""
 
 #. Success message with task and count
 #: src/project/tasks/DoneView.svelte
 msgid "You completed {0} {1}"
-msgstr "You completed {0} {1}"
+msgstr ""
 
 #. Permission error
 #: src/home/Server.svelte
 msgid "You don't have permission to download project {0} from {1}"
-msgstr "You don't have permission to download project {0} from {1}"
+msgstr ""
 
 #. Error message when user attempts to download a project that has already been downloaded locally
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
-msgstr "You have already downloaded the {0} project"
+msgstr ""
+
