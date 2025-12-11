@@ -26,7 +26,7 @@
     "check": "svelte-check",
     "lint": "eslint",
     "lint:report": "eslint . --output-file eslint_report.json --format json",
-    "i18n:extract": "lingui extract --clean",
+    "i18n:extract": "node extract-i18n-preserve-comments.js",
     "generate-icon-types": "node ./generate-icon-types.js",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

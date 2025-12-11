@@ -19,6 +19,8 @@ msgstr ""
 "X-Crowdin-File-ID: 21219\n"
 
 #. Shows count of changes in an activity entry
+#. Display format: "– (5 changes)" appended to sync timestamp
+#. {0} = number of changes (e.g., 1, 5, 10)
 #: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
 msgstr ""
@@ -92,7 +94,8 @@ msgstr ""
 msgid "A new version of FieldWorks Lite is available."
 msgstr ""
 
-#. Placeholder/suggestion in search field
+#. Relevant view: Lite
+#. Classic view equivalent: "an entry"
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr ""
@@ -113,27 +116,38 @@ msgid "Activity"
 msgstr "Shughuli"
 
 #. Button to add audio file to entry
+#. Appears in dialog/toolbar to attach audio file to a word or example sentence
+#. Action: Opens file picker to upload MP3/WAV/etc
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Add audio"
 msgstr ""
 
-#. Button to add complex form entry
+#. Relevant view: Classic
+#. Lite view equivalent: "Add part of"
+#. Button to add compound entry that this entry is a component of (e.g., "sun" is component of "sunflower")
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add complex form"
 msgstr ""
 
 #. Button to add component
+#. Adds an existing entry as a component of this compound word
+#. Example: If "sunflower" is a compound, add entries "sun" and "flower" as components
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Add component"
 msgstr ""
 
 #. Button to add example sentence
+#. Adds sentence/phrase showing how a word is used in context
+#. Each example can have translation and source reference
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Example"
 msgstr ""
 
 #. Button label
+#. Relevant view: Lite
+#. Classic view equivalent: "Add Sense"
+#. Small button to add another sense/meaning to a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
@@ -144,12 +158,16 @@ msgstr ""
 msgid "Add new word"
 msgstr ""
 
-#. Button to add part-of relationship
+#. Relevant view: Lite
+#. Classic view equivalent: "Add complex form"
+#. Button to add compound entry that this entry is a component of (e.g. "sun" is a "part of" "sunflower"; "flower" is a "part of" "sunflower")
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr ""
 
-#. Button label
+#. Relevant view: Classic
+#. Lite view equivalent: "Add Meaning"
+#. Small button to add another sense/meaning for a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
@@ -160,27 +178,37 @@ msgstr ""
 msgid "Add Word"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "a word"
 #. Placeholder/suggestion in search field
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr ""
 
-#. Filter dropdown option
+#. Relevant view: Classic
+#. Lite view equivalent: "Any part of speech"
+#. Filter option: clear grammatical info filter
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any grammatical info."
 msgstr ""
 
-#. Filter dropdown option
+#. Relevant view: Lite
+#. Classic view equivalent: "Any grammatical info."
+#. Filter option: clear part of speech filter
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any part of speech"
 msgstr ""
 
 #. Filter dropdown option
+#. Clears semantic domain filter
+#. Semantic domain = category of meaning (e.g., "tools", "food", "emotions")
 #: src/project/browse/filter/SemanticDomainSelect.svelte
 msgid "Any semantic domain"
 msgstr ""
 
 #. Filter dropdown option
+#. Clears writing system filter; "Ws" = writing system abbreviation
+#. Writing system = script/language variant
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
 msgstr ""
@@ -241,6 +269,9 @@ msgid "Browse"
 msgstr "Angalia"
 
 #. Button to close dialog without saving
+#. Appears in dialog footer; discards any pending edits
+#. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
+#. Keep translation brief (3-4 chars in some languages) to fit button layout
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -266,12 +297,16 @@ msgstr ""
 msgid "Choose theme"
 msgstr ""
 
-#. Field label in entry editor
+#. Relevant view: Classic
+#. Lite view equivalent: "Display as"
+#. Field label: form for citing in dictionary
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
 msgstr ""
 
-#. Filter option
+#. Relevant view: Classic
+#. Lite view equivalent: "Display as"
+#. Filter option: narrow by citation form
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
 msgstr "Fomu ya Manukuu"
@@ -314,6 +349,8 @@ msgid "Complex Form"
 msgstr ""
 
 #. Field label
+#. Classifies the type of complex form relationship (user-configurable)
+#. Examples: "compound", "derivative", "inflectional" (varies by project)
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex form types"
 msgstr ""
@@ -328,7 +365,10 @@ msgstr ""
 msgid "Complex forms"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Part"
 #. Field label in complex forms editor
+#. Entry that is a component/part of a compound word (e.g., "sun" is a component of "sunflower")
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -347,6 +387,8 @@ msgid "Components"
 msgstr ""
 
 #. Filter operator
+#. Search operator: matches fields containing the search term anywhere
+#. Related operators: "Starts with", "Ends with", "Equals"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr ""
@@ -366,7 +408,9 @@ msgstr ""
 msgid "Create entry"
 msgstr ""
 
-#. Dialog button to create
+#. Relevant view: Classic
+#. Lite view equivalent: "Add Word"
+#. Dialog button to create new entry
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create Entry"
 msgstr ""
@@ -376,7 +420,9 @@ msgstr ""
 msgid "Create Example Project"
 msgstr ""
 
-#. Label in picker
+#. Relevant view: Classic
+#. Lite view equivalent: "Current Word"
+#. Label in picker: marks the entry that is currently being edited
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Current Entry"
@@ -387,7 +433,9 @@ msgstr ""
 msgid "Current version"
 msgstr ""
 
-#. Label in picker
+#. Relevant view: Lite
+#. Classic view equivalent: "Current Entry"
+#. Label in picker: marks the word that is currently being edited
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Current Word"
@@ -409,11 +457,15 @@ msgid "Data Directory"
 msgstr ""
 
 #. Field label
+#. Definition for a sense/meaning (e.g., "bank" = "financial institution")
+#. Appears under each Sense/Meaning in entry editor
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Definition"
 msgstr "Maana"
 
 #. Button to delete project from local list
+#. Appears in project card; removes local project cache (not server copy)
+#. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
 msgid "Delete"
 msgstr "Futa"
@@ -424,12 +476,16 @@ msgstr "Futa"
 msgid "Delete {0}"
 msgstr ""
 
-#. Menu option
+#. Relevant view: Classic
+#. Lite view equivalent: "Delete Word"
+#. Menu option: opens confirmation dialog to permanently remove entry
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Entry"
 msgstr "Futa ingizo"
 
-#. Menu option
+#. Relevant view: Lite
+#. Classic view equivalent: "Delete Entry"
+#. Menu option: opens confirmation dialog to permanently remove word
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
 msgstr ""
@@ -466,7 +522,9 @@ msgstr ""
 msgid "Discard"
 msgstr "Kataa mabadiliko"
 
-#. Dropdown label
+#. Relevant view: Lite
+#. Classic view equivalent: "Citation Form"
+#. Lexicography term: choose which form of the entry to display
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Display as"
@@ -531,16 +589,22 @@ msgid "Editor"
 msgstr ""
 
 #. Filter operator
+#. Search operator: matches fields ending with the search term
+#. Related operators: "Starts with", "Contains", "Equals"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr ""
 
 #. Filter option label
+#. Dropdown to filter entries by missing fields
+#. Example: "Entries missing Definition" shows words without definitions
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Entries missing..."
 msgstr ""
 
-#. Item type label
+#. Relevant view: Classic
+#. Lite view equivalent: "Word"
+#. Item type label: dictionary entry (word/headword with definitions)
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
@@ -550,17 +614,23 @@ msgstr ""
 msgid "Entry"
 msgstr "Ingizo"
 
-#. Filter option
+#. Relevant view: Classic
+#. Lite view equivalent: "Word only"
+#. Label for picker when creating relationships: select only the entry itself (not a specific sense/meaning)
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry Only"
 msgstr ""
 
-#. Label
+#. Relevant view: Classic
+#. Lite view equivalent: "Word or meaning:"
+#. Label for picker when creating relationships: select a specific sense (not just the entry itself)
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry or sense:"
 msgstr ""
 
 #. Filter operator
+#. Search operator: exact match (whole field must equal search term)
+#. Related operators: "Contains", "Starts with", "Ends with"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
 msgstr ""
@@ -576,11 +646,15 @@ msgid "Error getting sync status."
 msgstr ""
 
 #. Section header
+#. Labels example sentence/phrase section in entry editor
+#. Contains: sentence text, translation, source reference
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Example"
 msgstr "Mfano"
 
 #. Field label
+#. Sentence/phrase showing usage of a word
+#. Appears under each Sense/Meaning; can have multiple examples per meaning
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr ""
@@ -625,6 +699,7 @@ msgid "Feedback & Support"
 msgstr ""
 
 #. Column header in filters
+#. Dropdown showing available fields to filter by (Word, Definition, Example, etc.)
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr ""
@@ -677,17 +752,23 @@ msgstr ""
 msgid "File too big"
 msgstr ""
 
-#. Placeholder text showing filtered count
+#. Relevant view: Classic
+#. Lite view equivalent: "Filter # words"
+#. Placeholder text showing filtered count (# = number)
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # entries"
 msgstr ""
 
-#. Placeholder text showing filtered count
+#. Relevant view: Lite
+#. Classic view equivalent: "Filter # entries"
+#. Placeholder text showing filtered count (# = number)
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # words"
 msgstr ""
 
-#. Button to filter entry list
+#. Relevant view: Classic
+#. Lite view equivalent: "Filter words"
+#. Toggle button to show/hide search filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter entries"
 msgstr ""
@@ -697,7 +778,9 @@ msgstr ""
 msgid "Filter for..."
 msgstr ""
 
-#. Button to filter word list
+#. Relevant view: Lite
+#. Classic view equivalent: "Filter entries"
+#. Toggle button to show/hide search filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
 msgstr ""
@@ -708,12 +791,16 @@ msgstr ""
 msgid "Filter..."
 msgstr ""
 
-#. Search field placeholder
+#. Relevant view: Classic
+#. Lite view equivalent: "Find word..."
+#. Search field placeholder in picker
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find entry..."
 msgstr ""
 
-#. Search field placeholder
+#. Relevant view: Lite
+#. Classic view equivalent: "Find entry..."
+#. Search field placeholder in picker
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find word..."
 msgstr ""
@@ -740,24 +827,34 @@ msgid "Get support"
 msgstr ""
 
 #. Filter/field option for word glosses
+#. Brief translation/equivalent (one word or short phrase)
+#. Different from "Definition" (longer explanation)
+#. Appears under each sense/meaning; concise translation
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Gloss"
 msgstr "Glosi"
 
 #. Button link to navigate to entry
+#. Clicking jumps to an entry (e.g. from change history or a related entry)
+#. {0} = entry/word name (e.g., "Go to banana")
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr ""
 
 #. Filter option label
+#. Relevant view: Classic
+#. Lite view equivalent: "Part of speech"
+#. Field label: grammatical category (noun, verb, adjective, etc.)
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
 msgstr ""
 
 #. Sort option
+#. Sort results by headword/main entry form (alphabetically)
+#. Related: "Auto" (default smart sort), "Best match" (relevance)
 #: src/project/browse/SortMenu.svelte
 msgid "Headword"
 msgstr "Neno la kichwa"
@@ -827,10 +924,16 @@ msgstr ""
 msgid "Lexbox logo"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Word"
+#. Field label: the main headword/base form
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Lexeme form"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Word"
+#. Filter option: narrow results by headword/base form
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Fomu ya Lexeme"
@@ -843,7 +946,9 @@ msgstr ""
 msgid "List mode"
 msgstr ""
 
-#. Field name shown in advanced view
+#. Field name shown in advanced/classic view
+#. The literal meaning of the vernacular translated into the analysis language
+#. Contrasts with glosses/definitions in the analysis language
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Literal meaning"
 msgstr ""
@@ -895,7 +1000,9 @@ msgstr ""
 msgid "Manager"
 msgstr ""
 
-#. Field label for word senses
+#. Relevant view: Lite
+#. Classic view equivalent: "Sense"
+#. Field label: one meaning/definition of a word
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -919,6 +1026,9 @@ msgstr ""
 msgid "Missing Part of Speech"
 msgstr ""
 
+#. Filter result label
+#. Shows "Missing: Definition" or "Missing: Example" in filtered results
+#. {0} = field name (Definition, Gloss, Example sentence, etc.)
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Missing: {0}"
 msgstr ""
@@ -941,11 +1051,17 @@ msgstr "Mpya"
 msgid "New data"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "New Word"
+#. Dialog title for creating new entry
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "Ingizo Mpya"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "New Entry"
+#. Dialog title for creating new word
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Word"
@@ -960,6 +1076,7 @@ msgid "No activity found"
 msgstr ""
 
 #. Placeholder when no audio file
+#. Shows in audio field when empty (no file uploaded yet)
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr ""
@@ -968,6 +1085,8 @@ msgstr ""
 msgid "No Dictionaries found"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "No words found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/project/browse/EntriesList.svelte
 msgid "No entries found"
@@ -1002,16 +1121,22 @@ msgstr ""
 msgid "No subject, unable to create a new {0}"
 msgstr ""
 
+#. Relevant view: Lite
+#. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
 msgstr ""
 
 #. Selection option for optional fields
+#. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
 msgstr "Hamna"
 
+#. Filter operator
+#. Search operator: exclude entries matching the search term (inverse of "Equals")
+#. Related operators: "Equals", "Contains", "Starts with"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Not equal"
 msgstr ""
@@ -1029,6 +1154,9 @@ msgstr ""
 msgid "Not synced"
 msgstr ""
 
+#. Field label
+#. General notes/remarks field in entry editor
+#. Unconstrained text for additional metadata/comments
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
 msgstr "Tanbihi"
@@ -1084,13 +1212,19 @@ msgstr ""
 msgid "Open Log file"
 msgstr ""
 
+#. Relevant view: Lite
+#. Classic view equivalent: "Component"
 #. Column header
+#. Entry that is a component/part of a compound word (e.g., "sun" is a part of "sunflower")
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Part"
 msgstr "Sehemu"
 
 #. Relationship field label
+#. Shows compound entries that this word is a component of (inverse of Components)
+#. Example: "sun" has "Part of": "sunflower"
+#. Related: "Components" (entries that make up this compound)
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -1099,13 +1233,16 @@ msgstr "Sehemu"
 msgid "Part of"
 msgstr ""
 
-#. Filter option
+#. Relevant view: Lite
+#. Classic view equivalent: "Grammatical info."
+#. Field label: grammatical category (noun, verb, adjective, etc.)
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "Sehemu za mazungumzo"
 
 #. Sync status
+#. Status badge: Changes exist locally but haven't been synced yet
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Pending"
 msgstr ""
@@ -1115,7 +1252,9 @@ msgstr ""
 msgid "Pick a Part of Speech"
 msgstr ""
 
-#. Filter/sort option
+#. View option
+#. Pin the dictionary preview panel above the entry editor form
+#. Allows quick reference while editing without scrolling
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Pinned"
 msgstr ""
@@ -1152,6 +1291,8 @@ msgid "Publish {0} in"
 msgstr ""
 
 #. Field label for citation source
+#. Source attribution for an example sentence (book title, page, URL, etc.)
+#. Identifies where the example was found/cited
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Reference"
 msgstr "Rejeleo"
@@ -1240,11 +1381,15 @@ msgid "Select file"
 msgstr "Chagua Folda"
 
 #. Filter option
+#. Semantic categorization system (e.g., "plants", "emotions", "body parts")
+#. Used to organize and filter entries by meaning category
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
 msgstr ""
 
 #. Field label
+#. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
+#. Appears under each Sense/Meaning; usually multiple selection allowed
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr ""
@@ -1254,6 +1399,9 @@ msgstr ""
 msgid "Send us a message"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Meaning"
+#. Field label: one meaning/definition of an entry
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -1262,6 +1410,8 @@ msgid "Sense"
 msgstr ""
 
 #. Field label for example text
+#. The sentence/phrase text for an example (source text in original language)
+#. Paired with "Translation" field for translated version
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Sentence"
 msgstr "Sentensi"
@@ -1322,6 +1472,8 @@ msgid "Specific field"
 msgstr ""
 
 #. Filter operator
+#. Search operator: matches fields beginning with the search term
+#. Related operators: "Contains", "Ends with", "Equals"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr ""
@@ -1552,6 +1704,9 @@ msgid "Unknown server"
 msgstr ""
 
 #. Placeholder for missing value
+#. Displayed when a word/entry/field has no content yet
+#. Used in: entry list, activity changes, change preview, field labels
+#. Short & neutral in tone
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -1600,7 +1755,8 @@ msgstr ""
 msgid "Why is that?"
 msgstr ""
 
-#. Column header/section title
+#. Relevant view: Lite
+#. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
@@ -1612,12 +1768,16 @@ msgstr ""
 msgid "Word"
 msgstr "Neno"
 
-#. Filter option
+#. Relevant view: Lite
+#. Classic view equivalent: "Entry Only"
+#. Filter option: select only word-level (not meaning-level) items
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word only"
 msgstr ""
 
-#. Label
+#. Relevant view: Lite
+#. Classic view equivalent: "Entry or sense:"
+#. Label for picker: allows selecting word-level or meaning-level link
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr ""
