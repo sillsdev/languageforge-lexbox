@@ -28,6 +28,10 @@ includes:
   fw-lite:
     taskfile: ./backend/FwLite/Taskfile.yml
     dir: ./backend/FwLite
+  crowdin:
+    aliases: [c]
+    taskfile: ./crowdin/Taskfile.yml
+    dir: ./crowdin
 
 tasks:
   setup:
