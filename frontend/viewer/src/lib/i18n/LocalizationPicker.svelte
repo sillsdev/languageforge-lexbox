@@ -17,12 +17,13 @@
 
   const languages: Record<string, string> = {
     'en': 'English',
-    'fr': 'Français',
     'es': 'Español',
+    'fr': 'Français',
     'id': 'Bahasa Indonesia',
     'ko': '한국어',
     'ms': 'Bahasa Malaysia, بهاس مليسيا',
-    'sw': 'Kiswahili'
+    'sw': 'Kiswahili',
+    'vi': 'Tiếng Việt',
   };
   const currentLanguage = $derived(languages[$locale] ?? 'Unknown: ' + $locale);
 </script>
