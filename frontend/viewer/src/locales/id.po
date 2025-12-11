@@ -62,17 +62,17 @@ msgstr "{0} Server"
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
-msgstr "{num, plural, other {# perubahan}}"
+msgstr "{num, plural, one {# perubahan} other {# perubahan}}"
 
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
-msgstr "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
+msgstr "{num, plural, one {# komit FieldWorks Classic baru} other {# komit FieldWorks Classic baru}}"
 
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
-msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
+msgstr "{num, plural, one {# komit FieldWorks Lite baru} other {# komit FieldWorks Lite baru}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -87,7 +87,7 @@ msgstr "**Jenis morfem yang lebih sedikit** (hanya *Root*, *Bound Root*, *Stem*,
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
-msgstr "**Terminologi yang lebih sederhana** (mis. *Kata* alih-alih *Bentuk leksem*, *Makna* alih-alih *Rasa*)"
+msgstr "**Terminologi yang lebih sederhana** (mis. *Kata* alih-alih *Bentuk leksem*, *Makna* alih-alih *Sense*)"
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -121,21 +121,21 @@ msgstr "Aktivitas"
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Add audio"
-msgstr "Menambahkan audio"
+msgstr "Tambah audio"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add part of"
 #. Button to add compound entry that this entry is a component of (e.g., "sun" is component of "sunflower")
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add complex form"
-msgstr "Menambahkan formulir kompleks"
+msgstr "Tambah bentuk kompleks"
 
 #. Button to add component
 #. Adds an existing entry as a component of this compound word
 #. Example: If "sunflower" is a compound, add entries "sun" and "flower" as components
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Add component"
-msgstr "Menambahkan komponen"
+msgstr "Tambahkan komponen"
 
 #. Button to add example sentence
 #. Adds sentence/phrase showing how a word is used in context
@@ -171,12 +171,12 @@ msgstr "Tambahkan bagian dari"
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
-msgstr "Tambahkan Pengertian"
+msgstr "Tambah Makna"
 
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
-msgstr "Tambahkan Kata"
+msgstr "Tambah Kata"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -197,7 +197,7 @@ msgstr "Info tata bahasa apa pun."
 #. Filter option: clear part of speech filter
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any part of speech"
-msgstr "Setiap bagian dari pidato"
+msgstr "Setiap jenis kata"
 
 #. Filter dropdown option
 #. Clears semantic domain filter
@@ -211,7 +211,7 @@ msgstr "Domain semantik apa pun"
 #. Writing system = script/language variant
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
-msgstr "Setiap Ws"
+msgstr "Sistem penulisan apa pun"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -285,7 +285,7 @@ msgstr "Batal"
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
-msgstr "Perubahan juga dapat terjadi karena adanya penambahan field pada versi baru FieldWorks Lite."
+msgstr "Perubahan juga dapat terjadi karena field yang ditambahkan pada versi baru FieldWorks Lite."
 
 #. Explanation of commits vs changes
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -302,14 +302,14 @@ msgstr "Pilih tema"
 #. Field label: form for citing in dictionary
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
-msgstr "Formulir kutipan"
+msgstr "Bentuk kutipan"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Display as"
 #. Filter option: narrow by citation form
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
-msgstr "Formulir Kutipan"
+msgstr "Bentuk Kutipan"
 
 #. Section header for projects from FieldWorks
 #: src/home/HomeView.svelte
@@ -321,7 +321,7 @@ msgstr "Proyek FieldWorks Klasik"
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "clear"
-msgstr "jelas"
+msgstr "Bersihkan"
 
 #. Button to close popup
 #: src/lib/about/AboutDialog.svelte
@@ -353,7 +353,7 @@ msgstr "Bentuk Kompleks"
 #. Examples: "compound", "derivative", "inflectional" (varies by project)
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex form types"
-msgstr "Jenis formulir yang kompleks"
+msgstr "Jenis bentuk kompleks"
 
 #. Label in change preview
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -401,7 +401,7 @@ msgstr "Disalin ke papan klip"
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
-msgstr "Versi salin"
+msgstr "Salin versi"
 
 #. Button label (view-dependent: "Create entry" in Classic, "Add new word" in Lite)
 #: src/lib/entry-editor/NewEntryButton.svelte
@@ -413,7 +413,7 @@ msgstr "Buat entri"
 #. Dialog button to create new entry
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create Entry"
-msgstr "Membuat Entri"
+msgstr "Buat Entri"
 
 #. Button to create sample project
 #: src/home/HomeView.svelte
@@ -468,7 +468,7 @@ msgstr "Definisi"
 #. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
 msgid "Delete"
-msgstr "Menghapus"
+msgstr "Hapus"
 
 #. Dialog title with item name
 #: src/lib/entry-editor/DeleteDialog.svelte
@@ -488,7 +488,7 @@ msgstr "Hapus Entri"
 #. Menu option: opens confirmation dialog to permanently remove word
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
-msgstr "Menghapus kata"
+msgstr "Hapus Kata"
 
 #. Change type indicator
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -857,7 +857,7 @@ msgstr "Info tata bahasa."
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
 #: src/project/browse/SortMenu.svelte
 msgid "Headword"
-msgstr "Headword"
+msgstr "Lema"
 
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
@@ -940,7 +940,7 @@ msgstr "Bentuk Leksem"
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Light"
-msgstr "Cahaya"
+msgstr "Terang"
 
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
@@ -959,7 +959,7 @@ msgstr "Memuat Kamus..."
 
 #: src/home/HomeView.svelte
 msgid "loading..."
-msgstr "Loading..."
+msgstr "Memuat..."
 
 #: src/home/HomeView.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1016,7 +1016,7 @@ msgstr "Definisi yang hilang {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Example sentence {0}"
-msgstr "Hilang Contoh kalimat {0}"
+msgstr "Contoh kalimat yang hilang {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
@@ -1041,7 +1041,7 @@ msgstr "Pindah"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Never"
-msgstr "Tidak pernah."
+msgstr "Tidak pernah"
 
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
@@ -1119,7 +1119,7 @@ msgstr "Tidak ada server yang dikonfigurasi"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
-msgstr "Tidak ada subjek, tidak dapat membuat {0}baru"
+msgstr "Tidak ada subjek, tidak dapat membuat {0} baru"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1312,7 +1312,7 @@ msgstr "Menyegarkan Proyek"
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
-msgstr "Menghapus"
+msgstr "Hapus"
 
 #. Button to delete audio from entry
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1327,12 +1327,12 @@ msgstr "Buka kembali"
 #. Button to overwrite audio file
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
-msgstr "Mengganti audio"
+msgstr "Ganti audio"
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
-msgstr "Melaporkan masalah teknis"
+msgstr "Laporkan masalah teknis"
 
 #. Button option
 #: src/project/tasks/DoneView.svelte
@@ -1347,7 +1347,7 @@ msgstr "Simpan Sebagai"
 #. Button to save audio file
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
-msgstr "Menyimpan audio"
+msgstr "Simpan audio"
 
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1498,7 +1498,7 @@ msgstr "Sinkronisasi"
 #. Dialog title
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
-msgstr "Perubahan Sinkronisasi"
+msgstr "Sinkronkan Perubahan"
 
 #. Success message showing change counts
 #: src/project/SyncDialog.svelte
@@ -1508,7 +1508,7 @@ msgstr "Sinkronisasi selesai. {0} diterapkan pada FieldWorks Classic. {1} ditera
 #. Section title
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
-msgstr "Menyinkronkan FieldWorks Lite dan FieldWorks Classic"
+msgstr "Sinkronkan FieldWorks Lite dan FieldWorks Classic"
 
 #. Introductory text for sync status panel
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1649,7 +1649,7 @@ msgstr "Terjemahan {0}"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Troubleshoot"
-msgstr "Memecahkan masalah"
+msgstr "Pemecahan Masalah"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -1669,7 +1669,7 @@ msgstr "Ketik contoh kalimat"
 #. Label for audio file type
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
-msgstr "Ketik:"
+msgstr "Tipe:"
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
