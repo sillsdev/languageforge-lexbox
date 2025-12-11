@@ -827,10 +827,16 @@ msgstr ""
 msgid "Lexbox logo"
 msgstr ""
 
+#. Field label
+#. Classic view terminology: the main headword/base form (same as "Word" in Lite)
+#. Example: singular form for a noun before other morphological variations
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Lexeme form"
 msgstr ""
 
+#. Filter option
+#. Classic view filter: narrow results by headword/base form
+#. Lite view uses "Word" instead
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr ""
@@ -919,6 +925,9 @@ msgstr ""
 msgid "Missing Part of Speech"
 msgstr ""
 
+#. Filter result label
+#. Shows "Missing: Definition" or "Missing: Example" in filtered results
+#. {0} = field name (Definition, Gloss, Example sentence, etc.)
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Missing: {0}"
 msgstr ""
@@ -941,11 +950,17 @@ msgstr ""
 msgid "New data"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "New Word"
+#. Dialog title for creating new entry
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr ""
 
+#. Relevant view: Lite
+#. Classic view equivalent: "New Entry"
+#. Dialog title for creating new word
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Word"
@@ -968,6 +983,8 @@ msgstr ""
 msgid "No Dictionaries found"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "No words found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/project/browse/EntriesList.svelte
 msgid "No entries found"
@@ -1002,6 +1019,8 @@ msgstr ""
 msgid "No subject, unable to create a new {0}"
 msgstr ""
 
+#. Relevant view: Lite
+#. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
 msgstr ""
@@ -1012,6 +1031,9 @@ msgstr ""
 msgid "None"
 msgstr ""
 
+#. Filter operator
+#. Search operator: exclude entries matching the search term (inverse of "Equals")
+#. Related operators: "Equals", "Contains", "Starts with"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Not equal"
 msgstr ""
@@ -1029,6 +1051,9 @@ msgstr ""
 msgid "Not synced"
 msgstr ""
 
+#. Field label
+#. General notes/remarks field in entry editor
+#. Unconstrained text for additional metadata/comments
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
 msgstr ""
@@ -1254,6 +1279,10 @@ msgstr ""
 msgid "Send us a message"
 msgstr ""
 
+#. Classic view terminology for "meaning" in a word
+#. One word can have multiple senses (e.g., "bank" = financial institution OR riverbank)
+#. Lite view uses "Meaning" (simpler) instead
+#. Contains: Definition, Gloss, Examples, Semantic domains
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
