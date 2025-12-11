@@ -1,0 +1,7 @@
+# Crowdin CLI credentials
+# Copy this file to .crowdin-env.local and fill in your token
+# .crowdin-env.local is git-ignored
+
+# Personal access token from https://crowdin.com/settings
+# Required scopes: projects.read, projects.translations.write
+CROWDIN_PERSONAL_TOKEN=your_token_here

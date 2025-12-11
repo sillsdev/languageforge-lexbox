@@ -13,6 +13,7 @@ backend/Testing/SyncReverseProxy/TestData.cs
 deployment/local-dev/collector-config.yaml
 local.env
 .env.local
+.crowdin-env.local
 cookies.txt
 dump.sql
 test-results/

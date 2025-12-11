@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  crowdin:
+    dotenv: [.crowdin-env.local]
+    cmd: crowdin {{.CLI_ARGS}} -b develop
+
+  pull:
+    cmd: task crowdin -- pull
+
+  i18n:
+    dir: ../frontend/viewer
+    cmds:
+      - task i18n
