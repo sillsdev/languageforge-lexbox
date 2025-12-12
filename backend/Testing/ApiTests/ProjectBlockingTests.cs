@@ -138,7 +138,7 @@ public class ProjectBlockingTests : ApiTestBase, IClassFixture<SyncedProjectFixt
             $"api/fw-lite/sync/trigger/{_syncedProject.ProjectId}", null);
 
         // Should return a Problem response indicating sync is blocked
-        mergeResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        mergeResponse.StatusCode.Should().Be(HttpStatusCode.Locked);
         var responseContent = await mergeResponse.Content.ReadAsStringAsync();
         responseContent.Should().Contain("Project is blocked from syncing");
         responseContent.Should().Contain(blockReason);
