@@ -27,6 +27,7 @@ public static class FwHeadlessKernel
         services.AddScoped<ProjectDeletionService>();
         services.AddScoped<LogSanitizerService>();
         services.AddScoped<SafeLoggingProgress>();
+        services.AddScoped<ProjectMetadataService>();
         services
             .AddLcmCrdtClientCore()
             .AddFwDataBridge(ServiceLifetime.Scoped)

@@ -106,10 +106,43 @@ bd close bd-42 --reason "Completed" --json
 5. **Complete**: `bd close <id> --reason "Done"`
 6. **Commit together**: Always commit the `.beads/issues.jsonl` file together with the code changes so issue state stays in sync with code state
 
+### Git Worktrees & Protected Branches
+
+This project uses **git worktrees** to manage the beads sync branch separately from the main development branch:
+
+**Why worktrees?** The `main` and `develop` branches are protected, so issue updates are committed to a separate `beads-sync` branch using a lightweight git worktree. This keeps the main branch clean while issue state stays synchronized.
+
+**IMPORTANT: Always use `--no-daemon` flag**
+
+When working with worktrees, always add the `--no-daemon` flag to bd commands to avoid daemon sync conflicts:
+
+```bash
+# Recommended for all bd commands when using worktrees:
+bd --no-daemon ready
+bd --no-daemon create "Issue title" -t bug -p 1
+bd --no-daemon update bd-42 --status in_progress
+bd --no-daemon sync
+```
+
+This ensures bd operates directly with the worktree without daemon interference.
+
+**Worktree location:**
+```
+.git/beads-worktrees/beads-sync/  # Hidden from main workspace
+```
+
+**If worktree gets corrupted:**
+```bash
+rm -rf .git/beads-worktrees/beads-sync
+git worktree prune
+bd --no-daemon sync  # Will recreate the worktree
+```
+
 ### Auto-Sync
 
 bd automatically syncs with git:
 - Exports to `.beads/issues.jsonl` after changes (5s debounce)
+- Commits to `beads-sync` branch via worktree (protected main branch)
 - Imports from JSONL when newer (e.g., after `git pull`)
 - No manual export/import needed!
 
@@ -192,6 +225,8 @@ dotnet test
 E.g. by asking "Are you ready to move on?"
 User can jump here or confirm by e.g. "Landing the plane"
 
+**DO NOT COMMIT OR PUSH until user approves!** Only continue to step 5 after explicit user approval.
+
 **5. Push to remote**
 ```bash
 # Pull first to catch any remote changes
@@ -205,8 +240,9 @@ git pull --rebase
 # Sync the database
 bd sync
 
-# Push everything to remote
-git push
+# Push everything to remote - never push to develop or main!
+# if pushing to head doesn't work let the human decide what to do.
+git push origin head
 
 # Verify push succeeded
 git status  # MUST show "up to date with origin"
@@ -230,10 +266,16 @@ Recommended prompt: "Continue work on <issue-id>: [issue title]. [Brief context]
 
 ### Before Committing
 
-1. **Run tests**: `dotnet test` (at minimum for changed projects)
+1. **User approval**: Ensure the user has reviewed the changes and is satisfied with the outcome
 2. **Build check**: `dotnet build` for affected projects
 3. **Update docs**: If you changed behavior, update relevant README or docs
 4. **Sync issues**: `bd sync` to ensure issue state matches code state
+
+**IMPORTANT: Testing Policy**
+- ❌ **Do NOT run integration tests** (`dotnet test`) unless the user explicitly asks
+- Integration tests require full test infrastructure (database, services) and take significant time
+- Only run unit tests locally when verifying critical business logic
+- User must explicitly request test runs before executing them
 
 ### Checking GitHub Issues and PRs
 
@@ -291,8 +333,11 @@ Key documentation for this project:
 - ✅ Follow session-ending protocol before finishing work
 - ✅ Use `gh` CLI for GitHub issues/PRs, not browser tools
 - ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)
+- ✅ **PAUSE at step 4 of session-ending protocol and wait for user approval before committing**
+- ✅ Do NOT run integration tests unless user explicitly requests
 - ❌ Do NOT create markdown TODO lists
 - ❌ Do NOT use external issue trackers
 - ❌ Do NOT duplicate tracking systems
 - ❌ Do NOT clutter repo with planning documents, they should be in dedicated `history/` directory
 - ❌ Do NOT use ASCII art for diagrams (use Mermaid instead)
+- ❌ Do NOT git commit or git push without explicit user approval

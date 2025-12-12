@@ -4,13 +4,13 @@ using FwHeadless.Services;
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
+using LexCore.Exceptions;
 using LexData;
 using Scalar.AspNetCore;
 using Npgsql;
 using OpenTelemetry.Trace;
 using WebServiceDefaults;
 using AppVersion = LexCore.AppVersion;
-using FwHeadless.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 

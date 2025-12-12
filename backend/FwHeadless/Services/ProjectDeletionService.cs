@@ -1,4 +1,4 @@
-using FwHeadless.Exceptions;
+using LexCore.Exceptions;
 using Microsoft.Extensions.Options;
 
 namespace FwHeadless.Services;

@@ -106,7 +106,8 @@ public class SyncWorker(
     CrdtFwdataProjectSyncService syncService,
     CrdtHttpSyncService crdtHttpSyncService,
     IHttpClientFactory httpClientFactory,
-    MediaFileService mediaFileService
+    MediaFileService mediaFileService,
+    ProjectMetadataService metadataService
 )
 {
     public async Task<SyncJobResult> ExecuteSync(CancellationToken stoppingToken, bool onlyHarmony = false)
@@ -124,6 +125,15 @@ public class SyncWorker(
             logger.LogError("Project ID {projectId} not found", projectId);
             activity?.SetStatus(ActivityStatusCode.Error, "Project not found");
             return new SyncJobResult(SyncJobStatusEnum.ProjectNotFound, $"Project {projectId} not found");
+        }
+
+        // Check if project is blocked (defensive check in case it was blocked while waiting in queue)
+        var blockInfo = await metadataService.GetSyncBlockInfoAsync(projectId);
+        if (blockInfo?.IsBlocked == true)
+        {
+            logger.LogInformation("Project {projectId} is blocked from syncing. Reason: {Reason}", projectId, blockInfo.Reason);
+            activity?.SetStatus(ActivityStatusCode.Ok, $"Project blocked from sync: {blockInfo.Reason}");
+            return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, $"Project is blocked from syncing. Reason: {blockInfo.Reason}");
         }
 
         activity?.SetTag("app.project_code", projectCode);

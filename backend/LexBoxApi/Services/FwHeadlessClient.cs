@@ -117,4 +117,63 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
 
         return null;
     }
+
+    public async Task BlockProject(Guid projectId, string? reason = null)
+    {
+        var url = $"/api/merge/block?projectId={projectId}";
+        if (!string.IsNullOrEmpty(reason))
+            url += $"&reason={Uri.EscapeDataString(reason)}";
+
+        var response = await httpClient.PostAsync(url, null);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            logger.LogError("Failed to block project: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                projectId,
+                responseBody);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                throw new NotFoundException($"Project not found in FwHeadless: {projectId}", "Project");
+
+            throw new InvalidOperationException($"Failed to block project: {response.StatusCode} {response.ReasonPhrase}");
+        }
+    }
+
+    public async Task UnblockProject(Guid projectId)
+    {
+        var url = $"/api/merge/unblock?projectId={projectId}";
+        var response = await httpClient.PostAsync(url, null);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            logger.LogError("Failed to unblock project: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                projectId,
+                responseBody);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                throw new NotFoundException($"Project not found in FwHeadless: {projectId}", "Project");
+
+            throw new InvalidOperationException($"Failed to unblock project: {response.StatusCode} {response.ReasonPhrase}");
+        }
+    }
+
+    public async Task<SyncBlockStatus?> GetBlockStatus(Guid projectId)
+    {
+        var url = $"/api/merge/block-status?projectId={projectId}";
+        var response = await httpClient.GetAsync(url);
+        if (response.IsSuccessStatusCode)
+            return await response.Content.ReadFromJsonAsync<SyncBlockStatus>();
+
+        logger.LogError("Failed to get block status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+            response.StatusCode,
+            response.ReasonPhrase,
+            projectId,
+            await response.Content.ReadAsStringAsync());
+        return null;
+    }
+
 }

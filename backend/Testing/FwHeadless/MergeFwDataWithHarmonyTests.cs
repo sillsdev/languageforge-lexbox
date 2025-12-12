@@ -9,6 +9,7 @@ using Testing.Services;
 namespace Testing.FwHeadless;
 
 [Trait("Category", "Integration")]
+[Collection("FwHeadless Sync")]
 public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
 {
     private async Task AddTestCommit(Guid projectId)

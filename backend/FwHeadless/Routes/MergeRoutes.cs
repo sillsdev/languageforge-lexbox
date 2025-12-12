@@ -25,6 +25,9 @@ public static class MergeRoutes
         group.MapPost("/regenerate-snapshot", RegenerateProjectSnapshot);
         group.MapGet("/status", GetMergeStatus);
         group.MapGet("/await-finished", AwaitSyncFinished);
+        group.MapPost("/block", BlockProject);
+        group.MapPost("/unblock", UnblockProject);
+        group.MapGet("/block-status", GetBlockStatus);
         return group;
     }
 
@@ -32,26 +35,44 @@ public static class MergeRoutes
     static async Task<Results<Ok, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
         SyncHostedService syncHostedService,
         ProjectLookupService projectLookupService,
+        ProjectMetadataService metadataService,
         ILogger<Program> logger,
         CrdtHttpSyncService crdtHttpSyncService,
         IHttpClientFactory httpClientFactory,
         Guid projectId)
     {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_id", projectId);
+
         var projectCode = await projectLookupService.GetProjectCode(projectId);
         if (projectCode is null)
         {
             logger.LogError("Project ID {projectId} not found", projectId);
+            activity?.SetStatus(ActivityStatusCode.Error, "Project not found");
             return TypedResults.NotFound();
         }
 
         logger.LogInformation("Project code is {projectCode}", projectCode);
+        activity?.SetTag("app.project_code", projectCode);
+
+        // Check if project is blocked from syncing
+        var blockInfo = await metadataService.GetSyncBlockInfoAsync(projectId);
+        if (blockInfo?.IsBlocked == true)
+        {
+            logger.LogInformation("Project {projectId} is blocked from syncing. Reason: {Reason}", projectId, blockInfo.Reason);
+            activity?.SetStatus(ActivityStatusCode.Ok, $"Project blocked from sync: {blockInfo.Reason}");
+            return TypedResults.Problem($"Project is blocked from syncing. Reason: {blockInfo.Reason}");
+        }
+
         //if we can't sync with lexbox fail fast
         if (!await crdtHttpSyncService.TestAuth(httpClientFactory.CreateClient(FwHeadlessKernel.LexboxHttpClientName)))
         {
             logger.LogError("Unable to authenticate with Lexbox");
+            activity?.SetStatus(ActivityStatusCode.Error, "Unable to authenticate with Lexbox");
             return TypedResults.Problem("Unable to authenticate with Lexbox");
         }
         syncHostedService.QueueJob(projectId);
+        activity?.SetStatus(ActivityStatusCode.Ok, "Sync job queued");
         return TypedResults.Ok();
     }
 
@@ -204,4 +225,93 @@ public static class MergeRoutes
         }
     }
 
+    static async Task<Results<Ok, NotFound, BadRequest<string>>> BlockProject(
+        ProjectLookupService projectLookupService,
+        ProjectMetadataService metadataService,
+        ILogger<Program> logger,
+        Guid projectId,
+        string? reason = null)
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_id", projectId);
+
+        if (!await projectLookupService.ProjectExists(projectId))
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Project ID not found in database");
+            logger.LogWarning("Project ID {projectId} not found in database", projectId);
+            return TypedResults.NotFound();
+        }
+
+        try
+        {
+            await metadataService.BlockFromSyncAsync(projectId, reason);
+            activity?.SetStatus(ActivityStatusCode.Ok, "Project blocked from sync");
+            logger.LogInformation("Project {projectId} blocked from sync", projectId);
+            return TypedResults.Ok();
+        }
+        catch (Exception ex)
+        {
+            activity?.AddException(ex);
+            logger.LogError(ex, "Error blocking project {projectId}", projectId);
+            return TypedResults.BadRequest("Failed to block project");
+        }
+    }
+
+    static async Task<Results<Ok, NotFound, BadRequest<string>>> UnblockProject(
+        ProjectLookupService projectLookupService,
+        ProjectMetadataService metadataService,
+        ILogger<Program> logger,
+        Guid projectId)
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_id", projectId);
+
+        if (!await projectLookupService.ProjectExists(projectId))
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Project ID not found in database");
+            logger.LogWarning("Project ID {projectId} not found in database", projectId);
+            return TypedResults.NotFound();
+        }
+
+        try
+        {
+            await metadataService.UnblockFromSyncAsync(projectId);
+            activity?.SetStatus(ActivityStatusCode.Ok, "Project unblocked from sync");
+            logger.LogInformation("Project {projectId} unblocked from sync", projectId);
+            return TypedResults.Ok();
+        }
+        catch (Exception ex)
+        {
+            activity?.AddException(ex);
+            logger.LogError(ex, "Error unblocking project {projectId}", projectId);
+            return TypedResults.BadRequest("Failed to unblock project");
+        }
+    }
+
+    static async Task<Results<Ok<SyncBlockStatus>, NotFound, BadRequest<string>>> GetBlockStatus(
+        ProjectLookupService projectLookupService,
+        ProjectMetadataService metadataService,
+        ILogger<Program> logger,
+        Guid projectId)
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_id", projectId);
+
+        if (!await projectLookupService.ProjectExists(projectId))
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Project ID not found in database");
+            logger.LogWarning("Project ID {projectId} not found in database", projectId);
+            return TypedResults.NotFound();
+        }
+
+        var blockInfo = await metadataService.GetSyncBlockInfoAsync(projectId);
+
+        activity?.SetStatus(ActivityStatusCode.Ok, $"Block status retrieved: {(blockInfo?.IsBlocked == true ? "blocked" : "unblocked")}");
+        return TypedResults.Ok(new SyncBlockStatus
+        {
+            IsBlocked = blockInfo?.IsBlocked ?? false,
+            Reason = blockInfo?.Reason,
+            BlockedAt = blockInfo?.BlockedAt
+        });
+    }
 }

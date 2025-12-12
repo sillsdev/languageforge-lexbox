@@ -1,7 +1,7 @@
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
-using LexCore;
 using LexCore.Auth;
+using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexCore.Sync;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +13,8 @@ namespace LexBoxApi.Controllers;
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class SyncController(
     IPermissionService permissionService,
-    FwHeadlessClient fwHeadlessClient) : ControllerBase
+    FwHeadlessClient fwHeadlessClient,
+    ProjectService projectService) : ControllerBase
 {
     [HttpGet("status/{projectId}")]
     [RequireScope(LexboxAuthScope.SendAndReceive)]
@@ -102,5 +103,110 @@ public class SyncController(
         {
             return Problem(e.Message);
         }
+    }
+
+    [HttpPost("block")]
+    [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> BlockProject(Guid? projectId = null, string? projectCode = null, string? reason = null)
+    {
+        if (!IsProjectIdOrCodeProvided(projectId, projectCode))
+            return BadRequest("Either projectId or projectCode must be provided");
+
+        var id = await ResolveProjectId(projectId, projectCode);
+        if (id is null)
+            return BadRequest($"Project code '{projectCode}' not found");
+
+        await permissionService.AssertCanSyncProject(id.Value);
+
+        try
+        {
+            await fwHeadlessClient.BlockProject(id.Value, reason);
+            return Ok();
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost("unblock")]
+    [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> UnblockProject(Guid? projectId = null, string? projectCode = null)
+    {
+        if (!IsProjectIdOrCodeProvided(projectId, projectCode))
+            return BadRequest("Either projectId or projectCode must be provided");
+
+        var id = await ResolveProjectId(projectId, projectCode);
+        if (id is null)
+            return BadRequest($"Project code '{projectCode}' not found");
+
+        await permissionService.AssertCanSyncProject(id.Value);
+
+        try
+        {
+            await fwHeadlessClient.UnblockProject(id.Value);
+            return Ok();
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet("block-status")]
+    [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<SyncBlockStatus>> GetBlockStatus(Guid? projectId = null, string? projectCode = null)
+    {
+        if (!IsProjectIdOrCodeProvided(projectId, projectCode))
+            return BadRequest("Either projectId or projectCode must be provided");
+
+        var id = await ResolveProjectId(projectId, projectCode);
+        if (id is null)
+            return BadRequest($"Project code '{projectCode}' not found");
+
+        // Check permissions with the resolved projectId
+        await permissionService.AssertCanViewProject(id.Value);
+
+        var status = await fwHeadlessClient.GetBlockStatus(id.Value);
+        if (status is null)
+            return NotFound();
+        return status;
+    }
+
+    private static bool IsProjectIdOrCodeProvided(Guid? projectId, string? projectCode)
+    {
+        return projectId.HasValue || !string.IsNullOrWhiteSpace(projectCode);
+    }
+
+    private async Task<Guid?> ResolveProjectId(Guid? projectId, string? projectCode)
+    {
+        if (projectId.HasValue)
+        {
+            return projectId.Value;
+        }
+
+        if (string.IsNullOrWhiteSpace(projectCode))
+        {
+            return null;
+        }
+
+        return await projectService.LookupProjectId(projectCode);
     }
 }
