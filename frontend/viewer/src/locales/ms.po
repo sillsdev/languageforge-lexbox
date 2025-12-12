@@ -1185,14 +1185,10 @@ msgstr "Luar talian, tidak dapat memuat turun"
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Satu komit FieldWorks Classic mungkin terdiri daripada perubahan pada berbilang entri atau medan. Sebaliknya, satu komit mungkin hanya menjejaskan data yang tidak diselaraskan ke FieldWorks Lite."
 
-
-
 #. Button to open downloaded project
 #: src/home/Server.svelte
 msgid "Open"
 msgstr "Buka"
-
-
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
