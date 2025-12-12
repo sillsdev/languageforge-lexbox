@@ -35,26 +35,44 @@ public static class MergeRoutes
     static async Task<Results<Ok, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
         SyncHostedService syncHostedService,
         ProjectLookupService projectLookupService,
+        ProjectMetadataService metadataService,
         ILogger<Program> logger,
         CrdtHttpSyncService crdtHttpSyncService,
         IHttpClientFactory httpClientFactory,
         Guid projectId)
     {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_id", projectId);
+
         var projectCode = await projectLookupService.GetProjectCode(projectId);
         if (projectCode is null)
         {
             logger.LogError("Project ID {projectId} not found", projectId);
+            activity?.SetStatus(ActivityStatusCode.Error, "Project not found");
             return TypedResults.NotFound();
         }
 
         logger.LogInformation("Project code is {projectCode}", projectCode);
+        activity?.SetTag("app.project_code", projectCode);
+
+        // Check if project is blocked from syncing
+        var blockInfo = await metadataService.GetSyncBlockInfoAsync(projectId);
+        if (blockInfo?.IsBlocked == true)
+        {
+            logger.LogInformation("Project {projectId} is blocked from syncing. Reason: {Reason}", projectId, blockInfo.Reason);
+            activity?.SetStatus(ActivityStatusCode.Ok, $"Project blocked from sync: {blockInfo.Reason}");
+            return TypedResults.Problem($"Project is blocked from syncing. Reason: {blockInfo.Reason}");
+        }
+
         //if we can't sync with lexbox fail fast
         if (!await crdtHttpSyncService.TestAuth(httpClientFactory.CreateClient(FwHeadlessKernel.LexboxHttpClientName)))
         {
             logger.LogError("Unable to authenticate with Lexbox");
+            activity?.SetStatus(ActivityStatusCode.Error, "Unable to authenticate with Lexbox");
             return TypedResults.Problem("Unable to authenticate with Lexbox");
         }
         syncHostedService.QueueJob(projectId);
+        activity?.SetStatus(ActivityStatusCode.Ok, "Sync job queued");
         return TypedResults.Ok();
     }
 

@@ -81,15 +81,16 @@ public class ProjectBlockingTests : ApiTestBase
         content.BlockedAt.Should().BeNull();
     }
 
-    [Fact(Skip = "Requires SyncBlockedResult implementation in ExecuteMergeRequest")]
-    public async Task ExecuteMerge_WhenProjectBlocked_ReturnsSyncBlockedResult()
+    [Fact]
+    public async Task ExecuteMerge_WhenProjectBlocked_ReturnsProblemResponse()
     {
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
         var projectCode = Utils.NewProjectCode();
         var projectId = await FwHeadlessTestHelpers.CopyProjectToNewProject(HttpClient, projectCode, "sena-3");
+        const string blockReason = "Sync blocked for testing";
 
         // Block the project
-        var blockUrl = $"api/fw-lite/sync/block?projectId={projectId}&reason=Sync blocked for testing";
+        var blockUrl = $"api/fw-lite/sync/block?projectId={projectId}&reason={Uri.EscapeDataString(blockReason)}";
         var blockResponse = await HttpClient.PostAsync(blockUrl, null);
         blockResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -98,10 +99,11 @@ public class ProjectBlockingTests : ApiTestBase
             $"api/merge/execute?projectId={projectId}",
             null);
 
-        // Should return a result indicating sync is blocked
-        // (exact response format TBD once SyncBlockedResult is implemented)
-        mergeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        // TODO: Verify response body contains sync blocked status
+        // Should return a Problem response indicating sync is blocked
+        mergeResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var responseContent = await mergeResponse.Content.ReadAsStringAsync();
+        responseContent.Should().Contain("Project is blocked from syncing");
+        responseContent.Should().Contain(blockReason);
     }
 
     [Fact]

@@ -39,5 +39,6 @@ public enum SyncJobStatusEnum
     UnableToSync,
     CrdtSyncFailed,
     SendReceiveFailed,
+    SyncBlocked,
     UnknownError,
 }
