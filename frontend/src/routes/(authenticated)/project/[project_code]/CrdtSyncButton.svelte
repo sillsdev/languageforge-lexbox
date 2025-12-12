@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { getErrorMessage } from '$lib/error/utils';
-  import { Button, FormError } from '$lib/forms';
+  import {getErrorMessage} from '$lib/error/utils';
+  import {Button, FormError} from '$lib/forms';
   import t from '$lib/i18n';
-  import { Icon } from '$lib/icons';
-  import { useNotifications } from '$lib/notify';
-  import { bounceIn } from 'svelte/easing';
-  import { scale } from 'svelte/transition';
-  import { _refreshProjectRepoInfo, type Project } from './+page';
-  import { Modal } from '$lib/components/modals';
-  import { NewTabLinkMarkdown } from '$lib/components/Markdown';
-  import { Duration } from '$lib/util/time';
+  import {Icon} from '$lib/icons';
+  import {useNotifications} from '$lib/notify';
+  import {bounceIn} from 'svelte/easing';
+  import {scale} from 'svelte/transition';
+  import {_refreshProjectRepoInfo, type Project} from './+page';
+  import {Modal} from '$lib/components/modals';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
+  import {Duration} from '$lib/util/time';
 
   interface Props {
     project: Project;
@@ -55,19 +55,32 @@
         }
         return;
       }
-      const error = $t('project.crdt.sync_trigger_failed', {
-        status: response.status,
-        statusText: response.statusText,
-      });
-      notifyWarning(error, Duration.Persistent);
-      console.error(error, await response.text());
-      return error;
+
+      const errorMessage = await extractErrorMessage(response);
+      notifyWarning(errorMessage, Duration.Persistent);
+      return errorMessage;
     } catch (error) {
       return getErrorMessage(error);
     } finally {
       syncing = false;
     }
   }
+
+  async function extractErrorMessage(response: Response): Promise<string> {
+    try {
+      const problemDetails = await response.json();
+      return problemDetails.detail || problemDetails.title || $t('project.crdt.sync_trigger_failed', {
+        status: response.status,
+        statusText: response.statusText,
+      });
+    } catch {
+      return $t('project.crdt.sync_trigger_failed', {
+        status: response.status,
+        statusText: response.statusText,
+      });
+    }
+  }
+
 
   async function awaitSyncFinished(): Promise<SyncJobResult | string> {
     while (true) {

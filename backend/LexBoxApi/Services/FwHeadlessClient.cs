@@ -6,16 +6,18 @@ namespace LexBoxApi.Services;
 
 public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> logger)
 {
-    public async Task<bool> SyncMercurialAndHarmony(Guid projectId)
+    public async Task<(bool success, HttpStatusCode statusCode)> SyncMercurialAndHarmony(Guid projectId)
     {
         var response = await httpClient.PostAsync($"/api/merge/execute?projectId={projectId}", null);
-        if (response.IsSuccessStatusCode)
-            return true;
-        logger.LogError("Failed to sync Mercurial and Harmony: {StatusCode} {StatusDescription}, projectId: {ProjectId}",
-            response.StatusCode,
-            response.ReasonPhrase,
-            projectId);
-        return false;
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogError("Failed to sync Mercurial and Harmony: {StatusCode} {StatusDescription}, projectId: {ProjectId}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                projectId);
+        }
+
+        return (response.IsSuccessStatusCode, response.StatusCode);
     }
 
     public async Task<SyncJobResult> AwaitStatus(Guid projectId, CancellationToken cancellationToken = default)

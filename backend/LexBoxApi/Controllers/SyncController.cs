@@ -19,7 +19,7 @@ public class SyncController(
     [HttpGet("status/{projectId}")]
     [RequireScope(LexboxAuthScope.SendAndReceive)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseTypeAttribute<ProjectSyncStatus>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProjectSyncStatus>(StatusCodes.Status200OK)]
     public async Task<ActionResult<ProjectSyncStatus>> GetSyncStatus(Guid projectId)
     {
         if (!await permissionService.CanViewProject(projectId)) return Forbid();
@@ -33,8 +33,16 @@ public class SyncController(
     public async Task<ActionResult> TriggerSync(Guid projectId)
     {
         if (!await permissionService.CanSyncProject(projectId)) return Forbid();
-        var started = await fwHeadlessClient.SyncMercurialAndHarmony(projectId);
-        if (!started) return Problem("Failed to sync CRDT");
+        var (started, statusCode) = await fwHeadlessClient.SyncMercurialAndHarmony(projectId);
+        if (!started)
+        {
+            return statusCode switch
+            {
+                System.Net.HttpStatusCode.Locked => Problem("Project is blocked from syncing", statusCode: StatusCodes.Status423Locked),
+                System.Net.HttpStatusCode.NotFound => Problem("Project not found", statusCode: StatusCodes.Status404NotFound),
+                _ => Problem("Failed to trigger sync", statusCode: (int)statusCode)
+            };
+        }
         return Ok();
     }
 

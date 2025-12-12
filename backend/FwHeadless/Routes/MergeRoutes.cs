@@ -61,7 +61,7 @@ public static class MergeRoutes
         {
             logger.LogInformation("Project {projectId} is blocked from syncing. Reason: {Reason}", projectId, blockInfo.Reason);
             activity?.SetStatus(ActivityStatusCode.Ok, $"Project blocked from sync: {blockInfo.Reason}");
-            return TypedResults.Problem($"Project is blocked from syncing. Reason: {blockInfo.Reason}");
+            return TypedResults.Problem($"Project is blocked from syncing. Reason: {blockInfo.Reason}", statusCode: StatusCodes.Status423Locked);
         }
 
         //if we can't sync with lexbox fail fast
@@ -69,7 +69,7 @@ public static class MergeRoutes
         {
             logger.LogError("Unable to authenticate with Lexbox");
             activity?.SetStatus(ActivityStatusCode.Error, "Unable to authenticate with Lexbox");
-            return TypedResults.Problem("Unable to authenticate with Lexbox");
+            return TypedResults.Problem("Unable to authenticate with Lexbox", statusCode: StatusCodes.Status403Forbidden);
         }
         syncHostedService.QueueJob(projectId);
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync job queued");
