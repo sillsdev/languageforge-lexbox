@@ -38,6 +38,7 @@ public class SyncedProjectFixture : IAsyncLifetime
 }
 
 [Trait("Category", "Integration")]
+[Collection("FwHeadless Sync")]
 public class ProjectBlockingTests : ApiTestBase, IClassFixture<SyncedProjectFixture>
 {
     private readonly SyncedProjectFixture _syncedProject;

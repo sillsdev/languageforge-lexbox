@@ -11,6 +11,7 @@ using Testing.Services;
 namespace Testing.ApiTests;
 
 [Trait("Category", "Integration")]
+[Collection("FwHeadless Sync")]
 public class DeleteProjectTests : ApiTestBase
 {
     [Fact]
