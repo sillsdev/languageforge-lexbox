@@ -1,5 +1,6 @@
-import { readFileSync, writeFileSync, copyFileSync, readdirSync, unlinkSync } from 'fs';
-import { execSync } from 'child_process';
+import {copyFileSync, readFileSync, readdirSync, unlinkSync, writeFileSync} from 'fs';
+
+import {execSync} from 'child_process';
 
 const baseLocalesDir = 'src/locales';
 
@@ -14,10 +15,10 @@ function parsePo(content) {
   const entries = [];
   let currentEntry = {};
   const lines = content.split('\n');
-  
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    
+
     // Blank line = end of entry
     if (line.trim() === '') {
       if (currentEntry.msgid) {
@@ -26,7 +27,7 @@ function parsePo(content) {
       currentEntry = {};
       continue;
     }
-    
+
     // Collect developer comments
     if (line.startsWith('#.')) {
       if (!currentEntry.comments) currentEntry.comments = [];
@@ -40,7 +41,7 @@ function parsePo(content) {
       }
     }
   }
-  
+
   return entries;
 }
 
@@ -76,12 +77,12 @@ function restoreCommentsInFile(poPath) {
   const newContent = readFileSync(poPath, 'utf8');
   const lines = newContent.split('\n');
   const result = [];
-  
+
   const addedCommentsFor = new Set(); // Track which msgids we've already added comments for
-  
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    
+
     // If we find a source location comment (#:), check if we need to add developer comments before it
     if (line.startsWith('#:')) {
       // Look ahead to find the msgid
@@ -95,48 +96,60 @@ function restoreCommentsInFile(poPath) {
           break;
         }
       }
-      
-      // If we have comments for this msgid and haven't added them yet, add them before the #: line
+
+      // If we have comments for this msgid and haven't processed them yet, replace or add them before the #: line
       if (msgid && msgidToComments.has(msgid) && !addedCommentsFor.has(msgid)) {
-        // Check if comments already exist right before this #: line
-        let hasComments = false;
-        for (let j = i - 1; j >= 0 && j >= i - 10; j--) {
-          if (lines[j].startsWith('#.')) {
-            hasComments = true;
-            break;
-          }
-          if (lines[j].trim() === '') break; // Stop at blank line
+        // Walk back through result to find the preceding comment/block start (stop at blank line)
+        let blockStart = result.length - 1;
+        while (blockStart >= 0 && result[blockStart].trim() !== '') {
+          blockStart--;
         }
-        
-        // Add comments if they're not already there
-        if (!hasComments) {
-          const comments = msgidToComments.get(msgid);
-          for (const comment of comments) {
-            result.push(comment);
+        // blockStart now points at the blank line (or -1). The block of lines before the #: line starts at blockStart+1
+        const preserved = [];
+        for (let p = blockStart + 1; p < result.length; p++) {
+          // Preserve non-developer comments and other lines, but skip any existing developer comments (#.)
+          if (result[p].startsWith('#.')) {
+            continue; // drop outdated developer comment
           }
-          addedCommentsFor.add(msgid); // Mark that we've added comments for this msgid
+          preserved.push(result[p]);
         }
+
+        // Truncate result to the prefix before the comment block
+        result.length = blockStart + 1;
+
+        // Insert preserved non-dev comment lines back (if any)
+        for (const linePreserve of preserved) {
+          result.push(linePreserve);
+        }
+
+        // Insert the canonical developer comments from en.po
+        const comments = msgidToComments.get(msgid);
+        for (const comment of comments) {
+          result.push(comment);
+        }
+
+        addedCommentsFor.add(msgid); // Mark that we've processed comments for this msgid
       }
     }
-    
+
     result.push(line);
   }
-  
+
   let updatedContent = result.join('\n');
-  
+
   // Reorder comments so developer comments (#.) come before source location comments (#:)
   const finalLines = updatedContent.split('\n');
   const finalResult = [];
   let i = 0;
   while (i < finalLines.length) {
     const line = finalLines[i];
-    
+
     // Collect all comments before msgid
     if (line.startsWith('#')) {
       const comments = [];
       const devComments = [];
       const srcComments = [];
-      
+
       while (i < finalLines.length && finalLines[i].startsWith('#')) {
         if (finalLines[i].startsWith('#.')) {
           devComments.push(finalLines[i]);
@@ -147,20 +160,20 @@ function restoreCommentsInFile(poPath) {
         }
         i++;
       }
-      
+
       // Add in order: dev comments first, then other comments, then source comments
       finalResult.push(...devComments);
       finalResult.push(...comments);
       finalResult.push(...srcComments);
-      
+
       // Don't increment i or add the line again; we're already positioned for the next iteration
       continue;
     }
-    
+
     finalResult.push(line);
     i++;
   }
-  
+
   updatedContent = finalResult.join('\n');
   writeFileSync(poPath, updatedContent);
 }
