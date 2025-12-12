@@ -106,12 +106,42 @@ bd close bd-42 --reason "Completed" --json
 5. **Complete**: `bd close <id> --reason "Done"`
 6. **Commit together**: Always commit the `.beads/issues.jsonl` file together with the code changes so issue state stays in sync with code state
 
+### Git Worktrees & Protected Branches
+
+This project uses **git worktrees** to manage the beads sync branch separately from the main development branch:
+
+**Why worktrees?** The `main` branch is protected, so issue updates are committed to a separate `beads-sync` branch using a lightweight git worktree. This keeps the main branch clean while issue state stays synchronized.
+
+**Worktree location:**
+```
+.git/beads-worktrees/beads-sync/  # Hidden from main workspace
+```
+
+**How it works:**
+1. Issue updates are committed to `beads-sync` branch (not main)
+2. Worktree is automatically managed by bd - don't modify it manually
+3. Periodically, `beads-sync` is merged back to `main` via pull request
+
+**Important:** Do NOT delete or modify the worktree manually. If it gets corrupted, run:
+```bash
+rm -rf .git/beads-worktrees/beads-sync
+git worktree prune
+bd daemon restart  # Will recreate the worktree
+```
+
 ### Auto-Sync
 
 bd automatically syncs with git:
 - Exports to `.beads/issues.jsonl` after changes (5s debounce)
+- Commits to `beads-sync` branch via worktree (protected main branch)
 - Imports from JSONL when newer (e.g., after `git pull`)
 - No manual export/import needed!
+
+**Sync issues?** If `bd sync` fails due to submodule errors:
+```bash
+bd sync --no-pull  # Skip pulling, commit local changes first
+git pull           # Pull separately if needed
+```
 
 ### MCP Server (Optional)
 
