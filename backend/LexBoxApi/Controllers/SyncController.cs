@@ -1,7 +1,7 @@
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
-using LexCore;
 using LexCore.Auth;
+using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexCore.Sync;
 using Microsoft.AspNetCore.Mvc;
@@ -109,6 +109,7 @@ public class SyncController(
     [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> BlockProject(Guid? projectId = null, string? projectCode = null, string? reason = null)
     {
         if (!IsProjectIdOrCodeProvided(projectId, projectCode))
@@ -125,6 +126,10 @@ public class SyncController(
             await fwHeadlessClient.BlockProject(id.Value, reason);
             return Ok();
         }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
         catch (InvalidOperationException ex)
         {
             return BadRequest(ex.Message);
@@ -135,6 +140,7 @@ public class SyncController(
     [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> UnblockProject(Guid? projectId = null, string? projectCode = null)
     {
         if (!IsProjectIdOrCodeProvided(projectId, projectCode))
@@ -150,6 +156,10 @@ public class SyncController(
         {
             await fwHeadlessClient.UnblockProject(id.Value);
             return Ok();
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
         }
         catch (InvalidOperationException ex)
         {

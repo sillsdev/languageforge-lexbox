@@ -133,6 +133,10 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                throw new NotFoundException($"Project not found in FwHeadless: {projectId}", "Project");
+
             throw new InvalidOperationException($"Failed to block project: {response.StatusCode} {response.ReasonPhrase}");
         }
     }
@@ -149,6 +153,10 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                throw new NotFoundException($"Project not found in FwHeadless: {projectId}", "Project");
+
             throw new InvalidOperationException($"Failed to unblock project: {response.StatusCode} {response.ReasonPhrase}");
         }
     }
