@@ -110,23 +110,32 @@ bd close bd-42 --reason "Completed" --json
 
 This project uses **git worktrees** to manage the beads sync branch separately from the main development branch:
 
-**Why worktrees?** The `main` branch is protected, so issue updates are committed to a separate `beads-sync` branch using a lightweight git worktree. This keeps the main branch clean while issue state stays synchronized.
+**Why worktrees?** The `main` and `develop` branches are protected, so issue updates are committed to a separate `beads-sync` branch using a lightweight git worktree. This keeps the main branch clean while issue state stays synchronized.
+
+**IMPORTANT: Always use `--no-daemon` flag**
+
+When working with worktrees, always add the `--no-daemon` flag to bd commands to avoid daemon sync conflicts:
+
+```bash
+# Recommended for all bd commands when using worktrees:
+bd --no-daemon ready
+bd --no-daemon create "Issue title" -t bug -p 1
+bd --no-daemon update bd-42 --status in_progress
+bd --no-daemon sync
+```
+
+This ensures bd operates directly with the worktree without daemon interference.
 
 **Worktree location:**
 ```
 .git/beads-worktrees/beads-sync/  # Hidden from main workspace
 ```
 
-**How it works:**
-1. Issue updates are committed to `beads-sync` branch (not main)
-2. Worktree is automatically managed by bd - don't modify it manually
-3. Periodically, `beads-sync` is merged back to `main` via pull request
-
-**Important:** Do NOT delete or modify the worktree manually. If it gets corrupted, run:
+**If worktree gets corrupted:**
 ```bash
 rm -rf .git/beads-worktrees/beads-sync
 git worktree prune
-bd daemon restart  # Will recreate the worktree
+bd --no-daemon sync  # Will recreate the worktree
 ```
 
 ### Auto-Sync
@@ -136,12 +145,6 @@ bd automatically syncs with git:
 - Commits to `beads-sync` branch via worktree (protected main branch)
 - Imports from JSONL when newer (e.g., after `git pull`)
 - No manual export/import needed!
-
-**Sync issues?** If `bd sync` fails due to submodule errors:
-```bash
-bd sync --no-pull  # Skip pulling, commit local changes first
-git pull           # Pull separately if needed
-```
 
 ### MCP Server (Optional)
 
