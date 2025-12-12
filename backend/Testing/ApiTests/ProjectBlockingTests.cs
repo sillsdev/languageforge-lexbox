@@ -135,8 +135,7 @@ public class ProjectBlockingTests : ApiTestBase, IClassFixture<SyncedProjectFixt
 
         // Try to execute merge
         var mergeResponse = await HttpClient.PostAsync(
-            $"api/merge/execute?projectId={_syncedProject.ProjectId}",
-            null);
+            $"api/fw-lite/sync/trigger/{_syncedProject.ProjectId}", null);
 
         // Should return a Problem response indicating sync is blocked
         mergeResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -146,23 +145,23 @@ public class ProjectBlockingTests : ApiTestBase, IClassFixture<SyncedProjectFixt
     }
 
     [Fact]
-    public async Task BlockProject_WithNonexistentProjectId_ReturnsBadRequest()
+    public async Task BlockProject_WithNonexistentProjectId_ReturnsNotFound()
     {
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
 
         var response = await HttpClient.PostAsync($"api/fw-lite/sync/block?projectId={Guid.NewGuid()}", null);
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task GetBlockStatus_WithNonexistentProjectId_ReturnsBadRequest()
+    public async Task GetBlockStatus_WithNonexistentProjectId_ReturnsNotFound()
     {
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
 
         var response = await HttpClient.GetAsync($"api/fw-lite/sync/block-status?projectId={Guid.NewGuid()}");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -267,37 +266,37 @@ public class ProjectBlockingTests : ApiTestBase, IClassFixture<SyncedProjectFixt
     }
 
     [Fact]
-    public async Task BlockProject_WithNonexistentProjectCode_ReturnsBadRequest()
+    public async Task BlockProject_WithNonexistentProjectCode_ReturnsNotFound()
     {
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
 
         var response = await HttpClient.PostAsync("api/fw-lite/sync/block?projectCode=nonexistent", null);
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Contain("Project code 'nonexistent' not found");
     }
 
     [Fact]
-    public async Task UnblockProject_WithNonexistentProjectCode_ReturnsBadRequest()
+    public async Task UnblockProject_WithNonexistentProjectCode_ReturnsNotFound()
     {
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
 
         var response = await HttpClient.PostAsync("api/fw-lite/sync/unblock?projectCode=nonexistent", null);
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Contain("Project code 'nonexistent' not found");
     }
 
     [Fact]
-    public async Task GetBlockStatus_WithNonexistentProjectCode_ReturnsBadRequest()
+    public async Task GetBlockStatus_WithNonexistentProjectCode_ReturnsNotFound()
     {
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
 
         var response = await HttpClient.GetAsync("api/fw-lite/sync/block-status?projectCode=nonexistent");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Contain("Project code 'nonexistent' not found");
     }

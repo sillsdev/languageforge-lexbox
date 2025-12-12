@@ -125,7 +125,7 @@ public class SyncController(
 
         var id = await ResolveProjectId(projectId, projectCode);
         if (id is null)
-            return BadRequest($"Project code '{projectCode}' not found");
+            return NotFound($"Project code '{projectCode}' not found");
 
         await permissionService.AssertCanSyncProject(id.Value);
 
@@ -156,7 +156,7 @@ public class SyncController(
 
         var id = await ResolveProjectId(projectId, projectCode);
         if (id is null)
-            return BadRequest($"Project code '{projectCode}' not found");
+            return NotFound($"Project code '{projectCode}' not found");
 
         await permissionService.AssertCanSyncProject(id.Value);
 
@@ -187,7 +187,7 @@ public class SyncController(
 
         var id = await ResolveProjectId(projectId, projectCode);
         if (id is null)
-            return BadRequest($"Project code '{projectCode}' not found");
+            return NotFound($"Project code '{projectCode}' not found");
 
         // Check permissions with the resolved projectId
         await permissionService.AssertCanViewProject(id.Value);
