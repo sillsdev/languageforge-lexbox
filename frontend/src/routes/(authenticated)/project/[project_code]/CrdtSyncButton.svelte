@@ -51,14 +51,12 @@
           );
           done = true;
         } else if (syncResults.error) {
-          notifyWarning(syncResults.error, Duration.Persistent);
+          return syncResults.error;
         }
         return;
       }
 
-      const errorMessage = await extractErrorMessage(response);
-      notifyWarning(errorMessage, Duration.Persistent);
-      return errorMessage;
+      return await extractErrorMessage(response);
     } catch (error) {
       return getErrorMessage(error);
     } finally {
