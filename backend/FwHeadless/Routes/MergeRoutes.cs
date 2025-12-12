@@ -25,6 +25,9 @@ public static class MergeRoutes
         group.MapPost("/regenerate-snapshot", RegenerateProjectSnapshot);
         group.MapGet("/status", GetMergeStatus);
         group.MapGet("/await-finished", AwaitSyncFinished);
+        group.MapPost("/block", BlockProject);
+        group.MapPost("/unblock", UnblockProject);
+        group.MapGet("/block-status", GetBlockStatus);
         return group;
     }
 
@@ -202,6 +205,152 @@ public static class MergeRoutes
             // Note 200 OK returned here; getting the status is a successful HTTP request even if the status is "the job failed and here's why"
             return new SyncJobResult(SyncJobStatusEnum.CrdtSyncFailed, error);
         }
+    }
+
+    static async Task<Results<Ok, NotFound, BadRequest<string>>> BlockProject(
+        ProjectLookupService projectLookupService,
+        ProjectMetadataService metadataService,
+        ILogger<Program> logger,
+        Guid? projectId = null,
+        string? projectCode = null,
+        string? reason = null)
+    {
+        if (!IsProjectIdOrCodeProvided(projectId, projectCode))
+            return TypedResults.BadRequest("Either projectId or projectCode must be provided");
+
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        var id = await ResolveProjectId(projectLookupService, projectId, projectCode);
+        if (id is null)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, $"Project code '{projectCode}' not found");
+            return TypedResults.BadRequest($"Project code '{projectCode}' not found");
+        }
+
+        activity?.SetTag("app.project_id", id.Value);
+
+        if (!await projectLookupService.ProjectExists(id.Value))
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Project ID not found in database");
+            logger.LogWarning("Project ID {projectId} not found in database", id.Value);
+            return TypedResults.NotFound();
+        }
+
+        try
+        {
+            await metadataService.BlockFromSyncAsync(id.Value, reason);
+            activity?.SetStatus(ActivityStatusCode.Ok, "Project blocked from sync");
+            logger.LogInformation("Project {projectId} blocked from sync", id.Value);
+            return TypedResults.Ok();
+        }
+        catch (Exception ex)
+        {
+            activity?.AddException(ex);
+            logger.LogError(ex, "Error blocking project {projectId}", id.Value);
+            return TypedResults.BadRequest("Failed to block project");
+        }
+    }
+
+    static async Task<Results<Ok, NotFound, BadRequest<string>>> UnblockProject(
+        ProjectLookupService projectLookupService,
+        ProjectMetadataService metadataService,
+        ILogger<Program> logger,
+        Guid? projectId = null,
+        string? projectCode = null)
+    {
+        if (!IsProjectIdOrCodeProvided(projectId, projectCode))
+            return TypedResults.BadRequest("Either projectId or projectCode must be provided");
+
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        var id = await ResolveProjectId(projectLookupService, projectId, projectCode);
+        if (id is null)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, $"Project code '{projectCode}' not found");
+            return TypedResults.BadRequest($"Project code '{projectCode}' not found");
+        }
+
+        activity?.SetTag("app.project_id", id.Value);
+
+        if (!await projectLookupService.ProjectExists(id.Value))
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Project ID not found in database");
+            logger.LogWarning("Project ID {projectId} not found in database", id.Value);
+            return TypedResults.NotFound();
+        }
+
+        try
+        {
+            await metadataService.UnblockFromSyncAsync(id.Value);
+            activity?.SetStatus(ActivityStatusCode.Ok, "Project unblocked from sync");
+            logger.LogInformation("Project {projectId} unblocked from sync", id.Value);
+            return TypedResults.Ok();
+        }
+        catch (Exception ex)
+        {
+            activity?.AddException(ex);
+            logger.LogError(ex, "Error unblocking project {projectId}", id.Value);
+            return TypedResults.BadRequest("Failed to unblock project");
+        }
+    }
+
+    static async Task<Results<Ok<SyncBlockStatus>, NotFound, BadRequest<string>>> GetBlockStatus(
+        ProjectLookupService projectLookupService,
+        ProjectMetadataService metadataService,
+        ILogger<Program> logger,
+        Guid? projectId = null,
+        string? projectCode = null)
+    {
+        if (!IsProjectIdOrCodeProvided(projectId, projectCode))
+            return TypedResults.BadRequest("Either projectId or projectCode must be provided");
+
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        var id = await ResolveProjectId(projectLookupService, projectId, projectCode);
+        if (id is null)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, $"Project code '{projectCode}' not found");
+            return TypedResults.BadRequest($"Project code '{projectCode}' not found");
+        }
+
+        activity?.SetTag("app.project_id", id.Value);
+
+        if (!await projectLookupService.ProjectExists(id.Value))
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Project ID not found in database");
+            logger.LogWarning("Project ID {projectId} not found in database", id.Value);
+            return TypedResults.NotFound();
+        }
+
+        var blockInfo = await metadataService.GetSyncBlockInfoAsync(id.Value);
+
+        activity?.SetStatus(ActivityStatusCode.Ok, $"Block status retrieved: {(blockInfo?.IsBlocked == true ? "blocked" : "unblocked")}");
+        return TypedResults.Ok(new SyncBlockStatus
+        {
+            IsBlocked = blockInfo?.IsBlocked ?? false,
+            Reason = blockInfo?.Reason,
+            BlockedAt = blockInfo?.BlockedAt
+        });
+    }
+
+    private static bool IsProjectIdOrCodeProvided(Guid? projectId, string? projectCode)
+    {
+        return projectId.HasValue || !string.IsNullOrWhiteSpace(projectCode);
+    }
+
+    private static async Task<Guid?> ResolveProjectId(
+        ProjectLookupService projectLookupService,
+        Guid? projectId,
+        string? projectCode)
+    {
+        if (projectId.HasValue)
+        {
+            return projectId.Value;
+        }
+
+        if (string.IsNullOrWhiteSpace(projectCode))
+        {
+            return null;
+        }
+
+        return await projectLookupService.GetProjectId(projectCode);
     }
 
 }

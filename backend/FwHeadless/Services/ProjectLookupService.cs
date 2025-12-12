@@ -24,4 +24,13 @@ public class ProjectLookupService(LexBoxDbContext dbContext)
     {
         return await dbContext.Set<ServerCommit>().AnyAsync(c => c.ProjectId == projectId);
     }
+
+    public virtual async Task<Guid?> GetProjectId(string projectCode)
+    {
+        var projectId = await dbContext.Projects
+            .Where(p => p.Code == projectCode)
+            .Select(p => p.Id)
+            .FirstOrDefaultAsync();
+        return projectId == Guid.Empty ? null : projectId;
+    }
 }
