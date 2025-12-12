@@ -7,11 +7,6 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
 {
     private readonly MetadataStore _store = new(config.Value, logger);
 
-    public Task<bool> IsBlockedFromSyncAsync(Guid projectId)
-    {
-        return _store.ReadAsync(projectId, metadata => metadata.SyncBlocked?.IsBlocked ?? false);
-    }
-
     public async Task BlockFromSyncAsync(Guid projectId, string? reason = null)
     {
         await _store.UpdateAsync(projectId, metadata =>
@@ -42,7 +37,7 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
 
     public Task<SyncBlockInfo?> GetSyncBlockInfoAsync(Guid projectId)
     {
-        return _store.ReadAsync(projectId, metadata => metadata.SyncBlocked);
+        return _store.ReadAsync(projectId, metadata => metadata?.SyncBlocked);
     }
 
     /// <summary>
@@ -52,7 +47,7 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
     {
         private readonly Lock _fileLock = new();
 
-        public Task<T> ReadAsync<T>(Guid projectId, Func<ProjectMetadata, T> action)
+        public Task<T> ReadAsync<T>(Guid projectId, Func<ProjectMetadata?, T> action)
         {
             return Task.Run(() =>
             {
@@ -80,7 +75,7 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
                 {
                     lock (_fileLock)
                     {
-                        var metadata = LoadMetadata(projectId);
+                        var metadata = LoadMetadata(projectId) ?? new ProjectMetadata();
                         action(metadata);
                         SaveMetadata(projectId, metadata);
                     }
@@ -93,27 +88,28 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
             });
         }
 
-        private ProjectMetadata LoadMetadata(Guid projectId)
+        private ProjectMetadata? LoadMetadata(Guid projectId)
         {
             var metadataPath = GetMetadataPath(projectId);
-            if (File.Exists(metadataPath))
+            if (metadataPath is not null && File.Exists(metadataPath))
             {
                 try
                 {
                     var json = File.ReadAllText(metadataPath);
-                    return JsonSerializer.Deserialize<ProjectMetadata>(json) ?? new ProjectMetadata();
+                    return JsonSerializer.Deserialize<ProjectMetadata>(json);
                 }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Error parsing metadata file for project {projectId}", projectId);
                 }
             }
-            return new ProjectMetadata();
+            return null;
         }
 
         private void SaveMetadata(Guid projectId, ProjectMetadata metadata)
         {
-            var metadataPath = GetMetadataPath(projectId);
+            var metadataPath = GetMetadataPath(projectId)
+                ?? throw new ArgumentException("Unable to find project folder for project id " + projectId);
             var dirPath = Path.GetDirectoryName(metadataPath);
             if (dirPath != null && !Directory.Exists(dirPath))
             {
@@ -124,10 +120,11 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
             File.WriteAllText(metadataPath, json);
         }
 
-        private string GetMetadataPath(Guid projectId)
+        private string? GetMetadataPath(Guid projectId)
         {
-            var projectFolder = config.GetProjectFolder(projectId);
-            return Path.Combine(projectFolder, "metadata.json");
+            if (config.TryGetProjectFolder(projectId, out var projectFolder))
+                return Path.Combine(projectFolder, "metadata.json");
+            return null;
         }
     }
 }

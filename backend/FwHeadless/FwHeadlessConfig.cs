@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using System.IO;
+using System.Diagnostics.CodeAnalysis;
 using FwDataMiniLcmBridge;
-using LexCore.Exceptions;
 using SIL.LCModel;
 
 namespace FwHeadless;
@@ -29,10 +28,17 @@ public class FwHeadlessConfig
         return Path.Join(Path.GetFullPath(ProjectStorageRoot), $"{projectCode}-{projectId:D}");
     }
 
+    public bool TryGetProjectFolder(Guid projectId, [NotNullWhen(true)] out string? projectFolder)
+    {
+        projectFolder = Directory.EnumerateDirectories(ProjectStorageRoot, $"*-{projectId:D}").FirstOrDefault();
+        return projectFolder is not null;
+    }
+
     public string GetProjectFolder(Guid projectId)
     {
-        return Directory.EnumerateDirectories(ProjectStorageRoot, $"*-{projectId:D}").FirstOrDefault() ??
-            throw new ArgumentException("Unable to find project folder for project id " + projectId);
+        if (TryGetProjectFolder(projectId, out var projectFolder))
+            return projectFolder;
+        throw new ArgumentException("Unable to find project folder for project id " + projectId);
     }
 
     private const int GuidLength = 36;

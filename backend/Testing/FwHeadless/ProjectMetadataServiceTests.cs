@@ -54,15 +54,15 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task IsBlockedFromSyncAsync_WhenNoBlockSet_ReturnsFalse()
+    public async Task GetSyncBlockInfoAsync_WhenNoBlockSet_ReturnsNull()
     {
         var service = CreateService();
         var projectId = Guid.NewGuid();
         CreateTestProjectFolder(projectId);
 
-        var result = await service.IsBlockedFromSyncAsync(projectId);
+        var result = await service.GetSyncBlockInfoAsync(projectId);
 
-        result.Should().BeFalse();
+        result.Should().BeNull();
     }
 
     [Fact]
@@ -73,9 +73,10 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
         CreateTestProjectFolder(projectId);
 
         await service.BlockFromSyncAsync(projectId, "Test block");
-        var isBlocked = await service.IsBlockedFromSyncAsync(projectId);
+        var blockInfo = await service.GetSyncBlockInfoAsync(projectId);
 
-        isBlocked.Should().BeTrue();
+        blockInfo.Should().NotBeNull();
+        blockInfo.IsBlocked.Should().BeTrue();
     }
 
     [Fact]
@@ -118,13 +119,14 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
 
         await service.BlockFromSyncAsync(projectId, "Block");
         await service.UnblockFromSyncAsync(projectId);
-        var isBlocked = await service.IsBlockedFromSyncAsync(projectId);
+        var blockInfo = await service.GetSyncBlockInfoAsync(projectId);
 
-        isBlocked.Should().BeFalse();
+        blockInfo.Should().NotBeNull();
+        blockInfo.IsBlocked.Should().BeFalse();
     }
 
     [Fact]
-    public async Task BlockAndUnblock_ClearsPreviousBlockInfo()
+    public async Task UnblockFromSyncAsync_ClearsPreviousBlockInfo()
     {
         var service = CreateService();
         var projectId = Guid.NewGuid();
@@ -150,11 +152,11 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
         CreateTestProjectFolder(project2, "P2");
 
         await service.BlockFromSyncAsync(project1, "Blocked");
-        var project1Blocked = await service.IsBlockedFromSyncAsync(project1);
-        var project2Blocked = await service.IsBlockedFromSyncAsync(project2);
+        var project1Info = await service.GetSyncBlockInfoAsync(project1);
+        var project2Info = await service.GetSyncBlockInfoAsync(project2);
 
-        project1Blocked.Should().BeTrue();
-        project2Blocked.Should().BeFalse();
+        project1Info?.IsBlocked.Should().BeTrue();
+        project2Info.Should().BeNull();
     }
 
     [Fact]
@@ -170,11 +172,10 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
 
         // Check with second instance
         var service2 = CreateService();
-        var isBlocked = await service2.IsBlockedFromSyncAsync(projectId);
         var blockInfo = await service2.GetSyncBlockInfoAsync(projectId);
 
-        isBlocked.Should().BeTrue();
         blockInfo.Should().NotBeNull();
+        blockInfo.IsBlocked.Should().BeTrue();
         blockInfo.Reason.Should().Be(reason);
     }
 
