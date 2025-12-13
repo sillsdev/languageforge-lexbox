@@ -90,6 +90,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
 
         // act
         await SyncService.Sync(CrdtApi, FwDataApi);
+        await SyncService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project);
 
         // assert - the fwdata ID is now used everywhere
         var updatedFwEntry = await FwDataApi.GetEntry(crdtEntry.Id);
@@ -156,6 +157,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
 
         // act
         await SyncService.Sync(CrdtApi, FwDataApi);
+        await SyncService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project);
 
         // assert - the fwdata ID is now used everywhere
         var updatedFwEntry = await FwDataApi.GetEntry(crdtEntry.Id);
