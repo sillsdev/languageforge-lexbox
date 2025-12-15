@@ -32,7 +32,7 @@ public static class MergeRoutes
     }
 
 
-    static async Task<Results<Ok, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
+    static async Task<Results<Ok, ProblemHttpResult>> ExecuteMergeRequest(
         SyncHostedService syncHostedService,
         ProjectLookupService projectLookupService,
         ProjectMetadataService metadataService,
@@ -49,11 +49,19 @@ public static class MergeRoutes
         {
             logger.LogError("Project ID {projectId} not found", projectId);
             activity?.SetStatus(ActivityStatusCode.Error, "Project not found");
-            return TypedResults.NotFound();
+            return TypedResults.Problem("Project not found", statusCode: StatusCodes.Status404NotFound);
         }
 
         logger.LogInformation("Project code is {projectCode}", projectCode);
         activity?.SetTag("app.project_code", projectCode);
+
+        //if we can't sync with lexbox fail fast
+        if (!await crdtHttpSyncService.TestAuth(httpClientFactory.CreateClient(FwHeadlessKernel.LexboxHttpClientName)))
+        {
+            logger.LogError("Unable to authenticate with Lexbox");
+            activity?.SetStatus(ActivityStatusCode.Error, "Unable to authenticate with Lexbox");
+            return TypedResults.Problem("Unable to authenticate with Lexbox", statusCode: StatusCodes.Status403Forbidden);
+        }
 
         // Check if project is blocked from syncing
         var blockInfo = await metadataService.GetSyncBlockInfoAsync(projectId);
@@ -64,13 +72,6 @@ public static class MergeRoutes
             return TypedResults.Problem($"Project is blocked from syncing. Reason: {blockInfo.Reason}", statusCode: StatusCodes.Status423Locked);
         }
 
-        //if we can't sync with lexbox fail fast
-        if (!await crdtHttpSyncService.TestAuth(httpClientFactory.CreateClient(FwHeadlessKernel.LexboxHttpClientName)))
-        {
-            logger.LogError("Unable to authenticate with Lexbox");
-            activity?.SetStatus(ActivityStatusCode.Error, "Unable to authenticate with Lexbox");
-            return TypedResults.Problem("Unable to authenticate with Lexbox", statusCode: StatusCodes.Status403Forbidden);
-        }
         syncHostedService.QueueJob(projectId);
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync job queued");
         return TypedResults.Ok();

@@ -1,23 +1,28 @@
 using System.Net;
+using System.Text.Json;
 using LexCore.Exceptions;
 using LexCore.Sync;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LexBoxApi.Services;
 
 public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> logger)
 {
-    public async Task<(bool success, HttpStatusCode statusCode)> SyncMercurialAndHarmony(Guid projectId)
+    public async Task<(bool success, HttpStatusCode statusCode, string? error)> SyncMercurialAndHarmony(Guid projectId)
     {
         var response = await httpClient.PostAsync($"/api/merge/execute?projectId={projectId}", null);
+        string? error = null;
         if (!response.IsSuccessStatusCode)
         {
             logger.LogError("Failed to sync Mercurial and Harmony: {StatusCode} {StatusDescription}, projectId: {ProjectId}",
                 response.StatusCode,
                 response.ReasonPhrase,
                 projectId);
+            var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            error = problemDetails?.Detail;
         }
 
-        return (response.IsSuccessStatusCode, response.StatusCode);
+        return (response.IsSuccessStatusCode, response.StatusCode, error);
     }
 
     public async Task<SyncJobResult> AwaitStatus(Guid projectId, CancellationToken cancellationToken = default)

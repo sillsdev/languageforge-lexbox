@@ -33,14 +33,14 @@ public class SyncController(
     public async Task<ActionResult> TriggerSync(Guid projectId)
     {
         if (!await permissionService.CanSyncProject(projectId)) return Forbid();
-        var (started, statusCode) = await fwHeadlessClient.SyncMercurialAndHarmony(projectId);
+        var (started, statusCode, error) = await fwHeadlessClient.SyncMercurialAndHarmony(projectId);
         if (!started)
         {
             return statusCode switch
             {
-                System.Net.HttpStatusCode.Locked => Problem("Project is blocked from syncing", statusCode: StatusCodes.Status423Locked),
-                System.Net.HttpStatusCode.NotFound => Problem("Project not found", statusCode: StatusCodes.Status404NotFound),
-                _ => Problem("Failed to trigger sync", statusCode: (int)statusCode)
+                System.Net.HttpStatusCode.Locked => Problem(error ?? "Project is blocked from syncing", statusCode: StatusCodes.Status423Locked),
+                System.Net.HttpStatusCode.NotFound => Problem(error ?? "Project not found", statusCode: StatusCodes.Status404NotFound),
+                _ => Problem(error ?? "Failed to trigger sync", statusCode: (int)statusCode)
             };
         }
         return Ok();
