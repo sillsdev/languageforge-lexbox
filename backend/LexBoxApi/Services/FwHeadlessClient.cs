@@ -18,8 +18,15 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.StatusCode,
                 response.ReasonPhrase,
                 projectId);
-            var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            error = problemDetails?.Detail;
+            try
+            {
+                var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(await response.Content.ReadAsStringAsync());
+                error = problemDetails?.Detail ?? problemDetails?.Title;
+            }
+            catch
+            {
+                error = response.ReasonPhrase;
+            }
         }
 
         return (response.IsSuccessStatusCode, response.StatusCode, error);
