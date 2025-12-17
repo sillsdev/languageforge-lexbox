@@ -58039,83 +58039,6 @@
       ]
     },
     {
-      "Id": "056df796-f9bb-4b07-a2de-6db782006f6d",
-      "DeletedAt": null,
-      "LexemeForm": {
-        "seh": "lungu"
-      },
-      "CitationForm": {
-        "seh": "Mulungu"
-      },
-      "LiteralMeaning": {},
-      "MorphType": "Root",
-      "Senses": [
-        {
-          "Id": "c4548c5d-eb50-42fc-aa93-d77c26546fad",
-          "Order": 1,
-          "DeletedAt": null,
-          "EntryId": "056df796-f9bb-4b07-a2de-6db782006f6d",
-          "Definition": {},
-          "Gloss": {
-            "en": "God",
-            "pt": "Deus"
-          },
-          "PartOfSpeech": {
-            "Id": "a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5",
-            "Name": {
-              "en": "Noun",
-              "pt": "Nome"
-            },
-            "DeletedAt": null,
-            "Predefined": true
-          },
-          "PartOfSpeechId": "a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5",
-          "SemanticDomains": [
-            {
-              "Id": "b60bf544-7774-4623-8c67-19b32b53dea2",
-              "Name": {
-                "en": "God"
-              },
-              "Code": "4.9.1",
-              "DeletedAt": null,
-              "Predefined": true
-            }
-          ],
-          "ExampleSentences": [
-            {
-              "Id": "4585f851-94bf-4e6e-95f0-5996704ff55e",
-              "Order": 1,
-              "Sentence": {},
-              "Translations": [],
-              "Reference": {
-                "Spans": [
-                  {
-                    "Text": "Moreira:24; Meque",
-                    "Ws": "en"
-                  }
-                ]
-              },
-              "SenseId": "c4548c5d-eb50-42fc-aa93-d77c26546fad",
-              "DeletedAt": null
-            }
-          ]
-        }
-      ],
-      "Note": {},
-      "Components": [],
-      "ComplexForms": [],
-      "ComplexFormTypes": [],
-      "PublishIn": [
-        {
-          "Id": "70c0a758-5901-4884-b992-94ca31087607",
-          "DeletedAt": null,
-          "Name": {
-            "en": "Main Dictionary"
-          }
-        }
-      ]
-    },
-    {
       "Id": "8aa9129e-e49c-459c-a5dc-f9f032f8f239",
       "DeletedAt": null,
       "LexemeForm": {
@@ -58202,6 +58125,83 @@
           "PartOfSpeechId": "a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5",
           "SemanticDomains": [],
           "ExampleSentences": []
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": [
+        {
+          "Id": "70c0a758-5901-4884-b992-94ca31087607",
+          "DeletedAt": null,
+          "Name": {
+            "en": "Main Dictionary"
+          }
+        }
+      ]
+    },
+    {
+      "Id": "056df796-f9bb-4b07-a2de-6db782006f6d",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "seh": "lungu"
+      },
+      "CitationForm": {
+        "seh": "Mulungu"
+      },
+      "LiteralMeaning": {},
+      "MorphType": "Root",
+      "Senses": [
+        {
+          "Id": "c4548c5d-eb50-42fc-aa93-d77c26546fad",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "056df796-f9bb-4b07-a2de-6db782006f6d",
+          "Definition": {},
+          "Gloss": {
+            "en": "God",
+            "pt": "Deus"
+          },
+          "PartOfSpeech": {
+            "Id": "a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5",
+            "Name": {
+              "en": "Noun",
+              "pt": "Nome"
+            },
+            "DeletedAt": null,
+            "Predefined": true
+          },
+          "PartOfSpeechId": "a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5",
+          "SemanticDomains": [
+            {
+              "Id": "b60bf544-7774-4623-8c67-19b32b53dea2",
+              "Name": {
+                "en": "God"
+              },
+              "Code": "4.9.1",
+              "DeletedAt": null,
+              "Predefined": true
+            }
+          ],
+          "ExampleSentences": [
+            {
+              "Id": "4585f851-94bf-4e6e-95f0-5996704ff55e",
+              "Order": 1,
+              "Sentence": {},
+              "Translations": [],
+              "Reference": {
+                "Spans": [
+                  {
+                    "Text": "Moreira:24; Meque",
+                    "Ws": "en"
+                  }
+                ]
+              },
+              "SenseId": "c4548c5d-eb50-42fc-aa93-d77c26546fad",
+              "DeletedAt": null
+            }
+          ]
         }
       ],
       "Note": {},
