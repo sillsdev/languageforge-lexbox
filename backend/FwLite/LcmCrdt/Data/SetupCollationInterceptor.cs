@@ -63,7 +63,14 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         //setup general use collation
         sqliteConnection.CreateCollation(SqlSortingExtensions.CollateUnicodeNoCase,
             CultureInfo.CurrentCulture.CompareInfo,
-            (compareInfo, x, y) => compareInfo.Compare(x, y, CompareOptions.IgnoreCase));
+            (compareInfo, x, y) =>
+            {
+                var caseInsensitiveResult = compareInfo.Compare(x, y, CompareOptions.IgnoreCase);
+                if (caseInsensitiveResult != 0)
+                    return caseInsensitiveResult;
+                // When case-insensitively equal, sort lowercase before uppercase
+                return compareInfo.Compare(x, y, CompareOptions.None);
+            });
     }
 
     public Task ConnectionOpenedAsync(DbConnection connection,
@@ -127,7 +134,14 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         //todo use custom comparison based on the writing system
         CreateSpanCollation(connection, SqlSortingExtensions.CollationName(writingSystem.WsId),
             compareInfo,
-            static (compareInfo, x, y) => compareInfo.Compare(x, y, CompareOptions.IgnoreCase));
+            static (compareInfo, x, y) =>
+            {
+                var caseInsensitiveResult = compareInfo.Compare(x, y, CompareOptions.IgnoreCase);
+                if (caseInsensitiveResult != 0)
+                    return caseInsensitiveResult;
+                // When case-insensitively equal, sort lowercase before uppercase
+                return compareInfo.Compare(x, y, CompareOptions.None);
+            });
     }
 
     //this is a premature optimization, but it avoids creating strings for each comparison and instead uses spans which avoids allocations
