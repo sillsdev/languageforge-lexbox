@@ -134,6 +134,14 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file, crdtConfig.Value.JsonSerializerOptions);
     }
 
+    public async Task<bool> RegenerateProjectSnapshotAtCommit(FwDataProject project, Guid commitId, SnapshotAtCommitService snapshotService)
+    {
+        var snapshot = await snapshotService.GetProjectSnapshotAtCommit(commitId);
+        if (snapshot is null) return false;
+        await SaveProjectSnapshot(project, snapshot);
+        return true;
+    }
+
     public async Task RegenerateProjectSnapshot(IMiniLcmApi crdtApi, FwDataProject project)
     {
         if (crdtApi is not CrdtMiniLcmApi)

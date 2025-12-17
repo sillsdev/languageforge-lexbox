@@ -103,9 +103,11 @@ public static class MergeRoutes
 
     static async Task<Results<Ok, NotFound<string>>> RegenerateProjectSnapshot(
         Guid projectId,
+        Guid? commitId,
         CurrentProjectService projectContext,
         ProjectLookupService projectLookupService,
         CrdtFwdataProjectSyncService syncService,
+        SnapshotAtCommitService snapshotAtCommitService,
         IOptions<FwHeadlessConfig> config,
         HttpContext context
     )
@@ -126,8 +128,19 @@ public static class MergeRoutes
             return TypedResults.NotFound("Project not found");
         }
 
-        var miniLcmApi = context.RequestServices.GetRequiredService<IMiniLcmApi>();
-        await syncService.RegenerateProjectSnapshot(miniLcmApi, config.Value.GetFwDataProject(projectId));
+        var fwDataProject = config.Value.GetFwDataProject(projectId);
+        if (commitId.HasValue)
+        {
+            if (!await syncService.RegenerateProjectSnapshotAtCommit(fwDataProject, commitId.Value, snapshotAtCommitService))
+            {
+                return TypedResults.NotFound($"Commit {commitId} not found");
+            }
+        }
+        else
+        {
+            var miniLcmApi = context.RequestServices.GetRequiredService<IMiniLcmApi>();
+            await syncService.RegenerateProjectSnapshot(miniLcmApi, fwDataProject);
+        }
         return TypedResults.Ok();
     }
 

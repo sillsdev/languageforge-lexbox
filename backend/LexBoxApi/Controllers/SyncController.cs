@@ -90,17 +90,22 @@ public class SyncController(
         }
     }
 
+    /// <summary>
+    /// Regenerates the project snapshot (the JSON representation of the project data used by the frontend).
+    /// </summary>
+    /// <param name="projectId">The project ID</param>
+    /// <param name="commitId">Optional. If provided, the snapshot will be regenerated based on the state of the project at this specific commit. Subsequent commits will be ignored.</param>
     [HttpPost("regenerate-snapshot/{projectId}")]
     [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> RegenerateProjectSnapshot(Guid projectId)
+    public async Task<IActionResult> RegenerateProjectSnapshot(Guid projectId, [FromQuery] Guid? commitId = null)
     {
         await permissionService.AssertCanSyncProject(projectId);
         try
         {
-            var result = await fwHeadlessClient.RegenerateProjectSnapshot(projectId);
+            var result = await fwHeadlessClient.RegenerateProjectSnapshot(projectId, commitId);
             if (result is not null)
             {
                 return Problem(result);

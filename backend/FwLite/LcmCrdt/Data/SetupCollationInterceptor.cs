@@ -97,6 +97,9 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         {
             if (entityEntry.State is EntityState.Added or EntityState.Modified)
             {
+                // The connection might not yet be open if ef is just getting ready to save stuff
+                if (connection.State != ConnectionState.Open) connection.Open();
+
                 var writingSystem = entityEntry.Entity;
                 SetupCollation(connection, writingSystem);
                 updateWs = true;

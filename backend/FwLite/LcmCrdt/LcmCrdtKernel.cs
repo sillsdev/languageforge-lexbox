@@ -51,6 +51,7 @@ public static class LcmCrdtKernel
 
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
+        services.AddScoped<SnapshotAtCommitService>();
         services.AddSingleton<SetupCollationInterceptor>();
         services.AddDbContextFactory<LcmCrdtDbContext>(ConfigureDbOptions, ServiceLifetime.Scoped);
         services.RemoveAll<LcmCrdtDbContext>();//we don't want to be able to inject these directly as they will leak.

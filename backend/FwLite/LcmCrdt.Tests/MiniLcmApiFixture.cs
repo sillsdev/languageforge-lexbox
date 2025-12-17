@@ -47,7 +47,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 
     public async Task InitializeAsync(string projectName)
     {
-        var db = $"file:{Guid.NewGuid():N}?mode=memory&cache=shared" ;
+        var db = $"file:{Guid.NewGuid():N}?mode=memory&cache=shared";
         if (Debugger.IsAttached)
         {
             db = "test.db";
@@ -66,12 +66,14 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
                 .SetMinimumLevel(LogLevel.Error))
             .BuildServiceProvider();
         _services = services.CreateAsyncScope();
+        var currentProjectService = _services.ServiceProvider.GetRequiredService<CurrentProjectService>();
+        currentProjectService.SetupProjectContextForNewDb(crdtProject);
         _crdtDbContext = await _services.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await _crdtDbContext.Database.OpenConnectionAsync();
         //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
         await CrdtProjectsService.InitProjectDb(_crdtDbContext,
             new ProjectData("Sena 3", projectName, Guid.NewGuid(), null, Guid.NewGuid()));
-        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().RefreshProjectData();
+        await currentProjectService.RefreshProjectData();
         if (_seedWs)
         {
             await Api.CreateWritingSystem(new WritingSystem()

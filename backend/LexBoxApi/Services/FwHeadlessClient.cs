@@ -98,9 +98,12 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         throw new InvalidOperationException($"Failed to delete project {projectId}: {response.StatusCode} {response.ReasonPhrase}");
     }
 
-    public async Task<string?> RegenerateProjectSnapshot(Guid projectId)
+    public async Task<string?> RegenerateProjectSnapshot(Guid projectId, Guid? commitId = null)
     {
-        var response = await httpClient.PostAsync($"/api/merge/regenerate-snapshot?projectId={projectId}", null);
+        var url = $"/api/merge/regenerate-snapshot?projectId={projectId}";
+        if (commitId.HasValue)
+            url += $"&commitId={commitId.Value}";
+        var response = await httpClient.PostAsync(url, null);
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();

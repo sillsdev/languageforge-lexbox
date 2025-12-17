@@ -17,10 +17,17 @@ public static class LcmCrdtTestsKernel
         services.Configure<LcmCrdtConfig>(config => config.EnableProjectDataFileCache = false);
         if (project is not null)
         {
-            services.AddScoped<CurrentProjectService>(provider =>
+            var initializedNewDb = false;
+            services.AddScoped(provider =>
             {
                 var currentProjectService = ActivatorUtilities.CreateInstance<CurrentProjectService>(provider);
-                currentProjectService.SetupProjectContextForNewDb(project);
+                if (!initializedNewDb)
+                {
+                    // this init code is practical in most cases, but if it happens a second time,
+                    // we assume the code intentionally created a seperate scope that it will explicitly initialize
+                    currentProjectService.SetupProjectContextForNewDb(project);
+                    initializedNewDb = true;
+                }
                 return currentProjectService;
             });
         }
