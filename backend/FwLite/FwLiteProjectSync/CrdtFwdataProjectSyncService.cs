@@ -54,7 +54,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
             //note we are now using the crdt API, this avoids issues where some data isn't synced yet
             //later when we add the ability to sync that data we need the snapshot to reflect the synced state, not what was in the FW project
             //related to https://github.com/sillsdev/languageforge-lexbox/issues/1912
-            await RegenerateProjectSnapshot(crdtApi, fwdataApi.Project);
+            await RegenerateProjectSnapshot(crdtApi, fwdataApi.Project, keepBackup: false);
         }
         return result;
     }
@@ -134,24 +134,41 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file, crdtConfig.Value.JsonSerializerOptions);
     }
 
+    // private so that all public calls always result in a backup being kept.
+    // This should happen rarely and it fairly critical.
+    private async Task RegenerateProjectSnapshot(IMiniLcmApi crdtApi, FwDataProject project, bool keepBackup)
+    {
+        if (crdtApi is not CrdtMiniLcmApi)
+            throw new InvalidOperationException("CrdtApi must be of type CrdtMiniLcmApi to regenerate project snapshot.");
+        await SaveProjectSnapshot(project, await crdtApi.TakeProjectSnapshot(), keepBackup);
+    }
+
     public async Task<bool> RegenerateProjectSnapshotAtCommit(FwDataProject project, Guid commitId, SnapshotAtCommitService snapshotService)
     {
         var snapshot = await snapshotService.GetProjectSnapshotAtCommit(commitId);
         if (snapshot is null) return false;
-        await SaveProjectSnapshot(project, snapshot);
+        await SaveProjectSnapshot(project, snapshot, keepBackup: true);
         return true;
     }
 
     public async Task RegenerateProjectSnapshot(IMiniLcmApi crdtApi, FwDataProject project)
     {
-        if (crdtApi is not CrdtMiniLcmApi)
-            throw new InvalidOperationException("CrdtApi must be of type CrdtMiniLcmApi to regenerate project snapshot.");
-        await SaveProjectSnapshot(project, await crdtApi.TakeProjectSnapshot());
+        await RegenerateProjectSnapshot(crdtApi, project, keepBackup: true);
     }
 
-    internal static async Task SaveProjectSnapshot(FwDataProject project, ProjectSnapshot projectSnapshot)
+    internal static async Task SaveProjectSnapshot(FwDataProject project, ProjectSnapshot projectSnapshot, bool keepBackup = false)
     {
         var snapshotPath = SnapshotPath(project);
+
+        if (keepBackup && File.Exists(snapshotPath))
+        {
+            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            var backupPath = Path.Combine(
+                Path.GetDirectoryName(snapshotPath)!,
+                $"{Path.GetFileNameWithoutExtension(snapshotPath)}_backup_{timestamp}.json");
+            File.Copy(snapshotPath, backupPath);
+        }
+
         await using var file = File.Create(snapshotPath);
         //not using our serialization options because we don't want to exclude MiniLcmInternal
         await JsonSerializer.SerializeAsync(file, projectSnapshot);
