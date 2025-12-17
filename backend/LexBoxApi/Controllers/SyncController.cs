@@ -95,17 +95,22 @@ public class SyncController(
     /// </summary>
     /// <param name="projectId">The project ID</param>
     /// <param name="commitId">Optional. If provided, the snapshot will be regenerated based on the state of the project at this specific commit. Subsequent commits will be ignored.</param>
+    /// <param name="preserveAllFieldWorksCommits">
+    /// Optional. If true, FieldWorks commits after the specified commit will be preserved in the snapshot.
+    /// This makes sense, because any FieldWorks commits that have made it into the FWLite project have clearly been successfully synced,
+    /// which is what the snapshot is intended to represent.
+    /// </param>
     [HttpPost("regenerate-snapshot/{projectId}")]
     [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> RegenerateProjectSnapshot(Guid projectId, [FromQuery] Guid? commitId = null)
+    public async Task<IActionResult> RegenerateProjectSnapshot(Guid projectId, [FromQuery] Guid? commitId = null, [FromQuery] bool preserveAllFieldWorksCommits = false)
     {
         await permissionService.AssertCanSyncProject(projectId);
         try
         {
-            var result = await fwHeadlessClient.RegenerateProjectSnapshot(projectId, commitId);
+            var result = await fwHeadlessClient.RegenerateProjectSnapshot(projectId, commitId, preserveAllFieldWorksCommits);
             if (result is not null)
             {
                 return Problem(result);

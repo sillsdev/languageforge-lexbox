@@ -143,9 +143,9 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         await SaveProjectSnapshot(project, await crdtApi.TakeProjectSnapshot(), keepBackup);
     }
 
-    public async Task<bool> RegenerateProjectSnapshotAtCommit(FwDataProject project, Guid commitId, SnapshotAtCommitService snapshotService)
+    public async Task<bool> RegenerateProjectSnapshotAtCommit(SnapshotAtCommitService snapshotService, FwDataProject project, Guid commitId, bool preserveAllFieldWorksCommits = false)
     {
-        var snapshot = await snapshotService.GetProjectSnapshotAtCommit(commitId);
+        var snapshot = await snapshotService.GetProjectSnapshotAtCommit(commitId, preserveAllFieldWorksCommits);
         if (snapshot is null) return false;
         await SaveProjectSnapshot(project, snapshot, keepBackup: true);
         return true;

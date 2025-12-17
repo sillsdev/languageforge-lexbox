@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using SIL.Harmony;
 using SIL.Harmony.Db;
 using SIL.Harmony.Core;
-using Commit = SIL.Harmony.Commit;
+using LinqToDB.EntityFrameworkCore;
 
 namespace LcmCrdt;
 
@@ -20,7 +20,7 @@ public class SnapshotAtCommitService(
     ICrdtDbContextFactory crdtDbContextFactory)
 {
     private static readonly ActivitySource _activitySource = new("LcmCrdt.SnapshotAtCommitService");
-    public async Task<ProjectSnapshot?> GetProjectSnapshotAtCommit(Guid commitId)
+    public async Task<ProjectSnapshot?> GetProjectSnapshotAtCommit(Guid commitId, bool preserveAllFieldWorksCommits = false)
     {
         using var activity = _activitySource.StartActivity();
         activity?.SetTag("app.commit_id", commitId);
@@ -48,11 +48,12 @@ public class SnapshotAtCommitService(
 
             // could pull this out of the new scope, but it's nice making it so explicit,
             // because deleting commits is kinda risky business 🕵️‍♂️
-            var options = new DbContextOptionsBuilder<LcmCrdtDbContext>()
-                .UseSqlite($"Data Source={forkDbPath}").Options;
-            ICrdtDbContext forkDbContext = new LcmCrdtDbContext(options, crdtConfig);
+            var optionsBuilder = new DbContextOptionsBuilder<LcmCrdtDbContext>()
+                .UseSqlite($"Data Source={forkDbPath}");
+            LcmCrdtKernel.ConfigureDbOptions(serviceScope.ServiceProvider, optionsBuilder);
+            ICrdtDbContext forkDbContext = new LcmCrdtDbContext(optionsBuilder.Options, crdtConfig);
 
-            var deleted = await DeleteCommitsAfter(forkDbContext, commit);
+            var deleted = await DeleteCommitsAfter(forkDbContext, commit, preserveAllFieldWorksCommits);
             logger.LogInformation("Deleted {Deleted} commits after {CommitId}", deleted, commitId);
 
             var dataModel = serviceScope.ServiceProvider.GetRequiredService<DataModel>();
@@ -87,9 +88,15 @@ public class SnapshotAtCommitService(
         sourceConnection.BackupDatabase(destConnection);
     }
 
-    private async Task<int> DeleteCommitsAfter(ICrdtDbContext context, Commit targetCommit)
+    private async Task<int> DeleteCommitsAfter(ICrdtDbContext context, Commit targetCommit, bool preserveAllFieldWorksCommits)
     {
         var commitsToDelete = context.Commits.WhereAfter(targetCommit);
+        if (preserveAllFieldWorksCommits)
+        {
+            commitsToDelete = commitsToDelete.ToLinqToDB().Where(c =>
+            // JSON Sqlite gotcha: null != "FieldWorks" == false (apparently)
+            (Json.Value(c.Metadata, m => m.AuthorName) ?? "") != "FieldWorks");
+        }
         context.Set<Commit>().RemoveRange(commitsToDelete);
         await context.SaveChangesAsync();
         return commitsToDelete.Count();

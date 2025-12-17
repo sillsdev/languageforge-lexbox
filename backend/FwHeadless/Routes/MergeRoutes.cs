@@ -103,13 +103,14 @@ public static class MergeRoutes
 
     static async Task<Results<Ok, NotFound<string>>> RegenerateProjectSnapshot(
         Guid projectId,
-        Guid? commitId,
         CurrentProjectService projectContext,
         ProjectLookupService projectLookupService,
         CrdtFwdataProjectSyncService syncService,
         SnapshotAtCommitService snapshotAtCommitService,
         IOptions<FwHeadlessConfig> config,
-        HttpContext context
+        HttpContext context,
+        Guid? commitId = null,
+        bool preserveAllFieldWorksCommits = false
     )
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
@@ -131,7 +132,7 @@ public static class MergeRoutes
         var fwDataProject = config.Value.GetFwDataProject(projectId);
         if (commitId.HasValue)
         {
-            if (!await syncService.RegenerateProjectSnapshotAtCommit(fwDataProject, commitId.Value, snapshotAtCommitService))
+            if (!await syncService.RegenerateProjectSnapshotAtCommit(snapshotAtCommitService, fwDataProject, commitId.Value, preserveAllFieldWorksCommits))
             {
                 return TypedResults.NotFound($"Commit {commitId} not found");
             }

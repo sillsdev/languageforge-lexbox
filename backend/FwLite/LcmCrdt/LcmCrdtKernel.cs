@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Text.Json;
 using SIL.Harmony;
+using SIL.Harmony.Linq2db;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
@@ -95,7 +96,7 @@ public static class LcmCrdtKernel
         SqliteConnection.ClearAllPools();
     }
 
-    private static void ConfigureDbOptions(IServiceProvider provider, DbContextOptionsBuilder builder)
+    public static void ConfigureDbOptions(IServiceProvider provider, DbContextOptionsBuilder builder)
     {
         var projectContext = provider.GetRequiredService<CurrentProjectService>();
         projectContext.ValidateProjectScope();
@@ -104,6 +105,7 @@ public static class LcmCrdtKernel
 #endif
         builder.EnableDetailedErrors();
         builder.UseSqlite($"Data Source={projectContext.Project.DbPath}")
+            .UseLinqToDbCrdt(provider)
             .UseLinqToDB(optionsBuilder =>
             {
                 var mappingSchema = new MappingSchema();

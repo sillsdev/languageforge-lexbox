@@ -3,8 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 using SIL.Harmony.Db;
-using SIL.Harmony;
 using Microsoft.Data.Sqlite;
+using SIL.Harmony.Core;
 
 namespace LcmCrdt.Tests;
 
@@ -15,11 +15,6 @@ public class SnapshotAtCommitServiceTests(MiniLcmApiFixture fixture) : IClassFix
     private ICrdtDbContext DbContext => fixture.DbContext as ICrdtDbContext ?? throw new InvalidOperationException("DbContext is not ICrdtDbContext");
     private IMiniLcmApi Api => fixture.Api;
     private SnapshotAtCommitService Service => fixture.GetService<SnapshotAtCommitService>();
-
-    private async Task<Commit> GetLatestCommit()
-    {
-        return await DbContext.Commits.OrderByDescending(c => c.HybridDateTime.DateTime).FirstAsync();
-    }
 
     private void AssertSnapshotsAreEquivalentEqual(ProjectSnapshot expected, ProjectSnapshot actual)
     {
@@ -39,14 +34,14 @@ public class SnapshotAtCommitServiceTests(MiniLcmApiFixture fixture) : IClassFix
         var entry1 = await AutoFaker.EntryReadyForCreation(Api);
         await Api.CreateEntry(entry1);
 
-        var commit1 = await GetLatestCommit();
+        var commit1 = await DbContext.GetLatestCommit();
         var expectedSnapshot1 = await Api.TakeProjectSnapshot();
 
         // Act: Create entry 2
         var entry2 = await AutoFaker.EntryReadyForCreation(Api);
         await Api.CreateEntry(entry2);
 
-        var commit2 = await GetLatestCommit();
+        var commit2 = await DbContext.GetLatestCommit();
         commit2.Id.Should().NotBe(commit1.Id);
 
         // Get snapshot at commit 1
@@ -62,7 +57,7 @@ public class SnapshotAtCommitServiceTests(MiniLcmApiFixture fixture) : IClassFix
 
         // Verify original DB is unchanged
         await fixture.DataModel.RegenerateSnapshots();
-        var latestCommit = await GetLatestCommit();
+        var latestCommit = await DbContext.GetLatestCommit();
         latestCommit.Id.Should().Be(commit2.Id);
     }
 
@@ -73,7 +68,7 @@ public class SnapshotAtCommitServiceTests(MiniLcmApiFixture fixture) : IClassFix
         var entryBefore = await AutoFaker.EntryReadyForCreation(Api);
         await Api.CreateEntry(entryBefore);
 
-        var commitBefore = await GetLatestCommit();
+        var commitBefore = await DbContext.GetLatestCommit();
         var expectedSnapshot = await Api.TakeProjectSnapshot();
 
         // Act: Modify the entry
@@ -112,7 +107,7 @@ public class SnapshotAtCommitServiceTests(MiniLcmApiFixture fixture) : IClassFix
         var entry = await AutoFaker.EntryReadyForCreation(Api);
         await Api.CreateEntry(entry);
 
-        var commitBefore = await GetLatestCommit();
+        var commitBefore = await DbContext.GetLatestCommit();
         var expectedSnapshot = await Api.TakeProjectSnapshot();
 
         // Act: Delete the entry
@@ -156,7 +151,7 @@ public class SnapshotAtCommitServiceTests(MiniLcmApiFixture fixture) : IClassFix
         var entry2 = await AutoFaker.EntryReadyForCreation(Api);
         await Api.CreateEntry(entry2);
 
-        var latestCommit = await GetLatestCommit();
+        var latestCommit = await DbContext.GetLatestCommit();
         var expectedSnapshot = await Api.TakeProjectSnapshot();
 
         // Act: Get snapshot at latest commit
@@ -177,7 +172,7 @@ public class SnapshotAtCommitServiceTests(MiniLcmApiFixture fixture) : IClassFix
         var complexFormBefore = await AutoFaker.EntryReadyForCreation(Api);
         await Api.CreateEntry(complexFormBefore);
 
-        var commitBefore = await GetLatestCommit();
+        var commitBefore = await DbContext.GetLatestCommit();
         var expectedSnapshot = await Api.TakeProjectSnapshot();
 
         // Act: Add complex form relationship
@@ -209,6 +204,52 @@ public class SnapshotAtCommitServiceTests(MiniLcmApiFixture fixture) : IClassFix
         await fixture.DataModel.RegenerateSnapshots();
         var currentComponent = await Api.GetEntry(componentBefore.Id);
         currentComponent!.ComplexForms.FirstOrDefault(cf => cf.ComplexFormEntryId == complexFormAfter.Id).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task PreserveAllFieldWorksCommits_IncludesFieldWorksChangesInSnapshot()
+    {
+        // Arrange: Create entry before target commit
+        var entry1 = await AutoFaker.EntryReadyForCreation(Api);
+        await Api.CreateEntry(entry1);
+
+        var targetCommit = await DbContext.GetLatestCommit();
+
+        // Act: Create a FieldWorks commit after target
+        var entry2 = await AutoFaker.EntryReadyForCreation(Api);
+        await Api.CreateEntry(entry2);
+        var fwCommit = await DbContext.GetLatestCommit();
+
+        // Manually update the metadata to mark it as a FieldWorks commit
+        fwCommit.Metadata.AuthorName = "FieldWorks";
+        DbContext.Entry(fwCommit).Property(c => c.Metadata).IsModified = true;
+        await DbContext.SaveChangesAsync();
+
+        // Create a regular commit after the FieldWorks commit
+        var entry3 = await AutoFaker.EntryReadyForCreation(Api);
+        await Api.CreateEntry(entry3);
+        var regularCommit = await DbContext.GetLatestCommit();
+
+        // Get snapshot WITHOUT preserveAllFieldWorksCommits (should delete FieldWorks commit)
+        var snapshotDefault = await Service.GetProjectSnapshotAtCommit(targetCommit.Id, preserveAllFieldWorksCommits: false);
+
+        // Get snapshot WITH preserveAllFieldWorksCommits (should preserve FieldWorks commit)
+        var snapshotPreserved = await Service.GetProjectSnapshotAtCommit(targetCommit.Id, preserveAllFieldWorksCommits: true);
+
+        // Verify: snapshotDefault should only have entry1 (entry2 from FieldWorks commit was deleted)
+        snapshotDefault.Should().NotBeNull();
+        snapshotDefault.Entries.FirstOrDefault(e => e.Id == entry1.Id).Should().NotBeNull();
+        snapshotDefault.Entries.FirstOrDefault(e => e.Id == entry2.Id).Should().BeNull();
+        snapshotDefault.Entries.FirstOrDefault(e => e.Id == entry3.Id).Should().BeNull();
+
+        // Verify: snapshotPreserved should have entry1 and entry2 (FieldWorks commit preserved) but not entry3 (regular commit deleted)
+        snapshotPreserved.Should().NotBeNull();
+        snapshotPreserved.Entries.FirstOrDefault(e => e.Id == entry1.Id).Should().NotBeNull();
+        snapshotPreserved.Entries.FirstOrDefault(e => e.Id == entry2.Id).Should().NotBeNull();
+        snapshotPreserved.Entries.FirstOrDefault(e => e.Id == entry3.Id).Should().BeNull();
+
+        // Verify: The snapshots should be different
+        snapshotDefault.Should().NotBeEquivalentTo(snapshotPreserved);
     }
 }
 
@@ -305,7 +346,7 @@ public class SnapshotAtCommitServiceFileBasedTests : IAsyncLifetime
         await _api.CreateEntry(entry1);
 
         var dbContext = _dbContext as ICrdtDbContext;
-        var commit1 = await dbContext.Commits.OrderByDescending(c => c.HybridDateTime.DateTime).FirstAsync();
+        var commit1 = await dbContext.GetLatestCommit();
         var expectedSnapshot = await _api.TakeProjectSnapshot();
 
         // Act: Create second entry
@@ -331,5 +372,13 @@ public class SnapshotAtCommitServiceFileBasedTests : IAsyncLifetime
         File.Exists(_dbPath).Should().BeTrue();
         var fileInfo = new FileInfo(_dbPath);
         fileInfo.Length.Should().BeGreaterThan(0);
+    }
+}
+
+static file class SnapshotAtCommitServiceTestsExtensions
+{
+    public static async Task<Commit> GetLatestCommit(this ICrdtDbContext dbContext)
+    {
+        return await dbContext.Commits.DefaultOrderDescending().FirstAsync();
     }
 }

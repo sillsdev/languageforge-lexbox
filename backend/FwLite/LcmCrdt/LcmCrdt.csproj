@@ -28,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\harmony\src\SIL.Harmony\SIL.Harmony.csproj" />
+    <ProjectReference Include="..\..\harmony\src\SIL.Harmony.Linq2db\SIL.Harmony.Linq2db.csproj" />
     <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
   </ItemGroup>
 </Project>
