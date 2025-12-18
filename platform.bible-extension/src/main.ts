@@ -9,8 +9,6 @@ import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
 import { ProjectManagers } from './utils/project-managers';
 import * as webViewProviders from './web-views';
 
-let baseUrl: string;
-
 let fwLiteProcess: ChildProcessByStdio<Stream.Writable, Stream.Readable, Stream.Readable>;
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
@@ -45,7 +43,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Launch FieldWorks Lite and manage the api */
 
-  launchFwLiteWeb(context);
+  const baseUrl = launchFwLiteWeb(context);
   const fwLiteApi = new FwLiteApi(baseUrl);
 
   /* Set network services */
@@ -243,7 +241,8 @@ export async function deactivate(): Promise<boolean> {
   return await shutDownFwLite();
 }
 
-function launchFwLiteWeb(context: ExecutionActivationContext) {
+/** Launches the FieldWorks Lite Web process and returns its URL domain. */
+function launchFwLiteWeb(context: ExecutionActivationContext): string {
   const binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
     throw new Error('FieldWorks Lite requires createProcess elevated privileges');
@@ -252,7 +251,7 @@ function launchFwLiteWeb(context: ExecutionActivationContext) {
     throw new Error('FieldWorks Lite only supports launching on Windows for now');
   }
   // TODO: Instead of hardcoding the URL and port we should run it and find them in the output.
-  baseUrl = 'http://localhost:29348';
+  const baseUrl = 'http://localhost:29348';
 
   fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
@@ -279,6 +278,8 @@ function launchFwLiteWeb(context: ExecutionActivationContext) {
       logger.error(`[FwLiteWeb]: ${data.toString().trim()}`);
     });
   }
+
+  return baseUrl;
 }
 
 function shutDownFwLite(): Promise<boolean> {
@@ -335,7 +336,7 @@ function shutDownFwLite(): Promise<boolean> {
 
     fwLiteProcess.once('error', (error) => {
       logger.error('[FwLiteWeb]: shutdown failed with error', error);
-      // only kill if we're not waiting for a graceful shutdown
+      // Only kill if we're not waiting for a graceful shutdown.
       if (!timeoutId) killProcess('on error');
     });
 
