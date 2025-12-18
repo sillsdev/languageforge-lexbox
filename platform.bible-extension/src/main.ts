@@ -283,6 +283,8 @@ function launchFwLiteWeb(context: ExecutionActivationContext) {
 
 function shutDownFwLite(): Promise<boolean> {
   return new Promise((resolve) => {
+    logger.info('[FwLiteWeb]: shutting down process');
+
     let shutdownResolved = false;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
@@ -294,28 +296,29 @@ function shutDownFwLite(): Promise<boolean> {
       resolve(success);
     }
 
-    function resolveIfExited() {
+    function resolveIfExited(): boolean {
       // eslint-disable-next-line no-null/no-null
-      if (fwLiteProcess.exitCode !== null) {
-        resolveShutdown(fwLiteProcess.exitCode === 0);
-        return true;
+      if (fwLiteProcess.exitCode === null) {
+        return false;
       }
-      return false;
+
+      logger.info('[FwLiteWeb]: process already exited');
+      resolveShutdown(fwLiteProcess.exitCode === 0);
+      return true;
     }
 
-    if (resolveIfExited()) {
-      logger.info('[FwLiteWeb]: process already exited');
-    }
+    resolveIfExited();
 
     function killProcess(reason: string) {
+      logger.info('[FwLiteWeb]: killing process', reason);
       if (resolveIfExited()) return;
 
       const killed = fwLiteProcess.kill('SIGKILL');
       if (!killed) {
-        logger.error(`[FwLiteWeb]: failed to kill process ${reason}`);
+        logger.error('[FwLiteWeb]: failed to kill process', reason);
         resolveShutdown(false);
       } else {
-        logger.warn(`[FwLiteWeb]: force killed process ${reason}`);
+        logger.warn('[FwLiteWeb]: force killed process', reason);
         resolveShutdown(true);
       }
     }
@@ -331,7 +334,7 @@ function shutDownFwLite(): Promise<boolean> {
     });
 
     fwLiteProcess.once('error', (error) => {
-      logger.error(`[FwLiteWeb]: shutdown failed with error: ${error}`);
+      logger.error('[FwLiteWeb]: shutdown failed with error', error);
       // only kill if we're not waiting for a graceful shutdown
       if (!timeoutId) killProcess('on error');
     });
@@ -347,9 +350,9 @@ function shutDownFwLite(): Promise<boolean> {
       fwLiteProcess.stdin.end();
       timeoutId = setTimeout(() => {
         killProcess('after shutdown timeout');
-      }, 10000);
+      }, 1400); // On shutdown, the extension host only waits 1.5 seconds before force killing us.
     } catch (error) {
-      logger.error(`[FwLiteWeb]: failed to send shutdown command: ${error}`);
+      logger.error('[FwLiteWeb]: failed to send shutdown command', error);
       killProcess('after failed shutdown command');
     }
   });
