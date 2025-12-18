@@ -53,6 +53,10 @@ export default function DictionaryList({
     return dictionaryData.find((entry) => entry.id === selectedEntryId);
   }, [dictionaryData, selectedEntryId]);
 
+  const clearSelectedEntry = () => {
+    setSelectedEntryId(undefined);
+  };
+
   const handleOptionSelect = (option: ListboxOption) => {
     setSelectedEntryId((prevId) => (prevId === option.id ? undefined : option.id));
   };
@@ -123,7 +127,7 @@ export default function DictionaryList({
               isDrawer={false}
               analysisLanguage={analysisLanguage}
               dictionaryEntry={selectedEntry}
-              handleBackToListButton={handleOptionSelect}
+              handleBackToListButton={clearSelectedEntry}
               onClickScrollToTop={scrollToTop}
               onClickSemanticDomain={onClickSemanticDomain}
               vernacularLanguage={vernacularLanguage}
@@ -144,7 +148,7 @@ export default function DictionaryList({
                   isDrawer
                   analysisLanguage={analysisLanguage}
                   dictionaryEntry={selectedEntry}
-                  handleBackToListButton={() => setSelectedEntryId(undefined)}
+                  handleBackToListButton={clearSelectedEntry}
                   onClickScrollToTop={scrollToTop}
                   onClickSemanticDomain={onClickSemanticDomain}
                   vernacularLanguage={vernacularLanguage}
