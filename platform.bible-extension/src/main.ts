@@ -214,10 +214,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   /* Register awaited unsubscribers (do this last, to not hold up anything else) */
 
   context.registrations.add(
-    () => {
-      console.error('FieldWorks Lite unsubscribing!');
-      return true;
-    },
     // WebViews
     await mainWebViewProviderPromise,
     await addWordWebViewProviderPromise,
@@ -240,11 +236,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   logger.info('FieldWorks Lite is finished activating!');
-  console.error('FieldWorks Lite is finished activating!');
 }
 
 export async function deactivate(): Promise<boolean> {
-  console.error('FieldWorks Lite is deactivating!');
+  logger.info('FieldWorks Lite is deactivating!');
   return await shutDownFwLite();
 }
 
