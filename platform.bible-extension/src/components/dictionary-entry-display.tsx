@@ -3,13 +3,7 @@
 import { useLocalizedStrings } from '@papi/frontend/react';
 import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'fw-lite-extension';
 import { ChevronUpIcon } from 'lucide-react';
-import {
-  Button,
-  DrawerDescription,
-  DrawerTitle,
-  Separator,
-  ListboxOption,
-} from 'platform-bible-react';
+import { Button, DrawerDescription, DrawerTitle, Separator } from 'platform-bible-react';
 import BackToListButton from './back-to-list-button';
 import DomainsDisplay from './domains-display';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
@@ -28,7 +22,7 @@ export type DictionaryEntryDisplayProps = DictionaryLanguages & {
   /** Whether the display is in a drawer or just next to the list */
   isDrawer: boolean;
   /** Callback function to handle back button click, returning to the list view */
-  handleBackToListButton?: (option: ListboxOption) => void;
+  handleBackToListButton?: () => void;
   /** Callback function to handle scroll to top */
   onClickScrollToTop: () => void;
   /** Callback function to handle click on a semantic domain */
@@ -55,10 +49,19 @@ export default function DictionaryEntryDisplay({
   const TitleComponent = isDrawer ? DrawerTitle : 'span';
   const DescriptionComponent = isDrawer ? DrawerDescription : 'span';
 
+  /** If domain is clicked, call the provided callback then close the drawer. */
+  const onClickDomain = onClickSemanticDomain
+    ? (domain: ISemanticDomain) => {
+        onClickSemanticDomain(domain);
+        if (isDrawer) {
+          handleBackToListButton?.();
+        }
+      }
+    : undefined;
+
   return (
     <>
       <BackToListButton
-        dictionaryEntry={dictionaryEntry}
         isDrawer={isDrawer}
         localizedStrings={localizedStrings}
         handleBackToListButton={handleBackToListButton}
@@ -109,7 +112,7 @@ export default function DictionaryEntryDisplay({
               <DomainsDisplay
                 analysisLanguage={analysisLanguage}
                 domains={sense.semanticDomains}
-                onClickDomain={onClickSemanticDomain}
+                onClickDomain={onClickDomain}
               />
             </div>
           ))}

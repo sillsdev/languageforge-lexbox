@@ -1,16 +1,13 @@
 // Modified from paranext-core/extensions/src/components/dictionary/back-to-list-button.component.tsx
 
-import type { IEntry } from 'fw-lite-extension';
 import { ArrowLeft } from 'lucide-react';
-import { ListboxOption, Button, DrawerClose } from 'platform-bible-react';
+import { Button, DrawerClose } from 'platform-bible-react';
 import { LanguageStrings } from 'platform-bible-utils';
 
 /** Props for the BackToListButton component */
 type BackToListButtonProps = {
   /** Callback function to handle back button click, returning to the list view */
-  handleBackToListButton?: (option: ListboxOption) => void;
-  /** Dictionary entry to display in the button */
-  dictionaryEntry: IEntry;
+  handleBackToListButton?: () => void;
   /** Whether the display is in a drawer or just next to the list */
   isDrawer: boolean;
   /** Localized strings for the button */
@@ -27,18 +24,13 @@ type BackToListButtonProps = {
  */
 export default function BackToListButton({
   handleBackToListButton,
-  dictionaryEntry,
   isDrawer,
   localizedStrings,
 }: BackToListButtonProps) {
   if (!handleBackToListButton) return undefined;
 
   const button = (
-    <Button
-      onClick={() => handleBackToListButton({ id: dictionaryEntry.id })}
-      className="tw-flex tw-items-center"
-      variant="link"
-    >
+    <Button className="tw-flex tw-items-center" onClick={handleBackToListButton} variant="link">
       <ArrowLeft className="tw-mr-1 tw-h-4 tw-w-4" />
       {localizedStrings['%fwLiteExtension_dictionary_backToList%']}
     </Button>

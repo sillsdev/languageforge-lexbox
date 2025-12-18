@@ -38,7 +38,12 @@ export default function DomainsDisplay({
           className="tw-rounded tw-bg-accent tw-px-2 tw-py-0.5 tw-text-xs tw-accent-foreground tw-flex tw-items-center tw-gap-1"
           disabled={!onClickDomain}
           key={domain.code}
-          onClick={() => onClickDomain?.(domain)}
+          onClick={(e) => {
+            if (onClickDomain) {
+              e.stopPropagation();
+              onClickDomain(domain);
+            }
+          }}
           type="button"
         >
           <Network className="tw-inline tw-mr-1 tw-h-3 tw-w-3" />
