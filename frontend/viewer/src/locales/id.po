@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-12-11 09:11\n"
+"PO-Revision-Date: 2025-12-19 14:44\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -1274,7 +1274,7 @@ msgstr "Pengaturan"
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
 msgid "Shadcn Sandbox # #"
-msgstr "Kotak Pasir Shadcn # #"
+msgstr "Shadcn Sandbox # #"
 
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
