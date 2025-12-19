@@ -1,11 +1,15 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
+import { ChildProcessByStdio } from 'child_process';
 import type { BrowseWebViewOptions } from 'fw-lite-extension';
+import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
 import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
 import { ProjectManagers } from './utils/project-managers';
 import * as webViewProviders from './web-views';
+
+let fwLiteProcess: ChildProcessByStdio<Stream.Writable, Stream.Readable, Stream.Readable>;
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('FieldWorks Lite is activating!');
@@ -39,7 +43,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Launch FieldWorks Lite and manage the api */
 
-  const { baseUrl, fwLiteProcess } = launchFwLiteWeb(context);
+  const baseUrl = launchFwLiteWeb(context);
   const fwLiteApi = new FwLiteApi(baseUrl);
 
   /* Set network services */
@@ -227,8 +231,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await fwDictionariesCommandPromise,
     // Services
     await entryService,
-    // Other cleanup
-    () => fwLiteProcess?.kill(),
   );
 
   logger.info('FieldWorks Lite is finished activating!');
@@ -236,10 +238,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
 export async function deactivate(): Promise<boolean> {
   logger.info('FieldWorks Lite is deactivating!');
-  return true;
+  return await shutDownFwLite();
 }
 
-function launchFwLiteWeb(context: ExecutionActivationContext) {
+/** Launches the FieldWorks Lite Web process and returns its URL domain. */
+function launchFwLiteWeb(context: ExecutionActivationContext): string {
   const binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
     throw new Error('FieldWorks Lite requires createProcess elevated privileges');
@@ -250,7 +253,7 @@ function launchFwLiteWeb(context: ExecutionActivationContext) {
   // TODO: Instead of hardcoding the URL and port we should run it and find them in the output.
   const baseUrl = 'http://localhost:29348';
 
-  const fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
+  fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
     [
@@ -260,8 +263,7 @@ function launchFwLiteWeb(context: ExecutionActivationContext) {
       '--FwLiteWeb:CorsAllowAny=true',
       '--FwLiteWeb:OpenBrowser=false',
     ],
-    // eslint-disable-next-line no-null/no-null
-    { stdio: [null, 'pipe', 'pipe'] },
+    { stdio: ['pipe', 'pipe', 'pipe'] },
   );
   fwLiteProcess.once('exit', (code, signal) => {
     logger.info(`[FwLiteWeb]: exited with code '${code}', signal '${signal}'`);
@@ -276,5 +278,83 @@ function launchFwLiteWeb(context: ExecutionActivationContext) {
       logger.error(`[FwLiteWeb]: ${data.toString().trim()}`);
     });
   }
-  return { baseUrl, fwLiteProcess };
+
+  return baseUrl;
+}
+
+function shutDownFwLite(): Promise<boolean> {
+  return new Promise((resolve) => {
+    logger.info('[FwLiteWeb]: shutting down process');
+
+    let shutdownResolved = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    function resolveShutdown(success: boolean) {
+      clearTimeout(timeoutId);
+      timeoutId = undefined;
+      if (shutdownResolved) return;
+      shutdownResolved = true;
+      resolve(success);
+    }
+
+    function resolveIfExited(): boolean {
+      // eslint-disable-next-line no-null/no-null
+      if (fwLiteProcess.exitCode === null) {
+        return false;
+      }
+
+      logger.info('[FwLiteWeb]: process already exited');
+      resolveShutdown(fwLiteProcess.exitCode === 0);
+      return true;
+    }
+
+    resolveIfExited();
+
+    function killProcess(reason: string) {
+      logger.info('[FwLiteWeb]: killing process', reason);
+      if (resolveIfExited()) return;
+
+      const killed = fwLiteProcess.kill('SIGKILL');
+      if (!killed) {
+        logger.error('[FwLiteWeb]: failed to kill process', reason);
+        resolveShutdown(false);
+      } else {
+        logger.warn('[FwLiteWeb]: force killed process', reason);
+        resolveShutdown(true);
+      }
+    }
+
+    fwLiteProcess.once('exit', (code, signal) => {
+      if (code === 0) {
+        logger.info('[FwLiteWeb]: shutdown successful');
+        resolveShutdown(true);
+      } else {
+        logger.error(`[FwLiteWeb]: shutdown failed with code '${code}', signal '${signal}'`);
+        resolveShutdown(false);
+      }
+    });
+
+    fwLiteProcess.once('error', (error) => {
+      logger.error('[FwLiteWeb]: shutdown failed with error', error);
+      // Only kill if we're not waiting for a graceful shutdown.
+      if (!timeoutId) killProcess('on error');
+    });
+
+    if (!fwLiteProcess.stdin) {
+      logger.error('[FwLiteWeb]: shutdown failed because stdin is unavailable');
+      killProcess('because stdin is unavailable');
+      return;
+    }
+
+    try {
+      fwLiteProcess.stdin.write('shutdown\n');
+      fwLiteProcess.stdin.end();
+      timeoutId = setTimeout(() => {
+        killProcess('after shutdown timeout');
+      }, 1400); // On shutdown, the extension host only waits 1.5 seconds before force killing us.
+    } catch (error) {
+      logger.error('[FwLiteWeb]: failed to send shutdown command', error);
+      killProcess('after failed shutdown command');
+    }
+  });
 }

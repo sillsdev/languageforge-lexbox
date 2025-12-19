@@ -20,6 +20,14 @@ await using (app)
         var url = app.Urls.First();
         LocalAppLauncher.LaunchBrowser(url);
     }
+    // Windows doesn't allow sending SIGINT to a process, so we need to listen for a shutdown command
+    _ = Task.Run(async () =>
+         {
+             // Wait for the "shutdown" command from stdin
+             while ((await Console.In.ReadLineAsync())?.Trim() is not ("shutdown" or null)) { }
+
+             await app.StopAsync();
+         });
 
     await app.WaitForShutdownAsync();
 }
