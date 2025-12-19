@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-12-11 09:11\n"
+"PO-Revision-Date: 2025-12-19 14:44\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -65,12 +65,12 @@ msgstr "{num, plural, other {#개 변경}}"
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
-msgstr "{num, plural, one {# 새 FieldWorks 클래식 커밋} other {# 새 FieldWorks 클래식 커밋}}"
+msgstr "{num, plural, other {# 새 FieldWorks Classic 커밋}}"
 
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
-msgstr "{num, plural, one {# 새 FieldWorks Lite 커밋} other {# 새 FieldWorks Lite 커밋}}"
+msgstr "{num, plural, other {# 새 FieldWorks Lite 커밋}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -1274,7 +1274,7 @@ msgstr "설정"
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
 msgid "Shadcn Sandbox # #"
-msgstr "Shadcn 샌드박스 # #"
+msgstr "Shadcn Sandbox # #"
 
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
@@ -1351,7 +1351,7 @@ msgstr "동기화 변경 사항"
 #. Success message showing change counts
 #: src/project/SyncDialog.svelte
 msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
-msgstr "동기화 완료. {0} 는 FieldWorks 클래식에 적용되었습니다. {1} 는 FieldWorks 라이트에 적용되었습니다."
+msgstr "동기화 완료. {0} 는 FieldWorks Classic에 적용되었습니다. {1} 는 FieldWorks Lite에 적용되었습니다."
 
 #. Section title
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1419,17 +1419,17 @@ msgstr "발생한 버그나 문제에 대해 알려주세요."
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
-msgstr "반면 *[FieldWorks 클래식* 뷰는 *[FieldWorks 언어 탐색기](https://software.sil.org/fieldworks/)*에 익숙한 사용자를 위해 설계되었습니다."
+msgstr "반면 *FieldWorks Classic* 뷰는 *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)* 에 익숙한 사용자를 위해 설계되었습니다."
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
-msgstr "필드웍스 라이트* 뷰는 언어 전문가가 아닌 사용자를 위해 설계되었으며 다음과 같은 점에서 필드웍스 클래식* 뷰와 다릅니다:"
+msgstr "*FieldWorks Lite* 뷰는 언어 전문가가 아닌 사용자를 위해 설계되었으며 다음과 같은 점에서 *FieldWorks Classic* 뷰와 다릅니다:"
 
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
-msgstr "FieldWorks 클래식 커밋 수가 동기화 결과 메시지에 표시되는 변경 사항 수와 반드시 일치하지는 않습니다."
+msgstr "FieldWorks Classic 커밋 수가 동기화 결과 메시지에 표시되는 변경 사항 수와 반드시 일치하지는 않습니다."
 
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
