@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-12-11 09:11\n"
+"PO-Revision-Date: 2025-12-19 14:44\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -65,12 +65,12 @@ msgstr "{num, plural, one {# changement} other {# changements}}"
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
-msgstr "{num, plural, one {# nouveau FieldWorks Classic commit} other {# nouveaux FieldWorks Classic commits}}"
+msgstr "{num, plural, one {# nouveau commit FieldWorks Classic} other {# nouveaux commits FieldWorks Classic}}"
 
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
-msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite communique}}"
+msgstr "{num, plural, one {# nouveau commit FieldWorks Lite} other {# nouveaux commits FieldWorks Lite}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -1434,7 +1434,7 @@ msgstr "Le nombre de commits FieldWorks Classic ne correspond pas nécessairemen
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
-msgstr "Le nombre de livraisons FieldWorks Lite ne correspond pas nécessairement au nombre de modifications affichées dans le message de résultat de synchronisation."
+msgstr "Le nombre de commits FieldWorks Lite ne correspond pas nécessairement au nombre de modifications affichées dans le message de résultat de synchronisation."
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
