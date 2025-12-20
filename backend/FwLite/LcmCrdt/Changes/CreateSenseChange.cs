@@ -35,6 +35,8 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
 
     public override async ValueTask<Sense> NewEntity(Commit commit, IChangeContext context)
     {
+        var partOfSpeech = PartOfSpeechId is null ? null : await context.GetCurrent<PartOfSpeech>(PartOfSpeechId.Value);
+        partOfSpeech = partOfSpeech is { DeletedAt: null } ? partOfSpeech : null;
         return new Sense
         {
             Id = EntityId,
@@ -42,7 +44,8 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
             Order = Order,
             Definition = Definition ?? new(),
             Gloss = Gloss ?? new MultiString(),
-            PartOfSpeechId = await context.DeletedAsNull(PartOfSpeechId),
+            PartOfSpeech = partOfSpeech,
+            PartOfSpeechId = partOfSpeech?.Id,
             SemanticDomains = await context.FilterDeleted(SemanticDomains ?? []).ToArrayAsync(),
             DeletedAt = await context.IsObjectDeleted(EntryId) ? commit.DateTime : (DateTime?)null
         };
