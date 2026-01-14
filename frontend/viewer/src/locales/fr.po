@@ -263,6 +263,11 @@ msgstr "Synchronisation automatique"
 msgid "Best match"
 msgstr "Meilleure correspondance"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "blue"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
@@ -766,6 +771,11 @@ msgstr "Filtrer # entrées"
 msgid "Filter # words"
 msgstr "Filtrer # mots"
 
+#. Filter dropdown label
+#: src/project/browse/filter/OpFilter.svelte
+msgid "Filter By"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
 #. Toggle button to show/hide search filter panel
@@ -851,6 +861,11 @@ msgstr "Naviguer à {0}"
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
 msgstr "Informations grammaticales."
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "green"
+msgstr ""
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1216,6 +1231,11 @@ msgstr "Ouvrir dans une nouvelle fenêtre"
 msgid "Open Log file"
 msgstr "Ouvrir le fichier journal"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "orange"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
 #. Column header
@@ -1342,6 +1362,11 @@ msgstr "Signaler un problème technique"
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "Évaluer"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "rose"
+msgstr ""
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1481,6 +1506,11 @@ msgstr "Champ spécifique"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Commence par"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "stone"
+msgstr ""
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1747,6 +1777,11 @@ msgstr "Version {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Voir"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "violet"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte

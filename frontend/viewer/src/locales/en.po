@@ -258,6 +258,11 @@ msgstr "Auto syncing"
 msgid "Best match"
 msgstr "Best match"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "blue"
+msgstr "blue"
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
@@ -761,6 +766,11 @@ msgstr "Filter # entries"
 msgid "Filter # words"
 msgstr "Filter # words"
 
+#. Filter dropdown label
+#: src/project/browse/filter/OpFilter.svelte
+msgid "Filter By"
+msgstr "Filter By"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
 #. Toggle button to show/hide search filter panel
@@ -846,6 +856,11 @@ msgstr "Go to {0}"
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
 msgstr "Grammatical info."
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "green"
+msgstr "green"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1211,6 +1226,11 @@ msgstr "Open in new Window"
 msgid "Open Log file"
 msgstr "Open Log file"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "orange"
+msgstr "orange"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
 #. Column header
@@ -1337,6 +1357,11 @@ msgstr "Report a technical problem"
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "Review"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "rose"
+msgstr "rose"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1476,6 +1501,11 @@ msgstr "Specific field"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Starts with"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "stone"
+msgstr "stone"
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1742,6 +1772,11 @@ msgstr "Version {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "View"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "violet"
+msgstr "violet"
 
 #. External link button text for help
 #: src/home/Server.svelte

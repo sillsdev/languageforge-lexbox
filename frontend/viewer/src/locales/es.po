@@ -263,6 +263,11 @@ msgstr "Sincronización automática"
 msgid "Best match"
 msgstr "Mejor partido"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "blue"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
@@ -766,6 +771,11 @@ msgstr "Filtrar # entradas"
 msgid "Filter # words"
 msgstr "Filtrar # palabras"
 
+#. Filter dropdown label
+#: src/project/browse/filter/OpFilter.svelte
+msgid "Filter By"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
 #. Toggle button to show/hide search filter panel
@@ -851,6 +861,11 @@ msgstr "Visite {0}"
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
 msgstr "Información gramatical."
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "green"
+msgstr ""
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1216,6 +1231,11 @@ msgstr "Abrir en una ventana nueva"
 msgid "Open Log file"
 msgstr "Abrir archivo Log"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "orange"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
 #. Column header
@@ -1342,6 +1362,11 @@ msgstr "Reportar un problema técnico"
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "Revisión"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "rose"
+msgstr ""
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1481,6 +1506,11 @@ msgstr "Campo específico"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Empieza por"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "stone"
+msgstr ""
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1747,6 +1777,11 @@ msgstr "Versión {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Ver"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "violet"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte
