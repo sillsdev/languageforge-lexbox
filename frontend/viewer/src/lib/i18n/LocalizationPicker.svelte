@@ -6,6 +6,7 @@
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {setLanguage} from '$lib/i18n';
   import {SidebarMenuButton} from '$lib/components/ui/sidebar';
+  import {locales} from './locales';
 
   type Props = {
     inSidebar?: boolean;
@@ -15,17 +16,7 @@
     inSidebar
   }: Props = $props();
 
-  const languages: Record<string, string> = {
-    'en': 'English',
-    'es': 'Español',
-    'fr': 'Français',
-    'id': 'Bahasa Indonesia',
-    'ko': '한국어',
-    'ms': 'Bahasa Malaysia, بهاس مليسيا',
-    'sw': 'Kiswahili',
-    'vi': 'Tiếng Việt',
-  };
-  const currentLanguage = $derived(languages[$locale] ?? 'Unknown: ' + $locale);
+  const currentLanguage = $derived(locales[$locale] ?? 'Unknown: ' + $locale);
 </script>
 
 <DropdownMenu.Root>
@@ -50,7 +41,7 @@
   </DropdownMenu.Trigger>
   <DropdownMenu.Content align="end">
     <DropdownMenu.RadioGroup bind:value={() => $locale, l => setLanguage(l)}>
-      {#each Object.entries(languages) as [lang, label] (lang)}
+      {#each Object.entries(locales) as [lang, label] (lang)}
         <DropdownMenu.RadioItem class="cursor-pointer" value={lang}>{label}</DropdownMenu.RadioItem>
       {/each}
     </DropdownMenu.RadioGroup>
