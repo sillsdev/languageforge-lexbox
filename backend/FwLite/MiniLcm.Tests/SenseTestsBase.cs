@@ -4,10 +4,13 @@ public abstract class SenseTestsBase : MiniLcmTestBase
 {
     private static readonly Guid _entryId = Guid.NewGuid();
     private static readonly Guid _senseId = Guid.NewGuid();
+    private static readonly Guid _nounPosId = Guid.NewGuid();
 
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();
+        var nounPos = new PartOfSpeech() { Id = _nounPosId, Name = { { "en", "Noun" } } };
+        await Api.CreatePartOfSpeech(nounPos);
         await Api.CreateEntry(new Entry()
         {
             Id = _entryId,
@@ -15,7 +18,9 @@ public abstract class SenseTestsBase : MiniLcmTestBase
             Senses = [new()
             {
                 Id = _senseId,
-                Gloss = { { "en", "new-sense-gloss" } }
+                Gloss = { { "en", "new-sense-gloss" } },
+                PartOfSpeech = nounPos,
+                PartOfSpeechId = _nounPosId,
             }]
         });
     }
@@ -33,6 +38,10 @@ public abstract class SenseTestsBase : MiniLcmTestBase
         var sense = await Api.GetSense(_entryId, _senseId);
         sense.Should().NotBeNull();
         sense.Gloss["en"].Should().Be("new-sense-gloss");
+        sense.PartOfSpeech.Should().NotBeNull();
+        sense.PartOfSpeech.Name["en"].Should().Be("Noun");
+        sense.PartOfSpeech.Id.Should().Be(_nounPosId);
+        sense.PartOfSpeechId.Should().Be(_nounPosId);
     }
 
     /// <summary>
