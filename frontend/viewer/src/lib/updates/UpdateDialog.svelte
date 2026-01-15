@@ -10,6 +10,7 @@
   import {useEventBus} from '$lib/services/event-bus';
   import {FwEventType, type IAppUpdateProgressEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events';
   import {downloadPageUrl, releaseNotesUrl} from './utils';
+  import Anchor from '$lib/components/ui/anchor/anchor.svelte';
 
   let {open = $bindable()}: { open: boolean } = $props();
   const config = useFwLiteConfig();
@@ -69,24 +70,26 @@
         {installProgress} />
 
       <div class="flex justify-center gap-3">
-        <a
-          class="inline-flex items-center flex-nowrap gap-1 text-sm font-medium underline underline-offset-4 hover:text-primary"
+        <Anchor
+          variant="text"
+          class="text-sm"
           href={downloadPageUrl}
           target="_blank"
           rel="noopener noreferrer"
         >
           {$t`Download page`}
           <Icon icon="i-mdi-open-in-new" class="size-4" />
-        </a>
-        <a
-          class="inline-flex items-center flex-nowrap gap-1 text-sm font-medium underline underline-offset-4 hover:text-primary"
+        </Anchor>
+        <Anchor
+          variant="text"
+          class="text-sm"
           href={releaseNotesUrl}
           target="_blank"
           rel="noopener noreferrer"
         >
           {$t`Release notes`}
           <Icon icon="i-mdi-open-in-new" class="size-4" />
-        </a>
+        </Anchor>
       </div>
     </div>
   </ResponsiveDialog>

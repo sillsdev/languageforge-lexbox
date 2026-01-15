@@ -5,6 +5,6 @@
   export let title: string | undefined = undefined;
 </script>
 
-<Anchor {href} {title} class="font-medium underline underline-offset-4 hover:text-primary">
+<Anchor {href} {title} variant="text">
   <slot />
 </Anchor>
