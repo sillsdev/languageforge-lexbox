@@ -24,3 +24,10 @@
 files:
   - source: "frontend/viewer/src/locales/en.po"
     translation: "frontend/viewer/src/locales/%two_letters_code%.po"
+
+# See: https://crowdin.com/project/language-depot/settings#project-pre-translate
+# for the languages that are currently MT pre-translated by Crowdin.
+# At the time of writing Crowdin Translate and DeepL Translator are the two configured MT engines.
+# The drop-down shows which languages we have that they support.
+# The complete list of languages the engines support can be viewed on the Machine Translation
+# at e.g. https://crowdin.com/profile/tim_haasdyk/machine-translation

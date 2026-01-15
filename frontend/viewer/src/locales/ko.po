@@ -263,6 +263,11 @@ msgstr "자동 동기화"
 msgid "Best match"
 msgstr "베스트 매치"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "blue"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
@@ -766,6 +771,11 @@ msgstr "필터링 항목 수"
 msgid "Filter # words"
 msgstr "필터 # 단어"
 
+#. Filter dropdown label
+#: src/project/browse/filter/OpFilter.svelte
+msgid "Filter By"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
 #. Toggle button to show/hide search filter panel
@@ -851,6 +861,11 @@ msgstr "{0}으로 이동"
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
 msgstr "문법 정보."
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "green"
+msgstr ""
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1033,6 +1048,10 @@ msgstr "누락된 품사"
 msgid "Missing: {0}"
 msgstr "누락되었습니다: {0}"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "Mode"
+msgstr ""
+
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "이동"
@@ -1212,6 +1231,11 @@ msgstr "새 창에서 열기"
 msgid "Open Log file"
 msgstr "로그 파일 열기"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "orange"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
 #. Column header
@@ -1338,6 +1362,11 @@ msgstr "기술 문제 신고하기"
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "검토"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "rose"
+msgstr ""
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1477,6 +1506,11 @@ msgstr "특정 필드"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "다음으로 시작"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "stone"
+msgstr ""
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1743,6 +1777,11 @@ msgstr "버전 {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "보기"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "violet"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte

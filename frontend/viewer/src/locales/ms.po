@@ -263,6 +263,11 @@ msgstr "Segerakkan automatik"
 msgid "Best match"
 msgstr "Padanan terbaik"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "blue"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
@@ -766,6 +771,11 @@ msgstr "Tapis # entri"
 msgid "Filter # words"
 msgstr "Tapis # perkataan"
 
+#. Filter dropdown label
+#: src/project/browse/filter/OpFilter.svelte
+msgid "Filter By"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
 #. Toggle button to show/hide search filter panel
@@ -851,6 +861,11 @@ msgstr "Pergi ke {0}"
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
 msgstr "Maklumat tatabahasa."
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "green"
+msgstr ""
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1033,6 +1048,10 @@ msgstr "Jenis Perkataan Tiada"
 msgid "Missing: {0}"
 msgstr "Hilang: {0}"
 
+#: src/lib/components/ThemePicker.svelte
+msgid "Mode"
+msgstr ""
+
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Gerak"
@@ -1212,6 +1231,11 @@ msgstr "Buka dalam Tetingkap baharu"
 msgid "Open Log file"
 msgstr "Buka fail Log"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "orange"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
 #. Column header
@@ -1338,6 +1362,11 @@ msgstr "Laporkan masalah teknikal"
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "Semak"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "rose"
+msgstr ""
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1477,6 +1506,11 @@ msgstr "Medan tertentu"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Bermula dengan"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "stone"
+msgstr ""
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1743,6 +1777,11 @@ msgstr "Versi {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Lihat"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "violet"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte

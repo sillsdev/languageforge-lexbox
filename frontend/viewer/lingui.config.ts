@@ -1,9 +1,12 @@
 import {jstsExtractor, svelteExtractor} from 'svelte-i18n-lingui/extractor';
 
 import {defineConfig} from '@lingui/cli';
+import {locales} from './src/lib/i18n/locales';
+
+const supportedLocales = Object.keys(locales);
 
 export default defineConfig({
-  locales: ['en', 'es', 'fr', 'id', 'ko', 'ms', 'sw'],
+  locales: supportedLocales,
   sourceLocale: 'en',
   catalogs: [
     {
