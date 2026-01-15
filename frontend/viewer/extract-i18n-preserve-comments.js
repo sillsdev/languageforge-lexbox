@@ -161,9 +161,11 @@ function restoreCommentsInFile(poPath) {
         i++;
       }
 
-      // Add in order: dev comments first, then other comments, then source comments
+      // Add in order: dev comments first, then other comments, then source comments (sorted)
       finalResult.push(...devComments);
       finalResult.push(...comments);
+      // Sort source comments alphabetically for consistency
+      srcComments.sort();
       finalResult.push(...srcComments);
 
       // Don't increment i or add the line again; we're already positioned for the next iteration
