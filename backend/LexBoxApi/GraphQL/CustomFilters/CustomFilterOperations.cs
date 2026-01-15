@@ -26,6 +26,10 @@ public static class CustomFilterOperations
         descriptor.AddProviderExtension(new QueryableFilterProviderExtension(y => y
                     .AddFieldHandler<QueryableStringDeterministicInvariantEqualsHandler>()));
 
+        // Add custom handler for FeatureFlags filtering
+        descriptor.AddProviderExtension(new QueryableFilterProviderExtension(y => y
+                    .AddFieldHandler<QueryableFeatureFlagsAnyHandler>()));
+
         return descriptor;
     }
 }
