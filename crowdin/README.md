@@ -13,28 +13,12 @@ Crowdin is configured to automatically pre-translate certain languages using MT 
 - Spanish (es)
 - Vietnamese (vi)
 
-**Needs Local AI Translation:**
-Any language supported by LexBox/FieldWorks Lite that is *not* in the list above must be translated locally (e.g., using AI-assisted scripts) before being pushed to Crowdin or committed.
+**Needs Local AI Translation (non-MT):**
+- Malay (ms)
+- Swahili (sw)
 
-## Workflow
-
-1.  **Extract strings:** Run `task i18n` in the `frontend/viewer` directory.
-2.  **Local AI Translation:** (If needed) Translate new strings for non-MT languages.
-3.  **Push to Crowdin:**
-    - **Sources:** `task c:crowdin -- push sources` (to upload new strings from `en.po`)
-    - **Translations:** `task c:crowdin -- push translations -l <lang_id>` (to upload local AI translations)
-    *Note: `push translations` only supports one language at a time.*
-4.  **Pull from Crowdin:** `task c:crowdin -- pull` (to get MT or human-reviewed translations)
-
-## Dry Run
-To see what would happen for both sources and a specific translation (defaults to Swahili):
-```bash
-task c:dryrun
-```
-To dry run a different language:
-```bash
-task c:dryrun LOCALE=<lang_id>
-```
+The workflow of adding context and doing AI translation is documented in/handled by:
+**[.github/prompts/fwlite-translations_full-update.prompt.md](../.github/prompts/fwlite-translations_full-update.prompt.md)**
 
 ## Resources
 
