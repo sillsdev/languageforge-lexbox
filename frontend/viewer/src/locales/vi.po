@@ -250,7 +250,7 @@ msgid "Author:"
 msgstr "Tác giả:"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Auto"
 msgstr "Tự động"
 
@@ -260,7 +260,7 @@ msgid "Auto syncing"
 msgstr "Đang đồng bộ tự động"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
 msgstr "Khớp tốt nhất"
 
@@ -896,7 +896,7 @@ msgstr ""
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Headword"
 msgstr "Từ đầu mục"
 
