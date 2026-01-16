@@ -36,6 +36,9 @@ catalogs:
     eslint:
       specifier: ^9.39.1
       version: 9.39.1
+    eslint-output:
+      specifier: ^4.0.2
+      version: 4.0.2
     eslint-plugin-svelte:
       specifier: ^3.13.0
       version: 3.13.0
@@ -249,6 +252,9 @@ importers:
       eslint:
         specifier: 'catalog:'
         version: 9.39.1(jiti@1.21.7)
+      eslint-output:
+        specifier: 'catalog:'
+        version: 4.0.2(eslint@9.39.1(jiti@1.21.7))
       eslint-plugin-svelte:
         specifier: 'catalog:'
         version: 3.13.0(eslint@9.39.1(jiti@1.21.7))(svelte@5.45.3)
@@ -502,6 +508,9 @@ importers:
       eslint:
         specifier: 'catalog:'
         version: 9.39.1(jiti@2.6.1)
+      eslint-output:
+        specifier: 'catalog:'
+        version: 4.0.2(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-storybook:
         specifier: 0.0.0-pr-32289-sha-5b7a0231
         version: 0.0.0-pr-32289-sha-5b7a0231(eslint@9.39.1(jiti@2.6.1))(storybook@0.0.0-pr-32289-sha-5b7a0231(@testing-library/dom@10.4.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.2.6(@types/node@24.10.1)(jiti@2.6.1)(yaml@2.8.2)))(typescript@5.9.3)
@@ -3029,6 +3038,10 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
+  add-filename-increment@1.0.0:
+    resolution: {integrity: sha512-pFV8VZX8jxuVMIycKvGZkWF/ihnUubu9lbQVnOnZWp7noVxbKQTNj7zG2y9fXdPcuZ6lAN3Drr517HaivGCjdQ==}
+    engines: {node: '>=8'}
+
   agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
@@ -3763,6 +3776,12 @@ packages:
   escape-string-regexp@5.0.0:
     resolution: {integrity: sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw==}
     engines: {node: '>=12'}
+
+  eslint-output@4.0.2:
+    resolution: {integrity: sha512-dVyF+ci61XWoFU7mXKeSq5XLKDJdqPgf1GQeGOn3L5rt31tAtvZrK1oIW+klWZ3YRpkskFgcB4DrBuPwhmFpdQ==}
+    hasBin: true
+    peerDependencies:
+      eslint: '>=9'
 
   eslint-plugin-storybook@0.0.0-pr-32289-sha-5b7a0231:
     resolution: {integrity: sha512-M29sSv+bWfZgRwdxHM1qdj1zY1Fe8S3oEAFIPOlG0g5J9uRve1tO4jBCiLV3yxsgiKAUURXeNErTlFqtfeu5PA==}
@@ -5786,6 +5805,10 @@ packages:
     resolution: {integrity: sha512-p+byADHF7SzEcVnLvc/r3uognM1hUhObuHXxJcgLCfD194XAkaLbjq3Wzb0N5G2tgIjH0dgT708Z51QxMeu60A==}
     engines: {node: '>=12'}
 
+  strip-filename-increment@2.0.1:
+    resolution: {integrity: sha512-+v5xsiTTsdYqkPj7qz1zlngIsjZedhHDi3xp/9bMurV8kXe9DAr732gNVqtt4X8sI3hOqS3nlFfps5gyVcux6w==}
+    engines: {node: '>=8'}
+
   strip-final-newline@2.0.0:
     resolution: {integrity: sha512-BrpvfNAE3dcvq7ll3xVumzjKjZQ5tI1sEUIKr3Uoks0XUl45St3FlatVqef9prk4jRDzhW6WZg+3bk93y6pLjA==}
     engines: {node: '>=6'}
@@ -6474,6 +6497,7 @@ packages:
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@4.0.0:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
@@ -6530,6 +6554,10 @@ packages:
   wrap-ansi@9.0.2:
     resolution: {integrity: sha512-42AtmgqjV+X1VpdOfyTGOYRi0/zsoLqtXQckTmqTeybT+BDIbM/Guxo7x3pE2vtpr1ok6xRqM9OpBe+Jyoqyww==}
     engines: {node: '>=18'}
+
+  write@2.0.0:
+    resolution: {integrity: sha512-yam9TAqN8sAZokECAejo9HpT2j2s39OgK8i8yxadrFBVo+iSWLfnipRVFulfAw1d2dz5vSuGmlMHYRKG4fysOA==}
+    engines: {node: '>=10'}
 
   ws@7.5.10:
     resolution: {integrity: sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ==}
@@ -9843,6 +9871,10 @@ snapshots:
 
   acorn@8.15.0: {}
 
+  add-filename-increment@1.0.0:
+    dependencies:
+      strip-filename-increment: 2.0.1
+
   agent-base@7.1.4: {}
 
   ajv@6.12.6:
@@ -10605,6 +10637,26 @@ snapshots:
   escape-string-regexp@4.0.0: {}
 
   escape-string-regexp@5.0.0: {}
+
+  eslint-output@4.0.2(eslint@9.39.1(jiti@1.21.7)):
+    dependencies:
+      debug: 4.4.3
+      eslint: 9.39.1(jiti@1.21.7)
+      lilconfig: 3.1.3
+      write: 2.0.0
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - supports-color
+
+  eslint-output@4.0.2(eslint@9.39.1(jiti@2.6.1)):
+    dependencies:
+      debug: 4.4.3
+      eslint: 9.39.1(jiti@2.6.1)
+      lilconfig: 3.1.3
+      write: 2.0.0
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - supports-color
 
   eslint-plugin-storybook@0.0.0-pr-32289-sha-5b7a0231(eslint@9.39.1(jiti@2.6.1))(storybook@0.0.0-pr-32289-sha-5b7a0231(@testing-library/dom@10.4.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.2.6(@types/node@24.10.1)(jiti@2.6.1)(yaml@2.8.2)))(typescript@5.9.3):
     dependencies:
@@ -13192,6 +13244,8 @@ snapshots:
 
   strip-bom@5.0.0: {}
 
+  strip-filename-increment@2.0.1: {}
+
   strip-final-newline@2.0.0: {}
 
   strip-indent@3.0.0:
@@ -14030,6 +14084,10 @@ snapshots:
       ansi-styles: 6.2.3
       string-width: 7.2.0
       strip-ansi: 7.1.2
+
+  write@2.0.0:
+    dependencies:
+      add-filename-increment: 1.0.0
 
   ws@7.5.10: {}
 

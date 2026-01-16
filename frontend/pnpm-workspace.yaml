@@ -13,6 +13,7 @@ catalog:
   '@vitest/ui': ^4.0.15
   autoprefixer: ^10.4.22
   eslint: ^9.39.1
+  eslint-output: ^4.0.2
   eslint-plugin-svelte: ^3.13.0
   playwright: ^1.54.0
   postcss: ^8.5.6

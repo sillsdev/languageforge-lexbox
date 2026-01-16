@@ -24,7 +24,7 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test:unit": "vitest",
     "lint": "svelte-kit sync && eslint .",
-    "lint:report": "svelte-kit sync && eslint . --output-file eslint_report.json --format json",
+    "lint:report": "svelte-kit sync && eslint-output",
     "format": "eslint . --fix",
     "clean": "pnpm dlx rimraf node_modules .svelte-kit"
   },
@@ -55,6 +55,7 @@
     "autoprefixer": "catalog:",
     "daisyui": "^4.12.24",
     "eslint": "catalog:",
+    "eslint-output": "catalog:",
     "eslint-plugin-svelte": "catalog:",
     "globals": "^16.5.0",
     "graphql": "^16.12.0",
@@ -83,10 +84,10 @@
   "dependencies": {
     "@floating-ui/dom": "^1.7.4",
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/core": "^2.2.0",
     "@opentelemetry/auto-instrumentations-node": "^0.67.2",
     "@opentelemetry/auto-instrumentations-web": "^0.54.0",
     "@opentelemetry/context-zone": "^2.2.0",
+    "@opentelemetry/core": "^2.2.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.208.0",
     "@opentelemetry/instrumentation": "^0.208.0",
     "@opentelemetry/resources": "^2.2.0",

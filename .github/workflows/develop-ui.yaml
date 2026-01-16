@@ -68,7 +68,7 @@ jobs:
       - id: svelte_check
         #using workspace package.json as a hack, github problem matcher requires the fromPath to match a file not the folder of the workspace
         run: pnpm run -r --no-bail --parallel --aggregate-output --reporter-hide-prefix check --output machine --workspace package.json
-      - run: pnpm run -r --no-bail --parallel lint:report
+      - run: pnpm run -r --no-bail --parallel --aggregate-output lint:report
         if: ${{ always() && steps.svelte_check.outcome != 'cancelled' }}
       - name: Annotate Code Linting Results
         uses: ataylorme/eslint-annotate-action@d57a1193d4c59cbfbf3f86c271f42612f9dbd9e9 # v3.0.0
