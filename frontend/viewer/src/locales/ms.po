@@ -250,7 +250,7 @@ msgid "Author:"
 msgstr "Pengarang:"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Auto"
 msgstr "Auto"
 
@@ -260,7 +260,7 @@ msgid "Auto syncing"
 msgstr "Segerakkan automatik"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
 msgstr "Padanan terbaik"
 
@@ -896,7 +896,7 @@ msgstr "hijau"
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Headword"
 msgstr "Kata Utama"
 

@@ -250,7 +250,7 @@ msgid "Author:"
 msgstr "작성자:"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Auto"
 msgstr "자동"
 
@@ -260,7 +260,7 @@ msgid "Auto syncing"
 msgstr "자동 동기화"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
 msgstr "베스트 매치"
 
@@ -896,7 +896,7 @@ msgstr ""
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Headword"
 msgstr "헤드워드"
 
