@@ -1,8 +1,6 @@
 <script lang="ts">
   import {type IEntry, type IPartOfSpeech, type ISemanticDomain} from '$lib/dotnet-types';
-  import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
-  import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-  import {Debounced, resource, useDebounce, watch} from 'runed';
+  import {Debounced} from 'runed';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import {cn} from '$lib/utils';
@@ -18,8 +16,8 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {Icon} from '$lib/components/ui/icon';
   import {useProjectContext} from '$project/project-context.svelte';
-  import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import Delayed from '$lib/components/Delayed.svelte';
+  import {EntryLoaderService} from '$lib/services/entry-loader-service.svelte';
 
   let {
     search = '',
@@ -49,82 +47,48 @@
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
 
+  // Create the entry loader service
+  const entryLoader = new EntryLoaderService({
+    miniLcmApi: () => miniLcmApi,
+    search: () => search,
+    sort: () => sort,
+    gridifyFilter: () => gridifyFilter,
+  });
+
+  // Debounce the loading state for smoother UI
+  const loading = new Debounced(() => entryLoader.loading, 50);
+
+  // Keep entryCount in sync
+  $effect(() => {
+    entryCount = entryLoader.totalCount ?? null;
+  });
+
+  // Handle entry deleted events
   projectEventBus.onEntryDeleted(entryId => {
     if (selectedEntryId === entryId) onSelectEntry(undefined);
-    if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
-    const currentIndex = entriesResource.current?.findIndex(e => e.id === entryId) ?? -1;
-    if (currentIndex >= 0) {
-      entriesResource.current!.splice(currentIndex, 1);
-    }
-  });
-  projectEventBus.onEntryUpdated(_entry => {
-    if (entriesResource.loading) return;
-    const currentIndex = entriesResource.current?.findIndex(e => e.id === _entry.id) ?? -1;
-    if (currentIndex >= 0) {
-      entriesResource.current![currentIndex] = _entry;
-    } else {
-      void silentlyRefreshEntries();
-    }
+    entryLoader.removeEntryById(entryId);
   });
 
-  async function silentlyRefreshEntries() {
-    const updatedEntries = await fetchCurrentEntries(true);
-    entriesResource.mutate(updatedEntries);
-  }
-
-  let loadingUndebounced = $state(true);
-  const loading = new Debounced(() => loadingUndebounced, 50);
-  const fetchCurrentEntries = useDebounce(async (silent = false) => {
-    if (!miniLcmApi) return [];
-    if (!silent) loadingUndebounced = true;
-    try {
-      const queryOptions: IQueryOptions = {
-        count: IsMobile.value ? 1_000 : 5_000,
-        offset: 0,
-        filter: {
-          gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
-        },
-        order: {
-          field: sort?.field ?? SortField.SearchRelevance,
-          writingSystem: 'default',
-          ascending: sort?.dir !== 'desc',
-        },
-      };
-
-      const entries = search
-        ? miniLcmApi.searchEntries(search, queryOptions)
-        : miniLcmApi.getEntries(queryOptions);
-      await entries; // ensure the entries have arrived before toggling the loading flag
-      return entries;
-    } finally {
-      loadingUndebounced = false;
-    }
-  }, DEFAULT_DEBOUNCE_TIME);
-
-  const entriesResource = resource(
-    () => ({ search, sort, gridifyFilter, miniLcmApi }),
-    async (_curr, _prev, refetchInfo): Promise<IEntry[]> => {
-      const entries = await fetchCurrentEntries();
-      // don't let slow requests overwrite newer ones
-      // if the newer request is finished then entriesResource.current is up-to-date
-      // else entriesResource.current is out-of-date, but will be updated by the newer request
-      if (refetchInfo.signal.aborted) return entriesResource.current ?? [];
-      return entries;
-    });
-  const entries = $derived(entriesResource.current ?? []);
-  watch(() => [entries, entriesResource.loading], () => {
-    if (!entriesResource.loading)
-      entryCount = entries.length;
+  // Handle entry updated events
+  projectEventBus.onEntryUpdated(entry => {
+    entryLoader.updateEntry(entry);
   });
 
   $effect(() => {
-    if (entriesResource.error) {
-      AppNotification.error($t`Failed to load entries`, entriesResource.error.message);
+    if (entryLoader.error) {
+      AppNotification.error($t`Failed to load entries`, entryLoader.error.message);
     }
   });
 
   // Generate a random number of skeleton rows between 3 and 7
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
+
+  // Generate index array for virtual list
+  const indexArray = $derived(
+    entryLoader.totalCount !== undefined
+      ? Array.from({ length: entryLoader.totalCount }, (_, i) => i)
+      : []
+  );
 
   async function handleNewEntry() {
     const entry = await dialogsService.createNewEntry(undefined, {
@@ -138,8 +102,8 @@
   let vList = $state<VListHandle>();
   $effect(() => {
     if (!vList || !selectedEntryId) return;
-    const indexOfSelected = entries.findIndex(e => e.id === selectedEntryId);
-    if (indexOfSelected === -1) return;
+    const indexOfSelected = entryLoader.getIndexById(selectedEntryId);
+    if (indexOfSelected === undefined) return;
     const visibleStart = vList.getScrollOffset();
     const visibleSize = vList.getViewportSize();
     const visibleEnd = visibleStart + visibleSize;
@@ -152,10 +116,18 @@
     }
   });
 
-  export function selectNextEntry() {
-    const indexOfSelected = entries.findIndex(e => e.id === selectedEntryId);
-    const nextIndex = indexOfSelected === -1 ? 0 : indexOfSelected + 1;
-    let nextEntry = entries[nextIndex];
+  export async function selectNextEntry(): Promise<IEntry | undefined> {
+    const indexOfSelected = selectedEntryId
+      ? entryLoader.getIndexById(selectedEntryId)
+      : undefined;
+    const nextIndex = indexOfSelected === undefined ? 0 : indexOfSelected + 1;
+
+    // Check count bounds
+    if (entryLoader.totalCount === undefined || nextIndex >= entryLoader.totalCount) {
+      return undefined;
+    }
+
+    const nextEntry = await entryLoader.loadEntryByIndex(nextIndex);
     onSelectEntry(nextEntry);
     return nextEntry;
   }
@@ -169,7 +141,10 @@
       variant="outline"
       iconProps={{ class: cn(loading.current && 'animate-spin') }}
       size="icon"
-      onclick={() => entriesResource.refetch()}
+      onclick={() => {
+        entryLoader.reset();
+        void entryLoader.loadCount();
+      }}
     />
   </DevContent>
   {#if !disableNewEntry}
@@ -178,33 +153,46 @@
 </FabContainer>
 
 <div class="flex-1 h-full" role="table">
-  {#if entriesResource.error}
+  {#if entryLoader.error}
     <div class="flex items-center justify-center h-full text-muted-foreground gap-2">
       <Icon icon="i-mdi-alert-circle-outline" />
       <p>{$t`Failed to load entries`}</p>
     </div>
   {:else}
     <div class="h-full">
-      {#if loading.current}
+      {#if loading.current && indexArray.length === 0}
         <div class="md:pr-3 p-0.5">
-          <!-- Show skeleton rows while loading -->
+          <!-- Show skeleton rows while loading initial count -->
           {#each { length: skeletonRowCount }, _index}
             <EntryRow class="mb-2" skeleton={true} />
           {/each}
         </div>
       {:else}
-        <VList bind:this={vList} data={entries ?? []} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={d => d.id} bufferSize={400}>
-          {#snippet children(entry)}
-            <EntryMenu {entry} contextMenu>
-              <EntryRow {entry}
-                        class="mb-2"
-                        selected={selectedEntryId === entry.id}
-                        onclick={() => onSelectEntry(entry)}
-                        {previewDictionary}/>
-            </EntryMenu>
+        <VList bind:this={vList} data={indexArray} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={(index: number) => index} bufferSize={400}>
+          {#snippet children(index: number)}
+            <Delayed
+              getCached={() => entryLoader.getEntryByIndex(index)}
+              load={() => entryLoader.loadEntryByIndex(index)}
+              delay={250}
+            >
+              {#snippet children(state)}
+                {#if state.loading || !state.current}
+                  <EntryRow class="mb-2" skeleton={true} />
+                {:else}
+                  {@const entry = state.current}
+                  <EntryMenu {entry} contextMenu>
+                    <EntryRow {entry}
+                              class="mb-2"
+                              selected={selectedEntryId === entry.id}
+                              onclick={() => onSelectEntry(entry)}
+                              {previewDictionary}/>
+                  </EntryMenu>
+                {/if}
+              {/snippet}
+            </Delayed>
           {/snippet}
         </VList>
-        {#if entries.length === 0}
+        {#if indexArray.length === 0}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>{$t`No entries found`}</p>
           </div>
