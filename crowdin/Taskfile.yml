@@ -11,7 +11,25 @@ tasks:
   pull:
     cmd: task crowdin -- pull
 
+  dryrun:
+    desc: Dry run push sources and push translations for a single language (defaulting to Swahili)
+    vars:
+      LOCALE: '{{.LOCALE | default "sw"}}'
+    cmds:
+      - task crowdin -- push sources --dryrun
+      - task crowdin -- push translations -l {{.LOCALE}} --dryrun
+
   i18n:
     dir: ../frontend/viewer
     cmds:
       - task i18n
+
+  push-sources:
+    desc: Push English source strings to Crowdin
+    cmd: task crowdin -- push sources
+
+  push-translations-non-mt:
+    desc: Push translations for non-MT languages (ms, sw)
+    cmds:
+      - task crowdin -- push translations -l ms
+      - task crowdin -- push translations -l sw

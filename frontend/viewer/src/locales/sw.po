@@ -171,7 +171,7 @@ msgstr "Ongeza sehemu ya"
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
-msgstr "Ongeza Kwa Maana"
+msgstr "Ongeza Maana"
 
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -267,7 +267,7 @@ msgstr "Ujumbe bora"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "blue"
-msgstr ""
+msgstr "buluu"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -301,7 +301,7 @@ msgstr "Kubadilisha sehemu sawa mara mbili, kwa mfano, kunaweza kusababisha kumb
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
-msgstr ""
+msgstr "Inakagua masasisho..."
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -407,7 +407,7 @@ msgstr "Ina"
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
-msgstr "Kuliko kwa ubao"
+msgstr "Imenakiliwa kwenye ubao wa kunakili"
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -571,7 +571,7 @@ msgstr "Pakua {0}"
 #. Link label to open the updates download page
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Download page"
-msgstr ""
+msgstr "Ukurasa wa kupakua"
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -587,7 +587,7 @@ msgstr "Pakua mradi usiotajwa"
 #. Button label to download an update when auto-update is unavailable
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
-msgstr ""
+msgstr "Pakua Sasisho"
 
 #. Success notification with project name
 #: src/home/Server.svelte
@@ -659,7 +659,7 @@ msgstr "Sawa"
 #. Error message when update check fails
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Error checking for updates: {0}"
-msgstr ""
+msgstr "Hitilafu wakati wa kukagua masasisho: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
@@ -688,7 +688,7 @@ msgstr "Sentensi ya mfano"
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
-msgstr "Imeshindwa kunakili kwa ubao"
+msgstr "Imeshindwa kunakili kwenye ubao wa kunakili"
 
 #. Error notification
 #: src/home/Server.svelte
@@ -795,7 +795,7 @@ msgstr "Kichuja # neno"
 #. Filter dropdown label
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Filter By"
-msgstr ""
+msgstr "Chuja Kwa"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
@@ -886,7 +886,7 @@ msgstr "Taarifa ya sarufi"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "green"
-msgstr ""
+msgstr "kijani"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -911,7 +911,7 @@ msgstr "Shika ili kurekodi au\\nbonyeza na kutoleza kuanza kurekodi."
 #. External link button text for help
 #: src/home/Server.svelte
 msgid "I don't see my project"
-msgstr "Sitaki kuona mradi wangu"
+msgstr "Siioni mradi wangu"
 
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "I understand that this can't be undone"
@@ -919,7 +919,7 @@ msgstr "Ninaelewa kuwa hii haiwezi kurudishwa nyuma"
 
 #: src/home/HomeView.svelte
 msgid "Import"
-msgstr "Agiza"
+msgstr "Ingiza"
 
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
@@ -936,12 +936,12 @@ msgstr "Ingizo lisilo kamili"
 #. Button label to install an available update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Install Update"
-msgstr ""
+msgstr "Sakinisha Sasisho"
 
 #. Button label while installing an update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
-msgstr ""
+msgstr "Inasakinisha Sasisho..."
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1049,7 +1049,7 @@ msgstr "Msimamizi"
 #. Info message when manual update is required
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Manual update is required. Please follow the instructions provided."
-msgstr ""
+msgstr "Sasisho la mwongozo linahitajika. Tafadhali fuata maelekezo yaliyotolewa."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
@@ -1086,7 +1086,7 @@ msgstr "Yenye kushindwa: {0}"
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Mode"
-msgstr ""
+msgstr "Hali"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1270,7 +1270,7 @@ msgstr "Fungua faili la logi"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
-msgstr ""
+msgstr "machungwa"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -1323,7 +1323,7 @@ msgstr "Imebandikwa"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
-msgstr ""
+msgstr "Jukwaa"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -1378,7 +1378,7 @@ msgstr "Onyesha Upya Miradi"
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
-msgstr ""
+msgstr "Maelezo ya toleo"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1413,7 +1413,7 @@ msgstr "Tathmini"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
-msgstr ""
+msgstr "waridi"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1454,7 +1454,7 @@ msgstr "Chagua jukumu jipya la kufanya"
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
-msgstr "Chagua Folda"
+msgstr "Chagua Faili"
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
@@ -1557,7 +1557,7 @@ msgstr "Inaanza na"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
-msgstr ""
+msgstr "jiwe"
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1787,7 +1787,7 @@ msgstr "Seva isiyojulikana"
 #. Error message for unknown update result
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Unknown update result"
-msgstr ""
+msgstr "Matokeo ya sasisho yasiyojulikana"
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
@@ -1818,34 +1818,34 @@ msgstr "Sasisha {0}"
 #. Status message when an update is available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update available: {0}"
-msgstr ""
+msgstr "Sasisho linapatikana: {0}"
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
-msgstr ""
+msgstr "Sasisho limeshindwa kusakinishwa."
 
 #. Success message after update installs
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update installed successfully! Please restart the application."
-msgstr ""
+msgstr "Sasisho limesakinishwa kwa mafanikio! Tafadhali anzisha upya programu."
 
 #. Info message when update runs in background
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update started in the background. Restart the application after the update is complete."
-msgstr ""
+msgstr "Sasisho limeanza chinichini. Anzisha upya programu baada ya sasisho kukamilika."
 
 #. Error message when update is blocked by permissions
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update was disallowed by permission settings."
-msgstr ""
+msgstr "Sasisho halikuruhusiwa na mipangilio ya ruhusa."
 
 #. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
 #: src/lib/updates/UpdateDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
-msgstr ""
+msgstr "Masasisho"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1865,7 +1865,7 @@ msgstr "Muonekano"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
-msgstr ""
+msgstr "zambarau"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1922,7 +1922,7 @@ msgstr "Mifumo ya Kuandika"
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
-msgstr ""
+msgstr "Unatumia toleo la hivi karibuni."
 
 #. Success message with task and count
 #: src/project/tasks/DoneView.svelte

@@ -87,7 +87,7 @@ msgstr "**Lebih sedikit jenis morfem** (hanya *Akar*, *Akar Terikat*, *Batang*, 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
-msgstr "**Terminologi lebih mudah** (cth. *Perkataan* bukan *bentuk leksem*, *Erti* bukan *Makna*)"
+msgstr "**Terminologi lebih mudah** (cth. *Perkataan* bukan *bentuk leksem*, *Makna* bukan *Sense*)"
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -151,7 +151,7 @@ msgstr "Tambah Contoh"
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
-msgstr "Tambah Erti"
+msgstr "Tambah Makna"
 
 #. Button in toolbar
 #: src/lib/entry-editor/NewEntryButton.svelte
@@ -267,12 +267,12 @@ msgstr "Padanan terbaik"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "blue"
-msgstr ""
+msgstr "biru"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
-msgstr "Semak seimbas (Melihat-lihat)"
+msgstr "Terokai"
 
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
@@ -301,7 +301,7 @@ msgstr "Mengubah medan yang sama dua kali, sebagai contoh, boleh menghasilkan du
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
-msgstr ""
+msgstr "Menyemak kemas kini..."
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -407,7 +407,7 @@ msgstr "Mengandungi"
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
-msgstr "Disalin ke papan kerja"
+msgstr "Disalin ke papan keratan"
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -417,7 +417,7 @@ msgstr "Salin versi"
 #. Button label (view-dependent: "Create entry" in Classic, "Add new word" in Lite)
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
-msgstr "Cipta kemasukan"
+msgstr "Cipta Entri"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Word"
@@ -571,7 +571,7 @@ msgstr "Muat turun {0}"
 #. Link label to open the updates download page
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Download page"
-msgstr ""
+msgstr "Halaman muat turun"
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -587,7 +587,7 @@ msgstr "Muat turun projek yang tidak tersenarai"
 #. Button label to download an update when auto-update is unavailable
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
-msgstr ""
+msgstr "Muat Turun Kemas Kini"
 
 #. Success notification with project name
 #: src/home/Server.svelte
@@ -659,7 +659,7 @@ msgstr "Sama dengan"
 #. Error message when update check fails
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Error checking for updates: {0}"
-msgstr ""
+msgstr "Ralat menyemak kemas kini: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
@@ -688,7 +688,7 @@ msgstr "Ayat contoh"
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
-msgstr "Gagal disalin ke papan kerja"
+msgstr "Gagal menyalin ke papan keratan"
 
 #. Error notification
 #: src/home/Server.svelte
@@ -795,7 +795,7 @@ msgstr "Tapis # perkataan"
 #. Filter dropdown label
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Filter By"
-msgstr ""
+msgstr "Tapis Mengikut"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
@@ -886,7 +886,7 @@ msgstr "Maklumat tatabahasa."
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "green"
-msgstr ""
+msgstr "hijau"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -936,12 +936,12 @@ msgstr "Entri tidak lengkap"
 #. Button label to install an available update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Install Update"
-msgstr ""
+msgstr "Pasang Kemas Kini"
 
 #. Button label while installing an update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
-msgstr ""
+msgstr "Memasang Kemas Kini..."
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1049,7 +1049,7 @@ msgstr "Pengurus"
 #. Info message when manual update is required
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Manual update is required. Please follow the instructions provided."
-msgstr ""
+msgstr "Kemas kini manual diperlukan. Sila ikut arahan yang diberikan."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
@@ -1059,7 +1059,7 @@ msgstr ""
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Meaning"
-msgstr "Erti"
+msgstr "Makna"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
@@ -1086,7 +1086,7 @@ msgstr "Hilang: {0}"
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Mode"
-msgstr ""
+msgstr "Mod"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1270,7 +1270,7 @@ msgstr "Buka fail Log"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
-msgstr ""
+msgstr "jingga"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -1323,7 +1323,7 @@ msgstr "Disemat"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
-msgstr ""
+msgstr "Platform"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -1378,7 +1378,7 @@ msgstr "Segarkan Semula Projek"
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
-msgstr ""
+msgstr "Nota keluaran"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1413,7 +1413,7 @@ msgstr "Semak"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
-msgstr ""
+msgstr "merah jambu"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1557,7 +1557,7 @@ msgstr "Bermula dengan"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
-msgstr ""
+msgstr "batu"
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1787,7 +1787,7 @@ msgstr "Pelayan tidak diketahui"
 #. Error message for unknown update result
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Unknown update result"
-msgstr ""
+msgstr "Hasil kemas kini tidak diketahui"
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
@@ -1818,34 +1818,34 @@ msgstr "Kemas kini {0}"
 #. Status message when an update is available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update available: {0}"
-msgstr ""
+msgstr "Kemas kini tersedia: {0}"
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
-msgstr ""
+msgstr "Kemas kini gagal dipasang."
 
 #. Success message after update installs
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update installed successfully! Please restart the application."
-msgstr ""
+msgstr "Kemas kini berjaya dipasang! Sila mulakan semula aplikasi."
 
 #. Info message when update runs in background
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update started in the background. Restart the application after the update is complete."
-msgstr ""
+msgstr "Kemas kini bermula di latar belakang. Mulakan semula aplikasi selepas kemas kini selesai."
 
 #. Error message when update is blocked by permissions
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update was disallowed by permission settings."
-msgstr ""
+msgstr "Kemas kini tidak dibenarkan oleh tetapan kebenaran."
 
 #. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
 #: src/lib/updates/UpdateDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
-msgstr ""
+msgstr "Kemas kini"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1865,7 +1865,7 @@ msgstr "Lihat"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
-msgstr ""
+msgstr "ungu"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1903,7 +1903,7 @@ msgstr "Perkataan sahaja"
 #. Label for picker: allows selecting word-level or meaning-level link
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
-msgstr "Perkataan atau erti:"
+msgstr "Perkataan atau makna:"
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
@@ -1922,7 +1922,7 @@ msgstr "Sistem Penulisan"
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
-msgstr ""
+msgstr "Anda sedang menggunakan versi terkini."
 
 #. Success message with task and count
 #: src/project/tasks/DoneView.svelte
