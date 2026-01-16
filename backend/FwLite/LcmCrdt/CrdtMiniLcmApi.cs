@@ -405,6 +405,31 @@ public class CrdtMiniLcmApi(
         return await repo.GetEntry(id);
     }
 
+    public async Task<EntryWindowResponse> GetEntriesWindow(int start, int size, string? query = null, QueryOptions? options = null)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var windowOptions = new QueryOptions(
+            options?.Order ?? QueryOptions.Default.Order,
+            options?.Exemplar,
+            size,
+            start,
+            options?.Filter
+        );
+        var entries = new List<Entry>();
+        await foreach (var entry in repo.GetEntries(query, windowOptions))
+        {
+            entries.Add(entry);
+        }
+        return new EntryWindowResponse(entries, start);
+    }
+
+    public async Task<EntryRowIndexResponse> GetEntryRowIndex(Guid entryId, string? query = null, QueryOptions? options = null)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var (rowIndex, entry) = await repo.GetEntryRowIndex(entryId, query, options);
+        return new EntryRowIndexResponse(rowIndex, entry);
+    }
+
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         await using var repo = await repoFactory.CreateRepoAsync();

@@ -33,6 +33,7 @@
 
 <button
   aria-selected={selected && !skeleton && !disabled}
+  selected={selected && !skeleton && !disabled ? 'true' : undefined}
   disabled={disabled || loading}
   class={cn(
     'w-full max-w-full px-4 py-3 flex text-left overflow-hidden items-center gap-4',

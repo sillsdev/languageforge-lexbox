@@ -424,4 +424,14 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         if (exampleSentence is null) return null;
         return ToExampleSentence(sense.Guid, exampleSentence);
     }
+
+    public async Task<EntryWindowResponse> GetEntriesWindow(int start, int size, string? query = null, QueryOptions? options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<EntryRowIndexResponse> GetEntryRowIndex(Guid entryId, string? query = null, QueryOptions? options = null)
+    {
+        throw new NotImplementedException();
+    }
 }
