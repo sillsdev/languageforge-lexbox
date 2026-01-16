@@ -14,7 +14,7 @@
   import EntryMenu from './EntryMenu.svelte';
   import FabContainer from '$lib/components/fab/fab-container.svelte';
   import {VList, type VListHandle} from 'virtua/svelte';
-  import type {SortConfig} from './SortMenu.svelte';
+  import type {SortConfig} from './sort/options';
   import {AppNotification} from '$lib/notifications/notifications';
   import {Icon} from '$lib/components/ui/icon';
   import {useProjectContext} from '$project/project-context.svelte';
