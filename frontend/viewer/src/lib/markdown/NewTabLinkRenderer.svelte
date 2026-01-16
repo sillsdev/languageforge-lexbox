@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Anchor from "$lib/components/ui/anchor/anchor.svelte";
+  import Anchor from '$lib/components/ui/anchor/anchor.svelte';
 
   export let href: string;
   export let title: string | undefined = undefined;
