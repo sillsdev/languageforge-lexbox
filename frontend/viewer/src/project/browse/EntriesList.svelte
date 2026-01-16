@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {MorphType, type IEntry, type IPartOfSpeech, type ISemanticDomain} from '$lib/dotnet-types';
+  import {type IEntry, type IPartOfSpeech, type ISemanticDomain} from '$lib/dotnet-types';
   import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
   import {Debounced, resource, useDebounce, watch} from 'runed';
@@ -20,24 +20,6 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-  import {useCurrentView} from '$lib/views/view-service';
-
-  const LITE_MORPHEME_TYPES = new Set([
-    MorphType.Root, MorphType.BoundRoot,
-    MorphType.Stem, MorphType.BoundStem,
-    MorphType.Particle,
-    MorphType.Phrase, MorphType.DiscontiguousPhrase,
-  ]);
-
-  function filterLiteMorphemeTypes(entries: IEntry[]): IEntry[] {
-    // we could do this server-side, but doing it client-side provides better UX and presumably we'll
-    // only ever filter out a small portion of entries
-    const filteredEntries = entries.filter(entry =>
-      entry.morphType && LITE_MORPHEME_TYPES.has(entry.morphType));
-    const hiddenEntries = entries.length - filteredEntries.length;
-    console.debug(`Filtered out ${hiddenEntries} non-wordy morpheme entries (for FW Lite view)`);
-    return filteredEntries;
-  }
 
   let {
     search = '',
@@ -66,7 +48,6 @@
   const miniLcmApi = $derived(projectContext.maybeApi);
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
-  const currentView = useCurrentView();
 
   projectEventBus.onEntryDeleted(entryId => {
     if (selectedEntryId === entryId) onSelectEntry(undefined);
@@ -130,13 +111,7 @@
       if (refetchInfo.signal.aborted) return entriesResource.current ?? [];
       return entries;
     });
-  const entries = $derived.by(() => {
-    let currEntries = entriesResource.current ?? [];
-    if (currEntries.length && $currentView.type === 'fw-lite') {
-      currEntries = filterLiteMorphemeTypes(currEntries);
-    }
-    return currEntries;
-  });
+  const entries = $derived(entriesResource.current ?? []);
   watch(() => [entries, entriesResource.loading], () => {
     if (!entriesResource.loading)
       entryCount = entries.length;
