@@ -42,7 +42,9 @@
     <div>
       <p class="flex items-baseline gap-1">
         {$t`Application version`}:
-        <span class="font-semibold border-b">{config.appVersion}</span>
+        <span class="font-semibold border-b">
+          {config.appVersion}
+        </span>
         <CopyButton
           variant="ghost"
           size="xs-icon"

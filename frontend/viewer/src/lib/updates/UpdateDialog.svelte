@@ -49,17 +49,18 @@
 </script>
 
 {#if open}
-  <ResponsiveDialog open title={$t`Updates`}>
+  <ResponsiveDialog bind:open title={$t`Updates`}>
     <div class="flex flex-col gap-4">
       <div>
-        <div>
-          {$t`Application version`}: <span class="font-semibold">{appVersion}</span>
-        </div>
+        <p class="flex items-baseline gap-1">
+          {$t`Application version`}:
+          <span class="font-semibold">{appVersion}</span>
+        </p>
         <DevContent>
-          <div>
+          <p class="flex items-baseline gap-1">
             {$t`Platform`}:
             <span class="font-semibold">{config.os}</span>
-          </div>
+          </p>
         </DevContent>
       </div>
 

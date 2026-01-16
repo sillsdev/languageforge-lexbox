@@ -41,10 +41,10 @@ beforeAll(() => {
 // [vibe-coded]: fail tests on error logs and unhandled errors
 beforeAll(() => {
   console.error = (...args: any[]) => {
-    const message = args.map(a => (typeof a === 'string' ? a : JSON.stringify(a, null, 2))).join(' ');
+    const msg = args.map(a => (typeof a === 'string' ? a : JSON.stringify(a, null, 2))).join(' ');
     const isIgnored = args.some(arg => arg instanceof DemoStoryError)
-      || ignoredErrorPatterns.some(p => typeof p === 'string' ? message.includes(p) : p.test(message));
-    if (!isIgnored) collectedErrors.push(`[error-log] ${message}`);
+      || ignoredErrorPatterns.some(p => typeof p === 'string' ? msg.includes(p) : p.test(msg));
+    if (!isIgnored) collectedErrors.push(`[error-log] ${msg}`);
     originalError(...args);
   };
 
@@ -59,7 +59,7 @@ beforeAll(() => {
     window.addEventListener('unhandledrejection', (e) => {
       const reason = e.reason;
       const msg = typeof reason === 'string' ? reason : (reason?.stack || JSON.stringify(reason));
-      const isIgnored = e.reason instanceof DemoStoryError
+      const isIgnored = reason instanceof DemoStoryError
         || ignoredErrorPatterns.some(p => typeof p === 'string' ? msg.includes(p) : p.test(msg));
       if (!isIgnored) collectedErrors.push(`[unhandledrejection] ${msg}`);
     });

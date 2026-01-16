@@ -19,7 +19,7 @@
   const autoUpdate: IAvailableUpdate = {
     release: {
       version: 'v1.2.3',
-      url: 'https://downloads.example.com/fw-lite/v1.2.3',
+      url: 'https://sil.org/',
     },
     supportsAutoUpdate: true,
   };
@@ -27,7 +27,7 @@
   const manualUpdate: IAvailableUpdate = {
     release: {
       version: 'v2.0.0',
-      url: 'https://downloads.example.com/fw-lite/v2.0.0',
+      url: 'https://sil.org/',
     },
     supportsAutoUpdate: false,
   };
