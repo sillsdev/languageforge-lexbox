@@ -13,7 +13,6 @@
   import {resolve} from '$app/paths';
   import {page} from '$app/state';
   import type {LayoutData} from '../../routes/$types';
-  import DevContent from './DevContent.svelte';
   import {helpLinks} from '$lib/components/help';
 
   interface Props {
@@ -55,11 +54,6 @@
         <div class="bg-neutral text-neutral-content p-2 md:px-6 flex justify-between items-center gap-2">
           <Breadcrumbs />
           <div class="flex gap-2 items-center">
-            <DevContent>
-              <a href={resolve('/sandbox')} class="btn btn-sm btn-neutral glass">
-                <Icon size="text-2xl" icon="i-mdi-package-variant" />
-              </a>
-            </DevContent>
             <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
             <a href={helpLinks.helpList}
               target="_blank"

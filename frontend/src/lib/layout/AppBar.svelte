@@ -2,11 +2,12 @@
   import {resolve} from '$app/paths';
   import {env} from '$env/dynamic/public';
   import t from '$lib/i18n';
-  import {AuthenticatedUserIcon, UserAddOutline} from '$lib/icons';
+  import {AuthenticatedUserIcon, UserAddOutline, Icon} from '$lib/icons';
   import {onMount} from 'svelte';
   import type {LexAuthUser} from '$lib/user';
   import {page} from '$app/state';
   import AppLogo from '$lib/icons/AppLogo.svelte';
+  import DevContent from './DevContent.svelte';
 
   onMount(() => {
     isPlaywright = localStorage.getItem('isPlaywright') === 'true';
@@ -40,7 +41,18 @@
         </span>
       </div>
     </a>
-    <div>
+    <div class="flex gap-2">
+      <DevContent>
+        <a href={resolve('/sandbox')} class="btn btn-ghost btn-square" title="Sandbox">
+          <Icon icon="i-mdi-package-variant" size="text-2xl" />
+        </a>
+        <a href={resolve('/api/swagger')} target="_blank" class="btn btn-ghost btn-square" title="Swagger UI">
+          <Icon icon="i-mdi-api" size="text-2xl" />
+        </a>
+        <a href={resolve('/api/graphql/ui')} target="_blank" class="btn btn-ghost btn-square" title="GraphQL UI">
+          <Icon icon="i-mdi-graphql" size="text-2xl" />
+        </a>
+      </DevContent>
       {#if user}
         <!-- using a label means it works before hydration is complete -->
         <label for="drawer-toggle" class="btn btn-primary glass px-2">
