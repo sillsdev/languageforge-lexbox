@@ -215,6 +215,7 @@ msgstr "Bất kỳ hệ chữ nào"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
 msgid "Application version"
 msgstr "Phiên bản ứng dụng"
 
@@ -263,6 +264,11 @@ msgstr "Đang đồng bộ tự động"
 msgid "Best match"
 msgstr "Khớp tốt nhất"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "blue"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
@@ -291,6 +297,11 @@ msgstr "Các thay đổi cũng có thể do các trường mới được thêm 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Thay đổi cùng một trường hai lần, ví dụ, có thể dẫn đến hai commit nhưng chỉ một thay đổi cần được áp dụng cho FieldWorks Classic. Commit cũng có thể gồm nhiều thay đổi."
+
+#. Status message while checking for updates
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Checking for updates..."
+msgstr ""
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -557,6 +568,11 @@ msgstr "Tải xuống"
 msgid "Download {0}"
 msgstr "Tải xuống {0}"
 
+#. Link label to open the updates download page
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Download page"
+msgstr ""
+
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
@@ -567,6 +583,11 @@ msgstr "Tải dự án theo mã dự án"
 #: src/home/Server.svelte
 msgid "Download unlisted project"
 msgstr "Tải dự án không được liệt kê"
+
+#. Button label to download an update when auto-update is unavailable
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Download Update"
+msgstr ""
 
 #. Success notification with project name
 #: src/home/Server.svelte
@@ -634,6 +655,11 @@ msgstr "Mục hoặc ý nghĩa:"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
 msgstr "Bằng"
+
+#. Error message when update check fails
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Error checking for updates: {0}"
+msgstr ""
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
@@ -766,6 +792,11 @@ msgstr "Lọc # mục"
 msgid "Filter # words"
 msgstr "Lọc # từ"
 
+#. Filter dropdown label
+#: src/project/browse/filter/OpFilter.svelte
+msgid "Filter By"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
 #. Toggle button to show/hide search filter panel
@@ -852,6 +883,11 @@ msgstr "Đi tới {0}"
 msgid "Grammatical info."
 msgstr "Thông tin ngữ pháp."
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "green"
+msgstr ""
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
@@ -870,7 +906,9 @@ msgstr "Lịch sử"
 
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or\\npress and release to start recording."
-msgstr "Nhấn giữ để ghi âm hoặc\nnhấn rồi thả để bắt đầu ghi."
+msgstr ""
+"Nhấn giữ để ghi âm hoặc\n"
+"nhấn rồi thả để bắt đầu ghi."
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -896,6 +934,16 @@ msgstr "Bao gồm các phân miền phụ"
 #: src/project/browse/SearchFilter.svelte
 msgid "Incomplete entries"
 msgstr "Mục chưa hoàn chỉnh"
+
+#. Button label to install an available update
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Install Update"
+msgstr ""
+
+#. Button label while installing an update
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Installing Update..."
+msgstr ""
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1000,6 +1048,11 @@ msgstr "Hãy đảm bảo [các thay đổi của bạn đã được đồng b�
 msgid "Manager"
 msgstr "Quản lý"
 
+#. Info message when manual update is required
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Manual update is required. Please follow the instructions provided."
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word
@@ -1032,6 +1085,10 @@ msgstr "Thiếu Loại từ"
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Missing: {0}"
 msgstr "Thiếu: {0}"
+
+#: src/lib/components/ThemePicker.svelte
+msgid "Mode"
+msgstr ""
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1212,6 +1269,11 @@ msgstr "Mở trong cửa sổ mới"
 msgid "Open Log file"
 msgstr "Mở tệp nhật ký"
 
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "orange"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
 #. Column header
@@ -1258,6 +1320,12 @@ msgstr "Chọn một Loại từ"
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Pinned"
 msgstr "Đã ghim"
+
+#. Field label for operating system/platform
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Platform"
+msgstr ""
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -1309,6 +1377,11 @@ msgstr "Tinh chỉnh bộ lọc để xem thêm..."
 msgid "Refresh Projects"
 msgstr "Làm mới Dự án"
 
+#. Link label to open release notes
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Release notes"
+msgstr ""
+
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
@@ -1338,6 +1411,11 @@ msgstr "Báo lỗi kỹ thuật"
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "Xem lại"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "rose"
+msgstr ""
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1477,6 +1555,11 @@ msgstr "Trường cụ thể"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Bắt đầu bằng"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "stone"
+msgstr ""
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1703,6 +1786,11 @@ msgstr "Lỗi không xác định khi tải xuống {0}"
 msgid "Unknown server"
 msgstr "Máy chủ không xác định"
 
+#. Error message for unknown update result
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Unknown update result"
+msgstr ""
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -1729,6 +1817,38 @@ msgstr "Cập nhật"
 msgid "Update {0}"
 msgstr "Cập nhật {0}"
 
+#. Status message when an update is available
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update available: {0}"
+msgstr ""
+
+#. Error message when update fails to install
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update failed to install."
+msgstr ""
+
+#. Success message after update installs
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update installed successfully! Please restart the application."
+msgstr ""
+
+#. Info message when update runs in background
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update started in the background. Restart the application after the update is complete."
+msgstr ""
+
+#. Error message when update is blocked by permissions
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update was disallowed by permission settings."
+msgstr ""
+
+#. Menu item and dialog title for app updates
+#: src/home/HomeView.svelte
+#: src/lib/updates/UpdateDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Updates"
+msgstr ""
+
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
@@ -1743,6 +1863,11 @@ msgstr "Phiên bản {0}"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Xem"
+
+#. Color theme option
+#: src/lib/components/ThemePicker.svelte
+msgid "violet"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1796,6 +1921,11 @@ msgstr "Hệ chữ: {0}"
 msgid "Writing Systems"
 msgstr "Các hệ chữ"
 
+#. Status message when no updates are available
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "You are running the latest version."
+msgstr ""
+
 #. Success message with task and count
 #: src/project/tasks/DoneView.svelte
 msgid "You completed {0} {1}"
@@ -1811,4 +1941,3 @@ msgstr "Bạn không có quyền tải dự án {0} từ {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Bạn đã tải xuống dự án {0}"
-

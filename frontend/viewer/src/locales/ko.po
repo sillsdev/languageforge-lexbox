@@ -215,6 +215,7 @@ msgstr "모든 W"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
 msgid "Application version"
 msgstr "애플리케이션 버전"
 
@@ -296,6 +297,11 @@ msgstr "FieldWorks Lite의 새 버전에 필드가 추가되어 변경 사항이
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "예를 들어 동일한 필드를 두 번 변경하면 두 개의 커밋이 발생하지만 FieldWorks Classic에 적용해야 하는 변경 사항은 하나만 발생할 수 있습니다. 커밋은 여러 변경 사항으로 구성될 수도 있습니다."
+
+#. Status message while checking for updates
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Checking for updates..."
+msgstr ""
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -562,6 +568,11 @@ msgstr "다운로드"
 msgid "Download {0}"
 msgstr "다운로드 {0}"
 
+#. Link label to open the updates download page
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Download page"
+msgstr ""
+
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
@@ -572,6 +583,11 @@ msgstr "프로젝트 코드별 프로젝트 다운로드"
 #: src/home/Server.svelte
 msgid "Download unlisted project"
 msgstr "미등록 프로젝트 다운로드"
+
+#. Button label to download an update when auto-update is unavailable
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Download Update"
+msgstr ""
 
 #. Success notification with project name
 #: src/home/Server.svelte
@@ -639,6 +655,11 @@ msgstr "입력 또는 센스:"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
 msgstr "같음"
+
+#. Error message when update check fails
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Error checking for updates: {0}"
+msgstr ""
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
@@ -912,6 +933,16 @@ msgstr "하위 도메인 포함"
 msgid "Incomplete entries"
 msgstr "불완전한 항목"
 
+#. Button label to install an available update
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Install Update"
+msgstr ""
+
+#. Button label while installing an update
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Installing Update..."
+msgstr ""
+
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
@@ -1014,6 +1045,11 @@ msgstr "변경 사항이 렉스박스에 [동기화되었는지]({0}) 확인합�
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
 msgstr "관리자"
+
+#. Info message when manual update is required
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Manual update is required. Please follow the instructions provided."
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
@@ -1283,6 +1319,12 @@ msgstr "품사 선택"
 msgid "Pinned"
 msgstr "고정됨"
 
+#. Field label for operating system/platform
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Platform"
+msgstr ""
+
 #. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/project/browse/EntryListViewOptions.svelte
@@ -1332,6 +1374,11 @@ msgstr "필터를 세분화하여 자세히 보기..."
 #: src/home/Server.svelte
 msgid "Refresh Projects"
 msgstr "프로젝트 새로 고침"
+
+#. Link label to open release notes
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Release notes"
+msgstr ""
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1737,6 +1784,11 @@ msgstr "알 수 없는 오류 다운로드 중 {0}"
 msgid "Unknown server"
 msgstr "알 수 없는 서버"
 
+#. Error message for unknown update result
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Unknown update result"
+msgstr ""
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -1762,6 +1814,38 @@ msgstr "최신 정보"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
 msgstr "업데이트 {0}"
+
+#. Status message when an update is available
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update available: {0}"
+msgstr ""
+
+#. Error message when update fails to install
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update failed to install."
+msgstr ""
+
+#. Success message after update installs
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update installed successfully! Please restart the application."
+msgstr ""
+
+#. Info message when update runs in background
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update started in the background. Restart the application after the update is complete."
+msgstr ""
+
+#. Error message when update is blocked by permissions
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update was disallowed by permission settings."
+msgstr ""
+
+#. Menu item and dialog title for app updates
+#: src/home/HomeView.svelte
+#: src/lib/updates/UpdateDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Updates"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1834,6 +1918,11 @@ msgstr "쓰기 시스템: {0}"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "쓰기 시스템"
+
+#. Status message when no updates are available
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "You are running the latest version."
+msgstr ""
 
 #. Success message with task and count
 #: src/project/tasks/DoneView.svelte

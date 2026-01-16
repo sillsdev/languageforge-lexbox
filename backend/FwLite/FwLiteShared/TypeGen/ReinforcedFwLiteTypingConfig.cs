@@ -174,7 +174,9 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(IChange),
             typeof(CommitMetadata),
             typeof(ObjectSnapshot),
-            typeof(ProjectScope)
+            typeof(ProjectScope),
+            typeof(FwLiteRelease),
+            typeof(AvailableUpdate),
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
         builder.ExportAsEnum<FwEventType>().UseString();

@@ -4,11 +4,11 @@
 
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
-  import { Icon } from '$lib/components/ui/icon';
+  import {Icon} from '$lib/components/ui/icon';
   import type {IconClass} from '../lib/icon-class';
   import {useFwLiteConfig} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
-  import { t } from 'svelte-i18n-lingui';
+  import {t} from 'svelte-i18n-lingui';
   import ThemePicker from '$lib/components/ThemePicker.svelte';
   import {navigate, useRouter} from 'svelte-routing';
   import type {IProjectModel} from '$lib/dotnet-types';
@@ -25,6 +25,7 @@
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
   import DevToolsDialog from '$lib/layout/DevToolsDialog.svelte';
+  import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
 
   const config = useFwLiteConfig();
   const projectContext = useProjectContext();
@@ -53,6 +54,7 @@
 
   let troubleshootDialog = $state<TroubleshootDialog>();
   let syncDialog = $state<SyncDialog>();
+  let updateDialogOpen = $state(false);
   let feedbackOpen = $state(false);
 </script>
 
@@ -184,6 +186,12 @@
     <Sidebar.Group>
       <Sidebar.Menu>
         <Sidebar.MenuItem>
+          <Sidebar.MenuButton onclick={() => updateDialogOpen = true}>
+            <Icon icon="i-mdi-update" />
+            {$t`Updates`}
+          </Sidebar.MenuButton>
+        </Sidebar.MenuItem>
+        <Sidebar.MenuItem>
           <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
             <Icon icon="i-mdi-message" />
             <span>{$t`Feedback & Support`}</span>
@@ -214,6 +222,7 @@
 Keep dialogs out of the sidebar so they aren't destroyed
 e.g. when transitioning to mobile
 -->
+<UpdateDialog bind:open={updateDialogOpen}/>
 <TroubleshootDialog bind:this={troubleshootDialog}/>
 {#if features.sync}
   <SyncDialog bind:this={syncDialog} {syncStatus} />

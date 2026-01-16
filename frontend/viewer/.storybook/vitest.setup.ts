@@ -2,6 +2,7 @@ import * as previewAnnotations from './preview';
 
 import {afterAll, afterEach, beforeAll} from 'vitest';
 
+import {DemoStoryError} from '../src/stories/demo-story-error';
 import {setProjectAnnotations} from '@storybook/svelte-vite';
 
 const annotations = setProjectAnnotations([previewAnnotations]);
@@ -40,9 +41,10 @@ beforeAll(() => {
 // [vibe-coded]: fail tests on error logs and unhandled errors
 beforeAll(() => {
   console.error = (...args: any[]) => {
-    const message = args.map(a => (typeof a === 'string' ? a : JSON.stringify(a, null, 2))).join(' ');
-    const isIgnored = ignoredErrorPatterns.some(p => typeof p === 'string' ? message.includes(p) : p.test(message));
-    if (!isIgnored) collectedErrors.push(`[error-log] ${message}`);
+    const msg = args.map(a => (typeof a === 'string' ? a : JSON.stringify(a, null, 2))).join(' ');
+    const isIgnored = args.some(arg => arg instanceof DemoStoryError)
+      || ignoredErrorPatterns.some(p => typeof p === 'string' ? msg.includes(p) : p.test(msg));
+    if (!isIgnored) collectedErrors.push(`[error-log] ${msg}`);
     originalError(...args);
   };
 
@@ -50,13 +52,15 @@ beforeAll(() => {
   if (typeof window !== 'undefined') {
     window.addEventListener('error', (e) => {
       const msg = e.error?.stack || e.message || String(e);
-      const isIgnored = ignoredErrorPatterns.some(p => typeof p === 'string' ? msg.includes(p) : p.test(msg));
+      const isIgnored = e.error instanceof DemoStoryError
+        || ignoredErrorPatterns.some(p => typeof p === 'string' ? msg.includes(p) : p.test(msg));
       if (!isIgnored) collectedErrors.push(`[error] ${msg}`);
     });
     window.addEventListener('unhandledrejection', (e) => {
       const reason = e.reason;
       const msg = typeof reason === 'string' ? reason : (reason?.stack || JSON.stringify(reason));
-      const isIgnored = ignoredErrorPatterns.some(p => typeof p === 'string' ? msg.includes(p) : p.test(msg));
+      const isIgnored = reason instanceof DemoStoryError
+        || ignoredErrorPatterns.some(p => typeof p === 'string' ? msg.includes(p) : p.test(msg));
       if (!isIgnored) collectedErrors.push(`[unhandledrejection] ${msg}`);
     });
   }
@@ -67,7 +71,7 @@ afterEach(() => {
     const combined = collectedErrors.join('\n---\n');
     // reset before throwing so subsequent tests start clean
     collectedErrors = [];
-    throw new Error('Console/Global errors detected during story render:\n' + combined);
+    throw new Error('Console/Global errors detected during story render (potentially in previous story):\n' + combined);
   }
 });
 

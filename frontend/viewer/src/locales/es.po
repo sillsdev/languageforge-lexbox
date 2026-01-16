@@ -215,6 +215,7 @@ msgstr "Cualquier W"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
 msgid "Application version"
 msgstr "Versión de la aplicación"
 
@@ -296,6 +297,11 @@ msgstr "Los cambios también pueden ser el resultado de que los campos sean agre
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Cambiar el mismo campo dos veces, por ejemplo, puede resultar en dos commits pero sólo un cambio que necesita ser aplicado a FieldWorks Classic. Los commits también pueden consistir en varios cambios."
+
+#. Status message while checking for updates
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Checking for updates..."
+msgstr ""
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -562,6 +568,11 @@ msgstr "Descargar"
 msgid "Download {0}"
 msgstr "Descargar {0}"
 
+#. Link label to open the updates download page
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Download page"
+msgstr ""
+
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
@@ -572,6 +583,11 @@ msgstr "Descargar proyecto por código de proyecto"
 #: src/home/Server.svelte
 msgid "Download unlisted project"
 msgstr "Descargar proyecto no listado"
+
+#. Button label to download an update when auto-update is unavailable
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Download Update"
+msgstr ""
 
 #. Success notification with project name
 #: src/home/Server.svelte
@@ -639,6 +655,11 @@ msgstr "Entrada o acepción:"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
 msgstr "Es igual a"
+
+#. Error message when update check fails
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Error checking for updates: {0}"
+msgstr ""
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
@@ -912,6 +933,16 @@ msgstr "Incluye subdominios"
 msgid "Incomplete entries"
 msgstr "Entradas incompletas"
 
+#. Button label to install an available update
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Install Update"
+msgstr ""
+
+#. Button label while installing an update
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Installing Update..."
+msgstr ""
+
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
@@ -1014,6 +1045,11 @@ msgstr "Asegúrese de que su [cambios están sincronizados]({0}) en Lexbox."
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
 msgstr "Gerente"
+
+#. Info message when manual update is required
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Manual update is required. Please follow the instructions provided."
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
@@ -1283,6 +1319,12 @@ msgstr "Escoge una parte de la voz"
 msgid "Pinned"
 msgstr "Pinned"
 
+#. Field label for operating system/platform
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Platform"
+msgstr ""
+
 #. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/project/browse/EntryListViewOptions.svelte
@@ -1332,6 +1374,11 @@ msgstr "Afine su filtro para ver más..."
 #: src/home/Server.svelte
 msgid "Refresh Projects"
 msgstr "Actualizar proyectos"
+
+#. Link label to open release notes
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Release notes"
+msgstr ""
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1737,6 +1784,11 @@ msgstr "Error desconocido al descargar {0}"
 msgid "Unknown server"
 msgstr "Servidor desconocido"
 
+#. Error message for unknown update result
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Unknown update result"
+msgstr ""
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -1762,6 +1814,38 @@ msgstr "Actualizado"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
 msgstr "Actualizar {0}"
+
+#. Status message when an update is available
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update available: {0}"
+msgstr ""
+
+#. Error message when update fails to install
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update failed to install."
+msgstr ""
+
+#. Success message after update installs
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update installed successfully! Please restart the application."
+msgstr ""
+
+#. Info message when update runs in background
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update started in the background. Restart the application after the update is complete."
+msgstr ""
+
+#. Error message when update is blocked by permissions
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update was disallowed by permission settings."
+msgstr ""
+
+#. Menu item and dialog title for app updates
+#: src/home/HomeView.svelte
+#: src/lib/updates/UpdateDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Updates"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1834,6 +1918,11 @@ msgstr "Sistema de escritura: {0}"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Sistemas de escritura"
+
+#. Status message when no updates are available
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "You are running the latest version."
+msgstr ""
 
 #. Success message with task and count
 #: src/project/tasks/DoneView.svelte

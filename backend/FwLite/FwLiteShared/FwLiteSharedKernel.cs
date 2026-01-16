@@ -22,6 +22,7 @@ public static class FwLiteSharedKernel
 {
     public static IServiceCollection AddFwLiteShared(this IServiceCollection services, IHostEnvironment environment)
     {
+        services.AddMemoryCache();
         services.AddHttpClient();
         services.AddAuthHelpers(environment);
         services.AddLcmCrdtClient();
@@ -46,6 +47,7 @@ public static class FwLiteSharedKernel
         services.AddSingleton<UpdateChecker>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<UpdateChecker>());
         services.TryAddSingleton<IPlatformUpdateService, CorePlatformUpdateService>();
+        services.AddSingleton<UpdateService>();
         services.AddSingleton<TestingService>();
         services.AddOptions<FwLiteConfig>().BindConfiguration("FwLite");
         services.DecorateConstructor<IJSRuntime>((provider, runtime) =>

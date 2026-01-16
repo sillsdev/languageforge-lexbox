@@ -39,17 +39,25 @@
 
 <ResponsiveDialog bind:open={openQueryParam.current} title={$t`Troubleshoot`} disableBackHandler>
   <div class="flex flex-col gap-4 items-start">
-    <p class="flex items-baseline gap-2">
-      {$t`Application version`}:
-      <span class="font-mono text-muted-foreground border-b">{config.appVersion}</span>
-      <CopyButton
-        variant="ghost"
-        size="xs-icon"
-        iconProps={{class: 'size-4'}}
-        title={$t`Copy version`}
-        text={`${config.appVersion} on ${config.os}`}
-      />
-    </p>
+    <div>
+      <p class="flex items-baseline gap-1">
+        {$t`Application version`}:
+        <span class="font-semibold border-b">
+          {config.appVersion}
+        </span>
+        <CopyButton
+          variant="ghost"
+          size="xs-icon"
+          iconProps={{class: 'size-4'}}
+          title={$t`Copy version`}
+          text={`${config.appVersion} on ${config.os}`}
+        />
+      </p>
+      <p class="flex items-baseline gap-1">
+        {$t`Platform`}:
+        <span class="font-semibold">{config.os}</span>
+      </p>
+    </div>
     {#if service}
       <div class="w-full">
         <Label>{$t`Data Directory`}</Label>
