@@ -5,6 +5,7 @@ import {
   type IComplexFormComponent,
   type IComplexFormType,
   type IEntry,
+  type IEntriesWindow,
   type IExampleSentence,
   type IFilterQueryOptions,
   type IMiniLcmJsInvokable,
@@ -44,6 +45,7 @@ const complexFormTypes = entries
   .filter((value, index, all) => all.findIndex(v2 => v2.id === value.id) === index);
 
 function filterEntries(entries: IEntry[], query: string): IEntry[] {
+  const q = query.toLowerCase();
   return entries.filter(entry =>
     [
       ...Object.values(entry.lexemeForm ?? {}),
@@ -51,7 +53,7 @@ function filterEntries(entries: IEntry[], query: string): IEntry[] {
       ...entry.senses.flatMap(sense => [
         ...Object.values(sense.gloss ?? {}),
       ]),
-    ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
+    ].some(value => value?.toLowerCase().startsWith(q)));
 }
 
 export const mockFwLiteConfig: IFwLiteConfig = {
@@ -89,6 +91,46 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   countEntries(query?: string, options?: IFilterQueryOptions): Promise<number> {
     const entries = this.getFilteredEntries(query, options);
     return Promise.resolve(entries.length);
+  }
+
+  async getEntriesWindow(query?: string, options?: IQueryOptions, targetEntryId?: string): Promise<IEntriesWindow> {
+    await delay(300);
+    const allEntries = this.queryEntriesUnpaged(query, options);
+    const totalCount = allEntries.length;
+
+    let offset = options?.offset ?? 0;
+    const count = options?.count ?? 100;
+    let targetIndex: number | undefined = undefined;
+
+    // If targetEntryId is provided, find it and center the window around it
+    if (targetEntryId) {
+      const targetGlobalIndex = allEntries.findIndex(e => e.id === targetEntryId);
+      if (targetGlobalIndex !== -1) {
+        // Center the window around the target entry
+        offset = Math.max(0, targetGlobalIndex - Math.floor(count / 2));
+        // Adjust if we're near the end
+        if (offset + count > totalCount) {
+          offset = Math.max(0, totalCount - count);
+        }
+        // Calculate the index of the target within the returned window
+        targetIndex = targetGlobalIndex - offset;
+      }
+    }
+
+    const entries = allEntries.slice(offset, offset + count);
+    console.log(`[DemoAPI] getEntriesWindow: totalCount=${totalCount}, offset=${offset}, count=${count}, returning=${entries.length}, targetEntryId=${targetEntryId}, targetIndex=${targetIndex}`);
+    return {
+      entries,
+      totalCount,
+      offset,
+      targetIndex,
+    };
+  }
+
+  async getEntryIndex(entryId: string, query?: string, options?: IFilterQueryOptions): Promise<number> {
+    await delay(100);
+    const entries = this.getFilteredSortedEntries(query, options);
+    return entries.findIndex(e => e.id === entryId);
   }
 
   public static newProjectContext() {
@@ -211,6 +253,40 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         return options.order.ascending ? compare : -compare;
       })
       .slice(options.offset, options.offset + options.count);
+  }
+
+  // Returns filtered and sorted entries without pagination (for windowed queries)
+  private queryEntriesUnpaged(query: string | undefined, options: IQueryOptions | undefined): IEntry[] {
+    const entries = this.getFilteredEntries(query, options);
+
+    if (!options) return entries;
+    const defaultWs = writingSystems.vernacular[0].wsId;
+    const sortWs = pickWs(options.order.writingSystem, defaultWs);
+    return entries
+      .sort((e1, e2) => {
+        const v1 = this.#writingSystemService.headword(e1, sortWs);
+        const v2 = this.#writingSystemService.headword(e2, sortWs);
+        if (!v2) return -1;
+        if (!v1) return 1;
+        let compare = v1.localeCompare(v2, sortWs);
+        if (compare == 0) compare = e1.id.localeCompare(e2.id);
+        return options.order.ascending ? compare : -compare;
+      });
+  }
+
+  // Returns filtered and sorted entries for index lookup
+  private getFilteredSortedEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
+    const entries = this.getFilteredEntries(query, options);
+    const defaultWs = writingSystems.vernacular[0].wsId;
+    // For getEntryIndex, we just need filtering, but we'll also sort for consistency
+    // Note: IFilterQueryOptions doesn't have order, so we use default sort
+    return entries.sort((e1, e2) => {
+      const v1 = this.#writingSystemService.headword(e1, defaultWs);
+      const v2 = this.#writingSystemService.headword(e2, defaultWs);
+      if (!v2) return -1;
+      if (!v1) return 1;
+      return v1.localeCompare(v2, defaultWs);
+    });
   }
 
   private getFilteredEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
