@@ -227,6 +227,24 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CanFilterByMorphTypeSingleType()
+    {
+        // This test ensures we can filter by a single morph type
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "MorphType=Root" })).ToArrayAsync();
+        // Root is not set on any of our test entries (they all default to Stem), so should be empty
+        results.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CanFilterByMorphTypeTwoTypes()
+    {
+        // This test ensures we can filter by multiple morph types using OR syntax
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "MorphType=Root|MorphType=Stem" })).ToArrayAsync();
+        // All our test entries default to Stem, so we should get all of them
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Peach, Banana, Kiwi, Null_LexemeForm);
+    }
+
+    [Fact]
     public async Task CanFilterLexemeForm()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "LexemeForm[en]=Apple" })).ToArrayAsync();

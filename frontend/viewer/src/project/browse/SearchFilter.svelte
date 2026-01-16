@@ -16,6 +16,7 @@
   import PartOfSpeechSelect from './filter/PartOfSpeechSelect.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
   import type {ISemanticDomain, IPartOfSpeech} from '$lib/dotnet-types';
+  import {MorphType} from '$lib/dotnet-types';
   import {Switch} from '$lib/components/ui/switch';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
@@ -43,6 +44,14 @@
   let fieldFilterValue = $state('');
   let filterOp = $state<Op>('contains')
   let includeSubDomains = $state(false);
+  let userFilterActive = $state(false);
+
+  const LITE_MORPHEME_TYPES = new Set([
+    MorphType.Root, MorphType.BoundRoot,
+    MorphType.Stem, MorphType.BoundStem,
+    MorphType.Particle,
+    MorphType.Phrase, MorphType.DiscontiguousPhrase,
+  ]);
 
   $effect(() => {
     let newFilter: string[] = [];
@@ -77,6 +86,14 @@
 
     if (partOfSpeech) {
       newFilter.push(`Senses.PartOfSpeechId=${partOfSpeech.id}`);
+    }
+
+    // all user selected filters should be before this line!
+    userFilterActive = newFilter.length > 0;
+
+    if ($currentView.type === 'fw-lite') {
+      const morphTypeFilters = Array.from(LITE_MORPHEME_TYPES).map(mt => `MorphType=${mt}`);
+      newFilter.push('(' + morphTypeFilters.join('|') + ')');
     }
 
     gridifyFilter = newFilter.join(', ');
@@ -118,7 +135,7 @@
         {#snippet trigger({ props })}
           <Button {...props} variant="ghost"
             size={IsMobile.value ? 'sm-icon' : 'xs-icon'}
-            icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'}
+            icon={userFilterActive ? 'i-mdi-filter' : 'i-mdi-filter-outline'}
             aria-label={$t`Toggle filters`} />
         {/snippet}
         <div class="space-y-4">

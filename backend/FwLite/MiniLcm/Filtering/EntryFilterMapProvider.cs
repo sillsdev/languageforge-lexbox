@@ -19,6 +19,7 @@ public abstract class EntryFilterMapProvider<T>
     public abstract Expression<Func<T, string, object>> EntryLexemeForm { get; }
     public abstract Expression<Func<T, string, object>> EntryCitationForm { get; }
     public abstract Expression<Func<T, string, object>> EntryLiteralMeaning { get; }
+    public abstract Expression<Func<T, object?>> EntryMorphType { get; }
     public abstract Expression<Func<T, object?>> EntryComplexFormTypes { get; }
     public virtual Func<string, object>? EntryComplexFormTypesConverter { get; } = null;
 }
