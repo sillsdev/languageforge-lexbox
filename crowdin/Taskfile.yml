@@ -11,6 +11,14 @@ tasks:
   pull:
     cmd: task crowdin -- pull
 
+  dryrun:
+    desc: Dry run push sources and push translations for a single language (defaulting to Swahili)
+    vars:
+      LOCALE: '{{.LOCALE | default "sw"}}'
+    cmds:
+      - task crowdin -- push sources --dryrun
+      - task crowdin -- push translations -l {{.LOCALE}} --dryrun
+
   i18n:
     dir: ../frontend/viewer
     cmds:
