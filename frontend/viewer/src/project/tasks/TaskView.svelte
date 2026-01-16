@@ -65,8 +65,8 @@
           bind:entry
           {task}
           {progress}
-          onNextEntry={() => {
-            let next = entriesList?.selectNextEntry();
+          onNextEntry={async () => {
+            const next = await entriesList?.selectNextEntry();
             if (!next) onDone();
           }}
           onCompletedSubject={subject => {
