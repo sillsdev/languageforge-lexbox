@@ -68,12 +68,12 @@ Use these rules from the review workflow to ensure quality:
 ### Terminology Consistency
 - Keep key terms consistent across the app.
 - Maintain/extend a glossary for:
-	- Entry (Classic view)
-	- Word (Lite view)
-	- Sense (Classic) / Meaning (Lite)
-	- Definition, Example, Gloss
-	- Component, Complex Form
-	- Semantic domain, Writing System
+  - Entry (Classic view)
+  - Word (Lite view)
+  - Sense (Classic) / Meaning (Lite)
+  - Definition, Example, Gloss
+  - Component, Complex Form
+  - Semantic domain, Writing System
 
 ### Context Appropriateness
 - Use `#.` context comments to guide tone and UI usage.
