@@ -215,6 +215,7 @@ msgstr "Sistem penulisan apa pun"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
 msgid "Application version"
 msgstr "Versi aplikasi"
 
@@ -296,6 +297,11 @@ msgstr "Perubahan juga dapat terjadi karena field yang ditambahkan pada versi ba
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Mengubah bidang yang sama dua kali, misalnya, dapat menghasilkan dua komit namun hanya satu perubahan yang perlu diterapkan ke FieldWorks Classic. Commit juga dapat terdiri dari beberapa perubahan."
+
+#. Status message while checking for updates
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Checking for updates..."
+msgstr ""
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -562,6 +568,11 @@ msgstr "Unduh"
 msgid "Download {0}"
 msgstr "Unduh {0}"
 
+#. Link label to open the updates download page
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Download page"
+msgstr ""
+
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
@@ -572,6 +583,11 @@ msgstr "Unduh proyek berdasarkan kode proyek"
 #: src/home/Server.svelte
 msgid "Download unlisted project"
 msgstr "Unduh proyek yang tidak terdaftar"
+
+#. Button label to download an update when auto-update is unavailable
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Download Update"
+msgstr ""
 
 #. Success notification with project name
 #: src/home/Server.svelte
@@ -639,6 +655,11 @@ msgstr "Entri atau pengertian:"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
 msgstr "Sama"
+
+#. Error message when update check fails
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Error checking for updates: {0}"
+msgstr ""
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
@@ -912,6 +933,16 @@ msgstr "Menyertakan subdomain"
 msgid "Incomplete entries"
 msgstr "Entri tidak lengkap"
 
+#. Button label to install an available update
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Install Update"
+msgstr ""
+
+#. Button label while installing an update
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Installing Update..."
+msgstr ""
+
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
@@ -1014,6 +1045,11 @@ msgstr "Pastikan [perubahan telah disinkronkan]({0}) ke Lexbox."
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
 msgstr "Manajer"
+
+#. Info message when manual update is required
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Manual update is required. Please follow the instructions provided."
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
@@ -1283,6 +1319,12 @@ msgstr "Pilih Bagian dari Pidato"
 msgid "Pinned"
 msgstr "Disematkan"
 
+#. Field label for operating system/platform
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Platform"
+msgstr ""
+
 #. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/project/browse/EntryListViewOptions.svelte
@@ -1332,6 +1374,11 @@ msgstr "Sempurnakan filter Anda untuk melihat lebih banyak..."
 #: src/home/Server.svelte
 msgid "Refresh Projects"
 msgstr "Menyegarkan Proyek"
+
+#. Link label to open release notes
+#: src/lib/updates/UpdateDialog.svelte
+msgid "Release notes"
+msgstr ""
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1737,6 +1784,11 @@ msgstr "Kesalahan pengunduhan yang tidak diketahui {0}"
 msgid "Unknown server"
 msgstr "Server tidak dikenal"
 
+#. Error message for unknown update result
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Unknown update result"
+msgstr ""
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -1762,6 +1814,38 @@ msgstr "Terbaru"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
 msgstr "Perbarui {0}"
+
+#. Status message when an update is available
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update available: {0}"
+msgstr ""
+
+#. Error message when update fails to install
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update failed to install."
+msgstr ""
+
+#. Success message after update installs
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update installed successfully! Please restart the application."
+msgstr ""
+
+#. Info message when update runs in background
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update started in the background. Restart the application after the update is complete."
+msgstr ""
+
+#. Error message when update is blocked by permissions
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update was disallowed by permission settings."
+msgstr ""
+
+#. Menu item and dialog title for app updates
+#: src/home/HomeView.svelte
+#: src/lib/updates/UpdateDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Updates"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1834,6 +1918,11 @@ msgstr "Sistem penulisan: {0}"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Sistem Penulisan"
+
+#. Status message when no updates are available
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "You are running the latest version."
+msgstr ""
 
 #. Success message with task and count
 #: src/project/tasks/DoneView.svelte
