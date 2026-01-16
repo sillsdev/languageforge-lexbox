@@ -10,12 +10,12 @@ public class UpdateService(UpdateChecker updateChecker)
     [TsFunction(Type = "Promise<IAvailableUpdate | null>")]
     public Task<AvailableUpdate?> CheckForUpdates()
     {
-        return updateChecker.CheckForUpdate();
+        return Task.Run(async () => await updateChecker.CheckForUpdate());
     }
 
     [JSInvokable]
     public Task<UpdateResult> ApplyUpdate(AvailableUpdate update)
     {
-        return updateChecker.ApplyUpdate(update.Release);
+        return Task.Run(async () => await updateChecker.ApplyUpdate(update.Release));
     }
 }
