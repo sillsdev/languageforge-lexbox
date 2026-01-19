@@ -282,7 +282,7 @@ export class EntryLoaderService {
     const maxBatch = Math.floor(maxIndex / this.batchSize);
     for (let batch = 0; batch <= maxBatch; batch++) {
       const startIndex = batch * this.batchSize;
-      const endIndex = Math.min(startIndex + this.batchSize, (this.totalCount ?? 0));
+      const endIndex = Math.min(startIndex + this.batchSize, (this.totalCount ?? startIndex + this.batchSize));
       let allPresent = true;
 
       for (let i = startIndex; i < endIndex; i++) {
