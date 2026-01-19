@@ -35,6 +35,7 @@
   aria-selected={selected && !skeleton && !disabled}
   selected={selected && !skeleton && !disabled ? 'true' : undefined}
   disabled={disabled || loading}
+  data-skeleton={skeleton || undefined}
   class={cn(
     'w-full max-w-full px-4 py-3 flex text-left overflow-hidden items-center gap-4',
     'dark:bg-muted/50 bg-muted/80 hover:bg-primary/15 hover:dark:bg-primary/15 aria-selected:ring-2 ring-primary ring-offset-background rounded',
