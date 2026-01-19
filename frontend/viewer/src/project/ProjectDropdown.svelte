@@ -1,9 +1,9 @@
 <script lang="ts">
   import * as Command from '$lib/components/ui/command';
   import * as Popover from '$lib/components/ui/popover';
-  import { Button } from '$lib/components/ui/button';
-  import { Icon } from '$lib/components/ui/icon';
-  import { cn } from '$lib/utils';
+  import {Button} from '$lib/components/ui/button';
+  import {Icon} from '$lib/components/ui/icon';
+  import {cn} from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import {tick} from 'svelte';
   import flexLogo from '$lib/assets/flex-logo.png';
@@ -77,7 +77,7 @@
         variant="ghost"
         role="combobox"
         aria-expanded={open}
-        class="w-full justify-between overflow-hidden gap-0 paratext:!opacity-100"
+        class="w-full justify-between overflow-hidden gap-0 paratext:!opacity-100 h-12 md:h-10"
         disabled={projectContext.inParatext}
         {...props}
       >
