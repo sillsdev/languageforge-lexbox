@@ -1,6 +1,5 @@
 <script lang="ts">
   import {Button} from '$lib/components/ui/button/index.js';
-  import {cn} from '$lib/utils.js';
   import type {ComponentProps} from 'svelte';
   import {Icon} from '../icon';
   import {useSidebar} from './context.svelte.js';
@@ -32,7 +31,7 @@
   data-sidebar="trigger"
   variant="ghost"
   size="icon"
-  class={cn(!restProps.size ? 'h-7 w-7' : '', className)}
+  class={className}
   {...restProps}
 >
   <Icon {icon} {...iconProps} />

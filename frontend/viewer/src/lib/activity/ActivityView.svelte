@@ -57,7 +57,7 @@
   <div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
        style="grid-template-rows: auto minmax(0,100%); minmax(min-content, 1fr) minmax(min-content, 2fr); grid-template-columns: 1fr 2fr">
 
-    <SidebarTrigger icon="i-mdi-menu" iconProps={{ class: 'size-5' }} class="aspect-square p-0" size="xs"/>
+    <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0" />
     <div class="gap-4 overflow-hidden row-start-2">
 
             <VList bind:this={vlist} data={activity.current ?? []}
