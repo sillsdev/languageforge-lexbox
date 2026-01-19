@@ -65,8 +65,18 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 
 ### Important Rules
 
+- ✅ New instructions in AGENTS.md files should be SUCCINCT.
 - ✅ Use `gh` CLI for GitHub issues/PRs, not browser tools
 - ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)
 - ✅ Do NOT run integration tests unless user explicitly requests
 - ✅ When handling a user prompt ALWAYS ask for clarification if there are details to clarify, important decisions that must be made first or the plan sounds unwise
 - ❌ Do NOT git commit or git push without explicit user approval
+
+### 🛡️ VIGILANCE
+
+- ❌ **NEVER "fix" a failure** by removing assertions, commenting out code, or changing data to match a broken implementation.
+- ✅ **ALWAYS fix the root cause** when a test or check fails.
+- ✅ **ALWAYS double-check** that your "fix" hasn't made a check or test meaningless (e.g., asserting `expect(true).toBe(true)`).
+- ✅ **Assert that E2E test user actions** e.g. (scroll, click, etc.) actually have the expected effect before proceeding further.
+
+If you are struggling, explain the difficulty to the user instead of cheating. **Integrity is non-negotiable.**
