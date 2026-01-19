@@ -73,24 +73,33 @@
   }
 
 	let timeoutId: ReturnType<typeof setTimeout> | undefined;
+	let runId = 0;
 
 	function startLoading() {
+		const currentRun = ++runId;
 		reset();
-		timeoutId = setTimeout(() => void doLoad(), delay);
+		timeoutId = setTimeout(() => void doLoad(currentRun), delay);
 	}
 
-  async function doLoad() {
+  async function doLoad(currentRun: number) {
     try {
       const result = await load();
-      state = { loading: false, current: result, error: undefined };
+			if (currentRun !== runId) {
+				return;
+			}
+			state = { loading: false, current: result, error: undefined };
     } catch (error) {
-      state = { loading: false, current: undefined, error };
+			if (currentRun !== runId) {
+				return;
+			}
+			state = { loading: false, current: undefined, error };
     }
   }
 
 	function cancelLoading() {
     clearTimeout(timeoutId);
     timeoutId = undefined;
+		runId += 1;
 	}
 </script>
 
