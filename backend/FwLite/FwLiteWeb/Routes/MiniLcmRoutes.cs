@@ -100,7 +100,7 @@ public static class MiniLcmRoutes
         api.MapGet("/entries/window", MiniLcm.GetEntriesWindow);
         api.MapGet("/entries/{search}", MiniLcm.SearchEntries);
         api.MapGet("/entry/{id:Guid}", MiniLcm.GetEntry);
-        api.MapGet("/entry/{id:Guid}/row-index", MiniLcm.GetEntryRowIndex);
+        api.MapGet("/entry/{id:Guid}/index", MiniLcm.GetEntryIndex);
         api.MapGet("/parts-of-speech", MiniLcm.GetPartsOfSpeech);
         api.MapGet("/semantic-domains", MiniLcm.GetSemanticDomains);
         api.MapGet("/publications", MiniLcm.GetPublications);
@@ -149,13 +149,13 @@ public static class MiniLcmRoutes
             return api.GetEntriesWindow(start, size, null, options.ToQueryOptions());
         }
 
-        public static Task<EntryRowIndexResponse> GetEntryRowIndex(
+        public static Task<int> GetEntryIndex(
             Guid id,
             [AsParameters] MiniLcmQueryOptions options,
             [FromServices] MiniLcmHolder holder)
         {
             var api = holder.MiniLcmApi;
-            return api.GetEntryRowIndex(id, null, options.ToQueryOptions());
+            return api.GetEntryIndex(id, null, options.ToQueryOptions());
         }
 
         public static IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech([FromServices] MiniLcmHolder holder)

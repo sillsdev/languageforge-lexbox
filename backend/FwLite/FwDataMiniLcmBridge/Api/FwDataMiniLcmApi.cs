@@ -977,7 +977,7 @@ public class FwDataMiniLcmApi(
         return new EntryWindowResponse(entries, start);
     }
 
-    public Task<EntryRowIndexResponse> GetEntryRowIndex(Guid entryId, string? query = null, QueryOptions? options = null)
+    public Task<int> GetEntryIndex(Guid entryId, string? query = null, QueryOptions? options = null)
     {
         options ??= QueryOptions.Default;
         var predicate = EntrySearchPredicate(query);
@@ -989,13 +989,12 @@ public class FwDataMiniLcmApi(
         {
             if (entry.Guid == entryId)
             {
-                var result = FromLexEntry(entry);
-                return Task.FromResult(new EntryRowIndexResponse(rowIndex, result));
+                return Task.FromResult(rowIndex);
             }
             rowIndex++;
         }
 
-        throw NotFoundException.ForType<Entry>(entryId);
+        return Task.FromResult(-1);
     }
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
