@@ -56,7 +56,7 @@ describe('EntryLoaderService', () => {
 
     expect(api.getEntries).toHaveBeenCalledTimes(1);
     expect(service.getEntryByIndex(0)?.id).toBe('e0');
-    expect(service.getIndexById('e1')).toBe(1);
+    expect(await service.getEntryIndex('e1')).toBe(1);
   });
 
   it('returns cached entries without refetching', async () => {
@@ -83,9 +83,24 @@ describe('EntryLoaderService', () => {
 
     service.removeEntryById('e1');
 
-    expect(service.getIndexById('e2')).toBe(1);
+    expect(await service.getEntryIndex('e2')).toBe(1);
     expect(service.getEntryByIndex(1)?.id).toBe('e2');
     expect(service.totalCount).toBe(2);
+  });
+
+  it('increments version on update', async () => {
+    const entry0 = makeEntry('e0');
+    const {service, cleanup} = createService([entry0]);
+    cleanups.push(cleanup);
+
+    await service.loadEntryByIndex(0);
+    const v1 = service.getVersion(0);
+
+    service.updateEntry({...entry0, citationForm: {en: 'updated'}});
+    const v2 = service.getVersion(0);
+
+    expect(v1).toBe(1);
+    expect(v2).toBe(2);
   });
 
   it('recalculates loaded batches when totalCount is undefined', async () => {

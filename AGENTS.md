@@ -73,6 +73,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ New instructions in AGENTS.md files should be SUCCINCT.
 - ✅ Use `gh` CLI for GitHub issues/PRs, not browser tools
 - ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)
+- ✅ Prefer IDE diagnostics (compiler/lint errors) over CLI tools for identifying issues. Fixing these diagnostics is part of completing any instruction.
 - ✅ Do NOT run integration tests unless user explicitly requests
 - ✅ When handling a user prompt ALWAYS ask for clarification if there are details to clarify, important decisions that must be made first or the plan sounds unwise
 - ❌ Do NOT git commit or git push without explicit user approval

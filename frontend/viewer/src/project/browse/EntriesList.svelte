@@ -102,25 +102,32 @@
   let vList = $state<VListHandle>();
   $effect(() => {
     if (!vList || !selectedEntryId) return;
-    const indexOfSelected = entryLoader.getIndexById(selectedEntryId);
-    if (indexOfSelected === undefined) return;
+
+    void scrollToEntry(vList, selectedEntryId);
+  });
+
+  async function scrollToEntry(vList: VListHandle, entryId: string) {
+    const index = await entryLoader.getEntryIndex(entryId);
+    if (index < 0 || !vList) return;
+
     const visibleStart = vList.getScrollOffset();
     const visibleSize = vList.getViewportSize();
     const visibleEnd = visibleStart + visibleSize;
-    const itemStart = vList.getItemOffset(indexOfSelected);
-    const itemSize = vList.getItemSize(indexOfSelected);
+    const itemStart = vList.getItemOffset(index);
+    const itemSize = vList.getItemSize(index);
     const itemEnd = itemStart + itemSize;
+
     if (itemStart < visibleStart || itemEnd > visibleEnd) {
       //using smooth scroll caused lag, maybe only do it if scrolling a short distance?
-      vList.scrollToIndex(indexOfSelected, {align: 'center'});
+      vList.scrollToIndex(index, { align: 'center' });
     }
-  });
+  }
 
   export async function selectNextEntry(): Promise<IEntry | undefined> {
     const indexOfSelected = selectedEntryId
-      ? entryLoader.getIndexById(selectedEntryId)
-      : undefined;
-    const nextIndex = indexOfSelected === undefined ? 0 : indexOfSelected + 1;
+      ? await entryLoader.getEntryIndex(selectedEntryId)
+      : -1;
+    const nextIndex = indexOfSelected < 0 ? 0 : indexOfSelected + 1;
 
     // Check count bounds
     if (entryLoader.totalCount === undefined || nextIndex >= entryLoader.totalCount) {
@@ -168,28 +175,30 @@
           {/each}
         </div>
       {:else}
-        <VList bind:this={vList} data={indexArray} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={(index: number) => index} bufferSize={400}>
+        <VList bind:this={vList} data={indexArray} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={(index: number) => entryLoader.getEntryByIndex(index)?.id ?? `skeleton-${index}`} bufferSize={400}>
           {#snippet children(index: number)}
-            <Delayed
-              getCached={() => entryLoader.getEntryByIndex(index)}
-              load={() => entryLoader.loadEntryByIndex(index)}
-              delay={250}
-            >
-              {#snippet children(state)}
-                {#if state.loading || !state.current}
-                  <EntryRow class="mb-2" skeleton={true} />
-                {:else}
-                  {@const entry = state.current}
-                  <EntryMenu {entry} contextMenu>
-                    <EntryRow {entry}
-                              class="mb-2"
-                              selected={selectedEntryId === entry.id}
-                              onclick={() => onSelectEntry(entry)}
-                              {previewDictionary}/>
-                  </EntryMenu>
-                {/if}
-              {/snippet}
-            </Delayed>
+            {#key entryLoader.getVersion(index)}
+              <Delayed
+                getCached={() => entryLoader.getEntryByIndex(index)}
+                load={() => entryLoader.loadEntryByIndex(index)}
+                delay={250}
+              >
+                {#snippet children(state)}
+                  {#if state.loading || !state.current}
+                    <EntryRow class="mb-2" skeleton={true} />
+                  {:else}
+                    {@const entry = state.current}
+                    <EntryMenu {entry} contextMenu>
+                      <EntryRow {entry}
+                                class="mb-2"
+                                selected={selectedEntryId === entry.id}
+                                onclick={() => onSelectEntry(entry)}
+                                {previewDictionary}/>
+                    </EntryMenu>
+                  {/if}
+                {/snippet}
+              </Delayed>
+            {/key}
           {/snippet}
         </VList>
         {#if indexArray.length === 0}
