@@ -32,6 +32,9 @@ export class EntryLoaderService {
   #pendingBatches = new SvelteMap<number, Promise<IEntry[]>>();
   #loadedBatches = new SvelteSet<number>();
 
+  // Generation counter to invalidate in-flight async operations after reset
+  #generation = 0;
+
   // Config
   readonly batchSize = 50;
 
@@ -46,7 +49,7 @@ export class EntryLoaderService {
       () => [deps.miniLcmApi(), deps.search(), deps.sort(), deps.gridifyFilter()],
       () => {
         this.reset();
-        void this.loadCount();
+        void this.loadInitialCount();
       }
     );
   }
@@ -55,34 +58,38 @@ export class EntryLoaderService {
    * Get an entry from cache by index (synchronous).
    * Returns undefined if not cached.
    */
-  getEntryByIndex(index: number): IEntry | undefined {
+  getCachedEntryByIndex(index: number): IEntry | undefined {
+    return this.#entryCache.get(index);
+  }
+
+  async #countEntries(): Promise<number> {
+    const api = this.#deps.miniLcmApi();
+    if (!api) return 0;
+    const filterOptions = this.#buildFilterOptions();
+    const search = this.#deps.search();
+    return api.countEntries(search || undefined, filterOptions);
+  }
+
+  /**
+   * Get (from cache) or load an entry by index (asynchronous).
+   * Fetches the batch containing this index if not already loaded.
+   * Returns undefined if entry not found (e.g., reset occurred during load).
+   */
+  async getOrLoadEntryByIndex(index: number): Promise<IEntry | undefined> {
+    const cached = this.#entryCache.get(index);
+    if (cached) return cached;
+
+    await this.#loadBatchForIndex(index);
+
+    // Return from cache. If reset occurred during load, batch wasn't cached, so this returns undefined.
     return this.#entryCache.get(index);
   }
 
   /**
-   * Load an entry by index (asynchronous).
-   * Fetches the batch containing this index if not already loaded.
-   */
-  async loadEntryByIndex(index: number): Promise<IEntry> {
-    // Check cache first
-    const cached = this.#entryCache.get(index);
-    if (cached) return cached;
-
-    // Load the batch
-    await this.#loadBatchForIndex(index);
-
-    // Return from cache (should now be populated)
-    const entry = this.#entryCache.get(index);
-    if (!entry) {
-      throw new Error(`Entry at index ${index} not found after loading batch`);
-    }
-    return entry;
-  }
-
-  /**
    * Load the total count of entries matching current filters.
+   * This is used to scaffold this service, so it dictates the loading state.
    */
-  async loadCount(): Promise<void> {
+  async loadInitialCount(): Promise<void> {
     const api = this.#deps.miniLcmApi();
     if (!api) {
       this.totalCount = undefined;
@@ -93,15 +100,19 @@ export class EntryLoaderService {
     this.loading = true;
     this.error = undefined;
 
+    const generation = this.#generation;
     try {
-      const filterOptions = this.#buildFilterOptions();
-      const search = this.#deps.search();
-      this.totalCount = await api.countEntries(search || undefined, filterOptions);
+      const count = await this.#countEntries();
+      if (this.#generation !== generation) return; // Stale result after reset
+      this.totalCount = count;
     } catch (e) {
+      if (this.#generation !== generation) return; // Stale result after reset
       this.error = e instanceof Error ? e : new Error(String(e));
       this.totalCount = undefined;
     } finally {
-      this.loading = false;
+      if (this.#generation === generation) {
+        this.loading = false;
+      }
     }
   }
 
@@ -118,14 +129,13 @@ export class EntryLoaderService {
    * Checks the local cache first, then queries the backend.
    * Returns -1 if the entry is not found.
    */
-  async getEntryIndex(id: string): Promise<number> {
+  async getOrLoadEntryIndex(id: string): Promise<number> {
     const cached = this.#idToIndex.get(id);
     if (cached !== undefined) return cached;
 
     const api = this.#deps.miniLcmApi();
     if (!api) return -1;
 
-    // Refresh query options
     const queryOptions = this.#buildQueryOptions(0, 0);
     const search = this.#deps.search();
 
@@ -133,23 +143,17 @@ export class EntryLoaderService {
   }
 
   /**
-   * Check if an entry ID is known (loaded into cache).
-   */
-  hasEntry(id: string): boolean {
-    return this.#idToIndex.has(id);
-  }
-
-  /**
    * Remove an entry by ID (for delete events).
-   * If not in cache, triggers a full reset.
+   * Refreshes the list to keep indices in sync.
    */
   removeEntryById(id: string): void {
     const index = this.#idToIndex.get(id);
 
     if (index === undefined) {
-      // Entry not in cache — we don't know where it was, so reset
+      // Entry not in cache — we don't know where it was, so we MUST reset
+      // or we'll have an incorrect totalCount.
       this.reset();
-      void this.loadCount();
+      void this.loadInitialCount();
       return;
     }
 
@@ -159,61 +163,124 @@ export class EntryLoaderService {
     this.#entryVersions.delete(index);
 
     // Shift all subsequent entries down by 1
+    this.#shiftCache(index, -1);
+
+    // Decrement total count
+    if (this.totalCount !== undefined && this.totalCount > 0) {
+      this.totalCount--;
+    }
+
+    this.#recalculateLoadedBatches();
+  }
+
+  /**
+   * Update an entry in cache (for update events).
+   * Note: This method is called for both entry updates AND entry creates (via EntryChanged event).
+   * We detect creates vs updates by comparing the new count to our cached count.
+   */
+  async updateEntry(entry: IEntry): Promise<void> {
+    const cachedIndex = this.#idToIndex.get(entry.id);
+
+    if (cachedIndex !== undefined) {
+      // Update the cache and increment version
+      this.#entryCache.set(cachedIndex, entry);
+      this.#entryVersions.set(cachedIndex, (this.#entryVersions.get(cachedIndex) ?? 1) + 1);
+      return;
+    }
+
+    // Entry not in cache — we don't know if it was updated or created
+    // Query backend for its current index AND the new count.
+    const generation = this.#generation;
+    const [newIndex, newCount] = await Promise.all([
+      this.getOrLoadEntryIndex(entry.id),
+      this.#countEntries()
+    ]);
+
+    if (this.#generation !== generation) return; // Stale result after reset
+
+    if (newIndex < 0) {
+      // Not found (might not match current filters)
+      return;
+    }
+
+    // Detect if this is a CREATE or UPDATE by comparing counts
+    const isNewEntry = this.totalCount !== undefined && newCount > this.totalCount;
+
+    const cacheIndices = [...this.#entryCache.keys()];
+    const maxLoadedIndex = Math.max(...cacheIndices, -1);
+    const minLoadedIndex = cacheIndices.length > 0 ? Math.min(...cacheIndices) : Infinity;
+
+    if (newIndex > maxLoadedIndex) {
+      // It's beyond our currently loaded range.
+      if (isNewEntry) {
+        // It's a CREATE - increment the total count so scroll height updates
+        this.totalCount = newCount;
+      }
+      // For updates, do nothing - the entry will load naturally when scrolled to.
+      return;
+    }
+
+    if (newIndex < minLoadedIndex) {
+      // It's BEFORE our loaded range
+      if (isNewEntry) {
+        // New entry inserted before our range - shift cached entries up
+        this.#shiftCache(newIndex, 1);
+        this.totalCount = newCount;
+        this.#recalculateLoadedBatches();
+      }
+      // For updates that moved before our range, do nothing special
+      return;
+    }
+
+    // It's within our loaded range but not in cache (could be a hole from skipped batches).
+    if (isNewEntry) {
+      // New entry inserted within our range - shift and add to cache
+      this.#shiftCache(newIndex, 1);
+      this.#entryCache.set(newIndex, entry);
+      this.#idToIndex.set(entry.id, newIndex);
+      this.#entryVersions.set(newIndex, 1);
+      this.totalCount = newCount;
+      this.#recalculateLoadedBatches();
+    }
+    // For updates that moved into our range from elsewhere, we don't handle this case perfectly.
+    // The entry will appear when the batch is reloaded.
+  }
+
+  /**
+   * Shift indices in the cache.
+   * @param fromIndex The starting index (inclusive)
+   * @param delta The amount to shift (e.g. -1 for delete, 1 for insert)
+   */
+  #shiftCache(fromIndex: number, delta: number): void {
     const newCache = new SvelteMap<number, IEntry>();
     const newIdToIndex = new SvelteMap<string, number>();
     const newVersions = new SvelteMap<number, number>();
 
+    // Copy unaffected entries (those before fromIndex if delta > 0, or all if delta < 0)
     for (const [idx, entry] of this.#entryCache) {
-      const version = this.#entryVersions.get(idx) ?? 1;
-      if (idx < index) {
-        newCache.set(idx, entry);
-        newIdToIndex.set(entry.id, idx);
-        newVersions.set(idx, version);
-      } else {
-        // Shift down
-        newCache.set(idx - 1, entry);
-        newIdToIndex.set(entry.id, idx - 1);
-        newVersions.set(idx - 1, version);
+      let targetIdx = idx;
+      if (idx >= fromIndex) {
+        targetIdx += delta;
+      }
+
+      // Only keep in cache if the index is valid (>= 0)
+      if (targetIdx >= 0) {
+        newCache.set(targetIdx, entry);
+        newIdToIndex.set(entry.id, targetIdx);
+        newVersions.set(targetIdx, this.#entryVersions.get(idx) ?? 1);
       }
     }
 
     this.#entryCache = newCache;
     this.#idToIndex = newIdToIndex;
     this.#entryVersions = newVersions;
-
-    // Update loaded batches (they may have shifted)
-    this.#recalculateLoadedBatches();
-
-    // Decrement total count
-    if (this.totalCount !== undefined && this.totalCount > 0) {
-      this.totalCount--;
-    }
-  }
-
-  /**
-   * Update an entry in cache (for update events).
-   * If not in cache, triggers a full reset.
-   */
-  updateEntry(entry: IEntry): void {
-    const index = this.#idToIndex.get(entry.id);
-
-    if (index === undefined) {
-      // Entry not in cache — could be new or just not loaded
-      // For V1, we reset to be safe
-      this.reset();
-      void this.loadCount();
-      return;
-    }
-
-    // Update the cache and increment version
-    this.#entryCache.set(index, entry);
-    this.#entryVersions.set(index, (this.#entryVersions.get(index) ?? 1) + 1);
   }
 
   /**
    * Full reset: clear all cache and refetch count.
    */
   reset(): void {
+    this.#generation++;
     this.#entryCache.clear();
     this.#entryVersions.clear();
     this.#idToIndex.clear();
@@ -240,11 +307,13 @@ export class EntryLoaderService {
     }
 
     // Start the fetch
+    const generation = this.#generation;
     const promise = this.#fetchBatch(batchNumber);
     this.#pendingBatches.set(batchNumber, promise);
 
     try {
       const entries = await promise;
+      if (this.#generation !== generation) return; // Stale result after reset
       this.#cacheBatch(batchNumber, entries);
       this.#loadedBatches.add(batchNumber);
     } finally {
@@ -304,8 +373,8 @@ export class EntryLoaderService {
   }
 
   #recalculateLoadedBatches(): void {
-    // After shifting indices, recalculate which batches are considered "loaded"
-    // A batch is loaded if all its indices are in the cache
+    // After shifting indices, recalculate which batches are still fully loaded.
+    // A batch is "loaded" only if ALL its indices are present in cache.
     this.#loadedBatches.clear();
 
     const maxIndex = Math.max(...this.#entryCache.keys(), -1);
@@ -314,9 +383,9 @@ export class EntryLoaderService {
     const maxBatch = Math.floor(maxIndex / this.batchSize);
     for (let batch = 0; batch <= maxBatch; batch++) {
       const startIndex = batch * this.batchSize;
-      const endIndex = Math.min(startIndex + this.batchSize, (this.totalCount ?? startIndex + this.batchSize));
-      let allPresent = true;
+      const endIndex = Math.min(startIndex + this.batchSize, this.totalCount ?? this.batchSize);
 
+      let allPresent = true;
       for (let i = startIndex; i < endIndex; i++) {
         if (!this.#entryCache.has(i)) {
           allPresent = false;
