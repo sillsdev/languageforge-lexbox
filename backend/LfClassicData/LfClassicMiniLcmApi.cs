@@ -430,7 +430,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         throw new NotImplementedException();
     }
 
-    public async Task<EntryRowIndexResponse> GetEntryRowIndex(Guid entryId, string? query = null, QueryOptions? options = null)
+    public Task<int> GetEntryIndex(Guid entryId, string? query = null, QueryOptions? options = null)
     {
         throw new NotImplementedException();
     }

@@ -3,7 +3,7 @@ using MiniLcm.Exceptions;
 namespace MiniLcm.Tests;
 
 /// <summary>
-/// Tests for GetEntriesWindow and GetEntryRowIndex APIs.
+/// Tests for GetEntriesWindow and GetEntryIndex APIs.
 /// These APIs are critical for chunk-based virtual scrolling.
 /// </summary>
 public abstract class EntryWindowTestsBase : MiniLcmTestBase
@@ -96,43 +96,37 @@ public abstract class EntryWindowTestsBase : MiniLcmTestBase
     }
 
     [Fact]
-    public async Task GetEntryRowIndex_FirstEntry_ReturnsZero()
+    public async Task GetEntryIndex_FirstEntry_ReturnsZero()
     {
-        var result = await Api.GetEntryRowIndex(appleId);
+        var result = await Api.GetEntryIndex(appleId);
 
-        result.RowIndex.Should().Be(0);
-        result.Entry.Id.Should().Be(appleId);
-        result.Entry.LexemeForm["en"].Should().Be(Apple);
+        result.Should().Be(0);
     }
 
     [Fact]
-    public async Task GetEntryRowIndex_MiddleEntry_ReturnsCorrectIndex()
+    public async Task GetEntryIndex_MiddleEntry_ReturnsCorrectIndex()
     {
-        var result = await Api.GetEntryRowIndex(kiwiId);
+        var result = await Api.GetEntryIndex(kiwiId);
 
-        result.RowIndex.Should().Be(2);
-        result.Entry.Id.Should().Be(kiwiId);
-        result.Entry.LexemeForm["en"].Should().Be(Kiwi);
+        result.Should().Be(2);
     }
 
     [Fact]
-    public async Task GetEntryRowIndex_LastEntry_ReturnsLastIndex()
+    public async Task GetEntryIndex_LastEntry_ReturnsLastIndex()
     {
-        var result = await Api.GetEntryRowIndex(peachId);
+        var result = await Api.GetEntryIndex(peachId);
 
-        result.RowIndex.Should().Be(4);
-        result.Entry.Id.Should().Be(peachId);
-        result.Entry.LexemeForm["en"].Should().Be(Peach);
+        result.Should().Be(4);
     }
 
     [Fact]
-    public async Task GetEntryRowIndex_NonExistentEntry_Throws()
+    public async Task GetEntryIndex_NonExistentEntry_ReturnsNegativeOne()
     {
         var nonExistentId = Guid.NewGuid();
 
-        var action = () => Api.GetEntryRowIndex(nonExistentId);
+        var result = await Api.GetEntryIndex(nonExistentId);
 
-        await action.Should().ThrowAsync<NotFoundException>();
+        result.Should().Be(-1);
     }
 
     [Fact]
@@ -175,11 +169,10 @@ public abstract class EntryWindowTestsBase : MiniLcmTestBase
     }
 
     [Fact]
-    public async Task GetEntryRowIndex_CanPositionWindow()
+    public async Task GetEntryIndex_CanPositionWindow()
     {
-        // Get row index for an entry
-        var indexResult = await Api.GetEntryRowIndex(kiwiId);
-        var rowIndex = indexResult.RowIndex;
+        // Get index for an entry
+        var rowIndex = await Api.GetEntryIndex(kiwiId);
 
         // Use it to fetch a window around that entry
         var windowResult = await Api.GetEntriesWindow(rowIndex, 2);

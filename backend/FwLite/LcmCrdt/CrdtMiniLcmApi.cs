@@ -423,11 +423,10 @@ public class CrdtMiniLcmApi(
         return new EntryWindowResponse(entries, start);
     }
 
-    public async Task<EntryRowIndexResponse> GetEntryRowIndex(Guid entryId, string? query = null, QueryOptions? options = null)
+    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, QueryOptions? options = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var (rowIndex, entry) = await repo.GetEntryRowIndex(entryId, query, options);
-        return new EntryRowIndexResponse(rowIndex, entry);
+        return await repo.GetEntryIndex(entryId, query, options);
     }
 
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
