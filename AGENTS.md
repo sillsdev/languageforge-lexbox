@@ -74,6 +74,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ Use `gh` CLI for GitHub issues/PRs, not browser tools
 - ✅ If the user asks about "the" PR, but does not explicitly name a PR or branch, assume they mean the PR associated with the current branch.
 - ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)
+- ✅ Prefer IDE diagnostics (compiler/lint errors) over CLI tools for identifying issues. Fixing these diagnostics is part of completing any instruction.
 - ✅ Do NOT run integration tests unless user explicitly requests
 - ✅ When handling a user prompt ALWAYS ask for clarification if there are details to clarify, important decisions that must be made first or the plan sounds unwise
 - ❌ Do NOT git commit or git push without explicit user approval

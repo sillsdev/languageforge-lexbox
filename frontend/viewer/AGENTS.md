@@ -15,6 +15,17 @@ pnpm install
 pnpm run dev
 ```
 
+### Generated .NET Types
+
+This project depends on TypeScript types and API interfaces generated from .NET (via `Reinforced.Typings`). If you change .NET models or `JSInvokable` APIs, you must rebuild the backend to update these types.
+
+```bash
+# From repo root
+dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
+```
+
+The generated files are located in `src/lib/generated-types/`.
+
 ### E2E Testing (Playwright)
 
 To run E2E tests for the viewer:
