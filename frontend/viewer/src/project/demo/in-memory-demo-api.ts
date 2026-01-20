@@ -239,10 +239,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       const v2 = this.#writingSystemService.headword(e2, defaultWs);
       if (!v2) return -1;
       if (!v1) return 1;
-      return v1.localeCompare(v2, defaultWs);
+      const compare = v1.localeCompare(v2, defaultWs);
+      return compare === 0 ? e1.id.localeCompare(e2.id) : compare;
     });
   }
-
   private getFilteredEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
     let entries = this._Entries();
     if (query) entries = filterEntries(entries, query);
@@ -294,8 +294,6 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   }
 
   deleteEntry(guid: string): Promise<void> {
-    console.log(guid, this._entries[0].id);
-    console.log('deleted', this._entries.splice(this._entries.findIndex(e => e.id === guid), 1));
     this.#projectEventBus.notifyEntryDeleted(guid);
     return Promise.resolve();
   }
