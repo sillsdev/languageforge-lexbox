@@ -107,7 +107,7 @@
   });
 
   async function scrollToEntry(vList: VListHandle, entryId: string) {
-    const index = await entryLoader.getEntryIndex(entryId);
+    const index = await entryLoader.getOrLoadEntryIndex(entryId);
     if (index < 0 || !vList) return;
 
     const visibleStart = vList.getScrollOffset();
@@ -125,7 +125,7 @@
 
   export async function selectNextEntry(): Promise<IEntry | undefined> {
     const indexOfSelected = selectedEntryId
-      ? await entryLoader.getEntryIndex(selectedEntryId)
+      ? await entryLoader.getOrLoadEntryIndex(selectedEntryId)
       : -1;
     const nextIndex = indexOfSelected < 0 ? 0 : indexOfSelected + 1;
 
@@ -134,8 +134,10 @@
       return undefined;
     }
 
-    const nextEntry = await entryLoader.loadEntryByIndex(nextIndex);
-    onSelectEntry(nextEntry);
+    const nextEntry = await entryLoader.getOrLoadEntryByIndex(nextIndex);
+    if (nextEntry) {
+      onSelectEntry(nextEntry);
+    }
     return nextEntry;
   }
 
@@ -150,7 +152,7 @@
       size="icon"
       onclick={() => {
         entryLoader.reset();
-        void entryLoader.loadCount();
+        void entryLoader.loadInitialCount();
       }}
     />
   </DevContent>
@@ -175,12 +177,12 @@
           {/each}
         </div>
       {:else}
-        <VList bind:this={vList} data={indexArray} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={(index: number) => entryLoader.getEntryByIndex(index)?.id ?? `skeleton-${index}`} bufferSize={400}>
+        <VList bind:this={vList} data={indexArray} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={(index: number) => entryLoader.getCachedEntryByIndex(index)?.id ?? `skeleton-${index}`} bufferSize={400}>
           {#snippet children(index: number)}
             {#key entryLoader.getVersion(index)}
               <Delayed
-                getCached={() => entryLoader.getEntryByIndex(index)}
-                load={() => entryLoader.loadEntryByIndex(index)}
+                getCached={() => entryLoader.getCachedEntryByIndex(index)}
+                load={() => entryLoader.getOrLoadEntryByIndex(index)}
                 delay={250}
               >
                 {#snippet children(state)}
