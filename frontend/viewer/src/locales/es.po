@@ -822,6 +822,11 @@ msgstr "Filtrar palabras"
 msgid "Filter..."
 msgstr "Filtrar..."
 
+#. Header in entry filter panel
+#: src/project/browse/SearchFilter.svelte
+msgid "Filters"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Find word..."
 #. Search field placeholder in picker
