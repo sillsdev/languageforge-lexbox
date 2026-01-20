@@ -28,7 +28,11 @@ public interface IMiniLcmReadApi
     Task<SemanticDomain?> GetSemanticDomain(Guid id);
     Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id);
     Task<EntryWindowResponse> GetEntriesWindow(int start, int size, string? query = null, QueryOptions? options = null);
-    Task<EntryRowIndexResponse> GetEntryRowIndex(Guid entryId, string? query = null, QueryOptions? options = null);
+    /// <summary>
+    /// Get the index of an entry within the sorted/filtered entry list.
+    /// Returns -1 if the entry is not found.
+    /// </summary>
+    Task<int> GetEntryIndex(Guid entryId, string? query = null, QueryOptions? options = null);
 
     Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
     {
@@ -42,11 +46,7 @@ public record EntryWindowResponse(
 {
 }
 
-public record EntryRowIndexResponse(
-    int RowIndex,
-    Entry Entry)
-{
-}
+
 
 public record FilterQueryOptions(
     ExemplarOptions? Exemplar = null,
