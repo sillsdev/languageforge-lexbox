@@ -27,6 +27,7 @@ export class EntryLoaderService {
 
   // Cache (private)
   #entryCache = new SvelteMap<number, IEntry>();
+  #entryVersions = new SvelteMap<number, number>();
   #idToIndex = new SvelteMap<string, number>();
   #pendingBatches = new SvelteMap<number, Promise<IEntry[]>>();
   #loadedBatches = new SvelteSet<number>();
@@ -105,11 +106,30 @@ export class EntryLoaderService {
   }
 
   /**
-   * Get the index of an entry by ID (from our incremental map).
-   * Returns undefined if the entry hasn't been loaded yet.
+   * Get the version of an entry by index.
+   * Increments whenever the entry is updated in-place.
    */
-  getIndexById(id: string): number | undefined {
-    return this.#idToIndex.get(id);
+  getVersion(index: number): number {
+    return this.#entryVersions.get(index) ?? 0;
+  }
+
+  /**
+   * Get the index of an entry by ID.
+   * Checks the local cache first, then queries the backend.
+   * Returns -1 if the entry is not found.
+   */
+  async getEntryIndex(id: string): Promise<number> {
+    const cached = this.#idToIndex.get(id);
+    if (cached !== undefined) return cached;
+
+    const api = this.#deps.miniLcmApi();
+    if (!api) return -1;
+
+    // Refresh query options
+    const queryOptions = this.#buildQueryOptions(0, 0);
+    const search = this.#deps.search();
+
+    return await api.getEntryIndex(id, search || undefined, queryOptions);
   }
 
   /**
@@ -136,24 +156,30 @@ export class EntryLoaderService {
     // Remove from maps
     this.#idToIndex.delete(id);
     this.#entryCache.delete(index);
+    this.#entryVersions.delete(index);
 
     // Shift all subsequent entries down by 1
     const newCache = new SvelteMap<number, IEntry>();
     const newIdToIndex = new SvelteMap<string, number>();
+    const newVersions = new SvelteMap<number, number>();
 
     for (const [idx, entry] of this.#entryCache) {
+      const version = this.#entryVersions.get(idx) ?? 1;
       if (idx < index) {
         newCache.set(idx, entry);
         newIdToIndex.set(entry.id, idx);
+        newVersions.set(idx, version);
       } else {
         // Shift down
         newCache.set(idx - 1, entry);
         newIdToIndex.set(entry.id, idx - 1);
+        newVersions.set(idx - 1, version);
       }
     }
 
     this.#entryCache = newCache;
     this.#idToIndex = newIdToIndex;
+    this.#entryVersions = newVersions;
 
     // Update loaded batches (they may have shifted)
     this.#recalculateLoadedBatches();
@@ -179,8 +205,9 @@ export class EntryLoaderService {
       return;
     }
 
-    // Update the cache
+    // Update the cache and increment version
     this.#entryCache.set(index, entry);
+    this.#entryVersions.set(index, (this.#entryVersions.get(index) ?? 1) + 1);
   }
 
   /**
@@ -188,6 +215,7 @@ export class EntryLoaderService {
    */
   reset(): void {
     this.#entryCache.clear();
+    this.#entryVersions.clear();
     this.#idToIndex.clear();
     this.#pendingBatches.clear();
     this.#loadedBatches.clear();
@@ -247,6 +275,10 @@ export class EntryLoaderService {
       const entry = entries[i];
       this.#entryCache.set(index, entry);
       this.#idToIndex.set(entry.id, index);
+      // Only set version if not already present (so we don't reset versions on reload)
+      if (!this.#entryVersions.has(index)) {
+        this.#entryVersions.set(index, 1);
+      }
     }
   }
 

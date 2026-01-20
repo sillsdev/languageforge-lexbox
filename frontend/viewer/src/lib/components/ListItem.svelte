@@ -33,7 +33,6 @@
 
 <button
   aria-selected={selected && !skeleton && !disabled}
-  selected={selected && !skeleton && !disabled ? 'true' : undefined}
   disabled={disabled || loading}
   data-skeleton={skeleton || undefined}
   class={cn(

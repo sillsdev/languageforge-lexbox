@@ -30,6 +30,17 @@ dotnet test FwLiteOnly.slnf
 dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net9.0-windows10.0.19041.0
 ```
 
+## Generated Types (TypeScript)
+
+The frontend viewer uses TypeScript types and API interfaces generated from .NET using **Reinforced.Typings**. These are automatically updated when you build the **FwLiteShared** project (or any project that depends on it like `FwLiteMaui` or `FwLiteWeb`).
+
+```bash
+# To manually update generated types:
+dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
+```
+
+The configuration for this lives in `FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs` and `FwLiteShared/Reinforced.Typings.settings.xml`.
+
 ## Project Structure
 
 | Directory | Priority | Purpose |
