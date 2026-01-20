@@ -40,8 +40,12 @@ Key documentation for this project:
 - `docs/DEVELOPER-linux.md` - Linux development setup
 - `docs/DEVELOPER-osx.md` - macOS development setup
 - `backend/README.md` - Backend architecture
+- `backend/AGENTS.md` - General backend guidelines
+- `backend/LexBoxApi/AGENTS.md` - API & GraphQL specific rules
 - `backend/FwLite/AGENTS.md` - **FwLite/CRDT** (Critical code! Data loss risks!)
 - `backend/FwHeadless/AGENTS.md` - **FwHeadless guide** (Critical code! Data loss risks! Mercurial sync, FwData processing)
+- `frontend/AGENTS.md` - General frontend/SvelteKit rules
+- `frontend/viewer/AGENTS.md` - **FwLite Viewer** (Specific frontend rules)
 - `deployment/README.md` - Deployment and infrastructure
 
 ## Guidelines
@@ -65,6 +69,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 
 ### Important Rules
 
+- ✅ **ALWAYS read local `AGENTS.md` files** in the directories you are working in (and their parents) before starting.
 - ✅ New instructions in AGENTS.md files should be SUCCINCT.
 - ✅ Use `gh` CLI for GitHub issues/PRs, not browser tools
 - ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)

@@ -1,5 +1,6 @@
 import {type Page, expect, test} from '@playwright/test';
 import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
+import {MorphType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/MorphType';
 
 /**
  * Tests for V2 virtual scrolling features:
@@ -39,6 +40,84 @@ test.describe('EntriesList V2 features', () => {
     }
     return texts;
   }
+
+  async function getItemHeight(page: Page): Promise<number> {
+    const {entryRows} = getLocators(page);
+    await expect(entryRows.first()).toBeVisible();
+    const firstBox = await entryRows.first().boundingBox();
+    const secondBox = await entryRows.nth(1).boundingBox();
+    if (!firstBox || !secondBox) throw new Error('Could not measure entry rows');
+    return secondBox.y - firstBox.y;
+  }
+
+  async function scrollToIndex(page: Page, targetIndex: number, itemHeight: number): Promise<void> {
+    const {vlist} = getLocators(page);
+    const targetScroll = targetIndex * itemHeight;
+    await vlist.evaluate((el, target) => { el.scrollTop = target; }, targetScroll);
+    await page.waitForTimeout(300);
+    await expect(page.locator('[data-skeleton]')).toHaveCount(0, {timeout: 5000});
+  }
+
+  async function getCenterVisibleEntryText(page: Page): Promise<string> {
+    const {vlist, entryRows} = getLocators(page);
+    const containerBox = await vlist.boundingBox();
+    if (!containerBox) throw new Error('Could not get vlist bounds');
+    const centerY = containerBox.y + containerBox.height / 2;
+
+    const rows = await entryRows.all();
+    for (const row of rows) {
+      const box = await row.boundingBox();
+      if (box && box.y <= centerY && box.y + box.height > centerY) {
+        return (await row.textContent()) ?? '';
+      }
+    }
+    throw new Error('No entry at center');
+  }
+
+  async function createEntryAtIndex(page: Page, targetIndex: number): Promise<{id: string, headword: string}> {
+    return page.evaluate(async ({idx, headwordField, morphType}) => {
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const offset = Math.max(0, idx - 1);
+      const entries = await api.getEntries({
+        offset,
+        count: 1,
+        order: {field: headwordField, writingSystem: 'default', ascending: true}
+      });
+      const baseHeadword = entries[0]?.lexemeForm?.seh ?? '#';
+      const newHeadword = baseHeadword + '-inserted';
+      const newEntry = {
+        id: crypto.randomUUID(),
+        lexemeForm: {seh: newHeadword},
+        citationForm: {},
+        senses: [],
+        note: {},
+        literalMeaning: {},
+        morphType,
+        components: [],
+        complexForms: [],
+        complexFormTypes: [],
+        publishIn: [],
+      };
+      const created = await api.createEntry(newEntry);
+      return {id: created.id, headword: newHeadword};
+    }, {idx: targetIndex, headwordField: SortField.Headword, morphType: MorphType.Unknown});
+  }
+
+
+
+  async function getEntryTextAtIndex(page: Page, index: number): Promise<string> {
+    return page.evaluate(async ({idx, headwordField}) => {
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const entries = await api.getEntries({
+        offset: idx,
+        count: 1,
+        order: {field: headwordField, writingSystem: 'default', ascending: true}
+      });
+      return entries[0]?.lexemeForm?.seh ?? '';
+    }, {idx: index, headwordField: SortField.Headword});
+  }
+
+
 
   test.describe('Jump to entry', () => {
     test('reloading with entry selected scrolls to that entry', async ({page}) => {
@@ -254,6 +333,139 @@ test.describe('EntriesList V2 features', () => {
       // Note: This test verifies the reset happens gracefully
       const newVisibleTexts = await getVisibleEntryTexts(page);
       expect(newVisibleTexts.length).toBeGreaterThan(0);
+    });
+
+    test('entry added in loaded batch', async ({page}) => {
+      const {entryRows} = getLocators(page);
+      const itemHeight = await getItemHeight(page);
+
+      // Setup: Get entry texts at key indices from API (before insert)
+      const old25Text = await getEntryTextAtIndex(page, 25);
+      const old49Text = await getEntryTextAtIndex(page, 49);
+
+      // Action: Create entry at index 25
+      const {headword} = await createEntryAtIndex(page, 25);
+
+      // Give time for event handling
+      await page.waitForTimeout(300);
+
+      // Verify entry at index 25 via API shows the new entry
+      const new25Text = await getEntryTextAtIndex(page, 25);
+      expect(new25Text).toContain('-inserted');
+      expect(new25Text).toBe(headword);
+
+      // Verify entry at index 26 via API shows what was at 25
+      const new26Text = await getEntryTextAtIndex(page, 26);
+      expect(new26Text).toBe(old25Text);
+
+      // Verify batch boundary push: entry at index 50 shows what was at 49
+      const new50Text = await getEntryTextAtIndex(page, 50);
+      expect(new50Text).toBe(old49Text);
+
+      // Verify UI: scroll to index 25 and verify new entry is visible
+      await scrollToIndex(page, 25, itemHeight);
+      await expect(entryRows.filter({hasText: headword}).first()).toBeVisible({timeout: 5000});
+
+      // Verify UI: scroll to index 50 and verify pushed entry is visible
+      await scrollToIndex(page, 50, itemHeight);
+      await expect(entryRows.filter({hasText: old49Text}).first()).toBeVisible({timeout: 5000});
+    });
+
+    test('entry added after all loaded batches', async ({page}) => {
+      const {entryRows, vlist} = getLocators(page);
+      const itemHeight = await getItemHeight(page);
+
+      // Setup: Stay at batch 0
+      const initialVisibleTexts = await getVisibleEntryTexts(page);
+      const oldScrollHeight = await vlist.evaluate((el) => el.scrollHeight);
+
+      // Action: Create entry at index 5000
+      const {headword} = await createEntryAtIndex(page, 5000);
+      await page.waitForTimeout(300);
+
+      // Verify scroll height increased (count +1 means more virtual height)
+      const newScrollHeight = await vlist.evaluate((el) => el.scrollHeight);
+      expect(newScrollHeight).toBeGreaterThan(oldScrollHeight);
+
+      // Visible entries unchanged (batch 0 not affected)
+      const newVisibleTexts = await getVisibleEntryTexts(page);
+      expect(newVisibleTexts).toEqual(initialVisibleTexts);
+
+      // Verify via API that entry exists at index 5000
+      const entryAt5000 = await getEntryTextAtIndex(page, 5000);
+      expect(entryAt5000).toContain('-inserted');
+      expect(entryAt5000).toBe(headword);
+
+      // Scroll to index 5000 and verify entry is visible in UI
+      await scrollToIndex(page, 5000, itemHeight);
+      await expect(entryRows.filter({hasText: headword}).first()).toBeVisible({timeout: 5000});
+    });
+
+    test('entry added before loaded batch (quiet reset test)', async ({page}) => {
+      const itemHeight = await getItemHeight(page);
+      const {vlist} = getLocators(page);
+
+      // Setup: Scroll to batch 2 (index 100+)
+      await scrollToIndex(page, 120, itemHeight);
+      const oldScrollHeight = await vlist.evaluate((el) => el.scrollHeight);
+
+      // Capture: Center-visible entry text BEFORE action
+      const centerTextBefore = await getCenterVisibleEntryText(page);
+      expect(centerTextBefore).toBeTruthy();
+
+      // Action: Create entry at index 25 (before currently loaded batch)
+      await createEntryAtIndex(page, 25);
+
+      // Wait for quiet reset and reload
+      await page.waitForTimeout(500);
+      await expect(page.locator('[data-skeleton]')).toHaveCount(0, {timeout: 5000});
+
+      // Verify scroll height increased (count +1)
+      const newScrollHeight = await vlist.evaluate((el) => el.scrollHeight);
+      expect(newScrollHeight).toBeGreaterThan(oldScrollHeight);
+
+      // Center-visible entry text unchanged after reset completes
+      // (This verifies scroll position was maintained through the quiet reset)
+      const centerTextAfter = await getCenterVisibleEntryText(page);
+      expect(centerTextAfter).toBe(centerTextBefore);
+    });
+
+    test('entry updated not in cache', async ({page}) => {
+      const {entryRows} = getLocators(page);
+      const itemHeight = await getItemHeight(page);
+
+      // Setup: Stay at batch 0
+      const initialVisibleTexts = await getVisibleEntryTexts(page);
+
+      // Action: Update entry at index 100 by appending to its headword (preserves sort position)
+      const updatedHeadword = await page.evaluate(async ({idx, headwordField}) => {
+        const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+        const entries = await api.getEntries({
+          offset: idx,
+          count: 1,
+          order: {field: headwordField, writingSystem: 'default', ascending: true}
+        });
+        const entry = entries[0];
+        // Append suffix to preserve alphabetical sort position
+        const newHeadword = (entry.lexemeForm?.seh ?? 'entry') + '-UPDATED';
+        const updated = {
+          ...entry,
+          lexemeForm: {...entry.lexemeForm, seh: newHeadword}
+        };
+        await api.updateEntry(entry, updated);
+        return newHeadword;
+      }, {idx: 100, headwordField: SortField.Headword});
+
+      await page.waitForTimeout(300);
+
+      // Verify no visible change to batch 0 (update was outside cache)
+      const newVisibleTexts = await getVisibleEntryTexts(page);
+      expect(newVisibleTexts).toEqual(initialVisibleTexts);
+
+      // Scroll to index 100 and verify updated entry is visible
+      await scrollToIndex(page, 100, itemHeight);
+      await expect(entryRows.filter({hasText: '-UPDATED'}).first()).toBeVisible({timeout: 5000});
+      await expect(entryRows.filter({hasText: updatedHeadword}).first()).toBeVisible({timeout: 5000});
     });
   });
 });
