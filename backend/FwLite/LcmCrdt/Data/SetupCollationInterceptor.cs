@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Text;
+using LinqToDB.Interceptors;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -10,7 +11,7 @@ using MiniLcm.Culture;
 
 namespace LcmCrdt.Data;
 
-public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider) : IDbConnectionInterceptor, ISaveChangesInterceptor
+public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider) : IDbConnectionInterceptor, ISaveChangesInterceptor, IConnectionInterceptor
 {
     private static string? WsTableName = null;
     private WritingSystem[] GetWritingSystems(LcmCrdtDbContext dbContext, DbConnection connection)
@@ -53,14 +54,9 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         cache.Remove(CacheKey(connection));
     }
 
-    public void ConnectionOpened(DbConnection connection, ConnectionEndEventData eventData)
+    private void SetupCommonCollations(SqliteConnection sqliteConnection, WritingSystem[]? writingSystems = null)
     {
-        var context = (LcmCrdtDbContext?)eventData.Context;
-        if (context is null) throw new InvalidOperationException("context is null");
-        var sqliteConnection = (SqliteConnection)connection;
-        SetupCollations(sqliteConnection, GetWritingSystems(context, connection));
-
-        //setup general use collation
+        // Setup general use collation (used by all queries)
         sqliteConnection.CreateCollation(SqlSortingExtensions.CollateUnicodeNoCase,
             CultureInfo.CurrentCulture.CompareInfo,
             (compareInfo, x, y) =>
@@ -71,6 +67,20 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
                 // When case-insensitively equal, sort lowercase before uppercase
                 return compareInfo.Compare(x, y, CompareOptions.None);
             });
+
+        // Setup writing system specific collations if available
+        if (writingSystems is not null)
+        {
+            SetupCollations(sqliteConnection, writingSystems);
+        }
+    }
+
+    public void ConnectionOpened(DbConnection connection, ConnectionEndEventData eventData)
+    {
+        var context = (LcmCrdtDbContext?)eventData.Context;
+        if (context is null) throw new InvalidOperationException("context is null");
+        var sqliteConnection = (SqliteConnection)connection;
+        SetupCommonCollations(sqliteConnection, GetWritingSystems(context, connection));
     }
 
     public Task ConnectionOpenedAsync(DbConnection connection,
@@ -78,6 +88,33 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         CancellationToken cancellationToken = default)
     {
         ConnectionOpened(connection, eventData);
+        return Task.CompletedTask;
+    }
+
+    // LinqToDB interface
+    public void ConnectionOpening(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection)
+    {
+        // Setup happens after connection opens
+    }
+
+    public Task ConnectionOpeningAsync(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    public void ConnectionOpened(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection)
+    {
+        if (connection is not SqliteConnection sqliteConnection) return;
+
+        // Only setup basic collation - writing system collations come from EF Core path
+        // Note: Collations persist on the connection, so if EF already opened this connection,
+        // this is redundant but harmless. SQLite allows re-registering collations.
+        SetupCommonCollations(sqliteConnection);
+    }
+
+    public Task ConnectionOpenedAsync(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection, CancellationToken cancellationToken)
+    {
+        ConnectionOpened(eventData, connection);
         return Task.CompletedTask;
     }
 

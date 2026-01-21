@@ -1,20 +1,60 @@
 using System.Data.Common;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using System.Text;
+using LinqToDB.Interceptors;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using MiniLcm.Culture;
 
 namespace LcmCrdt.Data;
 
-public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor
+public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor, IConnectionInterceptor
 {
     public const string ContainsFunction = "contains";
 
     public void ConnectionOpened(DbConnection connection, ConnectionEndEventData eventData)
     {
-        var sqliteConnection = (SqliteConnection)connection;
+        ConnectionOpened(connection);
+    }
+
+    public Task ConnectionOpenedAsync(DbConnection connection,
+        ConnectionEndEventData eventData,
+        CancellationToken cancellationToken = default)
+    {
+        ConnectionOpened(connection);
+        return Task.CompletedTask;
+    }
+
+    public void ConnectionOpening(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection)
+    {
+        // We register the function after connection opens, not before
+    }
+
+    public Task ConnectionOpeningAsync(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    public void ConnectionOpened(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection)
+    {
+        ConnectionOpened(connection);
+    }
+
+    public Task ConnectionOpenedAsync(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection, CancellationToken cancellationToken)
+    {
+        ConnectionOpened(connection);
+        return Task.CompletedTask;
+    }
+
+    private void ConnectionOpened(DbConnection connection)
+    {
+        if (connection is SqliteConnection sqliteConnection)
+        {
+            RegisterContainsFunction(sqliteConnection);
+        }
+    }
+
+    public static void RegisterContainsFunction(SqliteConnection sqliteConnection)
+    {
         //creates a new function that can be used in queries
         sqliteConnection.CreateFunction(ContainsFunction,
             //in sqlite strings are byte arrays, so we can avoid allocating strings by using spans
@@ -49,13 +89,5 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor
             }
         }
         return hasAccent;
-    }
-
-    public Task ConnectionOpenedAsync(DbConnection connection,
-        ConnectionEndEventData eventData,
-        CancellationToken cancellationToken = new CancellationToken())
-    {
-        ConnectionOpened(connection, eventData);
-        return Task.CompletedTask;
     }
 }

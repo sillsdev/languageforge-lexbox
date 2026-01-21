@@ -4,6 +4,7 @@ using LcmCrdt.Changes.Entries;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.Utils;
 using LinqToDB;
+using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -61,7 +62,7 @@ public class MiniLcmRepository(
     }
 
 
-    public IQueryable<Entry> Entries => dbContext.Entries;
+    public IQueryable<Entry> Entries => dbContext.Entries.ToLinqToDB();
     public IQueryable<ComplexFormComponent> ComplexFormComponents => dbContext.ComplexFormComponents;
     public IQueryable<ComplexFormType> ComplexFormTypes => dbContext.ComplexFormTypes;
     public IQueryable<Sense> Senses => dbContext.Senses;

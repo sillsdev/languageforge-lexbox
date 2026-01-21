@@ -121,12 +121,22 @@ public static class LcmCrdtKernel
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
                 optionsBuilder.AddMappingSchema(mappingSchema);
                 optionsBuilder.AddCustomOptions(options => options.UseSQLiteMicrosoft());
+
+                // Register read-relevant interceptors for LinqToDB
+                var sqliteFunctionInterceptor = new CustomSqliteFunctionInterceptor();
+                var collationInterceptor = provider.GetRequiredService<SetupCollationInterceptor>();
+                optionsBuilder.AddInterceptor(sqliteFunctionInterceptor);
+                optionsBuilder.AddInterceptor(collationInterceptor);
+
                 var loggerFactory = provider.GetService<ILoggerFactory>();
                 if (loggerFactory is not null)
                     optionsBuilder.AddCustomOptions(dataOptions => dataOptions.UseLoggerFactory(loggerFactory));
             });
 
+        // Register interceptors for EF Core
         builder.AddInterceptors(new CustomSqliteFunctionInterceptor(), provider.GetRequiredService<SetupCollationInterceptor>());
+
+        // UpdateEntrySearchTableInterceptor is write-only (updates FTS table), so only register with EF Core
         var updateSearchTableInterceptor = provider.GetService<UpdateEntrySearchTableInterceptor>();
         if (updateSearchTableInterceptor is not null)
             builder.AddInterceptors(updateSearchTableInterceptor);
