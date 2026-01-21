@@ -5,7 +5,6 @@ import {
   type IComplexFormComponent,
   type IComplexFormType,
   type IEntry,
-  type IEntriesWindow,
   type IExampleSentence,
   type IFilterQueryOptions,
   type IMiniLcmJsInvokable,
@@ -25,7 +24,7 @@ import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-
 import {WritingSystemService} from '../data/writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 import {delay} from '$lib/utils/time';
-import {initProjectContext, ProjectContext} from '$project/project-context.svelte';
+import {initProjectContext, type ProjectContext} from '$project/project-context.svelte';
 import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
 import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
@@ -35,6 +34,8 @@ import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/
 import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
 import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
+import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
+import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -83,48 +84,21 @@ export const mockUpdateService: IUpdateService = {
   }
 };
 
+const mockJsEventListener: IJsEventListener = {
+  nextEventAsync: () => Promise.resolve(null!),
+  lastEvent: () => Promise.resolve(null)
+};
+
 export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   #writingSystemService: WritingSystemService;
-  constructor(private projectContext: ProjectContext) {
+  #projectEventBus: ProjectEventBus;
+  constructor(private projectContext: ProjectContext, private eventBus: EventBus) {
     this.#writingSystemService = new WritingSystemService(projectContext);
+    this.#projectEventBus = new ProjectEventBus(projectContext, eventBus);
   }
   countEntries(query?: string, options?: IFilterQueryOptions): Promise<number> {
     const entries = this.getFilteredEntries(query, options);
     return Promise.resolve(entries.length);
-  }
-
-  async getEntriesWindow(query?: string, options?: IQueryOptions, targetEntryId?: string): Promise<IEntriesWindow> {
-    await delay(300);
-    const allEntries = this.queryEntriesUnpaged(query, options);
-    const totalCount = allEntries.length;
-
-    let offset = options?.offset ?? 0;
-    const count = options?.count ?? 100;
-    let targetIndex: number | undefined = undefined;
-
-    // If targetEntryId is provided, find it and center the window around it
-    if (targetEntryId) {
-      const targetGlobalIndex = allEntries.findIndex(e => e.id === targetEntryId);
-      if (targetGlobalIndex !== -1) {
-        // Center the window around the target entry
-        offset = Math.max(0, targetGlobalIndex - Math.floor(count / 2));
-        // Adjust if we're near the end
-        if (offset + count > totalCount) {
-          offset = Math.max(0, totalCount - count);
-        }
-        // Calculate the index of the target within the returned window
-        targetIndex = targetGlobalIndex - offset;
-      }
-    }
-
-    const entries = allEntries.slice(offset, offset + count);
-    console.log(`[DemoAPI] getEntriesWindow: totalCount=${totalCount}, offset=${offset}, count=${count}, returning=${entries.length}, targetEntryId=${targetEntryId}, targetIndex=${targetIndex}`);
-    return {
-      entries,
-      totalCount,
-      offset,
-      targetIndex,
-    };
   }
 
   async getEntryIndex(entryId: string, query?: string, options?: IFilterQueryOptions): Promise<number> {
@@ -133,17 +107,16 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return entries.findIndex(e => e.id === entryId);
   }
 
-  public static newProjectContext() {
-    const projectContext = new ProjectContext();
-    projectContext.setup({api: new InMemoryDemoApi(projectContext), projectName, projectCode: projectName});
-    return projectContext;
-  }
   public static setup(): InMemoryDemoApi {
     const projectContext = initProjectContext();
-    const inMemoryLexboxApi = new InMemoryDemoApi(projectContext);
+    const eventBus = useEventBus();
+    const inMemoryLexboxApi = new InMemoryDemoApi(projectContext, eventBus);
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
+    window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
+    window.__PLAYWRIGHT_UTILS__ = { demoApi: inMemoryLexboxApi };
+
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
       localProjects(): Promise<IProjectModel[]> {
         return Promise.resolve([]);
@@ -255,25 +228,6 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       .slice(options.offset, options.offset + options.count);
   }
 
-  // Returns filtered and sorted entries without pagination (for windowed queries)
-  private queryEntriesUnpaged(query: string | undefined, options: IQueryOptions | undefined): IEntry[] {
-    const entries = this.getFilteredEntries(query, options);
-
-    if (!options) return entries;
-    const defaultWs = writingSystems.vernacular[0].wsId;
-    const sortWs = pickWs(options.order.writingSystem, defaultWs);
-    return entries
-      .sort((e1, e2) => {
-        const v1 = this.#writingSystemService.headword(e1, sortWs);
-        const v2 = this.#writingSystemService.headword(e2, sortWs);
-        if (!v2) return -1;
-        if (!v1) return 1;
-        let compare = v1.localeCompare(v2, sortWs);
-        if (compare == 0) compare = e1.id.localeCompare(e2.id);
-        return options.order.ascending ? compare : -compare;
-      });
-  }
-
   // Returns filtered and sorted entries for index lookup
   private getFilteredSortedEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
     const entries = this.getFilteredEntries(query, options);
@@ -315,32 +269,41 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   createEntry(entry: IEntry): Promise<IEntry> {
     this._entries.push(entry);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(entry);
   }
 
   updateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
     this._entries.splice(this._entries.findIndex(e => e.id === after.id), 1, after);
+    this.#projectEventBus.notifyEntryUpdated(after);
     return Promise.resolve(after);
   }
 
   createSense(entryGuid: string, sense: ISense): Promise<ISense> {
-    this._entries.find(e => e.id === entryGuid)?.senses.push(sense);
+    const entry = this._entries.find(e => e.id === entryGuid);
+    entry?.senses.push(sense);
+    if (entry) this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(sense);
   }
 
   createExampleSentence(entryGuid: string, senseGuid: string, exampleSentence: IExampleSentence): Promise<IExampleSentence> {
-    this._entries.find(e => e.id === entryGuid)?.senses.find(s => s.id === senseGuid)?.exampleSentences.push(exampleSentence);
+    const entry = this._entries.find(e => e.id === entryGuid);
+    entry?.senses.find(s => s.id === senseGuid)?.exampleSentences.push(exampleSentence);
+    if (entry) this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(exampleSentence);
   }
 
   deleteEntry(guid: string): Promise<void> {
-    this._entries.splice(this._entries.findIndex(e => e.id === guid), 1);
+    console.log(guid, this._entries[0].id);
+    console.log('deleted', this._entries.splice(this._entries.findIndex(e => e.id === guid), 1));
+    this.#projectEventBus.notifyEntryDeleted(guid);
     return Promise.resolve();
   }
 
   deleteSense(entryGuid: string, senseGuid: string): Promise<void> {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     entry.senses.splice(entry.senses.findIndex(s => s.id === senseGuid), 1);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve();
   }
 
@@ -348,6 +311,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     const sense = entry.senses.find(s => s.id === senseGuid)!;
     sense.exampleSentences.splice(sense.exampleSentences.findIndex(es => es.id === exampleSentenceGuid), 1);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve();
   }
 
@@ -437,6 +401,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const index = entry.senses.findIndex(s => s.id == _before.id);
     if (index == -1) throw new Error(`Sense ${_before.id} not found`);
     entry.senses.splice(index, 1, _after);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(_after);
   }
 
@@ -456,6 +421,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const index = sense.exampleSentences.findIndex(es => es.id == _before.id);
     if (index == -1) throw new Error(`ExampleSentence ${_before.id} not found`);
     sense.exampleSentences.splice(index, 1, _after);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(_after);
   }
 
