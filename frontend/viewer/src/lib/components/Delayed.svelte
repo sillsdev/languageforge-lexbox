@@ -30,7 +30,7 @@
   };
 
   interface Props<T> {
-    load: () => Promise<T>;
+    load: () => Promise<T> | undefined;
     getCached?: () => T | undefined;
     delay?: number;
     children: Snippet<[state: DelayedState<T>]>;
@@ -81,7 +81,7 @@
 
   async function doLoad(currentRun: number) {
     try {
-      const result = await load();
+      const result = await load?.();
       if (currentRun !== runId) {
         return;
       }

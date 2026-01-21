@@ -70,6 +70,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 ### Important Rules
 
 - ✅ **ALWAYS read local `AGENTS.md` files** in the directories you are working in (and their parents) before starting.
+- ✅ **ALWAYS review relevant code paths** before asking clarification questions.
 - ✅ New instructions in AGENTS.md files should be SUCCINCT.
 - ✅ Use `gh` CLI for GitHub issues/PRs, not browser tools
 - ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)

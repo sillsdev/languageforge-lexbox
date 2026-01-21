@@ -9,7 +9,6 @@ import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
 import {watch} from 'runed';
 
 export interface EntryLoaderDeps {
-  miniLcmApi: () => IMiniLcmJsInvokable | undefined;
   search: () => string;
   sort: () => SortConfig | undefined;
   gridifyFilter: () => string | undefined;
@@ -20,6 +19,10 @@ export interface EntryLoaderDeps {
  * See ENTRY_LOADER_PLAN.md for architecture details.
  */
 export class EntryLoaderService {
+
+  static readonly DEFAULT_GENERATION: number = 0;
+  static readonly DEFAULT_VERSION: number = 0;
+
   // Reactive state
   totalCount = $state<number | undefined>();
   loading = $state(true);
@@ -33,22 +36,24 @@ export class EntryLoaderService {
   #loadedBatches = new SvelteSet<number>();
 
   // Generation counter to invalidate in-flight async operations after reset
-  #generation = 0;
+  #generation = -1;
 
   // Config
   readonly batchSize = 50;
 
-  // Dependencies
+  readonly #api: IMiniLcmJsInvokable;
   readonly #deps: EntryLoaderDeps;
 
-  constructor(deps: EntryLoaderDeps) {
+  constructor(api: IMiniLcmJsInvokable, deps: EntryLoaderDeps) {
+    this.#api = api;
     this.#deps = deps;
 
-    // Watch for dependency changes and reset
+    this.reset();
+
     watch(
-      () => [deps.miniLcmApi(), deps.search(), deps.sort(), deps.gridifyFilter()],
-      () => {
-        this.reset();
+      () => [deps.search(), deps.sort(), deps.gridifyFilter()],
+      (_, oldValues) => {
+        if (oldValues) this.reset();
         void this.loadInitialCount();
       }
     );
@@ -63,11 +68,9 @@ export class EntryLoaderService {
   }
 
   async #countEntries(): Promise<number> {
-    const api = this.#deps.miniLcmApi();
-    if (!api) return 0;
     const filterOptions = this.#buildFilterOptions();
     const search = this.#deps.search();
-    return api.countEntries(search || undefined, filterOptions);
+    return this.#api.countEntries(search || undefined, filterOptions);
   }
 
   /**
@@ -90,13 +93,6 @@ export class EntryLoaderService {
    * This is used to scaffold this service, so it dictates the loading state.
    */
   async loadInitialCount(): Promise<void> {
-    const api = this.#deps.miniLcmApi();
-    if (!api) {
-      this.totalCount = undefined;
-      this.loading = false;
-      return;
-    }
-
     this.loading = true;
     this.error = undefined;
 
@@ -121,7 +117,15 @@ export class EntryLoaderService {
    * Increments whenever the entry is updated in-place.
    */
   getVersion(index: number): number {
-    return this.#entryVersions.get(index) ?? 0;
+    return this.#entryVersions.get(index) ?? EntryLoaderService.DEFAULT_VERSION;
+  }
+
+  /**
+   * Get the current generation of the loader.
+   * Increments whenever the loader is reset (search/sort/filter changes).
+   */
+  get generation(): number {
+    return this.#generation;
   }
 
   /**
@@ -133,13 +137,10 @@ export class EntryLoaderService {
     const cached = this.#idToIndex.get(id);
     if (cached !== undefined) return cached;
 
-    const api = this.#deps.miniLcmApi();
-    if (!api) return -1;
-
     const queryOptions = this.#buildQueryOptions(0, 0);
     const search = this.#deps.search();
 
-    return await api.getEntryIndex(id, search || undefined, queryOptions);
+    return await this.#api.getEntryIndex(id, search || undefined, queryOptions);
   }
 
   /**
@@ -306,6 +307,10 @@ export class EntryLoaderService {
       return;
     }
 
+    await this.#loadBatch(batchNumber);
+  }
+
+  async #loadBatch(batchNumber: number): Promise<void> {
     // Start the fetch
     const generation = this.#generation;
     const promise = this.#fetchBatch(batchNumber);
@@ -322,30 +327,30 @@ export class EntryLoaderService {
   }
 
   async #fetchBatch(batchNumber: number): Promise<IEntry[]> {
-    const api = this.#deps.miniLcmApi();
-    if (!api) return [];
-
     const offset = batchNumber * this.batchSize;
     const queryOptions = this.#buildQueryOptions(offset, this.batchSize);
     const search = this.#deps.search();
 
     if (search) {
-      return api.searchEntries(search, queryOptions);
+      return this.#api.searchEntries(search, queryOptions);
     } else {
-      return api.getEntries(queryOptions);
+      return this.#api.getEntries(queryOptions);
     }
   }
 
   #cacheBatch(batchNumber: number, entries: IEntry[]): void {
+    // console.trace(batchNumber + ':' + entries.length);
     const startIndex = batchNumber * this.batchSize;
 
     for (let i = 0; i < entries.length; i++) {
+      // console.log('caching', i);
       const index = startIndex + i;
       const entry = entries[i];
       this.#entryCache.set(index, entry);
       this.#idToIndex.set(entry.id, index);
-      // Only set version if not already present (so we don't reset versions on reload)
-      if (!this.#entryVersions.has(index)) {
+      // Only set version if not already present or 0 (so we don't reset versions on reload)
+      if (!this.#entryVersions.get(index)) {
+        // console.log('setting version', i);
         this.#entryVersions.set(index, 1);
       }
     }
@@ -354,7 +359,7 @@ export class EntryLoaderService {
   #buildFilterOptions(): IFilterQueryOptions {
     const gridifyFilter = this.#deps.gridifyFilter();
     return {
-      filter: gridifyFilter ? { gridifyFilter } : undefined,
+      filter: gridifyFilter ? {gridifyFilter} : undefined,
     };
   }
 

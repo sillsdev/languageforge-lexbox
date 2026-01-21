@@ -38,8 +38,7 @@ async function createService(entries: IEntry[], totalCount = entries.length) {
 
   let service!: EntryLoaderService;
   const cleanup = $effect.root(() => {
-    service = new EntryLoaderService({
-      miniLcmApi: () => api as unknown as IMiniLcmJsInvokable,
+    service = new EntryLoaderService(api as unknown as IMiniLcmJsInvokable, {
       search: () => '',
       sort: () => undefined,
       gridifyFilter: () => undefined,
