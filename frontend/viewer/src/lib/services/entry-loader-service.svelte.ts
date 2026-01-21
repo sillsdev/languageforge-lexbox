@@ -1,3 +1,4 @@
+import {DEFAULT_DEBOUNCE_TIME, delay} from '$lib/utils/time';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 
 import type {IEntry} from '$lib/dotnet-types';
@@ -179,13 +180,17 @@ export class EntryLoaderService {
    * Quiet reset: refresh count + reload the currently relevant batch(es), then atomically swap caches.
    * This avoids skeleton flashes for background events (add/update/delete) that affect list ordering.
    */
-  async quietReset(): Promise<void> {
+  quietReset(): Promise<void> {
     this.#quietResetRequested = true;
     if (this.#quietResetInFlight) return this.#quietResetInFlight;
 
     const run = async () => {
       while (this.#quietResetRequested) {
         this.#quietResetRequested = false;
+        // Debounce: wait for it to settle
+        await delay(DEFAULT_DEBOUNCE_TIME);
+        if (this.#quietResetRequested) continue;
+
         await this.#runQuietResetOnce();
       }
     };
@@ -339,7 +344,6 @@ export class EntryLoaderService {
 
       if (this.#generation !== generation) return; // Stale after full reset
 
-      console.log(entries[0]);
       this.#swapCachesForQuietReset(batches, entries, newCount);
     } catch (e) {
       if (this.#generation !== generation) return;
@@ -374,7 +378,5 @@ export class EntryLoaderService {
     this.#generation++;
     this.totalCount = newCount;
     this.error = undefined;
-
-    console.log('QUIET RESET COMPLETE');
   }
 }
