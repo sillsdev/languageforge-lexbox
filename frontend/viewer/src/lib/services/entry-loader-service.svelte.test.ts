@@ -170,6 +170,29 @@ describe('EntryLoaderService', () => {
       expect(service.totalCount).toBe(entries.length + 1);
       expect(service.getCachedEntryByIndex(0)?.id).toBe('new0');
     });
+
+    it('debounces multiple calls', async () => {
+      const entries = makeEntries(BATCH_SIZE);
+      const {api, service, cleanup} = await createService(entries, entries.length);
+      cleanups.push(cleanup);
+
+      // Warm batch 0
+      await service.getOrLoadEntryByIndex(0);
+      const countBefore = api.countEntries.mock.calls.length;
+
+      // Multiple rapid calls
+      const p1 = service.quietReset();
+      const p2 = service.quietReset();
+      const p3 = service.quietReset();
+
+      expect(p1).toBe(p2);
+      expect(p2).toBe(p3);
+
+      await p3;
+
+      // Should only have called the API once (after the debounce delay)
+      expect(api.countEntries.mock.calls.length).toBe(countBefore + 1);
+    });
   });
 
   describe('race conditions', () => {
