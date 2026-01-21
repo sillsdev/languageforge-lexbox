@@ -18,6 +18,7 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import Delayed from '$lib/components/Delayed.svelte';
   import {EntryLoaderService} from '$lib/services/entry-loader-service.svelte';
+  import {untrack} from 'svelte';
 
   let {
     search = '',
@@ -103,7 +104,11 @@
   $effect(() => {
     if (!vList || !selectedEntryId) return;
 
-    void scrollToEntry(vList, selectedEntryId);
+    void (async () => {
+      // track the index so we follow it if it jumps
+      await entryLoader?.getOrLoadEntryIndex(selectedEntryId);
+      untrack(() => void scrollToEntry(vList!, selectedEntryId));
+    })();
   });
 
   async function scrollToEntry(vList: VListHandle, entryId: string) {

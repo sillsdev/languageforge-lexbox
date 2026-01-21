@@ -294,7 +294,11 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   }
 
   deleteEntry(guid: string): Promise<void> {
-    this.#projectEventBus.notifyEntryDeleted(guid);
+    const entryIndex = this._entries.findIndex(e => e.id === guid);
+    if (entryIndex >= 0) {
+      this._entries.splice(entryIndex, 1);
+      this.#projectEventBus.notifyEntryDeleted(guid);
+    }
     return Promise.resolve();
   }
 

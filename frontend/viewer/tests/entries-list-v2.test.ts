@@ -52,24 +52,24 @@ test.describe('EntriesList V2 features', () => {
 
   async function scrollToIndex(page: Page, targetIndex: number, _itemHeight: number): Promise<void> {
     const {vlist} = getLocators(page);
-    
+
     // Get total count for proportional scrolling
     const {totalCount} = await page.evaluate(async () => {
       const api = window.__PLAYWRIGHT_UTILS__.demoApi;
       return {totalCount: await api.countEntries()};
     });
-    
+
     // Use proportion of total scroll for accurate positioning
     // This accounts for VList's estimated item heights across all items
     const targetScroll = await vlist.evaluate((el, params) => {
       const {idx, total} = params;
       return (idx / total) * el.scrollHeight;
     }, {idx: targetIndex, total: totalCount});
-    
-    await vlist.evaluate((el, target) => { 
-      el.scrollTop = Math.min(target, el.scrollHeight - el.clientHeight); 
+
+    await vlist.evaluate((el, target) => {
+      el.scrollTop = Math.min(target, el.scrollHeight - el.clientHeight);
     }, targetScroll);
-    
+
     await page.waitForTimeout(300);
     await expect(page.locator('[data-skeleton]')).toHaveCount(0, {timeout: 5000});
   }
@@ -134,7 +134,7 @@ test.describe('EntriesList V2 features', () => {
 
       // Scroll far down to find an entry well into the list (not near the top)
       // 6000px at ~60px per row = ~100 items down
-      await vlist.evaluate((el) => { el.scrollTop = 6000; });
+      await vlist.evaluate((el) => {el.scrollTop = 6000;});
       await page.waitForTimeout(500);
       await expect(page.locator('[data-skeleton]')).toHaveCount(0, {timeout: 5000});
 
@@ -264,7 +264,8 @@ test.describe('EntriesList V2 features', () => {
       // Update the entry's headword via the demo API
       await page.evaluate(async (entry) => {
         const testUtils = window.__PLAYWRIGHT_UTILS__;
-        const updated = {...entry, lexemeForm: {...entry.lexemeForm, seh: 'UPDATED-' + (entry.lexemeForm.seh || entry.lexemeForm.en || 'entry')}};
+        const newLexemeForm = `-UPDATED-${entry.lexemeForm.seh || entry.lexemeForm.en || 'entry'}`;
+        const updated = {...entry, lexemeForm: {...entry.lexemeForm, seh: newLexemeForm}};
         await testUtils.demoApi.updateEntry(entry, updated);
       }, firstEntry);
 
@@ -273,7 +274,7 @@ test.describe('EntriesList V2 features', () => {
 
       // The first entry should now show the updated text
       const newFirstEntryText = await entryRows.first().textContent();
-      expect(newFirstEntryText).toContain('UPDATED-');
+      expect(newFirstEntryText).toContain('-UPDATED-');
     });
 
     test('deleting selected entry clears selection', async ({page}) => {
@@ -310,7 +311,7 @@ test.describe('EntriesList V2 features', () => {
       // Scroll to the middle of the list
       const scrollHeight = await vlist.evaluate((el) => el.scrollHeight);
       const middleScroll = scrollHeight * 0.5;
-      await vlist.evaluate((el, target) => { el.scrollTop = target; }, middleScroll);
+      await vlist.evaluate((el, target) => {el.scrollTop = target;}, middleScroll);
       await page.waitForTimeout(500);
       await expect(page.locator('[data-skeleton]')).toHaveCount(0, {timeout: 5000});
 
@@ -435,7 +436,7 @@ test.describe('EntriesList V2 features', () => {
 
       // Scroll to the end of the list using scrollHeight instead of calculated position
       // This ensures we're at the actual end, not an estimated position
-      await vlist.evaluate((el) => { el.scrollTop = el.scrollHeight; });
+      await vlist.evaluate((el) => {el.scrollTop = el.scrollHeight;});
       await page.waitForTimeout(500);
       await expect(page.locator('[data-skeleton]')).toHaveCount(0, {timeout: 5000});
 
@@ -488,7 +489,7 @@ test.describe('EntriesList V2 features', () => {
       // Setup: Stay at batch 0 - wait for data to be fully loaded
       await page.waitForTimeout(500);
       await expect(page.locator('[data-skeleton]')).toHaveCount(0, {timeout: 5000});
-      
+
       const initialVisibleTexts = await getVisibleEntryTexts(page);
       expect(initialVisibleTexts.filter(t => t.length > 0).length).toBeGreaterThan(0);
 

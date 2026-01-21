@@ -35,6 +35,14 @@ export class EntryLoaderService {
   #pendingBatches = new SvelteMap<number, Promise<IEntry[]>>();
   #loadedBatches = new SvelteSet<number>();
 
+  // Track which batches the UI has most recently interacted with.
+  // At most 2 are needed, and only if they are adjacent.
+  #recentBatchNumbers: { curr?: number, prev?: number } = {};
+
+  // Coalesce multiple quiet resets (e.g., rapid event bursts)
+  #quietResetRequested = false;
+  #quietResetInFlight: Promise<void> | undefined;
+
   // Generation counter to invalidate in-flight async operations after reset
   #generation = -1;
 
@@ -64,6 +72,7 @@ export class EntryLoaderService {
    * Returns undefined if not cached.
    */
   getCachedEntryByIndex(index: number): IEntry | undefined {
+    this.#markBatchRequested(this.#batchNumberForIndex(index));
     return this.#entryCache.get(index);
   }
 
@@ -79,6 +88,7 @@ export class EntryLoaderService {
    * Returns undefined if entry not found (e.g., reset occurred during load).
    */
   async getOrLoadEntryByIndex(index: number): Promise<IEntry | undefined> {
+    this.#markBatchRequested(this.#batchNumberForIndex(index));
     const cached = this.#entryCache.get(index);
     if (cached) return cached;
 
@@ -140,141 +150,51 @@ export class EntryLoaderService {
     const queryOptions = this.#buildQueryOptions(0, 0);
     const search = this.#deps.search();
 
-    return await this.#api.getEntryIndex(id, search || undefined, queryOptions);
+    const index = await this.#api.getEntryIndex(id, search || undefined, queryOptions);
+    this.#idToIndex.set(id, index);
+    return index;
   }
 
   /**
    * Remove an entry by ID (for delete events).
-   * Refreshes the list to keep indices in sync.
+   * Uses a quiet reset to refresh count + the currently relevant batch(es).
    */
   removeEntryById(id: string): void {
-    const index = this.#idToIndex.get(id);
-
-    if (index === undefined) {
-      // Entry not in cache — we don't know where it was, so we MUST reset
-      // or we'll have an incorrect totalCount.
-      this.reset();
-      void this.loadInitialCount();
-      return;
-    }
-
-    // Remove from maps
-    this.#idToIndex.delete(id);
-    this.#entryCache.delete(index);
-    this.#entryVersions.delete(index);
-
-    // Shift all subsequent entries down by 1
-    this.#shiftCache(index, -1);
-
-    // Decrement total count
-    if (this.totalCount !== undefined && this.totalCount > 0) {
-      this.totalCount--;
-    }
-
-    this.#recalculateLoadedBatches();
+    // We intentionally do not try to do any local shifting / heuristics.
+    // The goal is to keep event handling easy to reason about.
+    void this.quietReset();
   }
 
   /**
    * Update an entry in cache (for update events).
    * Note: This method is called for both entry updates AND entry creates (via EntryChanged event).
-   * We detect creates vs updates by comparing the new count to our cached count.
+   * We handle both the same way: quiet reset.
    */
   async updateEntry(entry: IEntry): Promise<void> {
-    const cachedIndex = this.#idToIndex.get(entry.id);
-
-    if (cachedIndex !== undefined) {
-      // Update the cache and increment version
-      this.#entryCache.set(cachedIndex, entry);
-      this.#entryVersions.set(cachedIndex, (this.#entryVersions.get(cachedIndex) ?? 1) + 1);
-      return;
-    }
-
-    // Entry not in cache — we don't know if it was updated or created
-    // Query backend for its current index AND the new count.
-    const generation = this.#generation;
-    const [newIndex, newCount] = await Promise.all([
-      this.getOrLoadEntryIndex(entry.id),
-      this.#countEntries()
-    ]);
-
-    if (this.#generation !== generation) return; // Stale result after reset
-
-    if (newIndex < 0) {
-      // Not found (might not match current filters)
-      return;
-    }
-
-    // Detect if this is a CREATE or UPDATE by comparing counts
-    const isNewEntry = this.totalCount !== undefined && newCount > this.totalCount;
-
-    const cacheIndices = [...this.#entryCache.keys()];
-    const maxLoadedIndex = Math.max(...cacheIndices, -1);
-    const minLoadedIndex = cacheIndices.length > 0 ? Math.min(...cacheIndices) : Infinity;
-
-    if (newIndex > maxLoadedIndex) {
-      // It's beyond our currently loaded range.
-      if (isNewEntry) {
-        // It's a CREATE - increment the total count so scroll height updates
-        this.totalCount = newCount;
-      }
-      // For updates, do nothing - the entry will load naturally when scrolled to.
-      return;
-    }
-
-    if (newIndex < minLoadedIndex) {
-      // It's BEFORE our loaded range
-      if (isNewEntry) {
-        // New entry inserted before our range - shift cached entries up
-        this.#shiftCache(newIndex, 1);
-        this.totalCount = newCount;
-        this.#recalculateLoadedBatches();
-      }
-      // For updates that moved before our range, do nothing special
-      return;
-    }
-
-    // It's within our loaded range but not in cache (could be a hole from skipped batches).
-    if (isNewEntry) {
-      // New entry inserted within our range - shift and add to cache
-      this.#shiftCache(newIndex, 1);
-      this.#entryCache.set(newIndex, entry);
-      this.#idToIndex.set(entry.id, newIndex);
-      this.#entryVersions.set(newIndex, 1);
-      this.totalCount = newCount;
-      this.#recalculateLoadedBatches();
-    }
-    // For updates that moved into our range from elsewhere, we don't handle this case perfectly.
-    // The entry will appear when the batch is reloaded.
+    void entry; // entry is not used here by design
+    await this.quietReset();
   }
 
   /**
-   * Shift indices in the cache.
-   * @param fromIndex The starting index (inclusive)
-   * @param delta The amount to shift (e.g. -1 for delete, 1 for insert)
+   * Quiet reset: refresh count + reload the currently relevant batch(es), then atomically swap caches.
+   * This avoids skeleton flashes for background events (add/update/delete) that affect list ordering.
    */
-  #shiftCache(fromIndex: number, delta: number): void {
-    const newCache = new SvelteMap<number, IEntry>();
-    const newIdToIndex = new SvelteMap<string, number>();
-    const newVersions = new SvelteMap<number, number>();
+  async quietReset(): Promise<void> {
+    this.#quietResetRequested = true;
+    if (this.#quietResetInFlight) return this.#quietResetInFlight;
 
-    // Copy unaffected entries (those before fromIndex if delta > 0, or all if delta < 0)
-    for (const [idx, entry] of this.#entryCache) {
-      let targetIdx = idx;
-      if (idx >= fromIndex) {
-        targetIdx += delta;
+    const run = async () => {
+      while (this.#quietResetRequested) {
+        this.#quietResetRequested = false;
+        await this.#runQuietResetOnce();
       }
+    };
 
-      // Only keep in cache if the index is valid (>= 0)
-      if (targetIdx >= 0) {
-        newCache.set(targetIdx, entry);
-        newIdToIndex.set(entry.id, targetIdx);
-        newVersions.set(targetIdx, this.#entryVersions.get(idx) ?? 1);
-      }
-    }
+    this.#quietResetInFlight = run().finally(() => {
+      this.#quietResetInFlight = undefined;
+    });
 
-    this.#entryCache = newCache;
-    this.#idToIndex = newIdToIndex;
-    this.#entryVersions = newVersions;
+    return this.#quietResetInFlight;
   }
 
   /**
@@ -322,35 +242,39 @@ export class EntryLoaderService {
       this.#cacheBatch(batchNumber, entries);
       this.#loadedBatches.add(batchNumber);
     } finally {
-      this.#pendingBatches.delete(batchNumber);
+      // Only clear if this batch is still pending with THIS promise.
+      // This prevents stale loads from deleting a newer pending promise after a reset.
+      if (this.#pendingBatches.get(batchNumber) === promise) {
+        this.#pendingBatches.delete(batchNumber);
+      }
     }
   }
 
   async #fetchBatch(batchNumber: number): Promise<IEntry[]> {
     const offset = batchNumber * this.batchSize;
-    const queryOptions = this.#buildQueryOptions(offset, this.batchSize);
+    return this.#fetchRange(offset, this.batchSize);
+  }
+
+  async #fetchRange(offset: number, count: number): Promise<IEntry[]> {
+    const queryOptions = this.#buildQueryOptions(offset, count);
     const search = this.#deps.search();
 
     if (search) {
       return this.#api.searchEntries(search, queryOptions);
-    } else {
-      return this.#api.getEntries(queryOptions);
     }
+    return this.#api.getEntries(queryOptions);
   }
 
   #cacheBatch(batchNumber: number, entries: IEntry[]): void {
-    // console.trace(batchNumber + ':' + entries.length);
     const startIndex = batchNumber * this.batchSize;
 
     for (let i = 0; i < entries.length; i++) {
-      // console.log('caching', i);
       const index = startIndex + i;
       const entry = entries[i];
       this.#entryCache.set(index, entry);
       this.#idToIndex.set(entry.id, index);
       // Only set version if not already present or 0 (so we don't reset versions on reload)
       if (!this.#entryVersions.get(index)) {
-        // console.log('setting version', i);
         this.#entryVersions.set(index, 1);
       }
     }
@@ -377,30 +301,80 @@ export class EntryLoaderService {
     };
   }
 
-  #recalculateLoadedBatches(): void {
-    // After shifting indices, recalculate which batches are still fully loaded.
-    // A batch is "loaded" only if ALL its indices are present in cache.
+  #batchNumberForIndex(index: number): number {
+    return Math.floor(index / this.batchSize);
+  }
+
+  #markBatchRequested(batchNumber: number): void {
+    if (batchNumber < 0) throw new RangeError('Batch number must be positive');
+    if (batchNumber === this.#recentBatchNumbers.curr) return;
+
+    if (this.#recentBatchNumbers.curr !== undefined &&
+      Math.abs(this.#recentBatchNumbers.curr - batchNumber) === 1) {
+      this.#recentBatchNumbers.prev = this.#recentBatchNumbers.curr;
+    }
+
+    this.#recentBatchNumbers.curr = batchNumber;
+  }
+
+  #getRelevantBatchesForQuietReset(): number[] {
+    if (this.#recentBatchNumbers.curr === undefined) {
+      return [0];
+    } else if (this.#recentBatchNumbers.prev === undefined) {
+      return [this.#recentBatchNumbers.curr];
+    } else {
+      return [this.#recentBatchNumbers.prev, this.#recentBatchNumbers.curr];
+    }
+  }
+
+  async #runQuietResetOnce(): Promise<void> {
+    const generation = this.#generation;
+    const batches = this.#getRelevantBatchesForQuietReset();
+
+    try {
+      const [newCount, entries] = await Promise.all([
+        this.#countEntries(),
+        this.#fetchEntriesForQuietReset(batches),
+      ]);
+
+      if (this.#generation !== generation) return; // Stale after full reset
+
+      console.log(entries[0]);
+      this.#swapCachesForQuietReset(batches, entries, newCount);
+    } catch (e) {
+      if (this.#generation !== generation) return;
+      this.error = e instanceof Error ? e : new Error(String(e));
+    }
+  }
+
+  async #fetchEntriesForQuietReset(batches: number[]): Promise<IEntry[]> {
+    const offset = batches.sort()[0] * this.batchSize;
+    return this.#fetchRange(offset, this.batchSize * batches.length);
+  }
+
+  #swapCachesForQuietReset(batches: number[], entries: IEntry[], newCount: number): void {
+    const oldVersions = new Map(this.#entryVersions);
+    this.#entryCache.clear();
+    this.#idToIndex.clear();
+    this.#entryVersions.clear();
+    this.#pendingBatches.clear();
     this.#loadedBatches.clear();
 
-    const maxIndex = Math.max(...this.#entryCache.keys(), -1);
-    if (maxIndex < 0) return;
-
-    const maxBatch = Math.floor(maxIndex / this.batchSize);
-    for (let batch = 0; batch <= maxBatch; batch++) {
-      const startIndex = batch * this.batchSize;
-      const endIndex = Math.min(startIndex + this.batchSize, this.totalCount ?? this.batchSize);
-
-      let allPresent = true;
-      for (let i = startIndex; i < endIndex; i++) {
-        if (!this.#entryCache.has(i)) {
-          allPresent = false;
-          break;
-        }
-      }
-
-      if (allPresent) {
-        this.#loadedBatches.add(batch);
-      }
+    const offset = batches.sort()[0] * this.batchSize;
+    for (let i = 0; i < entries.length; i++) {
+      const index = offset + i;
+      const entry = entries[i];
+      this.#entryCache.set(index, entry);
+      this.#idToIndex.set(entry.id, index);
+      const prevVersion = oldVersions.get(index) ?? 0;
+      this.#entryVersions.set(index, prevVersion + 1);
     }
+
+    batches.forEach(batch => this.#loadedBatches.add(batch));
+    this.#generation++;
+    this.totalCount = newCount;
+    this.error = undefined;
+
+    console.log('QUIET RESET COMPLETE');
   }
 }
