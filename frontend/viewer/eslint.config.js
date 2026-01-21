@@ -63,7 +63,7 @@ export default [
         },
         {
           'selector': 'default',
-          'modifiers': ['const'],
+          'modifiers': ['const', 'static readonly'],
           'format': ['camelCase', 'UPPER_CASE'],
           'leadingUnderscore': 'allow',
         },

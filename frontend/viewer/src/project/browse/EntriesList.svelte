@@ -47,35 +47,33 @@
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
 
-  // Create the entry loader service
-  const entryLoader = new EntryLoaderService({
-    miniLcmApi: () => miniLcmApi,
+  let entryLoader = $derived(!miniLcmApi ? undefined : new EntryLoaderService(miniLcmApi, {
     search: () => search,
     sort: () => sort,
     gridifyFilter: () => gridifyFilter,
-  });
+  }));
 
   // Debounce the loading state for smoother UI
-  const loading = new Debounced(() => entryLoader.loading, 50);
+  const loading = new Debounced(() => entryLoader?.loading ?? true, 50);
 
   // Keep entryCount in sync
   $effect(() => {
-    entryCount = entryLoader.totalCount ?? null;
+    entryCount = entryLoader?.totalCount ?? null;
   });
 
   // Handle entry deleted events
   projectEventBus.onEntryDeleted(entryId => {
     if (selectedEntryId === entryId) onSelectEntry(undefined);
-    entryLoader.removeEntryById(entryId);
+    entryLoader?.removeEntryById(entryId);
   });
 
   // Handle entry updated events
   projectEventBus.onEntryUpdated(entry => {
-    entryLoader.updateEntry(entry);
+    void entryLoader?.updateEntry(entry);
   });
 
   $effect(() => {
-    if (entryLoader.error) {
+    if (entryLoader?.error) {
       AppNotification.error($t`Failed to load entries`, entryLoader.error.message);
     }
   });
@@ -83,11 +81,13 @@
   // Generate a random number of skeleton rows between 3 and 7
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
 
-  // Generate index array for virtual list
+  // Generate index array for virtual list.
+  // We use a small number of skeletons if the total count is not yet known
+  // to avoid a "white phase" between initial load and list initialization.
   const indexArray = $derived(
-    entryLoader.totalCount !== undefined
+    entryLoader && entryLoader.totalCount !== undefined
       ? Array.from({ length: entryLoader.totalCount }, (_, i) => i)
-      : []
+      : Array.from({ length: skeletonRowCount }, (_, i) => i)
   );
 
   async function handleNewEntry() {
@@ -107,6 +107,7 @@
   });
 
   async function scrollToEntry(vList: VListHandle, entryId: string) {
+    if (!entryLoader) return;
     const index = await entryLoader.getOrLoadEntryIndex(entryId);
     if (index < 0 || !vList) return;
 
@@ -124,6 +125,7 @@
   }
 
   export async function selectNextEntry(): Promise<IEntry | undefined> {
+    if (!entryLoader) return undefined;
     const indexOfSelected = selectedEntryId
       ? await entryLoader.getOrLoadEntryIndex(selectedEntryId)
       : -1;
@@ -151,8 +153,8 @@
       iconProps={{ class: cn(loading.current && 'animate-spin') }}
       size="icon"
       onclick={() => {
-        entryLoader.reset();
-        void entryLoader.loadInitialCount();
+        entryLoader?.reset();
+        void entryLoader?.loadInitialCount();
       }}
     />
   </DevContent>
@@ -162,31 +164,36 @@
 </FabContainer>
 
 <div class="flex-1 h-full" role="table">
-  {#if entryLoader.error}
+  {#if entryLoader?.error}
     <div class="flex items-center justify-center h-full text-muted-foreground gap-2">
       <Icon icon="i-mdi-alert-circle-outline" />
       <p>{$t`Failed to load entries`}</p>
     </div>
   {:else}
     <div class="h-full">
-      {#if loading.current && indexArray.length === 0}
-        <div class="md:pr-3 p-0.5">
-          <!-- Show skeleton rows while loading initial count -->
-          {#each { length: skeletonRowCount }, _index}
-            <EntryRow class="mb-2" skeleton={true} />
-          {/each}
+      {#if entryLoader?.totalCount === 0}
+        <div class="flex items-center justify-center h-full text-muted-foreground">
+          <p>{$t`No entries found`}</p>
         </div>
       {:else}
-        <VList bind:this={vList} data={indexArray} class="h-full p-0.5 md:pr-3 after:h-12 after:block" getKey={(index: number) => entryLoader.getCachedEntryByIndex(index)?.id ?? `skeleton-${index}`} bufferSize={400}>
+        <VList bind:this={vList}
+              data={indexArray}
+              class="h-full p-0.5 md:pr-3 after:h-12 after:block"
+              getKey={(index: number) => entryLoader?.getCachedEntryByIndex(index)?.id ?? `skeleton-${index}`}
+              bufferSize={400}>
           {#snippet children(index: number)}
-            {#key entryLoader.getVersion(index)}
+            {@const generation = entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
+            {@const version = entryLoader?.getVersion(index) ?? EntryLoaderService.DEFAULT_VERSION}
+            {#key `${generation}-${version}`}
               <Delayed
-                getCached={() => entryLoader.getCachedEntryByIndex(index)}
-                load={() => entryLoader.getOrLoadEntryByIndex(index)}
+                getCached={() => entryLoader?.getCachedEntryByIndex(index)}
+                load={() => entryLoader?.getOrLoadEntryByIndex(index)}
                 delay={250}
               >
                 {#snippet children(state)}
                   {#if state.loading || !state.current}
+                    <!-- we want the initial loading state and the first loading entries
+                    to share the same skeletons, so there's no flicker -->
                     <EntryRow class="mb-2" skeleton={true} />
                   {:else}
                     {@const entry = state.current}
@@ -203,11 +210,6 @@
             {/key}
           {/snippet}
         </VList>
-        {#if indexArray.length === 0}
-          <div class="flex items-center justify-center h-full text-muted-foreground">
-            <p>{$t`No entries found`}</p>
-          </div>
-        {/if}
       {/if}
     </div>
   {/if}
