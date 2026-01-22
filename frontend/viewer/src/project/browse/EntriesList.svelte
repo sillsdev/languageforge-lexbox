@@ -141,9 +141,8 @@
     if (itemStart < visibleStart || itemEnd > visibleEnd) {
       //using smooth scroll caused lag, maybe only do it if scrolling a short distance?
       vList.scrollToIndex(index, { align: 'center' });
-      return true;
     }
-    return false;
+    return true;
   }
 
   export async function selectNextEntry(): Promise<IEntry | undefined> {
