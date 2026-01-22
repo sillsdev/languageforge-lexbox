@@ -22,7 +22,6 @@ export interface EntryLoaderDeps {
 export class EntryLoaderService {
 
   static readonly DEFAULT_GENERATION: number = 0;
-  static readonly DEFAULT_VERSION: number = 0;
 
   // Reactive state
   totalCount = $state<number | undefined>();
@@ -31,7 +30,6 @@ export class EntryLoaderService {
 
   // Cache (private)
   #entryCache = new SvelteMap<number, IEntry>();
-  #entryVersions = new SvelteMap<number, number>();
   #idToIndex = new SvelteMap<string, number>();
   #pendingBatches = new SvelteMap<number, Promise<IEntry[]>>();
   #loadedBatches = new SvelteSet<number>();
@@ -135,14 +133,6 @@ export class EntryLoaderService {
   }
 
   /**
-   * Get the version of an entry by index.
-   * Increments whenever the entry is updated in-place.
-   */
-  getVersion(index: number): number {
-    return this.#entryVersions.get(index) ?? EntryLoaderService.DEFAULT_VERSION;
-  }
-
-  /**
    * Get the current generation of the loader.
    * Increments whenever the loader is reset (search/sort/filter changes).
    */
@@ -193,7 +183,6 @@ export class EntryLoaderService {
   async reset(): Promise<void> {
     await this.loadInitialCount();
     this.#entryCache.clear();
-    this.#entryVersions.clear();
     this.#idToIndex.clear();
     this.#pendingBatches.clear();
     this.#loadedBatches.clear();
@@ -297,10 +286,6 @@ export class EntryLoaderService {
       const entry = entries[i];
       this.#entryCache.set(index, entry);
       this.#idToIndex.set(entry.id, index);
-      // Only set version if not already present or 0 (so we don't reset versions on reload)
-      if (!this.#entryVersions.get(index)) {
-        this.#entryVersions.set(index, 1);
-      }
     }
   }
 
@@ -376,10 +361,8 @@ export class EntryLoaderService {
   }
 
   #swapCachesForQuietReset(batches: number[], entries: IEntry[], newCount: number): void {
-    const oldVersions = new Map(this.#entryVersions);
     this.#entryCache.clear();
     this.#idToIndex.clear();
-    this.#entryVersions.clear();
     this.#pendingBatches.clear();
     this.#loadedBatches.clear();
 
@@ -389,8 +372,6 @@ export class EntryLoaderService {
       const entry = entries[i];
       this.#entryCache.set(index, entry);
       this.#idToIndex.set(entry.id, index);
-      const prevVersion = oldVersions.get(index) ?? 0;
-      this.#entryVersions.set(index, prevVersion + 1);
     }
 
     batches.forEach(batch => this.#loadedBatches.add(batch));
