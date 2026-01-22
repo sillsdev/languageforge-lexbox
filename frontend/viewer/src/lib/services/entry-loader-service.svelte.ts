@@ -173,8 +173,52 @@ export class EntryLoaderService {
    * We handle both the same way: quiet reset.
    */
   async updateEntry(entry: IEntry): Promise<void> {
-    void entry; // entry is not used here by design
+    const generation = this.#generation;
+    if (await this.tryOptimizeUpdateEntryEvent(entry)) return;
+    if (generation !== this.#generation) return; // outdated event => abort
     await this.quietReset();
+  }
+  
+  /**
+   * The more trivial and performant checks we can do to verify if the event is relevant 
+   * to our current state.
+   */
+  private async tryOptimizeUpdateEntryEvent(entry: IEntry): Promise<boolean> {
+    const cachedIndex = this.#idToIndex.get(entry.id);
+    if (cachedIndex !== undefined) {
+      // we've seen it locally, so it wasn't an add event
+      if (cachedIndex < 0) {
+        // not relevant for our current filter => ignore
+        return true;
+      }
+      const batchIndex = Math.floor(cachedIndex / this.batchSize);
+      if (!this.#loadedBatches.has(batchIndex)) {
+        // it's not new and we haven't loaded it yet => ignore
+        return true;
+      }
+    } else {
+      const entryIndex = await this.getOrLoadEntryIndex(entry.id);
+      if (entryIndex < 0) {
+        // not relevant for our current filter => ignore
+        return true;
+      }
+      const batchIndex = Math.floor(entryIndex / this.batchSize);
+      const maxLoadedBatch = Math.max(...this.#loadedBatches);
+      if (batchIndex > maxLoadedBatch) {
+        // it's beyond what we've loaded, so even if it's an add event it doesn't shift anything.
+        // However, the count might need to be incremented and checking that is more effort than it's worth here
+        // return true;
+      }
+      // It's non-trivial determining if this is an add event or not.
+      // We could e.g. query the current entry count and compare, but that's more effort than it's worth.
+    }
+
+    // Note: we could also:
+    // - swap individual entries in place
+    // - increment the count
+    // - shift batches
+    // but we're trying not to overcomplicate this.
+    return false;
   }
 
   /**
