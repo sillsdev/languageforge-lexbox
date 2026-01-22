@@ -2,7 +2,7 @@ using Xunit.Abstractions;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
 
-public class EntryWindowTests(ITestOutputHelper output) : EntryWindowTestsBase
+public class EntryIndexTests(ITestOutputHelper output) : EntryIndexTestsBase
 {
     private readonly MiniLcmApiFixture _fixture = new();
 

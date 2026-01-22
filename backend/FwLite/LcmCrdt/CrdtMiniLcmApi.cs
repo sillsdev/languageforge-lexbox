@@ -405,25 +405,7 @@ public class CrdtMiniLcmApi(
         return await repo.GetEntry(id);
     }
 
-    public async Task<EntryWindowResponse> GetEntriesWindow(int start, int size, string? query = null, QueryOptions? options = null)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var windowOptions = new QueryOptions(
-            options?.Order ?? QueryOptions.Default.Order,
-            options?.Exemplar,
-            size,
-            start,
-            options?.Filter
-        );
-        var entries = new List<Entry>();
-        await foreach (var entry in repo.GetEntries(query, windowOptions))
-        {
-            entries.Add(entry);
-        }
-        return new EntryWindowResponse(entries, start);
-    }
-
-    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, QueryOptions? options = null)
+    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         return await repo.GetEntryIndex(entryId, query, options);
