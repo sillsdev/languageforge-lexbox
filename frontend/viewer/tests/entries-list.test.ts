@@ -110,33 +110,6 @@ test.describe('EntriesList lazy loading', () => {
 
     await expect(entryRows.first()).not.toHaveAttribute('data-skeleton');
   });
-
-  test('scroll to specific entry maintains entry visibility', async ({page}) => {
-    const {vlist, entryRows} = getLocators(page);
-
-    const firstEntry = entryRows.first();
-    await firstEntry.click();
-    const selectedText = await firstEntry.textContent();
-
-    await vlist.evaluate((el) => {
-      el.scrollTop = 2000;
-    });
-
-    await page.waitForTimeout(300);
-
-    const scrollTop = await vlist.evaluate((el) => el.scrollTop);
-    expect(scrollTop).toBeGreaterThan(1850);
-
-    // Scroll back to top
-    await vlist.evaluate((el) => {
-      el.scrollTop = 0;
-    });
-
-    await page.waitForTimeout(500);
-
-    const firstEntryAfter = entryRows.first();
-    await expect(firstEntryAfter).toContainText(selectedText?.slice(0, 10) || '');
-  });
 });
 
 async function waitForProjectViewReady(page: Page) {

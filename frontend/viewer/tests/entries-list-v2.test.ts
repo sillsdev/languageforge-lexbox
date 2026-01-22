@@ -160,7 +160,7 @@ test.describe('EntriesList V2 features', () => {
 
       // The selected entry should be visible (scrolled into view)
       const {selectedEntry} = getLocators(page);
-      await expect(selectedEntry).toBeVisible({timeout: 10000});
+      await expect(selectedEntry).toBeVisible({timeout: 5000});
       await expect(selectedEntry).toContainText(selectedText!.slice(0, 20));
     });
 
