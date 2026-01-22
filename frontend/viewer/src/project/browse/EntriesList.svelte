@@ -201,9 +201,7 @@
             getKey={(index: number) => `${entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}-${index}`}
             bufferSize={400}>
         {#snippet children(index: number)}
-          {@const generation = entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
-          {@const version = entryLoader?.getVersion(index) ?? EntryLoaderService.DEFAULT_VERSION}
-          {#key `${generation}-${version}`}
+          {#key entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
             <Delayed
               getCached={() => entryLoader?.getCachedEntryByIndex(index)}
               load={() => entryLoader?.getOrLoadEntryByIndex(index)}
