@@ -5,7 +5,6 @@ import type {IEntry} from '$lib/dotnet-types';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import {defaultEntry} from '$lib/utils';
 
-// Must match EntryLoaderService.batchSize
 const BATCH_SIZE = 50;
 
 function makeEntry(id: string, citation?: string): IEntry {
@@ -27,6 +26,8 @@ type MiniLcmApiMock = {
   getEntryIndex: ReturnType<typeof vi.fn>;
 };
 
+let cleanups: (() => void)[] = [];
+
 async function createService(allEntries: IEntry[], totalCount = allEntries.length) {
   const api: MiniLcmApiMock = {
     countEntries: vi.fn().mockResolvedValue(totalCount),
@@ -42,22 +43,21 @@ async function createService(allEntries: IEntry[], totalCount = allEntries.lengt
   };
 
   let service!: EntryLoaderService;
-  const cleanup = $effect.root(() => {
+  cleanups.push($effect.root(() => {
     service = new EntryLoaderService(api as unknown as IMiniLcmJsInvokable, {
       search: () => '',
       sort: () => undefined,
       gridifyFilter: () => undefined,
-    });
-  });
+    }, BATCH_SIZE);
+  }));
 
   // Wait for initial load triggered by constructor's watch
   await vi.waitFor(() => expect(service.loading).toBe(false));
 
-  return {api, service, cleanup};
+  return {api, service};
 }
 
 describe('EntryLoaderService', () => {
-  let cleanups: (() => void)[] = [];
 
   afterEach(() => {
     for (const cleanup of cleanups) cleanup();
@@ -67,8 +67,7 @@ describe('EntryLoaderService', () => {
   describe('loading and caching', () => {
     it('loads a batch and caches entries', async () => {
       const entries = makeEntries(3);
-      const {api, service, cleanup} = await createService(entries);
-      cleanups.push(cleanup);
+      const {api, service} = await createService(entries);
 
       await service.getOrLoadEntryByIndex(1);
 
@@ -79,8 +78,7 @@ describe('EntryLoaderService', () => {
 
     it('returns cached entries without refetching', async () => {
       const entries = makeEntries(5);
-      const {api, service, cleanup} = await createService(entries);
-      cleanups.push(cleanup);
+      const {api, service} = await createService(entries);
 
       await service.getOrLoadEntryByIndex(0);
       await service.getOrLoadEntryByIndex(0);
@@ -90,8 +88,7 @@ describe('EntryLoaderService', () => {
 
     it('deduplicates concurrent requests for the same batch', async () => {
       const entries = makeEntries(10);
-      const {api, service, cleanup} = await createService(entries, entries.length);
-      cleanups.push(cleanup);
+      const {api, service} = await createService(entries, entries.length);
 
       const promises = [
         service.getOrLoadEntryByIndex(0),
@@ -108,8 +105,7 @@ describe('EntryLoaderService', () => {
   describe('quiet reset', () => {
     it('loads two adjacent batches in a single request', async () => {
       const entries = makeEntries(4 * BATCH_SIZE);
-      const {api, service, cleanup} = await createService(entries, entries.length);
-      cleanups.push(cleanup);
+      const {api, service} = await createService(entries, entries.length);
 
       // Mark batches 0 and 1 as "relevant" (adjacent)
       service.getCachedEntryByIndex(0);
@@ -123,8 +119,7 @@ describe('EntryLoaderService', () => {
 
     it('loads only the most recent batch when last two are non-adjacent', async () => {
       const entries = makeEntries(10 * BATCH_SIZE);
-      const {api, service, cleanup} = await createService(entries, entries.length);
-      cleanups.push(cleanup);
+      const {api, service} = await createService(entries, entries.length);
 
       service.getCachedEntryByIndex(0);              // batch 0
       service.getCachedEntryByIndex(3 * BATCH_SIZE); // batch 3
@@ -136,8 +131,7 @@ describe('EntryLoaderService', () => {
 
     it('does not clear cache before swap (no flicker)', async () => {
       const entries = makeEntries(2 * BATCH_SIZE, 'old');
-      const {api, service, cleanup} = await createService(entries, entries.length);
-      cleanups.push(cleanup);
+      const {api, service} = await createService(entries, entries.length);
 
       // Warm cache with batch 0
       await service.getOrLoadEntryByIndex(0);
@@ -173,8 +167,7 @@ describe('EntryLoaderService', () => {
 
     it('debounces multiple calls', async () => {
       const entries = makeEntries(BATCH_SIZE);
-      const {api, service, cleanup} = await createService(entries, entries.length);
-      cleanups.push(cleanup);
+      const {api, service} = await createService(entries, entries.length);
 
       // Warm batch 0
       await service.getOrLoadEntryByIndex(0);
@@ -198,8 +191,7 @@ describe('EntryLoaderService', () => {
   describe('race conditions', () => {
     it('discards stale count when reset occurs during loadInitialCount', async () => {
       const entries = makeEntries(200);
-      const {api, service, cleanup} = await createService(entries, 100);
-      cleanups.push(cleanup);
+      const {api, service} = await createService(entries, 100);
 
       let resolveCount: (value: number) => void;
       api.countEntries.mockReturnValueOnce(new Promise<number>(r => { resolveCount = r; }));
@@ -219,8 +211,7 @@ describe('EntryLoaderService', () => {
 
     it('discards stale batch when reset occurs during load', async () => {
       const entries = makeEntries(BATCH_SIZE, 'a');
-      const {api, service, cleanup} = await createService(entries, entries.length);
-      cleanups.push(cleanup);
+      const {api, service} = await createService(entries, entries.length);
 
       let resolveEntries: (value: IEntry[]) => void;
       api.getEntries.mockReturnValueOnce(new Promise<IEntry[]>(r => { resolveEntries = r; }));
@@ -244,8 +235,7 @@ describe('EntryLoaderService', () => {
 
     it('does not allow a stale load to clear a newer pending promise', async () => {
       const entries = makeEntries(2 * BATCH_SIZE, 'v');
-      const {api, service, cleanup} = await createService(entries, entries.length);
-      cleanups.push(cleanup);
+      const {api, service} = await createService(entries, entries.length);
 
       let resolveFirst: (value: IEntry[]) => void;
       api.getEntries.mockReturnValueOnce(new Promise<IEntry[]>(r => { resolveFirst = r; }));
