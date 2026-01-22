@@ -96,7 +96,7 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public Task<int> GetEntryIndex(Guid id, string? query, QueryOptions? options)
+    public Task<int> GetEntryIndex(Guid id, string? query, IndexQueryOptions? options)
     {
         return Task.Run(() => _wrappedApi.GetEntryIndex(id, query, options));
     }

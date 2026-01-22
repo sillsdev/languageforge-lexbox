@@ -39,6 +39,11 @@ public partial class MiniLcmApiStringNormalizationWrapper(
         return _api.GetEntries(options?.Normalized(Form));
     }
 
+    public Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
+    {
+        return _api.GetEntryIndex(entryId, query?.Normalize(Form), options?.Normalized(Form));
+    }
+
     void IDisposable.Dispose()
     {
     }

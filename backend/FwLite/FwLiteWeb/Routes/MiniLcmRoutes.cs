@@ -97,7 +97,6 @@ public static class MiniLcmRoutes
 
         api.MapGet("/writingSystems", MiniLcm.GetWritingSystems);
         api.MapGet("/entries", MiniLcm.GetEntries);
-        api.MapGet("/entries/window", MiniLcm.GetEntriesWindow);
         api.MapGet("/entries/{search}", MiniLcm.SearchEntries);
         api.MapGet("/entry/{id:Guid}", MiniLcm.GetEntry);
         api.MapGet("/entry/{id:Guid}/index", MiniLcm.GetEntryIndex);
@@ -139,23 +138,13 @@ public static class MiniLcmRoutes
             return api.GetEntry(id);
         }
 
-        public static Task<EntryWindowResponse> GetEntriesWindow(
-            [FromQuery] int start,
-            [FromQuery] int size,
-            [AsParameters] MiniLcmQueryOptions options,
-            [FromServices] MiniLcmHolder holder)
-        {
-            var api = holder.MiniLcmApi;
-            return api.GetEntriesWindow(start, size, null, options.ToQueryOptions());
-        }
-
         public static Task<int> GetEntryIndex(
             Guid id,
             [AsParameters] MiniLcmQueryOptions options,
             [FromServices] MiniLcmHolder holder)
         {
             var api = holder.MiniLcmApi;
-            return api.GetEntryIndex(id, null, options.ToQueryOptions());
+            return api.GetEntryIndex(id, null, options.ToIndexQueryOptions());
         }
 
         public static IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech([FromServices] MiniLcmHolder holder)
@@ -203,6 +192,19 @@ public static class MiniLcmRoutes
                 exemplarOptions,
                 Count ?? QueryOptions.Default.Count,
                 Offset ?? QueryOptions.Default.Offset,
+                string.IsNullOrEmpty(GridifyFilter) ? null : new EntryFilter {GridifyFilter = GridifyFilter});
+        }
+
+        public IndexQueryOptions ToIndexQueryOptions()
+        {
+            ExemplarOptions? exemplarOptions = string.IsNullOrEmpty(ExemplarValue) || ExemplarWritingSystem is null
+                ? null
+                : new(ExemplarValue, ExemplarWritingSystem);
+            var sortField = SortField ?? SortOptions.Default.Field;
+            return new IndexQueryOptions(new SortOptions(sortField,
+                    SortWritingSystem ?? SortOptions.Default.WritingSystem,
+                    Ascending ?? SortOptions.Default.Ascending),
+                exemplarOptions,
                 string.IsNullOrEmpty(GridifyFilter) ? null : new EntryFilter {GridifyFilter = GridifyFilter});
         }
 
