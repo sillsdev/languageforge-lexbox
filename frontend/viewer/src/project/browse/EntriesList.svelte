@@ -64,7 +64,6 @@
 
   // Handle entry deleted events
   projectEventBus.onEntryDeleted(entryId => {
-    if (selectedEntryId === entryId) onSelectEntry(undefined);
     entryLoader?.removeEntryById(entryId);
   });
 
