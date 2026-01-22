@@ -122,7 +122,7 @@
 
 <div class="flex items-center gap-0.5">
   <Sidebar.Trigger icon="i-mdi-menu" class="aspect-square p-0" />
-  <ComposableInput bind:value={search} {placeholder} autofocus class="px-1 items-center overflow-x-hidden h-12 md:h-10">
+  <ComposableInput bind:value={search} inputProps={{ 'aria-label': $t`Filter` }} {placeholder} autofocus class="px-1 items-center overflow-x-hidden h-12 md:h-10">
     {#snippet after()}
       <ResponsivePopup
         bind:open={filtersExpanded}

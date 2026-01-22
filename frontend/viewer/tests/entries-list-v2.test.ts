@@ -236,14 +236,14 @@ test.describe('EntriesList V2 features', () => {
       }, firstEntryId);
 
       // Wait a bit for the event to be processed
-      await page.waitForTimeout(300);
+      await expect(async () => {
+          // The first entry should now be different (what was the second entry)
+        const newTexts = await getVisibleEntryTexts(page);
+        expect(newTexts[0]).toBe(initialTexts[1]);
 
-      // The first entry should now be different (what was the second entry)
-      const newTexts = await getVisibleEntryTexts(page);
-      expect(newTexts[0]).toBe(initialTexts[1]);
-
-      // The old first entry should not be in the list
-      expect(newTexts).not.toContain(initialTexts[0]);
+        // The old first entry should not be in the list
+        expect(newTexts).not.toContain(initialTexts[0]);
+      }).toPass({timeout: 5000});
     });
 
     test('entry update event updates entry in list without full reset', async ({page}) => {
@@ -270,11 +270,11 @@ test.describe('EntriesList V2 features', () => {
       }, firstEntry);
 
       // Wait a bit for the event to be processed
-      await page.waitForTimeout(300);
-
+      await expect(async () => {
       // The first entry should now show the updated text
-      const newFirstEntryText = await entryRows.first().textContent();
-      expect(newFirstEntryText).toContain('-UPDATED-');
+        const newFirstEntryText = await entryRows.first().textContent();
+        expect(newFirstEntryText).toContain('-UPDATED-');
+      }).toPass({timeout: 5000});
     });
 
     test('deleting selected entry clears selection', async ({page}) => {
@@ -300,9 +300,7 @@ test.describe('EntriesList V2 features', () => {
       await page.waitForTimeout(300);
 
       // Selection should be cleared (no entry selected)
-      // URL should not have entryId parameter
-      const url = page.url();
-      expect(url).not.toContain(`entryId=${entryId}`);
+      await expect(selectedEntry).not.toBeAttached();
     });
 
     test('deleting entry not in cache triggers reset but maintains position', async ({page}) => {
@@ -456,8 +454,17 @@ test.describe('EntriesList V2 features', () => {
       const visibleTextsBefore = await getVisibleEntryTexts(page);
       expect(visibleTextsBefore.length).toBeGreaterThan(0);
 
-      // Action: Create entry at index 25 (before currently loaded batch)
+      // Action: Create a bunch of entries so the scroll height increases
       const {headword} = await createEntryAtIndex(page, 25);
+      await createEntryAtIndex(page, 25);
+      await createEntryAtIndex(page, 25);
+      await createEntryAtIndex(page, 25);
+      await createEntryAtIndex(page, 25);
+      await createEntryAtIndex(page, 25);
+      await createEntryAtIndex(page, 25);
+      await createEntryAtIndex(page, 25);
+      await createEntryAtIndex(page, 25);
+      await createEntryAtIndex(page, 25);
 
       // Wait for event handling
       await page.waitForTimeout(500);
