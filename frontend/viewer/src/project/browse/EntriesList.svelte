@@ -1,6 +1,6 @@
 <script lang="ts">
   import {type IEntry, type IPartOfSpeech, type ISemanticDomain} from '$lib/dotnet-types';
-  import {Debounced} from 'runed';
+  import {Debounced, watch} from 'runed';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import {cn} from '$lib/utils';
@@ -73,8 +73,17 @@
 
   // Handle entry updated events
   projectEventBus.onEntryUpdated(entry => {
-    void entryLoader?.updateEntry(entry);
+    void entryLoader?.updateEntry(entry).then(() => {
+      // follow the selected entry if it "jumps"/reorders
+      if (entry.id === selectedEntryId) {
+        return tryToScrollToEntry(entry.id);
+      }
+    });
   });
+
+  watch(
+    () => entryLoader?.generation,
+    () => void scrollToSelectedOrTop());
 
   $effect(() => {
     if (entryLoader?.error) {
@@ -105,23 +114,22 @@
 
   let vList = $state<VListHandle>();
   $effect(() => {
-    if (!vList || !selectedEntryId) return;
+    if (!vList || !selectedEntryId || entryLoader?.loading !== false) return;
 
-    void (async () => {
-      // track the index so we follow it if it jumps
-      const index = await entryLoader?.getOrLoadEntryIndex(selectedEntryId);
-      if (index === undefined || index < 0) {
-        vList.scrollTo(0);
-        return;
-      } else {
-        untrack(() => void scrollToIndex(vList!, index));
-      }
-    })();
+    void untrack(scrollToSelectedOrTop);
   });
 
-  async function scrollToIndex(vList: VListHandle, index: number) {
-    if (!entryLoader) return;
-    if (index < 0 || !vList) return;
+  async function scrollToSelectedOrTop() {
+    if (!vList || !selectedEntryId) return;
+    const scrolled = await tryToScrollToEntry(selectedEntryId);
+    if (!scrolled) vList.scrollTo(0);
+  }
+
+  async function tryToScrollToEntry(entryId: string): Promise<boolean> {
+    if (!entryLoader || !vList) return false;
+
+    const index = await entryLoader.getOrLoadEntryIndex(entryId);
+    if (index < 0) return false;
 
     const visibleStart = vList.getScrollOffset();
     const visibleSize = vList.getViewportSize();
@@ -133,7 +141,9 @@
     if (itemStart < visibleStart || itemEnd > visibleEnd) {
       //using smooth scroll caused lag, maybe only do it if scrolling a short distance?
       vList.scrollToIndex(index, { align: 'center' });
+      return true;
     }
+    return false;
   }
 
   export async function selectNextEntry(): Promise<IEntry | undefined> {
@@ -164,9 +174,7 @@
       variant="outline"
       iconProps={{ class: cn(loading.current && 'animate-spin') }}
       size="icon"
-      onclick={() => {
-        void entryLoader?.reset();
-      }}
+      onclick={() => entryLoader?.reset()}
     />
   </DevContent>
   {#if !disableNewEntry}
@@ -186,42 +194,42 @@
         <div class="flex items-center justify-center h-full text-muted-foreground">
           <p>{$t`No entries found`}</p>
         </div>
-      {:else}
-        <VList bind:this={vList}
-              data={indexArray}
-              class="h-full p-0.5 md:pr-3 after:h-12 after:block"
-              getKey={(index: number) => `${entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}-${index}`}
-              bufferSize={400}>
-          {#snippet children(index: number)}
-            {@const generation = entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
-            {@const version = entryLoader?.getVersion(index) ?? EntryLoaderService.DEFAULT_VERSION}
-            {#key `${generation}-${version}`}
-              <Delayed
-                getCached={() => entryLoader?.getCachedEntryByIndex(index)}
-                load={() => entryLoader?.getOrLoadEntryByIndex(index)}
-                delay={250}
-              >
-                {#snippet children(state)}
-                  {#if state.loading || !state.current}
-                    <!-- we want the initial loading state and the first loading entries
-                    to share the same skeletons, so there's no flicker -->
-                    <EntryRow class="mb-2" skeleton={true} />
-                  {:else}
-                    {@const entry = state.current}
-                    <EntryMenu {entry} contextMenu>
-                      <EntryRow {entry}
-                                class="mb-2"
-                                selected={selectedEntryId === entry.id}
-                                onclick={() => onSelectEntry(entry)}
-                                {previewDictionary}/>
-                    </EntryMenu>
-                  {/if}
-                {/snippet}
-              </Delayed>
-            {/key}
-          {/snippet}
-        </VList>
       {/if}
+
+      <VList bind:this={vList}
+            data={indexArray}
+            class="h-full p-0.5 md:pr-3 after:h-12 after:block"
+            getKey={(index: number) => `${entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}-${index}`}
+            bufferSize={400}>
+        {#snippet children(index: number)}
+          {@const generation = entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
+          {@const version = entryLoader?.getVersion(index) ?? EntryLoaderService.DEFAULT_VERSION}
+          {#key `${generation}-${version}`}
+            <Delayed
+              getCached={() => entryLoader?.getCachedEntryByIndex(index)}
+              load={() => entryLoader?.getOrLoadEntryByIndex(index)}
+              delay={250}
+            >
+              {#snippet children(state)}
+                {#if state.loading || !state.current}
+                  <!-- we want the initial loading state and the first loading entries
+                  to share the same skeletons, so there's no flicker -->
+                  <EntryRow class="mb-2" skeleton={true} />
+                {:else}
+                  {@const entry = state.current}
+                  <EntryMenu {entry} contextMenu>
+                    <EntryRow {entry}
+                              class="mb-2"
+                              selected={selectedEntryId === entry.id}
+                              onclick={() => onSelectEntry(entry)}
+                              {previewDictionary}/>
+                  </EntryMenu>
+                {/if}
+              {/snippet}
+            </Delayed>
+          {/key}
+        {/snippet}
+      </VList>
     </div>
   {/if}
 </div>
