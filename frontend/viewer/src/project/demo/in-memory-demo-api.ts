@@ -7,6 +7,7 @@ import {
   type IEntry,
   type IExampleSentence,
   type IFilterQueryOptions,
+  type IIndexQueryOptions,
   type IMiniLcmJsInvokable,
   type IPartOfSpeech,
   type IProjectModel,
@@ -101,7 +102,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve(entries.length);
   }
 
-  async getEntryIndex(entryId: string, query?: string, options?: IFilterQueryOptions): Promise<number> {
+  async getEntryIndex(entryId: string, query?: string, options?: IIndexQueryOptions): Promise<number> {
     await delay(100);
     const entries = this.getFilteredSortedEntries(query, options);
     return entries.findIndex(e => e.id === entryId);

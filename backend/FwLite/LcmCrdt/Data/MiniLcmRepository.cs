@@ -261,15 +261,23 @@ public class MiniLcmRepository(
         return exampleSentence;
     }
 
-    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, QueryOptions? options = null)
+    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
     {
         // This is a fallback implementation that's not optimal for large datasets,
         // but it works correctly. Ideally, we'd use ROW_NUMBER() window function with linq2db
         // for better performance on large entry lists. For now, we enumerate through sorted entries
         // and count until we find the target entry.
 
+        var queryOptions = new QueryOptions(
+            options?.Order ?? QueryOptions.Default.Order,
+            options?.Exemplar,
+            QueryOptions.QueryAll,
+            0,
+            options?.Filter
+        );
+
         var rowIndex = 0;
-        await foreach (var entry in GetEntries(query, options))
+        await foreach (var entry in GetEntries(query, queryOptions))
         {
             if (entry.Id == entryId)
             {

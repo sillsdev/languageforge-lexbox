@@ -918,21 +918,21 @@ public class FwDataMiniLcmApi(
         options ??= QueryOptions.Default;
         var entries = GetLexEntries(predicate, options);
 
-        entries = ApplySorting(options, entries, query);
+        entries = ApplySorting(options.Order, entries, query);
         entries = options.ApplyPaging(entries);
 
         return entries.ToAsyncEnumerable().Select(FromLexEntry);
     }
 
-    private IEnumerable<ILexEntry> ApplySorting(QueryOptions options, IEnumerable<ILexEntry> entries, string? query)
+    private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query)
     {
-        var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
-        if (options.Order.Field == SortField.SearchRelevance)
+        var sortWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Vernacular);
+        if (order.Field == SortField.SearchRelevance)
         {
-            return entries.ApplyRoughBestMatchOrder(options.Order, sortWs, query);
+            return entries.ApplyRoughBestMatchOrder(order, sortWs, query);
         }
 
-        return options.ApplyOrder(entries, e => e.LexEntryHeadword(sortWs));
+        return order.ApplyOrder(entries, e => e.LexEntryHeadword(sortWs));
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
@@ -955,34 +955,11 @@ public class FwDataMiniLcmApi(
         return Task.FromResult(lexEntry is null ? null : FromLexEntry(lexEntry));
     }
 
-    public async Task<EntryWindowResponse> GetEntriesWindow(int start, int size, string? query = null, QueryOptions? options = null)
+    public Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
     {
-        const int MaxPageSize = 1_000;
-        if (start < 0) throw new ArgumentOutOfRangeException(nameof(start), start, "Start must be non-negative.");
-        if (size is <= 0 or > MaxPageSize)
-            throw new ArgumentOutOfRangeException(nameof(size), size, $"Size must be between 1 and {MaxPageSize}.");
-
-        var windowOptions = new QueryOptions(
-            options?.Order ?? QueryOptions.Default.Order,
-            options?.Exemplar,
-            size,
-            start,
-            options?.Filter
-        );
-        var entries = new List<Entry>();
-        await foreach (var entry in GetEntries(EntrySearchPredicate(query), windowOptions, query))
-        {
-            entries.Add(entry);
-        }
-        return new EntryWindowResponse(entries, start);
-    }
-
-    public Task<int> GetEntryIndex(Guid entryId, string? query = null, QueryOptions? options = null)
-    {
-        options ??= QueryOptions.Default;
         var predicate = EntrySearchPredicate(query);
         var entries = GetLexEntries(predicate, options);
-        entries = ApplySorting(options, entries, query);
+        entries = ApplySorting(options?.Order ?? SortOptions.Default, entries, query);
 
         var rowIndex = 0;
         foreach (var entry in entries)
