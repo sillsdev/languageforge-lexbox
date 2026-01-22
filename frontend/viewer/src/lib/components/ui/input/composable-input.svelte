@@ -1,10 +1,11 @@
 <script lang="ts" generics="T extends string | number">
-  import type {WithElementRef} from 'bits-ui';
+  import {mergeProps, type WithElementRef} from 'bits-ui';
   import type {HTMLAttributes} from 'svelte/elements';
   import type {Snippet} from 'svelte';
   import InputShell from './input-shell.svelte';
   import {Input} from '.';
   import {cn} from '$lib/utils';
+  import type {InputProps} from './input.svelte';
 
   type Props = WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'placeholder'>> & {
     value?: T,
@@ -12,6 +13,7 @@
     before?: Snippet,
     after?: Snippet,
     placeholder?: string | Snippet,
+    inputProps?: InputProps,
   };
 
   let {
@@ -22,6 +24,7 @@
     placeholder,
     before,
     after,
+    inputProps,
     ...restProps
   }: Props = $props();
 
@@ -35,7 +38,7 @@
 <InputShell bind:ref {focusRingClass} class={cn('gap-0', className)} {...restProps}>
   {@render before?.()}
   <div class="grow flex relative overflow-hidden items-center h-full">
-    <Input {id} variant="ghost" placeholder={stringPlaceholder} class="grow real-input h-full px-2" bind:ref={inputRef} bind:value />
+    <Input {id} {...mergeProps(inputProps, { class: 'grow real-input h-full px-2' })} variant="ghost" placeholder={stringPlaceholder} bind:ref={inputRef} bind:value />
     {#if !value && snippetPlaceholder}
       <label for={id} class="absolute pointer-events-none text-foreground/50 x-ellipsis whitespace-nowrap px-2">
         {@render snippetPlaceholder()}
