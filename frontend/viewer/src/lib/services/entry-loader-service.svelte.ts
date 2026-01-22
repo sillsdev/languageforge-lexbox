@@ -41,29 +41,37 @@ export class EntryLoaderService {
   #recentBatchNumbers: { curr?: number, prev?: number } = {};
 
   // Coalesce multiple quiet resets (e.g., rapid event bursts)
-  #quietResetRequested = false;
+  #quietResetRequest = { requested: false, generation: -1 };
   #quietResetInFlight: Promise<void> | undefined;
 
   // Generation counter to invalidate in-flight async operations after reset
-  #generation = -1;
-
-  // Config
-  readonly batchSize = 50;
+  // Must be reactive ($state) so UI can react to generation changes
+  #generation = $state(-1);
 
   readonly #api: IMiniLcmJsInvokable;
   readonly #deps: EntryLoaderDeps;
 
-  constructor(api: IMiniLcmJsInvokable, deps: EntryLoaderDeps) {
+  // Debounce timer for coalescing rapid filter changes
+  #debounceTimer: ReturnType<typeof setTimeout> | undefined;
+
+  constructor(api: IMiniLcmJsInvokable, deps: EntryLoaderDeps, readonly batchSize = 50) {
     this.#api = api;
     this.#deps = deps;
 
-    this.reset();
+    // Initial load (no debounce on first load)
+    void this.reset();
 
     watch(
       () => [deps.search(), deps.sort(), deps.gridifyFilter()],
       (_, oldValues) => {
-        if (oldValues) this.reset();
-        void this.loadInitialCount();
+        // don't reset
+        if (!oldValues) return;
+
+        // Debounce the actual fetch to coalesce rapid changes
+        clearTimeout(this.#debounceTimer);
+        this.#debounceTimer = setTimeout(() => {
+          void this.reset();
+        }, DEFAULT_DEBOUNCE_TIME);
       }
     );
   }
@@ -93,9 +101,12 @@ export class EntryLoaderService {
     const cached = this.#entryCache.get(index);
     if (cached) return cached;
 
+    const generation = this.#generation;
     await this.#loadBatchForIndex(index);
 
-    // Return from cache. If reset occurred during load, batch wasn't cached, so this returns undefined.
+    // Discard stale batches
+    if (this.#generation !== generation) return undefined;
+
     return this.#entryCache.get(index);
   }
 
@@ -177,19 +188,43 @@ export class EntryLoaderService {
   }
 
   /**
+   * Full reset: clear all cache and refetch count.
+   */
+  async reset(): Promise<void> {
+    await this.loadInitialCount();
+    this.#entryCache.clear();
+    this.#entryVersions.clear();
+    this.#idToIndex.clear();
+    this.#pendingBatches.clear();
+    this.#loadedBatches.clear();
+    this.#generation++;
+  }
+
+  /**
    * Quiet reset: refresh count + reload the currently relevant batch(es), then atomically swap caches.
    * This avoids skeleton flashes for background events (add/update/delete) that affect list ordering.
+   *
+   * A full reset() trumps any pending quiet reset — if the generation changes during the debounce
+   * window, the quiet reset is aborted.
    */
   quietReset(): Promise<void> {
-    this.#quietResetRequested = true;
+    this.#quietResetRequest = { requested: true, generation: this.#generation };
     if (this.#quietResetInFlight) return this.#quietResetInFlight;
 
     const run = async () => {
-      while (this.#quietResetRequested) {
-        this.#quietResetRequested = false;
+      while (this.#quietResetRequest.requested) {
+        this.#quietResetRequest.requested = false;
+
         // Debounce: wait for it to settle
         await delay(DEFAULT_DEBOUNCE_TIME);
-        if (this.#quietResetRequested) continue;
+
+        // If we've moved to a new generation: abort
+        if (this.#generation !== this.#quietResetRequest.generation) {
+          this.#quietResetInFlight = undefined;
+          return;
+        }
+
+        if (this.#quietResetRequest.requested) continue;
 
         await this.#runQuietResetOnce();
       }
@@ -202,23 +237,7 @@ export class EntryLoaderService {
     return this.#quietResetInFlight;
   }
 
-  /**
-   * Full reset: clear all cache and refetch count.
-   */
-  reset(): void {
-    this.#generation++;
-    this.#entryCache.clear();
-    this.#entryVersions.clear();
-    this.#idToIndex.clear();
-    this.#pendingBatches.clear();
-    this.#loadedBatches.clear();
-    this.totalCount = undefined;
-    this.error = undefined;
-    this.loading = true;
-  }
-
   // Private methods
-
   async #loadBatchForIndex(index: number): Promise<void> {
     const batchNumber = Math.floor(index / this.batchSize);
 
@@ -342,7 +361,7 @@ export class EntryLoaderService {
         this.#fetchEntriesForQuietReset(batches),
       ]);
 
-      if (this.#generation !== generation) return; // Stale after full reset
+      if (this.#generation !== generation) return; // Stale
 
       this.#swapCachesForQuietReset(batches, entries, newCount);
     } catch (e) {

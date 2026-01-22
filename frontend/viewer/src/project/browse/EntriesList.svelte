@@ -48,14 +48,18 @@
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
 
-  let entryLoader = $derived(!miniLcmApi ? undefined : new EntryLoaderService(miniLcmApi, {
+  // Create deps object reactively so watch can track changes
+  // The closures maybe need to be created OUTSIDE untrack so they maintain reactivity
+  const deps = {
     search: () => search,
     sort: () => sort,
     gridifyFilter: () => gridifyFilter,
-  }));
+  };
+
+  let entryLoader = $derived(!miniLcmApi ? undefined : untrack(() => new EntryLoaderService(miniLcmApi, deps)));
 
   // Debounce the loading state for smoother UI
-  const loading = new Debounced(() => entryLoader?.loading ?? true, 50);
+  const loading = new Debounced(() => entryLoader?.loading ?? true, 0);
 
   // Keep entryCount in sync
   $effect(() => {
@@ -78,14 +82,14 @@
     }
   });
 
-  // Generate a random number of skeleton rows between 3 and 7
-  const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
+  // Generate a random number of skeleton rows between 10 and 13
+  const skeletonRowCount = Math.ceil(Math.random() * 10) + 3;
 
   // Generate index array for virtual list.
   // We use a small number of skeletons if the total count is not yet known
   // to avoid a "white phase" between initial load and list initialization.
   const indexArray = $derived(
-    entryLoader && entryLoader.totalCount !== undefined
+    entryLoader?.totalCount !== undefined
       ? Array.from({ length: entryLoader.totalCount }, (_, i) => i)
       : Array.from({ length: skeletonRowCount }, (_, i) => i)
   );
@@ -105,14 +109,18 @@
 
     void (async () => {
       // track the index so we follow it if it jumps
-      await entryLoader?.getOrLoadEntryIndex(selectedEntryId);
-      untrack(() => void scrollToEntry(vList!, selectedEntryId));
+      const index = await entryLoader?.getOrLoadEntryIndex(selectedEntryId);
+      if (index === undefined || index < 0) {
+        vList.scrollTo(0);
+        return;
+      } else {
+        untrack(() => void scrollToIndex(vList!, index));
+      }
     })();
   });
 
-  async function scrollToEntry(vList: VListHandle, entryId: string) {
+  async function scrollToIndex(vList: VListHandle, index: number) {
     if (!entryLoader) return;
-    const index = await entryLoader.getOrLoadEntryIndex(entryId);
     if (index < 0 || !vList) return;
 
     const visibleStart = vList.getScrollOffset();
@@ -157,8 +165,7 @@
       iconProps={{ class: cn(loading.current && 'animate-spin') }}
       size="icon"
       onclick={() => {
-        entryLoader?.reset();
-        void entryLoader?.loadInitialCount();
+        void entryLoader?.reset();
       }}
     />
   </DevContent>
@@ -183,7 +190,7 @@
         <VList bind:this={vList}
               data={indexArray}
               class="h-full p-0.5 md:pr-3 after:h-12 after:block"
-              getKey={(index: number) => entryLoader?.getCachedEntryByIndex(index)?.id ?? `skeleton-${index}`}
+              getKey={(index: number) => `${entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}-${index}`}
               bufferSize={400}>
           {#snippet children(index: number)}
             {@const generation = entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
