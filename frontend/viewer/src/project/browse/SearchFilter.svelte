@@ -122,7 +122,7 @@
             {...mergeProps(props, { class: 'aspect-square' })}
             aria-label={$t`Toggle filters`}
             size={IsMobile.value ? 'sm' : 'xs'}
-            pressed={filtersExpanded}
+            bind:pressed={filtersExpanded}
           >
             <Icon icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'} class="size-6 md:size-5" />
           </Toggle>
