@@ -129,12 +129,8 @@ public class MiniLcmRepository(
         string? query = null,
         QueryOptions? options = null)
     {
-        options = await EnsureWritingSystemIsPopulated(options ??= QueryOptions.Default);
-
-        var queryable = Entries;
-        (queryable, var sortingHandled) = await FilterEntries(queryable, query, options, options.Order);
-        if (!sortingHandled)
-            queryable = await ApplySorting(queryable, options, query);
+        IQueryable<Entry> queryable;
+        (queryable, options) = await FilterAndSortEntries(query, options ?? QueryOptions.Default);
 
         queryable = queryable
             .LoadWith(e => e.Senses)
@@ -154,6 +150,20 @@ public class MiniLcmRepository(
             entry.Finalize(complexFormComparer);
             yield return entry;
         }
+    }
+
+    private async Task<(IQueryable<Entry> queryable, QueryOptions options)> FilterAndSortEntries(
+        string? query,
+        QueryOptions options)
+    {
+        options = await EnsureWritingSystemIsPopulated(options);
+
+        var queryable = Entries;
+        var (filteredQuery, sortingHandled) = await FilterEntries(queryable, query, options, options.Order);
+        if (!sortingHandled)
+            filteredQuery = await ApplySorting(filteredQuery, options, query);
+
+        return (filteredQuery, options);
     }
 
     private async Task<QueryOptions> EnsureWritingSystemIsPopulated(QueryOptions queryOptions)
@@ -263,11 +273,6 @@ public class MiniLcmRepository(
 
     public async Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
     {
-        // This is a fallback implementation that's not optimal for large datasets,
-        // but it works correctly. Ideally, we'd use ROW_NUMBER() window function with linq2db
-        // for better performance on large entry lists. For now, we enumerate through sorted entries
-        // and count until we find the target entry.
-
         var queryOptions = new QueryOptions(
             options?.Order ?? QueryOptions.Default.Order,
             options?.Exemplar,
@@ -276,17 +281,14 @@ public class MiniLcmRepository(
             options?.Filter
         );
 
-        var rowIndex = 0;
-        await foreach (var entry in GetEntries(query, queryOptions))
-        {
-            if (entry.Id == entryId)
-            {
-                return rowIndex;
-            }
-            rowIndex++;
-        }
+        IQueryable<Entry> queryable;
+        (queryable, queryOptions) = await FilterAndSortEntries(query, queryOptions);
 
-        return -1;
+        // SQLite's ROW_NUMBER() seems to require ORDER BY in the OVER clause - it cannot inherit from the query.
+        // (AI tried a billion things)
+        // This is efficient for virtual scrolling since we only select IDs, not full entities.
+        var sortedIds = await queryable.Select(e => e.Id).ToListAsyncLinqToDB();
+        return sortedIds.IndexOf(entryId);
     }
 
     public async Task<Publication?> GetPublication(Guid publicationId)
