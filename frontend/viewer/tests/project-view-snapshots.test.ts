@@ -29,13 +29,12 @@ for (const colorScheme of ['light', 'dark'] as const) {
 }
 
 async function scrollToEntry(page: Page, search: string) {
-  await filterLocator(page).fill(search);
   await page.getByRole('row', { name: search }).click();
-  await filterLocator(page).clear();
 }
 
 async function waitForProjectViewReady(page: Page) {
   await expect(page.locator('.i-mdi-loading')).toHaveCount(0);
   await page.waitForFunction(() => document.fonts.ready);
   await expect(page.locator('.animate-pulse')).toHaveCount(0);
+  await expect(page.getByRole('row').first()).toBeVisible();
 }
