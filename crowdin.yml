@@ -1,5 +1,5 @@
 files:
-  - source: frontend/viewer/src/locales/en.po
-    translation: frontend/viewer/src/locales/%two_letters_code%.po
-  - source: '**/descriptions/description-en.md'
-    translation: '**/descriptions/description-%two_letters_code%.md'
+  - source: /frontend/viewer/src/locales/en.po
+    translation: /frontend/viewer/src/locales/%two_letters_code%.po
+  - source: /platform.bible-extension/assets/descriptions/description-en.md
+    translation: /platform.bible-extension/assets/descriptions/description-%two_letters_code%.md
