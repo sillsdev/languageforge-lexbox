@@ -49,7 +49,7 @@ test.describe('Entry edit persistence', () => {
 
   test('UI edit of gloss field is saved to backend', async ({page}) => {
     // Get an existing entry with senses from demo data that has an English gloss
-    const {entryId, headword, senseId, originalGloss} = await page.evaluate(async (headwordField) => {
+    const {entryId, headword, originalGloss} = await page.evaluate(async (headwordField) => {
       const api = window.__PLAYWRIGHT_UTILS__.demoApi;
       const entries = await api.getEntries({
         offset: 0,
@@ -61,7 +61,6 @@ test.describe('Entry edit persistence', () => {
       if (!entry) throw new Error('No suitable entry with English gloss found in demo data');
       return {
         entryId: entry.id,
-        senseId: entry.senses[0].id,
         headword: entry.citationForm?.seh ?? entry.lexemeForm?.seh ?? '',
         originalGloss: entry.senses[0].gloss?.en ?? '',
       };

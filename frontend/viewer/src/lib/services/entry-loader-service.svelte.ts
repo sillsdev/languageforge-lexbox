@@ -163,7 +163,7 @@ export class EntryLoaderService {
    * Remove an entry by ID (for delete events).
    * Uses a quiet reset to refresh count + the currently relevant batch(es).
    */
-  removeEntryById(id: string): void {
+  removeEntryById(_id: string): void {
     // We intentionally do not try to do any local shifting / heuristics.
     // The goal is to keep event handling easy to reason about.
     void this.quietReset();
