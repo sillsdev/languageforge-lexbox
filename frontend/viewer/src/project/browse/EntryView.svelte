@@ -117,7 +117,7 @@
         </div>
       </div>
       {#if deleted}
-        {@const entity = pt('entry', 'word', $currentView)}
+        {@const entity = pt($t`entry`, $t`word`, $currentView)}
         <div class="mb-2 px-2">
           <Alert.Root variant="destructive">
             <Alert.Description class="flex justify-between items-center">
@@ -125,9 +125,11 @@
                 <Icon icon="i-mdi-alert-circle" class="size-5" />
                 {$t`This ${entity} was deleted`}
               </span>
-              <Button size="sm" variant="secondary" onclick={() => restore()}>
-                {$t('Restore')}
-              </Button>
+              {#if !readonly && features.write}
+                <Button size="sm" variant="secondary" onclick={() => restore()}>
+                  {$t`Restore`}
+                </Button>
+              {/if}
             </Alert.Description>
           </Alert.Root>
         </div>

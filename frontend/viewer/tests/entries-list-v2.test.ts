@@ -258,7 +258,7 @@ test.describe('EntriesList V2 features', () => {
       await page.evaluate(async (entry) => {
         const testUtils = window.__PLAYWRIGHT_UTILS__;
         const newLexemeForm = `-UPDATED-${entry.lexemeForm.seh || entry.lexemeForm.en || 'entry'}`;
-        const updated = {...entry, lexemeForm: {...entry.lexemeForm, seh: newLexemeForm}};
+        const updated = {...entry, citationForm: {...entry.lexemeForm, seh: newLexemeForm}};
         await testUtils.demoApi.updateEntry(entry, updated);
       }, firstEntry);
 
