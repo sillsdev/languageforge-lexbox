@@ -155,7 +155,8 @@
                 variant="ghost" size="icon" iconProps={{src: storybookIcon, alt: 'Storybook icon'}}/>
       {/if}
       <DevContent>
-        <Button href="/sandbox" variant="ghost" size="icon" icon="i-mdi-test-tube"/>
+        <Button href="/sandbox" variant="ghost" size="icon" icon="i-mdi-test-tube" title="Sandbox"/>
+        <Button href="/swagger" variant="ghost" size="icon" icon="i-mdi-api" target="_blank" title="Swagger"/>
       </DevContent>
       <LocalizationPicker/>
       <ThemePicker buttonProps={{variant: 'outline'}}/>
