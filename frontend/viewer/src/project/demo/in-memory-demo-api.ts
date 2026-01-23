@@ -282,15 +282,19 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   createSense(entryGuid: string, sense: ISense): Promise<ISense> {
     const entry = this._entries.find(e => e.id === entryGuid);
-    entry?.senses.push(sense);
-    if (entry) this.#projectEventBus.notifyEntryUpdated(entry);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    entry.senses.push(sense);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(sense);
   }
 
   createExampleSentence(entryGuid: string, senseGuid: string, exampleSentence: IExampleSentence): Promise<IExampleSentence> {
     const entry = this._entries.find(e => e.id === entryGuid);
-    entry?.senses.find(s => s.id === senseGuid)?.exampleSentences.push(exampleSentence);
-    if (entry) this.#projectEventBus.notifyEntryUpdated(entry);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    const sense = entry.senses.find(s => s.id === senseGuid);
+    if (!sense) throw new Error(`Sense ${senseGuid} not found`);
+    sense.exampleSentences.push(exampleSentence);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(exampleSentence);
   }
 

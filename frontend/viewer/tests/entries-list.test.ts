@@ -1,7 +1,8 @@
 import {type Page, expect, test} from '@playwright/test';
+import {waitForProjectViewReady} from './test-utils';
 
 /**
- * This file is vibe coded.
+ * This file is largely vibe coded.
  * Tests for EntriesList lazy loading and virtual scrolling.
  */
 
@@ -54,10 +55,11 @@ test.describe('EntriesList lazy loading', () => {
       el.scrollTop = 1000;
     });
 
-    await page.waitForTimeout(500);
-
-    const scrollTop = await vlist.evaluate((el) => el.scrollTop);
-    expect(scrollTop).toBeGreaterThan(850);
+    // Wait for scroll to settle and content to render
+    await expect(async () => {
+      const scrollTop = await vlist.evaluate((el) => el.scrollTop);
+      expect(scrollTop).toBeGreaterThan(850);
+    }).toPass({timeout: 2000});
 
     const newTexts = await getVisibleEntryTexts(page);
     expect(newTexts).not.toEqual(initialTexts);
@@ -79,11 +81,11 @@ test.describe('EntriesList lazy loading', () => {
       el.scrollTop = target;
     }, targetScroll);
 
-    await page.waitForTimeout(500);
-
-    const scrollTop = await vlist.evaluate((el) => el.scrollTop);
-    // Allow small margin for virtualization/browser rounding
-    expect(scrollTop).toBeGreaterThan(targetScroll - 200);
+    await expect(async () => {
+      const scrollTop = await vlist.evaluate((el) => el.scrollTop);
+      // Allow small margin for virtualization/browser rounding
+      expect(scrollTop).toBeGreaterThan(targetScroll - 200);
+    }).toPass({timeout: 2000});
 
     // Should resolve from skeletons to entries
     await expect(async () => {
@@ -111,9 +113,3 @@ test.describe('EntriesList lazy loading', () => {
     await expect(entryRows.first()).not.toHaveAttribute('data-skeleton');
   });
 });
-
-async function waitForProjectViewReady(page: Page) {
-  await expect(page.locator('.i-mdi-loading')).toHaveCount(0);
-  await page.waitForFunction(() => document.fonts.ready);
-  await expect(page.locator('[data-skeleton]')).toHaveCount(0, {timeout: 10000});
-}
