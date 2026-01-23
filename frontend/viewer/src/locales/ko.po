@@ -778,6 +778,10 @@ msgstr "파일 저장이 지원되지 않음"
 msgid "File too big"
 msgstr "파일이 너무 큼"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter # words"
 #. Placeholder text showing filtered count (# = number)
@@ -1693,6 +1697,10 @@ msgstr "이러한 변경 사항을 업로드하거나 다운로드한 시간"
 #: src/lib/activity/ActivityItem.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "변경 내용이 아직 업로드되지 않았습니다. 변경 내용을 공유하려면 온라인 상태이고 로그인했는지 확인하세요."
+
+#: src/project/browse/EntryView.svelte
+msgid "This {0} was deleted"
+msgstr ""
 
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
