@@ -1,6 +1,7 @@
 import {type Page, expect, test} from '@playwright/test';
 import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
 import {MorphType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/MorphType';
+import {waitForProjectViewReady} from './test-utils';
 
 /**
  * Tests for V2 virtual scrolling features:
@@ -18,16 +19,6 @@ test.describe('EntriesList V2 features', () => {
       skeletons: page.locator('[role="table"] [data-skeleton]'),
       selectedEntry: page.locator('[role="table"] [role="row"][aria-selected="true"]'),
     };
-  }
-
-  async function waitForProjectViewReady(page: Page, waitForTestUtils = false) {
-    await expect(page.locator('.i-mdi-loading')).toHaveCount(0, {timeout: 10000});
-    await page.waitForFunction(() => document.fonts.ready);
-    await expect(page.locator('[data-skeleton]')).toHaveCount(0, {timeout: 10000});
-    // Wait for test utilities to be available if requested
-    if (waitForTestUtils) {
-      await page.waitForFunction(() => window.__PLAYWRIGHT_UTILS__?.demoApi, {timeout: 5000});
-    }
   }
 
   async function getVisibleEntryTexts(page: Page) {
@@ -161,7 +152,9 @@ test.describe('EntriesList V2 features', () => {
       // The selected entry should be visible (scrolled into view)
       const {selectedEntry} = getLocators(page);
       await expect(selectedEntry).toBeVisible({timeout: 5000});
-      await expect(selectedEntry).toContainText(selectedText!.slice(0, 20));
+      const expectedSnippet = selectedText!.trim().slice(0, 20);
+      expect(expectedSnippet.length).toBeGreaterThan(0);
+      await expect(selectedEntry).toContainText(expectedSnippet);
     });
 
     test('clearing search filter with entry selected keeps entry visible', async ({page}) => {
@@ -285,11 +278,11 @@ test.describe('EntriesList V2 features', () => {
       await expect(selectedEntry).toBeVisible();
 
       // Get the selected entry ID
-      const entryId = await page.evaluate(async () => {
+      const entryId = await page.evaluate(async (headwordField) => {
         const testUtils = window.__PLAYWRIGHT_UTILS__;
-        const entries = await testUtils.demoApi.getEntries({count: 1, offset: 0, order: {field: 'Headword' as unknown as SortField, writingSystem: 'default', ascending: true}});
+        const entries = await testUtils.demoApi.getEntries({count: 1, offset: 0, order: {field: headwordField, writingSystem: 'default', ascending: true}});
         return entries[0]?.id;
-      });
+      }, SortField.Headword);
 
       // Delete via API
       await page.evaluate(async (id) => {

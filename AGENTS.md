@@ -73,6 +73,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ **ALWAYS review relevant code paths** before asking clarification questions.
 - ✅ New instructions in AGENTS.md files should be SUCCINCT.
 - ✅ Use `gh` CLI for GitHub issues/PRs, not browser tools
+- ✅ When pulling PR comments with `gh` use `api`. It's the only thing that returns review comments.
 - ✅ If the user asks about "the" PR, but does not explicitly name a PR or branch, assume they mean the PR associated with the current branch.
 - ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)
 - ✅ Prefer IDE diagnostics (compiler/lint errors) over CLI tools for identifying issues. Fixing these diagnostics is part of completing any instruction.
