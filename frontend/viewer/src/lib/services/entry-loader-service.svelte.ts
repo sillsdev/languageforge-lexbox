@@ -154,7 +154,7 @@ export class EntryLoaderService {
 
     const generation = this.#generation;
     const index = await this.#api.getEntryIndex(id, search || undefined, queryOptions);
-    if (this.#generation === generation) return -1;
+    if (this.#generation !== generation) return -1;
     this.#idToIndex.set(id, index);
     return index;
   }
