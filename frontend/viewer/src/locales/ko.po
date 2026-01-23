@@ -623,6 +623,11 @@ msgstr "로 끝납니다."
 msgid "Entries missing..."
 msgstr "항목이 누락되었습니다..."
 
+#. EntryView label for the current dictionary object when FieldWorks Classic is shown
+#: src/project/browse/EntryView.svelte
+msgid "entry"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Item type label: dictionary entry (word/headword with definitions)
@@ -778,6 +783,7 @@ msgstr "파일 저장이 지원되지 않음"
 msgid "File too big"
 msgstr "파일이 너무 큼"
 
+#. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter"
 msgstr ""
@@ -1419,6 +1425,11 @@ msgstr "오디오 교체"
 msgid "Report a technical problem"
 msgstr "기술 문제 신고하기"
 
+#. Button label to restore a deleted Entry or Word inside EntryView
+#: src/project/browse/EntryView.svelte
+msgid "Restore"
+msgstr ""
+
 #. Button option
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
@@ -1698,6 +1709,7 @@ msgstr "이러한 변경 사항을 업로드하거나 다운로드한 시간"
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "변경 내용이 아직 업로드되지 않았습니다. 변경 내용을 공유하려면 온라인 상태이고 로그인했는지 확인하세요."
 
+#. Alert text shown in EntryView when the currently displayed entry/word has been deleted
 #: src/project/browse/EntryView.svelte
 msgid "This {0} was deleted"
 msgstr ""
@@ -1895,6 +1907,11 @@ msgstr "내 프로젝트는 어디에 있나요?"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Why is that?"
 msgstr "왜 그럴까요?"
+
+#. EntryView label for the current dictionary object when FieldWorks Lite is shown
+#: src/project/browse/EntryView.svelte
+msgid "word"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)

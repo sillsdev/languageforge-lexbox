@@ -618,6 +618,11 @@ msgstr "Ends with"
 msgid "Entries missing..."
 msgstr "Entries missing..."
 
+#. EntryView label for the current dictionary object when FieldWorks Classic is shown
+#: src/project/browse/EntryView.svelte
+msgid "entry"
+msgstr "entry"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Item type label: dictionary entry (word/headword with definitions)
@@ -773,6 +778,7 @@ msgstr "File saving not supported"
 msgid "File too big"
 msgstr "File too big"
 
+#. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter"
 msgstr "Filter"
@@ -1414,6 +1420,11 @@ msgstr "Replace audio"
 msgid "Report a technical problem"
 msgstr "Report a technical problem"
 
+#. Button label to restore a deleted Entry or Word inside EntryView
+#: src/project/browse/EntryView.svelte
+msgid "Restore"
+msgstr "Restore"
+
 #. Button option
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
@@ -1693,6 +1704,7 @@ msgstr "The time when you uploaded or downloaded these changes"
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 
+#. Alert text shown in EntryView when the currently displayed entry/word has been deleted
 #: src/project/browse/EntryView.svelte
 msgid "This {0} was deleted"
 msgstr "This {0} was deleted"
@@ -1890,6 +1902,11 @@ msgstr "Where are my projects?"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Why is that?"
 msgstr "Why is that?"
+
+#. EntryView label for the current dictionary object when FieldWorks Lite is shown
+#: src/project/browse/EntryView.svelte
+msgid "word"
+msgstr "word"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
