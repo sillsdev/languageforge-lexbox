@@ -778,6 +778,10 @@ msgstr "Guardado de archivos no soportado"
 msgid "File too big"
 msgstr "Archivo demasiado grande"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter # words"
 #. Placeholder text showing filtered count (# = number)
@@ -1693,6 +1697,10 @@ msgstr "El tiempo cuando subiste o descargaste estos cambios"
 #: src/lib/activity/ActivityItem.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Estos cambios no se han subido todavía. Asegúrate de que estás conectado e inicia sesión para compartir tus cambios."
+
+#: src/project/browse/EntryView.svelte
+msgid "This {0} was deleted"
+msgstr ""
 
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
