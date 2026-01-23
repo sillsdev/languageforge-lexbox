@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-22 11:51\n"
+"PO-Revision-Date: 2026-01-23 14:26\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -267,7 +267,7 @@ msgstr "Mejor partido"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "blue"
-msgstr ""
+msgstr "azul"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -301,7 +301,7 @@ msgstr "Cambiar el mismo campo dos veces, por ejemplo, puede resultar en dos com
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
-msgstr ""
+msgstr "Buscando actualizaciones..."
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -571,7 +571,7 @@ msgstr "Descargar {0}"
 #. Link label to open the updates download page
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Download page"
-msgstr ""
+msgstr "Página de descarga"
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -587,7 +587,7 @@ msgstr "Descargar proyecto no listado"
 #. Button label to download an update when auto-update is unavailable
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
-msgstr ""
+msgstr "Descargar actualización"
 
 #. Success notification with project name
 #: src/home/Server.svelte
@@ -664,7 +664,7 @@ msgstr "Es igual a"
 #. Error message when update check fails
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Error checking for updates: {0}"
-msgstr ""
+msgstr "Error comprobando actualizaciones: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
@@ -805,7 +805,7 @@ msgstr "Filtrar # palabras"
 #. Filter dropdown label
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Filter By"
-msgstr ""
+msgstr "Filtrar por"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
@@ -901,7 +901,7 @@ msgstr "Información gramatical."
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "green"
-msgstr ""
+msgstr "verde"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -951,12 +951,12 @@ msgstr "Entradas incompletas"
 #. Button label to install an available update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Install Update"
-msgstr ""
+msgstr "Instalar actualización"
 
 #. Button label while installing an update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
-msgstr ""
+msgstr "Instalando actualización..."
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1064,7 +1064,7 @@ msgstr "Gerente"
 #. Info message when manual update is required
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Manual update is required. Please follow the instructions provided."
-msgstr ""
+msgstr "Se requiere una actualización manual. Siga las instrucciones proporcionadas."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
@@ -1101,7 +1101,7 @@ msgstr "Falta: {0}"
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Mode"
-msgstr ""
+msgstr "Modo"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1285,7 +1285,7 @@ msgstr "Abrir archivo Log"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
-msgstr ""
+msgstr "naranja"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -1338,7 +1338,7 @@ msgstr "Pinned"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
-msgstr ""
+msgstr "Plataforma"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -1398,7 +1398,7 @@ msgstr "Actualizar proyectos"
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
-msgstr ""
+msgstr "Notas de lanzamiento"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1438,7 +1438,7 @@ msgstr "Revisión"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
-msgstr ""
+msgstr "rosa"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1582,7 +1582,7 @@ msgstr "Empieza por"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
-msgstr ""
+msgstr "piedra"
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1817,7 +1817,7 @@ msgstr "Servidor desconocido"
 #. Error message for unknown update result
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Unknown update result"
-msgstr ""
+msgstr "Resultado de actualización desconocido"
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
@@ -1848,34 +1848,34 @@ msgstr "Actualizar {0}"
 #. Status message when an update is available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update available: {0}"
-msgstr ""
+msgstr "Actualización disponible: {0}"
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
-msgstr ""
+msgstr "Error al instalar la actualización."
 
 #. Success message after update installs
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update installed successfully! Please restart the application."
-msgstr ""
+msgstr "¡Actualización instalada con éxito! Por favor, reinicie la aplicación."
 
 #. Info message when update runs in background
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update started in the background. Restart the application after the update is complete."
-msgstr ""
+msgstr "La actualización comenzó en segundo plano. Reinicie la aplicación después de que la actualización se haya completado."
 
 #. Error message when update is blocked by permissions
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update was disallowed by permission settings."
-msgstr ""
+msgstr "La actualización no fue permitida por la configuración de permisos."
 
 #. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
 #: src/lib/updates/UpdateDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
-msgstr ""
+msgstr "Actualizaciones"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1895,7 +1895,7 @@ msgstr "Ver"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
-msgstr ""
+msgstr "violeta"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1957,7 +1957,7 @@ msgstr "Sistemas de escritura"
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
-msgstr ""
+msgstr "Estás ejecutando la última versión."
 
 #. Success message with task and count
 #: src/project/tasks/DoneView.svelte
@@ -1974,3 +1974,4 @@ msgstr "No tiene permiso para descargar el proyecto {0} desde {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Ya has descargado el proyecto {0}"
+
