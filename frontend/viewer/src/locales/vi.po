@@ -778,6 +778,10 @@ msgstr "Lưu tệp không được hỗ trợ"
 msgid "File too big"
 msgstr "Tệp quá lớn"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter # words"
 #. Placeholder text showing filtered count (# = number)
@@ -1695,6 +1699,10 @@ msgstr "Thời gian bạn đã tải lên hoặc tải xuống các thay đổi 
 #: src/lib/activity/ActivityItem.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Những thay đổi này chưa được tải lên. Hãy đảm bảo bạn đang trực tuyến và đã đăng nhập để chia sẻ các thay đổi."
+
+#: src/project/browse/EntryView.svelte
+msgid "This {0} was deleted"
+msgstr ""
 
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte

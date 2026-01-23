@@ -778,6 +778,10 @@ msgstr "Penyimpanan file tidak didukung"
 msgid "File too big"
 msgstr "File terlalu besar"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter # words"
 #. Placeholder text showing filtered count (# = number)
@@ -1693,6 +1697,10 @@ msgstr "Waktu ketika Anda mengunggah atau mengunduh perubahan ini"
 #: src/lib/activity/ActivityItem.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Perubahan ini belum diunggah. Pastikan Anda online dan masuk untuk membagikan perubahan Anda."
+
+#: src/project/browse/EntryView.svelte
+msgid "This {0} was deleted"
+msgstr ""
 
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
