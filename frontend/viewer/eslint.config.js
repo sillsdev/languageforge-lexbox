@@ -63,9 +63,14 @@ export default [
         },
         {
           'selector': 'default',
-          'modifiers': ['const', 'static readonly'],
+          'modifiers': ['const'],
           'format': ['camelCase', 'UPPER_CASE'],
           'leadingUnderscore': 'allow',
+        },
+        {
+          'selector': 'classProperty',
+          'modifiers': ['static', 'readonly'],
+          'format': ['camelCase', 'UPPER_CASE'],
         },
         {
           'selector': ['typeLike', 'enumMember'],

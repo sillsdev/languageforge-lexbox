@@ -120,15 +120,17 @@
   });
 
   async function scrollToSelectedOrTop() {
-    if (!vList || !selectedEntryId) return;
-    const scrolled = await tryToScrollToEntry(selectedEntryId);
-    if (!scrolled) vList.scrollTo(0);
+    const currentId = selectedEntryId;
+    if (!vList || !currentId) return;
+    const scrolled = await tryToScrollToEntry(currentId);
+    if (!scrolled && selectedEntryId === currentId) vList.scrollTo(0);
   }
 
   async function tryToScrollToEntry(entryId: string): Promise<boolean> {
     if (!entryLoader || !vList) return false;
 
     const index = await entryLoader.getOrLoadEntryIndex(entryId);
+    if (entryId !== selectedEntryId) return false;
     if (index < 0) return false;
 
     const visibleStart = vList.getScrollOffset();

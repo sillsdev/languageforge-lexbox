@@ -152,7 +152,9 @@ export class EntryLoaderService {
     const queryOptions = this.#buildQueryOptions(0, 0);
     const search = this.#deps.search();
 
+    const generation = this.#generation;
     const index = await this.#api.getEntryIndex(id, search || undefined, queryOptions);
+    if (this.#generation === generation) return -1;
     this.#idToIndex.set(id, index);
     return index;
   }
@@ -178,9 +180,9 @@ export class EntryLoaderService {
     if (generation !== this.#generation) return; // outdated event => abort
     await this.quietReset();
   }
-  
+
   /**
-   * The more trivial and performant checks we can do to verify if the event is relevant 
+   * The more trivial and performant checks we can do to verify if the event is relevant
    * to our current state.
    */
   private async tryOptimizeUpdateEntryEvent(entry: IEntry): Promise<boolean> {
@@ -359,7 +361,7 @@ export class EntryLoaderService {
   }
 
   #markBatchRequested(batchNumber: number): void {
-    if (batchNumber < 0) throw new RangeError('Batch number must be positive');
+    if (batchNumber < 0) throw new RangeError('Batch number must be non-negative');
     if (batchNumber === this.#recentBatchNumbers.curr) return;
 
     if (this.#recentBatchNumbers.curr !== undefined &&
@@ -400,7 +402,7 @@ export class EntryLoaderService {
   }
 
   async #fetchEntriesForQuietReset(batches: number[]): Promise<IEntry[]> {
-    const offset = batches.sort()[0] * this.batchSize;
+    const offset = Math.min(...batches) * this.batchSize;
     return this.#fetchRange(offset, this.batchSize * batches.length);
   }
 
@@ -410,7 +412,7 @@ export class EntryLoaderService {
     this.#pendingBatches.clear();
     this.#loadedBatches.clear();
 
-    const offset = batches.sort()[0] * this.batchSize;
+    const offset = Math.min(...batches) * this.batchSize;
     for (let i = 0; i < entries.length; i++) {
       const index = offset + i;
       const entry = entries[i];
