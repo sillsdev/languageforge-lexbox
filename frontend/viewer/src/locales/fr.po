@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-22 11:51\n"
+"PO-Revision-Date: 2026-01-23 14:26\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -67,12 +67,12 @@ msgstr "{num, plural, one {# changement} other {# changements}}"
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
-msgstr "{num, plural, one {# nouveau FieldWorks Classic commit} other {# nouveaux FieldWorks Classic commits}}"
+msgstr "{num, plural, one {# nouveau commit FieldWorks Classic} other {# nouveaux commits FieldWorks Classic}}"
 
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
-msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite communique}}"
+msgstr "{num, plural, one {# nouveau commit FieldWorks Lite} other {# nouveaux commits FieldWorks Lite}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -267,7 +267,7 @@ msgstr "Meilleure correspondance"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "blue"
-msgstr ""
+msgstr "bleu"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -301,7 +301,7 @@ msgstr "Changer le même champ deux fois, par exemple, peut entraîner deux livr
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
-msgstr ""
+msgstr "Vérification des mises à jour..."
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -571,7 +571,7 @@ msgstr "Télécharger {0}"
 #. Link label to open the updates download page
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Download page"
-msgstr ""
+msgstr "Page de téléchargement"
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -587,7 +587,7 @@ msgstr "Télécharger un projet qui ne figure pas dans la liste"
 #. Button label to download an update when auto-update is unavailable
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
-msgstr ""
+msgstr "Télécharger la mise à jour"
 
 #. Success notification with project name
 #: src/home/Server.svelte
@@ -664,7 +664,7 @@ msgstr "Égale à"
 #. Error message when update check fails
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Error checking for updates: {0}"
-msgstr ""
+msgstr "Erreur lors de la recherche de mises à jour : {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
@@ -805,7 +805,7 @@ msgstr "Filtrer # mots"
 #. Filter dropdown label
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Filter By"
-msgstr ""
+msgstr "Filtrer par"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
@@ -901,7 +901,7 @@ msgstr "Informations grammaticales."
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "green"
-msgstr ""
+msgstr "Vert"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -951,12 +951,12 @@ msgstr "Entrées incomplètes"
 #. Button label to install an available update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Install Update"
-msgstr ""
+msgstr "Installer la mise à jour"
 
 #. Button label while installing an update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
-msgstr ""
+msgstr "Installation de la mise à jour..."
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1064,7 +1064,7 @@ msgstr "Gestionnaire"
 #. Info message when manual update is required
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Manual update is required. Please follow the instructions provided."
-msgstr ""
+msgstr "Une mise à jour manuelle est requise. Veuillez suivre les instructions fournies."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
@@ -1101,7 +1101,7 @@ msgstr "Manquant : {0}"
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Mode"
-msgstr ""
+msgstr "Mode"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1285,7 +1285,7 @@ msgstr "Ouvrir le fichier journal"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
-msgstr ""
+msgstr "orange"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -1338,7 +1338,7 @@ msgstr "Épinglé"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
-msgstr ""
+msgstr "Plateforme"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -1398,7 +1398,7 @@ msgstr "Actualiser la liste de projets"
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
-msgstr ""
+msgstr "Notes de version"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1438,7 +1438,7 @@ msgstr "Évaluer"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
-msgstr ""
+msgstr "rose"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1582,7 +1582,7 @@ msgstr "Commence par"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
-msgstr ""
+msgstr "pierre"
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1692,7 +1692,7 @@ msgstr "Le nombre de commits FieldWorks Classic ne correspond pas nécessairemen
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
-msgstr "Le nombre de livraisons FieldWorks Lite ne correspond pas nécessairement au nombre de modifications affichées dans le message de résultat de synchronisation."
+msgstr "Le nombre de commits FieldWorks Lite ne correspond pas nécessairement au nombre de modifications affichées dans le message de résultat de synchronisation."
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
@@ -1817,7 +1817,7 @@ msgstr "Serveur inconnu"
 #. Error message for unknown update result
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Unknown update result"
-msgstr ""
+msgstr "Résultat de mise à jour inconnu"
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
@@ -1848,34 +1848,34 @@ msgstr "Mettre à jour {0}"
 #. Status message when an update is available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update available: {0}"
-msgstr ""
+msgstr "Mise à jour disponible : {0}"
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
-msgstr ""
+msgstr "Échec de l'installation de la mise à jour."
 
 #. Success message after update installs
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update installed successfully! Please restart the application."
-msgstr ""
+msgstr "Mise à jour installée avec succès ! Veuillez redémarrer l'application."
 
 #. Info message when update runs in background
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update started in the background. Restart the application after the update is complete."
-msgstr ""
+msgstr "La mise à jour a commencé en arrière-plan. Redémarrez l'application une fois la mise à jour terminée."
 
 #. Error message when update is blocked by permissions
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update was disallowed by permission settings."
-msgstr ""
+msgstr "La mise à jour a été désactivée par les paramètres d'autorisation."
 
 #. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
 #: src/lib/updates/UpdateDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
-msgstr ""
+msgstr "Mises à jour"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1895,7 +1895,7 @@ msgstr "Voir"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
-msgstr ""
+msgstr "violet"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1957,7 +1957,7 @@ msgstr "Systèmes d'écriture"
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
-msgstr ""
+msgstr "Vous utilisez la dernière version."
 
 #. Success message with task and count
 #: src/project/tasks/DoneView.svelte
@@ -1974,3 +1974,4 @@ msgstr "Vous n'êtes pas autorisé(e) de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
+
