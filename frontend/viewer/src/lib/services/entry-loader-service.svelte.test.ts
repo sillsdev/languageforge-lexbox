@@ -198,7 +198,7 @@ describe('EntryLoaderService', () => {
 
       const loadPromise = service.loadInitialCount();
 
-      service.reset();
+      void service.reset();
       api.countEntries.mockResolvedValue(5);
       void service.loadInitialCount();
 
@@ -218,7 +218,7 @@ describe('EntryLoaderService', () => {
 
       const loadPromise = service.getOrLoadEntryByIndex(0);
 
-      service.reset();
+      void service.reset();
       const nextEntries = makeEntries(BATCH_SIZE, 'b');
       api.getEntries.mockResolvedValue(nextEntries);
       api.countEntries.mockResolvedValue(nextEntries.length);
@@ -243,7 +243,7 @@ describe('EntryLoaderService', () => {
       const firstLoad = service.getOrLoadEntryByIndex(0);
 
       // Reset and immediately start another load for the same batch
-      service.reset();
+      void service.reset();
       api.countEntries.mockResolvedValue(entries.length);
       await service.loadInitialCount();
 
