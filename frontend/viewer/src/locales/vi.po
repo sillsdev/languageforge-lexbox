@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-01-23 14:26\n"
+"PO-Revision-Date: 2026-01-24 14:45\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -626,7 +626,7 @@ msgstr "Các mục còn thiếu..."
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
 msgid "entry"
-msgstr ""
+msgstr "nhập"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
@@ -786,7 +786,7 @@ msgstr "Tệp quá lớn"
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter"
-msgstr ""
+msgstr "Lọc"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter # words"
@@ -1429,7 +1429,7 @@ msgstr "Báo lỗi kỹ thuật"
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
 msgid "Restore"
-msgstr ""
+msgstr "Khôi phục"
 
 #. Button option
 #: src/project/tasks/DoneView.svelte
@@ -1713,7 +1713,7 @@ msgstr "Những thay đổi này chưa được tải lên. Hãy đảm bảo b�
 #. Alert text shown in EntryView when the currently displayed entry/word has been deleted
 #: src/project/browse/EntryView.svelte
 msgid "This {0} was deleted"
-msgstr ""
+msgstr "Đường dẫn này {0} đã bị xóa."
 
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
@@ -1912,7 +1912,7 @@ msgstr "Tại sao vậy?"
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/project/browse/EntryView.svelte
 msgid "word"
-msgstr ""
+msgstr "từ"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
