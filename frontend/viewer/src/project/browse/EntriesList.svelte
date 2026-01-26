@@ -201,7 +201,7 @@
             data={indexArray}
             class="h-full p-0.5 md:pr-3 after:h-12 after:block"
             getKey={(index: number) => `${entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}-${index}`}
-            bufferSize={400}>
+            bufferSize={450}>
         {#snippet children(index: number)}
           {#key entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
             <Delayed
