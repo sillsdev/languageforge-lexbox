@@ -187,12 +187,12 @@ export class EntryLoaderService {
    */
   private async tryOptimizeUpdateEntryEvent(entry: IEntry): Promise<boolean> {
     const cachedIndex = this.#idToIndex.get(entry.id);
-    if (cachedIndex !== undefined) {
+    if (cachedIndex !== undefined && cachedIndex >= 0) {
+      // -1 would mean that we cached it as "not relevant for our current filter".
+      // However, the update event MIGHT have changed that, so we don't "return true" in that case.
+      // Instead we jump to the else below to refetch and double-check the index.
+
       // we've seen it locally, so it wasn't an add event
-      if (cachedIndex < 0) {
-        // not relevant for our current filter => ignore
-        return true;
-      }
       const batchIndex = Math.floor(cachedIndex / this.batchSize);
       if (!this.#loadedBatches.has(batchIndex)) {
         // it's not new and we haven't loaded it yet => ignore
@@ -200,6 +200,7 @@ export class EntryLoaderService {
       }
     } else {
       const entryIndex = await this.getOrLoadEntryIndex(entry.id);
+      this.#idToIndex.set(entry.id, entryIndex);
       if (entryIndex < 0) {
         // not relevant for our current filter => ignore
         return true;
