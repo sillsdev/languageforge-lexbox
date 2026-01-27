@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 
 namespace LcmCrdt.Tests;
 
+[Collection("Performance")]
 public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
 {
     private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.MakeConfig(["en"]));
@@ -49,14 +50,16 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
         }
 
         output.WriteLine($"Created {domainCount} semantic domains");
-        for (int i = 0; i < entryCount; i++)
+        for (var i = 0; i < entryCount; i++)
         {
             yield return new Entry()
             {
                 Id = Guid.NewGuid(),
                 LexemeForm = { ["en"] = AutoFaker.Faker.Hacker.Noun() },
                 ComplexFormTypes = [.. AutoFaker.Faker.Random.ListItems(complexFormTypes)],
-                Senses = Enumerable
+                Senses =
+                [
+                    ..Enumerable
                     .Range(0, AutoFaker.Faker.Random.Int(1, 3))
                     .Select(_ => new Sense
                     {
@@ -66,7 +69,9 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
                         PartOfSpeech = AutoFaker.Faker.Random.ListItem(partsOfSpeech),
                         SemanticDomains =
                             AutoFaker.Faker.Random.ListItems(domains, AutoFaker.Faker.Random.Int(1, 3)),
-                        ExampleSentences = Enumerable.Range(0, AutoFaker.Faker.Random.Int(0, 2))
+                        ExampleSentences =
+                        [
+                            ..Enumerable.Range(0, AutoFaker.Faker.Random.Int(0, 2))
                             .Select(_ => new ExampleSentence
                             {
                                 Id = Guid.NewGuid(),
@@ -81,8 +86,10 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
                                         }
                                     }
                                 ]
-                            }).ToList()
-                    }).ToList()
+                            })
+                        ]
+                    })
+                ]
             };
         }
     }
@@ -92,10 +99,12 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
     {
         var entryCount = 20_000;
         // Arrange
-        var entries = SeedData(entryCount, _fixture.Api);
-        output.WriteLine("Starting import...");
+        var entries = (await SeedData(entryCount, _fixture.Api).ToListAsync())
+            .ToAsyncEnumerable();
 
         // Act
+        GC.Collect();
+
         var sw = Stopwatch.StartNew();
         await _fixture.Api.BulkCreateEntries(entries);
         sw.Stop();
