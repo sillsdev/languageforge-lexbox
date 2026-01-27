@@ -3,6 +3,9 @@
     <CompressionEnabled>false</CompressionEnabled>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="FwLiteShared.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="BeaKona.AutoInterfaceGenerator" />
     <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" />

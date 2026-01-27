@@ -70,7 +70,7 @@ public class UpdateChecker(
         eventBus.PublishEvent(new AppUpdateEvent(result, release));
     }
 
-    private bool ShouldCheckForUpdate()
+    internal bool ShouldCheckForUpdate()
     {
         if (config.Value.UpdateCheckCondition == UpdateCheckCondition.Never)
         {

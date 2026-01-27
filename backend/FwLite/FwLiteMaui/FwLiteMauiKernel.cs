@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Reflection;
 using FwLiteMaui.Services;
 using FwLiteShared;
 using FwLiteShared.Auth;
@@ -28,7 +26,7 @@ public static class FwLiteMauiKernel
         environment = "Development";
 #endif
         IHostEnvironment env = new HostingEnvironment() { EnvironmentName = environment };
-        services.AddSingleton<IHostEnvironment>(env);
+        services.AddSingleton(env);
         services.AddMauiBlazorWebView();
         services.AddBlazorWebViewDeveloperTools();
         //must be added after blazor as it modifies IJSRuntime in order to intercept it's constructor
@@ -122,9 +120,13 @@ public static class FwLiteMauiKernel
             options.FileSizeLimitBytes = fwLiteMauiConfig.MaxLogFileSize;
             options.MaxRollingFiles = fwLiteMauiConfig.MaxLogFileCount;
         });
-        services.AddSingleton<IPreferences>(Preferences.Default);
-        services.AddSingleton<IVersionTracking>(VersionTracking.Default);
-        services.AddSingleton<IConnectivity>(Connectivity.Current);
+        //use factory callbacks so tests can mock
+        services.AddSingleton(_ => Preferences.Default);
+        services.AddSingleton(_ => VersionTracking.Default);
+        services.AddSingleton(_ => Connectivity.Current);
+        services.AddSingleton(_ => Launcher.Default);
+        services.AddSingleton(_ => Browser.Default);
+        services.AddSingleton(_ => Share.Default);
         services.AddSingleton<ITroubleshootingService, MauiTroubleshootingService>();
         logging.AddConsole();
 #if DEBUG
