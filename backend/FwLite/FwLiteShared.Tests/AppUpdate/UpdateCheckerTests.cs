@@ -12,14 +12,13 @@ public class UpdateCheckerTests
 {
     private readonly Mock<IHttpClientFactory> _httpClientFactoryMock = new();
     private readonly Mock<IPlatformUpdateService> _platformUpdateServiceMock = new();
-    private readonly FwLiteConfig _config = new();
 
-    private UpdateChecker CreateUpdateChecker()
+    private UpdateChecker CreateUpdateChecker(FwLiteConfig? config = null)
     {
         return new UpdateChecker(
             _httpClientFactoryMock.Object,
             Mock.Of<ILogger<UpdateChecker>>(),
-            Options.Create(_config),
+            Options.Create(config ?? new FwLiteConfig()),
             new GlobalEventBus(Mock.Of<ILogger<GlobalEventBus>>()),
             _platformUpdateServiceMock.Object,
             new MemoryCache(new MemoryCacheOptions()));
@@ -28,8 +27,8 @@ public class UpdateCheckerTests
     [Fact]
     public void ShouldCheckForUpdate_WhenConfigSetToNever_ReturnsFalse()
     {
-        _config.UpdateCheckCondition = UpdateCheckCondition.Never;
-        var checker = CreateUpdateChecker();
+        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.Never };
+        var checker = CreateUpdateChecker(config);
 
         var result = checker.ShouldCheckForUpdate();
 
@@ -39,8 +38,8 @@ public class UpdateCheckerTests
     [Fact]
     public void ShouldCheckForUpdate_WhenConfigSetToAlways_ReturnsTrue()
     {
-        _config.UpdateCheckCondition = UpdateCheckCondition.Always;
-        var checker = CreateUpdateChecker();
+        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.Always };
+        var checker = CreateUpdateChecker(config);
 
         var result = checker.ShouldCheckForUpdate();
 
@@ -57,11 +56,11 @@ public class UpdateCheckerTests
     [InlineData(28, true)]
     public void ShouldCheckForUpdate_RespectsDefaultInterval(int hoursSinceLastCheck, bool expectedResult)
     {
-        _config.UpdateCheckCondition = UpdateCheckCondition.OnInterval;
+        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval };
         var lastCheckTime = DateTime.UtcNow.AddHours(-hoursSinceLastCheck);
         _platformUpdateServiceMock.Setup(p => p.LastUpdateCheck).Returns(lastCheckTime);
 
-        var checker = CreateUpdateChecker();
+        var checker = CreateUpdateChecker(config);
         var result = checker.ShouldCheckForUpdate();
 
         result.Should().Be(expectedResult);
@@ -74,12 +73,15 @@ public class UpdateCheckerTests
     [InlineData(5, true)]
     public void ShouldCheckForUpdate_RespectsCustomInterval(int hoursSinceLastCheck, bool expectedResult)
     {
-        _config.UpdateCheckCondition = UpdateCheckCondition.OnInterval;
-        _config.UpdateCheckInterval = TimeSpan.FromHours(4);
+        var config = new FwLiteConfig
+        {
+            UpdateCheckCondition = UpdateCheckCondition.OnInterval,
+            UpdateCheckInterval = TimeSpan.FromHours(4)
+        };
         var lastCheckTime = DateTime.UtcNow.AddHours(-hoursSinceLastCheck);
         _platformUpdateServiceMock.Setup(p => p.LastUpdateCheck).Returns(lastCheckTime);
 
-        var checker = CreateUpdateChecker();
+        var checker = CreateUpdateChecker(config);
         var result = checker.ShouldCheckForUpdate();
 
         result.Should().Be(expectedResult);
@@ -88,11 +90,11 @@ public class UpdateCheckerTests
     [Fact]
     public void ShouldCheckForUpdate_WhenLastCheckInFuture_ReturnsTrue()
     {
-        _config.UpdateCheckCondition = UpdateCheckCondition.OnInterval;
+        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval };
         var futureTime = DateTime.UtcNow.AddHours(2);
         _platformUpdateServiceMock.Setup(p => p.LastUpdateCheck).Returns(futureTime);
 
-        var checker = CreateUpdateChecker();
+        var checker = CreateUpdateChecker(config);
         var result = checker.ShouldCheckForUpdate();
 
         result.Should().BeTrue("because a future timestamp indicates clock skew and should trigger a check");
@@ -101,10 +103,10 @@ public class UpdateCheckerTests
     [Fact]
     public void ShouldCheckForUpdate_WhenNeverCheckedBefore_ReturnsTrue()
     {
-        _config.UpdateCheckCondition = UpdateCheckCondition.OnInterval;
+        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval };
         _platformUpdateServiceMock.Setup(p => p.LastUpdateCheck).Returns(DateTime.MinValue);
 
-        var checker = CreateUpdateChecker();
+        var checker = CreateUpdateChecker(config);
         var result = checker.ShouldCheckForUpdate();
 
         result.Should().BeTrue("because DateTime.MinValue means never checked");
