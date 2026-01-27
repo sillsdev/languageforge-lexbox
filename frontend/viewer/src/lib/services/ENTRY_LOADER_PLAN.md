@@ -54,13 +54,13 @@ this.#entryVersions.set(index, (this.#entryVersions.get(index) ?? 0) + 1);
 <!-- EntriesList.svelte -->
 <VList
   data={indexArray}
-  getKey={(index) => entryLoader.getEntryByIndex(index)?.id ?? `skeleton-${index}`}
+  getKey={(index) => entryLoader.getCachedEntryByIndex(index)?.id ?? `skeleton-${index}`}
 >
   {#snippet children(index)}
     {#key entryLoader.getVersion(index)}
       <Delayed
-        getCached={() => entryLoader.getEntryByIndex(index)}
-        load={() => entryLoader.loadEntryByIndex(index)}
+        getCached={() => entryLoader.getCachedEntryByIndex(index)}
+        load={() => entryLoader.getOrLoadEntryByIndex(index)}
         delay={250}
       >
         <!-- entry row content -->
@@ -97,7 +97,7 @@ class EntryLoaderService {
 
 ## Batch Loading Logic
 
-```
+```text
 Given index N:
   batchNumber = floor(N / batchSize)
   offset = batchNumber * batchSize
@@ -150,7 +150,7 @@ No. VList has a `bufferSize` prop that preloads items beyond the visible area. T
 ### How to handle `selectNextEntry()` when next entry isn't loaded yet?
 Make `selectNextEntry()` async. It should:
 1. Check if next entry is in cache → return immediately
-2. Otherwise → call `loadEntryByIndex(nextIndex)` and await before returning
+2. Otherwise → call `getOrLoadEntryByIndex(nextIndex)` and await before returning
 
 This mirrors the `<Delayed>` component's `getCached` / `load` pattern.
 
@@ -182,9 +182,9 @@ readonly loading: boolean;
 readonly error: Error | undefined;
 
 // Core methods
-getEntryByIndex(index: number): IEntry | undefined;       // sync, from cache
-loadEntryByIndex(index: number): Promise<IEntry>;         // async, fetches batch if needed
-loadCount(): Promise<void>;                               // fetches total count
+getCachedEntryByIndex(index: number): IEntry | undefined; // sync, from cache
+getOrLoadEntryByIndex(index: number): Promise<IEntry | undefined>; // async, fetches batch if needed
+loadInitialCount(): Promise<void>;                        // fetches total count
 
 // Event handling
 getIndexById(id: string): number | undefined;             // from incremental id→index map
