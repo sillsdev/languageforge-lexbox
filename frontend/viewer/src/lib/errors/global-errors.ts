@@ -28,7 +28,7 @@ function suppressErrorNotification(message: string): boolean {
   // It's worth noting that in Lexbox we've also seen browser extensions trigger this error
   if (message.includes('ResizeObserver loop completed with undelivered notifications')) return true;
   // Harmless error that seems to be caused by animate-out css inside a portal that is removed from the DOM.
-  // Tried hard to make a repro for bits-ui, but failed. Occurs whenever a dropdown (e.g.) is open during navigation or smilar.
+  // Tried hard to make a repro for bits-ui, but failed. Occurs whenever a dropdown (e.g.) is open during navigation or similar.
   if (message.includes('this.opts.onOpenChangeComplete.current')) return true;
   return false;
 }
