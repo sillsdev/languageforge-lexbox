@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace FwHeadless.Services;
 
-public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingProgress progress)
+public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingProgress progress) : ISendReceiveService
 {
     public async Task<SendReceiveHelpers.LfMergeBridgeResult> SendReceive(FwDataProject project, string? projectCode, string? commitMessage = null)
     {

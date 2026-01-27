@@ -34,7 +34,7 @@ public static class MergeRoutes
 
     static async Task<Results<Ok, ProblemHttpResult>> ExecuteMergeRequest(
         SyncHostedService syncHostedService,
-        ProjectLookupService projectLookupService,
+        IProjectLookupService projectLookupService,
         ProjectMetadataService metadataService,
         ILogger<Program> logger,
         CrdtHttpSyncService crdtHttpSyncService,
@@ -147,10 +147,10 @@ public static class MergeRoutes
 
     static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
         CurrentProjectService projectContext,
-        ProjectLookupService projectLookupService,
-        SendReceiveService srService,
+        IProjectLookupService projectLookupService,
+        ISendReceiveService srService,
         IOptions<FwHeadlessConfig> config,
-        SyncJobStatusService syncJobStatusService,
+        ISyncJobStatusService syncJobStatusService,
         IServiceProvider services,
         LexBoxDbContext lexBoxDb,
         SyncHostedService syncHostedService,

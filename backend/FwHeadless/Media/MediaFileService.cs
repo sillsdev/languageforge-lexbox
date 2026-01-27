@@ -13,11 +13,11 @@ using MediaFile = LexCore.Entities.MediaFile;
 
 namespace FwHeadless.Media;
 
-public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConfig> config, SendReceiveService sendReceiveService)
+public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConfig> config, ISendReceiveService sendReceiveService)
 {
     public record MediaFileSyncResult(List<MediaFile> Added, List<MediaFile> Removed);
     // TODO: This assumes FieldWorks is the source of truth, which is not true when FWL starts adding/deleting files
-    public async Task<MediaFileSyncResult> SyncMediaFiles(LcmCache cache)
+    public virtual async Task<MediaFileSyncResult> SyncMediaFiles(LcmCache cache)
     {
         var result = new MediaFileSyncResult([], []);
         var projectId = config.Value.LexboxProjectId(cache);
@@ -107,7 +107,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         return Path.Join(config.Value.GetFwDataFolder(mediaFile.ProjectId), mediaFile.Filename);
     }
 
-    public async Task SyncMediaFiles(Guid projectId, LcmMediaService lcmMediaService)
+    public virtual async Task SyncMediaFiles(Guid projectId, LcmMediaService lcmMediaService)
     {
         var lcmResources = (await lcmMediaService.AllResources()).ToDictionary(r => r.Id);
         var existingDbFiles = dbContext.Files.Where(p => p.ProjectId == projectId).AsAsyncEnumerable();

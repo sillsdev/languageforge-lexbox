@@ -102,17 +102,17 @@ public class SyncWorker(
     Guid projectId,
     ILogger<SyncWorker> logger,
     IServiceProvider services,
-    SendReceiveService srService,
+    ISendReceiveService srService,
     IOptions<FwHeadlessConfig> config,
     FwDataFactory fwDataFactory,
     CrdtProjectsService projectsService,
-    ProjectLookupService projectLookupService,
-    SyncJobStatusService syncStatusService,
+    IProjectLookupService projectLookupService,
+    ISyncJobStatusService syncStatusService,
     CrdtFwdataProjectSyncService syncService,
     CrdtHttpSyncService crdtHttpSyncService,
     IHttpClientFactory httpClientFactory,
     MediaFileService mediaFileService,
-    ProjectMetadataService metadataService
+    IProjectMetadataService metadataService
 )
 {
     public async Task<SyncJobResult> ExecuteSync(CancellationToken stoppingToken, bool onlyHarmony = false)
@@ -167,6 +167,13 @@ public class SyncWorker(
         }
         catch (SendReceiveException e)
         {
+            // Detect rollback via the "Rolling back..." message from Chorus:
+            // https://github.com/sillsdev/chorus/blob/master/src/LibChorus/sync/Synchronizer.cs#L651
+            if (e.Message.Contains("Rolling back..."))
+            {
+                await metadataService.BlockFromSyncAsync(projectId, "Rollback detected during Send/Receive");
+                return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, "Project blocked due to rollback");
+            }
             activity?.SetStatus(ActivityStatusCode.Error, "Send/Receive failed before CRDT sync");
             return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, e.Message);
         }
@@ -213,6 +220,13 @@ public class SyncWorker(
             var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
             if (!srResult2.Success)
             {
+                // Detect rollback via the "Rolling back..." message from Chorus:
+                // https://github.com/sillsdev/chorus/blob/main/src/LibChorus/sync/Synchronizer.cs#L651
+                if (srResult2.Output.Contains("Rolling back..."))
+                {
+                    await metadataService.BlockFromSyncAsync(projectId, "Rollback detected during Send/Receive");
+                    return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, "Project blocked due to rollback");
+                }
                 logger.LogError("Send/Receive after CRDT sync failed: {Output}", srResult2.Output);
                 activity?.SetStatus(ActivityStatusCode.Error, "Send/Receive failed after CRDT sync");
                 return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, $"Send/Receive after CRDT sync failed: {srResult2.Output}");
@@ -235,7 +249,7 @@ public class SyncWorker(
         }
         else
         {
-            logger.LogInformation("Skipping regenerating project snapshot, because there were no crdt changes"):
+            logger.LogInformation("Skipping regenerating project snapshot, because there were no crdt changes");
         }
 
         await crdtSyncService.SyncHarmonyProject();
@@ -244,7 +258,7 @@ public class SyncWorker(
         return new SyncJobResult(result);
     }
 
-    private async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject, string projectCode)
+    protected virtual async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject, string projectCode)
     {
         if (File.Exists(fwDataProject.FilePath))
         {
@@ -286,8 +300,8 @@ public class SyncWorker(
         return fwdataApi;
     }
 
-    static async Task<CrdtProject> SetupCrdtProject(string crdtFile,
-        ProjectLookupService projectLookupService,
+    protected virtual async Task<CrdtProject> SetupCrdtProject(string crdtFile,
+        IProjectLookupService projectLookupService,
         Guid projectId,
         CrdtProjectsService projectsService,
         string projectFolder,

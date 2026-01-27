@@ -28,7 +28,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         return (DryRunSyncResult)await Sync(crdtApi, fwdataApi, true);
     }
 
-    public async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
+    public virtual async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
     {
         using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
         if (crdtApi is not CrdtMiniLcmApi crdt) // maybe the argument type should be changed?
@@ -126,7 +126,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file, crdtConfig.Value.JsonSerializerOptions);
     }
 
-    public async Task RegenerateProjectSnapshot(IMiniLcmApi crdtApi, FwDataProject project, bool keepBackup = true)
+    public virtual async Task RegenerateProjectSnapshot(IMiniLcmApi crdtApi, FwDataProject project, bool keepBackup = true)
     {
         if (crdtApi is not CrdtMiniLcmApi)
             throw new InvalidOperationException("CrdtApi must be of type CrdtMiniLcmApi to regenerate project snapshot.");

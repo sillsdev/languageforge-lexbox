@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace FwHeadless.Services;
 
-public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<ProjectMetadataService> logger)
+public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<ProjectMetadataService> logger) : IProjectMetadataService
 {
     private readonly MetadataStore _store = new(config.Value, logger);
 
