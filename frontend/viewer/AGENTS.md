@@ -24,7 +24,7 @@ This project depends on TypeScript types and API interfaces generated from .NET 
 dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
 ```
 
-The generated files are located in `src/lib/generated-types/`.
+The generated files are located in `src/lib/dotnet-types/generated-types/`.
 
 ### E2E Testing (Playwright)
 
