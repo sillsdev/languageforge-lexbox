@@ -24,10 +24,10 @@ public static class FwHeadlessKernel
         services.AddSingleton<ISyncJobStatusService, SyncJobStatusService>();
         services.AddScoped<ISendReceiveService, SendReceiveService>();
         services.AddScoped<IProjectLookupService, ProjectLookupService>();
+        services.AddScoped<ProjectDeletionService>();
         services.AddScoped<IProjectMetadataService, ProjectMetadataService>();
         services.AddScoped<LogSanitizerService>();
         services.AddScoped<SafeLoggingProgress>();
-        services.AddScoped<ProjectMetadataService>();
         services
             .AddLcmCrdtClientCore()
             .AddFwDataBridge(ServiceLifetime.Scoped)

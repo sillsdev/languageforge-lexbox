@@ -35,7 +35,7 @@ public static class MergeRoutes
     static async Task<Results<Ok, ProblemHttpResult>> ExecuteMergeRequest(
         SyncHostedService syncHostedService,
         IProjectLookupService projectLookupService,
-        ProjectMetadataService metadataService,
+        IProjectMetadataService metadataService,
         ILogger<Program> logger,
         CrdtHttpSyncService crdtHttpSyncService,
         IHttpClientFactory httpClientFactory,
@@ -79,7 +79,7 @@ public static class MergeRoutes
 
     static async Task<Results<Ok, NotFound<string>>> SyncHarmonyProject(
         Guid projectId,
-        ProjectLookupService projectLookupService,
+        IProjectLookupService projectLookupService,
         CrdtSyncService crdtSyncService,
         IServiceProvider services,
         CancellationToken stoppingToken
@@ -104,7 +104,7 @@ public static class MergeRoutes
     static async Task<Results<Ok, NotFound<string>>> RegenerateProjectSnapshot(
         Guid projectId,
         CurrentProjectService projectContext,
-        ProjectLookupService projectLookupService,
+        IProjectLookupService projectLookupService,
         CrdtFwdataProjectSyncService syncService,
         SnapshotAtCommitService snapshotAtCommitService,
         IOptions<FwHeadlessConfig> config,
@@ -199,7 +199,7 @@ public static class MergeRoutes
 
     static async Task<SyncJobResult> AwaitSyncFinished(
         SyncHostedService syncHostedService,
-        SyncJobStatusService syncJobStatusService,
+        ISyncJobStatusService syncJobStatusService,
         CancellationToken cancellationToken,
         Guid projectId)
     {
@@ -241,8 +241,8 @@ public static class MergeRoutes
     }
 
     static async Task<Results<Ok, NotFound, BadRequest<string>>> BlockProject(
-        ProjectLookupService projectLookupService,
-        ProjectMetadataService metadataService,
+        IProjectLookupService projectLookupService,
+        IProjectMetadataService metadataService,
         ILogger<Program> logger,
         Guid projectId,
         string? reason = null)
@@ -273,8 +273,8 @@ public static class MergeRoutes
     }
 
     static async Task<Results<Ok, NotFound, BadRequest<string>>> UnblockProject(
-        ProjectLookupService projectLookupService,
-        ProjectMetadataService metadataService,
+        IProjectLookupService projectLookupService,
+        IProjectMetadataService metadataService,
         ILogger<Program> logger,
         Guid projectId)
     {
@@ -304,8 +304,8 @@ public static class MergeRoutes
     }
 
     static async Task<Results<Ok<SyncBlockStatus>, NotFound, BadRequest<string>>> GetBlockStatus(
-        ProjectLookupService projectLookupService,
-        ProjectMetadataService metadataService,
+        IProjectLookupService projectLookupService,
+        IProjectMetadataService metadataService,
         ILogger<Program> logger,
         Guid projectId)
     {
