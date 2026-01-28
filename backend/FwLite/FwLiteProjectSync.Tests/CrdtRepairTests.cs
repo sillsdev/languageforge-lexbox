@@ -16,6 +16,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
     private CrdtMiniLcmApi CrdtApi => _fixture.CrdtApi;
     private FwDataMiniLcmApi FwDataApi => _fixture.FwDataApi;
     private CrdtFwdataProjectSyncService SyncService => _fixture.SyncService;
+    private ProjectSnapshotService SnapshotService => _fixture.Services.GetRequiredService<ProjectSnapshotService>();
     private static Entry TestEntry()
     {
         return new()
@@ -44,7 +45,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
 
     public async Task InitializeAsync()
     {
-        await SyncService.Sync(CrdtApi, FwDataApi);
+        await SyncService.Import(CrdtApi, FwDataApi);
     }
 
     public async Task DisposeAsync()
@@ -89,8 +90,9 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         var fwTranslationId = fwEntry.SingleTranslation().Id;
 
         // act
-        await SyncService.Sync(CrdtApi, FwDataApi);
-        await SyncService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project);
+        var projectSnapshot = await GetSnapshot();
+        await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
+        await SnapshotService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project);
 
         // assert - the fwdata ID is now used everywhere
         var updatedFwEntry = await FwDataApi.GetEntry(crdtEntry.Id);
@@ -116,7 +118,8 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         var translationUpdate = new UpdateObjectInput<Translation>().Set(t => t.Text["en"], new RichString("changed translation", "en"));
         await FwDataApi.UpdateTranslation(fwEntry.Id, fwEntry.Senses.Single().Id, fwEntry.SingleExampleSentence().Id,
             fwTranslationId, translationUpdate);
-        await SyncService.Sync(CrdtApi, FwDataApi);
+        var projectSnapshot = await GetSnapshot();
+        await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
 
         // assert
         var crdtEntryAfter = await CrdtApi.GetEntry(crdtEntry.Id);
@@ -135,7 +138,8 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         var translationUpdate = new UpdateObjectInput<Translation>().Set(t => t.Text["en"], new RichString("changed translation", "en"));
         await CrdtApi.UpdateTranslation(crdtEntry.Id, crdtEntry.Senses.Single().Id, crdtEntry.SingleExampleSentence().Id,
             crdtEntry.SingleTranslation().Id, translationUpdate);
-        await SyncService.Sync(CrdtApi, FwDataApi);
+        var projectSnapshot = await GetSnapshot();
+        await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
 
         // assert
         var fwEntryAfter = await FwDataApi.GetEntry(fwEntry.Id);
@@ -156,8 +160,9 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         fwEntry = await FwDataApi.GetEntry(fwEntry.Id);
 
         // act
-        await SyncService.Sync(CrdtApi, FwDataApi);
-        await SyncService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project);
+        var projectSnapshot = await GetSnapshot();
+        await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
+        await SnapshotService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project);
 
         // assert - the fwdata ID is now used everywhere
         var updatedFwEntry = await FwDataApi.GetEntry(crdtEntry.Id);
@@ -208,7 +213,8 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
 
         // act
         await FwDataApi.RemoveTranslation(entryId, senseId, exampleSentenceId, fwTranslationId);
-        var result = await SyncService.Sync(CrdtApi, FwDataApi);
+        var projectSnapshot = await GetSnapshot();
+        var result = await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
         result.CrdtChanges.Should().Be(1, "the crdt translation was removed");
 
         // assert - the crdt translation was also removed
@@ -227,7 +233,8 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
 
         // act
         await FwDataApi.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
-        var result = await SyncService.Sync(CrdtApi, FwDataApi);
+        var projectSnapshot = await GetSnapshot();
+        var result = await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
         result.CrdtChanges.Should().Be(1, "the crdt example-sentence was removed");
 
         // assert - the crdt translation was also removed
@@ -269,7 +276,8 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
 
         // act
         await CrdtApi.RemoveTranslation(entryId, senseId, exampleSentenceId, fwExample.DefaultFirstTranslationId);
-        await SyncService.Sync(CrdtApi, FwDataApi);
+        var projectSnapshot = await GetSnapshot();
+        await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
 
         // assert - the fw translation was also removed
         var updatedFwEntry = await FwDataApi.GetEntry(crdtEntry.Id);
@@ -287,7 +295,8 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
 
         // act
         await CrdtApi.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
-        await SyncService.Sync(CrdtApi, FwDataApi);
+        var projectSnapshot = await GetSnapshot();
+        await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
 
         // assert - the fw translation was also removed
         var updatedFwEntry = await FwDataApi.GetEntry(crdtEntry.Id);
@@ -321,7 +330,8 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         var crdtEntry = await CrdtApi.CreateEntry(entry);
 
         // act
-        await SyncService.Sync(CrdtApi, FwDataApi);
+        var projectSnapshot = await GetSnapshot();
+        await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
 
         // assert - the default ID was used in the new fw translation
         var fwEntry = await FwDataApi.GetEntry(crdtEntry.Id);
@@ -341,7 +351,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         var snapshot = await CrdtApi.TakeProjectSnapshot();
         var snapshotEntry = snapshot.Entries.Single(e => e.Id == crdtEntry.Id);
         snapshotEntry.SingleTranslation().Id = Translation.MissingTranslationId;
-        await CrdtFwdataProjectSyncService.SaveProjectSnapshot(FwDataApi.Project, snapshot);
+        await ProjectSnapshotService.SaveProjectSnapshot(FwDataApi.Project, snapshot);
 
         // assert
         // snapshot reflects the missing ID
@@ -367,8 +377,14 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
 
     private async Task<Entry[]> GetSnapshotEntries()
     {
-        var snapshot = await SyncService.GetProjectSnapshot(FwDataApi.Project);
+        var snapshot = await SnapshotService.GetProjectSnapshot(FwDataApi.Project);
         return snapshot?.Entries ?? [];
+    }
+
+    private async Task<ProjectSnapshot> GetSnapshot()
+    {
+        return await SnapshotService.GetProjectSnapshot(FwDataApi.Project)
+            ?? throw new InvalidOperationException("Expected snapshot to exist");
     }
 
 }

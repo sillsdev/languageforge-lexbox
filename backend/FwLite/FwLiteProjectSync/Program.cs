@@ -2,6 +2,7 @@ using System.CommandLine;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
+using LexCore.Sync;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -66,8 +67,26 @@ public class Program
                     crdtProject = await projectsService.CreateProject(new(crdtProjectCode, crdtProjectCode, FwProjectId:fwdataApi.ProjectId, SeedNewProjectData: false));
                 }
                 var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
+                var snapshotService = services.GetRequiredService<ProjectSnapshotService>();
+                var crdtApi = await services.OpenCrdtProject(crdtProject);
 
-                var result = await syncService.Sync(await services.OpenCrdtProject(crdtProject), fwdataApi, dryRun);
+                var projectSnapshot = await snapshotService.GetProjectSnapshot(fwdataApi.Project);
+                SyncResult result;
+                if (projectSnapshot is null)
+                {
+                    if (!File.Exists(crdtProject.DbPath))
+                    {
+                        result = await syncService.Import(crdtApi, fwdataApi, dryRun);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Project snapshot missing for existing CRDT project");
+                    }
+                }
+                else
+                {
+                    result = await syncService.Sync(crdtApi, fwdataApi, projectSnapshot, dryRun);
+                }
                 logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
             },
             crdtOption,

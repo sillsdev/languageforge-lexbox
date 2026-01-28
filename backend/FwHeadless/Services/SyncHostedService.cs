@@ -109,6 +109,7 @@ public class SyncWorker(
     IProjectLookupService projectLookupService,
     ISyncJobStatusService syncStatusService,
     CrdtFwdataProjectSyncService syncService,
+    ProjectSnapshotService projectSnapshotService,
     CrdtHttpSyncService crdtHttpSyncService,
     IHttpClientFactory httpClientFactory,
     MediaFileService mediaFileService,
@@ -156,6 +157,7 @@ public class SyncWorker(
         if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
 
         var crdtFile = config.Value.GetCrdtFile(projectCode, projectId);
+        var crdtFileExists = File.Exists(crdtFile);
         var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
         logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
         logger.LogDebug("fwDataFile: {fwDataFile}", fwDataProject.FilePath);
@@ -193,7 +195,7 @@ public class SyncWorker(
         var crdtSyncService = services.GetRequiredService<CrdtSyncService>();
 
         // If the last merge was successful, we can sync the Harmony project, otherwise we risk pushing a partial sync
-        if (CrdtFwdataProjectSyncService.HasSyncedSuccessfully(fwDataProject) || onlyHarmony)
+        if (ProjectSnapshotService.HasSyncedSuccessfully(fwDataProject) || onlyHarmony)
         {
             await crdtSyncService.SyncHarmonyProject();
         }
@@ -206,7 +208,25 @@ public class SyncWorker(
             return new SyncJobResult(SyncJobStatusEnum.Success, "Only Harmony sync requested, skipping Mercurial/Crdt sync");
         }
 
-        var projectSnapshot = await syncService.GetProjectSnapshot(fwdataApi.Project);
+        var projectSnapshot = await projectSnapshotService.GetProjectSnapshot(fwdataApi.Project);
+        if (projectSnapshot is null)
+        {
+            if (!crdtFileExists)
+            {
+                logger.LogInformation("No snapshot found and no CRDT database detected; importing project");
+                var importResult = await syncService.Import(miniLcmApi, fwdataApi);
+                logger.LogInformation("Import result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",
+                    importResult.CrdtChanges,
+                    importResult.FwdataChanges);
+                await crdtSyncService.SyncHarmonyProject();
+                activity?.SetStatus(ActivityStatusCode.Ok, "Import finished");
+                return new SyncJobResult(importResult);
+            }
+
+            activity?.SetStatus(ActivityStatusCode.Error, "Snapshot missing for existing CRDT project");
+            return new SyncJobResult(SyncJobStatusEnum.UnableToSync, "Project snapshot missing for existing CRDT project");
+        }
+
         var result = await syncService.Sync(miniLcmApi, fwdataApi, projectSnapshot);
         logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",
             result.CrdtChanges,
@@ -246,7 +266,7 @@ public class SyncWorker(
             //note we are now using the crdt API, this avoids issues where some data isn't synced yet
             //later when we add the ability to sync that data we need the snapshot to reflect the synced state, not what was in the FW project
             //related to https://github.com/sillsdev/languageforge-lexbox/issues/1912
-            await syncService.RegenerateProjectSnapshot(miniLcmApi, fwdataApi.Project, keepBackup: false);
+            await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwdataApi.Project, keepBackup: false);
         }
         else
         {

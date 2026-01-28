@@ -118,7 +118,7 @@ public class SyncFixture : IAsyncLifetime
 
     public void DeleteSyncSnapshot()
     {
-        var snapshotPath = CrdtFwdataProjectSyncService.SnapshotPath(FwDataApi.Project);
+        var snapshotPath = ProjectSnapshotService.SnapshotPath(FwDataApi.Project);
         if (File.Exists(snapshotPath)) File.Delete(snapshotPath);
     }
 }

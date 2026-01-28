@@ -168,25 +168,30 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
         // Use the default CrdtProjectsService registration from AddLcmCrdtClientCore
 
         // Mock sync service to avoid heavy sync.
-        var syncService = new Mock<CrdtFwdataProjectSyncService>(MockBehavior.Strict, null!, NullLogger<CrdtFwdataProjectSyncService>.Instance, Options.Create(new SIL.Harmony.CrdtConfig()), null!, null!);
-        
-        // Mock GetProjectSnapshot
-        syncService
-            .Setup(s => s.GetProjectSnapshot(It.IsAny<FwDataProject>()))
-            .Callback(() => _callSequence.Add(nameof(CrdtFwdataProjectSyncService.GetProjectSnapshot)))
-            .ReturnsAsync((ProjectSnapshot?)null);
+        var syncService = new Mock<CrdtFwdataProjectSyncService>(MockBehavior.Strict, null!, null!, NullLogger<CrdtFwdataProjectSyncService>.Instance, null!, null!);
 
-        // Update Sync expectation to accept ProjectSnapshot?
         syncService
-            .Setup(s => s.Sync(It.IsAny<IMiniLcmApi>(), It.IsAny<FwDataMiniLcmApi>(), It.IsAny<ProjectSnapshot?>(), false))
+            .Setup(s => s.Sync(It.IsAny<IMiniLcmApi>(), It.IsAny<FwDataMiniLcmApi>(), It.IsAny<ProjectSnapshot>(), false))
             .Callback(() => _callSequence.Add(nameof(CrdtFwdataProjectSyncService.Sync)))
             .ReturnsAsync(syncResult);
-        
+
         syncService
-            .Setup(s => s.RegenerateProjectSnapshot(It.IsAny<IMiniLcmApi>(), It.IsAny<FwDataProject>(), false))
-            .Callback(() => _callSequence.Add(nameof(CrdtFwdataProjectSyncService.RegenerateProjectSnapshot)))
-            .Returns(Task.CompletedTask);
+            .Setup(s => s.Import(It.IsAny<IMiniLcmApi>(), It.IsAny<FwDataMiniLcmApi>(), false, false))
+            .Callback(() => _callSequence.Add(nameof(CrdtFwdataProjectSyncService.Import)))
+            .ReturnsAsync(syncResult);
+
         services.AddSingleton(syncService.Object);
+
+        var snapshotService = new Mock<ProjectSnapshotService>(MockBehavior.Strict, Options.Create(new SIL.Harmony.CrdtConfig()));
+        snapshotService
+            .Setup(s => s.GetProjectSnapshot(It.IsAny<FwDataProject>()))
+            .Callback(() => _callSequence.Add(nameof(ProjectSnapshotService.GetProjectSnapshot)))
+            .ReturnsAsync((ProjectSnapshot?)null);
+        snapshotService
+            .Setup(s => s.RegenerateProjectSnapshot(It.IsAny<IMiniLcmReadApi>(), It.IsAny<FwDataProject>(), false))
+            .Callback(() => _callSequence.Add(nameof(ProjectSnapshotService.RegenerateProjectSnapshot)))
+            .Returns(Task.CompletedTask);
+        services.AddSingleton(snapshotService.Object);
 
         // Spy harmony sync so we don't talk to a real LexBox server.
         services.AddSingleton<CrdtSyncService>(sp => new SpyCrdtSyncService(_callSequence));
@@ -245,16 +250,16 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
         // - RegenerateProjectSnapshot
         // - CrdtSyncService.SyncHarmonyProject
         _callSequence.Should().Contain(nameof(CrdtHttpSyncService.TestAuth));
-        _callSequence.Should().Contain(nameof(CrdtFwdataProjectSyncService.GetProjectSnapshot));
+        _callSequence.Should().Contain(nameof(ProjectSnapshotService.GetProjectSnapshot));
         _callSequence.Should().Contain(nameof(CrdtFwdataProjectSyncService.Sync));
-        _callSequence.Should().Contain(nameof(CrdtFwdataProjectSyncService.RegenerateProjectSnapshot));
+        _callSequence.Should().Contain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
         _callSequence.Should().Contain(nameof(CrdtSyncService.SyncHarmonyProject));
 
         var preSr = IndexOfNth(_callSequence, nameof(ISendReceiveService.SendReceive), 1);
-        var getSnapshot = IndexOfNth(_callSequence, nameof(CrdtFwdataProjectSyncService.GetProjectSnapshot), 1);
+        var getSnapshot = IndexOfNth(_callSequence, nameof(ProjectSnapshotService.GetProjectSnapshot), 1);
         var sync = IndexOfNth(_callSequence, nameof(CrdtFwdataProjectSyncService.Sync), 1);
         var postSr = IndexOfNth(_callSequence, nameof(ISendReceiveService.SendReceive), 2);
-        var regen = IndexOfNth(_callSequence, nameof(CrdtFwdataProjectSyncService.RegenerateProjectSnapshot), 1);
+        var regen = IndexOfNth(_callSequence, nameof(ProjectSnapshotService.RegenerateProjectSnapshot), 1);
         var harmony = IndexOfNth(_callSequence, nameof(CrdtSyncService.SyncHarmonyProject), 1);
 
         preSr.Should().BeGreaterThanOrEqualTo(0);
@@ -282,7 +287,7 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
 
         // Post-CRDT S/R should not be called when there are no FW changes
         IndexOfNth(_callSequence, nameof(ISendReceiveService.SendReceive), 2).Should().Be(-1);
-        _callSequence.Should().Contain(nameof(CrdtFwdataProjectSyncService.RegenerateProjectSnapshot));
+        _callSequence.Should().Contain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
     }
 
     [Fact]
@@ -301,7 +306,7 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
         result.Status.Should().Be(SyncJobStatusEnum.Success);
 
         // Snapshot regeneration should be skipped when there are no CRDT changes
-        _callSequence.Should().NotContain(nameof(CrdtFwdataProjectSyncService.RegenerateProjectSnapshot));
+        _callSequence.Should().NotContain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
     }
 
     [Fact]
@@ -323,7 +328,7 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
         var result = await worker.ExecuteSync(CancellationToken.None);
 
         result.Status.Should().Be(SyncJobStatusEnum.SendReceiveFailed);
-        _callSequence.Should().NotContain(nameof(CrdtFwdataProjectSyncService.RegenerateProjectSnapshot));
+        _callSequence.Should().NotContain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
     }
 
     [Fact]
@@ -351,7 +356,7 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
             s => s.BlockFromSyncAsync(_projectId, It.Is<string>(msg => msg.Contains("Rollback"))),
             Times.Once);
 
-        _callSequence.Should().NotContain(nameof(CrdtFwdataProjectSyncService.RegenerateProjectSnapshot));
+        _callSequence.Should().NotContain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
     }
 
     [Fact]
@@ -382,7 +387,7 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
             Times.Once);
 
         _callSequence.Should().NotContain(nameof(CrdtFwdataProjectSyncService.Sync));
-        _callSequence.Should().NotContain(nameof(CrdtFwdataProjectSyncService.RegenerateProjectSnapshot));
+        _callSequence.Should().NotContain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
     }
 
     [Fact]

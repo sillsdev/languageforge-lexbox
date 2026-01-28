@@ -21,6 +21,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     private FwDataMiniLcmApi _fwDataApi = null!;
     private TestProject _project = null!;
     private MiniLcmImport _miniLcmImport = null!;
+    private ProjectSnapshotService _snapshotService = null!;
     private static readonly JsonSerializerOptions IndentedDefaultJsonOptions = new()
     {
         WriteIndented = true,
@@ -40,6 +41,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         var services = _project.Services;
         _syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
         _miniLcmImport = services.GetRequiredService<MiniLcmImport>();
+        _snapshotService = services.GetRequiredService<ProjectSnapshotService>();
         _fwDataApi.EntryCount.Should().BeGreaterThan(100, "project should be loaded and have entries");
     }
 
@@ -81,7 +83,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         {
             if (ws.MaybeId is null) ws.Id = Guid.NewGuid();
         }
-        await CrdtFwdataProjectSyncService.SaveProjectSnapshot(_fwDataApi.Project, snapshot);
+        await ProjectSnapshotService.SaveProjectSnapshot(_fwDataApi.Project, snapshot);
     }
 
     //this lets us query entries when there is no writing system
@@ -98,7 +100,8 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     {
         await WorkaroundMissingWritingSystems();
         _crdtApi.GetEntries().ToBlockingEnumerable().Should().BeEmpty();
-        await _syncService.SyncDryRun(_crdtApi, _fwDataApi);
+        var projectSnapshot = ProjectSnapshot.Empty;
+        await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
         //should still be empty
         _crdtApi.GetEntries().ToBlockingEnumerable().Should().BeEmpty();
     }
@@ -107,8 +110,9 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     [Trait("Category", "Integration")]
     public async Task DryRunImport_MakesTheSameChangesAsImport()
     {
-        var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi);
-        var syncResult = await _syncService.Sync(_crdtApi, _fwDataApi);
+        var projectSnapshot = ProjectSnapshot.Empty;
+        var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
+        var syncResult = await _syncService.Import(_crdtApi, _fwDataApi);
         dryRunSyncResult.Should().BeEquivalentTo(syncResult);
     }
 
@@ -119,7 +123,9 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         await BypassImport();
         await WorkaroundMissingWritingSystems();
         _crdtApi.GetEntries().ToBlockingEnumerable().Should().BeEmpty();
-        await _syncService.SyncDryRun(_crdtApi, _fwDataApi);
+        var projectSnapshot = (await _snapshotService.GetProjectSnapshot(_fwDataApi.Project))
+            ?? throw new InvalidOperationException("Expected snapshot to exist");
+        await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
         //should still be empty
         _crdtApi.GetEntries().ToBlockingEnumerable().Should().BeEmpty();
     }
@@ -133,8 +139,10 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         await _miniLcmImport.ImportWritingSystems(_crdtApi, _fwDataApi);
         await BypassImport(true);
 
-        var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi);
-        var syncResult = await _syncService.Sync(_crdtApi, _fwDataApi);
+        var projectSnapshot = (await _snapshotService.GetProjectSnapshot(_fwDataApi.Project))
+            ?? throw new InvalidOperationException("Expected snapshot to exist");
+        var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
+        var syncResult = await _syncService.Sync(_crdtApi, _fwDataApi, projectSnapshot);
         dryRunSyncResult.CrdtChanges.Should().Be(syncResult.CrdtChanges);
         //can't test fwdata changes as they will not work correctly since the sync code expects Crdts to contain data from FWData
         //this throws off the algorithm and it will try to delete everything in fwdata since there's no data in the crdt since it was a dry run
@@ -147,7 +155,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         _fwDataApi.EntryCount.Should().BeGreaterThan(1000,
             "projects with less than 1000 entries don't trip over the default query limit");
 
-        var results = await _syncService.Sync(_crdtApi, _fwDataApi);
+        var results = await _syncService.Import(_crdtApi, _fwDataApi);
         results.FwdataChanges.Should().Be(0);
         results.CrdtChanges.Should().BeGreaterThanOrEqualTo(_fwDataApi.EntryCount);
 
@@ -168,7 +176,9 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     {
         await BypassImport();
 
-        var results = await _syncService.Sync(_crdtApi, _fwDataApi);
+        var projectSnapshot = (await _snapshotService.GetProjectSnapshot(_fwDataApi.Project))
+            ?? throw new InvalidOperationException("Expected snapshot to exist");
+        var results = await _syncService.Sync(_crdtApi, _fwDataApi, projectSnapshot);
         results.FwdataChanges.Should().Be(0);
         results.CrdtChanges.Should().BeGreaterThan(_fwDataApi.EntryCount);
 
@@ -186,8 +196,10 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     [Trait("Category", "Integration")]
     public async Task SecondSena3SyncDoesNothing()
     {
-        await _syncService.Sync(_crdtApi, _fwDataApi);
-        var secondSync = await _syncService.Sync(_crdtApi, _fwDataApi);
+        await _syncService.Import(_crdtApi, _fwDataApi);
+        var projectSnapshot = (await _snapshotService.GetProjectSnapshot(_fwDataApi.Project))
+            ?? throw new InvalidOperationException("Expected snapshot to exist");
+        var secondSync = await _syncService.Sync(_crdtApi, _fwDataApi, projectSnapshot);
         secondSync.CrdtChanges.Should().Be(0);
         secondSync.FwdataChanges.Should().Be(0);
     }
@@ -213,7 +225,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
             overwrite: true);
         File.Copy(
             RelativePath("sena-3-live_snapshot.verified.txt"),
-            CrdtFwdataProjectSyncService.SnapshotPath(_project.FwDataProject),
+            ProjectSnapshotService.SnapshotPath(_project.FwDataProject),
             overwrite: true);
         await using var liveScope = _project.Services.CreateAsyncScope();
         var liveCrdtApi = await liveScope.ServiceProvider.OpenCrdtProject(liveCrdtProject);
@@ -224,11 +236,13 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         await PatchAllWsFontsWithCharisSIL(_fwDataApi);
 
         // act
-        var result = await _syncService.Sync(liveCrdtApi, _fwDataApi);
-        await _syncService.RegenerateProjectSnapshot(liveCrdtApi, _fwDataApi.Project);
+        var projectSnapshot = await _snapshotService.GetProjectSnapshot(_fwDataApi.Project)
+            ?? throw new InvalidOperationException("Expected snapshot to exist");
+        var result = await _syncService.Sync(liveCrdtApi, _fwDataApi, projectSnapshot);
+        await _snapshotService.RegenerateProjectSnapshot(liveCrdtApi, _fwDataApi.Project);
 
         // assert
-        var fwHeadlessSnapshot = await _syncService.GetProjectSnapshot(_project.FwDataProject);
+        var fwHeadlessSnapshot = await _snapshotService.GetProjectSnapshot(_project.FwDataProject);
         Exception? verifyException = null;
         var throwAnyVerifyException = () => { if (verifyException is not null) throw verifyException; };
         try

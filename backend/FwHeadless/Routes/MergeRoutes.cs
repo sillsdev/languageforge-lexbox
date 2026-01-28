@@ -105,7 +105,7 @@ public static class MergeRoutes
         Guid projectId,
         CurrentProjectService projectContext,
         IProjectLookupService projectLookupService,
-        CrdtFwdataProjectSyncService syncService,
+        ProjectSnapshotService projectSnapshotService,
         SnapshotAtCommitService snapshotAtCommitService,
         IOptions<FwHeadlessConfig> config,
         HttpContext context,
@@ -132,7 +132,7 @@ public static class MergeRoutes
         var fwDataProject = config.Value.GetFwDataProject(projectId);
         if (commitId.HasValue)
         {
-            if (!await syncService.RegenerateProjectSnapshotAtCommit(snapshotAtCommitService, fwDataProject, commitId.Value, preserveAllFieldWorksCommits))
+            if (!await projectSnapshotService.RegenerateProjectSnapshotAtCommit(snapshotAtCommitService, fwDataProject, commitId.Value, preserveAllFieldWorksCommits))
             {
                 return TypedResults.NotFound($"Commit {commitId} not found");
             }
@@ -140,7 +140,7 @@ public static class MergeRoutes
         else
         {
             var miniLcmApi = context.RequestServices.GetRequiredService<IMiniLcmApi>();
-            await syncService.RegenerateProjectSnapshot(miniLcmApi, fwDataProject);
+            await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwDataProject);
         }
         return TypedResults.Ok();
     }
