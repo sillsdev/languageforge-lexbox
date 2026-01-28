@@ -458,7 +458,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          chmod +x "${{ steps.download-artifact.outputs.download-path }}/release_linux-x64/FwLiteWeb"
+          find "${{ steps.download-artifact.outputs.download-path }}" -type f -name FwLiteWeb -exec chmod +x {} +
       - name: Install Task
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
         with:

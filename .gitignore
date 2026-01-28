@@ -26,6 +26,9 @@ artifacts/
 project-cache.json
 localResourcesCache/
 
+# Kiro AI-generated specs (not part of repo source)
+.kiro/
+
 # Kiro-generated specs
 .kiro/
 
