@@ -8,11 +8,33 @@ using SystemTextJsonPatch;
 
 namespace FwLiteWeb.Hubs;
 
-public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
-    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory) : Hub<ILexboxHubClient>
+public abstract class MiniLcmApiHubBase : Hub<ILexboxHubClient>
 {
-    private readonly IMiniLcmApi _miniLcmApi = writeNormalizationWrapperFactory.Create(validationWrapperFactory.Create(miniLcmApi));
+    private readonly IMiniLcmApi _miniLcmApi;
+
+    protected MiniLcmApiHubBase(
+        IMiniLcmApi miniLcmApi,
+        MiniLcmApiValidationWrapperFactory validationWrapperFactory,
+        MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory)
+    {
+        _miniLcmApi = writeNormalizationWrapperFactory.Create(validationWrapperFactory.Create(miniLcmApi));
+    }
+
+    protected MiniLcmApiHubBase(
+        IMiniLcmApi miniLcmApi,
+        MiniLcmApiValidationWrapperFactory validationWrapperFactory,
+        bool skipWriteNormalization)
+    {
+        if (skipWriteNormalization)
+        {
+            // FwData APIs already normalize strings internally via LCModel
+            _miniLcmApi = validationWrapperFactory.Create(miniLcmApi);
+        }
+        else
+        {
+            throw new ArgumentException("Use the other constructor with writeNormalizationWrapperFactory", nameof(skipWriteNormalization));
+        }
+    }
 
     public async Task<WritingSystems> GetWritingSystems()
     {
