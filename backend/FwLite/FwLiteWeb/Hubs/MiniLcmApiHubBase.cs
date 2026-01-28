@@ -2,15 +2,17 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.Normalization;
 using MiniLcm.Validators;
 using SystemTextJsonPatch;
 
 namespace FwLiteWeb.Hubs;
 
 public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory) : Hub<ILexboxHubClient>
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
+    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory) : Hub<ILexboxHubClient>
 {
-    private readonly IMiniLcmApi _miniLcmApi = validationWrapperFactory.Create(miniLcmApi);
+    private readonly IMiniLcmApi _miniLcmApi = writeNormalizationWrapperFactory.Create(validationWrapperFactory.Create(miniLcmApi));
 
     public async Task<WritingSystems> GetWritingSystems()
     {

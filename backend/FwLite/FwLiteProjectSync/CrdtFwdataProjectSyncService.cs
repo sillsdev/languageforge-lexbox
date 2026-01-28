@@ -15,7 +15,9 @@ using SIL.Harmony;
 namespace FwLiteProjectSync;
 
 public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger, IOptions<CrdtConfig> crdtConfig,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory, MiniLcmApiStringNormalizationWrapperFactory normalizationWrapperFactory)
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory, 
+    MiniLcmApiStringNormalizationWrapperFactory readNormalizationWrapperFactory,
+    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory)
 {
     public record DryRunSyncResult(
         int CrdtChanges,
@@ -61,8 +63,8 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
     private async Task<SyncResult> Sync(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, bool dryRun, int entryCount, ProjectSnapshot? projectSnapshot)
     {
-        crdtApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(crdtApi));
-        fwdataApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(fwdataApi));
+        crdtApi = writeNormalizationWrapperFactory.Create(readNormalizationWrapperFactory.Create(validationWrapperFactory.Create(crdtApi)));
+        fwdataApi = writeNormalizationWrapperFactory.Create(readNormalizationWrapperFactory.Create(validationWrapperFactory.Create(fwdataApi)));
 
         if (dryRun)
         {

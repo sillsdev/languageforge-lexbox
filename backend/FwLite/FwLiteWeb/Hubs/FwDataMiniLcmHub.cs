@@ -13,8 +13,9 @@ public class FwDataMiniLcmHub(
     IMiniLcmApi miniLcmApi,
     FwDataFactory fwDataFactory,
     FwDataProjectContext context,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory
-) : MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory)
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
+    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory
+) : MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory, writeNormalizationWrapperFactory)
 {
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()
