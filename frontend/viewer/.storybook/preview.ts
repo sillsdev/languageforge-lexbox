@@ -1,5 +1,3 @@
-import '../src/app.postcss';
-
 import FWLiteDecorator, {initSvelteStoryContext} from './decorators/FWLiteDecorator.svelte';
 
 import type {Preview} from '@storybook/svelte-vite';
