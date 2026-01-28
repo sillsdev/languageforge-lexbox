@@ -22,6 +22,9 @@ on:
       - develop
       - main
       - shadcn-ui-main #just for now ensure PRs to this branch have checks run
+
+permissions:
+  contents: read
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
 jobs:
@@ -126,6 +129,9 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
 
   frontend-component-unit-tests:
+    permissions:
+      contents: read
+      checks: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -367,6 +373,8 @@ jobs:
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
   create-release:
+    permissions:
+      contents: write
     if: ${{ github.ref_name == 'main' }}
     environment:
       name: production
@@ -437,8 +445,20 @@ jobs:
         with:
           name: fw-lite-web-linux
           path: fw-lite-web-linux
+
+      - name: Debug downloaded artifact contents
+        shell: bash
+        run: |
+          set -e
+          echo "download-path=${{ steps.download-artifact.outputs.download-path }}"
+          ls -la "${{ steps.download-artifact.outputs.download-path }}"
+          ls -Rla "${{ steps.download-artifact.outputs.download-path }}"
+
       - name: set execute permissions
-        run: chmod +x ${{ steps.download-artifact.outputs.download-path }}/*/FwLiteWeb
+        shell: bash
+        run: |
+          set -e
+          chmod +x "${{ steps.download-artifact.outputs.download-path }}/release_linux-x64/FwLiteWeb"
       - name: Install Task
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
         with:

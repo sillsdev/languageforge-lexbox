@@ -26,6 +26,9 @@ artifacts/
 project-cache.json
 localResourcesCache/
 
+# Kiro-generated specs
+.kiro/
+
 #Verify
 *.received.*
 backend/FwLite/FwLiteShared/wwwroot/viewer
