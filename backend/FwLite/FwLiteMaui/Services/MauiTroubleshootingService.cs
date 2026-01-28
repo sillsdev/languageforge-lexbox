@@ -9,11 +9,14 @@ namespace FwLiteMaui.Services;
 public class MauiTroubleshootingService(
     IOptions<FwLiteMauiConfig> config,
     ILogger<MauiTroubleshootingService> logger,
-    CrdtProjectsService projectsService) : ITroubleshootingService
+    CrdtProjectsService projectsService,
+    ILauncher launcher,
+    IBrowser browser,
+    IShare share) : ITroubleshootingService
 {
-    private readonly ILauncher _launcher = Launcher.Default;
-    private readonly IBrowser _browser = Browser.Default;
-    private readonly IShare _share = Share.Default;
+    private readonly ILauncher _launcher = launcher;
+    private readonly IBrowser _browser = browser;
+    private readonly IShare _share = share;
     private FwLiteMauiConfig Config => config.Value;
 
     [JSInvokable]

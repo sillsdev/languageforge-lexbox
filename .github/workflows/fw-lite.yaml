@@ -62,7 +62,7 @@ jobs:
         run: task fw-lite:has-pending-model-changes -- --no-build
 
       - name: Dotnet test
-        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build
+        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build -p:BuildAndroid=false
 
   frontend:
     runs-on: ubuntu-latest
