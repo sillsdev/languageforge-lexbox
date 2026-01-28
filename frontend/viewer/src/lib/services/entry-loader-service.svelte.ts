@@ -70,8 +70,14 @@ export class EntryLoaderService {
         this.#debounceTimer = setTimeout(() => {
           void this.reset();
         }, DEFAULT_DEBOUNCE_TIME);
+
+        return () => this.destroy();
       }
     );
+  }
+
+  destroy(): void {
+    clearTimeout(this.#debounceTimer);
   }
 
   /**
