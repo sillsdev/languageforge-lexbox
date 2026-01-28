@@ -1,10 +1,7 @@
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
-  import {Icon} from '$lib/components/ui/icon';
   import {ComposableInput} from '$lib/components/ui/input';
   import {t} from 'svelte-i18n-lingui';
-  import {Toggle} from '$lib/components/ui/toggle';
-  import {mergeProps} from 'bits-ui';
   import {useProjectStats, useWritingSystemService} from '$project/data';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
@@ -22,6 +19,7 @@
   import {Switch} from '$lib/components/ui/switch';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {Button} from '$lib/components/ui/button';
 
   const stats = useProjectStats();
   const currentView = useCurrentView();
@@ -118,14 +116,10 @@
         }}
       >
         {#snippet trigger({ props })}
-          <Toggle
-            {...mergeProps(props, { class: 'aspect-square' })}
-            aria-label={$t`Toggle filters`}
-            size={IsMobile.value ? 'sm' : 'xs'}
-            bind:pressed={filtersExpanded}
-          >
-            <Icon icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'} class="size-6 md:size-5" />
-          </Toggle>
+          <Button {...props} variant="ghost"
+            size={IsMobile.value ? 'sm-icon' : 'xs-icon'}
+            icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'}
+            aria-label={$t`Toggle filters`} />
         {/snippet}
         <div class="space-y-4">
           <div class="flex flex-col">
