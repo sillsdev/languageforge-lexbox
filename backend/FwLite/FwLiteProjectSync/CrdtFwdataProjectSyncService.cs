@@ -30,6 +30,12 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
     public virtual async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
     {
+        var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project);
+        return await Sync(crdtApi, fwdataApi, projectSnapshot, dryRun);
+    }
+
+    public virtual async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, ProjectSnapshot? projectSnapshot, bool dryRun = false)
+    {
         using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
         if (crdtApi is not CrdtMiniLcmApi crdt) // maybe the argument type should be changed?
             throw new InvalidOperationException("CrdtApi must be of type CrdtMiniLcmApi to sync.");
@@ -38,7 +44,6 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
             activity?.SetStatus(ActivityStatusCode.Error, $"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdataApi.ProjectId}");
             throw new InvalidOperationException($"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdataApi.ProjectId}");
         }
-        var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project);
 
         if (projectSnapshot is not null)
         {
@@ -118,7 +123,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         return ((DryRunMiniLcmApi)api).DryRunRecords;
     }
 
-    public async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
+    public virtual async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
     {
         var snapshotPath = SnapshotPath(project);
         if (!File.Exists(snapshotPath)) return null;

@@ -206,7 +206,8 @@ public class SyncWorker(
             return new SyncJobResult(SyncJobStatusEnum.Success, "Only Harmony sync requested, skipping Mercurial/Crdt sync");
         }
 
-        var result = await syncService.Sync(miniLcmApi, fwdataApi);
+        var projectSnapshot = await syncService.GetProjectSnapshot(fwdataApi.Project);
+        var result = await syncService.Sync(miniLcmApi, fwdataApi, projectSnapshot);
         logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",
             result.CrdtChanges,
             result.FwdataChanges);

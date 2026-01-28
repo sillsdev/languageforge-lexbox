@@ -18,7 +18,7 @@ using Moq;
 
 namespace Testing.FwHeadless.Services;
 
-public class SyncWorkerTests : IDisposable
+public class SyncWorkerTests : IDisposable, IAsyncDisposable
 {
     private readonly Guid _projectId = Guid.NewGuid();
     private const string ProjectCode = "test-project";
@@ -32,6 +32,7 @@ public class SyncWorkerTests : IDisposable
     private readonly FwHeadlessConfig _config;
     private readonly string _tempDir;
     private FwDataProject FwDataProject => _config.GetFwDataProject(ProjectCode, _projectId);
+    private IServiceScope? _workerScope;
 
     public SyncWorkerTests()
     {
@@ -55,6 +56,22 @@ public class SyncWorkerTests : IDisposable
         if (Directory.Exists(_tempDir))
         {
             try { Directory.Delete(_tempDir, true); } catch { }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_workerScope is not null)
+        {
+            if (_workerScope is IAsyncDisposable asyncScope)
+            {
+                await asyncScope.DisposeAsync();
+            }
+            else
+            {
+                _workerScope.Dispose();
+            }
+            _workerScope = null;
         }
     }
 
@@ -117,7 +134,20 @@ public class SyncWorkerTests : IDisposable
             .Returns(Task.CompletedTask);
         services.AddSingleton(mediaFileService.Object);
 
-        // Http auth check
+        // NOTE: register HttpClientFactory and a mocked CrdtHttpSyncService after
+        // AddLcmCrdtClientCore() so the test mock does not get overridden by
+        // the real registration inside that helper.
+
+        // Real FwDataFactory + in-memory project loader
+        services.AddMemoryCache();
+        services.AddTestFwDataBridge(mockProjectLoader: true);
+
+        // LCM/CRDT stack is needed because SyncWorker calls services.OpenCrdtProject(...)
+        services.AddLcmCrdtClientCore();
+        services.Configure<LcmCrdtConfig>(c => c.ProjectPath = _tempDir);
+
+        // Http auth check - register after AddLcmCrdtClientCore so our mock
+        // isn't overridden by real registrations in that helper.
         var httpClientFactory = new Mock<IHttpClientFactory>(MockBehavior.Strict);
         httpClientFactory
             .Setup(f => f.CreateClient(FwHeadlessKernel.LexboxHttpClientName))
@@ -131,33 +161,27 @@ public class SyncWorkerTests : IDisposable
             .ReturnsAsync(authSuccess);
         services.AddSingleton(crdtHttpSyncService.Object);
 
-        // Real FwDataFactory + in-memory project loader
-        services.AddMemoryCache();
-        services.AddTestFwDataBridge(mockProjectLoader: true);
-
-        // LCM/CRDT stack is needed because SyncWorker calls services.OpenCrdtProject(...)
-        services.AddLcmCrdtClientCore();
-        services.Configure<LcmCrdtConfig>(c => c.ProjectPath = _tempDir);
-
         // Avoid pulling in the full media-sync stack; SyncWorker only needs an instance to pass through.
         services.AddSingleton<LcmCrdt.MediaServer.LcmMediaService>(_ =>
             new Mock<LcmCrdt.MediaServer.LcmMediaService>(MockBehavior.Loose, null!, null!, Options.Create(new SIL.Harmony.CrdtConfig()), null!, null!, NullLogger<LcmCrdt.MediaServer.LcmMediaService>.Instance).Object);
 
-        // We spy CreateProject by subclassing CrdtProjectsService
-        services.AddSingleton<CrdtProjectsService>(sp => new SpyCrdtProjectsService(
-            sp,
-            sp.GetRequiredService<ILogger<CrdtProjectsService>>(),
-            sp.GetRequiredService<IOptions<LcmCrdtConfig>>(),
-            sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>(),
-            sp.GetRequiredService<ProjectDataCache>(),
-            _callSequence));
+        // Use the default CrdtProjectsService registration from AddLcmCrdtClientCore
 
         // Mock sync service to avoid heavy sync.
         var syncService = new Mock<CrdtFwdataProjectSyncService>(MockBehavior.Strict, null!, NullLogger<CrdtFwdataProjectSyncService>.Instance, Options.Create(new SIL.Harmony.CrdtConfig()), null!, null!);
+        
+        // Mock GetProjectSnapshot
         syncService
-            .Setup(s => s.Sync(It.IsAny<IMiniLcmApi>(), It.IsAny<FwDataMiniLcmApi>(), false))
+            .Setup(s => s.GetProjectSnapshot(It.IsAny<FwDataProject>()))
+            .Callback(() => _callSequence.Add(nameof(CrdtFwdataProjectSyncService.GetProjectSnapshot)))
+            .ReturnsAsync((ProjectSnapshot?)null);
+
+        // Update Sync expectation to accept ProjectSnapshot?
+        syncService
+            .Setup(s => s.Sync(It.IsAny<IMiniLcmApi>(), It.IsAny<FwDataMiniLcmApi>(), It.IsAny<ProjectSnapshot?>(), false))
             .Callback(() => _callSequence.Add(nameof(CrdtFwdataProjectSyncService.Sync)))
             .ReturnsAsync(syncResult);
+        
         syncService
             .Setup(s => s.RegenerateProjectSnapshot(It.IsAny<IMiniLcmApi>(), It.IsAny<FwDataProject>(), false))
             .Callback(() => _callSequence.Add(nameof(CrdtFwdataProjectSyncService.RegenerateProjectSnapshot)))
@@ -188,7 +212,11 @@ public class SyncWorkerTests : IDisposable
 
     private SyncWorker CreateWorker(ServiceProvider sp)
     {
-        return ActivatorUtilities.CreateInstance<SyncWorker>(sp, _projectId);
+        // Create a scope so scoped services (LCM/CRDT) resolve correctly when
+        // SyncWorker calls services.OpenCrdtProject(...).
+        _workerScope?.Dispose();
+        _workerScope = sp.CreateScope();
+        return ActivatorUtilities.CreateInstance<SyncWorker>(_workerScope.ServiceProvider, _projectId);
     }
 
     [Fact]
@@ -217,19 +245,21 @@ public class SyncWorkerTests : IDisposable
         // - RegenerateProjectSnapshot
         // - CrdtSyncService.SyncHarmonyProject
         _callSequence.Should().Contain(nameof(CrdtHttpSyncService.TestAuth));
-        _callSequence.Should().Contain(nameof(CrdtProjectsService.CreateProject));
+        _callSequence.Should().Contain(nameof(CrdtFwdataProjectSyncService.GetProjectSnapshot));
         _callSequence.Should().Contain(nameof(CrdtFwdataProjectSyncService.Sync));
         _callSequence.Should().Contain(nameof(CrdtFwdataProjectSyncService.RegenerateProjectSnapshot));
         _callSequence.Should().Contain(nameof(CrdtSyncService.SyncHarmonyProject));
 
         var preSr = IndexOfNth(_callSequence, nameof(ISendReceiveService.SendReceive), 1);
+        var getSnapshot = IndexOfNth(_callSequence, nameof(CrdtFwdataProjectSyncService.GetProjectSnapshot), 1);
         var sync = IndexOfNth(_callSequence, nameof(CrdtFwdataProjectSyncService.Sync), 1);
         var postSr = IndexOfNth(_callSequence, nameof(ISendReceiveService.SendReceive), 2);
         var regen = IndexOfNth(_callSequence, nameof(CrdtFwdataProjectSyncService.RegenerateProjectSnapshot), 1);
         var harmony = IndexOfNth(_callSequence, nameof(CrdtSyncService.SyncHarmonyProject), 1);
 
         preSr.Should().BeGreaterThanOrEqualTo(0);
-        sync.Should().BeGreaterThan(preSr);
+        getSnapshot.Should().BeGreaterThan(preSr);
+        sync.Should().BeGreaterThan(getSnapshot);
         postSr.Should().BeGreaterThan(sync);
         regen.Should().BeGreaterThan(postSr);
         harmony.Should().BeGreaterThan(regen);
@@ -433,18 +463,3 @@ internal sealed class SpyCrdtSyncService(List<string> callSequence)
     }
 }
 
-internal sealed class SpyCrdtProjectsService(
-    IServiceProvider provider,
-    ILogger<CrdtProjectsService> logger,
-    IOptions<LcmCrdtConfig> config,
-    Microsoft.Extensions.Caching.Memory.IMemoryCache memoryCache,
-    ProjectDataCache projectDataCache,
-    List<string> callSequence)
-    : CrdtProjectsService(provider, logger, config, memoryCache, projectDataCache)
-{
-    public override async Task<CrdtProject> CreateProject(CreateProjectRequest request)
-    {
-        callSequence.Add(nameof(CrdtProjectsService.CreateProject));
-        return await base.CreateProject(request);
-    }
-}
