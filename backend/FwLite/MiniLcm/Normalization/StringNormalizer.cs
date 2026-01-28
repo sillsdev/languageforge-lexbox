@@ -27,10 +27,8 @@ public static class StringNormalizer
         var normalized = new MultiString(multiString.Values.Count);
         foreach (var (key, value) in multiString.Values)
         {
-            if (!string.IsNullOrEmpty(value))
-            {
-                normalized.Values[key] = value.Normalize(Form);
-            }
+            // Preserve all keys, even if the value is empty or null
+            normalized.Values[key] = string.IsNullOrEmpty(value) ? value : value.Normalize(Form);
         }
         return normalized;
     }
@@ -71,21 +69,27 @@ public static class StringNormalizer
     /// </summary>
     public static string[] Normalize(string[] values)
     {
-        return values.Select(v => v.Normalize(Form)).ToArray();
+        return values.Select(v => v?.Normalize(Form) ?? string.Empty).ToArray();
     }
 
     /// <summary>
-    /// Normalizes string values in a JsonPatchDocument by applying normalization to the underlying operations.
-    /// Note: This is a simplified approach that doesn't deeply inspect operation values.
-    /// Most normalization happens at the object level before creating patches.
+    /// Handles JsonPatchDocument normalization.
+    /// Note: The patch itself is returned as-is because:
+    /// 1. JsonPatch operations contain serialized values that are complex to normalize
+    /// 2. The primary normalization occurs in the overridden Update* methods that accept
+    ///    concrete objects (UpdateWritingSystem, UpdateEntry, etc.)
+    /// 3. The objects being patched should already be normalized from creation
+    /// 4. For critical patch-based updates, callers should use the object-based Update methods
+    /// 
+    /// If deep patch normalization is needed in the future, it would require:
+    /// - Inspecting operation paths to identify string fields
+    /// - Deserializing and re-serializing operation values
+    /// - Handling nested object structures in patch paths
     /// </summary>
     public static JsonPatchDocument<T> NormalizePatch<T>(JsonPatchDocument<T> patch) where T : class
     {
-        // For now, we return the patch as-is since the objects being patched
-        // should already be normalized before the patch is created.
-        // If we need deeper normalization of patch values, we would need to
-        // access the private/internal operation fields which isn't straightforward.
-        // The primary normalization happens in the Normalize* methods for each type.
+        // Return patch as-is. See method summary for rationale.
+        // Most updates use object-based methods which are fully normalized.
         return patch;
     }
 }

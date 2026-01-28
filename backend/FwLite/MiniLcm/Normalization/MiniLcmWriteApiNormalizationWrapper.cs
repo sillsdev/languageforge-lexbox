@@ -513,20 +513,30 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
     {
-        // Normalize each semantic domain as it's imported
-        await foreach (var semanticDomain in semanticDomains)
+        // Create a normalized async enumerable that normalizes items as they're consumed
+        async IAsyncEnumerable<SemanticDomain> NormalizeStream()
         {
-            await CreateSemanticDomain(semanticDomain);
+            await foreach (var semanticDomain in semanticDomains)
+            {
+                yield return NormalizeSemanticDomain(semanticDomain);
+            }
         }
+        
+        await _api.BulkImportSemanticDomains(NormalizeStream());
     }
 
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
-        // Normalize each entry as it's imported
-        await foreach (var entry in entries)
+        // Create a normalized async enumerable that normalizes items as they're consumed
+        async IAsyncEnumerable<Entry> NormalizeStream()
         {
-            await CreateEntry(entry);
+            await foreach (var entry in entries)
+            {
+                yield return NormalizeEntry(entry);
+            }
         }
+        
+        await _api.BulkCreateEntries(NormalizeStream());
     }
 
     #endregion
