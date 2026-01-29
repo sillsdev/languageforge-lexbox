@@ -218,10 +218,10 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         await using var liveScope = _project.Services.CreateAsyncScope();
         var liveCrdtApi = await liveScope.ServiceProvider.OpenCrdtProject(liveCrdtProject);
 
-        // The default font used for the Analysis writing systems in our Sena 3 project differs when opened on
+        // The default fonts used for writing systems in our Sena 3 project differ when opened on
         // Windows versus Linux. So, we standardize them to Charis SIL (which is the default on Linux).
         // Otherwise, the snapshot verification isn't consistent.
-        await PatchAnalysisWsFontsWithCharisSIL(_fwDataApi);
+        await PatchAllWsFontsWithCharisSIL(_fwDataApi);
 
         // act
         var result = await _syncService.Sync(liveCrdtApi, _fwDataApi);
@@ -259,15 +259,23 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         result.FwdataChanges.Should().Be(0);
     }
 
-    private async Task PatchAnalysisWsFontsWithCharisSIL(FwDataMiniLcmApi fwDataApi)
+    private async Task PatchAllWsFontsWithCharisSIL(FwDataMiniLcmApi fwDataApi)
     {
         var writingSystems = await fwDataApi.GetWritingSystems();
-        var analysisWs = writingSystems.Analysis;
-        analysisWs.Length.Should().Be(2);
-        await fwDataApi.UpdateWritingSystem(analysisWs[0].WsId, WritingSystemType.Analysis,
-            new UpdateObjectInput<WritingSystem>().Set(ws => ws.Font, "Charis SIL"));
-        await fwDataApi.UpdateWritingSystem(analysisWs[1].WsId, WritingSystemType.Analysis,
-            new UpdateObjectInput<WritingSystem>().Set(ws => ws.Font, "Charis SIL"));
+
+        // Patch all Analysis writing systems
+        foreach (var ws in writingSystems.Analysis)
+        {
+            await fwDataApi.UpdateWritingSystem(ws.WsId, WritingSystemType.Analysis,
+                new UpdateObjectInput<WritingSystem>().Set(w => w.Font, "Charis SIL"));
+        }
+
+        // Patch all Vernacular writing systems
+        foreach (var ws in writingSystems.Vernacular)
+        {
+            await fwDataApi.UpdateWritingSystem(ws.WsId, WritingSystemType.Vernacular,
+                new UpdateObjectInput<WritingSystem>().Set(w => w.Font, "Charis SIL"));
+        }
     }
 
     private static string RelativePath(string name, [CallerFilePath] string sourceFile = "")
