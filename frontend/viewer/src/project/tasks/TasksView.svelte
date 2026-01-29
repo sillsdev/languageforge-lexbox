@@ -3,23 +3,22 @@
   import {useTasksService} from './tasks-service';
   import {t} from 'svelte-i18n-lingui';
   import {QueryParamState} from '$lib/utils/url.svelte';
-  import {getProjectStorage, setProjectStorage} from '$lib/utils/project-storage.svelte';
-  import {useProjectContext} from '../project-context.svelte';
+  import {useProjectStorage} from '$lib/utils/project-storage.svelte';
   import TaskView from './TaskView.svelte';
   import {watch} from 'runed';
   import {onMount} from 'svelte';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
 
-  const selectedTaskStorageKey = 'selectedTaskId';
-  const projectContext = useProjectContext();
+  const projectStorage = useProjectStorage();
   const tasksService = useTasksService();
   const tasks = $derived(tasksService.listTasks());
-  const selectedTaskId = new QueryParamState({key: 'taskId', allowBack: true, replaceOnDefaultValue: true}, getProjectStorage(projectContext.projectCode, selectedTaskStorageKey) ?? '');
-  watch(() => selectedTaskId.current, (selectedTaskId) => {
-    if (selectedTaskId) {
-      setProjectStorage(projectContext.projectCode, selectedTaskStorageKey, selectedTaskId);
-    }
+  const selectedTaskId = new QueryParamState({key: 'taskId', allowBack: true, replaceOnDefaultValue: true}, projectStorage.selectedTaskId);
+
+  // Sync URL query param to project storage
+  watch(() => selectedTaskId.current, (taskId) => {
+    projectStorage.selectedTaskId = taskId;
   });
+
   const selectedTask = $derived(tasks.find(task => task.id === selectedTaskId.current));
   onMount(() => {
     if (!selectedTaskId.current) {

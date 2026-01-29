@@ -24,6 +24,8 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
+  import {useProjectContext} from './project/project-context.svelte';
+  import {initProjectStorage} from '$lib/utils/project-storage.svelte';
 
   const {
     onloaded,
@@ -34,6 +36,9 @@
 
   initView();
   initViewSettings();
+
+  const projectContext = useProjectContext();
+  initProjectStorage(projectContext.projectCode);
 
   // Load idle service into component context for inputs to use
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

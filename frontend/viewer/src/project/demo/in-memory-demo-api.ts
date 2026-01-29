@@ -25,6 +25,7 @@ import {WritingSystemService} from '../data/writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 import {delay} from '$lib/utils/time';
 import {initProjectContext, ProjectContext} from '$project/project-context.svelte';
+import {initProjectStorage} from '$lib/utils/project-storage.svelte';
 import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
 import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
@@ -100,6 +101,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const projectContext = initProjectContext();
     const inMemoryLexboxApi = new InMemoryDemoApi(projectContext);
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
+    initProjectStorage(inMemoryLexboxApi.projectName);
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
