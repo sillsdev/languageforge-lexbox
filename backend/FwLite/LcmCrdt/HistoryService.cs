@@ -23,11 +23,12 @@ public record ChangeContext(
     Guid CommitId,
     int ChangeIndex,
     string ChangeName,
-    IObjectWithId Snapshot,
-    ICollection<Entry> AffectedEntries)
+    IObjectWithId? Snapshot,
+    ICollection<Entry> AffectedEntries,
+    ChangeEntity<IChange> Change)
 {
-    public ChangeContext(ChangeEntity<IChange> change, IObjectWithId snapshot, ICollection<Entry> affectedEntries)
-        : this(change.CommitId, change.Index, HistoryService.ChangeNameHelper(change.Change), snapshot, affectedEntries)
+    public ChangeContext(ChangeEntity<IChange> change, IObjectWithId? snapshot, ICollection<Entry> affectedEntries)
+        : this(change.CommitId, change.Index, HistoryService.ChangeNameHelper(change.Change), snapshot, affectedEntries, change)
     {
     }
     public string EntityType => Snapshot?.GetType().Name ?? "Unknown";
@@ -141,7 +142,9 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .FirstOrDefaultAsync()
             ?? throw new InvalidOperationException($"Change {changeIndex} not found in commit {commitId}");
 
-        var snapshot = await dataModel.GetAtCommit<IObjectWithId>(commitId, change.EntityId);
+        // Use safe cast - some entity types like RemoteResource don't implement IObjectWithId
+        var entitySnapshot = await dataModel.GetAtCommit<object>(commitId, change.EntityId);
+        var snapshot = entitySnapshot as IObjectWithId;
 
         var affectedEntries = await GetAffectedEntryIds(change)
             .SelectAwait(async entryId => await GetCurrentOrLatestEntry(entryId))

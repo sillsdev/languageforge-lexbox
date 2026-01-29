@@ -31,7 +31,7 @@
   const affectedEntry = $derived(context.affectedEntries.length === 1 ? context.affectedEntries[0] : undefined);
 
   let currentEntity = $derived.by(() => {
-    if (!affectedEntry) return undefined;
+    if (!affectedEntry || !context.snapshot) return undefined;
 
     if (context.entityType === 'Entry') {
       return affectedEntry;
@@ -119,7 +119,23 @@
   </div>
 {/if}
 
-{#if context.entityType === 'Entry'}
+{#if !context.snapshot}
+  <div class="p-4 space-y-2">
+    <div class="text-muted-foreground">
+      {$t`Preview not available for this type of change`}
+    </div>
+    {#if context.change}
+      <details class="text-sm">
+        <summary class="cursor-pointer text-muted-foreground hover:text-foreground">
+          {$t`Show raw change data`}
+        </summary>
+        <div class="whitespace-pre-wrap font-mono text-xs mt-2 p-2 bg-muted rounded">
+          {formatJsonForUi(context.change)}
+        </div>
+      </details>
+    {/if}
+  </div>
+{:else if context.entityType === 'Entry'}
   <Editor.Root>
     <Editor.Grid>
       <EntryEditorPrimitive modalMode readonly entry={(showCurrent ? currentEntity : context.snapshot) as IEntry}/>
