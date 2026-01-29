@@ -56,10 +56,13 @@
     gridifyFilter: () => gridifyFilter,
   };
 
-  let entryLoader = $derived(!miniLcmApi ? undefined : untrack(() => {
-    entryLoader?.destroy();
-    return new EntryLoaderService(miniLcmApi, deps);
-  }));
+  let entryLoader = $derived(!miniLcmApi ? undefined : new EntryLoaderService(miniLcmApi, deps));
+
+  // Destroy the previous entryLoader when a new one is created
+  watch(
+    () => entryLoader,
+    (_current, previous) => previous?.destroy()
+  );
 
   // Debounce the loading state for smoother UI
   const loading = new Debounced(() => entryLoader?.loading ?? true, 0);
