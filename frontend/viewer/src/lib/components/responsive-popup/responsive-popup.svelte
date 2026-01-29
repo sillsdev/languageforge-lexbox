@@ -28,7 +28,7 @@
 {#if !IsMobile.value}
   <Popover.Root bind:open>
     <Popover.Trigger child={trigger} />
-    <Popover.Content {...contentProps} class={cn('w-64 sm:mr-4', contentProps?.class)}>
+    <Popover.Content {...contentProps} class={cn('w-64 mr-4 max-h-[calc(90vh)] overflow-y-auto', contentProps?.class)}>
       <div class="space-y-3">
         {#if title}
           <h3 class="font-medium">{title}</h3>

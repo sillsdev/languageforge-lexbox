@@ -112,7 +112,7 @@
         title={$t`Filters`}
         contentProps={{
           side: 'right', align: 'start', sideOffset: 10, alignOffset: -4,
-          class: 'md:w-96 md:max-h-[calc(90vh)] overflow-y-auto'
+          class: 'md:w-96'
         }}
       >
         {#snippet trigger({ props })}
