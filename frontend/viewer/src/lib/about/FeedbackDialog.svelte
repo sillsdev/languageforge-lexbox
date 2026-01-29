@@ -32,7 +32,7 @@
           </div>
         </div>
       </Button>
-      <Button variant="ghost" href={config.feedbackUrl} target="_blank" class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
+      <Button variant="ghost" href={config.feedbackUrl} target="_blank" class="gap-4 p-4 h-auto text-base justify-start whitespace-normal text-start">
         <Icon icon="i-mdi-bug-outline" class="size-10"/>
         <div>
           <div class="font-semibold underline">

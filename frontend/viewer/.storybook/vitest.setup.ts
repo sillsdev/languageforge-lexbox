@@ -1,3 +1,4 @@
+import '../src/app.postcss';
 import * as previewAnnotations from './preview';
 
 import {afterAll, afterEach, beforeAll} from 'vitest';

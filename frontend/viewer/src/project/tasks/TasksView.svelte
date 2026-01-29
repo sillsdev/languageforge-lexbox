@@ -27,7 +27,7 @@ const selectedTaskStorageKey = 'selectedTaskId';
 
 <div class="flex flex-col h-full p-4 gap-4">
   <div class="flex flex-row items-center">
-    <SidebarTrigger icon="i-mdi-menu" iconProps={{ class: 'size-5' }} class="aspect-square p-0 mr-2" size="xs"/>
+    <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 mr-2" />
 
     <Select.Root bind:open type="single" bind:value={selectedTaskId.current}>
       <Select.Trigger>{$t`Task ${selectedTask?.subject ?? ''}`}</Select.Trigger>

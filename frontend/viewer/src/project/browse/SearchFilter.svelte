@@ -1,12 +1,7 @@
 <script lang="ts">
-  import * as Collapsible from '$lib/components/ui/collapsible';
   import * as Sidebar from '$lib/components/ui/sidebar';
-  import {Icon} from '$lib/components/ui/icon';
   import {ComposableInput} from '$lib/components/ui/input';
   import {t} from 'svelte-i18n-lingui';
-  import {Toggle} from '$lib/components/ui/toggle';
-  import {cn} from '$lib/utils';
-  import {mergeProps} from 'bits-ui';
   import {useProjectStats, useWritingSystemService} from '$project/data';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
@@ -22,6 +17,9 @@
   import Label from '$lib/components/ui/label/label.svelte';
   import type {ISemanticDomain, IPartOfSpeech} from '$lib/dotnet-types';
   import {Switch} from '$lib/components/ui/switch';
+  import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {Button} from '$lib/components/ui/button';
 
   const stats = useProjectStats();
   const currentView = useCurrentView();
@@ -105,56 +103,64 @@
   {/if}
 {/snippet}
 
-<Collapsible.Root bind:open={filtersExpanded} class={cn(filtersExpanded && 'bg-muted/50 rounded-b')}>
-  <div class="relative">
-    <ComposableInput bind:value={search} {placeholder} autofocus class="px-1">
-      {#snippet before()}
-        <Sidebar.Trigger icon="i-mdi-menu" iconProps={{ class: 'size-5' }} class="aspect-square p-0" size="xs" />
-      {/snippet}
-      {#snippet after()}
-        <Collapsible.Trigger>
-          {#snippet child({props})}
-            <Toggle {...mergeProps(props, { class: 'aspect-square' })} aria-label={$t`Toggle filters`} size="xs">
-              <Icon icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'} class="size-5" />
-            </Toggle>
-          {/snippet}
-        </Collapsible.Trigger>
-      {/snippet}
-    </ComposableInput>
-  </div>
-  <Collapsible.Content class="p-2 mb-2 space-y-2 max-h-[calc(65vh-3rem)] overflow-y-auto">
-    <div class="flex flex-col">
-      <Label class="p-2">{$t`Specific field`}</Label>
-      <div class="flex flex-col @md/list:flex-row gap-2 items-stretch">
-        <div class="flex flex-row gap-2 flex-1">
-          <!-- Field Picker -->
-          <FieldSelect bind:value={selectedField} />
-          <!-- Writing System Picker -->
-          <WsSelect bind:value={selectedWs} wsType={selectedField?.ws} />
+<div class="flex items-center gap-0.5">
+  <Sidebar.Trigger icon="i-mdi-menu" class="aspect-square p-0" />
+  <ComposableInput bind:value={search} {placeholder} autofocus class="px-1 items-center overflow-x-hidden h-12 md:h-10">
+    {#snippet after()}
+      <ResponsivePopup
+        bind:open={filtersExpanded}
+        title={$t`Filters`}
+        contentProps={{
+          side: 'right', align: 'start', sideOffset: 10, alignOffset: -4,
+          class: 'md:w-96'
+        }}
+      >
+        {#snippet trigger({ props })}
+          <Button {...props} variant="ghost"
+            size={IsMobile.value ? 'sm-icon' : 'xs-icon'}
+            icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'}
+            aria-label={$t`Toggle filters`} />
+        {/snippet}
+        <div class="space-y-4">
+          <div class="flex flex-col">
+            <Label class="p-2">{$t`Specific field`}</Label>
+            <div class="flex flex-col gap-2 items-stretch">
+              <div class="flex flex-row gap-2 flex-1">
+                <!-- Field Picker -->
+                <FieldSelect bind:value={selectedField} />
+                <!-- Writing System Picker -->
+                <WsSelect bind:value={selectedWs} wsType={selectedField?.ws} />
+              </div>
+              <div class="flex flex-row gap-2 flex-1">
+                <OpFilter bind:value={filterOp} />
+                <Input
+                  bind:value={fieldFilterValue}
+                  placeholder={$t`Filter for...`}
+                  class="flex-1"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <Label class="p-2">{$t`Semantic domain`}</Label>
+            <SemanticDomainSelect bind:value={semanticDomain} />
+            <Switch
+              class="mt-1.5"
+              disabled={!semanticDomain}
+              bind:checked={includeSubDomains}
+              label={$t`Include subdomains`}
+            />
+          </div>
+          <div class="flex flex-col">
+            <Label class="p-2">{pt($t`Grammatical info.`, $t`Part of speech`, $currentView)}</Label>
+            <PartOfSpeechSelect bind:value={partOfSpeech} />
+          </div>
+          <div class="flex flex-col">
+            <Label class="p-2">{$t`Incomplete entries`}</Label>
+            <MissingSelect bind:value={missingField} />
+          </div>
         </div>
-        <!-- Text Box: on mobile, wraps to new line -->
-        <div class="flex flex-row gap-2 flex-1">
-          <OpFilter bind:value={filterOp}/>
-          <Input
-            bind:value={fieldFilterValue}
-            placeholder={$t`Filter for...`}
-            class="flex-1"
-          />
-        </div>
-      </div>
-    </div>
-    <div class="flex flex-col">
-      <Label class="p-2">{$t`Semantic domain`}</Label>
-      <SemanticDomainSelect bind:value={semanticDomain} />
-      <Switch class="mt-1.5" disabled={!semanticDomain} bind:checked={includeSubDomains} label={$t`Include subdomains`} />
-    </div>
-    <div class="flex flex-col">
-      <Label class="p-2">{pt($t`Grammatical info.`, $t`Part of speech`, $currentView)}</Label>
-      <PartOfSpeechSelect bind:value={partOfSpeech} />
-    </div>
-    <div class="flex flex-col">
-      <Label class="p-2">{$t`Incomplete entries`}</Label>
-      <MissingSelect bind:value={missingField} />
-    </div>
-  </Collapsible.Content>
-</Collapsible.Root>
+      </ResponsivePopup>
+    {/snippet}
+  </ComposableInput>
+</div>

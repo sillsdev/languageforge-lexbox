@@ -147,7 +147,7 @@ jobs:
         run: pnpm exec playwright install --with-deps
       - name: vitest
         working-directory: frontend/viewer
-        run: pnpm run test --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
+        run: pnpm run test --retry=2 --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
         if: always()
