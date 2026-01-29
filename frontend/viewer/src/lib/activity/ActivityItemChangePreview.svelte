@@ -31,7 +31,7 @@
   const affectedEntry = $derived(context.affectedEntries.length === 1 ? context.affectedEntries[0] : undefined);
 
   let currentEntity = $derived.by(() => {
-    if (!affectedEntry) return undefined;
+    if (!affectedEntry || !context.snapshot) return undefined;
 
     if (context.entityType === 'Entry') {
       return affectedEntry;
@@ -119,25 +119,25 @@
   </div>
 {/if}
 
-{#if context.entityType === 'Entry'}
+{#if context.snapshot && context.entityType === 'Entry'}
   <Editor.Root>
     <Editor.Grid>
       <EntryEditorPrimitive modalMode readonly entry={(showCurrent ? currentEntity : context.snapshot) as IEntry}/>
     </Editor.Grid>
   </Editor.Root>
-{:else if context.entityType === 'Sense'}
+{:else if context.snapshot && context.entityType === 'Sense'}
   <Editor.Root>
     <Editor.Grid>
         <SenseEditorPrimitive readonly sense={(showCurrent ? currentEntity : context.snapshot) as ISense}/>
     </Editor.Grid>
   </Editor.Root>
-{:else if context.entityType === 'ExampleSentence'}
+{:else if context.snapshot && context.entityType === 'ExampleSentence'}
   <Editor.Root>
     <Editor.Grid>
         <ExampleEditorPrimitive readonly example={(showCurrent ? currentEntity : context.snapshot) as IExampleSentence}/>
     </Editor.Grid>
   </Editor.Root>
-{:else if context.entityType === 'ComplexFormComponent'}
+{:else if context.snapshot && context.entityType === 'ComplexFormComponent'}
   {@const cfc = context.snapshot as IComplexFormComponent}
   {@const complexForm = context.affectedEntries.find(e => e.id === cfc.complexFormEntryId)}
   {@const component = context.affectedEntries.find(e => e.id === cfc.componentEntryId)}
@@ -158,6 +158,10 @@
         {$t`Not found`}
       {/if}
     </div>
+  </div>
+{:else if context.snapshot === null}
+  <div class="text-muted-foreground p-4 text-center">
+    {$t`Preview not available for this type of change`}
   </div>
 {:else}
   <div class="whitespace-pre-wrap font-mono text-sm">
