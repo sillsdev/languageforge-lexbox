@@ -110,10 +110,9 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     [Trait("Category", "Integration")]
     public async Task DryRunImport_MakesTheSameChangesAsImport()
     {
-        var projectSnapshot = ProjectSnapshot.Empty;
-        var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
-        var syncResult = await _syncService.Import(_crdtApi, _fwDataApi);
-        dryRunSyncResult.Should().BeEquivalentTo(syncResult);
+        var dryRunImportResult = await _syncService.ImportDryRun(_crdtApi, _fwDataApi);
+        var importResult = await _syncService.Import(_crdtApi, _fwDataApi);
+        dryRunImportResult.Should().BeEquivalentTo(importResult);
     }
 
     [Fact]

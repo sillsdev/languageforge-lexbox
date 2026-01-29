@@ -1,4 +1,5 @@
 using FluentAssertions.Equivalency;
+using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
@@ -278,6 +279,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var projectSnapshot = await GetSnapshot(fwdataApi);
         await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+        await _snapshotService.RegenerateProjectSnapshot(crdtApi, fwdataApi.Project);
 
         AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
 
@@ -551,7 +553,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await _fixture.SyncService.Import(_fixture.CrdtApi, _fixture.FwDataApi);
 
         var complexFormEntry = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "complexForm" } } });
-        var componentEntry = await _fixture.CrdtApi.CreateEntry(new()
+        await _fixture.CrdtApi.CreateEntry(new()
         {
             LexemeForm = { { "en", "component" } },
             ComplexForms =

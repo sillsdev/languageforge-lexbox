@@ -3,6 +3,7 @@ using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using LinqToDB;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
 using MiniLcm.Models;
 

@@ -45,6 +45,11 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ProjectSn
         return result;
     }
 
+    public async Task<DryRunSyncResult> ImportDryRun(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi)
+    {
+        return (DryRunSyncResult)await Import(crdtApi, fwdataApi, true);
+    }
+
     public virtual async Task<SyncResult> Import(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false, bool keepSnapshotBackup = false)
     {
         using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();

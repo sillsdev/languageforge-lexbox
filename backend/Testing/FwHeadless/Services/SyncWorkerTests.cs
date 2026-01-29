@@ -186,7 +186,7 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
         snapshotService
             .Setup(s => s.GetProjectSnapshot(It.IsAny<FwDataProject>()))
             .Callback(() => _callSequence.Add(nameof(ProjectSnapshotService.GetProjectSnapshot)))
-            .ReturnsAsync((ProjectSnapshot?)null);
+            .ReturnsAsync(ProjectSnapshot.Empty);
         snapshotService
             .Setup(s => s.RegenerateProjectSnapshot(It.IsAny<IMiniLcmReadApi>(), It.IsAny<FwDataProject>(), false))
             .Callback(() => _callSequence.Add(nameof(ProjectSnapshotService.RegenerateProjectSnapshot)))
