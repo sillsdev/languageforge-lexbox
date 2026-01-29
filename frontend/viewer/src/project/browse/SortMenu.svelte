@@ -36,15 +36,11 @@
   type Props = {
     value?: SortConfig;
     autoSelector: Getter<SortField>;
-    autoDirection?: SortDirection;
   };
 
   let {
     value = $bindable(),
     autoSelector,
-    // TODO: Either use `autoDirection` or remove it as a prop
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    autoDirection,
   }: Props = $props();
 
   let selectedSortField = $state<SortField>();
