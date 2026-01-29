@@ -176,7 +176,7 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
             .ReturnsAsync(syncResult);
 
         syncService
-            .Setup(s => s.Import(It.IsAny<IMiniLcmApi>(), It.IsAny<FwDataMiniLcmApi>(), false, false))
+            .Setup(s => s.Import(It.IsAny<IMiniLcmApi>(), It.IsAny<FwDataMiniLcmApi>(), false))
             .Callback(() => _callSequence.Add(nameof(CrdtFwdataProjectSyncService.Import)))
             .ReturnsAsync(syncResult);
 
