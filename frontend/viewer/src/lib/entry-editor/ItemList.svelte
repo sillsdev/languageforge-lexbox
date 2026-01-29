@@ -1,7 +1,7 @@
 <script lang="ts" module>
   import type {Snippet} from 'svelte';
 
-  export interface ItemListProps<T> extends Omit<ItemListItemProps<T>, 'item' | 'index'> {
+  export interface ItemListProps<T> extends Omit<ItemListItemProps<T>, 'item'> {
     actions?: Snippet;
   }
 </script>
@@ -20,10 +20,9 @@
 </script>
 
 <div class="flex gap-2 flex-wrap items-center">
-  {#each items as item, index (item)}
+  {#each items as item (item)}
     <ItemListItem
       {item}
-      {index}
       bind:items
       {readonly}
       {...rest} />

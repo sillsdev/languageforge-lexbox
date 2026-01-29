@@ -3,14 +3,12 @@
 
   export type ItemListItemProps<T> = {
     item: T;
-    index: number;
     items: T[];
     readonly: boolean;
     orderable?: boolean;
     getDisplayName: (item: T) => string | undefined;
     onchange?: (value: T[]) => void;
     menuItems?: Snippet<[T]>;
-    actions?: Snippet;
   };
 </script>
 
@@ -23,18 +21,12 @@
 
   let {
     item,
-    // TODO: Either use `index` or remove it as a prop
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    index,
     items = $bindable(),
     readonly,
     orderable = false,
     getDisplayName,
     onchange,
     menuItems,
-    // TODO: Either use `actions` or remove it as a prop
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    actions,
   } : ItemListItemProps<T> = $props();
 
   const displayName = $derived(getDisplayName(item) || '–');
