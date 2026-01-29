@@ -11,7 +11,7 @@ export interface IChangeContext
 	commitId: string;
 	changeIndex: number;
 	changeName: string;
-	snapshot: IObjectWithId;
+	snapshot?: IObjectWithId;
 	affectedEntries: IEntry[];
 	entityType: string;
 }

@@ -31,7 +31,7 @@
   const affectedEntry = $derived(context.affectedEntries.length === 1 ? context.affectedEntries[0] : undefined);
 
   let currentEntity = $derived.by(() => {
-    if (!affectedEntry) return undefined;
+    if (!affectedEntry || !context.snapshot) return undefined;
 
     if (context.entityType === 'Entry') {
       return affectedEntry;
@@ -119,7 +119,11 @@
   </div>
 {/if}
 
-{#if context.entityType === 'Entry'}
+{#if !context.snapshot}
+  <div class="text-muted-foreground p-4 text-center">
+    {$t`Preview not available`}
+  </div>
+{:else if context.entityType === 'Entry'}
   <Editor.Root>
     <Editor.Grid>
       <EntryEditorPrimitive modalMode readonly entry={(showCurrent ? currentEntity : context.snapshot) as IEntry}/>
