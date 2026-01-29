@@ -3,17 +3,21 @@
   import {useTasksService} from './tasks-service';
   import {t} from 'svelte-i18n-lingui';
   import {QueryParamState} from '$lib/utils/url.svelte';
+  import {getProjectStorage, setProjectStorage} from '$lib/utils/project-storage.svelte';
+  import {useProjectContext} from '../project-context.svelte';
   import TaskView from './TaskView.svelte';
   import {watch} from 'runed';
   import {onMount} from 'svelte';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
-const selectedTaskStorageKey = 'selectedTaskId';
+
+  const selectedTaskStorageKey = 'selectedTaskId';
+  const projectContext = useProjectContext();
   const tasksService = useTasksService();
   const tasks = $derived(tasksService.listTasks());
-  const selectedTaskId = new QueryParamState({key: 'taskId', allowBack: true, replaceOnDefaultValue: true}, localStorage.getItem(selectedTaskStorageKey) ?? '');
+  const selectedTaskId = new QueryParamState({key: 'taskId', allowBack: true, replaceOnDefaultValue: true}, getProjectStorage(projectContext.projectCode, selectedTaskStorageKey) ?? '');
   watch(() => selectedTaskId.current, (selectedTaskId) => {
     if (selectedTaskId) {
-      localStorage.setItem(selectedTaskStorageKey, selectedTaskId);
+      setProjectStorage(projectContext.projectCode, selectedTaskStorageKey, selectedTaskId);
     }
   });
   const selectedTask = $derived(tasks.find(task => task.id === selectedTaskId.current));
