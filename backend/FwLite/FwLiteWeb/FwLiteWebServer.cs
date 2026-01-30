@@ -69,6 +69,7 @@ public static class FwLiteWebServer
             options.AddFilter(new LockedProjectFilter());
             options.EnableDetailedErrors = true;
         }).AddJsonProtocol();
+        builder.Services.AddHealthChecks();
 
         configure?.Invoke(builder);
         var app = builder.Build();
@@ -123,6 +124,7 @@ public static class FwLiteWebServer
         app.MapImport();
         app.MapAuthRoutes();
         app.MapMiniLcmRoutes("/api/mini-lcm");
+        app.MapHealthChecks("/health");
 
         app.MapStaticAssets();
         app.MapRazorComponents<App>()

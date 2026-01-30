@@ -189,7 +189,7 @@
       <p>{$t`loading...`}</p>
     {:then projects}
       <div class="space-y-4 md:space-y-8">
-        <div>
+        <div id="local-projects">
           <div class="flex flex-row items-end">
             <p class="sub-title">{$t`Local`}</p>
             <div class="flex-grow"></div>

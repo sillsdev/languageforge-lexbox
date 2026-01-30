@@ -1,5 +1,5 @@
-import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
-import * as testEnv from '../tests/envVars';
+import {defineConfig, devices, type ReporterDescription} from '@playwright/test';
+import * as testEnv from '../../../tests/envVars';
 const vitePort = '5173';
 const dotnetPort = '5137';
 const autoStartServer = process.env.AUTO_START_SERVER ? Boolean(process.env.AUTO_START_SERVER) : false;
@@ -18,7 +18,7 @@ const ciReporters: ReporterDescription[] = [['github'], ['junit', {outputFile: '
   }
 ]];
 export default defineConfig({
-  testDir: './tests',
+  testDir: '.',
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
@@ -41,6 +41,7 @@ export default defineConfig({
 
   use: {
     baseURL: 'http://localhost:' + serverPort,
+    ignoreHTTPSErrors: true,
     /* Local storage to be populated for every test */
     storageState: {
       cookies: [],

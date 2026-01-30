@@ -22,6 +22,9 @@ on:
       - develop
       - main
       - shadcn-ui-main #just for now ensure PRs to this branch have checks run
+
+permissions:
+  contents: read
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
 jobs:
@@ -112,7 +115,8 @@ jobs:
         run: pnpm exec playwright install --with-deps
       - name: Run snapshot tests
         working-directory: frontend/viewer
-        run: task playwright-test-standalone
+        run: task test:snapshot-standalone
+
       - name: Build viewer
         working-directory: frontend/viewer
         run: pnpm run build
@@ -125,6 +129,9 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
 
   frontend-component-unit-tests:
+    permissions:
+      contents: read
+      checks: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -366,6 +373,8 @@ jobs:
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
   create-release:
+    permissions:
+      contents: write
     if: ${{ github.ref_name == 'main' }}
     environment:
       name: production
@@ -420,3 +429,79 @@ jobs:
           sleep 10
           curl -X POST https://lexbox.org/api/fwlite-release/new-release
 
+
+  e2e-test:
+    name: E2E Tests
+    needs: [publish-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/download-artifact@v4
+        id: download-artifact
+        with:
+          name: fw-lite-web-linux
+          path: fw-lite-web-linux
+
+      - name: Debug downloaded artifact contents
+        shell: bash
+        run: |
+          set -e
+          echo "download-path=${{ steps.download-artifact.outputs.download-path }}"
+          ls -la "${{ steps.download-artifact.outputs.download-path }}"
+          ls -Rla "${{ steps.download-artifact.outputs.download-path }}"
+
+      - name: set execute permissions
+        shell: bash
+        run: |
+          set -e
+          find "${{ steps.download-artifact.outputs.download-path }}" -type f -name FwLiteWeb -exec chmod +x {} +
+      - name: Install Task
+        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          package_json_file: 'frontend/package.json'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: Prepare frontend
+        working-directory: frontend
+        run: |
+          pnpm install
+      - name: Test fw lite launcher
+        working-directory: frontend/viewer
+        env:
+          FW_LITE_BINARY_PATH: ${{ steps.download-artifact.outputs.download-path }}/release_linux-x64/FwLiteWeb
+        run: task e2e-test-helper-unit-tests
+
+      - uses: ./.github/actions/setup-k8s
+        with:
+          lexbox-api-tag: develop
+          ingress-controller-port: '6579' # todo, figure out if we can use https as it's required for the tests
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Playwright dependencies
+        working-directory: frontend/viewer
+        run: pnpm exec playwright install --with-deps
+
+      - name: Run E2E tests
+        working-directory: frontend/viewer
+        env:
+          FW_LITE_BINARY_PATH: ${{ steps.download-artifact.outputs.download-path }}/release_linux-x64/FwLiteWeb
+          TEST_SERVER_PORT: 6579
+        run: task test:e2e
+
+      - name: Upload Playwright test results and traces (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-e2e-test-results
+          if-no-files-found: ignore
+          path: |
+            frontend/viewer/tests/e2e/test-results/
