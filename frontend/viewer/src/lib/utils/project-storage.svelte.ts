@@ -28,6 +28,15 @@ class StorageProp {
     this.#value = this.load();
   }
 
+  get current(): string {
+    return this.#value;
+  }
+
+  set current(value: string) {
+    this.#value = value;
+    this.persist(value);
+  }
+
   private getStorageKey(): string {
     return `project:${this.#projectCode}:${this.#key}`;
   }
@@ -43,15 +52,6 @@ class StorageProp {
     } else {
       localStorage.removeItem(storageKey);
     }
-  }
-
-  get current(): string {
-    return this.#value;
-  }
-
-  set current(value: string) {
-    this.#value = value;
-    this.persist(value);
   }
 }
 
