@@ -1,18 +1,18 @@
 import {expect, test} from '@playwright/test';
-import {EntriesListPage} from './entries-list-page';
+import {EntriesListComponent} from './entries-list-component';
 import {EntryApiHelper} from './entry-api-helper';
 
 const ESTIMATED_ITEM_HEIGHT = 60;
 const BATCH_SIZE = 50;
 
 test.describe('EntriesList', () => {
-  let entriesList: EntriesListPage;
+  let entriesList: EntriesListComponent;
   let api: EntryApiHelper;
 
   test.describe('Lazy loading', () => {
     test.beforeEach(async ({page}) => {
       api = new EntryApiHelper(page);
-      entriesList = new EntriesListPage(page, api);
+      entriesList = new EntriesListComponent(page, api);
       await entriesList.goto();
     });
 
@@ -85,7 +85,7 @@ test.describe('EntriesList', () => {
   test.describe('Jump to entry', () => {
     test.beforeEach(async ({page}) => {
       api = new EntryApiHelper(page);
-      entriesList = new EntriesListPage(page, api);
+      entriesList = new EntriesListComponent(page, api);
       await entriesList.goto();
     });
 
@@ -137,7 +137,7 @@ test.describe('EntriesList', () => {
   test.describe('Entry event handling', () => {
     test.beforeEach(async ({page}) => {
       api = new EntryApiHelper(page);
-      entriesList = new EntriesListPage(page, api);
+      entriesList = new EntriesListComponent(page, api);
       await entriesList.goto(true);
     });
 
@@ -145,7 +145,7 @@ test.describe('EntriesList', () => {
       const initialTexts = await entriesList.getVisibleEntryTexts();
       expect(initialTexts.length).toBeGreaterThan(2);
 
-      const {id: firstEntryId} = await api.getEntryAtIndex(0);
+      const firstEntryId = await api.getEntryIdAtIndex(0);
       await api.deleteEntry(firstEntryId);
 
       await expect(async () => {
@@ -175,7 +175,7 @@ test.describe('EntriesList', () => {
       await entriesList.entryRows.first().click();
       await expect(entriesList.selectedEntry).toBeVisible();
 
-      const {id: entryId} = await api.getEntryAtIndex(0);
+      const entryId = await api.getEntryIdAtIndex(0);
       await api.deleteEntry(entryId);
 
       await entriesList.page.waitForTimeout(300);
@@ -191,7 +191,7 @@ test.describe('EntriesList', () => {
       expect(visibleTexts.length).toBeGreaterThan(0);
 
       // Delete entry from top (not in cache)
-      const {id: topEntryId} = await api.getEntryAtIndex(0);
+      const topEntryId = await api.getEntryIdAtIndex(0);
       await api.deleteEntry(topEntryId);
 
       await entriesList.page.waitForTimeout(500);

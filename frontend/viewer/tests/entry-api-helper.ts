@@ -17,14 +17,15 @@ export class EntryApiHelper {
     });
   }
 
-  async getEntryAtIndex(index: number): Promise<{id: string; headword: string}> {
+  async getEntryAtIndex(index: number): Promise<{entryId: string; headword: string; senseCount: number}> {
     return this.page.evaluate(async ({idx, order}) => {
       const api = window.__PLAYWRIGHT_UTILS__.demoApi;
       const entries = await api.getEntries({offset: idx, count: 1, order});
       const entry = entries[0];
       return {
-        id: entry.id,
+        entryId: entry.id,
         headword: entry.citationForm?.seh ?? entry.lexemeForm?.seh ?? '',
+        senseCount: entry.senses.length,
       };
     }, {idx: index, order: DEFAULT_ORDER});
   }
@@ -32,6 +33,11 @@ export class EntryApiHelper {
   async getHeadwordAtIndex(index: number): Promise<string> {
     const {headword} = await this.getEntryAtIndex(index);
     return headword;
+  }
+
+  async getEntryIdAtIndex(index: number): Promise<string> {
+    const {entryId} = await this.getEntryAtIndex(index);
+    return entryId;
   }
 
   async getLastEntry(): Promise<{headword: string; index: number}> {
@@ -138,5 +144,59 @@ export class EntryApiHelper {
       await api.updateEntry(entry, updated);
       return {id: entry.id, updatedHeadword: newHeadword};
     }, {idx: index, pfx: prefix, order: DEFAULT_ORDER});
+  }
+
+  async getEntryWithEnglishGloss(): Promise<{entryId: string; headword: string; originalGloss: string}> {
+    return this.page.evaluate(async ({order}) => {
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const entries = await api.getEntries({offset: 0, count: 50, order});
+      const entry = entries.find(e => e.senses.length > 0 && e.senses[0].gloss?.en);
+      if (!entry) throw new Error('No suitable entry with English gloss found in demo data');
+      return {
+        entryId: entry.id,
+        headword: entry.citationForm?.seh ?? entry.lexemeForm?.seh ?? '',
+        originalGloss: entry.senses[0].gloss?.en ?? '',
+      };
+    }, {order: DEFAULT_ORDER});
+  }
+
+  async getEntry(entryId: string): Promise<unknown> {
+    return this.page.evaluate(async (id) => {
+      return window.__PLAYWRIGHT_UTILS__.demoApi.getEntry(id);
+    }, entryId);
+  }
+
+  async getEntryGloss(entryId: string, writingSystem: string): Promise<string> {
+    return this.page.evaluate(async ({id, ws}) => {
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const entry = await api.getEntry(id);
+      return entry?.senses[0]?.gloss?.[ws] ?? '';
+    }, {id: entryId, ws: writingSystem});
+  }
+
+  async getEntryLexeme(entryId: string): Promise<string> {
+    return this.page.evaluate(async (id) => {
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const entry = await api.getEntry(id);
+      return entry?.lexemeForm?.seh ?? '';
+    }, entryId);
+  }
+
+  async getEntrySenseCount(entryId: string): Promise<number> {
+    return this.page.evaluate(async (id) => {
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const entry = await api.getEntry(id);
+      return entry?.senses.length ?? 0;
+    }, entryId);
+  }
+
+  async entryHasGlossValue(entryId: string, glossValue: string): Promise<boolean> {
+    return this.page.evaluate(async ({id, value}) => {
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const entry = await api.getEntry(id);
+      return entry?.senses.some(s =>
+        Object.values(s.gloss || {}).some(v => v === value)
+      ) ?? false;
+    }, {id: entryId, value: glossValue});
   }
 }
