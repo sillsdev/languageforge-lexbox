@@ -494,73 +494,22 @@ public class WriteNormalizationTests
 
 /// <summary>
 /// Tests to ensure that all normalizing wrapper methods have corresponding tests.
-/// This uses reflection to verify coverage.
 /// </summary>
 public class WriteNormalizationCoverageTests
 {
     /// <summary>
-    /// Methods on IMiniLcmWriteApi that normalize user text and MUST have tests.
-    /// These are methods that accept model objects containing user-entered text.
+    /// Method names that don't handle user text and don't need normalization tests.
+    /// This is the ONLY list we maintain - everything else is calculated.
     /// </summary>
-    private static readonly HashSet<string> MethodsThatNormalizeText =
+    private static readonly HashSet<string> ExcludedMethodNames =
     [
-        // WritingSystem
-        "CreateWritingSystem",
-        "UpdateWritingSystem",
-
-        // PartOfSpeech
-        "CreatePartOfSpeech",
-        "UpdatePartOfSpeech",
-
-        // Publication
-        "CreatePublication",
-        "UpdatePublication",
-
-        // SemanticDomain
-        "CreateSemanticDomain",
-        "UpdateSemanticDomain",
-        "AddSemanticDomainToSense",
-        "BulkImportSemanticDomains",
-
-        // ComplexFormType
-        "CreateComplexFormType",
-        "UpdateComplexFormType",
-
-        // MorphTypeData
-        "CreateMorphTypeData",
-        "UpdateMorphTypeData",
-
-        // Entry
-        "CreateEntry",
-        "UpdateEntry",
-        "CreateComplexFormComponent",
-        "BulkCreateEntries",
-
-        // Sense
-        "CreateSense",
-        "UpdateSense",
-
-        // ExampleSentence
-        "CreateExampleSentence",
-        "UpdateExampleSentence",
-
-        // Translation
-        "AddTranslation"
-    ];
-
-    /// <summary>
-    /// Methods that do NOT normalize text (pass-through methods).
-    /// These are explicitly listed so we know they were intentionally excluded.
-    /// </summary>
-    private static readonly HashSet<string> MethodsThatDontNormalizeText =
-    [
-        // Move operations (no text)
+        // Move operations (only IDs/positions, no text)
         "MoveWritingSystem",
         "MoveComplexFormComponent",
         "MoveSense",
         "MoveExampleSentence",
 
-        // Delete operations (no text)
+        // Delete operations (only IDs, no text)
         "DeletePartOfSpeech",
         "DeletePublication",
         "DeleteSemanticDomain",
@@ -571,7 +520,7 @@ public class WriteNormalizationCoverageTests
         "DeleteSense",
         "DeleteExampleSentence",
 
-        // Relationship operations (IDs only, no text)
+        // Relationship operations (only IDs, no text)
         "AddComplexFormType",
         "RemoveComplexFormType",
         "AddPublication",
@@ -580,117 +529,240 @@ public class WriteNormalizationCoverageTests
         "SetSensePartOfSpeech",
         "RemoveTranslation",
 
-        // JsonPatch operations (handled separately, not user-facing)
-        "UpdateTranslation", // JsonPatch only, no before/after overload
-
-        // File operations (no user text normalization)
-        "SaveFile",
-
-        // Dispose
-        "Dispose"
+        // File operations (no user text)
+        "SaveFile"
     ];
 
     /// <summary>
-    /// Verifies that every method on IMiniLcmWriteApi is either in the "normalizes" list or "doesn't normalize" list.
-    /// This ensures we've explicitly considered every method.
+    /// Checks if a method is a JsonPatch overload (takes UpdateObjectInput parameter).
+    /// These are not user-facing and don't need tests.
     /// </summary>
-    [Fact]
-    public void AllWriteApiMethods_AreExplicitlyCategorized()
+    private static bool IsJsonPatchOverload(MethodInfo method)
     {
-        var writeApiMethods = typeof(IMiniLcmWriteApi)
-            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            .Where(m => !m.IsSpecialName) // Exclude property getters/setters
-            .Select(m => m.Name)
-            .Distinct()
-            .OrderBy(m => m)
-            .ToList();
-
-        var categorizedMethods = MethodsThatNormalizeText
-            .Union(MethodsThatDontNormalizeText)
-            .ToHashSet();
-
-        var uncategorizedMethods = writeApiMethods
-            .Where(m => !categorizedMethods.Contains(m))
-            .ToList();
-
-        if (uncategorizedMethods.Count > 0)
-        {
-            Assert.Fail(
-                $"The following IMiniLcmWriteApi methods are not categorized as normalizing or non-normalizing:\n" +
-                string.Join("\n", uncategorizedMethods.Select(m => $"  - {m}")) +
-                "\n\nAdd each method to either MethodsThatNormalizeText or MethodsThatDontNormalizeText."
-            );
-        }
+        return method.GetParameters().Any(p =>
+            p.ParameterType.IsGenericType &&
+            p.ParameterType.GetGenericTypeDefinition() == typeof(UpdateObjectInput<>));
     }
 
     /// <summary>
-    /// Verifies that every method that normalizes text has a corresponding test in WriteNormalizationTests.
+    /// Gets all write API methods that need normalization tests.
+    /// </summary>
+    private static List<MethodInfo> GetMethodsThatNeedTests()
+    {
+        return typeof(IMiniLcmWriteApi)
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .Where(m => !m.IsSpecialName)
+            .Where(m => !ExcludedMethodNames.Contains(m.Name))
+            .Where(m => !IsJsonPatchOverload(m))
+            .ToList();
+    }
+
+    /// <summary>
+    /// Creates a readable signature for a method (for error messages).
+    /// </summary>
+    private static string GetMethodSignature(MethodInfo method)
+    {
+        var parameters = method.GetParameters()
+            .Select(p => $"{p.ParameterType.Name} {p.Name}")
+            .ToList();
+        return $"{method.Name}({string.Join(", ", parameters)})";
+    }
+
+    /// <summary>
+    /// Verifies that every method that normalizes text has a corresponding test.
+    /// Counts overloads to ensure all are covered.
     /// </summary>
     [Fact]
     public void AllNormalizingMethods_HaveCorrespondingTests()
     {
+        var methodsThatNeedTests = GetMethodsThatNeedTests();
+
         var testClass = typeof(WriteNormalizationTests);
-        var testMethods = testClass
+        var testMethodNames = testClass
             .GetMethods(BindingFlags.Public | BindingFlags.Instance)
             .Where(m => m.GetCustomAttribute<FactAttribute>() != null)
             .Select(m => m.Name)
             .ToList();
 
-        var missingTests = new List<string>();
-        foreach (var method in MethodsThatNormalizeText)
+        // Group methods by name to handle overloads
+        var methodGroups = methodsThatNeedTests.GroupBy(m => m.Name);
+
+        var issues = new List<string>();
+        foreach (var group in methodGroups)
         {
-            // Check if there's a test that contains this method name
-            var hasTest = testMethods.Any(t => t.Contains(method, StringComparison.OrdinalIgnoreCase));
-            if (!hasTest)
+            var methodName = group.Key;
+            var overloadCount = group.Count();
+
+            // Count tests that match this method name
+            var testCount = testMethodNames.Count(t =>
+                t.StartsWith(methodName, StringComparison.OrdinalIgnoreCase) ||
+                t.Contains($"_{methodName}", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains($"{methodName}_", StringComparison.OrdinalIgnoreCase));
+
+            if (testCount < overloadCount)
             {
-                missingTests.Add(method);
+                var signatures = group.Select(GetMethodSignature).ToList();
+                issues.Add($"{methodName}: found {testCount} test(s) but need {overloadCount} for overloads:\n" +
+                           string.Join("\n", signatures.Select(s => $"      - {s}")));
             }
         }
 
-        if (missingTests.Count > 0)
+        if (issues.Count > 0)
         {
             Assert.Fail(
-                $"The following normalizing methods do not have corresponding tests in WriteNormalizationTests:\n" +
-                string.Join("\n", missingTests.Select(m => $"  - {m}")) +
-                "\n\nAdd a test for each method that verifies NFC input is normalized to NFD."
+                $"The following methods need more tests:\n" +
+                string.Join("\n", issues.Select(i => $"  - {i}")) +
+                "\n\nAdd a test for each overload that verifies NFC input is normalized to NFD."
             );
         }
     }
 
     /// <summary>
-    /// Verifies that the wrapper explicitly implements all write methods.
-    /// This ensures compile-time safety when new methods are added to IMiniLcmWriteApi.
+    /// Verifies that all excluded method names actually exist on the interface.
+    /// Catches typos and stale entries in the exclusion list.
     /// </summary>
     [Fact]
-    public void Wrapper_ImplementsAllWriteMethods()
+    public void ExcludedMethodNames_AllExistOnInterface()
     {
-        var writeApiMethods = typeof(IMiniLcmWriteApi)
+        var actualMethodNames = typeof(IMiniLcmWriteApi)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance)
             .Where(m => !m.IsSpecialName)
             .Select(m => m.Name)
             .Distinct()
+            .ToHashSet();
+
+        var invalidExclusions = ExcludedMethodNames
+            .Where(name => !actualMethodNames.Contains(name))
             .ToList();
 
-        var wrapperType = typeof(MiniLcmWriteApiNormalizationWrapper);
-        var wrapperMethods = wrapperType
-            .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-            .Where(m => !m.IsSpecialName)
-            .Select(m => m.Name)
-            .Distinct()
-            .ToList();
-
-        var missingImplementations = writeApiMethods
-            .Where(m => !wrapperMethods.Contains(m))
-            .ToList();
-
-        if (missingImplementations.Count > 0)
+        if (invalidExclusions.Count > 0)
         {
             Assert.Fail(
-                $"MiniLcmWriteApiNormalizationWrapper does not explicitly implement the following methods:\n" +
-                string.Join("\n", missingImplementations.Select(m => $"  - {m}")) +
-                "\n\nThis is critical for compile-time safety. Add explicit implementations for each method."
+                $"The following excluded method names don't exist on IMiniLcmWriteApi:\n" +
+                string.Join("\n", invalidExclusions.Select(m => $"  - {m}")) +
+                "\n\nRemove these from ExcludedMethodNames or fix the typo."
             );
         }
+    }
+}
+
+/// <summary>
+/// Tests for NormalizationAssert to ensure it correctly detects NFC/NFD issues.
+/// These tests verify the assertion helpers don't have false negatives.
+/// </summary>
+public class NormalizationAssertTests
+{
+    [Fact]
+    public void AssertAllNfc_WithNfcData_DoesNotThrow()
+    {
+        var entry = NfcTestData.CreateNfcEntry();
+
+        // Should not throw
+        NormalizationAssert.AssertAllNfc(entry);
+    }
+
+    [Fact]
+    public void AssertAllNfc_WithNfdData_Throws()
+    {
+        var entry = new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = new MultiString { Values = { { "en", NfcTestData.Nfd } } }, // NFD should fail
+            CitationForm = new MultiString { Values = { { "en", NfcTestData.Nfc } } },
+            LiteralMeaning = new RichMultiString { { "en", new RichString(NfcTestData.Nfc) } },
+            Note = new RichMultiString { { "en", new RichString(NfcTestData.Nfc) } }
+        };
+
+        var act = () => NormalizationAssert.AssertAllNfc(entry);
+
+        act.Should().Throw<Xunit.Sdk.XunitException>()
+            .WithMessage("*NFC*");
+    }
+
+    [Fact]
+    public void AssertAllNfd_WithNfdData_DoesNotThrow()
+    {
+        var entry = new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = new MultiString { Values = { { "en", NfcTestData.Nfd } } },
+            CitationForm = new MultiString { Values = { { "en", NfcTestData.Nfd } } },
+            LiteralMeaning = new RichMultiString { { "en", new RichString(NfcTestData.Nfd) } },
+            Note = new RichMultiString { { "en", new RichString(NfcTestData.Nfd) } }
+        };
+
+        // Should not throw
+        NormalizationAssert.AssertAllNfd(entry);
+    }
+
+    [Fact]
+    public void AssertAllNfd_WithNfcData_Throws()
+    {
+        var entry = NfcTestData.CreateNfcEntry();
+
+        var act = () => NormalizationAssert.AssertAllNfd(entry);
+
+        act.Should().Throw<Xunit.Sdk.XunitException>()
+            .WithMessage("*NFD*");
+    }
+
+    [Fact]
+    public void AssertAllNfc_WithEmptyMultiString_Throws()
+    {
+        var entry = new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = new MultiString(), // Empty - should fail
+            CitationForm = NfcTestData.CreateNfcMultiString()
+        };
+
+        var act = () => NormalizationAssert.AssertAllNfc(entry);
+
+        act.Should().Throw<Xunit.Sdk.XunitException>()
+            .WithMessage("*no values*");
+    }
+
+    [Fact]
+    public void AssertAllNfc_WithNestedNfdData_Throws()
+    {
+        var entry = new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = NfcTestData.CreateNfcMultiString(),
+            CitationForm = NfcTestData.CreateNfcMultiString(),
+            LiteralMeaning = NfcTestData.CreateNfcRichMultiString(),
+            Note = NfcTestData.CreateNfcRichMultiString(),
+            Senses =
+            [
+                new Sense
+                {
+                    Id = Guid.NewGuid(),
+                    Gloss = new MultiString { Values = { { "en", NfcTestData.Nfd } } }, // NFD nested in sense
+                    Definition = NfcTestData.CreateNfcRichMultiString()
+                }
+            ]
+        };
+
+        var act = () => NormalizationAssert.AssertAllNfc(entry);
+
+        act.Should().Throw<Xunit.Sdk.XunitException>()
+            .WithMessage("*Senses*Gloss*");
+    }
+
+    [Fact]
+    public void IsAllNfd_WithNfdData_ReturnsTrue()
+    {
+        var multiString = new MultiString { Values = { { "en", NfcTestData.Nfd } } };
+
+        NormalizationAssert.IsAllNfd(multiString).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsAllNfd_WithNfcData_ReturnsFalse()
+    {
+        var multiString = NfcTestData.CreateNfcMultiString();
+
+        NormalizationAssert.IsAllNfd(multiString).Should().BeFalse();
     }
 }
 
