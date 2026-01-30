@@ -1336,6 +1336,11 @@ msgstr ""
 msgid "Preview"
 msgstr "미리 보기"
 
+#. Shown in the change preview area where no preview is available for the selected change
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Preview not available"
+msgstr ""
+
 #. Label in project card
 #: src/home/HomeView.svelte
 msgid "Project"
