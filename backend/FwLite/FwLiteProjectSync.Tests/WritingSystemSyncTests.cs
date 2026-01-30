@@ -36,6 +36,7 @@ public class WritingSystemSyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             Font = "Arial"
         });
         await _syncService.Import(_fixture.CrdtApi, _fixture.FwDataApi);
+        await _snapshotService.RegenerateProjectSnapshot(_fixture.CrdtApi, _fixture.FwDataApi.Project);
     }
 
     public async Task DisposeAsync()

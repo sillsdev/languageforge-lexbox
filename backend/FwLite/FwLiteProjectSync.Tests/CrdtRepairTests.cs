@@ -47,6 +47,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
     public async Task InitializeAsync()
     {
         await SyncService.Import(CrdtApi, FwDataApi);
+        await SnapshotService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project);
     }
 
     public async Task DisposeAsync()
