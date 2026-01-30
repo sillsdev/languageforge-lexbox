@@ -37,7 +37,7 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
                         WsTableName ??= localContext.Model.FindRuntimeEntityType(typeof(WritingSystem))?.GetTableName() ?? "WritingSystem";
                         if (!HasTable(localContext, WsTableName))
                         {
-                            return Array.Empty<WritingSystem>();
+                            return [];
                         }
 
                         return localContext.WritingSystems.ToArray();
@@ -52,7 +52,7 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
                 }
                 catch (SqliteException)
                 {
-                    return Array.Empty<WritingSystem>();
+                    return [];
                 }
             }) ?? [];
     }
@@ -76,7 +76,7 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
 
     private void SetupCommonCollations(SqliteConnection sqliteConnection, WritingSystem[]? writingSystems = null)
     {
-        // Setup general use collation (used by all queries)
+        // Setup general use collation
         sqliteConnection.CreateCollation(SqlSortingExtensions.CollateUnicodeNoCase,
             CultureInfo.CurrentCulture.CompareInfo,
             (compareInfo, x, y) =>

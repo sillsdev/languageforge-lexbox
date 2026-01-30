@@ -77,7 +77,6 @@
   let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
   const sticky = $derived.by(() => dictionaryPreview === 'sticky');
 
-
   let readonly = $state(false);
   let deleted = $state(false);
 
