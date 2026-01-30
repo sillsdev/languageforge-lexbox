@@ -3,10 +3,10 @@ import {waitForProjectViewReady} from './test-utils';
 import type {EntryApiHelper} from './entry-api-helper';
 
 /**
- * Page object for EntriesList tests.
+ * Component object for EntriesList.
  * Provides locators and common actions for virtual scrolling entry list.
  */
-export class EntriesListPage {
+export class EntriesListComponent {
   readonly vlist: Locator;
   readonly entryRows: Locator;
   readonly skeletons: Locator;
