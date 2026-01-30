@@ -47,7 +47,6 @@ const complexFormTypes = entries
   .filter((value, index, all) => all.findIndex(v2 => v2.id === value.id) === index);
 
 function filterEntries(entries: IEntry[], query: string): IEntry[] {
-  const q = query.toLowerCase();
   return entries.filter(entry =>
     [
       ...Object.values(entry.lexemeForm ?? {}),
@@ -55,7 +54,7 @@ function filterEntries(entries: IEntry[], query: string): IEntry[] {
       ...entry.senses.flatMap(sense => [
         ...Object.values(sense.gloss ?? {}),
       ]),
-    ].some(value => value?.toLowerCase().startsWith(q)));
+    ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
 }
 
 export const mockFwLiteConfig: IFwLiteConfig = {
@@ -93,19 +92,9 @@ const mockJsEventListener: IJsEventListener = {
 export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   #writingSystemService: WritingSystemService;
   #projectEventBus: ProjectEventBus;
-  constructor(private projectContext: ProjectContext, private eventBus: EventBus) {
+  constructor(projectContext: ProjectContext, eventBus: EventBus) {
     this.#writingSystemService = new WritingSystemService(projectContext);
     this.#projectEventBus = new ProjectEventBus(projectContext, eventBus);
-  }
-  countEntries(query?: string, options?: IFilterQueryOptions): Promise<number> {
-    const entries = this.getFilteredEntries(query, options);
-    return Promise.resolve(entries.length);
-  }
-
-  async getEntryIndex(entryId: string, query?: string, options?: IIndexQueryOptions): Promise<number> {
-    await delay(100);
-    const entries = this.getFilteredSortedEntries(query, options);
-    return entries.findIndex(e => e.id === entryId);
   }
 
   public static setup(): InMemoryDemoApi {
@@ -201,6 +190,17 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return this.queryEntries(undefined, options);
   }
 
+  countEntries(query?: string, options?: IFilterQueryOptions): Promise<number> {
+    const entries = this.getFilteredEntries(query, options);
+    return Promise.resolve(entries.length);
+  }
+
+  async getEntryIndex(entryId: string, query?: string, options?: IIndexQueryOptions): Promise<number> {
+    await delay(100);
+    const entries = this.getFilteredSortedEntries(query, options);
+    return entries.findIndex(e => e.id === entryId);
+  }
+
   getWritingSystems(): Promise<IWritingSystems> {
     return Promise.resolve(writingSystems as unknown as IWritingSystems);
   }
@@ -210,7 +210,13 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return this.queryEntries(query, options);
   }
 
-  private queryEntries(query: string | undefined, options: IQueryOptions | undefined): IEntry[] {
+  private queryEntries(query?: string, options?: IQueryOptions): IEntry[] {
+    const entries = this.getFilteredSortedEntries(query, options);
+    if (!options) return entries;
+    return entries.slice(options.offset, options.offset + options.count);
+  }
+
+  private getFilteredSortedEntries(query?: string, options?: Omit<IQueryOptions, 'count' | 'offset'>): IEntry[] {
     const entries = this.getFilteredEntries(query, options);
 
     if (!options) return entries;
@@ -225,25 +231,9 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         let compare = v1.localeCompare(v2, sortWs);
         if (compare == 0) compare = e1.id.localeCompare(e2.id);
         return options.order.ascending ? compare : -compare;
-      })
-      .slice(options.offset, options.offset + options.count);
+      });
   }
 
-  // Returns filtered and sorted entries for index lookup
-  private getFilteredSortedEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
-    const entries = this.getFilteredEntries(query, options);
-    const defaultWs = writingSystems.vernacular[0].wsId;
-    // For getEntryIndex, we just need filtering, but we'll also sort for consistency
-    // Note: IFilterQueryOptions doesn't have order, so we use default sort
-    return entries.sort((e1, e2) => {
-      const v1 = this.#writingSystemService.headword(e1, defaultWs);
-      const v2 = this.#writingSystemService.headword(e2, defaultWs);
-      if (!v2) return -1;
-      if (!v1) return 1;
-      const compare = v1.localeCompare(v2, defaultWs);
-      return compare === 0 ? e1.id.localeCompare(e2.id) : compare;
-    });
-  }
   private getFilteredEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
     let entries = this._Entries();
     if (query) entries = filterEntries(entries, query);

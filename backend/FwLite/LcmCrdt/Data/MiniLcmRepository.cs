@@ -284,9 +284,8 @@ public class MiniLcmRepository(
         IQueryable<Entry> queryable;
         (queryable, queryOptions) = await FilterAndSortEntries(query, queryOptions);
 
-        // SQLite's ROW_NUMBER() seems to require ORDER BY in the OVER clause - it cannot inherit from the query.
-        // (AI tried a billion things)
-        // This is efficient for virtual scrolling since we only select IDs, not full entities.
+        // SQLite's ROW_NUMBER() cannot easily inherit the existing ORDER BY from the query. (AI tried a billion things)
+        // This is pretty efficient since we only select IDs, not full entities.
         var sortedIds = await queryable.Select(e => e.Id).ToListAsyncEF();
         return sortedIds.IndexOf(entryId);
     }
