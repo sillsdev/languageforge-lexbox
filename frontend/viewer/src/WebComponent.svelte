@@ -11,7 +11,6 @@
   import {DotnetService, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
   import ProjectLoader from './ProjectLoader.svelte';
   import {initProjectContext} from '$project/project-context.svelte';
-  import {initProjectStorage} from '$lib/utils/project-storage.svelte';
   import {mockFwLiteConfig} from '$project/demo/in-memory-demo-api';
   import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
 
@@ -21,7 +20,6 @@
   export let projectName: string;
   export let api: IMiniLcmJsInvokable;
   initProjectContext({api, projectName, projectCode: projectName});
-  initProjectStorage(projectName);
 
   onMount(() => {
     const shadowRoot = document.querySelector('lexbox-svelte')?.shadowRoot;

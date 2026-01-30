@@ -2,26 +2,18 @@
   import * as Select from '$lib/components/ui/select';
   import {useTasksService} from './tasks-service';
   import {t} from 'svelte-i18n-lingui';
-  import {QueryParamState} from '$lib/utils/url.svelte';
   import {useProjectStorage} from '$lib/utils/project-storage.svelte';
   import TaskView from './TaskView.svelte';
-  import {watch} from 'runed';
   import {onMount} from 'svelte';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
 
   const projectStorage = useProjectStorage();
   const tasksService = useTasksService();
   const tasks = $derived(tasksService.listTasks());
-  const selectedTaskId = new QueryParamState({key: 'taskId', allowBack: true, replaceOnDefaultValue: true}, projectStorage.selectedTaskId);
+  const selectedTask = $derived(tasks.find(task => task.id === projectStorage.selectedTaskId.current));
 
-  // Sync URL query param to project storage
-  watch(() => selectedTaskId.current, (taskId) => {
-    projectStorage.selectedTaskId = taskId;
-  });
-
-  const selectedTask = $derived(tasks.find(task => task.id === selectedTaskId.current));
   onMount(() => {
-    if (!selectedTaskId.current) {
+    if (!projectStorage.selectedTaskId.current) {
       open = true;
     }
   });
@@ -32,7 +24,7 @@
   <div class="flex flex-row items-center">
     <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 mr-2" />
 
-    <Select.Root bind:open type="single" bind:value={selectedTaskId.current}>
+    <Select.Root bind:open type="single" bind:value={projectStorage.selectedTaskId.current}>
       <Select.Trigger>{$t`Task ${selectedTask?.subject ?? ''}`}</Select.Trigger>
       <Select.Content>
         {#each tasks as task (task.id)}
@@ -41,8 +33,8 @@
       </Select.Content>
     </Select.Root>
   </div>
-  {#if selectedTaskId.current}
-    <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.current = ''}/>
+  {#if projectStorage.selectedTaskId.current}
+    <TaskView taskId={projectStorage.selectedTaskId.current} onClose={() => projectStorage.selectedTaskId.current = ''}/>
   {:else}
     <h1 class="text-xl p-4 mx-auto">{$t`Select a new task to work on`}</h1>
   {/if}

@@ -1,5 +1,6 @@
 import { getContext, setContext } from 'svelte';
 import { watch } from 'runed';
+import { useProjectContext } from '$project/project-context.svelte';
 
 /**
  * Project-specific storage service
@@ -13,38 +14,61 @@ import { watch } from 'runed';
 
 const projectStorageContextKey = 'project-storage';
 
+/**
+ * Reactive storage property that automatically syncs to localStorage
+ */
+export class StorageProp {
+  #key: string;
+  #storage: ProjectStorage;
+  #value = $state<string>('');
+
+  constructor(storage: ProjectStorage, key: string) {
+    this.#key = key;
+    this.#storage = storage;
+
+    // Load initial value
+    this.#value = this.#storage.get(this.#key) ?? '';
+
+    // Watch for changes and sync to storage
+    watch(() => this.#value, (value) => {
+      if (value) {
+        this.#storage.set(this.#key, value);
+      } else {
+        this.#storage.remove(this.#key);
+      }
+    });
+  }
+
+  get current(): string {
+    return this.#value;
+  }
+
+  set current(value: string) {
+    this.#value = value;
+  }
+}
+
 export class ProjectStorage {
   #projectCode: string;
 
-  selectedTaskId = $state<string>('');
+  readonly selectedTaskId: StorageProp;
 
   constructor(projectCode: string) {
     this.#projectCode = projectCode;
-
-    // Load initial values from storage
-    this.selectedTaskId = this.get('selectedTaskId') ?? '';
-
-    // Watch for changes and sync to storage
-    watch(() => this.selectedTaskId, (value) => {
-      if (value) {
-        this.set('selectedTaskId', value);
-      } else {
-        this.remove('selectedTaskId');
-      }
-    });
+    this.selectedTaskId = new StorageProp(this, 'selectedTaskId');
   }
 
   /**
    * Get a project-specific storage key
    */
-  private getStorageKey(key: string): string {
+  getStorageKey(key: string): string {
     return `project:${this.#projectCode}:${key}`;
   }
 
   /**
    * Get a value from project-specific storage
    */
-  private get(key: string): string | null {
+  get(key: string): string | null {
     const storageKey = this.getStorageKey(key);
     return localStorage.getItem(storageKey);
   }
@@ -52,7 +76,7 @@ export class ProjectStorage {
   /**
    * Set a value in project-specific storage
    */
-  private set(key: string, value: string): void {
+  set(key: string, value: string): void {
     const storageKey = this.getStorageKey(key);
     localStorage.setItem(storageKey, value);
   }
@@ -60,37 +84,18 @@ export class ProjectStorage {
   /**
    * Remove a value from project-specific storage
    */
-  private remove(key: string): void {
+  remove(key: string): void {
     const storageKey = this.getStorageKey(key);
     localStorage.removeItem(storageKey);
   }
-
-  /**
-   * Clear all storage for this project
-   */
-  public clear(): void {
-    const prefix = `project:${this.#projectCode}:`;
-    const keysToRemove: string[] = [];
-
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith(prefix)) {
-        keysToRemove.push(key);
-      }
-    }
-
-    keysToRemove.forEach(key => localStorage.removeItem(key));
-  }
-}
-
-export function initProjectStorage(projectCode: string): ProjectStorage {
-  const storage = new ProjectStorage(projectCode);
-  setContext(projectStorageContextKey, storage);
-  return storage;
 }
 
 export function useProjectStorage(): ProjectStorage {
-  const storage = getContext<ProjectStorage>(projectStorageContextKey);
-  if (!storage) throw new Error('ProjectStorage is not initialized. Are you in the context of a project?');
+  let storage = getContext<ProjectStorage>(projectStorageContextKey);
+  if (!storage) {
+    const projectContext = useProjectContext();
+    storage = new ProjectStorage(projectContext.projectCode);
+    setContext(projectStorageContextKey, storage);
+  }
   return storage;
 }
