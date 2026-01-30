@@ -916,12 +916,16 @@ public class FwDataMiniLcmApi(
         Func<ILexEntry, bool>? predicate, QueryOptions? options = null, string? query = null)
     {
         options ??= QueryOptions.Default;
-        var entries = GetLexEntries(predicate, options);
-
-        entries = ApplySorting(options.Order, entries, query);
+        var entries = GetFilteredAndSortedEntries(predicate, options, options.Order, query);
         entries = options.ApplyPaging(entries);
 
         return entries.ToAsyncEnumerable().Select(FromLexEntry);
+    }
+
+    private IEnumerable<ILexEntry> GetFilteredAndSortedEntries(Func<ILexEntry, bool>? predicate, FilterQueryOptions? filterOptions, SortOptions order, string? query)
+    {
+        var entries = GetLexEntries(predicate, filterOptions);
+        return ApplySorting(order, entries, query);
     }
 
     private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query)
@@ -958,8 +962,7 @@ public class FwDataMiniLcmApi(
     public Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
     {
         var predicate = EntrySearchPredicate(query);
-        var entries = GetLexEntries(predicate, options);
-        entries = ApplySorting(options?.Order ?? SortOptions.Default, entries, query);
+        var entries = GetFilteredAndSortedEntries(predicate, options, options?.Order ?? SortOptions.Default, query);
 
         var rowIndex = 0;
         foreach (var entry in entries)

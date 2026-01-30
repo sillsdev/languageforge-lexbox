@@ -9,7 +9,7 @@ import type {SortConfig} from '$project/browse/sort/options';
 import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
 import {watch} from 'runed';
 
-export interface EntryLoaderDeps {
+interface EntryLoaderDeps {
   search: () => string;
   sort: () => SortConfig | undefined;
   gridifyFilter: () => string | undefined;
@@ -70,14 +70,13 @@ export class EntryLoaderService {
         this.#debounceTimer = setTimeout(() => {
           void this.reset();
         }, DEFAULT_DEBOUNCE_TIME);
-
-        return () => this.destroy();
       }
     );
   }
 
   destroy(): void {
     clearTimeout(this.#debounceTimer);
+    this.#generation++;
   }
 
   /**
@@ -108,7 +107,7 @@ export class EntryLoaderService {
     const generation = this.#generation;
     await this.#loadBatchForIndex(index);
 
-    // Discard stale batches
+    // If the index is now stale, return undefined. The UI is watching the generation as well.
     if (this.#generation !== generation) return undefined;
 
     return this.#entryCache.get(index);
@@ -160,74 +159,28 @@ export class EntryLoaderService {
 
     const generation = this.#generation;
     const index = await this.#api.getEntryIndex(id, search || undefined, queryOptions);
+    // Most importantly: don't cache stale results
     if (this.#generation !== generation) return -1;
     this.#idToIndex.set(id, index);
     return index;
   }
 
-  /**
-   * Remove an entry by ID (for delete events).
-   * Uses a quiet reset to refresh count + the currently relevant batch(es).
-   */
-  removeEntryById(_id: string): void {
-    // We intentionally do not try to do any local shifting / heuristics.
-    // The goal is to keep event handling easy to reason about.
-    void this.quietReset();
-  }
-
-  /**
-   * Update an entry in cache (for update events).
-   * Note: This method is called for both entry updates AND entry creates (via EntryChanged event).
-   * We handle both the same way: quiet reset.
-   */
-  async updateEntry(entry: IEntry): Promise<void> {
-    const generation = this.#generation;
-    if (await this.tryOptimizeUpdateEntryEvent(entry)) return;
-    if (generation !== this.#generation) return; // outdated event => abort
+  async onEntryDeleted(_id: string) {
+    // We could optimize some delete events, but:
+    // 1) They probably don't happen often enough to matter.
+    // 2) Handling shifting of indices is complex and error-prone.
+    // So, we might as well just do a quiet reset to keep things simple and robust.
     await this.quietReset();
   }
 
-  /**
-   * The more trivial and performant checks we can do to verify if the event is relevant
-   * to our current state.
-   */
-  private async tryOptimizeUpdateEntryEvent(entry: IEntry): Promise<boolean> {
-    const cachedIndex = this.#idToIndex.get(entry.id);
-    if (cachedIndex !== undefined && cachedIndex >= 0) {
-      // -1 would mean that we cached it as "not relevant for our current filter".
-      // However, the update event MIGHT have changed that, so we don't "return true" in that case.
-      // Instead we jump to the else below to refetch and double-check the index.
-
-      // we've seen it locally, so it wasn't an add event
-      const batchIndex = Math.floor(cachedIndex / this.batchSize);
-      if (!this.#loadedBatches.has(batchIndex)) {
-        // it's not new and we haven't loaded it yet => ignore
-        return true;
-      }
-    } else {
-      const entryIndex = await this.getOrLoadEntryIndex(entry.id);
-      this.#idToIndex.set(entry.id, entryIndex);
-      if (entryIndex < 0) {
-        // not relevant for our current filter => ignore
-        return true;
-      }
-      const batchIndex = Math.floor(entryIndex / this.batchSize);
-      const maxLoadedBatch = Math.max(...this.#loadedBatches);
-      if (batchIndex > maxLoadedBatch) {
-        // it's beyond what we've loaded, so even if it's an add event it doesn't shift anything.
-        // However, the count might need to be incremented and checking that is more effort than it's worth here
-        // return true;
-      }
-      // It's non-trivial determining if this is an add event or not.
-      // We could e.g. query the current entry count and compare, but that's more effort than it's worth.
-    }
-
-    // Note: we could also:
-    // - swap individual entries in place
-    // - increment the count
-    // - shift batches
-    // but we're trying not to overcomplicate this.
-    return false;
+  async onEntryUpdated(_entry: IEntry) {
+    // We could (and I did) try to optimize some update events, however:
+    // 1) We can't debounce them. We need to handle every unique event or we get out of sync.
+    // 2) We can't rely on the local index cache to determine if the entry matches the current filter,
+    //    because the update that triggered this event may have changed whether it matches the filter or not.
+    //    So, we need to query the index from the backend anyway.
+    // So, we might as well just do a quiet reset to keep things simple and robust.
+    await this.quietReset();
   }
 
   /**
@@ -239,6 +192,8 @@ export class EntryLoaderService {
     this.#idToIndex.clear();
     this.#pendingBatches.clear();
     this.#loadedBatches.clear();
+    // we intentionally only communicate the reset to listeners once both:
+    // (1) the new count is in place and (2) there's no stale data left
     this.#generation++;
   }
 
@@ -257,8 +212,9 @@ export class EntryLoaderService {
       while (this.#quietResetRequest.requested) {
         this.#quietResetRequest.requested = false;
 
-        // Debounce: wait for it to settle
-        await delay(DEFAULT_DEBOUNCE_TIME);
+        // Relative long debounce to ensure it handles events during crdt syncs,
+        // because there can be a lot.
+        await delay(600);
 
         // If we've moved to a new generation: abort
         if (this.#generation !== this.#quietResetRequest.generation) {

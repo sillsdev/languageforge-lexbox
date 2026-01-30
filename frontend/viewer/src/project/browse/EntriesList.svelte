@@ -48,7 +48,6 @@
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
 
-  // Create deps object reactively so watch can track changes
   // The closures maybe need to be created OUTSIDE untrack so they maintain reactivity
   const deps = {
     search: () => search,
@@ -56,7 +55,7 @@
     gridifyFilter: () => gridifyFilter,
   };
 
-  let entryLoader = $derived(!miniLcmApi ? undefined : new EntryLoaderService(miniLcmApi, deps));
+  let entryLoader = $derived(!miniLcmApi ? undefined : untrack(() => new EntryLoaderService(miniLcmApi, deps)));
 
   // Destroy the previous entryLoader when a new one is created
   watch(
@@ -74,12 +73,12 @@
 
   // Handle entry deleted events
   projectEventBus.onEntryDeleted(entryId => {
-    entryLoader?.removeEntryById(entryId);
+    void entryLoader?.onEntryDeleted(entryId);
   });
 
   // Handle entry updated events
   projectEventBus.onEntryUpdated(entry => {
-    void entryLoader?.updateEntry(entry).then(() => {
+    void entryLoader?.onEntryUpdated(entry).then(() => {
       // follow the selected entry if it "jumps"/reorders
       if (entry.id === selectedEntryId) {
         return tryToScrollToEntry(entry.id);
@@ -166,9 +165,7 @@
     }
 
     const nextEntry = await entryLoader.getOrLoadEntryByIndex(nextIndex);
-    if (nextEntry) {
-      onSelectEntry(nextEntry);
-    }
+    onSelectEntry(nextEntry);
     return nextEntry;
   }
 
