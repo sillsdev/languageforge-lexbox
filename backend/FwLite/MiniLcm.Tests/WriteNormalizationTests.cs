@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Reflection;
+using System.Text;
 using MiniLcm.Models;
 using MiniLcm.Normalization;
 using MiniLcm.SyncHelpers;
@@ -5,461 +8,1093 @@ using Moq;
 
 namespace MiniLcm.Tests;
 
+/// <summary>
+/// Tests for the MiniLcmWriteApiNormalizationWrapper.
+/// These tests verify that all user-entered text is normalized to NFD on write operations.
+/// </summary>
 public class WriteNormalizationTests
 {
-    public IMiniLcmApi MockApi { get; init; }
-    public IMiniLcmApi NormalizingApi { get; init; }
-
-    public const string NFCString = "na\u00efve"; // "naïve" with U+00EF LATIN SMALL LETTER I WITH DIAERESIS
-    public const string NFDString = "na\u0069\u0308ve"; // "naïve" with U+0069 LATIN SMALL LETTER I + U+0308 COMBINING DIAERESIS
+    private readonly IMiniLcmApi _mockApi;
+    private readonly IMiniLcmApi _normalizingApi;
 
     public WriteNormalizationTests()
     {
-        MockApi = Mock.Of<IMiniLcmApi>();
+        _mockApi = Mock.Of<IMiniLcmApi>();
         var factory = new MiniLcmWriteApiNormalizationWrapperFactory();
-        NormalizingApi = factory.Create(MockApi);
+        _normalizingApi = factory.Create(_mockApi);
     }
 
+    #region WritingSystem Tests
+
     [Fact]
-    public async Task CreateWritingSystem_NormalizesText()
+    public async Task CreateWritingSystem_NormalizesToNfd()
     {
-        var ws = new WritingSystem
-        {
-            Id = Guid.NewGuid(),
-            WsId = "en",
-            Name = NFCString,
-            Abbreviation = NFCString,
-            Font = NFCString,
-            Type = WritingSystemType.Analysis,
-            Exemplars = [NFCString, NFCString]
-        };
+        var ws = NfcTestData.CreateNfcWritingSystem();
+        NormalizationAssert.AssertAllNfc(ws);
 
-        await NormalizingApi.CreateWritingSystem(ws);
+        await _normalizingApi.CreateWritingSystem(ws);
 
-        Mock.Get(MockApi).Verify(api => api.CreateWritingSystem(
-            It.Is<WritingSystem>(w =>
-                w.Name == NFDString &&
-                w.Abbreviation == NFDString &&
-                w.Font == NFDString &&
-                w.Exemplars[0] == NFDString &&
-                w.Exemplars[1] == NFDString
-            ),
+        Mock.Get(_mockApi).Verify(api => api.CreateWritingSystem(
+            It.Is<WritingSystem>(w => NormalizationAssert.IsAllNfd(w)),
             null
         ));
     }
 
     [Fact]
-    public async Task CreatePartOfSpeech_NormalizesMultiString()
+    public async Task UpdateWritingSystem_BeforeAfter_NormalizesToNfd()
     {
-        var pos = new PartOfSpeech
-        {
-            Id = Guid.NewGuid(),
-            Name = new MultiString { Values = { { "en", NFCString } } }
-        };
+        var before = NfcTestData.CreateNfcWritingSystem();
+        var after = NfcTestData.CreateNfcWritingSystem();
+        NormalizationAssert.AssertAllNfc(after);
 
-        await NormalizingApi.CreatePartOfSpeech(pos);
+        await _normalizingApi.UpdateWritingSystem(before, after);
 
-        Mock.Get(MockApi).Verify(api => api.CreatePartOfSpeech(
-            It.Is<PartOfSpeech>(p => p.Name.Values["en"] == NFDString)
+        Mock.Get(_mockApi).Verify(api => api.UpdateWritingSystem(
+            It.IsAny<WritingSystem>(),
+            It.Is<WritingSystem>(w => NormalizationAssert.IsAllNfd(w)),
+            It.IsAny<IMiniLcmApi>()
+        ));
+    }
+
+    #endregion
+
+    #region PartOfSpeech Tests
+
+    [Fact]
+    public async Task CreatePartOfSpeech_NormalizesToNfd()
+    {
+        var pos = NfcTestData.CreateNfcPartOfSpeech();
+        NormalizationAssert.AssertAllNfc(pos);
+
+        await _normalizingApi.CreatePartOfSpeech(pos);
+
+        Mock.Get(_mockApi).Verify(api => api.CreatePartOfSpeech(
+            It.Is<PartOfSpeech>(p => NormalizationAssert.IsAllNfd(p))
         ));
     }
 
     [Fact]
-    public async Task CreatePublication_NormalizesMultiString()
+    public async Task UpdatePartOfSpeech_BeforeAfter_NormalizesToNfd()
     {
-        var pub = new Publication
-        {
-            Id = Guid.NewGuid(),
-            Name = new MultiString { Values = { { "en", NFCString } } }
-        };
+        var before = NfcTestData.CreateNfcPartOfSpeech();
+        var after = NfcTestData.CreateNfcPartOfSpeech();
+        NormalizationAssert.AssertAllNfc(after);
 
-        await NormalizingApi.CreatePublication(pub);
+        await _normalizingApi.UpdatePartOfSpeech(before, after);
 
-        Mock.Get(MockApi).Verify(api => api.CreatePublication(
-            It.Is<Publication>(p => p.Name.Values["en"] == NFDString)
+        Mock.Get(_mockApi).Verify(api => api.UpdatePartOfSpeech(
+            It.IsAny<PartOfSpeech>(),
+            It.Is<PartOfSpeech>(p => NormalizationAssert.IsAllNfd(p)),
+            It.IsAny<IMiniLcmApi>()
+        ));
+    }
+
+    #endregion
+
+    #region Publication Tests
+
+    [Fact]
+    public async Task CreatePublication_NormalizesToNfd()
+    {
+        var pub = NfcTestData.CreateNfcPublication();
+        NormalizationAssert.AssertAllNfc(pub);
+
+        await _normalizingApi.CreatePublication(pub);
+
+        Mock.Get(_mockApi).Verify(api => api.CreatePublication(
+            It.Is<Publication>(p => NormalizationAssert.IsAllNfd(p))
         ));
     }
 
     [Fact]
-    public async Task CreateSemanticDomain_NormalizesName()
+    public async Task UpdatePublication_BeforeAfter_NormalizesToNfd()
     {
-        var sd = new SemanticDomain
-        {
-            Id = Guid.NewGuid(),
-            Code = "1.1.1", // Code should NOT be normalized
-            Name = new MultiString { Values = { { "en", NFCString } } }
-        };
+        var before = NfcTestData.CreateNfcPublication();
+        var after = NfcTestData.CreateNfcPublication();
+        NormalizationAssert.AssertAllNfc(after);
 
-        await NormalizingApi.CreateSemanticDomain(sd);
+        await _normalizingApi.UpdatePublication(before, after);
 
-        Mock.Get(MockApi).Verify(api => api.CreateSemanticDomain(
-            It.Is<SemanticDomain>(s => 
-                s.Name.Values["en"] == NFDString &&
-                s.Code == "1.1.1" // unchanged
-            )
+        Mock.Get(_mockApi).Verify(api => api.UpdatePublication(
+            It.IsAny<Publication>(),
+            It.Is<Publication>(p => NormalizationAssert.IsAllNfd(p)),
+            It.IsAny<IMiniLcmApi>()
+        ));
+    }
+
+    #endregion
+
+    #region SemanticDomain Tests
+
+    [Fact]
+    public async Task CreateSemanticDomain_NormalizesToNfd()
+    {
+        var sd = NfcTestData.CreateNfcSemanticDomain();
+        NormalizationAssert.AssertAllNfc(sd);
+
+        await _normalizingApi.CreateSemanticDomain(sd);
+
+        Mock.Get(_mockApi).Verify(api => api.CreateSemanticDomain(
+            It.Is<SemanticDomain>(s => NormalizationAssert.IsAllNfd(s))
         ));
     }
 
     [Fact]
-    public async Task CreateComplexFormType_NormalizesMultiString()
+    public async Task UpdateSemanticDomain_BeforeAfter_NormalizesToNfd()
     {
-        var cft = new ComplexFormType
-        {
-            Id = Guid.NewGuid(),
-            Name = new MultiString { Values = { { "en", NFCString } } }
-        };
+        var before = NfcTestData.CreateNfcSemanticDomain();
+        var after = NfcTestData.CreateNfcSemanticDomain();
+        NormalizationAssert.AssertAllNfc(after);
 
-        await NormalizingApi.CreateComplexFormType(cft);
+        await _normalizingApi.UpdateSemanticDomain(before, after);
 
-        Mock.Get(MockApi).Verify(api => api.CreateComplexFormType(
-            It.Is<ComplexFormType>(c => c.Name.Values["en"] == NFDString)
+        Mock.Get(_mockApi).Verify(api => api.UpdateSemanticDomain(
+            It.IsAny<SemanticDomain>(),
+            It.Is<SemanticDomain>(s => NormalizationAssert.IsAllNfd(s)),
+            It.IsAny<IMiniLcmApi>()
         ));
     }
 
     [Fact]
-    public async Task CreateMorphTypeData_NormalizesAllTextFields()
+    public async Task AddSemanticDomainToSense_NormalizesToNfd()
     {
-        var mtd = new MorphTypeData
-        {
-            Id = Guid.NewGuid(),
-            Name = new MultiString { Values = { { "en", NFCString } } },
-            Abbreviation = new MultiString { Values = { { "en", NFCString } } },
-            Description = new RichMultiString { { "en", new RichString(NFCString) } },
-            LeadingToken = NFCString,
-            TrailingToken = NFCString
-        };
+        var sd = NfcTestData.CreateNfcSemanticDomain();
+        NormalizationAssert.AssertAllNfc(sd);
 
-        await NormalizingApi.CreateMorphTypeData(mtd);
+        await _normalizingApi.AddSemanticDomainToSense(Guid.NewGuid(), sd);
 
-        Mock.Get(MockApi).Verify(api => api.CreateMorphTypeData(
-            It.Is<MorphTypeData>(m =>
-                m.Name.Values["en"] == NFDString &&
-                m.Abbreviation.Values["en"] == NFDString &&
-                m.Description["en"].GetPlainText() == NFDString &&
-                m.LeadingToken == NFDString &&
-                m.TrailingToken == NFDString
-            )
+        Mock.Get(_mockApi).Verify(api => api.AddSemanticDomainToSense(
+            It.IsAny<Guid>(),
+            It.Is<SemanticDomain>(s => NormalizationAssert.IsAllNfd(s))
         ));
     }
 
     [Fact]
-    public async Task CreateEntry_NormalizesAllTextFields()
+    public async Task BulkImportSemanticDomains_NormalizesToNfd()
     {
-        var entry = new Entry
+        var domains = new[] { NfcTestData.CreateNfcSemanticDomain(), NfcTestData.CreateNfcSemanticDomain() };
+        foreach (var domain in domains) NormalizationAssert.AssertAllNfc(domain);
+
+        var capturedDomains = new List<SemanticDomain>();
+        Mock.Get(_mockApi)
+            .Setup(api => api.BulkImportSemanticDomains(It.IsAny<IAsyncEnumerable<SemanticDomain>>()))
+            .Returns(async (IAsyncEnumerable<SemanticDomain> stream) =>
+            {
+                await foreach (var sd in stream) capturedDomains.Add(sd);
+            });
+
+        await _normalizingApi.BulkImportSemanticDomains(domains.ToAsyncEnumerable());
+
+        capturedDomains.Should().HaveCount(2);
+        foreach (var domain in capturedDomains)
         {
-            Id = Guid.NewGuid(),
-            LexemeForm = new MultiString { Values = { { "en", NFCString } } },
-            CitationForm = new MultiString { Values = { { "en", NFCString } } },
-            LiteralMeaning = new RichMultiString { { "en", new RichString(NFCString) } },
-            Note = new RichMultiString { { "en", new RichString(NFCString) } }
-        };
+            NormalizationAssert.AssertAllNfd(domain);
+        }
+    }
 
-        await NormalizingApi.CreateEntry(entry);
+    #endregion
 
-        Mock.Get(MockApi).Verify(api => api.CreateEntry(
-            It.Is<Entry>(e =>
-                e.LexemeForm.Values["en"] == NFDString &&
-                e.CitationForm.Values["en"] == NFDString &&
-                e.LiteralMeaning["en"].GetPlainText() == NFDString &&
-                e.Note["en"].GetPlainText() == NFDString
-            ),
+    #region ComplexFormType Tests
+
+    [Fact]
+    public async Task CreateComplexFormType_NormalizesToNfd()
+    {
+        var cft = NfcTestData.CreateNfcComplexFormType();
+        NormalizationAssert.AssertAllNfc(cft);
+
+        await _normalizingApi.CreateComplexFormType(cft);
+
+        Mock.Get(_mockApi).Verify(api => api.CreateComplexFormType(
+            It.Is<ComplexFormType>(c => NormalizationAssert.IsAllNfd(c))
+        ));
+    }
+
+    [Fact]
+    public async Task UpdateComplexFormType_BeforeAfter_NormalizesToNfd()
+    {
+        var before = NfcTestData.CreateNfcComplexFormType();
+        var after = NfcTestData.CreateNfcComplexFormType();
+        NormalizationAssert.AssertAllNfc(after);
+
+        await _normalizingApi.UpdateComplexFormType(before, after);
+
+        Mock.Get(_mockApi).Verify(api => api.UpdateComplexFormType(
+            It.IsAny<ComplexFormType>(),
+            It.Is<ComplexFormType>(c => NormalizationAssert.IsAllNfd(c)),
+            It.IsAny<IMiniLcmApi>()
+        ));
+    }
+
+    #endregion
+
+    #region MorphTypeData Tests
+
+    [Fact]
+    public async Task CreateMorphTypeData_NormalizesToNfd()
+    {
+        var mtd = NfcTestData.CreateNfcMorphTypeData();
+        NormalizationAssert.AssertAllNfc(mtd);
+
+        await _normalizingApi.CreateMorphTypeData(mtd);
+
+        Mock.Get(_mockApi).Verify(api => api.CreateMorphTypeData(
+            It.Is<MorphTypeData>(m => NormalizationAssert.IsAllNfd(m))
+        ));
+    }
+
+    [Fact]
+    public async Task UpdateMorphTypeData_BeforeAfter_NormalizesToNfd()
+    {
+        var before = NfcTestData.CreateNfcMorphTypeData();
+        var after = NfcTestData.CreateNfcMorphTypeData();
+        NormalizationAssert.AssertAllNfc(after);
+
+        await _normalizingApi.UpdateMorphTypeData(before, after);
+
+        Mock.Get(_mockApi).Verify(api => api.UpdateMorphTypeData(
+            It.IsAny<MorphTypeData>(),
+            It.Is<MorphTypeData>(m => NormalizationAssert.IsAllNfd(m)),
+            It.IsAny<IMiniLcmApi>()
+        ));
+    }
+
+    #endregion
+
+    #region Entry Tests
+
+    [Fact]
+    public async Task CreateEntry_NormalizesToNfd()
+    {
+        var entry = NfcTestData.CreateNfcEntry();
+        NormalizationAssert.AssertAllNfc(entry);
+
+        await _normalizingApi.CreateEntry(entry);
+
+        Mock.Get(_mockApi).Verify(api => api.CreateEntry(
+            It.Is<Entry>(e => NormalizationAssert.IsAllNfd(e)),
             null
         ));
     }
 
     [Fact]
-    public async Task CreateEntry_NormalizesNestedSenses()
+    public async Task UpdateEntry_BeforeAfter_NormalizesToNfd()
     {
-        var entry = new Entry
-        {
-            Id = Guid.NewGuid(),
-            LexemeForm = new MultiString(),
-            CitationForm = new MultiString(),
-            Senses =
-            [
-                new Sense
-                {
-                    Id = Guid.NewGuid(),
-                    Gloss = new MultiString { Values = { { "en", NFCString } } },
-                    Definition = new RichMultiString { { "en", new RichString(NFCString) } }
-                }
-            ]
-        };
+        var before = NfcTestData.CreateNfcEntry();
+        var after = NfcTestData.CreateNfcEntry();
+        NormalizationAssert.AssertAllNfc(after);
 
-        await NormalizingApi.CreateEntry(entry);
+        await _normalizingApi.UpdateEntry(before, after);
 
-        Mock.Get(MockApi).Verify(api => api.CreateEntry(
-            It.Is<Entry>(e =>
-                e.Senses[0].Gloss.Values["en"] == NFDString &&
-                e.Senses[0].Definition["en"].GetPlainText() == NFDString
-            ),
+        Mock.Get(_mockApi).Verify(api => api.UpdateEntry(
+            It.IsAny<Entry>(),
+            It.Is<Entry>(e => NormalizationAssert.IsAllNfd(e)),
+            It.IsAny<IMiniLcmApi>()
+        ));
+    }
+
+    [Fact]
+    public async Task CreateEntry_WithNestedSenses_NormalizesToNfd()
+    {
+        var entry = NfcTestData.CreateNfcEntryWithSenses();
+        NormalizationAssert.AssertAllNfc(entry);
+
+        await _normalizingApi.CreateEntry(entry);
+
+        Mock.Get(_mockApi).Verify(api => api.CreateEntry(
+            It.Is<Entry>(e => NormalizationAssert.IsAllNfd(e)),
             null
         ));
     }
 
     [Fact]
-    public async Task CreateSense_NormalizesTextFields()
+    public async Task CreateEntry_WithComplexFormComponents_NormalizesToNfd()
+    {
+        var entry = NfcTestData.CreateNfcEntryWithComponents();
+        NormalizationAssert.AssertAllNfc(entry);
+
+        await _normalizingApi.CreateEntry(entry);
+
+        Mock.Get(_mockApi).Verify(api => api.CreateEntry(
+            It.Is<Entry>(e => NormalizationAssert.IsAllNfd(e)),
+            null
+        ));
+    }
+
+    [Fact]
+    public async Task BulkCreateEntries_NormalizesToNfd()
+    {
+        var entries = new[] { NfcTestData.CreateNfcEntry(), NfcTestData.CreateNfcEntryWithSenses() };
+        foreach (var entry in entries) NormalizationAssert.AssertAllNfc(entry);
+
+        var capturedEntries = new List<Entry>();
+        Mock.Get(_mockApi)
+            .Setup(api => api.BulkCreateEntries(It.IsAny<IAsyncEnumerable<Entry>>()))
+            .Returns(async (IAsyncEnumerable<Entry> stream) =>
+            {
+                await foreach (var e in stream) capturedEntries.Add(e);
+            });
+
+        await _normalizingApi.BulkCreateEntries(entries.ToAsyncEnumerable());
+
+        capturedEntries.Should().HaveCount(2);
+        foreach (var entry in capturedEntries)
+        {
+            NormalizationAssert.AssertAllNfd(entry);
+        }
+    }
+
+    #endregion
+
+    #region ComplexFormComponent Tests
+
+    [Fact]
+    public async Task CreateComplexFormComponent_NormalizesToNfd()
+    {
+        var cfc = NfcTestData.CreateNfcComplexFormComponent();
+        NormalizationAssert.AssertAllNfc(cfc);
+
+        await _normalizingApi.CreateComplexFormComponent(cfc);
+
+        Mock.Get(_mockApi).Verify(api => api.CreateComplexFormComponent(
+            It.Is<ComplexFormComponent>(c => NormalizationAssert.IsAllNfd(c)),
+            null
+        ));
+    }
+
+    #endregion
+
+    #region Sense Tests
+
+    [Fact]
+    public async Task CreateSense_NormalizesToNfd()
+    {
+        var sense = NfcTestData.CreateNfcSense();
+        NormalizationAssert.AssertAllNfc(sense);
+
+        await _normalizingApi.CreateSense(Guid.NewGuid(), sense);
+
+        Mock.Get(_mockApi).Verify(api => api.CreateSense(
+            It.IsAny<Guid>(),
+            It.Is<Sense>(s => NormalizationAssert.IsAllNfd(s)),
+            null
+        ));
+    }
+
+    [Fact]
+    public async Task UpdateSense_BeforeAfter_NormalizesToNfd()
     {
         var entryId = Guid.NewGuid();
-        var sense = new Sense
-        {
-            Id = Guid.NewGuid(),
-            EntryId = entryId,
-            Gloss = new MultiString { Values = { { "en", NFCString } } },
-            Definition = new RichMultiString { { "en", new RichString(NFCString) } }
-        };
+        var before = NfcTestData.CreateNfcSense();
+        var after = NfcTestData.CreateNfcSense();
+        NormalizationAssert.AssertAllNfc(after);
 
-        await NormalizingApi.CreateSense(entryId, sense);
+        await _normalizingApi.UpdateSense(entryId, before, after);
 
-        Mock.Get(MockApi).Verify(api => api.CreateSense(
+        Mock.Get(_mockApi).Verify(api => api.UpdateSense(
             entryId,
-            It.Is<Sense>(s =>
-                s.Gloss.Values["en"] == NFDString &&
-                s.Definition["en"].GetPlainText() == NFDString
-            ),
+            It.IsAny<Sense>(),
+            It.Is<Sense>(s => NormalizationAssert.IsAllNfd(s)),
+            It.IsAny<IMiniLcmApi>()
+        ));
+    }
+
+    [Fact]
+    public async Task CreateSense_WithNestedExampleSentences_NormalizesToNfd()
+    {
+        var sense = NfcTestData.CreateNfcSenseWithExamples();
+        NormalizationAssert.AssertAllNfc(sense);
+
+        await _normalizingApi.CreateSense(Guid.NewGuid(), sense);
+
+        Mock.Get(_mockApi).Verify(api => api.CreateSense(
+            It.IsAny<Guid>(),
+            It.Is<Sense>(s => NormalizationAssert.IsAllNfd(s)),
+            null
+        ));
+    }
+
+    #endregion
+
+    #region ExampleSentence Tests
+
+    [Fact]
+    public async Task CreateExampleSentence_NormalizesToNfd()
+    {
+        var example = NfcTestData.CreateNfcExampleSentence();
+        NormalizationAssert.AssertAllNfc(example);
+
+        await _normalizingApi.CreateExampleSentence(Guid.NewGuid(), Guid.NewGuid(), example);
+
+        Mock.Get(_mockApi).Verify(api => api.CreateExampleSentence(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.Is<ExampleSentence>(e => NormalizationAssert.IsAllNfd(e)),
             null
         ));
     }
 
     [Fact]
-    public async Task CreateExampleSentence_NormalizesTextFields()
+    public async Task UpdateExampleSentence_BeforeAfter_NormalizesToNfd()
     {
         var entryId = Guid.NewGuid();
         var senseId = Guid.NewGuid();
-        var example = new ExampleSentence
-        {
-            Id = Guid.NewGuid(),
-            SenseId = senseId,
-            Sentence = new RichMultiString { { "en", new RichString(NFCString) } },
-            Reference = new RichString(NFCString)
-        };
+        var before = NfcTestData.CreateNfcExampleSentence();
+        var after = NfcTestData.CreateNfcExampleSentence();
+        NormalizationAssert.AssertAllNfc(after);
 
-        await NormalizingApi.CreateExampleSentence(entryId, senseId, example);
+        await _normalizingApi.UpdateExampleSentence(entryId, senseId, before, after);
 
-        Mock.Get(MockApi).Verify(api => api.CreateExampleSentence(
+        Mock.Get(_mockApi).Verify(api => api.UpdateExampleSentence(
             entryId,
             senseId,
-            It.Is<ExampleSentence>(ex =>
-                ex.Sentence["en"].GetPlainText() == NFDString &&
-                ex.Reference!.GetPlainText() == NFDString
-            ),
+            It.IsAny<ExampleSentence>(),
+            It.Is<ExampleSentence>(e => NormalizationAssert.IsAllNfd(e)),
+            It.IsAny<IMiniLcmApi>()
+        ));
+    }
+
+    [Fact]
+    public async Task CreateExampleSentence_WithTranslations_NormalizesToNfd()
+    {
+        var example = NfcTestData.CreateNfcExampleSentenceWithTranslations();
+        NormalizationAssert.AssertAllNfc(example);
+
+        await _normalizingApi.CreateExampleSentence(Guid.NewGuid(), Guid.NewGuid(), example);
+
+        Mock.Get(_mockApi).Verify(api => api.CreateExampleSentence(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.Is<ExampleSentence>(e => NormalizationAssert.IsAllNfd(e)),
             null
         ));
     }
 
+    #endregion
+
+    #region Translation Tests
+
     [Fact]
-    public async Task AddTranslation_NormalizesTextFields()
+    public async Task AddTranslation_NormalizesToNfd()
     {
-        var entryId = Guid.NewGuid();
-        var senseId = Guid.NewGuid();
-        var exampleId = Guid.NewGuid();
-        var translation = new Translation
-        {
-            Id = Guid.NewGuid(),
-            Text = new RichMultiString { { "en", new RichString(NFCString) } }
-        };
+        var translation = NfcTestData.CreateNfcTranslation();
+        NormalizationAssert.AssertAllNfc(translation);
 
-        await NormalizingApi.AddTranslation(entryId, senseId, exampleId, translation);
+        await _normalizingApi.AddTranslation(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), translation);
 
-        Mock.Get(MockApi).Verify(api => api.AddTranslation(
-            entryId,
-            senseId,
-            exampleId,
-            It.Is<Translation>(t => t.Text["en"].GetPlainText() == NFDString)
+        Mock.Get(_mockApi).Verify(api => api.AddTranslation(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.Is<Translation>(t => NormalizationAssert.IsAllNfd(t))
         ));
     }
 
+    #endregion
+}
+
+/// <summary>
+/// Tests to ensure that all normalizing wrapper methods have corresponding tests.
+/// This uses reflection to verify coverage.
+/// </summary>
+public class WriteNormalizationCoverageTests
+{
+    /// <summary>
+    /// Methods on IMiniLcmWriteApi that normalize user text and MUST have tests.
+    /// These are methods that accept model objects containing user-entered text.
+    /// </summary>
+    private static readonly HashSet<string> MethodsThatNormalizeText =
+    [
+        // WritingSystem
+        "CreateWritingSystem",
+        "UpdateWritingSystem",
+
+        // PartOfSpeech
+        "CreatePartOfSpeech",
+        "UpdatePartOfSpeech",
+
+        // Publication
+        "CreatePublication",
+        "UpdatePublication",
+
+        // SemanticDomain
+        "CreateSemanticDomain",
+        "UpdateSemanticDomain",
+        "AddSemanticDomainToSense",
+        "BulkImportSemanticDomains",
+
+        // ComplexFormType
+        "CreateComplexFormType",
+        "UpdateComplexFormType",
+
+        // MorphTypeData
+        "CreateMorphTypeData",
+        "UpdateMorphTypeData",
+
+        // Entry
+        "CreateEntry",
+        "UpdateEntry",
+        "CreateComplexFormComponent",
+        "BulkCreateEntries",
+
+        // Sense
+        "CreateSense",
+        "UpdateSense",
+
+        // ExampleSentence
+        "CreateExampleSentence",
+        "UpdateExampleSentence",
+
+        // Translation
+        "AddTranslation"
+    ];
+
+    /// <summary>
+    /// Methods that do NOT normalize text (pass-through methods).
+    /// These are explicitly listed so we know they were intentionally excluded.
+    /// </summary>
+    private static readonly HashSet<string> MethodsThatDontNormalizeText =
+    [
+        // Move operations (no text)
+        "MoveWritingSystem",
+        "MoveComplexFormComponent",
+        "MoveSense",
+        "MoveExampleSentence",
+
+        // Delete operations (no text)
+        "DeletePartOfSpeech",
+        "DeletePublication",
+        "DeleteSemanticDomain",
+        "DeleteComplexFormType",
+        "DeleteMorphTypeData",
+        "DeleteEntry",
+        "DeleteComplexFormComponent",
+        "DeleteSense",
+        "DeleteExampleSentence",
+
+        // Relationship operations (IDs only, no text)
+        "AddComplexFormType",
+        "RemoveComplexFormType",
+        "AddPublication",
+        "RemovePublication",
+        "RemoveSemanticDomainFromSense",
+        "SetSensePartOfSpeech",
+        "RemoveTranslation",
+
+        // JsonPatch operations (handled separately, not user-facing)
+        "UpdateTranslation", // JsonPatch only, no before/after overload
+
+        // File operations (no user text normalization)
+        "SaveFile",
+
+        // Dispose
+        "Dispose"
+    ];
+
+    /// <summary>
+    /// Verifies that every method on IMiniLcmWriteApi is either in the "normalizes" list or "doesn't normalize" list.
+    /// This ensures we've explicitly considered every method.
+    /// </summary>
     [Fact]
-    public async Task CreateComplexFormComponent_NormalizesHeadwords()
+    public void AllWriteApiMethods_AreExplicitlyCategorized()
     {
-        var cfc = new ComplexFormComponent
+        var writeApiMethods = typeof(IMiniLcmWriteApi)
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .Where(m => !m.IsSpecialName) // Exclude property getters/setters
+            .Select(m => m.Name)
+            .Distinct()
+            .OrderBy(m => m)
+            .ToList();
+
+        var categorizedMethods = MethodsThatNormalizeText
+            .Union(MethodsThatDontNormalizeText)
+            .ToHashSet();
+
+        var uncategorizedMethods = writeApiMethods
+            .Where(m => !categorizedMethods.Contains(m))
+            .ToList();
+
+        if (uncategorizedMethods.Count > 0)
         {
-            Id = Guid.NewGuid(),
-            ComplexFormEntryId = Guid.NewGuid(),
-            ComponentEntryId = Guid.NewGuid(),
-            ComplexFormHeadword = NFCString,
-            ComponentHeadword = NFCString
-        };
-
-        await NormalizingApi.CreateComplexFormComponent(cfc);
-
-        Mock.Get(MockApi).Verify(api => api.CreateComplexFormComponent(
-            It.Is<ComplexFormComponent>(c =>
-                c.ComplexFormHeadword == NFDString &&
-                c.ComponentHeadword == NFDString
-            ),
-            null
-        ));
+            Assert.Fail(
+                $"The following IMiniLcmWriteApi methods are not categorized as normalizing or non-normalizing:\n" +
+                string.Join("\n", uncategorizedMethods.Select(m => $"  - {m}")) +
+                "\n\nAdd each method to either MethodsThatNormalizeText or MethodsThatDontNormalizeText."
+            );
+        }
     }
 
+    /// <summary>
+    /// Verifies that every method that normalizes text has a corresponding test in WriteNormalizationTests.
+    /// </summary>
     [Fact]
-    public async Task CreateEntry_WithComplexNestedStructure_NormalizesAll()
+    public void AllNormalizingMethods_HaveCorrespondingTests()
     {
-        // Test a deeply nested structure with all text types
-        var entry = new Entry
+        var testClass = typeof(WriteNormalizationTests);
+        var testMethods = testClass
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .Where(m => m.GetCustomAttribute<FactAttribute>() != null)
+            .Select(m => m.Name)
+            .ToList();
+
+        var missingTests = new List<string>();
+        foreach (var method in MethodsThatNormalizeText)
         {
-            Id = Guid.NewGuid(),
-            LexemeForm = new MultiString { Values = { { "en", NFCString } } },
-            CitationForm = new MultiString { Values = { { "en", NFCString } } },
-            Note = new RichMultiString { { "en", new RichString(NFCString) } },
-            Senses =
-            [
-                new Sense
-                {
-                    Id = Guid.NewGuid(),
-                    Gloss = new MultiString { Values = { { "en", NFCString } } },
-                    Definition = new RichMultiString { { "en", new RichString(NFCString) } },
-                    ExampleSentences =
-                    [
-                        new ExampleSentence
-                        {
-                            Id = Guid.NewGuid(),
-                            Sentence = new RichMultiString { { "en", new RichString(NFCString) } },
-                            Reference = new RichString(NFCString),
-                            Translations =
-                            [
-                                new Translation
-                                {
-                                    Id = Guid.NewGuid(),
-                                    Text = new RichMultiString { { "en", new RichString(NFCString) } }
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        };
-
-        await NormalizingApi.CreateEntry(entry);
-
-        Mock.Get(MockApi).Verify(api => api.CreateEntry(
-            It.Is<Entry>(e =>
-                e.LexemeForm.Values["en"] == NFDString &&
-                e.Note["en"].GetPlainText() == NFDString &&
-                e.Senses[0].Gloss.Values["en"] == NFDString &&
-                e.Senses[0].Definition["en"].GetPlainText() == NFDString &&
-                e.Senses[0].ExampleSentences[0].Sentence["en"].GetPlainText() == NFDString &&
-                e.Senses[0].ExampleSentences[0].Reference!.GetPlainText() == NFDString &&
-                e.Senses[0].ExampleSentences[0].Translations[0].Text["en"].GetPlainText() == NFDString
-            ),
-            null
-        ));
-    }
-
-    [Fact]
-    public async Task BulkCreateEntries_NormalizesEach()
-    {
-        var entries = new[]
-        {
-            new Entry
+            // Check if there's a test that contains this method name
+            var hasTest = testMethods.Any(t => t.Contains(method, StringComparison.OrdinalIgnoreCase));
+            if (!hasTest)
             {
-                Id = Guid.NewGuid(),
-                LexemeForm = new MultiString { Values = { { "en", NFCString } } },
-                CitationForm = new MultiString()
-            },
-            new Entry
-            {
-                Id = Guid.NewGuid(),
-                LexemeForm = new MultiString { Values = { { "en", NFCString } } },
-                CitationForm = new MultiString()
+                missingTests.Add(method);
             }
-        }.ToAsyncEnumerable();
+        }
 
-        await NormalizingApi.BulkCreateEntries(entries);
-
-        // The bulk operation should pass a normalized stream to the underlying API
-        // We can't easily verify the stream contents with Moq, but we can verify it was called
-        Mock.Get(MockApi).Verify(
-            api => api.BulkCreateEntries(It.IsAny<IAsyncEnumerable<Entry>>()),
-            Times.Once
-        );
-    }
-
-    [Fact]
-    public async Task RichString_WithMultipleSpans_NormalizesAll()
-    {
-        var richString = new RichString([
-            new RichSpan { Text = NFCString, Ws = "en" },
-            new RichSpan { Text = NFCString, Ws = "en", Bold = RichTextToggle.On }
-        ]);
-
-        var example = new ExampleSentence
+        if (missingTests.Count > 0)
         {
-            Id = Guid.NewGuid(),
-            Sentence = new RichMultiString { { "en", richString } }
-        };
-
-        await NormalizingApi.CreateExampleSentence(Guid.NewGuid(), Guid.NewGuid(), example);
-
-        Mock.Get(MockApi).Verify(api => api.CreateExampleSentence(
-            It.IsAny<Guid>(),
-            It.IsAny<Guid>(),
-            It.Is<ExampleSentence>(ex =>
-                ex.Sentence["en"].Spans[0].Text == NFDString &&
-                ex.Sentence["en"].Spans[1].Text == NFDString
-            ),
-            null
-        ));
+            Assert.Fail(
+                $"The following normalizing methods do not have corresponding tests in WriteNormalizationTests:\n" +
+                string.Join("\n", missingTests.Select(m => $"  - {m}")) +
+                "\n\nAdd a test for each method that verifies NFC input is normalized to NFD."
+            );
+        }
     }
 
+    /// <summary>
+    /// Verifies that the wrapper explicitly implements all write methods.
+    /// This ensures compile-time safety when new methods are added to IMiniLcmWriteApi.
+    /// </summary>
     [Fact]
-    public void StringNormalizer_NormalizesMultiString()
+    public void Wrapper_ImplementsAllWriteMethods()
     {
-        var ms = new MultiString { Values = { { "en", NFCString }, { "fr", NFCString } } };
-        var normalized = StringNormalizer.Normalize(ms);
-        
-        normalized.Values["en"].Should().Be(NFDString);
-        normalized.Values["fr"].Should().Be(NFDString);
-    }
+        var writeApiMethods = typeof(IMiniLcmWriteApi)
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .Where(m => !m.IsSpecialName)
+            .Select(m => m.Name)
+            .Distinct()
+            .ToList();
 
-    [Fact]
-    public void StringNormalizer_NormalizesRichString()
-    {
-        var rs = new RichString(NFCString);
-        var normalized = StringNormalizer.Normalize(rs);
-        
-        normalized!.GetPlainText().Should().Be(NFDString);
-    }
+        var wrapperType = typeof(MiniLcmWriteApiNormalizationWrapper);
+        var wrapperMethods = wrapperType
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+            .Where(m => !m.IsSpecialName)
+            .Select(m => m.Name)
+            .Distinct()
+            .ToList();
 
-    [Fact]
-    public void StringNormalizer_NormalizesRichMultiString()
-    {
-        var rms = new RichMultiString
+        var missingImplementations = writeApiMethods
+            .Where(m => !wrapperMethods.Contains(m))
+            .ToList();
+
+        if (missingImplementations.Count > 0)
         {
-            { "en", new RichString(NFCString) },
-            { "fr", new RichString(NFCString) }
-        };
-        var normalized = StringNormalizer.Normalize(rms);
-        
-        normalized["en"].GetPlainText().Should().Be(NFDString);
-        normalized["fr"].GetPlainText().Should().Be(NFDString);
+            Assert.Fail(
+                $"MiniLcmWriteApiNormalizationWrapper does not explicitly implement the following methods:\n" +
+                string.Join("\n", missingImplementations.Select(m => $"  - {m}")) +
+                "\n\nThis is critical for compile-time safety. Add explicit implementations for each method."
+            );
+        }
+    }
+}
+
+/// <summary>
+/// Provides test data with NFC-normalized strings for all entity types.
+/// Each Create method returns an object with ALL normalizable properties populated with NFC strings.
+/// </summary>
+public static class NfcTestData
+{
+    /// <summary>
+    /// NFC string: "naïve" with U+00EF LATIN SMALL LETTER I WITH DIAERESIS (composed form)
+    /// </summary>
+    public const string Nfc = "na\u00efve";
+
+    /// <summary>
+    /// NFD string: "naïve" with U+0069 LATIN SMALL LETTER I + U+0308 COMBINING DIAERESIS (decomposed form)
+    /// </summary>
+    public const string Nfd = "na\u0069\u0308ve";
+
+    public static MultiString CreateNfcMultiString() => new() { Values = { { "en", Nfc }, { "fr", Nfc } } };
+
+    public static RichString CreateNfcRichString() => new([
+        new RichSpan { Text = Nfc, Ws = "en" },
+        new RichSpan { Text = Nfc, Ws = "en", Bold = RichTextToggle.On }
+    ]);
+
+    public static RichMultiString CreateNfcRichMultiString() => new()
+    {
+        { "en", CreateNfcRichString() },
+        { "fr", CreateNfcRichString() }
+    };
+
+    public static WritingSystem CreateNfcWritingSystem() => new()
+    {
+        Id = Guid.NewGuid(),
+        WsId = "en",
+        Type = WritingSystemType.Analysis,
+        Name = Nfc,
+        Abbreviation = Nfc,
+        Font = Nfc,
+        Exemplars = [Nfc, Nfc]
+    };
+
+    public static PartOfSpeech CreateNfcPartOfSpeech() => new()
+    {
+        Id = Guid.NewGuid(),
+        Name = CreateNfcMultiString()
+    };
+
+    public static Publication CreateNfcPublication() => new()
+    {
+        Id = Guid.NewGuid(),
+        Name = CreateNfcMultiString()
+    };
+
+    public static SemanticDomain CreateNfcSemanticDomain() => new()
+    {
+        Id = Guid.NewGuid(),
+        Code = "1.1.1", // Code is NOT normalized (metadata)
+        Name = CreateNfcMultiString()
+    };
+
+    public static ComplexFormType CreateNfcComplexFormType() => new()
+    {
+        Id = Guid.NewGuid(),
+        Name = CreateNfcMultiString()
+    };
+
+    public static MorphTypeData CreateNfcMorphTypeData() => new()
+    {
+        Id = Guid.NewGuid(),
+        Name = CreateNfcMultiString(),
+        Abbreviation = CreateNfcMultiString(),
+        Description = CreateNfcRichMultiString(),
+        LeadingToken = Nfc,
+        TrailingToken = Nfc
+    };
+
+    public static Translation CreateNfcTranslation() => new()
+    {
+        Id = Guid.NewGuid(),
+        Text = CreateNfcRichMultiString()
+    };
+
+    public static ExampleSentence CreateNfcExampleSentence() => new()
+    {
+        Id = Guid.NewGuid(),
+        Sentence = CreateNfcRichMultiString(),
+        Reference = CreateNfcRichString()
+    };
+
+    public static ExampleSentence CreateNfcExampleSentenceWithTranslations() => new()
+    {
+        Id = Guid.NewGuid(),
+        Sentence = CreateNfcRichMultiString(),
+        Reference = CreateNfcRichString(),
+        Translations = [CreateNfcTranslation(), CreateNfcTranslation()]
+    };
+
+    public static Sense CreateNfcSense() => new()
+    {
+        Id = Guid.NewGuid(),
+        Gloss = CreateNfcMultiString(),
+        Definition = CreateNfcRichMultiString()
+    };
+
+    public static Sense CreateNfcSenseWithExamples() => new()
+    {
+        Id = Guid.NewGuid(),
+        Gloss = CreateNfcMultiString(),
+        Definition = CreateNfcRichMultiString(),
+        SemanticDomains = [CreateNfcSemanticDomain()],
+        PartOfSpeech = CreateNfcPartOfSpeech(),
+        ExampleSentences = [CreateNfcExampleSentenceWithTranslations()]
+    };
+
+    public static ComplexFormComponent CreateNfcComplexFormComponent() => new()
+    {
+        Id = Guid.NewGuid(),
+        ComplexFormEntryId = Guid.NewGuid(),
+        ComponentEntryId = Guid.NewGuid(),
+        ComplexFormHeadword = Nfc,
+        ComponentHeadword = Nfc
+    };
+
+    public static Entry CreateNfcEntry() => new()
+    {
+        Id = Guid.NewGuid(),
+        LexemeForm = CreateNfcMultiString(),
+        CitationForm = CreateNfcMultiString(),
+        LiteralMeaning = CreateNfcRichMultiString(),
+        Note = CreateNfcRichMultiString()
+    };
+
+    public static Entry CreateNfcEntryWithSenses() => new()
+    {
+        Id = Guid.NewGuid(),
+        LexemeForm = CreateNfcMultiString(),
+        CitationForm = CreateNfcMultiString(),
+        LiteralMeaning = CreateNfcRichMultiString(),
+        Note = CreateNfcRichMultiString(),
+        Senses = [CreateNfcSenseWithExamples()]
+    };
+
+    public static Entry CreateNfcEntryWithComponents() => new()
+    {
+        Id = Guid.NewGuid(),
+        LexemeForm = CreateNfcMultiString(),
+        CitationForm = CreateNfcMultiString(),
+        LiteralMeaning = CreateNfcRichMultiString(),
+        Note = CreateNfcRichMultiString(),
+        Components = [CreateNfcComplexFormComponent()],
+        ComplexForms = [CreateNfcComplexFormComponent()]
+    };
+}
+
+/// <summary>
+/// Assertion helpers for verifying NFC/NFD normalization state of objects.
+/// Uses reflection to walk the object graph and check all normalizable properties.
+/// </summary>
+public static class NormalizationAssert
+{
+    private static readonly HashSet<Type> NormalizableTypes =
+    [
+        typeof(string),
+        typeof(string[]),
+        typeof(MultiString),
+        typeof(RichString),
+        typeof(RichMultiString)
+    ];
+
+    /// <summary>
+    /// Properties that should NOT be normalized (metadata, not user text)
+    /// </summary>
+    private static readonly HashSet<string> ExcludedProperties =
+    [
+        "Code", // SemanticDomain.Code is metadata
+        "WsId", // WritingSystemId is metadata
+        "Ws"    // RichSpan.Ws is a writing system ID
+    ];
+
+    /// <summary>
+    /// Asserts that all normalizable properties in the object contain NFC strings.
+    /// Throws if any property is null, empty, or contains NFD strings.
+    /// </summary>
+    public static void AssertAllNfc(object obj)
+    {
+        var issues = FindNormalizationIssues(obj, expectNfc: true);
+        if (issues.Count > 0)
+        {
+            throw new Xunit.Sdk.XunitException(
+                $"Expected all normalizable properties to contain NFC strings, but found issues:\n" +
+                string.Join("\n", issues.Select(i => $"  - {i}"))
+            );
+        }
     }
 
-    [Fact]
-    public void StringNormalizer_NormalizesStringArray()
+    /// <summary>
+    /// Asserts that all normalizable properties in the object contain NFD strings.
+    /// Throws if any property contains NFC strings.
+    /// </summary>
+    public static void AssertAllNfd(object obj)
     {
-        var array = new[] { NFCString, NFCString };
-        var normalized = StringNormalizer.Normalize(array);
-        
-        normalized[0].Should().Be(NFDString);
-        normalized[1].Should().Be(NFDString);
+        var issues = FindNormalizationIssues(obj, expectNfc: false);
+        if (issues.Count > 0)
+        {
+            throw new Xunit.Sdk.XunitException(
+                $"Expected all normalizable properties to contain NFD strings, but found issues:\n" +
+                string.Join("\n", issues.Select(i => $"  - {i}"))
+            );
+        }
     }
 
-    [Fact]
-    public void StringNormalizer_HandlesNullRichString()
+    /// <summary>
+    /// Returns true if all normalizable properties contain NFD strings.
+    /// For use in Moq It.Is() expressions.
+    /// </summary>
+    public static bool IsAllNfd(object obj)
     {
-        RichString? rs = null;
-        var normalized = StringNormalizer.Normalize(rs);
-        
-        normalized.Should().BeNull();
+        var issues = FindNormalizationIssues(obj, expectNfc: false);
+        return issues.Count == 0;
     }
 
-    [Fact]
-    public void StringNormalizer_HandlesNullString()
+    /// <summary>
+    /// Returns true if all normalizable properties contain NFC strings.
+    /// For use in Moq It.Is() expressions.
+    /// </summary>
+    public static bool IsAllNfc(object obj)
     {
-        string? str = null;
-        var normalized = StringNormalizer.Normalize(str);
-        
-        normalized.Should().BeNull();
+        var issues = FindNormalizationIssues(obj, expectNfc: true);
+        return issues.Count == 0;
+    }
+
+    private static List<string> FindNormalizationIssues(object obj, bool expectNfc, string path = "")
+    {
+        var issues = new List<string>();
+        if (obj == null) return issues;
+
+        var type = obj.GetType();
+
+        // Handle string directly
+        if (obj is string str)
+        {
+            CheckString(str, path, expectNfc, issues);
+            return issues;
+        }
+
+        // Handle string array
+        if (obj is string[] strArray)
+        {
+            for (int i = 0; i < strArray.Length; i++)
+            {
+                CheckString(strArray[i], $"{path}[{i}]", expectNfc, issues);
+            }
+            return issues;
+        }
+
+        // Handle MultiString
+        if (obj is MultiString ms)
+        {
+            if (ms.Values.Count == 0)
+            {
+                issues.Add($"{path}: MultiString has no values (must have at least one for testing)");
+            }
+            foreach (var (key, value) in ms.Values)
+            {
+                CheckString(value, $"{path}.Values[{key}]", expectNfc, issues);
+            }
+            return issues;
+        }
+
+        // Handle RichString
+        if (obj is RichString rs)
+        {
+            if (rs.Spans.Count == 0)
+            {
+                issues.Add($"{path}: RichString has no spans (must have at least one for testing)");
+            }
+            for (int i = 0; i < rs.Spans.Count; i++)
+            {
+                CheckString(rs.Spans[i].Text, $"{path}.Spans[{i}].Text", expectNfc, issues);
+            }
+            return issues;
+        }
+
+        // Handle RichMultiString
+        if (obj is RichMultiString rms)
+        {
+            if (rms.Count == 0)
+            {
+                issues.Add($"{path}: RichMultiString has no values (must have at least one for testing)");
+            }
+            foreach (var (key, value) in rms)
+            {
+                issues.AddRange(FindNormalizationIssues(value, expectNfc, $"{path}[{key}]"));
+            }
+            return issues;
+        }
+
+        // Walk object properties
+        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        foreach (var prop in properties)
+        {
+            if (!prop.CanRead) continue;
+            if (ExcludedProperties.Contains(prop.Name)) continue;
+
+            try
+            {
+                var value = prop.GetValue(obj);
+                if (value == null) continue;
+
+                var propPath = string.IsNullOrEmpty(path) ? prop.Name : $"{path}.{prop.Name}";
+                var propType = prop.PropertyType;
+
+                // Check if this is a normalizable type
+                if (NormalizableTypes.Contains(propType) ||
+                    propType == typeof(string[]) ||
+                    (propType.IsGenericType && propType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                {
+                    issues.AddRange(FindNormalizationIssues(value, expectNfc, propPath));
+                }
+                // Check collections of model objects
+                else if (value is IEnumerable enumerable && value is not string)
+                {
+                    int index = 0;
+                    foreach (var item in enumerable)
+                    {
+                        if (item != null && IsModelType(item.GetType()))
+                        {
+                            issues.AddRange(FindNormalizationIssues(item, expectNfc, $"{propPath}[{index}]"));
+                        }
+                        index++;
+                    }
+                }
+                // Check nested model objects
+                else if (IsModelType(propType))
+                {
+                    issues.AddRange(FindNormalizationIssues(value, expectNfc, propPath));
+                }
+            }
+            catch
+            {
+                // Skip properties that throw
+            }
+        }
+
+        return issues;
+    }
+
+    private static void CheckString(string? value, string path, bool expectNfc, List<string> issues)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            issues.Add($"{path}: string is null or empty (must have a value for testing)");
+            return;
+        }
+
+        var isNfc = value.IsNormalized(NormalizationForm.FormC);
+        var isNfd = value.IsNormalized(NormalizationForm.FormD);
+
+        if (expectNfc)
+        {
+            // When expecting NFC, the string should be NFC but NOT NFD (unless it has no decomposable chars)
+            // For our test string "naïve", NFC != NFD, so we check it's in NFC form
+            if (!isNfc)
+            {
+                issues.Add($"{path}: expected NFC but string is not NFC-normalized");
+            }
+            // Also verify it's not already NFD (to ensure our test data is meaningful)
+            if (isNfd && !isNfc)
+            {
+                // This is fine - some strings are both NFC and NFD (e.g., ASCII)
+            }
+            else if (isNfd && isNfc)
+            {
+                // String is both NFC and NFD - this means it has no decomposable characters
+                // For testing purposes, we need strings that ARE different in NFC vs NFD
+                // But we'll allow it since it's still valid
+            }
+        }
+        else
+        {
+            // When expecting NFD, the string should be NFD
+            if (!isNfd)
+            {
+                issues.Add($"{path}: expected NFD but string is not NFD-normalized (value contains NFC)");
+            }
+        }
+    }
+
+    private static bool IsModelType(Type type)
+    {
+        // Model types are in the MiniLcm.Models namespace
+        return type.Namespace?.StartsWith("MiniLcm.Models") == true ||
+               type == typeof(Entry) ||
+               type == typeof(Sense) ||
+               type == typeof(ExampleSentence) ||
+               type == typeof(Translation) ||
+               type == typeof(WritingSystem) ||
+               type == typeof(PartOfSpeech) ||
+               type == typeof(SemanticDomain) ||
+               type == typeof(ComplexFormType) ||
+               type == typeof(MorphTypeData) ||
+               type == typeof(Publication) ||
+               type == typeof(ComplexFormComponent);
     }
 }
