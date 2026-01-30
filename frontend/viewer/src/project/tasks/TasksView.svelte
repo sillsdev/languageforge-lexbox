@@ -7,13 +7,13 @@
   import {onMount} from 'svelte';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
 
-  const projectStorage = useProjectStorage();
+  const selectedTaskId = useProjectStorage().selectedTaskId;
   const tasksService = useTasksService();
   const tasks = $derived(tasksService.listTasks());
-  const selectedTask = $derived(tasks.find(task => task.id === projectStorage.selectedTaskId.current));
+  const selectedTask = $derived(tasks.find(task => task.id === selectedTaskId.current));
 
   onMount(() => {
-    if (!projectStorage.selectedTaskId.current) {
+    if (!selectedTaskId.current) {
       open = true;
     }
   });
@@ -24,7 +24,7 @@
   <div class="flex flex-row items-center">
     <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 mr-2" />
 
-    <Select.Root bind:open type="single" bind:value={projectStorage.selectedTaskId.current}>
+    <Select.Root bind:open type="single" bind:value={selectedTaskId.current}>
       <Select.Trigger>{$t`Task ${selectedTask?.subject ?? ''}`}</Select.Trigger>
       <Select.Content>
         {#each tasks as task (task.id)}
@@ -33,8 +33,8 @@
       </Select.Content>
     </Select.Root>
   </div>
-  {#if projectStorage.selectedTaskId.current}
-    <TaskView taskId={projectStorage.selectedTaskId.current} onClose={() => projectStorage.selectedTaskId.current = ''}/>
+  {#if selectedTaskId.current}
+    <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.current = ''}/>
   {:else}
     <h1 class="text-xl p-4 mx-auto">{$t`Select a new task to work on`}</h1>
   {/if}
