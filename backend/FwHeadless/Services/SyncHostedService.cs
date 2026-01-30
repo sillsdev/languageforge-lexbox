@@ -218,6 +218,8 @@ public class SyncWorker(
                 logger.LogInformation("Import result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",
                     importResult.CrdtChanges,
                     importResult.FwdataChanges);
+                logger.LogInformation("Regenerating project snapshot after import");
+                await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwdataApi.Project, keepBackup: false);
                 await crdtSyncService.SyncHarmonyProject();
                 activity?.SetStatus(ActivityStatusCode.Ok, "Import finished");
                 return new SyncJobResult(importResult);
