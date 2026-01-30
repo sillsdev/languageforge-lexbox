@@ -168,7 +168,12 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
         // Use the default CrdtProjectsService registration from AddLcmCrdtClientCore
 
         // Mock sync service to avoid heavy sync.
-        var syncService = new Mock<CrdtFwdataProjectSyncService>(MockBehavior.Strict, null!, null!, NullLogger<CrdtFwdataProjectSyncService>.Instance, null!, null!);
+        var syncService = new Mock<CrdtFwdataProjectSyncService>(
+            MockBehavior.Strict,
+            null!,
+            NullLogger<CrdtFwdataProjectSyncService>.Instance,
+            null!,
+            null!);
 
         syncService
             .Setup(s => s.Sync(It.IsAny<IMiniLcmApi>(), It.IsAny<FwDataMiniLcmApi>(), It.IsAny<ProjectSnapshot>(), false))
