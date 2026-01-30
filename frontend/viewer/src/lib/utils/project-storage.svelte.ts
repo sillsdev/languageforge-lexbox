@@ -56,12 +56,9 @@ class StorageProp {
 }
 
 export class ProjectStorage {
-  #projectCode: string;
-
   readonly selectedTaskId: StorageProp;
 
   constructor(projectCode: string) {
-    this.#projectCode = projectCode;
     this.selectedTaskId = new StorageProp(projectCode, 'selectedTaskId');
   }
 }
