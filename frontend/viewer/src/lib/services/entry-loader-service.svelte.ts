@@ -3,7 +3,6 @@
  */
 
 import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
-import {Debouncer} from '$lib/utils/debouncer';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IEntry} from '$lib/dotnet-types';
 import type {IFilterQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
@@ -11,7 +10,7 @@ import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLite
 import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
 import type {SortConfig} from '$project/browse/sort/options';
 import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-import {watch} from 'runed';
+import {useDebounce, watch} from 'runed';
 
 interface QueryDeps {
   search: () => string;
@@ -31,8 +30,9 @@ export class EntryLoaderService {
   #generation = $state(-1);
   #cache = new EntryCache();
   #viewport = new ViewportTracker();
-  #filterDebouncer = new Debouncer(() => this.#executeReset(false), { wait: DEFAULT_DEBOUNCE_TIME });
-  #eventDebouncer = new Debouncer(() => this.#executeReset(true), { wait: EVENT_DEBOUNCE_MS });
+
+  #debouncedFilterReset = useDebounce(() => this.#executeReset(false), DEFAULT_DEBOUNCE_TIME);
+  #debouncedEventReset = useDebounce(() => this.#executeReset(true), EVENT_DEBOUNCE_MS);
 
   readonly #api: IMiniLcmJsInvokable;
   readonly #deps: QueryDeps;
@@ -58,8 +58,8 @@ export class EntryLoaderService {
   }
 
   destroy(): void {
-    this.#filterDebouncer.cancel();
-    this.#eventDebouncer.cancel();
+    this.#debouncedFilterReset.cancel();
+    this.#debouncedEventReset.cancel();
     this.#generation++;
   }
 
@@ -103,10 +103,10 @@ export class EntryLoaderService {
   }
 
   quietReset(): Promise<void> {
-    if (this.#filterDebouncer.pending) {
-      return this.#filterDebouncer.call();
+    if (this.#debouncedFilterReset.pending) {
+      return this.#debouncedFilterReset();
     }
-    return this.#eventDebouncer.call();
+    return this.#scheduleEventReset();
   }
 
   async onEntryDeleted(_id: string): Promise<void> {
@@ -119,8 +119,12 @@ export class EntryLoaderService {
 
   #scheduleFilterReset(): Promise<void> {
     this.loading = true;
-    this.#eventDebouncer.cancel();
-    return this.#filterDebouncer.call();
+    this.#debouncedEventReset.cancel();
+    return this.#debouncedFilterReset();
+  }
+
+  #scheduleEventReset(): Promise<void> {
+    return this.#debouncedEventReset();
   }
 
   async #executeReset(isQuiet: boolean): Promise<void> {
