@@ -1,10 +1,5 @@
 /**
  * EntryLoaderService - On-demand entry loading with batch caching.
- *
- * Architecture:
- * - Dual debouncer pattern: filter changes (300ms) and entry events (600ms)
- * - Filter resets cancel pending event resets (priority override)
- * - Generation tracking invalidates stale async operations
  */
 
 import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
@@ -18,10 +13,6 @@ import type {SortConfig} from '$project/browse/sort/options';
 import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
 import {watch} from 'runed';
 
-// ============================================================================
-// Types
-// ============================================================================
-
 interface QueryDeps {
   search: () => string;
   sort: () => SortConfig | undefined;
@@ -30,24 +21,16 @@ interface QueryDeps {
 
 const EVENT_DEBOUNCE_MS = 600;
 
-// ============================================================================
-// EntryLoaderService
-// ============================================================================
-
 export class EntryLoaderService {
   static readonly DEFAULT_GENERATION = 0;
 
-  // === Public Reactive State ===
   totalCount = $state<number | undefined>();
   loading = $state(true);
   error = $state<Error | undefined>();
 
-  // === Private State ===
   #generation = $state(-1);
   #cache = new EntryCache();
   #viewport = new ViewportTracker();
-
-  // Dual debouncer pattern - filter overrides event
   #filterDebouncer = new Debouncer(() => this.#executeReset(false), { wait: DEFAULT_DEBOUNCE_TIME });
   #eventDebouncer = new Debouncer(() => this.#executeReset(true), { wait: EVENT_DEBOUNCE_MS });
 
@@ -79,8 +62,6 @@ export class EntryLoaderService {
     this.#eventDebouncer.cancel();
     this.#generation++;
   }
-
-  // === Public: Entry Access ===
 
   getCachedEntryByIndex(index: number): IEntry | undefined {
     this.#viewport.markViewed(this.#batchFor(index));
@@ -115,18 +96,13 @@ export class EntryLoaderService {
     return index;
   }
 
-  // === Public: Reset Triggers ===
-
-  /** Full reset with loading indicator */
   reset(): Promise<void> {
     this.#generation++;
     this.#cache.clear();
     return this.#scheduleFilterReset();
   }
 
-  /** Quiet reset without loading indicator (for entry events) */
   quietReset(): Promise<void> {
-    // If filter reset is pending, piggyback on it
     if (this.#filterDebouncer.pending) {
       return this.#filterDebouncer.call();
     }
@@ -141,11 +117,9 @@ export class EntryLoaderService {
     await this.quietReset();
   }
 
-  // === Private: Reset Pipeline ===
-
   #scheduleFilterReset(): Promise<void> {
     this.loading = true;
-    this.#eventDebouncer.cancel(); // Filter overrides event
+    this.#eventDebouncer.cancel();
     return this.#filterDebouncer.call();
   }
 
@@ -188,8 +162,6 @@ export class EntryLoaderService {
     }
   }
 
-  // === Private: Batch Loading ===
-
   async #loadBatch(batch: number): Promise<void> {
     if (this.#cache.isBatchLoaded(batch)) return;
 
@@ -211,8 +183,6 @@ export class EntryLoaderService {
       this.#cache.clearPendingBatch(batch, promise);
     }
   }
-
-  // === Private: API ===
 
   #fetchCount(): Promise<number> {
     return this.#api.countEntries(
@@ -261,10 +231,6 @@ export class EntryLoaderService {
     return Math.floor(index / this.#batchSize);
   }
 }
-
-// ============================================================================
-// EntryCache - Manages entry storage and batch tracking
-// ============================================================================
 
 class EntryCache {
   #entries = new SvelteMap<number, IEntry>();
@@ -326,10 +292,6 @@ class EntryCache {
     this.#loaded.clear();
   }
 }
-
-// ============================================================================
-// ViewportTracker - Tracks which batches the user is currently viewing
-// ============================================================================
 
 class ViewportTracker {
   #current: number | undefined;

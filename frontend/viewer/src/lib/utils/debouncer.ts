@@ -1,26 +1,13 @@
 /**
- * Debouncer - A promise-aware debounce utility built on lodash.debounce.
- *
- * Unlike raw lodash.debounce, this tracks promise completion so multiple
- * callers can await the eventual execution.
- *
- * Usage:
- *   const debouncer = new Debouncer(() => fetchData(), { wait: 300 });
- *   const promise1 = debouncer.call(); // Schedules execution
- *   const promise2 = debouncer.call(); // Resets timer, returns same promise
- *   await promise1; // Both resolve when fetchData() completes
+ * Promise-aware debounce utility. Multiple callers can await the eventual execution.
  */
 
 import debounce from 'lodash.debounce';
 
 export interface DebouncerOptions {
-  /** Milliseconds to wait before executing */
   wait: number;
-  /** Execute on the leading edge (immediately on first call) */
   leading?: boolean;
-  /** Execute on the trailing edge (after wait period). Default: true */
   trailing?: boolean;
-  /** Maximum time to wait before forced execution */
   maxWait?: number;
 }
 
@@ -46,10 +33,6 @@ export class Debouncer<T = void> {
     );
   }
 
-  /**
-   * Schedule the debounced function. Returns a promise that resolves
-   * when execution completes. Multiple calls return the same promise.
-   */
   call(): Promise<T> {
     if (!this.#promise) {
       this.#promise = new Promise((resolve, reject) => {
@@ -61,28 +44,18 @@ export class Debouncer<T = void> {
     return this.#promise;
   }
 
-  /**
-   * Cancel any pending execution. Resolves the current promise with undefined.
-   */
   cancel(): void {
     this.#debounced.cancel();
-    // Resolve with undefined rather than rejecting to avoid unhandled rejections
     this.#resolve?.(undefined as T);
     this.#cleanup();
   }
 
-  /**
-   * Immediately execute if there's a pending call, bypassing the timer.
-   */
   flush(): Promise<T> | undefined {
     if (!this.#promise) return undefined;
     this.#debounced.flush();
     return this.#promise;
   }
 
-  /**
-   * Whether there's a pending debounced call.
-   */
   get pending(): boolean {
     return this.#promise !== undefined;
   }
