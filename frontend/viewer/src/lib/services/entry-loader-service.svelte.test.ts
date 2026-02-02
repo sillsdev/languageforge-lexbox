@@ -189,23 +189,36 @@ describe('EntryLoaderService', () => {
   });
 
   describe('race conditions', () => {
-    it('discards stale count when reset occurs during loadInitialCount', async () => {
+    it('discards stale count when reset invalidates in-flight fetch', async () => {
       const entries = makeEntries(200);
       const {api, service} = await createService(entries, 100);
 
-      let resolveCount: (value: number) => void;
-      api.countEntries.mockReturnValueOnce(new Promise<number>(r => { resolveCount = r; }));
+      // Set up a slow count fetch that we can control
+      let resolveSlowCount: (value: number) => void;
+      api.countEntries.mockReturnValueOnce(new Promise<number>(r => { resolveSlowCount = r; }));
 
-      const loadPromise = service.loadInitialCount();
+      // Start a reset - this triggers the slow count fetch
+      const resetPromise = service.reset();
 
-      void service.reset();
+      // Wait for the debounce to fire and the fetch to start
+      await vi.waitFor(() => expect(api.countEntries).toHaveBeenCalledTimes(2)); // 1 from init, 1 from reset
+
+      // While the slow fetch is in-flight, trigger another reset
+      // This bumps generation, invalidating the in-flight operation
       api.countEntries.mockResolvedValue(5);
-      void service.loadInitialCount();
+      void service.reset();
 
-      resolveCount!(100);
-      await loadPromise;
+      // Wait for second reset's debounce to fire
+      await vi.waitFor(() => expect(api.countEntries).toHaveBeenCalledTimes(3));
 
+      // Now resolve the stale slow count
+      resolveSlowCount!(100);
+      await resetPromise;
+
+      // Wait for everything to settle
       await vi.waitFor(() => expect(service.loading).toBe(false));
+
+      // Should have the new count (5), not the stale one (100)
       expect(service.totalCount).toBe(5);
     });
 
@@ -213,22 +226,30 @@ describe('EntryLoaderService', () => {
       const entries = makeEntries(BATCH_SIZE, 'a');
       const {api, service} = await createService(entries, entries.length);
 
+      // Set up slow entry fetch
       let resolveEntries: (value: IEntry[]) => void;
       api.getEntries.mockReturnValueOnce(new Promise<IEntry[]>(r => { resolveEntries = r; }));
 
+      // Start loading batch 0 (will wait for slow fetch)
       const loadPromise = service.getOrLoadEntryByIndex(0);
 
+      // Reset invalidates the in-flight load
       void service.reset();
       const nextEntries = makeEntries(BATCH_SIZE, 'b');
       api.getEntries.mockResolvedValue(nextEntries);
       api.countEntries.mockResolvedValue(nextEntries.length);
-      await service.loadInitialCount();
 
+      // Wait for reset to complete
+      await vi.waitFor(() => expect(service.loading).toBe(false));
+
+      // Resolve the stale entries
       resolveEntries!(entries.slice(0, BATCH_SIZE));
       const result = await loadPromise;
 
+      // Stale load should return undefined (generation mismatch)
       expect(result).toBeUndefined();
 
+      // Fresh load should get the new entries
       const freshResult = await service.getOrLoadEntryByIndex(0);
       expect(freshResult?.id).toBe('b0');
     });
@@ -237,33 +258,40 @@ describe('EntryLoaderService', () => {
       const entries = makeEntries(2 * BATCH_SIZE, 'v');
       const {api, service} = await createService(entries, entries.length);
 
+      // Set up slow first fetch
       let resolveFirst: (value: IEntry[]) => void;
       api.getEntries.mockReturnValueOnce(new Promise<IEntry[]>(r => { resolveFirst = r; }));
 
+      // Start first load
       const firstLoad = service.getOrLoadEntryByIndex(0);
 
-      // Reset and immediately start another load for the same batch
+      // Reset and wait for it to complete
       void service.reset();
       api.countEntries.mockResolvedValue(entries.length);
-      await service.loadInitialCount();
+      await vi.waitFor(() => expect(service.loading).toBe(false));
 
+      // Set up slow second fetch
       let resolveSecond: (value: IEntry[]) => void;
       api.getEntries.mockReturnValueOnce(new Promise<IEntry[]>(r => { resolveSecond = r; }));
+
+      // Start second load (different generation)
       const secondLoad = service.getOrLoadEntryByIndex(0);
 
       expect(api.getEntries).toHaveBeenCalledTimes(2);
 
-      // Now resolve the stale (first) load. It should not clobber the newer pending tracking.
+      // Resolve the stale (first) load - should not affect the new pending promise
       resolveFirst!(entries.slice(0, BATCH_SIZE));
 
-      // If the stale load incorrectly deletes the NEW pending promise, this will trigger a 3rd fetch.
+      // Third load should reuse the second pending promise, not trigger a new fetch
       const thirdLoad = service.getOrLoadEntryByIndex(0);
       await vi.waitFor(() => expect(api.getEntries).toHaveBeenCalledTimes(2));
 
+      // Resolve second load
       resolveSecond!(entries.slice(0, BATCH_SIZE));
 
       const results = await Promise.all([firstLoad, secondLoad, thirdLoad]);
-      // The first load may return undefined or the fresh cached value, depending on timing.
+
+      // First may be undefined (stale), second and third should have data
       expect(results[1]?.id).toBe('v0');
       expect(results[2]?.id).toBe('v0');
     });
