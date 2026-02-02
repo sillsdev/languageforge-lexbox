@@ -1,10 +1,11 @@
 /**
  * EntryLoaderService - On-demand entry loading with batch caching.
  *
- * Simplified architecture:
- * 1. Single reset pipeline (no separate quiet/full reset)
- * 2. Reset requests are queued and coalesced
- * 3. Higher priority resets (filter changes) override lower priority (entry events)
+ * Architecture:
+ * - Single reset pipeline with priority-based coalescing
+ * - FILTER resets (search/sort changes) override EVENT resets (entry updates)
+ * - Debouncing prevents rapid-fire API calls
+ * - Generation tracking invalidates stale async operations
  */
 
 import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
@@ -27,14 +28,9 @@ interface QueryDeps {
   gridifyFilter: () => string | undefined;
 }
 
-/**
- * Reset priority - higher priority resets override pending lower priority ones.
- * FILTER: User changed search/sort/filter - show loading, short debounce
- * EVENT:  Entry was added/updated/deleted - no loading, long debounce
- */
 const enum ResetPriority {
-  EVENT = 1,   // Entry events (background, no loading)
-  FILTER = 2,  // Filter changes (foreground, show loading)
+  EVENT = 1,   // Entry events - background refresh, no loading indicator
+  FILTER = 2,  // Filter changes - shows loading, clears cache
 }
 
 // ============================================================================
@@ -64,10 +60,8 @@ export class EntryLoaderService {
     this.#deps = deps;
     this.#batchSize = batchSize;
 
-    // Initial load
     void this.#scheduleReset(ResetPriority.FILTER);
 
-    // Watch for filter changes
     watch(
       () => [deps.search(), deps.sort(), deps.gridifyFilter()],
       (_, prev) => {
@@ -122,20 +116,16 @@ export class EntryLoaderService {
 
   // === Public: Reset Triggers ===
 
-  /** Full reset with loading indicator (for manual refresh button) */
   reset(): Promise<void> {
-    // Immediately invalidate in-flight operations and clear stale cache
     this.#generation++;
     this.#cache.clear();
     return this.#scheduleReset(ResetPriority.FILTER);
   }
 
-  /** Quiet reset without loading indicator (for entry events) */
   quietReset(): Promise<void> {
     return this.#scheduleReset(ResetPriority.EVENT);
   }
 
-  // Convenience methods for event handlers
   async onEntryDeleted(_id: string): Promise<void> {
     await this.quietReset();
   }
@@ -165,11 +155,9 @@ export class EntryLoaderService {
   // === Private: Reset Pipeline ===
 
   #scheduleReset(priority: ResetPriority): Promise<void> {
-    // Show loading immediately for high-priority resets
     if (priority === ResetPriority.FILTER) {
       this.loading = true;
     }
-
     return this.#resetQueue.schedule(priority, () => this.#executeReset(priority));
   }
 
@@ -181,7 +169,6 @@ export class EntryLoaderService {
     let success = false;
 
     try {
-      // Fetch new data
       const [count, entries] = await Promise.all([
         this.#fetchCount(),
         batchesToPreload.length > 0
@@ -189,10 +176,8 @@ export class EntryLoaderService {
           : Promise.resolve([]),
       ]);
 
-      // Abort if superseded by another reset
       if (gen !== this.#generation) return;
 
-      // Atomic swap
       this.#cache.clear();
       if (entries.length > 0) {
         const startIndex = Math.min(...batchesToPreload) * this.#batchSize;
@@ -206,7 +191,6 @@ export class EntryLoaderService {
       if (gen !== this.#generation) return;
       this.error = e instanceof Error ? e : new Error(String(e));
     } finally {
-      // Clear loading if we're still valid (not invalidated by destroy())
       if (gen === this.#generation) {
         if (priority === ResetPriority.FILTER) {
           this.loading = false;
@@ -293,7 +277,7 @@ export class EntryLoaderService {
 }
 
 // ============================================================================
-// ResetQueue - Coalesces and prioritizes reset requests
+// ResetQueue - Debounces and coalesces reset requests by priority
 // ============================================================================
 
 class ResetQueue {
@@ -304,77 +288,66 @@ class ResetQueue {
 
   #pending: { priority: ResetPriority; execute: () => Promise<void> } | null = null;
   #timer?: ReturnType<typeof setTimeout>;
+  #debounceResolvers: (() => void)[] = [];
   #inFlight?: Promise<void>;
 
-  /**
-   * Schedule a reset. Higher priority resets override pending lower priority ones.
-   * Returns a promise that resolves when the reset completes.
-   */
   schedule(priority: ResetPriority, execute: () => Promise<void>): Promise<void> {
-    // Higher priority reset overrides pending lower priority
     if (!this.#pending || priority >= this.#pending.priority) {
       this.#pending = { priority, execute };
       this.#restartDebounce();
     }
-
-    // Return a promise that resolves when current batch of resets completes
-    return this.#inFlight ?? this.#startExecution();
+    return this.#inFlight ?? this.#startLoop();
   }
 
   cancel(): void {
     clearTimeout(this.#timer);
+    this.#timer = undefined;
     this.#pending = null;
+    this.#resolveDebounce();
   }
 
   #restartDebounce(): void {
     clearTimeout(this.#timer);
-    if (!this.#pending) return;
-
-    const debounceMs = ResetQueue.DEBOUNCE_MS[this.#pending.priority];
-    this.#timer = setTimeout(() => void this.#flush(), debounceMs);
+    const ms = ResetQueue.DEBOUNCE_MS[this.#pending!.priority];
+    this.#timer = setTimeout(() => {
+      this.#timer = undefined;
+      this.#resolveDebounce();
+    }, ms);
   }
 
-  #startExecution(): Promise<void> {
+  #resolveDebounce(): void {
+    const resolvers = this.#debounceResolvers;
+    this.#debounceResolvers = [];
+    resolvers.forEach(r => r());
+  }
+
+  #waitForDebounce(): Promise<void> {
+    if (!this.#timer) return Promise.resolve();
+    return new Promise(r => this.#debounceResolvers.push(r));
+  }
+
+  #startLoop(): Promise<void> {
     if (this.#inFlight) return this.#inFlight;
 
-    this.#inFlight = this.#runLoop().finally(() => {
+    this.#inFlight = (async () => {
+      while (this.#pending) {
+        await this.#waitForDebounce();
+        const pending = this.#pending;
+        this.#pending = null;
+        if (pending) {
+          await pending.execute();
+        }
+      }
+    })().finally(() => {
       this.#inFlight = undefined;
     });
 
     return this.#inFlight;
   }
-
-  async #runLoop(): Promise<void> {
-    // Keep processing while there are pending resets
-    while (this.#pending) {
-      // Wait for debounce
-      await new Promise<void>(resolve => {
-        const check = () => {
-          if (!this.#timer) resolve();
-          else setTimeout(check, 50);
-        };
-        check();
-      });
-
-      await this.#flush();
-    }
-  }
-
-  async #flush(): Promise<void> {
-    clearTimeout(this.#timer);
-    this.#timer = undefined;
-
-    const pending = this.#pending;
-    this.#pending = null;
-
-    if (pending) {
-      await pending.execute();
-    }
-  }
 }
 
 // ============================================================================
-// EntryCache - All cache operations in one place
+// EntryCache - Manages entry storage and batch tracking
 // ============================================================================
 
 class EntryCache {
@@ -439,7 +412,7 @@ class EntryCache {
 }
 
 // ============================================================================
-// ViewportTracker - Tracks which batches are currently visible
+// ViewportTracker - Tracks which batches the user is currently viewing
 // ============================================================================
 
 class ViewportTracker {
@@ -450,11 +423,9 @@ class ViewportTracker {
     if (batch < 0) throw new RangeError('Batch must be non-negative');
     if (batch === this.#current) return;
 
-    // Keep track of adjacent batch for smooth scrolling scenarios
     this.#adjacent = this.#current !== undefined && Math.abs(this.#current - batch) === 1
       ? this.#current
       : undefined;
-
     this.#current = batch;
   }
 
