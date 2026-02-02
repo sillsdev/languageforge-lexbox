@@ -41,6 +41,7 @@ tasks:
       - git submodule init
       - git submodule update --recursive
       - git config --local submodule.recurse true
+      - npx --yes husky
       - task: setup-k8s
       - docker build -t local-dev-init data/
   setup-k8s:

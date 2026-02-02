@@ -1,0 +1,21 @@
+# Package Managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lock
+bun.lockb
+
+# Miscellaneous
+/static/
+
+# Temporarily ignore everything except components
+*
+!src/
+src/*
+!src/lib/
+src/lib/*
+!src/lib/components/
+!src/lib/components/**
+
+# Generated/bundled files
+src/lib/components/audio/ffmpeg/bundled-ffmpeg-worker.js
