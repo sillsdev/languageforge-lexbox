@@ -65,6 +65,8 @@ gh issue view <number>
 gh pr view <number>
 ```
 
+- If the user asks about "the" PR, but does not explicitly name a PR or branch, assume they mean the PR associated with the current branch.
+
 Provide an in-conversation summary highlighting:
 - Urgent/critical issues (regressions, bugs, broken builds)
 - Common themes or patterns
