@@ -33,6 +33,7 @@ export class EntryLoaderService {
 
   #debouncedFilterReset = useDebounce(() => this.#executeReset(false), DEFAULT_DEBOUNCE_TIME);
   #debouncedEventReset = useDebounce(() => this.#executeReset(true), EVENT_DEBOUNCE_MS);
+  #filterResetInFlight?: Promise<void>;
 
   readonly #api: IMiniLcmJsInvokable;
   readonly #deps: QueryDeps;
@@ -60,6 +61,7 @@ export class EntryLoaderService {
   destroy(): void {
     this.#debouncedFilterReset.cancel();
     this.#debouncedEventReset.cancel();
+    this.#filterResetInFlight = undefined;
     this.#generation++;
   }
 
@@ -97,14 +99,12 @@ export class EntryLoaderService {
   }
 
   reset(): Promise<void> {
-    this.#generation++;
-    this.#cache.clear();
     return this.#scheduleFilterReset();
   }
 
   quietReset(): Promise<void> {
-    if (this.#debouncedFilterReset.pending) {
-      return this.#debouncedFilterReset();
+    if (this.#filterResetInFlight) {
+      return this.#filterResetInFlight;
     }
     return this.#scheduleEventReset();
   }
@@ -120,7 +120,14 @@ export class EntryLoaderService {
   #scheduleFilterReset(): Promise<void> {
     this.loading = true;
     this.#debouncedEventReset.cancel();
-    return this.#debouncedFilterReset();
+    const promise = this.#debouncedFilterReset();
+    this.#filterResetInFlight = promise;
+    void promise.finally(() => {
+      if (this.#filterResetInFlight === promise) {
+        this.#filterResetInFlight = undefined;
+      }
+    });
+    return promise;
   }
 
   #scheduleEventReset(): Promise<void> {
