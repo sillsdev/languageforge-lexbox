@@ -2,13 +2,13 @@
  * EntryLoaderService - On-demand entry loading with batch caching.
  *
  * Architecture:
- * - Single reset pipeline with priority-based coalescing
- * - FILTER resets (search/sort changes) override EVENT resets (entry updates)
- * - Debouncing prevents rapid-fire API calls
+ * - Dual debouncer pattern: filter changes (300ms) and entry events (600ms)
+ * - Filter resets cancel pending event resets (priority override)
  * - Generation tracking invalidates stale async operations
  */
 
 import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
+import {Debouncer} from '$lib/utils/debouncer';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IEntry} from '$lib/dotnet-types';
 import type {IFilterQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
@@ -28,10 +28,7 @@ interface QueryDeps {
   gridifyFilter: () => string | undefined;
 }
 
-const enum ResetPriority {
-  EVENT = 1,   // Entry events - background refresh, no loading indicator
-  FILTER = 2,  // Filter changes - shows loading, clears cache
-}
+const EVENT_DEBOUNCE_MS = 600;
 
 // ============================================================================
 // EntryLoaderService
@@ -49,7 +46,10 @@ export class EntryLoaderService {
   #generation = $state(-1);
   #cache = new EntryCache();
   #viewport = new ViewportTracker();
-  #resetQueue = new ResetQueue();
+
+  // Dual debouncer pattern - filter overrides event
+  #filterDebouncer = new Debouncer(() => this.#executeReset(false), { wait: DEFAULT_DEBOUNCE_TIME });
+  #eventDebouncer = new Debouncer(() => this.#executeReset(true), { wait: EVENT_DEBOUNCE_MS });
 
   readonly #api: IMiniLcmJsInvokable;
   readonly #deps: QueryDeps;
@@ -60,12 +60,12 @@ export class EntryLoaderService {
     this.#deps = deps;
     this.#batchSize = batchSize;
 
-    void this.#scheduleReset(ResetPriority.FILTER);
+    void this.#scheduleFilterReset();
 
     watch(
       () => [deps.search(), deps.sort(), deps.gridifyFilter()],
       (_, prev) => {
-        if (prev) void this.#scheduleReset(ResetPriority.FILTER);
+        if (prev) void this.#scheduleFilterReset();
       }
     );
   }
@@ -75,7 +75,8 @@ export class EntryLoaderService {
   }
 
   destroy(): void {
-    this.#resetQueue.cancel();
+    this.#filterDebouncer.cancel();
+    this.#eventDebouncer.cancel();
     this.#generation++;
   }
 
@@ -116,14 +117,20 @@ export class EntryLoaderService {
 
   // === Public: Reset Triggers ===
 
+  /** Full reset with loading indicator */
   reset(): Promise<void> {
     this.#generation++;
     this.#cache.clear();
-    return this.#scheduleReset(ResetPriority.FILTER);
+    return this.#scheduleFilterReset();
   }
 
+  /** Quiet reset without loading indicator (for entry events) */
   quietReset(): Promise<void> {
-    return this.#scheduleReset(ResetPriority.EVENT);
+    // If filter reset is pending, piggyback on it
+    if (this.#filterDebouncer.pending) {
+      return this.#filterDebouncer.call();
+    }
+    return this.#eventDebouncer.call();
   }
 
   async onEntryDeleted(_id: string): Promise<void> {
@@ -134,38 +141,17 @@ export class EntryLoaderService {
     await this.quietReset();
   }
 
-  // For backwards compatibility with tests
-  async loadInitialCount(): Promise<void> {
-    this.loading = true;
-    const gen = this.#generation;
-    try {
-      const count = await this.#fetchCount();
-      if (gen !== this.#generation) return;
-      this.totalCount = count;
-    } catch (e) {
-      if (gen !== this.#generation) return;
-      this.error = e instanceof Error ? e : new Error(String(e));
-    } finally {
-      if (gen === this.#generation) {
-        this.loading = false;
-      }
-    }
-  }
-
   // === Private: Reset Pipeline ===
 
-  #scheduleReset(priority: ResetPriority): Promise<void> {
-    if (priority === ResetPriority.FILTER) {
-      this.loading = true;
-    }
-    return this.#resetQueue.schedule(priority, () => this.#executeReset(priority));
+  #scheduleFilterReset(): Promise<void> {
+    this.loading = true;
+    this.#eventDebouncer.cancel(); // Filter overrides event
+    return this.#filterDebouncer.call();
   }
 
-  async #executeReset(priority: ResetPriority): Promise<void> {
+  async #executeReset(isQuiet: boolean): Promise<void> {
     const gen = this.#generation;
-    const batchesToPreload = priority === ResetPriority.EVENT
-      ? this.#viewport.getViewedBatches()
-      : [];
+    const batchesToPreload = isQuiet ? this.#viewport.getViewedBatches() : [];
     let success = false;
 
     try {
@@ -192,7 +178,7 @@ export class EntryLoaderService {
       this.error = e instanceof Error ? e : new Error(String(e));
     } finally {
       if (gen === this.#generation) {
-        if (priority === ResetPriority.FILTER) {
+        if (!isQuiet) {
           this.loading = false;
         }
         if (success) {
@@ -273,76 +259,6 @@ export class EntryLoaderService {
 
   #batchFor(index: number): number {
     return Math.floor(index / this.#batchSize);
-  }
-}
-
-// ============================================================================
-// ResetQueue - Debounces and coalesces reset requests by priority
-// ============================================================================
-
-class ResetQueue {
-  static readonly DEBOUNCE_MS: Record<ResetPriority, number> = {
-    [ResetPriority.EVENT]: 600,
-    [ResetPriority.FILTER]: DEFAULT_DEBOUNCE_TIME,
-  };
-
-  #pending: { priority: ResetPriority; execute: () => Promise<void> } | null = null;
-  #timer?: ReturnType<typeof setTimeout>;
-  #debounceResolvers: (() => void)[] = [];
-  #inFlight?: Promise<void>;
-
-  schedule(priority: ResetPriority, execute: () => Promise<void>): Promise<void> {
-    if (!this.#pending || priority >= this.#pending.priority) {
-      this.#pending = { priority, execute };
-      this.#restartDebounce();
-    }
-    return this.#inFlight ?? this.#startLoop();
-  }
-
-  cancel(): void {
-    clearTimeout(this.#timer);
-    this.#timer = undefined;
-    this.#pending = null;
-    this.#resolveDebounce();
-  }
-
-  #restartDebounce(): void {
-    clearTimeout(this.#timer);
-    const ms = ResetQueue.DEBOUNCE_MS[this.#pending!.priority];
-    this.#timer = setTimeout(() => {
-      this.#timer = undefined;
-      this.#resolveDebounce();
-    }, ms);
-  }
-
-  #resolveDebounce(): void {
-    const resolvers = this.#debounceResolvers;
-    this.#debounceResolvers = [];
-    resolvers.forEach(r => r());
-  }
-
-  #waitForDebounce(): Promise<void> {
-    if (!this.#timer) return Promise.resolve();
-    return new Promise(r => this.#debounceResolvers.push(r));
-  }
-
-  #startLoop(): Promise<void> {
-    if (this.#inFlight) return this.#inFlight;
-
-    this.#inFlight = (async () => {
-      while (this.#pending) {
-        await this.#waitForDebounce();
-        const pending = this.#pending;
-        this.#pending = null;
-        if (pending) {
-          await pending.execute();
-        }
-      }
-    })().finally(() => {
-      this.#inFlight = undefined;
-    });
-
-    return this.#inFlight;
   }
 }
 
