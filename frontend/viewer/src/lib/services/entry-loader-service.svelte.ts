@@ -1,14 +1,13 @@
 /**
  * EntryLoaderService - On-demand entry loading with batch caching.
  *
- * Refactored for clarity with these design principles:
- * 1. Single cache object instead of multiple maps
- * 2. Generation guards to simplify stale-check boilerplate
- * 3. Clear separation: Cache, Fetching, Event Handling
- * 4. Descriptive naming throughout
+ * Simplified architecture:
+ * 1. Single reset pipeline (no separate quiet/full reset)
+ * 2. Reset requests are queued and coalesced
+ * 3. Higher priority resets (filter changes) override lower priority (entry events)
  */
 
-import {DEFAULT_DEBOUNCE_TIME, delay} from '$lib/utils/time';
+import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IEntry} from '$lib/dotnet-types';
 import type {IFilterQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
@@ -28,6 +27,16 @@ interface QueryDeps {
   gridifyFilter: () => string | undefined;
 }
 
+/**
+ * Reset priority - higher priority resets override pending lower priority ones.
+ * FILTER: User changed search/sort/filter - show loading, short debounce
+ * EVENT:  Entry was added/updated/deleted - no loading, long debounce
+ */
+const enum ResetPriority {
+  EVENT = 1,   // Entry events (background, no loading)
+  FILTER = 2,  // Filter changes (foreground, show loading)
+}
+
 // ============================================================================
 // EntryLoaderService
 // ============================================================================
@@ -43,9 +52,8 @@ export class EntryLoaderService {
   // === Private State ===
   #generation = $state(-1);
   #cache = new EntryCache();
-  #viewportBatches = new ViewportBatchTracker();
-  #quietResetDebouncer = new QuietResetDebouncer(() => this.#executeQuietReset());
-  #filterDebounceTimer?: ReturnType<typeof setTimeout>;
+  #viewport = new ViewportTracker();
+  #resetQueue = new ResetQueue();
 
   readonly #api: IMiniLcmJsInvokable;
   readonly #deps: QueryDeps;
@@ -56,13 +64,14 @@ export class EntryLoaderService {
     this.#deps = deps;
     this.#batchSize = batchSize;
 
-    void this.reset();
+    // Initial load
+    void this.#scheduleReset(ResetPriority.FILTER);
 
+    // Watch for filter changes
     watch(
       () => [deps.search(), deps.sort(), deps.gridifyFilter()],
       (_, prev) => {
-        if (!prev) return; // Skip initial
-        this.#debounceReset();
+        if (prev) void this.#scheduleReset(ResetPriority.FILTER);
       }
     );
   }
@@ -72,25 +81,25 @@ export class EntryLoaderService {
   }
 
   destroy(): void {
-    clearTimeout(this.#filterDebounceTimer);
+    this.#resetQueue.cancel();
     this.#generation++;
   }
 
   // === Public: Entry Access ===
 
   getCachedEntryByIndex(index: number): IEntry | undefined {
-    this.#viewportBatches.markAccessed(this.#batchFor(index));
+    this.#viewport.markViewed(this.#batchFor(index));
     return this.#cache.getByIndex(index);
   }
 
   async getOrLoadEntryByIndex(index: number): Promise<IEntry | undefined> {
-    this.#viewportBatches.markAccessed(this.#batchFor(index));
+    this.#viewport.markViewed(this.#batchFor(index));
 
     const cached = this.#cache.getByIndex(index);
     if (cached) return cached;
 
     const gen = this.#generation;
-    await this.#ensureBatchLoaded(this.#batchFor(index));
+    await this.#loadBatch(this.#batchFor(index));
 
     return gen === this.#generation ? this.#cache.getByIndex(index) : undefined;
   }
@@ -111,20 +120,22 @@ export class EntryLoaderService {
     return index;
   }
 
-  // === Public: Reset Operations ===
+  // === Public: Reset Triggers ===
 
-  async reset(): Promise<void> {
-    await this.#loadCount();
-    this.#cache.clear();
+  /** Full reset with loading indicator (for manual refresh button) */
+  reset(): Promise<void> {
+    // Immediately invalidate in-flight operations and clear stale cache
     this.#generation++;
+    this.#cache.clear();
+    return this.#scheduleReset(ResetPriority.FILTER);
   }
 
+  /** Quiet reset without loading indicator (for entry events) */
   quietReset(): Promise<void> {
-    return this.#quietResetDebouncer.request(this.#generation);
+    return this.#scheduleReset(ResetPriority.EVENT);
   }
 
-  // === Public: Event Handlers ===
-
+  // Convenience methods for event handlers
   async onEntryDeleted(_id: string): Promise<void> {
     await this.quietReset();
   }
@@ -135,15 +146,7 @@ export class EntryLoaderService {
 
   // For backwards compatibility with tests
   async loadInitialCount(): Promise<void> {
-    await this.#loadCount();
-  }
-
-  // === Private: Loading ===
-
-  async #loadCount(): Promise<void> {
     this.loading = true;
-    this.error = undefined;
-
     const gen = this.#generation;
     try {
       const count = await this.#fetchCount();
@@ -152,13 +155,72 @@ export class EntryLoaderService {
     } catch (e) {
       if (gen !== this.#generation) return;
       this.error = e instanceof Error ? e : new Error(String(e));
-      this.totalCount = undefined;
     } finally {
-      if (gen === this.#generation) this.loading = false;
+      if (gen === this.#generation) {
+        this.loading = false;
+      }
     }
   }
 
-  async #ensureBatchLoaded(batch: number): Promise<void> {
+  // === Private: Reset Pipeline ===
+
+  #scheduleReset(priority: ResetPriority): Promise<void> {
+    // Show loading immediately for high-priority resets
+    if (priority === ResetPriority.FILTER) {
+      this.loading = true;
+    }
+
+    return this.#resetQueue.schedule(priority, () => this.#executeReset(priority));
+  }
+
+  async #executeReset(priority: ResetPriority): Promise<void> {
+    const gen = this.#generation;
+    const batchesToPreload = priority === ResetPriority.EVENT
+      ? this.#viewport.getViewedBatches()
+      : [];
+    let success = false;
+
+    try {
+      // Fetch new data
+      const [count, entries] = await Promise.all([
+        this.#fetchCount(),
+        batchesToPreload.length > 0
+          ? this.#fetchBatchRange(batchesToPreload)
+          : Promise.resolve([]),
+      ]);
+
+      // Abort if superseded by another reset
+      if (gen !== this.#generation) return;
+
+      // Atomic swap
+      this.#cache.clear();
+      if (entries.length > 0) {
+        const startIndex = Math.min(...batchesToPreload) * this.#batchSize;
+        this.#cache.storeRange(startIndex, entries, batchesToPreload);
+      }
+
+      this.totalCount = count;
+      this.error = undefined;
+      success = true;
+    } catch (e) {
+      if (gen !== this.#generation) return;
+      this.error = e instanceof Error ? e : new Error(String(e));
+    } finally {
+      // Clear loading if we're still valid (not invalidated by destroy())
+      if (gen === this.#generation) {
+        if (priority === ResetPriority.FILTER) {
+          this.loading = false;
+        }
+        if (success) {
+          this.#generation++;
+        }
+      }
+    }
+  }
+
+  // === Private: Batch Loading ===
+
+  async #loadBatch(batch: number): Promise<void> {
     if (this.#cache.isBatchLoaded(batch)) return;
 
     const pending = this.#cache.getPendingBatch(batch);
@@ -180,57 +242,27 @@ export class EntryLoaderService {
     }
   }
 
-  async #executeQuietReset(): Promise<void> {
-    const gen = this.#generation;
-    const batches = this.#viewportBatches.getRelevantBatches();
+  // === Private: API ===
 
-    try {
-      const [count, entries] = await Promise.all([
-        this.#fetchCount(),
-        this.#fetchBatchRange(batches),
-      ]);
-
-      if (gen !== this.#generation) return;
-
-      // Atomic swap: clear old cache, store new data, bump generation
-      this.#cache.clear();
-      const startIndex = Math.min(...batches) * this.#batchSize;
-      this.#cache.storeRange(startIndex, entries, batches, this.#batchSize);
-      this.#generation++;
-      this.totalCount = count;
-      this.error = undefined;
-    } catch (e) {
-      if (gen !== this.#generation) return;
-      this.error = e instanceof Error ? e : new Error(String(e));
-    }
-  }
-
-  #debounceReset(): void {
-    clearTimeout(this.#filterDebounceTimer);
-    this.#filterDebounceTimer = setTimeout(() => void this.reset(), DEFAULT_DEBOUNCE_TIME);
-  }
-
-  // === Private: API Calls ===
-
-  async #fetchCount(): Promise<number> {
+  #fetchCount(): Promise<number> {
     return this.#api.countEntries(
       this.#deps.search() || undefined,
       this.#buildFilterOptions()
     );
   }
 
-  async #fetchBatch(batch: number): Promise<IEntry[]> {
+  #fetchBatch(batch: number): Promise<IEntry[]> {
     return this.#fetchRange(batch * this.#batchSize, this.#batchSize);
   }
 
-  async #fetchBatchRange(batches: number[]): Promise<IEntry[]> {
-    const startBatch = Math.min(...batches);
-    return this.#fetchRange(startBatch * this.#batchSize, batches.length * this.#batchSize);
+  #fetchBatchRange(batches: number[]): Promise<IEntry[]> {
+    const start = Math.min(...batches);
+    return this.#fetchRange(start * this.#batchSize, batches.length * this.#batchSize);
   }
 
-  async #fetchRange(offset: number, count: number): Promise<IEntry[]> {
-    const options = this.#buildQueryOptions(offset, count);
+  #fetchRange(offset: number, count: number): Promise<IEntry[]> {
     const search = this.#deps.search();
+    const options = this.#buildQueryOptions(offset, count);
     return search
       ? this.#api.searchEntries(search, options)
       : this.#api.getEntries(options);
@@ -261,7 +293,88 @@ export class EntryLoaderService {
 }
 
 // ============================================================================
-// EntryCache - Encapsulates all cache state and operations
+// ResetQueue - Coalesces and prioritizes reset requests
+// ============================================================================
+
+class ResetQueue {
+  static readonly DEBOUNCE_MS: Record<ResetPriority, number> = {
+    [ResetPriority.EVENT]: 600,
+    [ResetPriority.FILTER]: DEFAULT_DEBOUNCE_TIME,
+  };
+
+  #pending: { priority: ResetPriority; execute: () => Promise<void> } | null = null;
+  #timer?: ReturnType<typeof setTimeout>;
+  #inFlight?: Promise<void>;
+
+  /**
+   * Schedule a reset. Higher priority resets override pending lower priority ones.
+   * Returns a promise that resolves when the reset completes.
+   */
+  schedule(priority: ResetPriority, execute: () => Promise<void>): Promise<void> {
+    // Higher priority reset overrides pending lower priority
+    if (!this.#pending || priority >= this.#pending.priority) {
+      this.#pending = { priority, execute };
+      this.#restartDebounce();
+    }
+
+    // Return a promise that resolves when current batch of resets completes
+    return this.#inFlight ?? this.#startExecution();
+  }
+
+  cancel(): void {
+    clearTimeout(this.#timer);
+    this.#pending = null;
+  }
+
+  #restartDebounce(): void {
+    clearTimeout(this.#timer);
+    if (!this.#pending) return;
+
+    const debounceMs = ResetQueue.DEBOUNCE_MS[this.#pending.priority];
+    this.#timer = setTimeout(() => void this.#flush(), debounceMs);
+  }
+
+  #startExecution(): Promise<void> {
+    if (this.#inFlight) return this.#inFlight;
+
+    this.#inFlight = this.#runLoop().finally(() => {
+      this.#inFlight = undefined;
+    });
+
+    return this.#inFlight;
+  }
+
+  async #runLoop(): Promise<void> {
+    // Keep processing while there are pending resets
+    while (this.#pending) {
+      // Wait for debounce
+      await new Promise<void>(resolve => {
+        const check = () => {
+          if (!this.#timer) resolve();
+          else setTimeout(check, 50);
+        };
+        check();
+      });
+
+      await this.#flush();
+    }
+  }
+
+  async #flush(): Promise<void> {
+    clearTimeout(this.#timer);
+    this.#timer = undefined;
+
+    const pending = this.#pending;
+    this.#pending = null;
+
+    if (pending) {
+      await pending.execute();
+    }
+  }
+}
+
+// ============================================================================
+// EntryCache - All cache operations in one place
 // ============================================================================
 
 class EntryCache {
@@ -295,22 +408,21 @@ class EntryCache {
   }
 
   clearPendingBatch(batch: number, promise: Promise<IEntry[]>): void {
-    // Only clear if it's still the same promise (prevents stale clears)
     if (this.#pending.get(batch) === promise) {
       this.#pending.delete(batch);
     }
   }
 
   storeBatch(batch: number, entries: IEntry[], batchSize: number): void {
-    const startIndex = batch * batchSize;
+    const start = batch * batchSize;
     for (let i = 0; i < entries.length; i++) {
-      this.#entries.set(startIndex + i, entries[i]);
-      this.#idToIndex.set(entries[i].id, startIndex + i);
+      this.#entries.set(start + i, entries[i]);
+      this.#idToIndex.set(entries[i].id, start + i);
     }
     this.#loaded.add(batch);
   }
 
-  storeRange(startIndex: number, entries: IEntry[], batches: number[], _batchSize: number): void {
+  storeRange(startIndex: number, entries: IEntry[], batches: number[]): void {
     for (let i = 0; i < entries.length; i++) {
       this.#entries.set(startIndex + i, entries[i]);
       this.#idToIndex.set(entries[i].id, startIndex + i);
@@ -327,70 +439,28 @@ class EntryCache {
 }
 
 // ============================================================================
-// ViewportBatchTracker - Tracks which batches the UI is currently viewing
+// ViewportTracker - Tracks which batches are currently visible
 // ============================================================================
 
-class ViewportBatchTracker {
+class ViewportTracker {
   #current: number | undefined;
-  #previous: number | undefined;
+  #adjacent: number | undefined;
 
-  markAccessed(batch: number): void {
+  markViewed(batch: number): void {
     if (batch < 0) throw new RangeError('Batch must be non-negative');
     if (batch === this.#current) return;
 
-    // Track previous only if adjacent to current
-    if (this.#current !== undefined && Math.abs(this.#current - batch) === 1) {
-      this.#previous = this.#current;
-    } else {
-      this.#previous = undefined;
-    }
+    // Keep track of adjacent batch for smooth scrolling scenarios
+    this.#adjacent = this.#current !== undefined && Math.abs(this.#current - batch) === 1
+      ? this.#current
+      : undefined;
 
     this.#current = batch;
   }
 
-  getRelevantBatches(): number[] {
+  getViewedBatches(): number[] {
     if (this.#current === undefined) return [0];
-    if (this.#previous === undefined) return [this.#current];
-    return [this.#previous, this.#current].sort((a, b) => a - b);
-  }
-}
-
-// ============================================================================
-// QuietResetDebouncer - Coalesces rapid quiet reset requests
-// ============================================================================
-
-class QuietResetDebouncer {
-  static readonly DEBOUNCE_MS = 600;
-
-  #pending = false;
-  #generation = -1;
-  #inFlight?: Promise<void>;
-
-  constructor(private executeReset: () => Promise<void>) {}
-
-  request(currentGeneration: number): Promise<void> {
-    this.#pending = true;
-    this.#generation = currentGeneration;
-
-    if (this.#inFlight) return this.#inFlight;
-
-    this.#inFlight = this.#run().finally(() => {
-      this.#inFlight = undefined;
-    });
-
-    return this.#inFlight;
-  }
-
-  async #run(): Promise<void> {
-    while (this.#pending) {
-      this.#pending = false;
-      await delay(QuietResetDebouncer.DEBOUNCE_MS);
-
-      // Abort if generation changed (full reset trumps quiet reset)
-      if (this.#generation === -1) return;
-      if (this.#pending) continue;
-
-      await this.executeReset();
-    }
+    if (this.#adjacent === undefined) return [this.#current];
+    return [this.#adjacent, this.#current].sort((a, b) => a - b);
   }
 }
