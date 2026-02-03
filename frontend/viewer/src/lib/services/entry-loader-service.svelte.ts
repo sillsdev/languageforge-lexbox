@@ -22,6 +22,11 @@ interface QueryDeps {
 
 const EVENT_DEBOUNCE_MS = 600;
 
+
+// useDebounce's types don't account for awaiting async callbacks, so we specify
+// void (not Promise<void>) to get the correct runtime return type.
+type DebouncedVoidFn = ReturnType<typeof useDebounce<[], void>>;
+
 export class EntryLoaderService {
   static readonly DEFAULT_GENERATION = 0;
 
@@ -33,9 +38,9 @@ export class EntryLoaderService {
   #cache = new EntryCache();
   #viewport = new ViewportTracker();
 
-  #debouncedFilterReset = useDebounce(() => this.#executeReset(false), DEFAULT_DEBOUNCE_TIME);
-  #debouncedEventReset = useDebounce(() => this.#executeReset(true), EVENT_DEBOUNCE_MS);
-  #filterResetInFlight?: Promise<Promise<void>>;
+  #debouncedFilterReset = useDebounce(() => this.#executeReset(false), DEFAULT_DEBOUNCE_TIME) as unknown as DebouncedVoidFn;
+  #debouncedEventReset = useDebounce(() => this.#executeReset(true), EVENT_DEBOUNCE_MS) as unknown as DebouncedVoidFn;
+  #filterResetInFlight?: Promise<void>;
   #eventPendingAfterFilterReset = false;
 
   readonly #api: IMiniLcmJsInvokable;
@@ -106,7 +111,7 @@ export class EntryLoaderService {
     return this.#scheduleFilterReset();
   }
 
-  async quietReset(): Promise<void> {
+  quietReset(): Promise<void> {
     if (this.#filterResetInFlight) {
       this.#eventPendingAfterFilterReset = true;
       return this.#filterResetInFlight;
@@ -138,7 +143,7 @@ export class EntryLoaderService {
     }
   }
 
-  async #scheduleEventReset(): Promise<void> {
+  #scheduleEventReset(): Promise<void> {
     return this.#debouncedEventReset();
   }
 
