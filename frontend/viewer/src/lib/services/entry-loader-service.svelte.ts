@@ -35,23 +35,16 @@ export class EntryLoaderService {
   error = $state<Error | undefined>();
 
   #generation = $state(-1);
-  #cache = new EntryCache();
-  #viewport = new ViewportTracker();
+  readonly #cache: EntryCache;
+  readonly #viewport = new ViewportTracker();
 
   #debouncedFilterReset = useDebounce(() => this.#executeReset(false), DEFAULT_DEBOUNCE_TIME) as unknown as DebouncedVoidFn;
   #debouncedEventReset = useDebounce(() => this.#executeReset(true), EVENT_DEBOUNCE_MS) as unknown as DebouncedVoidFn;
   #filterResetInFlight?: Promise<void>;
   #eventPendingAfterFilterReset = false;
 
-  readonly #api: IMiniLcmJsInvokable;
-  readonly #deps: QueryDeps;
-  readonly #batchSize: number;
-
-  constructor(api: IMiniLcmJsInvokable, deps: QueryDeps, batchSize = 50) {
-    this.#api = api;
-    this.#deps = deps;
-    this.#batchSize = batchSize;
-
+  constructor(private readonly api: IMiniLcmJsInvokable, private readonly deps: QueryDeps, private readonly batchSize = 50) {
+    this.#cache = new EntryCache(batchSize);
     void this.#executeReset(false);
 
     watch(
@@ -96,9 +89,9 @@ export class EntryLoaderService {
     if (cached !== undefined) return cached;
 
     const gen = this.#generation;
-    const index = await this.#api.getEntryIndex(
+    const index = await this.api.getEntryIndex(
       id,
-      this.#deps.search() || undefined,
+      this.deps.search() || undefined,
       this.#buildQueryOptions(0, 0)
     );
 
@@ -164,8 +157,7 @@ export class EntryLoaderService {
 
       this.#cache.clear();
       if (entries.length > 0) {
-        const startIndex = Math.min(...batchesToPreload) * this.#batchSize;
-        this.#cache.storeRange(startIndex, entries, batchesToPreload);
+        this.#cache.storeRange(batchesToPreload, entries);
       }
 
       this.totalCount = count;
@@ -202,43 +194,43 @@ export class EntryLoaderService {
     try {
       const entries = await promise;
       if (gen !== this.#generation) return;
-      this.#cache.storeBatch(batch, entries, this.#batchSize);
+      this.#cache.storeBatch(batch, entries);
     } finally {
       this.#cache.clearPendingBatch(batch, promise);
     }
   }
 
   #fetchCount(): Promise<number> {
-    return this.#api.countEntries(
-      this.#deps.search() || undefined,
+    return this.api.countEntries(
+      this.deps.search() || undefined,
       this.#buildFilterOptions()
     );
   }
 
   #fetchBatch(batch: number): Promise<IEntry[]> {
-    return this.#fetchRange(batch * this.#batchSize, this.#batchSize);
+    return this.#fetchRange(batch * this.batchSize, this.batchSize);
   }
 
   #fetchBatchRange(batches: number[]): Promise<IEntry[]> {
     const start = Math.min(...batches);
-    return this.#fetchRange(start * this.#batchSize, batches.length * this.#batchSize);
+    return this.#fetchRange(start * this.batchSize, batches.length * this.batchSize);
   }
 
   #fetchRange(offset: number, count: number): Promise<IEntry[]> {
-    const search = this.#deps.search();
+    const search = this.deps.search();
     const options = this.#buildQueryOptions(offset, count);
     return search
-      ? this.#api.searchEntries(search, options)
-      : this.#api.getEntries(options);
+      ? this.api.searchEntries(search, options)
+      : this.api.getEntries(options);
   }
 
   #buildFilterOptions(): IFilterQueryOptions {
-    const filter = this.#deps.gridifyFilter();
+    const filter = this.deps.gridifyFilter();
     return { filter: filter ? { gridifyFilter: filter } : undefined };
   }
 
   #buildQueryOptions(offset: number, count: number): IQueryOptions {
-    const sort = this.#deps.sort();
+    const sort = this.deps.sort();
     return {
       count,
       offset,
@@ -252,7 +244,7 @@ export class EntryLoaderService {
   }
 
   #batchFor(index: number): number {
-    return Math.floor(index / this.#batchSize);
+    return Math.floor(index / this.batchSize);
   }
 }
 
@@ -261,6 +253,8 @@ class EntryCache {
   #idToIndex = new SvelteMap<string, number>();
   #pending = new SvelteMap<number, Promise<IEntry[]>>();
   #loaded = new SvelteSet<number>();
+
+  constructor(private readonly batchSize: number) {}
 
   getByIndex(index: number): IEntry | undefined {
     return this.#entries.get(index);
@@ -292,8 +286,8 @@ class EntryCache {
     }
   }
 
-  storeBatch(batch: number, entries: IEntry[], batchSize: number): void {
-    const start = batch * batchSize;
+  storeBatch(batch: number, entries: IEntry[]): void {
+    const start = batch * this.batchSize;
     for (let i = 0; i < entries.length; i++) {
       this.#entries.set(start + i, entries[i]);
       this.#idToIndex.set(entries[i].id, start + i);
@@ -301,7 +295,8 @@ class EntryCache {
     this.#loaded.add(batch);
   }
 
-  storeRange(startIndex: number, entries: IEntry[], batches: number[]): void {
+  storeRange(batches: number[], entries: IEntry[]): void {
+    const startIndex = Math.min(...batches) * this.batchSize;
     for (let i = 0; i < entries.length; i++) {
       this.#entries.set(startIndex + i, entries[i]);
       this.#idToIndex.set(entries[i].id, startIndex + i);
