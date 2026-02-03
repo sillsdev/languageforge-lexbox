@@ -18,13 +18,17 @@ public class MiniLcmWriteApiNormalizationWrapperFactory : IMiniLcmWrapperFactory
 /// <summary>
 /// Normalizes all user-entered text to NFD on write operations.
 /// Read operations are forwarded automatically via BeaKona.AutoInterface.
+/// Write operations MUST be manually implemented - the compiler will fail if any are missing.
 /// </summary>
 public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMiniLcmApi
 {
-    // BeaKona.AutoInterface will automatically implement IMiniLcmReadApi methods
-    // by forwarding to _api. We manually implement IMiniLcmWriteApi methods below.
-    [BeaKona.AutoInterface(IncludeBaseInterfaces = true, MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
+
+    // BeaKona.AutoInterface only forwards IMiniLcmReadApi methods.
+    // IMiniLcmWriteApi methods are NOT auto-forwarded, ensuring compile-time
+    // enforcement that all write methods are manually implemented below.
+    [BeaKona.AutoInterface]
+    private IMiniLcmReadApi ReadApi => _api;
 
     // ********** IMiniLcmWriteApi Manual Implementations **********
     // All write methods are implemented manually to ensure NFD normalization
