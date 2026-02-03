@@ -35,6 +35,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        _fixture.DeleteSyncSnapshot();
         await _fixture.FwDataApi.CreateEntry(_testEntry);
         await _fixture.FwDataApi.CreateEntry(new Entry()
         {
@@ -72,6 +73,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             await _fixture.CrdtApi.DeletePartOfSpeech(pos.Id);
         }
+        _fixture.DeleteSyncSnapshot();
     }
 
     public SyncTests(SyncFixture fixture)
@@ -130,6 +132,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Import(crdtApi, fwdataApi);
+        await _fixture.RegenerateAndGetSnapshot();
 
         AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
     }
@@ -141,7 +144,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
         var secondSync = await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
         secondSync.CrdtChanges.Should().Be(0);
         secondSync.FwdataChanges.Should().Be(0);
@@ -156,7 +159,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = fixture.CrdtApi;
         var fwdataApi = fixture.FwDataApi;
         await fixture.SyncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await fixture.RegenerateAndGetSnapshot();
 
         var newFwProjectId = Guid.NewGuid();
         await using var dbContext = await fixture.Services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
@@ -165,6 +168,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         Func<Task> syncTask = async () => await fixture.SyncService.Sync(crdtApi, fwdataApi, projectSnapshot);
         await syncTask.Should().ThrowAsync<InvalidOperationException>();
+        fixture.DeleteSyncSnapshot();
         await fixture.DisposeAsync();
     }
 
@@ -175,7 +179,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         await fwdataApi.CreateEntry(new Entry()
         {
@@ -205,7 +209,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
         var fwDataEntryId = Guid.NewGuid();
         var crdtEntryId = Guid.NewGuid();
 
@@ -242,7 +246,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         var hat = await fwdataApi.CreateEntry(new Entry()
         {
@@ -279,7 +283,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
 
         // Sync again, ensure no problems or changes
-        var secondSnapshot = await crdtApi.TakeProjectSnapshot();
+        var secondSnapshot = await _fixture.RegenerateAndGetSnapshot();
         var secondSync = await _syncService.Sync(crdtApi, fwdataApi, secondSnapshot);
         secondSync.CrdtChanges.Should().Be(0);
         secondSync.FwdataChanges.Should().Be(0);
@@ -293,7 +297,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         var noun = new PartOfSpeech()
         {
@@ -330,7 +334,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         var noun = new PartOfSpeech()
         {
@@ -377,7 +381,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         var semdom3 = new SemanticDomain()
         {
@@ -416,7 +420,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         var semdom3 = new SemanticDomain()
         {
@@ -458,7 +462,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await fwdataApi.CreateWritingSystem(new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("es"), Name = "Spanish", Abbreviation = "es", Font = "Arial" });
         await fwdataApi.CreateWritingSystem(new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
         await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"], "Manzana"));
 
@@ -483,7 +487,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
         await crdtApi.DeleteEntry(_testEntry.Id);
         var newEntryId = Guid.NewGuid();
         await fwdataApi.CreateEntry(new Entry()
@@ -522,7 +526,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await crdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         await fwdataApi.CreateSense(_testEntry.Id, new Sense()
             {
@@ -546,7 +550,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     {
         //ensure they are synced so a real sync will happen when we want it to
         await _fixture.SyncService.Import(_fixture.CrdtApi, _fixture.FwDataApi);
-        var projectSnapshot = await _fixture.CrdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         var complexFormEntry = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "complexForm" } } });
         await _fixture.CrdtApi.CreateEntry(new()
@@ -568,7 +572,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     {
         //ensure they are synced so a real sync will happen when we want it to
         await _fixture.SyncService.Import(_fixture.CrdtApi, _fixture.FwDataApi);
-        var projectSnapshot = await _fixture.CrdtApi.TakeProjectSnapshot();
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         var complexFormEntry = await _fixture.CrdtApi.CreateComplexFormType(new() { Name = new() { { "en", "complexFormType" } } });
 

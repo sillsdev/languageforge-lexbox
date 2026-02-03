@@ -13,6 +13,7 @@ public record SyncJobResult
     }
 
     public SyncJobResult(SyncResult syncResult) : this(SyncJobStatusEnum.Success, error: null, syncResult: syncResult) { }
+    public SyncJobResult(SyncJobStatusEnum status) : this(status, error: null, syncResult: null) { }
     public SyncJobResult(SyncJobStatusEnum status, string error) : this(status, error: error, syncResult: null)
     {
         if (status == SyncJobStatusEnum.Success)

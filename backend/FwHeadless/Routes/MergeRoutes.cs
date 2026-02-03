@@ -64,7 +64,7 @@ public static class MergeRoutes
         }
 
         // Check if project is blocked from syncing
-        var blockInfo = await metadataService.GetSyncBlockInfoAsync(projectId);
+        var blockInfo = await metadataService.GetSyncBlockedInfoAsync(projectId);
         if (blockInfo?.IsBlocked == true)
         {
             logger.LogInformation("Project {projectId} is blocked from syncing. Reason: {Reason}", projectId, blockInfo.Reason);
@@ -319,7 +319,7 @@ public static class MergeRoutes
             return TypedResults.NotFound();
         }
 
-        var blockInfo = await metadataService.GetSyncBlockInfoAsync(projectId);
+        var blockInfo = await metadataService.GetSyncBlockedInfoAsync(projectId);
 
         activity?.SetStatus(ActivityStatusCode.Ok, $"Block status retrieved: {(blockInfo?.IsBlocked == true ? "blocked" : "unblocked")}");
         return TypedResults.Ok(new SyncBlockStatus

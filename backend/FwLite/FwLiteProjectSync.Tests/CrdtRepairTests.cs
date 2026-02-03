@@ -47,7 +47,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
     public async Task InitializeAsync()
     {
         await SyncService.Import(CrdtApi, FwDataApi);
-        await SnapshotService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project);
+        await _fixture.RegenerateAndGetSnapshot();
     }
 
     public async Task DisposeAsync()
@@ -94,7 +94,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         // act
         var projectSnapshot = await GetSnapshot();
         await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
-        await SnapshotService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project);
+        await _fixture.RegenerateAndGetSnapshot();
 
         // assert - the fwdata ID is now used everywhere
         var updatedFwEntry = await FwDataApi.GetEntry(crdtEntry.Id);
@@ -164,7 +164,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         // act
         var projectSnapshot = await GetSnapshot();
         await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
-        await SnapshotService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project);
+        await _fixture.RegenerateAndGetSnapshot();
 
         // assert - the fwdata ID is now used everywhere
         var updatedFwEntry = await FwDataApi.GetEntry(crdtEntry.Id);

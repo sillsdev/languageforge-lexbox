@@ -133,15 +133,6 @@ public class SyncWorker(
             return new SyncJobResult(SyncJobStatusEnum.ProjectNotFound, $"Project {projectId} not found");
         }
 
-        // Check if project is blocked (defensive check in case it was blocked while waiting in queue)
-        var blockInfo = await metadataService.GetSyncBlockInfoAsync(projectId);
-        if (blockInfo?.IsBlocked == true)
-        {
-            logger.LogInformation("Project {projectId} is blocked from syncing. Reason: {Reason}", projectId, blockInfo.Reason);
-            activity?.SetStatus(ActivityStatusCode.Ok, $"Project blocked from sync: {blockInfo.Reason}");
-            return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, $"Project is blocked from syncing. Reason: {blockInfo.Reason}");
-        }
-
         activity?.SetTag("app.project_code", projectCode);
 
         logger.LogInformation("Project code is {projectCode}", projectCode);
@@ -151,6 +142,15 @@ public class SyncWorker(
             logger.LogError("Unable to authenticate with Lexbox");
             activity?.SetStatus(ActivityStatusCode.Error, "Unable to authenticate with Lexbox");
             return new SyncJobResult(SyncJobStatusEnum.UnableToAuthenticate, "Unable to authenticate with Lexbox");
+        }
+
+        // Check if project is blocked (defensive check in case it was blocked while waiting in queue)
+        var blockInfo = await metadataService.GetSyncBlockedInfoAsync(projectId);
+        if (blockInfo?.IsBlocked == true)
+        {
+            logger.LogInformation("Project {projectId} is blocked from syncing. Reason: {Reason}", projectId, blockInfo.Reason);
+            activity?.SetStatus(ActivityStatusCode.Ok, $"Project blocked from sync: {blockInfo.Reason}");
+            return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, $"Project is blocked from syncing. Reason: {blockInfo.Reason}");
         }
 
         var projectFolder = config.Value.GetProjectFolder(projectCode, projectId);
@@ -202,7 +202,7 @@ public class SyncWorker(
         {
             // Getting this far allows us to restore a reset project, so we can regenerate a snapshot from it
             activity?.SetStatus(ActivityStatusCode.Ok, "Only Harmony sync requested, skipping Mercurial/Crdt sync");
-            return new SyncJobResult(SyncJobStatusEnum.Success, "Only Harmony sync requested, skipping Mercurial/Crdt sync");
+            return new SyncJobResult(SyncJobStatusEnum.Success);
         }
 
         var projectSnapshot = await projectSnapshotService.GetProjectSnapshot(fwdataApi.Project);

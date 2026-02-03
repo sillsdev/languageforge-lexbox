@@ -11,7 +11,7 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
     {
         await _store.UpdateAsync(projectId, metadata =>
         {
-            metadata.SyncBlocked = new SyncBlockInfo
+            metadata.SyncBlocked = new SyncBlockedInfo
             {
                 IsBlocked = true,
                 Reason = reason ?? "Manual block",
@@ -25,7 +25,7 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
     {
         await _store.UpdateAsync(projectId, metadata =>
         {
-            metadata.SyncBlocked = new SyncBlockInfo
+            metadata.SyncBlocked = new SyncBlockedInfo
             {
                 IsBlocked = false,
                 BlockedAt = null,
@@ -35,7 +35,7 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
         logger.LogInformation("Project {projectId} unblocked from sync", projectId);
     }
 
-    public Task<SyncBlockInfo?> GetSyncBlockInfoAsync(Guid projectId)
+    public Task<SyncBlockedInfo?> GetSyncBlockedInfoAsync(Guid projectId)
     {
         return _store.ReadAsync(projectId, metadata => metadata?.SyncBlocked);
     }
@@ -131,10 +131,10 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
 
 public class ProjectMetadata
 {
-    public SyncBlockInfo? SyncBlocked { get; set; }
+    public SyncBlockedInfo? SyncBlocked { get; set; }
 }
 
-public class SyncBlockInfo
+public class SyncBlockedInfo
 {
     public bool IsBlocked { get; set; }
     public string? Reason { get; set; }
