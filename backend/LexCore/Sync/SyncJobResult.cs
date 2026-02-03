@@ -31,6 +31,7 @@ public record SyncJobResult
 public enum SyncJobStatusEnum
 {
     Success,
+    SuccessHarmonyOnly,
     ProjectNotFound,
     SyncJobNotFound,
     SyncJobTimedOut,

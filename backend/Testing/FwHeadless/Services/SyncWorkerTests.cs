@@ -191,7 +191,7 @@ public class SyncWorkerTests
         var syncResult = new SyncResult(CrdtChanges: 5, FwdataChanges: 5);
         var result = await h.RunAsync(syncResult, onlyHarmony: true);
 
-        result.Status.Should().Be(SyncJobStatusEnum.Success);
+        result.Status.Should().Be(SyncJobStatusEnum.SuccessHarmonyOnly);
         h.Steps.Should().Equal(
             TestAuth,
             CheckBlocked,
