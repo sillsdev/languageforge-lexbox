@@ -191,7 +191,9 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     public async Task SecondSena3SyncDoesNothing()
     {
         await _syncService.Import(_crdtApi, _fwDataApi);
-        var projectSnapshot = await _crdtApi.TakeProjectSnapshot();
+        await _snapshotService.RegenerateProjectSnapshot(_crdtApi, _fwDataApi.Project, keepBackup: false);
+        var projectSnapshot = await _snapshotService.GetProjectSnapshot(_fwDataApi.Project)
+            ?? throw new InvalidOperationException("Expected snapshot to exist after regeneration");
         var secondSync = await _syncService.Sync(_crdtApi, _fwDataApi, projectSnapshot);
         secondSync.CrdtChanges.Should().Be(0);
         secondSync.FwdataChanges.Should().Be(0);
