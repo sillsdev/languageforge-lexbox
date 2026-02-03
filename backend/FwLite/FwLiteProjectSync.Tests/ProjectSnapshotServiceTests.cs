@@ -131,6 +131,7 @@ public class ProjectSnapshotServiceTests
         }
     }
 
+    // TODO: this should probably be enforced at compile time
     [Fact]
     public async Task RegenerateProjectSnapshot_NonCrdtApi_ThrowsInvalidOperationException()
     {
@@ -139,7 +140,7 @@ public class ProjectSnapshotServiceTests
         try
         {
             var mockReadApi = new Mock<IMiniLcmReadApi>(MockBehavior.Strict);
-            Func<Task> act = async () => await snapshotService.RegenerateProjectSnapshot(mockReadApi.Object, project);
+            var act = async () => await snapshotService.RegenerateProjectSnapshot(mockReadApi.Object, project, keepBackup: false);
             await act.Should().ThrowAsync<InvalidOperationException>()
                 .WithMessage("*CrdtMiniLcmApi*");
         }

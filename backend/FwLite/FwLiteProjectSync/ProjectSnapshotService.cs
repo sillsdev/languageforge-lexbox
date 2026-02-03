@@ -17,7 +17,7 @@ public class ProjectSnapshotService(IOptions<CrdtConfig> crdtConfig)
         return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file, crdtConfig.Value.JsonSerializerOptions);
     }
 
-    public virtual async Task RegenerateProjectSnapshot(IMiniLcmReadApi crdtApi, FwDataProject project, bool keepBackup = true)
+    public virtual async Task RegenerateProjectSnapshot(IMiniLcmReadApi crdtApi, FwDataProject project, bool keepBackup)
     {
         if (crdtApi is not CrdtMiniLcmApi)
             throw new InvalidOperationException("CrdtApi must be of type CrdtMiniLcmApi to regenerate project snapshot.");
@@ -37,6 +37,8 @@ public class ProjectSnapshotService(IOptions<CrdtConfig> crdtConfig)
     {
         var snapshotPath = SnapshotPath(project);
 
+        // Snapshot backups are only for explicit/manual recovery (e.g., an admin regenerating a snapshot to repair a project),
+        // not for routine sync operations.
         if (keepBackup && File.Exists(snapshotPath))
         {
             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");

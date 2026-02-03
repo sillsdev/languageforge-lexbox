@@ -232,7 +232,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         var projectSnapshot = await _snapshotService.GetProjectSnapshot(_fwDataApi.Project)
             ?? throw new InvalidOperationException("Expected snapshot to exist");
         var result = await _syncService.Sync(liveCrdtApi, _fwDataApi, projectSnapshot);
-        await _snapshotService.RegenerateProjectSnapshot(liveCrdtApi, _fwDataApi.Project);
+        await _snapshotService.RegenerateProjectSnapshot(liveCrdtApi, _fwDataApi.Project, keepBackup: false);
 
         // assert
         var fwHeadlessSnapshot = await _snapshotService.GetProjectSnapshot(_project.FwDataProject);

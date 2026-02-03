@@ -126,7 +126,7 @@ public class SyncFixture : IAsyncLifetime
     public async Task<ProjectSnapshot> RegenerateAndGetSnapshot()
     {
         var snapshotService = _services.ServiceProvider.GetRequiredService<ProjectSnapshotService>();
-        await snapshotService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project);
+        await snapshotService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project, keepBackup: false);
         return await snapshotService.GetProjectSnapshot(FwDataApi.Project)
             ?? throw new InvalidOperationException("Expected snapshot to exist after regenerating");
     }

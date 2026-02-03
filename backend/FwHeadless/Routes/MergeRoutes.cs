@@ -140,7 +140,7 @@ public static class MergeRoutes
         else
         {
             var miniLcmApi = context.RequestServices.GetRequiredService<IMiniLcmApi>();
-            await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwDataProject);
+            await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwDataProject, keepBackup: true);
         }
         return TypedResults.Ok();
     }
