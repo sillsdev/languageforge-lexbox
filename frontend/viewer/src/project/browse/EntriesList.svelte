@@ -86,10 +86,6 @@
     });
   });
 
-  watch(
-    () => entryLoader?.generation,
-    () => void scrollToSelectedOrTop());
-
   $effect(() => {
     if (entryLoader?.error) {
       AppNotification.error($t`Failed to load entries`, entryLoader.error.message);

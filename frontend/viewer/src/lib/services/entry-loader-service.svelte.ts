@@ -3,15 +3,16 @@
  * @see {@link ./ENTRY_LOADER_SERVICE.md} for reset flow diagram.
  */
 
-import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
+import {useDebounce, watch} from 'runed';
+
+import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
 import type {IEntry} from '$lib/dotnet-types';
 import type {IFilterQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
 import type {SortConfig} from '$project/browse/sort/options';
 import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-import {useDebounce, watch} from 'runed';
 
 interface QueryDeps {
   search: () => string;
@@ -34,7 +35,7 @@ export class EntryLoaderService {
 
   #debouncedFilterReset = useDebounce(() => this.#executeReset(false), DEFAULT_DEBOUNCE_TIME);
   #debouncedEventReset = useDebounce(() => this.#executeReset(true), EVENT_DEBOUNCE_MS);
-  #filterResetInFlight?: Promise<void>;
+  #filterResetInFlight?: Promise<Promise<void>>;
   #eventPendingAfterFilterReset = false;
 
   readonly #api: IMiniLcmJsInvokable;
@@ -105,7 +106,7 @@ export class EntryLoaderService {
     return this.#scheduleFilterReset();
   }
 
-  quietReset(): Promise<void> {
+  async quietReset(): Promise<void> {
     if (this.#filterResetInFlight) {
       this.#eventPendingAfterFilterReset = true;
       return this.#filterResetInFlight;
@@ -121,25 +122,23 @@ export class EntryLoaderService {
     await this.quietReset();
   }
 
-  #scheduleFilterReset(): Promise<void> {
+  async #scheduleFilterReset(): Promise<void> {
     this.loading = true;
     this.#debouncedEventReset.cancel();
     this.#eventPendingAfterFilterReset = false;
-    const promise = this.#debouncedFilterReset();
-    this.#filterResetInFlight = promise;
-    void promise.finally(() => {
-      if (this.#filterResetInFlight === promise) {
-        this.#filterResetInFlight = undefined;
-        if (this.#eventPendingAfterFilterReset) {
-          this.#eventPendingAfterFilterReset = false;
-          void this.#scheduleEventReset();
-        }
+    const filterResetPromise = this.#debouncedFilterReset();
+    this.#filterResetInFlight = filterResetPromise;
+    await this.#filterResetInFlight;
+    if (this.#filterResetInFlight === filterResetPromise) {
+      this.#filterResetInFlight = undefined;
+      if (this.#eventPendingAfterFilterReset) {
+        this.#eventPendingAfterFilterReset = false;
+        await this.#scheduleEventReset();
       }
-    });
-    return promise;
+    }
   }
 
-  #scheduleEventReset(): Promise<void> {
+  async #scheduleEventReset(): Promise<void> {
     return this.#debouncedEventReset();
   }
 
