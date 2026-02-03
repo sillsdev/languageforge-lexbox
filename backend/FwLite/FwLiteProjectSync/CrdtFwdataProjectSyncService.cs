@@ -57,7 +57,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         // Project snapshot logic/handling is done outside of this class so that Sync vs Import is explicit.
         // We still choose to explicitly verify a consistent state to avoid accidental misuse.
         var hasSyncedSuccessfully = ProjectSnapshotService.HasSyncedSuccessfully(fwdata.Project);
-        if (hasSyncedSuccessfully != (projectSnapshot is null))
+        if (hasSyncedSuccessfully != (projectSnapshot is not null))
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Project sync state does not match presence of snapshot.");
             throw new InvalidOperationException("Project sync state does not match presence of snapshot.");
