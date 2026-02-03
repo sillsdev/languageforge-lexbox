@@ -1,5 +1,33 @@
 /**
  * EntryLoaderService - On-demand entry loading with batch caching.
+ *
+ * Reset Flow:
+ * ┌─────────────────────────────────────────────────────────────────────┐
+ * │  Filter change (search/sort/filter)                                 │
+ * │         │                                                           │
+ * │         ▼                                                           │
+ * │  scheduleFilterReset() ──► debounce 300ms ──► executeReset(quiet=false)
+ * │         │                                            │              │
+ * │         │ cancels any pending                        │              │
+ * │         ▼ event reset                                ▼              │
+ * │  ┌──────────────────┐                    Fetch count, clear cache,  │
+ * │  │ Event occurs     │                    set loading=false,         │
+ * │  │ during filter    │                    bump generation            │
+ * │  │ reset?           │                            │                  │
+ * │  └────────┬─────────┘                            ▼                  │
+ * │           │ yes                     Check #eventPendingAfterFilterReset
+ * │           ▼                                      │                  │
+ * │  Set flag, wait for                              │ if true          │
+ * │  filter to complete ◄────────────────────────────┘                  │
+ * │           │                                                         │
+ * │           ▼                                                         │
+ * │  scheduleEventReset() ──► debounce 600ms ──► executeReset(quiet=true)
+ * │                                                      │              │
+ * │                                                      ▼              │
+ * │                                          Fetch count + viewed batches,
+ * │                                          swap cache atomically,     │
+ * │                                          bump generation            │
+ * └─────────────────────────────────────────────────────────────────────┘
  */
 
 import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
@@ -45,7 +73,7 @@ export class EntryLoaderService {
     this.#deps = deps;
     this.#batchSize = batchSize;
 
-    void this.#scheduleFilterReset();
+    void this.#executeReset(false);
 
     watch(
       () => [deps.search(), deps.sort(), deps.gridifyFilter()],
