@@ -202,7 +202,7 @@ public class SyncWorker(
         {
             // Getting this far allows us to restore a reset project, so we can regenerate a snapshot from it
             activity?.SetStatus(ActivityStatusCode.Ok, "Only Harmony sync requested, skipping Mercurial/Crdt sync");
-            return new SyncJobResult(SyncJobStatusEnum.Success);
+            return new SyncJobResult(SyncJobStatusEnum.Success, "Only Harmony sync requested, skipping Mercurial/Crdt sync");
         }
 
         var projectSnapshot = await projectSnapshotService.GetProjectSnapshot(fwdataApi.Project);

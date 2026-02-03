@@ -61,7 +61,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
         Config = new FwHeadlessConfig
         {
-            LexboxUrl = "https://lexbox.test/",
+            LexboxUrl = "https://test.lexbox.com/",
             LexboxUsername = "test",
             LexboxPassword = "test",
             ProjectStorageRoot = TempDir,

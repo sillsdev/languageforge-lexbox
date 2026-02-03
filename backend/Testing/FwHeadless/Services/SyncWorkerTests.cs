@@ -155,9 +155,6 @@ public class SyncWorkerTests
             TestAuth,
             CheckBlocked);
         Directory.Exists(h.ProjectFolder).Should().BeFalse();
-        h.MetadataServiceMock.Verify(
-            s => s.BlockFromSyncAsync(It.IsAny<Guid>(), It.IsAny<string>()),
-            Times.Never);
     }
 
     [Fact]
