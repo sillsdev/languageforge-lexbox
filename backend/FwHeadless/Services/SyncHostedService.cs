@@ -168,7 +168,7 @@ public class SyncWorker(
         }
         catch (SendReceiveException e)
         {
-            if (SendReceiveHelpers.LfMergeBridgeResult.ContainsRollbackMessage(e.Message))
+            if (e.Result.RollbackDetected)
             {
                 await metadataService.BlockFromSyncAsync(projectId, "Rollback detected during Send/Receive");
                 return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, "Project blocked due to rollback");
@@ -276,7 +276,7 @@ public class SyncWorker(
                 if (!srResult.Success)
                 {
                     logger.LogError("Send/Receive before CRDT sync failed: {Output}", srResult.Output);
-                    throw new SendReceiveException($"Send/Receive before CRDT sync failed: {srResult.Output}");
+                    throw new SendReceiveException("Send/Receive before CRDT sync failed", srResult);
                 }
                 else
                 {
@@ -291,7 +291,7 @@ public class SyncWorker(
             if (!srResult.Success)
             {
                 logger.LogError("Clone before CRDT sync failed: {Output}", srResult.Output);
-                throw new SendReceiveException($"Clone before CRDT sync failed: {srResult.Output}");
+                throw new SendReceiveException("Clone before CRDT sync failed", srResult);
             }
             else
             {

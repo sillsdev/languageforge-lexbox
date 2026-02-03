@@ -4,7 +4,11 @@ using SIL.Progress;
 
 namespace FwHeadless.Services;
 
-public class SendReceiveException(string? message) : Exception(message);
+public class SendReceiveException(string message, SendReceiveHelpers.LfMergeBridgeResult result)
+    : Exception($"{message}. Output: {result.Output}")
+{
+    public SendReceiveHelpers.LfMergeBridgeResult Result { get; } = result;
+}
 
 public static class SendReceiveHelpers
 {
@@ -33,14 +37,8 @@ public static class SendReceiveHelpers
         /// https://github.com/sillsdev/chorus/blob/master/src/LibChorus/sync/Synchronizer.cs#L651
         /// </summary>
         public const string RollbackIndicator = "Rolling back...";
-
-        public static bool ContainsRollbackMessage(string? outputOrExceptionMessage)
-        {
-            return !string.IsNullOrEmpty(outputOrExceptionMessage)
-                && outputOrExceptionMessage.Contains(RollbackIndicator, StringComparison.Ordinal);
-        }
-
-        public bool RollbackDetected => ContainsRollbackMessage(Output);
+        public bool RollbackDetected => !string.IsNullOrEmpty(Output)
+                && Output.Contains(RollbackIndicator, StringComparison.Ordinal);
 
         /// <summary>
         /// This string in the output unambiguously indicates that the operation ultimately succeeded.
