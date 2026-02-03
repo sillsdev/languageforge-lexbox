@@ -140,11 +140,12 @@ public static class MiniLcmRoutes
 
         public static Task<int> GetEntryIndex(
             Guid id,
+            [FromQuery] string? search,
             [AsParameters] MiniLcmQueryOptions options,
             [FromServices] MiniLcmHolder holder)
         {
             var api = holder.MiniLcmApi;
-            return api.GetEntryIndex(id, null, options.ToIndexQueryOptions());
+            return api.GetEntryIndex(id, search, options.ToIndexQueryOptions());
         }
 
         public static IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech([FromServices] MiniLcmHolder holder)
