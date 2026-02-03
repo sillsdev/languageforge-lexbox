@@ -54,6 +54,15 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             throw new InvalidOperationException($"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdata.ProjectId}");
         }
 
+        // Project snapshot logic/handling is done outside of this class so that Sync vs Import is explicit.
+        // We still choose to explicitly verify a consistent state to avoid accidental misuse.
+        var hasSyncedSuccessfully = ProjectSnapshotService.HasSyncedSuccessfully(fwdata.Project);
+        if (hasSyncedSuccessfully != (projectSnapshot is null))
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Project sync state does not match presence of snapshot.");
+            throw new InvalidOperationException("Project sync state does not match presence of snapshot.");
+        }
+
         crdtApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(crdtApi));
         fwdataApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(fwdataApi));
 
@@ -85,6 +94,12 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             GetDryRunRecords(crdtApi), GetDryRunRecords(fwdataApi));
     }
 
+    private async Task<SyncResult> ImportInternal(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, int entryCount)
+    {
+        await miniLcmImport.ImportProject(crdtApi, fwdataApi, entryCount);
+        return new SyncResult(entryCount, 0);
+    }
+
     private async Task<SyncResult> SyncInternal(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, ProjectSnapshot projectSnapshot)
     {
         var currentFwDataWritingSystems = await fwdataApi.GetWritingSystems();
@@ -112,12 +127,6 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         fwdataChanges += await EntrySync.SyncFull(currentFwDataEntries, await crdtApi.GetAllEntries().ToArrayAsync(), fwdataApi);
 
         return new SyncResult(crdtChanges, fwdataChanges);
-    }
-
-    private async Task<SyncResult> ImportInternal(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, int entryCount)
-    {
-        await miniLcmImport.ImportProject(crdtApi, fwdataApi, entryCount);
-        return new SyncResult(entryCount, 0);
     }
 
     private void LogDryRun(IMiniLcmApi api, string type)

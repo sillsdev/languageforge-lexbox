@@ -106,7 +106,8 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
 
     private ServiceProvider BuildServiceProvider(
         SyncResult syncResult,
-        bool authSuccess = true)
+        bool authSuccess = true,
+        bool snapshotExists = true)
     {
         var services = new ServiceCollection();
 
@@ -191,7 +192,7 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
         snapshotService
             .Setup(s => s.GetProjectSnapshot(It.IsAny<FwDataProject>()))
             .Callback(() => _callSequence.Add(nameof(ProjectSnapshotService.GetProjectSnapshot)))
-            .ReturnsAsync(ProjectSnapshot.Empty);
+            .ReturnsAsync(snapshotExists ? ProjectSnapshot.Empty : null);
         snapshotService
             .Setup(s => s.RegenerateProjectSnapshot(It.IsAny<IMiniLcmReadApi>(), It.IsAny<FwDataProject>(), false))
             .Callback(() => _callSequence.Add(nameof(ProjectSnapshotService.RegenerateProjectSnapshot)))
@@ -222,44 +223,36 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
 
     private SyncWorker CreateWorker(ServiceProvider sp)
     {
-        // Create a scope so scoped services (LCM/CRDT) resolve correctly when
-        // SyncWorker calls services.OpenCrdtProject(...).
         _workerScope?.Dispose();
         _workerScope = sp.CreateScope();
         return ActivatorUtilities.CreateInstance<SyncWorker>(_workerScope.ServiceProvider, _projectId);
+    }
+
+    private void SetupFwDataProject(ServiceProvider sp)
+    {
+        Directory.CreateDirectory(FwDataProject.ProjectFolder);
+        File.WriteAllText(FwDataProject.FilePath, "dummy");
+        sp.GetRequiredService<MockFwProjectLoader>().NewProject(FwDataProject, analysisWs: "en", vernacularWs: "fr");
     }
 
     [Fact]
     public async Task ExecuteSync_SuccessWithCrdtAndFwChanges_RegeneratesSnapshotAfterSendReceive()
     {
         var syncResult = new SyncResult(CrdtChanges: 5, FwdataChanges: 3);
-
         using var sp = BuildServiceProvider(syncResult);
-
-        // Ensure the FW "project" exists so SetupFwData chooses Send/Receive not Clone
-        Directory.CreateDirectory(FwDataProject.ProjectFolder);
-        File.WriteAllText(FwDataProject.FilePath, "dummy");
-
-        // Provide an in-memory FW cache for the loader
-        sp.GetRequiredService<MockFwProjectLoader>().NewProject(FwDataProject, analysisWs: "en", vernacularWs: "fr");
+        SetupFwDataProject(sp);
 
         var worker = CreateWorker(sp);
         var result = await worker.ExecuteSync(CancellationToken.None);
 
         result.Status.Should().Be(SyncJobStatusEnum.Success);
-
-        // Verify order (using nameof markers):
-        // - Pre sync S/R (or Clone)
-        // - CrdtFwdataProjectSyncService.Sync
-        // - Post sync S/R
-        // - RegenerateProjectSnapshot
-        // - CrdtSyncService.SyncHarmonyProject
         _callSequence.Should().Contain(nameof(CrdtHttpSyncService.TestAuth));
         _callSequence.Should().Contain(nameof(ProjectSnapshotService.GetProjectSnapshot));
         _callSequence.Should().Contain(nameof(CrdtFwdataProjectSyncService.Sync));
         _callSequence.Should().Contain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
         _callSequence.Should().Contain(nameof(CrdtSyncService.SyncHarmonyProject));
 
+        // Verify ordering: PreS/R -> GetSnapshot -> Sync -> PostS/R -> Regen -> Harmony
         var preSr = IndexOfNth(_callSequence, nameof(ISendReceiveService.SendReceive), 1);
         var getSnapshot = IndexOfNth(_callSequence, nameof(ProjectSnapshotService.GetProjectSnapshot), 1);
         var sync = IndexOfNth(_callSequence, nameof(CrdtFwdataProjectSyncService.Sync), 1);
@@ -279,18 +272,13 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
     public async Task ExecuteSync_CrdtChangesNoFwChanges_RegeneratesSnapshotWithoutPostSendReceive()
     {
         var syncResult = new SyncResult(CrdtChanges: 5, FwdataChanges: 0);
-
         using var sp = BuildServiceProvider(syncResult);
-        Directory.CreateDirectory(FwDataProject.ProjectFolder);
-        File.WriteAllText(FwDataProject.FilePath, "dummy");
-        sp.GetRequiredService<MockFwProjectLoader>().NewProject(FwDataProject, analysisWs: "en", vernacularWs: "fr");
+        SetupFwDataProject(sp);
 
         var worker = CreateWorker(sp);
         var result = await worker.ExecuteSync(CancellationToken.None);
 
         result.Status.Should().Be(SyncJobStatusEnum.Success);
-
-        // Post-CRDT S/R should not be called when there are no FW changes
         IndexOfNth(_callSequence, nameof(ISendReceiveService.SendReceive), 2).Should().Be(-1);
         _callSequence.Should().Contain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
     }
@@ -299,35 +287,27 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
     public async Task ExecuteSync_NoCrdtChanges_DoesNotRegenerateSnapshot()
     {
         var syncResult = new SyncResult(CrdtChanges: 0, FwdataChanges: 0);
-
         using var sp = BuildServiceProvider(syncResult);
-        Directory.CreateDirectory(FwDataProject.ProjectFolder);
-        File.WriteAllText(FwDataProject.FilePath, "dummy");
-        sp.GetRequiredService<MockFwProjectLoader>().NewProject(FwDataProject, analysisWs: "en", vernacularWs: "fr");
+        SetupFwDataProject(sp);
 
         var worker = CreateWorker(sp);
         var result = await worker.ExecuteSync(CancellationToken.None);
 
         result.Status.Should().Be(SyncJobStatusEnum.Success);
-
-        // Snapshot regeneration should be skipped when there are no CRDT changes
         _callSequence.Should().NotContain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
     }
 
     [Fact]
     public async Task ExecuteSync_PostSendReceiveFails_DoesNotRegenerateSnapshot()
     {
-        var syncResult = new SyncResult(CrdtChanges: 5, FwdataChanges: 3);
-
         _mockSendReceive
             .SetupSequence(s => s.SendReceive(It.IsAny<FwDataProject>(), ProjectCode, null))
             .ReturnsAsync(new SendReceiveHelpers.LfMergeBridgeResult("success"))
             .ReturnsAsync(new SendReceiveHelpers.LfMergeBridgeResult("Some error occurred", ProgressHelper.CreateErrorProgress()));
 
+        var syncResult = new SyncResult(CrdtChanges: 5, FwdataChanges: 3);
         using var sp = BuildServiceProvider(syncResult);
-        Directory.CreateDirectory(FwDataProject.ProjectFolder);
-        File.WriteAllText(FwDataProject.FilePath, "dummy");
-        sp.GetRequiredService<MockFwProjectLoader>().NewProject(FwDataProject, analysisWs: "en", vernacularWs: "fr");
+        SetupFwDataProject(sp);
 
         var worker = CreateWorker(sp);
         var result = await worker.ExecuteSync(CancellationToken.None);
@@ -339,35 +319,29 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
     [Fact]
     public async Task ExecuteSync_PostSendReceiveRollback_BlocksProjectAndDoesNotRegenerateSnapshot()
     {
-        var syncResult = new SyncResult(CrdtChanges: 5, FwdataChanges: 3);
-
         _mockSendReceive
             .SetupSequence(s => s.SendReceive(It.IsAny<FwDataProject>(), ProjectCode, null))
             .ReturnsAsync(new SendReceiveHelpers.LfMergeBridgeResult("success"))
             .ReturnsAsync(new SendReceiveHelpers.LfMergeBridgeResult("Rolling back... validation failed", ProgressHelper.CreateErrorProgress()));
 
+        var syncResult = new SyncResult(CrdtChanges: 5, FwdataChanges: 3);
         using var sp = BuildServiceProvider(syncResult);
-        Directory.CreateDirectory(FwDataProject.ProjectFolder);
-        File.WriteAllText(FwDataProject.FilePath, "dummy");
-        sp.GetRequiredService<MockFwProjectLoader>().NewProject(FwDataProject, analysisWs: "en", vernacularWs: "fr");
+        SetupFwDataProject(sp);
 
         var worker = CreateWorker(sp);
         var result = await worker.ExecuteSync(CancellationToken.None);
 
         result.Status.Should().Be(SyncJobStatusEnum.SyncBlocked);
         result.Error.Should().Contain("rollback");
-
         _mockMetadataService.Verify(
             s => s.BlockFromSyncAsync(_projectId, It.Is<string>(msg => msg.Contains("Rollback"))),
             Times.Once);
-
         _callSequence.Should().NotContain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
     }
 
     [Fact]
     public async Task ExecuteSync_PreSendReceiveRollback_BlocksProjectAndDoesNotSync()
     {
-        // Force SetupFwData's pre-S/R to fail with rollback output
         _mockSendReceive
             .Setup(s => s.PendingCommitCount(It.IsAny<FwDataProject>(), ProjectCode))
             .ReturnsAsync(1);
@@ -377,20 +351,16 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
 
         var syncResult = new SyncResult(CrdtChanges: 0, FwdataChanges: 0);
         using var sp = BuildServiceProvider(syncResult);
-        Directory.CreateDirectory(FwDataProject.ProjectFolder);
-        File.WriteAllText(FwDataProject.FilePath, "dummy");
-        sp.GetRequiredService<MockFwProjectLoader>().NewProject(FwDataProject, analysisWs: "en", vernacularWs: "fr");
+        SetupFwDataProject(sp);
 
         var worker = CreateWorker(sp);
         var result = await worker.ExecuteSync(CancellationToken.None);
 
         result.Status.Should().Be(SyncJobStatusEnum.SyncBlocked);
         result.Error.Should().Contain("rollback");
-
         _mockMetadataService.Verify(
             s => s.BlockFromSyncAsync(_projectId, It.Is<string>(msg => msg.Contains("Rollback"))),
             Times.Once);
-
         _callSequence.Should().NotContain(nameof(CrdtFwdataProjectSyncService.Sync));
         _callSequence.Should().NotContain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
     }
@@ -407,15 +377,12 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
 
         var syncResult = new SyncResult(CrdtChanges: 0, FwdataChanges: 0);
         using var sp = BuildServiceProvider(syncResult);
-        Directory.CreateDirectory(FwDataProject.ProjectFolder);
-        File.WriteAllText(FwDataProject.FilePath, "dummy");
-        sp.GetRequiredService<MockFwProjectLoader>().NewProject(FwDataProject, analysisWs: "en", vernacularWs: "fr");
+        SetupFwDataProject(sp);
 
         var worker = CreateWorker(sp);
         var result = await worker.ExecuteSync(CancellationToken.None);
 
         result.Status.Should().Be(SyncJobStatusEnum.SendReceiveFailed);
-
         _mockMetadataService.Verify(
             s => s.BlockFromSyncAsync(It.IsAny<Guid>(), It.IsAny<string>()),
             Times.Never);
@@ -447,6 +414,34 @@ public class SyncWorkerTests : IDisposable, IAsyncDisposable
         var result = await worker.ExecuteSync(CancellationToken.None);
 
         result.Status.Should().Be(SyncJobStatusEnum.UnableToAuthenticate);
+    }
+
+    [Fact]
+    public async Task ExecuteSync_NoSnapshot_ImportsProject()
+    {
+        // When no snapshot exists, Import is called (works for both fresh import and resume).
+        // ResumableImportApi handles skipping already-created objects (tested in ResumableTests.cs).
+        var importResult = new SyncResult(CrdtChanges: 10, FwdataChanges: 0);
+        using var sp = BuildServiceProvider(importResult, snapshotExists: false);
+        SetupFwDataProject(sp);
+
+        var worker = CreateWorker(sp);
+        var result = await worker.ExecuteSync(CancellationToken.None);
+
+        result.Status.Should().Be(SyncJobStatusEnum.Success);
+        _callSequence.Should().Contain(nameof(CrdtFwdataProjectSyncService.Import));
+        _callSequence.Should().NotContain(nameof(CrdtFwdataProjectSyncService.Sync));
+        _callSequence.Should().Contain(nameof(ProjectSnapshotService.RegenerateProjectSnapshot));
+        _callSequence.Should().Contain(nameof(CrdtSyncService.SyncHarmonyProject));
+
+        // Verify ordering: Import -> RegenerateSnapshot -> HarmonySync
+        var importIdx = IndexOfNth(_callSequence, nameof(CrdtFwdataProjectSyncService.Import), 1);
+        var regenIdx = IndexOfNth(_callSequence, nameof(ProjectSnapshotService.RegenerateProjectSnapshot), 1);
+        var harmonyIdx = IndexOfNth(_callSequence, nameof(CrdtSyncService.SyncHarmonyProject), 1);
+
+        importIdx.Should().BeGreaterThanOrEqualTo(0);
+        regenIdx.Should().BeGreaterThan(importIdx);
+        harmonyIdx.Should().BeGreaterThan(regenIdx);
     }
 }
 

@@ -1,5 +1,4 @@
 using FluentAssertions.Equivalency;
-using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using Microsoft.EntityFrameworkCore;

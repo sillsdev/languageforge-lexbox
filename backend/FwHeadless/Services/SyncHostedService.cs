@@ -157,7 +157,6 @@ public class SyncWorker(
         if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
 
         var crdtFile = config.Value.GetCrdtFile(projectCode, projectId);
-        var crdtFileExists = File.Exists(crdtFile);
         var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
         logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
         logger.LogDebug("fwDataFile: {fwDataFile}", fwDataProject.FilePath);
@@ -169,9 +168,7 @@ public class SyncWorker(
         }
         catch (SendReceiveException e)
         {
-            // Detect rollback via the "Rolling back..." message from Chorus:
-            // https://github.com/sillsdev/chorus/blob/master/src/LibChorus/sync/Synchronizer.cs#L651
-            if (e.Message.Contains("Rolling back..."))
+            if (SendReceiveHelpers.LfMergeBridgeResult.ContainsRollbackMessage(e.Message))
             {
                 await metadataService.BlockFromSyncAsync(projectId, "Rollback detected during Send/Receive");
                 return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, "Project blocked due to rollback");
@@ -209,28 +206,12 @@ public class SyncWorker(
         }
 
         var projectSnapshot = await projectSnapshotService.GetProjectSnapshot(fwdataApi.Project);
-        if (projectSnapshot is null)
-        {
-            if (!crdtFileExists)
-            {
-                logger.LogInformation("No snapshot found and no CRDT database detected; importing project");
-                var importResult = await syncService.Import(miniLcmApi, fwdataApi);
-                logger.LogInformation("Import result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",
-                    importResult.CrdtChanges,
-                    importResult.FwdataChanges);
-                logger.LogInformation("Regenerating project snapshot after import");
-                await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwdataApi.Project, keepBackup: false);
-                await crdtSyncService.SyncHarmonyProject();
-                activity?.SetStatus(ActivityStatusCode.Ok, "Import finished");
-                return new SyncJobResult(importResult);
-            }
+        var result = projectSnapshot is null
+            ? await syncService.Import(miniLcmApi, fwdataApi)
+            : await syncService.Sync(miniLcmApi, fwdataApi, projectSnapshot);
 
-            activity?.SetStatus(ActivityStatusCode.Error, "Snapshot missing for existing CRDT project");
-            return new SyncJobResult(SyncJobStatusEnum.UnableToSync, "Project snapshot missing for existing CRDT project");
-        }
-
-        var result = await syncService.Sync(miniLcmApi, fwdataApi, projectSnapshot);
-        logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",
+        logger.LogInformation("{ImportOrSync} result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",
+            projectSnapshot is null ? "Import" : "Sync",
             result.CrdtChanges,
             result.FwdataChanges);
 
@@ -243,9 +224,7 @@ public class SyncWorker(
             var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
             if (!srResult2.Success)
             {
-                // Detect rollback via the "Rolling back..." message from Chorus:
-                // https://github.com/sillsdev/chorus/blob/main/src/LibChorus/sync/Synchronizer.cs#L651
-                if (srResult2.Output.Contains("Rolling back..."))
+                if (srResult2.RollbackDetected)
                 {
                     await metadataService.BlockFromSyncAsync(projectId, "Rollback detected during Send/Receive");
                     return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, "Project blocked due to rollback");
@@ -260,12 +239,13 @@ public class SyncWorker(
             }
         }
 
-        //We only want to regenerate the snapshot if we know the changes applied to fwdata were successfully pushed.
-        //Otherwise, the changes might have been rolled back.
+        //We defer regenerating the snapshot until we know the changes applied to fwdata were successfully pushed.
+        //Otherwise, the changes might have been rolled back. In that case, the next sync could overwrite
+        //CRDT data with old/rolled back FW data.
         if (result.CrdtChanges > 0)
         {
-            logger.LogInformation("Regenerating project snapshot to include crdt changes");
-            //note we are now using the crdt API, this avoids issues where some data isn't synced yet
+            logger.LogInformation("Regenerating project snapshot to include {CrdtChangeCount} crdt changes", result.CrdtChanges);
+            //note we are using the crdt API, this avoids issues where some data isn't synced yet
             //later when we add the ability to sync that data we need the snapshot to reflect the synced state, not what was in the FW project
             //related to https://github.com/sillsdev/languageforge-lexbox/issues/1912
             await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwdataApi.Project, keepBackup: false);

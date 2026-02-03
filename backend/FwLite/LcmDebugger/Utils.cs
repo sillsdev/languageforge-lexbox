@@ -9,7 +9,7 @@ using SIL.LCModel;
 
 namespace LcmDebugger;
 
-public record FwHeadlessProject(CrdtMiniLcmApi CrdtApi, FwDataMiniLcmApi FwApi, string CrdtDbPath) : IDisposable
+public record FwHeadlessProject(CrdtMiniLcmApi CrdtApi, FwDataMiniLcmApi FwApi) : IDisposable
 {
     public void Dispose()
     {
@@ -71,7 +71,7 @@ public static class Utils
         var crdtMiniLcmApi = (CrdtMiniLcmApi)await services.GetRequiredService<CrdtProjectsService>().OpenProject(crdtProject, services);
         Console.WriteLine($"Crdt Project: {crdtMiniLcmApi.ProjectData.Code}");
 
-        return new FwHeadlessProject(crdtMiniLcmApi, fwDataMiniLcmApi, crdtDbPath);
+        return new FwHeadlessProject(crdtMiniLcmApi, fwDataMiniLcmApi);
     }
 
     public static async Task SyncFwHeadlessProject(this IServiceProvider services, FwHeadlessProject project, bool dryRun = true)
@@ -81,22 +81,9 @@ public static class Utils
         var crdtMiniLcmApi = project.CrdtApi;
         var fwDataMiniLcmApi = project.FwApi;
         var projectSnapshot = await snapshotService.GetProjectSnapshot(fwDataMiniLcmApi.Project);
-        SyncResult result;
-        if (projectSnapshot is null)
-        {
-            if (!File.Exists(project.CrdtDbPath))
-            {
-                result = await syncService.Import(crdtMiniLcmApi, fwDataMiniLcmApi, dryRun);
-            }
-            else
-            {
-                throw new InvalidOperationException("Project snapshot missing for existing CRDT project");
-            }
-        }
-        else
-        {
-            result = await syncService.Sync(crdtMiniLcmApi, fwDataMiniLcmApi, projectSnapshot, dryRun);
-        }
+        var result = projectSnapshot is null
+                    ? await syncService.Import(crdtMiniLcmApi, fwDataMiniLcmApi, dryRun)
+                    : await syncService.Sync(crdtMiniLcmApi, fwDataMiniLcmApi, projectSnapshot, dryRun);
         Console.WriteLine($"Sync completed successfully. Crdt changes: {result.CrdtChanges}, Fwdata changes: {result.FwdataChanges}.");
     }
 
