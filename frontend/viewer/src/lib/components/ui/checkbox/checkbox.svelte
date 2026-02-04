@@ -22,7 +22,7 @@
   bind:indeterminate
   {...restProps}
 >
-  {#snippet children({ checked, indeterminate })}
+  {#snippet children({checked, indeterminate})}
     <div class="flex size-full items-center justify-center text-current">
       {#if indeterminate}
         <Icon icon="i-mdi-minus" class="size-3.5" />

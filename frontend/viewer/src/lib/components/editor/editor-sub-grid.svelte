@@ -5,15 +5,9 @@
 
   export type EditorSubGridProps = WithElementRef<HTMLAttributes<HTMLDivElement>>;
 
-  const {
-    class: className,
-    children,
-    ref = $bindable(null),
-    ...restProps
-  }: EditorSubGridProps = $props();
+  const {class: className, children, ref = $bindable(null), ...restProps}: EditorSubGridProps = $props();
 </script>
 
-<div class={cn('editor-sub-grid grid grid-cols-subgrid col-span-full',
-  className)} {...restProps}>
+<div class={cn('editor-sub-grid grid grid-cols-subgrid col-span-full', className)} {...restProps}>
   {@render children?.()}
 </div>

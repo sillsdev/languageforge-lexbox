@@ -6,13 +6,17 @@ import {locale} from 'svelte-i18n-lingui';
 
 const currentLocale = fromStore(locale);
 type Config = {
-  defaultValue: string,
-  now: Date,
-  maxUnits?: number,
-  smallestUnit?: SmallestUnit,
-}
+  defaultValue: string;
+  now: Date;
+  maxUnits?: number;
+  smallestUnit?: SmallestUnit;
+};
 
-export function formatRelativeDate(value: Date | string | undefined | null, options?: Intl.DurationFormatOptions, config: Config = {defaultValue: '', now: new SvelteDate()}): string {
+export function formatRelativeDate(
+  value: Date | string | undefined | null,
+  options?: Intl.DurationFormatOptions,
+  config: Config = {defaultValue: '', now: new SvelteDate()},
+): string {
   if (!value) return config.defaultValue;
   void currentLocale.current; // invalidate when the current locale changes
 

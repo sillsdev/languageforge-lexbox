@@ -1,11 +1,13 @@
 import {watch, type Getter} from 'runed';
 
 export class StompGuard<T> {
-
   private _dirty = $state(false);
   private _value: T = $state<T>()!;
 
-  constructor(private readonly parentGetter: Getter<T>, private readonly parentSetter: (value: T) => void) {
+  constructor(
+    private readonly parentGetter: Getter<T>,
+    private readonly parentSetter: (value: T) => void,
+  ) {
     this._value = parentGetter();
     watch(parentGetter, (newParentValue) => {
       if (newParentValue === this._value) return; // we probably updated the parent
@@ -49,7 +51,9 @@ export class StompGuard<T> {
       const p = $state.snapshot(parentValue);
       const v = $state.snapshot(this._value);
       if (import.meta.env.DEV) {
-        throw new Error(`Expected parent value to match the guard value. (${JSON.stringify(p)}) (${JSON.stringify(v)})`);
+        throw new Error(
+          `Expected parent value to match the guard value. (${JSON.stringify(p)}) (${JSON.stringify(v)})`,
+        );
       } else {
         console.error('Expected parent value to match the guard value', p, v);
         this.parentSetter(this._value); // revert to guard value

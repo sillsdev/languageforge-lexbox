@@ -43,7 +43,7 @@
     direction?: 'horizontal' | 'vertical';
     getDisplayName: (item: T) => string | undefined;
     onchange?: (value: T[], fromIndex: number, toIndex: number) => void;
-    children?: Snippet<[{first: boolean, last: boolean}]>;
+    children?: Snippet<[{first: boolean; last: boolean}]>;
   };
 
   let {
@@ -53,7 +53,7 @@
     onchange,
     children,
     direction = 'horizontal',
-  } : ReordererProps<T> = $props();
+  }: ReordererProps<T> = $props();
 
   const index = $derived(items.indexOf(item));
   const count = $derived(items.length);
@@ -61,14 +61,30 @@
   const last = $derived(index === count - 1);
 
   const rootStateProps = {
-    get item() { return item; },
-    get items() { return items; },
-    set items(value) { items = value; },
-    get first() { return first; },
-    get last() { return last; },
-    get direction() { return direction; },
-    get getDisplayName() { return getDisplayName; },
-    get onchange() { return onchange; },
+    get item() {
+      return item;
+    },
+    get items() {
+      return items;
+    },
+    set items(value) {
+      items = value;
+    },
+    get first() {
+      return first;
+    },
+    get last() {
+      return last;
+    },
+    get direction() {
+      return direction;
+    },
+    get getDisplayName() {
+      return getDisplayName;
+    },
+    get onchange() {
+      return onchange;
+    },
   };
 
   useReordererRoot(rootStateProps);

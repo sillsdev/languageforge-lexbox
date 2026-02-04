@@ -43,7 +43,7 @@ export function formatDigitalDuration(value: Duration) {
     milliseconds: 0,
     ...normalizeDuration(value),
   };
-  const smallestUnit = normalized.minutes > 0 ? 'seconds' as const : 'milliseconds' as const;
+  const smallestUnit = normalized.minutes > 0 ? ('seconds' as const) : ('milliseconds' as const);
   return formatDuration(normalized, smallestUnit, {
     style: 'digital',
     hoursDisplay: normalized.hours > 0 ? 'always' : 'auto',
@@ -53,8 +53,13 @@ export function formatDigitalDuration(value: Duration) {
   });
 }
 
-export function formatDuration(value: Duration, smallestUnit?: SmallestUnit, options?: Intl.DurationFormatOptions, maxUnits?: number) {
-  const formatter = new Intl.DurationFormat(currentLocale.current, options);//has been polyfilled in main.ts
+export function formatDuration(
+  value: Duration,
+  smallestUnit?: SmallestUnit,
+  options?: Intl.DurationFormatOptions,
+  maxUnits?: number,
+) {
+  const formatter = new Intl.DurationFormat(currentLocale.current, options); //has been polyfilled in main.ts
   const normalized = normalizeDuration(value, smallestUnit);
   const limitedDuration = maxUnits ? limitDurationUnits(normalized, maxUnits) : normalized;
   try {
@@ -65,15 +70,19 @@ export function formatDuration(value: Duration, smallestUnit?: SmallestUnit, opt
   }
 }
 
-export function normalizeDuration(value: Duration, smallestUnit?: SmallestUnit): Duration
-export function normalizeDuration(value: Duration, smallestUnit: 'seconds'): Omit<Duration, 'milliseconds'>
-export function normalizeDuration(value: Duration): Duration
+export function normalizeDuration(value: Duration, smallestUnit?: SmallestUnit): Duration;
+export function normalizeDuration(value: Duration, smallestUnit: 'seconds'): Omit<Duration, 'milliseconds'>;
+export function normalizeDuration(value: Duration): Duration;
 export function normalizeDuration(value: Duration, smallestUnit?: SmallestUnit): Duration {
   const msPerHour = 3_600_000;
   const msPerMinute = 60_000;
   const msPerSecond = 1_000;
   let distanceMs = value.days ? value.days * msPerHour * 24 : 0;
-  distanceMs += (value.hours ?? 0) * msPerHour + (value.minutes ?? 0) * msPerMinute + (value.seconds ?? 0) * msPerSecond + (value.milliseconds ?? 0);
+  distanceMs +=
+    (value.hours ?? 0) * msPerHour +
+    (value.minutes ?? 0) * msPerMinute +
+    (value.seconds ?? 0) * msPerSecond +
+    (value.milliseconds ?? 0);
   let days = distanceMs / (msPerHour * 24);
   days = Math.floor(days);
   distanceMs -= days * msPerHour * 24;

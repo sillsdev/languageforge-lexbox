@@ -11,7 +11,7 @@
     child,
     ...restProps
   }: WithElementRef<HTMLButtonAttributes> & {
-    child?: Snippet<[{ props: Record<string, unknown> }]>;
+    child?: Snippet<[{props: Record<string, unknown>}]>;
   } = $props();
 
   const propObj = $derived({
@@ -28,7 +28,7 @@
 </script>
 
 {#if child}
-  {@render child({ props: propObj })}
+  {@render child({props: propObj})}
 {:else}
   <button bind:this={ref} {...propObj}>
     {@render children?.()}

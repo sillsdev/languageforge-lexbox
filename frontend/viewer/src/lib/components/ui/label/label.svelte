@@ -5,12 +5,13 @@
 
   type Props = WithElementRef<HTMLLabelAttributes>;
 
-  let { ref = $bindable(null), class: className, children, ...restProps }: Props = $props();
+  let {ref = $bindable(null), class: className, children, ...restProps}: Props = $props();
 </script>
 
 <label
   bind:this={ref}
   class={cn('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70', className)}
-  {...restProps}>
+  {...restProps}
+>
   {@render children?.()}
 </label>

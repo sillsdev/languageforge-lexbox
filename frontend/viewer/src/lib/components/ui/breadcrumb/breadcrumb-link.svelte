@@ -13,7 +13,7 @@
     ...restProps
   }: HTMLAnchorAttributes & {
     ref?: HTMLElement | null;
-    child?: Snippet<[{ props: HTMLAnchorAttributes }]>;
+    child?: Snippet<[{props: HTMLAnchorAttributes}]>;
   } = $props();
 
   const attrs = $derived({
@@ -24,7 +24,7 @@
 </script>
 
 {#if child}
-  {@render child({ props: attrs })}
+  {@render child({props: attrs})}
 {:else}
   <Anchor bind:ref {...attrs}>
     {@render children?.()}

@@ -7,7 +7,7 @@
     ref = $bindable(null),
     class: className,
     value = $bindable(''),
-		children,
+    children,
     ...restProps
   }: CommandPrimitive.InputProps = $props();
 </script>
@@ -23,5 +23,5 @@
     {...restProps}
     bind:value
   />
-	{@render children?.()}
+  {@render children?.()}
 </div>

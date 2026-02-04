@@ -9,9 +9,15 @@ const Trigger = PopoverPrimitive.Trigger;
 const Close = PopoverPrimitive.Close;
 
 export {
-  Close, Content,
+  Close,
+  Content,
   //
-  Root as Popover, Close as PopoverClose, Content as PopoverContent,
-  Trigger as PopoverTrigger, Root, Trigger,
-  InfoTrigger, InfoTrigger as PopoverInfoTrigger,
+  Root as Popover,
+  Close as PopoverClose,
+  Content as PopoverContent,
+  Trigger as PopoverTrigger,
+  Root,
+  Trigger,
+  InfoTrigger,
+  InfoTrigger as PopoverInfoTrigger,
 };

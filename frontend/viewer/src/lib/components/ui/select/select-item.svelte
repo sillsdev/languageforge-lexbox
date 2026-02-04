@@ -22,14 +22,14 @@
   )}
   {...restProps}
 >
-  {#snippet children({ selected, highlighted })}
+  {#snippet children({selected, highlighted})}
     <span class="absolute left-2 flex size-3.5 items-center justify-center">
       {#if selected}
         <Icon icon="i-mdi-check" class="size-4" />
       {/if}
     </span>
     {#if childrenProp}
-      {@render childrenProp({ selected, highlighted })}
+      {@render childrenProp({selected, highlighted})}
     {:else}
       {label || value}
     {/if}

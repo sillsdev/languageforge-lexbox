@@ -2,11 +2,10 @@
   import {createSubscriber} from 'svelte/reactivity';
   import {on} from 'svelte/events';
   class AudioRuned {
-    #currentTimeSub = createSubscriber(update => on(this.audio, 'timeupdate', update));
-    #durationSub = createSubscriber(update => on(this.audio, 'durationchange', update));
+    #currentTimeSub = createSubscriber((update) => on(this.audio, 'timeupdate', update));
+    #durationSub = createSubscriber((update) => on(this.audio, 'durationchange', update));
 
-    constructor(private audio: HTMLAudioElement) {
-    }
+    constructor(private audio: HTMLAudioElement) {}
 
     get currentTime() {
       this.#currentTimeSub();
@@ -26,13 +25,15 @@
     }
   }
 
-  const zeroDuration = $derived(formatDuration({seconds: 0}, 'milliseconds', {
-    hoursDisplay: 'auto',
-    minutesDisplay: 'auto',
-    style: 'digital',
-    secondsDisplay: 'always',
-    fractionalDigits: 2,
-  }));
+  const zeroDuration = $derived(
+    formatDuration({seconds: 0}, 'milliseconds', {
+      hoursDisplay: 'auto',
+      minutesDisplay: 'auto',
+      style: 'digital',
+      secondsDisplay: 'always',
+      fractionalDigits: 2,
+    }),
+  );
 
   function isNotFoundAudioId(audioId: string) {
     return audioId === 'sil-media://not-found/00000000-0000-0000-0000-000000000000';
@@ -40,6 +41,7 @@
 
   const missingDuration = $derived(zeroDuration.replaceAll('0', '‒')); // <=  this "figure dash" is supposed to be the dash closest to the width of a number
 </script>
+
 <script lang="ts">
   import {onDestroy} from 'svelte';
   import {useEventListener, watch} from 'runed';
@@ -65,13 +67,16 @@
     readonly = false,
     wsLabel = undefined,
   }: {
-    loader?: (audioId: string) => Promise<{stream: ReadableStream, filename: string} | undefined | typeof handled>,
-    audioId: string | undefined,
+    loader?: (audioId: string) => Promise<{stream: ReadableStream; filename: string} | undefined | typeof handled>;
+    audioId: string | undefined;
     onchange?: (audioId: string | undefined) => void;
     readonly?: boolean;
     wsLabel?: string;
   } = $props();
-  watch(() => audioId, () => loadedAudioId = undefined);
+  watch(
+    () => audioId,
+    () => (loadedAudioId = undefined),
+  );
 
   const projectContext = useProjectContext();
   const api = $derived(projectContext?.maybeApi);
@@ -82,7 +87,7 @@
     if (!api) throw new Error('No api, unable to load audio');
     const file = await api.getFileStream(audioId);
     if (!file.stream) {
-      switch (file.result){
+      switch (file.result) {
         case ReadFileResult.NotFound:
           AppNotification.display($t`File not found`, 'warning');
           break;
@@ -125,7 +130,7 @@
   }
 
   async function play() {
-    if (!await load() || !audio) return;
+    if (!(await load()) || !audio) return;
 
     // The only known error is the one referenced by audioHasKnownFlacSeekError()
     // So, all error handling is currently designed around that
@@ -180,31 +185,40 @@
     }
   }
 
-  watch(() => audioRuned?.currentTime, () => {
-    if (!audioRuned) return;
-    if (!playing) {
-      // not writing to the state is the only way to not override the slider's value at the begining of a drag i.e. when simply clicking
-      // because it doesn't emit a value before we just stomp on it again
-      return;
-    }
-    sliderValue = audioRuned.currentTime;
-  })
-
+  watch(
+    () => audioRuned?.currentTime,
+    () => {
+      if (!audioRuned) return;
+      if (!playing) {
+        // not writing to the state is the only way to not override the slider's value at the begining of a drag i.e. when simply clicking
+        // because it doesn't emit a value before we just stomp on it again
+        return;
+      }
+      sliderValue = audioRuned.currentTime;
+    },
+  );
 
   let loadedAudioId = $state<string>();
   let filename = $state('');
   let audio = $state<HTMLAudioElement>();
   let audioRuned = $derived(audio ? new AudioRuned(audio) : null);
-  useEventListener(() => audio, 'ended', () => playerState = 'paused');
+  useEventListener(
+    () => audio,
+    'ended',
+    () => (playerState = 'paused'),
+  );
 
   onDestroy(() => {
     if (!audio || !audio.src) return;
     URL.revokeObjectURL(audio.src);
   });
-  watch(() => audio, (current, previous) => {
-    if (previous?.src) URL.revokeObjectURL(previous.src);
-    playerState = 'paused';
-  });
+  watch(
+    () => audio,
+    (current, previous) => {
+      if (previous?.src) URL.revokeObjectURL(previous.src);
+      playerState = 'paused';
+    },
+  );
   let playerState = $state<'loading' | 'playing' | 'paused'>('paused');
   let loading = $derived(playerState === 'loading');
   let loaded = $derived(audio && audioId && loadedAudioId === audioId);
@@ -213,7 +227,7 @@
   let totalLength = $derived({
     hours: 0,
     minutes: 0,
-    ...normalizeDuration({seconds: audioRuned?.duration})
+    ...normalizeDuration({seconds: audioRuned?.duration}),
   });
   let formatOpts = $derived<Intl.DurationFormatOptions>({
     style: 'digital',
@@ -222,7 +236,7 @@
     secondsDisplay: 'always',
     fractionalDigits: 2,
   });
-  let smallestUnit = $derived(totalLength.minutes > 0 ? 'seconds' as const : 'milliseconds' as const);
+  let smallestUnit = $derived(totalLength.minutes > 0 ? ('seconds' as const) : ('milliseconds' as const));
 
   let audioDialogOpen = $state(false);
   function onAudioDialogSubmit(newAudioId: string) {
@@ -256,9 +270,9 @@
     if (audioHasKnownFlacSeekError()) {
       console.log('Ignoring known FLAC seek error. Will try to recover on next play.');
     } else if (audio?.error) {
-      throw new Error('Audio error', { cause: audio.error });
+      throw new Error('Audio error', {cause: audio.error});
     } else {
-      throw new Error('Unknown audio error', { cause: event });
+      throw new Error('Unknown audio error', {cause: event});
     }
   }
 
@@ -266,29 +280,33 @@
     if (!audio?.error) return false;
     // The error gets triggered in Chrome when seeking (via drag or just clicking).
     // There's a problematic time range near (not at) the end of flac files that causes this error.
-    return audio.error.code === MediaError.MEDIA_ERR_NETWORK &&
-      audio.error.message?.includes('demuxer seek failed');
+    return audio.error.code === MediaError.MEDIA_ERR_NETWORK && audio.error.message?.includes('demuxer seek failed');
   }
-  let dialogTitle = $derived(fieldProps?.label && wsLabel ? `${fieldProps.label}: ${wsLabel}` : fieldProps?.label || wsLabel);
+  let dialogTitle = $derived(
+    fieldProps?.label && wsLabel ? `${fieldProps.label}: ${wsLabel}` : fieldProps?.label || wsLabel,
+  );
   let subject = useSubjectContext();
 </script>
+
 {#if supportsAudio}
   {#if !readonly}
     <AudioDialog title={dialogTitle} bind:open={audioDialogOpen} onSubmit={onAudioDialogSubmit}>
       {#if subject?.current}
         <OverrideFields shownFields={fieldProps?.fieldId ? [fieldProps.fieldId] : []}>
-          <LexiconEditorPrimitive object={subject.current}/>
+          <LexiconEditorPrimitive object={subject.current} />
         </OverrideFields>
       {/if}
     </AudioDialog>
   {/if}
   {#if !audioId}
     {#if !readonly}
-      <Button variant="secondary"
-              icon="i-mdi-microphone-plus"
-              size="sm"
-              iconProps={{class: 'size-5'}}
-              onclick={() => audioDialogOpen = true}>
+      <Button
+        variant="secondary"
+        icon="i-mdi-microphone-plus"
+        size="sm"
+        iconProps={{class: 'size-5'}}
+        onclick={() => (audioDialogOpen = true)}
+      >
         {$t`Add audio`}
       </Button>
     {:else}
@@ -309,27 +327,30 @@
         <Button onclick={togglePlay} icon={playIcon} size="sm-icon"></Button>
       {/if}
       {#if audioRuned}
-        <Slider type="single"
-                class="pl-2"
-                disabled={!loaded}
-                value={sliderValue}
-                onValueChange={(value) => {
-                  // store the value, because dragging (next line) is not necessarrily up to date when a drag starts
-                  lastEmittedSliderValue = value;
-                  // keep displayed time up to date while dragging
-                  if (isDragging) sliderValue = value;
-                }}
-                onValueCommit={(value) => {
-                  // sometimes all value change events are fired before pausedViaDragging === true
-                  // then we need this
-                  audioRuned.currentTime = sliderValue = value;
-                }}
-                {onDraggingChange}
-                max={audioRuned?.duration}
-                step={0.01}/>
+        <Slider
+          type="single"
+          class="pl-2"
+          disabled={!loaded}
+          value={sliderValue}
+          onValueChange={(value) => {
+            // store the value, because dragging (next line) is not necessarrily up to date when a drag starts
+            lastEmittedSliderValue = value;
+            // keep displayed time up to date while dragging
+            if (isDragging) sliderValue = value;
+          }}
+          onValueCommit={(value) => {
+            // sometimes all value change events are fired before pausedViaDragging === true
+            // then we need this
+            audioRuned.currentTime = sliderValue = value;
+          }}
+          {onDraggingChange}
+          max={audioRuned?.duration}
+          step={0.01}
+        />
         <span class="break-keep text-nowrap flex flex-nowrap gap-1">
           {#if !isNaN(audioRuned.duration)}
-            <time>{formatDuration({seconds: sliderValue}, smallestUnit, formatOpts)}</time> / <time>{formatDuration(totalLength, smallestUnit, formatOpts)}</time>
+            <time>{formatDuration({seconds: sliderValue}, smallestUnit, formatOpts)}</time> /
+            <time>{formatDuration(totalLength, smallestUnit, formatOpts)}</time>
           {:else}
             <time>{zeroDuration}</time> / <time class="text-muted-foreground">{missingDuration}</time>
           {/if}
@@ -342,7 +363,7 @@
           </ResponsiveMenu.Trigger>
           <ResponsiveMenu.Content>
             {#if !readonly}
-              <ResponsiveMenu.Item icon="i-mdi-microphone-plus" onSelect={() => audioDialogOpen = true}>
+              <ResponsiveMenu.Item icon="i-mdi-microphone-plus" onSelect={() => (audioDialogOpen = true)}>
                 {$t`Replace audio`}
               </ResponsiveMenu.Item>
               <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onRemoveAudio}>
@@ -356,8 +377,7 @@
         </ResponsiveMenu.Root>
       {/if}
       {#key audioId}
-        <audio bind:this={audio} onerror={onAudioError}>
-        </audio>
+        <audio bind:this={audio} onerror={onAudioError}> </audio>
       {/key}
     </div>
   {/if}

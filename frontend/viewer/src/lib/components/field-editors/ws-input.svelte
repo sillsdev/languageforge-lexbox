@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { IWritingSystem } from '$lib/dotnet-types';
-  import type { ReadonlyDeep } from 'type-fest';
+  import type {IWritingSystem} from '$lib/dotnet-types';
+  import type {ReadonlyDeep} from 'type-fest';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
   import StompSafeInput from '../stomp/stomp-safe-input.svelte';
 
@@ -19,7 +19,7 @@
     autofocus?: boolean;
   } = $props();
 
-  const { readonly = false, writingSystem: ws, onchange } = $derived(constProps);
+  const {readonly = false, writingSystem: ws, onchange} = $derived(constProps);
 </script>
 
 <StompSafeInput
@@ -30,4 +30,5 @@
   {autofocus}
   autocapitalize="off"
   aria-labelledby={labelledBy}
-  onchange={() => onchange?.(value)} />
+  onchange={() => onchange?.(value)}
+/>

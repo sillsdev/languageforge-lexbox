@@ -6,15 +6,15 @@
   import {useIdleService} from '$lib/services/idle-service';
   import {useRootLocation} from '$lib/services/root-location-service';
 
-  type Props = ComponentProps<typeof LcmRichTextEditor> & { onchange: () => void };
+  type Props = ComponentProps<typeof LcmRichTextEditor> & {onchange: () => void};
 
-  let { value = $bindable(), onchange, ...rest}: Props = $props();
+  let {value = $bindable(), onchange, ...rest}: Props = $props();
 
   const locationService = useRootLocation();
 
   const guard = new StompGuard(
     () => value,
-    (newValue) => value = newValue
+    (newValue) => (value = newValue),
   );
 
   function commitAnyChanges() {
@@ -40,8 +40,14 @@
   });
 </script>
 
-<LcmRichTextEditor bind:value={guard.value} {...mergeProps({
-  onchange: () => {
-    commitAnyChanges();
-  }
-}, rest)} />
+<LcmRichTextEditor
+  bind:value={guard.value}
+  {...mergeProps(
+    {
+      onchange: () => {
+        commitAnyChanges();
+      },
+    },
+    rest,
+  )}
+/>

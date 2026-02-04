@@ -9,8 +9,12 @@ const Provider = TooltipPrimitive.Provider;
 
 export {
   Content,
-  Provider, Root,
+  Provider,
+  Root,
   //
   Root as Tooltip,
-  Content as TooltipContent, Provider as TooltipProvider, Trigger as TooltipTrigger, Trigger
+  Content as TooltipContent,
+  Provider as TooltipProvider,
+  Trigger as TooltipTrigger,
+  Trigger,
 };

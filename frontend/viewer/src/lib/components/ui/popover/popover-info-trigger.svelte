@@ -6,14 +6,9 @@
 
   type Props = ComponentProps<typeof Popover.Trigger> & {
     children?: Snippet;
-  }
+  };
 
-  const {
-    children,
-    class: className,
-    ...restProps
-  }: Props = $props();
-
+  const {children, class: className, ...restProps}: Props = $props();
 </script>
 
 <Popover.Trigger class={cn('group', className)} {...restProps}>

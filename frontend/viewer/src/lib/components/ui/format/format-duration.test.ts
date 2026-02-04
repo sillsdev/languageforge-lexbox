@@ -9,7 +9,7 @@ describe('normalizeDuration', () => {
         hours: 2,
         minutes: 30,
         seconds: 45,
-        milliseconds: 500
+        milliseconds: 500,
       });
 
       expect(result).toEqual({
@@ -17,14 +17,14 @@ describe('normalizeDuration', () => {
         hours: 2,
         minutes: 30,
         seconds: 45,
-        milliseconds: 500
+        milliseconds: 500,
       });
     });
 
     it('should handle missing units by treating them as 0', () => {
       const result = normalizeDuration({
         hours: 1,
-        seconds: 30
+        seconds: 30,
       });
 
       expect(result).toEqual({
@@ -32,15 +32,15 @@ describe('normalizeDuration', () => {
         hours: 1,
         minutes: 0,
         seconds: 30,
-        milliseconds: 0
+        milliseconds: 0,
       });
     });
 
     it('should normalize overflow values correctly', () => {
       const result = normalizeDuration({
-        minutes: 90,  // 1 hour 30 minutes
+        minutes: 90, // 1 hour 30 minutes
         seconds: 120, // 2 minutes
-        milliseconds: 2500 // 2 seconds 500 milliseconds
+        milliseconds: 2500, // 2 seconds 500 milliseconds
       });
 
       expect(result).toEqual({
@@ -48,13 +48,13 @@ describe('normalizeDuration', () => {
         hours: 1,
         minutes: 32,
         seconds: 2,
-        milliseconds: 500
+        milliseconds: 500,
       });
     });
 
     it('should handle large milliseconds values', () => {
       const result = normalizeDuration({
-        milliseconds: 7265500 // 2 hours, 1 minute, 5 seconds, 500 milliseconds
+        milliseconds: 7265500, // 2 hours, 1 minute, 5 seconds, 500 milliseconds
       });
 
       expect(result).toEqual({
@@ -62,7 +62,7 @@ describe('normalizeDuration', () => {
         hours: 2,
         minutes: 1,
         seconds: 5,
-        milliseconds: 500
+        milliseconds: 500,
       });
     });
 
@@ -74,7 +74,7 @@ describe('normalizeDuration', () => {
         hours: 0,
         minutes: 0,
         seconds: 0,
-        milliseconds: 0
+        milliseconds: 0,
       });
     });
   });
@@ -82,93 +82,108 @@ describe('normalizeDuration', () => {
   //this prevents the exception `RangeError: 500.23 isn't a valid milliseconds duration because it isn't an integer`
   it('should floor fractional milliseconds', () => {
     const result = normalizeDuration({
-      milliseconds: 500.23
+      milliseconds: 500.23,
     });
     expect(result).toEqual({
       days: 0,
       hours: 0,
       minutes: 0,
       seconds: 0,
-      milliseconds: 500
+      milliseconds: 500,
     });
   });
 
   describe('normalization with smallestUnit = "hours"', () => {
     it('should return only hours', () => {
-      const result = normalizeDuration({
-        hours: 2,
-        minutes: 30,
-        seconds: 45,
-        milliseconds: 500
-      }, 'hours');
+      const result = normalizeDuration(
+        {
+          hours: 2,
+          minutes: 30,
+          seconds: 45,
+          milliseconds: 500,
+        },
+        'hours',
+      );
 
-      expect(result.hours).toEqual(2)
+      expect(result.hours).toEqual(2);
     });
   });
 
   describe('normalization with smallestUnit = "hours"', () => {
     it('should return only hours', () => {
-      const result = normalizeDuration({
-        hours: 2,
-        minutes: 30,
-        seconds: 45,
-        milliseconds: 500
-      }, 'hours');
+      const result = normalizeDuration(
+        {
+          hours: 2,
+          minutes: 30,
+          seconds: 45,
+          milliseconds: 500,
+        },
+        'hours',
+      );
 
-      expect(result.hours).toEqual(2)
+      expect(result.hours).toEqual(2);
     });
   });
 
   describe('normalization with smallestUnit = "minutes"', () => {
     it('should return only hours and minutes', () => {
-      const result = normalizeDuration({
-        hours: 1,
-        minutes: 30,
-        seconds: 45,
-        milliseconds: 0
-      }, 'minutes');
+      const result = normalizeDuration(
+        {
+          hours: 1,
+          minutes: 30,
+          seconds: 45,
+          milliseconds: 0,
+        },
+        'minutes',
+      );
 
       expect(result).toEqual({
         days: 0,
         hours: 1,
-        minutes: 30
+        minutes: 30,
       });
     });
   });
 
   describe('normalization with smallestUnit = "seconds"', () => {
     it('should only return hours, minutes, and seconds', () => {
-      const result = normalizeDuration({
-        hours: 1,
-        minutes: 30,
-        seconds: 45,
-        milliseconds: 500
-      }, 'seconds');
+      const result = normalizeDuration(
+        {
+          hours: 1,
+          minutes: 30,
+          seconds: 45,
+          milliseconds: 500,
+        },
+        'seconds',
+      );
 
       expect(result).toEqual({
         days: 0,
         hours: 1,
         minutes: 30,
-        seconds: 45
+        seconds: 45,
       });
     });
   });
 
   describe('normalization with smallestUnit = "milliseconds"', () => {
     it('should return all units including milliseconds', () => {
-      const result = normalizeDuration({
-        hours: 1,
-        minutes: 30,
-        seconds: 45,
-        milliseconds: 500
-      }, 'milliseconds');
+      const result = normalizeDuration(
+        {
+          hours: 1,
+          minutes: 30,
+          seconds: 45,
+          milliseconds: 500,
+        },
+        'milliseconds',
+      );
 
       expect(result).toEqual({
         days: 0,
         hours: 1,
         minutes: 30,
         seconds: 45,
-        milliseconds: 500
+        milliseconds: 500,
       });
     });
   });
@@ -176,7 +191,9 @@ describe('normalizeDuration', () => {
 
 describe('formatDuration', () => {
   it('formats durations', () => {
-    expect(formatDuration({days: 1, hours: 1, minutes: 30, seconds: 45, milliseconds: 500})).toEqual('1 day, 1 hr, 30 min, 45 sec, 500 ms');
+    expect(formatDuration({days: 1, hours: 1, minutes: 30, seconds: 45, milliseconds: 500})).toEqual(
+      '1 day, 1 hr, 30 min, 45 sec, 500 ms',
+    );
     expect(formatDuration({days: 1, hours: 1, minutes: 30, seconds: 45})).toEqual('1 day, 1 hr, 30 min, 45 sec');
     expect(formatDuration({days: 1, hours: 1, minutes: 30})).toEqual('1 day, 1 hr, 30 min');
     expect(formatDuration({days: 1, hours: 1})).toEqual('1 day, 1 hr');
@@ -193,32 +210,50 @@ describe('formatDuration', () => {
   it('formats durations with smallest unit', () => {
     expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'hours')).toEqual('1 hr');
     expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'minutes')).toEqual('1 hr, 30 min');
-    expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'seconds')).toEqual('1 hr, 30 min, 45 sec');
-    expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'milliseconds')).toEqual('1 hr, 30 min, 45 sec, 500 ms');
+    expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'seconds')).toEqual(
+      '1 hr, 30 min, 45 sec',
+    );
+    expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'milliseconds')).toEqual(
+      '1 hr, 30 min, 45 sec, 500 ms',
+    );
   });
 
   describe('maxUnits parameter', () => {
     it('should limit units for durations starting with days', () => {
-      expect(formatDuration({days: 7, hours: 10, minutes: 17, seconds: 30, milliseconds: 500}, undefined, {}, 2)).toEqual('7 days, 10 hr');
+      expect(
+        formatDuration({days: 7, hours: 10, minutes: 17, seconds: 30, milliseconds: 500}, undefined, {}, 2),
+      ).toEqual('7 days, 10 hr');
       expect(formatDuration({days: 1, hours: 2, minutes: 30}, undefined, {}, 1)).toEqual('1 day');
     });
 
     it('should limit units for durations starting with minutes', () => {
-      expect(formatDuration({days: 0, hours: 0, minutes: 5, seconds: 30, milliseconds: 0}, undefined, {}, 2)).toEqual('5 min, 30 sec');
-      expect(formatDuration({days: 0, hours: 0, minutes: 5, seconds: 30, milliseconds: 250}, undefined, {}, 1)).toEqual('5 min');
+      expect(formatDuration({days: 0, hours: 0, minutes: 5, seconds: 30, milliseconds: 0}, undefined, {}, 2)).toEqual(
+        '5 min, 30 sec',
+      );
+      expect(formatDuration({days: 0, hours: 0, minutes: 5, seconds: 30, milliseconds: 250}, undefined, {}, 1)).toEqual(
+        '5 min',
+      );
     });
 
     it('should limit units for durations starting with seconds', () => {
-      expect(formatDuration({days: 0, hours: 0, minutes: 0, seconds: 45, milliseconds: 500}, undefined, {}, 2)).toEqual('45 sec, 500 ms');
-      expect(formatDuration({days: 0, hours: 0, minutes: 0, seconds: 45, milliseconds: 500}, undefined, {}, 1)).toEqual('45 sec');
+      expect(formatDuration({days: 0, hours: 0, minutes: 0, seconds: 45, milliseconds: 500}, undefined, {}, 2)).toEqual(
+        '45 sec, 500 ms',
+      );
+      expect(formatDuration({days: 0, hours: 0, minutes: 0, seconds: 45, milliseconds: 500}, undefined, {}, 1)).toEqual(
+        '45 sec',
+      );
     });
 
     it('should limit units for durations starting with milliseconds', () => {
-      expect(formatDuration({days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: 500}, undefined, {}, 1)).toEqual('500 ms');
+      expect(formatDuration({days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: 500}, undefined, {}, 1)).toEqual(
+        '500 ms',
+      );
     });
 
     it('should work with mixed scenarios', () => {
-      expect(formatDuration({days: 0, hours: 0, minutes: 2, seconds: 15, milliseconds: 250}, undefined, {}, 3)).toEqual('2 min, 15 sec, 250 ms');
+      expect(formatDuration({days: 0, hours: 0, minutes: 2, seconds: 15, milliseconds: 250}, undefined, {}, 3)).toEqual(
+        '2 min, 15 sec, 250 ms',
+      );
       expect(formatDuration({days: 0, hours: 1, minutes: 30, seconds: 45}, undefined, {}, 2)).toEqual('1 hr, 30 min');
     });
 

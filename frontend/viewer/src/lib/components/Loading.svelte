@@ -5,10 +5,7 @@
 
   type Props = HTMLAttributes<HTMLSpanElement>;
 
-  let {
-    class: className,
-    ...restProps
-  }: Props = $props();
+  let {class: className, ...restProps}: Props = $props();
 </script>
 
 <Icon icon="i-mdi-loading" class={cn('animate-spin', className)} {...restProps} />

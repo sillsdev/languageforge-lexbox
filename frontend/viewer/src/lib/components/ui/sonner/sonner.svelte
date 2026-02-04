@@ -6,10 +6,7 @@
   import Loading from '$lib/components/Loading.svelte';
   import {Icon} from '../icon';
 
-  let {
-    class: className,
-    ...restProps
-  }: SonnerProps = $props();
+  let {class: className, ...restProps}: SonnerProps = $props();
 </script>
 
 <!--
@@ -34,10 +31,21 @@ I.e. If there's small, big, small, then sonner thinks the big one is small and p
   richColors
   toastOptions={{
     classes: {
-      toast: 'gap-3 group toast [&[data-expanded="true"]]:!h-max [&[data-expanded="true"]]:max-h-max group-[.toaster]:!bg-background group-[.toaster]:!border-border group-[.toaster]:shadow-lg',
-      description: 'group-[.toast]:!text-muted-foreground max-h-[30vh] overflow-y-auto whitespace-break-spaces touch-pan-y', /* pan-y means the browser should handle y-scrolling (and NOT x-scrolling, which is for swiping away) */
-      actionButton: buttonVariants({size: 'sm', variant: 'default', class: 'group-[.toast]:!bg-primary group-[.toast]:!text-primary-foreground !h-9 min-h-9 !px-3 group-[.toast[data-type="error"]]:i-mdi-content-copy [&.copied]:!i-mdi-check group-[.toast[data-promise="true"][data-type="loading"]]:hidden'}),
-      cancelButton: buttonVariants({size: 'sm', variant: 'secondary', class: 'group-[.toast]:!bg-muted group-[.toast]:!text-muted-foreground !h-9 min-h-9 !px-3'}),
+      toast:
+        'gap-3 group toast [&[data-expanded="true"]]:!h-max [&[data-expanded="true"]]:max-h-max group-[.toaster]:!bg-background group-[.toaster]:!border-border group-[.toaster]:shadow-lg',
+      description:
+        'group-[.toast]:!text-muted-foreground max-h-[30vh] overflow-y-auto whitespace-break-spaces touch-pan-y' /* pan-y means the browser should handle y-scrolling (and NOT x-scrolling, which is for swiping away) */,
+      actionButton: buttonVariants({
+        size: 'sm',
+        variant: 'default',
+        class:
+          'group-[.toast]:!bg-primary group-[.toast]:!text-primary-foreground !h-9 min-h-9 !px-3 group-[.toast[data-type="error"]]:i-mdi-content-copy [&.copied]:!i-mdi-check group-[.toast[data-promise="true"][data-type="loading"]]:hidden',
+      }),
+      cancelButton: buttonVariants({
+        size: 'sm',
+        variant: 'secondary',
+        class: 'group-[.toast]:!bg-muted group-[.toast]:!text-muted-foreground !h-9 min-h-9 !px-3',
+      }),
     },
   }}
   {...restProps}

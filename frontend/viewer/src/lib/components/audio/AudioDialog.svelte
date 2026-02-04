@@ -16,14 +16,14 @@
     open = $bindable(false),
     title = undefined,
     onSubmit = () => {},
-    children = undefined
-  } : {
-    open: boolean,
-    title?: string,
-    onSubmit?: (audioId: string) => void,
-    children?: Snippet
+    children = undefined,
+  }: {
+    open: boolean;
+    title?: string;
+    onSubmit?: (audioId: string) => void;
+    children?: Snippet;
   } = $props();
-  useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'audio-dialog'});
+  useBackHandler({addToStack: () => open, onBack: () => (open = false), key: 'audio-dialog'});
   const lexboxApi = useLexboxApi();
 
   let submitting = $state(false);
@@ -31,13 +31,19 @@
   let finalAudio = $state<File>();
   const tooBig = $derived((finalAudio?.size ?? 0) > 10 * 1024 * 1024);
 
-  watch(() => open, () => {
-    if (!open) reset();
-  });
+  watch(
+    () => open,
+    () => {
+      if (!open) reset();
+    },
+  );
 
-  watch(() => selectedFile, () => {
-    if (!selectedFile) finalAudio = undefined;
-  })
+  watch(
+    () => selectedFile,
+    () => {
+      if (!selectedFile) finalAudio = undefined;
+    },
+  );
 
   function close() {
     open = false;
@@ -71,10 +77,10 @@
     const response = await lexboxApi.saveFile(finalAudio, {filename: finalAudio.name, mimeType: finalAudio.type});
     switch (response.result) {
       case UploadFileResult.SavedLocally:
-        AppNotification.display($t`Audio saved locally`, { type: 'success', timeout: 'short' });
+        AppNotification.display($t`Audio saved locally`, {type: 'success', timeout: 'short'});
         break;
       case UploadFileResult.SavedToLexbox:
-        AppNotification.display($t`Audio saved and uploaded to Lexbox`, { type: 'success', timeout: 'short' });
+        AppNotification.display($t`Audio saved and uploaded to Lexbox`, {type: 'success', timeout: 'short'});
         break;
       case UploadFileResult.TooBig:
         throw new Error($t`File too big`);
@@ -130,10 +136,11 @@
   }
 </script>
 
-
 <Dialog.Root bind:open>
-  <Dialog.DialogContent onOpenAutoFocus={(e) => e.preventDefault()} class={cn('sm:min-h-[min(calc(100%-16px),30rem)]',
-    children ? 'grid-rows-[auto_auto_1fr]' : 'grid-rows-[auto_1fr]')}>
+  <Dialog.DialogContent
+    onOpenAutoFocus={(e) => e.preventDefault()}
+    class={cn('sm:min-h-[min(calc(100%-16px),30rem)]', children ? 'grid-rows-[auto_auto_1fr]' : 'grid-rows-[auto_1fr]')}
+  >
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{title || $t`Add audio`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
@@ -142,14 +149,14 @@
       <div>{@render children?.()}</div>
     {/if}
     {#if !selectedFile}
-      <AudioProvider {onFileSelected} {onRecordingComplete}/>
+      <AudioProvider {onFileSelected} {onRecordingComplete} />
     {:else}
-      <AudioEditor audio={selectedFile} bind:finalAudio onDiscard={onDiscard}/>
+      <AudioEditor audio={selectedFile} bind:finalAudio {onDiscard} />
       {#if tooBig}
         <p class="text-destructive text-lg text-end">{$t`File too big`}</p>
       {/if}
       <Dialog.DialogFooter>
-        <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
+        <Button onclick={() => (open = false)} variant="secondary">{$t`Cancel`}</Button>
         <Button onclick={() => submitAudio()} disabled={tooBig || !finalAudio} loading={submitting}>
           {$t`Save audio`}
         </Button>
@@ -157,4 +164,3 @@
     {/if}
   </Dialog.DialogContent>
 </Dialog.Root>
-

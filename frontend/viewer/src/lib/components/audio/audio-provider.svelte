@@ -10,14 +10,9 @@
   type Props = HTMLAttributes<HTMLDivElement> & {
     onFileSelected: (file: File) => void;
     onRecordingComplete: (blob: Blob) => void;
-  }
+  };
 
-  let {
-    onFileSelected,
-    onRecordingComplete,
-    class: className,
-    ...rest
-  }: Props = $props();
+  let {onFileSelected, onRecordingComplete, class: className, ...rest}: Props = $props();
 
   let recorderContainerElem = $state<HTMLElement>();
   let recording = $state(false);
@@ -25,7 +20,7 @@
   let duration = $state<number>();
   let fileInputElement = $state<HTMLInputElement>();
 
-  const digitalDuration = $derived(duration ? formatDigitalDuration({ milliseconds: duration }) : undefined);
+  const digitalDuration = $derived(duration ? formatDigitalDuration({milliseconds: duration}) : undefined);
 
   function selectFile() {
     fileInputElement?.click();
@@ -36,8 +31,7 @@
     const file = target.files?.[0];
     try {
       if (!file) throw new Error('No file selected');
-      if (!file.type.startsWith('audio/'))
-        throw new Error('Please select an audio file');
+      if (!file.type.startsWith('audio/')) throw new Error('Please select an audio file');
     } catch (error) {
       target.value = '';
       throw error;
@@ -48,27 +42,35 @@
   const recordingMode = $derived(recording || digitalDuration);
 </script>
 
-<div class={cn('border-input md:border-4 rounded-lg place-content-center text-center',
-  /* todo: uncomment drag-n-drop-ish indicator */
-  /*recordingMode || 'border-dashed',*/
-  className)} {...rest}>
+<div
+  class={cn(
+    'border-input md:border-4 rounded-lg place-content-center text-center',
+    /* todo: uncomment drag-n-drop-ish indicator */
+    /*recordingMode || 'border-dashed',*/
+    className,
+  )}
+  {...rest}
+>
   <div class="flex flex-col gap-4 h-full w-full items-center md:py-6">
     <div class="grow place-content-center relative w-full">
       <div bind:this={recorderContainerElem} class="absolute inset-0 pointer-events-none"></div>
       <Button
         variant={IsMobile.value ? 'secondary' : 'ghost'}
         icon="i-mdi-folder-open-outline"
-        iconProps={{ class: 'size-10' }}
-        class={cn('flex-col min-w-24 h-24 p-4 text-base font-normal text-muted-foreground', recordingMode && 'invisible')}
+        iconProps={{class: 'size-10'}}
+        class={cn(
+          'flex-col min-w-24 h-24 p-4 text-base font-normal text-muted-foreground',
+          recordingMode && 'invisible',
+        )}
         onclick={selectFile}
       >
-      {#if IsMobile.value}
-        {$t`Select file`}
-      {:else}
-        <!-- todo: {$t`Select or drop file`} -->
-        <!-- https://www.shadcn-svelte-extras.com/components/file-drop-zone -->
-        {$t`Select file`}
-      {/if}
+        {#if IsMobile.value}
+          {$t`Select file`}
+        {:else}
+          <!-- todo: {$t`Select or drop file`} -->
+          <!-- https://www.shadcn-svelte-extras.com/components/file-drop-zone -->
+          {$t`Select file`}
+        {/if}
       </Button>
     </div>
     <Recorder.Root
@@ -94,11 +96,5 @@
   Hidden file input.
   Should not be at root level as it might trigger a margin/gap.
   -->
-  <input
-    bind:this={fileInputElement}
-    type="file"
-    accept="audio/*"
-    onchange={handleFileSelection}
-    class="hidden"
-  />
+  <input bind:this={fileInputElement} type="file" accept="audio/*" onchange={handleFileSelection} class="hidden" />
 </div>

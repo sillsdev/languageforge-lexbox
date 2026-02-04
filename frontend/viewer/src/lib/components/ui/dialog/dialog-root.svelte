@@ -2,10 +2,7 @@
   import {Dialog as DialogPrimitive} from 'bits-ui';
   import DialogSharedRoot from '../dialog-shared/dialog-shared-root.svelte';
 
-  let {
-    open = $bindable(false),
-    ...restProps
-  }: DialogPrimitive.RootProps = $props();
+  let {open = $bindable(false), ...restProps}: DialogPrimitive.RootProps = $props();
 </script>
 
 <DialogSharedRoot {open}>

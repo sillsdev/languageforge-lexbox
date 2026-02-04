@@ -2,7 +2,7 @@
   import {cn} from '$lib/utils.js';
   import {Avatar as AvatarPrimitive} from 'bits-ui';
 
-  let { ref = $bindable(null), class: className, ...restProps }: AvatarPrimitive.RootProps = $props();
+  let {ref = $bindable(null), class: className, ...restProps}: AvatarPrimitive.RootProps = $props();
 </script>
 
 <AvatarPrimitive.Root

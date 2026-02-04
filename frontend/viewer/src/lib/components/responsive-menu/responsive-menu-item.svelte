@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Icon } from '$lib/components/ui/icon';
-  import { type IconClass } from '$lib/icon-class';
+  import {Icon} from '$lib/components/ui/icon';
+  import {type IconClass} from '$lib/icon-class';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as ContextMenu from '$lib/components/ui/context-menu';
-  import { IsMobile } from '$lib/hooks/is-mobile.svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {buttonVariants} from '$lib/components/ui/button/button.svelte';
   import type {Snippet} from 'svelte';
   import {useResponsiveMenuItemList} from './responsive-menu.svelte';
@@ -22,14 +22,7 @@
     target?: HTMLAnchorAttributes['target'];
   } & Omit<ContextMenuItemProps & DrawerCloseProps, 'onclick'>;
 
-  let {
-    icon,
-    onSelect,
-    children,
-    ref = $bindable(null),
-    class: className,
-    ...rest
-  }: Props = $props();
+  let {icon, onSelect, children, ref = $bindable(null), class: className, ...rest}: Props = $props();
 
   const state = useResponsiveMenuItemList();
 </script>
@@ -41,29 +34,40 @@
   {@render children?.()}
 {/snippet}
 
-{#snippet anchorChild({ props }: { props: Record<string, unknown> })}
+{#snippet anchorChild({props}: {props: Record<string, unknown>})}
   <Anchor {...props}>
     {@render content()}
   </Anchor>
 {/snippet}
 
 {#if state.contextMenu}
-  <ContextMenu.Item class={cn('gap-2 w-full', className)} {onSelect} bind:ref
-    child={rest.href ? anchorChild : undefined} {...rest}>
+  <ContextMenu.Item
+    class={cn('gap-2 w-full', className)}
+    {onSelect}
+    bind:ref
+    child={rest.href ? anchorChild : undefined}
+    {...rest}
+  >
     {@render content()}
   </ContextMenu.Item>
 {:else if !IsMobile.value}
-  <DropdownMenu.Item class={cn('gap-2 w-full', className)} {onSelect} bind:ref
-    child={rest.href ? anchorChild : undefined} {...rest}>
+  <DropdownMenu.Item
+    class={cn('gap-2 w-full', className)}
+    {onSelect}
+    bind:ref
+    child={rest.href ? anchorChild : undefined}
+    {...rest}
+  >
     {@render content()}
   </DropdownMenu.Item>
 {:else}
   <DrawerClose
-    class={cn(buttonVariants({ variant: 'ghost', class: 'w-full justify-start gap-2' }), className)}
+    class={cn(buttonVariants({variant: 'ghost', class: 'w-full justify-start gap-2'}), className)}
     onclick={() => /* wait for drawer to close/start closing */ setTimeout(() => onSelect?.())}
     child={rest.href ? anchorChild : undefined}
     {...rest}
-    bind:ref>
+    bind:ref
+  >
     {@render content()}
   </DrawerClose>
 {/if}

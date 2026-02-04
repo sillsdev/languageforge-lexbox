@@ -10,21 +10,22 @@
 
   const themes = [msg`green`, msg`blue`, msg`rose`, msg`orange`, msg`violet`, msg`stone`];
   let {
-    buttonProps = {}
+    buttonProps = {},
   }: {
-    buttonProps?: Partial<ButtonProps>
+    buttonProps?: Partial<ButtonProps>;
   } = $props();
-
 </script>
 
 <Popover.Root>
   <Popover.Trigger>
     {#snippet child({props})}
       <Button variant="ghost" size="icon" {...mergeProps(props, buttonProps)}>
-        <Icon icon="i-mdi-white-balance-sunny"
+        <Icon
+          icon="i-mdi-white-balance-sunny"
           class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-primary"
         />
-        <Icon icon="i-mdi-weather-night"
+        <Icon
+          icon="i-mdi-weather-night"
           class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary"
         />
         <span class="sr-only">{$t`Choose theme`}</span>
@@ -55,12 +56,14 @@
             >
               <span
                 data-theme={themeName}
-                class={cn('flex size-5 shrink-0 -translate-x-1 items-center justify-center rounded-full bg-primary',
-                mode.current === 'dark' && 'dark',
-                mode.current === 'light' && 'light')}
+                class={cn(
+                  'flex size-5 shrink-0 -translate-x-1 items-center justify-center rounded-full bg-primary',
+                  mode.current === 'dark' && 'dark',
+                  mode.current === 'light' && 'light',
+                )}
               >
                 {#if isActive}
-                  <Icon icon="i-mdi-check" class="text-white size-4"/>
+                  <Icon icon="i-mdi-check" class="text-white size-4" />
                 {/if}
               </span>
               <span class="capitalize">
@@ -105,5 +108,3 @@
     </div>
   </Popover.Content>
 </Popover.Root>
-
-

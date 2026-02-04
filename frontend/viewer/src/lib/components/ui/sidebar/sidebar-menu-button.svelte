@@ -49,11 +49,11 @@
     size?: SidebarMenuButtonSize;
     tooltipContent?: Snippet;
     tooltipContentProps?: WithoutChildrenOrChild<ComponentProps<typeof Tooltip.Content>>;
-    child?: Snippet<[{ props: Record<string, unknown> }]>;
+    child?: Snippet<[{props: Record<string, unknown>}]>;
   } = $props();
 
   const buttonProps = $derived({
-    class: cn(sidebarMenuButtonVariants({ variant, size }), className),
+    class: cn(sidebarMenuButtonVariants({variant, size}), className),
     'data-sidebar': 'menu-button',
     'data-size': size,
     'data-active': isActive,
@@ -61,10 +61,10 @@
   });
 </script>
 
-{#snippet Button({ props }: { props?: Record<string, unknown> })}
+{#snippet Button({props}: {props?: Record<string, unknown>})}
   {@const mergedProps = mergeProps(buttonProps, props)}
   {#if child}
-    {@render child({ props: mergedProps })}
+    {@render child({props: mergedProps})}
   {:else}
     <button bind:this={ref} {...mergedProps}>
       {@render children?.()}
@@ -77,15 +77,10 @@
 {:else}
   <Tooltip.Root>
     <Tooltip.Trigger>
-      {#snippet child({ props })}
-        {@render Button({ props })}
+      {#snippet child({props})}
+        {@render Button({props})}
       {/snippet}
     </Tooltip.Trigger>
-    <Tooltip.Content
-      side="right"
-      align="center"
-      children={tooltipContent}
-      {...tooltipContentProps}
-    />
+    <Tooltip.Content side="right" align="center" children={tooltipContent} {...tooltipContentProps} />
   </Tooltip.Root>
 {/if}

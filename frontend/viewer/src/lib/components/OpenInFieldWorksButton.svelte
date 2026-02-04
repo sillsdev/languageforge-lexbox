@@ -11,14 +11,10 @@
   import {Icon} from './ui/icon';
 
   type Props = {
-    entry: IEntry
+    entry: IEntry;
   } & ButtonProps;
 
-  const {
-    entry,
-    class: className,
-    ...rest
-  }: Props = $props();
+  const {entry, class: className, ...rest}: Props = $props();
 
   const appLauncher = useAppLauncherService();
   const projectContext = useProjectContext();
@@ -36,22 +32,31 @@
       }
     }
     if (opened) {
-      AppNotification.displayAction($t`This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen.`, {
-        label: $t`Reopen`,
-        callback: () => window.location.reload()
-      }, 'warning');
+      AppNotification.displayAction(
+        $t`This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen.`,
+        {
+          label: $t`Reopen`,
+          callback: () => window.location.reload(),
+        },
+        'warning',
+      );
     } else {
       AppNotification.display($t`Unable to open in FieldWorks`, 'error');
     }
   }
 
-  const mergedProps = $derived(mergeProps({
-    onclick: openInFlex,
-  }, rest));
+  const mergedProps = $derived(
+    mergeProps(
+      {
+        onclick: openInFlex,
+      },
+      rest,
+    ),
+  );
 </script>
 
 <!--button must be a link otherwise it won't follow the redirect to a protocol handler-->
-<button class={cn(buttonVariants({ variant: 'ghost'}), className)} {...mergedProps}>
+<button class={cn(buttonVariants({variant: 'ghost'}), className)} {...mergedProps}>
   <Icon src={flexLogo} alt={$t`FieldWorks logo`} />
   {$t`Open in FieldWorks`}
 </button>

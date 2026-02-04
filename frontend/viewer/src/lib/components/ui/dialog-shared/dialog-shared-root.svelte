@@ -32,17 +32,17 @@
     children?: Snippet;
   };
 
-  let {
-    open,
-    children,
-  }: Props = $props();
+  let {open, children}: Props = $props();
 
   let index = $state<number>();
   let trigger = $state<HTMLElement>();
 
-  watch(() => open, (curr, prev) => {
-    onOpenChange(!!prev, !!curr);
-  });
+  watch(
+    () => open,
+    (curr, prev) => {
+      onOpenChange(!!prev, !!curr);
+    },
+  );
 
   onDestroy(() => {
     onOpenChange(!!open, false);
@@ -71,7 +71,7 @@
   }
 
   const bottomDialog = $derived(index === 1);
-  const topDialog = $derived(!openDialogs || index && index >= openDialogs);
+  const topDialog = $derived(!openDialogs || (index && index >= openDialogs));
   const dataProps = $derived({
     'data-dialog-index': index,
     'data-dialog-top': topDialog,
@@ -96,10 +96,18 @@
   });
 
   initDialogSharedRoot({
-    get openDialogs() { return openDialogs; },
-    get index() { return index; },
-    get overlayProps() { return overlayProps; },
-    get contentProps() { return contentProps; },
+    get openDialogs() {
+      return openDialogs;
+    },
+    get index() {
+      return index;
+    },
+    get overlayProps() {
+      return overlayProps;
+    },
+    get contentProps() {
+      return contentProps;
+    },
   });
 </script>
 

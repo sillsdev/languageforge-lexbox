@@ -8,12 +8,7 @@
     label?: string;
   } & WithoutChildrenOrChild<RadioGroupPrimitive.ItemProps>;
 
-  let {
-    ref = $bindable(null),
-    class: className,
-    label,
-    ...restProps
-  }: Props = $props();
+  let {ref = $bindable(null), class: className, label, ...restProps}: Props = $props();
 </script>
 
 {#snippet control()}
@@ -25,7 +20,7 @@
     )}
     {...restProps}
   >
-    {#snippet children({ checked })}
+    {#snippet children({checked})}
       {#if checked}
         <Icon icon="i-mdi-circle" class="text-current size-full scale-75 origin-center" />
       {/if}

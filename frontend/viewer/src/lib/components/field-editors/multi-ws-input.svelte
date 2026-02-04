@@ -23,13 +23,8 @@
     autofocus?: boolean;
   } = $props();
 
-  const {
-    readonly = false,
-    writingSystems,
-    onchange,
-    autofocus,
-  } = $derived(constProps);
-  let visibleWritingSystems = $derived(supportsAudio ? writingSystems : writingSystems.filter(ws => !ws.isAudio));
+  const {readonly = false, writingSystems, onchange, autofocus} = $derived(constProps);
+  let visibleWritingSystems = $derived(supportsAudio ? writingSystems : writingSystems.filter((ws) => !ws.isAudio));
 
   const rootId = $props.id();
 </script>
@@ -38,22 +33,28 @@
   {#each visibleWritingSystems as ws, i (ws.wsId)}
     {@const inputId = `${rootId}-${ws.wsId}`}
     {@const labelId = `${inputId}-label`}
-    <div class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
-      title={`${ws.name} (${ws.wsId})`}>
+    <div
+      class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
+      title={`${ws.name} (${ws.wsId})`}
+    >
       <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
       {#if !ws.isAudio}
-        <StompSafeInput bind:value={value[ws.wsId]}
+        <StompSafeInput
+          bind:value={value[ws.wsId]}
           id={inputId}
           aria-labelledby="{labeledBy ?? ''} {labelId}"
           {readonly}
-          autofocus={autofocus && (i === 0)}
+          autofocus={autofocus && i === 0}
           autocapitalize="off"
-          onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)} />
+          onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)}
+        />
       {:else}
         <AudioInput
-          bind:audioId={value[ws.wsId]} onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)}
+          bind:audioId={value[ws.wsId]}
+          onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)}
           wsLabel={ws.abbreviation}
-          {readonly} />
+          {readonly}
+        />
       {/if}
     </div>
   {/each}

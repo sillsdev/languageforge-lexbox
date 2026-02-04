@@ -44,7 +44,11 @@ export class FFmpegFile {
   readonly mimeType: string;
 
   changeExtension(newExtension: string, mimeType?: string, prefix?: string): FFmpegFile {
-    return new FFmpegFile(mimeType ?? this.mimeType, this.filename.replace(/\.[^.]+$/, `.${newExtension}`), prefix ?? this.prefix);
+    return new FFmpegFile(
+      mimeType ?? this.mimeType,
+      this.filename.replace(/\.[^.]+$/, `.${newExtension}`),
+      prefix ?? this.prefix,
+    );
   }
 }
 
@@ -60,8 +64,7 @@ export class FFmpegApi {
     return new FFmpegApi(ffmpeg);
   }
 
-  private constructor(private ffmpeg: FFmpeg) {
-  }
+  private constructor(private ffmpeg: FFmpeg) {}
 
   public terminate() {
     this.ffmpeg.terminate();
@@ -69,11 +72,11 @@ export class FFmpegApi {
 
   private async createDir(path: string, signal: AbortSignal) {
     console.log('Creating dir:', path);
-    const paths = path.split('/').filter(v => !!v);
+    const paths = path.split('/').filter((v) => !!v);
     let newDir = '';
     for (const dir of paths) {
       console.log('Checking dir:', newDir, dir);
-      const dirExists = (await this.ffmpeg.listDir(newDir || '/', {signal})).some(f => f.name === dir);
+      const dirExists = (await this.ffmpeg.listDir(newDir || '/', {signal})).some((f) => f.name === dir);
       newDir += `/${dir}`;
       if (dirExists) {
         continue;
@@ -93,7 +96,7 @@ export class FFmpegApi {
 
   async readFile(file: FFmpegFile, signal: AbortSignal): Promise<File> {
     console.log('Reading file from ffmpeg FS:', file.filename);
-    const data = await this.ffmpeg.readFile(file.internalFilePath, undefined, {signal}) as Uint8Array;
+    const data = (await this.ffmpeg.readFile(file.internalFilePath, undefined, {signal})) as Uint8Array;
     const buffer = data instanceof Uint8Array ? data.slice().buffer : new Uint8Array(data).buffer;
     return new File([buffer], file.filename, {type: file.mimeType});
   }
@@ -101,6 +104,7 @@ export class FFmpegApi {
   async convertToWav(file: FFmpegFile, signal: AbortSignal): Promise<FFmpegFile> {
     const convertedFile = file.changeExtension('wav', 'audio/wav', 'convert');
     await this.createDir(convertedFile.internalFileDir, signal);
+    // prettier-ignore
     await this.ffmpeg.exec(
       [
         '-i', file.internalFilePath,
@@ -108,28 +112,29 @@ export class FFmpegApi {
         '-ar', '44100',
         '-ac', '2',
         '-codec:a', 'pcm_s16le',
-        convertedFile.internalFilePath
+        convertedFile.internalFilePath,
       ],
       undefined,
-      {signal}
+      {signal},
     );
     return convertedFile;
   }
 
-  async convertToFlac(file: FFmpegFile,  signal: AbortSignal): Promise<FFmpegFile> {
+  async convertToFlac(file: FFmpegFile, signal: AbortSignal): Promise<FFmpegFile> {
     console.log('Converting to FLAC:', file.filename);
     const convertedFile = file.changeExtension('flac', 'audio/flac', 'convert');
     await this.createDir(convertedFile.internalFileDir, signal);
+    // prettier-ignore
     await this.ffmpeg.exec(
       [
         '-i', file.internalFilePath,
         '-af', 'loudnorm',
         '-ar', '44100',
         '-codec:a', 'flac',
-        convertedFile.internalFilePath
+        convertedFile.internalFilePath,
       ],
       undefined,
-      {signal}
+      {signal},
     );
     return convertedFile;
   }

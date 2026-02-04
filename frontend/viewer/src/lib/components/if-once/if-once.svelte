@@ -1,7 +1,7 @@
 <script lang="ts">
   import {type Snippet, untrack} from 'svelte';
 
-  const {show, children}: { show: boolean, children: Snippet } = $props();
+  const {show, children}: {show: boolean; children: Snippet} = $props();
   // svelte-ignore state_referenced_locally
   let render = $state(show);
   $effect(() => {
@@ -10,6 +10,7 @@
     render = show;
   });
 </script>
+
 {#if render}
   <div class="contents" class:hidden={!show}>
     {@render children()}

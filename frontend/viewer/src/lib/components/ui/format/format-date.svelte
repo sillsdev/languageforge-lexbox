@@ -5,9 +5,13 @@
 
   const currentLocale = fromStore(locale);
 
-  export function formatDate(value: Date | string | undefined | null, options?: Intl.DateTimeFormatOptions, defaultValue = ''): string {
+  export function formatDate(
+    value: Date | string | undefined | null,
+    options?: Intl.DateTimeFormatOptions,
+    defaultValue = '',
+  ): string {
     if (!value) return defaultValue;
-    void currentLocale.current;//invalidate when the current locale changes
+    void currentLocale.current; //invalidate when the current locale changes
     return i18n.date(value, {
       dateStyle: 'medium',
       timeStyle: 'short',
@@ -25,19 +29,14 @@
     options?: Intl.DateTimeFormatOptions;
   };
 
-  const {
-    date,
-    defaultValue,
-    options,
-    ...restProps
-  }: Props = $props();
+  const {date, defaultValue, options, ...restProps}: Props = $props();
 
   const formattedDate = $derived.by(() => {
     return formatDate(date, options, defaultValue);
   });
 
   const fullDate = $derived.by(() => {
-    return formatDate(date, { dateStyle: 'full', timeStyle: 'long' });
+    return formatDate(date, {dateStyle: 'full', timeStyle: 'long'});
   });
 </script>
 

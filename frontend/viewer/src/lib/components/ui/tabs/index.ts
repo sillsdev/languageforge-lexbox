@@ -9,11 +9,12 @@ const Root = TabsPrimitive.Root;
 
 export {
   Content,
-  List, Root,
+  List,
+  Root,
   //
   Root as Tabs,
   Content as TabsContent,
   List as TabsList,
-  Trigger as TabsTrigger, Trigger
+  Trigger as TabsTrigger,
+  Trigger,
 };
-

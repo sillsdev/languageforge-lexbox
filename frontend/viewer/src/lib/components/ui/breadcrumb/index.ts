@@ -10,10 +10,16 @@ export {
   //
   Root as Breadcrumb,
   Ellipsis as BreadcrumbEllipsis,
-  Item as BreadcrumbItem, Link as BreadcrumbLink,
+  Item as BreadcrumbItem,
+  Link as BreadcrumbLink,
   List as BreadcrumbList,
-  Page as BreadcrumbPage, Separator as BreadcrumbSeparator, Ellipsis,
-  Item, Link,
+  Page as BreadcrumbPage,
+  Separator as BreadcrumbSeparator,
+  Ellipsis,
+  Item,
+  Link,
   List,
-  Page, Root, Separator
+  Page,
+  Root,
+  Separator,
 };

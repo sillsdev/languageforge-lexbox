@@ -8,15 +8,19 @@ type AudioUrl = string;
 export type WaveSurferAudio = AudioUrl | Blob;
 
 function getPrimaryColor(element: HTMLElement | null = null): string {
-  return `hsl(${getComputedStyle(element ?? document.documentElement).getPropertyValue('--primary').trim()})`;
-};
+  return `hsl(${getComputedStyle(element ?? document.documentElement)
+    .getPropertyValue('--primary')
+    .trim()})`;
+}
 
 function darkenColor(color: string): string {
   return `oklch(from ${color} calc(l * .50) c h)`;
 }
 
 function setThemeColors(wavesurfer: WaveSurfer) {
-  const primaryColor = getPrimaryColor(typeof wavesurfer.options.container === 'string' ? null : wavesurfer.options.container);
+  const primaryColor = getPrimaryColor(
+    typeof wavesurfer.options.container === 'string' ? null : wavesurfer.options.container,
+  );
   const darkPrimaryColor = darkenColor(primaryColor);
 
   wavesurfer.setOptions({
@@ -37,7 +41,7 @@ function addTimelinePlugin(wavesurfer: WaveSurfer) {
       style: {
         fontSize: '10px',
       },
-    })
+    }),
   );
 }
 

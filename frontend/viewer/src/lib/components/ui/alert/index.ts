@@ -7,6 +7,8 @@ export {
   //
   Root as Alert,
   Description as AlertDescription,
-  Title as AlertTitle, Description, Root, Title
+  Title as AlertTitle,
+  Description,
+  Root,
+  Title,
 };
-

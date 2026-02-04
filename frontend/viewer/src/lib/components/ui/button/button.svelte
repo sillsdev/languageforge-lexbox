@@ -27,7 +27,7 @@
         'sm-icon': 'h-9 w-9 min-h-9 min-w-9 max-h-9 max-w-9',
         icon: 'h-10 w-10 min-h-10 min-w-10 max-h-10 max-w-10',
         'extended-fab': 'h-14 pl-4 pr-5',
-        'fab': 'h-14 px-4',
+        fab: 'h-14 px-4',
         'xl-icon': 'h-16 w-16 min-h-16 min-w-16 max-h-16 max-w-16',
       },
     },
@@ -41,7 +41,8 @@
   export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
 
   export type ButtonProps = WithElementRef<HTMLButtonAttributes> &
-    WithElementRef<HTMLAnchorAttributes> & Omit<ComponentProps<typeof Anchor>, 'variant'> & {
+    WithElementRef<HTMLAnchorAttributes> &
+    Omit<ComponentProps<typeof Anchor>, 'variant'> & {
       variant?: ButtonVariant;
       size?: ButtonSize;
       loading?: boolean;
@@ -72,9 +73,13 @@
     ...restProps
   }: ButtonProps = $props();
 
-  const iconProps = $derived(nullableIconProps && ('icon' in nullableIconProps || 'src' in nullableIconProps)
-    ? nullableIconProps as IconProps
-    : icon ? {icon, ...nullableIconProps} : undefined);
+  const iconProps = $derived(
+    nullableIconProps && ('icon' in nullableIconProps || 'src' in nullableIconProps)
+      ? (nullableIconProps as IconProps)
+      : icon
+        ? {icon, ...nullableIconProps}
+        : undefined,
+  );
   $effect(() => {
     if (autofocus && ref) {
       ref.focus();
@@ -84,12 +89,12 @@
 
 {#snippet content()}
   {#if loading || iconProps}
-    <span transition:slide={{axis: 'x',}}>
-    {#if loading}
-      <Icon {...mergeProps({ class:'animate-spin align-middle'}, iconProps ?? {})} icon="i-mdi-loading" />
-    {:else if iconProps}
-      <Icon {...iconProps} class={cn('align-middle', iconProps.class)} />
-    {/if}
+    <span transition:slide={{axis: 'x'}}>
+      {#if loading}
+        <Icon {...mergeProps({class: 'animate-spin align-middle'}, iconProps ?? {})} icon="i-mdi-loading" />
+      {:else if iconProps}
+        <Icon {...iconProps} class={cn('align-middle', iconProps.class)} />
+      {/if}
     </span>
   {/if}
 
@@ -97,13 +102,13 @@
 {/snippet}
 
 {#if href}
-  <Anchor bind:ref class={cn(buttonVariants({ variant, size }), className, loading && 'loading')} {href} {...restProps}>
+  <Anchor bind:ref class={cn(buttonVariants({variant, size}), className, loading && 'loading')} {href} {...restProps}>
     {@render content()}
   </Anchor>
 {:else}
   <button
     bind:this={ref}
-    class={cn(buttonVariants({ variant, size }), className, loading && 'loading')}
+    class={cn(buttonVariants({variant, size}), className, loading && 'loading')}
     {type}
     {...restProps}
     disabled={restProps.disabled || loading}

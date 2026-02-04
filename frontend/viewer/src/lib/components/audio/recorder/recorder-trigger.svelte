@@ -6,17 +6,12 @@
   import {cn} from '$lib/utils';
 
   interface Props extends ButtonProps {
-    child?: Snippet<[{ props: Record<string, unknown> }]>;
+    child?: Snippet<[{props: Record<string, unknown>}]>;
     recording?: boolean;
     walkieTalkieMode?: boolean;
   }
 
-  let {
-    ref = $bindable(null),
-    walkieTalkieMode = $bindable(true),
-    child,
-    ...restProps
-  }: Props = $props();
+  let {ref = $bindable(null), walkieTalkieMode = $bindable(true), child, ...restProps}: Props = $props();
 
   const recorderApi = useRecorderTrigger();
 
@@ -41,7 +36,7 @@
 
       // 400 ms to opt out of walkie-talkie mode i.e. prevent pausing on release/up
       releaseToStop = false;
-      walkedTalkieTimeout = setTimeout(() => releaseToStop = true, 400);
+      walkedTalkieTimeout = setTimeout(() => (releaseToStop = true), 400);
     }
   }
 
@@ -49,14 +44,12 @@
     if (walkedTalkieTimeout) {
       clearTimeout(walkedTalkieTimeout);
     }
-  })
+  });
 
   function onTriggerUp() {
     if (recorderApi.recording) {
-      if (releaseToStop)
-        recorderApi.onStopRecording();
-      else
-        walkieTalkieMode = false;
+      if (releaseToStop) recorderApi.onStopRecording();
+      else walkieTalkieMode = false;
     } else if (waitingForRecorderToStart) {
       // the trigger is already up, so it's too late for walkie-talkie mode
       walkieTalkieMode = false;
@@ -94,10 +87,9 @@
   }
 
   const defaultProps = $derived({
-    class: cn('rounded-full hover:brightness-90 select-none',
-      recorderApi.recording ? '!bg-foreground' : '!bg-red-600'),
+    class: cn('rounded-full hover:brightness-90 select-none', recorderApi.recording ? '!bg-foreground' : '!bg-red-600'),
     icon: recorderApi.recording ? 'i-mdi-stop' : 'i-mdi-microphone',
-    iconProps: { class: cn(recorderApi.recording ? 'text-red-600 size-8' : 'size-7') },
+    iconProps: {class: cn(recorderApi.recording ? 'text-red-600 size-8' : 'size-7')},
     size: 'xl-icon',
     // events
     onpointerdown: onPointerDown,
@@ -111,7 +103,7 @@
 </script>
 
 {#if child}
-  {@render child({ props: mergedProps })}
+  {@render child({props: mergedProps})}
 {:else}
   <Button {...mergedProps} />
 {/if}

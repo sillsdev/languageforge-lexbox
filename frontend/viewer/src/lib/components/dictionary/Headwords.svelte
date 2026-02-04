@@ -24,7 +24,7 @@
         value: wsService.headword(entry, ws.wsId),
         color: wsService.wsColor(ws.wsId, 'vernacular'),
       }))
-      .filter(({ value }) => !!value);
+      .filter(({value}) => !!value);
   });
 </script>
 

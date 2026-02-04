@@ -13,5 +13,5 @@ export {
   Root as EditorRoot,
   Grid as EditorGrid,
   Field as EditorField,
-  SubGrid as EditorSubGrid
+  SubGrid as EditorSubGrid,
 };

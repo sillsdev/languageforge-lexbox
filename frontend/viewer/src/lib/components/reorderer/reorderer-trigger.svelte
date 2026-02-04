@@ -7,7 +7,7 @@
   };
 
   export type ReordererTriggerProps = TriggerHTMLAttributes & {
-    child?: Snippet<[{ arrowIcon: IconClass, props: TriggerHTMLAttributes }]>;
+    child?: Snippet<[{arrowIcon: IconClass; props: TriggerHTMLAttributes}]>;
   };
 </script>
 
@@ -18,10 +18,7 @@
   import type {IconClass} from '$lib/icon-class';
   import {useReordererTrigger} from './reorderer.svelte';
 
-  let {
-    child,
-    ...props
-  } : ReordererTriggerProps = $props();
+  let {child, ...props}: ReordererTriggerProps = $props();
 
   function pickIcon(direction: 'horizontal' | 'vertical', first = false, last = false): IconClass {
     if (direction === 'horizontal') {
@@ -37,9 +34,9 @@
 </script>
 
 {#if child}
-  {@render child({ arrowIcon, props })}
+  {@render child({arrowIcon, props})}
 {:else}
-  <DropdownMenu.Trigger class={buttonVariants({ variant: 'secondary', size: 'icon' })} {...props}>
+  <DropdownMenu.Trigger class={buttonVariants({variant: 'secondary', size: 'icon'})} {...props}>
     <Icon icon={arrowIcon} />
   </DropdownMenu.Trigger>
 {/if}

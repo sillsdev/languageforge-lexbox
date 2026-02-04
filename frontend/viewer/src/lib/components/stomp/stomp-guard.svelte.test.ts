@@ -5,14 +5,16 @@ import {tick} from 'svelte';
 import {watch} from 'runed';
 
 describe('StompGuard', () => {
-
   let stompGuard: StompGuard<number>;
   let parentValue = $state(42);
   let cleanup: () => void;
 
   beforeEach(() => {
     cleanup = $effect.root(() => {
-      stompGuard = new StompGuard(() => parentValue, (value) => parentValue = value);
+      stompGuard = new StompGuard(
+        () => parentValue,
+        (value) => (parentValue = value),
+      );
     });
   });
 
@@ -57,11 +59,14 @@ describe('StompGuard', () => {
     expect(stompGuard.value).toBe(200); // was accepted
   });
 
-  it('does NOT guard against stomping deep changes, because StompGuard can\'t detect them', async () => {
+  it("does NOT guard against stomping deep changes, because StompGuard can't detect them", async () => {
     let parentObjValue = $state({value: 42});
     let objStompGuard: StompGuard<{value: number}>;
     const cleanup = $effect.root(() => {
-      objStompGuard = new StompGuard(() => parentObjValue, (value) => parentObjValue = value);
+      objStompGuard = new StompGuard(
+        () => parentObjValue,
+        (value) => (parentObjValue = value),
+      );
     });
     objStompGuard!.value.value = 100; // deep change from child
     expect(objStompGuard!.value.value).toBe(100);
@@ -79,10 +84,14 @@ describe('StompGuard', () => {
       stompGuard = new StompGuard(
         () => parentValue,
         /* no-op to ensure subscribers are actually using the guarded value */
-        (_value) => { });
-      watch(() => stompGuard.value, (newValue) => {
-        derivedValue = newValue;
-      });
+        (_value) => {},
+      );
+      watch(
+        () => stompGuard.value,
+        (newValue) => {
+          derivedValue = newValue;
+        },
+      );
     });
     await tick(); // let effects run
     expect(derivedValue).toBe(42); // Ensure the derived value is subscribed

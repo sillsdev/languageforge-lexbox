@@ -27,46 +27,50 @@
 
   let container = $state<HTMLElement>();
 
-  watch(() => container, (newContainer) => {
+  watch(
+    () => container,
+    (newContainer) => {
+      wavesurfer?.destroy();
+      wavesurfer = undefined;
 
-    wavesurfer?.destroy();
-    wavesurfer = undefined;
-
-    if (newContainer) {
-      wavesurfer = useWaveSurfer({container: newContainer, autoplay, showTimeline});
-      // See error handling in audio-input.svelte for information regarding known errors
-      wavesurfer.on('play', () => {
-        const audioElem = wavesurfer?.getMediaElement();
-        if (audioElem?.error) {
-          // playing presumably won't work, so reload and then try
-          audioElem.load();
-          audioElem.play().then(() => playing = true).catch(err => {
-            console.error('Error playing audio element after reload:', err);
-            playing = false;
-          });
-        } else {
-          playing = true;
-        }
-    });
-      wavesurfer.on('pause', () => playing = false);
-      wavesurfer.on('finish', () => playing = false);
-      wavesurfer.on('error', (error) => {
-        console.error('WaveSurfer error:', error);
-        const audioElem = wavesurfer?.getMediaElement();
-        if (audioElem && playing) {
-          audioElem.load();
-          audioElem.play().catch(err => {
-            console.error('Error playing audio element after WaveSurfer error:', err);
-            playing = false;
-          });
-        }
-      });
-    }
-  });
+      if (newContainer) {
+        wavesurfer = useWaveSurfer({container: newContainer, autoplay, showTimeline});
+        // See error handling in audio-input.svelte for information regarding known errors
+        wavesurfer.on('play', () => {
+          const audioElem = wavesurfer?.getMediaElement();
+          if (audioElem?.error) {
+            // playing presumably won't work, so reload and then try
+            audioElem.load();
+            audioElem
+              .play()
+              .then(() => (playing = true))
+              .catch((err) => {
+                console.error('Error playing audio element after reload:', err);
+                playing = false;
+              });
+          } else {
+            playing = true;
+          }
+        });
+        wavesurfer.on('pause', () => (playing = false));
+        wavesurfer.on('finish', () => (playing = false));
+        wavesurfer.on('error', (error) => {
+          console.error('WaveSurfer error:', error);
+          const audioElem = wavesurfer?.getMediaElement();
+          if (audioElem && playing) {
+            audioElem.load();
+            audioElem.play().catch((err) => {
+              console.error('Error playing audio element after WaveSurfer error:', err);
+              playing = false;
+            });
+          }
+        });
+      }
+    },
+  );
 
   $effect(() => {
-    if (audio && wavesurfer)
-      void loadAudio(audio);
+    if (audio && wavesurfer) void loadAudio(audio);
   });
 
   async function loadAudio(audio: AudioUrl | Blob) {

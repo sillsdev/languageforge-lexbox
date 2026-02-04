@@ -26,7 +26,7 @@
   )}
   {...restProps}
 >
-  {#snippet children({ checked, indeterminate })}
+  {#snippet children({checked, indeterminate})}
     <span class="absolute left-2 flex size-3.5 items-center justify-center">
       {#if indeterminate}
         <Icon icon="i-mdi-minus" class="size-4" />

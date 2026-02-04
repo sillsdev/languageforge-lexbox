@@ -13,13 +13,23 @@ const Root = SelectPrimitive.Root;
 const Group = SelectPrimitive.Group;
 
 export {
-  Content, Group,
+  Content,
+  Group,
   GroupHeading,
-  Item, Root, ScrollDownButton,
+  Item,
+  Root,
+  ScrollDownButton,
   ScrollUpButton,
   //
-  Root as Select, Content as SelectContent, Group as SelectGroup,
+  Root as Select,
+  Content as SelectContent,
+  Group as SelectGroup,
   GroupHeading as SelectGroupHeading,
-  Item as SelectItem, ScrollDownButton as SelectScrollDownButton,
-  ScrollUpButton as SelectScrollUpButton, Separator as SelectSeparator, Trigger as SelectTrigger, Separator, Trigger
+  Item as SelectItem,
+  ScrollDownButton as SelectScrollDownButton,
+  ScrollUpButton as SelectScrollUpButton,
+  Separator as SelectSeparator,
+  Trigger as SelectTrigger,
+  Separator,
+  Trigger,
 };

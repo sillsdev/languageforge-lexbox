@@ -20,10 +20,13 @@
   $effect(() => {
     stateProps.label = label;
   });
-  const title = $derived(typeof name === 'string' ? undefined
-    : $view.type === 'fw-classic'
-      ? $t`${name.lite} (FieldWorks Lite)`
-      : $t`${name.classic} (FieldWorks)`);
+  const title = $derived(
+    typeof name === 'string'
+      ? undefined
+      : $view.type === 'fw-classic'
+        ? $t`${name.lite} (FieldWorks Lite)`
+        : $t`${name.classic} (FieldWorks)`,
+  );
 </script>
 
 <span class="col-span-full me-2 mb-2 @3xl/editor:col-span-1 max-w-max" {title}>

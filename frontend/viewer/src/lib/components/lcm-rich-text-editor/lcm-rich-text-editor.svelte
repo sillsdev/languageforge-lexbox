@@ -7,8 +7,8 @@
   //https://unicode-explorer.com/c/2028
   export const lineSeparator = '\u2028';
   const newLine = '\n';
-
 </script>
+
 <script lang="ts">
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import {Label} from '$lib/components/ui/label';
@@ -41,17 +41,16 @@
     class: className,
     enterkeyhint = 'next',
     ...rest
-  }:
-    {
-      value: IRichString | undefined,
-      /**
-       * when set, we will underline text not in this writing system
-       */
-      normalWs?: string,
-      label?: string,
-      readonly?: boolean,
-      onchange?: (value: IRichString) => void,
-    } & HTMLAttributes<HTMLDivElement> = $props();
+  }: {
+    value: IRichString | undefined;
+    /**
+     * when set, we will underline text not in this writing system
+     */
+    normalWs?: string;
+    label?: string;
+    readonly?: boolean;
+    onchange?: (value: IRichString) => void;
+  } & HTMLAttributes<HTMLDivElement> = $props();
 
   let elementRef: HTMLElement | null = $state(null);
   // should not be state unless we catch errors. See onBlur.
@@ -72,8 +71,7 @@
         if (!newState.doc.eq(editor.state.doc)) {
           //todo, eventually we might want to let the user edit span props, not sure if node attributes or marks are the correct way to handle that
           //I suspect marks is the right way though.
-          value = { spans: newState.doc.children.map((child) => richSpanFromNode(child))
-            .filter(s => s.text) };
+          value = {spans: newState.doc.children.map((child) => richSpanFromNode(child)).filter((s) => s.text)};
           dirty = true;
         }
         editor.updateState(newState);
@@ -103,8 +101,8 @@
         // Pasting it often causes errors, so we remove them.
         function withoutBrs(nodes: readonly Node[]): Node[] {
           return nodes
-            .filter(node => node.type.name !== textSchema.nodes.br.name)
-            .map(node => {
+            .filter((node) => node.type.name !== textSchema.nodes.br.name)
+            .map((node) => {
               if (node.isText) return node;
               return node.copy(Fragment.fromArray(withoutBrs(node.content.content)));
             });
@@ -115,43 +113,45 @@
         // Below code is copied from prosemirror's doPaste
         // https://github.com/ProseMirror/prosemirror-view/blob/381c163b0abde96cabd609a8c4fc72ed2891b0e1/src/input.ts#L624
         function sliceSingleNode(slice: Slice): Node | null {
-            return slice.openStart == 0 && slice.openEnd == 0 && slice.content.childCount == 1 ? slice.content.firstChild : null;
+          return slice.openStart == 0 && slice.openEnd == 0 && slice.content.childCount == 1
+            ? slice.content.firstChild
+            : null;
         }
         let singleNode = sliceSingleNode(cleanSlice);
         let tr = singleNode
-            ? view.state.tr.replaceSelectionWith(singleNode, false)
-            : view.state.tr.replaceSelection(cleanSlice);
+          ? view.state.tr.replaceSelectionWith(singleNode, false)
+          : view.state.tr.replaceSelection(cleanSlice);
         view.dispatch(tr.scrollIntoView().setMeta('paste', true).setMeta('uiEvent', 'paste'));
         return true;
       },
       handleDOMEvents: {
         pointerdown() {
           pointerDown = true;
-          setTimeout(() => pointerDown = false, 100); // yes, apparently we need a decently high timeout value
+          setTimeout(() => (pointerDown = false), 100); // yes, apparently we need a decently high timeout value
         },
-        'focus'(editor) {
+        focus(editor) {
           onfocus(editor, !pointerDown);
         },
-        'blur': onblur,
+        blur: onblur,
         keydown(_view, event) {
           if (event.key === 'Enter') {
             onEnterKey();
           }
         },
-      }
+      },
     });
     editor.dom.setAttribute('tabindex', '0');
 
-    const relatedLabel = elementRef?.closest('label') ??
-      (id ? document.querySelector<HTMLLabelElement>(`label[for="${id}"]`) : undefined);
+    const relatedLabel =
+      elementRef?.closest('label') ?? (id ? document.querySelector<HTMLLabelElement>(`label[for="${id}"]`) : undefined);
     if (relatedLabel) return on(relatedLabel, 'click', onFocusTargetClick);
   });
 
   let prevSelection: Selection | undefined;
   function onfocus(editor: EditorView, viaKeyboard: boolean) {
-    const usingKeyboard = isUsingKeyboard.current ||
-      IsMobile.value && viaKeyboard;
-    if (usingKeyboard) { // tabbed in
+    const usingKeyboard = isUsingKeyboard.current || (IsMobile.value && viaKeyboard);
+    if (usingKeyboard) {
+      // tabbed in
       if (IsMobile.value) {
         if (prevSelection) {
           // We can land here when the field gets cleared for some reason.
@@ -186,10 +186,13 @@
     clearSelection(editor);
   }
 
-  watch(() => readonly, () => {
-    // Triggers a refresh immediately rather than when the user next interacts with the editor
-    editor?.setProps({});
-  });
+  watch(
+    () => readonly,
+    () => {
+      // Triggers a refresh immediately rather than when the user next interacts with the editor
+      editor?.setProps({});
+    },
+  );
 
   onDestroy(() => {
     editor?.destroy();
@@ -215,7 +218,7 @@
           'Mod-z': undo,
           'Mod-y': redo,
           // eslint-disable-next-line @typescript-eslint/naming-convention
-          'Enter': () => {
+          Enter: () => {
             // This handler is not triggered reliably on mobile, so we're using handleDOMEvents.keydown instead
             // if (IsMobile.value) onEnterKey();
 
@@ -228,13 +231,13 @@
             return true;
           },
           // eslint-disable-next-line @typescript-eslint/naming-convention
-          'Backspace': (state) => {
+          Backspace: (state) => {
             // If the field is empty, backspace results in an error (on older devices at least)
             return state.doc.content.size === 0;
           },
         }),
-        keymap(baseKeymap)
-      ]
+        keymap(baseKeymap),
+      ],
     });
   }
 
@@ -255,9 +258,11 @@
   }
 
   function valueToDoc(): Node {
-    return textSchema.node('doc', {}, value?.spans
-      .filter(s => s.text)
-      .map((s, i, all) => richSpanToNode(s, i === all.length - 1)) ?? []);
+    return textSchema.node(
+      'doc',
+      {},
+      value?.spans.filter((s) => s.text).map((s, i, all) => richSpanToNode(s, i === all.length - 1)) ?? [],
+    );
   }
 
   function richSpanToNode(s: IRichSpan, isLast: boolean): Node {
@@ -270,7 +275,7 @@
       textSchema.text(replaceLineSeparatorWithNewLine(text)),
       // a <br> seems to be the only thing that will cause a trailing \n to be rendered
       // this is what Prose-Mirror does if inline: false, which we can't use
-      ...(isLast ? [textSchema.node('br')] : [])
+      ...(isLast ? [textSchema.node('br')] : []),
     ]);
   }
 
@@ -323,7 +328,7 @@
 
   function onFocusTargetClick(event: MouseEvent) {
     if (!editor || !event.target) return;
-    if (event.target === editor.dom || event.target instanceof globalThis.Node && editor.dom.contains(event.target))
+    if (event.target === editor.dom || (event.target instanceof globalThis.Node && editor.dom.contains(event.target)))
       return; // the editor will handle focus itself
     editor?.focus();
     // Minorly dissatisfying is that when you click on the padding to the right of prose-mirror,
@@ -331,6 +336,15 @@
     // Everything else seems good
   }
 </script>
+
+{#if label}
+  <div class={className} {...rest}>
+    <Label>{label}</Label>
+    <div bind:this={elementRef}></div>
+  </div>
+{:else}
+  <div bind:this={elementRef} class={className} {...rest}></div>
+{/if}
 
 <style lang="postcss" global>
   .ProseMirror {
@@ -356,12 +370,3 @@
     }
   }
 </style>
-
-{#if label}
-  <div class={className} {...rest}>
-    <Label>{label}</Label>
-    <div bind:this={elementRef}></div>
-  </div>
-{:else}
-  <div bind:this={elementRef} class={className} {...rest}></div>
-{/if}

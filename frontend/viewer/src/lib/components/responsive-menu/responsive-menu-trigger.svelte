@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Icon } from '$lib/components/ui/icon';
-  import { IsMobile } from '$lib/hooks/is-mobile.svelte';
+  import {Icon} from '$lib/components/ui/icon';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {buttonVariants} from '$lib/components/ui/button/button.svelte';
   import {useResponsiveMenuTrigger} from './responsive-menu.svelte';
   import {ContextMenuTrigger} from '../ui/context-menu';
@@ -13,21 +13,18 @@
 
   type Props = {
     children?: Snippet;
-  } & ContextMenuTriggerProps & DropdownMenuTriggerProps & DrawerTriggerProps;
+  } & ContextMenuTriggerProps &
+    DropdownMenuTriggerProps &
+    DrawerTriggerProps;
 
-  let {
-    children,
-    class: className,
-    ref = $bindable(null),
-    ...rest
-  }: Props = $props();
+  let {children, class: className, ref = $bindable(null), ...rest}: Props = $props();
 
-  const triggerVariant = buttonVariants({ variant: 'ghost', size: 'icon' });
+  const triggerVariant = buttonVariants({variant: 'ghost', size: 'icon'});
   const state = useResponsiveMenuTrigger();
 </script>
 
 {#snippet standardTriggerContent()}
-    <Icon icon="i-mdi-dots-vertical" />
+  <Icon icon="i-mdi-dots-vertical" />
 {/snippet}
 
 {#snippet triggerContent()}

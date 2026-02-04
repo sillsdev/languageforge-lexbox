@@ -18,10 +18,10 @@
     trigger,
     contentProps,
   }: WithChildren<{
-    open?: boolean,
-    title?: string,
-    trigger: TriggerSnippet,
-    contentProps?: ContentProps,
+    open?: boolean;
+    title?: string;
+    trigger: TriggerSnippet;
+    contentProps?: ContentProps;
   }> = $props();
 </script>
 
@@ -44,7 +44,7 @@
   <Drawer.Root bind:open>
     <Drawer.Trigger child={trigger} />
     <Drawer.Content {...contentProps}>
-      <Drawer.Close class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10' })}>
+      <Drawer.Close class={buttonVariants({variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10'})}>
         <Icon icon="i-mdi-close" />
       </Drawer.Close>
       <div class="mx-auto w-full max-w-sm p-4 overflow-auto overscroll-contain">

@@ -15,7 +15,7 @@
     showActualDate?: boolean;
     actualDateOptions?: Intl.DateTimeFormatOptions;
     maxUnits?: number;
-    smallestUnit?: SmallestUnit,
+    smallestUnit?: SmallestUnit;
     loading?: boolean;
   };
 
@@ -37,9 +37,12 @@
 
   $effect(() => {
     if (live) {
-      intervalId = setInterval(() => {
-        now.setTime(Date.now());
-      }, typeof live === 'number' ? live : 1000);
+      intervalId = setInterval(
+        () => {
+          now.setTime(Date.now());
+        },
+        typeof live === 'number' ? live : 1000,
+      );
     } else {
       if (intervalId !== undefined) {
         clearInterval(intervalId);
@@ -65,7 +68,7 @@
 
   const fullDate = $derived.by(() => {
     if (!date) return '';
-    return formatDate(date, { dateStyle: 'full', timeStyle: 'long' });
+    return formatDate(date, {dateStyle: 'full', timeStyle: 'long'});
   });
 </script>
 

@@ -1,14 +1,14 @@
 <script lang="ts" generics="MutableValue">
-  import { Badge } from '$lib/components/ui/badge';
-  import { Button, XButton } from '$lib/components/ui/button';
-  import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
-  import { IsMobile } from '$lib/hooks/is-mobile.svelte';
-  import { tick } from 'svelte';
-  import { t } from 'svelte-i18n-lingui';
-  import { Checkbox } from '../ui/checkbox';
-  import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
-  import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '../ui/drawer';
-  import { Icon } from '../ui/icon';
+  import {Badge} from '$lib/components/ui/badge';
+  import {Button, XButton} from '$lib/components/ui/button';
+  import {Popover, PopoverContent, PopoverTrigger} from '$lib/components/ui/popover';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {tick} from 'svelte';
+  import {t} from 'svelte-i18n-lingui';
+  import {Checkbox} from '../ui/checkbox';
+  import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '../ui/command';
+  import {Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger} from '../ui/drawer';
+  import {Icon} from '../ui/icon';
   import type {ConditionalKeys, Primitive, ReadonlyDeep} from 'type-fest';
   import {cn} from '$lib/utils';
   import DrawerFooter from '../ui/drawer/drawer-footer.svelte';
@@ -75,10 +75,13 @@
   let triggerRef = $state<HTMLButtonElement | null>(null);
   let commandRef = $state<HTMLElement | null>(null);
 
-  watch(() => open, () => {
-    dirty = false;
-    filterValue = '';
-  });
+  watch(
+    () => open,
+    () => {
+      dirty = false;
+      filterValue = '';
+    },
+  );
 
   watch([() => open, () => decoratedValues], () => {
     if (open && !dirty) {
@@ -96,7 +99,7 @@
     const id = getId(value);
     const label = getLabel(value);
     const optionIndex = options.findIndex((option) => getId(option) === id);
-    return { value, optionIndex, id, label };
+    return {value, optionIndex, id, label};
   }
 
   function sortValues(values: DecoratedValue[]): void {
@@ -115,7 +118,7 @@
 
   function submit() {
     open = false;
-    values = pendingValues.map(p => p.value);
+    values = pendingValues.map((p) => p.value);
     onchange?.(values);
     void tick().then(() => {
       triggerRef?.focus();
@@ -126,10 +129,12 @@
     const id = getId(value);
     const isSelected = pendingValues.some((v) => v.id === id);
 
-    if (!isSelected) { // add
+    if (!isSelected) {
+      // add
       pendingValues = [...pendingValues, decorateValue(value)];
       sortValues(pendingValues);
-    } else { // remove
+    } else {
+      // remove
       const index = pendingValues.findIndex((v) => v.id === id);
       if (index !== -1) pendingValues.splice(index, 1);
     }
@@ -140,10 +145,11 @@
 
   const filteredOptions = $derived.by(() => {
     const filterValueLower = filterValue.toLocaleLowerCase();
-    return options.map(option => ({option, rank: computeCommandScore(getLabel(option).toLocaleLowerCase(), filterValueLower)}))
-      .filter(result => result.rank > 0)
+    return options
+      .map((option) => ({option, rank: computeCommandScore(getLabel(option).toLocaleLowerCase(), filterValueLower)}))
+      .filter((result) => result.rank > 0)
       .sort((a, b) => b.rank - a.rank)
-      .map(result => result.option);
+      .map((result) => result.option);
   });
 
   const RENDER_LIMIT = 100;
@@ -162,10 +168,10 @@
   }
 
   function tryToggleHighlightedValue() {
-      const value = getHighlightedValue();
-      if (value) {
-        toggleSelected(value, false);
-      }
+    const value = getHighlightedValue();
+    if (value) {
+      toggleSelected(value, false);
+    }
   }
 
   function getHighlightedValue(): Value | undefined {
@@ -188,17 +194,22 @@
           1) baseline alignment works for consumers of this component
           2) list height doesn't shrink when empty
           -->
-        <Badge class="max-w-0 invisible">
-          &nbsp;
-        </Badge>
+        <Badge class="max-w-0 invisible">&nbsp;</Badge>
       </span>
     {/each}
   </div>
 {/snippet}
 
-{#snippet trigger({ props }: { props: Record<string, unknown> })}
-  <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
-    class="w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent">
+{#snippet trigger({props}: {props: Record<string, unknown>})}
+  <Button
+    disabled={readonly}
+    bind:ref={triggerRef}
+    variant="outline"
+    {...props}
+    role="combobox"
+    aria-expanded={open}
+    class="w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent"
+  >
     {@render displayBadges()}
     {#if !readonly}
       <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
@@ -232,7 +243,7 @@
         {#each renderedOptions as value, i (getId(value))}
           {@const label = getLabel(value)}
           {@const id = getId(value)}
-          {@const selected = pendingValues.some(v => v.id === id)}
+          {@const selected = pendingValues.some((v) => v.id === id)}
           <CommandItem
             keywords={[label.toLocaleLowerCase()]}
             value={label.toLocaleLowerCase() + String(id)}
@@ -247,7 +258,8 @@
               tabindex={-1}
               class={cn(
                 'max-md:hidden mr-2 border-muted-foreground !text-foreground !bg-transparent group-[&:not([data-selected])]:border-transparent',
-                selected || '[&:not(:hover)]:opacity-50')}
+                selected || '[&:not(:hover)]:opacity-50',
+              )}
               onclick={(e) => {
                 // prevents command item selection
                 e.stopPropagation();
@@ -283,7 +295,7 @@
           {@render displayBadges()}
         </DrawerDescription>
       </DrawerHeader>
-        {@render command()}
+      {@render command()}
       <DrawerFooter>
         <div class="flex gap-4 items-center flex-nowrap">
           <Button variant="secondary" class={cn('basis-1/4 transition-all', dirty || 'basis-3/4')} onclick={dismiss}>
@@ -299,7 +311,14 @@
 {:else}
   <Popover bind:open>
     <PopoverTrigger child={trigger} />
-    <PopoverContent class="p-0 w-96 max-w-[50vw]" align="start" sticky="always" side="bottom" avoidCollisions interactOutsideBehavior={dirty ? 'ignore' : 'close'}>
+    <PopoverContent
+      class="p-0 w-96 max-w-[50vw]"
+      align="start"
+      sticky="always"
+      side="bottom"
+      avoidCollisions
+      interactOutsideBehavior={dirty ? 'ignore' : 'close'}
+    >
       {@render command()}
     </PopoverContent>
   </Popover>

@@ -21,7 +21,7 @@
 </script>
 
 <script lang="ts">
-  import { onDestroy, type Snippet } from 'svelte';
+  import {onDestroy, type Snippet} from 'svelte';
   import type WaveSurfer from 'wavesurfer.js';
   import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';
   import {watch} from 'runed';
@@ -51,7 +51,7 @@
     onStartRecording: async () => {
       if (!recorder) throw new Error('Plugin not initialized');
       if (recorder.isRecording()) throw new Error('Plugin already recording');
-      if (recording) throw new Error('Component thinks it\'s already recording');
+      if (recording) throw new Error("Component thinks it's already recording");
 
       // The alternative to prepareMic() could be to activate the mic
       // and then give it time to "settle" (e.g. to avoid initial crackle)
@@ -69,25 +69,30 @@
     },
     onStopRecording: () => {
       if (!recorder || !recorder.isRecording()) return;
-      if (!recording) throw new Error('Component thinks it\'s not recording');
+      if (!recording) throw new Error("Component thinks it's not recording");
 
       recorder.stopRecording();
       recording = false;
       onRecordingStop?.();
     },
-    get recording() { return recording; },
+    get recording() {
+      return recording;
+    },
   });
 
   let wavesurfer: WaveSurfer | undefined;
   let recorder: RecordPlugin | undefined;
   let micActivatorStreamPromise: Promise<MediaStream> | undefined;
 
-  watch(() => container, (newContainer) => {
-    reset();
-    if (newContainer) {
-      initRecorder(newContainer);
-    }
-  });
+  watch(
+    () => container,
+    (newContainer) => {
+      reset();
+      if (newContainer) {
+        initRecorder(newContainer);
+      }
+    },
+  );
 
   onDestroy(() => {
     reset();
@@ -113,42 +118,42 @@
     // except when the user has previously denied access, in which case this could be sub-optimal
 
     // assign the promise before we wait for it so onDestroy can always see it
-    micActivatorStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
+    micActivatorStreamPromise = navigator.mediaDevices.getUserMedia({audio: true});
     await micActivatorStreamPromise;
   }
 
   function cleanUpStream() {
-    void micActivatorStreamPromise?.then(stream => {
-      stream.getTracks().forEach(track => track.stop());
+    void micActivatorStreamPromise?.then((stream) => {
+      stream.getTracks().forEach((track) => track.stop());
     });
     micActivatorStreamPromise = undefined;
   }
 
   function initRecorder(container: string | HTMLElement) {
-      void prepareMic();
+    void prepareMic();
 
-      wavesurfer = useWaveSurfer({
-        container,
+    wavesurfer = useWaveSurfer({
+      container,
+    });
+
+    if (wavesurfer.options.barWidth) {
+      wavesurfer.setOptions({
+        // prevents a weird gap on the right side of the waveform
+        width: `calc(100% + ${wavesurfer.options.barWidth}px)`,
       });
-
-      if (wavesurfer.options.barWidth) {
-        wavesurfer.setOptions({
-          // prevents a weird gap on the right side of the waveform
-          width: `calc(100% + ${wavesurfer.options.barWidth}px)`,
-        });
-      }
-
-      recorder = wavesurfer.registerPlugin(
-        RecordPlugin.create({
-          renderRecordedAudio: false,
-          scrollingWaveform: true,
-          scrollingWaveformWindow: 3,
-        }),
-      );
-
-      recorder.on('record-end', (blob) => onRecordingEnd(blob));
-      recorder.on('record-progress', (time) => duration = time);
     }
+
+    recorder = wavesurfer.registerPlugin(
+      RecordPlugin.create({
+        renderRecordedAudio: false,
+        scrollingWaveform: true,
+        scrollingWaveformWindow: 3,
+      }),
+    );
+
+    recorder.on('record-end', (blob) => onRecordingEnd(blob));
+    recorder.on('record-progress', (time) => (duration = time));
+  }
 </script>
 
 {@render children?.()}

@@ -19,10 +19,6 @@
   }: Props = $props();
 </script>
 
-<div
-  bind:this={ref}
-  class={cn(inputVariants({ variant: 'shell' }), focusRingClass, className)}
-  {...restProps}
->
+<div bind:this={ref} class={cn(inputVariants({variant: 'shell'}), focusRingClass, className)} {...restProps}>
   {@render children?.()}
 </div>

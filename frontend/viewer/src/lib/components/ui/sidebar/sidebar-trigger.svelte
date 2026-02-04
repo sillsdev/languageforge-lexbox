@@ -15,7 +15,7 @@
     ...restProps
   }: ComponentProps<typeof Button> & {
     onclick?: (e: MouseEvent) => void;
-    icon?: IconClass
+    icon?: IconClass;
     iconProps?: Partial<IconProps>;
   } = $props();
 

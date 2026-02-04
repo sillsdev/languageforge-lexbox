@@ -14,14 +14,27 @@ const Portal: typeof DrawerPrimitive.Portal = DrawerPrimitive.Portal;
 const Close: typeof DrawerPrimitive.Close = DrawerPrimitive.Close;
 
 export {
-  Close, Content,
+  Close,
+  Content,
   Description,
   //
-  Root as Drawer, Close as DrawerClose, Content as DrawerContent,
-  Description as DrawerDescription, Footer as DrawerFooter,
-  Header as DrawerHeader, NestedRoot as DrawerNestedRoot, Overlay as DrawerOverlay, Portal as DrawerPortal, Title as DrawerTitle,
-  Trigger as DrawerTrigger, Footer,
-  Header, NestedRoot, Overlay, Portal, Root, Title,
-  Trigger
+  Root as Drawer,
+  Close as DrawerClose,
+  Content as DrawerContent,
+  Description as DrawerDescription,
+  Footer as DrawerFooter,
+  Header as DrawerHeader,
+  NestedRoot as DrawerNestedRoot,
+  Overlay as DrawerOverlay,
+  Portal as DrawerPortal,
+  Title as DrawerTitle,
+  Trigger as DrawerTrigger,
+  Footer,
+  Header,
+  NestedRoot,
+  Overlay,
+  Portal,
+  Root,
+  Title,
+  Trigger,
 };
-

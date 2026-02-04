@@ -24,17 +24,12 @@
     autofocus?: boolean;
   } = $props();
 
-  const {
-    readonly = false,
-    writingSystems,
-    onchange,
-    autofocus,
-  } = $derived(constProps);
-  let visibleWritingSystems = $derived(supportsAudio ? writingSystems : writingSystems.filter(ws => !ws.isAudio));
+  const {readonly = false, writingSystems, onchange, autofocus} = $derived(constProps);
+  let visibleWritingSystems = $derived(supportsAudio ? writingSystems : writingSystems.filter((ws) => !ws.isAudio));
 
   function onRichTextChange(wsId: string) {
-    let richString = value[wsId]
-    richString?.spans.forEach((span) => span.ws ??= wsId);
+    let richString = value[wsId];
+    richString?.spans.forEach((span) => (span.ws ??= wsId));
     onchange?.(wsId, richString, value);
   }
 
@@ -59,8 +54,10 @@
   {#each visibleWritingSystems as ws, i (ws.wsId)}
     {@const inputId = `${rootId}-${ws.wsId}`}
     {@const labelId = `${inputId}-label`}
-    <div class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
-      title={`${ws.name} (${ws.wsId})`}>
+    <div
+      class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
+      title={`${ws.name} (${ws.wsId})`}
+    >
       <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
       {#if !ws.isAudio}
         <StompSafeLcmRichTextEditor
@@ -69,16 +66,17 @@
           id={inputId}
           aria-labelledby="{labelledBy ?? ''} {labelId}"
           {readonly}
-          autofocus={autofocus && (i === 0)}
+          autofocus={autofocus && i === 0}
           autocapitalize="off"
           onchange={() => onRichTextChange(ws.wsId)}
           aria-label={ws.abbreviation}
         />
       {:else}
         <AudioInput
-          bind:audioId={() => getAudioId(value[ws.wsId]), audioId => setAudioId(audioId, ws.wsId)}
+          bind:audioId={() => getAudioId(value[ws.wsId]), (audioId) => setAudioId(audioId, ws.wsId)}
           wsLabel={ws.abbreviation}
-          {readonly} />
+          {readonly}
+        />
       {/if}
     </div>
   {/each}

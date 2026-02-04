@@ -19,13 +19,13 @@
   )}
   {...restProps}
 >
-  {#snippet children({ checked })}
+  {#snippet children({checked})}
     <span class="absolute left-2 flex size-3.5 items-center justify-center">
       {#if checked}
         <!-- If not centered, see the change made in radio-group-item.svelte -->
         <Icon icon="i-mdi-circle" class="size-2 text-current" />
       {/if}
     </span>
-    {@render childrenProp?.({ checked })}
+    {@render childrenProp?.({checked})}
   {/snippet}
 </DropdownMenuPrimitive.RadioItem>

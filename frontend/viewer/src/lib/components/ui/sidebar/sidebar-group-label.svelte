@@ -11,7 +11,7 @@
     class: className,
     ...restProps
   }: WithElementRef<HTMLAttributes<HTMLElement>> & {
-    child?: Snippet<[{ props: Record<string, unknown> }]>;
+    child?: Snippet<[{props: Record<string, unknown>}]>;
   } = $props();
 
   const mergedProps = $derived({
@@ -26,7 +26,7 @@
 </script>
 
 {#if child}
-  {@render child({ props: mergedProps })}
+  {@render child({props: mergedProps})}
 {:else}
   <div bind:this={ref} {...mergedProps}>
     {@render children?.()}

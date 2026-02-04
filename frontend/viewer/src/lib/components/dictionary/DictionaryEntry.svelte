@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IEntry, ISense } from '$lib/dotnet-types';
+  import type {IEntry, ISense} from '$lib/dotnet-types';
   import {usePartsOfSpeech, asString, useWritingSystemService} from '$project/data';
   import type {HTMLAttributes} from 'svelte/elements';
   import {Icon} from '$lib/components/ui/icon';
@@ -17,13 +17,13 @@
     hideExamples = false,
     ...restProps
   }: HTMLAttributes<HTMLDivElement> & {
-    entry: IEntry,
-    showLinks?: boolean,
-    lines?: number,
-    actions?: Snippet,
-    headwordClass?: string,
-    highlightSenseId?: string,
-    hideExamples?: boolean,
+    entry: IEntry;
+    showLinks?: boolean;
+    lines?: number;
+    actions?: Snippet;
+    headwordClass?: string;
+    highlightSenseId?: string;
+    hideExamples?: boolean;
   } = $props();
 
   $effect(() => {
@@ -43,10 +43,10 @@
   function getRenderedContent(sense: ISense) {
     return {
       id: sense.id,
-      partOfSpeech: partsOfSpeech.current.find(pos => pos.id === sense.partOfSpeechId)?.label,
+      partOfSpeech: partsOfSpeech.current.find((pos) => pos.id === sense.partOfSpeechId)?.label,
       glossesAndDefs: wsService.analysis
-        .filter(ws => !ws.isAudio)
-        .map(ws => ({
+        .filter((ws) => !ws.isAudio)
+        .map((ws) => ({
           wsId: ws.wsId,
           wsAbbr: ws.abbreviation,
           gloss: sense.gloss[ws.wsId],
@@ -54,23 +54,24 @@
           color: wsService.wsColor(ws.wsId, 'analysis'),
         }))
         .filter(({gloss, definition}) => gloss || definition),
-      exampleSentences: sense.exampleSentences.map(example => ({
+      exampleSentences: sense.exampleSentences.map((example) => ({
         id: example.id,
         sentences: [
           ...wsService.vernacular
-            .filter(ws => !ws.isAudio)
-            .map(ws => ({
-            text: asString(example.sentence[ws.wsId]),
-            color: wsService.wsColor(ws.wsId, 'vernacular'),
-          })),
+            .filter((ws) => !ws.isAudio)
+            .map((ws) => ({
+              text: asString(example.sentence[ws.wsId]),
+              color: wsService.wsColor(ws.wsId, 'vernacular'),
+            })),
           ...wsService.analysis
-            .filter(ws => !ws.isAudio).map(ws => ({
-            text: asString(example.translations[0]?.text?.[ws.wsId]),
-            color: wsService.wsColor(ws.wsId, 'analysis'),
-          })),
+            .filter((ws) => !ws.isAudio)
+            .map((ws) => ({
+              text: asString(example.translations[0]?.text?.[ws.wsId]),
+              color: wsService.wsColor(ws.wsId, 'analysis'),
+            })),
         ].filter(({text}) => !!text),
       })),
-    }
+    };
   }
 
   const partsOfSpeech = usePartsOfSpeech();
@@ -79,12 +80,15 @@
 {#snippet senseNumber(index: number)}
   {#if showLinks}
     <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-    <a href={`${location.href.replace(location.hash, '')}#sense${index+1}`} class="font-bold group/sense underline">
-      <Icon icon="i-mdi-link" class={cn(
+    <a href={`${location.href.replace(location.hash, '')}#sense${index + 1}`} class="font-bold group/sense underline">
+      <Icon
+        icon="i-mdi-link"
+        class={cn(
           'opacity-0',
           'group-hover/sense:opacity-100 group-hover/sense:visible transition-all',
-          'size-4 align-sub'
-        )}/><span class="ml-[2px]">{index + 1}</span>
+          'size-4 align-sub',
+        )}
+      /><span class="ml-[2px]">{index + 1}</span>
     </a>
   {:else}
     <span class="font-bold">{index + 1}</span>
@@ -100,7 +104,7 @@
   <Headwords {entry} class={cn('mr-1', headwordClass)} />
   {#each senses as sense, i (sense.id)}
     {#if senses.length > 1}
-      <br/>
+      <br />
     {/if}
     <span class={cn(highlightSenseId === sense.id && 'rounded bg-secondary')}>
       {#if senses.length > 1}
@@ -124,13 +128,13 @@
       </span>
       {#if !hideExamples}
         {#each sense.exampleSentences as example (example.id)}
-        {#each example.sentences as sentence, j (sentence)}
-          {@const first = j === 0}
-          {@const last = j === example.sentences.length - 1}
-          {#if j > 0};{/if}
-          {#if first}[{/if}<span class={sentence.color}>{sentence.text}</span>{#if last}]{/if}
+          {#each example.sentences as sentence, j (sentence)}
+            {@const first = j === 0}
+            {@const last = j === example.sentences.length - 1}
+            {#if j > 0};{/if}
+            {#if first}[{/if}<span class={sentence.color}>{sentence.text}</span>{#if last}]{/if}
+          {/each}
         {/each}
-      {/each}
       {/if}
     </span>
   {/each}

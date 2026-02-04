@@ -37,7 +37,7 @@
   import type {WithElementRef} from 'bits-ui';
   import type {HTMLAttributes} from 'svelte/elements';
 
-  type FieldRootProps = { fieldId?: FieldId } & WithElementRef<HTMLAttributes<HTMLDivElement>>;
+  type FieldRootProps = {fieldId?: FieldId} & WithElementRef<HTMLAttributes<HTMLDivElement>>;
 
   const fieldLabelId = $props.id();
   const fieldProps = usesFieldRoot(new FieldRootState(fieldLabelId));
@@ -54,6 +54,10 @@
   }: FieldRootProps = $props();
 </script>
 
-<div style="grid-area: {fieldId}" class={cn('grid grid-cols-subgrid col-span-full items-baseline', className)} {...restProps}>
+<div
+  style="grid-area: {fieldId}"
+  class={cn('grid grid-cols-subgrid col-span-full items-baseline', className)}
+  {...restProps}
+>
   {@render children?.()}
 </div>

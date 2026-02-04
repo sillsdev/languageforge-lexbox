@@ -4,5 +4,10 @@ import Root from './avatar.svelte';
 
 export {
   //
-  Root as Avatar, Fallback as AvatarFallback, Image as AvatarImage, Fallback, Image, Root
+  Root as Avatar,
+  Fallback as AvatarFallback,
+  Image as AvatarImage,
+  Fallback,
+  Image,
+  Root,
 };

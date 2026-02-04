@@ -13,7 +13,7 @@
     isActive,
     ...restProps
   }: WithElementRef<HTMLButtonAttributes> & {
-    child?: Snippet<[{ props: Record<string, unknown> }]>;
+    child?: Snippet<[{props: Record<string, unknown>}]>;
     size?: 'sm' | 'md';
     isActive?: boolean;
   } = $props();
@@ -36,7 +36,7 @@
 </script>
 
 {#if child}
-  {@render child({ props: mergedProps })}
+  {@render child({props: mergedProps})}
 {:else}
   <button bind:this={ref} {...mergedProps}>
     {@render children?.()}

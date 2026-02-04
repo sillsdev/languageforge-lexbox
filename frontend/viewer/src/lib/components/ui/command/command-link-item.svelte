@@ -2,7 +2,7 @@
   import {cn} from '$lib/utils.js';
   import {Command as CommandPrimitive} from 'bits-ui';
 
-  let { ref = $bindable(null), class: className, ...restProps }: CommandPrimitive.LinkItemProps = $props();
+  let {ref = $bindable(null), class: className, ...restProps}: CommandPrimitive.LinkItemProps = $props();
 </script>
 
 <CommandPrimitive.LinkItem

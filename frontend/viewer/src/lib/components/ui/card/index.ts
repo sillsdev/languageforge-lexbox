@@ -12,8 +12,11 @@ export {
   Description as CardDescription,
   Footer as CardFooter,
   Header as CardHeader,
-  Title as CardTitle, Content,
+  Title as CardTitle,
+  Content,
   Description,
   Footer,
-  Header, Root, Title
+  Header,
+  Root,
+  Title,
 };

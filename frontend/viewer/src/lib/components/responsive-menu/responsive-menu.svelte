@@ -34,23 +34,21 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as Drawer from '$lib/components/ui/drawer';
   import * as ContextMenu from '$lib/components/ui/context-menu';
-  import { IsMobile } from '$lib/hooks/is-mobile.svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import type {ContextMenuRootProps} from 'bits-ui';
   import type {DrawerRootProps} from 'vaul-svelte';
 
   type Props = {
     contextMenu?: boolean;
-  } & ContextMenuRootProps & DrawerRootProps;
+  } & ContextMenuRootProps &
+    DrawerRootProps;
 
-  let {
-    open = $bindable(false),
-    contextMenu = false,
-    children,
-    ...rest
-  }: Props = $props();
+  let {open = $bindable(false), contextMenu = false, children, ...rest}: Props = $props();
 
   useResponsiveMenuRoot({
-    get contextMenu() { return contextMenu; },
+    get contextMenu() {
+      return contextMenu;
+    },
   });
 </script>
 

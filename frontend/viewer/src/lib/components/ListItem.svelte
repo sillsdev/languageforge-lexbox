@@ -41,13 +41,14 @@
     'disabled:pointer-events-none disabled:contrast-[0.8]',
     loading && 'animate-pulse',
     skeleton && 'cursor-default hover:bg-transparent pointer-events-none shadow-none',
-    className)}
+    className,
+  )}
   role="row"
   bind:this={ref}
   {...restProps}
 >
   {#if typeof icon === 'string'}
-    <Icon {icon} class="size-6"/>
+    <Icon {icon} class="size-6" />
   {:else}
     {@render icon?.()}
   {/if}
@@ -55,5 +56,4 @@
     {@render children?.()}
   </div>
   {@render actions?.()}
-
 </button>

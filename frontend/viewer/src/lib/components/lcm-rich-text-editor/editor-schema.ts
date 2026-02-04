@@ -22,17 +22,21 @@ export const textSchema = new Schema({
       inline: true,
       whitespace: 'pre',
       toDOM: (node) => {
-        return ['span', {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
-          title: gt`Writing system: ${node.attrs.richSpan.ws}`,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          class: cn(node.attrs.className),
-        }, 0];
+        return [
+          'span',
+          {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+            title: gt`Writing system: ${node.attrs.richSpan.ws}`,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            class: cn(node.attrs.className),
+          },
+          0,
+        ];
       },
       parseDOM: [{tag: 'span'}],
       //richSpan is used to track the original span which was modified
       //this allows us to update the text property without having to map all the span properties into the schema
-      attrs: {richSpan: {default: {}}, className: {default: ''}}
+      attrs: {richSpan: {default: {}}, className: {default: ''}},
     },
     br: {
       inline: true,
@@ -40,14 +44,14 @@ export const textSchema = new Schema({
       selectable: false,
       linebreakReplacement: true,
       toDOM: () => ['br'],
-      parseDOM: [{tag: 'br'}]
+      parseDOM: [{tag: 'br'}],
     },
     doc: {
       whitespace: 'pre',
       // if we remove this Shift + Enter creates new spans and then Backspace starts removing whole spans
       inline: true,
       content: 'span*',
-      attrs: {}
-    }
-  }
+      attrs: {},
+    },
+  },
 });

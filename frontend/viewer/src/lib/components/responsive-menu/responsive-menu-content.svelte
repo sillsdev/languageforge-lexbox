@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Icon } from '$lib/components/ui/icon';
-  import { IsMobile } from '$lib/hooks/is-mobile.svelte';
+  import {Icon} from '$lib/components/ui/icon';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {buttonVariants} from '$lib/components/ui/button/button.svelte';
   import {useResponsiveMenuContent} from './responsive-menu.svelte';
   import {ContextMenuContent} from '../ui/context-menu';
@@ -12,13 +12,11 @@
 
   type Props = {
     children?: Snippet;
-  } & ContextMenuContentProps & DropdownMenuContentProps & DrawerContentProps;
+  } & ContextMenuContentProps &
+    DropdownMenuContentProps &
+    DrawerContentProps;
 
-  let {
-    children,
-    ref = $bindable(null),
-    ...rest
-  }: Props = $props();
+  let {children, ref = $bindable(null), ...rest}: Props = $props();
 
   const state = useResponsiveMenuContent();
 </script>
@@ -34,11 +32,10 @@
 {:else}
   <Drawer.Content {...rest} bind:ref>
     <div class="mx-auto w-full max-w-sm p-4">
-      <Drawer.Close class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10' })}>
+      <Drawer.Close class={buttonVariants({variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10'})}>
         <Icon icon="i-mdi-close" />
       </Drawer.Close>
-      <Drawer.Header class="justify-items-end">
-      </Drawer.Header>
+      <Drawer.Header class="justify-items-end"></Drawer.Header>
       <div class="flex flex-col gap-2">
         {@render children?.()}
       </div>

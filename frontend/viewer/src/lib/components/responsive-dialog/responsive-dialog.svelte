@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { IsMobile } from '$lib/hooks/is-mobile.svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import * as Drawer from '$lib/components/ui/drawer';
-  import { buttonVariants } from '$lib/components/ui/button';
+  import {buttonVariants} from '$lib/components/ui/button';
   import type {PopoverTriggerProps, WithChildren, WithoutChildren} from 'bits-ui';
   import {Icon} from '../ui/icon';
   import type {ComponentProps} from 'svelte';
@@ -11,21 +11,13 @@
   type TriggerSnippet = PopoverTriggerProps['child'];
   type ContentProps = WithoutChildren<ComponentProps<typeof Dialog.Content>>;
   type Props = ComponentProps<typeof Drawer.Root> & {
-    open?: boolean,
-    title: string,
-    trigger?: TriggerSnippet,
-    contentProps?: ContentProps,
+    open?: boolean;
+    title: string;
+    trigger?: TriggerSnippet;
+    contentProps?: ContentProps;
   };
 
-
-  let {
-    open = $bindable(false),
-    children,
-    title,
-    trigger,
-    contentProps,
-    ...rest
-  }: WithChildren<Props> = $props();
+  let {open = $bindable(false), children, title, trigger, contentProps, ...rest}: WithChildren<Props> = $props();
 </script>
 
 {#if !IsMobile.value}
@@ -42,7 +34,7 @@
   <Drawer.Root bind:open {...rest}>
     <Drawer.Trigger child={trigger} />
     <Drawer.Content {...contentProps}>
-      <Drawer.Close class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10' })}>
+      <Drawer.Close class={buttonVariants({variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10'})}>
         <Icon icon="i-mdi-close" />
       </Drawer.Close>
       <div class="mx-auto w-full p-4 overflow-auto overscroll-contain">

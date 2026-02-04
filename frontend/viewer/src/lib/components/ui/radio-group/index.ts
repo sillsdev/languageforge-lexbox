@@ -5,5 +5,6 @@ export {
   Item,
   //
   Root as RadioGroup,
-  Item as RadioGroupItem, Root
+  Item as RadioGroupItem,
+  Root,
 };

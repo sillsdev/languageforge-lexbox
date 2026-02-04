@@ -12,5 +12,5 @@ export {
   formatDuration,
   normalizeDuration,
   FormatRelativeDate,
-  formatRelativeDate
-}
+  formatRelativeDate,
+};
