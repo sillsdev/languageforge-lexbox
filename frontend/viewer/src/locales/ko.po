@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-22 11:51\n"
+"PO-Revision-Date: 2026-01-24 14:45\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -67,12 +67,12 @@ msgstr "{num, plural, other {#개 변경}}"
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
-msgstr "{num, plural, one {# 새 FieldWorks 클래식 커밋} other {# 새 FieldWorks 클래식 커밋}}"
+msgstr "{num, plural, other {# 새 FieldWorks Classic 커밋}}"
 
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
-msgstr "{num, plural, one {# 새 FieldWorks Lite 커밋} other {# 새 FieldWorks Lite 커밋}}"
+msgstr "{num, plural, other {# 새 FieldWorks Lite 커밋}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -267,7 +267,7 @@ msgstr "베스트 매치"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "blue"
-msgstr ""
+msgstr "파란색"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -301,7 +301,7 @@ msgstr "예를 들어 동일한 필드를 두 번 변경하면 두 개의 커밋
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
-msgstr ""
+msgstr "업데이트 확인 중..."
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -571,7 +571,7 @@ msgstr "다운로드 {0}"
 #. Link label to open the updates download page
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Download page"
-msgstr ""
+msgstr "다운로드 페이지"
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -587,7 +587,7 @@ msgstr "미등록 프로젝트 다운로드"
 #. Button label to download an update when auto-update is unavailable
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
-msgstr ""
+msgstr "업데이트 다운로드"
 
 #. Success notification with project name
 #: src/home/Server.svelte
@@ -626,7 +626,7 @@ msgstr "항목이 누락되었습니다..."
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
 msgid "entry"
-msgstr ""
+msgstr "항목"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
@@ -664,7 +664,7 @@ msgstr "같음"
 #. Error message when update check fails
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Error checking for updates: {0}"
-msgstr ""
+msgstr "업데이트 확인 중 오류가 발생했습니다: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
@@ -786,7 +786,7 @@ msgstr "파일이 너무 큼"
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter"
-msgstr ""
+msgstr "필터"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter # words"
@@ -805,7 +805,7 @@ msgstr "필터 # 단어"
 #. Filter dropdown label
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Filter By"
-msgstr ""
+msgstr "필터 기준"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
@@ -901,7 +901,7 @@ msgstr "문법 정보."
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "green"
-msgstr ""
+msgstr "녹색"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -951,12 +951,12 @@ msgstr "불완전한 항목"
 #. Button label to install an available update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Install Update"
-msgstr ""
+msgstr "업데이트 설치"
 
 #. Button label while installing an update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
-msgstr ""
+msgstr "업데이트 설치 중..."
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1064,7 +1064,7 @@ msgstr "관리자"
 #. Info message when manual update is required
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Manual update is required. Please follow the instructions provided."
-msgstr ""
+msgstr "수동 업데이트가 필요합니다. 제공된 지침을 따르세요."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
@@ -1101,7 +1101,7 @@ msgstr "누락되었습니다: {0}"
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Mode"
-msgstr ""
+msgstr "모드"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1285,7 +1285,7 @@ msgstr "로그 파일 열기"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
-msgstr ""
+msgstr "오렌지"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -1338,7 +1338,7 @@ msgstr "고정됨"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
-msgstr ""
+msgstr "플랫폼"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -1398,7 +1398,7 @@ msgstr "프로젝트 새로 고침"
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
-msgstr ""
+msgstr "릴리스 노트"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1428,7 +1428,7 @@ msgstr "기술 문제 신고하기"
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
 msgid "Restore"
-msgstr ""
+msgstr "복원"
 
 #. Button option
 #: src/project/tasks/DoneView.svelte
@@ -1438,7 +1438,7 @@ msgstr "검토"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
-msgstr ""
+msgstr "rose"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1525,7 +1525,7 @@ msgstr "설정"
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
 msgid "Shadcn Sandbox # #"
-msgstr "Shadcn 샌드박스 # #"
+msgstr "Shadcn Sandbox # #"
 
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
@@ -1582,7 +1582,7 @@ msgstr "다음으로 시작"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
-msgstr ""
+msgstr "돌"
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1609,7 +1609,7 @@ msgstr "동기화 변경 사항"
 #. Success message showing change counts
 #: src/project/SyncDialog.svelte
 msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
-msgstr "동기화 완료. {0} 는 FieldWorks 클래식에 적용되었습니다. {1} 는 FieldWorks 라이트에 적용되었습니다."
+msgstr "동기화 완료. {0} 는 FieldWorks Classic에 적용되었습니다. {1} 는 FieldWorks Lite에 적용되었습니다."
 
 #. Section title
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1677,17 +1677,17 @@ msgstr "발생한 버그나 문제에 대해 알려주세요."
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
-msgstr "반면 *[FieldWorks 클래식* 뷰는 *[FieldWorks 언어 탐색기](https://software.sil.org/fieldworks/)*에 익숙한 사용자를 위해 설계되었습니다."
+msgstr "반면 *FieldWorks Classic* 뷰는 *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)* 에 익숙한 사용자를 위해 설계되었습니다."
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
-msgstr "필드웍스 라이트* 뷰는 언어 전문가가 아닌 사용자를 위해 설계되었으며 다음과 같은 점에서 필드웍스 클래식* 뷰와 다릅니다:"
+msgstr "*FieldWorks Lite* 뷰는 언어 전문가가 아닌 사용자를 위해 설계되었으며 다음과 같은 점에서 *FieldWorks Classic* 뷰와 다릅니다:"
 
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
-msgstr "FieldWorks 클래식 커밋 수가 동기화 결과 메시지에 표시되는 변경 사항 수와 반드시 일치하지는 않습니다."
+msgstr "FieldWorks Classic 커밋 수가 동기화 결과 메시지에 표시되는 변경 사항 수와 반드시 일치하지는 않습니다."
 
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1712,7 +1712,7 @@ msgstr "변경 내용이 아직 업로드되지 않았습니다. 변경 내용�
 #. Alert text shown in EntryView when the currently displayed entry/word has been deleted
 #: src/project/browse/EntryView.svelte
 msgid "This {0} was deleted"
-msgstr ""
+msgstr "이 {0} 삭제됨"
 
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
@@ -1817,7 +1817,7 @@ msgstr "알 수 없는 서버"
 #. Error message for unknown update result
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Unknown update result"
-msgstr ""
+msgstr "알 수 없는 업데이트 결과"
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
@@ -1848,34 +1848,34 @@ msgstr "업데이트 {0}"
 #. Status message when an update is available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update available: {0}"
-msgstr ""
+msgstr "업데이트 사용 가능: {0}"
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
-msgstr ""
+msgstr "업데이트를 설치하지 못했습니다."
 
 #. Success message after update installs
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update installed successfully! Please restart the application."
-msgstr ""
+msgstr "업데이트가 성공적으로 설치되었습니다! 애플리케이션을 다시 시작하세요."
 
 #. Info message when update runs in background
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update started in the background. Restart the application after the update is complete."
-msgstr ""
+msgstr "백그라운드에서 업데이트가 시작되었습니다. 업데이트가 완료된 후 애플리케이션을 다시 시작합니다."
 
 #. Error message when update is blocked by permissions
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update was disallowed by permission settings."
-msgstr ""
+msgstr "권한 설정에 의해 업데이트가 허용되지 않았습니다."
 
 #. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
 #: src/lib/updates/UpdateDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
-msgstr ""
+msgstr "업데이트"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1895,7 +1895,7 @@ msgstr "보기"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
-msgstr ""
+msgstr "바이올렛"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1911,7 +1911,7 @@ msgstr "왜 그럴까요?"
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/project/browse/EntryView.svelte
 msgid "word"
-msgstr ""
+msgstr "단어"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
@@ -1957,7 +1957,7 @@ msgstr "쓰기 시스템"
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
-msgstr ""
+msgstr "최신 버전을 실행 중입니다."
 
 #. Success message with task and count
 #: src/project/tasks/DoneView.svelte
@@ -1974,3 +1974,4 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
+
