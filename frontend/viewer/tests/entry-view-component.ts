@@ -55,7 +55,7 @@ export class EntryViewComponent {
     const input = await this.getGlossInput(senseIndex, writingSystem);
     await expect(input).toBeVisible({timeout: 5000});
     await input.click();
-    await input.press('Control+a');
+    await input.press('ControlOrMeta+a');
     await input.fill(newValue);
     await input.press('Tab');
     await this.waitForEntrySaved();
@@ -65,7 +65,7 @@ export class EntryViewComponent {
     const input = await this.getLexemeInput();
     await expect(input).toBeVisible({timeout: 5000});
     await input.click();
-    await input.press('Control+a');
+    await input.press('ControlOrMeta+a');
     await input.fill(newValue);
     await input.press('Tab');
     await this.waitForEntrySaved();
