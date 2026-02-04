@@ -4,6 +4,7 @@ import {fileURLToPath} from 'url';
 import globals from 'globals';
 import js from '@eslint/js';
 import path from 'path';
+import prettier from 'eslint-config-prettier';
 import storybook from "eslint-plugin-storybook";
 import stylistic from '@stylistic/eslint-plugin';
 import svelte from 'eslint-plugin-svelte';
@@ -46,6 +47,8 @@ export default [
     },
   },
   ...svelte.configs.recommended,
+  prettier,
+  ...svelte.configs.prettier,
   {
     rules: {
       // https://typescript-eslint.io/rules/
@@ -87,7 +90,7 @@ export default [
           'format': ['PascalCase'],
         }
       ],
-      '@stylistic/quotes': ['error', 'single', { 'allowTemplateLiterals': 'always' }],
+      '@stylistic/quotes': ['error', 'single', {'allowTemplateLiterals': 'always'}],
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -107,11 +110,11 @@ export default [
       // https://sveltejs.github.io/eslint-plugin-svelte/rules/
       'svelte/html-quotes': 'error',
       'svelte/no-dom-manipulating': 'warn',
-      'svelte/no-reactive-reassign': ['warn', { 'props': false }],
+      'svelte/no-reactive-reassign': ['warn', {'props': false}],
       'svelte/no-store-async': 'error',
       'svelte/require-store-reactive-access': 'error',
       'svelte/mustache-spacing': 'error',
-      'svelte/valid-compile' : 'warn',
+      'svelte/valid-compile': 'warn',
       'func-style': ['warn', 'declaration'],
       "no-restricted-imports": ["error", {
         "patterns": [{

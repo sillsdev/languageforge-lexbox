@@ -1,0 +1,1 @@
+cd frontend/viewer && npx lint-staged

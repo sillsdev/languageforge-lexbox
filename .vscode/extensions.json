@@ -9,6 +9,7 @@
         "task.vscode-task",
         "dbaeumer.vscode-eslint",
         "katjanakosic.vscode-json5",
-        "tilt-dev.tiltfile"
+        "tilt-dev.tiltfile",
+        "esbenp.prettier-vscode",
     ]
 }
