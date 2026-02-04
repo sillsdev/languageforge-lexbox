@@ -63,6 +63,8 @@ export class EntriesListComponent {
 
   async scrollToIndex(targetIndex: number): Promise<void> {
     const totalCount = await this.api.countEntries();
+    if (targetIndex >= totalCount) throw new Error(`Target index ${targetIndex} exceeds total count ${totalCount}`);
+
     const targetScroll = await this.vlist.evaluate((el, params) => {
       const {idx, total} = params;
       return (idx / total) * el.scrollHeight;

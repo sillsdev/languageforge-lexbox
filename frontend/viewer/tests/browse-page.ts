@@ -27,7 +27,7 @@ export class BrowsePage {
 
   async selectEntryByFilter(filter: string): Promise<void> {
     await this.entriesList.filterByText(filter);
-    await this.entriesList.entryWithText(filter.slice(0, 5)).click();
+    await this.entriesList.entryWithText(filter).click();
     await this.entryView.waitForEntryLoaded();
   }
 }

@@ -157,7 +157,7 @@ export class EntryLoaderService {
 
       this.#cache.clear();
       if (entries.length > 0) {
-        this.#cache.storeRange(batchesToPreload, entries);
+        this.#cache.storeBatches(batchesToPreload, entries);
       }
 
       this.totalCount = count;
@@ -194,7 +194,7 @@ export class EntryLoaderService {
     try {
       const entries = await promise;
       if (gen !== this.#generation) return;
-      this.#cache.storeBatch(batch, entries);
+      this.#cache.storeBatches([batch], entries);
     } finally {
       this.#cache.clearPendingBatch(batch, promise);
     }
@@ -286,17 +286,19 @@ class EntryCache {
     }
   }
 
-  storeBatch(batch: number, entries: IEntry[]): void {
-    const start = batch * this.batchSize;
-    for (let i = 0; i < entries.length; i++) {
-      this.#entries.set(start + i, entries[i]);
-      this.#idToIndex.set(entries[i].id, start + i);
-    }
-    this.#loaded.add(batch);
-  }
+  storeBatches(batches: number[], entries: IEntry[]): void {
+    batches.sort((a, b) => a - b);
 
-  storeRange(batches: number[], entries: IEntry[]): void {
-    const startIndex = Math.min(...batches) * this.batchSize;
+    // ensure batches are consecutive
+    for (let i = 1; i < batches.length; i++) {
+      if (batches[i] !== batches[i - 1] + 1) {
+        throw new Error('Batches must be consecutive');
+      }
+    }
+
+    if (!batches.length) return;
+
+    const startIndex = batches[0] * this.batchSize;
     for (let i = 0; i < entries.length; i++) {
       this.#entries.set(startIndex + i, entries[i]);
       this.#idToIndex.set(entries[i].id, startIndex + i);

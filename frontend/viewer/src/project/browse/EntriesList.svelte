@@ -18,7 +18,7 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import Delayed from '$lib/components/Delayed.svelte';
   import {EntryLoaderService} from '$lib/services/entry-loader-service.svelte';
-  import {untrack} from 'svelte';
+  import {onDestroy, untrack} from 'svelte';
 
   let {
     search = '',
@@ -62,6 +62,8 @@
     () => entryLoader,
     (_current, previous) => previous?.destroy()
   );
+
+  onDestroy(() => entryLoader?.destroy());
 
   // Debounce the loading state for smoother UI
   const loading = new Debounced(() => entryLoader?.loading ?? true, 0);

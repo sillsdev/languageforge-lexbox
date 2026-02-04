@@ -43,13 +43,18 @@
     () => entryId,
     async (id) => {
       const entry = await miniLcmApi.getEntry(id);
-      // IMMEDIATELY take a snapshot to ensure it doesn't get mutated by the editor before EntryPersistence gets it.
-      // (dirty fields immediately push their current dirty value into the entry object, which can corrupt the update diff.)
-      latestPersistedSnapshot = entry ? Object.freeze(copy(entry)) : undefined;
-      deleted = false;
-      return entry;
+      return setEntry(entry);
     },
   );
+
+  function setEntry(entry: IEntry | null): IEntry | null {
+    // IMMEDIATELY take a snapshot to ensure it doesn't get mutated by the editor before EntryPersistence gets it.
+    // (dirty fields immediately push their current dirty value into the entry object, which can corrupt the update diff.)
+    latestPersistedSnapshot = entry ? Object.freeze(copy(entry)) : undefined;
+    deleted = !!entry?.deletedAt;
+    entryResource.mutate(entry); // potentially redundant, but harmless
+    return entry;
+  }
 
   eventBus.onEntryUpdated((e) => {
     if (e.id === entryId) {
@@ -65,8 +70,8 @@
 
   async function restore() {
     if (!entry) return;
-    await miniLcmApi.createEntry(entry);
-    deleted = false;
+    const restoredEntry = await miniLcmApi.createEntry(entry);
+    setEntry(restoredEntry);
   }
 
   let latestPersistedSnapshot = $state<ReadonlyDeep<IEntry>>();
