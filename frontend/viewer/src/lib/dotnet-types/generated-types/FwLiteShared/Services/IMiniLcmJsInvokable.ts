@@ -10,6 +10,7 @@ import type {IPublication} from '../../MiniLcm/Models/IPublication';
 import type {ISemanticDomain} from '../../MiniLcm/Models/ISemanticDomain';
 import type {IComplexFormType} from '../../MiniLcm/Models/IComplexFormType';
 import type {IFilterQueryOptions} from '../../MiniLcm/IFilterQueryOptions';
+import type {IIndexQueryOptions} from '../../MiniLcm/IIndexQueryOptions';
 import type {IEntry} from '../../MiniLcm/Models/IEntry';
 import type {IQueryOptions} from '../../MiniLcm/IQueryOptions';
 import type {IWritingSystem} from '../../MiniLcm/Models/IWritingSystem';
@@ -31,6 +32,7 @@ export interface IMiniLcmJsInvokable
 	getComplexFormTypes() : Promise<IComplexFormType[]>;
 	getComplexFormType(id: string) : Promise<IComplexFormType | null>;
 	countEntries(query?: string, options?: IFilterQueryOptions) : Promise<number>;
+	getEntryIndex(id: string, query?: string, options?: IIndexQueryOptions) : Promise<number>;
 	getEntries(options?: IQueryOptions) : Promise<IEntry[]>;
 	searchEntries(query: string, options?: IQueryOptions) : Promise<IEntry[]>;
 	getEntry(id: string) : Promise<IEntry | null>;

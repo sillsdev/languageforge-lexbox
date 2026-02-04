@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Icon } from '$lib/components/ui/icon';
+  import {Icon} from '$lib/components/ui/icon';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import {resource, Debounced, watch} from 'runed';
-  import { useMiniLcmApi } from '$lib/services/service-provider';
-  import { fade } from 'svelte/transition';
+  import {useMiniLcmApi} from '$lib/services/service-provider';
+  import {fade} from 'svelte/transition';
   import ViewPicker from './EditorViewOptions.svelte';
   import EntryMenu from './EntryMenu.svelte';
   import {ScrollArea} from '$lib/components/ui/scroll-area';
@@ -11,7 +11,7 @@
   import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
   import {Toggle} from '$lib/components/ui/toggle';
-  import {XButton} from '$lib/components/ui/button';
+  import {Button, XButton} from '$lib/components/ui/button';
   import type {IEntry} from '$lib/dotnet-types';
   import {copy, EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import {useProjectEventBus} from '$lib/services/event-bus';
@@ -20,11 +20,15 @@
   import {useFeatures} from '$lib/services/feature-service';
   import type {ReadonlyDeep} from 'type-fest';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
+  import * as Alert from '$lib/components/ui/alert';
+  import {pt} from '$lib/views/view-text';
+  import {useCurrentView} from '$lib/views/view-service';
 
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
   const features = useFeatures();
+  const currentView = useCurrentView();
   const {
     entryId,
     onClose,
@@ -39,18 +43,36 @@
     () => entryId,
     async (id) => {
       const entry = await miniLcmApi.getEntry(id);
-      // IMMEDIATELY take a snapshot to ensure it doesn't get mutated by the editor before EntryPersistence gets it.
-      // (dirty fields immediately push their current dirty value into the entry object, which can corrupt the update diff.)
-      latestPersistedSnapshot = entry ? Object.freeze(copy(entry)) : undefined;
-      return entry;
+      return setEntry(entry);
     },
   );
+
+  function setEntry(entry: IEntry | null): IEntry | null {
+    // IMMEDIATELY take a snapshot to ensure it doesn't get mutated by the editor before EntryPersistence gets it.
+    // (dirty fields immediately push their current dirty value into the entry object, which can corrupt the update diff.)
+    latestPersistedSnapshot = entry ? Object.freeze(copy(entry)) : undefined;
+    deleted = !!entry?.deletedAt;
+    entryResource.mutate(entry); // potentially redundant, but harmless
+    return entry;
+  }
 
   eventBus.onEntryUpdated((e) => {
     if (e.id === entryId) {
       void entryResource.refetch();
     }
   });
+
+  eventBus.onEntryDeleted(id => {
+    if (id === entryId) {
+      deleted = true;
+    }
+  });
+
+  async function restore() {
+    if (!entry) return;
+    const restoredEntry = await miniLcmApi.createEntry(entry);
+    setEntry(restoredEntry);
+  }
 
   let latestPersistedSnapshot = $state<ReadonlyDeep<IEntry>>();
   const entryPersistence = new EntryPersistence(() => latestPersistedSnapshot);
@@ -61,6 +83,7 @@
   const sticky = $derived.by(() => dictionaryPreview === 'sticky');
 
   let readonly = $state(false);
+  let deleted = $state(false);
 
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);
@@ -97,6 +120,24 @@
           <EntryMenu {entry} />
         </div>
       </div>
+      {#if deleted}
+        {@const entity = pt($t`entry`, $t`word`, $currentView)}
+        <div class="mb-2 px-2">
+          <Alert.Root variant="destructive">
+            <Alert.Description class="flex justify-between items-center">
+              <span class="inline-flex gap-2">
+                <Icon icon="i-mdi-alert-circle" class="size-5" />
+                {$t`This ${entity} was deleted`}
+              </span>
+              {#if !readonly && features.write}
+                <Button size="sm" variant="secondary" onclick={() => restore()}>
+                  {$t`Restore`}
+                </Button>
+              {/if}
+            </Alert.Description>
+          </Alert.Root>
+        </div>
+      {/if}
       {#if dictionaryPreview === 'sticky'}
         <div class="md:px-2">
           {@render preview(entry)}
@@ -110,7 +151,7 @@
         </div>
       {/if}
       <div class="max-md:p-2 md:px-2">
-        <EntryEditor bind:ref={editorRef} {entry} readonly={readonly || !features.write} {...entryPersistence.entryEditorProps} />
+        <EntryEditor bind:ref={editorRef} {entry} readonly={readonly || !features.write || deleted} {...entryPersistence.entryEditorProps} />
       </div>
     </ScrollArea>
   {/if}

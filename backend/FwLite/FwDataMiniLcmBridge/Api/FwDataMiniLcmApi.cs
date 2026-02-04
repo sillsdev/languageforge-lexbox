@@ -916,23 +916,27 @@ public class FwDataMiniLcmApi(
         Func<ILexEntry, bool>? predicate, QueryOptions? options = null, string? query = null)
     {
         options ??= QueryOptions.Default;
-        var entries = GetLexEntries(predicate, options);
-
-        entries = ApplySorting(options, entries, query);
+        var entries = GetFilteredAndSortedEntries(predicate, options, options.Order, query);
         entries = options.ApplyPaging(entries);
 
         return entries.ToAsyncEnumerable().Select(FromLexEntry);
     }
 
-    private IEnumerable<ILexEntry> ApplySorting(QueryOptions options, IEnumerable<ILexEntry> entries, string? query)
+    private IEnumerable<ILexEntry> GetFilteredAndSortedEntries(Func<ILexEntry, bool>? predicate, FilterQueryOptions? filterOptions, SortOptions order, string? query)
     {
-        var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
-        if (options.Order.Field == SortField.SearchRelevance)
+        var entries = GetLexEntries(predicate, filterOptions);
+        return ApplySorting(order, entries, query);
+    }
+
+    private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query)
+    {
+        var sortWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Vernacular);
+        if (order.Field == SortField.SearchRelevance)
         {
-            return entries.ApplyRoughBestMatchOrder(options.Order, sortWs, query);
+            return entries.ApplyRoughBestMatchOrder(order, sortWs, query);
         }
 
-        return options.ApplyOrder(entries, e => e.LexEntryHeadword(sortWs));
+        return order.ApplyOrder(entries, e => e.LexEntryHeadword(sortWs));
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
@@ -953,6 +957,24 @@ public class FwDataMiniLcmApi(
     {
         EntriesRepository.TryGetObject(id, out var lexEntry);
         return Task.FromResult(lexEntry is null ? null : FromLexEntry(lexEntry));
+    }
+
+    public Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
+    {
+        var predicate = EntrySearchPredicate(query);
+        var entries = GetFilteredAndSortedEntries(predicate, options, options?.Order ?? SortOptions.Default, query);
+
+        var rowIndex = 0;
+        foreach (var entry in entries)
+        {
+            if (entry.Guid == entryId)
+            {
+                return Task.FromResult(rowIndex);
+            }
+            rowIndex++;
+        }
+
+        return Task.FromResult(-1);
     }
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)

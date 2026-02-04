@@ -405,6 +405,12 @@ public class CrdtMiniLcmApi(
         return await repo.GetEntry(id);
     }
 
+    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetEntryIndex(entryId, query, options);
+    }
+
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         await using var repo = await repoFactory.CreateRepoAsync();

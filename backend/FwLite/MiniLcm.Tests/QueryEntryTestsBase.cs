@@ -27,7 +27,8 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry()
         {
             Id = appleId,
-            LexemeForm = { { "en", Apple } }
+            LexemeForm = { { "en", Apple } },
+            MorphType = MorphType.Root,
         });
         await Api.CreateEntry(new Entry()
         {
@@ -224,6 +225,20 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=[]" })).ToArrayAsync();
         //using distinct since there may be 2 null lexeme forms but only on FLEx due to the null lexeme form
         results.Select(e => e.LexemeForm["en"]).Distinct().Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
+    }
+
+    [Fact]
+    public async Task CanFilterByMorphTypeSingleType()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "MorphType=Root" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple);
+    }
+
+    [Fact]
+    public async Task CanFilterByMorphTypeTwoTypes()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "MorphType=Root|MorphType=Stem" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Peach, Banana, Kiwi, Null_LexemeForm);
     }
 
     [Fact]

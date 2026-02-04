@@ -7,6 +7,7 @@ import {
   type IEntry,
   type IExampleSentence,
   type IFilterQueryOptions,
+  type IIndexQueryOptions,
   type IMiniLcmJsInvokable,
   type IPartOfSpeech,
   type IProjectModel,
@@ -24,7 +25,7 @@ import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-
 import {WritingSystemService} from '../data/writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 import {delay} from '$lib/utils/time';
-import {initProjectContext, ProjectContext} from '$project/project-context.svelte';
+import {initProjectContext, type ProjectContext} from '$project/project-context.svelte';
 import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
 import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
@@ -34,6 +35,8 @@ import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/
 import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
 import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
+import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
+import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -81,27 +84,29 @@ export const mockUpdateService: IUpdateService = {
   }
 };
 
+const mockJsEventListener: IJsEventListener = {
+  nextEventAsync: () => Promise.resolve(null!),
+  lastEvent: () => Promise.resolve(null)
+};
+
 export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   #writingSystemService: WritingSystemService;
-  constructor(private projectContext: ProjectContext) {
+  #projectEventBus: ProjectEventBus;
+  constructor(projectContext: ProjectContext, eventBus: EventBus) {
     this.#writingSystemService = new WritingSystemService(projectContext);
-  }
-  countEntries(query?: string, options?: IFilterQueryOptions): Promise<number> {
-    const entries = this.getFilteredEntries(query, options);
-    return Promise.resolve(entries.length);
+    this.#projectEventBus = new ProjectEventBus(projectContext, eventBus);
   }
 
-  public static newProjectContext() {
-    const projectContext = new ProjectContext();
-    projectContext.setup({api: new InMemoryDemoApi(projectContext), projectName, projectCode: projectName});
-    return projectContext;
-  }
   public static setup(): InMemoryDemoApi {
     const projectContext = initProjectContext();
-    const inMemoryLexboxApi = new InMemoryDemoApi(projectContext);
+    const eventBus = useEventBus();
+    const inMemoryLexboxApi = new InMemoryDemoApi(projectContext, eventBus);
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
+    window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
+    window.__PLAYWRIGHT_UTILS__ = { demoApi: inMemoryLexboxApi };
+
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
       localProjects(): Promise<IProjectModel[]> {
         return Promise.resolve([]);
@@ -185,6 +190,17 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return this.queryEntries(undefined, options);
   }
 
+  countEntries(query?: string, options?: IFilterQueryOptions): Promise<number> {
+    const entries = this.getFilteredEntries(query, options);
+    return Promise.resolve(entries.length);
+  }
+
+  async getEntryIndex(entryId: string, query?: string, options?: IIndexQueryOptions): Promise<number> {
+    await delay(100);
+    const entries = this.getFilteredSortedEntries(query, options);
+    return entries.findIndex(e => e.id === entryId);
+  }
+
   getWritingSystems(): Promise<IWritingSystems> {
     return Promise.resolve(writingSystems as unknown as IWritingSystems);
   }
@@ -194,7 +210,13 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return this.queryEntries(query, options);
   }
 
-  private queryEntries(query: string | undefined, options: IQueryOptions | undefined): IEntry[] {
+  private queryEntries(query?: string, options?: IQueryOptions): IEntry[] {
+    const entries = this.getFilteredSortedEntries(query, options);
+    if (!options) return entries;
+    return entries.slice(options.offset, options.offset + options.count);
+  }
+
+  private getFilteredSortedEntries(query?: string, options?: Omit<IQueryOptions, 'count' | 'offset'>): IEntry[] {
     const entries = this.getFilteredEntries(query, options);
 
     if (!options) return entries;
@@ -209,8 +231,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         let compare = v1.localeCompare(v2, sortWs);
         if (compare == 0) compare = e1.id.localeCompare(e2.id);
         return options.order.ascending ? compare : -compare;
-      })
-      .slice(options.offset, options.offset + options.count);
+      });
   }
 
   private getFilteredEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
@@ -239,32 +260,47 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   createEntry(entry: IEntry): Promise<IEntry> {
     this._entries.push(entry);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(entry);
   }
 
   updateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
     this._entries.splice(this._entries.findIndex(e => e.id === after.id), 1, after);
+    this.#projectEventBus.notifyEntryUpdated(after);
     return Promise.resolve(after);
   }
 
   createSense(entryGuid: string, sense: ISense): Promise<ISense> {
-    this._entries.find(e => e.id === entryGuid)?.senses.push(sense);
+    const entry = this._entries.find(e => e.id === entryGuid);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    entry.senses.push(sense);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(sense);
   }
 
   createExampleSentence(entryGuid: string, senseGuid: string, exampleSentence: IExampleSentence): Promise<IExampleSentence> {
-    this._entries.find(e => e.id === entryGuid)?.senses.find(s => s.id === senseGuid)?.exampleSentences.push(exampleSentence);
+    const entry = this._entries.find(e => e.id === entryGuid);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    const sense = entry.senses.find(s => s.id === senseGuid);
+    if (!sense) throw new Error(`Sense ${senseGuid} not found`);
+    sense.exampleSentences.push(exampleSentence);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(exampleSentence);
   }
 
   deleteEntry(guid: string): Promise<void> {
-    this._entries.splice(this._entries.findIndex(e => e.id === guid), 1);
+    const entryIndex = this._entries.findIndex(e => e.id === guid);
+    if (entryIndex >= 0) {
+      this._entries.splice(entryIndex, 1);
+      this.#projectEventBus.notifyEntryDeleted(guid);
+    }
     return Promise.resolve();
   }
 
   deleteSense(entryGuid: string, senseGuid: string): Promise<void> {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     entry.senses.splice(entry.senses.findIndex(s => s.id === senseGuid), 1);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve();
   }
 
@@ -272,6 +308,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     const sense = entry.senses.find(s => s.id === senseGuid)!;
     sense.exampleSentences.splice(sense.exampleSentences.findIndex(es => es.id === exampleSentenceGuid), 1);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve();
   }
 
@@ -361,6 +398,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const index = entry.senses.findIndex(s => s.id == _before.id);
     if (index == -1) throw new Error(`Sense ${_before.id} not found`);
     entry.senses.splice(index, 1, _after);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(_after);
   }
 
@@ -380,6 +418,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const index = sense.exampleSentences.findIndex(es => es.id == _before.id);
     if (index == -1) throw new Error(`ExampleSentence ${_before.id} not found`);
     sense.exampleSentences.splice(index, 1, _after);
+    this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve(_after);
   }
 

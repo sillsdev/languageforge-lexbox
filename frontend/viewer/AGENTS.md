@@ -15,6 +15,35 @@ pnpm install
 pnpm run dev
 ```
 
+### Generated .NET Types
+
+This project depends on TypeScript types and API interfaces generated from .NET (via `Reinforced.Typings`). If you change .NET models or `JSInvokable` APIs, you must rebuild the backend to update these types.
+
+```bash
+# From repo root
+dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
+```
+
+The generated files are located in `src/lib/dotnet-types/generated-types/`.
+
+### E2E Testing (Playwright)
+
+To run E2E tests for the viewer:
+```bash
+# From frontend/viewer/ directory
+# Automatically starts dev server if needed
+# For debugging e.g. with Chrome MCP: dev server/demo project will be available at port 5173 & path /testing/project-view/browse
+
+# Filter by test name (the ONLY RIGHT choice if testing specific features or changes) e.g.
+task playwright-test-standalone -- entries-list
+
+# All tests
+task playwright-test-standalone
+
+# In UI mode
+task playwright-test-standalone -- entries-list --ui
+```
+
 ## Tech Stack
 
 - **Framework**: SvelteKit + Vite

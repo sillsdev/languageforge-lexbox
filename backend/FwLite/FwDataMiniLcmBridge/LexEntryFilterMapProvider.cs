@@ -32,6 +32,7 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
 
     public override Expression<Func<ILexEntry, string, object>> EntryCitationForm => (entry, ws) => entry.PickText(entry.CitationForm, ws);
     public override Expression<Func<ILexEntry, string, object>> EntryLiteralMeaning => (entry, ws) => entry.PickText(entry.LiteralMeaning, ws);
+    public override Expression<Func<ILexEntry, object?>> EntryMorphType => e => LcmHelpers.FromLcmMorphType(e.PrimaryMorphType);
     public override Expression<Func<ILexEntry, object?>> EntryComplexFormTypes => e => EmptyToNull(e.ComplexFormEntryRefs.SelectMany(r => r.ComplexEntryTypesRS));
     public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToNull<ILexEntryType>;
 }

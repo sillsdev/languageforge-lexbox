@@ -250,7 +250,7 @@ msgid "Author:"
 msgstr "Mwandishi:"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Auto"
 msgstr "Otomatiki"
 
@@ -260,7 +260,7 @@ msgid "Auto syncing"
 msgstr "Kuoanisha otomatiki"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
 msgstr "Ujumbe bora"
 
@@ -623,6 +623,11 @@ msgstr "Inaishia na"
 msgid "Entries missing..."
 msgstr "Ingizo linalokosa..."
 
+#. EntryView label for the current dictionary object when FieldWorks Classic is shown
+#: src/project/browse/EntryView.svelte
+msgid "entry"
+msgstr "Ingizo"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Item type label: dictionary entry (word/headword with definitions)
@@ -778,6 +783,11 @@ msgstr "Hifadhi ya faili hailinganiswi"
 msgid "File too big"
 msgstr "Faili kubwa sana"
 
+#. Accessible label for the browse search input that filters entries or words
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter"
+msgstr "Chuja"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter # words"
 #. Placeholder text showing filtered count (# = number)
@@ -896,7 +906,7 @@ msgstr "kijani"
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Headword"
 msgstr "Neno la kichwa"
 
@@ -1415,6 +1425,11 @@ msgstr "Badili sauti"
 msgid "Report a technical problem"
 msgstr "Ripoti tatizo la kiufundi"
 
+#. Button label to restore a deleted Entry or Word inside EntryView
+#: src/project/browse/EntryView.svelte
+msgid "Restore"
+msgstr "Rejesha"
+
 #. Button option
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
@@ -1694,6 +1709,11 @@ msgstr "Wakati ulipoweka au kupakua mabadiliko haya"
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Mabadiliko haya hayajawekwa bado. Hakikisha unaunganishwa na kuingia ili kushiriki mabadiliko yako."
 
+#. Alert text shown in EntryView when the currently displayed entry/word has been deleted
+#: src/project/browse/EntryView.svelte
+msgid "This {0} was deleted"
+msgstr "Hili {0} limefutwa"
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -1887,6 +1907,11 @@ msgstr "Miradi yangu iko wapi?"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Why is that?"
 msgstr "Kwa nini hiyo?"
+
+#. EntryView label for the current dictionary object when FieldWorks Lite is shown
+#: src/project/browse/EntryView.svelte
+msgid "word"
+msgstr "Neno"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)

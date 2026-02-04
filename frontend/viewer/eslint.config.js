@@ -71,6 +71,11 @@ export default [
           'leadingUnderscore': 'allow',
         },
         {
+          'selector': 'classProperty',
+          'modifiers': ['static', 'readonly'],
+          'format': ['camelCase', 'UPPER_CASE'],
+        },
+        {
           'selector': ['typeLike', 'enumMember'],
           'format': ['PascalCase'],
         },

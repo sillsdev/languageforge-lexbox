@@ -250,7 +250,7 @@ msgid "Author:"
 msgstr "Auteur :"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Auto"
 msgstr "Auto"
 
@@ -260,7 +260,7 @@ msgid "Auto syncing"
 msgstr "Synchronisation automatique"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
 msgstr "Meilleure correspondance"
 
@@ -623,6 +623,11 @@ msgstr "Se termine par"
 msgid "Entries missing..."
 msgstr "Entrées manquantes..."
 
+#. EntryView label for the current dictionary object when FieldWorks Classic is shown
+#: src/project/browse/EntryView.svelte
+msgid "entry"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Item type label: dictionary entry (word/headword with definitions)
@@ -778,6 +783,11 @@ msgstr "L'enregistrement du fichier n'est pas une option valable"
 msgid "File too big"
 msgstr "Fichier trop volumineux"
 
+#. Accessible label for the browse search input that filters entries or words
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter # words"
 #. Placeholder text showing filtered count (# = number)
@@ -896,7 +906,7 @@ msgstr ""
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Headword"
 msgstr "Entrée de dictionnaire"
 
@@ -1415,6 +1425,11 @@ msgstr "Remplacer l'audio"
 msgid "Report a technical problem"
 msgstr "Signaler un problème technique"
 
+#. Button label to restore a deleted Entry or Word inside EntryView
+#: src/project/browse/EntryView.svelte
+msgid "Restore"
+msgstr ""
+
 #. Button option
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
@@ -1694,6 +1709,11 @@ msgstr "L'heure où vous avez téléchargé ou téléchargé ces modifications"
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Ces modifications n'ont pas encore été téléchargées. Assurez-vous que vous êtes connecté et que vous êtes connecté pour partager vos modifications."
 
+#. Alert text shown in EntryView when the currently displayed entry/word has been deleted
+#: src/project/browse/EntryView.svelte
+msgid "This {0} was deleted"
+msgstr ""
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -1887,6 +1907,11 @@ msgstr "Où sont mes projets ?"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Why is that?"
 msgstr "Pourquoi?"
+
+#. EntryView label for the current dictionary object when FieldWorks Lite is shown
+#: src/project/browse/EntryView.svelte
+msgid "word"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
