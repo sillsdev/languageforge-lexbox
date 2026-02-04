@@ -73,6 +73,10 @@ public class Program
                     ? await syncService.Import(crdtApi, fwdataApi, dryRun)
                     : await syncService.Sync(crdtApi, fwdataApi, projectSnapshot, dryRun);
                 logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
+                if (!dryRun)
+                {
+                    await snapshotService.RegenerateProjectSnapshot(crdtApi, fwdataApi.Project, keepBackup: false);
+                }
             },
             crdtOption,
             fwDataOption,

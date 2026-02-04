@@ -84,6 +84,10 @@ public static class Utils
         var result = projectSnapshot is null
                     ? await syncService.Import(crdtMiniLcmApi, fwDataMiniLcmApi, dryRun)
                     : await syncService.Sync(crdtMiniLcmApi, fwDataMiniLcmApi, projectSnapshot, dryRun);
+        if (!dryRun)
+        {
+            await snapshotService.RegenerateProjectSnapshot(crdtMiniLcmApi, fwDataMiniLcmApi.Project, keepBackup: false);
+        }
         Console.WriteLine($"Sync completed successfully. Crdt changes: {result.CrdtChanges}, Fwdata changes: {result.FwdataChanges}.");
     }
 

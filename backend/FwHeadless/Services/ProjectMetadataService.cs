@@ -9,16 +9,17 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
 
     public async Task BlockFromSyncAsync(Guid projectId, string? reason = null)
     {
+        var resolvedReason = reason ?? "Manual block";
         await _store.UpdateAsync(projectId, metadata =>
         {
             metadata.SyncBlocked = new SyncBlockedInfo
             {
                 IsBlocked = true,
-                Reason = reason ?? "Manual block",
+                Reason = resolvedReason,
                 BlockedAt = DateTime.UtcNow
             };
         });
-        logger.LogWarning("Project {projectId} blocked from sync. Reason: {reason}", projectId, reason);
+        logger.LogWarning("Project {projectId} blocked from sync. Reason: {reason}", projectId, resolvedReason);
     }
 
     public async Task UnblockFromSyncAsync(Guid projectId)
