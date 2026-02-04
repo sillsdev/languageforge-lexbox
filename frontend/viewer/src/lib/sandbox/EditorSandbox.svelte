@@ -189,6 +189,7 @@
 </ResizablePaneGroup>
 
 <style lang="postcss">
+  @reference "../../app.css";
   .breakpoint-marker {
     @apply absolute h-full top-0 border-r-current border-r -z-10 text-right pr-2;
   }

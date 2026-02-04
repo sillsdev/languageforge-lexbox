@@ -1,9 +1,12 @@
-@import 'theme.postcss';
 /* this import is removed by vite-plugin-webfont-dl, and the styles are inlined in webfonts.css */
 @import 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './theme.css';
+@config "../tailwind.config.ts";
+@custom-variant dark (&:is(.dark *));
+@custom-variant pointer (@media (hover: hover));
+@custom-variant paratext (&:is([data-paratext="true"] *));
 
 :host {
   flex-grow: 1;

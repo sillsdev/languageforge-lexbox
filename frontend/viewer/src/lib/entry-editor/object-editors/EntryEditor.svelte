@@ -235,13 +235,3 @@
     </DevContent>
   </Editor.Grid>
 </Editor.Root>
-
-<style lang="postcss" global>
-  .highlight {
-    & :is(h2, h3) {
-    }
-
-    & hr {
-    }
-  }
-</style>
