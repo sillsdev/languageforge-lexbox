@@ -90,7 +90,7 @@ export default [
           'format': ['PascalCase'],
         }
       ],
-      '@stylistic/quotes': ['error', 'single', {'allowTemplateLiterals': 'always'}],
+      '@stylistic/quotes': ['error', 'single', {'allowTemplateLiterals': 'always', 'avoidEscape': true}],
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
