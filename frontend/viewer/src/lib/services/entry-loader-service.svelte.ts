@@ -113,10 +113,20 @@ export class EntryLoaderService {
   }
 
   async onEntryDeleted(_id: string): Promise<void> {
+    // We could optimize some delete events, but:
+    // 1) They probably don't happen often enough to matter.
+    // 2) Handling shifting of indices is complex and error-prone.
+    // So, we might as well just do a quiet reset to keep things simple and robust.
     await this.quietReset();
   }
 
   async onEntryUpdated(_entry: IEntry): Promise<void> {
+    // We could (and I did) try to optimize some update events, however:
+    // 1) We can't debounce them. We need to handle every unique event or we get out of sync.
+    // 2) We can't rely on the local index cache to determine if the entry matches the current filter,
+    //    because the update that triggered this event may have changed whether it matches the filter or not.
+    //    So, we need to query the index from the backend anyway.
+    // So, we might as well just do a quiet reset to keep things simple and robust.
     await this.quietReset();
   }
 
@@ -124,6 +134,9 @@ export class EntryLoaderService {
     this.loading = true;
     this.#debouncedEventReset.cancel();
     this.#eventPendingAfterFilterReset = false;
+    // Filter resets take precedence; any entry events that arrive mid-reset are
+    // replayed afterward via the eventPendingAfterFilterReset flag to ensure all updates are
+    // eventually applied to the shown data.
     const filterResetPromise = this.#debouncedFilterReset();
     this.#filterResetInFlight = filterResetPromise;
     await this.#filterResetInFlight;
@@ -172,6 +185,8 @@ export class EntryLoaderService {
           this.loading = false;
         }
         if (success) {
+          // We intentionally only communicate the reset to listeners once both:
+          // (1) the new count is in place and (2) there's no stale data left.
           this.#generation++;
         }
       }
