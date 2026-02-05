@@ -36,6 +36,7 @@ public class FwLiteProvider(
         DotnetService.JsEventListener,
         DotnetService.JsInvokableLogger,
         DotnetService.UpdateService,
+        DotnetService.PreferencesService,
     ];
 
     public static Type GetServiceType(DotnetService service) => service switch
@@ -55,6 +56,7 @@ public class FwLiteProvider(
         DotnetService.JsEventListener => typeof(JsEventListener),
         DotnetService.JsInvokableLogger => typeof(JsInvokableLogger),
         DotnetService.UpdateService => typeof(UpdateService),
+        DotnetService.PreferencesService => typeof(IPreferencesService),
         _ => throw new ArgumentOutOfRangeException(nameof(service), service, null)
     };
 
@@ -114,4 +116,5 @@ public enum DotnetService
     JsEventListener,
     JsInvokableLogger,
     UpdateService,
+    PreferencesService,
 }
