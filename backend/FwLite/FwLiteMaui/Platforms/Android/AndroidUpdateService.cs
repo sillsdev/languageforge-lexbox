@@ -14,11 +14,16 @@ namespace FwLiteMaui;
 
 /// <summary>
 /// Android implementation of <see cref="IPlatformUpdateService"/> using Google Play In-App Updates.
-/// Uses flexible updates by default (download in background, prompt to install).
-/// Immediate updates (blocking full-screen UI) are triggered for priority >= 4.
+/// Uses flexible updates by default (download in background, user can continue working).
+/// High-priority updates use immediate flow (blocking full-screen UI).
+/// See: https://developer.android.com/guide/playcore/in-app-updates
 /// </summary>
 public class AndroidUpdateService : IPlatformUpdateService, IMauiInitializeService, IInstallStateUpdatedListener
 {
+    /// <summary>
+    /// Arbitrary request code used to identify the update flow result in OnActivityResult.
+    /// The value itself doesn't matter, it just needs to be unique within the app.
+    /// </summary>
     public const int UpdateRequestCode = 9001;
 
     private readonly ILogger<AndroidUpdateService> _logger;
@@ -29,7 +34,7 @@ public class AndroidUpdateService : IPlatformUpdateService, IMauiInitializeServi
     private TaskCompletionSource<UpdateResult>? _updateResultTcs;
     private AppUpdateInfo? _cachedUpdateInfo;
 
-    private const string LastUpdateCheckKey = "lastUpdateChecked_android";
+    private const string LastUpdateCheckKey = "lastUpdateChecked";
 
     public AndroidUpdateService(
         ILogger<AndroidUpdateService> logger,
@@ -66,6 +71,10 @@ public class AndroidUpdateService : IPlatformUpdateService, IMauiInitializeServi
         set => _preferences.Set(LastUpdateCheckKey, value);
     }
 
+    /// <summary>
+    /// Checks if the current network connection is metered (e.g., mobile data).
+    /// MAUI's IConnectivity doesn't expose metered status, so we use Android's ConnectivityManager.
+    /// </summary>
     public bool IsOnMeteredConnection()
     {
         var connectivityManager = Android.App.Application.Context.GetSystemService(Context.ConnectivityService)
@@ -146,9 +155,10 @@ public class AndroidUpdateService : IPlatformUpdateService, IMauiInitializeServi
                 appUpdateInfo = await appUpdateInfoTask.AsAsync<AppUpdateInfo>();
             }
 
-            // Determine update type based on priority:
-            // Priority 0-3: Flexible (user can continue using app during download)
-            // Priority 4-5: Immediate (blocking full-screen update)
+            // Determine update type based on in-app update priority (0-5, set in Play Console):
+            // - Low priority (0-3): Flexible flow - downloads in background, user continues working
+            // - High priority (4-5): Immediate flow - blocking full-screen update UI
+            // See: https://developer.android.com/guide/playcore/in-app-updates#update-priority
             var priority = appUpdateInfo.UpdatePriority();
             var updateType = priority >= 4 ? AppUpdateType.Immediate : AppUpdateType.Flexible;
 
