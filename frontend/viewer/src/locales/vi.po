@@ -203,6 +203,18 @@ msgstr "Bất kỳ loại từ nào"
 #. Clears semantic domain filter
 #. Semantic domain = category of meaning (e.g., "tools", "food", "emotions")
 #: src/project/browse/filter/SemanticDomainSelect.svelte
+#. Filter dropdown option
+
+#. Clears publication filter
+
+#. Publication = dictionary/publication type for distributing entries
+
+#: src/project/browse/filter/PublicationSelect.svelte
+
+msgid "Any publication"
+
+msgstr ""
+
 msgid "Any semantic domain"
 msgstr "Bất kỳ miền ngữ nghĩa nào"
 
@@ -1486,6 +1498,18 @@ msgstr "Chọn tệp"
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
 #. Used to organize and filter entries by meaning category
 #: src/project/browse/SearchFilter.svelte
+#. Filter option
+
+#. Publication type/dictionary for entries
+
+#. Used to organize entries by which publication(s) they should appear in
+
+#: src/project/browse/SearchFilter.svelte
+
+msgid "Publication"
+
+msgstr ""
+
 msgid "Semantic domain"
 msgstr "Miền ngữ nghĩa"
 

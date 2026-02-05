@@ -195,6 +195,13 @@ msgid "Any part of speech"
 msgstr "Any part of speech"
 
 #. Filter dropdown option
+#. Clears publication filter
+#. Publication = dictionary/publication type for distributing entries
+#: src/project/browse/filter/PublicationSelect.svelte
+msgid "Any publication"
+msgstr "Any publication"
+
+#. Filter dropdown option
 #. Clears semantic domain filter
 #. Semantic domain = category of meaning (e.g., "tools", "food", "emotions")
 #: src/project/browse/filter/SemanticDomainSelect.svelte
@@ -1475,6 +1482,13 @@ msgstr "Select a new task to work on"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "Select file"
+
+#. Filter option
+#. Publication type/dictionary for entries
+#. Used to organize entries by which publication(s) they should appear in
+#: src/project/browse/SearchFilter.svelte
+msgid "Publication"
+msgstr "Publication"
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
