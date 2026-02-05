@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Exceptions;
+using MiniLcm.Filtering;
 using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
@@ -55,6 +56,15 @@ public class FwDataMiniLcmApi(
 
     private ICmPossibilityList VariantTypes => Cache.LangProject.LexDbOA.VariantEntryTypesOA;
     private ICmPossibilityList Publications => Cache.LangProject.LexDbOA.PublicationTypesOA;
+
+    private GridifyMapper<ILexEntry>? _entryFilterMapper;
+    private GridifyMapper<ILexEntry> EntryFilterMapper => _entryFilterMapper ??= CreateEntryFilterMapper();
+
+    private GridifyMapper<ILexEntry> CreateEntryFilterMapper()
+    {
+        var publicationGuids = Publications.PossibilitiesOS.Select(p => p.Guid);
+        return EntryFilter.NewMapper(new LexEntryFilterMapProvider(publicationGuids));
+    }
 
     public void Dispose()
     {
@@ -889,7 +899,7 @@ public class FwDataMiniLcmApi(
         if (!string.IsNullOrEmpty(options.Filter?.GridifyFilter))
         {
             var query = new GridifyQuery() { Filter = options.Filter.GridifyFilter };
-            var filter = query.GetFilteringExpression(config.Value.Mapper).Compile();
+            var filter = query.GetFilteringExpression(EntryFilterMapper).Compile();
             entries = entries.Where(filter);
         }
 

@@ -1,11 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using FwDataMiniLcmBridge.Api;
-using Gridify;
 using Microsoft.Win32;
-using MiniLcm.Filtering;
-using MiniLcm.Models;
-using SIL.LCModel;
 
 namespace FwDataMiniLcmBridge;
 
@@ -42,6 +37,4 @@ public class FwDataBridgeConfig
     public string ProjectsFolder { get; set; } = DataFolder;
     public string TemplatesFolder { get; set; } = Path.Join(ProgramFolder, "Templates");
     public bool AutoMigrateLcmData { get; set; } = false;
-
-    public GridifyMapper<ILexEntry> Mapper { get; set; } = EntryFilter.NewMapper(new LexEntryFilterMapProvider());
 }

@@ -14,8 +14,9 @@
   import MissingSelect, {type MissingOption} from './filter/MissingSelect.svelte';
   import SemanticDomainSelect from './filter/SemanticDomainSelect.svelte';
   import PartOfSpeechSelect from './filter/PartOfSpeechSelect.svelte';
+  import PublicationSelect from './filter/PublicationSelect.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
-  import type {ISemanticDomain, IPartOfSpeech} from '$lib/dotnet-types';
+  import type {ISemanticDomain, IPartOfSpeech, IPublication} from '$lib/dotnet-types';
   import {MorphType} from '$lib/dotnet-types';
   import {Switch} from '$lib/components/ui/switch';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
@@ -31,11 +32,13 @@
     gridifyFilter = $bindable(undefined),
     semanticDomain = $bindable(),
     partOfSpeech = $bindable(),
+    publication = $bindable(),
   }: {
     search: string;
     gridifyFilter?: string;
     semanticDomain?: ISemanticDomain;
     partOfSpeech?: IPartOfSpeech;
+    publication?: IPublication;
   } = $props();
 
   let missingField = $state<MissingOption | null>(null);
@@ -60,6 +63,7 @@
       case 'senses': newFilter.push('Senses=null'); break;
       case 'partOfSpeech': newFilter.push('Senses.PartOfSpeechId='); break;
       case 'semanticDomains': newFilter.push('Senses.SemanticDomains=null'); break;
+      case 'publication': newFilter.push('PublishIn=[]'); break;
     }
 
     if (selectedField && fieldFilterValue && selectedWs?.length > 0) {
@@ -86,6 +90,10 @@
 
     if (partOfSpeech) {
       newFilter.push(`Senses.PartOfSpeechId=${partOfSpeech.id}`);
+    }
+
+    if (publication) {
+      newFilter.push(`PublishIn.Id=${publication.id}`);
     }
 
     // all user selected filters should be before this line!
@@ -171,6 +179,10 @@
           <div class="flex flex-col">
             <Label class="p-2">{pt($t`Grammatical info.`, $t`Part of speech`, $currentView)}</Label>
             <PartOfSpeechSelect bind:value={partOfSpeech} />
+          </div>
+          <div class="flex flex-col">
+            <Label class="p-2">{$t`Publication`}</Label>
+            <PublicationSelect bind:value={publication} />
           </div>
           <div class="flex flex-col">
             <Label class="p-2">{$t`Incomplete entries`}</Label>

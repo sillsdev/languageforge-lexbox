@@ -22,4 +22,7 @@ public abstract class EntryFilterMapProvider<T>
     public abstract Expression<Func<T, object?>> EntryMorphType { get; }
     public abstract Expression<Func<T, object?>> EntryComplexFormTypes { get; }
     public virtual Func<string, object>? EntryComplexFormTypesConverter { get; } = null;
+    public abstract Expression<Func<T, object?>> EntryPublishIn { get; }
+    public abstract Expression<Func<T, object?>> EntryPublishInId { get; }
+    public virtual Func<string, object>? EntryPublishInConverter { get; } = null;
 }
