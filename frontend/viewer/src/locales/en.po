@@ -827,11 +827,6 @@ msgstr "Filter words"
 msgid "Filter..."
 msgstr "Filter..."
 
-#. Header in entry filter panel
-#: src/project/browse/SearchFilter.svelte
-msgid "Filters"
-msgstr "Filters"
-
 #. Relevant view: Classic
 #. Lite view equivalent: "Find word..."
 #. Search field placeholder in picker
@@ -1340,11 +1335,6 @@ msgstr "Platform"
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Preview"
-
-#. Shown in the change preview area where no preview is available for the selected change
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Preview not available"
-msgstr "Preview not available"
 
 #. Label in project card
 #: src/home/HomeView.svelte
