@@ -1017,11 +1017,10 @@ public class FwDataMiniLcmApi(
                             AddComplexFormComponent(complexLexEntry, complexForm);
                         }
                     }
-                    // Subtract entry.Publications from Publications to get the publications that the entry should not be published in
-                    var doNotPublishIn = Publications.PossibilitiesOS.Where(p => entry.PublishIn.All(ep => ep.Id != p.Guid));
-                    foreach (var publication in doNotPublishIn)
+                    // Remove publications not in entry.PublishIn from lexEntry.PublishIn
+                    foreach (var lcmPub in Publications.PossibilitiesOS.Where(p => entry.PublishIn.All(ep => ep.Id != p.Guid)))
                     {
-                        lexEntry.DoNotPublishInRC.Add(publication);
+                        lexEntry.PublishIn.Remove(lcmPub);
                     }
                 });
         }
@@ -1249,7 +1248,7 @@ public class FwDataMiniLcmApi(
     {
         var lcmPublication = GetLcmPublication(publicationId);
         NotFoundException.ThrowIfNull<Publication>(lcmPublication, publicationId);
-        entry.DoNotPublishInRC.Remove(lcmPublication);
+        entry.PublishIn.Add(lcmPublication);
     }
 
     public Task RemovePublication(Guid entryId, Guid publicationId)
@@ -1268,7 +1267,7 @@ public class FwDataMiniLcmApi(
     {
         var lcmPublication = GetLcmPublication(publicationId);
         NotFoundException.ThrowIfNull<Publication>(lcmPublication, publicationId);
-        entry.DoNotPublishInRC.Add(lcmPublication);
+        entry.PublishIn.Remove(lcmPublication);
     }
 
     private void UpdateLcmMultiString(ITsMultiString multiString, MultiString newMultiString)
