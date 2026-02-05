@@ -5,6 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using Moq.Protected;
 
 namespace FwLiteShared.Tests.AppUpdate;
 
@@ -110,5 +111,64 @@ public class UpdateCheckerTests
         var result = checker.ShouldCheckForUpdate();
 
         result.Should().BeTrue("because DateTime.MinValue means never checked");
+    }
+
+    [Fact]
+    public async Task CheckForUpdate_WhenPlatformHandlesOwnCheck_CallsPlatformCheckForUpdateAsync()
+    {
+        var config = new FwLiteConfig();
+        var expectedUpdate = new AvailableUpdate(
+            new LexCore.Entities.FwLiteRelease("123", ""),
+            SupportsAutoUpdate: true);
+
+        _platformUpdateServiceMock.Setup(p => p.HandlesOwnUpdateCheck).Returns(true);
+        _platformUpdateServiceMock.Setup(p => p.CheckForUpdateAsync()).ReturnsAsync(expectedUpdate);
+
+        var checker = CreateUpdateChecker(config);
+        var result = await checker.CheckForUpdate();
+
+        result.Should().Be(expectedUpdate);
+        _platformUpdateServiceMock.Verify(p => p.CheckForUpdateAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task CheckForUpdate_WhenPlatformHandlesOwnCheck_UpdatesLastUpdateCheck()
+    {
+        var config = new FwLiteConfig();
+        _platformUpdateServiceMock.Setup(p => p.HandlesOwnUpdateCheck).Returns(true);
+        _platformUpdateServiceMock.Setup(p => p.CheckForUpdateAsync()).ReturnsAsync((AvailableUpdate?)null);
+
+        var checker = CreateUpdateChecker(config);
+        await checker.CheckForUpdate();
+
+        _platformUpdateServiceMock.VerifySet(p => p.LastUpdateCheck = It.Is<DateTime>(d =>
+            d > DateTime.UtcNow.AddMinutes(-1) && d <= DateTime.UtcNow), Times.Once);
+    }
+
+    [Fact]
+    public async Task CheckForUpdate_WhenPlatformDoesNotHandleOwnCheck_DoesNotCallPlatformCheckForUpdateAsync()
+    {
+        var config = new FwLiteConfig { UpdateUrl = "http://example.com/update" };
+        _platformUpdateServiceMock.Setup(p => p.HandlesOwnUpdateCheck).Returns(false);
+
+        // Mock HTTP client to avoid actual network call
+        var mockHandler = new Mock<HttpMessageHandler>();
+        mockHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Content = new StringContent("{\"release\":null}")
+            });
+
+        var httpClient = new HttpClient(mockHandler.Object) { BaseAddress = new Uri("http://example.com") };
+        _httpClientFactoryMock.Setup(f => f.CreateClient("Lexbox")).Returns(httpClient);
+
+        var checker = CreateUpdateChecker(config);
+        await checker.CheckForUpdate();
+
+        _platformUpdateServiceMock.Verify(p => p.CheckForUpdateAsync(), Times.Never);
     }
 }

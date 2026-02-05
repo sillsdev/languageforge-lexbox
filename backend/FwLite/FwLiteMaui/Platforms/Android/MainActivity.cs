@@ -2,7 +2,9 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
+using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 
 namespace FwLiteMaui;
@@ -25,6 +27,28 @@ public class MainActivity : MauiAppCompatActivity
     {
         base.OnActivityResult(requestCode, resultCode, data);
         AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(requestCode, resultCode, data);
+
+        // Handle Play Store in-app update flow result
+        if (requestCode == AndroidUpdateService.UpdateRequestCode)
+        {
+            var updateService = MauiApplication.Current.Services.GetService<IPlatformUpdateService>();
+            if (updateService is AndroidUpdateService androidUpdateService)
+            {
+                androidUpdateService.HandleActivityResult(requestCode, resultCode);
+            }
+        }
+    }
+
+    protected override void OnResume()
+    {
+        base.OnResume();
+
+        // Check for downloaded-but-not-installed updates (flexible update flow)
+        var updateService = MauiApplication.Current.Services.GetService<IPlatformUpdateService>();
+        if (updateService is AndroidUpdateService androidUpdateService)
+        {
+            _ = androidUpdateService.CheckForPendingInstallAsync();
+        }
     }
 }
 

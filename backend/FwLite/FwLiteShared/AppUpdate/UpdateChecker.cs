@@ -8,8 +8,6 @@ using Microsoft.Extensions.Options;
 
 namespace FwLiteShared.AppUpdate;
 
-public record AvailableUpdate(FwLiteRelease Release, bool SupportsAutoUpdate);
-
 public class UpdateChecker(
     IHttpClientFactory httpClientFactory,
     ILogger<UpdateChecker> logger,
@@ -39,6 +37,15 @@ public class UpdateChecker(
         return await cache.GetOrCreateAsync(CacheKey, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = CacheDuration;
+
+            // Platforms like Android handle their own update checking via app stores
+            if (platformUpdateService.HandlesOwnUpdateCheck)
+            {
+                platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
+                return await platformUpdateService.CheckForUpdateAsync();
+            }
+
+            // Default: check via HTTP to LexBox/GitHub
             var response = await ShouldUpdateAsync();
             platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
             return response.Update
