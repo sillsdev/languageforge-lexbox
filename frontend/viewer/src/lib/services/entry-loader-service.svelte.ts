@@ -45,12 +45,15 @@ export class EntryLoaderService {
 
   constructor(private readonly api: IMiniLcmJsInvokable, private readonly deps: QueryDeps, private readonly batchSize = 50) {
     this.#cache = new EntryCache(batchSize);
-    void this.#executeReset(false);
 
     watch(
       () => [deps.search(), deps.sort(), deps.gridifyFilter()],
       (_, prev) => {
-        if (prev) void this.#scheduleFilterReset();
+        // initial load (inside the watch so we've waited a tick for deps to get set)
+        // I don't entirely understand it, but without setTimeout tests hang with "effect_update_depth_exceeded"
+        if (!prev) setTimeout(() => void this.#executeReset(false));
+        // an update/change in the deps
+        else void this.#scheduleFilterReset();
       }
     );
   }

@@ -19,7 +19,7 @@ function makeEntries(total: number, prefix = 'e'): IEntry[] {
   return Array.from({length: total}, (_, i) => makeEntry(`${prefix}${i}`, `${prefix}${i}`));
 }
 
-type MiniLcmApiMock = {
+type MiniLcmApiMock = IMiniLcmJsInvokable & {
   countEntries: ReturnType<typeof vi.fn>;
   getEntries: ReturnType<typeof vi.fn>;
   searchEntries: ReturnType<typeof vi.fn>;
@@ -28,8 +28,8 @@ type MiniLcmApiMock = {
 
 let cleanups: (() => void)[] = [];
 
-async function createService(allEntries: IEntry[], totalCount = allEntries.length) {
-  const api: MiniLcmApiMock = {
+function createMiniLcmApi(allEntries: IEntry[], totalCount = allEntries.length): MiniLcmApiMock {
+  return ({
     countEntries: vi.fn().mockResolvedValue(totalCount),
     getEntries: vi.fn().mockImplementation((options: {offset: number; count: number}) => {
       return Promise.resolve(allEntries.slice(options.offset, options.offset + options.count));
@@ -40,15 +40,21 @@ async function createService(allEntries: IEntry[], totalCount = allEntries.lengt
     getEntryIndex: vi.fn().mockImplementation((id: string) => {
       return Promise.resolve(allEntries.findIndex(e => e.id === id));
     }),
-  };
+  } satisfies Pick<IMiniLcmJsInvokable, 'countEntries' | 'getEntries' | 'searchEntries' | 'getEntryIndex'>
+  ) as unknown as MiniLcmApiMock;
+}
+
+async function createService(allEntries: IEntry[], totalCount = allEntries.length) {
+  const api = createMiniLcmApi(allEntries, totalCount);
 
   let service!: EntryLoaderService;
   cleanups.push($effect.root(() => {
-    service = new EntryLoaderService(api as unknown as IMiniLcmJsInvokable, {
+    service = new EntryLoaderService(api, {
       search: () => '',
       sort: () => undefined,
       gridifyFilter: () => undefined,
     }, BATCH_SIZE);
+    return () => service.destroy();
   }));
 
   // Wait for initial load triggered by constructor's watch
@@ -294,6 +300,33 @@ describe('EntryLoaderService', () => {
       // First may be undefined (stale), second and third should have data
       expect(results[1]?.id).toBe('v0');
       expect(results[2]?.id).toBe('v0');
+    });
+
+    it('refetches count when filters become ready during the initial reset', async () => {
+      const entries = makeEntries(2 * BATCH_SIZE, 'm');
+
+      const api = createMiniLcmApi(entries);
+
+      let service!: EntryLoaderService;
+      cleanups.push($effect.root(() => {
+        let search = $state('');
+        let gridifyFilter = $state<string | undefined>(undefined);
+
+        service = new EntryLoaderService(api, {
+          search: () => search,
+          sort: () => undefined,
+          gridifyFilter: () => gridifyFilter,
+        }, BATCH_SIZE);
+
+        search = 'test-search';
+        gridifyFilter = 'MorphType=Prefix';
+        return () => service.destroy();
+      }));
+
+      await vi.waitFor(() => expect(service.loading).toBe(false));
+
+      expect(api.countEntries).toHaveBeenCalledExactlyOnceWith(
+        'test-search', { filter: { gridifyFilter: 'MorphType=Prefix'}});
     });
   });
 });
