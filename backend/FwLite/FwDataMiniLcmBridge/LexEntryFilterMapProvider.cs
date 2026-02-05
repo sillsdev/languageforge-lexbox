@@ -1,24 +1,12 @@
 using System.Linq.Expressions;
 using FwDataMiniLcmBridge.Api;
 using MiniLcm.Filtering;
-using MiniLcm.Models;
 using SIL.LCModel;
 
 namespace FwDataMiniLcmBridge;
 
 public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
 {
-    private readonly HashSet<Guid> _allPublicationGuids;
-
-    public LexEntryFilterMapProvider() : this([])
-    {
-    }
-
-    public LexEntryFilterMapProvider(IEnumerable<Guid> allPublicationGuids)
-    {
-        _allPublicationGuids = allPublicationGuids.ToHashSet();
-    }
-
     //used to allow comparing null to an empty list, eg Senses=null should be true when there are no senses
     private static object? EmptyToNull<T>(IList<T> list) => list.Count == 0 ? null : list;
     private static object? EmptyToNull<T>(IEnumerable<T> list) => !list.Any() ? null : list;
@@ -48,11 +36,8 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
     public override Expression<Func<ILexEntry, object?>> EntryComplexFormTypes => e => EmptyToNull(e.ComplexFormEntryRefs.SelectMany(r => r.ComplexEntryTypesRS));
     public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToNull<ILexEntryType>;
 
-    // PublishIn is computed as: all publications EXCEPT those in DoNotPublishInRC
-    // Returns the guids that ARE in PublishIn, or null if empty
-    public override Expression<Func<ILexEntry, object?>> EntryPublishIn =>
-        e => EmptyToNull(_allPublicationGuids.Where(pg => e.DoNotPublishInRC.All(dnp => dnp.Guid != pg)));
-    public override Expression<Func<ILexEntry, object?>> EntryPublishInId =>
-        e => _allPublicationGuids.Where(pg => e.DoNotPublishInRC.All(dnp => dnp.Guid != pg));
-    public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToNull<Guid>;
+    // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
+    public override Expression<Func<ILexEntry, object?>> EntryPublishIn => e => EmptyToNull(e.PublishIn);
+    public override Expression<Func<ILexEntry, object?>> EntryPublishInId => e => e.PublishIn.Select(p => p.Guid);
+    public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToNull<ICmPossibility>;
 }

@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Exceptions;
-using MiniLcm.Filtering;
 using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
@@ -56,15 +55,6 @@ public class FwDataMiniLcmApi(
 
     private ICmPossibilityList VariantTypes => Cache.LangProject.LexDbOA.VariantEntryTypesOA;
     private ICmPossibilityList Publications => Cache.LangProject.LexDbOA.PublicationTypesOA;
-
-    private GridifyMapper<ILexEntry>? _entryFilterMapper;
-    private GridifyMapper<ILexEntry> EntryFilterMapper => _entryFilterMapper ??= CreateEntryFilterMapper();
-
-    private GridifyMapper<ILexEntry> CreateEntryFilterMapper()
-    {
-        var publicationGuids = Publications.PossibilitiesOS.Select(p => p.Guid);
-        return EntryFilter.NewMapper(new LexEntryFilterMapProvider(publicationGuids));
-    }
 
     public void Dispose()
     {
@@ -668,9 +658,8 @@ public class FwDataMiniLcmApi(
                     ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
                     ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
                 ],
-                // Add all the possibilities in the project which are not excluded by the entry's DoNotPublishIn field
-                PublishIn = Publications.PossibilitiesOS.Where(
-                    p => entry.DoNotPublishInRC.All(ep => ep.Guid != p.Guid)).Select(FromLcmPossibility).ToList(),
+                // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
+                PublishIn = entry.PublishIn.Select(FromLcmPossibility).ToList(),
             };
         }
         catch (Exception e)
@@ -899,7 +888,7 @@ public class FwDataMiniLcmApi(
         if (!string.IsNullOrEmpty(options.Filter?.GridifyFilter))
         {
             var query = new GridifyQuery() { Filter = options.Filter.GridifyFilter };
-            var filter = query.GetFilteringExpression(EntryFilterMapper).Compile();
+            var filter = query.GetFilteringExpression(config.Value.Mapper).Compile();
             entries = entries.Where(filter);
         }
 

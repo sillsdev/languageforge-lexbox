@@ -63,7 +63,7 @@
       case 'senses': newFilter.push('Senses=null'); break;
       case 'partOfSpeech': newFilter.push('Senses.PartOfSpeechId='); break;
       case 'semanticDomains': newFilter.push('Senses.SemanticDomains=null'); break;
-      case 'publication': newFilter.push('PublishIn=[]'); break;
+      case 'publication': newFilter.push('PublishIn=null'); break;
     }
 
     if (selectedField && fieldFilterValue && selectedWs?.length > 0) {
