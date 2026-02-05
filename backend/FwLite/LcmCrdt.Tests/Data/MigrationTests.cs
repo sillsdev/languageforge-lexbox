@@ -9,6 +9,7 @@ using SIL.Harmony.Db;
 
 namespace LcmCrdt.Tests.Data;
 
+[Collection("MigrationTests")]
 public class MigrationTests : IAsyncLifetime
 {
     private readonly RegressionTestHelper _helper = new("MigrationTest");
