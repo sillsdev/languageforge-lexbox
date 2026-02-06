@@ -4,7 +4,7 @@
   import logoLight from '$lib/assets/logo-light.svg';
   import logoDark from '$lib/assets/logo-dark.svg';
   import storybookIcon from '../stories/assets/storybook-icon.svg';
-  import DevContent, {isDev} from '$lib/layout/DevContent.svelte';
+  import DevContent, {devModeToggle, isDev} from '$lib/layout/DevContent.svelte';
   import {
     useImportFwdataService,
     useProjectsService,
@@ -111,27 +111,6 @@
 
   let troubleshootDialog = $state<TroubleshootDialog>();
 
-  let clickCount = 0;
-  let clickTimeout: ReturnType<typeof setTimeout> | undefined;
-
-  function resetClickCounter() {
-    clickCount = 0;
-    clearTimeout(clickTimeout);
-  }
-
-  function clickIcon() {
-    //when a user triple clicks the logo it will enable dev mode, this makes it easier to enable on mobile
-    clickCount++;
-    clearTimeout(clickTimeout);
-
-    if (clickCount === 3) {
-      window.enableDevMode(!$isDev);
-      resetClickCounter();
-    } else {
-      clickTimeout = setTimeout(resetClickCounter, 500);
-    }
-  }
-
   let feedbackOpen = $state(false);
   let updateDialogOpen = $state(false);
 
@@ -143,7 +122,7 @@
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
     <div class="text-lg flex gap-2 items-center">
-      <Icon onclick={clickIcon} src={mode.current === 'dark' ? logoLight : logoDark} class="size-8" alt={$t`Lexbox logo`}/>
+      <Icon {@attach devModeToggle} src={mode.current === 'dark' ? logoLight : logoDark} class="size-8" alt={$t`Lexbox logo`}/>
       <h3>{$t`Dictionaries`}</h3>
     </div>
   {/snippet}
