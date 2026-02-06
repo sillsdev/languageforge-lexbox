@@ -28,6 +28,8 @@ public class EntryFilter
         mapper.AddMap(nameof(Entry.LiteralMeaning), provider.EntryLiteralMeaning!);
         mapper.AddMap(nameof(Entry.MorphType), provider.EntryMorphType);
         mapper.AddMap(nameof(Entry.ComplexFormTypes), provider.EntryComplexFormTypes, provider.EntryComplexFormTypesConverter);
+        mapper.AddMap(nameof(Entry.PublishIn), provider.EntryPublishIn, provider.EntryPublishInConverter);
+        mapper.AddMap($"{nameof(Entry.PublishIn)}.{nameof(Publication.Id)}", provider.EntryPublishInId);
         return mapper;
     }
 

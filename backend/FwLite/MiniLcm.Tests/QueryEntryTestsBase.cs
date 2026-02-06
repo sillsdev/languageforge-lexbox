@@ -12,6 +12,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     private readonly string Banana = "Banana";
     private readonly string Kiwi = "Kiwi";
     private readonly string Null_LexemeForm = string.Empty; // nulls get normalized to empty strings
+    private Publication mainDictionary = null!;
 
     private static readonly AutoFaker Faker = new(AutoFakerDefault.Config);
 
@@ -24,6 +25,8 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateSemanticDomain(semanticDomain);
         var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "Very complex" } } };
         await Api.CreateComplexFormType(complexFormType);
+        mainDictionary = new Publication() { Id = Guid.NewGuid(), Name = { { "en", "Main Dictionary" } } };
+        await Api.CreatePublication(mainDictionary);
         await Api.CreateEntry(new Entry()
         {
             Id = appleId,
@@ -45,6 +48,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", Banana } },
+            PublishIn = [mainDictionary],
             Senses =
             [
                 new()
@@ -76,6 +80,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", Kiwi } },
+            PublishIn = [mainDictionary],
             Senses =
             [
                 new()
@@ -225,6 +230,43 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=[]" })).ToArrayAsync();
         //using distinct since there may be 2 null lexeme forms but only on FLEx due to the null lexeme form
         results.Select(e => e.LexemeForm["en"]).Distinct().Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingPublishIn()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "PublishIn=null" })).ToArrayAsync();
+        //Apple, Peach, and the null entry have no publications
+        results.Select(e => e.LexemeForm["en"]).Distinct().Should().BeEquivalentTo(Apple, Peach, Null_LexemeForm);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingPublishIn_AndSearch()
+    {
+        var results = await Api.SearchEntries(Apple, new(Filter: new() { GridifyFilter = "PublishIn=null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingPublishInWithEmptyArray()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "PublishIn=[]" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Distinct().Should().BeEquivalentTo(Apple, Peach, Null_LexemeForm);
+    }
+
+    [Fact]
+    public async Task CanFilterByPublicationId()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = $"PublishIn.Id={mainDictionary.Id}" })).ToArrayAsync();
+        //Banana and Kiwi are in the main dictionary
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana, Kiwi);
+    }
+
+    [Fact]
+    public async Task CanFilterByPublicationId_AndSearch()
+    {
+        var results = await Api.SearchEntries(Banana, new(Filter: new() { GridifyFilter = $"PublishIn.Id={mainDictionary.Id}" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
     }
 
     [Fact]

@@ -63,10 +63,13 @@ public static class Json
             List<ISqlExpression> parameters,
             Sql.ISqExtensionBuilder builder)
         {
-            while (pathBody is MemberExpression or MethodCallExpression)
+            while (pathBody is MemberExpression or MethodCallExpression or UnaryExpression)
             {
                 switch (pathBody)
                 {
+                    case UnaryExpression ue when ue.NodeType == ExpressionType.Convert:
+                        pathBody = ue.Operand;
+                        continue;
                     case MemberExpression me:
                         parameters.Insert(0, new SqlValue(me.Member.Name));
                         pathBody = me.Expression;
@@ -79,6 +82,10 @@ public static class Json
                             parameters.Insert(0, sql);
                             pathBody = mce.Object;
                         }
+                        else if (mce.Method.Name == nameof(ToString) && (mce.Arguments.Count == 0 || mce.Object is null))
+                        {
+                            pathBody = mce.Object ?? mce.Arguments[0];
+                        }
                         else
                         {
                             throw new InvalidOperationException($"Invalid property path for expression {mce}.");
@@ -89,6 +96,7 @@ public static class Json
                         throw new InvalidOperationException("Invalid property path.");
                 }
             }
+
         }
 
         public static bool IsIndexerPropertyMethod(MethodInfo method)
@@ -187,6 +195,12 @@ public static class Json
     public static string GetPlainText(RichString? richString)
     {
         return richString?.GetPlainText() ?? "";
+    }
+
+    [Sql.Expression("{0}", PreferServerSide = true)]
+    public static string ToString(Guid? guid)
+    {
+        return guid?.ToString() ?? "";
     }
 
     //maps to a row from json_each

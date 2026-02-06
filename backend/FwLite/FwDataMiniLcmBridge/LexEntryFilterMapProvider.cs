@@ -35,4 +35,9 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
     public override Expression<Func<ILexEntry, object?>> EntryMorphType => e => LcmHelpers.FromLcmMorphType(e.PrimaryMorphType);
     public override Expression<Func<ILexEntry, object?>> EntryComplexFormTypes => e => EmptyToNull(e.ComplexFormEntryRefs.SelectMany(r => r.ComplexEntryTypesRS));
     public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToNull<ILexEntryType>;
+
+    // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
+    public override Expression<Func<ILexEntry, object?>> EntryPublishIn => e => EmptyToNull(e.PublishIn);
+    public override Expression<Func<ILexEntry, object?>> EntryPublishInId => e => e.PublishIn.Select(p => p.Guid);
+    public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToNull<ICmPossibility>;
 }
