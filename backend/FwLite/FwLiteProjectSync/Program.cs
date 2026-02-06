@@ -5,7 +5,6 @@ using LcmCrdt;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MiniLcm;
 
 namespace FwLiteProjectSync;
 
@@ -66,9 +65,18 @@ public class Program
                     crdtProject = await projectsService.CreateProject(new(crdtProjectCode, crdtProjectCode, FwProjectId:fwdataApi.ProjectId, SeedNewProjectData: false));
                 }
                 var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
+                var crdtApi = await services.OpenCrdtProject(crdtProject);
+                var snapshotService = services.GetRequiredService<ProjectSnapshotService>();
+                var projectSnapshot = await snapshotService.GetProjectSnapshot(fwdataApi.Project);
 
-                var result = await syncService.Sync(await services.OpenCrdtProject(crdtProject), fwdataApi, dryRun);
+                var result = projectSnapshot is null
+                    ? await syncService.Import(crdtApi, fwdataApi, dryRun)
+                    : await syncService.Sync(crdtApi, fwdataApi, projectSnapshot, dryRun);
                 logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
+                if (!dryRun)
+                {
+                    await snapshotService.RegenerateProjectSnapshot(crdtApi, fwdataApi.Project, keepBackup: false);
+                }
             },
             crdtOption,
             fwDataOption,

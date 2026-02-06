@@ -4,7 +4,11 @@ using SIL.Progress;
 
 namespace FwHeadless.Services;
 
-public class SendReceiveException(string? message) : Exception(message);
+public class SendReceiveException(string message, SendReceiveHelpers.LfMergeBridgeResult result)
+    : Exception($"{message}. Output: {result.Output}")
+{
+    public SendReceiveHelpers.LfMergeBridgeResult Result { get; } = result;
+}
 
 public static class SendReceiveHelpers
 {
@@ -23,6 +27,18 @@ public static class SendReceiveHelpers
     {
         private readonly IProgress? _progress = null;
         public bool ErrorEncountered => _progress?.ErrorEncountered ?? false;
+
+        /// <summary>
+        /// Substring emitted by Chorus when it has decided to rollback the operation.
+        /// We key off this because failures with rollback are special: it implies the local working
+        /// copy may be in a bad/unstable state and we should block further syncing.
+        ///
+        /// Chorus reference:
+        /// https://github.com/sillsdev/chorus/blob/master/src/LibChorus/sync/Synchronizer.cs#L651
+        /// </summary>
+        public const string RollbackIndicator = "Rolling back...";
+        public bool RollbackDetected => !string.IsNullOrEmpty(Output)
+                && Output.Contains(RollbackIndicator, StringComparison.Ordinal);
 
         /// <summary>
         /// This string in the output unambiguously indicates that the operation ultimately succeeded.

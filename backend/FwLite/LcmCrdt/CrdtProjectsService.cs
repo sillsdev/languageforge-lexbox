@@ -130,7 +130,7 @@ public partial class CrdtProjectsService(
         return await CreateProject(new(name, name, AfterCreate: SampleProjectData, SeedNewProjectData: true));
     }
 
-    public async Task<CrdtProject> CreateProject(CreateProjectRequest request)
+    public virtual async Task<CrdtProject> CreateProject(CreateProjectRequest request)
     {
         using var activity = LcmCrdtActivitySource.Value.StartActivity();
         activity?.SetTag("app.project_id", request.Id);

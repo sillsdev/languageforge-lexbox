@@ -54,13 +54,13 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task GetSyncBlockInfoAsync_WhenNoBlockSet_ReturnsNull()
+    public async Task GetSyncBlockedInfoAsync_WhenNoBlockSet_ReturnsNull()
     {
         var service = CreateService();
         var projectId = Guid.NewGuid();
         CreateTestProjectFolder(projectId);
 
-        var result = await service.GetSyncBlockInfoAsync(projectId);
+        var result = await service.GetSyncBlockedInfoAsync(projectId);
 
         result.Should().BeNull();
     }
@@ -73,7 +73,7 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
         CreateTestProjectFolder(projectId);
 
         await service.BlockFromSyncAsync(projectId, "Test block");
-        var blockInfo = await service.GetSyncBlockInfoAsync(projectId);
+        var blockInfo = await service.GetSyncBlockedInfoAsync(projectId);
 
         blockInfo.Should().NotBeNull();
         blockInfo.IsBlocked.Should().BeTrue();
@@ -88,7 +88,7 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
         const string reason = "Critical issue found";
 
         await service.BlockFromSyncAsync(projectId, reason);
-        var blockInfo = await service.GetSyncBlockInfoAsync(projectId);
+        var blockInfo = await service.GetSyncBlockedInfoAsync(projectId);
 
         blockInfo.Should().NotBeNull();
         blockInfo.Reason.Should().Be(reason);
@@ -103,7 +103,7 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
         var beforeBlock = DateTime.UtcNow;
 
         await service.BlockFromSyncAsync(projectId, "Test");
-        var blockInfo = await service.GetSyncBlockInfoAsync(projectId);
+        var blockInfo = await service.GetSyncBlockedInfoAsync(projectId);
         var afterBlock = DateTime.UtcNow;
 
         blockInfo?.BlockedAt.Should().NotBeNull();
@@ -119,14 +119,14 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
 
         await service.BlockFromSyncAsync(projectId, "Block");
         await service.UnblockFromSyncAsync(projectId);
-        var blockInfo = await service.GetSyncBlockInfoAsync(projectId);
+        var blockInfo = await service.GetSyncBlockedInfoAsync(projectId);
 
         blockInfo.Should().NotBeNull();
         blockInfo.IsBlocked.Should().BeFalse();
     }
 
     [Fact]
-    public async Task UnblockFromSyncAsync_ClearsPreviousBlockInfo()
+    public async Task UnblockFromSyncAsync_ClearsPreviousBlockedInfo()
     {
         var service = CreateService();
         var projectId = Guid.NewGuid();
@@ -134,7 +134,7 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
 
         await service.BlockFromSyncAsync(projectId, "Block 1");
         await service.UnblockFromSyncAsync(projectId);
-        var blockInfo = await service.GetSyncBlockInfoAsync(projectId);
+        var blockInfo = await service.GetSyncBlockedInfoAsync(projectId);
 
         blockInfo.Should().NotBeNull();
         blockInfo.IsBlocked.Should().BeFalse();
@@ -152,8 +152,8 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
         CreateTestProjectFolder(project2, "P2");
 
         await service.BlockFromSyncAsync(project1, "Blocked");
-        var project1Info = await service.GetSyncBlockInfoAsync(project1);
-        var project2Info = await service.GetSyncBlockInfoAsync(project2);
+        var project1Info = await service.GetSyncBlockedInfoAsync(project1);
+        var project2Info = await service.GetSyncBlockedInfoAsync(project2);
 
         project1Info?.IsBlocked.Should().BeTrue();
         project2Info.Should().BeNull();
@@ -172,7 +172,7 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
 
         // Check with second instance
         var service2 = CreateService();
-        var blockInfo = await service2.GetSyncBlockInfoAsync(projectId);
+        var blockInfo = await service2.GetSyncBlockedInfoAsync(projectId);
 
         blockInfo.Should().NotBeNull();
         blockInfo.IsBlocked.Should().BeTrue();
@@ -187,7 +187,7 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
         CreateTestProjectFolder(projectId);
 
         await service.BlockFromSyncAsync(projectId);
-        var blockInfo = await service.GetSyncBlockInfoAsync(projectId);
+        var blockInfo = await service.GetSyncBlockedInfoAsync(projectId);
 
         blockInfo.Should().NotBeNull();
         blockInfo.Reason.Should().Be("Manual block");

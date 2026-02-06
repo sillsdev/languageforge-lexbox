@@ -102,17 +102,18 @@ public class SyncWorker(
     Guid projectId,
     ILogger<SyncWorker> logger,
     IServiceProvider services,
-    SendReceiveService srService,
+    ISendReceiveService srService,
     IOptions<FwHeadlessConfig> config,
     FwDataFactory fwDataFactory,
     CrdtProjectsService projectsService,
-    ProjectLookupService projectLookupService,
-    SyncJobStatusService syncStatusService,
+    IProjectLookupService projectLookupService,
+    ISyncJobStatusService syncStatusService,
     CrdtFwdataProjectSyncService syncService,
+    ProjectSnapshotService projectSnapshotService,
     CrdtHttpSyncService crdtHttpSyncService,
     IHttpClientFactory httpClientFactory,
     MediaFileService mediaFileService,
-    ProjectMetadataService metadataService
+    IProjectMetadataService metadataService
 )
 {
     public async Task<SyncJobResult> ExecuteSync(CancellationToken stoppingToken, bool onlyHarmony = false)
@@ -132,15 +133,6 @@ public class SyncWorker(
             return new SyncJobResult(SyncJobStatusEnum.ProjectNotFound, $"Project {projectId} not found");
         }
 
-        // Check if project is blocked (defensive check in case it was blocked while waiting in queue)
-        var blockInfo = await metadataService.GetSyncBlockInfoAsync(projectId);
-        if (blockInfo?.IsBlocked == true)
-        {
-            logger.LogInformation("Project {projectId} is blocked from syncing. Reason: {Reason}", projectId, blockInfo.Reason);
-            activity?.SetStatus(ActivityStatusCode.Ok, $"Project blocked from sync: {blockInfo.Reason}");
-            return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, $"Project is blocked from syncing. Reason: {blockInfo.Reason}");
-        }
-
         activity?.SetTag("app.project_code", projectCode);
 
         logger.LogInformation("Project code is {projectCode}", projectCode);
@@ -150,6 +142,15 @@ public class SyncWorker(
             logger.LogError("Unable to authenticate with Lexbox");
             activity?.SetStatus(ActivityStatusCode.Error, "Unable to authenticate with Lexbox");
             return new SyncJobResult(SyncJobStatusEnum.UnableToAuthenticate, "Unable to authenticate with Lexbox");
+        }
+
+        // Check if project is blocked (defensive check in case it was blocked while waiting in queue)
+        var blockInfo = await metadataService.GetSyncBlockedInfoAsync(projectId);
+        if (blockInfo?.IsBlocked == true)
+        {
+            logger.LogInformation("Project {projectId} is blocked from syncing. Reason: {Reason}", projectId, blockInfo.Reason);
+            activity?.SetStatus(ActivityStatusCode.Ok, $"Project blocked from sync: {blockInfo.Reason}");
+            return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, $"Project is blocked from syncing. Reason: {blockInfo.Reason}");
         }
 
         var projectFolder = config.Value.GetProjectFolder(projectCode, projectId);
@@ -167,6 +168,11 @@ public class SyncWorker(
         }
         catch (SendReceiveException e)
         {
+            if (e.Result.RollbackDetected)
+            {
+                await metadataService.BlockFromSyncAsync(projectId, "Rollback detected during Send/Receive");
+                return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, "Project blocked due to rollback");
+            }
             activity?.SetStatus(ActivityStatusCode.Error, "Send/Receive failed before CRDT sync");
             return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, e.Message);
         }
@@ -186,7 +192,7 @@ public class SyncWorker(
         var crdtSyncService = services.GetRequiredService<CrdtSyncService>();
 
         // If the last merge was successful, we can sync the Harmony project, otherwise we risk pushing a partial sync
-        if (CrdtFwdataProjectSyncService.HasSyncedSuccessfully(fwDataProject) || onlyHarmony)
+        if (ProjectSnapshotService.HasSyncedSuccessfully(fwDataProject) || onlyHarmony)
         {
             await crdtSyncService.SyncHarmonyProject();
         }
@@ -196,15 +202,19 @@ public class SyncWorker(
         {
             // Getting this far allows us to restore a reset project, so we can regenerate a snapshot from it
             activity?.SetStatus(ActivityStatusCode.Ok, "Only Harmony sync requested, skipping Mercurial/Crdt sync");
-            return new SyncJobResult(SyncJobStatusEnum.Success, "Only Harmony sync requested, skipping Mercurial/Crdt sync");
+            return new SyncJobResult(SyncJobStatusEnum.SuccessHarmonyOnly, "Only Harmony sync requested, skipping Mercurial/Crdt sync");
         }
 
-        var result = await syncService.Sync(miniLcmApi, fwdataApi);
-        logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",
+        var projectSnapshot = await projectSnapshotService.GetProjectSnapshot(fwdataApi.Project);
+        var result = projectSnapshot is null
+            ? await syncService.Import(miniLcmApi, fwdataApi)
+            : await syncService.Sync(miniLcmApi, fwdataApi, projectSnapshot);
+
+        logger.LogInformation("{ImportOrSync} result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",
+            projectSnapshot is null ? "Import" : "Sync",
             result.CrdtChanges,
             result.FwdataChanges);
 
-        await crdtSyncService.SyncHarmonyProject();
         if (result.FwdataChanges == 0)
         {
             logger.LogInformation("No Send/Receive needed after CRDT sync as no FW changes were made by the sync");
@@ -214,6 +224,11 @@ public class SyncWorker(
             var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
             if (!srResult2.Success)
             {
+                if (srResult2.RollbackDetected)
+                {
+                    await metadataService.BlockFromSyncAsync(projectId, "Rollback detected during Send/Receive");
+                    return new SyncJobResult(SyncJobStatusEnum.SyncBlocked, "Project blocked due to rollback");
+                }
                 logger.LogError("Send/Receive after CRDT sync failed: {Output}", srResult2.Output);
                 activity?.SetStatus(ActivityStatusCode.Error, "Send/Receive failed after CRDT sync");
                 return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, $"Send/Receive after CRDT sync failed: {srResult2.Output}");
@@ -223,11 +238,30 @@ public class SyncWorker(
                 logger.LogInformation("Send/Receive result after CRDT sync: {Output}", srResult2.Output);
             }
         }
+
+        //We defer regenerating the snapshot until we know the changes applied to fwdata were successfully pushed.
+        //Otherwise, the changes might have been rolled back. In that case, the next sync could overwrite
+        //CRDT data with old/rolled back FW data.
+        if (result.CrdtChanges > 0)
+        {
+            logger.LogInformation("Regenerating project snapshot to include {CrdtChangeCount} crdt changes", result.CrdtChanges);
+            //note we are using the crdt API, this avoids issues where some data isn't synced yet
+            //later when we add the ability to sync that data we need the snapshot to reflect the synced state, not what was in the FW project
+            //related to https://github.com/sillsdev/languageforge-lexbox/issues/1912
+            await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwdataApi.Project, keepBackup: false);
+        }
+        else
+        {
+            logger.LogInformation("Skipping regenerating project snapshot, because there were no crdt changes");
+        }
+
+        await crdtSyncService.SyncHarmonyProject();
+
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
         return new SyncJobResult(result);
     }
 
-    private async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject, string projectCode)
+    protected virtual async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject, string projectCode)
     {
         if (File.Exists(fwDataProject.FilePath))
         {
@@ -242,7 +276,7 @@ public class SyncWorker(
                 if (!srResult.Success)
                 {
                     logger.LogError("Send/Receive before CRDT sync failed: {Output}", srResult.Output);
-                    throw new SendReceiveException($"Send/Receive before CRDT sync failed: {srResult.Output}");
+                    throw new SendReceiveException("Send/Receive before CRDT sync failed", srResult);
                 }
                 else
                 {
@@ -257,7 +291,7 @@ public class SyncWorker(
             if (!srResult.Success)
             {
                 logger.LogError("Clone before CRDT sync failed: {Output}", srResult.Output);
-                throw new SendReceiveException($"Clone before CRDT sync failed: {srResult.Output}");
+                throw new SendReceiveException("Clone before CRDT sync failed", srResult);
             }
             else
             {
@@ -269,8 +303,8 @@ public class SyncWorker(
         return fwdataApi;
     }
 
-    static async Task<CrdtProject> SetupCrdtProject(string crdtFile,
-        ProjectLookupService projectLookupService,
+    protected virtual async Task<CrdtProject> SetupCrdtProject(string crdtFile,
+        IProjectLookupService projectLookupService,
         Guid projectId,
         CrdtProjectsService projectsService,
         string projectFolder,

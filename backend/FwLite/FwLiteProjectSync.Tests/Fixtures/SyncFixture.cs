@@ -6,6 +6,7 @@ using LcmCrdt;
 using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using MiniLcm;
 using MiniLcm.Models;
 
 namespace FwLiteProjectSync.Tests.Fixtures;
@@ -118,7 +119,15 @@ public class SyncFixture : IAsyncLifetime
 
     public void DeleteSyncSnapshot()
     {
-        var snapshotPath = CrdtFwdataProjectSyncService.SnapshotPath(FwDataApi.Project);
+        var snapshotPath = ProjectSnapshotService.SnapshotPath(FwDataApi.Project);
         if (File.Exists(snapshotPath)) File.Delete(snapshotPath);
+    }
+
+    public async Task<ProjectSnapshot> RegenerateAndGetSnapshot()
+    {
+        var snapshotService = _services.ServiceProvider.GetRequiredService<ProjectSnapshotService>();
+        await snapshotService.RegenerateProjectSnapshot(CrdtApi, FwDataApi.Project, keepBackup: false);
+        return await snapshotService.GetProjectSnapshot(FwDataApi.Project)
+            ?? throw new InvalidOperationException("Expected snapshot to exist after regenerating");
     }
 }
