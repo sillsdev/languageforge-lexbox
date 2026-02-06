@@ -28,6 +28,12 @@ public class AndroidUpdateService : MauiPlatformUpdateServiceBase, IMauiInitiali
     /// </summary>
     public const int UpdateRequestCode = 9001;
 
+    /// <summary>
+    /// Play Store listing URL. Used as the release URL for fallback scenarios
+    /// (e.g., if in-app update fails and we need to direct user to the store).
+    /// </summary>
+    public const string PlayStoreUrl = "https://play.google.com/store/apps/details?id=org.sil.FwLiteMaui";
+
     private readonly ILogger<AndroidUpdateService> _logger;
     private readonly GlobalEventBus _eventBus;
 
@@ -112,7 +118,7 @@ public class AndroidUpdateService : MauiPlatformUpdateServiceBase, IMauiInitiali
                 // Use version code as version string since that's what Play Store provides
                 var release = new FwLiteRelease(
                     Version: appUpdateInfo.AvailableVersionCode().ToString(),
-                    Url: string.Empty); // Not needed for Play Store updates
+                    Url: PlayStoreUrl); // Fallback if in-app update fails
 
                 return new ShouldUpdateResponse(release);
             }
@@ -253,7 +259,7 @@ public class AndroidUpdateService : MauiPlatformUpdateServiceBase, IMauiInitiali
 
                 _eventBus.PublishEvent(new AppUpdateProgressEvent(
                     percentage,
-                    new FwLiteRelease(_cachedUpdateInfo?.AvailableVersionCode().ToString() ?? "unknown", "")));
+                    new FwLiteRelease(_cachedUpdateInfo?.AvailableVersionCode().ToString() ?? "unknown", PlayStoreUrl)));
                 break;
 
             case InstallStatus.Downloaded:
