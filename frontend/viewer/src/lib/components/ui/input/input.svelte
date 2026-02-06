@@ -63,6 +63,7 @@
     {type}
     bind:value
     spellcheck="false"
+    autocapitalize="off"
     {...restProps}
   />
 {/if}
