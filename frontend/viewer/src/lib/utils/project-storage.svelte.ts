@@ -70,8 +70,11 @@ function createStorageBackend(): StorageBackend {
 }
 
 /**
- * Reactive storage property that automatically syncs to the storage backend.
- * Loads asynchronously on construction and persists on every change.
+ * Reactive storage property with async persistence.
+ *
+ * - `current` getter is reactive (Svelte 5 runes) and read-only
+ * - `set()` is async - callers can await or fire-and-forget
+ * - Initial value loads asynchronously; early subscribers get updates when ready
  */
 class StorageProp {
   #projectCode: string;
@@ -83,35 +86,31 @@ class StorageProp {
     this.#projectCode = projectCode;
     this.#key = key;
     this.#backend = backend;
-    // Load initial value asynchronously
-    void this.load();
+    this.load();
   }
 
   get current(): string {
     return this.#value;
   }
 
-  set current(value: string) {
+  async set(value: string): Promise<void> {
     this.#value = value;
-    void this.persist(value);
-  }
-
-  private getStorageKey(): string {
-    return `project:${this.#projectCode}:${this.#key}`;
-  }
-
-  private async load(): Promise<void> {
-    const value = await this.#backend.get(this.getStorageKey());
-    this.#value = value ?? '';
-  }
-
-  private async persist(value: string): Promise<void> {
     const storageKey = this.getStorageKey();
     if (value) {
       await this.#backend.set(storageKey, value);
     } else {
       await this.#backend.remove(storageKey);
     }
+  }
+
+  private getStorageKey(): string {
+    return `project:${this.#projectCode}:${this.#key}`;
+  }
+
+  private load(): void {
+    this.#backend.get(this.getStorageKey())
+      .then(value => { this.#value = value ?? ''; })
+      .catch(e => console.error(`Failed to load preference ${this.#key}:`, e));
   }
 }
 

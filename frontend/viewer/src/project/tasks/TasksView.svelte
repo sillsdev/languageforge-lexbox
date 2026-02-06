@@ -24,7 +24,7 @@
   <div class="flex flex-row items-center">
     <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 mr-2" />
 
-    <Select.Root bind:open type="single" bind:value={selectedTaskId.current}>
+    <Select.Root bind:open type="single" value={selectedTaskId.current} onValueChange={(v) => selectedTaskId.set(v ?? '')}>
       <Select.Trigger>{$t`Task ${selectedTask?.subject ?? ''}`}</Select.Trigger>
       <Select.Content>
         {#each tasks as task (task.id)}
@@ -34,7 +34,7 @@
     </Select.Root>
   </div>
   {#if selectedTaskId.current}
-    <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.current = ''}/>
+    <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.set('')}/>
   {:else}
     <h1 class="text-xl p-4 mx-auto">{$t`Select a new task to work on`}</h1>
   {/if}
