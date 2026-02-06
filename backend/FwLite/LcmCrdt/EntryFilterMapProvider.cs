@@ -32,6 +32,6 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
     public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToEmptyList<ComplexFormType>;
     public override Expression<Func<Entry, object?>> EntryPublishIn => e => e.PublishIn;
     public override Expression<Func<Entry, object?>> EntryPublishInId =>
-        e => e.PublishIn.Select(p => Json.Value(p, p => p.Id));
-    public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToEmptyList<Publication>;
+        e => e.PublishIn.Select(p => Json.Value(p, p => p.Id.ToString()));
+    public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToNull<Publication>;
 }
