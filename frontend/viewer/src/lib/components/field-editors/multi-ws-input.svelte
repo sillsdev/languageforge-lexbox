@@ -45,7 +45,6 @@
           aria-labelledby="{labeledBy ?? ''} {labelId}"
           {readonly}
           autofocus={autofocus && i === 0}
-          autocapitalize="off"
           onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)}
         />
       {:else}
