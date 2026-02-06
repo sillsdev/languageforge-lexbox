@@ -1,3 +1,6 @@
+using Microsoft.JSInterop;
+using Reinforced.Typings.Attributes;
+
 namespace FwLiteShared.Services;
 
 /// <summary>
@@ -6,7 +9,11 @@ namespace FwLiteShared.Services;
 /// </summary>
 public interface IPreferencesService
 {
+    [JSInvokable]
+    [TsFunction(Type = "Promise<string | null>")]
     string? Get(string key);
+    [JSInvokable]
     void Set(string key, string value);
+    [JSInvokable]
     void Remove(string key);
 }
