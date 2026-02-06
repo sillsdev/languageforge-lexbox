@@ -45,6 +45,29 @@
       "**/icon-class.ts"
     ],
     "search.exclude": {
-      "**/dist": true
-    }
+      "**/node_modules": true,
+      "**/bin": true,
+      "**/obj": true,
+      "**/dist": true,
+      "**/.svelte-kit": true,
+      "**/.git": true,
+      "**/.hg": true,
+      "**/.idea": true,
+      "**/Mercurial": true,
+      "**/MercurialExtensions": true,
+      "**/*.log": true
+    },
+    "files.watcherExclude": {
+      "**/node_modules/**": true,
+      "**/bin/**": true,
+      "**/obj/**": true,
+      "**/dist/**": true,
+      "**/.svelte-kit/**": true,
+      "**/.git/objects/**": true,
+      "**/.git/subtree-cache/**": true,
+      "**/.hg/store/**": true,
+      "**/Mercurial/**": true,
+      "**/MercurialExtensions/**": true
+    },
+    "search.followSymlinks": false,
 }
