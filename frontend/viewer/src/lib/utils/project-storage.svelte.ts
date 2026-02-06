@@ -1,7 +1,8 @@
-import { getContext, setContext } from 'svelte';
-import { useProjectContext } from '$project/project-context.svelte';
-import { tryUsePreferencesService } from '$lib/services/service-provider';
-import type { IPreferencesService } from '$lib/dotnet-types/generated-types/FwLiteShared/Services';
+import {getContext, setContext} from 'svelte';
+
+import type {IPreferencesService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services';
+import {tryUsePreferencesService} from '$lib/services/service-provider';
+import {useProjectContext} from '$project/project-context.svelte';
 
 /**
  * Project-specific storage service
@@ -17,16 +18,18 @@ const projectStorageContextKey = 'project-storage';
  * localStorage-based storage backend implementing IPreferencesService
  */
 class LocalStorageBackend implements IPreferencesService {
-  async get(key: string): Promise<string | null> {
-    return localStorage.getItem(key);
+  get(key: string): Promise<string | null> {
+    return Promise.resolve(localStorage.getItem(key));
   }
 
-  async set(key: string, value: string): Promise<void> {
+  set(key: string, value: string): Promise<void> {
     localStorage.setItem(key, value);
+    return Promise.resolve();
   }
 
-  async remove(key: string): Promise<void> {
+  remove(key: string): Promise<void> {
     localStorage.removeItem(key);
+    return Promise.resolve();
   }
 }
 
