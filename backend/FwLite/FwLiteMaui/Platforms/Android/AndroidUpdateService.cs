@@ -1,10 +1,12 @@
 using Android.App;
 using Android.Content;
 using Android.Gms.Extensions;
+using FwLiteShared;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Events;
 using LexCore.Entities;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Xamarin.Google.Android.Play.Core.AppUpdate;
 using Xamarin.Google.Android.Play.Core.AppUpdate.Install.Model;
 using Xamarin.Google.Android.Play.Core.Install;
@@ -18,7 +20,7 @@ namespace FwLiteMaui;
 /// High-priority updates use immediate flow (blocking full-screen UI).
 /// See: https://developer.android.com/guide/playcore/in-app-updates
 /// </summary>
-public class AndroidUpdateService : IPlatformUpdateService, IMauiInitializeService, IInstallStateUpdatedListener
+public class AndroidUpdateService : MauiPlatformUpdateServiceBase, IMauiInitializeService, IInstallStateUpdatedListener
 {
     /// <summary>
     /// Arbitrary request code used to identify the update flow result in OnActivityResult.
@@ -27,22 +29,21 @@ public class AndroidUpdateService : IPlatformUpdateService, IMauiInitializeServi
     public const int UpdateRequestCode = 9001;
 
     private readonly ILogger<AndroidUpdateService> _logger;
-    private readonly IPreferences _preferences;
     private readonly GlobalEventBus _eventBus;
 
     private IAppUpdateManager? _appUpdateManager;
     private TaskCompletionSource<UpdateResult>? _updateResultTcs;
     private AppUpdateInfo? _cachedUpdateInfo;
 
-    private const string LastUpdateCheckKey = "lastUpdateChecked";
-
     public AndroidUpdateService(
+        IHttpClientFactory httpClientFactory,
+        IOptions<FwLiteConfig> config,
         ILogger<AndroidUpdateService> logger,
         IPreferences preferences,
         GlobalEventBus eventBus)
+        : base(httpClientFactory, config, logger, preferences)
     {
         _logger = logger;
-        _preferences = preferences;
         _eventBus = eventBus;
     }
 
@@ -61,21 +62,13 @@ public class AndroidUpdateService : IPlatformUpdateService, IMauiInitializeServi
 
     #region IPlatformUpdateService Implementation
 
-    public bool HandlesOwnUpdateCheck => true;
-
-    public bool SupportsAutoUpdate => true;
-
-    public DateTime LastUpdateCheck
-    {
-        get => _preferences.Get(LastUpdateCheckKey, DateTime.MinValue);
-        set => _preferences.Set(LastUpdateCheckKey, value);
-    }
+    public override bool SupportsAutoUpdate => true;
 
     /// <summary>
     /// Checks if the current network connection is metered (e.g., mobile data).
     /// MAUI's IConnectivity doesn't expose metered status, so we use Android's ConnectivityManager.
     /// </summary>
-    public bool IsOnMeteredConnection()
+    public override bool IsOnMeteredConnection()
     {
         var connectivityManager = Android.App.Application.Context.GetSystemService(Context.ConnectivityService)
             as Android.Net.ConnectivityManager;
@@ -91,12 +84,15 @@ public class AndroidUpdateService : IPlatformUpdateService, IMauiInitializeServi
         return !capabilities.HasCapability(Android.Net.NetCapability.NotMetered);
     }
 
-    public async Task<AvailableUpdate?> CheckForUpdateAsync()
+    /// <summary>
+    /// Override to check for updates via Play Store instead of HTTP to LexBox/GitHub.
+    /// </summary>
+    public override async Task<ShouldUpdateResponse> ShouldUpdateAsync()
     {
         if (_appUpdateManager is null)
         {
             _logger.LogWarning("AppUpdateManager not initialized, cannot check for updates");
-            return null;
+            return new ShouldUpdateResponse(null);
         }
 
         try
@@ -118,19 +114,19 @@ public class AndroidUpdateService : IPlatformUpdateService, IMauiInitializeServi
                     Version: appUpdateInfo.AvailableVersionCode().ToString(),
                     Url: string.Empty); // Not needed for Play Store updates
 
-                return new AvailableUpdate(release, SupportsAutoUpdate);
+                return new ShouldUpdateResponse(release);
             }
 
-            return null;
+            return new ShouldUpdateResponse(null);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to check for updates from Play Store");
-            return null;
+            return new ShouldUpdateResponse(null);
         }
     }
 
-    public async Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease)
+    public override async Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease)
     {
         if (_appUpdateManager is null)
         {
@@ -209,7 +205,7 @@ public class AndroidUpdateService : IPlatformUpdateService, IMauiInitializeServi
         }
     }
 
-    public Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease)
+    public override Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease)
     {
         // On Android, the Play Store UI handles the permission flow
         return Task.FromResult(true);

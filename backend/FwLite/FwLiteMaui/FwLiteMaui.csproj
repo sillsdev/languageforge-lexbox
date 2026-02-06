@@ -96,6 +96,6 @@
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
     <!-- Google Play In-App Updates API for checking/applying updates from Play Store -->
-    <PackageReference Include="Xamarin.Google.Android.Play.App.Update" Version="2.1.0.14" />
+    <PackageReference Include="Xamarin.Google.Android.Play.App.Update" Version="2.1.0.17" />
   </ItemGroup>
 </Project>

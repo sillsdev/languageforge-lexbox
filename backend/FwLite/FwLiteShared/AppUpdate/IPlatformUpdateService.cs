@@ -10,17 +10,10 @@ public interface IPlatformUpdateService
     bool SupportsAutoUpdate { get; }
 
     /// <summary>
-    /// True for platforms that handle their own update checking (e.g., Android via Play Store).
-    /// When true, UpdateChecker will skip the HTTP call to LexBox/GitHub and delegate to
-    /// <see cref="CheckForUpdateAsync"/> instead.
+    /// Check if an update is available. The base implementation queries LexBox/GitHub via HTTP.
+    /// Platforms like Android override this to query their app store instead.
     /// </summary>
-    bool HandlesOwnUpdateCheck => false;
-
-    /// <summary>
-    /// Platform-specific update check. Only called when <see cref="HandlesOwnUpdateCheck"/> is true.
-    /// For Android, this queries the Play Store for available updates.
-    /// </summary>
-    Task<AvailableUpdate?> CheckForUpdateAsync() => Task.FromResult<AvailableUpdate?>(null);
+    Task<ShouldUpdateResponse> ShouldUpdateAsync();
 
     Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease);
     Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease);

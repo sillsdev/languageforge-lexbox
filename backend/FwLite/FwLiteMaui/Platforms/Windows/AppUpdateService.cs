@@ -3,20 +3,35 @@ using Windows.Management.Deployment;
 using Windows.Networking.Connectivity;
 using LexCore.Entities;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Toolkit.Uwp.Notifications;
+using FwLiteShared;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Events;
 
 namespace FwLiteMaui;
 
-public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences preferences, GlobalEventBus eventBus)
-    : IMauiInitializeService, IPlatformUpdateService
+public class AppUpdateService : MauiPlatformUpdateServiceBase, IMauiInitializeService
 {
-    private const string LastUpdateCheckKey = "lastUpdateChecked";
-    private  const string NotificationIdKey = "notificationId";
+    private readonly ILogger<AppUpdateService> _logger;
+    private readonly GlobalEventBus _eventBus;
+
+    private const string NotificationIdKey = "notificationId";
     private const string ActionKey = "action";
     private const string ResultRefKey = "resultRef";
     private static readonly Dictionary<string, TaskCompletionSource<string?>> NotificationCompletionSources = new();
+
+    public AppUpdateService(
+        IHttpClientFactory httpClientFactory,
+        IOptions<FwLiteConfig> config,
+        ILogger<AppUpdateService> logger,
+        IPreferences preferences,
+        GlobalEventBus eventBus)
+        : base(httpClientFactory, config, logger, preferences)
+    {
+        _logger = logger;
+        _eventBus = eventBus;
+    }
 
     public void Initialize(IServiceProvider services)
     {
@@ -34,11 +49,11 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
 
     private async Task Test()
     {
-        logger.LogInformation("Testing update notifications");
+        _logger.LogInformation("Testing update notifications");
         var fwLiteRelease = new FwLiteRelease("1.0.0.0", "https://test.com");
         if (!await RequestPermissionToUpdate(fwLiteRelease))
         {
-            logger.LogInformation("User declined update");
+            _logger.LogInformation("User declined update");
             return;
         }
 
@@ -50,7 +65,7 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         new ToastContentBuilder().AddText("FieldWorks Lite Installing update").AddText($"Version {latestRelease.Version} will be installed after FieldWorks Lite is closed").Show();
     }
 
-    public async Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease)
+    public override async Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease)
     {
         var notificationId = $"update-{Guid.NewGuid()}";
         var tcs = new TaskCompletionSource<string?>();
@@ -83,14 +98,14 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
                 var release = JsonSerializer.Deserialize<FwLiteRelease>(result);
                 if (release == null)
                 {
-                    logger.LogError("Invalid release {Release} for notification {NotificationId}", result, notificationId);
+                    _logger.LogError("Invalid release {Release} for notification {NotificationId}", result, notificationId);
                     return;
                 }
-                _ = Task.Run(() => ApplyUpdate(release, true));
+                _ = Task.Run(() => ApplyUpdateInternal(release, true));
             }
             else
             {
-                logger.LogError("Unknown action {Action} for notification {NotificationId}", action, notificationId);
+                _logger.LogError("Unknown action {Action} for notification {NotificationId}", action, notificationId);
             }
             return;
         }
@@ -99,13 +114,14 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         NotificationCompletionSources.Remove(notificationId);
     }
 
-    public async Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease)
+    public override async Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease)
     {
-        return await ApplyUpdate(latestRelease, false);
+        return await ApplyUpdateInternal(latestRelease, false);
     }
-    private async Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease, bool quitOnUpdate)
+
+    private async Task<UpdateResult> ApplyUpdateInternal(FwLiteRelease latestRelease, bool quitOnUpdate)
     {
-        logger.LogInformation("Installing new version: {Version}, Current version: {CurrentVersion}", latestRelease.Version, AppVersion.Version);
+        _logger.LogInformation("Installing new version: {Version}, Current version: {CurrentVersion}", latestRelease.Version, AppVersion.Version);
         var packageManager = new PackageManager();
         var asyncOperation = packageManager.AddPackageByUriAsync(new Uri(latestRelease.Url),
             new AddPackageOptions()
@@ -119,10 +135,10 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
             NotifyInstallProgress(progressInfo.percentage, latestRelease);
             if (progressInfo.state == DeploymentProgressState.Queued)
             {
-                logger.LogInformation("Queued update");
+                _logger.LogInformation("Queued update");
                 return;
             }
-            logger.LogInformation("Downloading update: {ProgressPercentage}%", progressInfo.percentage);
+            _logger.LogInformation("Downloading update: {ProgressPercentage}%", progressInfo.percentage);
         };
         ShowUpdateInstallingNotification(latestRelease);
 
@@ -134,11 +150,11 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
             var result = await updateTask;
             if (!string.IsNullOrEmpty(result.ErrorText))
             {
-                logger.LogError(result.ExtendedErrorCode, "Failed to download update: {ErrorText}", result.ErrorText);
+                _logger.LogError(result.ExtendedErrorCode, "Failed to download update: {ErrorText}", result.ErrorText);
                 return UpdateResult.Failed;
             }
 
-            logger.LogInformation("Update downloaded, will install on next restart");
+            _logger.LogInformation("Update downloaded, will install on next restart");
             return UpdateResult.Success;
         }
 
@@ -147,18 +163,12 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
 
     private void NotifyInstallProgress(uint percentage, FwLiteRelease release)
     {
-        eventBus.PublishEvent(new AppUpdateProgressEvent(percentage, release));
+        _eventBus.PublishEvent(new AppUpdateProgressEvent(percentage, release));
     }
 
-    public DateTime LastUpdateCheck
-    {
-        get => preferences.Get(LastUpdateCheckKey, DateTime.MinValue);
-        set => preferences.Set(LastUpdateCheckKey, value);
-    }
+    public override bool SupportsAutoUpdate => !FwLiteMauiKernel.IsPortableApp;
 
-    public bool SupportsAutoUpdate => !FwLiteMauiKernel.IsPortableApp;
-
-    public bool IsOnMeteredConnection()
+    public override bool IsOnMeteredConnection()
     {
         var profile = NetworkInformation.GetInternetConnectionProfile();
         if (profile == null) return false;

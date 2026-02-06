@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using FwLiteShared.Events;
 using LexCore.Entities;
 using Microsoft.Extensions.Caching.Memory;
@@ -9,7 +8,6 @@ using Microsoft.Extensions.Options;
 namespace FwLiteShared.AppUpdate;
 
 public class UpdateChecker(
-    IHttpClientFactory httpClientFactory,
     ILogger<UpdateChecker> logger,
     IOptions<FwLiteConfig> config,
     GlobalEventBus eventBus,
@@ -38,16 +36,9 @@ public class UpdateChecker(
         {
             entry.AbsoluteExpirationRelativeToNow = CacheDuration;
 
-            // Platforms like Android handle their own update checking via app stores
-            if (platformUpdateService.HandlesOwnUpdateCheck)
-            {
-                platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
-                return await platformUpdateService.CheckForUpdateAsync();
-            }
-
-            // Default: check via HTTP to LexBox/GitHub
-            var response = await ShouldUpdateAsync();
+            var response = await platformUpdateService.ShouldUpdateAsync();
             platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
+
             return response.Update
                 ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate)
                 : null;
@@ -113,34 +104,5 @@ public class UpdateChecker(
     private bool ShouldPromptBeforeUpdate()
     {
         return platformUpdateService.IsOnMeteredConnection();
-    }
-
-    private async Task<ShouldUpdateResponse> ShouldUpdateAsync()
-    {
-        try
-        {
-            var response = await httpClientFactory
-                .CreateClient("Lexbox")
-                .SendAsync(new HttpRequestMessage(HttpMethod.Get, config.Value.UpdateUrl)
-                {
-                    Headers = { { "User-Agent", $"Fieldworks-Lite-Client/{config.Value.AppVersion}" } }
-                });
-            if (!response.IsSuccessStatusCode)
-            {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                logger.LogError("Failed to get should update response: {StatusCode} {ResponseContent}",
-                    response.StatusCode,
-                    responseContent);
-                return new ShouldUpdateResponse(null);
-            }
-
-            var result = await response.Content.ReadFromJsonAsync<ShouldUpdateResponse>();
-            return result ?? new ShouldUpdateResponse(null);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to fetch latest release");
-            return new ShouldUpdateResponse(null);
-        }
     }
 }

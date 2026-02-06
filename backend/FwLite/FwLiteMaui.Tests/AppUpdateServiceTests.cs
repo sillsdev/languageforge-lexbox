@@ -1,5 +1,7 @@
+using FwLiteShared;
 using FwLiteShared.Events;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace FwLiteMaui.Tests;
@@ -14,6 +16,8 @@ public class AppUpdateServiceTests
     {
         _preferencesMock = new Mock<IPreferences>();
         _appUpdateService = new AppUpdateService(
+            Mock.Of<IHttpClientFactory>(),
+            Options.Create(new FwLiteConfig()),
             Mock.Of<ILogger<AppUpdateService>>(),
             _preferencesMock.Object,
             new GlobalEventBus(Mock.Of<ILogger<GlobalEventBus>>()));
