@@ -200,21 +200,16 @@ msgid "Any part of speech"
 msgstr "N'importe quelle partie du discours"
 
 #. Filter dropdown option
+#. Clears publication filter
+#. Publication = dictionary/publication type for distributing entries
+#: src/project/browse/filter/PublicationSelect.svelte
+msgid "Any publication"
+msgstr ""
+
+#. Filter dropdown option
 #. Clears semantic domain filter
 #. Semantic domain = category of meaning (e.g., "tools", "food", "emotions")
 #: src/project/browse/filter/SemanticDomainSelect.svelte
-#. Filter dropdown option
-
-#. Clears publication filter
-
-#. Publication = dictionary/publication type for distributing entries
-
-#: src/project/browse/filter/PublicationSelect.svelte
-
-msgid "Any publication"
-
-msgstr ""
-
 msgid "Any semantic domain"
 msgstr "N'importe quel domaine sémantique"
 
@@ -1383,6 +1378,13 @@ msgstr "Le projet {0} sur {1} n'est pas encore configuré pour FieldWorks Lite"
 msgid "Project name..."
 msgstr "Nom du projet..."
 
+#. Filter option
+#. Publication type/dictionary for entries
+#. Used to organize entries by which publication(s) they should appear in
+#: src/project/browse/SearchFilter.svelte
+msgid "Publication"
+msgstr ""
+
 #. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Publish {0} in"
@@ -1497,18 +1499,6 @@ msgstr "Sélectionner un fichier"
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
 #. Used to organize and filter entries by meaning category
 #: src/project/browse/SearchFilter.svelte
-#. Filter option
-
-#. Publication type/dictionary for entries
-
-#. Used to organize entries by which publication(s) they should appear in
-
-#: src/project/browse/SearchFilter.svelte
-
-msgid "Publication"
-
-msgstr ""
-
 msgid "Semantic domain"
 msgstr "Domaine sémantique"
 
@@ -1998,4 +1988,3 @@ msgstr "Vous n'êtes pas autorisé(e) de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
-

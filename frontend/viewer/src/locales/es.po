@@ -1378,6 +1378,13 @@ msgstr "El proyecto {0} en {1} aún no está configurado para FieldWorks Lite"
 msgid "Project name..."
 msgstr "Nombre del proyecto..."
 
+#. Filter option
+#. Publication type/dictionary for entries
+#. Used to organize entries by which publication(s) they should appear in
+#: src/project/browse/SearchFilter.svelte
+msgid "Publication"
+msgstr ""
+
 #. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Publish {0} in"
@@ -1487,13 +1494,6 @@ msgstr "Seleccione una nueva tarea en la que trabajar"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "Seleccionar archivo"
-
-#. Filter option
-#. Publication type/dictionary for entries
-#. Used to organize entries by which publication(s) they should appear in
-#: src/project/browse/SearchFilter.svelte
-msgid "Publication"
-msgstr ""
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
@@ -1988,4 +1988,3 @@ msgstr "No tiene permiso para descargar el proyecto {0} desde {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Ya has descargado el proyecto {0}"
-

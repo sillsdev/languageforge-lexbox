@@ -200,21 +200,16 @@ msgid "Any part of speech"
 msgstr "모든 품사"
 
 #. Filter dropdown option
+#. Clears publication filter
+#. Publication = dictionary/publication type for distributing entries
+#: src/project/browse/filter/PublicationSelect.svelte
+msgid "Any publication"
+msgstr ""
+
+#. Filter dropdown option
 #. Clears semantic domain filter
 #. Semantic domain = category of meaning (e.g., "tools", "food", "emotions")
 #: src/project/browse/filter/SemanticDomainSelect.svelte
-#. Filter dropdown option
-
-#. Clears publication filter
-
-#. Publication = dictionary/publication type for distributing entries
-
-#: src/project/browse/filter/PublicationSelect.svelte
-
-msgid "Any publication"
-
-msgstr ""
-
 msgid "Any semantic domain"
 msgstr "모든 시맨틱 도메인"
 
@@ -1383,6 +1378,13 @@ msgstr "{1} 의 프로젝트 {0} 는 아직 FieldWorks Lite용으로 설정되�
 msgid "Project name..."
 msgstr "프로젝트 이름..."
 
+#. Filter option
+#. Publication type/dictionary for entries
+#. Used to organize entries by which publication(s) they should appear in
+#: src/project/browse/SearchFilter.svelte
+msgid "Publication"
+msgstr ""
+
 #. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Publish {0} in"
@@ -1497,18 +1499,6 @@ msgstr "파일 선택"
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
 #. Used to organize and filter entries by meaning category
 #: src/project/browse/SearchFilter.svelte
-#. Filter option
-
-#. Publication type/dictionary for entries
-
-#. Used to organize entries by which publication(s) they should appear in
-
-#: src/project/browse/SearchFilter.svelte
-
-msgid "Publication"
-
-msgstr ""
-
 msgid "Semantic domain"
 msgstr "시맨틱 도메인"
 
@@ -1998,4 +1988,3 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
-

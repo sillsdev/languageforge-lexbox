@@ -1373,6 +1373,13 @@ msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgid "Project name..."
 msgstr "Project name..."
 
+#. Filter option
+#. Publication type/dictionary for entries
+#. Used to organize entries by which publication(s) they should appear in
+#: src/project/browse/SearchFilter.svelte
+msgid "Publication"
+msgstr "Publication"
+
 #. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Publish {0} in"
@@ -1482,13 +1489,6 @@ msgstr "Select a new task to work on"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "Select file"
-
-#. Filter option
-#. Publication type/dictionary for entries
-#. Used to organize entries by which publication(s) they should appear in
-#: src/project/browse/SearchFilter.svelte
-msgid "Publication"
-msgstr "Publication"
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
