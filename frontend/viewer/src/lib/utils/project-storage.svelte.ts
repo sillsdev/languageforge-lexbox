@@ -1,7 +1,7 @@
 import { getContext, setContext } from 'svelte';
 import { useProjectContext } from '$project/project-context.svelte';
 import { tryUsePreferencesService } from '$lib/services/service-provider';
-import type { IPreferencesService } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IPreferencesService';
+import type { IPreferencesService } from '$lib/dotnet-types/generated-types/FwLiteShared/Services';
 
 /**
  * Project-specific storage service
@@ -14,18 +14,9 @@ import type { IPreferencesService } from '$lib/dotnet-types/generated-types/FwLi
 const projectStorageContextKey = 'project-storage';
 
 /**
- * Storage backend abstraction
+ * localStorage-based storage backend implementing IPreferencesService
  */
-interface StorageBackend {
-  get(key: string): Promise<string | null>;
-  set(key: string, value: string): Promise<void>;
-  remove(key: string): Promise<void>;
-}
-
-/**
- * localStorage-based storage backend
- */
-class LocalStorageBackend implements StorageBackend {
+class LocalStorageBackend implements IPreferencesService {
   async get(key: string): Promise<string | null> {
     return localStorage.getItem(key);
   }
@@ -40,33 +31,10 @@ class LocalStorageBackend implements StorageBackend {
 }
 
 /**
- * MAUI Preferences-based storage backend
+ * Returns the preferences service if available (MAUI), otherwise localStorage fallback
  */
-class PreferencesBackend implements StorageBackend {
-  constructor(private preferencesService: IPreferencesService) {}
-
-  async get(key: string): Promise<string | null> {
-    return this.preferencesService.get(key);
-  }
-
-  async set(key: string, value: string): Promise<void> {
-    await this.preferencesService.set(key, value);
-  }
-
-  async remove(key: string): Promise<void> {
-    await this.preferencesService.remove(key);
-  }
-}
-
-/**
- * Creates the appropriate storage backend based on environment
- */
-function createStorageBackend(): StorageBackend {
-  const preferencesService = tryUsePreferencesService();
-  if (preferencesService) {
-    return new PreferencesBackend(preferencesService);
-  }
-  return new LocalStorageBackend();
+function getPreferencesService(): IPreferencesService {
+  return tryUsePreferencesService() ?? new LocalStorageBackend();
 }
 
 /**
@@ -79,14 +47,14 @@ function createStorageBackend(): StorageBackend {
 class StorageProp {
   #projectCode: string;
   #key: string;
-  #backend: StorageBackend;
+  #backend: IPreferencesService;
   #value = $state<string>('');
 
-  constructor(projectCode: string, key: string, backend: StorageBackend) {
+  constructor(projectCode: string, key: string, backend: IPreferencesService) {
     this.#projectCode = projectCode;
     this.#key = key;
     this.#backend = backend;
-    this.load();
+    void this.load();
   }
 
   get current(): string {
@@ -107,17 +75,16 @@ class StorageProp {
     return `project:${this.#projectCode}:${this.#key}`;
   }
 
-  private load(): void {
-    this.#backend.get(this.getStorageKey())
-      .then(value => { this.#value = value ?? ''; })
-      .catch(e => console.error(`Failed to load preference ${this.#key}:`, e));
+  private async load(): Promise<void> {
+    const value = await this.#backend.get(this.getStorageKey());
+    this.#value = value ?? '';
   }
 }
 
 export class ProjectStorage {
   readonly selectedTaskId: StorageProp;
 
-  constructor(projectCode: string, backend: StorageBackend) {
+  constructor(projectCode: string, backend: IPreferencesService) {
     this.selectedTaskId = new StorageProp(projectCode, 'selectedTaskId', backend);
   }
 }
@@ -126,7 +93,7 @@ export function useProjectStorage(): ProjectStorage {
   let storage = getContext<ProjectStorage>(projectStorageContextKey);
   if (!storage) {
     const projectContext = useProjectContext();
-    const backend = createStorageBackend();
+    const backend = getPreferencesService();
     storage = new ProjectStorage(projectContext.projectCode, backend);
     setContext(projectStorageContextKey, storage);
   }
