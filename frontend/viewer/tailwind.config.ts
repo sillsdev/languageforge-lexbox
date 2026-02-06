@@ -2,7 +2,6 @@
 
 import {getIconCollections} from '@egoist/tailwindcss-icons';
 import {iconsPlugin} from '@egoist/tailwindcss-icons';
-import containerQueries from '@tailwindcss/container-queries';
 import typography from '@tailwindcss/typography';
 import defaultTheme from 'tailwindcss/defaultTheme';
 import {MOBILE_BREAKPOINT} from './src/css-breakpoints';
@@ -22,7 +21,6 @@ export default {
       collections: getIconCollections(['mdi']),
     }),
     typography,
-    containerQueries,
   ],
   theme: {
     extend: {

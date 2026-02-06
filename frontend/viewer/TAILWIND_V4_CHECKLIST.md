@@ -58,5 +58,7 @@ Things to watch out for:
 
 - [ ] Visual regression testing - run the app and check for styling issues.
 - [ ] Update shadcn-svelte components to v4 versions (carefully merge to preserve customizations).
-- [ ] Consider removing `autoprefixer` and `postcss` from dependencies (handled by Lightning CSS in v4).
-- [ ] Update `@tailwindcss/typography` and `@tailwindcss/container-queries` if v4-compatible versions are available.
+- [x] Consider removing `autoprefixer` and `postcss` from dependencies (handled by Lightning CSS in v4).
+  - Verified: `autoprefixer` and `postcss` are not in `package.json`.
+- [x] Update `@tailwindcss/typography` and `@tailwindcss/container-queries` if v4-compatible versions are available.
+  - Verified: `@tailwindcss/container-queries` removed (native in v4). `typography` ^0.5.19 retained.

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.shadcn-svelte.com)",
+      "Bash(git log:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm why:*)"
+    ]
+  }
+}
