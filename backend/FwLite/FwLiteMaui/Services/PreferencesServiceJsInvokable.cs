@@ -1,6 +1,7 @@
+using FwLiteShared.Services;
 using Microsoft.JSInterop;
 
-namespace FwLiteShared.Services;
+namespace FwLiteMaui.Services;
 
 /// <summary>
 /// JSInvokable wrapper around IPreferences for exposing preferences to JavaScript.
