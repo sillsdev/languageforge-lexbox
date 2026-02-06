@@ -94,8 +94,8 @@
     }
   });
 
-  // Generate a random number of skeleton rows between 10 and 13
-  const skeletonRowCount = Math.ceil(Math.random() * 10) + 3;
+  // Generate a random number of skeleton rows
+  const skeletonRowCount = Math.ceil(Math.random() * 3) + 3;
 
   // Generate index array for virtual list.
   // We use a small number of skeletons if the total count is not yet known
@@ -116,20 +116,19 @@
   }
 
   let vList = $state<VListHandle>();
-  $effect(() => {
-    if (!vList || !selectedEntryId || entryLoader?.loading !== false) return;
-
-    void untrack(scrollToSelectedOrTop);
+  watch(() => [vList, selectedEntryId, entryLoader?.loading], () => {
+    if (!vList || entryLoader?.loading !== false) return;
+    void scrollToSelectedOrTop();
   });
 
   async function scrollToSelectedOrTop() {
     const currentId = selectedEntryId;
-    if (!vList || !currentId) return;
-    const scrolled = await tryToScrollToEntry(currentId);
+    if (!vList) return;
+    const scrolled = currentId && await tryToScrollToEntry(currentId);
     if (!scrolled && selectedEntryId === currentId) vList.scrollTo(0);
   }
 
-  async function tryToScrollToEntry(entryId: string): Promise<boolean> {
+  export async function tryToScrollToEntry(entryId: string): Promise<boolean> {
     if (!entryLoader || !vList) return false;
 
     const index = await entryLoader.getOrLoadEntryIndex(entryId);
