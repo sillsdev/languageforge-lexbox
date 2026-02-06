@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.Normalization;
 using MiniLcm.Validators;
 using SystemTextJsonPatch;
 
@@ -23,8 +24,9 @@ public class CrdtMiniLcmApiHub(
     LexboxProjectService lexboxProjectService,
     IMemoryCache memoryCache,
     IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory
-) : MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory)
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
+    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory
+) : MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory, writeNormalizationWrapperFactory)
 {
     public const string ProjectRouteKey = "project";
     public static string ProjectGroup(string projectName) => "crdt-" + projectName;

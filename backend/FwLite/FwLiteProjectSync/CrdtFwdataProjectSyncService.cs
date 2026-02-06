@@ -15,7 +15,9 @@ using SIL.Harmony;
 namespace FwLiteProjectSync;
 
 public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger, IOptions<CrdtConfig> crdtConfig,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory, MiniLcmApiStringNormalizationWrapperFactory normalizationWrapperFactory)
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory, 
+    MiniLcmApiStringNormalizationWrapperFactory readNormalizationWrapperFactory,
+    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory)
 {
     public record DryRunSyncResult(
         int CrdtChanges,
@@ -61,8 +63,11 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
     private async Task<SyncResult> Sync(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, bool dryRun, int entryCount, ProjectSnapshot? projectSnapshot)
     {
-        crdtApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(crdtApi));
-        fwdataApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(fwdataApi));
+        // Apply normalization to CRDT API (needs NFD normalization)
+        crdtApi = writeNormalizationWrapperFactory.Create(readNormalizationWrapperFactory.Create(validationWrapperFactory.Create(crdtApi)));
+        
+        // FwData already normalizes strings internally via LCModel, so only apply read normalization and validation
+        fwdataApi = readNormalizationWrapperFactory.Create(validationWrapperFactory.Create(fwdataApi));
 
         if (dryRun)
         {

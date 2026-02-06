@@ -19,10 +19,11 @@ public class MiniLcmJsInvokable(
     ILogger<MiniLcmJsInvokable> logger,
     MiniLcmApiNotifyWrapperFactory notificationWrapperFactory,
     MiniLcmApiValidationWrapperFactory validationWrapperFactory,
-    MiniLcmApiStringNormalizationWrapperFactory normalizationWrapperFactory
+    MiniLcmApiStringNormalizationWrapperFactory readNormalizationWrapperFactory,
+    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory
     ) : IDisposable
 {
-    private readonly IMiniLcmApi _wrappedApi = api.WrapWith([normalizationWrapperFactory, validationWrapperFactory, notificationWrapperFactory], project);
+    private readonly IMiniLcmApi _wrappedApi = api.WrapWith([writeNormalizationWrapperFactory, readNormalizationWrapperFactory, validationWrapperFactory, notificationWrapperFactory], project);
 
     public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;

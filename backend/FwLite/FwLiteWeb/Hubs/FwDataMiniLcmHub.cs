@@ -1,7 +1,9 @@
 using FwDataMiniLcmBridge;
+using FwDataMiniLcmBridge.Api;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using MiniLcm;
+using MiniLcm.Normalization;
 using MiniLcm.Validators;
 using SIL.LCModel;
 using SystemTextJsonPatch;
@@ -14,8 +16,12 @@ public class FwDataMiniLcmHub(
     FwDataFactory fwDataFactory,
     FwDataProjectContext context,
     MiniLcmApiValidationWrapperFactory validationWrapperFactory
-) : MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory)
+) : MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory, skipWriteNormalization: true)
 {
+    // Note: FwData already handles string normalization internally (via LCModel), 
+    // so we skip the write normalization wrapper for FwData APIs.
+    // See: https://github.com/sillsdev/languageforge-lexbox/issues/[issue-number]
+    
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()
     {
