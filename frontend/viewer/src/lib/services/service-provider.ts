@@ -18,6 +18,7 @@ import type {IHistoryServiceJsInvokable} from '$lib/dotnet-types/generated-types
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {useProjectContext} from '$project/project-context.svelte';
 import type {IJsInvokableLogger} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IJsInvokableLogger';
+import type {IPreferencesService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IPreferencesService';
 
 import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
 
@@ -38,6 +39,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.JsEventListener]: IJsEventListener,
   [DotnetService.JsInvokableLogger]: IJsInvokableLogger,
   [DotnetService.UpdateService]: IUpdateService,
+  [DotnetService.PreferencesService]: IPreferencesService,
 };
 
 export const SERVICE_KEYS = Object.values(DotnetService);
@@ -127,6 +129,10 @@ export function useTroubleshootingService(): ITroubleshootingService | undefined
 
 export function useUpdateService(): IUpdateService {
   return window.lexbox.ServiceProvider.getService(DotnetService.UpdateService);
+}
+
+export function tryUsePreferencesService(): IPreferencesService | undefined {
+  return window.lexbox.ServiceProvider.tryGetService(DotnetService.PreferencesService);
 }
 
 export function useService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {

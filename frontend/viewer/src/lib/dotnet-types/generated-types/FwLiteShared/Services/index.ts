@@ -5,6 +5,7 @@ export * from './IJsInvokableLogger';
 export * from './IMiniLcmFeatures';
 export * from './IMiniLcmJsInvokable';
 export * from './IMultiWindowService';
+export * from './IPreferencesService';
 export * from './IProjectScope';
 export * from './IProjectServicesProvider';
 export * from './IReadFileResponseJs';
