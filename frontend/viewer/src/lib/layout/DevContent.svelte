@@ -13,7 +13,7 @@
   };
   isDev.set(localStorage.getItem('devMode') === 'true');
   export const devModeToggle = multiClick({
-    count: 3,
+    count: 5,
     timeoutMs: 500,
     onTrigger: () => globalThis.enableDevMode(!get(isDev)),
   });
