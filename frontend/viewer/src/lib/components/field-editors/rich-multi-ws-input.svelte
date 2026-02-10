@@ -67,7 +67,6 @@
           aria-labelledby="{labelledBy ?? ''} {labelId}"
           {readonly}
           autofocus={autofocus && i === 0}
-          autocapitalize="off"
           onchange={() => onRichTextChange(ws.wsId)}
           aria-label={ws.abbreviation}
         />

@@ -233,6 +233,7 @@
                         bind:value={customExampleProjectName}
                         placeholder={$t`Project name...`}
                         onclick={(e) => e.stopPropagation()}
+                        autocapitalize="on"
                       />
                     {/if}
                     <Icon icon="i-mdi-book-plus-outline" class="p-2"/>
