@@ -2,7 +2,7 @@ import {useProjectContext} from '$project/project-context.svelte';
 import type {IEntry} from '$lib/dotnet-types';
 import {useWritingSystemService, type WritingSystemService} from '$project/data';
 import type {DeleteDialogOptions} from '$lib/entry-editor/DeleteDialog.svelte';
-import type {SenseTemplate} from '$lib/entry-editor/NewEntryDialog.svelte';
+import type {EntryTemplate, SenseTemplate} from '$lib/entry-editor/NewEntryDialog.svelte';
 
 const symbol = Symbol.for('fw-lite-dialogs');
 
@@ -25,9 +25,10 @@ export class DialogsService {
     this.#invokeNewEntryDialog = dialog;
   }
 
-  async createNewEntry(headword?: string, newSense?: SenseTemplate): Promise<IEntry | undefined> {
+  async createNewEntry(headword?: string, newEntry?: EntryTemplate, newSense?: SenseTemplate): Promise<IEntry | undefined> {
     if (!this.#invokeNewEntryDialog) throw new Error('No new entry dialog');
     const partialEntry: Partial<IEntry> = {};
+    Object.assign(partialEntry, newEntry);
     if (headword) {
       const defaultWs = this.writingSystemService.defaultVernacular?.wsId;
       if (defaultWs === undefined) throw new Error('No default vernacular');

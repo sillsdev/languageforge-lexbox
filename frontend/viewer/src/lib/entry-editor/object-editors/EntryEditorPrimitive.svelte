@@ -13,6 +13,7 @@
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
   import {mergeProps} from 'bits-ui';
   import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
+  import type {Snippet} from 'svelte';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
@@ -20,6 +21,7 @@
     autofocus?: boolean;
     modalMode?: boolean;
     onchange?: (entry: IEntry, field: FieldId) => void;
+    publishInDescription?: Snippet;
   }
 
   const {
@@ -28,6 +30,7 @@
     readonly = false,
     autofocus = false,
     modalMode = false,
+    publishInDescription,
     ...rest
   }: Props = $props();
 
@@ -136,6 +139,7 @@
           idSelector="id"
           sortValuesBy="optionOrder"
           {readonly} />
+      {@render publishInDescription?.()}
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
