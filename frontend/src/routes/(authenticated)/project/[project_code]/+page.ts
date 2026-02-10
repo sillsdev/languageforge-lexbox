@@ -241,7 +241,7 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
   return result;
 }
 
-// public record BulkAddProjectMembersInput(Guid ProjectId, string[] Usernames, ProjectRole Role, string PasswordHash);
+// public record BulkAddProjectMembersInput(Guid ProjectId, string[] Usernames, ProjectRole Role, string PasswordHash, string Locale = "en");
 
 export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput): $OpResult<BulkAddProjectMembersMutation> {
   //language=GraphQL

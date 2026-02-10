@@ -25,9 +25,10 @@
 
   interface Props {
     projectId: string;
+    userLocale: string;
   }
 
-  const { projectId }: Props = $props();
+  const { projectId, userLocale }: Props = $props();
   const schema = z.object({
     usernamesText: z.string().trim().min(1, $t('project_page.bulk_add_members.empty_user_field')),
     password: passwordFormRules($t),
@@ -76,6 +77,7 @@
         usernames,
         //todo allow setting users as Observer
         role: ProjectRole.Editor, // Managers not allowed to have shared passwords
+        locale: userLocale,
       });
 
       const invalidEmailError = error?.byType('InvalidEmailError');
