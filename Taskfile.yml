@@ -122,3 +122,8 @@ tasks:
   fw-lite-android:
     aliases: [android]
     deps: [fw-lite:run-maui-android]
+
+  fw-lite-android-install:
+    aliases: [android-install]
+    desc: Install without building
+    deps: [fw-lite:install-maui-android]
