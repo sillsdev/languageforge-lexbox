@@ -439,10 +439,10 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [InlineData("word1", "word1", "word1")]
     [InlineData("app", "app,apple,banana", "app,apple")]
     [InlineData("apple", "app,apple,banana", "apple")]
-    [InlineData("att", "battery,att,attack,zatt,rap:pratt", "att,zatt,attack,battery,rap")]
+    [InlineData("att", "battery,att,attack,zatt,rap:pratt", "att,attack,zatt,battery,rap")]
     [InlineData("a", "a,da,ma,aa,c:a,ti:a", "a,aa,da,ma,c,ti")]//test non fts search
     [InlineData("ap", "app,apple,banana", "app,apple")]//test non fts search
-    [InlineData("at", "battery,att,attack,zatt,rap:pratt", "att,zatt,attack,battery,rap")] //test non fts search
+    [InlineData("at", "battery,att,attack,zatt,rap:pratt", "att,attack,zatt,battery,rap")] //test non fts search
     // matching headwords trump glosses, even if the headword match is penalized for other long fields
     [InlineData("aap", "maap-aap,maap,liaap,aap:to-penalize-the-bm25-rank-this-gloss-is-very-very-very-very-very-very-very-very-very-long", "aap,maap,liaap,maap-aap")]
     // matching headwords of the same length are ordered alphabetically
