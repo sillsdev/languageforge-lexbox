@@ -4,6 +4,7 @@
   const missingOptions = [
     { id: 'semanticDomains', label: gt`Semantic domain` },
     { id: 'partOfSpeech', label: gt`Part of speech` },
+    { id: 'publication', label: gt`Publication` },
     { id: 'senses', label: gt`Senses` },
     { id: 'examples', label: gt`Example sentences` },
   ]

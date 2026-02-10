@@ -200,6 +200,13 @@ msgid "Any part of speech"
 msgstr "Bất kỳ loại từ nào"
 
 #. Filter dropdown option
+#. Clears publication filter
+#. Publication = dictionary/publication type for distributing entries
+#: src/project/browse/filter/PublicationSelect.svelte
+msgid "Any publication"
+msgstr ""
+
+#. Filter dropdown option
 #. Clears semantic domain filter
 #. Semantic domain = category of meaning (e.g., "tools", "food", "emotions")
 #: src/project/browse/filter/SemanticDomainSelect.svelte
@@ -921,7 +928,8 @@ msgstr "Lịch sử"
 
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or\\npress and release to start recording."
-msgstr "Nhấn giữ để ghi âm hoặc\n"
+msgstr ""
+"Nhấn giữ để ghi âm hoặc\n"
 "nhấn rồi thả để bắt đầu ghi."
 
 #. External link button text for help
@@ -1371,6 +1379,13 @@ msgstr "Dự án {0} trên {1} chưa được thiết lập cho FieldWorks Lite"
 #: src/home/HomeView.svelte
 msgid "Project name..."
 msgstr "Tên dự án..."
+
+#. Filter option
+#. Publication type/dictionary for entries
+#. Used to organize entries by which publication(s) they should appear in
+#: src/project/browse/SearchFilter.svelte
+msgid "Publication"
+msgstr ""
 
 #. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1975,4 +1990,3 @@ msgstr "Bạn không có quyền tải dự án {0} từ {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Bạn đã tải xuống dự án {0}"
-

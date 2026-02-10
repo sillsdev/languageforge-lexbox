@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  export type EntryTemplate = Partial<Pick<IEntry, 'publishIn'>>;
   // should not include partOfSpeechId, because the editor doesn't read that it only sets it
   export type SenseTemplate = Partial<Pick<ISense, 'partOfSpeech' | 'semanticDomains'>>;
 </script>
@@ -78,7 +79,15 @@
     return errors.length === 0;
   }
 
+  let entryTemplate = $state<Partial<IEntry>>();
   let senseTemplate = $state<Partial<Omit<ISense, 'partOfSpeechId'>>>();
+  let publishInIsFromTemplate = $state<boolean>();
+  $effect(() => {
+    if (publishInIsFromTemplate !== false) { // never overwrite once set to false
+      publishInIsFromTemplate = Boolean(entryTemplate?.publishIn?.length &&
+        entryTemplate.publishIn.some(p => entry?.publishIn?.some(_p => _p.id === p.id)));
+    }
+  });
   let partOfSpeechIsFromTemplate = $state<boolean>();
   $effect(() => {
     if (partOfSpeechIsFromTemplate !== false) { // never overwrite once set to false
@@ -98,9 +107,11 @@
       if (requester) requester.resolve(undefined);
       requester = { resolve };
 
+      entryTemplate = newEntry;
       senseTemplate = newSense;
 
       const tmpEntry = defaultEntry();
+      publishInIsFromTemplate = undefined;
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
       addSense();
 
@@ -134,6 +145,13 @@
 </script>
 
 {#if open}
+{#snippet fromActiveFilter()}
+  <span class="text-sm text-primary/85 mt-0.5 inline-flex items-center gap-1">
+    {$t`From active filter`}
+    <Icon icon="i-mdi-filter-outline" class="size-4" />
+  </span>
+{/snippet}
+
 <Dialog.Root bind:open={open}>
   <Dialog.DialogContent onkeydown={handleKeydown} class="sm:min-h-[min(calc(100%-16px),30rem)] max-md:px-2">
     <Dialog.DialogHeader>
@@ -143,35 +161,22 @@
       <OverrideFields shownFields={[
         'lexemeForm', 'citationForm',
         'gloss', 'definition', 'partOfSpeechId',
-        /* only show semantic domains if the "template" set it */
+        /* only show semantic domains and publications if the "template" set it */
+        ...(entryTemplate?.publishIn?.length ? ['publishIn'] as const : []),
         ...(senseTemplate?.semanticDomains?.length ? ['semanticDomains'] as const : [])
         ]}>
         <Editor.Root>
           <Editor.Grid>
-            <EntryEditorPrimitive bind:entry autofocus modalMode />
+            <EntryEditorPrimitive bind:entry autofocus modalMode
+              publishInDescription={publishInIsFromTemplate ? fromActiveFilter : undefined} />
             {#if sense}
               <Editor.SubGrid>
                 <ObjectHeader type="sense">
                   <Button onclick={() => sense = undefined} size="icon" variant="secondary" icon="i-mdi-trash-can" />
                 </ObjectHeader>
-                <SenseEditorPrimitive bind:sense>
-                  {#snippet partOfSpeechDescription()}
-                    {#if partOfSpeechIsFromTemplate}
-                      <span class="text-sm text-primary/85 mt-0.5 inline-flex items-center gap-1">
-                        {$t`From active filter`}
-                        <Icon icon="i-mdi-filter-outline" class="size-4" />
-                      </span>
-                    {/if}
-                  {/snippet}
-                  {#snippet semanticDomainsDescription()}
-                    {#if semanticDomainIsFromTemplate}
-                      <span class="text-sm text-primary/85 mt-0.5 inline-flex items-center gap-1">
-                        {$t`From active filter`}
-                        <Icon icon="i-mdi-filter-outline" class="size-4" />
-                      </span>
-                    {/if}
-                  {/snippet}
-                </SenseEditorPrimitive>
+                <SenseEditorPrimitive bind:sense
+                  partOfSpeechDescription={partOfSpeechIsFromTemplate ? fromActiveFilter : undefined}
+                  semanticDomainsDescription={semanticDomainIsFromTemplate ? fromActiveFilter : undefined} />
               </Editor.SubGrid>
             {:else}
               <div class="col-span-full flex justify-end">

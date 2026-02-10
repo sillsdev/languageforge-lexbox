@@ -658,9 +658,8 @@ public class FwDataMiniLcmApi(
                     ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
                     ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
                 ],
-                // Add all the possibilities in the project which are not excluded by the entry's DoNotPublishIn field
-                PublishIn = Publications.PossibilitiesOS.Where(
-                    p => entry.DoNotPublishInRC.All(ep => ep.Guid != p.Guid)).Select(FromLcmPossibility).ToList(),
+                // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
+                PublishIn = entry.PublishIn.Select(FromLcmPossibility).ToList(),
             };
         }
         catch (Exception e)
@@ -1018,11 +1017,10 @@ public class FwDataMiniLcmApi(
                             AddComplexFormComponent(complexLexEntry, complexForm);
                         }
                     }
-                    // Subtract entry.Publications from Publications to get the publications that the entry should not be published in
-                    var doNotPublishIn = Publications.PossibilitiesOS.Where(p => entry.PublishIn.All(ep => ep.Id != p.Guid));
-                    foreach (var publication in doNotPublishIn)
+                    // Remove publications not in entry.PublishIn from lexEntry.PublishIn
+                    foreach (var lcmPub in Publications.PossibilitiesOS.Where(p => entry.PublishIn.All(ep => ep.Id != p.Guid)))
                     {
-                        lexEntry.DoNotPublishInRC.Add(publication);
+                        lexEntry.PublishIn.Remove(lcmPub);
                     }
                 });
         }
@@ -1250,7 +1248,7 @@ public class FwDataMiniLcmApi(
     {
         var lcmPublication = GetLcmPublication(publicationId);
         NotFoundException.ThrowIfNull<Publication>(lcmPublication, publicationId);
-        entry.DoNotPublishInRC.Remove(lcmPublication);
+        entry.PublishIn.Add(lcmPublication);
     }
 
     public Task RemovePublication(Guid entryId, Guid publicationId)
@@ -1269,7 +1267,7 @@ public class FwDataMiniLcmApi(
     {
         var lcmPublication = GetLcmPublication(publicationId);
         NotFoundException.ThrowIfNull<Publication>(lcmPublication, publicationId);
-        entry.DoNotPublishInRC.Add(lcmPublication);
+        entry.PublishIn.Remove(lcmPublication);
     }
 
     private void UpdateLcmMultiString(ITsMultiString multiString, MultiString newMultiString)

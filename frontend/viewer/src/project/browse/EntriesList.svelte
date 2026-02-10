@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {type IEntry, type IPartOfSpeech, type ISemanticDomain} from '$lib/dotnet-types';
+  import {type IEntry, type IPartOfSpeech, type IPublication, type ISemanticDomain} from '$lib/dotnet-types';
   import {Debounced, watch} from 'runed';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
@@ -23,6 +23,7 @@
   let {
     search = '',
     selectedEntryId = undefined,
+    publication = undefined,
     partOfSpeech = undefined,
     semanticDomain = undefined,
     sort,
@@ -34,6 +35,7 @@
   }: {
     search?: string;
     selectedEntryId?: string;
+    publication?: IPublication;
     partOfSpeech?: IPartOfSpeech;
     semanticDomain?: ISemanticDomain;
     sort?: SortConfig;
@@ -108,6 +110,8 @@
 
   async function handleNewEntry() {
     const entry = await dialogsService.createNewEntry(undefined, {
+      publishIn: publication ? [publication] : [],
+    }, {
       semanticDomains: semanticDomain ? [semanticDomain] : [],
       partOfSpeech: partOfSpeech,
     });
