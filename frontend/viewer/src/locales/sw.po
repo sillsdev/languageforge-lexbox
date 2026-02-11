@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-01-24 14:45\n"
+"PO-Revision-Date: 2026-02-11 12:41\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -929,7 +929,7 @@ msgstr "Historia"
 #. The '#' character will be replace with a line break.
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or#press and release to start recording."
-msgstr "Shika ili kurekodi au#bonyeza na kutoleza kuanza kurekodi."
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1989,3 +1989,4 @@ msgstr "Huna ruhusa ya kupakua mradi {0} kutoka {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Umeshapakua mradi wa {0}"
+
