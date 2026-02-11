@@ -870,7 +870,6 @@ msgstr "기타 문의 사항이 있으시면 언제든지 이메일을 보내주
 
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
 msgstr "활성 필터에서"
 
@@ -926,9 +925,11 @@ msgstr "숨기기"
 msgid "History"
 msgstr "역사"
 
+#. Instructions show above audio record button.
+#. The '#' character will be replace with a line break.
 #: src/lib/components/audio/audio-provider.svelte
-msgid "Hold to record or\\npress and release to start recording."
-msgstr "길게 눌러 녹화하거나\\n을 눌렀다 놓으면 녹화가 시작됩니다."
+msgid "Hold to record or#press and release to start recording."
+msgstr "길게 눌러 녹화하거나\\n을 눌렀다 놓으면 녹화가 시작됩니다.\"msgstr \"길게 눌러 녹화하거나\\n을 눌렀다 놓으면 녹화가 시작됩니다.\"msgstr \"길게 눌러 녹화하거나\\n을 눌렀다 놓으면 녹화가 시작됩니다.\"msgstr \"길게 눌러 녹화하거나\\n을 눌렀다 놓으면 녹화가 시작됩니다.\"msgstr \"길게 눌러 녹화하거나#을 눌렀다 놓으면 녹화가 시작됩니다."
 
 #. External link button text for help
 #: src/home/Server.svelte

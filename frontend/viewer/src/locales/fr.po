@@ -870,7 +870,6 @@ msgstr "Pour toute autre question, n'hésitez pas à nous envoyer un courriel."
 
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
 msgstr "Depuis le filtre actif"
 
@@ -926,9 +925,11 @@ msgstr "Cacher"
 msgid "History"
 msgstr "L'histoire"
 
+#. Instructions show above audio record button.
+#. The '#' character will be replace with a line break.
 #: src/lib/components/audio/audio-provider.svelte
-msgid "Hold to record or\\npress and release to start recording."
-msgstr "Maintenez la touche enfoncée pour enregistrer ou\\nappuyez et relâchez la touche pour démarrer l'enregistrement."
+msgid "Hold to record or#press and release to start recording."
+msgstr "Maintenez la touche enfoncée pour enregistrer ou#appuyez et relâchez la touche pour démarrer l'enregistrement."
 
 #. External link button text for help
 #: src/home/Server.svelte

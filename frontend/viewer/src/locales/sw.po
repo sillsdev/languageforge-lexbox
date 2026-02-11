@@ -870,7 +870,6 @@ msgstr "Kwa kuuliza kingine chochote, tafadhali tuambii imeli."
 
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
 msgstr "Kutoka kwa kichuja kilichoanzishwa"
 
@@ -926,9 +925,11 @@ msgstr "Ficha"
 msgid "History"
 msgstr "Historia"
 
+#. Instructions show above audio record button.
+#. The '#' character will be replace with a line break.
 #: src/lib/components/audio/audio-provider.svelte
-msgid "Hold to record or\\npress and release to start recording."
-msgstr "Shika ili kurekodi au\\nbonyeza na kutoleza kuanza kurekodi."
+msgid "Hold to record or#press and release to start recording."
+msgstr "Shika ili kurekodi au#bonyeza na kutoleza kuanza kurekodi."
 
 #. External link button text for help
 #: src/home/Server.svelte

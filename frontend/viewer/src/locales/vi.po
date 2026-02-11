@@ -870,7 +870,6 @@ msgstr "Với các yêu cầu khác, vui lòng gửi email cho chúng tôi."
 
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
 msgstr "Từ bộ lọc đang hoạt động"
 
@@ -926,11 +925,11 @@ msgstr "Ẩn"
 msgid "History"
 msgstr "Lịch sử"
 
+#. Instructions show above audio record button.
+#. The '#' character will be replace with a line break.
 #: src/lib/components/audio/audio-provider.svelte
-msgid "Hold to record or\\npress and release to start recording."
-msgstr ""
-"Nhấn giữ để ghi âm hoặc\n"
-"nhấn rồi thả để bắt đầu ghi."
+msgid "Hold to record or#press and release to start recording."
+msgstr "Nhấn giữ để ghi âm hoặc#nhấn rồi thả để bắt đầu ghi."
 
 #. External link button text for help
 #: src/home/Server.svelte

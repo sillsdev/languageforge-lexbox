@@ -1,7 +1,7 @@
 <script lang="ts">
   import {Button} from '$lib/components/ui/button';
   import {cn} from '$lib/utils';
-  import {t} from 'svelte-i18n-lingui';
+  import {T, t} from 'svelte-i18n-lingui';
   import * as Recorder from './recorder';
   import type {HTMLAttributes} from 'svelte/elements';
   import {formatDigitalDuration} from '../ui/format/format-duration';
@@ -84,7 +84,9 @@
           <span>{digitalDuration}</span>
         {:else}
           <span class={cn('text-muted-foreground text-sm mx-4 whitespace-pre-wrap', recording && 'invisible')}>
-            {$t`Hold to record or\npress and release to start recording.`}
+            <T msg="Hold to record or#press and release to start recording.">
+              <br />
+            </T>
           </span>
         {/if}
         <Recorder.Trigger autofocus bind:walkieTalkieMode />
