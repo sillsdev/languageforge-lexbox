@@ -51,7 +51,7 @@ public class SyncWorkerTests
     }
 
     [Fact]
-    public async Task ExecuteSync_NoCrdtChanges_DoesNotRegenerateSnapshot()
+    public async Task ExecuteSync_NoChanges_RegeneratesSnapshotAnyway()
     {
         using var h = new SyncWorkerTestHarness();
         var syncResult = new SyncResult(CrdtChanges: 0, FwdataChanges: 0);
@@ -67,6 +67,7 @@ public class SyncWorkerTests
             MediaSyncCrdt,
             GetSnapshot,
             Sync,
+            RegenerateSnapshot,
             HarmonySync);
     }
 
@@ -238,6 +239,7 @@ public class SyncWorkerTests
             MediaSyncCrdt,
             GetSnapshot,
             Sync,
+            RegenerateSnapshot,
             HarmonySync);
     }
 

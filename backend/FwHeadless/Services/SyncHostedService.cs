@@ -239,22 +239,27 @@ public class SyncWorker(
             }
         }
 
-        //We defer regenerating the snapshot until we know the changes applied to fwdata were successfully pushed.
-        //Otherwise, the changes might have been rolled back. In that case, the next sync could overwrite
-        //CRDT data with old/rolled back FW data.
-        if (result.CrdtChanges > 0)
-        {
-            logger.LogInformation("Regenerating project snapshot to include {CrdtChangeCount} crdt changes", result.CrdtChanges);
-            //note we are using the crdt API, this avoids issues where some data isn't synced yet
-            //later when we add the ability to sync that data we need the snapshot to reflect the synced state, not what was in the FW project
-            //related to https://github.com/sillsdev/languageforge-lexbox/issues/1912
-            await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwdataApi.Project, keepBackup: false);
-        }
-        else
-        {
-            logger.LogInformation("Skipping regenerating project snapshot, because there were no crdt changes");
-        }
+        /*
+        Notes:
+        1) We defer regenerating the snapshot until we know the changes applied to fwdata were successfully pushed.
+        Otherwise, the changes might have been rolled back. In that case, the next sync could overwrite CRDT data with old/rolled back FW data.
+        2) We are intentionaly using the crdt API. This avoids issues when new data/fields don't yet get synced.
+        When we start syncing that data/those fields we need the snapshot to reflect the CRDT state, rather than the FW project,
+        otherwise existing FW data will never be synced to CRDT. Related to https://github.com/sillsdev/languageforge-lexbox/issues/1912
+        3) We should ALWAYS regenerate the snapshot even if no crdt or fwdata changes were detected.
+        If no crdt changes were detected we still might have pulled in crdt commits that were applied to fw.
+        If none of the changes needed to be applied to fw (i.e. also no fw changes), those same changes were maybe/presumably already made in fw as well.
+        If the same change was made in both fwdata and crdt, no changes would be detected, but we still need that change to get into the snapshot
+        */
+        logger.LogInformation("Regenerating project snapshot");
+        await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwdataApi.Project, keepBackup: false);
 
+        /*
+        Push new changes to Harmony (changes that came from FW)
+        Important: we only sync the Harmony project AFTER regenerating the snapshot.
+        Otherwise, the sync could pull changes into the snapshot that were not respected during the sync.
+        Could presumably be skipped if 0 CrdtChanges, but it's cheap.
+        */
         await crdtSyncService.SyncHarmonyProject();
 
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
