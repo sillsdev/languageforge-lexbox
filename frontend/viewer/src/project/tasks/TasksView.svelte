@@ -4,7 +4,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {useProjectStorage} from '$lib/utils/project-storage.svelte';
   import TaskView from './TaskView.svelte';
-  import {onMount} from 'svelte';
+  import {untrack} from 'svelte';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
 
   const selectedTaskId = useProjectStorage().selectedTaskId;
@@ -12,12 +12,16 @@
   const tasks = $derived(tasksService.listTasks());
   const selectedTask = $derived(tasks.find(task => task.id === selectedTaskId.current));
 
-  onMount(() => {
-    if (!selectedTaskId.current) {
-      open = true;
-    }
-  });
   let open = $state(false);
+  $effect(() => {
+    if (untrack(() => !selectedTaskId.loading)) {
+      untrack(() => open = !selectedTaskId.current);
+      return;
+    }
+    // stay subscribed until loading is complete
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    selectedTaskId.loading;
+  });
 </script>
 
 <div class="flex flex-col h-full p-4 gap-4">

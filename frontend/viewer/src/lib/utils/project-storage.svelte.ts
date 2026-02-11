@@ -52,7 +52,7 @@ class StorageProp {
   #key: string;
   #backend: IPreferencesService;
   #value = $state<string>('');
-  #hasBeenSet = false;
+  #hasBeenSet = $state(false);
 
   constructor(projectCode: string, key: string, backend: IPreferencesService) {
     this.#projectCode = projectCode;
@@ -63,6 +63,10 @@ class StorageProp {
 
   get current(): string {
     return this.#value;
+  }
+
+  get loading(): boolean {
+    return !this.#hasBeenSet;
   }
 
   async set(value: string): Promise<void> {
@@ -84,6 +88,7 @@ class StorageProp {
     const value = await this.#backend.get(this.getStorageKey());
     if (!this.#hasBeenSet) {
       this.#value = value ?? '';
+      this.#hasBeenSet = true;
     }
   }
 }
