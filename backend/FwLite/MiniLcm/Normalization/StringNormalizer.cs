@@ -1,6 +1,5 @@
 using System.Text;
 using MiniLcm.Models;
-using SystemTextJsonPatch;
 
 namespace MiniLcm.Normalization;
 
@@ -70,26 +69,5 @@ public static class StringNormalizer
     public static string[] Normalize(string[] values)
     {
         return values.Select(v => v?.Normalize(Form) ?? string.Empty).ToArray();
-    }
-
-    /// <summary>
-    /// Handles JsonPatchDocument normalization.
-    /// Note: The patch itself is returned as-is because:
-    /// 1. JsonPatch operations contain serialized values that are complex to normalize
-    /// 2. The primary normalization occurs in the overridden Update* methods that accept
-    ///    concrete objects (UpdateWritingSystem, UpdateEntry, etc.)
-    /// 3. The objects being patched should already be normalized from creation
-    /// 4. For critical patch-based updates, callers should use the object-based Update methods
-    /// 
-    /// If deep patch normalization is needed in the future, it would require:
-    /// - Inspecting operation paths to identify string fields
-    /// - Deserializing and re-serializing operation values
-    /// - Handling nested object structures in patch paths
-    /// </summary>
-    public static JsonPatchDocument<T> NormalizePatch<T>(JsonPatchDocument<T> patch) where T : class
-    {
-        // Return patch as-is. See method summary for rationale.
-        // Most updates use object-based methods which are fully normalized.
-        return patch;
     }
 }

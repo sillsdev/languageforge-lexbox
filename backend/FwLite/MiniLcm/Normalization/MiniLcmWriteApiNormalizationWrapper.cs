@@ -42,13 +42,9 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreateWritingSystem(normalized, between);
     }
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
-    {
-        var normalizedUpdate = new UpdateObjectInput<WritingSystem>(
-            StringNormalizer.NormalizePatch(update.Patch)
-        );
-        return await _api.UpdateWritingSystem(id, type, normalizedUpdate);
-    }
+    // JsonPatch: passed through without normalization (not user-facing, frontend uses object-based Update)
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
+        => _api.UpdateWritingSystem(id, type, update);
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
     {
@@ -82,13 +78,9 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreatePartOfSpeech(normalized);
     }
 
-    public async Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
-    {
-        var normalizedUpdate = new UpdateObjectInput<PartOfSpeech>(
-            StringNormalizer.NormalizePatch(update.Patch)
-        );
-        return await _api.UpdatePartOfSpeech(id, normalizedUpdate);
-    }
+    // JsonPatch: passed through without normalization (not user-facing)
+    public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+        => _api.UpdatePartOfSpeech(id, update);
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api = null)
     {
@@ -122,13 +114,9 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreatePublication(normalized);
     }
 
-    public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
-    {
-        var normalizedUpdate = new UpdateObjectInput<Publication>(
-            StringNormalizer.NormalizePatch(update.Patch)
-        );
-        return await _api.UpdatePublication(id, normalizedUpdate);
-    }
+    // JsonPatch: passed through without normalization (not user-facing)
+    public Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+        => _api.UpdatePublication(id, update);
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
@@ -161,13 +149,9 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreateSemanticDomain(normalized);
     }
 
-    public async Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
-    {
-        var normalizedUpdate = new UpdateObjectInput<SemanticDomain>(
-            StringNormalizer.NormalizePatch(update.Patch)
-        );
-        return await _api.UpdateSemanticDomain(id, normalizedUpdate);
-    }
+    // JsonPatch: passed through without normalization (not user-facing)
+    public Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
+        => _api.UpdateSemanticDomain(id, update);
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api = null)
     {
@@ -202,13 +186,9 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreateComplexFormType(normalized);
     }
 
-    public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
-    {
-        var normalizedUpdate = new UpdateObjectInput<ComplexFormType>(
-            StringNormalizer.NormalizePatch(update.Patch)
-        );
-        return await _api.UpdateComplexFormType(id, normalizedUpdate);
-    }
+    // JsonPatch: passed through without normalization (not user-facing)
+    public Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
+        => _api.UpdateComplexFormType(id, update);
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api = null)
     {
@@ -239,13 +219,9 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreateMorphTypeData(normalized);
     }
 
-    public async Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
-    {
-        var normalizedUpdate = new UpdateObjectInput<MorphTypeData>(
-            StringNormalizer.NormalizePatch(update.Patch)
-        );
-        return await _api.UpdateMorphTypeData(id, normalizedUpdate);
-    }
+    // JsonPatch: passed through without normalization (not user-facing)
+    public Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
+        => _api.UpdateMorphTypeData(id, update);
 
     public async Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
     {
@@ -284,13 +260,9 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreateEntry(normalized, options);
     }
 
-    public async Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
-    {
-        var normalizedUpdate = new UpdateObjectInput<Entry>(
-            StringNormalizer.NormalizePatch(update.Patch)
-        );
-        return await _api.UpdateEntry(id, normalizedUpdate);
-    }
+    // JsonPatch: passed through without normalization (not user-facing)
+    public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
+        => _api.UpdateEntry(id, update);
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
@@ -378,13 +350,9 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreateSense(entryId, normalized, position);
     }
 
-    public async Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
-    {
-        var normalizedUpdate = new UpdateObjectInput<Sense>(
-            StringNormalizer.NormalizePatch(update.Patch)
-        );
-        return await _api.UpdateSense(entryId, senseId, normalizedUpdate);
-    }
+    // JsonPatch: passed through without normalization (not user-facing)
+    public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
+        => _api.UpdateSense(entryId, senseId, update);
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
@@ -445,13 +413,9 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreateExampleSentence(entryId, senseId, normalized, position);
     }
 
-    public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update)
-    {
-        var normalizedUpdate = new UpdateObjectInput<ExampleSentence>(
-            StringNormalizer.NormalizePatch(update.Patch)
-        );
-        return await _api.UpdateExampleSentence(entryId, senseId, exampleSentenceId, normalizedUpdate);
-    }
+    // JsonPatch: passed through without normalization (not user-facing)
+    public Task<ExampleSentence> UpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update)
+        => _api.UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
 
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId, Guid senseId, ExampleSentence before, ExampleSentence after, IMiniLcmApi? api = null)
     {
@@ -480,13 +444,9 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.RemoveTranslation(entryId, senseId, exampleSentenceId, translationId);
     }
 
+    // JsonPatch: passed through without normalization (not user-facing)
     public Task UpdateTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId, UpdateObjectInput<Translation> update)
-    {
-        var normalizedUpdate = new UpdateObjectInput<Translation>(
-            StringNormalizer.NormalizePatch(update.Patch)
-        );
-        return _api.UpdateTranslation(entryId, senseId, exampleSentenceId, translationId, normalizedUpdate);
-    }
+        => _api.UpdateTranslation(entryId, senseId, exampleSentenceId, translationId, update);
 
     private static ExampleSentence NormalizeExampleSentence(ExampleSentence example)
     {
