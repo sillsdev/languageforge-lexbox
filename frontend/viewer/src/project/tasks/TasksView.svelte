@@ -4,7 +4,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {useProjectStorage} from '$lib/utils/project-storage.svelte';
   import TaskView from './TaskView.svelte';
-  import {onMount} from 'svelte';
+  import {untrack} from 'svelte';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
 
   const selectedTaskId = useProjectStorage().selectedTaskId;
@@ -12,19 +12,23 @@
   const tasks = $derived(tasksService.listTasks());
   const selectedTask = $derived(tasks.find(task => task.id === selectedTaskId.current));
 
-  onMount(() => {
-    if (!selectedTaskId.current) {
-      open = true;
-    }
-  });
   let open = $state(false);
+  $effect(() => {
+    if (untrack(() => !selectedTaskId.loading)) {
+      untrack(() => open = !selectedTaskId.current);
+      return;
+    }
+    // stay subscribed until loading is complete
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    selectedTaskId.loading;
+  });
 </script>
 
 <div class="flex flex-col h-full p-4 gap-4">
   <div class="flex flex-row items-center">
     <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 mr-2" />
 
-    <Select.Root bind:open type="single" bind:value={selectedTaskId.current}>
+    <Select.Root bind:open type="single" value={selectedTaskId.current} onValueChange={(v) => selectedTaskId.set(v ?? '')}>
       <Select.Trigger>{$t`Task ${selectedTask?.subject ?? ''}`}</Select.Trigger>
       <Select.Content>
         {#each tasks as task (task.id)}
@@ -34,7 +38,7 @@
     </Select.Root>
   </div>
   {#if selectedTaskId.current}
-    <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.current = ''}/>
+    <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.set('')}/>
   {:else}
     <h1 class="text-xl p-4 mx-auto">{$t`Select a new task to work on`}</h1>
   {/if}
