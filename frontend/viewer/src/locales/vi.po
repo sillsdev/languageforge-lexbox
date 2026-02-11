@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-01-24 14:45\n"
+"PO-Revision-Date: 2026-02-11 13:37\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -204,7 +204,7 @@ msgstr "Bất kỳ loại từ nào"
 #. Publication = dictionary/publication type for distributing entries
 #: src/project/browse/filter/PublicationSelect.svelte
 msgid "Any publication"
-msgstr ""
+msgstr "Bất kỳ ấn phẩm nào"
 
 #. Filter dropdown option
 #. Clears semantic domain filter
@@ -842,7 +842,7 @@ msgstr "Lọc..."
 #. Header in entry filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Filters"
-msgstr ""
+msgstr "Bộ lọc"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Find word..."
@@ -929,7 +929,7 @@ msgstr "Lịch sử"
 #. The '#' character will be replace with a line break.
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or#press and release to start recording."
-msgstr "Nhấn giữ để ghi âm hoặc#nhấn rồi thả để bắt đầu ghi."
+msgstr "Giữ nút để ghi âm hoặc#nhấn và thả nút để bắt đầu ghi âm."
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1357,7 +1357,7 @@ msgstr "Xem trước"
 #. Shown in the change preview area where no preview is available for the selected change
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
-msgstr ""
+msgstr "Xem trước không khả dụng"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -1384,7 +1384,7 @@ msgstr "Tên dự án..."
 #. Used to organize entries by which publication(s) they should appear in
 #: src/project/browse/SearchFilter.svelte
 msgid "Publication"
-msgstr ""
+msgstr "Phát hành"
 
 #. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1989,3 +1989,4 @@ msgstr "Bạn không có quyền tải dự án {0} từ {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Bạn đã tải xuống dự án {0}"
+
