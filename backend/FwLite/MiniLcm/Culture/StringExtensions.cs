@@ -5,27 +5,36 @@ namespace MiniLcm.Culture;
 
 public static class StringExtensions
 {
-    public static bool Contains(this string str, string value, CultureInfo cultureInfo, CompareOptions comparison = CompareOptions.None)
+    /// <summary>
+    /// Checks if <paramref name="str"/> contains <paramref name="search"/>, ignoring case.
+    /// Diacritics are also ignored unless the search string itself contains diacritics.
+    /// </summary>
+    public static bool ContainsDiacriticMatch(this string str, string search)
     {
-        return cultureInfo.CompareInfo.IndexOf(str, value, comparison) >= 0;
+        var options = DiacriticMatchOptions(search);
+        return CultureInfo.InvariantCulture.CompareInfo.Contains(str, search, options);
     }
 
     /// <summary>
-    /// searches a string for a match ignoring diacritics, but only when the search string does not contain diacritics
+    /// Checks if <paramref name="str"/> starts with <paramref name="search"/>, ignoring case.
+    /// Diacritics are also ignored unless the search string itself contains diacritics.
     /// </summary>
-    /// <param name="str">source of the search</param>
-    /// <param name="search">string to search for</param>
-    public static bool ContainsDiacriticMatch(this string str, string search)
+    public static bool StartsWithDiacriticMatch(this string str, string search)
     {
-        if (ContainsDiacritic(search))
-        {
-            return Contains(str, search, CultureInfo.InvariantCulture, CompareOptions.IgnoreCase);
-        }
+        var options = DiacriticMatchOptions(search);
+        return CultureInfo.InvariantCulture.CompareInfo.IsPrefix(str, search, options);
+    }
 
-        return Contains(str,
-            search,
-            CultureInfo.InvariantCulture,
-            CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace);
+    private static bool Contains(this CompareInfo compareInfo, string source, string value, CompareOptions options)
+    {
+        return compareInfo.IndexOf(source, value, options) >= 0;
+    }
+
+    private static CompareOptions DiacriticMatchOptions(string search)
+    {
+        return ContainsDiacritic(search)
+            ? CompareOptions.IgnoreCase
+            : CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace;
     }
 
     public static bool ContainsDiacritic(string value)

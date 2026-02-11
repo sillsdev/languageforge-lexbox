@@ -10,6 +10,7 @@ namespace LcmCrdt.Data;
 public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor, IConnectionInterceptor
 {
     public const string ContainsFunction = "contains";
+    public const string StartsWithFunction = "startsWith";
 
     public void ConnectionOpened(DbConnection connection, ConnectionEndEventData eventData)
     {
@@ -49,15 +50,13 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor, IConnec
     {
         if (connection is SqliteConnection sqliteConnection)
         {
-            RegisterContainsFunction(sqliteConnection);
+            RegisterCustomFunctions(sqliteConnection);
         }
     }
 
-    public static void RegisterContainsFunction(SqliteConnection sqliteConnection)
+    public static void RegisterCustomFunctions(SqliteConnection sqliteConnection)
     {
-        //creates a new function that can be used in queries
         sqliteConnection.CreateFunction(ContainsFunction,
-            //in sqlite strings are byte arrays, so we can avoid allocating strings by using spans
             (byte[]? str, byte[]? value) =>
             {
                 if (str is null || value is null) return false;
@@ -66,13 +65,29 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor, IConnec
                 Span<char> search = stackalloc char[Encoding.UTF8.GetCharCount(value)];
                 Encoding.UTF8.GetChars(str, source);
                 Encoding.UTF8.GetChars(value, search);
-                return CultureInfo.InvariantCulture.CompareInfo.IndexOf(source,
-                    search,
-                    ContainsDiacritic(search)
-                        ? CompareOptions.IgnoreCase
-                        : CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreCase
-                ) >= 0;
+                var options = DiacriticMatchOptions(search);
+                return CultureInfo.InvariantCulture.CompareInfo.IndexOf(source, search, options) >= 0;
             });
+
+        sqliteConnection.CreateFunction(StartsWithFunction,
+            (byte[]? str, byte[]? value) =>
+            {
+                if (str is null || value is null) return false;
+
+                Span<char> source = stackalloc char[Encoding.UTF8.GetCharCount(str)];
+                Span<char> search = stackalloc char[Encoding.UTF8.GetCharCount(value)];
+                Encoding.UTF8.GetChars(str, source);
+                Encoding.UTF8.GetChars(value, search);
+                var options = DiacriticMatchOptions(search);
+                return CultureInfo.InvariantCulture.CompareInfo.IsPrefix(source, search, options);
+            });
+    }
+
+    private static CompareOptions DiacriticMatchOptions(in ReadOnlySpan<char> search)
+    {
+        return ContainsDiacritic(search)
+            ? CompareOptions.IgnoreCase
+            : CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace;
     }
 
     private static bool ContainsDiacritic(in ReadOnlySpan<char> value)
