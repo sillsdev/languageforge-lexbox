@@ -5,6 +5,7 @@
 
 export enum SyncJobStatusEnum {
 	Success = "Success",
+	SuccessHarmonyOnly = "SuccessHarmonyOnly",
 	ProjectNotFound = "ProjectNotFound",
 	SyncJobNotFound = "SyncJobNotFound",
 	SyncJobTimedOut = "SyncJobTimedOut",
