@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-01-24 14:45\n"
+"PO-Revision-Date: 2026-02-11 12:17\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -204,7 +204,7 @@ msgstr "모든 품사"
 #. Publication = dictionary/publication type for distributing entries
 #: src/project/browse/filter/PublicationSelect.svelte
 msgid "Any publication"
-msgstr ""
+msgstr "모든 출판물"
 
 #. Filter dropdown option
 #. Clears semantic domain filter
@@ -842,7 +842,7 @@ msgstr "필터..."
 #. Header in entry filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Filters"
-msgstr ""
+msgstr "필터"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Find word..."
@@ -1356,7 +1356,7 @@ msgstr "미리 보기"
 #. Shown in the change preview area where no preview is available for the selected change
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
-msgstr ""
+msgstr "미리 보기를 사용할 수 없습니다."
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -1383,7 +1383,7 @@ msgstr "프로젝트 이름..."
 #. Used to organize entries by which publication(s) they should appear in
 #: src/project/browse/SearchFilter.svelte
 msgid "Publication"
-msgstr ""
+msgstr "출판"
 
 #. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1988,3 +1988,4 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
+
