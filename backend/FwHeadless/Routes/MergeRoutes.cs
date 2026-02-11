@@ -34,8 +34,8 @@ public static class MergeRoutes
 
     static async Task<Results<Ok, ProblemHttpResult>> ExecuteMergeRequest(
         SyncHostedService syncHostedService,
-        ProjectLookupService projectLookupService,
-        ProjectMetadataService metadataService,
+        IProjectLookupService projectLookupService,
+        IProjectMetadataService metadataService,
         ILogger<Program> logger,
         CrdtHttpSyncService crdtHttpSyncService,
         IHttpClientFactory httpClientFactory,
@@ -64,7 +64,7 @@ public static class MergeRoutes
         }
 
         // Check if project is blocked from syncing
-        var blockInfo = await metadataService.GetSyncBlockInfoAsync(projectId);
+        var blockInfo = await metadataService.GetSyncBlockedInfoAsync(projectId);
         if (blockInfo?.IsBlocked == true)
         {
             logger.LogInformation("Project {projectId} is blocked from syncing. Reason: {Reason}", projectId, blockInfo.Reason);
@@ -79,7 +79,7 @@ public static class MergeRoutes
 
     static async Task<Results<Ok, NotFound<string>>> SyncHarmonyProject(
         Guid projectId,
-        ProjectLookupService projectLookupService,
+        IProjectLookupService projectLookupService,
         CrdtSyncService crdtSyncService,
         IServiceProvider services,
         CancellationToken stoppingToken
@@ -104,8 +104,8 @@ public static class MergeRoutes
     static async Task<Results<Ok, NotFound<string>>> RegenerateProjectSnapshot(
         Guid projectId,
         CurrentProjectService projectContext,
-        ProjectLookupService projectLookupService,
-        CrdtFwdataProjectSyncService syncService,
+        IProjectLookupService projectLookupService,
+        ProjectSnapshotService projectSnapshotService,
         SnapshotAtCommitService snapshotAtCommitService,
         IOptions<FwHeadlessConfig> config,
         HttpContext context,
@@ -132,7 +132,7 @@ public static class MergeRoutes
         var fwDataProject = config.Value.GetFwDataProject(projectId);
         if (commitId.HasValue)
         {
-            if (!await syncService.RegenerateProjectSnapshotAtCommit(snapshotAtCommitService, fwDataProject, commitId.Value, preserveAllFieldWorksCommits))
+            if (!await projectSnapshotService.RegenerateProjectSnapshotAtCommit(snapshotAtCommitService, fwDataProject, commitId.Value, preserveAllFieldWorksCommits))
             {
                 return TypedResults.NotFound($"Commit {commitId} not found");
             }
@@ -140,17 +140,17 @@ public static class MergeRoutes
         else
         {
             var miniLcmApi = context.RequestServices.GetRequiredService<IMiniLcmApi>();
-            await syncService.RegenerateProjectSnapshot(miniLcmApi, fwDataProject);
+            await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwDataProject, keepBackup: true);
         }
         return TypedResults.Ok();
     }
 
     static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
         CurrentProjectService projectContext,
-        ProjectLookupService projectLookupService,
-        SendReceiveService srService,
+        IProjectLookupService projectLookupService,
+        ISendReceiveService srService,
         IOptions<FwHeadlessConfig> config,
-        SyncJobStatusService syncJobStatusService,
+        ISyncJobStatusService syncJobStatusService,
         IServiceProvider services,
         LexBoxDbContext lexBoxDb,
         SyncHostedService syncHostedService,
@@ -199,7 +199,7 @@ public static class MergeRoutes
 
     static async Task<SyncJobResult> AwaitSyncFinished(
         SyncHostedService syncHostedService,
-        SyncJobStatusService syncJobStatusService,
+        ISyncJobStatusService syncJobStatusService,
         CancellationToken cancellationToken,
         Guid projectId)
     {
@@ -241,8 +241,8 @@ public static class MergeRoutes
     }
 
     static async Task<Results<Ok, NotFound, BadRequest<string>>> BlockProject(
-        ProjectLookupService projectLookupService,
-        ProjectMetadataService metadataService,
+        IProjectLookupService projectLookupService,
+        IProjectMetadataService metadataService,
         ILogger<Program> logger,
         Guid projectId,
         string? reason = null)
@@ -273,8 +273,8 @@ public static class MergeRoutes
     }
 
     static async Task<Results<Ok, NotFound, BadRequest<string>>> UnblockProject(
-        ProjectLookupService projectLookupService,
-        ProjectMetadataService metadataService,
+        IProjectLookupService projectLookupService,
+        IProjectMetadataService metadataService,
         ILogger<Program> logger,
         Guid projectId)
     {
@@ -304,8 +304,8 @@ public static class MergeRoutes
     }
 
     static async Task<Results<Ok<SyncBlockStatus>, NotFound, BadRequest<string>>> GetBlockStatus(
-        ProjectLookupService projectLookupService,
-        ProjectMetadataService metadataService,
+        IProjectLookupService projectLookupService,
+        IProjectMetadataService metadataService,
         ILogger<Program> logger,
         Guid projectId)
     {
@@ -319,7 +319,7 @@ public static class MergeRoutes
             return TypedResults.NotFound();
         }
 
-        var blockInfo = await metadataService.GetSyncBlockInfoAsync(projectId);
+        var blockInfo = await metadataService.GetSyncBlockedInfoAsync(projectId);
 
         activity?.SetStatus(ActivityStatusCode.Ok, $"Block status retrieved: {(blockInfo?.IsBlocked == true ? "blocked" : "unblocked")}");
         return TypedResults.Ok(new SyncBlockStatus

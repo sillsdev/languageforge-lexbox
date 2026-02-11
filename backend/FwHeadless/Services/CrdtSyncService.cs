@@ -11,7 +11,7 @@ public class CrdtSyncService(
     DataModel dataModel,
     ILogger<CrdtSyncService> logger)
 {
-    public async Task SyncHarmonyProject()
+    public virtual async Task SyncHarmonyProject()
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
         activity?.SetTag("app.project_id", currentProjectService.ProjectData.Id);

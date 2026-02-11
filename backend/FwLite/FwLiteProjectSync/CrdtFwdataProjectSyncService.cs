@@ -1,21 +1,19 @@
 using System.Diagnostics;
-using System.Text.Json;
-using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
 using LexCore.Sync;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Normalization;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
-using SIL.Harmony;
 
 namespace FwLiteProjectSync;
 
-public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger, IOptions<CrdtConfig> crdtConfig,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory, MiniLcmApiStringNormalizationWrapperFactory normalizationWrapperFactory)
+public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
+    ILogger<CrdtFwdataProjectSyncService> logger,
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
+    MiniLcmApiStringNormalizationWrapperFactory normalizationWrapperFactory)
 {
     public record DryRunSyncResult(
         int CrdtChanges,
@@ -23,44 +21,48 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         List<DryRunMiniLcmApi.DryRunRecord> CrdtDryRunRecords,
         List<DryRunMiniLcmApi.DryRunRecord> FwDataDryRunRecords) : SyncResult(CrdtChanges, FwdataChanges);
 
-    public async Task<DryRunSyncResult> SyncDryRun(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi)
+    public async Task<DryRunSyncResult> SyncDryRun(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, ProjectSnapshot projectSnapshot)
     {
-        return (DryRunSyncResult)await Sync(crdtApi, fwdataApi, true);
+        return (DryRunSyncResult)await Sync(crdtApi, fwdataApi, projectSnapshot, true);
     }
 
-    public async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
+    public virtual async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, ProjectSnapshot projectSnapshot, bool dryRun = false)
+    {
+        return await SyncOrImportInternal(crdtApi, fwdataApi, dryRun, projectSnapshot);
+    }
+
+    public async Task<DryRunSyncResult> ImportDryRun(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi)
+    {
+        return (DryRunSyncResult)await Import(crdtApi, fwdataApi, true);
+    }
+
+    public virtual async Task<SyncResult> Import(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
+    {
+        return await SyncOrImportInternal(crdtApi, fwdataApi, dryRun, projectSnapshot: null);
+    }
+
+    private async Task<SyncResult> SyncOrImportInternal(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, bool dryRun, ProjectSnapshot? projectSnapshot)
     {
         using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
         if (crdtApi is not CrdtMiniLcmApi crdt) // maybe the argument type should be changed?
             throw new InvalidOperationException("CrdtApi must be of type CrdtMiniLcmApi to sync.");
-        if (crdt.ProjectData.FwProjectId != fwdataApi.ProjectId)
+        if (fwdataApi is not FwDataMiniLcmApi fwdata) // maybe the argument type should be changed?
+            throw new InvalidOperationException("FwdataApi must be of type FwDataMiniLcmApi to sync.");
+        if (crdt.ProjectData.FwProjectId != fwdata.ProjectId)
         {
-            activity?.SetStatus(ActivityStatusCode.Error, $"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdataApi.ProjectId}");
-            throw new InvalidOperationException($"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdataApi.ProjectId}");
-        }
-        var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project);
-
-        if (projectSnapshot is not null)
-        {
-            // Repair any missing translation IDs before doing the full sync, so the sync doesn't have to deal with them
-            var syncedIdCount = await CrdtRepairs.SyncMissingTranslationIds(projectSnapshot.Entries, fwdataApi, crdt, dryRun);
+            activity?.SetStatus(ActivityStatusCode.Error, $"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdata.ProjectId}");
+            throw new InvalidOperationException($"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdata.ProjectId}");
         }
 
-        SyncResult result = await Sync(crdtApi, fwdataApi, dryRun, fwdataApi.EntryCount, projectSnapshot);
-        fwdataApi.Save();
-
-        if (!dryRun)
+        // Project snapshot logic/handling is done outside of this class so that Sync vs Import is explicit.
+        // We still choose to explicitly verify a consistent state to avoid accidental misuse.
+        var hasSyncedSuccessfully = ProjectSnapshotService.HasSyncedSuccessfully(fwdata.Project);
+        if (hasSyncedSuccessfully != (projectSnapshot is not null))
         {
-            //note we are now using the crdt API, this avoids issues where some data isn't synced yet
-            //later when we add the ability to sync that data we need the snapshot to reflect the synced state, not what was in the FW project
-            //related to https://github.com/sillsdev/languageforge-lexbox/issues/1912
-            await RegenerateProjectSnapshot(crdtApi, fwdataApi.Project, keepBackup: false);
+            activity?.SetStatus(ActivityStatusCode.Error, "Project sync state does not match presence of snapshot.");
+            throw new InvalidOperationException("Project sync state does not match presence of snapshot.");
         }
-        return result;
-    }
 
-    private async Task<SyncResult> Sync(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, bool dryRun, int entryCount, ProjectSnapshot? projectSnapshot)
-    {
         crdtApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(crdtApi));
         fwdataApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(fwdataApi));
 
@@ -70,14 +72,36 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
             fwdataApi = new DryRunMiniLcmApi(fwdataApi);
         }
 
-        if (projectSnapshot is null)
+        if (projectSnapshot is not null)
         {
-            await miniLcmImport.ImportProject(crdtApi, fwdataApi, entryCount);
-            LogDryRun(crdtApi, "crdt");
-            if (dryRun) return new DryRunSyncResult(entryCount, 0, GetDryRunRecords(crdtApi), []);
-            return new SyncResult(entryCount, 0);
+            // Repair any missing translation IDs before doing the full sync, so the sync doesn't have to deal with them
+            var syncedIdCount = await CrdtRepairs.SyncMissingTranslationIds(projectSnapshot.Entries, fwdata, crdt, dryRun);
         }
 
+        var syncResult = projectSnapshot is null
+            ? await ImportInternal(crdtApi, fwdataApi, fwdata.EntryCount)
+            : await SyncInternal(crdtApi, fwdataApi, projectSnapshot);
+
+        if (!dryRun)
+        {
+            fwdata.Save();
+            return syncResult;
+        }
+
+        LogDryRun(crdtApi, "crdt");
+        LogDryRun(fwdataApi, "fwdata");
+        return new DryRunSyncResult(syncResult.CrdtChanges, syncResult.FwdataChanges,
+            GetDryRunRecords(crdtApi), GetDryRunRecords(fwdataApi));
+    }
+
+    private async Task<SyncResult> ImportInternal(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, int entryCount)
+    {
+        await miniLcmImport.ImportProject(crdtApi, fwdataApi, entryCount);
+        return new SyncResult(entryCount, 0);
+    }
+
+    private async Task<SyncResult> SyncInternal(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, ProjectSnapshot projectSnapshot)
+    {
         var currentFwDataWritingSystems = await fwdataApi.GetWritingSystems();
         var crdtChanges = await WritingSystemSync.Sync(projectSnapshot.WritingSystems, currentFwDataWritingSystems, crdtApi);
         var fwdataChanges = await WritingSystemSync.Sync(currentFwDataWritingSystems, await crdtApi.GetWritingSystems(), fwdataApi);
@@ -100,13 +124,8 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
         var currentFwDataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtChanges += await EntrySync.SyncFull(projectSnapshot.Entries, currentFwDataEntries, crdtApi);
-        LogDryRun(crdtApi, "crdt");
-
         fwdataChanges += await EntrySync.SyncFull(currentFwDataEntries, await crdtApi.GetAllEntries().ToArrayAsync(), fwdataApi);
-        LogDryRun(fwdataApi, "fwdata");
 
-        //todo push crdt changes to lexbox
-        if (dryRun) return new DryRunSyncResult(crdtChanges, fwdataChanges, GetDryRunRecords(crdtApi), GetDryRunRecords(fwdataApi));
         return new SyncResult(crdtChanges, fwdataChanges);
     }
 
@@ -124,67 +143,5 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
     private List<DryRunMiniLcmApi.DryRunRecord> GetDryRunRecords(IMiniLcmApi api)
     {
         return ((DryRunMiniLcmApi)api).DryRunRecords;
-    }
-
-    public async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
-    {
-        var snapshotPath = SnapshotPath(project);
-        if (!File.Exists(snapshotPath)) return null;
-        await using var file = File.OpenRead(snapshotPath);
-        return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file, crdtConfig.Value.JsonSerializerOptions);
-    }
-
-    // private so that all public calls always result in a backup being kept.
-    // This should happen rarely and it fairly critical.
-    private async Task RegenerateProjectSnapshot(IMiniLcmApi crdtApi, FwDataProject project, bool keepBackup)
-    {
-        if (crdtApi is not CrdtMiniLcmApi)
-            throw new InvalidOperationException("CrdtApi must be of type CrdtMiniLcmApi to regenerate project snapshot.");
-        await SaveProjectSnapshot(project, await crdtApi.TakeProjectSnapshot(), keepBackup);
-    }
-
-    public async Task<bool> RegenerateProjectSnapshotAtCommit(SnapshotAtCommitService snapshotService, FwDataProject project, Guid commitId, bool preserveAllFieldWorksCommits = false)
-    {
-        var snapshot = await snapshotService.GetProjectSnapshotAtCommit(commitId, preserveAllFieldWorksCommits);
-        if (snapshot is null) return false;
-        await SaveProjectSnapshot(project, snapshot, keepBackup: true);
-        return true;
-    }
-
-    public async Task RegenerateProjectSnapshot(IMiniLcmApi crdtApi, FwDataProject project)
-    {
-        await RegenerateProjectSnapshot(crdtApi, project, keepBackup: true);
-    }
-
-    internal static async Task SaveProjectSnapshot(FwDataProject project, ProjectSnapshot projectSnapshot, bool keepBackup = false)
-    {
-        var snapshotPath = SnapshotPath(project);
-
-        if (keepBackup && File.Exists(snapshotPath))
-        {
-            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            var backupPath = Path.Combine(
-                Path.GetDirectoryName(snapshotPath)!,
-                $"{Path.GetFileNameWithoutExtension(snapshotPath)}_backup_{timestamp}.json");
-            File.Copy(snapshotPath, backupPath);
-        }
-
-        await using var file = File.Create(snapshotPath);
-        //not using our serialization options because we don't want to exclude MiniLcmInternal
-        await JsonSerializer.SerializeAsync(file, projectSnapshot);
-    }
-
-    internal static string SnapshotPath(FwDataProject project)
-    {
-        var projectPath = project.ProjectsPath;
-        var snapshotPath = Path.Combine(projectPath, $"{project.Name}_snapshot.json");
-        return snapshotPath;
-    }
-
-    public static bool HasSyncedSuccessfully(FwDataProject project)
-    {
-        var snapshotPath = SnapshotPath(project);
-        if (!File.Exists(snapshotPath)) return false;
-        return new FileInfo(snapshotPath).Length > 0;
     }
 }

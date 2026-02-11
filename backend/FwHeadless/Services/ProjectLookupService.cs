@@ -4,7 +4,7 @@ using SIL.Harmony.Core;
 
 namespace FwHeadless.Services;
 
-public class ProjectLookupService(LexBoxDbContext dbContext)
+public class ProjectLookupService(LexBoxDbContext dbContext) : IProjectLookupService
 {
     public virtual async ValueTask<string?> GetProjectCode(Guid projectId)
     {

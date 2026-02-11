@@ -21,13 +21,13 @@ public static class FwHeadlessKernel
             .BindConfiguration("FwHeadlessConfig")
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        services.AddSingleton<SyncJobStatusService>();
-        services.AddScoped<SendReceiveService>();
-        services.AddScoped<ProjectLookupService>();
+        services.AddSingleton<ISyncJobStatusService, SyncJobStatusService>();
+        services.AddScoped<ISendReceiveService, SendReceiveService>();
+        services.AddScoped<IProjectLookupService, ProjectLookupService>();
         services.AddScoped<ProjectDeletionService>();
         services.AddScoped<LogSanitizerService>();
         services.AddScoped<SafeLoggingProgress>();
-        services.AddScoped<ProjectMetadataService>();
+        services.AddScoped<IProjectMetadataService, ProjectMetadataService>();
         services
             .AddLcmCrdtClientCore()
             .AddFwDataBridge(ServiceLifetime.Scoped)

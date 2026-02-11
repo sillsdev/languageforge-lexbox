@@ -10,14 +10,14 @@ namespace FwLiteProjectSync.Tests;
 public class ProjectSnapshotSerializationTests
 {
 
-    private readonly CrdtFwdataProjectSyncService syncService;
+    private readonly ProjectSnapshotService snapshotService;
 
     public ProjectSnapshotSerializationTests()
     {
         var crdtServices = new ServiceCollection()
             .AddSyncServices(nameof(ProjectSnapshotSerializationTests));
-        syncService = crdtServices.BuildServiceProvider()
-            .GetRequiredService<CrdtFwdataProjectSyncService>();
+        snapshotService = crdtServices.BuildServiceProvider()
+            .GetRequiredService<ProjectSnapshotService>();
     }
 
     public static IEnumerable<object[]> GetSena3SnapshotNames()
@@ -41,11 +41,11 @@ public class ProjectSnapshotSerializationTests
             nameof(AssertSena3Snapshots),
             Path.Combine(".", nameof(ProjectSnapshotSerializationTests)));
 
-        var snapshotPath = CrdtFwdataProjectSyncService.SnapshotPath(fwDataProject);
+        var snapshotPath = ProjectSnapshotService.SnapshotPath(fwDataProject);
         File.Copy(RelativePath($"Snapshots\\{sourceSnapshotName}"), snapshotPath, overwrite: true);
 
         // act - read the current snapshot
-        var snapshot = await syncService.GetProjectSnapshot(fwDataProject)
+        var snapshot = await snapshotService.GetProjectSnapshot(fwDataProject)
             ?? throw new InvalidOperationException("Failed to load verified snapshot");
 
         // assert - whatever about the snapshot (i.e. ensure deserialization does what we think)
@@ -90,13 +90,13 @@ public class ProjectSnapshotSerializationTests
             fwDataProjectName,
             Path.Combine(".", nameof(ProjectSnapshotSerializationTests)));
 
-        var snapshotPath = CrdtFwdataProjectSyncService.SnapshotPath(fwDataProject);
+        var snapshotPath = ProjectSnapshotService.SnapshotPath(fwDataProject);
         Directory.CreateDirectory(Path.GetDirectoryName(snapshotPath) ?? throw new InvalidOperationException("Could not get directory of snapshot path"));
         File.Copy(sourceSnapshotPath, snapshotPath, overwrite: true);
 
-        var snapshot = await syncService.GetProjectSnapshot(fwDataProject)
+        var snapshot = await snapshotService.GetProjectSnapshot(fwDataProject)
             ?? throw new InvalidOperationException("Failed to load verified snapshot");
-        await CrdtFwdataProjectSyncService.SaveProjectSnapshot(fwDataProject, snapshot);
+        await ProjectSnapshotService.SaveProjectSnapshot(fwDataProject, snapshot);
 
         using var stream = File.OpenRead(snapshotPath);
         var node = JsonNode.Parse(stream, null, new()
