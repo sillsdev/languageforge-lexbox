@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-01-24 14:45\n"
+"PO-Revision-Date: 2026-02-11 12:17\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -204,7 +204,7 @@ msgstr "Cualquier parte del discurso"
 #. Publication = dictionary/publication type for distributing entries
 #: src/project/browse/filter/PublicationSelect.svelte
 msgid "Any publication"
-msgstr ""
+msgstr "Cualquier publicación"
 
 #. Filter dropdown option
 #. Clears semantic domain filter
@@ -842,7 +842,7 @@ msgstr "Filtrar..."
 #. Header in entry filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Filters"
-msgstr ""
+msgstr "Filtros"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Find word..."
@@ -1356,7 +1356,7 @@ msgstr "Vista previa"
 #. Shown in the change preview area where no preview is available for the selected change
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
-msgstr ""
+msgstr "Vista previa no disponible"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -1383,7 +1383,7 @@ msgstr "Nombre del proyecto..."
 #. Used to organize entries by which publication(s) they should appear in
 #: src/project/browse/SearchFilter.svelte
 msgid "Publication"
-msgstr ""
+msgstr "Publicación"
 
 #. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1988,3 +1988,4 @@ msgstr "No tiene permiso para descargar el proyecto {0} desde {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Ya has descargado el proyecto {0}"
+
