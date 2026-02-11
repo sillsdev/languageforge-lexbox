@@ -46,6 +46,59 @@ public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : Entr
         actual.Should().NotBeNull();
         actual.MorphType.Should().Be(MorphType.BoundStem);
     }
+
+    [Fact]
+    public async Task CanCreateAffixEntryWithComplexFormComponents()
+    {
+        // Attempts to reproduce "Affixes" field error that occurs with affix MorphType entries
+        // The error originates from LibLCM's VisibleComplexFormBackRefs on entries with IMoAffixAllomorph
+        // Note: This test passes, indicating the error requires specific conditions not yet identified
+        
+        var component = await Api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "component" } }
+        });
+
+        var complexForm = await Api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "complex-form" } }
+        });
+
+        var affixEntryId = Guid.NewGuid();
+
+        // Create an affix entry (Prefix uses IMoAffixAllomorph) with both components and complex forms
+        var affixEntry = await Api.CreateEntry(new()
+        {
+            Id = affixEntryId,
+            LexemeForm = { { "en", "prefix" } },
+            MorphType = MorphType.Prefix,  // Affix types: Prefix, Suffix, Infix, Circumfix, etc.
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = component.Id,
+                    ComponentHeadword = component.Headword(),
+                    ComplexFormEntryId = affixEntryId,
+                    ComplexFormHeadword = "prefix"
+                }
+            ],
+            ComplexForms =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = affixEntryId,
+                    ComponentHeadword = "prefix",
+                    ComplexFormEntryId = complexForm.Id,
+                    ComplexFormHeadword = complexForm.Headword()
+                }
+            ]
+        });
+
+        var actual = await Api.GetEntry(affixEntryId);
+        actual.Should().NotBeNull();
+        actual.Components.Should().HaveCount(1);
+        actual.ComplexForms.Should().HaveCount(1);
+    }
 }
 
 public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture) : IClassFixture<ExtraWritingSystemsSyncFixture>, IAsyncLifetime
