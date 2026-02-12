@@ -1,0 +1,213 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-02-12 08:20+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_addWord_title%"
+msgstr "Add entry to FieldWorks"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_addWord_buttonAdd%"
+msgstr "Add new entry"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_webViewTitle_addWord%"
+msgstr "Add to FieldWorks"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_menu_addEntry%"
+msgstr "Add to FieldWorks..."
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_projectSettings_analysisLanguage%"
+msgstr "Analysis language"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionary_backToList%"
+msgstr "Back to list"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_menu_browseDictionary%"
+msgstr "Browse FieldWorks dictionary"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_button_cancel%"
+msgstr "Cancel"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_clear%"
+msgstr "Clear selection"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_confirm%"
+msgstr "Confirm selection"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_entryDisplay_definition%"
+msgstr "Definition"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_saved%"
+msgstr "Dictionary selection saved. You can close this window."
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_error_gettingNetworkObject%"
+msgstr "Error getting network object:"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_saveError%"
+msgstr "Error saving dictionary selection:"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_error_failedToAddEntry%"
+msgstr "Failed to add entry!"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_projectSettings_dictionary%"
+msgstr "FieldWorks dictionary"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_webViewTitle_browseDictionary%"
+msgstr "FieldWorks Lite"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_projectSettings_title%"
+msgstr "FieldWorks Lite settings"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_findWord_textField%"
+msgstr "Find in dictionary..."
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_findRelatedWord_textField%"
+msgstr "Find related words in dictionary..."
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_webViewTitle_findRelatedWords%"
+msgstr "Find related words in FieldWorks"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_entryDisplay_gloss%"
+msgstr "Gloss"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_entryDisplay_headword%"
+msgstr "Headword"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_loading%"
+msgstr "Loading dictionaries ..."
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionary_loading%"
+msgstr "Loading..."
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_error_missingParam%"
+msgstr "Missing required parameter: "
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_noneFound%"
+msgstr "No dictionaries found"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_findRelatedWord_noResultsInDomain%"
+msgstr "No entries in this semantic domain."
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionary_noResults%"
+msgstr "No results"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_entryDisplay_partOfSpeech%"
+msgstr "Part of speech"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_saving%"
+msgstr "Saving dictionary selection"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_menu_findRelatedEntries%"
+msgstr "Search for related words..."
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_webViewTitle_findWord%"
+msgstr "Search in FieldWorks"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_menu_findEntry%"
+msgstr "Search in FieldWorks..."
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_select%"
+msgstr "Select a dictionary"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_findRelatedWord_selectInstruction%"
+msgstr "Select a semantic domain for related words in that domain"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_webViewTitle_selectDictionary%"
+msgstr "Select FieldWorks dictionary"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_selected%"
+msgstr "Selected:"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_entryDisplay_senses%"
+msgstr "Senses"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_addWord_buttonSubmit%"
+msgstr "Submit new entry"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_projectSettings_dictionaryDescription%"
+msgstr "The FieldWorks dictionary to use with this project"

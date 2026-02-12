@@ -1,0 +1,213 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-02-12 08:20+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: es\n"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_addWord_title%"
+msgstr "Agregar entrada a FieldWorks"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_addWord_buttonAdd%"
+msgstr "Agregar nueva entrada"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_webViewTitle_addWord%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_menu_addEntry%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_projectSettings_analysisLanguage%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionary_backToList%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_menu_browseDictionary%"
+msgstr "Explorar diccionario de FieldWorks"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_button_cancel%"
+msgstr "Cancelar"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_clear%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_confirm%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_entryDisplay_definition%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_saved%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_error_gettingNetworkObject%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_saveError%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_error_failedToAddEntry%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_projectSettings_dictionary%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_webViewTitle_browseDictionary%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_projectSettings_title%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_findWord_textField%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_findRelatedWord_textField%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_webViewTitle_findRelatedWords%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_entryDisplay_gloss%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_entryDisplay_headword%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_loading%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionary_loading%"
+msgstr "Cargando..."
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_error_missingParam%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_noneFound%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_findRelatedWord_noResultsInDomain%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionary_noResults%"
+msgstr "Sin resultados"
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_entryDisplay_partOfSpeech%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_saving%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_menu_findRelatedEntries%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_webViewTitle_findWord%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_menu_findEntry%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_select%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_findRelatedWord_selectInstruction%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_webViewTitle_selectDictionary%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_dictionarySelect_selected%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_entryDisplay_senses%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_addWord_buttonSubmit%"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/sample-component.tsx
+msgid "%fwLiteExtension_projectSettings_dictionaryDescription%"
+msgstr ""

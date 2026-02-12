@@ -1,0 +1,21 @@
+{
+  "name": "i18n-prototype",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Prototype: LingUI -> PO (CrowdIn) -> localizedStrings.json (platform.bible)",
+  "scripts": {
+    "extract": "lingui extract --clean",
+    "generate": "node scripts/po-to-platform-bible.mjs",
+    "pipeline": "npm run extract && npm run generate"
+  },
+  "devDependencies": {
+    "@lingui/cli": "^5.6.1",
+    "@lingui/core": "^5.6.1",
+    "@lingui/react": "^5.6.1",
+    "@lingui/format-po": "^5.6.1",
+    "typescript": "^5.4.5"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  }
+}
