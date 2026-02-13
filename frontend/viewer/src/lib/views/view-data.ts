@@ -11,8 +11,6 @@ export interface ViewFields {
   example: Record<ExampleFieldId, FieldView>;
 }
 
-const defaultDef = Symbol('default spread values');
-
 export const allFields: ViewFields = {
   entry: {
     lexemeForm: {show: true, order: 1},
@@ -76,18 +74,8 @@ export const views: [RootView, RootView, ...CustomView[]] = [
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function recursiveSpread<T extends Record<string, any>>(obj1: T, obj2: { [P in keyof T]?: Partial<T[P]> } & { [defaultDef]?: Partial<T[keyof T]> }): T {
+function recursiveSpread<T extends Record<string, any>>(obj1: T, obj2: { [P in keyof T]?: Partial<T[P]> }): T {
   const result: Record<string, unknown> = {...obj1};
-  const defaultValues = obj2[defaultDef];
-  if (defaultValues) {
-    for (const [key, value] of Object.entries(result)) {
-      if (typeof value === 'object' && value !== null) {
-        result[key] = applyDefaults(value as Record<string, unknown>, defaultValues as Record<string, unknown>);
-      } else {
-        result[key] = defaultValues;
-      }
-    }
-  }
   for (const [key, value] of Object.entries(obj2)) {
     const currentValue = result[key];
     if (typeof currentValue === 'object' && currentValue !== null && typeof value === 'object' && value !== null) {
@@ -97,18 +85,6 @@ function recursiveSpread<T extends Record<string, any>>(obj1: T, obj2: { [P in k
     }
   }
   return result as T;
-}
-
-function applyDefaults(obj: Record<string, unknown>, defaults: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(obj)) {
-    if (typeof value === 'object' && value !== null) {
-      result[key] = {...value, ...defaults};
-    } else {
-      result[key] = defaults;
-    }
-  }
-  return result;
 }
 
 function showAllFields<T extends string>(fields: Record<T, FieldView>, overrides?: Partial<Record<T, Partial<FieldView>>>): Record<T, FieldView> {
