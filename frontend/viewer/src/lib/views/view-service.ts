@@ -1,5 +1,6 @@
 import {type Writable, writable} from 'svelte/store';
-import {type View, views} from './view-data';
+import {type View, type FieldView, views} from './view-data';
+import type {EntityType} from '$lib/entry-editor/field-data';
 import {getContext, onDestroy, setContext} from 'svelte';
 
 const currentViewContextName = 'currentView';
@@ -50,9 +51,9 @@ export function useViewSettings(): Writable<ViewSettings> {
  * looks like `"lexemeForm lexemeForm lexemeForm" "citationForm citationForm citationForm" "literalMeaning literalMeaning literalMeaning"` etc. each group of fields in quotes is a row.
  * there are 3 columns for each row and one field per row so the field name is repeated 3 times.
  */
-export function objectTemplateAreas(view: View, obj: object | string[]): string {
+export function objectTemplateAreas(view: View, obj: object | string[], entityType: EntityType): string {
   const fields = Array.isArray(obj) ? obj : Object.keys(obj);
-  return Object.entries(view.fields)
+  return (Object.entries(view.fields[entityType]) as [string, FieldView][])
     .filter(([id, field]) => fields.includes(id) && field.show)
     .sort((a, b) => a[1].order - b[1].order)
     .map(([id, _field]) => `"${id} ${id} ${id}"`).join(' ');

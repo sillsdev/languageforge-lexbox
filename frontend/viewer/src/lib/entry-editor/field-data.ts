@@ -4,10 +4,7 @@ interface FieldData {
   helpId: string;
 }
 
-type PotentialFieldIds = keyof IEntry | keyof ISense | keyof IExampleSentence;
-
-const privateFieldData = {
-  //entry
+const entryFieldData = {
   lexemeForm: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Lexeme_Form_field.htm' },
   citationForm: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Citation_Form_field.htm' },
   complexForms: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Complex_Forms.htm' },
@@ -16,23 +13,41 @@ const privateFieldData = {
   literalMeaning: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Literal_Meaning_field.htm' },
   note: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Note_field.htm' },
   publishIn: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Publication_Settings_flds/Publish_In_(Publication_Settings).htm' },
+} satisfies Partial<Record<keyof IEntry, FieldData>>;
 
-  //sense
+const senseFieldData = {
   gloss: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Gloss_field_Sense.htm' },
   definition: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/definition_field.htm' },
   partOfSpeechId: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Grammatical_Info_field.htm' },
   semanticDomains: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/semantic_domains_field.htm' },
+} satisfies Partial<Record<keyof ISense, FieldData>>;
 
-  //example sentence
+const exampleFieldData = {
   sentence: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/example_field.htm' },
   translations: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Translation_field.htm' },
   reference: { helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Reference_field.htm' },
-} satisfies Partial<Record<PotentialFieldIds, FieldData>>;
+} satisfies Partial<Record<keyof IExampleSentence, FieldData>>;
+
+export type EntryFieldId = keyof typeof entryFieldData;
+export type SenseFieldId = keyof typeof senseFieldData;
+export type ExampleFieldId = keyof typeof exampleFieldData;
+
 /**
- * This is a list of all standard fields with fixed data that is constant across all views.
+ * Union of all field IDs across all entity types.
+ * Prefer using the narrower EntryFieldId, SenseFieldId, or ExampleFieldId when the entity type is known.
  */
-export type FieldId = keyof typeof privateFieldData;
-export const fieldData: Record<FieldId, FieldData> = privateFieldData;
+export type FieldId = EntryFieldId | SenseFieldId | ExampleFieldId;
+
+export type EntityType = 'entry' | 'sense' | 'example';
+
+/**
+ * Field data organized by entity type. Each field has constant metadata (e.g. help link).
+ */
+export const fieldData = {
+  entry: entryFieldData as Record<EntryFieldId, FieldData>,
+  sense: senseFieldData as Record<SenseFieldId, FieldData>,
+  example: exampleFieldData as Record<ExampleFieldId, FieldData>,
+};
 
 /**
  * @deprecated I think we want a type that's more type safe i.e. FieldId 👆

@@ -9,7 +9,7 @@
 
 <EntityEditorPrimitiveDecorator>
   <Editor.Field.Root>
-    <Editor.Field.Title name="Demo field" helpId={fieldData.definition.helpId} />
+    <Editor.Field.Title name="Demo field" helpId={fieldData.sense.definition.helpId} />
     <Editor.Field.Body {subGrid}>
       {@render children()}
     </Editor.Field.Body>

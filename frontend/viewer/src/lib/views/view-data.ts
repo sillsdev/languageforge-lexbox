@@ -1,33 +1,40 @@
-import type {FieldId} from '$lib/entry-editor/field-data';
+import type {EntryFieldId, ExampleFieldId, SenseFieldId, EntityType, FieldId} from '$lib/entry-editor/field-data';
 
 export interface FieldView {
   show: boolean;
   order: number;
 }
 
+export interface ViewFields {
+  entry: Record<EntryFieldId, FieldView>;
+  sense: Record<SenseFieldId, FieldView>;
+  example: Record<ExampleFieldId, FieldView>;
+}
+
 const defaultDef = Symbol('default spread values');
 
-export const allFields: Record<FieldId, FieldView> = {
-  //entry
-  lexemeForm: {show: true, order: 1},
-  citationForm: {show: true, order: 2},
-  complexForms: {show: true, order: 3},
-  components: {show: true, order: 4},
-  complexFormTypes: {show: false, order: 5},
-  literalMeaning: {show: false, order: 6},
-  note: {show: true, order: 7},
-  publishIn: {show: false, order: 8},
-
-  //sense
-  gloss: {show: true, order: 1},
-  definition: {show: true, order: 2},
-  partOfSpeechId: {show: true, order: 3},
-  semanticDomains: {show: true, order: 4},
-
-  //example sentence
-  sentence: {show: true, order: 1},
-  translations: {show: true, order: 2},
-  reference: {show: false, order: 3},
+export const allFields: ViewFields = {
+  entry: {
+    lexemeForm: {show: true, order: 1},
+    citationForm: {show: true, order: 2},
+    complexForms: {show: true, order: 3},
+    components: {show: true, order: 4},
+    complexFormTypes: {show: false, order: 5},
+    literalMeaning: {show: false, order: 6},
+    note: {show: true, order: 7},
+    publishIn: {show: false, order: 8},
+  },
+  sense: {
+    gloss: {show: true, order: 1},
+    definition: {show: true, order: 2},
+    partOfSpeechId: {show: true, order: 3},
+    semanticDomains: {show: true, order: 4},
+  },
+  example: {
+    sentence: {show: true, order: 1},
+    translations: {show: true, order: 2},
+    reference: {show: false, order: 3},
+  },
 };
 
 export const FW_LITE_VIEW: RootView = {
@@ -42,10 +49,11 @@ export const FW_CLASSIC_VIEW: RootView = {
   id: 'fieldworks',
   type: 'fw-classic',
   label: 'FieldWorks Classic',
-  fields: recursiveSpread(allFields, {
-    complexFormTypes: {order: allFields.components.order - 0.1},
-    [defaultDef]: {show: true}
-  }),
+  fields: {
+    entry: showAllFields(allFields.entry, {complexFormTypes: {order: allFields.entry.components.order - 0.1}}),
+    sense: showAllFields(allFields.sense),
+    example: showAllFields(allFields.example),
+  },
   alternateView: FW_LITE_VIEW,
 };
 
@@ -57,7 +65,8 @@ export const views: [RootView, RootView, ...CustomView[]] = [
   FW_LITE_VIEW,
   FW_CLASSIC_VIEW,
   ...viewDefinitions.map(view => {
-    const fields: Record<FieldId, FieldView> = recursiveSpread<typeof allFields>(allFields, view.fieldOverrides);
+    // fieldOverrides has Partial<FieldView> leaves which recursiveSpread merges with the full FieldView
+    const fields: ViewFields = recursiveSpread(allFields, view.fieldOverrides as { [P in keyof ViewFields]?: Partial<ViewFields[P]> });
     return {
       ...FW_LITE_VIEW,
       ...view,
@@ -66,13 +75,14 @@ export const views: [RootView, RootView, ...CustomView[]] = [
   })
 ];
 
-function recursiveSpread<T extends Record<string | symbol, unknown>>(obj1: T, obj2: { [P in keyof T]?: Partial<T[P]> } & { [defaultDef]?: Partial<T[keyof T]> }): T {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function recursiveSpread<T extends Record<string, any>>(obj1: T, obj2: { [P in keyof T]?: Partial<T[P]> } & { [defaultDef]?: Partial<T[keyof T]> }): T {
   const result: Record<string, unknown> = {...obj1};
   const defaultValues = obj2[defaultDef];
   if (defaultValues) {
     for (const [key, value] of Object.entries(result)) {
       if (typeof value === 'object' && value !== null) {
-        result[key] = {...value, ...defaultValues};
+        result[key] = applyDefaults(value as Record<string, unknown>, defaultValues as Record<string, unknown>);
       } else {
         result[key] = defaultValues;
       }
@@ -89,6 +99,30 @@ function recursiveSpread<T extends Record<string | symbol, unknown>>(obj1: T, ob
   return result as T;
 }
 
+function applyDefaults(obj: Record<string, unknown>, defaults: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (typeof value === 'object' && value !== null) {
+      result[key] = {...value, ...defaults};
+    } else {
+      result[key] = defaults;
+    }
+  }
+  return result;
+}
+
+function showAllFields<T extends string>(fields: Record<T, FieldView>, overrides?: Partial<Record<T, Partial<FieldView>>>): Record<T, FieldView> {
+  const result = Object.fromEntries(
+    Object.entries(fields).map(([id, field]) => [id, {...(field as FieldView), show: true}])
+  ) as Record<T, FieldView>;
+  if (overrides) {
+    for (const [id, override] of Object.entries(overrides) as [T, Partial<FieldView>][]) {
+      result[id] = {...result[id], ...override};
+    }
+  }
+  return result;
+}
+
 export type ViewType = 'fw-lite' | 'fw-classic';
 
 interface ViewDefinition {
@@ -103,12 +137,12 @@ export type Overrides = {
 };
 
 interface CustomViewDefinition extends ViewDefinition {
-  fieldOverrides: Partial<Record<FieldId, Partial<FieldView>>>;
+  fieldOverrides: Partial<{ [K in keyof ViewFields]: Partial<Record<keyof ViewFields[K], Partial<FieldView>>> }>;
   parentView: RootView;
 }
 
 interface ViewBase extends ViewDefinition {
-  fields: Record<FieldId, FieldView>;
+  fields: ViewFields;
   overrides?: Overrides
 }
 
@@ -123,3 +157,17 @@ interface CustomView extends ViewBase {
 }
 
 export type View = (RootView | CustomView);
+
+/**
+ * Get the field view config for a specific entity type from a view.
+ */
+export function fieldsFor<T extends EntityType>(view: View, entityType: T): ViewFields[T] {
+  return view.fields[entityType];
+}
+
+/**
+ * Flatten ViewFields into a single Record<FieldId, FieldView> for mixed-type contexts (e.g. tasks).
+ */
+export function flattenFields(fields: ViewFields): Record<FieldId, FieldView> {
+  return {...fields.entry, ...fields.sense, ...fields.example};
+}

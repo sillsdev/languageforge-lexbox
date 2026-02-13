@@ -131,7 +131,7 @@
         <Editor.Field.Root>
           <Editor.Field.Title
             name="Semantic domains"
-            helpId={fieldData.semanticDomains.helpId}
+            helpId={fieldData.sense.semanticDomains.helpId}
           />
           <Editor.Field.Body>
             <MultiSelect
@@ -151,7 +151,7 @@
         <Editor.Field.Root>
           <Editor.Field.Title
             name="Note"
-            helpId={fieldData.note.helpId}
+            helpId={fieldData.entry.note.helpId}
           />
           <Editor.Field.Body>
             <LcmRichTextEditor bind:value={entry.note} normalWs="en" readonly={editorReadonly} onchange={() => onChange('note')} />
@@ -160,7 +160,7 @@
         <Editor.Field.Root>
           <Editor.Field.Title
             name={{lite: 'Part of speech', classic: 'Grammatical info'}}
-            helpId={fieldData.partOfSpeechId.helpId}
+            helpId={fieldData.sense.partOfSpeechId.helpId}
           />
           <Editor.Field.Body>
             <Select
