@@ -36,7 +36,7 @@ class LocalStorageBackend implements IPreferencesService {
 /**
  * Returns the preferences service if available (MAUI), otherwise localStorage fallback
  */
-function getPreferencesService(): IPreferencesService {
+export function getPreferencesService(): IPreferencesService {
   return tryUsePreferencesService() ?? new LocalStorageBackend();
 }
 
@@ -47,15 +47,13 @@ function getPreferencesService(): IPreferencesService {
  * - `set()` is async - callers can await or fire-and-forget
  * - Initial value loads asynchronously; early subscribers get updates when ready
  */
-class StorageProp {
-  #projectCode: string;
+export class StorageProp {
   #key: string;
   #backend: IPreferencesService;
   #value = $state<string>('');
   #hasBeenSet = $state(false);
 
-  constructor(projectCode: string, key: string, backend: IPreferencesService) {
-    this.#projectCode = projectCode;
+  constructor(key: string, backend: IPreferencesService) {
     this.#key = key;
     this.#backend = backend;
     void this.load();
@@ -72,20 +70,15 @@ class StorageProp {
   async set(value: string): Promise<void> {
     this.#hasBeenSet = true;
     this.#value = value;
-    const storageKey = this.getStorageKey();
     if (value) {
-      await this.#backend.set(storageKey, value);
+      await this.#backend.set(this.#key, value);
     } else {
-      await this.#backend.remove(storageKey);
+      await this.#backend.remove(this.#key);
     }
   }
 
-  private getStorageKey(): string {
-    return `project:${this.#projectCode}:${this.#key}`;
-  }
-
   private async load(): Promise<void> {
-    const value = await this.#backend.get(this.getStorageKey());
+    const value = await this.#backend.get(this.#key);
     if (!this.#hasBeenSet) {
       this.#value = value ?? '';
       this.#hasBeenSet = true;
@@ -97,7 +90,7 @@ export class ProjectStorage {
   readonly selectedTaskId: StorageProp;
 
   constructor(projectCode: string, backend: IPreferencesService) {
-    this.selectedTaskId = new StorageProp(projectCode, 'selectedTaskId', backend);
+    this.selectedTaskId = new StorageProp(`project:${projectCode}:selectedTaskId`, backend);
   }
 }
 

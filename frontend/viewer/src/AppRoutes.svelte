@@ -1,16 +1,33 @@
 <script lang="ts">
   import { setupGlobalErrorHandlers } from '$lib/errors/global-errors';
   import { navigate, Route, Router, useLocation } from 'svelte-routing';
+  import { onMount } from 'svelte';
   import Sandbox from '$lib/sandbox/Sandbox.svelte';
   import DotnetProjectView from './DotnetProjectView.svelte';
   import HomeView from './home/HomeView.svelte';
   import TestProjectView from './TestProjectView.svelte';
   import { initRootLocation } from '$lib/services/root-location-service';
+  import { useAppStorage } from '$lib/utils/app-storage.svelte';
 
   let url = '';
 
   setupGlobalErrorHandlers();
-  initRootLocation(useLocation());
+  const location = initRootLocation(useLocation());
+  const appStorage = useAppStorage();
+
+  // Track the current URL so we can restore it on next app launch
+  location.subscribe(() => {
+    const { pathname, search, hash } = document.location;
+    void appStorage.lastUrl.set(pathname + search + hash);
+  });
+
+  // On startup, restore the last URL if the app opened at the default path
+  onMount(() => {
+    const savedUrl = appStorage.lastUrl.current;
+    if (savedUrl && savedUrl !== '/' && window.location.pathname === '/') {
+      navigate(savedUrl, { replace: true });
+    }
+  });
 </script>
 
 <Route path="/project/:code/*" let:params>
