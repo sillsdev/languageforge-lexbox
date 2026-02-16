@@ -8,6 +8,7 @@ import {
   type IExampleSentence,
   type IFilterQueryOptions,
   type IIndexQueryOptions,
+  type IMiniLcmFeatures,
   type IMiniLcmJsInvokable,
   type IPartOfSpeech,
   type IProjectModel,
@@ -18,7 +19,9 @@ import {
   type IServerProjects,
   type IWritingSystem,
   type IWritingSystems,
-  type WritingSystemType
+  type WritingSystemType,
+  type ICustomView,
+  ViewBase,
 } from '$lib/dotnet-types';
 import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
@@ -174,10 +177,38 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   supportedFeatures() {
     return Promise.resolve({
       write: true,
-    });
+      audio: true,
+    } satisfies IMiniLcmFeatures);
   }
 
   readonly projectName = projectName;
+
+  private _customViews: ICustomView[] = [{
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    name: 'Portuguese and audio',
+    base: ViewBase.FwLite,
+    entryFields: [
+      {fieldId: 'lexemeForm'},
+    ],
+    senseFields: [
+      {fieldId: 'gloss'},
+    ],
+    exampleFields: [
+      {fieldId: 'sentence'},
+      {fieldId: 'translations'},
+    ],
+    analysis: ['pt'],
+    vernacular: ['seh-Zxxx-x-audio'],
+  }];
+
+  getCustomViews(): Promise<ICustomView[]> {
+    return Promise.resolve(JSON.parse(JSON.stringify(this._customViews)) as ICustomView[]);
+  }
+
+  getCustomView(id: string): Promise<ICustomView | null> {
+    const found = this._customViews.find(v => v.id === id) ?? null;
+    return Promise.resolve(found ? (JSON.parse(JSON.stringify(found)) as ICustomView) : null);
+  }
 
   private _entries = entries;
 
@@ -374,6 +405,35 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   deleteComplexFormType(_id: string): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  createCustomView(_customView: ICustomView): Promise<ICustomView> {
+    const id = _customView.id && _customView.id !== '00000000-0000-0000-0000-000000000000'
+      ? _customView.id
+      : crypto.randomUUID();
+    const created: ICustomView = {
+      ..._customView,
+      id,
+      deletedAt: undefined,
+    };
+    this._customViews = [...this._customViews, JSON.parse(JSON.stringify(created)) as ICustomView];
+    return Promise.resolve(JSON.parse(JSON.stringify(created)) as ICustomView);
+  }
+
+  updateCustomView(_id: string, _customView: ICustomView): Promise<ICustomView> {
+    const index = this._customViews.findIndex(v => v.id === _id);
+    if (index === -1) throw new Error(`Custom view ${_id} not found`);
+    const updated: ICustomView = {
+      ..._customView,
+      id: _id,
+    };
+    this._customViews = this._customViews.map((v, i) => i === index ? (JSON.parse(JSON.stringify(updated)) as ICustomView) : v);
+    return Promise.resolve(JSON.parse(JSON.stringify(updated)) as ICustomView);
+  }
+
+  deleteCustomView(_id: string): Promise<void> {
+    this._customViews = this._customViews.filter(v => v.id !== _id);
+    return Promise.resolve();
   }
 
   createComplexFormComponent(_complexFormComponent: IComplexFormComponent): Promise<IComplexFormComponent> {

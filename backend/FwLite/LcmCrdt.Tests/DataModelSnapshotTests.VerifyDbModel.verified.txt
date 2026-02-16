@@ -100,6 +100,42 @@
       Relational:TableName: ComplexFormType
       Relational:ViewName: 
       Relational:ViewSchema: 
+  EntityType: CustomView
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      Analysis (WritingSystemId[])
+        Annotations: 
+          Relational:ColumnType: jsonb
+      Base (ViewBase) Required
+      DeletedAt (DateTimeOffset?)
+      EntryFields (ViewField[]) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      ExampleFields (ViewField[]) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      Name (string) Required
+      SenseFields (ViewField[]) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      SnapshotId (no field, Guid?) Shadow FK Index
+      Vernacular (WritingSystemId[])
+        Annotations: 
+          Relational:ColumnType: jsonb
+    Keys: 
+      Id PK
+    Foreign keys: 
+      CustomView {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      SnapshotId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: CustomView
+      Relational:ViewName: 
+      Relational:ViewSchema: 
   EntityType: Entry
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd

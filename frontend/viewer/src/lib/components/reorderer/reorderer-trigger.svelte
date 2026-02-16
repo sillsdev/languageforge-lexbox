@@ -36,7 +36,7 @@
 {#if child}
   {@render child({arrowIcon, props})}
 {:else}
-  <DropdownMenu.Trigger class={buttonVariants({variant: 'secondary', size: 'icon'})} {...props}>
+  <DropdownMenu.Trigger type="button" class={buttonVariants({variant: 'secondary', size: 'icon'})} {...props}>
     <Icon icon={arrowIcon} />
   </DropdownMenu.Trigger>
 {/if}

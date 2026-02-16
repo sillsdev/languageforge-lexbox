@@ -1,19 +1,32 @@
 <script lang="ts">
   import * as Popover from '$lib/components/ui/popover';
   import * as RadioGroup from '$lib/components/ui/radio-group';
+  import {Button} from '$lib/components/ui/button';
   import NewTabLinkMarkdown from '$lib/markdown/NewTabLinkMarkdown.svelte';
   import {delay} from '$lib/utils/time';
-  import {views} from '$lib/views/view-data';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useCurrentView, useViews} from '$lib/views/view-service';
+  import {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
+  import {useProjectContext} from '$project/project-context.svelte';
   import Markdown from 'svelte-exmarkdown';
   import {t} from 'svelte-i18n-lingui';
 
+  const projectContext = useProjectContext();
   const currentView = useCurrentView();
+  const viewsStore = useViews();
+  const canManageCustomViews = $derived(projectContext.projectData?.role === UserProjectRole.Manager);
+  let {
+    onManageCustomViews,
+  }: {
+    onManageCustomViews?: () => void;
+  } = $props();
+
   function getCurrentView() {
     return $currentView.id;
   }
   function setCurrentView(id: string) {
-    currentView.set(views.find((v) => v.id === id) ?? views[0]);
+    if ($currentView.id === id) return;
+    const nextView = $viewsStore.find((v) => v.id === id) ?? $viewsStore[0];
+    if (nextView) currentView.set(nextView);
   }
 
   let popoverContent = $state<HTMLElement | null>(null);
@@ -42,7 +55,13 @@
       <NewTabLinkMarkdown md={$t`The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*.`} />
     </Popover.Content>
   </Popover.Root>
-  {#each views as view (view.id)}
+  {#each $viewsStore as view (view.id)}
     <RadioGroup.Item value={view.id} label={view.label} />
   {/each}
+
+  {#if canManageCustomViews}
+    <Button variant="outline" size="sm" class="justify-start w-full" icon="i-mdi-cog-outline" onclick={() => onManageCustomViews?.()}>
+      {$t`Manage custom views`}
+    </Button>
+  {/if}
 </RadioGroup.Root>

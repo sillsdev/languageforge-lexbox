@@ -390,4 +390,19 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
             }
         }
     }
+
+    public Task<CustomView> CreateCustomView(CustomView customView)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<CustomView> UpdateCustomView(Guid id, CustomView customView)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteCustomView(Guid id)
+    {
+        throw new NotImplementedException();
+    }
 }

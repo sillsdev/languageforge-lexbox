@@ -259,5 +259,35 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         yield return new ChangeWithDependencies(
             new RemoteResourceUploadedChange(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
             [createRemoteResourcePendingUploadChange]);
+
+        var customView = new CustomView
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test View",
+            Base = ViewBase.FwLite,
+            EntryFields = [new ViewField { FieldId = "lexemeForm" }],
+            SenseFields = [new ViewField { FieldId = "gloss" }],
+            ExampleFields = [new ViewField { FieldId = "sentence" }],
+            Vernacular = [new WritingSystemId("en")],
+            Analysis = [new WritingSystemId("en")],
+        };
+        var createCustomViewChange = new CreateCustomViewChange(
+            customView.Id,
+            customView
+        );
+        yield return new ChangeWithDependencies(createCustomViewChange);
+        var editCustomViewChange = new EditCustomViewChange(
+            customView.Id,
+            customView with
+            {
+                Name = "Updated View",
+                Base = ViewBase.FieldWorks,
+                EntryFields = [new ViewField { FieldId = "citationForm" }],
+                SenseFields = [new ViewField { FieldId = "definition" }],
+                ExampleFields = [new ViewField { FieldId = "translations" }],
+                Vernacular = [new WritingSystemId("fr")],
+                Analysis = [new WritingSystemId("en")]
+            });
+        yield return new ChangeWithDependencies(editCustomViewChange, [createCustomViewChange]);
     }
 }

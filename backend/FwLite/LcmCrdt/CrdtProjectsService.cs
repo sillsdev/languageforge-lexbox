@@ -244,6 +244,7 @@ public partial class CrdtProjectsService(
         await PreDefinedData.PredefinedComplexFormTypes(dataModel, clientId);
         await PreDefinedData.PredefinedPartsOfSpeech(dataModel, clientId);
         await PreDefinedData.PredefinedSemanticDomains(dataModel, clientId);
+        await PreDefinedData.PredefinedCustomViews(dataModel, clientId);
     }
 
     [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]

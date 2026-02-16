@@ -11,6 +11,7 @@
   import ViewPicker from './ViewPicker.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
   import {Icon} from '$lib/components/ui/icon';
+  import ManageCustomViewsDialog from '$lib/views/ManageCustomViewsDialog.svelte';
 
   let {
     entryMode = $bindable('simple'),
@@ -21,6 +22,12 @@
   } = $props();
 
   let open = $state(false);
+  let manageCustomViewsOpen = $state(false);
+
+  function openManageCustomViews() {
+    open = false;
+    manageCustomViewsOpen = true;
+  }
 </script>
 
 <ResponsivePopup bind:open>
@@ -45,7 +52,7 @@
       </Tabs.Root>
     </div>
 
-    <ViewPicker />
+    <ViewPicker onManageCustomViews={openManageCustomViews} />
 
     <DevContent>
       <div class="space-y-2">
@@ -57,3 +64,5 @@
     </DevContent>
   </div>
 </ResponsivePopup>
+
+<ManageCustomViewsDialog bind:open={manageCustomViewsOpen} />

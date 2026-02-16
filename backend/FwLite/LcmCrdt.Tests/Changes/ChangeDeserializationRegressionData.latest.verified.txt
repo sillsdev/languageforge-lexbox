@@ -698,5 +698,63 @@
     "$type": "SetFirstTranslationIdChange",
     "TranslationId": "349419f8-65f4-1a81-42f4-b641837fa203",
     "EntityId": "d5ddbafb-d417-5df1-f4a4-d1224bdfac42"
+  },
+  {
+    "$type": "CreateCustomViewChange",
+    "Name": "bleeding-edge",
+    "Base": "FwLite",
+    "EntryFields": [
+      {
+        "FieldId": "synthesize"
+      }
+    ],
+    "SenseFields": [
+      {
+        "FieldId": "Small Soft Towels"
+      }
+    ],
+    "ExampleFields": [
+      {
+        "FieldId": "Borders"
+      }
+    ],
+    "Vernacular": [
+      "ots"
+    ],
+    "Analysis": [
+      "bvj"
+    ],
+    "EntityId": "a3145eb5-fc0e-c3c8-e717-89101b3a0f19"
+  },
+  {
+    "$type": "EditCustomViewChange",
+    "Name": "coherent",
+    "Base": "FwLite",
+    "EntryFields": [
+      {
+        "FieldId": "dot-com"
+      }
+    ],
+    "SenseFields": [
+      {
+        "FieldId": "Ergonomic"
+      }
+    ],
+    "ExampleFields": [
+      {
+        "FieldId": "Awesome"
+      }
+    ],
+    "Vernacular": [
+      "pmz"
+    ],
+    "Analysis": [
+      "vae"
+    ],
+    "EntityId": "71978d33-9454-2568-3639-5059f11527fa"
+  },
+  {
+    "$type": "delete:CustomView",
+    "EntityId": "f62e3014-7617-36aa-8ac2-b1a7ac15c552"
   }
 ]

@@ -30,6 +30,30 @@ export const allFields: Record<FieldId, FieldView> = {
   reference: {show: false, order: 3},
 };
 
+export const ENTRY_FIELD_IDS = [
+  'lexemeForm',
+  'citationForm',
+  'complexForms',
+  'components',
+  'complexFormTypes',
+  'literalMeaning',
+  'note',
+  'publishIn',
+] as const satisfies FieldId[];
+
+export const SENSE_FIELD_IDS = [
+  'gloss',
+  'definition',
+  'partOfSpeechId',
+  'semanticDomains',
+] as const satisfies FieldId[];
+
+export const EXAMPLE_FIELD_IDS = [
+  'sentence',
+  'translations',
+  'reference',
+] as const satisfies FieldId[];
+
 export const FW_LITE_VIEW: RootView = {
   id: 'fwlite',
   type: 'fw-lite',

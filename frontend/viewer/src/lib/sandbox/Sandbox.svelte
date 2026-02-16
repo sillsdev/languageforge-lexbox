@@ -9,7 +9,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {tryUseService} from '$lib/services/service-provider';
   import {delay} from '$lib/utils/time';
-  import {initView, initViewSettings} from '$lib/views/view-service';
+  import {initView, initViewSettings, initViews} from '$lib/views/view-service';
   import {dndzone} from 'svelte-dnd-action';
   import * as Resizable from '$lib/components/ui/resizable';
   import LcmRichTextEditor, {lineSeparator} from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
@@ -49,6 +49,7 @@
   }
 
   InMemoryDemoApi.setup();
+  initViews();
   initView();
   initViewSettings();
   const writingSystemService = useWritingSystemService();

@@ -1,6 +1,6 @@
 <script module lang="ts">
   import {onMount} from 'svelte';
-  import { writable } from 'svelte/store';
+  import {writable} from 'svelte/store';
 
   export let useShadcn = writable(false);
 
@@ -17,7 +17,7 @@
   import ProjectSidebar from './project/ProjectSidebar.svelte';
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
-  import {initView, initViewSettings} from '$lib/views/view-service';
+  import {initView, initViewSettings, initViews} from '$lib/views/view-service';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
   import {navigate, Route, useRouter} from 'svelte-routing';
   import ActivityView from '$lib/activity/ActivityView.svelte';
@@ -32,6 +32,7 @@
     onloaded: (loaded: boolean) => void;
   } & HTMLAttributes<HTMLDivElement> = $props();
 
+  initViews();
   initView();
   initViewSettings();
 

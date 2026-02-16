@@ -805,6 +805,53 @@ public class CrdtMiniLcmApi(
         }
     }
 
+    public async IAsyncEnumerable<CustomView> GetCustomViews()
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var customView in repo.CustomViews.AsAsyncEnumerable())
+        {
+            yield return customView;
+        }
+    }
+
+    public async Task<CustomView?> GetCustomView(Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetCustomView(id);
+    }
+
+    public async Task<CustomView> CreateCustomView(CustomView customView)
+    {
+        AssertManagerRoleForCustomViewWrite("create");
+        if (customView.Id == Guid.Empty) customView.Id = Guid.NewGuid();
+        await AddChange(new CreateCustomViewChange(customView.Id, customView));
+        return await GetCustomView(customView.Id) ?? throw NotFoundException.ForType<CustomView>(customView.Id);
+    }
+
+    public async Task<CustomView> UpdateCustomView(Guid id, CustomView customView)
+    {
+        AssertManagerRoleForCustomViewWrite("update");
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var existing = await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
+        await AddChange(new EditCustomViewChange(existing.Id, customView));
+        return await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
+    }
+
+    public async Task DeleteCustomView(Guid id)
+    {
+        AssertManagerRoleForCustomViewWrite("delete");
+        await using var repo = await repoFactory.CreateRepoAsync();
+        _ = await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
+        await AddChange(new DeleteChange<CustomView>(id));
+    }
+
+    private void AssertManagerRoleForCustomViewWrite(string action)
+    {
+        if (ProjectData.Role == UserProjectRole.Manager) return;
+        throw new UnauthorizedAccessException(
+            $"Only managers can {action} custom views.");
+    }
+
     public void Dispose()
     {
     }

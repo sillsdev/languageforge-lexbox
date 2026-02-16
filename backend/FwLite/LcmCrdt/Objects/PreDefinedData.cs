@@ -42,4 +42,35 @@ public static class PreDefinedData
             ],
             new Guid("023faebb-711b-4d2f-b34f-a15621fc66bb"));
     }
+
+    internal static async Task PredefinedCustomViews(DataModel dataModel, Guid clientId)
+    {
+        await dataModel.AddChanges(clientId,
+            [
+                new CreateCustomViewChange(
+                    new Guid("a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
+                    new CustomView
+                    {
+                        Id = new Guid("a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
+                        Name = "Custom View",
+                        Base = ViewBase.FwLite,
+                        EntryFields =
+                        [
+                            new ViewField { FieldId = "lexemeForm" },
+                        ],
+                        SenseFields =
+                        [
+                            new ViewField { FieldId = "gloss" },
+                        ],
+                        ExampleFields =
+                        [
+                            new ViewField { FieldId = "sentence" },
+                            new ViewField { FieldId = "translations" },
+                        ],
+                        Vernacular = [new WritingSystemId("de")],
+                        Analysis = [new WritingSystemId("en"), new WritingSystemId("en-Zxxx-x-audio")]
+                    })
+            ],
+            new Guid("b2c3d4e5-f6a7-8901-bcde-f12345678901"));
+    }
 }

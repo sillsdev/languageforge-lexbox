@@ -73,6 +73,16 @@ export const writingSystems: IWritingSystems = {
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Vernacular,
       isAudio: false,
+    },
+    {
+      'id': 'seh-Zxxx-x-audio',
+      'wsId': 'seh-Zxxx-x-audio',
+      'name': 'Sena Audio',
+      'abbreviation': 'seh 🔉',
+      'font': '???',
+      'exemplars': [],
+      'type': WritingSystemType.Vernacular,
+      isAudio: true,
     }
   ]
 };

@@ -228,6 +228,34 @@ public static class LcmCrdtKernel
             .Add<Publication>()
             .Add<SemanticDomain>()
             .Add<ComplexFormType>()
+            .Add<CustomView>(builder =>
+            {
+                builder.Property(v => v.EntryFields)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<ViewField[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<ViewField>());
+                builder.Property(v => v.SenseFields)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<ViewField[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<ViewField>());
+                builder.Property(v => v.ExampleFields)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<ViewField[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<ViewField>());
+                builder.Property(v => v.Vernacular)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => json == null ? null : JsonSerializer.Deserialize<WritingSystemId[]>(json, (JsonSerializerOptions?)null));
+                builder.Property(v => v.Analysis)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => json == null ? null : JsonSerializer.Deserialize<WritingSystemId[]>(json, (JsonSerializerOptions?)null));
+            })
             .Add<ComplexFormComponent>(builder =>
             {
                 const string componentSenseId = "ComponentSenseId";
@@ -294,6 +322,9 @@ public static class LcmCrdtKernel
             .Add<ReplacePublicationChange>()
             .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
+            .Add<CreateCustomViewChange>()
+            .Add<EditCustomViewChange>()
+            .Add<DeleteChange<CustomView>>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()

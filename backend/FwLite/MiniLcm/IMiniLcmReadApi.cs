@@ -37,6 +37,14 @@ public interface IMiniLcmReadApi
     {
         return Task.FromResult(new ReadFileResponse(ReadFileResult.NotSupported));
     }
+    IAsyncEnumerable<CustomView> GetCustomViews()
+    {
+        throw new NotSupportedException("Custom views are only supported by CRDT projects");
+    }
+    Task<CustomView?> GetCustomView(Guid id)
+    {
+        throw new NotSupportedException("Custom views are only supported by CRDT projects");
+    }
 }
 
 public record IndexQueryOptions(
