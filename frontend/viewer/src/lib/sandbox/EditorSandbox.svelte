@@ -4,13 +4,13 @@
   import MultiSelect from '$lib/components/field-editors/multi-select.svelte';
   import Select from '$lib/components/field-editors/select.svelte';
   import LcmRichTextEditor from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
-  import { ResizablePaneGroup, ResizablePane, ResizableHandle } from '$lib/components/ui/resizable';
-  import { Switch } from '$lib/components/ui/switch';
-  import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+  import {ResizablePaneGroup, ResizablePane, ResizableHandle} from '$lib/components/ui/resizable';
+  import {Switch} from '$lib/components/ui/switch';
+  import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {writingSystems} from '$project/demo/demo-entry-data';
   import {type IMultiString} from '$lib/dotnet-types';
   import {type IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
-  import { fieldData } from '$lib/entry-editor/field-data';
+  import {fieldData} from '$lib/views/fields';
   import ViewPicker from '../../project/browse/EditorViewOptions.svelte';
   import WsInput from '$lib/components/field-editors/ws-input.svelte';
   import {vt} from '$lib/views/view-text';

@@ -3,7 +3,7 @@
   import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Checkbox} from '$lib/components/ui/checkbox';
   import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
-  import type {FieldId} from '$lib/entry-editor/field-data';
+  import type {FieldId} from '$lib/views/fields';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import {InMemoryDemoApi} from '$project/demo/in-memory-demo-api';
   import {AppNotification} from '$lib/notifications/notifications';

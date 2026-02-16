@@ -1,15 +1,13 @@
-import type {EntryFieldId, ExampleFieldId, SenseFieldId, EntityType, FieldId} from '$lib/entry-editor/field-data';
+import type {EntityFields, EntityType, FieldId} from './fields';
+
+import type {PartialDeep} from 'type-fest';
 
 export interface FieldView {
   show: boolean;
   order: number;
 }
 
-export interface ViewFields {
-  entry: Record<EntryFieldId, FieldView>;
-  sense: Record<SenseFieldId, FieldView>;
-  example: Record<ExampleFieldId, FieldView>;
-}
+export type ViewFields = {[T in EntityType]: {[F in EntityFields<T>]: FieldView}};
 
 export const allFields: ViewFields = {
   entry: {
@@ -34,6 +32,8 @@ export const allFields: ViewFields = {
     reference: {show: false, order: 3},
   },
 };
+
+export type EntityViewFields = ViewFields[EntityType];
 
 export const FW_LITE_VIEW: RootView = {
   id: 'fwlite',
@@ -62,41 +62,35 @@ const viewDefinitions: CustomViewDefinition[] = [
 export const views: [RootView, RootView, ...CustomView[]] = [
   FW_LITE_VIEW,
   FW_CLASSIC_VIEW,
-  ...viewDefinitions.map(view => {
-    // fieldOverrides has Partial<FieldView> leaves which recursiveSpread merges with the full FieldView
-    const fields: ViewFields = recursiveSpread(allFields, view.fieldOverrides as { [P in keyof ViewFields]?: Partial<ViewFields[P]> });
-    return {
-      ...FW_LITE_VIEW,
-      ...view,
-      fields: fields
-    };
-  })
+  ...viewDefinitions.map(view => ({
+    ...FW_LITE_VIEW,
+    ...view,
+    fields: mergeViewFields(allFields, view.fieldOverrides),
+  }))
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function recursiveSpread<T extends Record<string, any>>(obj1: T, obj2: { [P in keyof T]?: Partial<T[P]> }): T {
-  const result: Record<string, unknown> = {...obj1};
-  for (const [key, value] of Object.entries(obj2)) {
-    const currentValue = result[key];
-    if (typeof currentValue === 'object' && currentValue !== null && typeof value === 'object' && value !== null) {
-      result[key] = recursiveSpread(currentValue as Record<string, unknown>, value as Record<string, Partial<unknown>>);
-    } else {
-      result[key] = value;
-    }
-  }
-  return result as T;
-}
-
-function showAllFields<T extends string>(fields: Record<T, FieldView>, overrides?: Partial<Record<T, Partial<FieldView>>>): Record<T, FieldView> {
-  const result = Object.fromEntries(
-    Object.entries(fields).map(([id, field]) => [id, {...(field as FieldView), show: true}])
-  ) as Record<T, FieldView>;
-  if (overrides) {
-    for (const [id, override] of Object.entries(overrides) as [T, Partial<FieldView>][]) {
-      result[id] = {...result[id], ...override};
-    }
+function mergeFields<T>(base: T, overrides?: Partial<Record<FieldId, Partial<FieldView>>>): T {
+  if (!overrides) return {...base};
+  const result = {...base};
+  for (const [id, override] of Object.entries(overrides) as [keyof T, Partial<FieldView>][]) {
+    result[id] = {...result[id], ...override};
   }
   return result;
+}
+
+function mergeViewFields(base: ViewFields, overrides: CustomViewDefinition['fieldOverrides']): ViewFields {
+  return {
+    entry: mergeFields(base.entry, overrides.entry),
+    sense: mergeFields(base.sense, overrides.sense),
+    example: mergeFields(base.example, overrides.example),
+  };
+}
+
+function showAllFields<T extends EntityViewFields>(fields: T, overrides?: PartialDeep<T>): T {
+  const allShown = Object.fromEntries(
+    Object.entries(fields).map(([id, field]) => [id, {...(field), show: true}])
+  ) as T;
+  return mergeFields(allShown, overrides);
 }
 
 export type ViewType = 'fw-lite' | 'fw-classic';
@@ -113,7 +107,7 @@ export type Overrides = {
 };
 
 interface CustomViewDefinition extends ViewDefinition {
-  fieldOverrides: Partial<{ [K in keyof ViewFields]: Partial<Record<keyof ViewFields[K], Partial<FieldView>>> }>;
+  fieldOverrides: PartialDeep<ViewFields>;
   parentView: RootView;
 }
 
@@ -133,17 +127,3 @@ interface CustomView extends ViewBase {
 }
 
 export type View = (RootView | CustomView);
-
-/**
- * Get the field view config for a specific entity type from a view.
- */
-export function fieldsFor<T extends EntityType>(view: View, entityType: T): ViewFields[T] {
-  return view.fields[entityType];
-}
-
-/**
- * Flatten ViewFields into a single Record<FieldId, FieldView> for mixed-type contexts (e.g. tasks).
- */
-export function flattenFields(fields: ViewFields): Record<FieldId, FieldView> {
-  return {...fields.entry, ...fields.sense, ...fields.example};
-}

@@ -11,7 +11,7 @@
   import {mergeProps} from 'bits-ui';
   import type {Snippet} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
-  import {fieldData, type SenseFieldId} from '../field-data';
+  import {fieldData, type SenseFieldId} from '../../views/fields';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     sense: ISense;
@@ -38,10 +38,12 @@
   function onFieldChanged(field: SenseFieldId) {
     onchange?.(sense, field);
   }
+
+  const fields = $derived($currentView.fields.sense);
 </script>
 
-<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas($currentView, sense, 'sense') } })}>
-  <Editor.Field.Root fieldId="gloss" class={cn($currentView.fields.sense.gloss.show || 'hidden')}>
+<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas(fields) } })}>
+  <Editor.Field.Root fieldId="gloss" class={cn(fields.gloss.show || 'hidden')}>
     <Editor.Field.Title name={$t`Gloss`} helpId={fieldData.sense.gloss.helpId} />
     <Editor.Field.Body subGrid>
       <MultiWsInput
@@ -52,7 +54,7 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root fieldId="definition" class={cn($currentView.fields.sense.definition.show || 'hidden')}>
+  <Editor.Field.Root fieldId="definition" class={cn(fields.definition.show || 'hidden')}>
     <Editor.Field.Title name={$t`Definition`} helpId={fieldData.sense.definition.helpId} />
     <Editor.Field.Body subGrid>
       <RichMultiWsInput
@@ -63,7 +65,7 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root fieldId="partOfSpeechId" class={cn($currentView.fields.sense.partOfSpeechId.show || 'hidden')}>
+  <Editor.Field.Root fieldId="partOfSpeechId" class={cn(fields.partOfSpeechId.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Grammatical info.`, $t`Part of speech`)} helpId={fieldData.sense.partOfSpeechId.helpId}/>
     <Editor.Field.Body>
       <Select
@@ -80,7 +82,7 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root fieldId="semanticDomains" class={cn($currentView.fields.sense.semanticDomains.show || 'hidden')}>
+  <Editor.Field.Root fieldId="semanticDomains" class={cn(fields.semanticDomains.show || 'hidden')}>
     <Editor.Field.Title name={$t`Semantic domains`} helpId={fieldData.sense.semanticDomains.helpId} />
     <Editor.Field.Body>
       <MultiSelect
