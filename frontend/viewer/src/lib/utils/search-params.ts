@@ -5,13 +5,16 @@ export const enum ViewerSearchParam {
   Search = 'search',
 }
 
+/** Key for the query param that opens the entry panel on mobile. */
+export const ENTRY_OPEN_PARAM = 'entryOpen';
+
 /**
  * Returns the query params needed to navigate to a specific entry in the browse view.
  * Always use this instead of constructing entryId params manually — entryOpen=true is
  * required for the entry to be visible on mobile.
  */
 export function entryBrowseParams(entryId: string): string {
-  return `${ViewerSearchParam.EntryId}=${encodeURIComponent(entryId)}&entryOpen=true`;
+  return `${ViewerSearchParam.EntryId}=${encodeURIComponent(entryId)}&${ENTRY_OPEN_PARAM}=true`;
 }
 export function getSearchParams(): URLSearchParams {
   return new URLSearchParams(window.location.search);
