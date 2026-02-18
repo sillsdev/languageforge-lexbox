@@ -9,6 +9,7 @@
   import {useDialogsService} from '$lib/services/dialogs-service';
   import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
   import {QueryParamState, QueryParamStateBool} from '$lib/utils/url.svelte';
+  import {BrowseParam} from '$lib/utils/search-params';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
   import IfOnce from '$lib/components/if-once/if-once.svelte';
@@ -27,8 +28,8 @@
   // So, selectedEntryId itself drives navigation.
   // MOBILE: an entry is a child of the list (it's hierarchical). We always go back to the list before opening a different entry.
   // So, entryOpen drives navigation.
-  const selectedEntryId = new QueryParamState({key: 'entryId', allowBack: !IsMobile.value, replaceOnDefaultValue: !IsMobile.value});
-  const entryOpen = new QueryParamStateBool({key: 'entryOpen', allowBack: IsMobile.value, replaceOnDefaultValue: IsMobile.value}, false);
+  const selectedEntryId = new QueryParamState({key: BrowseParam.EntryId, allowBack: !IsMobile.value, replaceOnDefaultValue: !IsMobile.value});
+  const entryOpen = new QueryParamStateBool({key: BrowseParam.EntryOpen, allowBack: IsMobile.value, replaceOnDefaultValue: IsMobile.value}, false);
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
   let gridifyFilter = $state<string>();
