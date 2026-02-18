@@ -152,7 +152,7 @@ public static class ReinforcedFwLiteTypingConfig
             .Where(s => s is not (DotnetService.MiniLcmApi or DotnetService.FwLiteConfig or DotnetService.TroubleshootingService))
             .Select(FwLiteProvider.GetServiceType);
         builder.ExportAsInterfaces(serviceTypes, exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
-        builder.ExportAsInterfaces([typeof(ITroubleshootingService)], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise()));
+        builder.ExportAsInterfaces([typeof(ITroubleshootingService)], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise()).WithPublicNonStaticProperties());
 
         builder.ExportAsInterface<ProjectSyncStatus>().WithPublicNonStaticProperties();
         builder.ExportAsInterfaces([

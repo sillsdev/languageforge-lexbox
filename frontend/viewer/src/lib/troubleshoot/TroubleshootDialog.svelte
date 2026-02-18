@@ -70,7 +70,7 @@
         </InputShell>
       </div>
     {/if}
-    {#if projectCode}
+    {#if projectCode && service?.canShare}
       <div class="flex gap-2">
         <Button variant="outline" onclick={() => shareProject()}>
           <i class="i-mdi-file-export"></i>
@@ -84,10 +84,12 @@
           <i class="i-mdi-file-eye"></i>
           {$t`Open Log file`}
         </Button>
-        <Button variant="outline" onclick={() => service?.shareLogFile()}>
-          <i class="i-mdi-file-export"></i>
-          {$t`Share Log file`}
-        </Button>
+        {#if service.canShare}
+          <Button variant="outline" onclick={() => service?.shareLogFile()}>
+            <i class="i-mdi-file-export"></i>
+            {$t`Share Log file`}
+          </Button>
+        {/if}
       </div>
     {/if}
   </div>
