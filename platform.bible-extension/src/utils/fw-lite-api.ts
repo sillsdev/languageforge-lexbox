@@ -35,7 +35,7 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
 
 export function getBrowseUrl(baseUrl: string, dictionaryCode: string, entryId?: string): string {
   let url = `${baseUrl}/paratext/fwdata/${sanitizeUrlComponent(dictionaryCode)}`;
-  if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}`;
+  if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}&entryOpen=true`;
   return url;
 }
 
