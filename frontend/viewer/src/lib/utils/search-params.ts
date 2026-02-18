@@ -1,7 +1,6 @@
 
 export const enum ViewerSearchParam {
   EntryId = 'entryId',
-  EntryOpen = 'entryOpen',
   IndexCharacter = 'indexCharacter',
   Search = 'search',
 }
@@ -12,7 +11,7 @@ export const enum ViewerSearchParam {
  * required for the entry to be visible on mobile.
  */
 export function entryBrowseParams(entryId: string): string {
-  return `${ViewerSearchParam.EntryId}=${encodeURIComponent(entryId)}&${ViewerSearchParam.EntryOpen}=true`;
+  return `${ViewerSearchParam.EntryId}=${encodeURIComponent(entryId)}&entryOpen=true`;
 }
 export function getSearchParams(): URLSearchParams {
   return new URLSearchParams(window.location.search);

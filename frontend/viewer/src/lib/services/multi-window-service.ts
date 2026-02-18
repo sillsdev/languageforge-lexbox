@@ -36,7 +36,7 @@ export class MultiWindowService implements IMultiWindowService {
     const [_, projectCode] = url.pathname.split('/').filter(Boolean);
     const browsePath = `/project/${projectCode}/browse`;
 
-    await this.openNewWindow(`${browsePath}?${entryBrowseParams(entryId)}`, SM_VIEW_MAX_WIDTH);
+    await this.openNewWindow(`${browsePath}?${entryBrowseParams(entryId)}${url.hash}`, SM_VIEW_MAX_WIDTH);
   }
 }
 
