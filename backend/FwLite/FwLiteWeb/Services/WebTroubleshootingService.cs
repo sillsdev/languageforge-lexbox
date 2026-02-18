@@ -2,6 +2,7 @@ using System.Diagnostics;
 using FwLiteShared.Services;
 using LcmCrdt;
 using Microsoft.Extensions.Options;
+using Microsoft.JSInterop;
 
 namespace FwLiteWeb.Services;
 
@@ -9,13 +10,16 @@ public class WebTroubleshootingService(
     IOptions<LcmCrdtConfig> crdtConfig,
     IOptions<FwLiteWebConfig> webConfig) : ITroubleshootingService
 {
+    [JSInvokable]
     public Task<bool> GetCanShare() => Task.FromResult(false);
 
+    [JSInvokable]
     public Task<string> GetDataDirectory()
     {
         return Task.FromResult(crdtConfig.Value.ProjectPath);
     }
 
+    [JSInvokable]
     public Task<bool> TryOpenDataDirectory()
     {
         try
@@ -33,6 +37,7 @@ public class WebTroubleshootingService(
         }
     }
 
+    [JSInvokable]
     public Task OpenLogFile()
     {
         var logFileName = webConfig.Value.LogFileName;
