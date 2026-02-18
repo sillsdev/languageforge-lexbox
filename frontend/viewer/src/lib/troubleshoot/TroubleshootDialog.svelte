@@ -23,6 +23,8 @@
   const service = useTroubleshootingService();
   const config = useFwLiteConfig();
   let projectCode = $state<string>();
+  let canShare = $state(false);
+  $effect(() => { void service?.getCanShare().then(v => (canShare = v)); });
 
   async function tryOpenDataDirectory() {
     if (!await service?.tryOpenDataDirectory()) {
@@ -70,7 +72,7 @@
         </InputShell>
       </div>
     {/if}
-    {#if projectCode && service?.canShare}
+    {#if projectCode && canShare}
       <div class="flex gap-2">
         <Button variant="outline" onclick={() => shareProject()}>
           <i class="i-mdi-file-export"></i>
@@ -84,7 +86,7 @@
           <i class="i-mdi-file-eye"></i>
           {$t`Open Log file`}
         </Button>
-        {#if service.canShare}
+        {#if canShare}
           <Button variant="outline" onclick={() => service?.shareLogFile()}>
             <i class="i-mdi-file-export"></i>
             {$t`Share Log file`}

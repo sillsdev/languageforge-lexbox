@@ -9,7 +9,7 @@ public class WebTroubleshootingService(
     IOptions<LcmCrdtConfig> crdtConfig,
     IOptions<FwLiteWebConfig> webConfig) : ITroubleshootingService
 {
-    public bool CanShare => false;
+    public Task<bool> GetCanShare() => Task.FromResult(false);
 
     public Task<string> GetDataDirectory()
     {

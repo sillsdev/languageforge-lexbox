@@ -19,7 +19,8 @@ public class MauiTroubleshootingService(
     private readonly IShare _share = share;
     private FwLiteMauiConfig Config => config.Value;
 
-    public bool CanShare => true;
+    [JSInvokable]
+    public Task<bool> GetCanShare() => Task.FromResult(true);
 
     [JSInvokable]
     public async Task<bool> TryOpenDataDirectory()
