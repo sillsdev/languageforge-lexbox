@@ -1,9 +1,9 @@
 <script lang="ts">
   import {initView, useCurrentView} from '$lib/views/view-service';
-  import type {FieldId} from '$lib/entry-editor/field-data';
-  import type {FieldView, Overrides} from './view-data';
+  import type {EntityViewFields, FieldView, Overrides} from './view-data';
   import type {Snippet} from 'svelte';
   import {watch} from 'runed';
+  import type {FieldId} from './fields';
 
   interface Props {
     shownFields?: FieldId[];
@@ -24,20 +24,27 @@
   watch(() => [shownFields, respectOrder, $currentView, overrides] as const, ([shownFields, respectOrder, currentView, overrides]) => {
     $overrideView = {
       ...currentView,
-      fields: Object.fromEntries((Object.entries(currentView.fields) as Array<[FieldId, FieldView]>).map(([id, field]) => {
-          return [id, {
-            ...field,
-            show: shownFields.includes(id),
-            order: respectOrder ? shownFields.indexOf(id) : field.order
-          }];
-        })
-      ) as Record<FieldId, FieldView>,
+      fields: {
+        entry: overrideEntityFields(currentView.fields.entry, shownFields, respectOrder),
+        sense: overrideEntityFields(currentView.fields.sense, shownFields, respectOrder),
+        example: overrideEntityFields(currentView.fields.example, shownFields, respectOrder),
+      },
       overrides: {
         ...currentView.overrides,
         ...overrides
       }
     };
   });
+
+  function overrideEntityFields<T extends EntityViewFields>(entityFields: T, shownFields: FieldId[], respectOrder: boolean): T {
+    return Object.fromEntries(
+      (Object.entries(entityFields) as [FieldId, FieldView][]).map(([id, field]) => [id, {
+        ...field,
+        show: shownFields.includes(id),
+        order: respectOrder ? shownFields.indexOf(id) : field.order
+      }])
+    ) as T;
+  }
 </script>
 
 {@render children?.()}

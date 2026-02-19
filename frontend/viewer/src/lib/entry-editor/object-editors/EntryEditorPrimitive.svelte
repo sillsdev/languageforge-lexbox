@@ -4,7 +4,7 @@
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import {pt, vt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
-  import {fieldData, type FieldId} from '../field-data';
+  import {fieldData, type EntryFieldId} from '../../views/fields';
   import {cn} from '$lib/utils';
   import {useComplexFormTypes, usePublications, useWritingSystemService} from '$project/data';
   import {MultiSelect, MultiWsInput, RichMultiWsInput} from '$lib/components/field-editors';
@@ -20,7 +20,7 @@
     readonly?: boolean;
     autofocus?: boolean;
     modalMode?: boolean;
-    onchange?: (entry: IEntry, field: FieldId) => void;
+    onchange?: (entry: IEntry, field: EntryFieldId) => void;
     publishInDescription?: Snippet;
   }
 
@@ -40,14 +40,16 @@
   const currentView = useCurrentView();
   initSubjectContext(() => entry);
 
-  function onFieldChanged(field: FieldId) {
+  function onFieldChanged(field: EntryFieldId) {
     onchange?.(entry, field);
   }
+
+  const fields = $derived($currentView.fields.entry);
 </script>
 
-<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas($currentView, entry) } })}>
-  <Editor.Field.Root fieldId="lexemeForm" class={cn($currentView.fields.lexemeForm.show || 'hidden')}>
-    <Editor.Field.Title name={vt($t`Lexeme form`, $t`Word`)} helpId={fieldData.lexemeForm.helpId} />
+<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas(fields) } })}>
+  <Editor.Field.Root fieldId="lexemeForm" class={cn(fields.lexemeForm.show || 'hidden')}>
+    <Editor.Field.Title name={vt($t`Lexeme form`, $t`Word`)} helpId={fieldData.entry.lexemeForm.helpId} />
     <Editor.Field.Body subGrid>
       <MultiWsInput
           onchange={() => onFieldChanged('lexemeForm')}
@@ -58,8 +60,8 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root fieldId="citationForm" class={cn($currentView.fields.citationForm.show || 'hidden')}>
-    <Editor.Field.Title name={vt($t`Citation form`, $t`Display as`)} helpId={fieldData.citationForm.helpId} />
+  <Editor.Field.Root fieldId="citationForm" class={cn(fields.citationForm.show || 'hidden')}>
+    <Editor.Field.Title name={vt($t`Citation form`, $t`Display as`)} helpId={fieldData.entry.citationForm.helpId} />
     <Editor.Field.Body subGrid>
       <MultiWsInput
           onchange={() => onFieldChanged('citationForm')}
@@ -70,8 +72,8 @@
   </Editor.Field.Root>
 
   {#if !modalMode}
-    <Editor.Field.Root fieldId="complexForms" class={cn($currentView.fields.complexForms.show || 'hidden')}>
-      <Editor.Field.Title name={vt($t`Complex forms`, $t`Part of`)} helpId={fieldData.complexForms.helpId} />
+    <Editor.Field.Root fieldId="complexForms" class={cn(fields.complexForms.show || 'hidden')}>
+      <Editor.Field.Title name={vt($t`Complex forms`, $t`Part of`)} helpId={fieldData.entry.complexForms.helpId} />
       <Editor.Field.Body>
         <ComplexForms onchange={() => onFieldChanged('complexForms')}
                       bind:value={entry.complexForms}
@@ -80,8 +82,8 @@
       </Editor.Field.Body>
     </Editor.Field.Root>
 
-    <Editor.Field.Root fieldId="components" class={cn($currentView.fields.components.show || 'hidden')}>
-      <Editor.Field.Title name={$t`Components`} helpId={fieldData.components.helpId} />
+    <Editor.Field.Root fieldId="components" class={cn(fields.components.show || 'hidden')}>
+      <Editor.Field.Title name={$t`Components`} helpId={fieldData.entry.components.helpId} />
       <Editor.Field.Body>
         <ComplexFormComponents
           onchange={() => onFieldChanged('components')}
@@ -91,8 +93,8 @@
       </Editor.Field.Body>
     </Editor.Field.Root>
 
-    <Editor.Field.Root fieldId="complexFormTypes" class={cn($currentView.fields.complexFormTypes.show || 'hidden')}>
-      <Editor.Field.Title name={vt($t`Complex form types`, $t`Uses components as`)} helpId={fieldData.complexFormTypes.helpId} />
+    <Editor.Field.Root fieldId="complexFormTypes" class={cn(fields.complexFormTypes.show || 'hidden')}>
+      <Editor.Field.Title name={vt($t`Complex form types`, $t`Uses components as`)} helpId={fieldData.entry.complexFormTypes.helpId} />
       <Editor.Field.Body>
         <MultiSelect
           onchange={() => onFieldChanged('complexFormTypes')}
@@ -106,8 +108,8 @@
     </Editor.Field.Root>
   {/if}
 
-  <Editor.Field.Root fieldId="literalMeaning" class={cn($currentView.fields.literalMeaning.show || 'hidden')}>
-    <Editor.Field.Title name={vt($t`Literal meaning`)} helpId={fieldData.literalMeaning.helpId} />
+  <Editor.Field.Root fieldId="literalMeaning" class={cn(fields.literalMeaning.show || 'hidden')}>
+    <Editor.Field.Title name={vt($t`Literal meaning`)} helpId={fieldData.entry.literalMeaning.helpId} />
     <Editor.Field.Body subGrid>
       <RichMultiWsInput
           onchange={() => onFieldChanged('literalMeaning')}
@@ -117,8 +119,8 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root fieldId="note" class={cn($currentView.fields.note.show || 'hidden')}>
-    <Editor.Field.Title name={vt($t`Note`)} helpId={fieldData.note.helpId} />
+  <Editor.Field.Root fieldId="note" class={cn(fields.note.show || 'hidden')}>
+    <Editor.Field.Title name={vt($t`Note`)} helpId={fieldData.entry.note.helpId} />
     <Editor.Field.Body subGrid>
       <RichMultiWsInput
           onchange={() => onFieldChanged('note')}
@@ -128,8 +130,8 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root fieldId="publishIn" class={cn($currentView.fields.publishIn.show || 'hidden')}>
-    <Editor.Field.Title name={$t`Publish ${pt($t`Entry`, $t`Word`, $currentView)} in`} helpId={fieldData.publishIn.helpId} />
+  <Editor.Field.Root fieldId="publishIn" class={cn(fields.publishIn.show || 'hidden')}>
+    <Editor.Field.Title name={$t`Publish ${pt($t`Entry`, $t`Word`, $currentView)} in`} helpId={fieldData.entry.publishIn.helpId} />
     <Editor.Field.Body>
       <MultiSelect
           onchange={() => onFieldChanged('publishIn')}

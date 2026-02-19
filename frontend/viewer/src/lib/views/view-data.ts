@@ -1,34 +1,39 @@
-import type {FieldId} from '$lib/entry-editor/field-data';
+import type {EntityFields, EntityType, FieldId} from './fields';
+
+import type {PartialDeep} from 'type-fest';
 
 export interface FieldView {
   show: boolean;
   order: number;
 }
 
-const defaultDef = Symbol('default spread values');
+export type ViewFields = {[T in EntityType]: {[F in EntityFields<T>]: FieldView}};
 
-export const allFields: Record<FieldId, FieldView> = {
-  //entry
-  lexemeForm: {show: true, order: 1},
-  citationForm: {show: true, order: 2},
-  complexForms: {show: true, order: 3},
-  components: {show: true, order: 4},
-  complexFormTypes: {show: false, order: 5},
-  literalMeaning: {show: false, order: 6},
-  note: {show: true, order: 7},
-  publishIn: {show: false, order: 8},
-
-  //sense
-  gloss: {show: true, order: 1},
-  definition: {show: true, order: 2},
-  partOfSpeechId: {show: true, order: 3},
-  semanticDomains: {show: true, order: 4},
-
-  //example sentence
-  sentence: {show: true, order: 1},
-  translations: {show: true, order: 2},
-  reference: {show: false, order: 3},
+export const allFields: ViewFields = {
+  entry: {
+    lexemeForm: {show: true, order: 1},
+    citationForm: {show: true, order: 2},
+    complexForms: {show: true, order: 3},
+    components: {show: true, order: 4},
+    complexFormTypes: {show: false, order: 5},
+    literalMeaning: {show: false, order: 6},
+    note: {show: true, order: 7},
+    publishIn: {show: false, order: 8},
+  },
+  sense: {
+    gloss: {show: true, order: 1},
+    definition: {show: true, order: 2},
+    partOfSpeechId: {show: true, order: 3},
+    semanticDomains: {show: true, order: 4},
+  },
+  example: {
+    sentence: {show: true, order: 1},
+    translations: {show: true, order: 2},
+    reference: {show: false, order: 3},
+  },
 };
+
+export type EntityViewFields = ViewFields[EntityType];
 
 export const FW_LITE_VIEW: RootView = {
   id: 'fwlite',
@@ -42,10 +47,11 @@ export const FW_CLASSIC_VIEW: RootView = {
   id: 'fieldworks',
   type: 'fw-classic',
   label: 'FieldWorks Classic',
-  fields: recursiveSpread(allFields, {
-    complexFormTypes: {order: allFields.components.order - 0.1},
-    [defaultDef]: {show: true}
-  }),
+  fields: {
+    entry: showAllFields(allFields.entry, {complexFormTypes: {order: allFields.entry.components.order - 0.1}}),
+    sense: showAllFields(allFields.sense),
+    example: showAllFields(allFields.example),
+  },
   alternateView: FW_LITE_VIEW,
 };
 
@@ -56,37 +62,35 @@ const viewDefinitions: CustomViewDefinition[] = [
 export const views: [RootView, RootView, ...CustomView[]] = [
   FW_LITE_VIEW,
   FW_CLASSIC_VIEW,
-  ...viewDefinitions.map(view => {
-    const fields: Record<FieldId, FieldView> = recursiveSpread<typeof allFields>(allFields, view.fieldOverrides);
-    return {
-      ...FW_LITE_VIEW,
-      ...view,
-      fields: fields
-    };
-  })
+  ...viewDefinitions.map(view => ({
+    ...FW_LITE_VIEW,
+    ...view,
+    fields: mergeViewFields(allFields, view.fieldOverrides),
+  }))
 ];
 
-function recursiveSpread<T extends Record<string | symbol, unknown>>(obj1: T, obj2: { [P in keyof T]?: Partial<T[P]> } & { [defaultDef]?: Partial<T[keyof T]> }): T {
-  const result: Record<string, unknown> = {...obj1};
-  const defaultValues = obj2[defaultDef];
-  if (defaultValues) {
-    for (const [key, value] of Object.entries(result)) {
-      if (typeof value === 'object' && value !== null) {
-        result[key] = {...value, ...defaultValues};
-      } else {
-        result[key] = defaultValues;
-      }
-    }
+function mergeFields<T>(base: T, overrides?: Partial<Record<FieldId, Partial<FieldView>>>): T {
+  if (!overrides) return {...base};
+  const result = {...base};
+  for (const [id, override] of Object.entries(overrides) as [keyof T, Partial<FieldView>][]) {
+    result[id] = {...result[id], ...override};
   }
-  for (const [key, value] of Object.entries(obj2)) {
-    const currentValue = result[key];
-    if (typeof currentValue === 'object' && currentValue !== null && typeof value === 'object' && value !== null) {
-      result[key] = recursiveSpread(currentValue as Record<string, unknown>, value as Record<string, Partial<unknown>>);
-    } else {
-      result[key] = value;
-    }
-  }
-  return result as T;
+  return result;
+}
+
+function mergeViewFields(base: ViewFields, overrides: CustomViewDefinition['fieldOverrides']): ViewFields {
+  return {
+    entry: mergeFields(base.entry, overrides.entry),
+    sense: mergeFields(base.sense, overrides.sense),
+    example: mergeFields(base.example, overrides.example),
+  };
+}
+
+function showAllFields<T extends EntityViewFields>(fields: T, overrides?: PartialDeep<T>): T {
+  const allShown = Object.fromEntries(
+    Object.entries(fields).map(([id, field]) => [id, {...(field), show: true}])
+  ) as T;
+  return mergeFields(allShown, overrides);
 }
 
 export type ViewType = 'fw-lite' | 'fw-classic';
@@ -103,12 +107,12 @@ export type Overrides = {
 };
 
 interface CustomViewDefinition extends ViewDefinition {
-  fieldOverrides: Partial<Record<FieldId, Partial<FieldView>>>;
+  fieldOverrides: PartialDeep<ViewFields>;
   parentView: RootView;
 }
 
 interface ViewBase extends ViewDefinition {
-  fields: Record<FieldId, FieldView>;
+  fields: ViewFields;
   overrides?: Overrides
 }
 
