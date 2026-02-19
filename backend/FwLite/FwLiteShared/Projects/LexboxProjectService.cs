@@ -217,11 +217,11 @@ public class LexboxProjectService : IDisposable
         if (!options.Value.TryGetServer(projectData, out var server)) return;
         var lexboxConnection = await StartLexboxProjectChangeListener(server, stoppingToken);
         if (lexboxConnection is null) return;
-        await lexboxConnection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
         lexboxConnection.Reconnected += (newId) =>
         {
             return lexboxConnection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
         };
+        await lexboxConnection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
 
     }
 
