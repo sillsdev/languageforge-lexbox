@@ -127,7 +127,7 @@ public partial class CrdtProjectsService(
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
-        return await CreateProject(new(name, name, AfterCreate: SampleProjectData, SeedNewProjectData: true));
+        return await CreateProject(new(name, name, AfterCreate: SampleProjectData, SeedNewProjectData: true, Role: UserProjectRole.Manager));
     }
 
     public virtual async Task<CrdtProject> CreateProject(CreateProjectRequest request)
@@ -244,6 +244,7 @@ public partial class CrdtProjectsService(
         await PreDefinedData.PredefinedComplexFormTypes(dataModel, clientId);
         await PreDefinedData.PredefinedPartsOfSpeech(dataModel, clientId);
         await PreDefinedData.PredefinedSemanticDomains(dataModel, clientId);
+        await PreDefinedData.PredefinedCustomViews(dataModel, clientId);
     }
 
     [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]
