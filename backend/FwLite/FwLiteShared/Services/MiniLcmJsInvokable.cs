@@ -83,6 +83,19 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public ValueTask<CustomView[]> GetCustomViews()
+    {
+        return _wrappedApi.GetCustomViews().ToArrayAsync();
+    }
+
+    [JSInvokable]
+    [TsFunction(Type = "Promise<ICustomView | null>")]
+    public Task<CustomView?> GetCustomView(Guid id)
+    {
+        return _wrappedApi.GetCustomView(id);
+    }
+
+    [JSInvokable]
     [TsFunction(Type = "Promise<IComplexFormType | null>")]
     public Task<ComplexFormType?> GetComplexFormType(Guid id)
     {
@@ -228,6 +241,29 @@ public class MiniLcmJsInvokable(
     public async Task DeleteComplexFormType(Guid id)
     {
         await _wrappedApi.DeleteComplexFormType(id);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task<CustomView> CreateCustomView(CustomView customView)
+    {
+        var createdCustomView = await _wrappedApi.CreateCustomView(customView);
+        OnDataChanged();
+        return createdCustomView;
+    }
+
+    [JSInvokable]
+    public async Task<CustomView> UpdateCustomView(Guid id, CustomView customView)
+    {
+        var updatedCustomView = await _wrappedApi.UpdateCustomView(id, customView);
+        OnDataChanged();
+        return updatedCustomView;
+    }
+
+    [JSInvokable]
+    public async Task DeleteCustomView(Guid id)
+    {
+        await _wrappedApi.DeleteCustomView(id);
         OnDataChanged();
     }
 

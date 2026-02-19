@@ -112,6 +112,21 @@ public interface IMiniLcmWriteApi
     Task UpdateTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId, UpdateObjectInput<Translation> update);
     #endregion
 
+    #region CustomView
+    Task<CustomView> CreateCustomView(CustomView customView)
+    {
+        throw new NotSupportedException("Custom views are only supported by CRDT projects");
+    }
+    Task<CustomView> UpdateCustomView(Guid id, CustomView customView)
+    {
+        throw new NotSupportedException("Custom views are only supported by CRDT projects");
+    }
+    Task DeleteCustomView(Guid id)
+    {
+        throw new NotSupportedException("Custom views are only supported by CRDT projects");
+    }
+    #endregion
+
 
     /// <summary>
     /// Imports the provided semantic domains in bulk.

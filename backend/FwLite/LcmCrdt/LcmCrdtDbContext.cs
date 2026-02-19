@@ -26,6 +26,7 @@ public class LcmCrdtDbContext(
     public IQueryable<SemanticDomain> SemanticDomains => Set<SemanticDomain>().AsNoTracking();
     public IQueryable<PartOfSpeech> PartsOfSpeech => Set<PartOfSpeech>().AsNoTracking();
     public IQueryable<Publication> Publications => Set<Publication>().AsNoTracking();
+    public IQueryable<CustomView> CustomViews => Set<CustomView>().AsNoTracking();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

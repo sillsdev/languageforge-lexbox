@@ -9,6 +9,7 @@ import type {IPartOfSpeech} from '../../MiniLcm/Models/IPartOfSpeech';
 import type {IPublication} from '../../MiniLcm/Models/IPublication';
 import type {ISemanticDomain} from '../../MiniLcm/Models/ISemanticDomain';
 import type {IComplexFormType} from '../../MiniLcm/Models/IComplexFormType';
+import type {ICustomView} from '../../MiniLcm/Models/ICustomView';
 import type {IFilterQueryOptions} from '../../MiniLcm/IFilterQueryOptions';
 import type {IIndexQueryOptions} from '../../MiniLcm/IIndexQueryOptions';
 import type {IEntry} from '../../MiniLcm/Models/IEntry';
@@ -30,6 +31,8 @@ export interface IMiniLcmJsInvokable
 	getPublications() : Promise<IPublication[]>;
 	getSemanticDomains() : Promise<ISemanticDomain[]>;
 	getComplexFormTypes() : Promise<IComplexFormType[]>;
+	getCustomViews() : Promise<ICustomView[]>;
+	getCustomView(id: string) : Promise<ICustomView | null>;
 	getComplexFormType(id: string) : Promise<IComplexFormType | null>;
 	countEntries(query?: string, options?: IFilterQueryOptions) : Promise<number>;
 	getEntryIndex(id: string, query?: string, options?: IIndexQueryOptions) : Promise<number>;
@@ -51,6 +54,9 @@ export interface IMiniLcmJsInvokable
 	createComplexFormType(complexFormType: IComplexFormType) : Promise<IComplexFormType>;
 	updateComplexFormType(before: IComplexFormType, after: IComplexFormType) : Promise<IComplexFormType>;
 	deleteComplexFormType(id: string) : Promise<void>;
+	createCustomView(customView: ICustomView) : Promise<ICustomView>;
+	updateCustomView(id: string, customView: ICustomView) : Promise<ICustomView>;
+	deleteCustomView(id: string) : Promise<void>;
 	createEntry(entry: IEntry) : Promise<IEntry>;
 	updateEntry(before: IEntry, after: IEntry) : Promise<IEntry>;
 	deleteEntry(id: string) : Promise<void>;

@@ -181,6 +181,18 @@
       TypeDiscriminator: CreateComplexFormType
     },
     {
+      DerivedType: CreateCustomViewChange,
+      TypeDiscriminator: CreateCustomViewChange
+    },
+    {
+      DerivedType: EditCustomViewChange,
+      TypeDiscriminator: EditCustomViewChange
+    },
+    {
+      DerivedType: DeleteChange<CustomView>,
+      TypeDiscriminator: delete:CustomView
+    },
+    {
       DerivedType: SetOrderChange<Sense>,
       TypeDiscriminator: SetOrderChange:Sense
     },

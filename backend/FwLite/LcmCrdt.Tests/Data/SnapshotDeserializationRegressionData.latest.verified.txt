@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
@@ -1585,5 +1585,47 @@
     "Id": "fce4cb31-93bd-f380-fd73-3fb0d09c0fa5",
     "DeletedAt": "2025-09-17T23:53:03.6147633+02:00",
     "RemoteId": "end-to-end"
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "CustomView",
+      "Id": "c480a062-fcdb-ad53-e5b9-7d38a375fabb",
+      "DeletedAt": null,
+      "Name": "Exclusive",
+      "Base": "FieldWorks",
+      "EntryFields": [
+        {
+          "FieldId": "Integration",
+          "Visible": true
+        }
+      ],
+      "SenseFields": [
+        {
+          "FieldId": "AGP",
+          "Visible": true
+        }
+      ],
+      "ExampleFields": [
+        {
+          "FieldId": "payment",
+          "Visible": true
+        }
+      ],
+      "Vernacular": [
+        {
+          "WritingSystemId": "gnk",
+          "Visible": true
+        }
+      ],
+      "Analysis": [
+        {
+          "WritingSystemId": "guw",
+          "Visible": true
+        }
+      ]
+    },
+    "Id": "c480a062-fcdb-ad53-e5b9-7d38a375fabb",
+    "DeletedAt": null
   }
 ]

@@ -35,6 +35,10 @@
     {
       DerivedType: ComplexFormComponent,
       TypeDiscriminator: ComplexFormComponent
+    },
+    {
+      DerivedType: CustomView,
+      TypeDiscriminator: CustomView
     }
   ],
   IgnoreUnrecognizedTypeDiscriminators: false,
