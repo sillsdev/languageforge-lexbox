@@ -24,18 +24,33 @@ public class WriteNormalizationTests
         _normalizingApi = factory.Create(_mockApi);
     }
 
+
+    private static void AssertNfc(object obj) => NormalizationAssert.AssertAllNfc(obj);
+    private static void AssertNfd(object obj) => NormalizationAssert.AssertAllNfd(obj);
+    private static bool IsNfd(object obj) => NormalizationAssert.IsAllNfd(obj);
+
+    private static void AssertAllNfc<T>(IEnumerable<T> values)
+    {
+        foreach (var value in values) AssertNfc(value!);
+    }
+
+    private static void AssertAllNfd<T>(IEnumerable<T> values)
+    {
+        foreach (var value in values) AssertNfd(value!);
+    }
+
     #region WritingSystem Tests
 
     [Fact]
     public async Task CreateWritingSystem_NormalizesToNfd()
     {
         var ws = NfcTestData.CreateNfcWritingSystem();
-        NormalizationAssert.AssertAllNfc(ws);
+        AssertNfc(ws);
 
         await _normalizingApi.CreateWritingSystem(ws);
 
         Mock.Get(_mockApi).Verify(api => api.CreateWritingSystem(
-            It.Is<WritingSystem>(w => NormalizationAssert.IsAllNfd(w)),
+            It.Is<WritingSystem>(w => IsNfd(w)),
             null
         ));
     }
@@ -45,13 +60,13 @@ public class WriteNormalizationTests
     {
         var before = NfcTestData.CreateNfcWritingSystem();
         var after = NfcTestData.CreateNfcWritingSystem();
-        NormalizationAssert.AssertAllNfc(after);
+        AssertNfc(after);
 
         await _normalizingApi.UpdateWritingSystem(before, after);
 
         Mock.Get(_mockApi).Verify(api => api.UpdateWritingSystem(
             It.IsAny<WritingSystem>(),
-            It.Is<WritingSystem>(w => NormalizationAssert.IsAllNfd(w)),
+            It.Is<WritingSystem>(w => IsNfd(w)),
             It.IsAny<IMiniLcmApi>()
         ));
     }
@@ -64,12 +79,12 @@ public class WriteNormalizationTests
     public async Task CreatePartOfSpeech_NormalizesToNfd()
     {
         var pos = NfcTestData.CreateNfcPartOfSpeech();
-        NormalizationAssert.AssertAllNfc(pos);
+        AssertNfc(pos);
 
         await _normalizingApi.CreatePartOfSpeech(pos);
 
         Mock.Get(_mockApi).Verify(api => api.CreatePartOfSpeech(
-            It.Is<PartOfSpeech>(p => NormalizationAssert.IsAllNfd(p))
+            It.Is<PartOfSpeech>(p => IsNfd(p))
         ));
     }
 
@@ -78,13 +93,13 @@ public class WriteNormalizationTests
     {
         var before = NfcTestData.CreateNfcPartOfSpeech();
         var after = NfcTestData.CreateNfcPartOfSpeech();
-        NormalizationAssert.AssertAllNfc(after);
+        AssertNfc(after);
 
         await _normalizingApi.UpdatePartOfSpeech(before, after);
 
         Mock.Get(_mockApi).Verify(api => api.UpdatePartOfSpeech(
             It.IsAny<PartOfSpeech>(),
-            It.Is<PartOfSpeech>(p => NormalizationAssert.IsAllNfd(p)),
+            It.Is<PartOfSpeech>(p => IsNfd(p)),
             It.IsAny<IMiniLcmApi>()
         ));
     }
@@ -97,12 +112,12 @@ public class WriteNormalizationTests
     public async Task CreatePublication_NormalizesToNfd()
     {
         var pub = NfcTestData.CreateNfcPublication();
-        NormalizationAssert.AssertAllNfc(pub);
+        AssertNfc(pub);
 
         await _normalizingApi.CreatePublication(pub);
 
         Mock.Get(_mockApi).Verify(api => api.CreatePublication(
-            It.Is<Publication>(p => NormalizationAssert.IsAllNfd(p))
+            It.Is<Publication>(p => IsNfd(p))
         ));
     }
 
@@ -111,13 +126,13 @@ public class WriteNormalizationTests
     {
         var before = NfcTestData.CreateNfcPublication();
         var after = NfcTestData.CreateNfcPublication();
-        NormalizationAssert.AssertAllNfc(after);
+        AssertNfc(after);
 
         await _normalizingApi.UpdatePublication(before, after);
 
         Mock.Get(_mockApi).Verify(api => api.UpdatePublication(
             It.IsAny<Publication>(),
-            It.Is<Publication>(p => NormalizationAssert.IsAllNfd(p)),
+            It.Is<Publication>(p => IsNfd(p)),
             It.IsAny<IMiniLcmApi>()
         ));
     }
@@ -130,12 +145,12 @@ public class WriteNormalizationTests
     public async Task CreateSemanticDomain_NormalizesToNfd()
     {
         var sd = NfcTestData.CreateNfcSemanticDomain();
-        NormalizationAssert.AssertAllNfc(sd);
+        AssertNfc(sd);
 
         await _normalizingApi.CreateSemanticDomain(sd);
 
         Mock.Get(_mockApi).Verify(api => api.CreateSemanticDomain(
-            It.Is<SemanticDomain>(s => NormalizationAssert.IsAllNfd(s))
+            It.Is<SemanticDomain>(s => IsNfd(s))
         ));
     }
 
@@ -144,13 +159,13 @@ public class WriteNormalizationTests
     {
         var before = NfcTestData.CreateNfcSemanticDomain();
         var after = NfcTestData.CreateNfcSemanticDomain();
-        NormalizationAssert.AssertAllNfc(after);
+        AssertNfc(after);
 
         await _normalizingApi.UpdateSemanticDomain(before, after);
 
         Mock.Get(_mockApi).Verify(api => api.UpdateSemanticDomain(
             It.IsAny<SemanticDomain>(),
-            It.Is<SemanticDomain>(s => NormalizationAssert.IsAllNfd(s)),
+            It.Is<SemanticDomain>(s => IsNfd(s)),
             It.IsAny<IMiniLcmApi>()
         ));
     }
@@ -159,13 +174,13 @@ public class WriteNormalizationTests
     public async Task AddSemanticDomainToSense_NormalizesToNfd()
     {
         var sd = NfcTestData.CreateNfcSemanticDomain();
-        NormalizationAssert.AssertAllNfc(sd);
+        AssertNfc(sd);
 
         await _normalizingApi.AddSemanticDomainToSense(Guid.NewGuid(), sd);
 
         Mock.Get(_mockApi).Verify(api => api.AddSemanticDomainToSense(
             It.IsAny<Guid>(),
-            It.Is<SemanticDomain>(s => NormalizationAssert.IsAllNfd(s))
+            It.Is<SemanticDomain>(s => IsNfd(s))
         ));
     }
 
@@ -173,7 +188,7 @@ public class WriteNormalizationTests
     public async Task BulkImportSemanticDomains_NormalizesToNfd()
     {
         var domains = new[] { NfcTestData.CreateNfcSemanticDomain(), NfcTestData.CreateNfcSemanticDomain() };
-        foreach (var domain in domains) NormalizationAssert.AssertAllNfc(domain);
+        AssertAllNfc(domains);
 
         var capturedDomains = new List<SemanticDomain>();
         Mock.Get(_mockApi)
@@ -186,10 +201,7 @@ public class WriteNormalizationTests
         await _normalizingApi.BulkImportSemanticDomains(domains.ToAsyncEnumerable());
 
         capturedDomains.Should().HaveCount(2);
-        foreach (var domain in capturedDomains)
-        {
-            NormalizationAssert.AssertAllNfd(domain);
-        }
+        AssertAllNfd(capturedDomains);
     }
 
     #endregion
@@ -200,12 +212,12 @@ public class WriteNormalizationTests
     public async Task CreateComplexFormType_NormalizesToNfd()
     {
         var cft = NfcTestData.CreateNfcComplexFormType();
-        NormalizationAssert.AssertAllNfc(cft);
+        AssertNfc(cft);
 
         await _normalizingApi.CreateComplexFormType(cft);
 
         Mock.Get(_mockApi).Verify(api => api.CreateComplexFormType(
-            It.Is<ComplexFormType>(c => NormalizationAssert.IsAllNfd(c))
+            It.Is<ComplexFormType>(c => IsNfd(c))
         ));
     }
 
@@ -214,13 +226,13 @@ public class WriteNormalizationTests
     {
         var before = NfcTestData.CreateNfcComplexFormType();
         var after = NfcTestData.CreateNfcComplexFormType();
-        NormalizationAssert.AssertAllNfc(after);
+        AssertNfc(after);
 
         await _normalizingApi.UpdateComplexFormType(before, after);
 
         Mock.Get(_mockApi).Verify(api => api.UpdateComplexFormType(
             It.IsAny<ComplexFormType>(),
-            It.Is<ComplexFormType>(c => NormalizationAssert.IsAllNfd(c)),
+            It.Is<ComplexFormType>(c => IsNfd(c)),
             It.IsAny<IMiniLcmApi>()
         ));
     }
@@ -233,12 +245,12 @@ public class WriteNormalizationTests
     public async Task CreateMorphTypeData_NormalizesToNfd()
     {
         var mtd = NfcTestData.CreateNfcMorphTypeData();
-        NormalizationAssert.AssertAllNfc(mtd);
+        AssertNfc(mtd);
 
         await _normalizingApi.CreateMorphTypeData(mtd);
 
         Mock.Get(_mockApi).Verify(api => api.CreateMorphTypeData(
-            It.Is<MorphTypeData>(m => NormalizationAssert.IsAllNfd(m))
+            It.Is<MorphTypeData>(m => IsNfd(m))
         ));
     }
 
@@ -247,13 +259,13 @@ public class WriteNormalizationTests
     {
         var before = NfcTestData.CreateNfcMorphTypeData();
         var after = NfcTestData.CreateNfcMorphTypeData();
-        NormalizationAssert.AssertAllNfc(after);
+        AssertNfc(after);
 
         await _normalizingApi.UpdateMorphTypeData(before, after);
 
         Mock.Get(_mockApi).Verify(api => api.UpdateMorphTypeData(
             It.IsAny<MorphTypeData>(),
-            It.Is<MorphTypeData>(m => NormalizationAssert.IsAllNfd(m)),
+            It.Is<MorphTypeData>(m => IsNfd(m)),
             It.IsAny<IMiniLcmApi>()
         ));
     }
@@ -266,12 +278,12 @@ public class WriteNormalizationTests
     public async Task CreateEntry_NormalizesToNfd()
     {
         var entry = NfcTestData.CreateNfcEntry();
-        NormalizationAssert.AssertAllNfc(entry);
+        AssertNfc(entry);
 
         await _normalizingApi.CreateEntry(entry);
 
         Mock.Get(_mockApi).Verify(api => api.CreateEntry(
-            It.Is<Entry>(e => NormalizationAssert.IsAllNfd(e)),
+            It.Is<Entry>(e => IsNfd(e)),
             null
         ));
     }
@@ -281,13 +293,13 @@ public class WriteNormalizationTests
     {
         var before = NfcTestData.CreateNfcEntry();
         var after = NfcTestData.CreateNfcEntry();
-        NormalizationAssert.AssertAllNfc(after);
+        AssertNfc(after);
 
         await _normalizingApi.UpdateEntry(before, after);
 
         Mock.Get(_mockApi).Verify(api => api.UpdateEntry(
             It.IsAny<Entry>(),
-            It.Is<Entry>(e => NormalizationAssert.IsAllNfd(e)),
+            It.Is<Entry>(e => IsNfd(e)),
             It.IsAny<IMiniLcmApi>()
         ));
     }
@@ -296,12 +308,12 @@ public class WriteNormalizationTests
     public async Task CreateEntry_WithNestedSenses_NormalizesToNfd()
     {
         var entry = NfcTestData.CreateNfcEntryWithSenses();
-        NormalizationAssert.AssertAllNfc(entry);
+        AssertNfc(entry);
 
         await _normalizingApi.CreateEntry(entry);
 
         Mock.Get(_mockApi).Verify(api => api.CreateEntry(
-            It.Is<Entry>(e => NormalizationAssert.IsAllNfd(e)),
+            It.Is<Entry>(e => IsNfd(e)),
             null
         ));
     }
@@ -310,12 +322,12 @@ public class WriteNormalizationTests
     public async Task CreateEntry_WithComplexFormComponents_NormalizesToNfd()
     {
         var entry = NfcTestData.CreateNfcEntryWithComponents();
-        NormalizationAssert.AssertAllNfc(entry);
+        AssertNfc(entry);
 
         await _normalizingApi.CreateEntry(entry);
 
         Mock.Get(_mockApi).Verify(api => api.CreateEntry(
-            It.Is<Entry>(e => NormalizationAssert.IsAllNfd(e)),
+            It.Is<Entry>(e => IsNfd(e)),
             null
         ));
     }
@@ -324,7 +336,7 @@ public class WriteNormalizationTests
     public async Task BulkCreateEntries_NormalizesToNfd()
     {
         var entries = new[] { NfcTestData.CreateNfcEntry(), NfcTestData.CreateNfcEntryWithSenses() };
-        foreach (var entry in entries) NormalizationAssert.AssertAllNfc(entry);
+        AssertAllNfc(entries);
 
         var capturedEntries = new List<Entry>();
         Mock.Get(_mockApi)
@@ -337,10 +349,7 @@ public class WriteNormalizationTests
         await _normalizingApi.BulkCreateEntries(entries.ToAsyncEnumerable());
 
         capturedEntries.Should().HaveCount(2);
-        foreach (var entry in capturedEntries)
-        {
-            NormalizationAssert.AssertAllNfd(entry);
-        }
+        AssertAllNfd(capturedEntries);
     }
 
     #endregion
@@ -351,12 +360,12 @@ public class WriteNormalizationTests
     public async Task CreateComplexFormComponent_NormalizesToNfd()
     {
         var cfc = NfcTestData.CreateNfcComplexFormComponent();
-        NormalizationAssert.AssertAllNfc(cfc);
+        AssertNfc(cfc);
 
         await _normalizingApi.CreateComplexFormComponent(cfc);
 
         Mock.Get(_mockApi).Verify(api => api.CreateComplexFormComponent(
-            It.Is<ComplexFormComponent>(c => NormalizationAssert.IsAllNfd(c)),
+            It.Is<ComplexFormComponent>(c => IsNfd(c)),
             null
         ));
     }
@@ -369,13 +378,13 @@ public class WriteNormalizationTests
     public async Task CreateSense_NormalizesToNfd()
     {
         var sense = NfcTestData.CreateNfcSense();
-        NormalizationAssert.AssertAllNfc(sense);
+        AssertNfc(sense);
 
         await _normalizingApi.CreateSense(Guid.NewGuid(), sense);
 
         Mock.Get(_mockApi).Verify(api => api.CreateSense(
             It.IsAny<Guid>(),
-            It.Is<Sense>(s => NormalizationAssert.IsAllNfd(s)),
+            It.Is<Sense>(s => IsNfd(s)),
             null
         ));
     }
@@ -386,14 +395,14 @@ public class WriteNormalizationTests
         var entryId = Guid.NewGuid();
         var before = NfcTestData.CreateNfcSense();
         var after = NfcTestData.CreateNfcSense();
-        NormalizationAssert.AssertAllNfc(after);
+        AssertNfc(after);
 
         await _normalizingApi.UpdateSense(entryId, before, after);
 
         Mock.Get(_mockApi).Verify(api => api.UpdateSense(
             entryId,
             It.IsAny<Sense>(),
-            It.Is<Sense>(s => NormalizationAssert.IsAllNfd(s)),
+            It.Is<Sense>(s => IsNfd(s)),
             It.IsAny<IMiniLcmApi>()
         ));
     }
@@ -402,13 +411,13 @@ public class WriteNormalizationTests
     public async Task CreateSense_WithNestedExampleSentences_NormalizesToNfd()
     {
         var sense = NfcTestData.CreateNfcSenseWithExamples();
-        NormalizationAssert.AssertAllNfc(sense);
+        AssertNfc(sense);
 
         await _normalizingApi.CreateSense(Guid.NewGuid(), sense);
 
         Mock.Get(_mockApi).Verify(api => api.CreateSense(
             It.IsAny<Guid>(),
-            It.Is<Sense>(s => NormalizationAssert.IsAllNfd(s)),
+            It.Is<Sense>(s => IsNfd(s)),
             null
         ));
     }
@@ -421,14 +430,14 @@ public class WriteNormalizationTests
     public async Task CreateExampleSentence_NormalizesToNfd()
     {
         var example = NfcTestData.CreateNfcExampleSentence();
-        NormalizationAssert.AssertAllNfc(example);
+        AssertNfc(example);
 
         await _normalizingApi.CreateExampleSentence(Guid.NewGuid(), Guid.NewGuid(), example);
 
         Mock.Get(_mockApi).Verify(api => api.CreateExampleSentence(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
-            It.Is<ExampleSentence>(e => NormalizationAssert.IsAllNfd(e)),
+            It.Is<ExampleSentence>(e => IsNfd(e)),
             null
         ));
     }
@@ -440,7 +449,7 @@ public class WriteNormalizationTests
         var senseId = Guid.NewGuid();
         var before = NfcTestData.CreateNfcExampleSentence();
         var after = NfcTestData.CreateNfcExampleSentence();
-        NormalizationAssert.AssertAllNfc(after);
+        AssertNfc(after);
 
         await _normalizingApi.UpdateExampleSentence(entryId, senseId, before, after);
 
@@ -448,7 +457,7 @@ public class WriteNormalizationTests
             entryId,
             senseId,
             It.IsAny<ExampleSentence>(),
-            It.Is<ExampleSentence>(e => NormalizationAssert.IsAllNfd(e)),
+            It.Is<ExampleSentence>(e => IsNfd(e)),
             It.IsAny<IMiniLcmApi>()
         ));
     }
@@ -457,14 +466,14 @@ public class WriteNormalizationTests
     public async Task CreateExampleSentence_WithTranslations_NormalizesToNfd()
     {
         var example = NfcTestData.CreateNfcExampleSentenceWithTranslations();
-        NormalizationAssert.AssertAllNfc(example);
+        AssertNfc(example);
 
         await _normalizingApi.CreateExampleSentence(Guid.NewGuid(), Guid.NewGuid(), example);
 
         Mock.Get(_mockApi).Verify(api => api.CreateExampleSentence(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
-            It.Is<ExampleSentence>(e => NormalizationAssert.IsAllNfd(e)),
+            It.Is<ExampleSentence>(e => IsNfd(e)),
             null
         ));
     }
@@ -477,7 +486,7 @@ public class WriteNormalizationTests
     public async Task AddTranslation_NormalizesToNfd()
     {
         var translation = NfcTestData.CreateNfcTranslation();
-        NormalizationAssert.AssertAllNfc(translation);
+        AssertNfc(translation);
 
         await _normalizingApi.AddTranslation(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), translation);
 
@@ -485,166 +494,13 @@ public class WriteNormalizationTests
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
-            It.Is<Translation>(t => NormalizationAssert.IsAllNfd(t))
+            It.Is<Translation>(t => IsNfd(t))
         ));
     }
 
     #endregion
 }
 
-/// <summary>
-/// Tests to ensure that all normalizing wrapper methods have corresponding tests.
-/// </summary>
-public class WriteNormalizationCoverageTests
-{
-    /// <summary>
-    /// Method names that don't handle user text and don't need normalization tests.
-    /// This is the ONLY list we maintain - everything else is calculated.
-    /// </summary>
-    private static readonly HashSet<string> ExcludedMethodNames =
-    [
-        // Move operations (only IDs/positions, no text)
-        "MoveWritingSystem",
-        "MoveComplexFormComponent",
-        "MoveSense",
-        "MoveExampleSentence",
-
-        // Delete operations (only IDs, no text)
-        "DeletePartOfSpeech",
-        "DeletePublication",
-        "DeleteSemanticDomain",
-        "DeleteComplexFormType",
-        "DeleteMorphTypeData",
-        "DeleteEntry",
-        "DeleteComplexFormComponent",
-        "DeleteSense",
-        "DeleteExampleSentence",
-
-        // Relationship operations (only IDs, no text)
-        "AddComplexFormType",
-        "RemoveComplexFormType",
-        "AddPublication",
-        "RemovePublication",
-        "RemoveSemanticDomainFromSense",
-        "SetSensePartOfSpeech",
-        "RemoveTranslation",
-
-        // File operations (no user text)
-        "SaveFile"
-    ];
-
-    /// <summary>
-    /// Checks if a method is a JsonPatch overload (takes UpdateObjectInput parameter).
-    /// These are not user-facing and don't need tests.
-    /// </summary>
-    private static bool IsJsonPatchOverload(MethodInfo method)
-    {
-        return method.GetParameters().Any(p =>
-            p.ParameterType.IsGenericType &&
-            p.ParameterType.GetGenericTypeDefinition() == typeof(UpdateObjectInput<>));
-    }
-
-    /// <summary>
-    /// Gets all write API methods that need normalization tests.
-    /// </summary>
-    private static List<MethodInfo> GetMethodsThatNeedTests()
-    {
-        return typeof(IMiniLcmWriteApi)
-            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            .Where(m => !m.IsSpecialName)
-            .Where(m => !ExcludedMethodNames.Contains(m.Name))
-            .Where(m => !IsJsonPatchOverload(m))
-            .ToList();
-    }
-
-    /// <summary>
-    /// Creates a readable signature for a method (for error messages).
-    /// </summary>
-    private static string GetMethodSignature(MethodInfo method)
-    {
-        var parameters = method.GetParameters()
-            .Select(p => $"{p.ParameterType.Name} {p.Name}")
-            .ToList();
-        return $"{method.Name}({string.Join(", ", parameters)})";
-    }
-
-    /// <summary>
-    /// Verifies that every method that normalizes text has a corresponding test.
-    /// Counts overloads to ensure all are covered.
-    /// </summary>
-    [Fact]
-    public void AllNormalizingMethods_HaveCorrespondingTests()
-    {
-        var methodsThatNeedTests = GetMethodsThatNeedTests();
-
-        var testClass = typeof(WriteNormalizationTests);
-        var testMethodNames = testClass
-            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            .Where(m => m.GetCustomAttribute<FactAttribute>() != null)
-            .Select(m => m.Name)
-            .ToList();
-
-        // Group methods by name to handle overloads
-        var methodGroups = methodsThatNeedTests.GroupBy(m => m.Name);
-
-        var issues = new List<string>();
-        foreach (var group in methodGroups)
-        {
-            var methodName = group.Key;
-            var overloadCount = group.Count();
-
-            // Count tests that match this method name
-            var testCount = testMethodNames.Count(t =>
-                t.StartsWith(methodName, StringComparison.OrdinalIgnoreCase) ||
-                t.Contains($"_{methodName}", StringComparison.OrdinalIgnoreCase) ||
-                t.Contains($"{methodName}_", StringComparison.OrdinalIgnoreCase));
-
-            if (testCount < overloadCount)
-            {
-                var signatures = group.Select(GetMethodSignature).ToList();
-                issues.Add($"{methodName}: found {testCount} test(s) but need {overloadCount} for overloads:\n" +
-                           string.Join("\n", signatures.Select(s => $"      - {s}")));
-            }
-        }
-
-        if (issues.Count > 0)
-        {
-            Assert.Fail(
-                $"The following methods need more tests:\n" +
-                string.Join("\n", issues.Select(i => $"  - {i}")) +
-                "\n\nAdd a test for each overload that verifies NFC input is normalized to NFD."
-            );
-        }
-    }
-
-    /// <summary>
-    /// Verifies that all excluded method names actually exist on the interface.
-    /// Catches typos and stale entries in the exclusion list.
-    /// </summary>
-    [Fact]
-    public void ExcludedMethodNames_AllExistOnInterface()
-    {
-        var actualMethodNames = typeof(IMiniLcmWriteApi)
-            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            .Where(m => !m.IsSpecialName)
-            .Select(m => m.Name)
-            .Distinct()
-            .ToHashSet();
-
-        var invalidExclusions = ExcludedMethodNames
-            .Where(name => !actualMethodNames.Contains(name))
-            .ToList();
-
-        if (invalidExclusions.Count > 0)
-        {
-            Assert.Fail(
-                $"The following excluded method names don't exist on IMiniLcmWriteApi:\n" +
-                string.Join("\n", invalidExclusions.Select(m => $"  - {m}")) +
-                "\n\nRemove these from ExcludedMethodNames or fix the typo."
-            );
-        }
-    }
-}
 
 /// <summary>
 /// Tests for NormalizationAssert to ensure it correctly detects NFC/NFD issues.

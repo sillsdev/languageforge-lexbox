@@ -17,8 +17,12 @@ public class MiniLcmWriteApiNormalizationWrapperFactory : IMiniLcmWrapperFactory
 
 /// <summary>
 /// Normalizes all user-entered text to NFD on write operations.
-/// Read operations are forwarded automatically via BeaKona.AutoInterface.
-/// Write operations MUST be manually implemented - the compiler will fail if any are missing.
+///
+/// Design notes:
+/// - Read operations are forwarded automatically via BeaKona.AutoInterface.
+/// - Write operations are manually implemented here (compile-time enforced by IMiniLcmApi).
+/// - JsonPatch overloads are intentionally pass-through because they are not user-facing entry points;
+///   frontend writes use object-based update methods that are normalized before forwarding.
 /// </summary>
 public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMiniLcmApi
 {
@@ -475,32 +479,24 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #region Bulk Import
 
-    public async Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
+    public Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
     {
-        // Create a normalized async enumerable that normalizes items as they're consumed
-        async IAsyncEnumerable<SemanticDomain> NormalizeStream()
-        {
-            await foreach (var semanticDomain in semanticDomains)
-            {
-                yield return NormalizeSemanticDomain(semanticDomain);
-            }
-        }
-        
-        await _api.BulkImportSemanticDomains(NormalizeStream());
+        return _api.BulkImportSemanticDomains(NormalizeStream(semanticDomains, NormalizeSemanticDomain));
     }
 
-    public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
+    public Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
-        // Create a normalized async enumerable that normalizes items as they're consumed
-        async IAsyncEnumerable<Entry> NormalizeStream()
+        return _api.BulkCreateEntries(NormalizeStream(entries, NormalizeEntry));
+    }
+
+    private static async IAsyncEnumerable<T> NormalizeStream<T>(
+        IAsyncEnumerable<T> source,
+        Func<T, T> normalize)
+    {
+        await foreach (var item in source)
         {
-            await foreach (var entry in entries)
-            {
-                yield return NormalizeEntry(entry);
-            }
+            yield return normalize(item);
         }
-        
-        await _api.BulkCreateEntries(NormalizeStream());
     }
 
     #endregion
