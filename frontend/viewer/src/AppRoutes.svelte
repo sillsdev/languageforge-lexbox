@@ -1,7 +1,6 @@
 <script lang="ts">
   import { setupGlobalErrorHandlers } from '$lib/errors/global-errors';
   import { navigate, Route, Router, useLocation } from 'svelte-routing';
-  import { onMount } from 'svelte';
   import Sandbox from '$lib/sandbox/Sandbox.svelte';
   import DotnetProjectView from './DotnetProjectView.svelte';
   import HomeView from './home/HomeView.svelte';
@@ -21,8 +20,12 @@
     void appStorage.lastUrl.set(pathname + search + hash);
   });
 
-  // On startup, restore the last URL if the app opened at the default path
-  onMount(() => {
+  // Restore the last URL once loaded, if the app opened at the default path
+  let hasRestored = false;
+  $effect(() => {
+    if (hasRestored) return;
+    if (appStorage.lastUrl.loading) return;
+    hasRestored = true;
     const savedUrl = appStorage.lastUrl.current;
     if (savedUrl && savedUrl !== '/' && window.location.pathname === '/') {
       navigate(savedUrl, { replace: true });

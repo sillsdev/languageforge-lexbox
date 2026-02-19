@@ -1,4 +1,4 @@
-import {StorageProp, getPreferencesService} from './project-storage.svelte';
+import {StorageProp, getPreferencesService} from './storage-prop.svelte';
 
 class AppStorage {
   readonly lastUrl: StorageProp;
