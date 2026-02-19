@@ -3,6 +3,7 @@ using FwLiteProjectSync;
 using SIL.Harmony;
 using FwLiteShared;
 using FwLiteShared.Auth;
+using FwLiteShared.Services;
 using FwLiteWeb.Routes;
 using LcmCrdt;
 using FwLiteWeb.Services;
@@ -24,6 +25,7 @@ public static class FwLiteWebKernel
         services.AddMiniLcmRouteServices();
         services.AddFwLiteShared(environment);
 
+        services.AddSingleton<ITroubleshootingService, WebTroubleshootingService>();
         services.AddOptions<FwLiteWebConfig>().BindConfiguration("FwLiteWeb");
 
         services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>

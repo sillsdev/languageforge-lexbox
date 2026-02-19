@@ -8,6 +8,7 @@
   import Label from '$lib/components/ui/label/label.svelte';
   import {CopyButton} from '$lib/components/ui/button';
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
+  import {resource} from 'runed';
 
   const openQueryParam = new QueryParamStateBool({
     key: 'troubleshootDialogOpen',
@@ -23,6 +24,7 @@
   const service = useTroubleshootingService();
   const config = useFwLiteConfig();
   let projectCode = $state<string>();
+  let canShare = resource(() => service, async (s) => await s?.getCanShare());
 
   async function tryOpenDataDirectory() {
     if (!await service?.tryOpenDataDirectory()) {
@@ -70,7 +72,7 @@
         </InputShell>
       </div>
     {/if}
-    {#if projectCode}
+    {#if projectCode && canShare.current}
       <div class="flex gap-2">
         <Button variant="outline" onclick={() => shareProject()}>
           <i class="i-mdi-file-export"></i>
@@ -84,10 +86,12 @@
           <i class="i-mdi-file-eye"></i>
           {$t`Open Log file`}
         </Button>
-        <Button variant="outline" onclick={() => service?.shareLogFile()}>
-          <i class="i-mdi-file-export"></i>
-          {$t`Share Log file`}
-        </Button>
+        {#if canShare.current}
+          <Button variant="outline" onclick={() => service?.shareLogFile()}>
+            <i class="i-mdi-file-export"></i>
+            {$t`Share Log file`}
+          </Button>
+        {/if}
       </div>
     {/if}
   </div>
