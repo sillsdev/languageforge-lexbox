@@ -15,7 +15,7 @@
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     example: IExampleSentence;
     readonly?: boolean;
-    onchange?: (sense: IExampleSentence, field: ExampleFieldId) => void;
+    onchange?: (example: IExampleSentence, field: ExampleFieldId) => void;
   }
 
   const {
