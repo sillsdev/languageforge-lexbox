@@ -13,23 +13,27 @@
   setupGlobalErrorHandlers();
   const location = initRootLocation(useLocation());
   const appStorage = useAppStorage();
+  const startedAtDefault = window.location.pathname === '/';
 
-  // Track the current URL so we can restore it on next app launch
-  location.subscribe(() => {
-    const { pathname, search, hash } = document.location;
-    void appStorage.lastUrl.set(pathname + search + hash);
-  });
-
-  // Restore the last URL once loaded, if the app opened at the default path
+  // Wait for lastUrl to load, restore if we started at '/', then begin tracking.
+  // The subscription must not start until after restore, otherwise the immediate
+  // subscribe callback would .set('/') and clobber the saved value before load() finishes.
   let hasRestored = false;
   $effect(() => {
     if (hasRestored) return;
     if (appStorage.lastUrl.loading) return;
     hasRestored = true;
+
     const savedUrl = appStorage.lastUrl.current;
-    if (savedUrl && savedUrl !== '/' && window.location.pathname === '/') {
+    if (startedAtDefault && savedUrl && savedUrl !== '/') {
       navigate(savedUrl, { replace: true });
     }
+
+    // Now that restore is done, start tracking URL changes for next launch
+    location.subscribe(() => {
+      const { pathname, search, hash } = document.location;
+      void appStorage.lastUrl.set(pathname + search + hash);
+    });
   });
 </script>
 
