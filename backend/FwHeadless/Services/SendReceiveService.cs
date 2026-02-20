@@ -32,13 +32,28 @@ public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingPr
 
     public async Task<int> PendingCommitCount(FwDataProject project, string? projectCode)
     {
-        return await SendReceiveHelpers.PendingMercurialCommits(
+        var incomingTask = SendReceiveHelpers.PendingMercurialCommits(
             project: project,
+            direction: SendReceiveHelpers.PendingCommitDirection.Incoming,
             projectCode: projectCode,
             baseUrl: config.Value.HgWebUrl,
             auth: new SendReceiveHelpers.SendReceiveAuth(config.Value),
             progress: progress
         );
+        var outgoingTask = SendReceiveHelpers.PendingMercurialCommits(
+            project: project,
+            direction: SendReceiveHelpers.PendingCommitDirection.Outgoing,
+            projectCode: projectCode,
+            baseUrl: config.Value.HgWebUrl,
+            auth: new SendReceiveHelpers.SendReceiveAuth(config.Value),
+            progress: progress
+        );
+        var incoming = await incomingTask;
+        var outgoing = await outgoingTask;
+        // -1 is used to mean "would pull/push all commits", e.g. if we don't have a local clone
+        if (incoming < 0) return incoming;
+        if (outgoing < 0) return outgoing;
+        return incoming + outgoing;
     }
 
     public async Task CommitFile(string filePath, string commitMessage)

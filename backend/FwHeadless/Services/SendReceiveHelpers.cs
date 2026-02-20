@@ -41,6 +41,13 @@ public static class SendReceiveHelpers
                 && Output.Contains(RollbackIndicator, StringComparison.Ordinal);
 
         /// <summary>
+        /// This string in the output indicates a likely-temporary error that should be retried immediately.
+        /// </summary>
+        public const string Http500Indicator = "abort: HTTP Error 500";
+        public bool InternalServerError => !string.IsNullOrEmpty(Output)
+                && Output.Contains(Http500Indicator, StringComparison.Ordinal);
+
+        /// <summary>
         /// This string in the output unambiguously indicates that the operation ultimately succeeded.
         /// </summary>
         private const string SUCCESS_INDICATOR = "Clone success";
@@ -54,8 +61,8 @@ public static class SendReceiveHelpers
         /// https://github.com/sillsdev/libpalaso/blob/a8fcda92501e349ac23db6dba179322eca7fe561/SIL.Core/Progress/MultiProgress.cs#L168
         /// ...even though the exception does not prevent success.
         /// </summary>
-        public bool Success => !ErrorEncountered ||
-            Output.Contains(SUCCESS_INDICATOR, StringComparison.Ordinal);
+        public bool Success => !InternalServerError && (!ErrorEncountered ||
+            Output.Contains(SUCCESS_INDICATOR, StringComparison.Ordinal));
 
         public LfMergeBridgeResult(string output, IProgress progress) : this(output)
         {
@@ -99,7 +106,13 @@ public static class SendReceiveHelpers
         return builder.Uri;
     }
 
-    public static async Task<int> PendingMercurialCommits(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, IProgress? progress = null)
+    public enum PendingCommitDirection
+    {
+        Incoming,
+        Outgoing,
+    }
+
+    public static async Task<int> PendingMercurialCommits(FwDataProject project, PendingCommitDirection direction = PendingCommitDirection.Incoming, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, IProgress? progress = null)
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
         projectCode ??= project.Name;
@@ -112,7 +125,13 @@ public static class SendReceiveHelpers
             $"Not allowed to Send/Receive root-level directories like C:\\, was '{project.FilePath}'");
 
         var repoUrl = BuildSendReceiveUrl(baseUrl, projectCode, auth, forChorus: false);
-        var hgResult = await Task.Run(() => HgRunner.Run($"hg incoming -T \"node: {{node}}\\n\" {repoUrl}", fwdataInfo.Directory.FullName, 9999, progress));
+        var hgCmd = direction switch
+        {
+            PendingCommitDirection.Incoming => "incoming",
+            PendingCommitDirection.Outgoing => "outgoing",
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), $"Unexpected {nameof(PendingCommitDirection)} value {direction}")
+        };
+        var hgResult = await Task.Run(() => HgRunner.Run($"hg {hgCmd} -T \"node: {{node}}\\n\" {repoUrl}", fwdataInfo.Directory.FullName, 9999, progress));
         if (hgResult.ExitCode == 1)
         {
             // hg incoming exits with 1 if there were no changes
