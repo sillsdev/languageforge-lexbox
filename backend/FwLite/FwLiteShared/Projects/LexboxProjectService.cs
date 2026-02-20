@@ -237,7 +237,6 @@ public class LexboxProjectService : IDisposable
         lexboxConnection.Reconnected -= reconnectedHandler;
         lexboxConnection.Reconnected += reconnectedHandler;
         await lexboxConnection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
-
     }
 
     private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
