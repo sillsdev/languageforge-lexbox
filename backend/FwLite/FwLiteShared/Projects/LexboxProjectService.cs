@@ -217,10 +217,25 @@ public class LexboxProjectService : IDisposable
         if (!options.Value.TryGetServer(projectData, out var server)) return;
         var lexboxConnection = await StartLexboxProjectChangeListener(server, stoppingToken);
         if (lexboxConnection is null) return;
+        var reconnectedHandler = cache.GetOrCreate<Func<string?, Task>>(HubReconnectionHandlerCacheKey(server, projectData), cacheEntry =>
+        {
+            cacheEntry.SlidingExpiration = TimeSpan.FromHours(1);
+            return (newId) =>
+            {
+                if (!cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? connection) || connection is null)
+                {
+                    connection = lexboxConnection;
+                }
+                return connection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
+            };
+        });
+        lexboxConnection.Reconnected -= reconnectedHandler;
+        lexboxConnection.Reconnected += reconnectedHandler;
         await lexboxConnection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
     }
 
     private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
+    private static string HubReconnectionHandlerCacheKey(LexboxServer server, ProjectData projectData) => $"LexboxProjectChangeReconnect|{server.Authority.Authority}|{projectData.Id}";
 
     public async Task<HubConnection?> StartLexboxProjectChangeListener(LexboxServer server,
         CancellationToken stoppingToken)
