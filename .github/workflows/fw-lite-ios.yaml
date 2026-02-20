@@ -1,0 +1,127 @@
+﻿name: FieldWorks Lite for iOS (temporary for build testing)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'backend/FwLite/**'
+      - 'backend/harmony/**'
+      - 'frontend/viewer/**'
+      - '.github/workflows/fw-lite.yaml'
+      - 'FwLiteOnly.slnf'
+    branches:
+      - develop
+      - main
+  pull_request:
+    paths:
+      - 'backend/FwLite/**'
+      - 'backend/harmony/**'
+      - 'frontend/viewer/**'
+      - '.github/workflows/fw-lite.yaml'
+      - 'FwLiteOnly.slnf'
+    branches:
+      - develop
+      - main
+env:
+  VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
+jobs:
+  #build-and-test:
+    #name: Build FW Lite and run tests
+    #timeout-minutes: 40
+    #runs-on: windows-latest
+    #outputs:
+      #version: ${{ steps.setVersion.outputs.VERSION }}
+      #semver-version: ${{ steps.setVersion.outputs.SEMVER_VERSION }}
+    #steps:
+      #- name: Checkout
+        #uses: actions/checkout@v4
+        #with:
+          #submodules: true
+      #- uses: actions/setup-dotnet@v4
+        #with:
+          #dotnet-version: '9.x'
+      #- uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        #with:
+          #package_json_file: 'frontend/package.json'
+      #- uses: actions/setup-node@v4
+        #with:
+          #node-version-file: './frontend/package.json'
+          #cache: 'pnpm'
+          #cache-dependency-path: './frontend/pnpm-lock.yaml'
+      #- name: Install Task
+        #uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
+        #with:
+          #repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      #- name: Set Version
+        #id: setVersion
+        #shell: bash
+        ## set version to date in vYYYY-MM-DD-commitSha format, and semver version to YYYY.MM.DD
+        #run: |
+          #shortSha=$(echo ${{ github.sha }} | cut -c1-8)
+          #echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
+          #echo "SEMVER_VERSION=$(date +%Y.%-m.%-d)" >> ${GITHUB_OUTPUT}
+
+      #- name: Check for pending EF model changes
+        #run: task fw-lite:has-pending-model-changes
+
+      #- name: Prepare frontend
+        #working-directory: frontend
+        #run: |
+          #pnpm install
+          #pnpm svelte-kit sync
+
+      #- name: Build viewer
+        #working-directory: frontend/viewer
+        #run: pnpm run build-app
+
+      #- name: Upload viewer artifacts
+        #uses: actions/upload-artifact@v4
+        #with:
+          #name: fw-lite-viewer-js
+          #if-no-files-found: error
+          #path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
+
+  publish-ios:
+    name: Publish FW Lite app for iOS
+    #needs: build-and-test
+    timeout-minutes: 30
+    runs-on: macos-latest
+    env:
+      APPLE_CERTIFICATE: ${{ secrets.SIL_APPLE_DISTRIBUTION_CERTIFICATE_BASE64 }}
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APPLE_APPSTORECONNECT_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APPLE_APPSTORECONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APPLE_APPSTORECONNECT_PRIVATE_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      #- uses: actions/download-artifact@v4
+        #with:
+          #name: fw-lite-viewer-js
+          #path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+      - uses: maui-actions/apple-provisioning@v4
+        with:
+          certificate: APPLE_CERTIFICATE
+          certificate-passphrase: ${{ secrets.SIL_APPLE_DISTRIBUTION_CERTIFICATE_PASSPHRASE }}
+          bundle-identifiers: '3YE4W86L3G.org.sil.FwLiteMaui'
+          profile-types: 'IOS_APP_STORE'
+
+      #- name: Setup Maui
+        #run: dotnet workload install maui
+
+      #- name: Publish iOS
+        #working-directory: backend/FwLite/FwLiteMaui
+        #run: dotnet publish -f net9.0-ios --artifacts-path ../artifacts
+
+      #- name: Upload FWLite App artifacts
+        #uses: actions/upload-artifact@v4
+        #with:
+          #name: fw-lite-ios
+          #if-no-files-found: error
+##          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net9.0-android/org.sil.fwlitemaui-signed.apk
+          #path: backend/FwLite/artifacts/publish/*
