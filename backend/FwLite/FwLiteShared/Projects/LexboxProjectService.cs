@@ -224,11 +224,6 @@ public class LexboxProjectService : IDisposable
             {
                 if (!cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? connection) || connection is null)
                 {
-                    // In theory this could have a race condition where it ends up closing over the old lexboxConnection value,
-                    // which might have been disposed and ListenForProjectChanges is being called with a new connection. But if that
-                    // has happened, it is vanishingly unlikely for the new connection to NOT be in the cache by the time we reach
-                    // this point, because that would require five minutes to pass between the StartLexboxProjectChangeListener call
-                    // and the cache.GetOrCreate call two lines later.
                     connection = lexboxConnection;
                 }
                 return connection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
