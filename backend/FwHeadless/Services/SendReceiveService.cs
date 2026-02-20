@@ -7,8 +7,6 @@ public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingPr
 {
     public async Task<SendReceiveHelpers.LfMergeBridgeResult> SendReceive(FwDataProject project, string? projectCode, string? commitMessage = null)
     {
-        // TODO: Detect "abort: 500 Internal Server Error" and consider it a failure
-        // Maybe try again at least once before declaring it a failure
         return await SendReceiveHelpers.SendReceive(
             project: project,
             projectCode: projectCode,
