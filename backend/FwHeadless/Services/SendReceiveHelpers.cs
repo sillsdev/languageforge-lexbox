@@ -99,7 +99,13 @@ public static class SendReceiveHelpers
         return builder.Uri;
     }
 
-    public static async Task<int> PendingMercurialCommits(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, IProgress? progress = null)
+    public enum PendingCommitDirection
+    {
+        Incoming,
+        Outgoing,
+    }
+
+    public static async Task<int> PendingMercurialCommits(FwDataProject project, PendingCommitDirection direction = PendingCommitDirection.Incoming, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, IProgress? progress = null)
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
         projectCode ??= project.Name;
@@ -112,7 +118,13 @@ public static class SendReceiveHelpers
             $"Not allowed to Send/Receive root-level directories like C:\\, was '{project.FilePath}'");
 
         var repoUrl = BuildSendReceiveUrl(baseUrl, projectCode, auth, forChorus: false);
-        var hgResult = await Task.Run(() => HgRunner.Run($"hg incoming -T \"node: {{node}}\\n\" {repoUrl}", fwdataInfo.Directory.FullName, 9999, progress));
+        var hgCmd = direction switch
+        {
+            PendingCommitDirection.Incoming => "incoming",
+            PendingCommitDirection.Outgoing => "outgoing",
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), $"Unexpected {nameof(PendingCommitDirection)} value {direction}")
+        };
+        var hgResult = await Task.Run(() => HgRunner.Run($"hg {hgCmd} -T \"node: {{node}}\\n\" {repoUrl}", fwdataInfo.Directory.FullName, 9999, progress));
         if (hgResult.ExitCode == 1)
         {
             // hg incoming exits with 1 if there were no changes
