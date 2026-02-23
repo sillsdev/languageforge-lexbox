@@ -289,7 +289,9 @@ public class LexboxProjectService : IDisposable
                 cache.Remove(HubConnectionCacheKey(server));
                 await connection.DisposeAsync();
             };
-            cache.CreateEntry(HubConnectionCacheKey(server)).SetValue(connection).RegisterPostEvictionCallback(
+            // ICacheEntry value returned from CreateEntry must be disposed in order to be committed to the cache,
+            // so do not remove the "using var __" below that appears to be doing nothing.
+            using var __ = cache.CreateEntry(HubConnectionCacheKey(server)).SetValue(connection).RegisterPostEvictionCallback(
                 static (key, value, reason, state) =>
                 {
                     if (value is HubConnection con)
