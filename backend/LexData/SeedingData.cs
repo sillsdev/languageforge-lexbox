@@ -331,6 +331,28 @@ public class SeedingData(
             },
             RedirectUris = { new Uri("https://oidcdebugger.com/debug") }
         },
+
+        new OpenIddictApplicationDescriptor
+        {
+            ClientId = "the-combine",
+            ClientType = OpenIddictConstants.ClientTypes.Public,
+            ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
+            DisplayName = "The Combine",
+            //explicit requires the user to consent, Implicit does not, External requires an admin to approve, not currently supported
+            ConsentType = OpenIddictConstants.ConsentTypes.Explicit,
+            Permissions =
+            {
+                OpenIddictConstants.Permissions.Endpoints.Authorization,
+                OpenIddictConstants.Permissions.Endpoints.Token,
+                OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+                OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                OpenIddictConstants.Permissions.ResponseTypes.Code,
+                OpenIddictConstants.Permissions.Scopes.Email,
+                OpenIddictConstants.Permissions.Scopes.Profile,
+                OpenIddictConstants.Permissions.Prefixes.Scope + LexboxAuthScope.SendAndReceive.ToString().ToLower()
+            },
+            RedirectUris = { new Uri("http://localhost:5000/v1/auth/oauth-callback") }
+        },
     ];
 
     public async Task CleanUpSeedData()
