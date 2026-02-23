@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Sync;
@@ -212,30 +213,38 @@ public class LexboxProjectService : IDisposable
         cache.Remove(CacheKey(server));
     }
 
+    private static readonly ConditionalWeakTable<HubConnection, HashSet<Guid>> _reconnectProjects = new();
+
     public async Task ListenForProjectChanges(ProjectData projectData, CancellationToken stoppingToken)
     {
         if (!options.Value.TryGetServer(projectData, out var server)) return;
         var lexboxConnection = await StartLexboxProjectChangeListener(server, stoppingToken);
         if (lexboxConnection is null) return;
-        var reconnectedHandler = cache.GetOrCreate<Func<string?, Task>>(HubReconnectionHandlerCacheKey(server, projectData), cacheEntry =>
+        var subscribedProjects = _reconnectProjects.GetValue(lexboxConnection, static conn =>
         {
-            cacheEntry.SlidingExpiration = TimeSpan.FromHours(1);
-            return (newId) =>
+            var projects = new HashSet<Guid>();
+            conn.Reconnected += async _ =>
             {
-                if (!cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? connection) || connection is null)
+                Guid[] projectIds;
+                lock (projects)
                 {
-                    connection = lexboxConnection;
+                    projectIds = [.. projects];
                 }
-                return connection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
+                foreach (var projectId in projectIds)
+                {
+                    await conn.SendAsync("ListenForProjectChanges", projectId);
+                }
             };
+            return projects;
         });
-        lexboxConnection.Reconnected -= reconnectedHandler;
-        lexboxConnection.Reconnected += reconnectedHandler;
+        lock (subscribedProjects)
+        {
+            subscribedProjects.Add(projectData.Id);
+        }
         await lexboxConnection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
     }
 
     private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
-    private static string HubReconnectionHandlerCacheKey(LexboxServer server, ProjectData projectData) => $"LexboxProjectChangeReconnect|{server.Authority.Authority}|{projectData.Id}";
 
     public async Task<HubConnection?> StartLexboxProjectChangeListener(LexboxServer server,
         CancellationToken stoppingToken)
