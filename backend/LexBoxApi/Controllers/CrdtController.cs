@@ -23,7 +23,7 @@ namespace LexBoxApi.Controllers;
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class CrdtController(
     LexBoxDbContext dbContext,
-    IHubContext<CrdtProjectChangeHub, IProjectChangeListener> hubContext,
+    IHubContext<CrdtProjectChangeHub, IProjectChangeHubClient> hubContext,
     IPermissionService permissionService,
     LoggedInContext loggedInContext,
     ProjectService projectService,

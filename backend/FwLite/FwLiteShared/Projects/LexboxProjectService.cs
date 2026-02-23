@@ -232,7 +232,7 @@ public class LexboxProjectService : IDisposable
                 }
                 foreach (var projectId in projectIds)
                 {
-                    await conn.SendAsync("ListenForProjectChanges", projectId);
+                    await conn.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId);
                 }
             };
             return projects;
@@ -241,7 +241,7 @@ public class LexboxProjectService : IDisposable
         {
             subscribedProjects.Add(projectData.Id);
         }
-        await lexboxConnection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
+        await lexboxConnection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectData.Id, stoppingToken);
     }
 
     private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
@@ -280,7 +280,7 @@ public class LexboxProjectService : IDisposable
             .Build();
 
         //it would be cleaner to pass the callback in to this method however it's not supposed to be generic, it should always trigger a sync
-        connection.On(nameof(IProjectChangeListener.OnProjectUpdated),
+        connection.On(nameof(IProjectChangeHubClient.OnProjectUpdated),
             (Guid projectId, Guid? clientId) =>
             {
                 logger.LogInformation("Received project update for {ProjectId}, triggering sync", projectId);
