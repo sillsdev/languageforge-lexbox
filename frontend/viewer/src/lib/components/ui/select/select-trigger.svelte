@@ -30,6 +30,7 @@
       'border-input bg-background ring-offset-background data-[placeholder]:text-muted-foreground focus:ring-ring flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
       // matches the Button 'outline' variant
       'hover:bg-accent hover:text-accent-foreground',
+      'text-start',
     )}
     {...restProps}
   >
