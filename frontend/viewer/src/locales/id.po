@@ -481,6 +481,10 @@ msgstr "Direktori Data"
 msgid "Definition"
 msgstr "Definisi"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Definition or gloss is required"
+msgstr ""
+
 #. Button to delete project from local list
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
@@ -615,6 +619,10 @@ msgstr "Mengunduh..."
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "Editor"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Either Word or Display as is required"
+msgstr ""
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -1006,6 +1014,10 @@ msgstr "Bentuk leksem"
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Bentuk Leksem"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Lexeme or citation form is required"
+msgstr ""
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Light"
@@ -1989,4 +2001,3 @@ msgstr "Anda tidak memiliki izin untuk mengunduh proyek {0} dari {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah mengunduh proyek {0}"
-

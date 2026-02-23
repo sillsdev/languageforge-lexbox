@@ -481,6 +481,10 @@ msgstr "데이터 디렉토리"
 msgid "Definition"
 msgstr "정의"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Definition or gloss is required"
+msgstr ""
+
 #. Button to delete project from local list
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
@@ -615,6 +619,10 @@ msgstr "다운로드 중..."
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "편집기"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Either Word or Display as is required"
+msgstr ""
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -1006,6 +1014,10 @@ msgstr "Lexeme 양식"
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Lexeme 양식"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Lexeme or citation form is required"
+msgstr ""
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Light"
@@ -1989,4 +2001,3 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
-

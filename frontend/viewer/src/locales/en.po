@@ -476,6 +476,10 @@ msgstr "Data Directory"
 msgid "Definition"
 msgstr "Definition"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Definition or gloss is required"
+msgstr "Definition or gloss is required"
+
 #. Button to delete project from local list
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
@@ -610,6 +614,10 @@ msgstr "Downloading..."
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "Editor"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Either Word or Display as is required"
+msgstr "Either Word or Display as is required"
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -1001,6 +1009,10 @@ msgstr "Lexeme form"
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Lexeme Form"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Lexeme or citation form is required"
+msgstr "Lexeme or citation form is required"
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Light"
