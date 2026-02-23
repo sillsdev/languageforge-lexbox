@@ -73,9 +73,9 @@
     errors = [];
     // Allow entries with only an audio lexeme-form or citation-form to be created
     if (!(writingSystemService.first(entry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
-      errors.push(`${pt('Lexeme or citation form', 'Word', $currentView)} is required`);
+      errors.push(pt($t`Lexeme form or Citation form is required`, $t`Word or Display as is required`, $currentView));
     }
-    if (entry.senses.length > 0 && !writingSystemService.firstDefOrGlossVal(entry.senses[0])) errors.push('Definition or gloss is required');
+    if (entry.senses.length > 0 && !writingSystemService.firstDefOrGlossVal(entry.senses[0])) errors.push($t`Definition or Gloss is required`);
     return errors.length === 0;
   }
 

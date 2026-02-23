@@ -481,6 +481,10 @@ msgstr "Direktori Data"
 msgid "Definition"
 msgstr "Definisi"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Definition or Gloss is required"
+msgstr ""
+
 #. Button to delete project from local list
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
@@ -1006,6 +1010,10 @@ msgstr "Bentuk leksem"
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Bentuk Leksem"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Lexeme form or Citation form is required"
+msgstr ""
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Light"
@@ -1948,6 +1956,10 @@ msgstr "Perkataan"
 msgid "Word only"
 msgstr "Perkataan sahaja"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Word or Display as is required"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Entry or sense:"
 #. Label for picker: allows selecting word-level or meaning-level link
@@ -1989,4 +2001,3 @@ msgstr "Anda tidak mempunyai kebenaran untuk memuat turun projek {0} daripada {1
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah pun memuat turun projek {0}"
-
