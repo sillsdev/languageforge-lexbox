@@ -18,14 +18,10 @@ msgstr ""
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
-#. Shows count of changes in an activity entry
-#. Display format: "– (5 changes)" appended to sync timestamp
-#. {0} = number of changes (e.g., 1, 5, 10)
 #: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
 msgstr "– ({0} perubahan)"
 
-#. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -33,258 +29,183 @@ msgstr "– ({0} perubahan)"
 msgid "{0}"
 msgstr "{0}"
 
-#. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
 msgstr "{0} (FieldWorks Lite)"
 
-#. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
-#. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "{0} yang lalu"
 
-#. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
 
-#. Display name for server
 #: src/home/Server.svelte
 msgid "{0} Server"
 msgstr "Pelayan {0}"
 
-#. Number of changes in sync operation
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {# perubahan}}"
 
-#. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
 msgstr "{num, plural, other {# komit FieldWorks Classic baharu}}"
 
-#. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, other {# komit FieldWorks Lite baharu}}"
 
-#. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
 msgstr "**Lebih sedikit medan** (cth. menyembunyikan *jenis bentuk kompleks*, *makna literal*)"
 
-#. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem*, *Particle*, *Phrase*, and *Discontiguous Phrase*)"
 msgstr "**Lebih sedikit jenis morfem** (hanya *Akar*, *Akar Terikat*, *Batang*, *Batang Terikat*, *Zarah*, *Frasa*, dan *Frasa Tak Bersebelahan*)"
 
-#. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Terminologi lebih mudah** (cth. *Perkataan* bukan *bentuk leksem*, *Makna* bukan *Sense*)"
 
-#. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Versi baharu FieldWorks Lite tersedia."
 
-#. Relevant view: Lite
-#. Classic view equivalent: "an entry"
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr "satu perkataan"
 
-#. Dialog title
 #: src/lib/about/AboutDialog.svelte
 msgid "About"
 msgstr "Mengenai"
 
-#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
 msgstr "Akaun"
 
-#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Activity"
 msgstr "Aktiviti"
 
-#. Button to add audio file to entry
-#. Appears in dialog/toolbar to attach audio file to a word or example sentence
-#. Action: Opens file picker to upload MP3/WAV/etc
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Add audio"
 msgstr "Tambah audio"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Add part of"
-#. Button to add compound entry that this entry is a component of (e.g., "sun" is component of "sunflower")
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add complex form"
 msgstr "Tambah bentuk kompleks"
 
-#. Button to add component
-#. Adds an existing entry as a component of this compound word
-#. Example: If "sunflower" is a compound, add entries "sun" and "flower" as components
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 msgid "Add component"
 msgstr "Tambah komponen"
 
-#. Button to add example sentence
-#. Adds sentence/phrase showing how a word is used in context
-#. Each example can have translation and source reference
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Example"
 msgstr "Tambah Contoh"
 
-#. Button label
-#. Relevant view: Lite
-#. Classic view equivalent: "Add Sense"
-#. Small button to add another sense/meaning to a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
 msgstr "Tambah Makna"
 
-#. Button in toolbar
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Add new word"
 msgstr "Tambah perkataan baharu"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Add complex form"
-#. Button to add compound entry that this entry is a component of (e.g. "sun" is a "part of" "sunflower"; "flower" is a "part of" "sunflower")
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Tambah sebahagian daripada"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Add Meaning"
-#. Small button to add another sense/meaning for a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
 msgstr "Tambah Makna"
 
-#. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
 msgstr "Tambah Perkataan"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "a word"
-#. Placeholder/suggestion in search field
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "satu entri"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Any part of speech"
-#. Filter option: clear grammatical info filter
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any grammatical info."
 msgstr "Mana-mana maklumat tatabahasa."
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Any grammatical info."
-#. Filter option: clear part of speech filter
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any part of speech"
 msgstr "Mana-mana bahagian pertuturan"
 
-#. Filter dropdown option
-#. Clears publication filter
-#. Publication = dictionary/publication type for distributing entries
 #: src/project/browse/filter/PublicationSelect.svelte
 msgid "Any publication"
 msgstr ""
 
-#. Filter dropdown option
-#. Clears semantic domain filter
-#. Semantic domain = category of meaning (e.g., "tools", "food", "emotions")
 #: src/project/browse/filter/SemanticDomainSelect.svelte
 msgid "Any semantic domain"
 msgstr "Mana-mana domain semantik"
 
-#. Filter dropdown option
-#. Clears writing system filter; "Ws" = writing system abbreviation
-#. Writing system = script/language variant
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Any Ws"
 msgstr "Mana-mana Ws"
 
-#. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Application version"
 msgstr "Versi Aplikasi"
 
-#. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
 msgstr "Adakah anda pasti mahu memadam {0}?"
 
-#. Button description
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Ask questions and get help on our community forum."
 msgstr "Tanya soalan dan dapatkan bantuan di forum komuniti kami."
 
-#. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr "Fail audio tidak termasuk dalam Hantar & Terima"
 
-#. Success message for audio sync
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Audio saved and uploaded to Lexbox"
 msgstr "Audio disimpan dan dimuat naik ke Lexbox"
 
-#. Status message for local audio save
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Audio saved locally"
 msgstr "Audio disimpan secara setempat"
 
-#. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
 msgstr "Pengarang:"
 
-#. Sort option
 #: src/project/browse/sort/SortMenu.svelte
 msgid "Auto"
 msgstr "Auto"
 
-#. Status indicator
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Auto syncing"
 msgstr "Segerakkan automatik"
 
-#. Sort option
 #: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
 msgstr "Padanan terbaik"
 
-#. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "blue"
 msgstr "biru"
 
-#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Browse"
 msgstr "Terokai"
 
-#. Button to close dialog without saving
-#. Appears in dialog footer; discards any pending edits
-#. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
-#. Keep translation brief (3-4 chars in some languages) to fit button layout
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -295,53 +216,40 @@ msgstr "Terokai"
 msgid "Cancel"
 msgstr "Batal"
 
-#. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 msgstr "Perubahan juga boleh menjadi hasil daripada medan yang ditambahkan ke versi baharu FieldWorks Lite."
 
-#. Explanation of commits vs changes
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Mengubah medan yang sama dua kali, sebagai contoh, boleh menghasilkan dua komit tetapi hanya satu perubahan yang perlu digunakan pada FieldWorks Classic. Komit juga boleh terdiri daripada berbilang perubahan."
 
-#. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "Menyemak kemas kini..."
 
-#. Button label
 #: src/lib/components/ThemePicker.svelte
 msgid "Choose theme"
 msgstr "Pilih tema"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Display as"
-#. Field label: form for citing in dictionary
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Citation form"
 msgstr "Bentuk petikan"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Display as"
-#. Filter option: narrow by citation form
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Citation Form"
 msgstr "Bentuk Petikan"
 
-#. Section header for projects from FieldWorks
 #: src/home/HomeView.svelte
 msgid "Classic FieldWorks Projects"
 msgstr "Projek FieldWorks Klasik"
 
-#. Button to clear selection
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "clear"
 msgstr "padam"
 
-#. Button to close popup
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
@@ -349,44 +257,32 @@ msgstr "padam"
 msgid "Close"
 msgstr "Tutup"
 
-#. Menu option to close project
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
 
-#. Tab or section
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
 msgstr "Warna"
 
-#. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Complex Form"
 msgstr "Bentuk Kompleks"
 
-#. Field label
-#. Classifies the type of complex form relationship (user-configurable)
-#. Examples: "compound", "derivative", "inflectional" (varies by project)
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex form types"
 msgstr "Jenis bentuk kompleks"
 
-#. Label in change preview
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Complex form:"
 msgstr "Bentuk kompleks:"
 
-#. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Complex forms"
 msgstr "Bentuk kompleks"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Part"
-#. Field label in complex forms editor
-#. Entry that is a component/part of a compound word (e.g., "sun" is a component of "sunflower")
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -394,258 +290,187 @@ msgstr "Bentuk kompleks"
 msgid "Component"
 msgstr "Komponen"
 
-#. Label in change preview
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Component:"
 msgstr "Komponen:"
 
-#. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Components"
 msgstr "Komponen-komponen"
 
-#. Filter operator
-#. Search operator: matches fields containing the search term anywhere
-#. Related operators: "Starts with", "Ends with", "Equals"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "Mengandungi"
 
-#. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
 msgstr "Disalin ke papan keratan"
 
-#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
 msgstr "Salin versi"
 
-#. Button label (view-dependent: "Create entry" in Classic, "Add new word" in Lite)
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
 msgstr "Cipta Entri"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Add Word"
-#. Dialog button to create new entry
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Create Entry"
 msgstr "Cipta Entri"
 
-#. Button to create sample project
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Cipta Projek Contoh"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Current Word"
-#. Label in picker: marks the entry that is currently being edited
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Current Entry"
 msgstr "Entri Semasa"
 
-#. Column header
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Current version"
 msgstr "Versi semasa"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Current Entry"
-#. Label in picker: marks the word that is currently being edited
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Current Word"
 msgstr "Perkataan Semasa"
 
-#. Theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "Dark"
 msgstr "Gelap"
 
-#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Dashboard"
 msgstr "Papan Pemuka"
 
-#. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Data Directory"
 msgstr "Direktori Data"
 
-#. Field label
-#. Definition for a sense/meaning (e.g., "bank" = "financial institution")
-#. Appears under each Sense/Meaning in entry editor
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Definition"
 msgstr "Definisi"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Definition or gloss is required"
+msgid "Definition or Gloss is required"
 msgstr ""
 
-#. Button to delete project from local list
-#. Appears in project card; removes local project cache (not server copy)
-#. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
 msgid "Delete"
 msgstr "Hapus"
 
-#. Dialog title with item name
 #: src/lib/entry-editor/DeleteDialog.svelte
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Delete {0}"
 msgstr "Hapus {0}"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Delete Word"
-#. Menu option: opens confirmation dialog to permanently remove entry
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Entry"
 msgstr "Padam Entri"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Delete Entry"
-#. Menu option: opens confirmation dialog to permanently remove word
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Word"
 msgstr "Padam Perkataan"
 
-#. Change type indicator
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Deleted"
 msgstr "Dipadamkan"
 
-#. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
 msgstr "Butiran"
 
-#. Page header/section title
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
 msgid "Dictionaries"
 msgstr "Kamus"
 
-#. Sidebar header
 #: src/project/ProjectSidebar.svelte
 msgid "Dictionary"
 msgstr "Kamus"
 
-#. View option
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr "Pratonton Kamus"
 
-#. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Discard"
 msgstr "Buang"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Citation Form"
-#. Lexicography term: choose which form of the entry to display
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Display as"
 msgstr "Papar sebagai"
 
-#. Prompt text
 #: src/project/tasks/DoneView.svelte
 msgid "Do you want to:"
 msgstr "Adakah anda mahu:"
 
-#. Button to cancel deletion
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
 msgstr "Jangan padam"
 
-#. Tab label
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
 msgstr "Selesai"
 
-#. Notification action button
 #: src/home/Server.svelte
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "Download"
 msgstr "Muat turun"
 
-#. Button with project code
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download {0}"
 msgstr "Muat turun {0}"
 
-#. Link label to open the updates download page
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Download page"
 msgstr "Halaman muat turun"
 
-#. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "Muat turun projek mengikut kod projek"
 
-#. Menu option
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "Download unlisted project"
 msgstr "Muat turun projek yang tidak tersenarai"
 
-#. Button label to download an update when auto-update is unavailable
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
 msgstr "Muat Turun Kemas Kini"
 
-#. Success notification with project name
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
 msgstr "Telah memuat turun {0}"
 
-#. Progress message
 #: src/home/Server.svelte
 msgid "Downloading {0}..."
 msgstr "Memuat turun {0}..."
 
-#. Generic progress message
 #: src/home/Server.svelte
 msgid "Downloading..."
 msgstr "Memuat turun..."
 
-#. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "Editor"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Either Word or Display as is required"
-msgstr ""
-
-#. Filter operator
-#. Search operator: matches fields ending with the search term
-#. Related operators: "Starts with", "Contains", "Equals"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Berakhir dengan"
 
-#. Filter option label
-#. Dropdown to filter entries by missing fields
-#. Example: "Entries missing Definition" shows words without definitions
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Entries missing..."
 msgstr "Entri yang hilang..."
 
-#. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
 msgid "entry"
 msgstr "Entri"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Word"
-#. Item type label: dictionary entry (word/headword with definitions)
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
@@ -655,102 +480,74 @@ msgstr "Entri"
 msgid "Entry"
 msgstr "Entri"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Word only"
-#. Label for picker when creating relationships: select only the entry itself (not a specific sense/meaning)
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry Only"
 msgstr "Entri Sahaja"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Word or meaning:"
-#. Label for picker when creating relationships: select a specific sense (not just the entry itself)
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry or sense:"
 msgstr "Entri atau makna:"
 
-#. Filter operator
-#. Search operator: exact match (whole field must equal search term)
-#. Related operators: "Contains", "Starts with", "Ends with"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Equals"
 msgstr "Sama dengan"
 
-#. Error message when update check fails
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Error checking for updates: {0}"
 msgstr "Ralat menyemak kemas kini: {0}"
 
-#. Error notification
 #: src/project/ProjectSidebar.svelte
 msgid "Error getting sync status"
 msgstr "Ralat mendapatkan status penyegerakan"
 
-#. Error notification
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr "Ralat mendapatkan status penyegerakan."
 
-#. Section header
-#. Labels example sentence/phrase section in entry editor
-#. Contains: sentence text, translation, source reference
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Example"
 msgstr "Contoh"
 
-#. Field label
-#. Sentence/phrase showing usage of a word
-#. Appears under each Sense/Meaning; can have multiple examples per meaning
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr "Ayat contoh"
 
-#. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
 msgstr "Gagal menyalin ke papan keratan"
 
-#. Error notification
 #: src/home/Server.svelte
 msgid "Failed to download {0}"
 msgstr "Gagal memuat turun {0}"
 
-#. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
 #: src/project/browse/EntriesList.svelte
 msgid "Failed to load entries"
 msgstr "Gagal memuatkan entri"
 
-#. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to open data directory, use the path in the text field instead"
 msgstr "Gagal membuka direktori data, gunakan laluan dalam medan teks sebaliknya"
 
-#. Error message with URL
 #: src/lib/services/url-opener.ts
 msgid "Failed to open URL: {0}"
 msgstr "Gagal membuka URL: {0}"
 
-#. Error notification
 #: src/lib/services/sync-status-service.ts
 #: src/project/SyncDialog.svelte
 msgid "Failed to synchronize"
 msgstr "Gagal menyegerak"
 
-#. Sidebar menu item
 #: src/home/HomeView.svelte
 #: src/lib/about/FeedbackDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Feedback & Support"
 msgstr "Maklum Balas & Sokongan"
 
-#. Column header in filters
-#. Dropdown showing available fields to filter by (Word, Definition, Example, etc.)
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr "Bidang"
 
-#. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
@@ -763,7 +560,6 @@ msgstr "FieldWorks Lite telah dikemas kini dengan berjaya. Sila mulai semula apl
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 msgstr "Pengguna FieldWorks Lite akan menerima perubahan yang dibuat dalam FieldWorks Classic secara automatik. Pengguna FieldWorks Classic akan melihat perubahan yang dibuat dalam FieldWorks Lite selepas mereka melakukan Hantar/Terima."
 
-#. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
@@ -772,154 +568,107 @@ msgstr "Pengguna FieldWorks Lite akan menerima perubahan yang dibuat dalam Field
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
 
-#. Error message for duplicate file upload
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File already exists"
 msgstr "Fail sudah wujud"
 
-#. Label for audio file name input
 #: src/lib/components/audio/audio-editor.svelte
 msgid "File name:"
 msgstr "Nama fail:"
 
-#. Error message when file is missing
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "File not found"
 msgstr "Fail tidak ditemui"
 
-#. Error for browser storage limitation
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File saving not supported"
 msgstr "Penyimpanan fail tidak disokong"
 
-#. Error message for oversized file
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File too big"
 msgstr "Fail terlalu besar"
 
-#. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter"
 msgstr "Tapis"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Filter # words"
-#. Placeholder text showing filtered count (# = number)
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # entries"
 msgstr "Tapis # entri"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Filter # entries"
-#. Placeholder text showing filtered count (# = number)
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter # words"
 msgstr "Tapis # perkataan"
 
-#. Filter dropdown label
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Filter By"
 msgstr "Tapis Mengikut"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Filter words"
-#. Toggle button to show/hide search filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter entries"
 msgstr "Tapis entri"
 
-#. Search field placeholder
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter for..."
 msgstr "Tapis untuk..."
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Filter entries"
-#. Toggle button to show/hide search filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter words"
 msgstr "Tapis perkataan"
 
-#. Search field placeholder in dropdown
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "Filter..."
 msgstr "Tapis..."
 
-#. Header in entry filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Filters"
 msgstr ""
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Find word..."
-#. Search field placeholder in picker
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find entry..."
 msgstr "Cari entri..."
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Find entry..."
-#. Search field placeholder in picker
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find word..."
 msgstr "Cari perkataan..."
 
-#. Button to complete task review
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
 msgstr "Tamatkan"
 
-#. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Untuk sebarang pertanyaan lain, jangan ragu untuk menghantar kami e-mel."
 
-#. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
 msgstr "Dari penapis aktif"
 
-#. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
 msgstr "Dapatkan sokongan"
 
-#. Filter/field option for word glosses
-#. Brief translation/equivalent (one word or short phrase)
-#. Different from "Definition" (longer explanation)
-#. Appears under each sense/meaning; concise translation
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Gloss"
 msgstr "Glos"
 
-#. Button link to navigate to entry
-#. Clicking jumps to an entry (e.g. from change history or a related entry)
-#. {0} = entry/word name (e.g., "Go to banana")
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Pergi ke {0}"
 
-#. Filter option label
-#. Relevant view: Classic
-#. Lite view equivalent: "Part of speech"
-#. Field label: grammatical category (noun, verb, adjective, etc.)
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
 msgstr "Maklumat tatabahasa."
 
-#. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "green"
 msgstr "hijau"
 
-#. Sort option
-#. Sort results by headword/main entry form (alphabetically)
-#. Related: "Auto" (default smart sort), "Best match" (relevance)
 #: src/project/browse/sort/SortMenu.svelte
 msgid "Headword"
 msgstr "Kata Utama"
@@ -933,13 +682,10 @@ msgstr "Sembunyi"
 msgid "History"
 msgstr "Sejarah"
 
-#. Instructions show above audio record button.
-#. The '#' character will be replace with a line break.
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or#press and release to start recording."
 msgstr "Tahan untuk merakam atau#tekan dan lepas untuk mula merakam."
 
-#. External link button text for help
 #: src/home/Server.svelte
 msgid "I don't see my project"
 msgstr "Saya tidak nampak projek saya"
@@ -964,17 +710,14 @@ msgstr "Sertakan subdomain"
 msgid "Incomplete entries"
 msgstr "Entri tidak lengkap"
 
-#. Button label to install an available update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Install Update"
 msgstr "Pasang Kemas Kini"
 
-#. Button label while installing an update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
 msgstr "Memasang Kemas Kini..."
 
-#. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "Teruskan"
@@ -992,7 +735,6 @@ msgstr "Sinkron terakhir: #"
 msgid "Length:"
 msgstr "Panjang:"
 
-#. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Lexbox"
 msgstr ""
@@ -1001,22 +743,16 @@ msgstr ""
 msgid "Lexbox logo"
 msgstr "Logo Lexbox"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Word"
-#. Field label: the main headword/base form
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Lexeme form"
 msgstr "Bentuk leksem"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Word"
-#. Filter option: narrow results by headword/base form
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Bentuk Leksem"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Lexeme or citation form is required"
+msgid "Lexeme form or Citation form is required"
 msgstr ""
 
 #: src/lib/components/ThemePicker.svelte
@@ -1027,9 +763,6 @@ msgstr "Terang"
 msgid "List mode"
 msgstr "Mod senarai"
 
-#. Field name shown in advanced/classic view
-#. The literal meaning of the vernacular translated into the analysis language
-#. Contrasts with glosses/definitions in the analysis language
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Literal meaning"
 msgstr "Makna harfiah"
@@ -1081,14 +814,10 @@ msgstr "Pastikan [perubahan anda diselaraskan]({0}) ke Lexbox."
 msgid "Manager"
 msgstr "Pengurus"
 
-#. Info message when manual update is required
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Kemas kini manual diperlukan. Sila ikut arahan yang diberikan."
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Sense"
-#. Field label: one meaning/definition of a word
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -1112,9 +841,6 @@ msgstr "Glos hilang {0}"
 msgid "Missing Part of Speech"
 msgstr "Jenis Perkataan Tiada"
 
-#. Filter result label
-#. Shows "Missing: Definition" or "Missing: Example" in filtered results
-#. {0} = field name (Definition, Gloss, Example sentence, etc.)
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Missing: {0}"
 msgstr "Hilang: {0}"
@@ -1141,17 +867,11 @@ msgstr "Baru"
 msgid "New data"
 msgstr "Data baru"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "New Word"
-#. Dialog title for creating new entry
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "Entri Baru"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "New Entry"
-#. Dialog title for creating new word
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Word"
@@ -1165,8 +885,6 @@ msgstr "Seterusnya"
 msgid "No activity found"
 msgstr "Tiada aktiviti ditemui"
 
-#. Placeholder when no audio file
-#. Shows in audio field when empty (no file uploaded yet)
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "Tiada audio"
@@ -1175,8 +893,6 @@ msgstr "Tiada audio"
 msgid "No Dictionaries found"
 msgstr "Tiada Kamus ditemui"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "No words found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/project/browse/EntriesList.svelte
 msgid "No entries found"
@@ -1211,22 +927,15 @@ msgstr "Tiada pelayan dikonfigurasikan"
 msgid "No subject, unable to create a new {0}"
 msgstr "Tiada subjek, tidak dapat membuat {0} baru"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "No words found"
 msgstr "Tiada perkataan ditemui"
 
-#. Selection option for optional fields
-#. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
 msgstr "Tiada"
 
-#. Filter operator
-#. Search operator: exclude entries matching the search term (inverse of "Equals")
-#. Related operators: "Equals", "Contains", "Starts with"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Not equal"
 msgstr "Tidak sama"
@@ -1244,9 +953,6 @@ msgstr "Tidak log masuk"
 msgid "Not synced"
 msgstr "Tidak disegerakkan"
 
-#. Field label
-#. General notes/remarks field in entry editor
-#. Unconstrained text for additional metadata/comments
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Note"
 msgstr "Nota"
@@ -1259,67 +965,50 @@ msgstr "Tiada yang boleh disalin"
 msgid "Observer"
 msgstr "Pemerhati"
 
-#. Status indicator
 #: src/project/ProjectSidebar.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Offline"
 msgstr "Luar talian"
 
-#. Error when offline and trying to download audio
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Luar talian, tidak dapat memuat turun"
 
-#. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Satu komit FieldWorks Classic mungkin terdiri daripada perubahan pada berbilang entri atau medan. Sebaliknya, satu komit mungkin hanya menjejaskan data yang tidak diselaraskan ke FieldWorks Lite."
 
-#. Button to open downloaded project
 #: src/home/Server.svelte
 msgid "Open"
 msgstr "Buka"
 
-#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Buka Direktori Data"
 
-#. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Open in FieldWorks"
 msgstr "Buka dalam FieldWorks"
 
-#. Menu option
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
 msgstr "Buka dalam Tetingkap baharu"
 
-#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Buka fail Log"
 
-#. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
 msgstr "jingga"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Component"
-#. Column header
-#. Entry that is a component/part of a compound word (e.g., "sun" is a part of "sunflower")
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Part"
 msgstr "Bahagian"
 
-#. Relationship field label
-#. Shows compound entries that this word is a component of (inverse of Components)
-#. Example: "sun" has "Part of": "sunflower"
-#. Related: "Components" (entries that make up this compound)
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -1328,208 +1017,156 @@ msgstr "Bahagian"
 msgid "Part of"
 msgstr "Sebahagian daripada"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Grammatical info."
-#. Field label: grammatical category (noun, verb, adjective, etc.)
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "Jenis Perkataan"
 
-#. Sync status
-#. Status badge: Changes exist locally but haven't been synced yet
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Pending"
 msgstr "Tertunda"
 
-#. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
 msgstr "Pilih Bahagian Pertuturan"
 
-#. View option
-#. Pin the dictionary preview panel above the entry editor form
-#. Allows quick reference while editing without scrolling
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Pinned"
 msgstr "Disemat"
 
-#. Field label for operating system/platform
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
 msgstr ""
 
-#. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Pratonton"
 
-#. Shown in the change preview area where no preview is available for the selected change
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr ""
 
-#. Label in project card
 #: src/home/HomeView.svelte
 msgid "Project"
 msgstr "Projek"
 
-#. Error when project doesn't exist on server
 #: src/home/Server.svelte
 msgid "Project {0} not found on {1}"
 msgstr "Projek {0} tidak ditemui pada {1}"
 
-#. Error for non-CRDT project
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Projek {0} pada {1} belum disediakan untuk FieldWorks Lite"
 
-#. Placeholder for project search
 #: src/home/HomeView.svelte
 msgid "Project name..."
 msgstr "Nama projek..."
 
-#. Filter option
-#. Publication type/dictionary for entries
-#. Used to organize entries by which publication(s) they should appear in
 #: src/project/browse/SearchFilter.svelte
 msgid "Publication"
 msgstr ""
 
-#. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Publish {0} in"
 msgstr "Terbitkan {0} dalam"
 
-#. Field label for citation source
-#. Source attribution for an example sentence (book title, page, URL, etc.)
-#. Identifies where the example was found/cited
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Reference"
 msgstr "Rujukan"
 
-#. Help text in dropdown
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "Refine your filter to see more..."
 msgstr "Perhalusi penapis anda untuk melihat lebih banyak..."
 
-#. Button to reload project list
 #: src/home/HomeView.svelte
 #: src/home/Server.svelte
 msgid "Refresh Projects"
 msgstr "Segarkan Semula Projek"
 
-#. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
 msgstr "Nota keluaran"
 
-#. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
 msgstr "Tanggalkan"
 
-#. Button to delete audio from entry
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Remove audio"
 msgstr "Buang audio"
 
-#. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
 msgstr "Buka semula"
 
-#. Button to overwrite audio file
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
 msgstr "Ganti audio"
 
-#. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
 msgstr "Laporkan masalah teknikal"
 
-#. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
 msgid "Restore"
 msgstr "Pulihkan"
 
-#. Button option
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "Semak"
 
-#. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
 msgstr "merah jambu"
 
-#. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
 msgstr "Simpan Sebagai"
 
-#. Button to save audio file
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
 msgstr "Simpan audio"
 
-#. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
 msgstr "Cari # atau #"
 
-#. Search placeholder
 #: src/project/ProjectDropdown.svelte
 msgid "Search Dictionaries"
 msgstr "Cari Kamus"
 
-#. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Select {0}"
 msgstr "Pilih {0}"
 
-#. Empty state instruction text
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
 msgstr "Pilih {0} untuk melihat butiran"
 
-#. Empty state message
 #: src/project/tasks/TasksView.svelte
 msgid "Select a new task to work on"
 msgstr "Pilih tugas baru untuk dikerjakan"
 
-#. Dialog button
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "Pilih fail"
 
-#. Filter option
-#. Semantic categorization system (e.g., "plants", "emotions", "body parts")
-#. Used to organize and filter entries by meaning category
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
 msgstr "Domain semantik"
 
-#. Field label
-#. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
-#. Appears under each Sense/Meaning; usually multiple selection allowed
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Semantic domains"
 msgstr "Domain semantik"
 
-#. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Send us a message"
 msgstr "Hantar kami mesej"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Meaning"
-#. Field label: one meaning/definition of an entry
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
@@ -1537,113 +1174,88 @@ msgstr "Hantar kami mesej"
 msgid "Sense"
 msgstr "Makna"
 
-#. Field label for example text
-#. The sentence/phrase text for an example (source text in original language)
-#. Paired with "Translation" field for translated version
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Sentence"
 msgstr "Ayat"
 
-#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Settings"
 msgstr "Tetapan"
 
-#. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
 msgid "Shadcn Sandbox # #"
 msgstr "Shadcn Sandbox # #"
 
-#. Button description
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Share ideas and vote on new features or improvements."
 msgstr "Kongsi idea dan undi untuk ciri atau penambahbaikan baharu."
 
-#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share Log file"
 msgstr "Kongsi fail Log"
 
-#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "Kongsi fail data projek"
 
-#. Button label
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Show"
 msgstr "Tunjukkan"
 
-#. Expand button with count
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Show {0} more..."
 msgstr "Tunjukkan {0} lagi..."
 
-#. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Mudah"
 
-#. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Size:"
 msgstr "Saiz:"
 
-#. Button to skip question
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
 msgstr "Langkau"
 
-#. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "Medan tertentu"
 
-#. Filter operator
-#. Search operator: matches fields beginning with the search term
-#. Related operators: "Contains", "Ends with", "Equals"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Bermula dengan"
 
-#. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
 msgstr "batu"
 
-#. Error message
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
 msgstr "Subjek tidak mempunyai objek sesuai jenis: {0}"
 
-#. Button to confirm selection
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Hantar"
 
-#. Button or tab label
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync"
 msgstr "Segerak"
 
-#. Dialog title
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
 msgstr "Segerakkan Perubahan"
 
-#. Success message showing change counts
 #: src/project/SyncDialog.svelte
 msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
 msgstr "Segerak selesai. {0} telah digunakan pada FieldWorks Classic. {1} telah digunakan pada FieldWorks Lite."
 
-#. Section title
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Segerakkan FieldWorks Lite dan FieldWorks Classic"
 
-#. Introductory text for sync status panel
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
 msgstr "Segerakkan perubahan anda dengan pengguna FieldWorks Lite yang lain"
@@ -1652,47 +1264,38 @@ msgstr "Segerakkan perubahan anda dengan pengguna FieldWorks Lite yang lain"
 msgid "Synced"
 msgstr "Disegerakkan"
 
-#. Status showing sync source server
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
 msgstr "Disegerakkan dengan {0}"
 
-#. Label showing sync timestamp in activity
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
 msgstr "Diseleraskan: #"
 
-#. Menu item to start sync
 #: src/project/ProjectSidebar.svelte
 msgid "Synchronize"
 msgstr "Segerakkan"
 
-#. Progress message during sync
 #: src/project/SyncDialog.svelte
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "Menyegerakkan FieldWorks Lite dan FieldWorks Classic..."
 
-#. Progress indicator
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Syncing..."
 msgstr "Sedang disegerakkan..."
 
-#. Theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "System"
 msgstr "Sistem"
 
-#. Page title with task name
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
 msgstr "Tugasan {0}"
 
-#. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
 msgstr "Tugasan tidak ditemui: {0}"
 
-#. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
 msgstr "Tugasan"
@@ -1701,87 +1304,70 @@ msgstr "Tugasan"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Beritahu kami mengenai pepijat atau isu yang anda temui."
 
-#. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
 msgstr "Sebaliknya, paparan *FieldWorks Classic* direka untuk pengguna yang biasa dengan *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
 
-#. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "Paparan *FieldWorks Lite* direka untuk bukan ahli linguistik dan berbeza daripada paparan *FieldWorks Classic* dalam cara berikut:"
 
-#. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Bilangan komit FieldWorks Classic tidak semestinya sepadan dengan bilangan perubahan yang ditunjukkan dalam mesej hasil segerak."
 
-#. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Bilangan komit FieldWorks Lite tidak semestinya sepadan dengan bilangan perubahan yang ditunjukkan dalam mesej hasil segerak."
 
-#. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
 msgstr "Tugas yang anda cari tidak wujud."
 
-#. Explanation text in popover for activity timestamp
 #: src/lib/activity/ActivityItem.svelte
 msgid "The time when you uploaded or downloaded these changes"
 msgstr "Masa apabila anda memuat naik atau memuat turun perubahan ini"
 
-#. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Perubahan ini belum dimuat naik. Pastikan anda dalam talian dan log masuk untuk berkongsi perubahan anda."
 
-#. Alert text shown in EntryView when the currently displayed entry/word has been deleted
 #: src/project/browse/EntryView.svelte
 msgid "This {0} was deleted"
 msgstr "Item {0} telah dipadam"
 
-#. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "Tarikh ini # dan emoji ini # adalah coretan"
 
-#. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "Projek ini kini dibuka dalam FieldWorks. Untuk terus bekerja dalam FieldWorks Lite, tutup projek dalam FieldWorks dan klik Buka Semula."
 
-#. Status message
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Tugasan ini selesai"
 
-#. Description of sync operation
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Ini akan menyegerakkan salinan FieldWorks Lite dan FieldWorks Classic projek anda dalam Lexbox."
 
-#. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
 msgstr "Togol penapis"
 
-#. Button tooltip
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Togol disemat"
 
-#. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation"
 msgstr "Terjemahan"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Terjemahan {0}"
 
-#. Menu item for help/debug
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1789,27 +1375,22 @@ msgstr "Terjemahan {0}"
 msgid "Troubleshoot"
 msgstr "Selesaikan masalah"
 
-#. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
 msgstr "Taip Definisi"
 
-#. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
 msgstr "Taip Glos"
 
-#. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type an example sentence"
 msgstr "Taip ayat contoh"
 
-#. Label for audio file type
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
 msgstr "Jenis:"
 
-#. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "Tidak dapat membuka dalam FieldWorks"
@@ -1820,36 +1401,27 @@ msgstr "Tidak dapat membuka dalam FieldWorks"
 msgid "Unknown"
 msgstr "Tidak Diketahui"
 
-#. Generic error notification
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Unknown error"
 msgstr "Ralat tidak diketahui"
 
-#. Generic error message with error code
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Unknown error {0}"
 msgstr "Ralat tidak diketahui {0}"
 
-#. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Unknown error downloading {0}"
 msgstr "Ralat tidak diketahui semasa memuat turun {0}"
 
-#. Error placeholder
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Unknown server"
 msgstr "Pelayan tidak diketahui"
 
-#. Error message for unknown update result
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Unknown update result"
 msgstr "Hasil kemas kini tidak diketahui"
 
-#. Placeholder for missing value
-#. Displayed when a word/entry/field has no content yet
-#. Used in: entry list, activity changes, change preview, field labels
-#. Short & neutral in tone
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -1861,87 +1433,70 @@ msgstr "Hasil kemas kini tidak diketahui"
 msgid "Untitled"
 msgstr "Tanpa Tajuk"
 
-#. Sync status - no pending changes
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Up to date"
 msgstr "Terkini"
 
-#. Dialog button with entry name
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 msgid "Update {0}"
 msgstr "Kemas kini {0}"
 
-#. Status message when an update is available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update available: {0}"
 msgstr "Kemas kini tersedia: {0}"
 
-#. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
 msgstr "Kemas kini gagal dipasang."
 
-#. Success message after update installs
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update installed successfully! Please restart the application."
 msgstr "Kemas kini berjaya dipasang! Sila mulakan semula aplikasi."
 
-#. Info message when update runs in background
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update started in the background. Restart the application after the update is complete."
 msgstr "Kemas kini bermula di latar belakang. Mulakan semula aplikasi selepas kemas kini selesai."
 
-#. Error message when update is blocked by permissions
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update was disallowed by permission settings."
 msgstr "Kemas kini tidak dibenarkan oleh tetapan kebenaran."
 
-#. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
 #: src/lib/updates/UpdateDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
 msgstr "Kemas kini"
 
-#. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
 msgstr "Menggunakan komponen sebagai"
 
-#. Version display
 #: src/project/ProjectSidebar.svelte
 msgid "Version {0}"
 msgstr "Versi {0}"
 
-#. Button label
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Lihat"
 
-#. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "ungu"
 
-#. External link button text for help
 #: src/home/Server.svelte
 msgid "Where are my projects?"
 msgstr "Di manakah projek saya?"
 
-#. Expandable help question
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Why is that?"
 msgstr "Mengapa begitu?"
 
-#. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/project/browse/EntryView.svelte
 msgid "word"
 msgstr "Perkataan"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
@@ -1953,21 +1508,18 @@ msgstr "Perkataan"
 msgid "Word"
 msgstr "Perkataan"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Entry Only"
-#. Filter option: select only word-level (not meaning-level) items
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word only"
 msgstr "Perkataan sahaja"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Entry or sense:"
-#. Label for picker: allows selecting word-level or meaning-level link
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Word or Display as is required"
+msgstr ""
+
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Perkataan atau makna:"
 
-#. Column header
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"
 msgstr "Sistem Penulisan"
@@ -1976,27 +1528,22 @@ msgstr "Sistem Penulisan"
 msgid "Writing system: {0}"
 msgstr "Sistem penulisan: {0}"
 
-#. Filter section title
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Sistem Penulisan"
 
-#. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
 msgstr "Anda sedang menggunakan versi terkini."
 
-#. Success message with task and count
 #: src/project/tasks/DoneView.svelte
 msgid "You completed {0} {1}"
 msgstr "Anda telah menyelesaikan {0} {1}"
 
-#. Permission error
 #: src/home/Server.svelte
 msgid "You don't have permission to download project {0} from {1}"
 msgstr "Anda tidak mempunyai kebenaran untuk memuat turun projek {0} daripada {1}"
 
-#. Error message when user attempts to download a project that has already been downloaded locally
 #: src/home/Server.svelte
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
