@@ -232,7 +232,14 @@ public class LexboxProjectService : IDisposable
                 }
                 foreach (var projectId in projectIds)
                 {
-                    await conn.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId);
+                    try
+                    {
+                        await conn.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId);
+                    }
+                    catch (Exception)
+                    {
+                        // Ensure one project's failing to reconnect doesn't block others from reconnecting
+                    }
                 }
             };
             return projects;
