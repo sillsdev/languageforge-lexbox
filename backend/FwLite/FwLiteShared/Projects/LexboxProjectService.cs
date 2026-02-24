@@ -245,6 +245,20 @@ public class LexboxProjectService : IDisposable
     }
 
     private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
+    private class InfiniteRetryPolicy : IRetryPolicy
+    {
+        public TimeSpan? NextRetryDelay(RetryContext retryContext)
+        {
+            return retryContext.PreviousRetryCount switch
+            {
+                0 => TimeSpan.Zero,
+                1 => TimeSpan.FromSeconds(2),
+                2 => TimeSpan.FromSeconds(10),
+                3 => TimeSpan.FromSeconds(30),
+                _ => TimeSpan.FromSeconds(60),
+            };
+        }
+    }
 
     public async Task<HubConnection?> StartLexboxProjectChangeListener(LexboxServer server,
         CancellationToken stoppingToken)
@@ -265,7 +279,7 @@ public class LexboxProjectService : IDisposable
         connection = new HubConnectionBuilder()
             //todo bridge logging to the aspnet logger
             .ConfigureLogging(logging => logging.AddConsole())
-            .WithAutomaticReconnect()
+            .WithAutomaticReconnect(new InfiniteRetryPolicy())
             .WithUrl($"{server.Authority}api/hub/crdt/project-changes",
                 connectionOptions =>
                 {
