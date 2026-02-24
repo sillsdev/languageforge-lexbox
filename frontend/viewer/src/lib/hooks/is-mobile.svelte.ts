@@ -1,14 +1,9 @@
-import {MOBILE_BREAKPOINT} from '../../css-breakpoints';
-import {MediaQuery} from 'svelte/reactivity';
+import { MediaQuery } from "svelte/reactivity";
+
+const DEFAULT_MOBILE_BREAKPOINT = 768;
 
 export class IsMobile extends MediaQuery {
-  private constructor() {
-    super(`max-width: ${MOBILE_BREAKPOINT - 1}px`);
-  }
-
-  private static isMobile = new IsMobile();
-
-  static get value(): boolean {
-    return this.isMobile.current;
-  }
+	constructor(breakpoint: number = DEFAULT_MOBILE_BREAKPOINT) {
+		super(`max-width: ${breakpoint - 1}px`);
+	}
 }
