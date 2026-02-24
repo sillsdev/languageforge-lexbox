@@ -1,23 +1,17 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-
-import Content from './popover-content.svelte';
-import InfoTrigger from './popover-info-trigger.svelte';
 import {Popover as PopoverPrimitive} from 'bits-ui';
-
+import Content from './popover-content.svelte';
 const Root = PopoverPrimitive.Root;
 const Trigger = PopoverPrimitive.Trigger;
 const Close = PopoverPrimitive.Close;
 
 export {
-  Close,
+  Root,
   Content,
+  Trigger,
+  Close,
   //
   Root as Popover,
-  Close as PopoverClose,
   Content as PopoverContent,
   Trigger as PopoverTrigger,
-  Root,
-  Trigger,
-  InfoTrigger,
-  InfoTrigger as PopoverInfoTrigger,
+  Close as PopoverClose,
 };

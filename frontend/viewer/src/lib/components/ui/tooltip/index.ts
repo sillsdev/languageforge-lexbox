@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-
 import {Tooltip as TooltipPrimitive} from 'bits-ui';
 import Content from './tooltip-content.svelte';
 
@@ -8,13 +6,13 @@ const Trigger = TooltipPrimitive.Trigger;
 const Provider = TooltipPrimitive.Provider;
 
 export {
+  Root,
+  Trigger,
   Content,
   Provider,
-  Root,
   //
   Root as Tooltip,
   Content as TooltipContent,
-  Provider as TooltipProvider,
   Trigger as TooltipTrigger,
-  Trigger,
+  Provider as TooltipProvider,
 };

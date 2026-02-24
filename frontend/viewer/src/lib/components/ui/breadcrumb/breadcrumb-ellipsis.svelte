@@ -1,8 +1,8 @@
 <script lang="ts">
-  import {cn} from '$lib/utils.js';
+  import Ellipsis from 'lucide-svelte/icons/ellipsis';
   import type {WithElementRef, WithoutChildren} from 'bits-ui';
   import type {HTMLAttributes} from 'svelte/elements';
-  import {Icon} from '../icon';
+  import {cn} from '$lib/utils.js';
 
   let {
     ref = $bindable(null),
@@ -18,6 +18,6 @@
   class={cn('flex size-9 items-center justify-center', className)}
   {...restProps}
 >
-  <Icon icon="i-mdi-dots-horizontal" class="size-4" />
+  <Ellipsis class="size-4" />
   <span class="sr-only">More</span>
 </span>

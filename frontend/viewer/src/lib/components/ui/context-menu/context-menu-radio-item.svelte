@@ -1,7 +1,7 @@
 <script lang="ts">
-  import {Icon} from '$lib/components/ui/icon';
-  import {cn} from '$lib/utils.js';
   import {ContextMenu as ContextMenuPrimitive, type WithoutChild} from 'bits-ui';
+  import Circle from 'lucide-svelte/icons/circle';
+  import {cn} from '$lib/utils.js';
 
   let {
     ref = $bindable(null),
@@ -22,8 +22,7 @@
   {#snippet children({checked})}
     <span class="absolute left-2 flex size-3.5 items-center justify-center">
       {#if checked}
-        <!-- If not centered, see the change made in radio-group-item.svelte -->
-        <Icon icon="i-mdi-circle" class="size-3 text-current" />
+        <Circle class="size-2 fill-current" />
       {/if}
     </span>
     {@render childrenProp?.({checked})}

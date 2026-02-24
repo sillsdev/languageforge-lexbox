@@ -23,6 +23,6 @@ export {
   Root,
   //
   Root as Textarea,
-  type FormTextareaEvent,
   type TextareaEvents,
+  type FormTextareaEvent,
 };

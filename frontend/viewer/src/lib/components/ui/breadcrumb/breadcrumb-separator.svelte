@@ -1,8 +1,8 @@
 <script lang="ts">
-  import {cn} from '$lib/utils.js';
+  import ChevronRight from 'lucide-svelte/icons/chevron-right';
   import type {WithElementRef} from 'bits-ui';
   import type {HTMLLiAttributes} from 'svelte/elements';
-  import {Icon} from '../icon';
+  import {cn} from '$lib/utils.js';
 
   let {ref = $bindable(null), class: className, children, ...restProps}: WithElementRef<HTMLLiAttributes> = $props();
 </script>
@@ -11,6 +11,6 @@
   {#if children}
     {@render children?.()}
   {:else}
-    <Icon icon="i-mdi-chevron-right" />
+    <ChevronRight />
   {/if}
 </li>
