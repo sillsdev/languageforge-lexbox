@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+
 import {ContextMenu as ContextMenuPrimitive} from 'bits-ui';
 
 import Item from './context-menu-item.svelte';

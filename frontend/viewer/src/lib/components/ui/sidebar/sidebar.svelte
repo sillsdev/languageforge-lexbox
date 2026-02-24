@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as Sheet from '$lib/registry/default/ui/sheet/index.js';
+  import * as Sheet from '$lib/components/ui/sheet/index.js';
   import {cn} from '$lib/utils.js';
   import type {WithElementRef} from 'bits-ui';
   import type {HTMLAttributes} from 'svelte/elements';
@@ -21,6 +21,13 @@
   } = $props();
 
   const sidebar = useSidebar();
+
+  export function isOpen() {
+    return sidebar.open;
+  }
+  export function closeMobile() {
+    sidebar.openMobile = false;
+  }
 </script>
 
 {#if collapsible === 'none'}
