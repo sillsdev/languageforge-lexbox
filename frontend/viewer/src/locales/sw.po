@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-02-11 13:37\n"
+"PO-Revision-Date: 2026-02-24 08:43\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -480,6 +480,10 @@ msgstr "Faharasa ya Data"
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Definition"
 msgstr "Maana"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Definition or Gloss is required"
+msgstr ""
 
 #. Button to delete project from local list
 #. Appears in project card; removes local project cache (not server copy)
@@ -1006,6 +1010,10 @@ msgstr "Fomu ya Neno"
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Fomu ya Lexeme"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Lexeme form or Citation form is required"
+msgstr ""
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Light"
@@ -1947,6 +1955,10 @@ msgstr "Neno"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word only"
 msgstr "Neno tu"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Word or Display as is required"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Entry or sense:"
