@@ -275,7 +275,7 @@ public class SyncWorker(
     {
         if (File.Exists(fwDataProject.FilePath))
         {
-            var pendingHgCommits = await srService.PendingCommitCount(fwDataProject, projectCode);
+            var pendingHgCommits = await srService.PendingCommitCountBothWays(fwDataProject, projectCode);
             if (pendingHgCommits == 0)
             {
                 logger.LogInformation("No Send/Receive needed before CRDT sync as there are no pending commits");

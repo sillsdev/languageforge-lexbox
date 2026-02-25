@@ -184,7 +184,7 @@ public static class MergeRoutes
         var projectFolder = config.Value.GetProjectFolder(lexboxProject.Code, projectId);
         if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
         var fwDataProject = config.Value.GetFwDataProject(lexboxProject.Code, projectId);
-        var pendingHgCommits = srService.PendingCommitCount(fwDataProject, lexboxProject.Code); // NOT awaited here so that this long-running task can run in parallel with others
+        var pendingHgCommits = srService.PendingCommitCountIncoming(fwDataProject, lexboxProject.Code); // NOT awaited here so that this long-running task can run in parallel with others
 
         var crdtCommitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
         await using var lcmCrdtDbContext = await services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();

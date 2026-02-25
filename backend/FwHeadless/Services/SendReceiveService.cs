@@ -30,9 +30,9 @@ public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingPr
         );
     }
 
-    public async Task<int> PendingCommitCount(FwDataProject project, string? projectCode)
+    public async Task<int> PendingCommitCountIncoming(FwDataProject project, string? projectCode)
     {
-        var incomingTask = SendReceiveHelpers.PendingMercurialCommits(
+        return await SendReceiveHelpers.PendingMercurialCommits(
             project: project,
             direction: SendReceiveHelpers.PendingCommitDirection.Incoming,
             projectCode: projectCode,
@@ -40,7 +40,11 @@ public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingPr
             auth: new SendReceiveHelpers.SendReceiveAuth(config.Value),
             progress: progress
         );
-        var outgoingTask = SendReceiveHelpers.PendingMercurialCommits(
+    }
+
+    public async Task<int> PendingCommitCountOutgoing(FwDataProject project, string? projectCode)
+    {
+        return await SendReceiveHelpers.PendingMercurialCommits(
             project: project,
             direction: SendReceiveHelpers.PendingCommitDirection.Outgoing,
             projectCode: projectCode,
@@ -48,6 +52,12 @@ public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingPr
             auth: new SendReceiveHelpers.SendReceiveAuth(config.Value),
             progress: progress
         );
+    }
+
+    public async Task<int> PendingCommitCountBothWays(FwDataProject project, string? projectCode)
+    {
+        var incomingTask = PendingCommitCountIncoming(project, projectCode);
+        var outgoingTask = PendingCommitCountOutgoing(project, projectCode);
         var incoming = await incomingTask;
         var outgoing = await outgoingTask;
         // -1 is used to mean "would pull/push all commits", e.g. if we don't have a local clone
