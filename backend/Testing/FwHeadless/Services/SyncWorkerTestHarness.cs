@@ -104,8 +104,10 @@ internal sealed class SyncWorkerTestHarness : IDisposable
     public void SetPendingCommitCount(int pendingCommitCount)
     {
         SendReceiveMock
-            // TODO: Should this set up PendingCommitCountBothWays now?
             .Setup(s => s.PendingCommitCountIncoming(It.IsAny<FwDataProject>(), ProjectCode))
+            .ReturnsAsync(pendingCommitCount);
+        SendReceiveMock
+            .Setup(s => s.PendingCommitCountBothWays(It.IsAny<FwDataProject>(), ProjectCode))
             .ReturnsAsync(pendingCommitCount);
     }
 
