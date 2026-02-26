@@ -1,7 +1,7 @@
 <script lang="ts">
-  import {cn} from '$lib/utils.js';
-  import {Select as SelectPrimitive, type WithoutChildrenOrChild} from 'bits-ui';
   import {Icon} from '../icon';
+  import {Select as SelectPrimitive} from 'bits-ui';
+  import {cn, type WithoutChildrenOrChild} from '$lib/utils.js';
 
   let {
     ref = $bindable(null),
@@ -12,6 +12,7 @@
 
 <SelectPrimitive.ScrollDownButton
   bind:ref
+  data-slot="select-scroll-down-button"
   class={cn('flex cursor-default items-center justify-center py-1', className)}
   {...restProps}
 >

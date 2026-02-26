@@ -76,7 +76,6 @@
         <ProjectDropdown
           onSelect={handleProjectSelect}
         />
-        <div class="flex-1" ></div>
         <ThemePicker />
       </div>
       <div class="mx-auto">

@@ -1,12 +1,12 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import type {Snippet} from 'svelte';
 
   let { children }: { children?: Snippet } = $props();
 </script>
 
 <!-- See sizes here: https://github.com/tailwindlabs/tailwindcss-container-queries?tab=readme-ov-file#configuration -->
-<div class="breakpoint-marker w-[32rem] text-orange-600">@lg</div>
-<div class="breakpoint-marker w-[48rem] text-green-600">@3xl</div>
+<div class="breakpoint-marker w-lg text-orange-600">@lg</div>
+<div class="breakpoint-marker w-3xl text-green-600">@3xl</div>
 
 {@render children?.()}
 

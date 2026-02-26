@@ -1,20 +1,24 @@
 <script lang="ts" module>
   import type {IconClass} from '$lib/icon-class';
-  import {mergeProps, type WithElementRef} from 'bits-ui';
+  import {mergeProps} from 'bits-ui';
   import type {ComponentProps} from 'svelte';
+  import {cn, type WithElementRef} from '$lib/utils.js';
   import type {HTMLAnchorAttributes, HTMLButtonAttributes} from 'svelte/elements';
   import {type VariantProps, tv} from 'tailwind-variants';
   import type {IconProps} from '../icon/icon.svelte';
+  import Anchor from '../anchor/anchor.svelte';
 
   export const buttonVariants = tv({
-    base: 'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:[&:not(.loading)]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+    base: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:[&:not(.loading)]:opacity-50 aria-disabled:pointer-events-none aria-disabled:[&:not(.loading)]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'border-input bg-background hover:bg-accent hover:text-accent-foreground border',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs',
+        destructive:
+          'bg-destructive hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 text-white shadow-xs',
+        outline:
+          'bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 border shadow-xs',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs',
+        ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
@@ -53,10 +57,8 @@
 </script>
 
 <script lang="ts">
-  import {cn} from '$lib/utils.js';
   import {Icon} from '../icon';
   import {slide} from 'svelte/transition';
-  import Anchor from '../anchor/anchor.svelte';
 
   let {
     class: className,
@@ -65,6 +67,7 @@
     ref = $bindable(null),
     href = undefined,
     type = 'button',
+    disabled,
     loading = false,
     icon = undefined,
     iconProps: nullableIconProps = undefined,
@@ -102,16 +105,26 @@
 {/snippet}
 
 {#if href}
-  <Anchor bind:ref class={cn(buttonVariants({variant, size}), className, loading && 'loading')} {href} {...restProps}>
+  <Anchor
+    bind:ref
+    data-slot="button"
+    class={cn(buttonVariants({variant, size}), className, loading && 'loading')}
+    href={disabled ? undefined : href}
+    aria-disabled={disabled}
+    role={disabled ? 'link' : undefined}
+    tabindex={disabled ? -1 : undefined}
+    {...restProps}
+  >
     {@render content()}
   </Anchor>
 {:else}
   <button
     bind:this={ref}
+    data-slot="button"
     class={cn(buttonVariants({variant, size}), className, loading && 'loading')}
     {type}
+    disabled={disabled || loading}
     {...restProps}
-    disabled={restProps.disabled || loading}
   >
     {@render content()}
   </button>

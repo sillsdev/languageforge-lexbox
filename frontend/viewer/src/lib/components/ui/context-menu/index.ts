@@ -1,28 +1,27 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-
-import {ContextMenu as ContextMenuPrimitive} from 'bits-ui';
-
-import Item from './context-menu-item.svelte';
-import GroupHeading from './context-menu-group-heading.svelte';
+import CheckboxItem from './context-menu-checkbox-item.svelte';
 import Content from './context-menu-content.svelte';
-import Shortcut from './context-menu-shortcut.svelte';
+import Group from './context-menu-group.svelte';
+import GroupHeading from './context-menu-group-heading.svelte';
+import Item from './context-menu-item.svelte';
+import Label from './context-menu-label.svelte';
+import Portal from './context-menu-portal.svelte';
+import RadioGroup from './context-menu-radio-group.svelte';
 import RadioItem from './context-menu-radio-item.svelte';
+import Root from './context-menu.svelte';
 import Separator from './context-menu-separator.svelte';
+import Shortcut from './context-menu-shortcut.svelte';
+import Sub from './context-menu-sub.svelte';
 import SubContent from './context-menu-sub-content.svelte';
 import SubTrigger from './context-menu-sub-trigger.svelte';
-import CheckboxItem from './context-menu-checkbox-item.svelte';
-
-const Sub = ContextMenuPrimitive.Sub;
-const Root = ContextMenuPrimitive.Root;
-const Trigger = ContextMenuPrimitive.Trigger;
-const Group = ContextMenuPrimitive.Group;
-const RadioGroup = ContextMenuPrimitive.RadioGroup;
+import Trigger from './context-menu-trigger.svelte';
 
 export {
-  Sub,
   Root,
+  Sub,
+  Portal,
   Item,
   GroupHeading,
+  Label,
   Group,
   Trigger,
   Content,
@@ -36,6 +35,7 @@ export {
   //
   Root as ContextMenu,
   Sub as ContextMenuSub,
+  Portal as ContextMenuPortal,
   Item as ContextMenuItem,
   GroupHeading as ContextMenuGroupHeading,
   Group as ContextMenuGroup,
@@ -48,4 +48,5 @@ export {
   SubContent as ContextMenuSubContent,
   SubTrigger as ContextMenuSubTrigger,
   CheckboxItem as ContextMenuCheckboxItem,
+  Label as ContextMenuLabel,
 };

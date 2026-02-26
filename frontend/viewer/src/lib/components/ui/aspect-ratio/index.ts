@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-
-import {AspectRatio as AspectRatioPrimitive} from 'bits-ui';
-
-const Root = AspectRatioPrimitive.Root;
+import Root from './aspect-ratio.svelte';
 
 export {Root as AspectRatio, Root};

@@ -346,7 +346,7 @@
   <div bind:this={elementRef} class={className} {...rest}></div>
 {/if}
 
-<style lang="postcss" global>
+<style global>
   .ProseMirror {
     display: block !important; /*prevent display from being overridden by .flex in the inputVariant class */
     align-content: center;

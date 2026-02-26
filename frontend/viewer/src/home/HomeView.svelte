@@ -304,7 +304,7 @@
   <div class="md:flex-grow-[2]"></div>
 </div>
 
-<style lang="postcss">
+<style>
   @reference "../app.css";
   .project-list {
     display: flex;

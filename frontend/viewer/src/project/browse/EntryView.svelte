@@ -1,24 +1,24 @@
 <script lang="ts">
   import { Icon } from '$lib/components/ui/icon';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
-  import {resource, Debounced, watch} from 'runed';
+  import { resource, Debounced, watch } from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import { fade } from 'svelte/transition';
   import ViewPicker from './EditorViewOptions.svelte';
   import EntryMenu from './EntryMenu.svelte';
-  import {ScrollArea} from '$lib/components/ui/scroll-area';
-  import {cn} from '$lib/utils';
-  import {useWritingSystemService} from '$project/data';
-  import {t} from 'svelte-i18n-lingui';
-  import {Toggle} from '$lib/components/ui/toggle';
-  import {XButton} from '$lib/components/ui/button';
-  import type {IEntry} from '$lib/dotnet-types';
-  import {copy, EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
-  import {useProjectEventBus} from '$lib/services/event-bus';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-  import {findFirstTabbable} from '$lib/utils/tabbable';
-  import {useFeatures} from '$lib/services/feature-service';
-  import type {ReadonlyDeep} from 'type-fest';
+  import { ScrollArea } from '$lib/components/ui/scroll-area';
+  import { cn } from '$lib/utils';
+  import { useWritingSystemService } from '$project/data';
+  import { t } from 'svelte-i18n-lingui';
+  import { Toggle } from '$lib/components/ui/toggle';
+  import { XButton } from '$lib/components/ui/button';
+  import type { IEntry } from '$lib/dotnet-types';
+  import { copy, EntryPersistence } from '$lib/entry-editor/entry-persistence.svelte';
+  import { useProjectEventBus } from '$lib/services/event-bus';
+  import { IsMobile } from '$lib/hooks/is-mobile.svelte';
+  import { findFirstTabbable } from '$lib/utils/tabbable';
+  import { useFeatures } from '$lib/services/feature-service';
+  import type { ReadonlyDeep } from 'type-fest';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
 
   const writingSystemService = useWritingSystemService();
@@ -76,7 +76,7 @@
     <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
       {#snippet actions()}
         <Toggle bind:pressed={() => sticky, (value) => dictionaryPreview = value ? 'sticky' : 'show'}
-          aria-label={$t`Toggle pinned`} class="aspect-square" size="xs">
+          aria-label={$t`Toggle pinned`} class="aspect-square" size="sm">
           <Icon icon="i-mdi-pin-outline" class="size-5" />
         </Toggle>
       {/snippet}

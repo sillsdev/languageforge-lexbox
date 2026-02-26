@@ -32,6 +32,18 @@
     "yaml.schemas": {
         "https://json.schemastore.org/github-workflow.json": ".github/**/*.yaml"
     },
+    "tailwindCSS.experimental.configFile": {
+      "frontend/tailwind.config.cjs": "frontend/src/**",
+      "frontend/viewer/src/app.css": "frontend/viewer/src/**"
+    },
+    "tailwindCSS.classFunctions": [
+      "cn"
+    ],
+    "tailwindCSS.experimental.classRegex": [
+      [
+        "class:\\s*['\"`]([^'\"`]*)['\"`]"
+      ]
+    ],
     "files.associations": {
       "**/frontend/**/i18n/**/*.json": "json5", // Supports json5 syntax: https://svelte-intl-precompile.com/en/docs/getting-started
     },

@@ -4,6 +4,7 @@ import path from 'node:path';
 import {playwright} from '@vitest/browser-playwright';
 import {storybookTest} from '@storybook/addon-vitest/vitest-plugin';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
+import tailwindcss from '@tailwindcss/vite';
 
 const dirname =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
@@ -59,7 +60,11 @@ export default defineConfig({
       },
       {
         plugins: [
-          svelte(),
+          tailwindcss(),
+          svelte({
+            // required for storybook tests (breaks @tailwindcss/vite if set globally in svelte.config.js)
+            compilerOptions: { customElement: true },
+          }),
           // seems to cause this project to only include storybook tests
           storybookTest({
             configDir: path.join(dirname, '.storybook'),

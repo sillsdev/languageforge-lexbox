@@ -1,6 +1,6 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 
-import {fileURLToPath} from 'url';
+import { fileURLToPath } from 'url';
 import globals from 'globals';
 import js from '@eslint/js';
 import path from 'path';
@@ -90,7 +90,7 @@ export default [
           'format': ['PascalCase'],
         }
       ],
-      '@stylistic/quotes': ['error', 'single', {'allowTemplateLiterals': 'always'}],
+      '@stylistic/quotes': ['error', 'single', {'allowTemplateLiterals': 'always', 'avoidEscape': true}],
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

@@ -1,6 +1,5 @@
 <script lang="ts">
-  import {cn} from '$lib/utils.js';
-  import type {WithElementRef} from 'bits-ui';
+  import {cn, type WithElementRef} from '$lib/utils.js';
   import type {HTMLAttributes} from 'svelte/elements';
 
   let {
@@ -13,6 +12,7 @@
 
 <div
   bind:this={ref}
+  data-slot="dialog-footer"
   class={cn('flex flex-col-reverse gap-2 sm:flex-row sm:justify-end items-end flex-wrap', className)}
   {...restProps}
 >
