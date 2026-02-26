@@ -110,6 +110,62 @@ public class SyncWorkerTests
     }
 
     [Theory]
+    [InlineData(false, true, SyncJobStatusEnum.SendReceiveFailed)]
+    [InlineData(true, true, SyncJobStatusEnum.Success)]
+    // Currently (2026-03) Chorus doesn't set ErrorEncountered to true if the only error is during a push,
+    // so we also need to test that the second S/R will be triggered on HTTP 500 errors even if IProgress.ErrorEncountered is false.
+    // Once Chorus fixes that bug and errors on push are detected, the second bool param can be removed and this test can be simplified
+    [InlineData(false, false, SyncJobStatusEnum.SendReceiveFailed)]
+    [InlineData(true, false, SyncJobStatusEnum.Success)]
+    public async Task ExecuteSync_PostSendReceiveHttp500_RetriesOneTime(bool retrySucceeds, bool progressReportsErrorOnHttp500, SyncJobStatusEnum expectedStatus)
+    {
+        using var h = new SyncWorkerTestHarness();
+        const string error500 = SendReceiveHelpers.LfMergeBridgeResult.Http500Indicator;
+        var srResults = new List<SendReceiveHelpers.LfMergeBridgeResult>();
+        // First S/R succeeds
+        srResults.Add(new SendReceiveHelpers.LfMergeBridgeResult("success"));
+        // Second S/R gets HTTP 500, but Chorus may or may not record that fact
+        srResults.Add(progressReportsErrorOnHttp500
+            ? new SendReceiveHelpers.LfMergeBridgeResult(error500, ProgressHelper.CreateErrorProgress())
+            : new SendReceiveHelpers.LfMergeBridgeResult(error500));
+        if (retrySucceeds)
+        {
+            // "Third" S/R (first and only retry of second S/R) succeeds
+            srResults.Add(new SendReceiveHelpers.LfMergeBridgeResult("success"));
+        }
+        else
+        {
+            // "Third" S/R (first and only retry of second S/R) also gets HTTP 500, but Chorus may or may not record that fact
+            srResults.Add(progressReportsErrorOnHttp500
+                ? new SendReceiveHelpers.LfMergeBridgeResult(error500, ProgressHelper.CreateErrorProgress())
+                : new SendReceiveHelpers.LfMergeBridgeResult(error500));
+        }
+        h.SetSendReceiveResults(srResults.ToArray());
+
+        var syncResult = new SyncResult(CrdtChanges: 5, FwdataChanges: 3);
+        var result = await h.RunAsync(syncResult);
+
+        result.Status.Should().Be(expectedStatus);
+        var expectedSteps = new List<SyncStep>([
+            TestAuth,
+            CheckBlocked,
+            PreSendReceive,
+            MediaSyncFwData,
+            MediaSyncCrdt,
+            GetSnapshot,
+            Sync,
+            PostSendReceive,
+            PostSendReceive
+        ]);
+        if (retrySucceeds)
+        {
+            expectedSteps.Add(RegenerateSnapshot);
+            expectedSteps.Add(HarmonySync);
+        }
+        h.Steps.Should().Equal(expectedSteps);
+    }
+
+    [Theory]
     [InlineData("Rolling back... validation error", true, SyncJobStatusEnum.SyncBlocked)]
     [InlineData("network error", false, SyncJobStatusEnum.SendReceiveFailed)]
     public async Task ExecuteSync_PreSendReceiveFailure_ReturnsExpectedStatus(string output, bool rollback, SyncJobStatusEnum expectedStatus)
