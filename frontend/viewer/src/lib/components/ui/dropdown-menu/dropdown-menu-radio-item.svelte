@@ -21,7 +21,7 @@
   {...restProps}
 >
   {#snippet children({checked})}
-    <span class="pointer-events-none absolute start-2 flex size-3.5 items-center justify-center">
+    <span class="pointer-events-none absolute inset-s-2 flex size-3.5 items-center justify-center">
       {#if checked}
         <!-- If not centered, see the change made in radio-group-item.svelte -->
         <Icon icon="i-mdi-circle" class="size-2 text-current" />

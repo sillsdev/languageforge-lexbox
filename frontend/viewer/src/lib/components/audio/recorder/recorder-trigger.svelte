@@ -87,7 +87,7 @@
   }
 
   const defaultProps = $derived({
-    class: cn('rounded-full hover:brightness-90 select-none', recorderApi.recording ? '!bg-foreground' : '!bg-red-600'),
+    class: cn('rounded-full hover:brightness-90 select-none', recorderApi.recording ? 'bg-foreground!' : 'bg-red-600!'),
     icon: recorderApi.recording ? 'i-mdi-stop' : 'i-mdi-microphone',
     iconProps: {class: cn(recorderApi.recording ? 'text-red-600 size-8' : 'size-7')},
     size: 'xl-icon',

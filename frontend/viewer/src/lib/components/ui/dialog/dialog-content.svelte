@@ -41,7 +41,7 @@
   >
     {@render children?.()}
     {#if !hideClose}
-      <DialogPrimitive.Close class="absolute end-4 top-4">
+      <DialogPrimitive.Close class="absolute inset-e-4 top-4">
         {#snippet child({props})}
           <XButton {...props} />
         {/snippet}

@@ -98,7 +98,7 @@
 {/snippet}
 
 <div class={cn('group/container', className)} {...restProps}>
-  <div class="float-right group-[&:not(:hover)]/container:invisible relative -top-1">
+  <div class="float-right group-not-[&:hover]/container:invisible relative -top-1">
     {@render actions?.()}
   </div>
   <Headwords {entry} class={cn('mr-1', headwordClass)} />

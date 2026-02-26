@@ -20,7 +20,7 @@
         ghost: 'outline-none min-w-0 bg-transparent',
         // shell variant has a dedicated component
         shell:
-          'border-input bg-background ring-offset-background placeholder:text-muted-foreground flex h-10 w-full rounded-md border text-base has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 md:text-sm flex gap-2 items-center justify-between',
+          'border-input bg-background ring-offset-background placeholder:text-muted-foreground flex h-10 w-full rounded-md border text-base has-disabled:cursor-not-allowed has-disabled:opacity-50 md:text-sm flex gap-2 items-center justify-between',
       },
     },
     defaultVariants: {

@@ -183,7 +183,7 @@
     {/snippet}
 </AppBar>
 <div class="mx-auto md:w-full md:py-4 max-w-2xl">
-  <div class="flex-grow hidden md:block"></div>
+  <div class="grow hidden md:block"></div>
   <div class="project-list">
     {#await projectsPromise}
       <p>{$t`loading...`}</p>
@@ -192,7 +192,7 @@
         <div>
           <div class="flex flex-row items-end">
             <p class="sub-title">{$t`Local`}</p>
-            <div class="flex-grow"></div>
+            <div class="grow"></div>
 
             <Button icon="i-mdi-refresh"
                     title={$t`Refresh Projects`}
@@ -301,10 +301,10 @@
     {/await}
   </div>
 
-  <div class="md:flex-grow-[2]"></div>
+  <div class="md:grow-2"></div>
 </div>
 
-<style>
+<style lang="postcss">
   @reference "../app.css";
   .project-list {
     display: flex;

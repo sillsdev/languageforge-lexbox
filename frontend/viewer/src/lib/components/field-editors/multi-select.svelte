@@ -257,8 +257,8 @@
               checked={selected}
               tabindex={-1}
               class={cn(
-                'max-md:hidden mr-2 border-muted-foreground !text-foreground !bg-transparent group-[&:not([data-selected])]:border-transparent',
-                selected || '[&:not(:hover)]:opacity-50',
+                'max-md:hidden mr-2 border-muted-foreground text-foreground! bg-transparent! group-[&:not([data-selected])]:border-transparent',
+                selected || 'not-[&:hover]:opacity-50',
               )}
               onclick={(e) => {
                 // prevents command item selection

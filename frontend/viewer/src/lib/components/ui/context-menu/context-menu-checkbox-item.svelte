@@ -22,13 +22,13 @@
   bind:indeterminate
   data-slot="context-menu-checkbox-item"
   class={cn(
-    "data-highlighted:bg-accent data-highlighted:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 ps-8 pe-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+    "data-highlighted:bg-accent data-highlighted:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 ps-8 pe-2 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     className,
   )}
   {...restProps}
 >
   {#snippet children({checked, indeterminate})}
-    <span class="pointer-events-none absolute start-2 flex size-3.5 items-center justify-center">
+    <span class="pointer-events-none absolute inset-s-2 flex size-3.5 items-center justify-center">
       {#if indeterminate}
         <Icon icon="i-mdi-minus" class="size-3.5" />
       {:else}
