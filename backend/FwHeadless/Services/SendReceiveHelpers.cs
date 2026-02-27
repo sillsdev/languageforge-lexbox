@@ -112,7 +112,7 @@ public static class SendReceiveHelpers
         Outgoing,
     }
 
-    public static async Task<int> PendingMercurialCommits(FwDataProject project, PendingCommitDirection direction = PendingCommitDirection.Incoming, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, IProgress? progress = null)
+    public static async Task<int> PendingMercurialCommits(FwDataProject project, PendingCommitDirection direction, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, IProgress? progress = null)
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
         projectCode ??= project.Name;
