@@ -328,8 +328,11 @@ public class SeedingData(
                 OpenIddictConstants.Permissions.Prefixes.Scope + LexboxAuthScope.SendAndReceive.ToString().ToLower()
             },
             RedirectUris = {
-                new Uri("http://localhost:5000/v1/auth/oauth-callback"),
-                new Uri("https://qa-kube.thecombine.app/v1/auth/oauth-callback")
+                new Uri("http://localhost:5000/v1/auth/oauth-callback"), // dev with npm start
+                new Uri("https://thecombine.localhost/v1/auth/oauth-callback"), // dev with Docker
+                new Uri("https://thecombine.localhost:5000/v1/auth/oauth-callback"), // dev with Rancher
+                new Uri("https://qa-kube.thecombine.app/v1/auth/oauth-callback"), // QA environment
+                new Uri("https://thecombine.app/v1/auth/oauth-callback") // Production environment
             }
         },
     ], a => a.ClientId ?? throw new InvalidOperationException("ClientId is null"));
