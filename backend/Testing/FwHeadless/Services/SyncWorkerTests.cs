@@ -110,6 +110,46 @@ public class SyncWorkerTests
     }
 
     [Theory]
+    [InlineData(false, SyncJobStatusEnum.SendReceiveFailed)]
+    [InlineData(true, SyncJobStatusEnum.Success)]
+    public async Task ExecuteSync_PostSendReceiveHttp500_RetriesOneTime(bool retrySucceeds, SyncJobStatusEnum expectedStatus)
+    {
+        using var h = new SyncWorkerTestHarness();
+        const string error500 = SendReceiveHelpers.LfMergeBridgeResult.Http500Indicator;
+        h.SetSendReceiveResults(
+            // First S/R succeeds
+            new SendReceiveHelpers.LfMergeBridgeResult("success"),
+            // Second S/R gets HTTP 500
+            new SendReceiveHelpers.LfMergeBridgeResult(error500, ProgressHelper.CreateErrorProgress()),
+            // "Third" S/R (first and only retry of second S/R) succeeds in one test, gets HTTP 500 in the other test
+            retrySucceeds
+                ? new SendReceiveHelpers.LfMergeBridgeResult("success")
+                : new SendReceiveHelpers.LfMergeBridgeResult(error500, ProgressHelper.CreateErrorProgress()));
+
+        var syncResult = new SyncResult(CrdtChanges: 5, FwdataChanges: 3);
+        var result = await h.RunAsync(syncResult);
+
+        result.Status.Should().Be(expectedStatus);
+        var expectedSteps = new List<SyncStep>([
+            TestAuth,
+            CheckBlocked,
+            PreSendReceive,
+            MediaSyncFwData,
+            MediaSyncCrdt,
+            GetSnapshot,
+            Sync,
+            PostSendReceive,
+            PostSendReceive
+        ]);
+        if (retrySucceeds)
+        {
+            expectedSteps.Add(RegenerateSnapshot);
+            expectedSteps.Add(HarmonySync);
+        }
+        h.Steps.Should().Equal(expectedSteps);
+    }
+
+    [Theory]
     [InlineData("Rolling back... validation error", true, SyncJobStatusEnum.SyncBlocked)]
     [InlineData("network error", false, SyncJobStatusEnum.SendReceiveFailed)]
     public async Task ExecuteSync_PreSendReceiveFailure_ReturnsExpectedStatus(string output, bool rollback, SyncJobStatusEnum expectedStatus)

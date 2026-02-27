@@ -222,6 +222,11 @@ public class SyncWorker(
         else
         {
             var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
+            // HTTP 500 errors should be retried once before checking for success
+            if (srResult2.InternalServerError)
+            {
+                srResult2 = await srService.SendReceive(fwDataProject, projectCode);
+            }
             if (!srResult2.Success)
             {
                 if (srResult2.RollbackDetected)
@@ -270,7 +275,7 @@ public class SyncWorker(
     {
         if (File.Exists(fwDataProject.FilePath))
         {
-            var pendingHgCommits = await srService.PendingCommitCount(fwDataProject, projectCode);
+            var pendingHgCommits = await srService.PendingCommitCountBothWays(fwDataProject, projectCode);
             if (pendingHgCommits == 0)
             {
                 logger.LogInformation("No Send/Receive needed before CRDT sync as there are no pending commits");
