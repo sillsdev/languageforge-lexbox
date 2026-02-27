@@ -13,10 +13,12 @@
   import {SortField} from '$lib/dotnet-types';
   import NewEntryButton from './NewEntryButton.svelte';
   import {resource, watch} from 'runed';
-  import {Button} from '$lib/components/ui/button';
+  import {Button, buttonVariants} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import {ComposableInput} from '$lib/components/ui/input';
   import {Icon} from '$lib/components/ui/icon';
+  import * as Collapsible from '$lib/components/ui/collapsible';
+  import SubmitOrCancel from '$lib/components/SubmitOrCancel.svelte';
   import EntryRow from '../../project/browse/EntryRow.svelte';
   import SenseRow from '../../project/browse/SenseRow.svelte';
   import Loading from '$lib/components/Loading.svelte';
@@ -27,8 +29,11 @@
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
+  import {cn} from '$lib/utils';
+  import {useWritingSystemService} from '$project/data';
 
   const currentView = useCurrentView();
+  const writingSystemService = useWritingSystemService();
   const dialogsService = useDialogsService();
 
   interface Props {
@@ -54,6 +59,14 @@
 
   let selectedEntry: IEntry | undefined = $state(undefined);
   let selectedSense: ISense | undefined = $state(undefined);
+  let isEntryOrSenseOpen = $state(false);
+  const collapsedSelectionPreview = $derived.by(() => {
+    if (!selectedEntry) return '';
+    if (!selectedSense) {
+      return writingSystemService.headword(selectedEntry) || '';
+    }
+    return writingSystemService.firstGloss(selectedSense) || writingSystemService.firstDef(selectedSense) || '';
+  });
 
   const lexboxApi = useLexboxApi();
   let search = $state('');
@@ -128,6 +141,7 @@
   function select(entry?: IEntry, sense?: ISense): void {
     selectedEntry = entry;
     selectedSense = sense;
+    isEntryOrSenseOpen = true;
   }
 </script>
 
@@ -197,41 +211,51 @@
       {/if}
     </div>
 
-    <Dialog.Footer class="sticky bottom-0 gap-0 flex-col bg-background border rounded rounded-b-none border-b-0 scale-[1.02]">
+    <Dialog.Footer class="sticky bottom-0 gap-0 flex-col! items-stretch! bg-background border rounded rounded-b-none border-b-0 scale-[1.02] overflow-x-hidden h-fit">
       {#if !onlyEntries && selectedEntry}
         {@const disabledEntry = disableEntry?.(selectedEntry)}
-        <div class="pointer-events-auto flex-1 px-2 space-y-2 pb-4 pt-2 max-h-[min(50cqh,20rem)] overflow-y-auto overscroll-contains">
-          <p class="text-muted-foreground px-2 text-sm">
-            {pt($t`Entry or sense:`, $t`Word or meaning:`, $currentView)}
-          </p>
-          <ListItem
-            class="flex-row justify-between"
-            disabled={!!disableEntry?.(selectedEntry)}
-            selected={!selectedSense}
-            onclick={() => select(selectedEntry, undefined)}>
-            <p class="font-medium">{pt($t`Entry Only`, $t`Word only`, $currentView)}</p>
-            {#if disabledEntry}
-              <Badge variant="outline" class="border-destructive text-destructive">
-                {disabledEntry.reason}
-              </Badge>
-            {/if}
-          </ListItem>
-          {#each selectedEntry.senses as sense (sense.id)}
-            {@const disabledSense = disableSense?.(sense, selectedEntry)}
-            <SenseRow
-              {sense}
-              selected={selectedSense?.id === sense.id}
-              disabled={!!disabledSense}
-              onclick={() => select(selectedEntry, sense)}>
-              {#snippet badge()}
-                {#if disabledSense}
+        <div class="pointer-events-auto px-2 pt-2 max-w-full max-h-[min(calc(100cqh-13rem),20rem)] overflow-y-auto overscroll-contain">
+          <Collapsible.Root bind:open={isEntryOrSenseOpen}>
+            <Collapsible.Trigger class={cn(buttonVariants({variant: 'ghost', size: 'sm'}), 'w-full justify-between text-muted-foreground')}>
+              <span class="flex items-center gap-1.5 truncate">
+                <span>{pt($t`Entry or sense:`, $t`Word or meaning:`, $currentView)}</span>
+                <span class="text-foreground truncate">
+                  {collapsedSelectionPreview}
+                </span>
+              </span>
+              <Icon icon={isEntryOrSenseOpen ? 'i-mdi-chevron-down' : 'i-mdi-chevron-up'} class="size-5"/>
+            </Collapsible.Trigger>
+            <Collapsible.Content class="space-y-2 py-2.5">
+              <ListItem
+                class="flex-row justify-between"
+                disabled={!!disableEntry?.(selectedEntry)}
+                selected={!selectedSense}
+                onclick={() => select(selectedEntry, undefined)}>
+                <p class="font-medium">{pt($t`Entry Only`, $t`Word only`, $currentView)}</p>
+                {#if disabledEntry}
                   <Badge variant="outline" class="border-destructive text-destructive">
-                    {disabledSense}
+                    {disabledEntry.reason}
                   </Badge>
                 {/if}
-              {/snippet}
-            </SenseRow>
-          {/each}
+              </ListItem>
+              {#each selectedEntry.senses as sense (sense.id)}
+                {@const disabledSense = disableSense?.(sense, selectedEntry)}
+                <SenseRow
+                  {sense}
+                  selected={selectedSense?.id === sense.id}
+                  disabled={!!disabledSense}
+                  onclick={() => select(selectedEntry, sense)}>
+                  {#snippet badge()}
+                    {#if disabledSense}
+                      <Badge variant="outline" class="border-destructive text-destructive">
+                        {disabledSense}
+                      </Badge>
+                    {/if}
+                  {/snippet}
+                </SenseRow>
+              {/each}
+            </Collapsible.Content>
+          </Collapsible.Root>
 <!--          disabled for now because this didn't prompt the user to define the sense, it just created it with no data-->
 <!--          <button
             class="w-full flex-1 flex items-center text-left max-w-full overflow-hidden hover:bg-accent p-2 pl-4 rounded"
@@ -241,16 +265,13 @@
           </button>-->
         </div>
       {/if}
-      <div class="flex gap-4 items-end p-4 rounded flex-nowrap min-w-64">
-        <Button variant="secondary" class="basis-1/4" onclick={() => open = false}>
-           {$t`Cancel`}
-        </Button>
-        <Button variant="default" class="basis-3/4"
-                disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)}
-                onclick={onPick}>
-          {$t`Select ${selectedSense ? pt($t`Sense`, $t`Meaning`, $currentView) : pt($t`Entry`, $t`Word`, $currentView)}`}
-        </Button>
-      </div>
+      <SubmitOrCancel
+        canSubmit={!!(selectedEntry && (!disableEntry || !disableEntry(selectedEntry) || selectedSense))}
+        onCancel={() => open = false}
+        onSubmit={onPick}
+        submitLabel={$t`Select ${selectedSense ? pt($t`Sense`, $t`Meaning`, $currentView) : pt($t`Entry`, $t`Word`, $currentView)}`}
+        class="p-4"
+      />
 
     </Dialog.Footer>
   </Dialog.Content>

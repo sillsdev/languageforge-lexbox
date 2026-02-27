@@ -24,11 +24,11 @@
   {...restProps}
 >
   {#snippet children({checked, indeterminate})}
-    <div data-slot="checkbox-indicator" class="text-current transition-none">
+    <div data-slot="checkbox-indicator" class="text-current transition-none size-full flex items-center justify-center">
       {#if indeterminate}
-        <Icon icon="i-mdi-minus" class="size-3.5" />
+        <Icon icon="i-mdi-minus" class="size-3/4" />
       {:else}
-        <Icon icon="i-mdi-check" class={cn('size-3.5', !checked && 'text-transparent')} />
+        <Icon icon="i-mdi-check" class={cn('size-3/4', !checked && 'text-transparent')} />
       {/if}
     </div>
   {/snippet}

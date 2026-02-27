@@ -9,6 +9,7 @@
   import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '../ui/command';
   import {Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger} from '../ui/drawer';
   import {Icon} from '../ui/icon';
+  import SubmitOrCancel from '../SubmitOrCancel.svelte';
   import type {ConditionalKeys, Primitive, ReadonlyDeep} from 'type-fest';
   import {cn} from '$lib/utils';
   import DrawerFooter from '../ui/drawer/drawer-footer.svelte';
@@ -212,7 +213,7 @@
   >
     {@render displayBadges()}
     {#if !readonly}
-      <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+      <Icon icon="i-mdi-chevron-down" class="size-5 shrink-0 opacity-50" />
     {/if}
   </Button>
 {/snippet}
@@ -237,7 +238,7 @@
         {/if}
       </div>
     </CommandInput>
-    <CommandList class="max-md:h-[300px] md:max-h-[40vh]">
+    <CommandList class="max-md:h-75 md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
         {#each renderedOptions as value, i (getId(value))}
@@ -248,7 +249,7 @@
             keywords={[label.toLocaleLowerCase()]}
             value={label.toLocaleLowerCase() + String(id)}
             onSelect={() => toggleSelected(value, !dirty && !IsMobile.value)}
-            class={cn('group max-md:h-12', label || 'text-muted-foreground')}
+            class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
             data-value-index={i}
             aria-label={label}
           >
@@ -257,7 +258,7 @@
               checked={selected}
               tabindex={-1}
               class={cn(
-                'max-md:hidden mr-2 border-muted-foreground text-foreground! bg-transparent! group-[&:not([data-selected])]:border-transparent',
+                'max-md:hidden mr-2 size-5 border-muted-foreground text-foreground! bg-transparent! group-[&:not([data-selected])]:border-transparent',
                 selected || 'not-[&:hover]:opacity-50',
               )}
               onclick={(e) => {
@@ -297,14 +298,7 @@
       </DrawerHeader>
       {@render command()}
       <DrawerFooter>
-        <div class="flex gap-4 items-center flex-nowrap">
-          <Button variant="secondary" class={cn('basis-1/4 transition-all', dirty || 'basis-3/4')} onclick={dismiss}>
-            {$t`Cancel`}
-          </Button>
-          <Button disabled={!dirty} class={cn('basis-3/4 transition-all', dirty || 'basis-1/4')} onclick={submit}>
-            {$t`Submit`}
-          </Button>
-        </div>
+        <SubmitOrCancel canSubmit={dirty} onCancel={dismiss} onSubmit={submit} />
       </DrawerFooter>
     </DrawerContent>
   </Drawer>
