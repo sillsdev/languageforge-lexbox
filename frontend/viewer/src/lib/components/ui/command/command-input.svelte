@@ -12,12 +12,12 @@
   }: CommandPrimitive.InputProps = $props();
 </script>
 
-<div class="flex h-9 items-center gap-2 border-b ps-3 pe-8" data-slot="command-input-wrapper">
+<div class="flex items-center gap-2 border-b px-2" data-slot="command-input-wrapper">
   <Icon icon="i-mdi-magnify" class="size-4 shrink-0 opacity-50" />
   <CommandPrimitive.Input
     data-slot="command-input"
     class={cn(
-      'placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
+      'placeholder:text-muted-foreground flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
       className,
     )}
     bind:ref

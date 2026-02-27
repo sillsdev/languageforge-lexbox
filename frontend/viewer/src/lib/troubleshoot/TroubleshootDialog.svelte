@@ -47,7 +47,7 @@
         </span>
         <CopyButton
           variant="ghost"
-          size="xs-icon"
+          size="icon-xs"
           iconProps={{class: 'size-4'}}
           title={$t`Copy version`}
           text={`${config.appVersion} on ${config.os}`}
@@ -65,7 +65,7 @@
           {#await service?.getDataDirectory() then value}
             {value}
           {/await}
-          <Button variant="ghost" icon="i-mdi-folder-search" size="xs-icon" title={$t`Open Data Directory`}
+          <Button variant="ghost" icon="i-mdi-folder-search" size="icon-xs" title={$t`Open Data Directory`}
                   onclick={() => tryOpenDataDirectory()}/>
         </InputShell>
       </div>

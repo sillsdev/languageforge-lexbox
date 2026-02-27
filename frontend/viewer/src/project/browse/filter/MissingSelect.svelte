@@ -19,7 +19,7 @@
 
 </script>
 <Select.Root type="single" value={value?.id} onValueChange={(newId) => value = missingOptions.find(f => f.id === newId) ?? null}>
-  <Select.Trigger class="flex-1" onClear={() => value = null}>
+  <Select.Trigger class="w-full" onClear={() => value = null}>
     {value?.label ? $t`Missing: ${value.label}` : $t`Entries missing...`}
   </Select.Trigger>
   <Select.Content>

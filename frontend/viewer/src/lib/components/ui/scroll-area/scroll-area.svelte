@@ -24,7 +24,13 @@
   const type = $derived(explicitType ?? (IsMobile.value ? 'scroll' : 'auto'));
 </script>
 
-<ScrollAreaPrimitive.Root {type} bind:ref data-slot="scroll-area" class={cn('relative', className)} {...restProps}>
+<ScrollAreaPrimitive.Root
+  {type}
+  bind:ref
+  data-slot="scroll-area"
+  class={cn('relative overflow-hidden', className)}
+  {...restProps}
+>
   <ScrollAreaPrimitive.Viewport
     bind:ref={viewportRef}
     data-slot="scroll-area-viewport"
