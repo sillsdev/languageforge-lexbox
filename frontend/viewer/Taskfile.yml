@@ -46,6 +46,7 @@ tasks:
     desc: 'runs playwright tests against already running server'
     cmd: pnpm run test:playwright {{.CLI_ARGS}}
   playwright-test-standalone:
+    aliases: [pts]
     desc: 'runs playwright tests and runs dev automatically, run ui mode by calling with -- --ui or use --update-snapshots'
     env:
       AUTO_START_SERVER: true

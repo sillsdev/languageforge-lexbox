@@ -119,6 +119,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterfaces([
                 typeof(QueryOptions),
                 typeof(FilterQueryOptions),
+                typeof(IndexQueryOptions),
                 typeof(SortOptions),
                 typeof(ExemplarOptions),
                 typeof(EntryFilter),

@@ -1,6 +1,6 @@
 <script lang="ts" module>
   import {Context} from 'runed';
-  import type {FieldId} from '$lib/entry-editor/field-data';
+  import type {FieldId} from '$lib/views/fields';
   const fieldIdSymbol = Symbol('fw-lite-field-id');
   class FieldRootState {
     //require using the constructor when this type is used

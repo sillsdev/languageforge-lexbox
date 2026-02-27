@@ -28,7 +28,6 @@
   title={`${ws.name} (${ws.wsId})`}
   placeholder={ws.abbreviation}
   {autofocus}
-  autocapitalize="off"
   aria-labelledby={labelledBy}
   onchange={() => onchange?.(value)}
 />

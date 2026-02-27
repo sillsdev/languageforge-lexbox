@@ -13,7 +13,7 @@
   import {navigate, useRouter} from 'svelte-routing';
   import type {IProjectModel} from '$lib/dotnet-types';
   import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
-  import DevContent from '$lib/layout/DevContent.svelte';
+  import DevContent, {devModeToggle} from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
   import SyncDialog from './SyncDialog.svelte';
@@ -211,7 +211,7 @@
   <Sidebar.Footer>
       <div class="text-xs text-muted-foreground py-2 m-auto">
         <div>{$t`Version ${config.appVersion}`}</div>
-        <div>{$t`Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸`}</div>
+        <div {@attach devModeToggle}>{$t`Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸`}</div>
       </div>
   </Sidebar.Footer>
   <Sidebar.Rail></Sidebar.Rail>

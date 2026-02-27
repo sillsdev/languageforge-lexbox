@@ -7,25 +7,32 @@ namespace FwDataMiniLcmBridge.Api;
 internal static class Sorting
 {
     /// <summary>
-    /// crude emulation of FTS search relevance
+    /// Rough emulation of FTS search relevance. Headword matches come first, preferring
+    /// prefix matches (e.g. when searching "tan" then "tanan" is before "matan"), then shorter, then alphabetical.
+    /// See also: EntrySearchService.FilterAndRank for the FTS-based equivalent in LcmCrdt.
     /// </summary>
     public static IEnumerable<ILexEntry> ApplyRoughBestMatchOrder(this IEnumerable<ILexEntry> entries, SortOptions order, int sortWsHandle, string? query = null)
     {
+        var projected = entries.Select(e => (Entry: e, Headword: e.LexEntryHeadword(sortWsHandle)));
         if (order.Ascending)
         {
-            return entries
-                .OrderByDescending(e => !string.IsNullOrEmpty(query) && (e.LexEntryHeadword(sortWsHandle)?.ContainsDiacriticMatch(query!) ?? false))
-                .ThenBy(e => e.LexEntryHeadword(sortWsHandle)?.Length ?? 0)
-                .ThenBy(e => e.LexEntryHeadword(sortWsHandle))
-                .ThenBy(e => e.Id.Guid);
+            return projected
+                .OrderByDescending(x => !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!) ?? false))
+                .ThenByDescending(x => !string.IsNullOrEmpty(query) && (x.Headword?.StartsWithDiacriticMatch(query!) ?? false))
+                .ThenBy(x => x.Headword?.Length ?? 0)
+                .ThenBy(x => x.Headword)
+                .ThenBy(x => x.Entry.Id.Guid)
+                .Select(x => x.Entry);
         }
         else
         {
-            return entries
-                .OrderBy(e => !string.IsNullOrEmpty(query) && (e.LexEntryHeadword(sortWsHandle)?.ContainsDiacriticMatch(query!) ?? false))
-                .ThenByDescending(e => e.LexEntryHeadword(sortWsHandle)?.Length ?? 0)
-                .ThenByDescending(e => e.LexEntryHeadword(sortWsHandle))
-                .ThenByDescending(e => e.Id.Guid);
+            return projected
+                .OrderBy(x => !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!) ?? false))
+                .ThenBy(x => !string.IsNullOrEmpty(query) && (x.Headword?.StartsWithDiacriticMatch(query!) ?? false))
+                .ThenByDescending(x => x.Headword?.Length ?? 0)
+                .ThenByDescending(x => x.Headword)
+                .ThenByDescending(x => x.Entry.Id.Guid)
+                .Select(x => x.Entry);
         }
     }
 }

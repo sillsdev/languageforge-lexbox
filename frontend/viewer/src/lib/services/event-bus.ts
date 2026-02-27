@@ -102,6 +102,10 @@ export class ProjectEventBus {
     this.notifyProjectEvent({entryId, type: FwEventType.EntryDeleted, isGlobal: false} satisfies IEntryDeletedEvent);
   }
 
+  public notifyEntryUpdated(entry: IEntry) {
+    this.notifyProjectEvent({entry, type: FwEventType.EntryChanged, isGlobal: false} satisfies IEntryChangedEvent);
+  }
+
   private notifyProjectEvent<T extends IFwEvent>(event: T) {
     this.eventBus.notifyEvent({
       type: FwEventType.ProjectEvent,

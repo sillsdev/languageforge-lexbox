@@ -103,6 +103,19 @@ public class RichString(ICollection<RichSpan> spans) : IEquatable<RichString>
         if (obj.GetType() != GetType()) return false;
         return Equals((RichString)obj);
     }
+
+    // Keep consistent with Equals(RichString).
+    // RichString is mutable; avoid using it as a hash key if it might be mutated.
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        foreach (var span in Spans)
+        {
+            hash.Add(span);
+        }
+
+        return hash.ToHashCode();
+    }
 }
 
 
@@ -298,6 +311,94 @@ public record RichSpan
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
         return EqualsProps(other) && Text == other.Text;
+    }
+
+    // Keep consistent with Equals/EqualsProps.
+    // RichSpan is mutable; avoid using it as a hash key if it might be mutated.
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+
+        hash.Add(Ws);
+        hash.Add(WsBase);
+        hash.Add(Italic);
+        hash.Add(Bold);
+        hash.Add(Align);
+        hash.Add(Superscript);
+        hash.Add(Underline);
+        hash.Add(FontFamily);
+        hash.Add(FontSize);
+        hash.Add(FontSizeUnit);
+        hash.Add(FontVariations);
+        hash.Add(Offset);
+        hash.Add(OffsetUnit);
+        hash.Add(ForeColor);
+        hash.Add(BackColor);
+        hash.Add(UnderColor);
+        hash.Add(FirstIndent);
+        hash.Add(LeadingIndent);
+        hash.Add(TrailingIndent);
+        hash.Add(SpaceBefore);
+        hash.Add(SpaceAfter);
+        hash.Add(MarginTop);
+        hash.Add(TabDef);
+        hash.Add(LineHeight);
+        hash.Add(LineHeightUnit);
+        hash.Add(ParaColor);
+        hash.Add(SpellCheck);
+        hash.Add(RightToLeft);
+        hash.Add(DirectionDepth);
+        hash.Add(KeepWithNext);
+        hash.Add(KeepTogether);
+        hash.Add(Hyphenate);
+        hash.Add(MaxLines);
+        hash.Add(CellBorderWidth);
+        hash.Add(CellSpacing);
+        hash.Add(CellPadding);
+        hash.Add(Editable);
+        hash.Add(SetRowDefaults);
+        hash.Add(RelLineHeight);
+        hash.Add(WidowOrphan);
+        hash.Add(PadTop);
+        hash.Add(PadBottom);
+        hash.Add(PadLeading);
+        hash.Add(PadTrailing);
+        hash.Add(ParaStyle);
+        hash.Add(CharStyle);
+        hash.Add(NamedStyle);
+        hash.Add(WsStyle);
+        hash.Add(BorderTop);
+        hash.Add(BorderBottom);
+        hash.Add(BorderLeading);
+        hash.Add(BorderTrailing);
+        hash.Add(BorderColor);
+        hash.Add(BulNumScheme);
+        hash.Add(BulNumStartAt);
+        hash.Add(BulNumTxtBef);
+        hash.Add(BulNumTxtAft);
+        hash.Add(BulNumFontInfo);
+        hash.Add(CustomBullet);
+        hash.Add(TabList);
+        hash.Add(TableRule);
+        hash.Add(FieldName);
+        hash.Add(ObjData);
+
+        if (Tags is null)
+        {
+            hash.Add(0);
+        }
+        else
+        {
+            hash.Add(1);
+            foreach (var tag in Tags)
+            {
+                hash.Add(tag);
+            }
+        }
+
+        hash.Add(Text);
+
+        return hash.ToHashCode();
     }
 
     public bool EqualsProps(RichSpan? other)

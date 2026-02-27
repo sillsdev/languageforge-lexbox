@@ -1,4 +1,3 @@
-using System.Drawing;
 using System.Text.Json;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
@@ -10,6 +9,7 @@ namespace MiniLcm.Tests;
 public class RichMultiStringTests
 {
     private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.Config);
+
     [Fact]
     public void RichMultiString_DeserializesSimpleRichString()
     {
@@ -146,6 +146,7 @@ public class RichMultiStringTests
         var actualSpan = richSpan.Copy();
         richSpan.Should().Be(actualSpan);
         richSpan.Equals(actualSpan).Should().BeTrue();
+        richSpan.GetHashCode().Should().Be(actualSpan.GetHashCode());
     }
 
     [Fact]
@@ -185,6 +186,19 @@ public class RichMultiStringTests
     [Fact]
     public void RichSpan_PerPropertyEqualityTests()
     {
+        static object GenerateDifferentValue(AutoFaker autoFaker, Type type, object? currentValue)
+        {
+            // AutoBogus can return null/default; retry until we actually change the field so the test is a reliable tripwire.
+            for (var attempt = 0; attempt < 20; attempt++)
+            {
+                var value = autoFaker.Generate(type);
+                if (value is null) continue;
+                if (currentValue is null || !currentValue.Equals(value)) return value;
+            }
+
+            throw new InvalidOperationException($"Unable to generate a different value for type '{type.FullName}'.");
+        }
+
         var blankSpan = new RichSpan()
         {
             Text = "test"
@@ -195,8 +209,35 @@ public class RichMultiStringTests
             if (fieldInfo.FieldType == typeof(RichTextObjectData)) continue;
             var span = new RichSpan() { Text = "test" };
             span.Equals(blankSpan).Should().BeTrue();
-            fieldInfo.SetValue(span, AutoFaker.Generate(fieldInfo.FieldType));
+            var currentValue = fieldInfo.GetValue(span);
+            var differentValue = GenerateDifferentValue(AutoFaker, fieldInfo.FieldType, currentValue);
+            fieldInfo.SetValue(span, differentValue);
             span.Equals(blankSpan).Should().BeFalse("field {0} do not match", fieldInfo.Name);
+        }
+    }
+
+    [Fact]
+    public void RichString_HashCodeMatchesEquality()
+    {
+        var rs1 = new RichString([new RichSpan() { Text = "test", Ws = "en", Bold = RichTextToggle.On }]);
+        var rs2 = rs1.Copy();
+
+        rs1.Equals(rs2).Should().BeTrue();
+        rs1.GetHashCode().Should().Be(rs2.GetHashCode());
+    }
+
+    [Fact]
+    public void RichString_HashCodeMatchesEquality_ManySeededCases()
+    {
+        var seededFaker = new AutoFaker(AutoFakerDefault.Config);
+        seededFaker.UseSeed(12345);
+        for (var i = 0; i < 200; i++)
+        {
+            var rs1 = seededFaker.Generate<RichString>();
+            var rs2 = rs1.Copy();
+
+            rs1.Equals(rs2).Should().BeTrue();
+            rs1.GetHashCode().Should().Be(rs2.GetHashCode());
         }
     }
 

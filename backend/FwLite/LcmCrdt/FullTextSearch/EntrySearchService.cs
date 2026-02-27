@@ -34,32 +34,31 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         return FilterInternal(queryable, query).Select(t => t.Entry);
     }
 
+    /// <summary>
+    /// Filters and ranks entries using FTS. Headword matches come first, preferring prefix matches
+    /// (e.g. when searching "tan" then "tanan" is before "matan"), then shorter headwords, then alphabetical.
+    /// Non-headword matches (gloss, definition) fall back to FTS rank.
+    /// See also: <see cref="Sorting.ApplyRoughBestMatchOrder"/> for the non-FTS equivalent.
+    /// </summary>
     public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable,
         string query,
         WritingSystemId wsId)
     {
         var filtered = FilterInternal(queryable, query);
         var ordered = filtered
-            .OrderBy(t =>
-                // First headword matches... (this allows headword matches to trump long text penalizations)
-                t.HeadwordMatches
-                // ...in order of length (e.g. so exact matches are first).
-                ? t.SearchRecord.Headword.Length
-                // Everything else falls back to FTS rank.
-                : int.MaxValue)
+            .OrderByDescending(t => t.HeadwordMatches)
+            .ThenByDescending(t => t.HeadwordPrefixMatches)
+            .ThenBy(t => t.HeadwordMatches ? t.SearchRecord.Headword.Length : int.MaxValue)
             .ThenBy(t =>
-                // For headword matches of identical length...
                 t.HeadwordMatches
-                // ...order by headword text (this prevents confusing results like "maap", "baap", "maap").
                 ? t.SearchRecord.Headword.CollateUnicode(wsId)
-                // Everything else falls back to FTS rank.
                 : string.Empty)
             .ThenBy(t => Sql.Ext.SQLite().Rank(t.SearchRecord)).ThenBy(t => t.Entry.Id);
 
         return ordered.Select(t => t.Entry);
     }
 
-    private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, bool HeadwordMatches);
+    private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, bool HeadwordMatches, bool HeadwordPrefixMatches);
 
     private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query)
     {
@@ -74,7 +73,8 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
                 || entry.CitationForm.SearchValue(query)
                 || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
             let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(searchRecord.Headword, query)
-            select new FilterProjection(entry, searchRecord, headwordMatches);
+            let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(searchRecord.Headword, query)
+            select new FilterProjection(entry, searchRecord, headwordMatches, headwordPrefixMatches);
     }
 
     private static string ToFts5LiteralString(string query)

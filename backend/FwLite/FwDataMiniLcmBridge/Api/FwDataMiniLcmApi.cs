@@ -658,9 +658,8 @@ public class FwDataMiniLcmApi(
                     ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
                     ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
                 ],
-                // Add all the possibilities in the project which are not excluded by the entry's DoNotPublishIn field
-                PublishIn = Publications.PossibilitiesOS.Where(
-                    p => entry.DoNotPublishInRC.All(ep => ep.Guid != p.Guid)).Select(FromLcmPossibility).ToList(),
+                // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
+                PublishIn = entry.PublishIn.Select(FromLcmPossibility).ToList(),
             };
         }
         catch (Exception e)
@@ -916,23 +915,27 @@ public class FwDataMiniLcmApi(
         Func<ILexEntry, bool>? predicate, QueryOptions? options = null, string? query = null)
     {
         options ??= QueryOptions.Default;
-        var entries = GetLexEntries(predicate, options);
-
-        entries = ApplySorting(options, entries, query);
+        var entries = GetFilteredAndSortedEntries(predicate, options, options.Order, query);
         entries = options.ApplyPaging(entries);
 
         return entries.ToAsyncEnumerable().Select(FromLexEntry);
     }
 
-    private IEnumerable<ILexEntry> ApplySorting(QueryOptions options, IEnumerable<ILexEntry> entries, string? query)
+    private IEnumerable<ILexEntry> GetFilteredAndSortedEntries(Func<ILexEntry, bool>? predicate, FilterQueryOptions? filterOptions, SortOptions order, string? query)
     {
-        var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
-        if (options.Order.Field == SortField.SearchRelevance)
+        var entries = GetLexEntries(predicate, filterOptions);
+        return ApplySorting(order, entries, query);
+    }
+
+    private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query)
+    {
+        var sortWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Vernacular);
+        if (order.Field == SortField.SearchRelevance)
         {
-            return entries.ApplyRoughBestMatchOrder(options.Order, sortWs, query);
+            return entries.ApplyRoughBestMatchOrder(order, sortWs, query);
         }
 
-        return options.ApplyOrder(entries, e => e.LexEntryHeadword(sortWs));
+        return order.ApplyOrder(entries, e => e.LexEntryHeadword(sortWs));
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
@@ -953,6 +956,24 @@ public class FwDataMiniLcmApi(
     {
         EntriesRepository.TryGetObject(id, out var lexEntry);
         return Task.FromResult(lexEntry is null ? null : FromLexEntry(lexEntry));
+    }
+
+    public Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
+    {
+        var predicate = EntrySearchPredicate(query);
+        var entries = GetFilteredAndSortedEntries(predicate, options, options?.Order ?? SortOptions.Default, query);
+
+        var rowIndex = 0;
+        foreach (var entry in entries)
+        {
+            if (entry.Guid == entryId)
+            {
+                return Task.FromResult(rowIndex);
+            }
+            rowIndex++;
+        }
+
+        return Task.FromResult(-1);
     }
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
@@ -996,11 +1017,10 @@ public class FwDataMiniLcmApi(
                             AddComplexFormComponent(complexLexEntry, complexForm);
                         }
                     }
-                    // Subtract entry.Publications from Publications to get the publications that the entry should not be published in
-                    var doNotPublishIn = Publications.PossibilitiesOS.Where(p => entry.PublishIn.All(ep => ep.Id != p.Guid));
-                    foreach (var publication in doNotPublishIn)
+                    // Remove publications not in entry.PublishIn from lexEntry.PublishIn
+                    foreach (var lcmPub in Publications.PossibilitiesOS.Where(p => entry.PublishIn.All(ep => ep.Id != p.Guid)))
                     {
-                        lexEntry.DoNotPublishInRC.Add(publication);
+                        lexEntry.PublishIn.Remove(lcmPub);
                     }
                 });
         }
@@ -1228,7 +1248,7 @@ public class FwDataMiniLcmApi(
     {
         var lcmPublication = GetLcmPublication(publicationId);
         NotFoundException.ThrowIfNull<Publication>(lcmPublication, publicationId);
-        entry.DoNotPublishInRC.Remove(lcmPublication);
+        entry.PublishIn.Add(lcmPublication);
     }
 
     public Task RemovePublication(Guid entryId, Guid publicationId)
@@ -1247,7 +1267,7 @@ public class FwDataMiniLcmApi(
     {
         var lcmPublication = GetLcmPublication(publicationId);
         NotFoundException.ThrowIfNull<Publication>(lcmPublication, publicationId);
-        entry.DoNotPublishInRC.Add(lcmPublication);
+        entry.PublishIn.Remove(lcmPublication);
     }
 
     private void UpdateLcmMultiString(ITsMultiString multiString, MultiString newMultiString)

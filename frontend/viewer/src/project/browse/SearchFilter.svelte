@@ -14,8 +14,10 @@
   import MissingSelect, {type MissingOption} from './filter/MissingSelect.svelte';
   import SemanticDomainSelect from './filter/SemanticDomainSelect.svelte';
   import PartOfSpeechSelect from './filter/PartOfSpeechSelect.svelte';
+  import PublicationSelect from './filter/PublicationSelect.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
-  import type {ISemanticDomain, IPartOfSpeech} from '$lib/dotnet-types';
+  import type {ISemanticDomain, IPartOfSpeech, IPublication} from '$lib/dotnet-types';
+  import {MorphType} from '$lib/dotnet-types';
   import {Switch} from '$lib/components/ui/switch';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
@@ -30,11 +32,13 @@
     gridifyFilter = $bindable(undefined),
     semanticDomain = $bindable(),
     partOfSpeech = $bindable(),
+    publication = $bindable(),
   }: {
     search: string;
     gridifyFilter?: string;
     semanticDomain?: ISemanticDomain;
     partOfSpeech?: IPartOfSpeech;
+    publication?: IPublication;
   } = $props();
 
   let missingField = $state<MissingOption | null>(null);
@@ -43,6 +47,14 @@
   let fieldFilterValue = $state('');
   let filterOp = $state<Op>('contains')
   let includeSubDomains = $state(false);
+  let userFilterActive = $state(false);
+
+  const LITE_MORPHEME_TYPES = new Set([
+    MorphType.Root, MorphType.BoundRoot,
+    MorphType.Stem, MorphType.BoundStem,
+    MorphType.Particle,
+    MorphType.Phrase, MorphType.DiscontiguousPhrase,
+  ]);
 
   $effect(() => {
     let newFilter: string[] = [];
@@ -51,6 +63,7 @@
       case 'senses': newFilter.push('Senses=null'); break;
       case 'partOfSpeech': newFilter.push('Senses.PartOfSpeechId='); break;
       case 'semanticDomains': newFilter.push('Senses.SemanticDomains=null'); break;
+      case 'publication': newFilter.push('PublishIn=null'); break;
     }
 
     if (selectedField && fieldFilterValue && selectedWs?.length > 0) {
@@ -79,6 +92,18 @@
       newFilter.push(`Senses.PartOfSpeechId=${partOfSpeech.id}`);
     }
 
+    if (publication) {
+      newFilter.push(`PublishIn.Id=${publication.id}`);
+    }
+
+    // all user selected filters should be before this line!
+    userFilterActive = newFilter.length > 0;
+
+    if ($currentView.type === 'fw-lite') {
+      const morphTypeFilters = Array.from(LITE_MORPHEME_TYPES).map(mt => `MorphType=${mt}`);
+      newFilter.push('(' + morphTypeFilters.join('|') + ')');
+    }
+
     gridifyFilter = newFilter.join(', ');
   });
 
@@ -105,7 +130,7 @@
 
 <div class="flex items-center gap-0.5">
   <Sidebar.Trigger icon="i-mdi-menu" class="aspect-square p-0" />
-  <ComposableInput bind:value={search} {placeholder} autofocus class="px-1 items-center overflow-x-hidden h-12 md:h-10">
+  <ComposableInput bind:value={search} inputProps={{ 'aria-label': $t`Filter` }} {placeholder} autofocus class="px-1 items-center overflow-x-hidden h-12 md:h-10">
     {#snippet after()}
       <ResponsivePopup
         bind:open={filtersExpanded}
@@ -118,7 +143,7 @@
         {#snippet trigger({ props })}
           <Button {...props} variant="ghost"
             size={IsMobile.value ? 'icon-sm' : 'icon-xs'}
-            icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'}
+            icon={userFilterActive ? 'i-mdi-filter' : 'i-mdi-filter-outline'}
             aria-label={$t`Toggle filters`} />
         {/snippet}
         <div class="space-y-4">
@@ -154,6 +179,10 @@
           <div class="flex flex-col">
             <Label class="p-2">{pt($t`Grammatical info.`, $t`Part of speech`, $currentView)}</Label>
             <PartOfSpeechSelect bind:value={partOfSpeech} />
+          </div>
+          <div class="flex flex-col">
+            <Label class="p-2">{$t`Publication`}</Label>
+            <PublicationSelect bind:value={publication} />
           </div>
           <div class="flex flex-col">
             <Label class="p-2">{$t`Incomplete entries`}</Label>

@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-22 11:51\n"
+"PO-Revision-Date: 2026-02-11 12:43\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -67,12 +67,12 @@ msgstr "{num, plural, one {# changement} other {# changements}}"
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
-msgstr "{num, plural, one {# nouveau FieldWorks Classic commit} other {# nouveaux FieldWorks Classic commits}}"
+msgstr "{num, plural, one {# nouveau commit FieldWorks Classic} other {# nouveaux commits FieldWorks Classic}}"
 
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
-msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite communique}}"
+msgstr "{num, plural, one {# nouveau commit FieldWorks Lite} other {# nouveaux commits FieldWorks Lite}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -200,6 +200,13 @@ msgid "Any part of speech"
 msgstr "N'importe quelle partie du discours"
 
 #. Filter dropdown option
+#. Clears publication filter
+#. Publication = dictionary/publication type for distributing entries
+#: src/project/browse/filter/PublicationSelect.svelte
+msgid "Any publication"
+msgstr "Toute publication"
+
+#. Filter dropdown option
 #. Clears semantic domain filter
 #. Semantic domain = category of meaning (e.g., "tools", "food", "emotions")
 #: src/project/browse/filter/SemanticDomainSelect.svelte
@@ -250,7 +257,7 @@ msgid "Author:"
 msgstr "Auteur :"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Auto"
 msgstr "Auto"
 
@@ -260,14 +267,14 @@ msgid "Auto syncing"
 msgstr "Synchronisation automatique"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
 msgstr "Meilleure correspondance"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "blue"
-msgstr ""
+msgstr "bleu"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -301,7 +308,7 @@ msgstr "Changer le même champ deux fois, par exemple, peut entraîner deux livr
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
-msgstr ""
+msgstr "Vérification des mises à jour..."
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -474,6 +481,10 @@ msgstr "Répertoire de données"
 msgid "Definition"
 msgstr "Définition"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Definition or Gloss is required"
+msgstr ""
+
 #. Button to delete project from local list
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
@@ -571,7 +582,7 @@ msgstr "Télécharger {0}"
 #. Link label to open the updates download page
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Download page"
-msgstr ""
+msgstr "Page de téléchargement"
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -587,7 +598,7 @@ msgstr "Télécharger un projet qui ne figure pas dans la liste"
 #. Button label to download an update when auto-update is unavailable
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Download Update"
-msgstr ""
+msgstr "Télécharger la mise à jour"
 
 #. Success notification with project name
 #: src/home/Server.svelte
@@ -622,6 +633,11 @@ msgstr "Se termine par"
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Entries missing..."
 msgstr "Entrées manquantes..."
+
+#. EntryView label for the current dictionary object when FieldWorks Classic is shown
+#: src/project/browse/EntryView.svelte
+msgid "entry"
+msgstr "entrée"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
@@ -659,7 +675,7 @@ msgstr "Égale à"
 #. Error message when update check fails
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Error checking for updates: {0}"
-msgstr ""
+msgstr "Erreur lors de la recherche de mises à jour : {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
@@ -778,6 +794,11 @@ msgstr "L'enregistrement du fichier n'est pas une option valable"
 msgid "File too big"
 msgstr "Fichier trop volumineux"
 
+#. Accessible label for the browse search input that filters entries or words
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter"
+msgstr "Filtre"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter # words"
 #. Placeholder text showing filtered count (# = number)
@@ -795,7 +816,7 @@ msgstr "Filtrer # mots"
 #. Filter dropdown label
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Filter By"
-msgstr ""
+msgstr "Filtrer par"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
@@ -825,7 +846,7 @@ msgstr "Filtrer..."
 #. Header in entry filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Filters"
-msgstr ""
+msgstr "Filtres"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Find word..."
@@ -852,7 +873,6 @@ msgid "For any other inquiries, feel free to send us an email."
 msgstr "Pour toute autre question, n'hésitez pas à nous envoyer un courriel."
 
 #. Source of entry creation option
-#: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
 msgstr "Depuis le filtre actif"
@@ -891,12 +911,12 @@ msgstr "Informations grammaticales."
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "green"
-msgstr ""
+msgstr "Vert"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Headword"
 msgstr "Entrée de dictionnaire"
 
@@ -909,9 +929,11 @@ msgstr "Cacher"
 msgid "History"
 msgstr "L'histoire"
 
+#. Instructions show above audio record button.
+#. The '#' character will be replace with a line break.
 #: src/lib/components/audio/audio-provider.svelte
-msgid "Hold to record or\\npress and release to start recording."
-msgstr "Maintenez la touche enfoncée pour enregistrer ou\\nappuyez et relâchez la touche pour démarrer l'enregistrement."
+msgid "Hold to record or#press and release to start recording."
+msgstr "Maintenez pour enregistrer ou#presse et relâcher pour commencer l'enregistrement."
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -941,12 +963,12 @@ msgstr "Entrées incomplètes"
 #. Button label to install an available update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Install Update"
-msgstr ""
+msgstr "Installer la mise à jour"
 
 #. Button label while installing an update
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
-msgstr ""
+msgstr "Installation de la mise à jour..."
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -988,6 +1010,10 @@ msgstr "Forme de lexème"
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Forme de lexème"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Lexeme form or Citation form is required"
+msgstr ""
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Light"
@@ -1054,7 +1080,7 @@ msgstr "Gestionnaire"
 #. Info message when manual update is required
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Manual update is required. Please follow the instructions provided."
-msgstr ""
+msgstr "Une mise à jour manuelle est requise. Veuillez suivre les instructions fournies."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
@@ -1091,7 +1117,7 @@ msgstr "Manquant : {0}"
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Mode"
-msgstr ""
+msgstr "Mode"
 
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1275,7 +1301,7 @@ msgstr "Ouvrir le fichier journal"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
-msgstr ""
+msgstr "orange"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -1328,7 +1354,7 @@ msgstr "Épinglé"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
-msgstr ""
+msgstr "Plateforme"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -1339,7 +1365,7 @@ msgstr "Avant-première"
 #. Shown in the change preview area where no preview is available for the selected change
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
-msgstr ""
+msgstr "Aperçu non disponible"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -1360,6 +1386,13 @@ msgstr "Le projet {0} sur {1} n'est pas encore configuré pour FieldWorks Lite"
 #: src/home/HomeView.svelte
 msgid "Project name..."
 msgstr "Nom du projet..."
+
+#. Filter option
+#. Publication type/dictionary for entries
+#. Used to organize entries by which publication(s) they should appear in
+#: src/project/browse/SearchFilter.svelte
+msgid "Publication"
+msgstr "Publication"
 
 #. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1388,7 +1421,7 @@ msgstr "Actualiser la liste de projets"
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
-msgstr ""
+msgstr "Notes de version"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1415,6 +1448,11 @@ msgstr "Remplacer l'audio"
 msgid "Report a technical problem"
 msgstr "Signaler un problème technique"
 
+#. Button label to restore a deleted Entry or Word inside EntryView
+#: src/project/browse/EntryView.svelte
+msgid "Restore"
+msgstr "Restaurer"
+
 #. Button option
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
@@ -1423,7 +1461,7 @@ msgstr "Évaluer"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
-msgstr ""
+msgstr "rose"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1567,7 +1605,7 @@ msgstr "Commence par"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
-msgstr ""
+msgstr "pierre"
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -1677,7 +1715,7 @@ msgstr "Le nombre de commits FieldWorks Classic ne correspond pas nécessairemen
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
-msgstr "Le nombre de livraisons FieldWorks Lite ne correspond pas nécessairement au nombre de modifications affichées dans le message de résultat de synchronisation."
+msgstr "Le nombre de commits FieldWorks Lite ne correspond pas nécessairement au nombre de modifications affichées dans le message de résultat de synchronisation."
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
@@ -1693,6 +1731,11 @@ msgstr "L'heure où vous avez téléchargé ou téléchargé ces modifications"
 #: src/lib/activity/ActivityItem.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Ces modifications n'ont pas encore été téléchargées. Assurez-vous que vous êtes connecté et que vous êtes connecté pour partager vos modifications."
+
+#. Alert text shown in EntryView when the currently displayed entry/word has been deleted
+#: src/project/browse/EntryView.svelte
+msgid "This {0} was deleted"
+msgstr "Cet {0} a été supprimé"
 
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
@@ -1797,7 +1840,7 @@ msgstr "Serveur inconnu"
 #. Error message for unknown update result
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Unknown update result"
-msgstr ""
+msgstr "Résultat de mise à jour inconnu"
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
@@ -1828,34 +1871,34 @@ msgstr "Mettre à jour {0}"
 #. Status message when an update is available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update available: {0}"
-msgstr ""
+msgstr "Mise à jour disponible : {0}"
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
-msgstr ""
+msgstr "Échec de l'installation de la mise à jour."
 
 #. Success message after update installs
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update installed successfully! Please restart the application."
-msgstr ""
+msgstr "Mise à jour installée avec succès ! Veuillez redémarrer l'application."
 
 #. Info message when update runs in background
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update started in the background. Restart the application after the update is complete."
-msgstr ""
+msgstr "La mise à jour a commencé en arrière-plan. Redémarrez l'application une fois la mise à jour terminée."
 
 #. Error message when update is blocked by permissions
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update was disallowed by permission settings."
-msgstr ""
+msgstr "La mise à jour a été désactivée par les paramètres d'autorisation."
 
 #. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
 #: src/lib/updates/UpdateDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
-msgstr ""
+msgstr "Mises à jour"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
@@ -1875,7 +1918,7 @@ msgstr "Voir"
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
-msgstr ""
+msgstr "violet"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1887,6 +1930,11 @@ msgstr "Où sont mes projets ?"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Why is that?"
 msgstr "Pourquoi?"
+
+#. EntryView label for the current dictionary object when FieldWorks Lite is shown
+#: src/project/browse/EntryView.svelte
+msgid "word"
+msgstr "mot"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
@@ -1907,6 +1955,10 @@ msgstr "Mot"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word only"
 msgstr "Mot seulement"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Word or Display as is required"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Entry or sense:"
@@ -1932,7 +1984,7 @@ msgstr "Systèmes d'écriture"
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
-msgstr ""
+msgstr "Vous utilisez la dernière version."
 
 #. Success message with task and count
 #: src/project/tasks/DoneView.svelte

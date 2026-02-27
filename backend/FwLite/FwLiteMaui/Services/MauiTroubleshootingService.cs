@@ -20,6 +20,9 @@ public class MauiTroubleshootingService(
     private FwLiteMauiConfig Config => config.Value;
 
     [JSInvokable]
+    public Task<bool> GetCanShare() => Task.FromResult(true);
+
+    [JSInvokable]
     public async Task<bool> TryOpenDataDirectory()
     {
         try

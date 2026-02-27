@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 
 namespace FwHeadless.Services;
 
-public class SyncJobStatusService()
+public class SyncJobStatusService() : ISyncJobStatusService
 {
     private ConcurrentDictionary<Guid, SyncJobStatus> Status { get; init; } = new();
 

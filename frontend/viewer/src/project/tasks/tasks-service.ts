@@ -1,6 +1,6 @@
 import {asString, useWritingSystemService, type WritingSystemService} from '$project/data';
 import {useProjectContext} from '$project/project-context.svelte';
-import type {FieldId} from '$lib/entry-editor/field-data';
+import type {FieldId} from '$lib/views/fields';
 import {gt} from 'svelte-i18n-lingui';
 import type {IEntry, IExampleSentence, IRichString, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
 import {defaultExampleSentence, defaultSense, firstTruthy, isEntry, isSense} from '$lib/utils';

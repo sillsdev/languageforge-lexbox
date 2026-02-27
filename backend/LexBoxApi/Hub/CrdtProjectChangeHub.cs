@@ -1,11 +1,10 @@
-using LexBoxApi.Auth;
 using LexCore.ServiceInterfaces;
 using Microsoft.AspNetCore.SignalR;
 using MiniLcm.Push;
 
 namespace LexBoxApi.Hub;
 
-public class CrdtProjectChangeHub(IPermissionService permissionService) : Hub<IProjectChangeListener>
+public class CrdtProjectChangeHub(IPermissionService permissionService) : Hub<IProjectChangeHubClient>, IProjectChangeHubServer
 {
     public static string ProjectGroup(Guid projectId) => $"project-{projectId}";
 

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import type {Snippet} from 'svelte';
   import * as Editor from '$lib/components/editor';
-  import { fieldData } from '$lib/entry-editor/field-data';
+  import {fieldData} from '$lib/views/fields';
   import EntityEditorPrimitiveDecorator from '../entity-primitives/EntityEditorPrimitiveDecorator.svelte';
 
   let { children, subGrid = false }: { children: Snippet; subGrid: boolean } = $props();
@@ -9,7 +9,7 @@
 
 <EntityEditorPrimitiveDecorator>
   <Editor.Field.Root>
-    <Editor.Field.Title name="Demo field" helpId={fieldData.definition.helpId} />
+    <Editor.Field.Title name="Demo field" helpId={fieldData.sense.definition.helpId} />
     <Editor.Field.Body {subGrid}>
       {@render children()}
     </Editor.Field.Body>

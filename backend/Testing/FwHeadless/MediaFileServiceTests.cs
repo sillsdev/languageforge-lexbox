@@ -46,7 +46,7 @@ public class MediaFileServiceTests : IDisposable
         _hgRepository = HgRepository.CreateOrUseExisting(fwDataProject.ProjectFolder, new NullProgress());
         _lexBoxDbContext = services.GetDbContext();
         var config = new OptionsWrapper<FwHeadlessConfig>(_fwHeadlessConfig);
-        _service = new MediaFileService(_lexBoxDbContext, config, services.GetRequiredService<SendReceiveService>());
+        _service = new MediaFileService(_lexBoxDbContext, config, services.GetRequiredService<ISendReceiveService>());
         _adapter = new LexboxFwDataMediaAdapter(config, _service);
     }
 

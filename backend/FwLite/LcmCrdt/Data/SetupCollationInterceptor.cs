@@ -2,18 +2,21 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Text;
+using LinqToDB.Interceptors;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using MiniLcm.Culture;
+using SIL.Harmony;
 
 namespace LcmCrdt.Data;
 
-public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider) : IDbConnectionInterceptor, ISaveChangesInterceptor
+public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider, IOptions<CrdtConfig> crdtConfig) : IDbConnectionInterceptor, ISaveChangesInterceptor, IConnectionInterceptor
 {
     private static string? WsTableName = null;
-    private WritingSystem[] GetWritingSystems(LcmCrdtDbContext dbContext, DbConnection connection)
+    private WritingSystem[] GetWritingSystems(DbConnection connection, LcmCrdtDbContext? dbContext = null)
     {
         return cache.GetOrCreate(CacheKey(connection),
             entry =>
@@ -21,13 +24,31 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 try
                 {
-                    WsTableName ??= dbContext.Model.FindRuntimeEntityType(typeof(WritingSystem))?.GetTableName() ?? "WritingSystem";
-                    if (!HasTable(dbContext, WsTableName))
+                    var localContext = dbContext;
+                    if (localContext is null)
                     {
-                        return [];
+                        var optionsBuilder = new DbContextOptionsBuilder<LcmCrdtDbContext>();
+                        optionsBuilder.UseSqlite(connection);
+                        localContext = new LcmCrdtDbContext(optionsBuilder.Options, crdtConfig);
                     }
 
-                    return dbContext.WritingSystems.ToArray();
+                    try
+                    {
+                        WsTableName ??= localContext.Model.FindRuntimeEntityType(typeof(WritingSystem))?.GetTableName() ?? "WritingSystem";
+                        if (!HasTable(localContext, WsTableName))
+                        {
+                            return [];
+                        }
+
+                        return localContext.WritingSystems.ToArray();
+                    }
+                    finally
+                    {
+                        if (dbContext is null)
+                        {
+                            localContext.Dispose();
+                        }
+                    }
                 }
                 catch (SqliteException)
                 {
@@ -53,14 +74,9 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         cache.Remove(CacheKey(connection));
     }
 
-    public void ConnectionOpened(DbConnection connection, ConnectionEndEventData eventData)
+    private void SetupCommonCollations(SqliteConnection sqliteConnection, WritingSystem[]? writingSystems = null)
     {
-        var context = (LcmCrdtDbContext?)eventData.Context;
-        if (context is null) throw new InvalidOperationException("context is null");
-        var sqliteConnection = (SqliteConnection)connection;
-        SetupCollations(sqliteConnection, GetWritingSystems(context, connection));
-
-        //setup general use collation
+        // Setup general use collation
         sqliteConnection.CreateCollation(SqlSortingExtensions.CollateUnicodeNoCase,
             CultureInfo.CurrentCulture.CompareInfo,
             (compareInfo, x, y) =>
@@ -71,6 +87,20 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
                 // When case-insensitively equal, sort lowercase before uppercase
                 return compareInfo.Compare(x, y, CompareOptions.None);
             });
+
+        // Setup writing system specific collations if available
+        if (writingSystems is not null)
+        {
+            SetupCollations(sqliteConnection, writingSystems);
+        }
+    }
+
+    public void ConnectionOpened(DbConnection connection, ConnectionEndEventData eventData)
+    {
+        var context = (LcmCrdtDbContext?)eventData.Context;
+        if (context is null) throw new InvalidOperationException("context is null");
+        var sqliteConnection = (SqliteConnection)connection;
+        SetupCommonCollations(sqliteConnection, GetWritingSystems(connection, context));
     }
 
     public Task ConnectionOpenedAsync(DbConnection connection,
@@ -78,6 +108,33 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         CancellationToken cancellationToken = default)
     {
         ConnectionOpened(connection, eventData);
+        return Task.CompletedTask;
+    }
+
+    // LinqToDB interface
+    public void ConnectionOpening(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection)
+    {
+        // Setup happens after connection opens
+    }
+
+    public Task ConnectionOpeningAsync(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    public void ConnectionOpened(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection)
+    {
+        if (connection is not SqliteConnection sqliteConnection) return;
+
+        // Only setup basic collation - writing system collations come from EF Core path
+        // Note: Collations persist on the connection, so if EF already opened this connection,
+        // this is redundant but harmless. SQLite allows re-registering collations.
+        SetupCommonCollations(sqliteConnection, GetWritingSystems(connection));
+    }
+
+    public Task ConnectionOpenedAsync(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection, CancellationToken cancellationToken)
+    {
+        ConnectionOpened(eventData, connection);
         return Task.CompletedTask;
     }
 

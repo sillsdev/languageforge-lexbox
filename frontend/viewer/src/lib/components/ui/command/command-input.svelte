@@ -21,6 +21,7 @@
       className,
     )}
     bind:ref
+    autocapitalize="off"
     {...restProps}
     bind:value
   />

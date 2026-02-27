@@ -1,6 +1,6 @@
 <script lang="ts" module>
   import {SortField} from '$lib/dotnet-types';
-  import {msg, t} from 'svelte-i18n-lingui';
+  import {msg} from 'svelte-i18n-lingui';
   import type {IconClass} from '$lib/icon-class';
 
   export type SortDirection = 'asc' | 'desc';
@@ -16,22 +16,16 @@
       desc: 'i-mdi-sort-alphabetical-descending'
     }
   };
-
-  export const sortOptions = [
-    {field: SortField.SearchRelevance, dir: 'asc'},
-    {field: SortField.Headword, dir: 'asc'},
-    {field: SortField.Headword, dir: 'desc'}
-  ] as const;
-
-  export type SortConfig = typeof sortOptions[number];
 </script>
 
 <script lang="ts">
+  import {t} from 'svelte-i18n-lingui';
   import { badgeVariants } from '$lib/components/ui/badge';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import {cn} from '$lib/utils';
   import {watch, type Getter} from 'runed';
   import {Icon} from '$lib/components/ui/icon';
+  import {sortOptions, type SortConfig} from './options';
 
   type Props = {
     value?: SortConfig;

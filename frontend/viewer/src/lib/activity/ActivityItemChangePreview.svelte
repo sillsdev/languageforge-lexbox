@@ -13,6 +13,7 @@
   import {Button} from '$lib/components/ui/button';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
+  import {entryBrowseParams} from '$lib/utils/search-params';
   import {Icon} from '$lib/components/ui/icon';
   import {cn} from '$lib/utils';
   import {Link} from 'svelte-routing';
@@ -78,7 +79,7 @@
         {/if}
         <DropdownMenu.Item class="cursor-pointer" onclick={e => e.preventDefault()}>
           {#snippet child({props})}
-            <Link {...props} to="./browse?entryId={entry.id}">
+            <Link {...props} to="./browse?{entryBrowseParams(entry.id)}">
               <Icon icon="i-mdi-link" />
               {$t`Go to ${pt($t`Entry`, $t`Word`, $currentView)}`}
             </Link>

@@ -4,6 +4,7 @@ using LcmCrdt.Changes.Entries;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.Utils;
 using LinqToDB;
+using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -61,7 +62,7 @@ public class MiniLcmRepository(
     }
 
 
-    public IQueryable<Entry> Entries => dbContext.Entries;
+    public IQueryable<Entry> Entries => dbContext.Entries.ToLinqToDB();
     public IQueryable<ComplexFormComponent> ComplexFormComponents => dbContext.ComplexFormComponents;
     public IQueryable<ComplexFormType> ComplexFormTypes => dbContext.ComplexFormTypes;
     public IQueryable<Sense> Senses => dbContext.Senses;
@@ -128,12 +129,8 @@ public class MiniLcmRepository(
         string? query = null,
         QueryOptions? options = null)
     {
-        options = await EnsureWritingSystemIsPopulated(options ??= QueryOptions.Default);
-
-        var queryable = Entries;
-        (queryable, var sortingHandled) = await FilterEntries(queryable, query, options, options.Order);
-        if (!sortingHandled)
-            queryable = await ApplySorting(queryable, options, query);
+        IQueryable<Entry> queryable;
+        (queryable, options) = await FilterAndSortEntries(query, options ?? QueryOptions.Default);
 
         queryable = queryable
             .LoadWith(e => e.Senses)
@@ -153,6 +150,20 @@ public class MiniLcmRepository(
             entry.Finalize(complexFormComparer);
             yield return entry;
         }
+    }
+
+    private async Task<(IQueryable<Entry> queryable, QueryOptions options)> FilterAndSortEntries(
+        string? query,
+        QueryOptions options)
+    {
+        options = await EnsureWritingSystemIsPopulated(options);
+
+        var queryable = Entries;
+        var (filteredQuery, sortingHandled) = await FilterEntries(queryable, query, options, options.Order);
+        if (!sortingHandled)
+            filteredQuery = await ApplySorting(filteredQuery, options, query);
+
+        return (filteredQuery, options);
     }
 
     private async Task<QueryOptions> EnsureWritingSystemIsPopulated(QueryOptions queryOptions)
@@ -208,22 +219,20 @@ public class MiniLcmRepository(
         return (queryable, sortingHandled);
     }
 
-    private async ValueTask<IQueryable<Entry>> ApplySorting(IQueryable<Entry> queryable, QueryOptions options, string? query = null)
+    private ValueTask<IQueryable<Entry>> ApplySorting(IQueryable<Entry> queryable, QueryOptions options, string? query = null)
     {
         if (options.Order.WritingSystem == default)
             throw new ArgumentException("Sorting writing system must be specified", nameof(options));
 
         var wsId = options.Order.WritingSystem;
-        switch (options.Order.Field)
+        IQueryable<Entry> result = options.Order.Field switch
         {
-            case SortField.SearchRelevance:
-                return queryable.ApplyRoughBestMatchOrder(options.Order, query);
-            case SortField.Headword:
-                var ordered = options.ApplyOrder(queryable, e => e.Headword(wsId).CollateUnicode(wsId));
-                return ordered.ThenBy(e => e.Id);
-            default:
-                throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field);
-        }
+            SortField.SearchRelevance => queryable.ApplyRoughBestMatchOrder(options.Order, query),
+            SortField.Headword =>
+                options.ApplyOrder(queryable, e => e.Headword(wsId).CollateUnicode(wsId)).ThenBy(e => e.Id),
+            _ => throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field)
+        };
+        return new ValueTask<IQueryable<Entry>>(result);
     }
 
     public async Task<Entry?> GetEntry(Guid id)
@@ -260,6 +269,25 @@ public class MiniLcmRepository(
                 .AsQueryable(), e => e.Id == id);
         exampleSentence?.Finalize();
         return exampleSentence;
+    }
+
+    public async Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
+    {
+        var queryOptions = new QueryOptions(
+            options?.Order ?? QueryOptions.Default.Order,
+            options?.Exemplar,
+            QueryOptions.QueryAll,
+            0,
+            options?.Filter
+        );
+
+        IQueryable<Entry> queryable;
+        (queryable, queryOptions) = await FilterAndSortEntries(query, queryOptions);
+
+        // SQLite's ROW_NUMBER() cannot easily inherit the existing ORDER BY from the query. (AI tried a billion things)
+        // This is pretty efficient since we only select IDs, not full entities.
+        var sortedIds = await queryable.Select(e => e.Id).ToListAsyncEF();
+        return sortedIds.IndexOf(entryId);
     }
 
     public async Task<Publication?> GetPublication(Guid publicationId)

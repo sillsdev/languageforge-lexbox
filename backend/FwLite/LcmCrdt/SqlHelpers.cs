@@ -33,4 +33,7 @@ public static class SqlHelpers
 
     [Sql.Expression(CustomSqliteFunctionInterceptor.ContainsFunction + "({0}, {1})")]
     public static bool ContainsIgnoreCaseAccents(string s, string search) => s.ContainsDiacriticMatch(search);
+
+    [Sql.Expression(CustomSqliteFunctionInterceptor.StartsWithFunction + "({0}, {1})")]
+    public static bool StartsWithIgnoreCaseAccents(string s, string search) => s.StartsWithDiacriticMatch(search);
 }

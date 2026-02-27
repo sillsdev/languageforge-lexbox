@@ -602,7 +602,7 @@
           </BadgeButton>
 
           <AddProjectMember bind:this={addProjectMember} {project} />
-          <BulkAddProjectMembers projectId={project.id} />
+          <BulkAddProjectMembers projectId={project.id} userLocale={user.locale} />
         {/snippet}
         <UserModal bind:this={userModal} />
 

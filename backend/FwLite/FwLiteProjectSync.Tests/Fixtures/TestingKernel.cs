@@ -16,6 +16,7 @@ public static class TestingKernel
             .AddFwLiteProjectSync()
             .Configure<FwDataBridgeConfig>(c => c.ProjectsFolder = Path.Combine(".", projectName, "FwData"))
             .Configure<LcmCrdtConfig>(c => c.ProjectPath = Path.Combine(".", projectName, "LcmCrdt"))
-            .AddLogging(builder => builder.AddDebug());
+            .AddLogging(builder => builder.AddDebug()
+                .SetMinimumLevel(LogLevel.Warning));
     }
 }

@@ -29,6 +29,7 @@ export * from './generated-types/MiniLcm/ICountQueryOptions';
 export * from './generated-types/MiniLcm/IExemplarOptions';
 export * from './generated-types/MiniLcm/IFilterQueryOptions';
 export * from './generated-types/MiniLcm/IQueryOptions';
+export * from './generated-types/MiniLcm/IIndexQueryOptions';
 export * from './generated-types/MiniLcm/ISortOptions';
 export * from './generated-types/MiniLcm/SortField';
 export * from './generated-types/LexCore/Sync';

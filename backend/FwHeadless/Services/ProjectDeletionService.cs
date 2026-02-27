@@ -5,7 +5,7 @@ namespace FwHeadless.Services;
 
 public class ProjectDeletionService(
     IOptions<FwHeadlessConfig> config,
-    ProjectLookupService projectLookupService,
+    IProjectLookupService projectLookupService,
     SyncHostedService syncHostedService,
     ILogger<ProjectDeletionService> logger)
 {

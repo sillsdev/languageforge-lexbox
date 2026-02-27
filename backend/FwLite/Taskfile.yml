@@ -72,6 +72,11 @@ tasks:
     dir: ./FwLiteMaui
     cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True {{.CLI_ARGS}} # "-p:AndroidSdkDirectory=D:\tools\android"
 
+  install-maui-android:
+    desc: Retry install + run without rebuilding (for when you miss the permission prompt) - uses existing build artifacts
+    dir: ./FwLiteMaui
+    cmd: dotnet build -f net9.0-android -t:Install,Run --no-restore --no-dependencies
+
   build-mini-lcm-sdk:
     desc: Builds the sdk, a zip with the FwLiteWeb server with a project and config to run locally
     dir: ./FwLiteWeb

@@ -1,7 +1,7 @@
 <script lang="ts">
   import {BadgeButton, MemberBadge} from '$lib/components/Badges';
   import {DialogResponse, FormModal, type FormSubmitReturn} from '$lib/components/modals';
-  import {Input, TextArea, isEmail, passwordFormRules} from '$lib/forms';
+  import {DisplayLanguageSelect, Input, TextArea, isEmail, passwordFormRules} from '$lib/forms';
   import {ProjectRole, type BulkAddProjectMembersResult} from '$lib/gql/types';
   import t from '$lib/i18n';
   import {z} from 'zod';
@@ -25,12 +25,14 @@
 
   interface Props {
     projectId: string;
+    userLocale: string;
   }
 
-  const { projectId }: Props = $props();
+  const { projectId, userLocale }: Props = $props();
   const schema = z.object({
     usernamesText: z.string().trim().min(1, $t('project_page.bulk_add_members.empty_user_field')),
     password: passwordFormRules($t),
+    locale: z.string().trim().min(2).default(userLocale),
   });
 
   let formModal: FormModal<typeof schema> | undefined = $state();
@@ -76,6 +78,7 @@
         usernames,
         //todo allow setting users as Observer
         role: ProjectRole.Editor, // Managers not allowed to have shared passwords
+        locale: state.locale.currentValue,
       });
 
       const invalidEmailError = error?.byType('InvalidEmailError');
@@ -121,6 +124,7 @@
           error={errors.password}
         />
         <PasswordStrengthMeter password={$form!.password} scoreOverride={0} />
+        <DisplayLanguageSelect bind:value={$form!.locale} />
         <div class="contents usernames">
           <TextArea
             id="usernamesText"

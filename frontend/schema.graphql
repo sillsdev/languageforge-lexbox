@@ -751,6 +751,7 @@ input BulkAddProjectMembersInput {
   usernames: [String!]!
   role: ProjectRole!
   passwordHash: String!
+  locale: String! = "en"
 }
 
 input ChangeOrgMemberRoleInput {

@@ -27,6 +27,11 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
     public override Expression<Func<Entry, string, object>> EntryLexemeForm => (entry, ws) => Json.Value(entry.LexemeForm, ms => ms[ws])!;
     public override Expression<Func<Entry, string, object>> EntryCitationForm => (entry, ws) => Json.Value(entry.CitationForm, ms => ms[ws])!;
     public override Expression<Func<Entry, string, object>> EntryLiteralMeaning => (entry, ws) => Json.Value(entry.LiteralMeaning, ms => ms[ws])!.GetPlainText();
+    public override Expression<Func<Entry, object?>> EntryMorphType => e => e.MorphType;
     public override Expression<Func<Entry, object?>> EntryComplexFormTypes => e => e.ComplexFormTypes;
     public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToEmptyList<ComplexFormType>;
+    public override Expression<Func<Entry, object?>> EntryPublishIn => e => e.PublishIn;
+    public override Expression<Func<Entry, object?>> EntryPublishInId =>
+        e => e.PublishIn.Select(p => Json.Value(p, p => p.Id.ToString()));
+    public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToNull<Publication>;
 }

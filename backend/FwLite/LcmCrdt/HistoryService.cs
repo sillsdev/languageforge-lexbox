@@ -144,6 +144,15 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         // Use safe cast - some entity types like RemoteResource don't implement IObjectWithId
         var snapshot = await dataModel.GetAtCommit<object>(commitId, change.EntityId) as IObjectWithId;
 
+        if (snapshot is Sense sense && sense.PartOfSpeechId != sense.PartOfSpeech?.Id)
+        {
+            // previously we didn't update the part of speech object on sense snapshots
+            // we do now, so we patch old snapshots
+            sense.PartOfSpeech = sense.PartOfSpeechId.HasValue
+                ? await dataModel.GetLatest<PartOfSpeech>(sense.PartOfSpeechId.Value)
+                : null;
+        }
+
         var affectedEntries = await GetAffectedEntryIds(change)
             .SelectAwait(async entryId => await GetCurrentOrLatestEntry(entryId))
             .ToArrayAsync();

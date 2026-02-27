@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-11-22 11:51\n"
+"PO-Revision-Date: 2026-02-11 13:37\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -36,12 +36,12 @@ msgstr "{0}"
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
-msgstr "{0} (FieldWorks Lite)"
+msgstr ""
 
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
-msgstr "{0} (FieldWorks)"
+msgstr ""
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -51,7 +51,7 @@ msgstr "{0} iliyopita"
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
-msgstr "{0} MB"
+msgstr ""
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -200,6 +200,13 @@ msgid "Any part of speech"
 msgstr "Aina yoyote ya kielezeshi"
 
 #. Filter dropdown option
+#. Clears publication filter
+#. Publication = dictionary/publication type for distributing entries
+#: src/project/browse/filter/PublicationSelect.svelte
+msgid "Any publication"
+msgstr ""
+
+#. Filter dropdown option
 #. Clears semantic domain filter
 #. Semantic domain = category of meaning (e.g., "tools", "food", "emotions")
 #: src/project/browse/filter/SemanticDomainSelect.svelte
@@ -250,7 +257,7 @@ msgid "Author:"
 msgstr "Mwandishi:"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Auto"
 msgstr "Otomatiki"
 
@@ -260,7 +267,7 @@ msgid "Auto syncing"
 msgstr "Kuoanisha otomatiki"
 
 #. Sort option
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
 msgstr "Ujumbe bora"
 
@@ -474,6 +481,10 @@ msgstr "Faharasa ya Data"
 msgid "Definition"
 msgstr "Maana"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Definition or Gloss is required"
+msgstr ""
+
 #. Button to delete project from local list
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
@@ -622,6 +633,11 @@ msgstr "Inaishia na"
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Entries missing..."
 msgstr "Ingizo linalokosa..."
+
+#. EntryView label for the current dictionary object when FieldWorks Classic is shown
+#: src/project/browse/EntryView.svelte
+msgid "entry"
+msgstr "Ingizo"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
@@ -778,6 +794,11 @@ msgstr "Hifadhi ya faili hailinganiswi"
 msgid "File too big"
 msgstr "Faili kubwa sana"
 
+#. Accessible label for the browse search input that filters entries or words
+#: src/project/browse/SearchFilter.svelte
+msgid "Filter"
+msgstr "Chuja"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter # words"
 #. Placeholder text showing filtered count (# = number)
@@ -853,7 +874,6 @@ msgstr "Kwa kuuliza kingine chochote, tafadhali tuambii imeli."
 
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
 msgstr "Kutoka kwa kichuja kilichoanzishwa"
 
@@ -896,7 +916,7 @@ msgstr "kijani"
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
-#: src/project/browse/SortMenu.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Headword"
 msgstr "Neno la kichwa"
 
@@ -909,9 +929,11 @@ msgstr "Ficha"
 msgid "History"
 msgstr "Historia"
 
+#. Instructions show above audio record button.
+#. The '#' character will be replace with a line break.
 #: src/lib/components/audio/audio-provider.svelte
-msgid "Hold to record or\\npress and release to start recording."
-msgstr "Shika ili kurekodi au\\nbonyeza na kutoleza kuanza kurekodi."
+msgid "Hold to record or#press and release to start recording."
+msgstr "Shika ili kurekodi au#bonyeza na kutoleza kuanza kurekodi."
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -969,7 +991,7 @@ msgstr "Urefu:"
 #. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Lexbox"
-msgstr "Lexbox"
+msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -988,6 +1010,10 @@ msgstr "Fomu ya Neno"
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Lexeme Form"
 msgstr "Fomu ya Lexeme"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Lexeme form or Citation form is required"
+msgstr ""
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Light"
@@ -1361,6 +1387,13 @@ msgstr "Mradi {0} kwenye {1} haujajajengwa kwa FieldWorks Lite"
 msgid "Project name..."
 msgstr "Jina la mradi..."
 
+#. Filter option
+#. Publication type/dictionary for entries
+#. Used to organize entries by which publication(s) they should appear in
+#: src/project/browse/SearchFilter.svelte
+msgid "Publication"
+msgstr ""
+
 #. Label for publication domain selector
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Publish {0} in"
@@ -1414,6 +1447,11 @@ msgstr "Badili sauti"
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
 msgstr "Ripoti tatizo la kiufundi"
+
+#. Button label to restore a deleted Entry or Word inside EntryView
+#: src/project/browse/EntryView.svelte
+msgid "Restore"
+msgstr "Rejesha"
 
 #. Button option
 #: src/project/tasks/DoneView.svelte
@@ -1694,6 +1732,11 @@ msgstr "Wakati ulipoweka au kupakua mabadiliko haya"
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Mabadiliko haya hayajawekwa bado. Hakikisha unaunganishwa na kuingia ili kushiriki mabadiliko yako."
 
+#. Alert text shown in EntryView when the currently displayed entry/word has been deleted
+#: src/project/browse/EntryView.svelte
+msgid "This {0} was deleted"
+msgstr "Hili {0} limefutwa"
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -1888,6 +1931,11 @@ msgstr "Miradi yangu iko wapi?"
 msgid "Why is that?"
 msgstr "Kwa nini hiyo?"
 
+#. EntryView label for the current dictionary object when FieldWorks Lite is shown
+#: src/project/browse/EntryView.svelte
+msgid "word"
+msgstr "Neno"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -1907,6 +1955,10 @@ msgstr "Neno"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word only"
 msgstr "Neno tu"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Word or Display as is required"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Entry or sense:"

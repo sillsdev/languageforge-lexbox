@@ -2,7 +2,7 @@ import {DotnetService} from '$lib/dotnet-types';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
 import {MOBILE_BREAKPOINT} from '../../css-breakpoints';
-import {ViewerSearchParam} from '$lib/utils/search-params';
+import {entryBrowseParams} from '$lib/utils/search-params';
 
 /* -10, because the window is likely wider than the viewport and we want the breakpoint to work */
 const SM_VIEW_MAX_WIDTH = MOBILE_BREAKPOINT - 10;
@@ -33,12 +33,10 @@ export class MultiWindowService implements IMultiWindowService {
 
   async openEntryInNewWindow(entryId: string) {
     const url = new URL(location.href);
-    url.searchParams.set(ViewerSearchParam.EntryId, entryId);
-
     const [_, projectCode] = url.pathname.split('/').filter(Boolean);
     const browsePath = `/project/${projectCode}/browse`;
 
-    await this.openNewWindow(browsePath + url.search + url.hash, SM_VIEW_MAX_WIDTH);
+    await this.openNewWindow(`${browsePath}?${entryBrowseParams(entryId)}${url.hash}`, SM_VIEW_MAX_WIDTH);
   }
 }
 

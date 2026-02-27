@@ -12,6 +12,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     private readonly string Banana = "Banana";
     private readonly string Kiwi = "Kiwi";
     private readonly string Null_LexemeForm = string.Empty; // nulls get normalized to empty strings
+    private Publication mainDictionary = null!;
 
     private static readonly AutoFaker Faker = new(AutoFakerDefault.Config);
 
@@ -24,10 +25,13 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateSemanticDomain(semanticDomain);
         var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "Very complex" } } };
         await Api.CreateComplexFormType(complexFormType);
+        mainDictionary = new Publication() { Id = Guid.NewGuid(), Name = { { "en", "Main Dictionary" } } };
+        await Api.CreatePublication(mainDictionary);
         await Api.CreateEntry(new Entry()
         {
             Id = appleId,
-            LexemeForm = { { "en", Apple } }
+            LexemeForm = { { "en", Apple } },
+            MorphType = MorphType.Root,
         });
         await Api.CreateEntry(new Entry()
         {
@@ -44,6 +48,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", Banana } },
+            PublishIn = [mainDictionary],
             Senses =
             [
                 new()
@@ -75,6 +80,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", Kiwi } },
+            PublishIn = [mainDictionary],
             Senses =
             [
                 new()
@@ -224,6 +230,57 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=[]" })).ToArrayAsync();
         //using distinct since there may be 2 null lexeme forms but only on FLEx due to the null lexeme form
         results.Select(e => e.LexemeForm["en"]).Distinct().Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingPublishIn()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "PublishIn=null" })).ToArrayAsync();
+        //Apple, Peach, and the null entry have no publications
+        results.Select(e => e.LexemeForm["en"]).Distinct().Should().BeEquivalentTo(Apple, Peach, Null_LexemeForm);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingPublishIn_AndSearch()
+    {
+        var results = await Api.SearchEntries(Apple, new(Filter: new() { GridifyFilter = "PublishIn=null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingPublishInWithEmptyArray()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "PublishIn=[]" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Distinct().Should().BeEquivalentTo(Apple, Peach, Null_LexemeForm);
+    }
+
+    [Fact]
+    public async Task CanFilterByPublicationId()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = $"PublishIn.Id={mainDictionary.Id}" })).ToArrayAsync();
+        //Banana and Kiwi are in the main dictionary
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana, Kiwi);
+    }
+
+    [Fact]
+    public async Task CanFilterByPublicationId_AndSearch()
+    {
+        var results = await Api.SearchEntries(Banana, new(Filter: new() { GridifyFilter = $"PublishIn.Id={mainDictionary.Id}" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterByMorphTypeSingleType()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "MorphType=Root" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple);
+    }
+
+    [Fact]
+    public async Task CanFilterByMorphTypeTwoTypes()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "MorphType=Root|MorphType=Stem" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Peach, Banana, Kiwi, Null_LexemeForm);
     }
 
     [Fact]
@@ -382,10 +439,10 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [InlineData("word1", "word1", "word1")]
     [InlineData("app", "app,apple,banana", "app,apple")]
     [InlineData("apple", "app,apple,banana", "apple")]
-    [InlineData("att", "battery,att,attack,zatt,rap:pratt", "att,zatt,attack,battery,rap")]
+    [InlineData("att", "battery,att,attack,zatt,rap:pratt", "att,attack,zatt,battery,rap")]
     [InlineData("a", "a,da,ma,aa,c:a,ti:a", "a,aa,da,ma,c,ti")]//test non fts search
     [InlineData("ap", "app,apple,banana", "app,apple")]//test non fts search
-    [InlineData("at", "battery,att,attack,zatt,rap:pratt", "att,zatt,attack,battery,rap")] //test non fts search
+    [InlineData("at", "battery,att,attack,zatt,rap:pratt", "att,attack,zatt,battery,rap")] //test non fts search
     // matching headwords trump glosses, even if the headword match is penalized for other long fields
     [InlineData("aap", "maap-aap,maap,liaap,aap:to-penalize-the-bm25-rank-this-gloss-is-very-very-very-very-very-very-very-very-very-long", "aap,maap,liaap,maap-aap")]
     // matching headwords of the same length are ordered alphabetically

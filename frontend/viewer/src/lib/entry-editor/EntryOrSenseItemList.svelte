@@ -8,6 +8,7 @@
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
   import {useMultiWindowService} from '$lib/services/multi-window-service';
+  import {entryBrowseParams} from '$lib/utils/search-params';
 
   const currentView = useCurrentView();
   const multiWindowService = useMultiWindowService();
@@ -28,7 +29,7 @@
     {@const entryId = getEntryId(entry)}
     <DropdownMenu.Item class="cursor-pointer">
       {#snippet child({props})}
-        <Link {...props} to="browse?entryId={entryId}">
+        <Link {...props} to="browse?{entryBrowseParams(entryId)}">
           <Icon icon="i-mdi-book-outline" />
           {$t`Go to ${pt($t`Entry`, $t`Word`, $currentView)}`}
         </Link>

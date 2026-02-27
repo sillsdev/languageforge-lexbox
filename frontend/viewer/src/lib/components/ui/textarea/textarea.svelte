@@ -19,5 +19,7 @@
     className,
   )}
   bind:value
+  spellcheck="false"
+  autocapitalize="off"
   {...restProps}
 ></textarea>
