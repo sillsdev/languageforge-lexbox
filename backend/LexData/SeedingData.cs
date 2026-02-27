@@ -308,7 +308,30 @@ public class SeedingData(
                 new Uri("http://localhost"),//handles system web view case
                 new Uri("msalbecf2856-0690-434b-b192-a4032b72067f://auth")//handles android web view callback
             }
-        }
+        },
+        new OpenIddictApplicationDescriptor
+        {
+            ClientId = "the-combine",
+            ClientType = OpenIddictConstants.ClientTypes.Public,
+            ApplicationType = OpenIddictConstants.ApplicationTypes.Native, //native allows the redirect port to be dynamic
+            DisplayName = "The Combine",
+            //explicit requires the user to consent, Implicit does not, External requires an admin to approve, not currently supported
+            ConsentType = OpenIddictConstants.ConsentTypes.Explicit,
+            Permissions =
+            {
+                OpenIddictConstants.Permissions.Endpoints.Authorization,
+                OpenIddictConstants.Permissions.Endpoints.Token,
+                OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+                OpenIddictConstants.Permissions.ResponseTypes.Code,
+                OpenIddictConstants.Permissions.Scopes.Email,
+                OpenIddictConstants.Permissions.Scopes.Profile,
+                OpenIddictConstants.Permissions.Prefixes.Scope + LexboxAuthScope.SendAndReceive.ToString().ToLower()
+            },
+            RedirectUris = {
+                new Uri("http://localhost:5000/v1/auth/oauth-callback"),
+                new Uri("https://qa-kube.thecombine.app/v1/auth/oauth-callback")
+            }
+        },
     ], a => a.ClientId ?? throw new InvalidOperationException("ClientId is null"));
 
     private IEnumerable<OpenIddictApplicationDescriptor> DevApps => [
@@ -330,28 +353,6 @@ public class SeedingData(
                 OpenIddictConstants.Permissions.Scopes.Profile
             },
             RedirectUris = { new Uri("https://oidcdebugger.com/debug") }
-        },
-
-        new OpenIddictApplicationDescriptor
-        {
-            ClientId = "the-combine",
-            ClientType = OpenIddictConstants.ClientTypes.Public,
-            ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
-            DisplayName = "The Combine",
-            //explicit requires the user to consent, Implicit does not, External requires an admin to approve, not currently supported
-            ConsentType = OpenIddictConstants.ConsentTypes.Explicit,
-            Permissions =
-            {
-                OpenIddictConstants.Permissions.Endpoints.Authorization,
-                OpenIddictConstants.Permissions.Endpoints.Token,
-                OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
-                OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
-                OpenIddictConstants.Permissions.ResponseTypes.Code,
-                OpenIddictConstants.Permissions.Scopes.Email,
-                OpenIddictConstants.Permissions.Scopes.Profile,
-                OpenIddictConstants.Permissions.Prefixes.Scope + LexboxAuthScope.SendAndReceive.ToString().ToLower()
-            },
-            RedirectUris = { new Uri("http://localhost:5000/v1/auth/oauth-callback") }
         },
     ];
 
