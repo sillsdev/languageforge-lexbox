@@ -4,6 +4,7 @@ import {MOBILE_BREAKPOINT} from './src/css-breakpoints';
 import defaultTheme from 'tailwindcss/defaultTheme';
 import {getIconCollections} from '@egoist/tailwindcss-icons';
 import {iconsPlugin} from '@egoist/tailwindcss-icons';
+import tailwindcssAnimate from 'tailwindcss-animate';
 import typography from '@tailwindcss/typography';
 
 export default {
@@ -14,6 +15,7 @@ export default {
     '!./src/lib/icon-class.ts'
   ],
   plugins: [
+    tailwindcssAnimate,
     iconsPlugin({
       // Root source: https://github.com/Templarian/MaterialDesign
       // Our source (that pulls from ☝️): https://www.npmjs.com/package/@iconify-json/mdi
