@@ -49,7 +49,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   /* Set network services */
 
   const entryService = papi.networkObjects.set(
-    'fwliteextension.entryService',
+    'fwLiteExtension.entryService',
     new EntryService(baseUrl),
     'fw-lite-extension.IEntryService',
   );

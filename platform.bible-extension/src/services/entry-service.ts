@@ -30,7 +30,7 @@ export class EntryService implements IEntryService {
   }
 
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this, @typescript-eslint/no-unused-vars
-  updateEntry(projectId: string, reference: IEntry): Promise<void> {
+  updateEntry(_projectId: string, _reference: IEntry): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
