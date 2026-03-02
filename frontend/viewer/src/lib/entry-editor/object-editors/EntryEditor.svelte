@@ -237,7 +237,7 @@
 </Editor.Root>
 
 <style lang="postcss">
-  @reference "../../../app.css";
+  @reference "#app.css";
 
   :global(.highlight) {
     :global(h2, h3) {

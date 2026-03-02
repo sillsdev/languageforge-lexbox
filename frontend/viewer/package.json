@@ -134,5 +134,8 @@
     "*.{js,ts,svelte,css,md,json}": [
       "prettier --write"
     ]
+  },
+  "imports": {
+    "#app.css": "./src/app.css"
   }
 }
