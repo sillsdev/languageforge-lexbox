@@ -22,9 +22,14 @@
         shell:
           'border-input bg-background ring-offset-background placeholder:text-muted-foreground flex h-10 w-full rounded-md border text-base has-disabled:cursor-not-allowed has-disabled:opacity-50 md:text-sm flex gap-2 items-center justify-between',
       },
+      visibleFocus: {
+        off: '',
+        on: 'focus:border-ring focus:ring-ring/50 focus:ring-[3px]',
+      },
     },
     defaultVariants: {
       variant: 'default',
+      visibleFocus: 'off',
     },
   });
 
