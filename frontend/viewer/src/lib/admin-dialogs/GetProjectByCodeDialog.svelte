@@ -55,16 +55,16 @@
 
 
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent hideClose={loading} interactOutsideBehavior="ignore" escapeKeydownBehavior="ignore">
+  <Dialog.DialogContent hideClose={loading} interactOutsideBehavior={loading ? 'ignore' : 'close'} escapeKeydownBehavior={loading ? 'ignore' : 'close'}>
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`Download project by project code`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    <div class="flex flex-col gap-2">
-      <Label class="cursor-pointer flex items-center gap-2">
+    <div class="gap-2 grid grid-rows-2 grid-cols-[auto_1fr]">
+      <Label class="grid grid-cols-subgrid col-span-2 gap-4 cursor-pointer items-center">
         Code:
         <Input bind:value={projectCode} />
       </Label>
-      <Label class="cursor-pointer flex items-center gap-2">
+      <Label class="grid grid-cols-subgrid col-span-2 gap-4 cursor-pointer items-center">
         Role:
         <Select
           options={roleSelections}
