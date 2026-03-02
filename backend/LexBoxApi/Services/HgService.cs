@@ -11,6 +11,7 @@ using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexCore.Utils;
 using LexSyncReverseProxy;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Path = System.IO.Path;
 
@@ -522,6 +523,19 @@ public partial class HgService : IHgService, IHostedService
         return int.TryParse(str, out int result) ? result : null;
     }
 
+    public async Task<int?> GetRegexCount(ProjectCode code, string fileRegex, string contentRegex, string? fileExcludeRegex = null)
+    {
+        var command = "regexcount";
+        Dictionary<string, string?> queryParams = new() { { "file", fileRegex }, { "regex", contentRegex } };
+        if (fileExcludeRegex is not null)
+        {
+            queryParams.Add("fileExclude", fileExcludeRegex);
+        }
+        var content = await ExecuteHgCommandServerCommand(code, command, default, queryParams);
+        var str = await content.ReadAsStringAsync();
+        return int.TryParse(str, out int result) ? result : null;
+    }
+
     public async Task<string> HgCommandHealth()
     {
         var content = await ExecuteHgCommandServerCommand("health", "healthz", default);
@@ -536,20 +550,30 @@ public partial class HgService : IHgService, IHostedService
         return new ZipArchive(await content.ReadAsStreamAsync(token), ZipArchiveMode.Read);
     }
 
-    private async Task<HttpContent> ExecuteHgCommandServerCommand(ProjectCode code, string command, CancellationToken token)
+    private async Task<HttpContent> ExecuteHgCommandServerCommand(ProjectCode code, string command, CancellationToken token, IDictionary<string, string?>? queryParams = null)
     {
         var httpClient = _hgClient.Value;
         var baseUri = _options.Value.HgCommandServer;
-        var response = await httpClient.GetAsync($"{baseUri}{code}/{command}", HttpCompletionOption.ResponseHeadersRead, token);
+        var uri = $"{baseUri}{code}/{command}";
+        if (queryParams is not null)
+        {
+            uri = QueryHelpers.AddQueryString(uri, queryParams);
+        }
+        var response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
         response.EnsureSuccessStatusCode();
         return response.Content;
     }
 
-    private async Task<HttpContent?> MaybeExecuteHgCommandServerCommand(ProjectCode code, string command, IEnumerable<HttpStatusCode> okErrors, CancellationToken token)
+    private async Task<HttpContent?> MaybeExecuteHgCommandServerCommand(ProjectCode code, string command, IEnumerable<HttpStatusCode> okErrors, CancellationToken token, IDictionary<string, string?>? queryParams = null)
     {
         var httpClient = _hgClient.Value;
         var baseUri = _options.Value.HgCommandServer;
-        var response = await httpClient.GetAsync($"{baseUri}{code}/{command}", HttpCompletionOption.ResponseHeadersRead, token);
+        var uri = $"{baseUri}{code}/{command}";
+        if (queryParams is not null)
+        {
+            uri = QueryHelpers.AddQueryString(uri, queryParams);
+        }
+        var response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
         if (okErrors.Contains(response.StatusCode)) return null;
         response.EnsureSuccessStatusCode();
         return response.Content;

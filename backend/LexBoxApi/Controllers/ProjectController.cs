@@ -129,6 +129,30 @@ public class ProjectController(
         return result;
     }
 
+    [HttpGet("queryRegexFilesOneProject")]
+    [AdminRequired]
+    public async Task<ActionResult<int>> QueryRegexFilesOneProject([FromQuery] string projectCode, [FromQuery] string file, [FromQuery] string regex, [FromQuery] string? fileExclude)
+    {
+        var count = await hgService.GetRegexCount(projectCode, file, regex, fileExclude);
+        return Ok(count ?? 0);
+    }
+
+    [HttpGet("queryRegexFiles")]
+    [AdminRequired]
+    public async Task<ActionResult<int>> QueryRegexFiles([FromQuery] ProjectType projectType, [FromQuery] string file, [FromQuery] string regex, [FromQuery] string? fileExclude)
+    {
+        var projects = lexBoxDbContext.Projects
+            .Where(p => p.Type == projectType)
+            .OrderBy(p => p.Code)
+            .AsAsyncEnumerable();
+        var count = 0;
+        await foreach (var project in projects)
+        {
+            count += await hgService.GetRegexCount(project.Code, file, regex, fileExclude) ?? 0;
+        }
+        return Ok(count);
+    }
+
     [HttpGet("backupProject/{code}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [AdminRequired]

@@ -1,34 +1,12 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "tipdate" "ldmlzip" "reposizeinkb" "wesaylexentrycount" "lexentrycount" "flexprojectid" "flexwritingsystems" "flexmodelversion" "recover" "healthz" "invalidatedircache")
+allowed_commands=("verify" "tip" "tipdate" "ldmlzip" "reposizeinkb" "wesaylexentrycount" "lexentrycount" "regexcount" "flexprojectid" "flexwritingsystems" "flexmodelversion" "recover" "healthz" "invalidatedircache")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
 project_code="${PATH_SEGMENTS[1]}"
 command_name="${PATH_SEGMENTS[2]}"
-
-urldecode() {
-    local with_spaces="${1//+/ }"
-    printf '%b' "${with_spaces//%/\\x}"
-}
-
-# Get the query string from the URL (used in regexcount command)
-IFS='&' read -ra QUERY_PARAMS <<< "$QUERY_STRING"
-# Temp debugging: echo the params count, followed by each param
-if [[ ${#QUERY_PARAMS[@]} -gt 0 ]]; then
-    echo "lexbox-version: $APP_VERSION"
-    echo "Status: 200 OK"
-    echo "Content-type: text/plain"
-    echo ""
-    for i in "${!QUERY_PARAMS[@]}"; do
-        IFS='=' read -ra KEYVALUE <<< "${QUERY_PARAMS[$i]}"
-        key=${KEYVALUE[0]}
-        value=$(urldecode ${KEYVALUE[1]})
-        echo "Param ${i}: $key = $value"
-    done
-    exit 0
-fi
 
 
 # Ensure the project code and command name are safe to use in a shell command
@@ -75,6 +53,53 @@ if [[ $command_name == "ldmlzip" ]]; then
     fi
 fi
 
+if [[ $command_name == "regexcount" ]]; then
+    # Preflight check for valid parameters
+    urldecode() {
+        local with_spaces="${1//+/ }"
+        printf '%b' "${with_spaces//%/\\x}"
+    }
+
+    # Get the query string from the URL
+    IFS='&' read -ra QUERY_PARAMS <<< "$QUERY_STRING"
+    if [[ ${#QUERY_PARAMS[@]} -gt 0 ]]; then
+        for i in "${!QUERY_PARAMS[@]}"; do
+            IFS='=' read -ra KEYVALUE <<< "${QUERY_PARAMS[$i]}"
+            key=${KEYVALUE[0]}
+            value=$(urldecode ${KEYVALUE[1]})
+            case $key in
+                fileExclude)
+                    fileExclude="$value"
+                    ;;
+                file)
+                    fileInclude="$value"
+                    ;;
+                regex)
+                    contentRegex="$value"
+                    ;;
+            esac
+        done
+    fi
+
+    # fileExclude is optional, others required
+    if [ -z "$fileInclude" -o -z "$contentRegex" ]; then
+        echo "Content-type: text/plain"
+        echo "Status: 400 Bad Request"
+        echo ""
+        echo "regexcount command did not receive sufficient parameters"
+        if [ -z "$fileInclude" ]; then
+            echo "file parameter (required) was missing"
+        fi
+        if [ -z "$contentRegex" ]; then
+            echo "regex parameter (required) was missing"
+        fi
+        if [ -z "$fileExclude" ]; then
+            echo "fileExclude parameter (optional) was also missing (not an error)"
+        fi
+        exit 1
+    fi
+fi
+
 CONTENT_TYPE="${CONTENT_TYPE:-text/plain}"
 # Start outputting the result right away so the HTTP connection won't be timed out
 echo "Content-type: ${CONTENT_TYPE}"
@@ -99,6 +124,14 @@ case $command_name in
         LIFTFILE=$(chg manifest -r tip | grep '\.lift$' | head -n 1)
         # The \b for word boundary is not necessary for .lift files
         [ -n "${LIFTFILE}" ] && (chg cat -r tip "${LIFTFILE}" | grep -c '<entry') || echo 0
+        ;;
+
+    regexcount)
+        if [[ -z "$fileExclude" ]]; then
+            chg cat -r tip --include="re:$fileInclude" 'glob:**' | grep -c -P "$contentRegex"
+        else
+            chg cat -r tip --include="re:$fileInclude" --exclude="re:$fileExclude" 'glob:**' | grep -c -P "$contentRegex"
+        fi
         ;;
 
     flexprojectid)
