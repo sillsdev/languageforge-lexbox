@@ -39,8 +39,14 @@
     showClose?: boolean;
   } = $props();
 
+  // Reactive firewall:
+  // When we delete the current entry, the resource gets retriggered with the same/deleted entryId
+  // (due to parent updates/reactivity) and then getEntry returns undefined, so we lose the entry.
+  // We want to keep the deleted entry in the view, so the user can optionally restore it.
+  const dedupedEntryId = $derived(entryId);
+
   const entryResource = resource(
-    () => entryId,
+    () => dedupedEntryId,
     async (id) => {
       const entry = await miniLcmApi.getEntry(id);
       return setEntry(entry);
