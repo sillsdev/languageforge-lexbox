@@ -236,12 +236,16 @@
   </Editor.Grid>
 </Editor.Root>
 
-<style lang="postcss" global>
-  .highlight {
-    & :is(h2, h3) {
+<style lang="postcss">
+  @reference "../../../app.css";
+
+  :global(.highlight) {
+    :global(h2, h3) {
+      @apply text-primary;
     }
 
-    & hr {
+    :global(hr) {
+      @apply border-primary;
     }
   }
 </style>
