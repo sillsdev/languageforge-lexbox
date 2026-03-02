@@ -8,8 +8,13 @@ IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
 project_code="${PATH_SEGMENTS[1]}"
 command_name="${PATH_SEGMENTS[2]}"
 
+urldecode() {
+    local with_spaces="${1//+/ }"
+    printf '%b' "${with_spaces//%/\\x}"
+}
+
 # Get the query string from the URL (used in regexcount command)
-IFS='&=' read -ra QUERY_PARAMS <<< "$QUERY_STRING"
+IFS='&' read -ra QUERY_PARAMS <<< "$QUERY_STRING"
 # Temp debugging: echo the params count, followed by each param
 if [[ ${#QUERY_PARAMS[@]} -gt 0 ]]; then
     echo "lexbox-version: $APP_VERSION"
@@ -17,10 +22,10 @@ if [[ ${#QUERY_PARAMS[@]} -gt 0 ]]; then
     echo "Content-type: text/plain"
     echo ""
     for i in "${!QUERY_PARAMS[@]}"; do
-        j=$((i + 1))
-        key=${QUERY_PARAMS[$i]}
-        value=${QUERY_PARAMS[$j]}
-        echo "Param $((i / 2)): $key = $value"
+        IFS='=' read -ra KEYVALUE <<< "${QUERY_PARAMS[$i]}"
+        key=${KEYVALUE[0]}
+        value=$(urldecode ${KEYVALUE[1]})
+        echo "Param ${i}: $key = $value"
     done
     exit 0
 fi
