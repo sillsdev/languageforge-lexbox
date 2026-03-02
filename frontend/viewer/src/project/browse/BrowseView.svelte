@@ -69,7 +69,7 @@
   {/snippet}
 </SidebarPrimaryAction>
 <div class="flex flex-col h-full">
-  <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
+  <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 overflow-visible!">
     <IfOnce show={!IsMobile.value || !selectedEntryId.current || !entryOpen.current}>
       <ResizablePane
         bind:this={leftPane}

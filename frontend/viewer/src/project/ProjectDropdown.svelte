@@ -12,6 +12,7 @@
   import type {IProjectModel} from '$lib/dotnet-types';
   import ProjectTitle from '../home/ProjectTitle.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
+  import {mergeProps} from 'bits-ui';
 
   let { onSelect } = $props<{
     onSelect: (project: IProjectModel) => void;
@@ -77,9 +78,8 @@
         variant="ghost"
         role="combobox"
         aria-expanded={open}
-        class="w-full justify-between overflow-hidden gap-0 paratext:!opacity-100 h-12 md:h-10"
         disabled={projectContext.inParatext}
-        {...props}
+        {...mergeProps(props, {class: 'flex-auto justify-between overflow-hidden gap-0 paratext:opacity-100! h-12 md:h-10'})}
       >
         <div class="flex items-center gap-2 overflow-hidden">
           {@render projectIcon(isCrdt)}

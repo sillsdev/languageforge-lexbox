@@ -7,7 +7,7 @@
   import { onMount } from 'svelte';
   import ProjectView from './ProjectView.svelte';
   import {mode, theme} from 'mode-watcher';
-  import css from './app.postcss?inline';
+  import css from './app.css?inline';
   import {DotnetService, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
   import ProjectLoader from './ProjectLoader.svelte';
   import {initProjectContext} from '$project/project-context.svelte';

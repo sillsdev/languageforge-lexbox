@@ -1,7 +1,7 @@
 <script lang="ts">
-  import {cn} from '$lib/utils.js';
-  import type {Snippet} from 'svelte';
   import type {HTMLAnchorAttributes} from 'svelte/elements';
+  import type {Snippet} from 'svelte';
+  import {cn} from '$lib/utils.js';
   import Anchor from '../anchor/anchor.svelte';
 
   let {
@@ -17,6 +17,7 @@
   } = $props();
 
   const attrs = $derived({
+    'data-slot': 'breadcrumb-link',
     class: cn('hover:text-foreground transition-colors', className),
     href,
     ...restProps,

@@ -8,7 +8,7 @@
     focusRingClass?: string;
   }
 
-  const anyChildHasFocusRing = 'ring-ring outline-none ring-offset-2 has-[:focus-visible]:ring-2';
+  const anyChildHasFocusRing = 'ring-ring outline-none ring-offset-2 has-focus-visible:ring-2';
 
   let {
     ref = $bindable(null),

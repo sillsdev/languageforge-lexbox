@@ -212,7 +212,7 @@
   >
     {@render displayBadges()}
     {#if !readonly}
-      <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+      <Icon icon="i-mdi-chevron-down" class="size-5 shrink-0 opacity-50" />
     {/if}
   </Button>
 {/snippet}
@@ -237,7 +237,7 @@
         {/if}
       </div>
     </CommandInput>
-    <CommandList class="max-md:h-[300px] md:max-h-[40vh]">
+    <CommandList class="max-md:h-75 md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
         {#each renderedOptions as value, i (getId(value))}
@@ -248,7 +248,7 @@
             keywords={[label.toLocaleLowerCase()]}
             value={label.toLocaleLowerCase() + String(id)}
             onSelect={() => toggleSelected(value, !dirty && !IsMobile.value)}
-            class={cn('group max-md:h-12', label || 'text-muted-foreground')}
+            class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
             data-value-index={i}
             aria-label={label}
           >
@@ -257,8 +257,8 @@
               checked={selected}
               tabindex={-1}
               class={cn(
-                'max-md:hidden mr-2 border-muted-foreground !text-foreground !bg-transparent group-[&:not([data-selected])]:border-transparent',
-                selected || '[&:not(:hover)]:opacity-50',
+                'max-md:hidden mr-2 size-5 border-muted-foreground text-foreground! bg-transparent! group-[&:not([data-selected])]:border-transparent',
+                selected || 'not-[&:hover]:opacity-50',
               )}
               onclick={(e) => {
                 // prevents command item selection

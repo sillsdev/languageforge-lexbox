@@ -65,7 +65,7 @@
 </script>
 <Tabs.Root value="lite" class="flex md:flex-col flex-col-reverse">
   {#if showRemote}
-    <Tabs.List class="w-full md:mb-2 max-md:mt-4 max-md:sticky bottom-0 z-[1]">
+    <Tabs.List class="w-full md:mb-2 max-md:mt-4 max-md:sticky bottom-0 z-1">
       <Tabs.Trigger class="flex-1" value="lite">{$t`FieldWorks Lite`}</Tabs.Trigger>
       <Tabs.Trigger class="flex-1 gap-2" value="classic"><Icon icon={cloudIcon} class="-my-1" /> {$t`Lexbox`}</Tabs.Trigger>
     </Tabs.List>
@@ -101,7 +101,7 @@
         </div>
         <div class="grid justify-center items-center min-h-12 gap-2" style="grid-template-columns: 1fr auto auto auto 1fr">
           <span class="text-end" class:font-bold={Number(remoteToLocalCount)} class:text-primary={Number(remoteToLocalCount)}>{remoteToLocalCount ?? '?'}</span>
-          <SyncArrow dir="down" tailLength={40}  size={1.5} class={cn('translate-y-[1px]', Number(remoteToLocalCount) && 'text-primary')} />
+          <SyncArrow dir="down" tailLength={40}  size={1.5} class={cn('translate-y-px', Number(remoteToLocalCount) && 'text-primary')} />
           <div class="flex flex-col gap-2 mx-2">
             {#if syncStatus === SyncStatus.Success}
               {#if remoteToLocalCount === 0 && localToRemoteCount === 0}
@@ -140,7 +140,7 @@
               <div class="text-destructive">{$t`Error getting sync status.`}</div>
             {/if}
             </div>
-            <SyncArrow dir="up" tailLength={40} size={1.5} class={cn('translate-y-[-1px]', Number(localToRemoteCount) && 'text-primary')}/>
+            <SyncArrow dir="up" tailLength={40} size={1.5} class={cn('-translate-y-px', Number(localToRemoteCount) && 'text-primary')}/>
             <span class="text-start" class:font-bold={Number(localToRemoteCount)} class:text-primary={Number(localToRemoteCount)}>{localToRemoteCount ?? '?'}</span>
           </div>
           <div>
@@ -150,7 +150,7 @@
 
       <!--  local box-->
       <div class="text-center col-span-full border rounded py-2">
-        <Icon icon="i-mdi-cellphone" class="!size-10 md:i-mdi-monitor"/>
+        <Icon icon="i-mdi-cellphone" class="size-10! md:i-mdi-monitor"/>
         <p>{$t`Local`}</p>
       </div>
     </div>

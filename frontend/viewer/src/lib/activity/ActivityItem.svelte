@@ -140,6 +140,7 @@
 </div>
 
 <style lang="postcss">
+  @reference "../../app.css";
   :global(.change-list .sentinel) {
     @apply -mt-4; /* make gap-4 not apply to the infinite-scroll end detector */
   }

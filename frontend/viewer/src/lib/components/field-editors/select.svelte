@@ -147,7 +147,7 @@
         {/if}
       </div>
     </CommandInput>
-    <CommandList class="max-md:h-[300px] md:max-h-[40vh]">
+    <CommandList class="max-md:h-75 md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
         {#each renderedOptions as option, i (getId(option))}
@@ -158,7 +158,7 @@
             keywords={[label.toLocaleLowerCase()]}
             value={label.toLocaleLowerCase() + String(id)}
             onSelect={() => selectValue(option)}
-            class={cn('group max-md:h-12', label || 'text-muted-foreground')}
+            class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
             data-value-index={i}
             aria-label={label}
           >

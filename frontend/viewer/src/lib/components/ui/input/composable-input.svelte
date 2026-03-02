@@ -41,7 +41,7 @@
   <div class="grow flex relative overflow-hidden items-center h-full">
     <Input
       {id}
-      {...mergeProps(inputProps, { class: 'grow real-input h-full px-2' })}
+      {...mergeProps(inputProps, {class: 'grow real-input h-full px-2'})}
       variant="ghost"
       placeholder={stringPlaceholder}
       bind:ref={inputRef}

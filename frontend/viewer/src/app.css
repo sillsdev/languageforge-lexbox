@@ -1,9 +1,24 @@
-@import 'theme.postcss';
 /* this import is removed by vite-plugin-webfont-dl, and the styles are inlined in webfonts.css */
 @import 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './theme.css';
+@config '../tailwind.config.ts';
+@custom-variant dark (&:is(.dark *));
+@custom-variant pointer (@media (hover: hover));
+@custom-variant paratext (&:is([data-paratext="true"] *));
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@utility animate-shimmer {
+  animation: shimmer 2s linear infinite;
+  background-image: linear-gradient(90deg, hsl(var(--muted-foreground)/0.2) 20%, hsl(var(--foreground)/0.3) 50%, hsl(var(--muted-foreground)/0.2) 65%);
+  background-size: 200% 100%;
+  background-repeat: repeat;
+}
 
 :host {
   flex-grow: 1;
@@ -17,7 +32,6 @@
   @apply bg-background text-foreground;
 }
 
-
 @layer base {
   /* shadcn generated styles */
   * {
@@ -27,8 +41,17 @@
     @apply bg-background text-foreground;
   }
 
+  /*
+  https://tailwindcss.com/docs/upgrade-guide#buttons-use-the-default-cursor
+  This is better for our target audience - more visual clues.
+  */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
   .loading-text {
-    @apply bg-shimmer animate-shimmer rounded-md select-none pointer-events-none;
+    @apply animate-shimmer rounded-md select-none pointer-events-none;
     /* Hide everything inside (both text and content) */
     @apply text-transparent;
     * { @apply opacity-0; }

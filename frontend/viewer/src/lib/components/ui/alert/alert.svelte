@@ -2,11 +2,11 @@
   import {type VariantProps, tv} from 'tailwind-variants';
 
   export const alertVariants = tv({
-    base: '[&>svg]:text-foreground relative w-full rounded-lg border p-4 [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg~*]:pl-7',
+    base: 'relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg border px-4 py-3 text-sm has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current',
     variants: {
       variant: {
-        default: 'bg-background text-foreground',
-        destructive: 'bg-destructive text-destructive-foreground dark:border-destructive-foreground/50 [&>svg]:text-destructive',
+        default: 'bg-card text-card-foreground',
+        destructive: 'text-destructive-foreground bg-destructive *:data-[slot=alert-description]:text-current',
       },
     },
     defaultVariants: {
@@ -18,9 +18,8 @@
 </script>
 
 <script lang="ts">
-  import {cn} from '$lib/utils.js';
-  import type {WithElementRef} from 'bits-ui';
   import type {HTMLAttributes} from 'svelte/elements';
+  import {cn, type WithElementRef} from '$lib/utils.js';
 
   let {
     ref = $bindable(null),
@@ -33,6 +32,6 @@
   } = $props();
 </script>
 
-<div bind:this={ref} class={cn(alertVariants({variant}), className)} {...restProps} role="alert">
+<div bind:this={ref} data-slot="alert" role="alert" class={cn(alertVariants({variant}), className)} {...restProps}>
   {@render children?.()}
 </div>

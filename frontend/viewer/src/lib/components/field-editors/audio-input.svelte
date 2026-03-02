@@ -322,9 +322,9 @@
     <div class="flex space-x-3 items-center">
       {#if loading}
         <!--for some reason using the same button for loading, play and pause doesn't work and pause is never shown-->
-        <Button loading size="sm-icon"></Button>
+        <Button loading size="icon-sm"></Button>
       {:else}
-        <Button onclick={togglePlay} icon={playIcon} size="sm-icon"></Button>
+        <Button onclick={togglePlay} icon={playIcon} size="icon-sm"></Button>
       {/if}
       {#if audioRuned}
         <Slider
@@ -358,7 +358,7 @@
         <ResponsiveMenu.Root>
           <ResponsiveMenu.Trigger>
             {#snippet child({props})}
-              <Button variant="secondary" icon="i-mdi-dots-vertical" size="sm-icon" {...props} />
+              <Button variant="secondary" icon="i-mdi-dots-vertical" size="icon-sm" {...props} />
             {/snippet}
           </ResponsiveMenu.Trigger>
           <ResponsiveMenu.Content>

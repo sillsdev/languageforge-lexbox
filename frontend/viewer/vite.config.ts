@@ -2,6 +2,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 import {defineConfig} from 'vite';
 import {lingui} from '@lingui/vite-plugin';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
+import tailwindcss from '@tailwindcss/vite';
 import webfontDownload from 'vite-plugin-webfont-dl';
 
 const ssl = false;
@@ -38,10 +39,10 @@ export default defineConfig(({ mode, command }) => {
       ]
     },
     plugins: [
+      tailwindcss(),
       svelte(),
       lingui(),
-      webfontDownload([],
-      {
+      webfontDownload([], {
         assetsSubfolder: 'fonts',
         minifyCss: false
       }),

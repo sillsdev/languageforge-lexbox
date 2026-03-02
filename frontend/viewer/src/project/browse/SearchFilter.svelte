@@ -142,7 +142,7 @@
       >
         {#snippet trigger({ props })}
           <Button {...props} variant="ghost"
-            size={IsMobile.value ? 'sm-icon' : 'xs-icon'}
+            size={IsMobile.value ? 'icon-sm' : 'icon-xs'}
             icon={userFilterActive ? 'i-mdi-filter' : 'i-mdi-filter-outline'}
             aria-label={$t`Toggle filters`} />
         {/snippet}

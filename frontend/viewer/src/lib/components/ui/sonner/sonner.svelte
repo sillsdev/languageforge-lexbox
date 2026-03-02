@@ -17,8 +17,8 @@ The recommended approaches are (1) use default styling or (2) use unstyled: true
 I prefer this for now.
 
 There's currently a bug where all toasts are rendered with the height of the latest toast, so
-[&[data-expanded="true"]]:max-h-max prevents small toasts from being bigger than they should
-[&[data-expanded="true"]]:!h-max prevents big toasts from being smaller than they should.
+data-[expanded="true"]:max-h-max prevents small toasts from being bigger than they should
+data-[expanded="true"]:h-max! prevents big toasts from being smaller than they should.
 (Maybe this will fix it: https://github.com/wobsoriano/svelte-sonner/pull/167)
 
 My fix results in another bug that I'm ignoring for now: sonner still thinks big toasts are small, so they can cover others toasts.
@@ -28,23 +28,24 @@ I.e. If there's small, big, small, then sonner thinks the big one is small and p
   theme={mode.current}
   closeButton
   class={cn('toaster group', className)}
+  style="--normal-bg: var(--color-popover); --normal-text: var(--color-popover-foreground); --normal-border: var(--color-border);"
   richColors
   toastOptions={{
     classes: {
       toast:
-        'gap-3 group toast [&[data-expanded="true"]]:!h-max [&[data-expanded="true"]]:max-h-max group-[.toaster]:!bg-background group-[.toaster]:!border-border group-[.toaster]:shadow-lg',
+        'gap-3 group toast data-[expanded="true"]:h-max! data-[expanded="true"]:max-h-max group-[.toaster]:bg-background! group-[.toaster]:border-border! group-[.toaster]:shadow-lg',
       description:
-        'group-[.toast]:!text-muted-foreground max-h-[30vh] overflow-y-auto whitespace-break-spaces touch-pan-y' /* pan-y means the browser should handle y-scrolling (and NOT x-scrolling, which is for swiping away) */,
+        'group-[.toast]:text-muted-foreground! max-h-[30vh] overflow-y-auto whitespace-break-spaces touch-pan-y' /* pan-y means the browser should handle y-scrolling (and NOT x-scrolling, which is for swiping away) */,
       actionButton: buttonVariants({
         size: 'sm',
         variant: 'default',
         class:
-          'group-[.toast]:!bg-primary group-[.toast]:!text-primary-foreground !h-9 min-h-9 !px-3 group-[.toast[data-type="error"]]:i-mdi-content-copy [&.copied]:!i-mdi-check group-[.toast[data-promise="true"][data-type="loading"]]:hidden',
+          'group-[.toast]:bg-primary! group-[.toast]:text-primary-foreground! h-9! min-h-9 px-3! group-[.toast[data-type="error"]]:i-mdi-content-copy [&.copied]:i-mdi-check! group-[.toast[data-promise="true"][data-type="loading"]]:hidden',
       }),
       cancelButton: buttonVariants({
         size: 'sm',
         variant: 'secondary',
-        class: 'group-[.toast]:!bg-muted group-[.toast]:!text-muted-foreground !h-9 min-h-9 !px-3',
+        class: 'group-[.toast]:bg-muted! group-[.toast]:text-muted-foreground! h-9! min-h-9 px-3!',
       }),
     },
   }}

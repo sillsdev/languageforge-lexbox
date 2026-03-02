@@ -168,7 +168,7 @@
         <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
 
         <ObjectHeader type="sense" index={i + 1} class={cn(modalMode || 'sticky',
-          'top-0 bg-background z-[1] w-[calc(100%+2px)] pr-[2px] animate-fade-out animation-scroll')}>
+          'top-0 bg-background z-1 w-[calc(100%+2px)] pr-0.5 animate-fade-out animation-scroll')}>
           <EntityListItemActions {i}
               items={entry.senses}
               getDisplayName={(sense) => writingSystemService.firstDefOrGlossVal(sense)}

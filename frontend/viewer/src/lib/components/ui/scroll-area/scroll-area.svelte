@@ -1,7 +1,7 @@
 <script lang="ts">
-  import {cn} from '$lib/utils.js';
-  import {ScrollArea as ScrollAreaPrimitive, type WithoutChild} from 'bits-ui';
+  import {ScrollArea as ScrollAreaPrimitive} from 'bits-ui';
   import {Scrollbar} from './index.js';
+  import {cn, type WithoutChild} from '$lib/utils.js';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte.js';
 
   let {
@@ -24,8 +24,18 @@
   const type = $derived(explicitType ?? (IsMobile.value ? 'scroll' : 'auto'));
 </script>
 
-<ScrollAreaPrimitive.Root {type} bind:ref {...restProps} class={cn('relative overflow-hidden', className)}>
-  <ScrollAreaPrimitive.Viewport bind:ref={viewportRef} class="h-full w-full rounded-[inherit]">
+<ScrollAreaPrimitive.Root
+  {type}
+  bind:ref
+  data-slot="scroll-area"
+  class={cn('relative overflow-hidden', className)}
+  {...restProps}
+>
+  <ScrollAreaPrimitive.Viewport
+    bind:ref={viewportRef}
+    data-slot="scroll-area-viewport"
+    class="ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] focus-visible:ring-4 focus-visible:outline-1"
+  >
     {@render children?.()}
   </ScrollAreaPrimitive.Viewport>
   {#if orientation === 'vertical' || orientation === 'both'}
