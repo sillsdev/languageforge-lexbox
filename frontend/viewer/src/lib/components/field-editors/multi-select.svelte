@@ -9,6 +9,7 @@
   import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '../ui/command';
   import {Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger} from '../ui/drawer';
   import {Icon} from '../ui/icon';
+  import SubmitOrCancel from '../SubmitOrCancel.svelte';
   import type {ConditionalKeys, Primitive, ReadonlyDeep} from 'type-fest';
   import {cn} from '$lib/utils';
   import DrawerFooter from '../ui/drawer/drawer-footer.svelte';
@@ -297,14 +298,7 @@
       </DrawerHeader>
       {@render command()}
       <DrawerFooter>
-        <div class="flex gap-4 items-center flex-nowrap">
-          <Button variant="secondary" class={cn('basis-1/4 transition-all', dirty || 'basis-3/4')} onclick={dismiss}>
-            {$t`Cancel`}
-          </Button>
-          <Button disabled={!dirty} class={cn('basis-3/4 transition-all', dirty || 'basis-1/4')} onclick={submit}>
-            {$t`Submit`}
-          </Button>
-        </div>
+        <SubmitOrCancel canSubmit={dirty} onCancel={dismiss} onSubmit={submit} />
       </DrawerFooter>
     </DrawerContent>
   </Drawer>
