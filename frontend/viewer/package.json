@@ -126,7 +126,6 @@
     "svelte-preprocess": "catalog:",
     "svelte-routing": "^2.13.0",
     "tabbable": "^6.3.0",
-    "tailwindcss-animate": "^1.0.7",
     "type-fest": "^5.2.0",
     "virtua": "^0.48.2",
     "wavesurfer.js": "^7.11.1"
