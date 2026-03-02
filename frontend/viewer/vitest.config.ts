@@ -61,10 +61,7 @@ export default defineConfig({
       {
         plugins: [
           tailwindcss(),
-          svelte({
-            // required for storybook tests (breaks @tailwindcss/vite if set globally in svelte.config.js)
-            compilerOptions: { customElement: true },
-          }),
+          svelte(),
           // seems to cause this project to only include storybook tests
           storybookTest({
             configDir: path.join(dirname, '.storybook'),

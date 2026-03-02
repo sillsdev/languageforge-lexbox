@@ -1,3 +1,4 @@
+import '../src/app.css';
 import FWLiteDecorator, {initSvelteStoryContext} from './decorators/FWLiteDecorator.svelte';
 
 import type {Preview} from '@storybook/svelte-vite';
@@ -35,11 +36,10 @@ const preview: Preview = {
       },
     },
   },
-  // @ts-expect-error Bug in Storybook https://github.com/storybookjs/storybook/issues/29951
   decorators: [(_story, storyContext) => {
     // The only way I know how to pass the story context to the decorator
     initSvelteStoryContext(storyContext);
-    return FWLiteDecorator;
+    return {Component: FWLiteDecorator};
   }],
 };
 
