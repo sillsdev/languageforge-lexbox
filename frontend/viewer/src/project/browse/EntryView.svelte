@@ -39,9 +39,10 @@
     showClose?: boolean;
   } = $props();
 
-  // Wwhen we delete the current entry the resource gets retriggered with the
-  // current entryId and we get an undefined entry.
-  // We want to keep the deleted entry in the view, so it can be restored
+  // Reactive firewall:
+  // When we delete the current entry, the resource gets retriggered with the same/deleted entryId
+  // (due to parent updates/reactivity) and then getEntry returns undefined, so we lose the entry.
+  // We want to keep the deleted entry in the view, so the user can optionally restore it.
   const dedupedEntryId = $derived(entryId);
 
   const entryResource = resource(
