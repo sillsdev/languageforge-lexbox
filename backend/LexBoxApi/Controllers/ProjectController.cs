@@ -129,14 +129,6 @@ public class ProjectController(
         return result;
     }
 
-    [HttpGet("queryRegexFilesOneProject")]
-    [AdminRequired]
-    public async Task<ActionResult<int>> QueryRegexFilesOneProject([FromQuery] string projectCode, [FromQuery] string file, [FromQuery] string regex, [FromQuery] string? fileExclude)
-    {
-        var count = await hgService.GetRegexCount(projectCode, file, regex, fileExclude);
-        return Ok(count ?? 0);
-    }
-
     [HttpGet("queryRegexFiles")]
     [AdminRequired]
     public async Task<ActionResult<int>> QueryRegexFiles([FromQuery] ProjectType projectType, [FromQuery] string file, [FromQuery] string regex, [FromQuery] string? fileExclude)
