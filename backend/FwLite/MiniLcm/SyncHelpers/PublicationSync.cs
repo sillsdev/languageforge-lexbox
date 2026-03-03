@@ -9,10 +9,23 @@ public static class PublicationSync
         Publication[] afterPublications,
         IMiniLcmApi api)
     {
-        return await DiffCollection.Diff(
+        var changes = await DiffCollection.Diff(
             beforePublications,
             afterPublications,
             new PublicationsDiffApi(api));
+
+        // Sync the IsMain flag: if "after" has a main but "before" does not, set it
+        var beforeMain = beforePublications.FirstOrDefault(p => p.IsMain);
+        var afterMain = afterPublications.FirstOrDefault(p => p.IsMain);
+
+        if (afterMain is not null && beforeMain is null)
+        {
+            await api.UpdatePublication(afterMain.Id,
+                new UpdateObjectInput<Publication>().Set(p => p.IsMain, true));
+            changes++;
+        }
+
+        return changes;
     }
 
     public static async Task<int> Sync(
@@ -34,6 +47,11 @@ public static class PublicationSync
             nameof(Publication.Name),
             beforePublication.Name,
             afterPublication.Name));
+
+        if (beforePublication.IsMain != afterPublication.IsMain)
+        {
+            patchDocument.Replace(p => p.IsMain, afterPublication.IsMain);
+        }
 
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Publication>(patchDocument);
