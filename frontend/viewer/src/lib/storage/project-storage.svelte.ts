@@ -5,7 +5,7 @@ import {StorageProp} from './storage-prop.svelte';
 import {usePreferencesService} from '$lib/services/service-provider';
 import {useProjectContext} from '$project/project-context.svelte';
 
-const projectStorageContextKey = 'project-storage';
+const projectStorageContextKey = Symbol('project-storage');
 
 /**
  * A StorageProp scoped to a specific project.

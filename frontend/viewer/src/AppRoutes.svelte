@@ -1,15 +1,19 @@
 <script lang="ts">
-  import { setupGlobalErrorHandlers } from '$lib/errors/global-errors';
-  import { navigate, Route, Router, useLocation } from 'svelte-routing';
+  import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
+  import {navigate, Route, Router, useLocation} from 'svelte-routing';
   import Sandbox from '$lib/sandbox/Sandbox.svelte';
   import DotnetProjectView from './DotnetProjectView.svelte';
   import HomeView from './home/HomeView.svelte';
   import TestProjectView from './TestProjectView.svelte';
-  import { initRootLocation } from '$lib/services/root-location-service';
+  import {initRootLocation} from '$lib/services/root-location-service';
+  import {trackUrl} from './url-tracker';
+  import {initAppStorage} from '$lib/utils/app-storage.svelte';
 
   let url = '';
 
   setupGlobalErrorHandlers();
+  initAppStorage();
+  trackUrl();
   initRootLocation(useLocation());
 </script>
 
