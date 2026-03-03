@@ -1,4 +1,5 @@
 
+using FwLiteShared.Services;
 using FwLiteWeb;
 using Microsoft.Extensions.Options;
 
@@ -17,8 +18,11 @@ await using (app)
 
     if (openBrowser)
     {
-        var url = app.Urls.First();
-        LocalAppLauncher.LaunchBrowser(url);
+        var baseUrl = app.Urls.First();
+        var lastUrl = app.Services.GetRequiredService<IPreferencesService>().Get(nameof(PreferenceKey.AppLastUrl));
+        var launchUrl = string.IsNullOrEmpty(lastUrl) ? baseUrl
+            : baseUrl.TrimEnd('/') + lastUrl;
+        LocalAppLauncher.LaunchBrowser(launchUrl);
     }
     // Windows doesn't allow sending SIGINT to a process, so we need to listen for a shutdown command
     _ = Task.Run(async () =>
