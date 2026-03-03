@@ -1,44 +1,10 @@
 import {getContext, setContext} from 'svelte';
 
 import type {IPreferencesService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services';
-import {tryUsePreferencesService} from '$lib/services/service-provider';
+import {usePreferencesService} from '$lib/services/service-provider';
 import {useProjectContext} from '$project/project-context.svelte';
 
-/**
- * Project-specific storage service
- *
- * This service provides project-scoped storage for user preferences.
- * When running in MAUI, uses MAUI Preferences via the PreferencesService.
- * Otherwise, falls back to localStorage.
- */
-
 const projectStorageContextKey = 'project-storage';
-
-/**
- * localStorage-based storage backend implementing IPreferencesService
- */
-class LocalStorageBackend implements IPreferencesService {
-  get(key: string): Promise<string | null> {
-    return Promise.resolve(localStorage.getItem(key));
-  }
-
-  set(key: string, value: string): Promise<void> {
-    localStorage.setItem(key, value);
-    return Promise.resolve();
-  }
-
-  remove(key: string): Promise<void> {
-    localStorage.removeItem(key);
-    return Promise.resolve();
-  }
-}
-
-/**
- * Returns the preferences service if available (MAUI), otherwise localStorage fallback
- */
-function getPreferencesService(): IPreferencesService {
-  return tryUsePreferencesService() ?? new LocalStorageBackend();
-}
 
 /**
  * Reactive storage property with async persistence.
@@ -105,7 +71,7 @@ export function useProjectStorage(): ProjectStorage {
   let storage = getContext<ProjectStorage>(projectStorageContextKey);
   if (!storage) {
     const projectContext = useProjectContext();
-    const backend = getPreferencesService();
+    const backend = usePreferencesService();
     storage = new ProjectStorage(projectContext.projectCode, backend);
     setContext(projectStorageContextKey, storage);
   }
