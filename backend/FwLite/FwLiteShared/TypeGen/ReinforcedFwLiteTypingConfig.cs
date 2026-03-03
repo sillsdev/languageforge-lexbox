@@ -258,6 +258,8 @@ public static class ReinforcedFwLiteTypingConfig
     {
         protected override void ExportCore(StreamWriter tw, ExportedFile file)
         {
+            // Force LF line endings so generated files don't flip to CRLF on Windows
+            tw.NewLine = "\n";
             tw.WriteLine("/* eslint-disable */");
             base.ExportCore(tw, file);
             tw.WriteLine("/* eslint-enable */");
