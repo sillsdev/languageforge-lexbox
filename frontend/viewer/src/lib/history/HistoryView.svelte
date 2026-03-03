@@ -70,7 +70,7 @@
                 <ListItem
                   onclick={() => showEntry(row)}
                   class="mb-2"
-                  selected={record?.commitId === row.commitId}>
+                  selected={record?.commitId === row.commitId && record.changeIndex === row.changeIndex}>
                   <span>{row.changeName}</span>
                   <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between">
                     <span>
