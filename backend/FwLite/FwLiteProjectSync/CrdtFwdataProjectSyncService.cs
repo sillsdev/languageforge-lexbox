@@ -4,6 +4,7 @@ using LcmCrdt;
 using LexCore.Sync;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
+using MiniLcm.Models;
 using MiniLcm.Normalization;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
@@ -108,7 +109,11 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
 
         var currentFwDataPublications = await fwdataApi.GetPublications().ToArrayAsync();
         crdtChanges += await PublicationSync.Sync(projectSnapshot.Publications, currentFwDataPublications, crdtApi);
-        fwdataChanges += await PublicationSync.Sync(currentFwDataPublications, await crdtApi.GetPublications().ToArrayAsync(), fwdataApi);
+        // Strip IsMain when syncing back to FwData — FW uses IsProtected which is read-only
+        fwdataChanges += await PublicationSync.Sync(
+            currentFwDataPublications.Select(p => new Publication { Id = p.Id, Name = p.Name.Copy(), DeletedAt = p.DeletedAt, IsMain = false }).ToArray(),
+            (await crdtApi.GetPublications().ToArrayAsync()).Select(p => new Publication { Id = p.Id, Name = p.Name.Copy(), DeletedAt = p.DeletedAt, IsMain = false }).ToArray(),
+            fwdataApi);
 
         var currentFwDataPartsOfSpeech = await fwdataApi.GetPartsOfSpeech().ToArrayAsync();
         crdtChanges += await PartOfSpeechSync.Sync(projectSnapshot.PartsOfSpeech, currentFwDataPartsOfSpeech, crdtApi);

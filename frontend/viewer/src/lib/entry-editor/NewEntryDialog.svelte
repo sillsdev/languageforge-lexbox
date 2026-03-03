@@ -15,6 +15,7 @@
   import {defaultEntry, defaultSense} from '../utils';
   import OverrideFields from '$lib/views/OverrideFields.svelte';
   import {useWritingSystemService} from '$project/data';
+  import {usePublications} from '$project/data/publications.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
@@ -36,6 +37,7 @@
 
   const currentView = useCurrentView();
   const writingSystemService = useWritingSystemService();
+  const publicationService = usePublications();
   const dialogsService = useDialogsService();
   dialogsService.invokeNewEntryDialog = openWithValue;
   const lexboxApi = useLexboxApi();
@@ -152,6 +154,12 @@
   </span>
 {/snippet}
 
+{#snippet defaultPublicationIncluded()}
+  <span class="text-sm text-muted-foreground mt-0.5 inline-flex items-center gap-1">
+    {$t`The default publication is always included.`}
+  </span>
+{/snippet}
+
 <Dialog.Root bind:open={open}>
   <Dialog.DialogContent onkeydown={handleKeydown} class="sm:min-h-[min(calc(100%-16px),30rem)] max-md:px-2">
     <Dialog.DialogHeader>
@@ -168,7 +176,7 @@
         <Editor.Root>
           <Editor.Grid>
             <EntryEditorPrimitive bind:entry autofocus modalMode
-              publishInDescription={publishInIsFromTemplate ? fromActiveFilter : undefined} />
+              publishInDescription={publishInIsFromTemplate ? fromActiveFilter : (publicationService.defaultPublication ? defaultPublicationIncluded : undefined)} />
             {#if sense}
               <Editor.SubGrid>
                 <ObjectHeader type="sense">

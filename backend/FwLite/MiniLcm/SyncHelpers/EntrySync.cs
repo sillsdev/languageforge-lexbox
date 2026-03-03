@@ -141,7 +141,7 @@ public static class EntrySync
     {
         public override async Task<(int, Entry)> AddAndGet(Entry afterEntry)
         {
-            var addedEntry = await api.CreateEntry(afterEntry, CreateEntryOptions.WithoutComplexFormsAndComponents);
+            var addedEntry = await api.CreateEntry(afterEntry, new CreateEntryOptions(IncludeComplexFormsAndComponents: false, AutoAddDefaultPublication: false));
             return (1, addedEntry);
         }
 

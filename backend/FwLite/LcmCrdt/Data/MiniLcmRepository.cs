@@ -290,6 +290,13 @@ public class MiniLcmRepository(
         return sortedIds.IndexOf(entryId);
     }
 
+    public Task<Publication?> GetDefaultPublication()
+    {
+        return AsyncExtensions.FirstOrDefaultAsync(Publications
+            .Where(pub => pub.IsMain)
+            .OrderBy(pub => pub.Id));
+    }
+
     public async Task<Publication?> GetPublication(Guid publicationId)
     {
         var publication = await AsyncExtensions.SingleOrDefaultAsync(Publications

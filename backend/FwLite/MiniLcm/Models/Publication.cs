@@ -20,8 +20,10 @@ public class Publication : IPossibility
         {
             Id = Id,
             DeletedAt = DeletedAt,
+            IsMain = IsMain,
             Name = Name.Copy()
         };
     }
+    public virtual bool IsMain { get; set; }
     public virtual MultiString Name { get; set; } = new();
 }

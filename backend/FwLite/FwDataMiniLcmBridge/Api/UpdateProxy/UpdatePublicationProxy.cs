@@ -17,6 +17,12 @@ public class UpdatePublicationProxy : Publication
         _lexboxLcmApi = lexboxLcmApi;
     }
 
+    public override bool IsMain
+    {
+        get => _lcmPublication.IsProtected;
+        set { } // IsMain is mapped from IsProtected in FW; don't write back
+    }
+
     public override MultiString Name
     {
         get => new UpdateMultiStringProxy(_lcmPublication.Name, _lexboxLcmApi);

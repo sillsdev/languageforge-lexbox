@@ -353,7 +353,8 @@ public class FwDataMiniLcmApi(
         var possibility = new Publication
         {
             Id = lcmPossibility.Guid,
-            Name = FromLcmMultiString(lcmPossibility.Name)
+            Name = FromLcmMultiString(lcmPossibility.Name),
+            IsMain = lcmPossibility.IsProtected
         };
 
         return possibility;
@@ -980,6 +981,17 @@ public class FwDataMiniLcmApi(
     {
         options ??= CreateEntryOptions.Everything;
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
+        if (options.AutoAddDefaultPublication)
+        {
+            var defaultPublication = Publications.PossibilitiesOS
+                .Where(pub => pub.IsProtected)
+                .OrderBy(pub => pub.Guid)
+                .FirstOrDefault();
+            if (defaultPublication is not null && entry.PublishIn.All(pub => pub.Id != defaultPublication.Guid))
+            {
+                entry.PublishIn.Add(FromLcmPossibility(defaultPublication));
+            }
+        }
         try
         {
             UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Entry",

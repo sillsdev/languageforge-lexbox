@@ -18,6 +18,7 @@ using MiniLcm.SyncHelpers;
 using SIL.Harmony.Core;
 using MiniLcm.Culture;
 using MiniLcm.Media;
+using SystemTextJsonPatch;
 
 namespace LcmCrdt;
 
@@ -176,16 +177,52 @@ public class CrdtMiniLcmApi(
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
-        await AddChange(new CreatePublicationChange(pub.Id, pub.Name));
+        if (pub.IsMain)
+        {
+            await using var repo = await repoFactory.CreateRepoAsync();
+            var existingMain = await repo.GetDefaultPublication();
+            if (existingMain is not null)
+                throw new InvalidOperationException("Cannot create a second main publication. A main publication already exists.");
+        }
+        await AddChange(new CreatePublicationChange(pub.Id, pub.Name, pub.IsMain));
         return await GetPublication(pub.Id) ?? throw NotFoundException.ForType<Publication>(pub.Id);
-
     }
 
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var pub = await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
-        await AddChanges(update.Patch.ToChanges(pub.Id));
+
+        var nonIsMainPatch = new JsonPatchDocument<Publication>();
+        var setIsMain = false;
+        foreach (var operation in update.Patch.Operations)
+        {
+            if (string.Equals(operation.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase))
+            {
+                setIsMain = true;
+                continue;
+            }
+
+            nonIsMainPatch.Operations.Add(operation);
+        }
+
+        var changes = nonIsMainPatch.ToChanges(pub.Id).ToList();
+        if (setIsMain)
+        {
+            if (pub.IsMain)
+                throw new InvalidOperationException("Cannot turn off the IsMain flag on a publication.");
+
+            var existingMain = await repo.GetDefaultPublication();
+            if (existingMain is not null)
+                throw new InvalidOperationException("Cannot set IsMain on this publication. Another publication is already the main publication.");
+
+            changes.Add(new SetDefaultPublicationChange(pub.Id));
+        }
+
+        if (changes.Count > 0)
+        {
+            await AddChanges(changes);
+        }
         return await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>($"{id} (invalid patching to a new id?)");
     }
 
@@ -490,6 +527,14 @@ public class CrdtMiniLcmApi(
     {
         options ??= CreateEntryOptions.Everything;
         await using var repo = await repoFactory.CreateRepoAsync();
+        if (options.AutoAddDefaultPublication)
+        {
+            var defaultPublication = await repo.GetDefaultPublication();
+            if (defaultPublication is not null && entry.PublishIn.All(pub => pub.Id != defaultPublication.Id))
+            {
+                entry.PublishIn.Add(defaultPublication);
+            }
+        }
         await AddChanges([
             new CreateEntryChange(entry),
             ..await entry.Senses.ToAsyncEnumerable()

@@ -5,6 +5,10 @@ import {type ResourceReturn} from 'runed';
 
 type LabeledPublication = IPublication & { label: string };
 
+export function resolveDefaultPublication(publications: IPublication[]): IPublication | undefined {
+  return publications.find(pub => pub.isMain);
+}
+
 const symbol = Symbol.for('fw-lite-publications');
 export function usePublications(): PublicationService {
   const projectContext = useProjectContext();
@@ -27,6 +31,9 @@ export class PublicationService {
       label: this.getLabel(pub),
     })).sort((a, b) => a.label.localeCompare(b.label));
   });
+
+
+  defaultPublication: IPublication | undefined = $derived.by(() => resolveDefaultPublication(this.#publicationsResource.current));
 
   async refetch() {
     await this.#publicationsResource.refetch();

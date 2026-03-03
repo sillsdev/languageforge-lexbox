@@ -148,4 +148,44 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
             new RichSpan() { Text = "span", Ws = "en", Tags = [tag1] }
         ]));
     }
+
+    [Fact]
+    public async Task CreateEntry_AutoAddsDefaultPublication_WhenEnabled()
+    {
+        var defaultPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
+
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddDefaultPublication: true));
+
+        entry.PublishIn.Should().ContainSingle(pub => pub.Id == defaultPublication.Id);
+    }
+
+    [Fact]
+    public async Task CreateEntry_DoesNotAutoAddDefaultPublication_WhenDisabled()
+    {
+        await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
+
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddDefaultPublication: false));
+
+        entry.PublishIn.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CreateEntry_DoesNotDoubleAddDefaultPublication()
+    {
+        var defaultPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
+
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [defaultPublication] });
+
+        entry.PublishIn.Count(pub => pub.Id == defaultPublication.Id).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task CreateEntry_DoesNothingWhenNoDefaultPublicationExists()
+    {
+        await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Not default" } } });
+
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] });
+
+        entry.PublishIn.Should().BeEmpty();
+    }
 }

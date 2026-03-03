@@ -8,6 +8,7 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
+  import {usePublications} from '$project/data/publications.svelte';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import EntryMenu from './EntryMenu.svelte';
   import FabContainer from '$lib/components/fab/fab-container.svelte';
@@ -48,6 +49,7 @@
   const projectContext = useProjectContext();
   const miniLcmApi = $derived(projectContext.maybeApi);
   const dialogsService = useDialogsService();
+  const publicationService = usePublications();
   const projectEventBus = useProjectEventBus();
 
   // The closures maybe need to be created OUTSIDE untrack so they maintain reactivity
@@ -110,7 +112,7 @@
 
   async function handleNewEntry() {
     const entry = await dialogsService.createNewEntry(undefined, {
-      publishIn: publication ? [publication] : [],
+      publishIn: publication?.id === publicationService.defaultPublication?.id ? [] : (publication ? [publication] : []),
     }, {
       semanticDomains: semanticDomain ? [semanticDomain] : [],
       partOfSpeech: partOfSpeech,
