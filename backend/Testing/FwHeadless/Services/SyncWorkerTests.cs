@@ -182,6 +182,24 @@ public class SyncWorkerTests
     }
 
     [Fact]
+    public async Task ExecuteSync_CloneFailure_DeletesProjectFolder()
+    {
+        using var h = new SyncWorkerTestHarness();
+        h.SetCloneResult(new SendReceiveHelpers.LfMergeBridgeResult("clone error", ProgressHelper.CreateErrorProgress()));
+
+        var result = await h.RunAsync(
+            new SyncResult(CrdtChanges: 0, FwdataChanges: 0),
+            createFwDataFileBeforeSync: false);
+
+        result.Status.Should().Be(SyncJobStatusEnum.SendReceiveFailed);
+        Directory.Exists(h.ProjectFolder).Should().BeFalse("project folder should be cleaned up after failed clone");
+        h.Steps.Should().Equal(
+            TestAuth,
+            CheckBlocked,
+            Clone);
+    }
+
+    [Fact]
     public async Task ExecuteSync_ProjectBlocked_AfterAuth_DoesNoWrites()
     {
         using var h = new SyncWorkerTestHarness();
@@ -268,9 +286,10 @@ public class SyncWorkerTests
         using var h = new SyncWorkerTestHarness();
         var syncResult = new SyncResult(CrdtChanges: 0, FwdataChanges: 0);
 
-        var result = await h.RunAsync(syncResult, createFwDataFile: false);
+        var result = await h.RunAsync(syncResult, createFwDataFileBeforeSync: false);
 
         result.Status.Should().Be(SyncJobStatusEnum.Success);
+        Directory.Exists(h.ProjectFolder).Should().BeTrue("project folder should not be deleted on successful clone");
         h.Steps.Should().Equal(
             TestAuth,
             CheckBlocked,
@@ -281,6 +300,25 @@ public class SyncWorkerTests
             Sync,
             RegenerateSnapshot,
             HarmonySync);
+    }
+
+    [Fact]
+    public async Task ExecuteSync_FwDataFileStillMissingAfterPreSetup_ReturnsUnableToSync()
+    {
+        using var h = new SyncWorkerTestHarness();
+
+        var result = await h.RunAsync(
+            new SyncResult(CrdtChanges: 0, FwdataChanges: 0),
+            createFwDataFileBeforeSync: false,
+            createFwDataFileAfterClone: false);
+
+        result.Status.Should().Be(SyncJobStatusEnum.ProjectIncompatible);
+        result.Error.Should().Contain("does not contain a FieldWorks project");
+        Directory.Exists(h.ProjectFolder).Should().BeFalse("project folder should be cleaned up for incompatible projects");
+        h.Steps.Should().Equal(
+            TestAuth,
+            CheckBlocked,
+            Clone);
     }
 
     [Fact]
@@ -312,4 +350,3 @@ internal static class ProgressHelper
         return mock.Object;
     }
 }
-

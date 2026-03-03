@@ -53,6 +53,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
     public FwDataProject FwDataProject => Config.GetFwDataProject(ProjectCode, ProjectId);
 
     private bool _didCrdtSyncOrImport;
+    private bool _createFwDataFileAfterClone = true;
 
     public SyncWorkerTestHarness()
     {
@@ -111,6 +112,14 @@ internal sealed class SyncWorkerTestHarness : IDisposable
             .ReturnsAsync(pendingCommitCount);
     }
 
+    public void SetCloneResult(SendReceiveHelpers.LfMergeBridgeResult result)
+    {
+        SendReceiveMock
+            .Setup(s => s.Clone(It.IsAny<FwDataProject>(), ProjectCode))
+            .Callback(() => Steps.Add(Clone))
+            .ReturnsAsync(result);
+    }
+
     public void SetSendReceiveResults(params SendReceiveHelpers.LfMergeBridgeResult[] results)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(results.Length);
@@ -132,16 +141,18 @@ internal sealed class SyncWorkerTestHarness : IDisposable
         bool authSuccess = true,
         bool snapshotExists = true,
         bool setupFwDataProject = true,
-        bool createFwDataFile = true,
+        bool createFwDataFileBeforeSync = true,
+        bool createFwDataFileAfterClone = true,
         bool onlyHarmony = false)
     {
         Steps.Clear();
         _didCrdtSyncOrImport = false;
+        _createFwDataFileAfterClone = createFwDataFileAfterClone;
 
         using var sp = BuildServiceProvider(syncResult, authSuccess, snapshotExists);
         if (setupFwDataProject)
         {
-            SetupFwDataProject(sp, createFwDataFile);
+            SetupFwDataProject(sp, createFwDataFileBeforeSync);
         }
 
         await using var scope = sp.CreateAsyncScope();
@@ -158,7 +169,11 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
         SendReceiveMock
             .Setup(s => s.Clone(It.IsAny<FwDataProject>(), ProjectCode))
-            .Callback(() => Steps.Add(Clone))
+            .Callback(() =>
+            {
+                Steps.Add(Clone);
+                if (_createFwDataFileAfterClone) EnsureFwDataFileExists();
+            })
             .ReturnsAsync(new SendReceiveHelpers.LfMergeBridgeResult("success"));
 
         SendReceiveMock
@@ -170,6 +185,13 @@ internal sealed class SyncWorkerTestHarness : IDisposable
     private void RecordSendReceive()
     {
         Steps.Add(_didCrdtSyncOrImport ? PostSendReceive : PreSendReceive);
+    }
+
+    private void EnsureFwDataFileExists()
+    {
+        if (File.Exists(FwDataProject.FilePath)) return;
+        Directory.CreateDirectory(FwDataProject.ProjectFolder);
+        File.WriteAllText(FwDataProject.FilePath, "<languageproject />");
     }
 
     private ServiceProvider BuildServiceProvider(
@@ -277,7 +299,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
         Directory.CreateDirectory(FwDataProject.ProjectFolder);
         if (createFile)
         {
-            File.WriteAllText(FwDataProject.FilePath, "dummy");
+            EnsureFwDataFileExists();
         }
         sp.GetRequiredService<MockFwProjectLoader>().NewProject(FwDataProject, analysisWs: "en", vernacularWs: "fr");
     }

@@ -176,6 +176,12 @@ public class SyncWorker(
             activity?.SetStatus(ActivityStatusCode.Error, "Send/Receive failed before CRDT sync");
             return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, e.Message);
         }
+        catch (InvalidFwDataProjectException e)
+        {
+            logger.LogError(e, "Project setup failed before CRDT sync");
+            activity?.SetStatus(ActivityStatusCode.Error, e.Message);
+            return new SyncJobResult(SyncJobStatusEnum.ProjectIncompatible, e.Message);
+        }
         //always do this as existing projects need to run this even if they didn't S&R due to no pending changes
         await mediaFileService.SyncMediaFiles(fwdataApi.Cache);
 
@@ -297,15 +303,33 @@ public class SyncWorker(
         }
         else
         {
-            var srResult = await srService.Clone(fwDataProject, projectCode);
-            if (!srResult.Success)
+            try
             {
-                logger.LogError("Clone before CRDT sync failed: {Output}", srResult.Output);
-                throw new SendReceiveException("Clone before CRDT sync failed", srResult);
-            }
-            else
-            {
+                var srResult = await srService.Clone(fwDataProject, projectCode);
+                if (!srResult.Success)
+                {
+                    logger.LogError("Clone before CRDT sync failed: {Output}", srResult.Output);
+                    throw new SendReceiveException("Clone before CRDT sync failed", srResult);
+                }
+
                 logger.LogInformation("Clone result before CRDT sync: {Output}", srResult.Output);
+
+                if (!File.Exists(fwDataProject.FilePath))
+                {
+                    var message = $"FieldWorks project file '{fwDataProject.FilePath}' was not found after Clone. " +
+                                  "This likely means that the LexBox repository does not contain a FieldWorks project (e.g. it may be a WeSay project).";
+                    logger.LogError("{Message} ProjectCode={ProjectCode}", message, projectCode);
+                    throw new InvalidFwDataProjectException(message, fwDataProject.FilePath);
+                }
+            }
+            catch
+            {
+                if (Directory.Exists(fwDataProject.ProjectsPath))
+                {
+                    logger.LogInformation("Cleaning up project folder after failed clone: {ProjectFolder}", fwDataProject.ProjectsPath);
+                    Directory.Delete(fwDataProject.ProjectsPath, true);
+                }
+                throw;
             }
         }
 
