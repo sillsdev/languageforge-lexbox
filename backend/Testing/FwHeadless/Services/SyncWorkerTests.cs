@@ -198,7 +198,7 @@ public class SyncWorkerTests
 
         result.Status.Should().Be(SyncJobStatusEnum.SendReceiveFailed);
         Directory.Exists(h.ProjectFolder).Should().BeFalse("project folder should be cleaned up after failed clone");
-        Directory.Exists(siblingProject.FilePath).Should().BeTrue("other projects should not be affected");
+        File.Exists(siblingProject.FilePath).Should().BeTrue("other projects should not be affected");
         h.Steps.Should().Equal(
             TestAuth,
             CheckBlocked,
