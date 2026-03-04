@@ -131,18 +131,19 @@ public class ProjectController(
 
     [HttpGet("queryRegexFiles")]
     [AdminRequired]
-    public async Task<ActionResult<int>> QueryRegexFiles([FromQuery] ProjectType projectType, [FromQuery] string file, [FromQuery] string count, [FromQuery] string? fileExclude)
+    public async Task<ActionResult<Dictionary<string, int>>> QueryRegexFiles([FromQuery] ProjectType projectType, [FromQuery] string file, [FromQuery] string count, [FromQuery] string? fileExclude)
     {
         var projects = lexBoxDbContext.Projects
             .Where(p => p.Type == projectType)
             .OrderBy(p => p.Code)
             .AsAsyncEnumerable();
-        var total = 0;
+        Dictionary<string, int> result = [];
         await foreach (var project in projects)
         {
-            total += await hgService.GetRegexCount(project.Code, file, count, fileExclude) ?? 0;
+            var regexCount = await hgService.GetRegexCount(project.Code, file, count, fileExclude);
+            result.Add(project.Code, regexCount ?? 0);
         }
-        return Ok(total);
+        return Ok(result);
     }
 
     [HttpGet("backupProject/{code}")]
