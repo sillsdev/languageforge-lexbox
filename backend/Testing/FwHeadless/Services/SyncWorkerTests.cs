@@ -322,6 +322,30 @@ public class SyncWorkerTests
     }
 
     [Fact]
+    public async Task ExecuteSync_CloneFailure_PreservesCrdtData()
+    {
+        using var h = new SyncWorkerTestHarness();
+        h.SetCloneResult(new SendReceiveHelpers.LfMergeBridgeResult("clone error", ProgressHelper.CreateErrorProgress()));
+
+        // Simulate a previous successful sync that left behind CRDT data
+        Directory.CreateDirectory(h.ProjectFolder);
+        File.WriteAllText(Path.Combine(h.ProjectFolder, "crdt.sqlite"), "existing crdt data");
+
+        var result = await h.RunAsync(
+            new SyncResult(CrdtChanges: 0, FwdataChanges: 0),
+            createFwDataFileBeforeSync: false);
+
+        result.Status.Should().Be(SyncJobStatusEnum.SendReceiveFailed);
+        Directory.Exists(h.FwDataProject.ProjectFolder).Should().BeFalse("fw subfolder should be cleaned up");
+        Directory.Exists(h.ProjectFolder).Should().BeTrue("project folder should be preserved when it contains CRDT data");
+        File.Exists(Path.Combine(h.ProjectFolder, "crdt.sqlite")).Should().BeTrue("CRDT data should not be deleted");
+        h.Steps.Should().Equal(
+            TestAuth,
+            CheckBlocked,
+            Clone);
+    }
+
+    [Fact]
     public async Task ExecuteSync_CrdtProjectMissingFile_Throws()
     {
         using var h = new SyncWorkerTestHarness();

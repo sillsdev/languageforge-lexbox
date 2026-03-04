@@ -178,7 +178,6 @@ public class SyncWorker(
         }
         catch (InvalidFwDataProjectException e)
         {
-            logger.LogError(e, "Project setup failed before CRDT sync");
             activity?.SetStatus(ActivityStatusCode.Error, e.Message);
             return new SyncJobResult(SyncJobStatusEnum.ProjectIncompatible, e.Message);
         }
@@ -318,7 +317,7 @@ public class SyncWorker(
                 {
                     var message = $"FieldWorks project file '{fwDataProject.FilePath}' was not found after Clone. " +
                                   "This likely means that the LexBox repository does not contain a FieldWorks project (e.g. it may be a WeSay project).";
-                    logger.LogError("{Message} ProjectCode={ProjectCode}", message, projectCode);
+                    logger.LogError(message);
                     throw new InvalidFwDataProjectException(message, fwDataProject.FilePath);
                 }
             }
@@ -326,15 +325,20 @@ public class SyncWorker(
             {
                 try
                 {
-                    if (Directory.Exists(fwDataProject.ProjectsPath))
+                    if (Directory.Exists(fwDataProject.ProjectFolder))
                     {
-                        logger.LogInformation("Cleaning up project folder after failed clone: {ProjectFolder}", fwDataProject.ProjectsPath);
-                        Directory.Delete(fwDataProject.ProjectsPath, true);
+                        logger.LogInformation("Cleaning up FW data folder after failed clone: {FwDataFolder}", fwDataProject.ProjectFolder);
+                        Directory.Delete(fwDataProject.ProjectFolder, true);
+                        logger.LogInformation("Removed FW data folder");
+                        // fwDataProject.ProjectsPath is actually "{code}-{id}" i.e. the parent folder of this SINGLE project.
+                        // will throw if not empty (e.g. crdt db or snapshot backup), which is good. It's an interesting edge case.
+                        Directory.Delete(fwDataProject.ProjectsPath);
+                        logger.LogInformation("Removed empty project folder: {ProjectFolder}", fwDataProject.ProjectsPath);
                     }
                 }
                 catch (Exception cleanupEx)
                 {
-                    logger.LogWarning(cleanupEx, "Failed to clean up project folder after failed clone: {ProjectFolder}", fwDataProject.ProjectsPath);
+                    logger.LogWarning(cleanupEx, "Failed to clean up project after failed clone");
                 }
                 throw;
             }

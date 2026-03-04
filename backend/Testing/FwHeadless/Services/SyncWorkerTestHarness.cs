@@ -47,7 +47,6 @@ internal sealed class SyncWorkerTestHarness : IDisposable
     public Mock<IProjectMetadataService> MetadataServiceMock { get; } = new();
 
     public FwHeadlessConfig Config { get; }
-    public string TempDir { get; }
 
     public string ProjectFolder => Config.GetProjectFolder(ProjectCode, ProjectId);
     public FwDataProject FwDataProject => Config.GetFwDataProject(ProjectCode, ProjectId);
@@ -57,15 +56,15 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
     public SyncWorkerTestHarness()
     {
-        TempDir = Path.Combine(Path.GetTempPath(), nameof(SyncWorkerTests), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(TempDir);
+        var projectStorageRoot = Path.Combine(Path.GetTempPath(), nameof(SyncWorkerTests), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(projectStorageRoot);
 
         Config = new FwHeadlessConfig
         {
             LexboxUrl = "https://test.lexbox.com/",
             LexboxUsername = "test",
             LexboxPassword = "test",
-            ProjectStorageRoot = TempDir,
+            ProjectStorageRoot = projectStorageRoot,
             MediaFileAuthority = "media.test"
         };
 
@@ -74,9 +73,9 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
     public void Dispose()
     {
-        if (Directory.Exists(TempDir))
+        if (Directory.Exists(Config.ProjectStorageRoot))
         {
-            try { Directory.Delete(TempDir, true); } catch { }
+            try { Directory.Delete(Config.ProjectStorageRoot, true); } catch { }
         }
     }
 
@@ -116,7 +115,11 @@ internal sealed class SyncWorkerTestHarness : IDisposable
     {
         SendReceiveMock
             .Setup(s => s.Clone(It.IsAny<FwDataProject>(), ProjectCode))
-            .Callback(() => Steps.Add(Clone))
+            .Callback(() =>
+            {
+                Steps.Add(Clone);
+                if (_createFwDataFileAfterClone) EnsureFwDataFileExists();
+            })
             .ReturnsAsync(result);
     }
 
@@ -166,15 +169,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
         SetIsCrdtProject(false);
         SetSyncBlockedInfo(null);
         SetPendingCommitCount(1);
-
-        SendReceiveMock
-            .Setup(s => s.Clone(It.IsAny<FwDataProject>(), ProjectCode))
-            .Callback(() =>
-            {
-                Steps.Add(Clone);
-                if (_createFwDataFileAfterClone) EnsureFwDataFileExists();
-            })
-            .ReturnsAsync(new SendReceiveHelpers.LfMergeBridgeResult("success"));
+        SetCloneResult(new SendReceiveHelpers.LfMergeBridgeResult("success"));
 
         SendReceiveMock
             .Setup(s => s.SendReceive(It.IsAny<FwDataProject>(), ProjectCode, null))
@@ -228,7 +223,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
         // SyncWorker needs the CRDT registrations (and OpenCrdtProject extension).
         services.AddLcmCrdtClientCore();
-        services.Configure<LcmCrdtConfig>(c => c.ProjectPath = TempDir);
+        services.Configure<LcmCrdtConfig>(c => c.ProjectPath = Config.ProjectStorageRoot);
 
         // Register after AddLcmCrdtClientCore so our mocks win over any defaults.
         var httpClientFactory = new Mock<IHttpClientFactory>(MockBehavior.Strict);
