@@ -82,18 +82,18 @@ if [[ $command_name == "regexcount" ]]; then
     fi
 
     # fileExclude is optional, others required
-    if [ -z "$fileInclude" -o -z "$contentRegex" ]; then
+    if [[ -z "$fileInclude" || -z "$contentRegex" ]]; then
         echo "Content-type: text/plain"
         echo "Status: 400 Bad Request"
         echo ""
         echo "regexcount command did not receive sufficient parameters"
-        if [ -z "$fileInclude" ]; then
+        if [[ -z "$fileInclude" ]]; then
             echo "file parameter (required) was missing"
         fi
-        if [ -z "$contentRegex" ]; then
+        if [[ -z "$contentRegex" ]]; then
             echo "regex parameter (required) was missing"
         fi
-        if [ -z "$fileExclude" ]; then
+        if [[ -z "$fileExclude" ]]; then
             echo "fileExclude parameter (optional) was also missing (not an error)"
         fi
         exit 1
