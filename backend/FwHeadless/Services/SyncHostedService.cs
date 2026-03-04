@@ -324,10 +324,17 @@ public class SyncWorker(
             }
             catch
             {
-                if (Directory.Exists(fwDataProject.ProjectsPath))
+                try
                 {
-                    logger.LogInformation("Cleaning up project folder after failed clone: {ProjectFolder}", fwDataProject.ProjectsPath);
-                    Directory.Delete(fwDataProject.ProjectsPath, true);
+                    if (Directory.Exists(fwDataProject.ProjectsPath))
+                    {
+                        logger.LogInformation("Cleaning up project folder after failed clone: {ProjectFolder}", fwDataProject.ProjectsPath);
+                        Directory.Delete(fwDataProject.ProjectsPath, true);
+                    }
+                }
+                catch (Exception cleanupEx)
+                {
+                    logger.LogWarning(cleanupEx, "Failed to clean up project folder after failed clone: {ProjectFolder}", fwDataProject.ProjectsPath);
                 }
                 throw;
             }
