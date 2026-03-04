@@ -24,6 +24,7 @@ public static class FwLiteWebKernel
         services.AddFwLiteProjectSync();
         services.AddMiniLcmRouteServices();
         services.AddFwLiteShared(environment);
+        services.AddSingleton<IPreferencesService, JsonFilePreferencesService>();
 
         services.AddSingleton<ITroubleshootingService, WebTroubleshootingService>();
         services.AddOptions<FwLiteWebConfig>().BindConfiguration("FwLiteWeb");

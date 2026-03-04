@@ -131,8 +131,8 @@ export function useUpdateService(): IUpdateService {
   return window.lexbox.ServiceProvider.getService(DotnetService.UpdateService);
 }
 
-export function tryUsePreferencesService(): IPreferencesService | undefined {
-  return window.lexbox.ServiceProvider.tryGetService(DotnetService.PreferencesService);
+export function usePreferencesService(): IPreferencesService {
+  return window.lexbox.ServiceProvider.getService(DotnetService.PreferencesService);
 }
 
 export function useService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {

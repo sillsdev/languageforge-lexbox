@@ -4,10 +4,11 @@ using Microsoft.JSInterop;
 namespace FwLiteMaui.Services;
 
 /// <summary>
-/// JSInvokable wrapper around IPreferences for exposing preferences to JavaScript.
-/// Only available when running in MAUI (where IPreferences is registered).
+/// MAUI Essentials-backed preferences service.
+/// Delegates to MAUI's IPreferences for platform-native preference storage.
+/// Only available when running in MAUI.
 /// </summary>
-public class PreferencesServiceJsInvokable(IPreferences preferences) : IPreferencesService
+public class MauiPreferencesService(IPreferences preferences) : IPreferencesService
 {
     [JSInvokable]
     public string? Get(string key)
