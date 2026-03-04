@@ -523,7 +523,7 @@ public partial class HgService : IHgService, IHostedService
         return int.TryParse(str, out int result) ? result : null;
     }
 
-    public async Task<int?> GetRegexCount(ProjectCode code, string fileRegex, string contentRegex, string? fileExcludeRegex = null)
+    public async Task<int?> GetRegexCount(ProjectCode code, string fileRegex, string contentRegex, CancellationToken token = default, string? fileExcludeRegex = null)
     {
         var command = "regexcount";
         Dictionary<string, string?> queryParams = new() { { "file", fileRegex }, { "regex", contentRegex } };
@@ -531,7 +531,7 @@ public partial class HgService : IHgService, IHostedService
         {
             queryParams.Add("fileExclude", fileExcludeRegex);
         }
-        var content = await ExecuteHgCommandServerCommand(code, command, default, queryParams);
+        var content = await ExecuteHgCommandServerCommand(code, command, token, queryParams);
         var str = await content.ReadAsStringAsync();
         return int.TryParse(str, out int result) ? result : null;
     }
