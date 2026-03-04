@@ -184,9 +184,14 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
     private void EnsureFwDataFileExists()
     {
-        if (File.Exists(FwDataProject.FilePath)) return;
-        Directory.CreateDirectory(FwDataProject.ProjectFolder);
-        File.WriteAllText(FwDataProject.FilePath, "<languageproject />");
+        EnsureFwDataFileExists(FwDataProject);
+    }
+
+    public void EnsureFwDataFileExists(FwDataProject fwDataProject)
+    {
+        if (File.Exists(fwDataProject.FilePath)) return;
+        Directory.CreateDirectory(fwDataProject.ProjectFolder);
+        File.WriteAllText(fwDataProject.FilePath, "<languageproject />");
     }
 
     private ServiceProvider BuildServiceProvider(

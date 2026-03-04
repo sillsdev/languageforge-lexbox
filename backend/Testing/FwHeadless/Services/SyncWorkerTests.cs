@@ -187,12 +187,18 @@ public class SyncWorkerTests
         using var h = new SyncWorkerTestHarness();
         h.SetCloneResult(new SendReceiveHelpers.LfMergeBridgeResult("clone error", ProgressHelper.CreateErrorProgress()));
 
+        // Create a sibling project folder to verify it's not affected
+        var siblingProject = h.Config.GetFwDataProject("other-project", Guid.NewGuid());
+        Directory.CreateDirectory(siblingProject.ProjectsPath);
+        h.EnsureFwDataFileExists(siblingProject);
+
         var result = await h.RunAsync(
             new SyncResult(CrdtChanges: 0, FwdataChanges: 0),
             createFwDataFileBeforeSync: false);
 
         result.Status.Should().Be(SyncJobStatusEnum.SendReceiveFailed);
         Directory.Exists(h.ProjectFolder).Should().BeFalse("project folder should be cleaned up after failed clone");
+        Directory.Exists(siblingProject.FilePath).Should().BeTrue("other projects should not be affected");
         h.Steps.Should().Equal(
             TestAuth,
             CheckBlocked,
