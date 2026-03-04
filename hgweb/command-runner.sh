@@ -128,9 +128,9 @@ case $command_name in
 
     regexcount)
         if [[ -z "$fileExclude" ]]; then
-            chg cat -r tip --include="re:$fileInclude" 'glob:**' | grep -c -P "$contentRegex"
+            chg cat -r tip --include="re:$fileInclude" 'glob:**' | grep -o -P "$contentRegex" | wc -l
         else
-            chg cat -r tip --include="re:$fileInclude" --exclude="re:$fileExclude" 'glob:**' | grep -c -P "$contentRegex"
+            chg cat -r tip --include="re:$fileInclude" --exclude="re:$fileExclude" 'glob:**' | grep -o -P "$contentRegex" | wc -l
         fi
         ;;
 
