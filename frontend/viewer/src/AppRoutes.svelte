@@ -7,13 +7,13 @@
   import TestProjectView from './TestProjectView.svelte';
   import {initRootLocation} from '$lib/services/root-location-service';
   import {trackUrl} from './url-tracker';
-  import {initAppStorage} from '$lib/utils/app-storage.svelte';
+  import {initAppStorage} from '$lib/storage';
 
   let url = '';
 
   setupGlobalErrorHandlers();
-  initAppStorage();
-  trackUrl();
+  const appStorage = initAppStorage();
+  trackUrl(appStorage);
   initRootLocation(useLocation());
 </script>
 

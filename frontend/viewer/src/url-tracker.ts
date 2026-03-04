@@ -1,13 +1,12 @@
+import type {AppStorage} from '$lib/storage';
 import {on} from 'svelte/events';
 import {onMount} from 'svelte';
-import {useAppStorage} from '$lib/utils/app-storage.svelte';
 import {useDebounce} from 'runed';
 
 // Tracks the current URL so the backend can restore it on next app launch.
 // We intercept pushState/replaceState + popstate to catch ALL URL changes,
 // including direct history calls from QueryParamState that bypass svelte-routing's location store.
-export function trackUrl() {
-  const appStorage = useAppStorage();
+export function trackUrl(appStorage: AppStorage) {
   let lastSavedUrl: string | undefined = undefined;
 
   const saveUrl = useDebounce(async () => {
