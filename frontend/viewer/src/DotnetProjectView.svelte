@@ -12,6 +12,7 @@
     ISyncServiceJsInvokable
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
   import {initProjectContext} from '$project/project-context.svelte';
+  import {initProjectStorage} from '$lib/storage';
 
   const projectServicesProvider = useProjectServicesProvider();
 
@@ -25,6 +26,7 @@
   const code = _code;
   projectContext.projectCode = code;
 
+  initProjectStorage(code);
 
 
   let projectName = $state<string>(code);
