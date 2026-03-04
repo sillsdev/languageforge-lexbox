@@ -2,7 +2,7 @@
   import * as Select from '$lib/components/ui/select';
   import {useTasksService} from './tasks-service';
   import {t} from 'svelte-i18n-lingui';
-  import {useProjectStorage} from '$lib/utils/project-storage.svelte';
+  import {useProjectStorage} from '$lib/storage';
   import TaskView from './TaskView.svelte';
   import {untrack} from 'svelte';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
