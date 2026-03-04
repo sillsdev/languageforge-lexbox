@@ -8,7 +8,7 @@ const projectStorageContextKey = Symbol('project-storage');
 
 export function initProjectStorage(projectCode: string): ProjectStorage {
   let storage = getContext<ProjectStorage>(projectStorageContextKey);
-  if (storage) throw new Error('AppStorage already initialized');
+  if (storage) throw new Error('ProjectStorage already initialized');
 
   const backend = usePreferencesService();
   storage = new ProjectStorage(projectCode, backend);
