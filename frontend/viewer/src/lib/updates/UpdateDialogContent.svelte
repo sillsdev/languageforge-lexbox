@@ -1,7 +1,7 @@
 <script lang="ts">
   import {t} from 'svelte-i18n-lingui';
   import {Icon} from '$lib/components/ui/icon';
-  import {Button} from '$lib/components/ui/button';
+  import {Button, XButton} from '$lib/components/ui/button';
   import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
   import Loading from '$lib/components/Loading.svelte';
   import {getReleaseUrl} from './utils';
@@ -74,6 +74,10 @@
       {:else}
         <Icon icon="i-mdi-alert-circle" />
         <p>{$t`Unknown update result`}: {updateResult}</p>
+      {/if}
+      {#if updateResult !== UpdateResult.Started && updateResult !== UpdateResult.Success}
+        <!-- let users retrigger the update if it didn't work -->
+        <XButton onclick={() => installPromise = undefined} class="ml-auto border"/>
       {/if}
     </div>
   {/await}

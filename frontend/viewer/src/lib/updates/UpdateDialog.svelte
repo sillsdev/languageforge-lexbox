@@ -26,9 +26,6 @@
   });
 
   watch(() => open, () => {
-    installPromise = undefined;
-    installProgress = undefined;
-
     if (open) {
       // this is cached on the backend for a short time
       checkPromise = updateService.checkForUpdates();
@@ -38,6 +35,7 @@
   });
 
   async function installUpdate(update: IAvailableUpdate) {
+    installProgress = undefined;
     installPromise = updateService.applyUpdate(update);
     try {
       const updateResult = await installPromise;
