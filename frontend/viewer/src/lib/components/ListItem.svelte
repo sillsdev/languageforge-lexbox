@@ -37,8 +37,11 @@
   data-skeleton={skeleton || undefined}
   class={cn(
     'w-full max-w-full px-4 py-3 flex text-left overflow-hidden items-center gap-4',
-    'bg-muted hover:bg-primary/15 hover:dark:bg-primary/25 aria-selected:ring-2 ring-primary ring-offset-background rounded',
-    'shadow-sm hover:shadow-md hover:z-10',
+    'bg-muted rounded outline-none shadow-sm hover:shadow-md hover:z-10',
+    'focus-visible:ring-[3px] focus-visible:ring-ring/50',
+    'border-l-5 border-l-transparent aria-selected:border-l-primary',
+    'hover:bg-primary/15 aria-selected:bg-primary/15',
+    'dark:hover:bg-primary/25 aria-selected:dark:bg-primary/25',
     'disabled:pointer-events-none disabled:contrast-[0.8]',
     loading && 'animate-pulse',
     skeleton && 'cursor-default hover:bg-transparent pointer-events-none shadow-none',
