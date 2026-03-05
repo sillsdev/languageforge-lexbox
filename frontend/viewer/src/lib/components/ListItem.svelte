@@ -37,8 +37,8 @@
   data-skeleton={skeleton || undefined}
   class={cn(
     'w-full max-w-full px-4 py-3 flex text-left overflow-hidden items-center gap-4',
-    'dark:bg-muted/50 bg-muted/80 hover:bg-primary/15 hover:dark:bg-primary/15 aria-selected:ring-2 ring-primary ring-offset-background rounded',
-    'shadow hover:shadow-lg hover:z-10',
+    'bg-muted hover:bg-primary/15 hover:dark:bg-primary/25 aria-selected:ring-2 ring-primary ring-offset-background rounded',
+    'shadow-sm hover:shadow-md hover:z-10',
     'disabled:pointer-events-none disabled:contrast-[0.8]',
     loading && 'animate-pulse',
     skeleton && 'cursor-default hover:bg-transparent pointer-events-none shadow-none',
