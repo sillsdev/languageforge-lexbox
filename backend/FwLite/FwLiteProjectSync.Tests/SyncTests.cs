@@ -106,6 +106,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                     .WithoutStrictOrderingFor(x => x.Publications)
                     .WithoutStrictOrderingFor(x => x.SemanticDomains)
                     .WithoutStrictOrderingFor(x => x.ComplexFormTypes)
+                    .WithoutStrictOrderingFor(x => x.MorphTypes)
                     //when excluding properties consider https://github.com/sillsdev/languageforge-lexbox/issues/1912
                     .Using<double>(Exclude)
                     .When(info => info.RuntimeType == typeof(double) && info.Path.EndsWith(".Order") && excludeOrderTypes.Contains(info.ParentType))
@@ -451,6 +452,102 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
 
         AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task MorphTypesSyncFwToCrdtAtProjectImport()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var fwdataMorphTypes = await fwdataApi.GetMorphTypes().ToArrayAsync();
+        var crdtMorphTypes = await crdtApi.GetMorphTypes().ToArrayAsync();
+        crdtMorphTypes.Length.Should().Be(fwdataMorphTypes.Length);
+        crdtMorphTypes.Should().BeEquivalentTo(fwdataMorphTypes);
+        // Should be one of each kind
+        var allKinds = Enum.GetValues<MorphTypeKind>().Where(kind => kind != MorphTypeKind.Unknown);
+        crdtMorphTypes.Select(mt => mt.Kind).Should().BeEquivalentTo(allKinds, config => config.WithoutStrictOrdering());
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task MorphTypeUpdatesSyncBothWays()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+        var fwdataStem = await fwdataApi.GetMorphType(MorphTypeKind.Stem);
+        fwdataStem.Should().NotBeNull();
+        var crdtStem = await crdtApi.GetMorphType(MorphTypeKind.Stem);
+        crdtStem.Should().NotBeNull();
+
+        var newName = "new name for test";
+        var newAbbr = "new abbr fr tst";
+        var editedfwdataStem = SyncTestHelpers.UpdateMorphType(fwdataStem, newAbbreviation: newAbbr);
+        var editedCrdtStem = SyncTestHelpers.UpdateMorphType(crdtStem, newName: newName);
+        await fwdataApi.UpdateMorphType(fwdataStem, editedfwdataStem);
+        await crdtApi.UpdateMorphType(crdtStem, editedCrdtStem);
+        var syncResult = await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+        syncResult.CrdtChanges.Should().Be(1);
+        syncResult.FwdataChanges.Should().Be(1);
+
+        var fwdataStemAfterSync = await fwdataApi.GetMorphType(MorphTypeKind.Stem);
+        var crdtStemAfterSync = await crdtApi.GetMorphType(MorphTypeKind.Stem);
+        fwdataStemAfterSync.Should().NotBeNull();
+        crdtStemAfterSync.Should().NotBeNull();
+        crdtStemAfterSync.Should().BeEquivalentTo(fwdataStemAfterSync);
+
+        crdtStemAfterSync.Name["en"].Should().Be(newName);
+        crdtStemAfterSync.Abbreviation["en"].Should().Be(newAbbr);
+        fwdataStemAfterSync.Name["en"].Should().Be(newName);
+        fwdataStemAfterSync.Abbreviation["en"].Should().Be(newAbbr);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task MorphTypeCreationDoesNotSyncCrdtToFw()
+    {
+        // FwDataMiniLcmApi.CreateMorphType is a no-op because FLEx forbids morph type creation or deletion
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        var newMorphType = SyncTestHelpers.CreateMorphType(MorphTypeKind.Unknown, prefix: "!", postfix: "!");
+        await crdtApi.CreateMorphType(newMorphType);
+        var syncResult = await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        var fwdataMorphTypes = await fwdataApi.GetMorphTypes().ToArrayAsync();
+        var crdtMorphTypes = await crdtApi.GetMorphTypes().ToArrayAsync();
+        crdtMorphTypes.Should().ContainEquivalentOf(newMorphType);
+        fwdataMorphTypes.Should().NotContainEquivalentOf(newMorphType);
+        crdtMorphTypes.Length.Should().Be(fwdataMorphTypes.Length + 1);
+        crdtMorphTypes.Where(m => m.Kind != MorphTypeKind.Unknown).Should().BeEquivalentTo(fwdataMorphTypes);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task MorphTypeDeletionDoesNotSyncCrdtToFw()
+    {
+        // FwDataMiniLcmApi.DeleteMorphType is a no-op because FLEx forbids morph type creation or deletion
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        var prefixingInterfix = await crdtApi.GetMorphType(MorphTypeKind.PrefixingInterfix);
+        prefixingInterfix.Should().NotBeNull();
+        await crdtApi.DeleteMorphType(prefixingInterfix.Id);
+        var syncResult = await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        var fwdataMorphTypes = await fwdataApi.GetMorphTypes().ToArrayAsync();
+        var crdtMorphTypes = await crdtApi.GetMorphTypes().ToArrayAsync();
+        fwdataMorphTypes.Should().ContainEquivalentOf(prefixingInterfix);
+        crdtMorphTypes.Should().NotContainEquivalentOf(prefixingInterfix);
+        crdtMorphTypes.Length.Should().Be(fwdataMorphTypes.Length - 1);
+        crdtMorphTypes.Should().BeEquivalentTo(fwdataMorphTypes.Where(m => m.Kind != MorphTypeKind.PrefixingInterfix));
     }
 
     [Fact]

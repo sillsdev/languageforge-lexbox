@@ -3,7 +3,7 @@
   import { expect, fn, userEvent, within } from 'storybook/test';
   import EntityEditorPrimitiveDecorator from './EntityEditorPrimitiveDecorator.svelte';
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
-  import {type IEntry, MorphType} from '$lib/dotnet-types';
+  import {type IEntry, MorphTypeKind} from '$lib/dotnet-types';
   import {fwliteStoryParameters} from '../../fwl-parameters';
   import {tick} from 'svelte';
 
@@ -39,7 +39,7 @@
     components: [],
     publishIn: [],
     senses: [],
-    morphType: MorphType.Stem
+    morphType: MorphTypeKind.Stem
   });
 
   const { Story } = defineMeta({

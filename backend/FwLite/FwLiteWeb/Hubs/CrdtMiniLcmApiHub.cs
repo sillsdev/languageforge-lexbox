@@ -99,6 +99,20 @@ public class CrdtMiniLcmApiHub(
         return base.SearchEntries(query, options);
     }
 
+    public override async Task<MorphType> CreateMorphType(MorphType morphType)
+    {
+        var newMorphType = await base.CreateMorphType(morphType);
+        TriggerSync();
+        return newMorphType;
+    }
+
+    public override async Task<MorphType> UpdateMorphType(Guid id, JsonPatchDocument<MorphType> update)
+    {
+        var updatedMorphType = await base.UpdateMorphType(id, update);
+        TriggerSync();
+        return updatedMorphType;
+    }
+
     public override async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
         var newWritingSystem = await base.CreateWritingSystem(writingSystem);

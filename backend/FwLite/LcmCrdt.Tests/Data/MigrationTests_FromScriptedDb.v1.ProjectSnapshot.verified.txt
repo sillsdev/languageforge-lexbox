@@ -163,6 +163,7 @@
       "DeletedAt": null
     }
   ],
+  "MorphTypes": [],
   "WritingSystems": {
     "Analysis": [
       {

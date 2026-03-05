@@ -42,7 +42,7 @@ public class ProjectSnapshotSerializationTests
             Path.Combine(".", nameof(ProjectSnapshotSerializationTests)));
 
         var snapshotPath = ProjectSnapshotService.SnapshotPath(fwDataProject);
-        File.Copy(RelativePath($"Snapshots\\{sourceSnapshotName}"), snapshotPath, overwrite: true);
+        File.Copy(RelativePath(Path.Combine("Snapshots", sourceSnapshotName)), snapshotPath, overwrite: true);
 
         // act - read the current snapshot
         var snapshot = await snapshotService.GetProjectSnapshot(fwDataProject)

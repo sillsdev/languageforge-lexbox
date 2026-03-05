@@ -31,7 +31,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         {
             Id = appleId,
             LexemeForm = { { "en", Apple } },
-            MorphType = MorphType.Root,
+            MorphType = MorphTypeKind.Root,
         });
         await Api.CreateEntry(new Entry()
         {

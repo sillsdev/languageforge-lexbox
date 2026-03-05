@@ -275,6 +275,7 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(writingSystemArrayConverter);
             })
+            .Add<MorphType>()
             .Add<ComplexFormComponent>(builder =>
             {
                 const string componentSenseId = "ComponentSenseId";
@@ -303,6 +304,7 @@ public static class LcmCrdtKernel
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
             .Add<JsonPatchChange<ComplexFormType>>()
+            .Add<JsonPatchChange<MorphType>>()
             .Add<JsonPatchChange<Publication>>()
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
@@ -345,6 +347,7 @@ public static class LcmCrdtKernel
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
             .Add<DeleteChange<CustomView>>()
+            .Add<CreateMorphTypeChange>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()

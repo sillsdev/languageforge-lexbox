@@ -7,6 +7,7 @@ namespace MiniLcm.Validators;
 
 public record MiniLcmValidators(
     IValidator<ComplexFormType> ComplexFormTypeValidator,
+    IValidator<MorphType> MorphTypeValidator,
     IValidator<Entry> EntryValidator,
     IValidator<Sense> SenseValidator,
     IValidator<ExampleSentence> ExampleSentenceValidator,
@@ -14,11 +15,17 @@ public record MiniLcmValidators(
     IValidator<PartOfSpeech> PartOfSpeechValidator,
     IValidator<SemanticDomain> SemanticDomainValidator,
     IValidator<Publication> PublicationValidator,
+    IValidator<UpdateObjectInput<MorphType>> MorphTypeUpdateValidator,
     IValidator<UpdateObjectInput<WritingSystem>> WritingSystemUpdateValidator)
 {
     public async Task ValidateAndThrow(ComplexFormType value)
     {
         await ComplexFormTypeValidator.ValidateAndThrowAsync(value);
+    }
+
+    public async Task ValidateAndThrow(MorphType value)
+    {
+        await MorphTypeValidator.ValidateAndThrowAsync(value);
     }
 
     public async Task ValidateAndThrow(Entry value)
@@ -56,6 +63,11 @@ public record MiniLcmValidators(
         await PublicationValidator.ValidateAndThrowAsync(value);
     }
 
+    public async Task ValidateAndThrow(UpdateObjectInput<MorphType> update)
+    {
+        await MorphTypeUpdateValidator.ValidateAndThrowAsync(update);
+    }
+
     public async Task ValidateAndThrow(UpdateObjectInput<WritingSystem> update)
     {
         await WritingSystemUpdateValidator.ValidateAndThrowAsync(update);
@@ -69,6 +81,7 @@ public static class MiniLcmValidatorsExtensions
         services.AddTransient<MiniLcmApiValidationWrapperFactory>();
         services.AddTransient<MiniLcmValidators>();
         services.AddTransient<IValidator<ComplexFormType>, ComplexFormTypeValidator>();
+        services.AddTransient<IValidator<MorphType>, MorphTypeValidator>();
         services.AddTransient<IValidator<Entry>, EntryValidator>();
         services.AddTransient<IValidator<Sense>, SenseValidator>();
         services.AddTransient<IValidator<ExampleSentence>, ExampleSentenceValidator>();
@@ -76,6 +89,7 @@ public static class MiniLcmValidatorsExtensions
         services.AddTransient<IValidator<PartOfSpeech>, PartOfSpeechValidator>();
         services.AddTransient<IValidator<SemanticDomain>, SemanticDomainValidator>();
         services.AddTransient<IValidator<Publication>, PublicationValidator>();
+        services.AddTransient<IValidator<UpdateObjectInput<MorphType>>, MorphTypeUpdateValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<WritingSystem>>, WritingSystemUpdateValidator>();
         services.AddTransient<MiniLcmApiStringNormalizationWrapperFactory>();
         return services;

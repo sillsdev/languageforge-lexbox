@@ -8,7 +8,7 @@ namespace LcmCrdt.Tests;
 
 public class ConfigRegistrationTests
 {
-    private readonly HashSet<Type> ExcludedObjectTypes = [typeof(MorphTypeData)]; // Remove from exclude list once CRDT supports morph types
+    private readonly HashSet<Type> ExcludedObjectTypes = []; // e.g. types that CRDT doesn't support yet
 
     private readonly HashSet<Type> _excludedChangeTypes =
     [
@@ -17,6 +17,7 @@ public class ConfigRegistrationTests
         typeof(JsonPatchChange<RemoteResource>), //not supported
         typeof(JsonPatchChange<ExampleSentence>), //replaced by JsonPatchExampleSentenceChange
         typeof(JsonPatchChange<CustomView>), //not supported. Use EditCustomViewChange
+        typeof(DeleteChange<MorphType>), //MorphTypes cannot be deleted
     ];
 
     private readonly CrdtConfig _config;
