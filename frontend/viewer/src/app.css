@@ -36,6 +36,8 @@
   /* shadcn generated styles */
   * {
     @apply border-border outline-ring/50;
+    /* EDIT: Fixes dark mode gets "outline-style: none" which results in white (browser bug?) */
+    @apply focus-visible:outline-solid;
   }
   .app {
     @apply bg-background text-foreground;
