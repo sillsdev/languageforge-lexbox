@@ -122,6 +122,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         crdtChanges += await ComplexFormTypeSync.Sync(projectSnapshot.ComplexFormTypes, currentFwDataComplexFormTypes, crdtApi);
         fwdataChanges += await ComplexFormTypeSync.Sync(currentFwDataComplexFormTypes, await crdtApi.GetComplexFormTypes().ToArrayAsync(), fwdataApi);
 
+        var currentFwDataMorphTypes = await fwdataApi.GetAllMorphTypeData().ToArrayAsync();
+        crdtChanges += await MorphTypeDataSync.Sync(projectSnapshot.AllMorphTypeData, currentFwDataMorphTypes, crdtApi);
+        fwdataChanges += await MorphTypeDataSync.Sync(currentFwDataMorphTypes, await crdtApi.GetAllMorphTypeData().ToArrayAsync(), fwdataApi);
+
         var currentFwDataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtChanges += await EntrySync.SyncFull(projectSnapshot.Entries, currentFwDataEntries, crdtApi);
         fwdataChanges += await EntrySync.SyncFull(currentFwDataEntries, await crdtApi.GetAllEntries().ToArrayAsync(), fwdataApi);
