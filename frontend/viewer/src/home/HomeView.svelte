@@ -138,7 +138,7 @@
         <Button href="/swagger" variant="ghost" size="icon" icon="i-mdi-api" target="_blank" title="Swagger"/>
       </DevContent>
       <LocalizationPicker/>
-      <ThemePicker buttonProps={{variant: 'outline'}}/>
+      <ThemePicker />
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
