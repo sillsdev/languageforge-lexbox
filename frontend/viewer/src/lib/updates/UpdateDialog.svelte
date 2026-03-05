@@ -29,8 +29,6 @@
     if (open) {
       // this is cached on the backend for a short time
       checkPromise = updateService.checkForUpdates();
-    } else {
-      checkPromise = undefined;
     }
   });
 

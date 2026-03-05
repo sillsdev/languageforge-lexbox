@@ -75,7 +75,7 @@
         <Icon icon="i-mdi-alert-circle" />
         <p>{$t`Unknown update result`}: {updateResult}</p>
       {/if}
-      {#if updateResult !== UpdateResult.Started && updateResult !== UpdateResult.Success}
+      {#if updateResult !== UpdateResult.Success && updateResult !== UpdateResult.Started}
         <!-- let users retrigger the update if it didn't work -->
         <XButton onclick={() => installPromise = undefined} class="ml-auto border"/>
       {/if}
