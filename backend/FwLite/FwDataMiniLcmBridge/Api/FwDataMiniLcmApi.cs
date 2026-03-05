@@ -541,7 +541,7 @@ public class FwDataMiniLcmApi(
             });
     }
 
-    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    public IAsyncEnumerable<MorphType> GetMorphTypes()
     {
         return
             MorphTypeRepository
@@ -550,35 +550,44 @@ public class FwDataMiniLcmApi(
             .Select(FromLcmMorphType);
     }
 
-    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    public Task<MorphType?> GetMorphType(Guid id)
     {
         MorphTypeRepository.TryGetObject(id, out var lcmMorphType);
-        if (lcmMorphType is null) return Task.FromResult<MorphTypeData?>(null);
-        return Task.FromResult<MorphTypeData?>(FromLcmMorphType(lcmMorphType));
+        if (lcmMorphType is null) return Task.FromResult<MorphType?>(null);
+        return Task.FromResult<MorphType?>(FromLcmMorphType(lcmMorphType));
     }
 
-    internal MorphTypeData FromLcmMorphType(IMoMorphType morphType)
+    public Task<MorphType?> GetMorphType(MorphTypeKind kind)
     {
-        return new MorphTypeData
+        var guid = LcmHelpers.ToLcmMorphTypeId(kind);
+        if (guid is null) return Task.FromResult<MorphType?>(null);
+        MorphTypeRepository.TryGetObject(guid.Value, out var lcmMorphType);
+        if (lcmMorphType is null) return Task.FromResult<MorphType?>(null);
+        return Task.FromResult<MorphType?>(FromLcmMorphType(lcmMorphType));
+    }
+
+    internal MorphType FromLcmMorphType(IMoMorphType morphType)
+    {
+        return new MorphType
         {
             Id = morphType.Guid,
-            MorphType = LcmHelpers.FromLcmMorphType(morphType),
+            Kind = LcmHelpers.FromLcmMorphType(morphType),
             Name = FromLcmMultiString(morphType.Name),
             Abbreviation = FromLcmMultiString(morphType.Abbreviation),
             Description = FromLcmMultiString(morphType.Description),
-            LeadingToken = morphType.Prefix,
-            TrailingToken = morphType.Postfix,
+            Prefix = morphType.Prefix,
+            Postfix = morphType.Postfix,
             SecondaryOrder = morphType.SecondaryOrder,
         };
     }
 
-    public Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphTypeData)
+    public Task<MorphType> CreateMorphType(MorphType morphType)
     {
         // Creating new morph types not allowed in FwData projects, so silently ignore operation
-        return Task.FromResult(morphTypeData);
+        return Task.FromResult(morphType);
     }
 
-    public Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
+    public Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
         var lcmMorphType = MorphTypeRepository.GetObject(id);
         if (lcmMorphType is null) throw new NullReferenceException($"unable to find morph type with id {id}");
@@ -587,19 +596,19 @@ public class FwDataMiniLcmApi(
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var updateProxy = new UpdateMorphTypeDataProxy(lcmMorphType, this);
+                var updateProxy = new UpdateMorphTypeProxy(lcmMorphType, this);
                 update.Apply(updateProxy);
             });
         return Task.FromResult(FromLcmMorphType(lcmMorphType));
     }
 
-    public async Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
+    public async Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null)
     {
-        await MorphTypeDataSync.Sync(before, after, api ?? this);
-        return await GetMorphTypeData(after.Id) ?? throw new NullReferenceException("unable to find morph type with id " + after.Id);
+        await MorphTypeSync.Sync(before, after, api ?? this);
+        return await GetMorphType(after.Id) ?? throw new NullReferenceException("unable to find morph type with id " + after.Id);
     }
 
-    public Task DeleteMorphTypeData(Guid id)
+    public Task DeleteMorphType(Guid id)
     {
         // Deleting morph types not allowed in FwData projects, so silently ignore operation
         return Task.CompletedTask;

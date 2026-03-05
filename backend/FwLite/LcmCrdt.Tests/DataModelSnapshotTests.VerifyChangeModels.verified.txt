@@ -41,6 +41,10 @@
       TypeDiscriminator: jsonPatch:ComplexFormType
     },
     {
+      DerivedType: JsonPatchChange<MorphType>,
+      TypeDiscriminator: jsonPatch:MorphType
+    },
+    {
       DerivedType: JsonPatchChange<Publication>,
       TypeDiscriminator: jsonPatch:Publication
     },
@@ -67,6 +71,10 @@
     {
       DerivedType: DeleteChange<ComplexFormType>,
       TypeDiscriminator: delete:ComplexFormType
+    },
+    {
+      DerivedType: DeleteChange<MorphType>,
+      TypeDiscriminator: delete:MorphType
     },
     {
       DerivedType: DeleteChange<ComplexFormComponent>,
@@ -185,12 +193,8 @@
       TypeDiscriminator: CreateCustomViewChange
     },
     {
-      DerivedType: EditCustomViewChange,
-      TypeDiscriminator: EditCustomViewChange
-    },
-    {
-      DerivedType: DeleteChange<CustomView>,
-      TypeDiscriminator: delete:CustomView
+      DerivedType: CreateMorphTypeChange,
+      TypeDiscriminator: CreateMorphTypeChange
     },
     {
       DerivedType: SetOrderChange<Sense>,

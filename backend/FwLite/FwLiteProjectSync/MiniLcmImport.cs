@@ -61,13 +61,19 @@ public class MiniLcmImport(
         await foreach (var publication in importFrom.GetPublications())
         {
             await importTo.CreatePublication(publication);
-            logger.LogInformation("Imported part of speech {Id}", publication.Id);
+            logger.LogInformation("Imported publication {Id}", publication.Id);
         }
 
         await foreach (var complexFormType in importFrom.GetComplexFormTypes())
         {
             await importTo.CreateComplexFormType(complexFormType);
             logger.LogInformation("Imported complex form type {Id}", complexFormType.Id);
+        }
+
+        await foreach (var morphType in importFrom.GetMorphTypes())
+        {
+            await importTo.CreateMorphType(morphType);
+            logger.LogInformation("Imported morph type {Id} ({typ})", morphType.Id, morphType.Kind);
         }
 
         logger.LogInformation("Importing semantic domains");

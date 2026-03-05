@@ -1,4 +1,4 @@
-import {MorphType, type IEntry, type IExampleSentence, type ISense, type ITranslation, type IWritingSystem, type WritingSystemType} from '$lib/dotnet-types';
+import {MorphTypeKind, type IEntry, type IExampleSentence, type ISense, type ITranslation, type IWritingSystem, type WritingSystemType} from '$lib/dotnet-types';
 import {get, writable, type Readable} from 'svelte/store';
 import {type ClassValue, clsx} from 'clsx';
 import {twMerge} from 'tailwind-merge';
@@ -45,7 +45,7 @@ export function defaultEntry(): IEntry {
     complexFormTypes: [],
     components: [],
     publishIn: [],
-    morphType: MorphType.Stem,
+    morphType: MorphTypeKind.Stem,
   };
 }
 

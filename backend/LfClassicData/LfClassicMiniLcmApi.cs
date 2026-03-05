@@ -25,14 +25,19 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return Task.FromResult<ComplexFormType?>(null);
     }
 
-    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    public IAsyncEnumerable<MorphType> GetMorphTypes()
     {
-        return AsyncEnumerable.Empty<MorphTypeData>();
+        return AsyncEnumerable.Empty<MorphType>();
     }
 
-    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    public Task<MorphType?> GetMorphType(Guid id)
     {
-        return Task.FromResult<MorphTypeData?>(null);
+        return Task.FromResult<MorphType?>(null);
+    }
+
+    public Task<MorphType?> GetMorphType(MorphTypeKind kind)
+    {
+        return Task.FromResult<MorphType?>(null);
     }
 
     private Dictionary<Guid, PartOfSpeech>? _partsOfSpeechCacheByGuid = null;
