@@ -271,7 +271,6 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("jsonb");
 
                     b.Property<string>("LeadingToken")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("MorphType")
@@ -288,7 +287,6 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TrailingToken")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

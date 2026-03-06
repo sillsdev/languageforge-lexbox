@@ -33,13 +33,13 @@ public class UpdateMorphTypeDataProxy : MorphTypeData
         set => throw new NotImplementedException();
     }
 
-    public override string LeadingToken
+    public override string? LeadingToken
     {
         get => _lcmMorphType.Prefix;
         set => _lcmMorphType.Prefix = value;
     }
 
-    public override string TrailingToken
+    public override string? TrailingToken
     {
         get => _lcmMorphType.Postfix;
         set => _lcmMorphType.Postfix = value;
