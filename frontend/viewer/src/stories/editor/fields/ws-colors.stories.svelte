@@ -19,7 +19,6 @@
 
 <Story name="All writing system colors">
   {#snippet template()}
-  asd
     <div class="flex flex-col gap-8 p-4">
       <h2 class="text-lg font-bold">Dictionary Entry — Light & Dark</h2>
       <div class="grid grid-cols-2 gap-4">
