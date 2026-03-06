@@ -158,6 +158,9 @@ public class MigrationTests : IAsyncLifetime
             await api.GetComplexFormTypes()
                 .OrderBy(c => c.Id)
                 .ToArrayAsync(),
+            await api.GetAllMorphTypeData()
+                .OrderBy(m => m.Id)
+                .ToArrayAsync(),
             await api.GetWritingSystems());
     }
 
