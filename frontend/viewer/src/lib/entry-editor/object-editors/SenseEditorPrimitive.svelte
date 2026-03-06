@@ -22,19 +22,13 @@
   };
 
   const {
-    sense: senseProp,
+    sense = $bindable(),
     readonly = false,
     onchange,
     partOfSpeechDescription,
     semanticDomainsDescription,
     ...rest
   }: Props = $props();
-
-  // Establish local ownership so that bind:value={sense.*} in the template
-  // doesn't trigger Svelte's ownership_invalid_binding warnings.
-  // svelte-ignore state_referenced_locally
-  let sense = $state(senseProp);
-  $effect.pre(() => { sense = senseProp; });
 
   const writingSystemService = useWritingSystemService();
   const partsOfSpeech = usePartsOfSpeech();

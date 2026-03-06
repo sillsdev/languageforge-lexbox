@@ -29,7 +29,10 @@
       AppNotification.error('Failed to load entry', entryResource.error.message);
     }
   });
-  let entry = $derived(entryResource.current);
+  // Use $state (not $derived) so that EntryEditor can receive ownership via bind:entry.
+  // svelte-ignore state_referenced_locally
+  let entry = $state(entryResource.current);
+  $effect(() => { entry = entryResource.current; });
   const entryPersistence = new EntryPersistence(() => entry);
   let updating = $state(false);
 
@@ -48,7 +51,7 @@
     {#if entryResource.loading}
       Loading...
     {:else if entry}
-      <EntryEditor autofocus modalMode {entry} canAddSense={false} canAddExample={false}/>
+      <EntryEditor autofocus modalMode bind:entry canAddSense={false} canAddExample={false}/>
     {/if}
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>

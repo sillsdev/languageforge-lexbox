@@ -150,11 +150,11 @@
               <Editor.Grid>
                 <OverrideFields shownFields={task.subjectFields} {overrides}>
                   {#if task.subjectType === 'entry' && subject.entry}
-                    <EntryEditorPrimitive autofocus modalMode entry={subject.entry}/>
+                    <EntryEditorPrimitive autofocus modalMode bind:entry={subject.entry}/>
                   {:else if task.subjectType === 'sense' && subject.sense}
-                    <SenseEditorPrimitive sense={subject.sense}/>
+                    <SenseEditorPrimitive bind:sense={subject.sense}/>
                   {:else if task.subjectType === 'example-sentence' && subject.exampleSentence}
-                    <ExampleEditorPrimitive example={subject.exampleSentence}/>
+                    <ExampleEditorPrimitive bind:example={subject.exampleSentence}/>
                   {:else}
                     <p>{$t`Subject does not have suitable object of type: ${task.subjectType}`}</p>
                   {/if}

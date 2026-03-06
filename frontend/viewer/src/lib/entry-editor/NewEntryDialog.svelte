@@ -167,14 +167,14 @@
         ]}>
         <Editor.Root>
           <Editor.Grid>
-            <EntryEditorPrimitive {entry} autofocus modalMode
+            <EntryEditorPrimitive bind:entry autofocus modalMode
               publishInDescription={publishInIsFromTemplate ? fromActiveFilter : undefined} />
             {#if sense}
               <Editor.SubGrid>
                 <ObjectHeader type="sense">
                   <Button onclick={() => sense = undefined} size="icon" variant="secondary" icon="i-mdi-trash-can" />
                 </ObjectHeader>
-                <SenseEditorPrimitive {sense}
+                <SenseEditorPrimitive bind:sense
                   partOfSpeechDescription={partOfSpeechIsFromTemplate ? fromActiveFilter : undefined}
                   semanticDomainsDescription={semanticDomainIsFromTemplate ? fromActiveFilter : undefined} />
               </Editor.SubGrid>

@@ -161,7 +161,7 @@
 
 <Editor.Root bind:ref>
   <Editor.Grid bind:ref={editorElem}>
-    <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} {entry} {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
+    <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
     {#each entry.senses as sense, i (sense.id)}
       <Editor.SubGrid class={cn(sense.id === highlighted?.entity.id && 'highlight')}>
@@ -177,7 +177,7 @@
               ondelete={() => deleteSense(sense)} id={sense.id} />
         </ObjectHeader>
 
-        <SenseEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
+        <SenseEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
 
         {#if sense.exampleSentences.length}
           <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
@@ -195,7 +195,7 @@
 
                 <ExampleEditorPrimitive
                   class={ENTITY_FIELD_CONTAINER_CLASS}
-                  example={sense.exampleSentences[j]}
+                  bind:example={sense.exampleSentences[j]}
                   {readonly}
                   onchange={() => onExampleChange(sense, example)}
                   />

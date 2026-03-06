@@ -82,7 +82,11 @@
 
   let latestPersistedSnapshot = $state<ReadonlyDeep<IEntry>>();
   const entryPersistence = new EntryPersistence(() => latestPersistedSnapshot);
-  const entry = $derived(entryResource.current ?? undefined);
+  // Use $state (not $derived) so that EntryEditor can receive ownership via bind:entry.
+  // This lets the bind chain flow down: EntryView → EntryEditor → primitives → field editors.
+  // svelte-ignore state_referenced_locally
+  let entry = $state<IEntry | undefined>(entryResource.current ?? undefined);
+  $effect(() => { entry = entryResource.current ?? undefined; });
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
   let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
@@ -157,7 +161,7 @@
         </div>
       {/if}
       <div class="max-md:p-2 md:px-2">
-        <EntryEditor bind:ref={editorRef} {entry} readonly={readonly || !features.write || deleted} {...entryPersistence.entryEditorProps} />
+        <EntryEditor bind:ref={editorRef} bind:entry readonly={readonly || !features.write || deleted} {...entryPersistence.entryEditorProps} />
       </div>
     </ScrollArea>
   {/if}
