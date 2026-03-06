@@ -1,3 +1,9 @@
+<script module lang="ts">
+  import {msg} from 'svelte-i18n-lingui';
+
+  export const themes = [msg`green`, msg`blue`, msg`rose`, msg`orange`, msg`violet`, msg`stone`];
+</script>
+
 <script lang="ts">
   import {Button, type ButtonProps, XButton} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
@@ -5,9 +11,8 @@
   import * as Popover from '$lib/components/ui/popover';
   import {cn} from '$lib/utils';
   import {mode, resetMode, setMode, setTheme, theme, userPrefersMode} from 'mode-watcher';
-  import {t, msg} from 'svelte-i18n-lingui';
+  import {t} from 'svelte-i18n-lingui';
 
-  const themes = [msg`green`, msg`blue`, msg`rose`, msg`orange`, msg`violet`, msg`stone`];
   let {
     variant,
   }: {
