@@ -35,8 +35,8 @@ public class MorphTypeData : IObjectWithId<MorphTypeData>
     public virtual MultiString Name { get; set; } = [];
     public virtual MultiString Abbreviation { get; set; } = [];
     public virtual RichMultiString Description { get; set; } = [];
-    public virtual string LeadingToken { get; set; } = "";
-    public virtual string TrailingToken { get; set; } = "";
+    public virtual string? LeadingToken { get; set; }
+    public virtual string? TrailingToken { get; set; }
     public virtual int SecondaryOrder { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }
