@@ -20,8 +20,8 @@ namespace LcmCrdt.Migrations
                     Name = table.Column<string>(type: "jsonb", nullable: false),
                     Abbreviation = table.Column<string>(type: "jsonb", nullable: false),
                     Description = table.Column<string>(type: "jsonb", nullable: false),
-                    LeadingToken = table.Column<string>(type: "TEXT", nullable: false),
-                    TrailingToken = table.Column<string>(type: "TEXT", nullable: false),
+                    LeadingToken = table.Column<string>(type: "TEXT", nullable: true),
+                    TrailingToken = table.Column<string>(type: "TEXT", nullable: true),
                     SecondaryOrder = table.Column<int>(type: "INTEGER", nullable: false),
                     DeletedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
                     SnapshotId = table.Column<Guid>(type: "TEXT", nullable: true)
