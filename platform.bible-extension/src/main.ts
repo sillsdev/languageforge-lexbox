@@ -261,6 +261,7 @@ function launchFwLiteWeb(context: ExecutionActivationContext): string {
       baseUrl,
       '--FwLite:UpdateCheckCondition=Never',
       '--FwLiteWeb:CorsAllowAny=true',
+      '--FwLiteWeb:LogFileName=../../../fw-lite-extension.log', // Keep out of the watched folders.
       '--FwLiteWeb:OpenBrowser=false',
     ],
     { stdio: ['pipe', 'pipe', 'pipe'] },
