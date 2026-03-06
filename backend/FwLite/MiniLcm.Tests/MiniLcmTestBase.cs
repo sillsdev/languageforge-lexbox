@@ -17,7 +17,13 @@ public abstract class MiniLcmTestBase : IAsyncLifetime
     {
         BaseApi = await NewApi();
         BaseApi.Should().NotBeNull();
-        Api = BaseApi.WrapWith([new MiniLcmApiStringNormalizationWrapperFactory()], null!);
+        // Apply both normalization wrappers:
+        // - Write wrapper normalizes user input to NFD on create/update
+        // - String wrapper normalizes search queries and filter options to NFD
+        Api = BaseApi.WrapWith([
+            new MiniLcmWriteApiNormalizationWrapperFactory(),
+            new MiniLcmApiStringNormalizationWrapperFactory()
+        ], null!);
         Api.Should().NotBeNull();
     }
 
