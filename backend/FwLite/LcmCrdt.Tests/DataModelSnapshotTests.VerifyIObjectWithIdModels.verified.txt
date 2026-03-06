@@ -39,6 +39,10 @@
     {
       DerivedType: CustomView,
       TypeDiscriminator: CustomView
+    },
+    {
+      DerivedType: MorphTypeData,
+      TypeDiscriminator: MorphTypeData
     }
   ],
   IgnoreUnrecognizedTypeDiscriminators: false,
