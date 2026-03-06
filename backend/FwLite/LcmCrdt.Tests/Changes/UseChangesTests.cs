@@ -200,6 +200,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var morphTypeDescription = new RichMultiString { { "en", new RichString("test desc") } };
         var morphTypeData = new MorphTypeData { Id = Guid.NewGuid(), Name = morphTypeName, Abbreviation = morphTypeAbbreviation, Description = morphTypeDescription, SecondaryOrder = 0 };
         var createMorphTypeDataChange = new CreateMorphTypeDataChange(morphTypeData.Id, morphTypeName, morphTypeAbbreviation, morphTypeDescription, null, null, 0, MorphType.Root);
+        yield return new ChangeWithDependencies(createMorphTypeDataChange);
 
         var setPartOfSpeechChange = new SetPartOfSpeechChange(sense.Id, partOfSpeech.Id);
         yield return new ChangeWithDependencies(setPartOfSpeechChange, [createSenseChange, createPartOfSpeechChange]);
