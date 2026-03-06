@@ -12,6 +12,7 @@ namespace MiniLcm.Models;
 [JsonDerivedType(typeof(SemanticDomain), nameof(SemanticDomain))]
 [JsonDerivedType(typeof(ComplexFormType), nameof(ComplexFormType))]
 [JsonDerivedType(typeof(ComplexFormComponent), nameof(ComplexFormComponent))]
+[JsonDerivedType(typeof(MorphTypeData), nameof(MorphTypeData))]
 public interface IObjectWithId
 {
     public Guid Id { get; }

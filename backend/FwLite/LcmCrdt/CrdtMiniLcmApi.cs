@@ -349,34 +349,53 @@ public class CrdtMiniLcmApi(
         await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
     }
 
-    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    public async IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var morphTypeData in repo.AllMorphTypeData.AsAsyncEnumerable())
+        {
+            yield return morphTypeData;
+        }
     }
 
-    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    public async Task<MorphTypeData?> GetMorphTypeData(Guid id)
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.AllMorphTypeData.SingleOrDefaultAsync(c => c.Id == id);
     }
 
-    public Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphTypeData)
+    public async Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphTypeData)
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        if (morphTypeData.Id == default) morphTypeData.Id = Guid.NewGuid();
+        await AddChange(new CreateMorphTypeData(
+            entityId: morphTypeData.Id,
+            name: morphTypeData.Name,
+            abbreviation: morphTypeData.Abbreviation,
+            description: morphTypeData.Description,
+            leadingToken: morphTypeData.LeadingToken,
+            trailingToken: morphTypeData.TrailingToken,
+            secondaryOrder: morphTypeData.SecondaryOrder,
+            morphType: morphTypeData.MorphType
+        ));
+        return await repo.AllMorphTypeData.SingleAsync(c => c.Id == morphTypeData.Id);
     }
 
-    public Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
+    public async Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
     {
-        throw new NotImplementedException();
+        await AddChange(new JsonPatchChange<MorphTypeData>(id, update.Patch));
+        return await GetMorphTypeData(id) ?? throw NotFoundException.ForType<MorphTypeData>(id);
     }
 
-    public Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
+    public async Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
     {
-        throw new NotImplementedException();
+        await MorphTypeDataSync.Sync(before, after, api ?? this);
+        return await GetMorphTypeData(after.Id) ?? throw NotFoundException.ForType<MorphTypeData>(after.Id);
     }
 
-    public Task DeleteMorphTypeData(Guid id)
+    public async Task DeleteMorphTypeData(Guid id)
     {
-        throw new NotImplementedException();
+        await AddChange(new DeleteChange<MorphTypeData>(id));
     }
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)

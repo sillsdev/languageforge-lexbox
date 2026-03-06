@@ -228,6 +228,7 @@ public static class LcmCrdtKernel
             .Add<Publication>()
             .Add<SemanticDomain>()
             .Add<ComplexFormType>()
+            .Add<MorphTypeData>()
             .Add<ComplexFormComponent>(builder =>
             {
                 const string componentSenseId = "ComponentSenseId";
@@ -294,6 +295,7 @@ public static class LcmCrdtKernel
             .Add<ReplacePublicationChange>()
             .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
+            .Add<CreateMorphTypeData>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()
