@@ -19,11 +19,17 @@
   }
 
   const {
-    example = $bindable(),
+    example: exampleProp,
     readonly = false,
     onchange,
     ...rest
   }: Props = $props();
+
+  // Establish local ownership so that bind:value={example.*} in the template
+  // doesn't trigger Svelte's ownership_invalid_binding warnings.
+  // svelte-ignore state_referenced_locally
+  let example = $state(exampleProp);
+  $effect.pre(() => { example = exampleProp; });
 
   const writingSystemService = useWritingSystemService();
   const currentView = useCurrentView();

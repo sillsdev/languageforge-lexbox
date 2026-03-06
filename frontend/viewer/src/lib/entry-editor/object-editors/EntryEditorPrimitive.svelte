@@ -25,7 +25,7 @@
   }
 
   const {
-    entry = $bindable(),
+    entry: entryProp,
     onchange,
     readonly = false,
     autofocus = false,
@@ -33,6 +33,13 @@
     publishInDescription,
     ...rest
   }: Props = $props();
+
+  // Establish local ownership so that bind:value={entry.*} in the template
+  // doesn't trigger Svelte's ownership_invalid_binding warnings.
+  // The entry object itself is mutated in place by field editors.
+  // svelte-ignore state_referenced_locally
+  let entry = $state(entryProp);
+  $effect.pre(() => { entry = entryProp; });
 
   const writingSystemService = useWritingSystemService();
   const complexFormTypes = useComplexFormTypes();
