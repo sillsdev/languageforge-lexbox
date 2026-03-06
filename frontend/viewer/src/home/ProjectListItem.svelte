@@ -20,7 +20,7 @@
 
 {#if skeleton || !project}
   <ListItem {...rest}
-            class="animate-pulse dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted dark:text-neutral-50/50 cursor-default text-neutral-500">
+            class="animate-pulse hover:bg-muted/30 hover:dark:bg-muted dark:text-neutral-50/50 cursor-default text-neutral-500">
     <div class="h-4 dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-32"></div>
     <div class="h-3 mt-3 dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-20"></div>
   </ListItem>
