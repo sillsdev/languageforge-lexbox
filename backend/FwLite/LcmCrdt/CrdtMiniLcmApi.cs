@@ -368,7 +368,7 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         if (morphTypeData.Id == default) morphTypeData.Id = Guid.NewGuid();
-        await AddChange(new CreateMorphTypeData(
+        await AddChange(new CreateMorphTypeDataChange(
             entityId: morphTypeData.Id,
             name: morphTypeData.Name,
             abbreviation: morphTypeData.Abbreviation,

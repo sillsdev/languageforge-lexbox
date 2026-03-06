@@ -297,7 +297,7 @@ public static class LcmCrdtKernel
             .Add<ReplacePublicationChange>()
             .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
-            .Add<CreateMorphTypeData>()
+            .Add<CreateMorphTypeDataChange>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()

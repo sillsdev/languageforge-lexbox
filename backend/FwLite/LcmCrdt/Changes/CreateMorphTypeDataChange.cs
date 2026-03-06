@@ -7,7 +7,7 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
 
-public class CreateMorphTypeData(Guid entityId, MultiString name, MultiString abbreviation, RichMultiString description, string? leadingToken, string? trailingToken, int secondaryOrder, MorphType morphType) : CreateChange<MorphTypeData>(entityId), ISelfNamedType<CreateMorphTypeData>
+public class CreateMorphTypeDataChange(Guid entityId, MultiString name, MultiString abbreviation, RichMultiString description, string? leadingToken, string? trailingToken, int secondaryOrder, MorphType morphType) : CreateChange<MorphTypeData>(entityId), ISelfNamedType<CreateMorphTypeDataChange>
 {
     public MultiString Name { get; } = name;
     public MultiString Abbreviation { get; set; } = abbreviation;
