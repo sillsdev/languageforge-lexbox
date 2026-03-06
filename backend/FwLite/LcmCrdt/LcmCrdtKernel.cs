@@ -228,6 +228,7 @@ public static class LcmCrdtKernel
             .Add<Publication>()
             .Add<SemanticDomain>()
             .Add<ComplexFormType>()
+            .Add<MorphTypeData>()
             .Add<CustomView>(builder =>
             {
                 builder.Property(v => v.EntryFields)
@@ -325,6 +326,7 @@ public static class LcmCrdtKernel
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
             .Add<DeleteChange<CustomView>>()
+            .Add<CreateMorphTypeData>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()
