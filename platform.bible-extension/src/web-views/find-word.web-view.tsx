@@ -32,7 +32,7 @@ globalThis.webViewComponent = function FwLiteFindWord({
 
   useEffect(() => {
     papi.networkObjects
-      .get<IEntryService>('fwliteextension.entryService')
+      .get<IEntryService>('fwLiteExtension.entryService')
       // eslint-disable-next-line promise/always-return
       .then((networkObject) => {
         logger.info('Got network object:', networkObject);
