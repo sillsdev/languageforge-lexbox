@@ -5,6 +5,7 @@ import { ProjectManager } from '../utils/project-manager';
 
 export class EntryService implements IEntryService {
   private fwLiteApi: FwLiteApi;
+  // TODO: remove the need to specify baseUrl, so other extensions can use this network service.
   constructor(baseUrl: string, dictionaryCode?: string) {
     this.fwLiteApi = new FwLiteApi(baseUrl, dictionaryCode);
   }
@@ -30,7 +31,7 @@ export class EntryService implements IEntryService {
   }
 
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this, @typescript-eslint/no-unused-vars
-  updateEntry(projectId: string, reference: IEntry): Promise<void> {
+  updateEntry(_projectId: string, _reference: IEntry): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
