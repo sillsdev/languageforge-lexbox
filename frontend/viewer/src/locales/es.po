@@ -286,11 +286,10 @@ msgstr "Visite"
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+#: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
-#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
-#: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Cancel"
 msgstr "Cancelar"
@@ -480,10 +479,6 @@ msgstr "Directorio de datos"
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Definition"
 msgstr "Definición"
-
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Definition or Gloss is required"
-msgstr ""
 
 #. Button to delete project from local list
 #. Appears in project card; removes local project cache (not server copy)
@@ -1613,7 +1608,7 @@ msgid "Subject does not have suitable object of type: {0}"
 msgstr "El asunto no tiene un objeto de tipo adecuado: {0}"
 
 #. Button to confirm selection
-#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"

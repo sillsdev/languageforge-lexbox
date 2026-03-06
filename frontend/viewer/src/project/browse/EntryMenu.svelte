@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from 'svelte-i18n-lingui';
+  import {t} from 'svelte-i18n-lingui';
   import {useMultiWindowService} from '$lib/services/multi-window-service';
   import type {IEntry} from '$lib/dotnet-types';
   import type {Snippet} from 'svelte';
