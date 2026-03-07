@@ -24,6 +24,9 @@ public class FwDataProject(string name, string projectsPath) : IProjectIdentifie
     /// <summary>
     /// A path to the projects folder, there must be a folder with the same name as the project name and a fwdata file in it.
     /// eg: Project name : "MyProject", path: "/data/projects/" is the value of this property, then the fwdata file must be in /data/projects/MyProject/MyProject.fwdata
+    ///
+    /// In FwHeadless this is the root of a SINGLE project.
+    /// See FwHeadlessConfig.GetProjectFolder for an outline of the directory structure in FwHeadless.
     /// </summary>
     public string ProjectsPath => projectsPath;
 
