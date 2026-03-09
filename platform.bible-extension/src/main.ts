@@ -261,6 +261,7 @@ function launchFwLiteWeb(context: ExecutionActivationContext): string {
       baseUrl,
       '--FwLite:UpdateCheckCondition=Never',
       '--FwLiteWeb:CorsAllowAny=true',
+      '--FwLiteWeb:EnableFileLogging=false', // already piped to P.B (and triggers npm watch)
       '--FwLiteWeb:OpenBrowser=false',
     ],
     { stdio: ['pipe', 'pipe', 'pipe'] },
