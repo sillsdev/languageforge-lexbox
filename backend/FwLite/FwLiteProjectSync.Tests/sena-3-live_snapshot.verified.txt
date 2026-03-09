@@ -125298,6 +125298,7 @@
       "DeletedAt": null
     }
   ],
+  "AllMorphTypeData": [],
   "WritingSystems": {
     "Analysis": [
       {
