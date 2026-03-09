@@ -759,7 +759,7 @@
     "EntityId": "b41bca8b-8b96-99fd-8ca8-661d004269d1"
   },
   {
-    "$type": "CreateMorphTypeData",
+    "$type": "CreateMorphTypeDataChange",
     "Name": {
       "biq": "Refined Granite Ball"
     },
