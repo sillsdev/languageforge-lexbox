@@ -201,8 +201,8 @@
       TypeDiscriminator: delete:CustomView
     },
     {
-      DerivedType: CreateMorphTypeData,
-      TypeDiscriminator: CreateMorphTypeData
+      DerivedType: CreateMorphTypeDataChange,
+      TypeDiscriminator: CreateMorphTypeDataChange
     },
     {
       DerivedType: SetOrderChange<Sense>,
