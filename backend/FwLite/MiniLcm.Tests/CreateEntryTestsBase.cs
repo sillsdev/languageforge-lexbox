@@ -38,7 +38,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
                 {
                     Id = Guid.NewGuid(),
                     ComponentEntryId = component.Id,
-                    ComponentHeadword = component.Headword(),
+                    ComponentHeadword = component.HeadwordText(),
                     ComplexFormEntryId = entryId,
                     ComplexFormHeadword = "test"
                 }
@@ -95,7 +95,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
                 {
                     Id = Guid.NewGuid(),
                     ComponentEntryId = component.Id,
-                    ComponentHeadword = component.Headword(),
+                    ComponentHeadword = component.HeadwordText(),
                     ComponentSenseId = componentSenseId,
                     ComplexFormEntryId = complexFormEntryId,
                     ComplexFormHeadword = "test"

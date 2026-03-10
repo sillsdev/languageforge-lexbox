@@ -29,9 +29,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     //linq2db table
     private ITable<EntrySearchRecord> EntrySearchRecordsTable => dbContext.GetTable<EntrySearchRecord>();
 
-    public IQueryable<Entry> Filter(IQueryable<Entry> queryable, string query)
+    public IQueryable<Entry> Filter(IQueryable<Entry> queryable, string query, WritingSystemId wsId)
     {
-        return FilterInternal(queryable, query).Select(t => t.Entry);
+        return FilterInternal(queryable, query, wsId).Select(t => t.Entry);
     }
 
     /// <summary>
@@ -44,14 +44,14 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         string query,
         WritingSystemId wsId)
     {
-        var filtered = FilterInternal(queryable, query);
+        var filtered = FilterInternal(queryable, query, wsId);
         var ordered = filtered
             .OrderByDescending(t => t.HeadwordMatches)
             .ThenByDescending(t => t.HeadwordPrefixMatches)
-            .ThenBy(t => t.HeadwordMatches ? t.SearchRecord.Headword.Length : int.MaxValue)
+            .ThenBy(t => t.HeadwordMatches ? t.Entry.Headword(wsId).Length : int.MaxValue)
             .ThenBy(t =>
                 t.HeadwordMatches
-                ? t.SearchRecord.Headword.CollateUnicode(wsId)
+                ? t.Entry.Headword(wsId).CollateUnicode(wsId)
                 : string.Empty)
             .ThenBy(t => Sql.Ext.SQLite().Rank(t.SearchRecord)).ThenBy(t => t.Entry.Id);
 
@@ -60,7 +60,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, bool HeadwordMatches, bool HeadwordPrefixMatches);
 
-    private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query)
+    private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query, WritingSystemId wsId)
     {
         var ftsString = ToFts5LiteralString(query);
 
@@ -72,8 +72,8 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
                 (entry.LexemeForm.SearchValue(query)
                 || entry.CitationForm.SearchValue(query)
                 || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
-            let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(searchRecord.Headword, query)
-            let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(searchRecord.Headword, query)
+            let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(entry.Headword(wsId), query)
+            let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(entry.Headword(wsId), query)
             select new FilterProjection(entry, searchRecord, headwordMatches, headwordPrefixMatches);
     }
 
@@ -258,10 +258,18 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     private static EntrySearchRecord ToEntrySearchRecord(Entry entry, WritingSystem[] writingSystems)
     {
+        // Include headwords for ALL vernacular writing systems (space-separated), matching how
+        // LexemeForm and CitationForm already work. This ensures FTS matches across all WS.
+        // TODO: Include morph tokens once MorphTypeData is available as a CRDT entity.
+        var headword = string.Join(" ",
+            writingSystems.Where(ws => ws.Type == WritingSystemType.Vernacular)
+                .Select(ws => entry.Headword(ws.WsId))
+                .Where(h => !string.IsNullOrEmpty(h)));
+
         return new EntrySearchRecord()
         {
             Id = entry.Id,
-            Headword = entry.Headword(writingSystems.First(ws => ws.Type == WritingSystemType.Vernacular).WsId),
+            Headword = headword,
             LexemeForm = LexemeForm(writingSystems, entry),
             CitationForm = CitationForm(writingSystems, entry),
             Definition = Definition(writingSystems, entry),

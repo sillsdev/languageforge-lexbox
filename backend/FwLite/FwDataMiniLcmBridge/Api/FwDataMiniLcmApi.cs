@@ -643,7 +643,7 @@ public class FwDataMiniLcmApi(
     {
         try
         {
-            return new Entry
+            var result = new Entry
             {
                 Id = entry.Guid,
                 Note = FromLcmMultiString(entry.Comment),
@@ -661,11 +661,36 @@ public class FwDataMiniLcmApi(
                 // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
                 PublishIn = entry.PublishIn.Select(FromLcmPossibility).ToList(),
             };
+            PopulateHeadword(result, entry.PrimaryMorphType);
+            return result;
         }
         catch (Exception e)
         {
             var headword = entry.LexEntryHeadwordOrUnknown();
             throw new InvalidOperationException($"Failed to map FW entry to MiniLCM entry '{headword}' ({entry.Guid})", e);
+        }
+    }
+
+    private void PopulateHeadword(Entry result, IMoMorphType? lcmMorphType)
+    {
+        var leading = lcmMorphType?.Prefix ?? "";
+        var trailing = lcmMorphType?.Postfix ?? "";
+
+        foreach (var wsDef in WritingSystemContainer.CurrentVernacularWritingSystems)
+        {
+            WritingSystemId wsId = wsDef.Id;
+            var citation = result.CitationForm[wsId];
+            if (!string.IsNullOrEmpty(citation))
+            {
+                result.Headword[wsId] = citation.Trim();
+                continue;
+            }
+
+            var lexeme = result.LexemeForm[wsId];
+            if (!string.IsNullOrEmpty(lexeme))
+            {
+                result.Headword[wsId] = (leading + lexeme + trailing).Trim();
+            }
         }
     }
 
