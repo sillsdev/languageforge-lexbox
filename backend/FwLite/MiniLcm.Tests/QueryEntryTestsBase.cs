@@ -410,12 +410,10 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     {
         // identical is to make the test cases more readable when they only differ in their normalization
         (searchTerm == word).Should().Be(identical);
-        // remove next line in https://github.com/sillsdev/languageforge-lexbox/issues/2065
-        word = word.Normalize(NormalizationForm.FormD);
         await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
         var words = await Api.SearchEntries(searchTerm).Select(e => e.LexemeForm["en"]).ToArrayAsync();
         words.Should().NotBeEmpty();
-        // Like LicLCM the MiniLcm API should normalize to NFD
+        // The API normalizes to NFD on write, so results should be NFD regardless of input
         words.Should().Contain(word.Normalize(NormalizationForm.FormD));
     }
 
@@ -427,12 +425,10 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [InlineData("É", "È")] // Different accents
     public async Task NegativeMatches(string searchTerm, string word)
     {
-        word = word.Normalize(NormalizationForm.FormD);
-        //should we be normalizing the search term internally?
-        searchTerm = searchTerm.Normalize(NormalizationForm.FormD);
         await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
         var words = await Api.SearchEntries(searchTerm).Select(e => e.LexemeForm["en"]).ToArrayAsync();
         words.Should().NotContain(word);
+        words.Should().NotContain(word.Normalize(NormalizationForm.FormD));
     }
 
     [Theory]

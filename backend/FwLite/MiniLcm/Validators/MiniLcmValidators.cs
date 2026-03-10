@@ -92,6 +92,7 @@ public static class MiniLcmValidatorsExtensions
         services.AddTransient<IValidator<UpdateObjectInput<MorphType>>, MorphTypeUpdateValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<WritingSystem>>, WritingSystemUpdateValidator>();
         services.AddTransient<MiniLcmApiStringNormalizationWrapperFactory>();
+        services.AddTransient<MiniLcmWriteApiNormalizationWrapperFactory>();
         return services;
     }
 }

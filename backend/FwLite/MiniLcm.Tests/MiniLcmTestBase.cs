@@ -17,7 +17,10 @@ public abstract class MiniLcmTestBase : IAsyncLifetime
     {
         BaseApi = await NewApi();
         BaseApi.Should().NotBeNull();
-        Api = BaseApi.WrapWith([new MiniLcmApiStringNormalizationWrapperFactory()], null!);
+        Api = BaseApi.WrapWith([
+            new MiniLcmApiStringNormalizationWrapperFactory(),
+            new MiniLcmWriteApiNormalizationWrapperFactory(),
+        ], null!);
         Api.Should().NotBeNull();
     }
 

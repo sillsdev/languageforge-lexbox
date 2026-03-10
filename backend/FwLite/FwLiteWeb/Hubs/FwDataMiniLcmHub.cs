@@ -1,10 +1,8 @@
 using FwDataMiniLcmBridge;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Options;
 using MiniLcm;
+using MiniLcm.Normalization;
 using MiniLcm.Validators;
 using SIL.LCModel;
-using SystemTextJsonPatch;
 
 namespace FwLiteWeb.Hubs;
 
@@ -13,8 +11,12 @@ public class FwDataMiniLcmHub(
     IMiniLcmApi miniLcmApi,
     FwDataFactory fwDataFactory,
     FwDataProjectContext context,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory
-) : MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory)
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
+    MiniLcmApiStringNormalizationWrapperFactory readNormalizationWrapperFactory
+)
+// Note: FwData already handles string normalization internally (via LCModel),
+// so we skip the write normalization wrapper for FwData APIs.
+: MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory, readNormalizationWrapperFactory, null, context.Project)
 {
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()
