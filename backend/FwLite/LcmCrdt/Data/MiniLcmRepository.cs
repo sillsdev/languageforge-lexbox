@@ -78,15 +78,6 @@ public class MiniLcmRepository(
     private IReadOnlyDictionary<MorphType, MorphTypeData> _morphTypeDataLookup =
         new Dictionary<MorphType, MorphTypeData>();
 
-    private WritingSystem[]? _vernacularWritingSystems;
-
-    private async ValueTask<WritingSystem[]> GetVernacularWritingSystems()
-    {
-        return _vernacularWritingSystems ??= await WritingSystemsOrdered
-            .Where(ws => ws.Type == WritingSystemType.Vernacular)
-            .ToArrayAsync();
-    }
-
     public IQueryable<Publication> Publications => dbContext.Publications;
 
 
@@ -159,12 +150,11 @@ public class MiniLcmRepository(
         queryable = options.ApplyPaging(queryable);
         var complexFormComparer = cultureProvider.GetCompareInfo(await GetWritingSystem(default, WritingSystemType.Vernacular))
             .AsComplexFormComparer();
-        var vernacularWss = await GetVernacularWritingSystems();
         var entries = AsyncExtensions.AsAsyncEnumerable(queryable);
         await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
         await foreach (var entry in EfExtensions.SafeIterate(entries))
         {
-            entry.Finalize(complexFormComparer, _morphTypeDataLookup, vernacularWss);
+            entry.Finalize(complexFormComparer, _morphTypeDataLookup);
             yield return entry;
         }
     }
@@ -269,7 +259,7 @@ public class MiniLcmRepository(
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
             var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
                 .AsComplexFormComparer();
-            entry.Finalize(complexFormComparer, _morphTypeDataLookup, await GetVernacularWritingSystems());
+            entry.Finalize(complexFormComparer, _morphTypeDataLookup);
         }
 
         return entry;

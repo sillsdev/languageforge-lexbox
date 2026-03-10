@@ -15,6 +15,8 @@ public static class Filtering
         return query.Where(e => e.Headword(ws).StartsWith(exemplar));
     }
 
+    // TODO: When morph tokens are added, this should also check headword with tokens.
+    // See EntrySearchService.FilterInternal for the pattern (needs wsId parameter).
     public static Expression<Func<Entry, bool>> SearchFilter(string query)
     {
         return e => e.LexemeForm.SearchValue(query)

@@ -71,7 +71,12 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             where Sql.Ext.SQLite().Match(searchRecord, ftsString) &&
                 (entry.LexemeForm.SearchValue(query)
                 || entry.CitationForm.SearchValue(query)
-                || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
+                || entry.Senses.Any(s => s.Gloss.SearchValue(query))
+                // Headword includes morph tokens (e.g. "-" prefix for suffixes) that aren't in
+                // LexemeForm/CitationForm. Without this, FTS matches on token-decorated headwords
+                // would be excluded by the post-filter. Currently only checks the active WS;
+                // when MorphTypeData becomes a CRDT entity, Headword() will include real tokens.
+                || SqlHelpers.ContainsIgnoreCaseAccents(entry.Headword(wsId), query))
             let headword = entry.Headword(wsId)
             let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(headword, query)
             let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(headword, query)

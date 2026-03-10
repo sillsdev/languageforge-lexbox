@@ -671,15 +671,19 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    private MultiString ComputeHeadword(Entry result, IMoMorphType? lcmMorphType)
+    private static MultiString ComputeHeadword(Entry result, IMoMorphType? lcmMorphType)
     {
         var headword = new MultiString();
         var leading = lcmMorphType?.Prefix ?? "";
         var trailing = lcmMorphType?.Postfix ?? "";
 
-        foreach (var wsDef in WritingSystemContainer.CurrentVernacularWritingSystems)
+        // Iterate all WS keys that have data, not just "current" vernacular WSs,
+        // so we don't lose headwords for non-current or future writing systems.
+        var wsIds = result.CitationForm.Values.Keys
+            .Union(result.LexemeForm.Values.Keys);
+
+        foreach (var wsId in wsIds)
         {
-            WritingSystemId wsId = wsDef.Id;
             var citation = result.CitationForm[wsId];
             if (!string.IsNullOrEmpty(citation))
             {

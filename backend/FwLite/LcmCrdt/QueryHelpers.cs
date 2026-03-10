@@ -7,11 +7,10 @@ public static class QueryHelpers
 {
     public static void Finalize(this Entry entry,
         IComparer<ComplexFormComponent> complexFormComparer,
-        IReadOnlyDictionary<MorphType, MorphTypeData> morphTypeDataLookup,
-        WritingSystem[] vernacularWritingSystems)
+        IReadOnlyDictionary<MorphType, MorphTypeData> morphTypeDataLookup)
     {
         entry.Finalize(complexFormComparer);
-        entry.Headword = EntryQueryHelpers.ComputeHeadwords(entry, morphTypeDataLookup, vernacularWritingSystems);
+        entry.Headword = EntryQueryHelpers.ComputeHeadwords(entry, morphTypeDataLookup);
     }
 
     public static void Finalize(this Entry entry, IComparer<ComplexFormComponent> complexFormComparer)

@@ -38,31 +38,36 @@ public static class EntryQueryHelpers
                 : Json.Value(e.CitationForm, ms => ms[ws])!.Trim();
 
     /// <summary>
-    /// Computes headwords for all vernacular writing systems, applying morph tokens when CitationForm is absent.
+    /// Computes headwords for all writing systems present in CitationForm or LexemeForm,
+    /// applying morph tokens when CitationForm is absent.
     /// Used for in-memory population of Entry.Headword after loading from DB.
     /// </summary>
     public static MultiString ComputeHeadwords(Entry entry,
-        IReadOnlyDictionary<MorphType, MorphTypeData> morphTypeDataLookup,
-        IEnumerable<WritingSystem> vernacularWritingSystems)
+        IReadOnlyDictionary<MorphType, MorphTypeData> morphTypeDataLookup)
     {
         var result = new MultiString();
         morphTypeDataLookup.TryGetValue(entry.MorphType, out var morphData);
 
-        foreach (var ws in vernacularWritingSystems)
+        // Iterate all WS keys that have data, not just "current" vernacular WSs,
+        // so we don't lose headwords for non-current or future writing systems.
+        var wsIds = entry.CitationForm.Values.Keys
+            .Union(entry.LexemeForm.Values.Keys);
+
+        foreach (var wsId in wsIds)
         {
-            var citation = entry.CitationForm[ws.WsId];
+            var citation = entry.CitationForm[wsId];
             if (!string.IsNullOrEmpty(citation))
             {
-                result[ws.WsId] = citation.Trim();
+                result[wsId] = citation.Trim();
                 continue;
             }
 
-            var lexeme = entry.LexemeForm[ws.WsId];
+            var lexeme = entry.LexemeForm[wsId];
             if (!string.IsNullOrEmpty(lexeme))
             {
                 var leading = morphData?.LeadingToken ?? "";
                 var trailing = morphData?.TrailingToken ?? "";
-                result[ws.WsId] = (leading + lexeme + trailing).Trim();
+                result[wsId] = (leading + lexeme + trailing).Trim();
             }
         }
 
