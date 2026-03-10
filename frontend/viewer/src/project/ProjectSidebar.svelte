@@ -76,7 +76,7 @@
         <ProjectDropdown
           onSelect={handleProjectSelect}
         />
-        <ThemePicker />
+        <ThemePicker variant="ghost" />
       </div>
       <div class="mx-auto">
         {@render primaryAction.snippet?.(sidebar?.isOpen())}
