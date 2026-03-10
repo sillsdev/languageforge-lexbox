@@ -24,6 +24,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
+  import {usePartsOfSpeech} from '$project/data';
 
   const {
     onloaded,
@@ -38,6 +39,9 @@
   // Load idle service into component context for inputs to use
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _idleService = useIdleService();
+  // register part-of-speech service in project scope without forcing load
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _partsOfSpeech = usePartsOfSpeech();
 
   onMount(() => {
     onloaded(true);

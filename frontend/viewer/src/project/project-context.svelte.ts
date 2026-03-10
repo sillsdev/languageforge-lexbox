@@ -7,11 +7,26 @@ import type {
   ISyncServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {resource, type ResourceOptions, type ResourceReturn} from 'runed';
+import {LazyResource} from './lazy-resource';
 import {SvelteMap} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
-import {randomId} from '$lib/utils';
 
 const projectContextKey = 'current-project';
+
+class LazyActivation {
+  #active = $state(false);
+
+  get active(): boolean {
+    return this.#active;
+  }
+
+  activate() {
+    if (this.#active) return;
+    queueMicrotask(() => {
+      this.#active = true;
+    });
+  }
+}
 
 type ProjectType = 'crdt' | 'fwdata' | undefined;
 
@@ -45,7 +60,6 @@ export class ProjectContext {
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
   #paratext = $state(false);
-  #queuedResources: Record<string, (api: IMiniLcmJsInvokable) => void> = {};
   #features = resource(() => this.#api, (api) => {
     if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
     return api.supportedFeatures();
@@ -117,9 +131,6 @@ export class ProjectContext {
     this.#projectData = args.projectData;
     this.#paratext = args.paratext ?? false;
 
-    Object.values<(api: IMiniLcmJsInvokable) => void>(this.#queuedResources)
-      .forEach(factory => factory(args.api));
-    this.#queuedResources = {};
   }
 
   public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): ResourceReturn<T, unknown, true> {
@@ -134,29 +145,26 @@ export class ProjectContext {
   }
 
   public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: ApiResourceOptions<T>): ResourceReturn<T, unknown, true> {
-    const resourceId = randomId();
+    // If API is not ready yet, lazily skip the first watch run so throttle/debounce
+    // cannot swallow the first real fetch when API becomes available.
+    const lazy = options?.lazy ?? !this.#api;
 
-    const res = resource<IMiniLcmJsInvokable | undefined>(() => this.#api,
-      ((api) => {
+    return resource<IMiniLcmJsInvokable | undefined>(() => this.#api,
+      (api) => {
         if (!api) return Promise.resolve(initialValue);
-        delete this.#queuedResources[resourceId];
         return factory(api);
-      }), {initialValue, ...options});
+      }, {initialValue, ...options, lazy});
+  }
 
+  public lazyApiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: ApiResourceOptions<T>): ResourceReturn<T, unknown, true> {
+    const activation = new LazyActivation();
+    const res = resource<[IMiniLcmJsInvokable | undefined, boolean]>([() => this.#api, () => activation.active],
+      ([api, active]) => {
+        if (!active || !api) return Promise.resolve(initialValue);
+        return factory(api);
+      }, {initialValue, lazy: true, ...options});
 
-    // If the api is not yet defined, a couple things could go wrong:
-    // 1) Throttling could throttle/swallow the refetch when the api becomes defined
-    // 2) The component that triggered the load could get destroyed before the load is complete, which would cancel the load/resource-$effect.
-    // (the fact that the loading is scoped to the component lifecycle is a non-trivial architecture problem)
-    //
-    // both cases can prevent the resource from ever being initialized.
-    // So, we queue it up to be explicitly initialized when the api is set up.
-    if (!this.#api) {
-      this.#queuedResources[resourceId] = (api) => {
-        void factory(api).then(res.mutate);
-      };
-    }
-    return res;
+    return new LazyResource(res, () => activation.activate());
   }
 
   public getOrAdd<T>(key: symbol, factory: () => T) {
