@@ -40,6 +40,9 @@ public class LcmCrdtDbContext(
 
         var entrySearchModel = modelBuilder.Entity<EntrySearchRecord>();
         entrySearchModel.ToTable(nameof(EntrySearchRecord), tb => tb.ExcludeFromMigrations());
+
+        var morphTypeDataModel = modelBuilder.Entity<MorphTypeData>();
+        morphTypeDataModel.HasIndex(m => m.MorphType).IsUnique();
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
