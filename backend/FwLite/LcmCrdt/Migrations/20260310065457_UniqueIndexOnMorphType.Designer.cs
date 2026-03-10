@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LcmCrdt.Migrations
 {
     [DbContext(typeof(LcmCrdtDbContext))]
-    partial class LcmCrdtDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260310065457_UniqueIndexOnMorphType")]
+    partial class UniqueIndexOnMorphType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
@@ -165,51 +168,6 @@ namespace LcmCrdt.Migrations
                         .IsUnique();
 
                     b.ToTable("ComplexFormType");
-                });
-
-            modelBuilder.Entity("MiniLcm.Models.CustomView", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Analysis")
-                        .HasColumnType("jsonb");
-
-                    b.Property<int>("Base")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("EntryFields")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<string>("ExampleFields")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SenseFields")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<Guid?>("SnapshotId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Vernacular")
-                        .HasColumnType("jsonb");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SnapshotId")
-                        .IsUnique();
-
-                    b.ToTable("CustomView");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.Entry", b =>
@@ -687,14 +645,6 @@ namespace LcmCrdt.Migrations
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
                         .WithOne()
                         .HasForeignKey("MiniLcm.Models.ComplexFormType", "SnapshotId")
-                        .OnDelete(DeleteBehavior.SetNull);
-                });
-
-            modelBuilder.Entity("MiniLcm.Models.CustomView", b =>
-                {
-                    b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
-                        .WithOne()
-                        .HasForeignKey("MiniLcm.Models.CustomView", "SnapshotId")
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
