@@ -185,7 +185,7 @@
         Annotations: 
           Relational:ColumnType: jsonb
       LeadingToken (string)
-      MorphType (MorphType) Required
+      MorphType (MorphType) Required Index
       Name (MultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
@@ -197,6 +197,7 @@
     Foreign keys: 
       MorphTypeData {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
     Indexes: 
+      MorphType Unique
       SnapshotId Unique
     Annotations: 
       DiscriminatorProperty: 
