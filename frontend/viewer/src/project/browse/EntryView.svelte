@@ -156,7 +156,7 @@
           {@render preview(entry)}
         </div>
       {/if}
-      <div class="max-md:p-2 md:px-2">
+      <div class="max-md:p-2 md:pb-2 md:px-2">
         <EntryEditor bind:ref={editorRef} {entry} readonly={readonly || !features.write || deleted} {...entryPersistence.entryEditorProps} />
       </div>
     </ScrollArea>

@@ -32,11 +32,9 @@
 
   const stringPlaceholder = $derived(typeof placeholder === 'string' ? placeholder : undefined);
   const snippetPlaceholder = $derived(typeof placeholder === 'function' ? placeholder : undefined);
-  const focusRingClass =
-    'has-[.real-input:focus-visible]:ring-ring has-[.real-input:focus-visible]:outline-none has-[.real-input:focus-visible]:ring-2 has-[.real-input:focus-visible]:ring-offset-2';
 </script>
 
-<InputShell bind:ref {focusRingClass} class={cn('gap-0', className)} {...restProps}>
+<InputShell bind:ref class={cn('gap-0', className)} {...restProps}>
   {@render before?.()}
   <div class="grow flex relative overflow-hidden items-center h-full">
     <Input
