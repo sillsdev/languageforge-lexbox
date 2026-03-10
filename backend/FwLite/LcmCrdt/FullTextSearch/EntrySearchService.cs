@@ -72,10 +72,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
                 (entry.LexemeForm.SearchValue(query)
                 || entry.CitationForm.SearchValue(query)
                 || entry.Senses.Any(s => s.Gloss.SearchValue(query))
-                // Headword includes morph tokens (e.g. "-" prefix for suffixes) that aren't in
-                // LexemeForm/CitationForm. Without this, FTS matches on token-decorated headwords
-                // would be excluded by the post-filter. Currently only checks the active WS;
-                // when MorphTypeData becomes a CRDT entity, Headword() will include real tokens.
+                // TODO: When MorphTypeData is a CRDT entity, replace the line below with
+                // HeadwordSearchValue to match morph-token-decorated headwords across ALL WSs.
+                // See EntryQueryHelpers for the commented-out HeadwordSearchValue expression.
                 || SqlHelpers.ContainsIgnoreCaseAccents(entry.Headword(wsId), query))
             let headword = entry.Headword(wsId)
             let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(headword, query)
@@ -266,7 +265,8 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     {
         // Include headwords for ALL vernacular writing systems (space-separated), matching how
         // LexemeForm and CitationForm already work. This ensures FTS matches across all WS.
-        // TODO: Include morph tokens once MorphTypeData is available as a CRDT entity.
+        // TODO: Include morph tokens once MorphTypeData is a CRDT entity.
+        // See EntryQueryHelpers for the commented-out JOIN pattern.
         var headword = string.Join(" ",
             writingSystems.Where(ws => ws.Type == WritingSystemType.Vernacular)
                 .Select(ws => entry.Headword(ws.WsId))

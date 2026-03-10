@@ -9,12 +9,6 @@ public static class QueryHelpers
         IComparer<ComplexFormComponent> complexFormComparer,
         IReadOnlyDictionary<MorphType, MorphTypeData> morphTypeDataLookup)
     {
-        entry.Finalize(complexFormComparer);
-        entry.Headword = EntryQueryHelpers.ComputeHeadwords(entry, morphTypeDataLookup);
-    }
-
-    public static void Finalize(this Entry entry, IComparer<ComplexFormComponent> complexFormComparer)
-    {
         entry.Senses.ApplySortOrder();
         entry.Components.ApplySortOrder();
         entry.ComplexForms.Sort(complexFormComparer);
@@ -22,6 +16,7 @@ public static class QueryHelpers
         {
             sense.Finalize();
         }
+        entry.Headword = EntryQueryHelpers.ComputeHeadwords(entry, morphTypeDataLookup);
     }
 
     public static void Finalize(this Sense sense)

@@ -37,6 +37,47 @@ public static class EntryQueryHelpers
                     : ((leading ?? "") + Json.Value(e.LexemeForm, ms => ms[ws]) + (trailing ?? "")).Trim()
                 : Json.Value(e.CitationForm, ms => ms[ws])!.Trim();
 
+    // === Morph-token-aware headword expressions (ready for when MorphTypeData is a CRDT entity) ===
+    //
+    // Once MorphTypeData is in the DB, use these in place of the token-free versions above.
+    //
+    // Usage in queries (e.g. EntrySearchService.FilterInternal, Filtering.cs):
+    //
+    //   var morphTypes = dbContext.GetTable<MorphTypeData>();
+    //
+    //   from entry in entries
+    //   from morphData in morphTypes.LeftJoin(m => (int)m.MorphType == (int)entry.MorphType)
+    //   let headword = entry.HeadwordWithTokens(wsId, morphData.LeadingToken, morphData.TrailingToken)
+    //   ...
+    //
+    // For searching headwords (with tokens) across ALL writing systems:
+    //
+    //   [ExpressionMethod(nameof(HeadwordSearchValueExpression))]
+    //   public static bool HeadwordSearchValue(Entry e, string? leading, string? trailing, string query)
+    //   {
+    //       return e.CitationForm.SearchValue(query)
+    //           || e.LexemeForm.Values.Any(kvp =>
+    //               SqlHelpers.ContainsIgnoreCaseAccents((leading ?? "") + kvp.Value + (trailing ?? ""), query));
+    //   }
+    //
+    //   private static Expression<Func<Entry, string?, string?, string, bool>> HeadwordSearchValueExpression() =>
+    //       (e, leading, trailing, query) =>
+    //           Json.QueryValues(e.CitationForm).Any(v => SqlHelpers.ContainsIgnoreCaseAccents(v, query))
+    //           || Json.QueryValues(e.LexemeForm).Any(v =>
+    //               SqlHelpers.ContainsIgnoreCaseAccents((leading ?? "") + v + (trailing ?? ""), query));
+    //
+    // Then in queries:
+    //
+    //   from morphData in morphTypes.LeftJoin(m => (int)m.MorphType == (int)entry.MorphType)
+    //   where entry.HeadwordSearchValue(morphData.LeadingToken, morphData.TrailingToken, query)
+    //       || entry.Senses.Any(s => s.Gloss.SearchValue(query))
+    //
+    // And for the FTS table (ToEntrySearchRecord), join MorphTypeData to get tokens:
+    //
+    //   from entry in entries
+    //   from morphData in morphTypes.LeftJoin(m => (int)m.MorphType == (int)entry.MorphType)
+    //   let headword = entry.HeadwordWithTokens(ws.WsId, morphData.LeadingToken, morphData.TrailingToken)
+
     /// <summary>
     /// Computes headwords for all writing systems present in CitationForm or LexemeForm,
     /// applying morph tokens when CitationForm is absent.
