@@ -15,7 +15,7 @@
 
 @utility animate-shimmer {
   animation: shimmer 2s linear infinite;
-  background-image: linear-gradient(90deg, hsl(var(--muted-foreground)/0.2) 20%, hsl(var(--foreground)/0.3) 50%, hsl(var(--muted-foreground)/0.2) 65%);
+  background-image: linear-gradient(90deg, oklch(from var(--muted-foreground) l c h / 0.2) 20%, oklch(from var(--foreground) l c h / 0.3) 50%, oklch(from var(--muted-foreground) l c h / 0.2) 65%);
   background-size: 200% 100%;
   background-repeat: repeat;
 }
@@ -35,7 +35,9 @@
 @layer base {
   /* shadcn generated styles */
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
+    /* EDIT: Fixes dark mode gets "outline-style: none" which results in white (browser bug?) */
+    @apply focus-visible:outline-solid;
   }
   .app {
     @apply bg-background text-foreground;

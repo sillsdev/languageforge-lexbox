@@ -226,13 +226,13 @@ function calcWritingSystemColors(writingSystems: IWritingSystems): WritingSystem
 }
 
 const vernacularColors = [
-  'text-emerald-400 dark:text-emerald-300',
-  'text-fuchsia-600 dark:text-fuchsia-300',
-  'text-lime-600 dark:text-lime-200',
+  'text-emerald-700 dark:text-emerald-300',
+  'text-fuchsia-700 dark:text-fuchsia-300',
+  'text-amber-700 dark:text-amber-300',
 ] as const;
 
 const analysisColors = [
-  'text-blue-500 dark:text-blue-300',
-  'text-yellow-500 dark:text-yellow-200',
-  'text-rose-500 dark:text-rose-400',
+  'text-blue-700 dark:text-blue-300',
+  'text-rose-700 dark:text-rose-400',
+  'text-lime-700 dark:text-lime-300',
 ] as const;
