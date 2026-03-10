@@ -36,8 +36,6 @@ export class StorageProp {
       if (!this.#hasBeenSet) {
         this.#value = value ?? '';
       }
-    } catch (error) {
-      console.warn(`Failed to load storage key '${this.#key}'`, error);
     } finally {
       if (!this.#hasBeenSet) {
         this.#hasBeenSet = true;

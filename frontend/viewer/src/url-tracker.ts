@@ -4,7 +4,7 @@ import {onMount} from 'svelte';
 import {useDebounce} from 'runed';
 
 // Tracks the current URL so the backend can restore it on next app launch.
-// We intercept pushState/replaceState + popstate to catch ALL URL changes,
+// We intercept pushState/replaceState + popstate + hashchange to catch ALL URL changes,
 // including direct history calls from QueryParamState that bypass svelte-routing's location store.
 export function trackUrl(appStorage: AppStorage) {
   let lastSavedUrl: string | undefined = undefined;
@@ -31,9 +31,11 @@ export function trackUrl(appStorage: AppStorage) {
     };
 
     const unsubscribePopstate = on(window, 'popstate', saveUrl);
+    const unsubscribeHashchange = on(window, 'hashchange', saveUrl);
 
     return () => {
       unsubscribePopstate();
+      unsubscribeHashchange();
       history.pushState = origPushState;
       history.replaceState = origReplaceState;
     };
