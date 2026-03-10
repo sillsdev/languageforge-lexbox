@@ -48,17 +48,17 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         var ordered = filtered
             .OrderByDescending(t => t.HeadwordMatches)
             .ThenByDescending(t => t.HeadwordPrefixMatches)
-            .ThenBy(t => t.HeadwordMatches ? t.Entry.Headword(wsId).Length : int.MaxValue)
+            .ThenBy(t => t.HeadwordMatches ? t.Headword.Length : int.MaxValue)
             .ThenBy(t =>
                 t.HeadwordMatches
-                ? t.Entry.Headword(wsId).CollateUnicode(wsId)
+                ? t.Headword.CollateUnicode(wsId)
                 : string.Empty)
             .ThenBy(t => Sql.Ext.SQLite().Rank(t.SearchRecord)).ThenBy(t => t.Entry.Id);
 
         return ordered.Select(t => t.Entry);
     }
 
-    private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, bool HeadwordMatches, bool HeadwordPrefixMatches);
+    private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, string Headword, bool HeadwordMatches, bool HeadwordPrefixMatches);
 
     private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query, WritingSystemId wsId)
     {
@@ -72,9 +72,10 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
                 (entry.LexemeForm.SearchValue(query)
                 || entry.CitationForm.SearchValue(query)
                 || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
-            let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(entry.Headword(wsId), query)
-            let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(entry.Headword(wsId), query)
-            select new FilterProjection(entry, searchRecord, headwordMatches, headwordPrefixMatches);
+            let headword = entry.Headword(wsId)
+            let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(headword, query)
+            let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(headword, query)
+            select new FilterProjection(entry, searchRecord, headword, headwordMatches, headwordPrefixMatches);
     }
 
     private static string ToFts5LiteralString(string query)

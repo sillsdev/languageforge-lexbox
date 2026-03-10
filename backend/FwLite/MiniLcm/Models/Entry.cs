@@ -47,6 +47,10 @@ public record Entry : IObjectWithId<Entry>
         var hw = Headword.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
         if (!string.IsNullOrEmpty(hw)) return hw.Trim();
 
+        //order by code to ensure the headword is stable
+        //todo choose ws by preference based on ws order/default
+        //todo this fallback path doesn't apply morph tokens — see #1284
+        //https://github.com/sillsdev/languageforge-lexbox/issues/1284
         var word = CitationForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
         if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
         return word?.Trim() ?? UnknownHeadword;

@@ -661,7 +661,7 @@ public class FwDataMiniLcmApi(
                 // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
                 PublishIn = entry.PublishIn.Select(FromLcmPossibility).ToList(),
             };
-            PopulateHeadword(result, entry.PrimaryMorphType);
+            result.Headword = ComputeHeadword(result, entry.PrimaryMorphType);
             return result;
         }
         catch (Exception e)
@@ -671,8 +671,9 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    private void PopulateHeadword(Entry result, IMoMorphType? lcmMorphType)
+    private MultiString ComputeHeadword(Entry result, IMoMorphType? lcmMorphType)
     {
+        var headword = new MultiString();
         var leading = lcmMorphType?.Prefix ?? "";
         var trailing = lcmMorphType?.Postfix ?? "";
 
@@ -682,16 +683,17 @@ public class FwDataMiniLcmApi(
             var citation = result.CitationForm[wsId];
             if (!string.IsNullOrEmpty(citation))
             {
-                result.Headword[wsId] = citation.Trim();
+                headword[wsId] = citation.Trim();
                 continue;
             }
 
             var lexeme = result.LexemeForm[wsId];
             if (!string.IsNullOrEmpty(lexeme))
             {
-                result.Headword[wsId] = (leading + lexeme + trailing).Trim();
+                headword[wsId] = (leading + lexeme + trailing).Trim();
             }
         }
+        return headword;
     }
 
     private List<ComplexFormType> ToComplexFormTypes(ILexEntry entry)

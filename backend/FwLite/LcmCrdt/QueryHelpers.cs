@@ -1,9 +1,19 @@
 using System.Globalization;
+using LcmCrdt.Data;
 
 namespace LcmCrdt;
 
 public static class QueryHelpers
 {
+    public static void Finalize(this Entry entry,
+        IComparer<ComplexFormComponent> complexFormComparer,
+        IReadOnlyDictionary<MorphType, MorphTypeData> morphTypeDataLookup,
+        WritingSystem[] vernacularWritingSystems)
+    {
+        entry.Finalize(complexFormComparer);
+        entry.Headword = EntryQueryHelpers.ComputeHeadwords(entry, morphTypeDataLookup, vernacularWritingSystems);
+    }
+
     public static void Finalize(this Entry entry, IComparer<ComplexFormComponent> complexFormComparer)
     {
         entry.Senses.ApplySortOrder();

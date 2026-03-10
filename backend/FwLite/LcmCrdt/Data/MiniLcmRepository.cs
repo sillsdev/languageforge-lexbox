@@ -87,10 +87,6 @@ public class MiniLcmRepository(
             .ToArrayAsync();
     }
 
-    private void PopulateHeadword(Entry entry, WritingSystem[] vernacularWss)
-    {
-        entry.Headword = EntryQueryHelpers.ComputeHeadwords(entry, _morphTypeDataLookup, vernacularWss);
-    }
     public IQueryable<Publication> Publications => dbContext.Publications;
 
 
@@ -168,8 +164,7 @@ public class MiniLcmRepository(
         await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
         await foreach (var entry in EfExtensions.SafeIterate(entries))
         {
-            entry.Finalize(complexFormComparer);
-            PopulateHeadword(entry, vernacularWss);
+            entry.Finalize(complexFormComparer, _morphTypeDataLookup, vernacularWss);
             yield return entry;
         }
     }
@@ -274,8 +269,7 @@ public class MiniLcmRepository(
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
             var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
                 .AsComplexFormComparer();
-            entry.Finalize(complexFormComparer);
-            PopulateHeadword(entry, await GetVernacularWritingSystems());
+            entry.Finalize(complexFormComparer, _morphTypeDataLookup, await GetVernacularWritingSystems());
         }
 
         return entry;
