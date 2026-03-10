@@ -16,7 +16,7 @@ export function usePartsOfSpeech(): PartOfSpeechService {
 
 export class PartOfSpeechService {
   constructor(projectContext: ProjectContext, private writingSystemService: WritingSystemService) {
-    this.#posResource = projectContext.apiResource([], api => api.getPartsOfSpeech());
+    this.#posResource = projectContext.lazyApiResource([], api => api.getPartsOfSpeech());
   }
 
   #posResource: ResourceReturn<IPartOfSpeech[], unknown, true>;
