@@ -367,6 +367,11 @@ public class CrdtMiniLcmApi(
     public async Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphTypeData)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
+
+        // Duplicate MorphTypes (by kind, i.e. the MorphType enum) are not allowed
+        var existing = await repo.AllMorphTypeData.FirstOrDefaultAsync(m => m.MorphType == morphTypeData.MorphType);
+        if (existing is not null) return existing;
+
         if (morphTypeData.Id == default) morphTypeData.Id = Guid.NewGuid();
         await AddChange(new CreateMorphTypeDataChange(
             entityId: morphTypeData.Id,

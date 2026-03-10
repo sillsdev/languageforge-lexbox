@@ -1,4 +1,4 @@
-using LcmCrdt.Objects;
+using LcmCrdt.Utils;
 using MiniLcm.Models;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
@@ -16,9 +16,10 @@ public class CreateMorphTypeDataChange(Guid entityId, MultiString name, MultiStr
     public string? TrailingToken { get; set; } = trailingToken;
     public int SecondaryOrder { get; set; } = secondaryOrder;
     public MorphType MorphType { get; set; } = morphType;
-    public override ValueTask<MorphTypeData> NewEntity(Commit commit, IChangeContext context)
+    public override async ValueTask<MorphTypeData> NewEntity(Commit commit, IChangeContext context)
     {
-        return ValueTask.FromResult(new MorphTypeData
+        var alreadyExists = await context.GetObjectsOfType<MorphTypeData>().AnyAsync(m => m.MorphType == MorphType);
+        return new MorphTypeData
         {
             Id = EntityId,
             Name = Name,
@@ -28,6 +29,7 @@ public class CreateMorphTypeDataChange(Guid entityId, MultiString name, MultiStr
             TrailingToken = TrailingToken,
             SecondaryOrder = SecondaryOrder,
             MorphType = MorphType,
-        });
+            DeletedAt = alreadyExists ? commit.DateTime : null
+        };
     }
 }
