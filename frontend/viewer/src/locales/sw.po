@@ -220,12 +220,6 @@ msgstr "Kikoa chochote cha kumkutania"
 msgid "Any Ws"
 msgstr "Ws yoyote"
 
-#. Field label
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-#: src/lib/updates/UpdateDialog.svelte
-msgid "Application version"
-msgstr "Toleo la programu"
-
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
@@ -746,6 +740,10 @@ msgstr "Sehemu"
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
+#: src/project/ProjectSidebar.svelte
+msgid "FieldWorks Lite {0}"
+msgstr ""
+
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr "FieldWorks Lite imesasishwa kwa ufanisi. Tafadhali anzisha upya programu ili kutumia mabadiliko."
@@ -753,6 +751,11 @@ msgstr "FieldWorks Lite imesasishwa kwa ufanisi. Tafadhali anzisha upya programu
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 msgstr "Watumiaji wa FieldWorks Lite watapokea otomatiki mabadiliko yaliyofanywa katika FieldWorks Classic. Watumiaji wa FieldWorks Classic watakuona mabadiliko yaliyofanywa katika FieldWorks Lite baada ya kufanya Tuma/Pokea."
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
+msgid "FieldWorks Lite version"
+msgstr ""
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
@@ -1899,11 +1902,6 @@ msgstr "Masasisho"
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
 msgstr "Inatumia sehemu kama"
-
-#. Version display
-#: src/project/ProjectSidebar.svelte
-msgid "Version {0}"
-msgstr "Toleo {0}"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte

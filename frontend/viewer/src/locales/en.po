@@ -215,12 +215,6 @@ msgstr "Any semantic domain"
 msgid "Any Ws"
 msgstr "Any Ws"
 
-#. Field label
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-#: src/lib/updates/UpdateDialog.svelte
-msgid "Application version"
-msgstr "Application version"
-
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
@@ -741,6 +735,10 @@ msgstr "Field"
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
+#: src/project/ProjectSidebar.svelte
+msgid "FieldWorks Lite {0}"
+msgstr "FieldWorks Lite {0}"
+
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
@@ -748,6 +746,11 @@ msgstr "FieldWorks Lite has been updated successfully. Please restart the app to
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 msgstr "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
+msgid "FieldWorks Lite version"
+msgstr "FieldWorks Lite version"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
@@ -1894,11 +1897,6 @@ msgstr "Updates"
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
 msgstr "Uses components as"
-
-#. Version display
-#: src/project/ProjectSidebar.svelte
-msgid "Version {0}"
-msgstr "Version {0}"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte

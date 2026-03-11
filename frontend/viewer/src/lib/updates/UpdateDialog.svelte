@@ -53,7 +53,7 @@
   <div class="flex flex-col gap-4">
     <div>
       <p class="flex items-baseline gap-1">
-        {$t`Application version`}:
+        {$t`FieldWorks Lite version`}:
         <span class="font-semibold">{appVersion}</span>
       </p>
       <DevContent>

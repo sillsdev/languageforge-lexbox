@@ -220,12 +220,6 @@ msgstr "Bất kỳ miền ngữ nghĩa nào"
 msgid "Any Ws"
 msgstr "Bất kỳ hệ chữ nào"
 
-#. Field label
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-#: src/lib/updates/UpdateDialog.svelte
-msgid "Application version"
-msgstr "Phiên bản ứng dụng"
-
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
@@ -746,6 +740,10 @@ msgstr "Trường"
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
+#: src/project/ProjectSidebar.svelte
+msgid "FieldWorks Lite {0}"
+msgstr ""
+
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr "FieldWorks Lite đã được cập nhật thành công. Vui lòng khởi động lại ứng dụng để áp dụng thay đổi."
@@ -753,6 +751,11 @@ msgstr "FieldWorks Lite đã được cập nhật thành công. Vui lòng khở
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 msgstr "Người dùng FieldWorks Lite sẽ tự động nhận các thay đổi được thực hiện trong FieldWorks Classic. Người dùng FieldWorks Classic sẽ thấy các thay đổi từ FieldWorks Lite sau khi họ thực hiện Gửi/Nhận."
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
+msgid "FieldWorks Lite version"
+msgstr ""
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
@@ -1899,11 +1902,6 @@ msgstr "Cập nhật"
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
 msgstr "Sử dụng các thành phần như"
-
-#. Version display
-#: src/project/ProjectSidebar.svelte
-msgid "Version {0}"
-msgstr "Phiên bản {0}"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
