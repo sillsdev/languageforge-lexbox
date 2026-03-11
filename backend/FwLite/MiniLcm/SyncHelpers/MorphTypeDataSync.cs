@@ -19,6 +19,13 @@ public static class MorphTypeDataSync
         MorphTypeData after,
         IMiniLcmApi api)
     {
+        if (before.MorphType != after.MorphType)
+        {
+            // Reject change entirely, for consistency with how api.UpdateMorphTypeData(after.Id, updateObjectInput) handles things
+            // Rationale: any attempt to change the MorphType may have tried to change the name, description, etc. to match, so allowing the
+            // *other* changes through while rejecting just the change to the MorphType enum could leave the object in an inconsistent state.
+            return 0; // No change made
+        }
         var updateObjectInput = MorphTypeDataDiffToUpdate(before, after);
         if (updateObjectInput is not null) await api.UpdateMorphTypeData(after.Id, updateObjectInput);
         return updateObjectInput is null ? 0 : 1;
