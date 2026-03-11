@@ -393,10 +393,7 @@ public class CrdtMiniLcmApi(
     public async Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
     {
         // Updates are not allowed to change MorphType: any update that attempts to do so will be rejected
-        var operations = update.Patch.GetOperations();
-        if (operations.Any(
-            op => op.Path == $"/{nameof(MorphTypeData.MorphType)}" &&
-            op.OperationType == SystemTextJsonPatch.Operations.OperationType.Replace))
+        if (update.Patch.Operations.Any(op => op.Path == $"/{nameof(MorphTypeData.MorphType)}"))
         {
             // Reject patch entirely, including any *other* changes that might have been included
             // Rationale: the edit that attempted to change the MorphType may have been trying to convert its
