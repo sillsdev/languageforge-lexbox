@@ -398,8 +398,8 @@ public class CrdtMiniLcmApi(
             // Reject patch entirely, including any *other* changes that might have been included
             // Rationale: the edit that attempted to change the MorphType may have been trying to convert its
             // name, description, etc., from "root" to "prefix". Allowing the name, description, etc. changes
-            // to go through could cause an inconsistent state. Just return original object unchanged.
-            return await GetMorphTypeData(id) ?? throw NotFoundException.ForType<MorphTypeData>(id);
+            // to go through could cause an inconsistent state.
+            throw new InvalidOperationException("MorphTypes cannot be changed to a different kind after creation");
         }
         await AddChange(new JsonPatchChange<MorphTypeData>(id, update.Patch));
         return await GetMorphTypeData(id) ?? throw NotFoundException.ForType<MorphTypeData>(id);

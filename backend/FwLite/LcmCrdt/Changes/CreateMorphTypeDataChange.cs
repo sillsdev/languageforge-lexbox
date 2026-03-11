@@ -19,6 +19,8 @@ public class CreateMorphTypeDataChange(Guid entityId, MultiString name, MultiStr
     public override async ValueTask<MorphTypeData> NewEntity(Commit commit, IChangeContext context)
     {
         var alreadyExists = await context.GetObjectsOfType<MorphTypeData>().AnyAsync(m => m.MorphType == MorphType);
+        // Can't return null for duplicates or we'll break the API, but the DB will auto-discard the duplicate
+        // However, we should still set DeletedAt on the duplicate so that mocks can still ensure correct behavior
         return new MorphTypeData
         {
             Id = EntityId,

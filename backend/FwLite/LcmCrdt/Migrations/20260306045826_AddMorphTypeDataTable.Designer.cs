@@ -297,6 +297,9 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
+                    b.HasIndex("MorphType")
+                        .IsUnique();
+
                     b.ToTable("MorphTypeData");
                 });
 
