@@ -13,7 +13,6 @@ import type {
 import type {ITestingService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ITestingService';
 import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
-import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
 import type {IHistoryServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {useProjectContext} from '$project/project-context.svelte';
@@ -45,18 +44,7 @@ export type LexboxServiceRegistry = {
 export const SERVICE_KEYS = Object.values(DotnetService);
 
 export class LexboxServiceProvider {
-  private services: Partial<LexboxServiceRegistry> = {
-    [DotnetService.JsEventListener]: {
-      nextEventAsync(): Promise<IFwEvent> {
-        console.warn('using default JsEvent listener which does nothing');
-        return new Promise<IFwEvent>(() => {});
-      },
-      lastEvent(): Promise<IFwEvent | null> {
-        console.warn('using default JsEvent listener which does nothing');
-        return Promise.resolve(null);
-      }
-    }
-  };
+  private services: Partial<LexboxServiceRegistry> = {};
 
   public setService<K extends ServiceKey>(key: K, service: LexboxServiceRegistry[K]): void {
     this.validateServiceKey(key);
