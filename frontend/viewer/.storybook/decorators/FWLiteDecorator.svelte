@@ -25,6 +25,7 @@
   import {InMemoryDemoApi} from '$project/demo/in-memory-demo-api';
   import {setupServiceProvider} from '$lib/services/service-provider';
   import {setupDotnetServiceProvider} from '$lib/services/service-provider-dotnet';
+  import {setupBrowserAppServices} from '$lib/services/browser-app-services';
   import {XButton} from '$lib/components/ui/button';
   import {extract} from 'runed';
   import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
@@ -37,6 +38,9 @@
 
   setupServiceProvider();
   setupDotnetServiceProvider();
+  if (!window.lexbox.isDotnetHosted) {
+    setupBrowserAppServices();
+  }
   InMemoryDemoApi.setup();
   initView();
   const storyContext = useSvelteStoryContext();
