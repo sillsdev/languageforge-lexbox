@@ -38,6 +38,18 @@ public class ResumableTests : IAsyncLifetime
             }).ToList();
         var expectedPartsOfSpeech = Enumerable.Range(1, 10)
             .Select(i => new PartOfSpeech { Id = Guid.NewGuid(), Name = { ["en"] = $"pos{i}" } }).ToList();
+        var expectedMorphTypes = Enumerable.Range((int)MorphType.BoundRoot, (int)MorphType.DiscontiguousPhrase)
+            .Select(i => new MorphTypeData()
+            {
+                Id = Guid.NewGuid(),
+                Name = new() { ["en"] = $"Test Morph Type {i}" },
+                Abbreviation = new() { ["en"] = $"Tst MrphTyp{i}" },
+                Description = new() { { "en", new RichString($"test desc {i}") } },
+                LeadingToken = null,
+                TrailingToken = null,
+                MorphType = (MorphType)i,
+                SecondaryOrder = 0
+            });
 
         var mockFrom = new Mock<IMiniLcmApi>();
         IMiniLcmApi mockTo = new UnreliableApi(
@@ -81,17 +93,7 @@ public class ResumableTests : IAsyncLifetime
                 Name = new(){ ["en"] = "Test Complex Form Type" }
             }]));
         mockFrom.Setup(f => f.GetAllMorphTypeData())
-            .Returns(MockAsyncEnumerable([new MorphTypeData()
-            {
-                Id = Guid.NewGuid(),
-                Name = new(){ ["en"] = "Test Morph Type" },
-                Abbreviation = new(){ ["en"] = "Tst MrphTyp" },
-                Description = new(){ { "en", new RichString("test desc") } },
-                LeadingToken = null,
-                TrailingToken = null,
-                MorphType = MorphType.Root,
-                SecondaryOrder = 0
-            }]));
+            .Returns(MockAsyncEnumerable(expectedMorphTypes));
         mockFrom.Setup(f => f.GetSemanticDomains())
             .Returns(MockAsyncEnumerable([new SemanticDomain()
             {
@@ -123,10 +125,14 @@ public class ResumableTests : IAsyncLifetime
 
         var createdEntries = await mockTo.GetAllEntries().ToArrayAsync();
         var createdPartsOfSpeech = await mockTo.GetPartsOfSpeech().ToArrayAsync();
+        var createdMorphTypes = await mockTo.GetAllMorphTypeData().ToArrayAsync();
 
         // Assert
         createdPartsOfSpeech.Select(pos => pos.Name["en"]).Should().BeEquivalentTo(expectedPartsOfSpeech.Select(p => p.Name["en"]));
         createdEntries.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(expectedEntries.Select(e => e.LexemeForm["en"]));
+        createdMorphTypes.Select(e => e.Name["en"]).Should().BeEquivalentTo(expectedMorphTypes.Select(e => e.Name["en"]));
+        createdMorphTypes.Select(e => e.MorphType).Should().BeEquivalentTo(expectedMorphTypes.Select(e => e.MorphType));
+
     }
 
 
