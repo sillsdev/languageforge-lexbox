@@ -45,6 +45,7 @@ public static class MorphTypeDataSync
         patchDocument.Operations.AddRange(IntegerDiff.GetIntegerDiff<MorphTypeData>(nameof(MorphTypeData.SecondaryOrder),
             beforeMorphTypeData.SecondaryOrder,
             afterMorphTypeData.SecondaryOrder));
+        // Do NOT add an operation for changing MorphTypeData.MorphType, as changing that property is not allowed
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<MorphTypeData>(patchDocument);
     }

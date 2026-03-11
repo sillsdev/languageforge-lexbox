@@ -388,6 +388,18 @@ public class CrdtMiniLcmApi(
 
     public async Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
     {
+        // Updates are not allowed to change MorphType: any update that attempts to do so will be rejected
+        var operations = update.Patch.GetOperations();
+        if (operations.Any(
+            op => op.Path == $"/{nameof(MorphTypeData.MorphType)}" &&
+            op.OperationType == SystemTextJsonPatch.Operations.OperationType.Replace))
+        {
+            // Reject patch entirely, including any *other* changes that might have been included
+            // Rationale: the edit that attempted to change the MorphType may have been trying to convert its
+            // name, description, etc., from "root" to "prefix". Allowing the name, description, etc. changes
+            // to go through could cause an inconsistent state. Just return original object unchanged.
+            return await GetMorphTypeData(id) ?? throw NotFoundException.ForType<MorphTypeData>(id);
+        }
         await AddChange(new JsonPatchChange<MorphTypeData>(id, update.Patch));
         return await GetMorphTypeData(id) ?? throw NotFoundException.ForType<MorphTypeData>(id);
     }
