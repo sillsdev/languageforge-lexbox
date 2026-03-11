@@ -91,7 +91,8 @@ function transformBlob(result: unknown): unknown {
 
 export function setupDotnetServiceProvider() {
   if (globalThis.window.lexbox?.DotNetServiceProvider) return;
-  const lexbox = {DotNetServiceProvider: new DotNetServiceProvider()};
+  const isDotnetHosted = !!globalThis.window.lexbox?.FwLiteProvider;
+  const lexbox = {DotNetServiceProvider: new DotNetServiceProvider(), isDotnetHosted};
   if (globalThis.window.lexbox) {
     globalThis.window.lexbox = {...globalThis.window.lexbox, ...lexbox};
   } else {

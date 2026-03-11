@@ -10,6 +10,7 @@ declare global {
     ServiceProvider: LexboxServiceProvider;
     Search: { openSearch: (search: string) => void };
     /* eslint-enable @typescript-eslint/naming-convention */
+    isDotnetHosted: boolean;
   }
 
   interface Window {

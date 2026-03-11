@@ -37,7 +37,7 @@ import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShare
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
-import type {IPreferencesService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IPreferencesService';
+
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -90,21 +90,6 @@ const mockJsEventListener: IJsEventListener = {
   lastEvent: () => Promise.resolve(null)
 };
 
-const mockPreferencesService: IPreferencesService = {
-  _store: {} as Record<string, string>,
-  get(key: string): Promise<string | null> {
-    return Promise.resolve(this._store[key] ?? null);
-  },
-  set(key: string, value: string): Promise<void> {
-    this._store[key] = value;
-    return Promise.resolve();
-  },
-  remove(key: string): Promise<void> {
-    delete this._store[key];
-    return Promise.resolve();
-  },
-} as IPreferencesService & {_store: Record<string, string>};
-
 export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   #writingSystemService: WritingSystemService;
   #projectEventBus: ProjectEventBus;
@@ -121,7 +106,6 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
-    window.lexbox.ServiceProvider.setService(DotnetService.PreferencesService, mockPreferencesService);
     window.__PLAYWRIGHT_UTILS__ = { demoApi: inMemoryLexboxApi };
 
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
