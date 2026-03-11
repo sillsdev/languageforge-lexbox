@@ -383,7 +383,11 @@ public class CrdtMiniLcmApi(
             secondaryOrder: morphTypeData.SecondaryOrder,
             morphType: morphTypeData.MorphType
         ));
-        return await repo.AllMorphTypeData.SingleAsync(c => c.Id == morphTypeData.Id);
+        // MorphType value must be unique in DB, so return by MorphType rather than Id in case a race condition
+        // ended up causing two CreateMorphTypeData calls to happen at the same time. It's possible that the
+        // other call went through, creating a MorphTypeData entry with a different GUID but the same unique
+        // MorphType value. So we fetch by MorphType value rather than by Id here to mitigate that rare case.
+        return await repo.AllMorphTypeData.SingleAsync(c => c.MorphType == morphTypeData.MorphType);
     }
 
     public async Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
