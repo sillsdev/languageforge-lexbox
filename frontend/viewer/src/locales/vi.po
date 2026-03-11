@@ -740,10 +740,6 @@ msgstr "Trường"
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
-#: src/project/ProjectSidebar.svelte
-msgid "FieldWorks Lite {0}"
-msgstr ""
-
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr "FieldWorks Lite đã được cập nhật thành công. Vui lòng khởi động lại ứng dụng để áp dụng thay đổi."

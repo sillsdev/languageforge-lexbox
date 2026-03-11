@@ -740,10 +740,6 @@ msgstr "필드"
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
-#: src/project/ProjectSidebar.svelte
-msgid "FieldWorks Lite {0}"
-msgstr ""
-
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
 msgstr "FieldWorks Lite가 성공적으로 업데이트되었습니다. 변경 사항을 적용하려면 앱을 다시 시작하세요."
