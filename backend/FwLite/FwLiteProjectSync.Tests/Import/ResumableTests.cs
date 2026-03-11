@@ -49,7 +49,7 @@ public class ResumableTests : IAsyncLifetime
                 TrailingToken = null,
                 MorphType = (MorphType)i,
                 SecondaryOrder = 0
-            });
+            }).ToList();
 
         var mockFrom = new Mock<IMiniLcmApi>();
         IMiniLcmApi mockTo = new UnreliableApi(

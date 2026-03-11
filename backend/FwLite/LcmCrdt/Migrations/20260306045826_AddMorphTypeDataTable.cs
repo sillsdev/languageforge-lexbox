@@ -36,6 +36,8 @@ namespace LcmCrdt.Migrations
                 table: "MorphTypeData",
                 column: "MorphType",
                 unique: true);
+            // Note that unique: true above is not strictly necessary, but keeps consistent with the line
+            // morphTypeDataModel.HasIndex(m => m.MorphType).IsUnique() in LcmCrdtDbContext.OnModelCreating()
             migrationBuilder.CreateIndex(
                 name: "IX_MorphTypeData_SnapshotId",
                 table: "MorphTypeData",
