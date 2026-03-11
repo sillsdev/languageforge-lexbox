@@ -580,6 +580,15 @@ public class FwDataMiniLcmApi(
 
     public Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
     {
+        // Updates are not allowed to change MorphType: any update that attempts to do so will be rejected
+        if (update.Patch.Operations.Any(op => op.Path == $"/{nameof(MorphTypeData.MorphType)}"))
+        {
+            // Reject patch entirely, including any *other* changes that might have been included
+            // Rationale: the edit that attempted to change the MorphType may have been trying to convert its
+            // name, description, etc., from "root" to "prefix". Allowing the name, description, etc. changes
+            // to go through could cause an inconsistent state.
+            throw new InvalidOperationException("MorphTypes cannot be changed to a different kind after creation");
+        }
         var lcmMorphType = MorphTypeRepository.GetObject(id);
         if (lcmMorphType is null) throw new NullReferenceException($"unable to find morph type with id {id}");
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Morph Type",
