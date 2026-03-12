@@ -1,5 +1,6 @@
 import {describe, expect, it, vi} from 'vitest';
 import {mount, unmount} from 'svelte';
+
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import LazyApiResourceHarness from './LazyApiResourceHarness.svelte';
 
@@ -21,7 +22,7 @@ type HarnessControls = {
 
 describe('ProjectContext.lazyApiResource', () => {
   it('does not call API factory when lazy resource is only initialized', async () => {
-    const fetchData = vi.fn(async () => ['loaded']);
+    const fetchData = vi.fn(() => Promise.resolve(['loaded']));
     let controls: HarnessControls | undefined;
 
     const app = mount(LazyApiResourceHarness, {
@@ -41,7 +42,7 @@ describe('ProjectContext.lazyApiResource', () => {
   });
 
   it('loads and propagates data after first current read', async () => {
-    const fetchData = vi.fn(async () => ['loaded']);
+    const fetchData = vi.fn(() => Promise.resolve(['loaded']));
     let controls: HarnessControls | undefined;
 
     const app = mount(LazyApiResourceHarness, {
