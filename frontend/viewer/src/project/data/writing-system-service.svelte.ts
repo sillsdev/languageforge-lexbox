@@ -13,6 +13,7 @@ import {type ProjectContext, useProjectContext} from '$project/project-context.s
 import {type ResourceReturn} from 'runed';
 import type {View} from '$lib/views/view-data';
 import type {ReadonlyDeep} from 'type-fest';
+import {type MorphTypesService, useMorphTypesService} from './morph-types.svelte';
 
 export type WritingSystemSelection =
   | 'vernacular'
@@ -26,7 +27,8 @@ export type WritingSystemSelection =
 const symbol = Symbol.for('fw-lite-ws-service');
 export function useWritingSystemService(): WritingSystemService {
   const projectContext = useProjectContext();
-  return projectContext.getOrAdd(symbol, () => new WritingSystemService(projectContext));
+  const morphTypesService = useMorphTypesService();
+  return projectContext.getOrAdd(symbol, () => new WritingSystemService(projectContext, morphTypesService));
 }
 
 export class WritingSystemService {
@@ -37,7 +39,10 @@ export class WritingSystemService {
     return this.#wsResource.current;
   }
 
-  constructor(projectContext: ProjectContext) {
+  #morphTypesService: MorphTypesService;
+
+  constructor(projectContext: ProjectContext, morphTypesService: MorphTypesService) {
+    this.#morphTypesService = morphTypesService;
     this.#wsResource = projectContext.apiResource({analysis: [], vernacular: []}, async api => {
       const result = await api.getWritingSystems();
       return {
@@ -122,10 +127,10 @@ export class WritingSystemService {
 
   headword(entry: ReadonlyDeep<IEntry>, ws?: string): string {
     if (ws) {
-      return headword(entry, ws) || '';
+      return this.#morphTypesService.decorate(headword(entry, ws), entry.morphType) || '';
     }
 
-    return firstTruthy(this.vernacularNoAudio, ws => headword(entry, ws.wsId)) || '';
+    return firstTruthy(this.vernacularNoAudio, ws => this.#morphTypesService.decorate(headword(entry, ws.wsId), entry.morphType)) || '';
   }
 
   pickBestAlternative(value: IMultiString, wss: 'vernacular' | 'analysis'): string
