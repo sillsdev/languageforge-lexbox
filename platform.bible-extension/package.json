@@ -29,7 +29,10 @@
     "core:stop": "npm --prefix ../../paranext-core stop",
     "core:install": "npm --prefix ../../paranext-core install",
     "core:pull": "git -C ../../paranext-core pull --ff-only",
-    "core:update": "npm run core:pull && npm run core:install"
+    "core:update": "npm run core:pull && npm run core:install",
+    "types:sync": "node scripts/sync-types.js",
+    "types:bump": "cd ./release-types && npm version --no-git-tag-version",
+    "types:publish": "npm run types:sync && npm publish ./release-types"
   },
   "browserslist": [],
   "peerDependencies": {

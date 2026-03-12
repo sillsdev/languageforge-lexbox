@@ -1,0 +1,3 @@
+# Synced from src/types/ by `npm run types:sync` — do not edit directly
+fw-lite-extension.d.ts
+enums.ts

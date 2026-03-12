@@ -152,6 +152,43 @@ To build the extension once:
 
 `npm run build`
 
+## Publishing the types package to npm
+
+The `fw-lite-extension-types` npm package exposes the TypeScript types from `src/types/fw-lite-extension.d.ts` so that other Platform.Bible extensions can consume the `EntryService` network object and other public types from this extension.
+
+### Prerequisites
+
+Set the `NPM_TOKEN` environment variable to a valid npm access token that has publish rights to the `fw-lite-extension-types` package:
+
+```bash
+export NPM_TOKEN=<your-npm-token>
+```
+
+The token is read from `release-types/.npmrc` and is never stored in source control.
+
+### Bump the types package version
+
+Run the following from the `platform.bible-extension` directory, replacing `<version>` with the desired semver version (e.g. `patch`, `minor`, `major`, or a full version string like `1.0.0`):
+
+```bash
+npm run types:bump -- <version>
+```
+
+This updates the `version` field in `release-types/package.json`. Commit the updated `release-types/package.json` and open a PR.
+
+### Publish the types package
+
+Once the version bump is merged, publish from the `platform.bible-extension` directory:
+
+```bash
+npm run types:publish
+```
+
+This command:
+
+1. Copies `src/types/fw-lite-extension.d.ts` and `src/types/enums.ts` into `release-types/` (`types:sync`)
+2. Publishes the `release-types/` directory to the npm registry as `fw-lite-extension-types`
+
 <!--
 ## To package for distribution
 

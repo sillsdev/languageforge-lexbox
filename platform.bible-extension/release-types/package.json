@@ -1,0 +1,12 @@
+{
+  "name": "fw-lite-extension-types",
+  "version": "0.0.1",
+  "description": "TypeScript types for the fw-lite-extension Platform.Bible extension",
+  "author": "SIL Global",
+  "license": "MIT",
+  "types": "fw-lite-extension.d.ts",
+  "files": ["enums.ts", "fw-lite-extension.d.ts"],
+  "publishConfig": {
+    "access": "public"
+  }
+}
