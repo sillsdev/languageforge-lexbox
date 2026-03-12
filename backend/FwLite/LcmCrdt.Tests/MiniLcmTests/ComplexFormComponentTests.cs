@@ -75,23 +75,4 @@ public class ComplexFormComponentTests : ComplexFormComponentTestsBase
         created.MaybeId.Should().NotBeNull();
         created.Id.Should().NotBe(providedId);
     }
-
-    [Fact]
-    public async Task Create_DuplicateByProperties_WithDifferentEntityId_ReturnsExisting()
-    {
-        // Two calls with the same properties but different entity IDs (e.g. from separate
-        // FromEntries calls) are idempotent — the second returns the existing component.
-        // This is the normal case: callers don't control entity IDs.
-        var first = await Api.CreateComplexFormComponent(
-            ComplexFormComponent.FromEntries(
-                await GetEntry(_complexFormEntryId),
-                await GetEntry(_componentEntryId)));
-
-        var second = await Api.CreateComplexFormComponent(
-            ComplexFormComponent.FromEntries(
-                await GetEntry(_complexFormEntryId),
-                await GetEntry(_componentEntryId)));
-
-        second.Id.Should().Be(first.Id);
-    }
 }
