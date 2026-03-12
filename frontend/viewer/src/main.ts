@@ -9,11 +9,15 @@ import App from './App.svelte';
 import {mount} from 'svelte';
 import {setupDotnetServiceProvider} from './lib/services/service-provider-dotnet';
 import {setupServiceProvider} from '$lib/services/service-provider';
+import {setupBrowserAppServices} from '$lib/services/browser-app-services';
 import {useEventBus} from '$lib/services/event-bus';
 import {setLanguage} from '$lib/i18n';
 
 setupServiceProvider();
 setupDotnetServiceProvider();
+if (!window.lexbox.IsDotnetHosted) {
+  setupBrowserAppServices();
+}
 useEventBus();
 
 //don't mount the app until after we've loaded the local
