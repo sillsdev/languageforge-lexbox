@@ -23,8 +23,7 @@
     projectCode,
   });
 
-  const fetchData = () => props.fetchData();
-  const resource = projectContext.lazyApiResource([], () => fetchData());
+  const resource = projectContext.lazyApiResource([], () => props.fetchData());
 
   let showConsumer = $state(true);
 
@@ -42,8 +41,8 @@
     },
   };
 
-  const notifyReady = () => props.onReady(controls);
-  notifyReady();
+  // svelte-ignore state_referenced_locally
+  props.onReady(controls);
 </script>
 
 {#if showConsumer}

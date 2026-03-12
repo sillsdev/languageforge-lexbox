@@ -1,4 +1,5 @@
 import {describe, expect, it, vi} from 'vitest';
+
 import {LazyResource} from './lazy-resource';
 import type {ResourceReturn} from 'runed';
 
@@ -16,7 +17,7 @@ describe('LazyResource', () => {
         return undefined;
       },
       mutate: vi.fn(),
-      refetch: vi.fn(async () => 7),
+      refetch: vi.fn(() => Promise.resolve(7)),
     };
 
     const lazy = new LazyResource(wrapped, onActivate);
@@ -34,7 +35,7 @@ describe('LazyResource', () => {
       loading: false,
       error: undefined,
       mutate: vi.fn(),
-      refetch: vi.fn(async () => 99),
+      refetch: vi.fn(() => Promise.resolve(99)),
     };
 
     const lazy = new LazyResource(wrapped, onActivate);
