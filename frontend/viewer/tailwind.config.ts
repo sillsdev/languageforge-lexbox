@@ -5,7 +5,7 @@ import typography from '@tailwindcss/typography';
 
 export default {
   content: [
-    './src/**/!(WebComponent).{html,svelte,ts}',
+    './src/**/*.{html,svelte,ts}',
     './.storybook/**/*.{html,svelte,ts}',
     //exclude icons.d.ts, because it contains all the icon classes which would cause them all to be included in the bundle
     '!./src/lib/icon-class.ts'

@@ -8,10 +8,9 @@ import webfontDownload from 'vite-plugin-webfont-dl';
 const ssl = false;
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode, command }) => {
-  return {
-    base: command == "build" ? '/_content/FwLiteShared/viewer' : '/',
-    build: {
+export default defineConfig(({command}) => ({
+  base: command === 'build' ? '/_content/FwLiteShared/viewer' : '/',
+  build: {
       outDir: '../../backend/FwLite/FwLiteShared/wwwroot/viewer',
       emptyOutDir: true,
       manifest: true,
@@ -32,13 +31,13 @@ export default defineConfig(({ mode, command }) => {
         }
       },
     },
-    resolve: {
+  resolve: {
       alias: [
         {find: "$lib", replacement: "/src/lib"},
         {find: "$project", replacement: "/src/project"}
       ]
     },
-    plugins: [
+  plugins: [
       tailwindcss(),
       svelte(),
       lingui(),
@@ -48,11 +47,10 @@ export default defineConfig(({ mode, command }) => {
       }),
       ssl ? basicSsl() : null, // crypto.subtle is only available on secure connections
     ],
-    server: {
+  server: {
       origin: 'http://localhost:5173',
       host: true,
       allowedHosts: true,
       cors: true,
     },
-  }
-});
+}));
