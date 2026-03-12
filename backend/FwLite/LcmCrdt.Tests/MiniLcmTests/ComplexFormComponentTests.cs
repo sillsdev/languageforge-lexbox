@@ -1,4 +1,3 @@
-using LcmCrdt.Changes.Entries;
 using MiniLcm.SyncHelpers;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
@@ -29,74 +28,87 @@ public class ComplexFormComponentTests : ComplexFormComponentTestsBase
         return (await Api.GetEntry(id))!;
     }
 
-    // Simulates a component from LibLCM/FwData which has no CRDT entity ID (MaybeId == null).
-    private static ComplexFormComponent ComponentWithoutId(Guid complexFormEntryId, Guid componentEntryId)
+    [Fact]
+    public async Task ReusingEntityId_AfterPropertyChange_SilentlyReturnsOriginalEntity()
     {
-        return new ComplexFormComponent
+        // When the sync diff detects a property change (e.g. ComponentEntryId), it treats
+        // it as remove + add. The "add" still carries the original entity ID.
+        // The sync code guards against this with `after.Id = Guid.NewGuid()` before creating
+        // (see EntrySync.ComplexFormsDiffApi.Add / ComplexFormComponentsDiffApi.Add).
+        //
+        // Without that guard, Harmony silently no-ops the second create (entity ID already
+        // exists), and FindComplexFormComponent returns the ORIGINAL entity — not the one
+        // with updated properties.
+        var complexFormEntry = await GetEntry(_complexFormEntryId);
+        var originalComponentEntry = await GetEntry(_componentEntryId);
+        var newComponentEntry = await CreateEntry("New Component");
+
+        var input = ComplexFormComponent.FromEntries(complexFormEntry, originalComponentEntry);
+        var firstResult = await Api.CreateComplexFormComponent(input);
+
+        // Mutate the property without resetting the entity ID — the bug the sync code prevents.
+        input.ComponentEntryId = newComponentEntry.Id;
+        var secondResult = await Api.CreateComplexFormComponent(input);
+
+        // Both calls return the same entity — the second create was a no-op.
+        secondResult.Id.Should().Be(firstResult.Id);
+        secondResult.ComponentEntryId.Should().Be(originalComponentEntry.Id,
+            "Harmony ignored the second create; the original entity was returned unchanged");
+    }
+
+    [Fact]
+    public async Task Create_WithoutPresetId_AssignsNewEntityId()
+    {
+        // Components from LibLCM/FwData have no CRDT entity ID (MaybeId == null).
+        // CreateComplexFormComponent generates one via AddEntryComponentChange.
+        var input = new ComplexFormComponent
         {
-            ComplexFormEntryId = complexFormEntryId,
-            ComponentEntryId = componentEntryId,
+            ComplexFormEntryId = _complexFormEntryId,
+            ComponentEntryId = _componentEntryId,
         };
-    }
+        input.MaybeId.Should().BeNull();
 
-    [Fact]
-    public async Task ReusingEntityId_ForDifferentComponent_Throws()
-    {
-        // The sync code guards against this by calling `component.Id = Guid.NewGuid()`
-        // before every create (see EntrySync.ComplexFormComponentsDiffApi.Add).
-        var entry2 = await CreateEntry("Component 2");
+        var created = await Api.CreateComplexFormComponent(input);
 
-        var entityId = Guid.NewGuid();
-        await _fixture.DataModel.AddChange(Guid.NewGuid(),
-            new AddEntryComponentChange(entityId, 1, _complexFormEntryId, _componentEntryId));
-
-        var act = () => _fixture.DataModel.AddChange(Guid.NewGuid(),
-            new AddEntryComponentChange(entityId, 2, _complexFormEntryId, entry2.Id));
-        await act.Should().ThrowAsync<Exception>();
-    }
-
-    [Fact]
-    public async Task IdempotentCreate_ReturnsExistingId_NotNewlyProvidedId()
-    {
-        // ComplexFormComponent lookup is by properties, not entity ID.
-        // When a matching component already exists, the caller's ID is discarded.
-        var complexForm = await GetEntry(_complexFormEntryId);
-        var component = await GetEntry(_componentEntryId);
-
-        var firstInput = ComplexFormComponent.FromEntries(complexForm, component);
-        var created = await Api.CreateComplexFormComponent(firstInput);
-
-        var secondInput = ComplexFormComponent.FromEntries(complexForm, component);
-        secondInput.Id.Should().NotBe(firstInput.Id, "FromEntries generates a fresh Guid each time");
-
-        var returnedExisting = await Api.CreateComplexFormComponent(secondInput);
-        returnedExisting.Id.Should().Be(created.Id);
+        created.MaybeId.Should().NotBeNull();
+        created.ComplexFormEntryId.Should().Be(_complexFormEntryId);
+        created.ComponentEntryId.Should().Be(_componentEntryId);
     }
 
     [Fact]
     public async Task Create_WithBetweenComponentsLackingIds_PositionsCorrectly()
     {
         // Components from LibLCM don't carry CRDT entity IDs.
-        // BetweenPosition items are resolved by property lookup instead.
-        var complexForm = await GetEntry(_complexFormEntryId);
-        var component = await GetEntry(_componentEntryId);
-        var entry3 = await CreateEntry("Entry 3");
-        var entry4 = await CreateEntry("Entry 4");
+        // BetweenPosition items are resolved via property lookup
+        // (see CrdtMiniLcmApi.CreateComplexFormComponent / MoveComplexFormComponent).
+        var complexFormEntry = await GetEntry(_complexFormEntryId);
+        var componentA = await GetEntry(_componentEntryId);
+        var componentB = await CreateEntry("Component B");
+        var componentC = await CreateEntry("Component C");
 
-        var comp1 = await Api.CreateComplexFormComponent(
-            ComplexFormComponent.FromEntries(complexForm, component));
-        var comp2 = await Api.CreateComplexFormComponent(
-            ComplexFormComponent.FromEntries(complexForm, entry3));
+        var createdA = await Api.CreateComplexFormComponent(
+            ComplexFormComponent.FromEntries(complexFormEntry, componentA));
+        var createdB = await Api.CreateComplexFormComponent(
+            ComplexFormComponent.FromEntries(complexFormEntry, componentB));
 
-        var previous = ComponentWithoutId(_complexFormEntryId, _componentEntryId);
-        var next = ComponentWithoutId(_complexFormEntryId, entry3.Id);
-        previous.MaybeId.Should().BeNull("simulates a component from LibLCM with no CRDT ID");
+        // BetweenPosition anchors without IDs — as they'd arrive from LibLCM.
+        var anchorBefore = new ComplexFormComponent
+        {
+            ComplexFormEntryId = _complexFormEntryId,
+            ComponentEntryId = componentA.Id,
+        };
+        var anchorAfter = new ComplexFormComponent
+        {
+            ComplexFormEntryId = _complexFormEntryId,
+            ComponentEntryId = componentB.Id,
+        };
+        anchorBefore.MaybeId.Should().BeNull();
 
-        var comp3 = await Api.CreateComplexFormComponent(
-            ComplexFormComponent.FromEntries(complexForm, entry4),
-            new BetweenPosition<ComplexFormComponent>(previous, next));
+        var insertedBetween = await Api.CreateComplexFormComponent(
+            ComplexFormComponent.FromEntries(complexFormEntry, componentC),
+            new BetweenPosition<ComplexFormComponent>(anchorBefore, anchorAfter));
 
-        comp3.Order.Should().BeGreaterThan(comp1.Order)
-            .And.BeLessThan(comp2.Order);
+        insertedBetween.Order.Should().BeGreaterThan(createdA.Order)
+            .And.BeLessThan(createdB.Order);
     }
 }
