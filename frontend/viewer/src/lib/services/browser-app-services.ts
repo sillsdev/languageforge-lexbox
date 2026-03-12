@@ -29,7 +29,7 @@ const noopJsEventListener: IJsEventListener = {
 
 /**
  * Registers app-level services that dotnet would normally provide.
- * Only call this when running without a dotnet host (e.g. Vite dev server, demo, tests).
+ * Only call this when running without a dotnet host (e.g. Vite dev server, demo, tests, storybook).
  */
 export function setupBrowserAppServices(): void {
   window.lexbox.ServiceProvider.setService(DotnetService.PreferencesService, localStoragePreferencesService);
