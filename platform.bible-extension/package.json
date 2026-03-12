@@ -31,8 +31,8 @@
     "core:pull": "git -C ../../paranext-core pull --ff-only",
     "core:update": "npm run core:pull && npm run core:install",
     "types:sync": "node scripts/sync-types.js",
-    "types:bump": "npm --prefix ./types-package version",
-    "types:publish": "npm run types:sync && npm --prefix ./types-package publish"
+    "types:bump": "npm --prefix ./release-types version",
+    "types:publish": "npm run types:sync && npm --prefix ./release-types publish"
   },
   "browserslist": [],
   "peerDependencies": {

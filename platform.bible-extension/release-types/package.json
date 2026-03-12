@@ -5,7 +5,10 @@
   "author": "SIL Global",
   "license": "MIT",
   "types": "fw-lite-extension.d.ts",
-  "files": ["fw-lite-extension.d.ts", "enums.ts"],
+  "files": [
+    "fw-lite-extension.d.ts",
+    "enums.ts"
+  ],
   "publishConfig": {
     "access": "public"
   }

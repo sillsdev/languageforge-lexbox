@@ -164,7 +164,7 @@ Set the `NPM_TOKEN` environment variable to a valid npm access token that has pu
 export NPM_TOKEN=<your-npm-token>
 ```
 
-The token is read from `types-package/.npmrc` and is never stored in source control.
+The token is read from `release-types/.npmrc` and is never stored in source control.
 
 ### Bump the types package version
 
@@ -174,7 +174,7 @@ Run the following from the `platform.bible-extension` directory, replacing `<ver
 npm run types:bump -- <version>
 ```
 
-This updates the `version` field in `types-package/package.json`. Commit the updated `types-package/package.json` and open a PR.
+This updates the `version` field in `release-types/package.json`. Commit the updated `release-types/package.json` and open a PR.
 
 ### Publish the types package
 
@@ -186,8 +186,8 @@ npm run types:publish
 
 This command:
 
-1. Copies `src/types/fw-lite-extension.d.ts` and `src/types/enums.ts` into `types-package/` (`types:sync`)
-2. Publishes the `types-package/` directory to the npm registry as `fw-lite-extension-types`
+1. Copies `src/types/fw-lite-extension.d.ts` and `src/types/enums.ts` into `release-types/` (`types:sync`)
+2. Publishes the `release-types/` directory to the npm registry as `fw-lite-extension-types`
 
 <!--
 ## To package for distribution
