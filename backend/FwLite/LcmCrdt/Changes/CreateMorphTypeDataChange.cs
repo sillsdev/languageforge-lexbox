@@ -13,7 +13,7 @@ public class CreateMorphTypeDataChange : CreateChange<MorphTypeData>, ISelfNamed
     {
         morphTypeData.Id = EntityId;
         Name = morphTypeData.Name;
-        Name = morphTypeData.Name;
+        Abbreviation = morphTypeData.Abbreviation;
         Description = morphTypeData.Description;
         LeadingToken = morphTypeData.LeadingToken;
         TrailingToken = morphTypeData.TrailingToken;
