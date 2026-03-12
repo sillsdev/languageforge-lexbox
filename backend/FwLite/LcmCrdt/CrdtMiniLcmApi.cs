@@ -303,12 +303,26 @@ public class CrdtMiniLcmApi(
         if (existing is null)
         {
             var betweenIds = between is null ? null : await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
+            // Always generate a new entity ID — the caller's ID is never used.
+            // This aligns with FwData (which ignores the ID entirely) and prevents
+            // Harmony duplicate-ID pitfalls during sync (see EntrySync.ComplexFormsDiffApi.Add).
             complexFormComponent.Id = Guid.NewGuid();
             var addEntryComponentChange = await repo.CreateComplexFormComponentChange(complexFormComponent, betweenIds);
             await AddChange(addEntryComponentChange);
             return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
         }
-        else if (between is not null)
+
+        // The entity ID is internal — callers should not provide one that matches
+        // an existing component. If it does, it means they're reusing an already-created
+        // object, which would silently no-op in Harmony (duplicate entity IDs are ignored).
+        if (complexFormComponent.MaybeId is not null && complexFormComponent.MaybeId == existing.MaybeId)
+        {
+            throw new InvalidOperationException(
+                $"ComplexFormComponent with entity ID {complexFormComponent.MaybeId} already exists. "
+                + "The entity ID is internal and should not be reused by callers.");
+        }
+
+        if (between is not null)
         {
             await MoveComplexFormComponent(existing, between);
         }

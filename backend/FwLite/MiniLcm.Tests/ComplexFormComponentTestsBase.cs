@@ -1,5 +1,6 @@
 using FluentAssertions.Execution;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 
 namespace MiniLcm.Tests;
 
@@ -144,6 +145,48 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
 
         var entry = await Api.GetEntry(_complexFormEntryId);
         entry!.Components.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task CreateComplexFormComponent_WithBetweenComponentsLackingIds_PositionsCorrectly()
+    {
+        // Components from LibLCM don't carry CRDT entity IDs (MaybeId == null).
+        // BetweenPosition anchors are resolved by property lookup, not by entity ID.
+        var componentB = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "Component B" } }
+        });
+        var componentC = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "Component C" } }
+        });
+
+        var createdA = await Api.CreateComplexFormComponent(
+            ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        var createdB = await Api.CreateComplexFormComponent(
+            ComplexFormComponent.FromEntries(_complexFormEntry, componentB));
+
+        // Anchors without entity IDs — as they'd arrive from LibLCM.
+        var anchorBefore = new ComplexFormComponent
+        {
+            ComplexFormEntryId = _complexFormEntryId,
+            ComponentEntryId = _componentEntryId,
+        };
+        var anchorAfter = new ComplexFormComponent
+        {
+            ComplexFormEntryId = _complexFormEntryId,
+            ComponentEntryId = componentB.Id,
+        };
+        anchorBefore.MaybeId.Should().BeNull();
+
+        var insertedBetween = await Api.CreateComplexFormComponent(
+            ComplexFormComponent.FromEntries(_complexFormEntry, componentC),
+            new BetweenPosition<ComplexFormComponent>(anchorBefore, anchorAfter));
+
+        insertedBetween.Order.Should().BeGreaterThan(createdA.Order)
+            .And.BeLessThan(createdB.Order);
     }
 
     [Fact]
