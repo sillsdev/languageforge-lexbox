@@ -7,9 +7,9 @@ const srcDir = path.join(__dirname, '..', 'src', 'types');
 const destDir = path.join(__dirname, '..', 'release-types');
 const files = ['fw-lite-extension.d.ts', 'enums.ts'];
 
-for (const file of files) {
+files.forEach((file) => {
   const src = path.join(srcDir, file);
   const dest = path.join(destDir, file);
   fs.copyFileSync(src, dest);
   console.log(`Copied ${file} → release-types/${file}`);
-}
+});
