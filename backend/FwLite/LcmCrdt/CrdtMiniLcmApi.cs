@@ -315,7 +315,7 @@ public class CrdtMiniLcmApi(
         // The entity ID is internal — callers should not provide one that matches
         // an existing component. If it does, it means they're reusing an already-created
         // object, which would silently no-op in Harmony (duplicate entity IDs are ignored).
-        if (complexFormComponent.MaybeId is not null && complexFormComponent.MaybeId == existing.MaybeId)
+        if (complexFormComponent.MaybeId == existing.MaybeId)
         {
             throw new InvalidOperationException(
                 $"ComplexFormComponent with entity ID {complexFormComponent.MaybeId} already exists. "
