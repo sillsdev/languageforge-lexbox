@@ -1,5 +1,5 @@
+using System.Text.Json.Serialization;
 using LcmCrdt.Utils;
-using MiniLcm.Models;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
@@ -7,26 +7,43 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
 
-public class CreateMorphTypeDataChange(Guid entityId, MultiString name, MultiString abbreviation, RichMultiString description, string? leadingToken, string? trailingToken, int secondaryOrder, MorphType morphType) : CreateChange<MorphTypeData>(entityId), ISelfNamedType<CreateMorphTypeDataChange>
+public class CreateMorphTypeDataChange : CreateChange<MorphTypeData>, ISelfNamedType<CreateMorphTypeDataChange>
 {
-    public MultiString Name { get; } = name;
-    public MultiString Abbreviation { get; set; } = abbreviation;
-    public RichMultiString Description { get; set; } = description;
-    public string? LeadingToken { get; set; } = leadingToken;
-    public string? TrailingToken { get; set; } = trailingToken;
-    public int SecondaryOrder { get; set; } = secondaryOrder;
-    public MorphType MorphType { get; set; } = morphType;
+    public CreateMorphTypeDataChange(MorphTypeData morphTypeData) : base(morphTypeData.Id == Guid.Empty ? Guid.NewGuid() : morphTypeData.Id)
+    {
+        morphTypeData.Id = EntityId;
+        Name = morphTypeData.Name;
+        Name = morphTypeData.Name;
+        Description = morphTypeData.Description;
+        LeadingToken = morphTypeData.LeadingToken;
+        TrailingToken = morphTypeData.TrailingToken;
+        SecondaryOrder = morphTypeData.SecondaryOrder;
+        MorphType = morphTypeData.MorphType;
+    }
+
+    [JsonConstructor]
+    private CreateMorphTypeDataChange(Guid entityId) : base(entityId)
+    {
+    }
+
+    public MultiString? Name { get; set; }
+    public MultiString? Abbreviation { get; set; }
+    public RichMultiString? Description { get; set; }
+    public string? LeadingToken { get; set; }
+    public string? TrailingToken { get; set; }
+    public int SecondaryOrder { get; set; }
+    public MorphType MorphType { get; set; }
     public override async ValueTask<MorphTypeData> NewEntity(Commit commit, IChangeContext context)
     {
         var alreadyExists = await context.GetObjectsOfType<MorphTypeData>().AnyAsync(m => m.MorphType == MorphType);
-        // Can't return null for duplicates or we'll break the API, but the DB will auto-discard the duplicate
-        // However, we should still set DeletedAt on the duplicate so that mocks can still ensure correct behavior
+        // Can't return null for duplicates or we'll break the API, but returning a pre-deleted object will
+        // ensure the duplicate never reaches the DB as our code will filter it out before saving
         return new MorphTypeData
         {
             Id = EntityId,
-            Name = Name,
-            Abbreviation = Abbreviation,
-            Description = Description,
+            Name = Name ?? [],
+            Abbreviation = Abbreviation ?? [],
+            Description = Description ?? [],
             LeadingToken = LeadingToken,
             TrailingToken = TrailingToken,
             SecondaryOrder = SecondaryOrder,
