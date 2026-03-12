@@ -11,33 +11,37 @@ namespace LcmCrdt.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Using raw SQL here because we need ON CONFLICT IGNORE on the unique constraint
-            // for MorphType, and EF Core doesn't have an API that would add that clause
-            migrationBuilder.Sql(@"
-                CREATE TABLE MorphTypeData (
-                    Id             TEXT    NOT NULL,
-                    MorphType      INTEGER NOT NULL UNIQUE ON CONFLICT IGNORE,
-                    Name           TEXT    NOT NULL,
-                    Abbreviation   TEXT    NOT NULL,
-                    Description    TEXT    NOT NULL,
-                    LeadingToken   TEXT,
-                    TrailingToken  TEXT,
-                    SecondaryOrder INTEGER NOT NULL,
-                    DeletedAt      TEXT,
-                    SnapshotId     TEXT,
-                    CONSTRAINT PK_MorphTypeData PRIMARY KEY (Id),
-                    CONSTRAINT FK_MorphTypeData_Snapshots_SnapshotId
-                        FOREIGN KEY (SnapshotId) REFERENCES Snapshots (Id) ON DELETE SET NULL
-                );
-            ");
+            migrationBuilder.CreateTable(
+                name: "MorphTypeData",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    MorphType = table.Column<int>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "jsonb", nullable: false),
+                    Abbreviation = table.Column<string>(type: "jsonb", nullable: false),
+                    Description = table.Column<string>(type: "jsonb", nullable: false),
+                    LeadingToken = table.Column<string>(type: "TEXT", nullable: true),
+                    TrailingToken = table.Column<string>(type: "TEXT", nullable: true),
+                    SecondaryOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    SnapshotId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MorphTypeData", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MorphTypeData_Snapshots_SnapshotId",
+                        column: x => x.SnapshotId,
+                        principalTable: "Snapshots",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_MorphTypeData_MorphType",
                 table: "MorphTypeData",
                 column: "MorphType",
                 unique: true);
-            // Note that unique: true above is not strictly necessary, but keeps consistent with the line
-            // morphTypeDataModel.HasIndex(m => m.MorphType).IsUnique() in LcmCrdtDbContext.OnModelCreating()
             migrationBuilder.CreateIndex(
                 name: "IX_MorphTypeData_SnapshotId",
                 table: "MorphTypeData",
