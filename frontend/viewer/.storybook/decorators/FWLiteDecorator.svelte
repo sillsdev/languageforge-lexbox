@@ -38,9 +38,7 @@
 
   setupServiceProvider();
   setupDotnetServiceProvider();
-  if (!window.lexbox.isDotnetHosted) {
-    setupBrowserAppServices();
-  }
+  setupBrowserAppServices();
   InMemoryDemoApi.setup();
   initView();
   const storyContext = useSvelteStoryContext();
