@@ -38,7 +38,6 @@ import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-t
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 
-
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
 }
