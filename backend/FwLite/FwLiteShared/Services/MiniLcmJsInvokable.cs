@@ -90,6 +90,13 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public ValueTask<MorphType[]> GetMorphTypes()
+    {
+        return _wrappedApi.GetMorphTypes().ToArrayAsync();
+    }
+    // TODO: Decide whether we'll need GetMorphTypeData(Guid id), but probably not since there are 19 morph types and unlikely to ever be more, so the frontend will just load all of them
+
+    [JSInvokable]
     public Task<int> CountEntries(string? query, FilterQueryOptions? options)
     {
         return Task.Run(() => _wrappedApi.CountEntries(query, options));
