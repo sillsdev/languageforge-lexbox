@@ -10,6 +10,7 @@
   import type {TaskSubject} from './subject.svelte';
   import {t} from 'svelte-i18n-lingui';
   import {cn} from '$lib/utils';
+  import Loading from '$lib/components/Loading.svelte';
 
   const TASK_SUBJECT_COUNT = 10;
 
@@ -86,6 +87,10 @@
                 onContinue={onContinue}
       />
     {/if}
+  {:else if tasksService.loading}
+    <div class="flex items-center justify-center h-full">
+      <Loading class="size-8" />
+    </div>
   {:else}
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-4">

@@ -37,6 +37,10 @@ export class WritingSystemService {
     return this.#wsResource.current;
   }
 
+  get loading(): boolean {
+    return this.#wsResource.loading;
+  }
+
   constructor(projectContext: ProjectContext) {
     this.#wsResource = projectContext.apiResource({analysis: [], vernacular: []}, async api => {
       const result = await api.getWritingSystems();

@@ -35,6 +35,10 @@ export class TasksService {
   constructor(private writingSystemService: WritingSystemService) {
   }
 
+  get loading(): boolean {
+    return this.writingSystemService.loading;
+  }
+
   public listTasks(): Task[] {
     return [
       ...this.senseTasks(),
