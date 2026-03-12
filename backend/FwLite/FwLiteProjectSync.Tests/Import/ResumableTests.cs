@@ -38,7 +38,7 @@ public class ResumableTests : IAsyncLifetime
             }).ToList();
         var expectedPartsOfSpeech = Enumerable.Range(1, 10)
             .Select(i => new PartOfSpeech { Id = Guid.NewGuid(), Name = { ["en"] = $"pos{i}" } }).ToList();
-        var expectedMorphTypes = Enumerable.Range(1, 10)
+        var expectedMorphTypes = Enumerable.Range((int)MorphType.BoundRoot, (int)MorphType.DiscontiguousPhrase)
             .Select(i => new MorphTypeData()
             {
                 Id = Guid.NewGuid(),
@@ -109,7 +109,7 @@ public class ResumableTests : IAsyncLifetime
         );
 
         // Act: retry until all are imported
-        var maxTries = 23;
+        var maxTries = 30;
         for (var attempt = 0; attempt < maxTries; attempt++)
         {
             try
