@@ -7,11 +7,9 @@
 
   export function initSvelteStoryContext(storyContext: StoryContext): StoryContext {
     return svelteStoryContext.set(storyContext);
-  }
 
   export function useSvelteStoryContext(): StoryContext {
     return svelteStoryContext.get();
-  }
 </script>
 
 <script lang="ts">
@@ -39,6 +37,7 @@
   setupServiceProvider();
   setupDotnetServiceProvider();
   setupBrowserAppServices();
+    setupBrowserAppServices();
   InMemoryDemoApi.setup();
   initView();
   const storyContext = useSvelteStoryContext();

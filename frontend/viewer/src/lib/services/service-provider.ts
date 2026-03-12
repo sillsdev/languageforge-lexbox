@@ -77,7 +77,7 @@ export class LexboxServiceProvider {
 export function setupServiceProvider() {
   if (window.lexbox?.ServiceProvider) return;
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const lexbox = { ServiceProvider: new LexboxServiceProvider(), Search: {openSearch: openSearch}, isDotnetHosted: false }
+  const lexbox = { ServiceProvider: new LexboxServiceProvider(), Search: {openSearch: openSearch} }
   if (!window.lexbox) {
     window.lexbox = lexbox;
   } else {

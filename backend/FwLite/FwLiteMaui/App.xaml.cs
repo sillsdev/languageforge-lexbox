@@ -10,7 +10,7 @@ public partial class App : Application
     {
         _mainPage = mainPage;
         var lastUrl = preferences.Get(nameof(PreferenceKey.AppLastUrl));
-        if (!string.IsNullOrEmpty(lastUrl))
+        if (lastUrl?.StartsWith('/') == true)
         {
             mainPage.StartPath = lastUrl;
         }

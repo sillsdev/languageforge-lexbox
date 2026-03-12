@@ -22,11 +22,11 @@ export function trackUrl(appStorage: AppStorage) {
     const origPushState = history.pushState.bind(history);
     const origReplaceState = history.replaceState.bind(history);
     history.pushState = function (...args) {
-      origPushState.apply(this, args);
+      origPushState(...args);
       saveUrl();
     };
     history.replaceState = function (...args) {
-      origReplaceState.apply(this, args);
+      origReplaceState(...args);
       saveUrl();
     };
 

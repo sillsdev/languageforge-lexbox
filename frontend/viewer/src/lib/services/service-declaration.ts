@@ -9,8 +9,8 @@ declare global {
     FwLiteProvider?: LexboxServiceRegistry;
     ServiceProvider: LexboxServiceProvider;
     Search: { openSearch: (search: string) => void };
+    IsDotnetHosted?: boolean;
     /* eslint-enable @typescript-eslint/naming-convention */
-    isDotnetHosted: boolean;
   }
 
   interface Window {

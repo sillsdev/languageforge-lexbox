@@ -15,7 +15,7 @@ import {setLanguage} from '$lib/i18n';
 
 setupServiceProvider();
 setupDotnetServiceProvider();
-if (!window.lexbox.isDotnetHosted) {
+if (!window.lexbox.IsDotnetHosted) {
   setupBrowserAppServices();
 }
 useEventBus();
