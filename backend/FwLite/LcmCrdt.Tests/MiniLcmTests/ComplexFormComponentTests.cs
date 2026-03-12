@@ -29,50 +29,20 @@ public class ComplexFormComponentTests : ComplexFormComponentTestsBase
     }
 
     [Fact]
-    public async Task ReusingEntityId_AfterPropertyChange_SilentlyReturnsOriginalEntity()
+    public async Task Create_AlwaysAssignsNewEntityId()
     {
-        // When the sync diff detects a property change (e.g. ComponentEntryId), it treats
-        // it as remove + add. The "add" still carries the original entity ID.
-        // The sync code guards against this with `after.Id = Guid.NewGuid()` before creating
-        // (see EntrySync.ComplexFormsDiffApi.Add / ComplexFormComponentsDiffApi.Add).
-        //
-        // Without that guard, Harmony silently no-ops the second create (entity ID already
-        // exists), and FindComplexFormComponent returns the ORIGINAL entity — not the one
-        // with updated properties.
-        var complexFormEntry = await GetEntry(_complexFormEntryId);
-        var originalComponentEntry = await GetEntry(_componentEntryId);
-        var newComponentEntry = await CreateEntry("New Component");
-
-        var input = ComplexFormComponent.FromEntries(complexFormEntry, originalComponentEntry);
-        var firstResult = await Api.CreateComplexFormComponent(input);
-
-        // Mutate the property without resetting the entity ID — the bug the sync code prevents.
-        input.ComponentEntryId = newComponentEntry.Id;
-        var secondResult = await Api.CreateComplexFormComponent(input);
-
-        // Both calls return the same entity — the second create was a no-op.
-        secondResult.Id.Should().Be(firstResult.Id);
-        secondResult.ComponentEntryId.Should().Be(originalComponentEntry.Id,
-            "Harmony ignored the second create; the original entity was returned unchanged");
-    }
-
-    [Fact]
-    public async Task Create_WithoutPresetId_AssignsNewEntityId()
-    {
-        // Components from LibLCM/FwData have no CRDT entity ID (MaybeId == null).
-        // CreateComplexFormComponent generates one via AddEntryComponentChange.
-        var input = new ComplexFormComponent
-        {
-            ComplexFormEntryId = _complexFormEntryId,
-            ComponentEntryId = _componentEntryId,
-        };
-        input.MaybeId.Should().BeNull();
+        // The provided entity ID is never used — a new one is always generated.
+        // This matches FwData behavior and prevents Harmony duplicate-ID pitfalls
+        // (see EntrySync.ComplexFormsDiffApi.Add for context).
+        var input = ComplexFormComponent.FromEntries(
+            await GetEntry(_complexFormEntryId),
+            await GetEntry(_componentEntryId));
+        var providedId = input.Id;
 
         var created = await Api.CreateComplexFormComponent(input);
 
         created.MaybeId.Should().NotBeNull();
-        created.ComplexFormEntryId.Should().Be(_complexFormEntryId);
-        created.ComponentEntryId.Should().Be(_componentEntryId);
+        created.Id.Should().NotBe(providedId);
     }
 
     [Fact]

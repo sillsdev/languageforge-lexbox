@@ -124,6 +124,29 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateComplexFormComponent_ChangingPropertyAndCreatingAgain_CreatesBoth()
+    {
+        var newComponentEntry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "new component" } }
+        });
+
+        var input = ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry);
+        var first = await Api.CreateComplexFormComponent(input);
+        first.ComponentEntryId.Should().Be(_componentEntryId);
+
+        // Mutate a property on the same object and create again.
+        // The sync diff does this when a property changes (remove + add).
+        input.ComponentEntryId = newComponentEntry.Id;
+        var second = await Api.CreateComplexFormComponent(input);
+        second.ComponentEntryId.Should().Be(newComponentEntry.Id);
+
+        var entry = await Api.GetEntry(_complexFormEntryId);
+        entry!.Components.Should().HaveCount(2);
+    }
+
+    [Fact]
     public async Task CreateComplexFormComponent_ThrowsWhenMakingASimpleReferenceCycle()
     {
         var act = async () => await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_componentEntry, _componentEntry));

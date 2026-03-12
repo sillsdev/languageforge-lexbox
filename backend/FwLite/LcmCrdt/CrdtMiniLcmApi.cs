@@ -303,6 +303,7 @@ public class CrdtMiniLcmApi(
         if (existing is null)
         {
             var betweenIds = between is null ? null : await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
+            complexFormComponent.Id = Guid.NewGuid();
             var addEntryComponentChange = await repo.CreateComplexFormComponentChange(complexFormComponent, betweenIds);
             await AddChange(addEntryComponentChange);
             return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
