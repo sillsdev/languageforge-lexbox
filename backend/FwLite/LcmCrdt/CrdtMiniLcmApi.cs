@@ -369,20 +369,10 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
 
         // Duplicate MorphTypes (by kind, i.e. the MorphType enum) are not allowed
-        var existing = await repo.AllMorphTypeData.FirstOrDefaultAsync(m => m.MorphType == morphTypeData.MorphType);
-        if (existing is not null) return existing;
+        var exists = await repo.AllMorphTypeData.AnyAsync(m => m.MorphType == morphTypeData.MorphType);
+        if (exists) throw new DuplicateObjectException($"Morph type {morphTypeData.MorphType} already exists");
 
-        if (morphTypeData.Id == default) morphTypeData.Id = Guid.NewGuid();
-        await AddChange(new CreateMorphTypeDataChange(
-            entityId: morphTypeData.Id,
-            name: morphTypeData.Name,
-            abbreviation: morphTypeData.Abbreviation,
-            description: morphTypeData.Description,
-            leadingToken: morphTypeData.LeadingToken,
-            trailingToken: morphTypeData.TrailingToken,
-            secondaryOrder: morphTypeData.SecondaryOrder,
-            morphType: morphTypeData.MorphType
-        ));
+        await AddChange(new CreateMorphTypeDataChange(morphTypeData));
         // MorphType value must be unique in DB, so return by MorphType rather than Id in case a race condition
         // ended up causing two CreateMorphTypeData calls to happen at the same time. It's possible that the
         // other call went through, creating a MorphTypeData entry with a different GUID but the same unique
