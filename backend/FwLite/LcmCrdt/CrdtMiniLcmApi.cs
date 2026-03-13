@@ -299,20 +299,20 @@ public class CrdtMiniLcmApi(
     public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        // tests in seperate PR:
-        // 1: call create with the same ID should throw.
-        // 2: change a propertyId => should result in a new ID (in Crdt test not base).
-        // 3: "normal" create also changes provided ID.
         var existing = await repo.FindComplexFormComponent(complexFormComponent);
         if (existing is null)
         {
-            // todo test between items missing IDs (i.e. from LibLCM)
             var betweenIds = between is null ? null : await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
+            // Always generate a new entity ID — the caller's ID is never used.
+            // This aligns with FwData (which ignores the ID entirely) and prevents
+            // Harmony duplicate-ID pitfalls during sync (see EntrySync.ComplexFormsDiffApi.Add).
+            complexFormComponent.Id = Guid.NewGuid();
             var addEntryComponentChange = await repo.CreateComplexFormComponentChange(complexFormComponent, betweenIds);
             await AddChange(addEntryComponentChange);
             return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
         }
-        else if (between is not null)
+
+        if (between is not null)
         {
             await MoveComplexFormComponent(existing, between);
         }
