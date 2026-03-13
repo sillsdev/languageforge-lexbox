@@ -47,9 +47,9 @@ public class HeadwordSearchValueTests : IAsyncLifetime
         var tokenWs = new WritingSystem
         {
             Id = Guid.NewGuid(),
-            WsId = "token-ws",
+            WsId = "de",
             Name = leading,
-            Abbreviation = "tw",
+            Abbreviation = "de",
             Font = trailing,
             Type = WritingSystemType.Analysis
         };
@@ -61,7 +61,7 @@ public class HeadwordSearchValueTests : IAsyncLifetime
         // JOIN WritingSystem to get token values from column references
         var results = await (
             from entry in entries
-            from ws in writingSystems.InnerJoin(ws => ws.WsId == new WritingSystemId("token-ws"))
+            from ws in writingSystems.InnerJoin(ws => ws.WsId == new WritingSystemId("de"))
             where entry.Id == targetId
                 && entry.HeadwordSearchValue(ws.Name, ws.Font, query)
             select entry
@@ -94,9 +94,9 @@ public class HeadwordSearchValueTests : IAsyncLifetime
         var tokenWs = new WritingSystem
         {
             Id = Guid.NewGuid(),
-            WsId = "token-ws-2",
+            WsId = "pt",
             Name = "-",       // leading
-            Abbreviation = "tw",
+            Abbreviation = "pt",
             Font = "",        // trailing
             Type = WritingSystemType.Analysis
         };
@@ -107,7 +107,7 @@ public class HeadwordSearchValueTests : IAsyncLifetime
 
         var results = await (
             from entry in entries
-            from ws in writingSystems.InnerJoin(ws => ws.WsId == new WritingSystemId("token-ws-2"))
+            from ws in writingSystems.InnerJoin(ws => ws.WsId == new WritingSystemId("pt"))
             where entry.Id == targetId
                 && entry.HeadwordSearchValue(ws.Name, ws.Font, "running")
             select entry
@@ -136,9 +136,9 @@ public class HeadwordSearchValueTests : IAsyncLifetime
         var tokenWs = new WritingSystem
         {
             Id = Guid.NewGuid(),
-            WsId = "token-ws-3",
+            WsId = "ja",
             Name = "-",       // leading
-            Abbreviation = "tw",
+            Abbreviation = "ja",
             Font = "",        // trailing
             Type = WritingSystemType.Analysis
         };
@@ -149,7 +149,7 @@ public class HeadwordSearchValueTests : IAsyncLifetime
 
         var results = await (
             from entry in entries
-            from ws in writingSystems.InnerJoin(ws => ws.WsId == new WritingSystemId("token-ws-3"))
+            from ws in writingSystems.InnerJoin(ws => ws.WsId == new WritingSystemId("ja"))
             where entry.Id == targetId
                 && entry.HeadwordSearchValue(ws.Name, ws.Font, "-ing")
             select entry
