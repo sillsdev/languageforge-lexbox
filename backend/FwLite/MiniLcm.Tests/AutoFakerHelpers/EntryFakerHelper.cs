@@ -112,14 +112,14 @@ public static class EntryFakerHelper
             });
             if (isComponent)
             {
-                complexFormComponent.ComponentHeadword = createdEntry.Headword();
-                complexFormComponent.ComplexFormHeadword = entry.Headword();
+                complexFormComponent.ComponentHeadword = createdEntry.HeadwordText();
+                complexFormComponent.ComplexFormHeadword = entry.HeadwordText();
                 complexFormComponent.Order = i++;
             }
             else
             {
-                complexFormComponent.ComplexFormHeadword = createdEntry.Headword();
-                complexFormComponent.ComponentHeadword = entry.Headword();
+                complexFormComponent.ComplexFormHeadword = createdEntry.HeadwordText();
+                complexFormComponent.ComponentHeadword = entry.HeadwordText();
                 complexFormComponent.Order = 1;
             }
         }

@@ -15,6 +15,8 @@ public static class Filtering
         return query.Where(e => e.Headword(ws).StartsWith(exemplar));
     }
 
+    // Note: morph-token-decorated headword matching is handled at the FTS/JOIN level
+    // (see EntrySearchService.FilterInternal). This simpler fallback only checks base forms.
     public static Expression<Func<Entry, bool>> SearchFilter(string query)
     {
         return e => e.LexemeForm.SearchValue(query)
@@ -42,11 +44,13 @@ public static class Filtering
             (null, null) => _ => true,
             (not null, null) => e => e.LexemeForm.SearchValue(query)
                                      || e.CitationForm.SearchValue(query)
+                                     || e.Headword.SearchValue(query)
                                      || e.Senses.Any(s => s.Gloss.SearchValue(query)),
             (null, not null) => e => e.Headword(ws).StartsWith(exemplar),
             (_, _) => e => e.Headword(ws).StartsWith(exemplar)
                            && (e.LexemeForm.SearchValue(query)
                                || e.CitationForm.SearchValue(query)
+                               || e.Headword.SearchValue(query)
                                || e.Senses.Any(s => s.Gloss.SearchValue(query)))
         };
     }

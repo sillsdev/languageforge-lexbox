@@ -72,6 +72,15 @@ public class MiniLcmRepository(
     public IQueryable<WritingSystem> WritingSystemsOrdered => dbContext.WritingSystemsOrdered;
     public IQueryable<SemanticDomain> SemanticDomains => dbContext.SemanticDomains;
     public IQueryable<PartOfSpeech> PartsOfSpeech => dbContext.PartsOfSpeech;
+
+    private IReadOnlyDictionary<MorphType, MorphTypeData>? _morphTypeDataLookup;
+
+    private async ValueTask<IReadOnlyDictionary<MorphType, MorphTypeData>> GetMorphTypeDataLookup()
+    {
+        return _morphTypeDataLookup ??= await AllMorphTypeData
+            .ToDictionaryAsyncEF(m => m.MorphType);
+    }
+
     public IQueryable<Publication> Publications => dbContext.Publications;
 
 
@@ -144,11 +153,12 @@ public class MiniLcmRepository(
         queryable = options.ApplyPaging(queryable);
         var complexFormComparer = cultureProvider.GetCompareInfo(await GetWritingSystem(default, WritingSystemType.Vernacular))
             .AsComplexFormComparer();
+        var morphTypeDataLookup = await GetMorphTypeDataLookup();
         var entries = AsyncExtensions.AsAsyncEnumerable(queryable);
         await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
         await foreach (var entry in EfExtensions.SafeIterate(entries))
         {
-            entry.Finalize(complexFormComparer);
+            entry.Finalize(complexFormComparer, morphTypeDataLookup);
             yield return entry;
         }
     }
@@ -208,7 +218,10 @@ public class MiniLcmRepository(
                 }
                 else
                 {
-                    queryable = SearchService.Filter(queryable, query);
+                    var filterWs = sortOptions?.WritingSystem
+                        ?? (await GetWritingSystem(default, WritingSystemType.Vernacular))?.WsId
+                        ?? default;
+                    queryable = SearchService.Filter(queryable, query, filterWs);
                 }
             }
             else
@@ -250,7 +263,7 @@ public class MiniLcmRepository(
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
             var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
                 .AsComplexFormComparer();
-            entry.Finalize(complexFormComparer);
+            entry.Finalize(complexFormComparer, await GetMorphTypeDataLookup());
         }
 
         return entry;

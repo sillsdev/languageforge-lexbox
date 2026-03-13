@@ -42,7 +42,7 @@ public static class Utils
         var api = projectList.OpenProject(fwDataProject);
         await foreach (var entry in api.GetEntries())
         {
-            Console.WriteLine(entry.Headword());
+            Console.WriteLine(entry.HeadwordText());
         }
     }
 

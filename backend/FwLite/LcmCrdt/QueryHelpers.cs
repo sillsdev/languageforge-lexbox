@@ -1,10 +1,13 @@
 using System.Globalization;
+using LcmCrdt.Data;
 
 namespace LcmCrdt;
 
 public static class QueryHelpers
 {
-    public static void Finalize(this Entry entry, IComparer<ComplexFormComponent> complexFormComparer)
+    public static void Finalize(this Entry entry,
+        IComparer<ComplexFormComponent> complexFormComparer,
+        IReadOnlyDictionary<MorphType, MorphTypeData> morphTypeDataLookup)
     {
         entry.Senses.ApplySortOrder();
         entry.Components.ApplySortOrder();
@@ -13,6 +16,7 @@ public static class QueryHelpers
         {
             sense.Finalize();
         }
+        entry.Headword = EntryQueryHelpers.ComputeHeadwords(entry, morphTypeDataLookup);
     }
 
     public static void Finalize(this Sense sense)

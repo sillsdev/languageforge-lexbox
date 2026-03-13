@@ -159,7 +159,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 .Select(createdCfc =>
                 {
                     var copy = createdCfc.Copy();
-                    copy.ComponentHeadword = after.Headword();
+                    copy.ComponentHeadword = after.HeadwordText();
                     return copy;
                 }),
                 // keep new
@@ -175,7 +175,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 .Select(createdCfc =>
                 {
                     var copy = createdCfc.Copy();
-                    copy.ComplexFormHeadword = after.Headword();
+                    copy.ComplexFormHeadword = after.HeadwordText();
                     return copy;
                 }),
                 // keep new
@@ -210,19 +210,18 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         {
             options = options
                 .WithStrictOrdering()
+                .Excluding(e => e.Headword) // Computed property, populated by Finalize
                 .WithoutStrictOrderingFor(e => e.ComplexForms) // sorted alphabetically
                 .WithoutStrictOrderingFor(e => e.Path.EndsWith($".{nameof(Sense.SemanticDomains)}")) // not sorted
                 .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Order)
                 .For(e => e.ComplexForms).Exclude(c => c.Order)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order);
-            if (currentApiType == ApiType.Crdt)
-            {
-                // does not yet update Headwords 😕
-                options = options
-                    .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
-                    .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
-            }
+            // ComplexFormHeadword/ComponentHeadword are computed from HeadwordText() which
+            // depends on the computed Headword property — exclude since AutoFaker randomizes it.
+            options = options
+                .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
+                .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
             if (currentApiType == ApiType.FwData)
             {
                 // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)
@@ -280,7 +279,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 new ComplexFormComponent()
                 {
                     ComponentEntryId = component1.Id,
-                    ComponentHeadword = component1.Headword(),
+                    ComponentHeadword = component1.HeadwordText(),
                     ComplexFormEntryId = complexFormId,
                     ComplexFormHeadword = "complex form"
                 }
@@ -288,7 +287,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         });
         var complexFormAfter = complexForm.Copy();
         complexFormAfter.Components[0].ComponentEntryId = component2.Id;
-        complexFormAfter.Components[0].ComponentHeadword = component2.Headword();
+        complexFormAfter.Components[0].ComponentHeadword = component2.HeadwordText();
 
         await EntrySync.SyncFull(complexForm, complexFormAfter, Api);
 
@@ -315,13 +314,13 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                     ComponentEntryId = componentId,
                     ComponentHeadword = "component",
                     ComplexFormEntryId = complexForm1.Id,
-                    ComplexFormHeadword = complexForm1.Headword()
+                    ComplexFormHeadword = complexForm1.HeadwordText()
                 }
             ]
         });
         var componentAter = component.Copy();
         componentAter.ComplexForms[0].ComplexFormEntryId = complexForm2.Id;
-        componentAter.ComplexForms[0].ComplexFormHeadword = complexForm2.Headword();
+        componentAter.ComplexForms[0].ComplexFormHeadword = complexForm2.HeadwordText();
 
         await EntrySync.SyncFull(component, componentAter, Api);
 
@@ -413,11 +412,13 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         // assert
         var actualExistingEntry = await Api.GetEntry(existingEntryAfter.Id);
         actualExistingEntry.Should().BeEquivalentTo(existingEntryAfter, options => options
+            .Excluding(e => e.Headword)
             .For(e => e.ComplexForms).Exclude(c => c.Id)
             .For(e => e.ComplexForms).Exclude(c => c.Order));
 
         var actualNewEntry = await Api.GetEntry(newEntry.Id);
         actualNewEntry.Should().BeEquivalentTo(newEntry, options => options
+            .Excluding(e => e.Headword)
             .Excluding(e => e.ComplexFormTypes) // LibLcm automatically creates a complex form type. Should we?
             .For(e => e.Components).Exclude(c => c.Id)
             .For(e => e.Components).Exclude(c => c.Order));
@@ -487,13 +488,13 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         // assert
         var actualComponent = await Api.GetEntry(componentAfter.Id);
         actualComponent.Should().BeEquivalentTo(componentAfter,
-            options => options.Excluding(e => e.ComplexForms));
+            options => options.Excluding(e => e.ComplexForms).Excluding(e => e.Headword));
         actualComponent.ComplexForms.Should().BeEmpty();
 
         var actualComplexForm = await Api.GetEntry(complexForm.Id);
         addedComplexForm.Should().BeEquivalentTo(actualComplexForm);
         actualComplexForm.Should().BeEquivalentTo(complexForm,
-            options => options.Excluding(e => e.Components));
+            options => options.Excluding(e => e.Components).Excluding(e => e.Headword));
         actualComplexForm.Components.Should().BeEmpty();
     }
 
@@ -526,13 +527,13 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         var actualComponent = await Api.GetEntry(component.Id);
         addedComponent.Should().BeEquivalentTo(actualComponent);
         actualComponent.Should().BeEquivalentTo(component,
-            options => options.Excluding(e => e.ComplexForms));
+            options => options.Excluding(e => e.ComplexForms).Excluding(e => e.Headword));
         actualComponent.ComplexForms.Should().BeEmpty();
 
         var actualComplexForm = await Api.GetEntry(complexForm.Id);
         addedComplexForm.Should().BeEquivalentTo(actualComplexForm);
         actualComplexForm.Should().BeEquivalentTo(complexForm,
-            options => options.Excluding(e => e.Components));
+            options => options.Excluding(e => e.Components).Excluding(e => e.Headword));
         actualComplexForm.Components.Should().BeEmpty();
     }
 
@@ -636,7 +637,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 new ComplexFormComponent()
                 {
                     ComponentEntryId = componentA.Id,
-                    ComponentHeadword = componentA.Headword(),
+                    ComponentHeadword = componentA.HeadwordText(),
                     ComplexFormEntryId = complexFormId,
                     ComplexFormHeadword = "complex form",
                     Order = 1
@@ -644,7 +645,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 new ComplexFormComponent()
                 {
                     ComponentEntryId = componentB.Id,
-                    ComponentHeadword = componentB.Headword(),
+                    ComponentHeadword = componentB.HeadwordText(),
                     ComplexFormEntryId = complexFormId,
                     ComplexFormHeadword = "complex form",
                     Order = 2

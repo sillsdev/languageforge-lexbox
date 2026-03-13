@@ -49,9 +49,9 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
             Id = EntityId,
             Order = Order,
             ComplexFormEntryId = ComplexFormEntryId,
-            ComplexFormHeadword = complexFormEntry?.Headword(),
+            ComplexFormHeadword = complexFormEntry?.HeadwordText(),
             ComponentEntryId = ComponentEntryId,
-            ComponentHeadword = componentEntry?.Headword(),
+            ComponentHeadword = componentEntry?.HeadwordText(),
             ComponentSenseId = ComponentSenseId,
             DeletedAt = shouldBeDeleted
                 ? commit.DateTime

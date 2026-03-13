@@ -388,25 +388,25 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
 
     [Theory]
     [InlineData("a", "a", true)]
-    [InlineData("a", "A", false)]
-    [InlineData("A", "Ã", false)]
-    [InlineData("ap", "apple", false)]
-    [InlineData("ap", "APPLE", false)]
-    [InlineData("ing", "walking", false)]
-    [InlineData("ing", "WALKING", false)]
-    [InlineData("Ãp", "Ãpple", false)]
-    [InlineData("Ãp", "ãpple", false)]
-    [InlineData("ap", "Ãpple", false)]
-    [InlineData("app", "Ãpple", false)]//crdt fts only kicks in at 3 chars
-    [InlineData("й", "й", false)] // D, C
-    [InlineData("й", "й", false)] // C, D
+    [InlineData("a", "A")]
+    [InlineData("A", "Ã")]
+    [InlineData("ap", "apple")]
+    [InlineData("ap", "APPLE")]
+    [InlineData("ing", "walking")]
+    [InlineData("ing", "WALKING")]
+    [InlineData("Ãp", "Ãpple")]
+    [InlineData("Ãp", "ãpple")]
+    [InlineData("ap", "Ãpple")]
+    [InlineData("app", "Ãpple")]//crdt fts only kicks in at 3 chars
+    [InlineData("й", "й")] // D, C
+    [InlineData("й", "й")] // C, D
     [InlineData("й", "й", true)] // C, C
     [InlineData("й", "й", true)] // D, D
-    [InlineData("ймыл", "ймыл", false)] // D, C
-    [InlineData("ймыл", "ймыл", false)] // C, D
+    [InlineData("ймыл", "ймыл")] // D, C
+    [InlineData("ймыл", "ймыл")] // C, D
     [InlineData("ймыл", "ймыл", true)] // C, C
     [InlineData("ймыл", "ймыл", true)] // D, D
-    public async Task SuccessfulMatches(string searchTerm, string word, bool identical)
+    public async Task SuccessfulMatches(string searchTerm, string word, bool identical = false)
     {
         // identical is to make the test cases more readable when they only differ in their normalization
         (searchTerm == word).Should().Be(identical);
