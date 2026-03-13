@@ -163,9 +163,9 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
             LexemeForm = { { "en", "Component C" } }
         });
 
-        var createdA = await Api.CreateComplexFormComponent(
+        await Api.CreateComplexFormComponent(
             ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
-        var createdB = await Api.CreateComplexFormComponent(
+        await Api.CreateComplexFormComponent(
             ComplexFormComponent.FromEntries(_complexFormEntry, componentB));
 
         // Anchors without entity IDs — as they'd arrive from LibLCM.
@@ -181,15 +181,14 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
         };
         anchorBefore.MaybeId.Should().BeNull();
 
-        var insertedBetween = await Api.CreateComplexFormComponent(
+        await Api.CreateComplexFormComponent(
             ComplexFormComponent.FromEntries(_complexFormEntry, componentC),
             new BetweenPosition<ComplexFormComponent>(anchorBefore, anchorAfter));
 
-        // Verify observable order: read the entry back and check component sequence.
-        // Order is [MiniLcmInternal] so we assert on the returned collection order, not raw values.
+        // Order is [MiniLcmInternal], so verify the observable sequence instead.
         var entry = await Api.GetEntry(_complexFormEntryId);
         var componentIds = entry!.Components.Select(c => c.ComponentEntryId).ToList();
-        componentIds.Should().ContainInOrder(_componentEntryId, componentC.Id, componentB.Id);
+        componentIds.Should().Equal(_componentEntryId, componentC.Id, componentB.Id);
     }
 
     [Fact]
