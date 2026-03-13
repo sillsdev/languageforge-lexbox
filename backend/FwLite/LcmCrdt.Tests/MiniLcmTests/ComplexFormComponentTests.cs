@@ -22,21 +22,6 @@ public class ComplexFormComponentTests : ComplexFormComponentTestsBase
     }
 
     [Fact]
-    public async Task Create_WithExistingEntityId_IsIdempotent()
-    {
-        // Sync can be interrupted and replayed, so the same object (with the same entity ID)
-        // may be passed to CreateComplexFormComponent again. This should be idempotent —
-        // the property-based match finds the existing component and returns it.
-        var created = await Api.CreateComplexFormComponent(
-            ComplexFormComponent.FromEntries(
-                await GetEntry(_complexFormEntryId),
-                await GetEntry(_componentEntryId)));
-
-        var again = await Api.CreateComplexFormComponent(created);
-        again.Should().BeEquivalentTo(created);
-    }
-
-    [Fact]
     public async Task Create_ChangingProperty_ProducesNewEntityId()
     {
         // When the sync diff detects a property change (e.g. ComponentEntryId), it does

@@ -207,10 +207,6 @@ public static class EntrySync
 
         public override async Task<int> Add(ComplexFormComponent after)
         {
-            //We're not using the id as the key for this collection.
-            //So, if a client only changed ComplexFormEntryId it would trigger
-            //this Add with an id that is already in use. So we need to change it.
-            after.Id = Guid.NewGuid();
             try
             {
                 await api.CreateComplexFormComponent(after);
@@ -258,11 +254,6 @@ public static class EntrySync
         public async Task<int> Add(ComplexFormComponent after, BetweenPosition between)
         {
             var betweenComponents = MapBackToEntities(between);
-
-            //We're not using the id as the key for this collection.
-            //So, if a client only changed ComponentEntryId or ComponentSenseId it would trigger
-            //this Add with an id that is already in use. So we need to change it.
-            after.Id = Guid.NewGuid();
             try
             {
                 await api.CreateComplexFormComponent(after, betweenComponents);
