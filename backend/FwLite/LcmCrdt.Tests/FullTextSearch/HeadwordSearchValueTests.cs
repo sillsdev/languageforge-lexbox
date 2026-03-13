@@ -17,85 +17,145 @@ public class HeadwordSearchValueTests : IAsyncLifetime
     }
 
     /// <summary>
-    /// Validates that HeadwordSearchValue translates to SQL correctly,
-    /// specifically that string concatenation with json_each values works.
+    /// Validates that HeadwordSearchValue translates to SQL correctly when
+    /// leading/trailing come from real column references (via a JOIN to
+    /// the WritingSystem table), not string literals.
+    /// This simulates the future MorphTypeData JOIN pattern — both have
+    /// plain string columns that get inlined as column references in SQL.
     /// </summary>
     [Theory]
-    [InlineData("-", "", "-ing", true)] // suffix: leading="-", query="-ing" matches lexeme "ing"
-    [InlineData("", "-", "ing-", true)] // prefix: trailing="-", query="ing-" matches lexeme "ing"
-    [InlineData("-", "", "ing", true)]  // query without token still matches raw lexeme
+    [InlineData("-", "", "-ing", true)]  // suffix: leading="-", query="-ing" matches lexeme "ing"
+    [InlineData("", "-", "ing-", true)]  // prefix: trailing="-", query="ing-" matches lexeme "ing"
+    [InlineData("-", "", "ing", true)]   // query without token still matches raw lexeme
     [InlineData("-", "", "-xyz", false)] // "-xyz" should not match lexeme "ing"
-    [InlineData("", "", "ing", true)]   // no tokens, matches raw lexeme
-    [InlineData("-", "", "-fra", true)] // matches French lexeme "fra" with token
-    public async Task HeadwordSearchValue_WithTokens_MatchesCorrectly(
+    [InlineData("", "", "ing", true)]    // no tokens, matches raw lexeme
+    [InlineData("-", "", "-fra", true)]  // matches French lexeme "fra" with token
+    public async Task HeadwordSearchValue_WithColumnReferenceTokens_MatchesCorrectly(
         string leading, string trailing, string query, bool shouldMatch)
     {
-        var id = Guid.NewGuid();
+        var targetId = Guid.NewGuid();
         _context.Set<Entry>().Add(new Entry
         {
-            Id = id,
+            Id = targetId,
             LexemeForm = { ["en"] = "ing", ["fr"] = "fra" },
             MorphType = MorphType.Suffix
         });
         await _context.SaveChangesAsync();
 
-        // Run the query using HeadwordSearchValue — this exercises the SQL translation
-        var results = await _context.GetTable<Entry>()
-            .Where(e => e.Id == id && e.HeadwordSearchValue(leading, trailing, query))
-            .ToListAsyncLinqToDB();
+        // Use a WritingSystem row to provide leading/trailing as real DB columns.
+        // We repurpose Name=leading, Font=trailing (both are plain string columns).
+        var tokenWs = new WritingSystem
+        {
+            Id = Guid.NewGuid(),
+            WsId = "token-ws",
+            Name = leading,
+            Abbreviation = "tw",
+            Font = trailing,
+            Type = WritingSystemType.Analysis
+        };
+        await fixture.Api.CreateWritingSystem(tokenWs);
+
+        var entries = _context.GetTable<Entry>();
+        var writingSystems = _context.GetTable<WritingSystem>();
+
+        // JOIN WritingSystem to get token values from column references
+        var results = await (
+            from entry in entries
+            from ws in writingSystems.InnerJoin(ws => ws.WsId == new WritingSystemId("token-ws"))
+            where entry.Id == targetId
+                && entry.HeadwordSearchValue(ws.Name, ws.Font, query)
+            select entry
+        ).ToListAsyncLinqToDB();
 
         if (shouldMatch)
-            results.Should().ContainSingle(e => e.Id == id);
+            results.Should().ContainSingle(e => e.Id == targetId);
         else
             results.Should().BeEmpty();
     }
 
     /// <summary>
     /// CitationForm takes priority — if CitationForm matches, it should match
-    /// even without morph tokens.
+    /// even when morph tokens don't apply to it.
+    /// Token values come from a JOIN, not constants.
     /// </summary>
     [Fact]
     public async Task HeadwordSearchValue_CitationFormMatchesWithoutTokens()
     {
-        var id = Guid.NewGuid();
+        var targetId = Guid.NewGuid();
         _context.Set<Entry>().Add(new Entry
         {
-            Id = id,
+            Id = targetId,
             CitationForm = { ["en"] = "running" },
             LexemeForm = { ["en"] = "run" },
             MorphType = MorphType.Stem
         });
         await _context.SaveChangesAsync();
 
-        var results = await _context.GetTable<Entry>()
-            .Where(e => e.Id == id && e.HeadwordSearchValue("-", "", "running"))
-            .ToListAsyncLinqToDB();
+        var tokenWs = new WritingSystem
+        {
+            Id = Guid.NewGuid(),
+            WsId = "token-ws-2",
+            Name = "-",       // leading
+            Abbreviation = "tw",
+            Font = "",        // trailing
+            Type = WritingSystemType.Analysis
+        };
+        await fixture.Api.CreateWritingSystem(tokenWs);
 
-        results.Should().ContainSingle(e => e.Id == id);
+        var entries = _context.GetTable<Entry>();
+        var writingSystems = _context.GetTable<WritingSystem>();
+
+        var results = await (
+            from entry in entries
+            from ws in writingSystems.InnerJoin(ws => ws.WsId == new WritingSystemId("token-ws-2"))
+            where entry.Id == targetId
+                && entry.HeadwordSearchValue(ws.Name, ws.Font, "running")
+            select entry
+        ).ToListAsyncLinqToDB();
+
+        results.Should().ContainSingle(e => e.Id == targetId);
     }
 
     /// <summary>
     /// Tests the scenario from code review: main WS is "es" but the match
     /// should come from "en" headword with morph tokens.
+    /// Token values come from a real JOIN, not constants.
     /// </summary>
     [Fact]
-    public async Task HeadwordSearchValue_MatchesNonPrimaryWs()
+    public async Task HeadwordSearchValue_MatchesNonPrimaryWs_ViaColumnReference()
     {
-        var id = Guid.NewGuid();
+        var targetId = Guid.NewGuid();
         _context.Set<Entry>().Add(new Entry
         {
-            Id = id,
+            Id = targetId,
             LexemeForm = { ["en"] = "ing", ["es"] = "abc" },
             MorphType = MorphType.Suffix
         });
         await _context.SaveChangesAsync();
 
-        // "-ing" should match via English headword even if primary WS is Spanish
-        var results = await _context.GetTable<Entry>()
-            .Where(e => e.Id == id && e.HeadwordSearchValue("-", "", "-ing"))
-            .ToListAsyncLinqToDB();
+        var tokenWs = new WritingSystem
+        {
+            Id = Guid.NewGuid(),
+            WsId = "token-ws-3",
+            Name = "-",       // leading
+            Abbreviation = "tw",
+            Font = "",        // trailing
+            Type = WritingSystemType.Analysis
+        };
+        await fixture.Api.CreateWritingSystem(tokenWs);
 
-        results.Should().ContainSingle(e => e.Id == id);
+        var entries = _context.GetTable<Entry>();
+        var writingSystems = _context.GetTable<WritingSystem>();
+
+        var results = await (
+            from entry in entries
+            from ws in writingSystems.InnerJoin(ws => ws.WsId == new WritingSystemId("token-ws-3"))
+            where entry.Id == targetId
+                && entry.HeadwordSearchValue(ws.Name, ws.Font, "-ing")
+            select entry
+        ).ToListAsyncLinqToDB();
+
+        results.Should().ContainSingle(e => e.Id == targetId);
     }
 
     public async Task DisposeAsync()
