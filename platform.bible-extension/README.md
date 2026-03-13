@@ -152,6 +152,34 @@ To build the extension once:
 
 `npm run build`
 
+### Using this extension with another development extension
+
+This extension has a network service that can be used by other extensions. Here's how to make it available for active development of another extension:
+
+1. In `platform.bible-extension/`, run `task build-fw-lite-web` then `npm run package` then `npm run core:copy-package`.
+
+2. In the other extension's `main.ts`, add the following two things inside `activate`:
+
+```ts
+const entryService = papi.networkObjects.set(
+  'fwLiteExtension.entryService',
+  new EntryService('http://localhost:29348'), // TODO: avoid hard-coding the base URL
+  'fw-lite-extension.IEntryService',
+);
+```
+
+```ts
+context.registrations.add(
+  /* ... along with other unsubscribers ... */
+
+  await entryService,
+);
+```
+
+3. TODO: Add types instructions when https://github.com/sillsdev/languageforge-lexbox/pull/2208 is complete.
+
+4. An example of using this network service is found in [add-word.web-view.tsx](src/web-views/add-word.web-view.tsx).
+
 <!--
 ## To package for distribution
 
