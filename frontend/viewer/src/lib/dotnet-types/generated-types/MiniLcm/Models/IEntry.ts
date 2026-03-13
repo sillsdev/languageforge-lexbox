@@ -16,6 +16,7 @@ export interface IEntry extends IObjectWithId
 {
 	id: string;
 	deletedAt?: string;
+	headword: IMultiString;
 	lexemeForm: IMultiString;
 	citationForm: IMultiString;
 	literalMeaning: IRichMultiString;

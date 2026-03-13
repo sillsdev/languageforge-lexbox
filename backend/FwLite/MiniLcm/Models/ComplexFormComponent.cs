@@ -16,9 +16,9 @@ public record ComplexFormComponent : IObjectWithId<ComplexFormComponent>, IOrder
         {
             Id = Guid.NewGuid(),
             ComplexFormEntryId = complexFormEntry.Id,
-            ComplexFormHeadword = complexFormEntry.Headword(),
+            ComplexFormHeadword = complexFormEntry.HeadwordText(),
             ComponentEntryId = componentEntry.Id,
-            ComponentHeadword = componentEntry.Headword(),
+            ComponentHeadword = componentEntry.HeadwordText(),
             ComponentSenseId = componentSenseId,
         };
     }

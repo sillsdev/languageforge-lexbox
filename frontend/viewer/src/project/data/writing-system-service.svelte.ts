@@ -208,7 +208,8 @@ type WritingSystemColors = {
 }
 
 function headword(entry: ReadonlyDeep<IEntry>, ws: string): string | undefined {
-  return entry.citationForm[ws] || entry.lexemeForm[ws];
+  // Prefer pre-computed headword (with morph tokens) from backend; fall back to raw form data
+  return entry.headword?.[ws] || entry.citationForm[ws] || entry.lexemeForm[ws];
 }
 
 function calcWritingSystemColors(writingSystems: IWritingSystems): WritingSystemColors {

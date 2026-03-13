@@ -101,6 +101,7 @@ export const writingSystems: IWritingSystems = {
 export const _entries: IEntry[] = [
   {
     'id': '34779c06-5a73-4fe9-8325-b110b23f9293',
+    'headword': {},
     'lexemeForm': { 'seh': 'nyumba', 'seh-fonipa-x-etic': 'ɲumba', 'ny': 'nyumba' },
     'citationForm': { 'seh': '!nyumba', 'seh-fonipa-x-etic': 'ɲumba', 'ny': 'nyumba' },
     'literalMeaning': {},
@@ -167,6 +168,7 @@ export const _entries: IEntry[] = [
   },
   {
     'id': '34779c06-5a73-4fe9-8325-b110b23f9294',
+    'headword': {},
     'lexemeForm': { 'seh': 'dance', 'seh-fonipa-x-etic': 'dæns', 'ny': 'vina' },
     'citationForm': {},
     'literalMeaning': {},

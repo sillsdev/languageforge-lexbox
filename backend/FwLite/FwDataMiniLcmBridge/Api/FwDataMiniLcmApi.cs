@@ -643,7 +643,7 @@ public class FwDataMiniLcmApi(
     {
         try
         {
-            return new Entry
+            var result = new Entry
             {
                 Id = entry.Guid,
                 Note = FromLcmMultiString(entry.Comment),
@@ -661,12 +661,43 @@ public class FwDataMiniLcmApi(
                 // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
                 PublishIn = entry.PublishIn.Select(FromLcmPossibility).ToList(),
             };
+            result.Headword = ComputeHeadword(result, entry.PrimaryMorphType);
+            return result;
         }
         catch (Exception e)
         {
             var headword = entry.LexEntryHeadwordOrUnknown();
             throw new InvalidOperationException($"Failed to map FW entry to MiniLCM entry '{headword}' ({entry.Guid})", e);
         }
+    }
+
+    private static MultiString ComputeHeadword(Entry result, IMoMorphType? lcmMorphType)
+    {
+        var headword = new MultiString();
+        var leading = lcmMorphType?.Prefix ?? "";
+        var trailing = lcmMorphType?.Postfix ?? "";
+
+        // Iterate all WS keys that have data, not just "current" vernacular WSs,
+        // so we don't lose headwords for non-current or future writing systems.
+        var wsIds = result.CitationForm.Values.Keys
+            .Union(result.LexemeForm.Values.Keys);
+
+        foreach (var wsId in wsIds)
+        {
+            var citation = result.CitationForm[wsId];
+            if (!string.IsNullOrEmpty(citation))
+            {
+                headword[wsId] = citation.Trim();
+                continue;
+            }
+
+            var lexeme = result.LexemeForm[wsId];
+            if (!string.IsNullOrEmpty(lexeme))
+            {
+                headword[wsId] = (leading + lexeme + trailing).Trim();
+            }
+        }
+        return headword;
     }
 
     private List<ComplexFormType> ToComplexFormTypes(ILexEntry entry)

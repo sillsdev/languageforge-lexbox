@@ -71,6 +71,13 @@ public class MiniLcmRepository(
     public IQueryable<WritingSystem> WritingSystemsOrdered => dbContext.WritingSystemsOrdered;
     public IQueryable<SemanticDomain> SemanticDomains => dbContext.SemanticDomains;
     public IQueryable<PartOfSpeech> PartsOfSpeech => dbContext.PartsOfSpeech;
+
+    // TODO: Replace with actual MorphTypeData from CRDT DB once it's implemented as a CRDT entity.
+    // Currently MorphTypeData is not synced to CRDT, so morph tokens aren't applied.
+    // See CrdtMiniLcmApi.GetAllMorphTypeData() — currently throws NotImplementedException.
+    private IReadOnlyDictionary<MorphType, MorphTypeData> _morphTypeDataLookup =
+        new Dictionary<MorphType, MorphTypeData>();
+
     public IQueryable<Publication> Publications => dbContext.Publications;
 
 
@@ -147,7 +154,7 @@ public class MiniLcmRepository(
         await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
         await foreach (var entry in EfExtensions.SafeIterate(entries))
         {
-            entry.Finalize(complexFormComparer);
+            entry.Finalize(complexFormComparer, _morphTypeDataLookup);
             yield return entry;
         }
     }
@@ -207,7 +214,10 @@ public class MiniLcmRepository(
                 }
                 else
                 {
-                    queryable = SearchService.Filter(queryable, query);
+                    var filterWs = sortOptions?.WritingSystem
+                        ?? (await GetWritingSystem(default, WritingSystemType.Vernacular))?.WsId
+                        ?? default;
+                    queryable = SearchService.Filter(queryable, query, filterWs);
                 }
             }
             else
@@ -249,7 +259,7 @@ public class MiniLcmRepository(
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
             var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
                 .AsComplexFormComparer();
-            entry.Finalize(complexFormComparer);
+            entry.Finalize(complexFormComparer, _morphTypeDataLookup);
         }
 
         return entry;
