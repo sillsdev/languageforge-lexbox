@@ -1,47 +1,82 @@
 import {describe, expect, it, vi} from 'vitest';
 
-import {LazyResource} from './lazy-resource';
-import type {ResourceReturn} from 'runed';
+import {LazyProjectResource} from './lazy-resource.svelte';
+import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
 
-describe('LazyResource', () => {
-  it('activates exactly once on first current read', () => {
-    const onActivate = vi.fn();
-    const wrapped: ResourceReturn<number, string, true> = {
-      get current() {
-        return 7;
-      },
-      get loading() {
-        return false;
-      },
-      get error() {
-        return undefined;
-      },
-      mutate: vi.fn(),
-      refetch: vi.fn(() => Promise.resolve(7)),
-    };
+const fakeApi = {} as IMiniLcmJsInvokable;
 
-    const lazy = new LazyResource(wrapped, onActivate);
+describe('LazyProjectResource', () => {
+  it('does not fetch until .current is read, then fetches exactly once', async () => {
+    const factory = vi.fn(() => Promise.resolve(7));
+    const res = new LazyProjectResource(0, factory, () => fakeApi);
 
-    expect(onActivate).not.toHaveBeenCalled();
-    expect(lazy.current).toBe(7);
-    expect(lazy.current).toBe(7);
-    expect(onActivate).toHaveBeenCalledTimes(1);
+    expect(factory).not.toHaveBeenCalled();
+
+    expect(res.current).toBe(0);
+    void res.current;
+    void res.current;
+
+    await vi.waitFor(() => {
+      expect(factory).toHaveBeenCalledTimes(1);
+      expect(res.current).toBe(7);
+    });
   });
 
-  it('activates on first refetch when current has not been read', async () => {
-    const onActivate = vi.fn();
-    const wrapped: ResourceReturn<number, string, true> = {
-      current: 0,
-      loading: false,
-      error: undefined,
-      mutate: vi.fn(),
-      refetch: vi.fn(() => Promise.resolve(99)),
-    };
+  it('does not fetch if api is not available', () => {
+    const factory = vi.fn(() => Promise.resolve(7));
+    const res = new LazyProjectResource(0, factory, () => undefined);
 
-    const lazy = new LazyResource(wrapped, onActivate);
-    await lazy.refetch('manual');
+    void res.current;
+    expect(factory).not.toHaveBeenCalled();
+  });
 
-    expect(onActivate).toHaveBeenCalledTimes(1);
-    expect(wrapped.refetch).toHaveBeenCalledWith('manual');
+  it('fetches on onApiChange only if already active', () => {
+    const factory = vi.fn(() => Promise.resolve(7));
+    const inactive = new LazyProjectResource(0, factory, () => undefined);
+    const active = new LazyProjectResource(0, factory, () => undefined);
+
+    void active.current; // activate
+
+    inactive.onApiChange(fakeApi);
+    expect(factory).not.toHaveBeenCalled();
+
+    active.onApiChange(fakeApi);
+    expect(factory).toHaveBeenCalledTimes(1);
+  });
+
+  it('activates on refetch even if current was never read', async () => {
+    const factory = vi.fn(() => Promise.resolve(99));
+    const res = new LazyProjectResource(0, factory, () => fakeApi);
+
+    await res.refetch();
+    expect(factory).toHaveBeenCalledTimes(1);
+    expect(res.current).toBe(99);
+  });
+
+  it('tracks loading and error states', async () => {
+    let resolve!: (v: number) => void;
+    function factory() {
+      return new Promise<number>(r => {
+        resolve = r;
+      });
+    }
+    const res = new LazyProjectResource(0, factory, () => fakeApi);
+
+    void res.current;
+    await vi.waitFor(() => expect(res.loading).toBe(true));
+
+    resolve(42);
+    await vi.waitFor(() => {
+      expect(res.loading).toBe(false);
+      expect(res.current).toBe(42);
+      expect(res.error).toBeUndefined();
+    });
+
+    // error case
+    const failing = new LazyProjectResource(0, () => Promise.reject(new Error('boom')), () => fakeApi);
+    void failing.current;
+    await vi.waitFor(() => {
+      expect(failing.error?.message).toBe('boom');
+    });
   });
 });

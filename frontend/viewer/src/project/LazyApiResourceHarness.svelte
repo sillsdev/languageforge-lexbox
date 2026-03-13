@@ -5,6 +5,7 @@
 
   type HarnessControls = {
     resource: ResourceReturn<string[], unknown, true>;
+    showConsumer: () => void;
     destroyConsumer: () => void;
     swapApi: (api: IMiniLcmJsInvokable) => void;
   };
@@ -25,12 +26,15 @@
 
   const resource = projectContext.lazyApiResource([], () => props.fetchData());
 
-  let showConsumer = $state(true);
+  let consumer = $state(false);
 
   const controls: HarnessControls = {
     resource,
+    showConsumer: () => {
+      consumer = true;
+    },
     destroyConsumer: () => {
-      showConsumer = false;
+      consumer = false;
     },
     swapApi: (api) => {
       projectContext.setup({
@@ -45,6 +49,6 @@
   props.onReady(controls);
 </script>
 
-{#if showConsumer}
+{#if consumer}
   <span data-testid="consumer-count">{resource.current.length}</span>
 {/if}

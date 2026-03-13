@@ -16,6 +16,7 @@ type HarnessControls = {
   resource: {
     current: string[];
   };
+  showConsumer: () => void;
   destroyConsumer: () => void;
   swapApi: (api: IMiniLcmJsInvokable) => void;
 };
@@ -41,33 +42,6 @@ describe('ProjectContext.lazyApiResource', () => {
     await unmount(app);
   });
 
-  it('loads and propagates data after first current read', async () => {
-    const fetchData = vi.fn(() => Promise.resolve(['loaded']));
-    let controls: HarnessControls | undefined;
-
-    const app = mount(LazyApiResourceHarness, {
-      target: document.body,
-      props: {
-        fetchData,
-        onReady: (readyControls: HarnessControls) => {
-          controls = readyControls;
-        },
-      },
-    });
-
-    expect(controls).toBeDefined();
-
-    // First read activates lazy resource but returns initial value until async load resolves.
-    expect(controls!.resource.current).toEqual([]);
-
-    await vi.waitFor(() => {
-      expect(fetchData).toHaveBeenCalledTimes(1);
-      expect(controls!.resource.current).toEqual(['loaded']);
-    });
-
-    await unmount(app);
-  });
-
   it('continues loading if first consumer is destroyed before load completes', async () => {
     const pending = deferred<string[]>();
     const fetchData = vi.fn(() => pending.promise);
@@ -85,13 +59,14 @@ describe('ProjectContext.lazyApiResource', () => {
 
     expect(controls).toBeDefined();
 
-    // Activate via first consumer, then immediately destroy it.
-    expect(controls!.resource.current).toEqual([]);
-    controls!.destroyConsumer();
+    // Activate via consumer, then immediately destroy it.
+    controls!.showConsumer();
 
     await vi.waitFor(() => {
       expect(fetchData).toHaveBeenCalledTimes(1);
     });
+
+    controls!.destroyConsumer();
 
     pending.resolve(['after-unmount']);
 
@@ -120,7 +95,9 @@ describe('ProjectContext.lazyApiResource', () => {
     });
 
     expect(controls).toBeDefined();
-    expect(controls!.resource.current).toEqual([]);
+
+    // Activate consumer
+    controls!.showConsumer();
 
     await vi.waitFor(() => {
       expect(controls!.resource.current).toEqual(['first']);
