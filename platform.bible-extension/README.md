@@ -156,11 +156,9 @@ To build the extension once:
 
 This extension has a network service that can be used by other extensions. Here's how to make it available for active development of another extension:
 
-1. In `platform.bible-extension/`, run `task build-fw-lite-web` then `npm run build:production`.
+1. In `platform.bible-extension/`, run `task build-fw-lite-web` then `npm run package` then `npm run core:copy-package`.
 
-2. Move or copy the contents of `platform.bible-extension/dist/` into `paranext-core/dev-appdata/installed-extensions/fw-lite-extension/`.
-
-3. In the other extension's `main.ts`, add the following two things inside `activate`:
+2. In the other extension's `main.ts`, add the following two things inside `activate`:
 
 ```ts
 const entryService = papi.networkObjects.set(
@@ -177,6 +175,8 @@ context.registrations.add(
   await entryService,
 );
 ```
+
+3. TODO: Add types instructions when https://github.com/sillsdev/languageforge-lexbox/pull/2208 is complete.
 
 4. An example of using this network service is found in [add-word.web-view.tsx](src/web-views/add-word.web-view.tsx).
 
