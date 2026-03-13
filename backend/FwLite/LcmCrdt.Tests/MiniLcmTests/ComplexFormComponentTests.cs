@@ -22,18 +22,18 @@ public class ComplexFormComponentTests : ComplexFormComponentTestsBase
     }
 
     [Fact]
-    public async Task Create_WithExistingEntityId_Throws()
+    public async Task Create_WithExistingEntityId_IsIdempotent()
     {
-        // ComplexFormComponent.Id is internal — callers should never provide one that
-        // matches an existing entity. If it does, it means they're reusing an already-created
-        // object, which would silently no-op in Harmony (duplicate entity IDs are ignored).
+        // Sync can be interrupted and replayed, so the same object (with the same entity ID)
+        // may be passed to CreateComplexFormComponent again. This should be idempotent —
+        // the property-based match finds the existing component and returns it.
         var created = await Api.CreateComplexFormComponent(
             ComplexFormComponent.FromEntries(
                 await GetEntry(_complexFormEntryId),
                 await GetEntry(_componentEntryId)));
 
-        var act = () => Api.CreateComplexFormComponent(created);
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        var again = await Api.CreateComplexFormComponent(created);
+        again.Should().BeEquivalentTo(created);
     }
 
     [Fact]

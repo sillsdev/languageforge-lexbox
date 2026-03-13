@@ -312,16 +312,6 @@ public class CrdtMiniLcmApi(
             return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
         }
 
-        // The entity ID is internal — callers should not provide one that matches
-        // an existing component. If it does, it means they're reusing an already-created
-        // object, which would silently no-op in Harmony (duplicate entity IDs are ignored).
-        if (complexFormComponent.MaybeId == existing.MaybeId)
-        {
-            throw new InvalidOperationException(
-                $"ComplexFormComponent with entity ID {complexFormComponent.MaybeId} already exists. "
-                + "The entity ID is internal and should not be reused by callers.");
-        }
-
         if (between is not null)
         {
             await MoveComplexFormComponent(existing, between);
