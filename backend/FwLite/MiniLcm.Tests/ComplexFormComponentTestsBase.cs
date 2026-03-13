@@ -185,8 +185,11 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
             ComplexFormComponent.FromEntries(_complexFormEntry, componentC),
             new BetweenPosition<ComplexFormComponent>(anchorBefore, anchorAfter));
 
-        insertedBetween.Order.Should().BeGreaterThan(createdA.Order)
-            .And.BeLessThan(createdB.Order);
+        // Verify observable order: read the entry back and check component sequence.
+        // Order is [MiniLcmInternal] so we assert on the returned collection order, not raw values.
+        var entry = await Api.GetEntry(_complexFormEntryId);
+        var componentIds = entry!.Components.Select(c => c.ComponentEntryId).ToList();
+        componentIds.Should().ContainInOrder(_componentEntryId, componentC.Id, componentB.Id);
     }
 
     [Fact]
