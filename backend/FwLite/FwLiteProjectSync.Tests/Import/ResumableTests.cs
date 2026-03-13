@@ -38,16 +38,16 @@ public class ResumableTests : IAsyncLifetime
             }).ToList();
         var expectedPartsOfSpeech = Enumerable.Range(1, 10)
             .Select(i => new PartOfSpeech { Id = Guid.NewGuid(), Name = { ["en"] = $"pos{i}" } }).ToList();
-        var expectedMorphTypes = Enumerable.Range((int)MorphType.BoundRoot, (int)MorphType.DiscontiguousPhrase)
-            .Select(i => new MorphTypeData()
+        var expectedMorphTypes = Enum.GetValues<MorphType>()
+            .Select(typ => new MorphTypeData()
             {
                 Id = Guid.NewGuid(),
-                Name = new() { ["en"] = $"Test Morph Type {i}" },
-                Abbreviation = new() { ["en"] = $"Tst MrphTyp{i}" },
-                Description = new() { { "en", new RichString($"test desc {i}") } },
+                Name = new() { ["en"] = $"Test Morph Type {(int)typ} {typ}" },
+                Abbreviation = new() { ["en"] = $"Tst MrphTyp{(int)typ}" },
+                Description = new() { { "en", new RichString($"test desc for {typ}") } },
                 LeadingToken = null,
                 TrailingToken = null,
-                MorphType = (MorphType)i,
+                MorphType = typ,
                 SecondaryOrder = 0
             }).ToList();
 
