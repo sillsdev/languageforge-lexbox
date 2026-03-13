@@ -86,6 +86,16 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateComplexFormComponent_ReplayingReturnedObject_IsIdempotent()
+    {
+        // Sync can be interrupted and replayed, so the exact same object (including its
+        // internal entity ID) may be passed to CreateComplexFormComponent again.
+        var created = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        var again = await Api.CreateComplexFormComponent(created);
+        again.Should().BeEquivalentTo(created);
+    }
+
+    [Fact]
     public async Task CreateComplexFormComponent_UsingTheSameComponentWithSenseDoesNothing()
     {
         var component1 = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry, _componentSenseId1));
