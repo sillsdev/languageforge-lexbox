@@ -7,26 +7,11 @@ import type {
   ISyncServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {resource, type ResourceOptions, type ResourceReturn} from 'runed';
-import {LazyResource} from './lazy-resource';
+import {LazyProjectResource} from './lazy-resource.svelte';
 import {SvelteMap} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
 
 const projectContextKey = 'current-project';
-
-class LazyActivation {
-  #active = $state(false);
-
-  get active(): boolean {
-    return this.#active;
-  }
-
-  activate() {
-    if (this.#active) return;
-    queueMicrotask(() => {
-      this.#active = true;
-    });
-  }
-}
 
 type ProjectType = 'crdt' | 'fwdata' | undefined;
 
@@ -60,6 +45,7 @@ export class ProjectContext {
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
   #paratext = $state(false);
+  #lazyResources: Set<LazyProjectResource<unknown>> = new Set();
   #features = resource(() => this.#api, (api) => {
     if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
     return api.supportedFeatures();
@@ -131,6 +117,9 @@ export class ProjectContext {
     this.#projectData = args.projectData;
     this.#paratext = args.paratext ?? false;
 
+    for (const res of this.#lazyResources) {
+      res.onApiChange(args.api);
+    }
   }
 
   public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): ResourceReturn<T, unknown, true> {
@@ -156,15 +145,10 @@ export class ProjectContext {
       }, {initialValue, ...options, lazy});
   }
 
-  public lazyApiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: ApiResourceOptions<T>): ResourceReturn<T, unknown, true> {
-    const activation = new LazyActivation();
-    const res = resource<[IMiniLcmJsInvokable | undefined, boolean]>([() => this.#api, () => activation.active],
-      ([api, active]) => {
-        if (!active || !api) return Promise.resolve(initialValue);
-        return factory(api);
-      }, {initialValue, lazy: true, ...options});
-
-    return new LazyResource(res, () => activation.activate());
+  public lazyApiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>): ResourceReturn<T, unknown, true> {
+    const res = new LazyProjectResource(initialValue, factory, () => this.#api);
+    this.#lazyResources.add(res as LazyProjectResource<unknown>);
+    return res;
   }
 
   public getOrAdd<T>(key: symbol, factory: () => T) {
