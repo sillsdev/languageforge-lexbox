@@ -129,6 +129,24 @@ public class ProjectController(
         return result;
     }
 
+    [HttpGet("queryRegexFiles")]
+    [AdminRequired]
+    public async Task<ActionResult<Dictionary<string, int>>> QueryRegexFiles(CancellationToken token, [FromQuery] ProjectType projectType, [FromQuery] string file, [FromQuery] string count, [FromQuery] string? fileExclude)
+    {
+        var projectCodes = await lexBoxDbContext.Projects
+            .Where(p => p.Type == projectType)
+            .OrderBy(p => p.Code)
+            .Select(p => p.Code)
+            .ToArrayAsync();
+        Dictionary<string, int> result = [];
+        foreach (var projectCode in projectCodes)
+        {
+            var regexCount = await hgService.GetRegexCount(projectCode, file, count, token, fileExclude);
+            result.Add(projectCode, regexCount ?? 0);
+        }
+        return Ok(result);
+    }
+
     [HttpGet("backupProject/{code}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [AdminRequired]
