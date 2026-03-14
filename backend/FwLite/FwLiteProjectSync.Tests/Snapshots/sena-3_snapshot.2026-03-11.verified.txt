@@ -125187,10 +125187,10 @@
       "DeletedAt": null
     }
   ],
-  "AllMorphTypeData": [
+  "MorphTypes": [
     {
       "Id": "0cc8c35a-cee9-434d-be58-5d29130fba5b",
-      "MorphType": "DiscontiguousPhrase",
+      "Kind": "DiscontiguousPhrase",
       "Name": {
         "en": "discontiguous phrase"
       },
@@ -125214,7 +125214,7 @@
     },
     {
       "Id": "18d9b1c3-b5b6-4c07-b92c-2fe1d2281bd4",
-      "MorphType": "InfixingInterfix",
+      "Kind": "InfixingInterfix",
       "Name": {
         "en": "infixing interfix"
       },
@@ -125238,7 +125238,7 @@
     },
     {
       "Id": "3433683d-08a9-4bae-ae53-2a7798f64068",
-      "MorphType": "SuffixingInterfix",
+      "Kind": "SuffixingInterfix",
       "Name": {
         "en": "suffixing interfix"
       },
@@ -125262,7 +125262,7 @@
     },
     {
       "Id": "56db04bf-3d58-44cc-b292-4c8aa68538f4",
-      "MorphType": "Particle",
+      "Kind": "Particle",
       "Name": {
         "en": "particle"
       },
@@ -125286,7 +125286,7 @@
     },
     {
       "Id": "a23b6faa-1052-4f4d-984b-4b338bdaf95f",
-      "MorphType": "Phrase",
+      "Kind": "Phrase",
       "Name": {
         "en": "phrase"
       },
@@ -125310,7 +125310,7 @@
     },
     {
       "Id": "af6537b0-7175-4387-ba6a-36547d37fb13",
-      "MorphType": "PrefixingInterfix",
+      "Kind": "PrefixingInterfix",
       "Name": {
         "en": "prefixing interfix"
       },
@@ -125334,7 +125334,7 @@
     },
     {
       "Id": "c2d140e5-7ca9-41f4-a69a-22fc7049dd2c",
-      "MorphType": "Clitic",
+      "Kind": "Clitic",
       "Name": {
         "en": "clitic"
       },
@@ -125358,7 +125358,7 @@
     },
     {
       "Id": "d7f713da-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "Infix",
+      "Kind": "Infix",
       "Name": {
         "en": "infix"
       },
@@ -125382,7 +125382,7 @@
     },
     {
       "Id": "d7f713db-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "Prefix",
+      "Kind": "Prefix",
       "Name": {
         "en": "prefix"
       },
@@ -125406,7 +125406,7 @@
     },
     {
       "Id": "d7f713dc-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "Simulfix",
+      "Kind": "Simulfix",
       "Name": {
         "en": "simulfix"
       },
@@ -125430,7 +125430,7 @@
     },
     {
       "Id": "d7f713dd-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "Suffix",
+      "Kind": "Suffix",
       "Name": {
         "en": "suffix"
       },
@@ -125454,7 +125454,7 @@
     },
     {
       "Id": "d7f713de-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "Suprafix",
+      "Kind": "Suprafix",
       "Name": {
         "en": "suprafix"
       },
@@ -125478,7 +125478,7 @@
     },
     {
       "Id": "d7f713df-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "Circumfix",
+      "Kind": "Circumfix",
       "Name": {
         "en": "circumfix"
       },
@@ -125502,7 +125502,7 @@
     },
     {
       "Id": "d7f713e1-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "Enclitic",
+      "Kind": "Enclitic",
       "Name": {
         "en": "enclitic"
       },
@@ -125526,7 +125526,7 @@
     },
     {
       "Id": "d7f713e2-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "Proclitic",
+      "Kind": "Proclitic",
       "Name": {
         "en": "proclitic"
       },
@@ -125550,7 +125550,7 @@
     },
     {
       "Id": "d7f713e4-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "BoundRoot",
+      "Kind": "BoundRoot",
       "Name": {
         "en": "bound root"
       },
@@ -125574,7 +125574,7 @@
     },
     {
       "Id": "d7f713e5-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "Root",
+      "Kind": "Root",
       "Name": {
         "en": "root"
       },
@@ -125598,7 +125598,7 @@
     },
     {
       "Id": "d7f713e7-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "BoundStem",
+      "Kind": "BoundStem",
       "Name": {
         "en": "bound stem"
       },
@@ -125622,7 +125622,7 @@
     },
     {
       "Id": "d7f713e8-e8cf-11d3-9764-00c04f186933",
-      "MorphType": "Stem",
+      "Kind": "Stem",
       "Name": {
         "en": "stem"
       },

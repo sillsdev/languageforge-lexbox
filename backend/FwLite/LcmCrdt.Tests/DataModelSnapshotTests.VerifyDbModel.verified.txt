@@ -152,7 +152,7 @@
       LiteralMeaning (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
-      MorphType (MorphType) Required
+      MorphType (MorphTypeKind) Required
       Note (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
@@ -208,6 +208,39 @@
       Relational:Schema: 
       Relational:SqlQuery: 
       Relational:TableName: ExampleSentence
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: MorphType
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      Abbreviation (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      DeletedAt (DateTimeOffset?)
+      Description (RichMultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      Kind (MorphTypeKind) Required Index
+      LeadingToken (string)
+      Name (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      SecondaryOrder (int) Required
+      SnapshotId (no field, Guid?) Shadow FK Index
+      TrailingToken (string)
+    Keys: 
+      Id PK
+    Foreign keys: 
+      MorphType {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      Kind Unique
+      SnapshotId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: MorphType
       Relational:ViewName: 
       Relational:ViewSchema: 
   EntityType: PartOfSpeech
