@@ -17,7 +17,7 @@
   import PublicationSelect from './filter/PublicationSelect.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
   import type {ISemanticDomain, IPartOfSpeech, IPublication} from '$lib/dotnet-types';
-  import {MorphType} from '$lib/dotnet-types';
+  import {MorphTypeKind} from '$lib/dotnet-types';
   import {Switch} from '$lib/components/ui/switch';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
@@ -50,10 +50,10 @@
   let userFilterActive = $state(false);
 
   const LITE_MORPHEME_TYPES = new Set([
-    MorphType.Root, MorphType.BoundRoot,
-    MorphType.Stem, MorphType.BoundStem,
-    MorphType.Particle,
-    MorphType.Phrase, MorphType.DiscontiguousPhrase,
+    MorphTypeKind.Root, MorphTypeKind.BoundRoot,
+    MorphTypeKind.Stem, MorphTypeKind.BoundStem,
+    MorphTypeKind.Particle,
+    MorphTypeKind.Phrase, MorphTypeKind.DiscontiguousPhrase,
   ]);
 
   $effect(() => {

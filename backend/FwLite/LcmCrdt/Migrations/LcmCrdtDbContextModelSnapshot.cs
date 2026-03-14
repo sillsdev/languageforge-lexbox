@@ -253,6 +253,53 @@ namespace LcmCrdt.Migrations
                     b.ToTable("ExampleSentence");
                 });
 
+            modelBuilder.Entity("MiniLcm.Models.MorphType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LeadingToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("SecondaryOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("SnapshotId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TrailingToken")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Kind")
+                        .IsUnique();
+
+                    b.HasIndex("SnapshotId")
+                        .IsUnique();
+
+                    b.ToTable("MorphType");
+                });
+
             modelBuilder.Entity("MiniLcm.Models.PartOfSpeech", b =>
                 {
                     b.Property<Guid>("Id")
@@ -617,6 +664,14 @@ namespace LcmCrdt.Migrations
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
                         .WithOne()
                         .HasForeignKey("MiniLcm.Models.ExampleSentence", "SnapshotId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("MiniLcm.Models.MorphType", b =>
+                {
+                    b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
+                        .WithOne()
+                        .HasForeignKey("MiniLcm.Models.MorphType", "SnapshotId")
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 

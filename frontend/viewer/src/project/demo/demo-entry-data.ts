@@ -1,4 +1,4 @@
-import {type IEntry, type IWritingSystems, MorphType, WritingSystemType} from '$lib/dotnet-types';
+import {type IEntry, type IWritingSystems, MorphTypeKind, WritingSystemType} from '$lib/dotnet-types';
 
 export const projectName = 'Sena 3';
 
@@ -104,7 +104,7 @@ export const _entries: IEntry[] = [
     'lexemeForm': { 'seh': 'nyumba', 'seh-fonipa-x-etic': 'ɲumba', 'ny': 'nyumba' },
     'citationForm': { 'seh': '!nyumba', 'seh-fonipa-x-etic': 'ɲumba', 'ny': 'nyumba' },
     'literalMeaning': {},
-    morphType: MorphType.Stem,
+    morphType: MorphTypeKind.Stem,
     'senses': [
       {
         'id': 'f53f0f28-3ec1-4051-b9a3-fafdca6209ce',
@@ -170,7 +170,7 @@ export const _entries: IEntry[] = [
     'lexemeForm': { 'seh': 'dance', 'seh-fonipa-x-etic': 'dæns', 'ny': 'vina' },
     'citationForm': {},
     'literalMeaning': {},
-    morphType: MorphType.Stem,
+    morphType: MorphTypeKind.Stem,
     'senses': [
       {
         'id': 'f53f0f29-3ec1-4051-b9a3-fafdca6209ce',
@@ -236,7 +236,7 @@ export const allWsEntry: IEntry = {
   lexemeForm: { seh: 'nyumba', 'seh-fonipa-x-etic': 'ɲumba', ny: 'nyumba' },
   citationForm: { seh: '!nyumba', 'seh-fonipa-x-etic': 'ɲumba', ny: 'nyumba' },
   literalMeaning: {},
-  morphType: MorphType.Stem,
+  morphType: MorphTypeKind.Stem,
   senses: [{
     id: '00000000-0000-0000-0000-000000000002',
     entryId: '00000000-0000-0000-0000-000000000001',

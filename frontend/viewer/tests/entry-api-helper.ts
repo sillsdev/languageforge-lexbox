@@ -1,6 +1,6 @@
 import {type Page} from '@playwright/test';
 import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-import {MorphType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/MorphType';
+import {MorphTypeKind} from '$lib/dotnet-types/generated-types/MiniLcm/Models/MorphTypeKind';
 
 const DEFAULT_ORDER = {field: SortField.Headword, writingSystem: 'default', ascending: true} as const;
 
@@ -83,7 +83,7 @@ export class EntryApiHelper {
       };
       const created = await api.createEntry(newEntry);
       return {id: created.id, headword: newHeadword};
-    }, {idx: targetIndex, order: DEFAULT_ORDER, morphType: MorphType.Unknown});
+    }, {idx: targetIndex, order: DEFAULT_ORDER, morphType: MorphTypeKind.Unknown});
   }
 
   async createEntryWithHeadword(headword: string): Promise<{id: string; headword: string}> {
@@ -104,7 +104,7 @@ export class EntryApiHelper {
       };
       const created = await api.createEntry(newEntry);
       return {id: created.id, headword: hw};
-    }, {hw: headword, morphType: MorphType.Unknown});
+    }, {hw: headword, morphType: MorphTypeKind.Unknown});
   }
 
   async deleteEntry(entryId: string): Promise<void> {

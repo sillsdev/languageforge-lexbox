@@ -21,6 +21,7 @@ public class LcmCrdtDbContext(
     public IQueryable<Entry> Entries => Set<Entry>().AsNoTracking();
     public IQueryable<ComplexFormComponent> ComplexFormComponents => Set<ComplexFormComponent>().AsNoTracking();
     public IQueryable<ComplexFormType> ComplexFormTypes => Set<ComplexFormType>().AsNoTracking();
+    public IQueryable<MorphType> MorphTypes => Set<MorphType>().AsNoTracking();
     public IQueryable<Sense> Senses => Set<Sense>().AsNoTracking();
     public IQueryable<ExampleSentence> ExampleSentences => Set<ExampleSentence>().AsNoTracking();
     public IQueryable<SemanticDomain> SemanticDomains => Set<SemanticDomain>().AsNoTracking();
@@ -39,6 +40,9 @@ public class LcmCrdtDbContext(
 
         var entrySearchModel = modelBuilder.Entity<EntrySearchRecord>();
         entrySearchModel.ToTable(nameof(EntrySearchRecord), tb => tb.ExcludeFromMigrations());
+
+        var morphTypeModel = modelBuilder.Entity<MorphType>();
+        morphTypeModel.HasIndex(m => m.Kind).IsUnique();
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)

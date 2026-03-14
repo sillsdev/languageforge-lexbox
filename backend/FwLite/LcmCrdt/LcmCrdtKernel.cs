@@ -228,6 +228,7 @@ public static class LcmCrdtKernel
             .Add<Publication>()
             .Add<SemanticDomain>()
             .Add<ComplexFormType>()
+            .Add<MorphType>()
             .Add<ComplexFormComponent>(builder =>
             {
                 const string componentSenseId = "ComponentSenseId";
@@ -256,6 +257,7 @@ public static class LcmCrdtKernel
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
             .Add<JsonPatchChange<ComplexFormType>>()
+            .Add<JsonPatchChange<MorphType>>()
             .Add<JsonPatchChange<Publication>>()
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
@@ -263,6 +265,7 @@ public static class LcmCrdtKernel
             .Add<DeleteChange<PartOfSpeech>>()
             .Add<DeleteChange<SemanticDomain>>()
             .Add<DeleteChange<ComplexFormType>>()
+            .Add<DeleteChange<MorphType>>()
             .Add<DeleteChange<ComplexFormComponent>>()
             .Add<DeleteChange<Publication>>()
             .Add<SetPartOfSpeechChange>()
@@ -294,6 +297,7 @@ public static class LcmCrdtKernel
             .Add<ReplacePublicationChange>()
             .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
+            .Add<CreateMorphTypeChange>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()
