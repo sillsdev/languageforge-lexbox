@@ -210,39 +210,6 @@
       Relational:TableName: ExampleSentence
       Relational:ViewName: 
       Relational:ViewSchema: 
-  EntityType: MorphTypeData
-    Properties: 
-      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
-      Abbreviation (MultiString) Required
-        Annotations: 
-          Relational:ColumnType: jsonb
-      DeletedAt (DateTimeOffset?)
-      Description (RichMultiString) Required
-        Annotations: 
-          Relational:ColumnType: jsonb
-      LeadingToken (string)
-      MorphType (MorphType) Required Index
-      Name (MultiString) Required
-        Annotations: 
-          Relational:ColumnType: jsonb
-      SecondaryOrder (int) Required
-      SnapshotId (no field, Guid?) Shadow FK Index
-      TrailingToken (string)
-    Keys: 
-      Id PK
-    Foreign keys: 
-      MorphTypeData {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
-    Indexes: 
-      MorphType Unique
-      SnapshotId Unique
-    Annotations: 
-      DiscriminatorProperty: 
-      Relational:FunctionName: 
-      Relational:Schema: 
-      Relational:SqlQuery: 
-      Relational:TableName: MorphTypeData
-      Relational:ViewName: 
-      Relational:ViewSchema: 
   EntityType: PartOfSpeech
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
