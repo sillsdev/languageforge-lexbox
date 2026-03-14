@@ -84,7 +84,7 @@ export const _entries: IEntry[] = [
     'lexemeForm': { 'seh': 'a' },
     'citationForm': {},
     'literalMeaning': {},
-    morphType: MorphType.Stem,
+    morphType: MorphTypeKind.Stem,
     'senses': [
       {
         'id': 'f53f0f28-3ec1-4051-b9a3-fafdca6209ce',
@@ -143,7 +143,7 @@ export const _entries: IEntry[] = [
     'lexemeForm': { 'seh': 'dance' },
     'citationForm': {},
     'literalMeaning': {},
-    morphType: MorphType.Stem,
+    morphType: MorphTypeKind.Stem,
     'senses': [
       {
         'id': 'f53f0f29-3ec1-4051-b9a3-fafdca6209ce',
