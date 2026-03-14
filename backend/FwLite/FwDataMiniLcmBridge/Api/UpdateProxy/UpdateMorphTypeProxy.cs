@@ -3,12 +3,12 @@ using SIL.LCModel;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
-public class UpdateMorphTypeDataProxy : MorphTypeData
+public class UpdateMorphTypeProxy : MorphType
 {
     private readonly IMoMorphType _lcmMorphType;
     private readonly FwDataMiniLcmApi _lexboxLcmApi;
 
-    public UpdateMorphTypeDataProxy(IMoMorphType lcmMorphType, FwDataMiniLcmApi lexboxLcmApi)
+    public UpdateMorphTypeProxy(IMoMorphType lcmMorphType, FwDataMiniLcmApi lexboxLcmApi)
     {
         _lcmMorphType = lcmMorphType;
         Id = lcmMorphType.Guid;

@@ -349,41 +349,41 @@ public class CrdtMiniLcmApi(
         await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
     }
 
-    public async IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    public async IAsyncEnumerable<MorphType> GetMorphTypes()
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var morphTypeData in repo.AllMorphTypeData.AsAsyncEnumerable())
+        await foreach (var morphType in repo.MorphTypes.AsAsyncEnumerable())
         {
-            yield return morphTypeData;
+            yield return morphType;
         }
     }
 
-    public async Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    public async Task<MorphType?> GetMorphType(Guid id)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.AllMorphTypeData.SingleOrDefaultAsync(c => c.Id == id);
+        return await repo.MorphTypes.SingleOrDefaultAsync(c => c.Id == id);
     }
 
-    public async Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphTypeData)
+    public async Task<MorphType> CreateMorphType(MorphType morphType)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
 
-        // Duplicate MorphTypes (by kind, i.e. the MorphType enum) are not allowed
-        var exists = await repo.AllMorphTypeData.AnyAsync(m => m.MorphType == morphTypeData.MorphType);
-        if (exists) throw new DuplicateObjectException($"Morph type {morphTypeData.MorphType} already exists");
+        // Duplicate MorphTypes (by kind) are not allowed (TODO: This, and similar in FwDataMiniLcmApi, should move into validation wrapper)
+        var exists = await repo.MorphTypes.AnyAsync(m => m.Kind == morphType.Kind);
+        if (exists) throw new DuplicateObjectException($"Morph type {morphType.Kind} already exists");
 
-        await AddChange(new CreateMorphTypeDataChange(morphTypeData));
-        // MorphType value must be unique in DB, so return by MorphType rather than Id in case a race condition
-        // ended up causing two CreateMorphTypeData calls to happen at the same time. It's possible that the
-        // other call went through, creating a MorphTypeData entry with a different GUID but the same unique
-        // MorphType value. So we fetch by MorphType value rather than by Id here to mitigate that rare case.
-        return await repo.AllMorphTypeData.SingleAsync(c => c.MorphType == morphTypeData.MorphType);
+        await AddChange(new CreateMorphTypeChange(morphType));
+        // MorphTypeKind value must be unique in DB, so return by MorphType rather than Id in case a race condition
+        // ended up causing two CreateMorphType calls to happen at the same time. It's possible that the other
+        // call went through, creating a MorphType entry with a different GUID but the same Kind (which would
+        // violate the constraint). So we fetch by Kind rather than by Id here to mitigate that rare case.
+        return await repo.MorphTypes.SingleAsync(c => c.Kind == morphType.Kind);
     }
 
-    public async Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
+    public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
         // Updates are not allowed to change MorphType: any update that attempts to do so will be rejected
-        if (update.Patch.Operations.Any(op => op.Path == $"/{nameof(MorphTypeData.MorphType)}"))
+        if (update.Patch.Operations.Any(op => op.Path == $"/{nameof(MorphType.Kind)}"))
         {
             // Reject patch entirely, including any *other* changes that might have been included
             // Rationale: the edit that attempted to change the MorphType may have been trying to convert its
@@ -391,19 +391,19 @@ public class CrdtMiniLcmApi(
             // to go through could cause an inconsistent state.
             throw new InvalidOperationException("MorphTypes cannot be changed to a different kind after creation");
         }
-        await AddChange(new JsonPatchChange<MorphTypeData>(id, update.Patch));
-        return await GetMorphTypeData(id) ?? throw NotFoundException.ForType<MorphTypeData>(id);
+        await AddChange(new JsonPatchChange<MorphType>(id, update.Patch));
+        return await GetMorphType(id) ?? throw NotFoundException.ForType<MorphType>(id);
     }
 
-    public async Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
+    public async Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null)
     {
-        await MorphTypeDataSync.Sync(before, after, api ?? this);
-        return await GetMorphTypeData(after.Id) ?? throw NotFoundException.ForType<MorphTypeData>(after.Id);
+        await MorphTypeSync.Sync(before, after, api ?? this);
+        return await GetMorphType(after.Id) ?? throw NotFoundException.ForType<MorphType>(after.Id);
     }
 
-    public async Task DeleteMorphTypeData(Guid id)
+    public async Task DeleteMorphType(Guid id)
     {
-        await AddChange(new DeleteChange<MorphTypeData>(id));
+        await AddChange(new DeleteChange<MorphType>(id));
     }
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)

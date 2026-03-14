@@ -24,7 +24,7 @@ public class SnapshotAtCommitServiceTests(MiniLcmApiFixture fixture) : IClassFix
             .WithoutStrictOrderingFor(x => x.Publications)
             .WithoutStrictOrderingFor(x => x.SemanticDomains)
             .WithoutStrictOrderingFor(x => x.ComplexFormTypes)
-            .WithoutStrictOrderingFor(x => x.AllMorphTypeData)
+            .WithoutStrictOrderingFor(x => x.MorphTypes)
         );
     }
 

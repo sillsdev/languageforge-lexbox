@@ -70,10 +70,10 @@ public class MiniLcmImport(
             logger.LogInformation("Imported complex form type {Id}", complexFormType.Id);
         }
 
-        await foreach (var morphTypeData in importFrom.GetAllMorphTypeData())
+        await foreach (var morphType in importFrom.GetMorphTypes())
         {
-            await importTo.CreateMorphTypeData(morphTypeData);
-            logger.LogInformation("Imported morph type {Id} ({typ})", morphTypeData.Id, morphTypeData.MorphType);
+            await importTo.CreateMorphType(morphType);
+            logger.LogInformation("Imported morph type {Id} ({typ})", morphType.Id, morphType.Kind);
         }
 
         logger.LogInformation("Importing semantic domains");

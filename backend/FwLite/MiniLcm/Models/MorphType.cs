@@ -28,10 +28,10 @@ public enum MorphTypeKind
     Other,
 }
 
-public class MorphTypeData : IObjectWithId<MorphTypeData>
+public class MorphType : IObjectWithId<MorphType>
 {
     public virtual Guid Id { get; set; }
-    public virtual MorphTypeKind MorphType { get; set; }
+    public virtual MorphTypeKind Kind { get; set; }
     public virtual MultiString Name { get; set; } = [];
     public virtual MultiString Abbreviation { get; set; } = [];
     public virtual RichMultiString Description { get; set; } = [];
@@ -50,12 +50,12 @@ public class MorphTypeData : IObjectWithId<MorphTypeData>
     {
     }
 
-    public MorphTypeData Copy()
+    public MorphType Copy()
     {
-        return new MorphTypeData
+        return new MorphType
         {
             Id = Id,
-            MorphType = MorphType,
+            Kind = Kind,
             Name = Name.Copy(),
             Abbreviation = Abbreviation.Copy(),
             Description = Description.Copy(),
