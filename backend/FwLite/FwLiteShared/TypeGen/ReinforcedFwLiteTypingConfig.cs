@@ -136,6 +136,7 @@ public static class ReinforcedFwLiteTypingConfig
     {
 
         builder.ExportAsEnum<DotnetService>().UseString();
+        builder.ExportAsEnum<PreferenceKey>().UseString();
         builder.ExportAsEnum<FwLitePlatform>().UseString();
         builder.ExportAsEnum<UpdateResult>().UseString();
         builder.ExportAsEnum<ProjectSyncStatusEnum>().UseString();

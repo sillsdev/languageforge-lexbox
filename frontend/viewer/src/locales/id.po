@@ -220,12 +220,6 @@ msgstr "Domain semantik apa pun"
 msgid "Any Ws"
 msgstr "Setiap Ws"
 
-#. Field label
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-#: src/lib/updates/UpdateDialog.svelte
-msgid "Application version"
-msgstr "Versi aplikasi"
-
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
@@ -286,11 +280,10 @@ msgstr "Jelajahi"
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+#: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
-#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
-#: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Cancel"
 msgstr "Batal"
@@ -480,10 +473,6 @@ msgstr "Direktori Data"
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Definition"
 msgstr "Definisi"
-
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Definition or Gloss is required"
-msgstr ""
 
 #. Button to delete project from local list
 #. Appears in project card; removes local project cache (not server copy)
@@ -758,6 +747,11 @@ msgstr "FieldWorks Lite telah berhasil diperbarui. Mulai ulang aplikasi untuk me
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 msgstr "Pengguna FieldWorks Lite akan secara otomatis menerima perubahan yang dibuat di FieldWorks Classic. Pengguna FieldWorks Classic akan melihat perubahan yang dibuat di FieldWorks Lite setelah mereka melakukan Kirim/Terima."
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
+msgid "FieldWorks Lite version"
+msgstr ""
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
@@ -1613,7 +1607,7 @@ msgid "Subject does not have suitable object of type: {0}"
 msgstr "Subjek tidak memiliki jenis objek yang sesuai: {0}"
 
 #. Button to confirm selection
-#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
@@ -1904,11 +1898,6 @@ msgstr "Pembaruan"
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
 msgstr "Menggunakan komponen sebagai"
-
-#. Version display
-#: src/project/ProjectSidebar.svelte
-msgid "Version {0}"
-msgstr "Versi {0}"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte

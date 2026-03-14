@@ -220,12 +220,6 @@ msgstr "모든 시맨틱 도메인"
 msgid "Any Ws"
 msgstr "모든 W"
 
-#. Field label
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-#: src/lib/updates/UpdateDialog.svelte
-msgid "Application version"
-msgstr "애플리케이션 버전"
-
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
@@ -286,11 +280,10 @@ msgstr "찾아보기"
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+#: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
-#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
-#: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Cancel"
 msgstr "취소"
@@ -480,10 +473,6 @@ msgstr "데이터 디렉토리"
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
 msgid "Definition"
 msgstr "정의"
-
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "Definition or Gloss is required"
-msgstr ""
 
 #. Button to delete project from local list
 #. Appears in project card; removes local project cache (not server copy)
@@ -758,6 +747,11 @@ msgstr "FieldWorks Lite가 성공적으로 업데이트되었습니다. 변경 �
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 msgstr "FieldWorks Lite 사용자는 FieldWorks Classic에서 변경된 내용을 자동으로 수신합니다. FieldWorks Classic 사용자는 보내기/받기를 수행한 후 FieldWorks Lite에서 수행한 변경 사항을 볼 수 있습니다."
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/updates/UpdateDialog.svelte
+msgid "FieldWorks Lite version"
+msgstr ""
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
@@ -1613,7 +1607,7 @@ msgid "Subject does not have suitable object of type: {0}"
 msgstr "제목에 적합한 객체 유형이 없습니다: {0}"
 
 #. Button to confirm selection
-#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
@@ -1904,11 +1898,6 @@ msgstr "업데이트"
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 msgid "Uses components as"
 msgstr "구성 요소를 다음과 같이 사용합니다."
-
-#. Version display
-#: src/project/ProjectSidebar.svelte
-msgid "Version {0}"
-msgstr "버전 {0}"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte

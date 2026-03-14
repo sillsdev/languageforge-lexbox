@@ -76,7 +76,7 @@
         <ProjectDropdown
           onSelect={handleProjectSelect}
         />
-        <ThemePicker />
+        <ThemePicker variant="ghost" />
       </div>
       <div class="mx-auto">
         {@render primaryAction.snippet?.(sidebar?.isOpen())}
@@ -210,7 +210,7 @@
   </Sidebar.Content>
   <Sidebar.Footer>
       <div class="text-xs text-muted-foreground py-2 m-auto">
-        <div>{$t`Version ${config.appVersion}`}</div>
+        <div>FieldWorks Lite {config.appVersion}</div>
         <div {@attach devModeToggle}>{$t`Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸`}</div>
       </div>
   </Sidebar.Footer>

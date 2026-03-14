@@ -43,7 +43,7 @@
   <div class="flex flex-col gap-4 items-start">
     <div>
       <p class="flex items-baseline gap-1">
-        {$t`Application version`}:
+        {$t`FieldWorks Lite version`}:
         <span class="font-semibold border-b">
           {config.appVersion}
         </span>
@@ -52,7 +52,7 @@
           size="icon-xs"
           iconProps={{class: 'size-4'}}
           title={$t`Copy version`}
-          text={`${config.appVersion} on ${config.os}`}
+          text={`FieldWorks Lite ${config.appVersion} on ${config.os}`}
         />
       </p>
       <p class="flex items-baseline gap-1">

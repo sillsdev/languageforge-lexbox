@@ -9,23 +9,24 @@
   import Anchor from '../anchor/anchor.svelte';
 
   export const buttonVariants = tv({
-    base: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:[&:not(.loading)]:opacity-50 aria-disabled:pointer-events-none aria-disabled:[&:not(.loading)]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+    base: "focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:[&:not(.loading)]:opacity-50 aria-disabled:pointer-events-none aria-disabled:[&:not(.loading)]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs',
         destructive:
           'bg-destructive hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 text-white shadow-xs',
+        /* all border classes have been moved here, because they were/are the only variant that actually uses them */
         outline:
-          'bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 border shadow-xs',
+          'bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 focus-visible:border-ring border border-input aria-invalid:border-destructive dark:hover:bg-input/50 shadow-xs',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs',
         ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-10 px-4 py-2 has-[[class*="i-mdi-"]]:ps-2',
-        xs: 'h-8 gap-1.5 rounded-md px-3 has-[[class*="i-mdi-"]]:ps-1.5',
-        sm: 'h-9 gap-1.5 rounded-md px-3 has-[[class*="i-mdi-"]]:ps-1.5',
-        lg: 'h-11 rounded-md px-8 has-[[class*="i-mdi-"]]:ps-6',
+        default: 'h-10 px-4 py-2 has-[>[class*="i-mdi-"]]:ps-2',
+        xs: 'h-8 gap-1.5 rounded-md px-3 has-[>[class*="i-mdi-"]]:ps-1.5',
+        sm: 'h-9 gap-1.5 rounded-md px-3 has-[>[class*="i-mdi-"]]:ps-1.5',
+        lg: 'h-11 rounded-md px-8 has-[>[class*="i-mdi-"]]:ps-6',
         'extended-fab': 'h-14 ps-4 pe-5',
         icon: 'h-10 w-10 min-h-10 min-w-10 max-h-10 max-w-10',
         'icon-xs': 'h-8 w-8 min-h-8 min-w-8 max-h-8 max-w-8',

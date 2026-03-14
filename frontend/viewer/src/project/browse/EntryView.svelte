@@ -82,7 +82,7 @@
 
   let latestPersistedSnapshot = $state<ReadonlyDeep<IEntry>>();
   const entryPersistence = new EntryPersistence(() => latestPersistedSnapshot);
-  const entry = $derived(entryResource.current ?? undefined);
+  let entry = $derived(entryResource.current ?? undefined);
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
   let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
@@ -156,8 +156,8 @@
           {@render preview(entry)}
         </div>
       {/if}
-      <div class="max-md:p-2 md:px-2">
-        <EntryEditor bind:ref={editorRef} {entry} readonly={readonly || !features.write || deleted} {...entryPersistence.entryEditorProps} />
+      <div class="max-md:p-2 md:pb-2 md:px-2">
+        <EntryEditor bind:ref={editorRef} bind:entry readonly={readonly || !features.write || deleted} {...entryPersistence.entryEditorProps} />
       </div>
     </ScrollArea>
   {/if}

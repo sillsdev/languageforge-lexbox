@@ -29,7 +29,7 @@
       linear-gradient is just a way to use a solid color and work around: "Only the last background can include a background color."
       See: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_backgrounds_and_borders/Using_multiple_backgrounds
       */
-      linear-gradient(hsl(var(--primary) / 0.4)),
-      hsl(var(--background));
+      linear-gradient(oklch(from var(--primary) l c h / 0.4)),
+      var(--background);
   }
 </style>
