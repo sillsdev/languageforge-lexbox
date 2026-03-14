@@ -15,9 +15,9 @@ public interface IMiniLcmReadApi
     IAsyncEnumerable<Publication> GetPublications();
     IAsyncEnumerable<SemanticDomain> GetSemanticDomains();
     IAsyncEnumerable<ComplexFormType> GetComplexFormTypes();
-    IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData();
+    IAsyncEnumerable<MorphType> GetMorphTypes();
     Task<ComplexFormType?> GetComplexFormType(Guid id);
-    Task<MorphTypeData?> GetMorphTypeData(Guid id);
+    Task<MorphType?> GetMorphType(Guid id);
     Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null);
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);

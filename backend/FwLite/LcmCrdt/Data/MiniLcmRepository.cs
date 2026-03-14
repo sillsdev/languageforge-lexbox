@@ -65,7 +65,7 @@ public class MiniLcmRepository(
     public IQueryable<Entry> Entries => dbContext.Entries.ToLinqToDB();
     public IQueryable<ComplexFormComponent> ComplexFormComponents => dbContext.ComplexFormComponents;
     public IQueryable<ComplexFormType> ComplexFormTypes => dbContext.ComplexFormTypes;
-    public IQueryable<MorphTypeData> AllMorphTypeData => dbContext.AllMorphTypeData;
+    public IQueryable<MorphType> MorphTypes => dbContext.MorphTypes;
     public IQueryable<Sense> Senses => dbContext.Senses;
     public IQueryable<ExampleSentence> ExampleSentences => dbContext.ExampleSentences;
     public IQueryable<WritingSystem> WritingSystems => dbContext.WritingSystems;

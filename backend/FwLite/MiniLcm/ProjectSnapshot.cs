@@ -8,7 +8,7 @@ public record ProjectSnapshot(
     Publication[] Publications,
     SemanticDomain[] SemanticDomains,
     ComplexFormType[] ComplexFormTypes,
-    MorphTypeData[] AllMorphTypeData,
+    MorphType[] MorphTypes,
     WritingSystems WritingSystems)
 {
     public static ProjectSnapshot Empty { get; } = new([], [], [], [], [], [], new WritingSystems());

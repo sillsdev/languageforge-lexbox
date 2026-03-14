@@ -106,7 +106,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                     .WithoutStrictOrderingFor(x => x.Publications)
                     .WithoutStrictOrderingFor(x => x.SemanticDomains)
                     .WithoutStrictOrderingFor(x => x.ComplexFormTypes)
-                    .WithoutStrictOrderingFor(x => x.AllMorphTypeData)
+                    .WithoutStrictOrderingFor(x => x.MorphTypes)
                     //when excluding properties consider https://github.com/sillsdev/languageforge-lexbox/issues/1912
                     .Using<double>(Exclude)
                     .When(info => info.RuntimeType == typeof(double) && info.Path.EndsWith(".Order") && excludeOrderTypes.Contains(info.ParentType))
