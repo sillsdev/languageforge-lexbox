@@ -35,10 +35,6 @@
     {
       DerivedType: ComplexFormComponent,
       TypeDiscriminator: ComplexFormComponent
-    },
-    {
-      DerivedType: MorphTypeData,
-      TypeDiscriminator: MorphTypeData
     }
   ],
   IgnoreUnrecognizedTypeDiscriminators: false,
