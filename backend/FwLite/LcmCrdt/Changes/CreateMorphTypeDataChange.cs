@@ -32,7 +32,7 @@ public class CreateMorphTypeDataChange : CreateChange<MorphTypeData>, ISelfNamed
     public string? LeadingToken { get; set; }
     public string? TrailingToken { get; set; }
     public int SecondaryOrder { get; set; }
-    public MorphType MorphType { get; set; }
+    public MorphTypeKind MorphType { get; set; }
     public override async ValueTask<MorphTypeData> NewEntity(Commit commit, IChangeContext context)
     {
         var alreadyExists = await context.GetObjectsOfType<MorphTypeData>().AnyAsync(m => m.MorphType == MorphType);

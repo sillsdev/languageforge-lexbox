@@ -33,18 +33,18 @@ public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : Entr
         var entry = await Api.CreateEntry(new()
         {
             LexemeForm = { { "en", "morph-type-test" } },
-            MorphType = MorphType.BoundStem
+            MorphType = MorphTypeKind.BoundStem
         });
 
         // act
         var updatedEntry = entry.Copy();
-        updatedEntry.MorphType = MorphType.Suffix;
+        updatedEntry.MorphType = MorphTypeKind.Suffix;
         await EntrySync.SyncFull(entry, updatedEntry, Api);
 
         // assert
         var actual = await Api.GetEntry(entry.Id);
         actual.Should().NotBeNull();
-        actual.MorphType.Should().Be(MorphType.BoundStem);
+        actual.MorphType.Should().Be(MorphTypeKind.BoundStem);
     }
 }
 
