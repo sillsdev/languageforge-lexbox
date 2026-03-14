@@ -38,7 +38,7 @@ public class ResumableTests : IAsyncLifetime
             }).ToList();
         var expectedPartsOfSpeech = Enumerable.Range(1, 10)
             .Select(i => new PartOfSpeech { Id = Guid.NewGuid(), Name = { ["en"] = $"pos{i}" } }).ToList();
-        var expectedMorphTypes = Enum.GetValues<MorphType>()
+        var expectedMorphTypes = Enum.GetValues<MorphTypeKind>()
             .Select(typ => new MorphTypeData()
             {
                 Id = Guid.NewGuid(),

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace MiniLcm.Models;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum MorphType
+public enum MorphTypeKind
 {
     Unknown,
     BoundRoot,
@@ -31,7 +31,7 @@ public enum MorphType
 public class MorphTypeData : IObjectWithId<MorphTypeData>
 {
     public virtual Guid Id { get; set; }
-    public virtual MorphType MorphType { get; set; }
+    public virtual MorphTypeKind MorphType { get; set; }
     public virtual MultiString Name { get; set; } = [];
     public virtual MultiString Abbreviation { get; set; } = [];
     public virtual RichMultiString Description { get; set; } = [];

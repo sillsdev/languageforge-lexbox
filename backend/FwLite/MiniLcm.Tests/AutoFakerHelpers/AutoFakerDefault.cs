@@ -46,10 +46,10 @@ public static class AutoFakerDefault
                         domain.Predefined = false;
                     }
                 }, true),
-                new PredicateOverride<MorphType>(morph =>
+                new PredicateOverride<MorphTypeKind>(morph =>
                 {
                     // these values map to null and get replaced with MorphType.Stem so they're no round-tripped
-                    return morph is not MorphType.Unknown and not MorphType.Other;
+                    return morph is not MorphTypeKind.Unknown and not MorphTypeKind.Other;
                 }, true),
                 new SimpleGenericOverride(typeof(JsonPatchDocument<>), context =>
                 {

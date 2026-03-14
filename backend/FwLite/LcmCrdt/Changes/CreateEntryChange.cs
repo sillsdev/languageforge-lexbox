@@ -32,7 +32,7 @@ public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntry
 
     public RichMultiString? Note { get; set; }
 
-    public MorphType? MorphType { get; set; }
+    public MorphTypeKind? MorphType { get; set; }
 
     public override ValueTask<Entry> NewEntity(Commit commit, IChangeContext context)
     {
@@ -43,7 +43,7 @@ public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntry
             CitationForm = CitationForm ?? new MultiString(),
             LiteralMeaning = LiteralMeaning ?? new(),
             Note = Note ?? new(),
-            MorphType = MorphType ?? MiniLcm.Models.MorphType.Stem,
+            MorphType = MorphType ?? MiniLcm.Models.MorphTypeKind.Stem,
         });
     }
 }
