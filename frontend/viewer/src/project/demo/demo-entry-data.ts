@@ -236,7 +236,7 @@ export const allWsEntry: IEntry = {
   lexemeForm: { seh: 'nyumba', 'seh-fonipa-x-etic': 'ɲumba', ny: 'nyumba' },
   citationForm: { seh: '!nyumba', 'seh-fonipa-x-etic': 'ɲumba', ny: 'nyumba' },
   literalMeaning: {},
-  morphType: MorphType.Stem,
+  morphType: MorphTypeKind.Stem,
   senses: [{
     id: '00000000-0000-0000-0000-000000000002',
     entryId: '00000000-0000-0000-0000-000000000001',
