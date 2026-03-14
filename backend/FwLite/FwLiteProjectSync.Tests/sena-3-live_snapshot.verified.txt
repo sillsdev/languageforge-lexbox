@@ -125298,6 +125298,464 @@
       "DeletedAt": null
     }
   ],
+  "MorphTypes": [
+    {
+      "Id": "0cc8c35a-cee9-434d-be58-5d29130fba5b",
+      "Kind": "DiscontiguousPhrase",
+      "Name": {
+        "en": "discontiguous phrase"
+      },
+      "Abbreviation": {
+        "en": "dis phr"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A discontiguous phrase has discontiguous constituents which (a) are separated from each other by one or more intervening constituents, and (b) are considered either (i) syntactically contiguous and unitary, or (ii) realizing the same, single meaning. An example is French ne...pas.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": null,
+      "TrailingToken": null,
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "18d9b1c3-b5b6-4c07-b92c-2fe1d2281bd4",
+      "Kind": "InfixingInterfix",
+      "Name": {
+        "en": "infixing interfix"
+      },
+      "Abbreviation": {
+        "en": "ifxnfx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "An infixing interfix is an infix that can occur between two roots or stems.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": "-",
+      "TrailingToken": "-",
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "3433683d-08a9-4bae-ae53-2a7798f64068",
+      "Kind": "SuffixingInterfix",
+      "Name": {
+        "en": "suffixing interfix"
+      },
+      "Abbreviation": {
+        "en": "sfxnfx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A suffixing interfix is an suffix that can occur between two roots or stems.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": "-",
+      "TrailingToken": null,
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "56db04bf-3d58-44cc-b292-4c8aa68538f4",
+      "Kind": "Particle",
+      "Name": {
+        "en": "particle"
+      },
+      "Abbreviation": {
+        "en": "part"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A particle is a word that does not belong to one of the main classes of words, is invariable in form, and typically has grammatical or pragmatic meaning.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": null,
+      "TrailingToken": null,
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "a23b6faa-1052-4f4d-984b-4b338bdaf95f",
+      "Kind": "Phrase",
+      "Name": {
+        "en": "phrase"
+      },
+      "Abbreviation": {
+        "en": "phr"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A phrase is a syntactic structure that consists of more than one word but lacks the subject-predicate organization of a clause.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": null,
+      "TrailingToken": null,
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "af6537b0-7175-4387-ba6a-36547d37fb13",
+      "Kind": "PrefixingInterfix",
+      "Name": {
+        "en": "prefixing interfix"
+      },
+      "Abbreviation": {
+        "en": "pfxnfx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A prefixing interfix is a prefix that can occur between two roots or stems.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": null,
+      "TrailingToken": "-",
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "c2d140e5-7ca9-41f4-a69a-22fc7049dd2c",
+      "Kind": "Clitic",
+      "Name": {
+        "en": "clitic"
+      },
+      "Abbreviation": {
+        "en": "clit"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A clitic is a morpheme that has syntactic characteristics of a word, but shows evidence of being phonologically bound to another word. Orthographically, it stands alone.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": null,
+      "TrailingToken": null,
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713da-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Infix",
+      "Name": {
+        "en": "infix"
+      },
+      "Abbreviation": {
+        "en": "ifx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "An infix is an affix that is inserted within a root or stem.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": "-",
+      "TrailingToken": "-",
+      "SecondaryOrder": 40,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713db-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Prefix",
+      "Name": {
+        "en": "prefix"
+      },
+      "Abbreviation": {
+        "en": "pfx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A prefix is an affix that is joined before a root or stem.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": null,
+      "TrailingToken": "-",
+      "SecondaryOrder": 20,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713dc-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Simulfix",
+      "Name": {
+        "en": "simulfix"
+      },
+      "Abbreviation": {
+        "en": "smfx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A simulfix is a change or replacement of vowels or consonants (usually vowels) which changes the meaning of a word.  (Note: the parser does not currently handle simulfixes.)",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": "=",
+      "TrailingToken": "=",
+      "SecondaryOrder": 60,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713dd-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Suffix",
+      "Name": {
+        "en": "suffix"
+      },
+      "Abbreviation": {
+        "en": "sfx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A suffix is an affix that is attached to the end of a root or stem.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": "-",
+      "TrailingToken": null,
+      "SecondaryOrder": 70,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713de-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Suprafix",
+      "Name": {
+        "en": "suprafix"
+      },
+      "Abbreviation": {
+        "en": "spfx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A suprafix is a kind of affix in which a suprasegmental is superimposed on one or more syllables of the root or stem, signalling a particular  morphosyntactic operation.  (Note: the parser does not currently handle suprafixes.)",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": "~",
+      "TrailingToken": "~",
+      "SecondaryOrder": 50,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713df-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Circumfix",
+      "Name": {
+        "en": "circumfix"
+      },
+      "Abbreviation": {
+        "en": "cfx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A circumfix is an affix made up of two separate parts which surround and attach to a root or stem.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": null,
+      "TrailingToken": null,
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713e1-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Enclitic",
+      "Name": {
+        "en": "enclitic"
+      },
+      "Abbreviation": {
+        "en": "enclit"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "An enclitic is a clitic that is phonologically joined at the end of a preceding word to form a single unit.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": "=",
+      "TrailingToken": null,
+      "SecondaryOrder": 80,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713e2-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Proclitic",
+      "Name": {
+        "en": "proclitic"
+      },
+      "Abbreviation": {
+        "en": "proclit"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A proclitic is a clitic that precedes the word to which it is phonologically joined.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": null,
+      "TrailingToken": "=",
+      "SecondaryOrder": 30,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713e4-e8cf-11d3-9764-00c04f186933",
+      "Kind": "BoundRoot",
+      "Name": {
+        "en": "bound root"
+      },
+      "Abbreviation": {
+        "en": "bd root"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A bound root is a root which cannot occur as a separate word apart from any other morpheme.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": "*",
+      "TrailingToken": null,
+      "SecondaryOrder": 10,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713e5-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Root",
+      "Name": {
+        "en": "root"
+      },
+      "Abbreviation": {
+        "en": "ubd root"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A root is the portion of a word that (i) is common to a set of derived or inflected forms, if any, when all affixes are removed, (ii) is not further analyzable into meaningful elements, being morphologically simple, and, (iii) carries the principle portion of meaning of the words in which it functions.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": null,
+      "TrailingToken": null,
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713e7-e8cf-11d3-9764-00c04f186933",
+      "Kind": "BoundStem",
+      "Name": {
+        "en": "bound stem"
+      },
+      "Abbreviation": {
+        "en": "bd stem"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A bound stem is a stem  which cannot occur as a separate word apart from any other morpheme.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": "*",
+      "TrailingToken": null,
+      "SecondaryOrder": 10,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713e8-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Stem",
+      "Name": {
+        "en": "stem"
+      },
+      "Abbreviation": {
+        "en": "ubd stem"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A stem is the root or roots of a word, together with any derivational affixes, to which inflectional affixes are added.\u0022 (LinguaLinks Library).  A stem \u0022may consist solely of a single root morpheme (i.e. a \u0027simple\u0027 stem as in \u0027man\u0027), or of two root morphemes (e.g. a \u0027compound\u0027 stem, as in \u0027blackbird\u0027), or of a root morpheme plus a derivational affix (i.e. a \u0027complex\u0027 stem, as in \u0027manly\u0027, \u0027unmanly\u0027, \u0027manliness\u0027).  All have in common the notion that it is to the stem that inflectional affixes are attached.\u0022 (Crystal, 1997:362)",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "LeadingToken": null,
+      "TrailingToken": null,
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    }
+  ],
   "WritingSystems": {
     "Analysis": [
       {
