@@ -1,4 +1,4 @@
-import {type IEntry, type IWritingSystems, MorphType, WritingSystemType} from '$lib/dotnet-types';
+import {type IEntry, type IWritingSystems, MorphTypeKind, WritingSystemType} from '$lib/dotnet-types';
 
 export const projectName = 'Sena 3';
 
