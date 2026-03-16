@@ -45,8 +45,8 @@ public class ResumableTests : IAsyncLifetime
                 Name = new() { ["en"] = $"Test Morph Type {(int)typ} {typ}" },
                 Abbreviation = new() { ["en"] = $"Tst MrphTyp{(int)typ}" },
                 Description = new() { { "en", new RichString($"test desc for {typ}") } },
-                LeadingToken = null,
-                TrailingToken = null,
+                Prefix = null,
+                Postfix = null,
                 Kind = typ,
                 SecondaryOrder = 0
             }).ToList();

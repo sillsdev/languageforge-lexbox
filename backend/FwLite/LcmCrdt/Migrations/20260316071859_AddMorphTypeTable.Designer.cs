@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LcmCrdt.Migrations
 {
     [DbContext(typeof(LcmCrdtDbContext))]
-    [Migration("20260314051353_AddMorphTypeTable")]
+    [Migration("20260316071859_AddMorphTypeTable")]
     partial class AddMorphTypeTable
     {
         /// <inheritdoc />
@@ -276,20 +276,20 @@ namespace LcmCrdt.Migrations
                     b.Property<int>("Kind")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("LeadingToken")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("jsonb");
+
+                    b.Property<string>("Postfix")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Prefix")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("SecondaryOrder")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("SnapshotId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("TrailingToken")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

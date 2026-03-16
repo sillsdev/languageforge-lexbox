@@ -43,12 +43,12 @@ public static class MorphTypeSync
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<MorphType>(nameof(MorphType.Description),
             beforeMorphType.Description,
             afterMorphType.Description));
-        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<MorphType>(nameof(MorphType.LeadingToken),
-            beforeMorphType.LeadingToken,
-            afterMorphType.LeadingToken));
-        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<MorphType>(nameof(MorphType.TrailingToken),
-            beforeMorphType.TrailingToken,
-            afterMorphType.TrailingToken));
+        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<MorphType>(nameof(MorphType.Prefix),
+            beforeMorphType.Prefix,
+            afterMorphType.Prefix));
+        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<MorphType>(nameof(MorphType.Postfix),
+            beforeMorphType.Postfix,
+            afterMorphType.Postfix));
         patchDocument.Operations.AddRange(IntegerDiff.GetIntegerDiff<MorphType>(nameof(MorphType.SecondaryOrder),
             beforeMorphType.SecondaryOrder,
             afterMorphType.SecondaryOrder));

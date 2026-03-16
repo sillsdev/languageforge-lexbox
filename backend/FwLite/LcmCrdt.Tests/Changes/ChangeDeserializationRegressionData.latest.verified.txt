@@ -873,8 +873,8 @@
         ]
       }
     },
-    "LeadingToken": "input",
-    "TrailingToken": "indigo",
+    "Prefix": "input",
+    "Postfix": "indigo",
     "SecondaryOrder": -166466953,
     "Kind": "Enclitic",
     "EntityId": "60f57218-abe5-182c-2bf1-57ce58b65cbc"

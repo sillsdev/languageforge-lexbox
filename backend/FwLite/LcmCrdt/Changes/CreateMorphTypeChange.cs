@@ -17,8 +17,8 @@ public class CreateMorphTypeChange : CreateChange<MorphType>, ISelfNamedType<Cre
         Name = morphType.Name;
         Abbreviation = morphType.Abbreviation;
         Description = morphType.Description;
-        LeadingToken = morphType.LeadingToken;
-        TrailingToken = morphType.TrailingToken;
+        Prefix = morphType.Prefix;
+        Postfix = morphType.Postfix;
         SecondaryOrder = morphType.SecondaryOrder;
         Kind = morphType.Kind;
     }
@@ -31,8 +31,8 @@ public class CreateMorphTypeChange : CreateChange<MorphType>, ISelfNamedType<Cre
     public required MultiString Name { get; init; }
     public required MultiString Abbreviation { get; init; }
     public required RichMultiString Description { get; init; }
-    public string? LeadingToken { get; set; }
-    public string? TrailingToken { get; set; }
+    public string? Prefix { get; set; }
+    public string? Postfix { get; set; }
     public int SecondaryOrder { get; set; }
     public required MorphTypeKind Kind { get; init; }
     public override async ValueTask<MorphType> NewEntity(Commit commit, IChangeContext context)
@@ -46,8 +46,8 @@ public class CreateMorphTypeChange : CreateChange<MorphType>, ISelfNamedType<Cre
             Name = Name,
             Abbreviation = Abbreviation,
             Description = Description,
-            LeadingToken = LeadingToken,
-            TrailingToken = TrailingToken,
+            Prefix = Prefix,
+            Postfix = Postfix,
             SecondaryOrder = SecondaryOrder,
             Kind = Kind,
             DeletedAt = alreadyExists ? commit.DateTime : null
