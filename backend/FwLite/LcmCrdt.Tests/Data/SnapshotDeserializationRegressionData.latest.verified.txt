@@ -1655,8 +1655,8 @@
           ]
         }
       },
-      "LeadingToken": "approach",
-      "TrailingToken": "syndicate",
+      "Prefix": "approach",
+      "Postfix": "syndicate",
       "SecondaryOrder": 231566132,
       "DeletedAt": null
     },

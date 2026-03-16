@@ -566,8 +566,8 @@ public class FwDataMiniLcmApi(
             Name = FromLcmMultiString(morphType.Name),
             Abbreviation = FromLcmMultiString(morphType.Abbreviation),
             Description = FromLcmMultiString(morphType.Description),
-            LeadingToken = morphType.Prefix,
-            TrailingToken = morphType.Postfix,
+            Prefix = morphType.Prefix,
+            Postfix = morphType.Postfix,
             SecondaryOrder = morphType.SecondaryOrder,
         };
     }

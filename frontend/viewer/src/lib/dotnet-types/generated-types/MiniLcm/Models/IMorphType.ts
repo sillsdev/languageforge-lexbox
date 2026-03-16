@@ -15,8 +15,8 @@ export interface IMorphType extends IObjectWithId
 	name: IMultiString;
 	abbreviation: IMultiString;
 	description: IRichMultiString;
-	leadingToken?: string;
-	trailingToken?: string;
+	prefix?: string;
+	postfix?: string;
 	secondaryOrder: number;
 	deletedAt?: string;
 }

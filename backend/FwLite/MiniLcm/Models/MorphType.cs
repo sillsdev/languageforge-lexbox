@@ -35,8 +35,8 @@ public class MorphType : IObjectWithId<MorphType>
     public virtual MultiString Name { get; set; } = [];
     public virtual MultiString Abbreviation { get; set; } = [];
     public virtual RichMultiString Description { get; set; } = [];
-    public virtual string? LeadingToken { get; set; }
-    public virtual string? TrailingToken { get; set; }
+    public virtual string? Prefix { get; set; }
+    public virtual string? Postfix { get; set; }
     public virtual int SecondaryOrder { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }
@@ -59,8 +59,8 @@ public class MorphType : IObjectWithId<MorphType>
             Name = Name.Copy(),
             Abbreviation = Abbreviation.Copy(),
             Description = Description.Copy(),
-            LeadingToken = LeadingToken,
-            TrailingToken = TrailingToken,
+            Prefix = Prefix,
+            Postfix = Postfix,
             SecondaryOrder = SecondaryOrder,
             DeletedAt = DeletedAt,
         };

@@ -273,20 +273,20 @@ namespace LcmCrdt.Migrations
                     b.Property<int>("Kind")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("LeadingToken")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("jsonb");
+
+                    b.Property<string>("Postfix")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Prefix")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("SecondaryOrder")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("SnapshotId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("TrailingToken")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
