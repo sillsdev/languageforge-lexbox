@@ -26,13 +26,13 @@ public class CreateMorphTypeChange : CreateChange<MorphType>, ISelfNamedType<Cre
     {
     }
 
-    public MultiString? Name { get; set; }
-    public MultiString? Abbreviation { get; set; }
-    public RichMultiString? Description { get; set; }
+    public required MultiString Name { get; init; }
+    public required MultiString Abbreviation { get; init; }
+    public required RichMultiString Description { get; init; }
     public string? LeadingToken { get; set; }
     public string? TrailingToken { get; set; }
     public int SecondaryOrder { get; set; }
-    public MorphTypeKind Kind { get; set; }
+    public required MorphTypeKind Kind { get; init; }
     public override async ValueTask<MorphType> NewEntity(Commit commit, IChangeContext context)
     {
         var alreadyExists = await context.GetObjectsOfType<MorphType>().AnyAsync(m => m.Kind == Kind);
@@ -41,9 +41,9 @@ public class CreateMorphTypeChange : CreateChange<MorphType>, ISelfNamedType<Cre
         return new MorphType
         {
             Id = EntityId,
-            Name = Name ?? [],
-            Abbreviation = Abbreviation ?? [],
-            Description = Description ?? [],
+            Name = Name,
+            Abbreviation = Abbreviation,
+            Description = Description,
             LeadingToken = LeadingToken,
             TrailingToken = TrailingToken,
             SecondaryOrder = SecondaryOrder,
