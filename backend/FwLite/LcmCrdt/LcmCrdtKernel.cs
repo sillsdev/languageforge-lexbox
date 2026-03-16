@@ -164,6 +164,7 @@ public static class LcmCrdtKernel
             .CustomAdapter<IObjectWithId, MiniLcmCrdtAdapter>()
             .Add<Entry>(builder =>
             {
+                builder.Ignore(e => e.Headword);
                 builder.HasMany(e => e.Components)
                     .WithOne()
                     .HasPrincipalKey(entry => entry.Id)

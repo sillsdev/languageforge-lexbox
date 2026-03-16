@@ -29,12 +29,27 @@ public record Entry : IObjectWithId<Entry>
 
     public virtual List<Publication> PublishIn { get; set; } = [];
 
+    /// <summary>
+    /// Pre-computed headwords for all writing systems, with morph tokens applied.
+    /// Populated by the backend during entry loading — not persisted in the DB.
+    /// For each WS: CitationForm[ws] if present, otherwise Prefix + LexemeForm[ws] + Postfix.
+    /// </summary>
+    public MultiString Headword { get; set; } = new();
+
     public const string UnknownHeadword = "(Unknown)";
 
-    public string Headword()
+    /// <summary>
+    /// Convenience method returning the first non-empty headword value (for logging, error messages, etc.).
+    /// Prefers the pre-computed Headword property; falls back to CitationForm/LexemeForm if Headword is empty.
+    /// </summary>
+    public string HeadwordText()
     {
+        var hw = Headword.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
+        if (!string.IsNullOrEmpty(hw)) return hw.Trim();
+
         //order by code to ensure the headword is stable
         //todo choose ws by preference based on ws order/default
+        //todo this fallback path doesn't apply morph tokens — see #1284
         //https://github.com/sillsdev/languageforge-lexbox/issues/1284
         var word = CitationForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
         if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
@@ -47,6 +62,7 @@ public record Entry : IObjectWithId<Entry>
         {
             Id = Id,
             DeletedAt = DeletedAt,
+            Headword = Headword.Copy(),
             LexemeForm = LexemeForm.Copy(),
             CitationForm = CitationForm.Copy(),
             LiteralMeaning = LiteralMeaning.Copy(),

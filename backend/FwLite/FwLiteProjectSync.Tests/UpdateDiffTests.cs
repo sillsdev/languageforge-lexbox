@@ -25,7 +25,8 @@ public class UpdateDiffTests
                 .Excluding(x => x.Components)
                 .Excluding(x => x.ComplexForms)
                 .Excluding(x => x.ComplexFormTypes)
-                .Excluding(x => x.PublishIn);
+                .Excluding(x => x.PublishIn)
+                .Excluding(x => x.Headword); // Computed property, not synced
         });
     }
 

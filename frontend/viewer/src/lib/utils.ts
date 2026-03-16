@@ -36,6 +36,7 @@ export function firstTruthy<T, U>(items: T[], mapper: (item: T) => U): U | undef
 export function defaultEntry(): IEntry {
   return {
     id: randomId(),
+    headword: {},
     citationForm: {},
     lexemeForm: {},
     note: {},

@@ -1,11 +1,11 @@
 using LcmCrdt.Data;
-using MiniLcm.Models;
 
 namespace LcmCrdt.Tests.Data;
 
 public class FilteringTests
 {
     private readonly List<Entry> _entries;
+    private readonly IQueryable<MorphType> _morphTypes;
 
     public FilteringTests()
     {
@@ -14,6 +14,7 @@ public class FilteringTests
             new Entry { LexemeForm = { { "en", "123" } }, },
             new Entry { LexemeForm = { { "en", "456" } }, }
         ];
+        _morphTypes = Array.Empty<MorphType>().AsQueryable();
     }
 
     [Theory]
@@ -36,7 +37,7 @@ public class FilteringTests
     [InlineData("9")]
     public void SearchFilter_CompiledFilter_ShouldReturnSameResults(string query)
     {
-        var expected = _entries.AsQueryable().Where(Filtering.SearchFilter(query)).ToList();
+        var expected = Filtering.SearchFilter(_entries.AsQueryable(), _morphTypes, query).ToList();
 
         var actual = _entries.Where(Filtering.CompiledFilter(query, "en", null)).ToList();
 
@@ -52,9 +53,8 @@ public class FilteringTests
     {
         WritingSystemId ws = "en";
 
-        var expected = _entries.AsQueryable()
-            .WhereExemplar(ws, exemplar)
-            .Where(Filtering.SearchFilter(query))
+        var expected = Filtering.SearchFilter(
+                _entries.AsQueryable().WhereExemplar(ws, exemplar), _morphTypes, query)
             .ToList();
 
         var actual = _entries.Where(Filtering.CompiledFilter(query, ws, exemplar)).ToList();

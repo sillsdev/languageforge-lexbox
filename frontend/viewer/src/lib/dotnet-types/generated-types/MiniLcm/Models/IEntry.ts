@@ -26,5 +26,6 @@ export interface IEntry extends IObjectWithId
 	complexForms: IComplexFormComponent[];
 	complexFormTypes: IComplexFormType[];
 	publishIn: IPublication[];
+	headword: IMultiString;
 }
 /* eslint-enable */

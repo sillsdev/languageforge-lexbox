@@ -15,11 +15,15 @@ public static class Filtering
         return query.Where(e => e.Headword(ws).StartsWith(exemplar));
     }
 
-    public static Expression<Func<Entry, bool>> SearchFilter(string query)
+    public static IQueryable<Entry> SearchFilter(IQueryable<Entry> entries, IQueryable<MorphType> morphTypes, string query)
     {
-        return e => e.LexemeForm.SearchValue(query)
-                    || e.CitationForm.SearchValue(query)
-                    || e.Senses.Any(s => s.Gloss.SearchValue(query));
+        return from entry in entries
+               join mt in morphTypes on entry.MorphType equals mt.MorphType into mtGroup
+               from mt in mtGroup.DefaultIfEmpty()
+               where entry.SearchHeadwords(mt.Prefix, mt.Postfix, query) // CitationForm.SearchValue would be redundant
+                     || entry.LexemeForm.SearchValue(query)
+                     || entry.Senses.Any(s => s.Gloss.SearchValue(query))
+               select entry;
     }
 
     public static Expression<Func<Entry, bool>> FtsFilter(string query, IQueryable<EntrySearchRecord>
@@ -42,11 +46,13 @@ public static class Filtering
             (null, null) => _ => true,
             (not null, null) => e => e.LexemeForm.SearchValue(query)
                                      || e.CitationForm.SearchValue(query)
+                                     || e.Headword.SearchValue(query)
                                      || e.Senses.Any(s => s.Gloss.SearchValue(query)),
             (null, not null) => e => e.Headword(ws).StartsWith(exemplar),
             (_, _) => e => e.Headword(ws).StartsWith(exemplar)
                            && (e.LexemeForm.SearchValue(query)
                                || e.CitationForm.SearchValue(query)
+                               || e.Headword.SearchValue(query)
                                || e.Senses.Any(s => s.Gloss.SearchValue(query)))
         };
     }
