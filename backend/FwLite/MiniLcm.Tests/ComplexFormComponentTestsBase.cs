@@ -1,5 +1,6 @@
 using FluentAssertions.Execution;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 
 namespace MiniLcm.Tests;
 
@@ -85,6 +86,16 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateComplexFormComponent_ReplayingReturnedObject_IsIdempotent()
+    {
+        // Sync can be interrupted and replayed, so the exact same object (including its
+        // internal entity ID) may be passed to CreateComplexFormComponent again.
+        var created = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        var again = await Api.CreateComplexFormComponent(created);
+        again.Should().BeEquivalentTo(created);
+    }
+
+    [Fact]
     public async Task CreateComplexFormComponent_UsingTheSameComponentWithSenseDoesNothing()
     {
         var component1 = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry, _componentSenseId1));
@@ -121,6 +132,73 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
         await Api.UpdateEntry(_complexFormEntry, _complexFormEntry);
         _componentEntry = (await Api.GetEntry(_componentEntryId))!;
         await Api.UpdateEntry(_componentEntry, _componentEntry);
+    }
+
+    [Fact]
+    public async Task CreateComplexFormComponent_ChangingPropertyAndCreatingAgain_CreatesBoth()
+    {
+        var newComponentEntry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "new component" } }
+        });
+
+        var input = ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry);
+        var first = await Api.CreateComplexFormComponent(input);
+        first.ComponentEntryId.Should().Be(_componentEntryId);
+
+        // Mutate a property on the same object and create again.
+        // The sync diff does this when a property changes (remove + add).
+        input.ComponentEntryId = newComponentEntry.Id;
+        var second = await Api.CreateComplexFormComponent(input);
+        second.ComponentEntryId.Should().Be(newComponentEntry.Id);
+
+        var entry = await Api.GetEntry(_complexFormEntryId);
+        entry!.Components.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task CreateComplexFormComponent_WithBetweenComponentsLackingIds_PositionsCorrectly()
+    {
+        // Components from LibLCM don't carry CRDT entity IDs (MaybeId == null).
+        // BetweenPosition anchors are resolved by property lookup, not by entity ID.
+        var componentB = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "Component B" } }
+        });
+        var componentC = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "Component C" } }
+        });
+
+        await Api.CreateComplexFormComponent(
+            ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        await Api.CreateComplexFormComponent(
+            ComplexFormComponent.FromEntries(_complexFormEntry, componentB));
+
+        // Anchors without entity IDs — as they'd arrive from LibLCM.
+        var anchorBefore = new ComplexFormComponent
+        {
+            ComplexFormEntryId = _complexFormEntryId,
+            ComponentEntryId = _componentEntryId,
+        };
+        var anchorAfter = new ComplexFormComponent
+        {
+            ComplexFormEntryId = _complexFormEntryId,
+            ComponentEntryId = componentB.Id,
+        };
+        anchorBefore.MaybeId.Should().BeNull();
+
+        await Api.CreateComplexFormComponent(
+            ComplexFormComponent.FromEntries(_complexFormEntry, componentC),
+            new BetweenPosition<ComplexFormComponent>(anchorBefore, anchorAfter));
+
+        // Order is [MiniLcmInternal], so verify the observable sequence instead.
+        var entry = await Api.GetEntry(_complexFormEntryId);
+        var componentIds = entry!.Components.Select(c => c.ComponentEntryId).ToList();
+        componentIds.Should().Equal(_componentEntryId, componentC.Id, componentB.Id);
     }
 
     [Fact]
