@@ -133,6 +133,10 @@ export class ProjectContext {
     return res;
   }
 
+  /**
+   * Creates a `resource` whose `$effect` is tied to the calling component's lifecycle.
+   * Callers must live as long as the project context; for short-lived components use {@link lazyApiResource} instead.
+   */
   public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: ApiResourceOptions<T>): ResourceReturn<T, unknown, true> {
     // If API is not ready yet, lazily skip the first watch run so throttle/debounce
     // cannot swallow the first real fetch when API becomes available.
@@ -145,6 +149,9 @@ export class ProjectContext {
       }, {initialValue, ...options, lazy});
   }
 
+  /**
+   * Creates a `resource` whose lifecycle is tied to project context.
+   */
   public lazyApiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>): ResourceReturn<T, unknown, true> {
     const res = new LazyProjectResource(initialValue, factory, () => this.#api);
     this.#lazyResources.add(res as LazyProjectResource<unknown>);

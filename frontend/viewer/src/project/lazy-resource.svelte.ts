@@ -11,6 +11,7 @@ export class LazyProjectResource<T> implements ResourceReturn<T, unknown, true> 
   #loading = $state(false);
   #error: Error | undefined = $state(undefined);
   #active = false;
+  #fetchVersion = 0;
   #factory: (api: IMiniLcmJsInvokable) => Promise<T>;
   #getApi: () => IMiniLcmJsInvokable | undefined;
 
@@ -53,17 +54,23 @@ export class LazyProjectResource<T> implements ResourceReturn<T, unknown, true> 
   }
 
   async #fetch(api: IMiniLcmJsInvokable): Promise<T> {
+    const version = ++this.#fetchVersion;
     this.#loading = true;
     this.#error = undefined;
     try {
       const result = await this.#factory(api);
+      if (version !== this.#fetchVersion) return result;
       this.#current = result;
       return result;
     } catch (e) {
-      this.#error = e instanceof Error ? e : new Error(String(e));
+      if (version === this.#fetchVersion) {
+        this.#error = e instanceof Error ? e : new Error(String(e));
+      }
       return this.#current;
     } finally {
-      this.#loading = false;
+      if (version === this.#fetchVersion) {
+        this.#loading = false;
+      }
     }
   }
 }
