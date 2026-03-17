@@ -8,7 +8,7 @@ import type {
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {resource, type ResourceOptions, type ResourceReturn} from 'runed';
 import {LazyProjectResource} from './lazy-resource.svelte';
-import {SvelteMap} from 'svelte/reactivity';
+import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
 
 const projectContextKey = 'current-project';
@@ -45,7 +45,7 @@ export class ProjectContext {
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
   #paratext = $state(false);
-  #lazyResources: Set<LazyProjectResource<unknown>> = new Set();
+  #lazyResources = new SvelteSet<LazyProjectResource<unknown>>();
   #features = resource(() => this.#api, (api) => {
     if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
     return api.supportedFeatures();
