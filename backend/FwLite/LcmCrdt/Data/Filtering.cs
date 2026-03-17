@@ -18,7 +18,7 @@ public static class Filtering
     public static IQueryable<Entry> SearchFilter(IQueryable<Entry> entries, IQueryable<MorphType> morphTypes, string query)
     {
         return from entry in entries
-               join mt in morphTypes on entry.MorphType equals mt.MorphType into mtGroup
+               join mt in morphTypes on entry.MorphType equals mt.Kind into mtGroup
                from mt in mtGroup.DefaultIfEmpty()
                where entry.SearchHeadwords(mt.Prefix, mt.Postfix, query) // CitationForm.SearchValue would be redundant
                      || entry.LexemeForm.SearchValue(query)

@@ -52,8 +52,8 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             .ThenBy(t => t.Headword.Length)
             .ThenBy(t => t.Headword.CollateUnicode(wsId))
             .ThenBy(t => t.HeadwordMatches
-                ? morphTypeTable.Where(mt => mt.MorphType == t.Entry.MorphType || mt.MorphType == MorphType.Stem)
-                    .OrderBy(mt => mt.MorphType == MorphType.Stem ? 1 : 0) // stem is the fallback, so it should come last
+                ? morphTypeTable.Where(mt => mt.Kind == t.Entry.MorphType || mt.Kind == MorphTypeKind.Stem)
+                    .OrderBy(mt => mt.Kind == MorphTypeKind.Stem ? 1 : 0) // stem is the fallback, so it should come last
                     .Select(mt => mt.SecondaryOrder).FirstOrDefault()
                 : int.MaxValue)
             // .ThenBy(t => t.Entry.HomographNumber)
@@ -213,7 +213,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     public async Task UpdateEntrySearchTable(Entry entry)
     {
         var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
-        var morphTypeDataLookup = await dbContext.AllMorphTypeData.ToDictionaryAsync(m => m.MorphType);
+        var morphTypeDataLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
         var record = ToEntrySearchRecord(entry, writingSystems, morphTypeDataLookup);
         await InsertOrUpdateEntrySearchRecord(record, EntrySearchRecordsTable);
     }
@@ -262,7 +262,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             return ws1.Id.CompareTo(ws2.Id);
         });
         var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
-        var morphTypeDataLookup = await dbContext.AllMorphTypeData.ToDictionaryAsync(m => m.MorphType);
+        var morphTypeDataLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
         var searchRecords = entries.Select(entry => ToEntrySearchRecord(entry, writingSystems, morphTypeDataLookup));
         foreach (var entrySearchRecord in searchRecords)
         {
@@ -281,7 +281,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         await EntrySearchRecordsTable.TruncateAsync();
 
         var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
-        var morphTypeDataLookup = await dbContext.AllMorphTypeData.ToDictionaryAsync(m => m.MorphType);
+        var morphTypeDataLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
         await EntrySearchRecordsTable
             .BulkCopyAsync(dbContext.Set<Entry>()
                 .LoadWith(e => e.Senses)
@@ -307,7 +307,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     }
 
     private static EntrySearchRecord ToEntrySearchRecord(Entry entry, WritingSystem[] writingSystems,
-        IReadOnlyDictionary<MorphType, MorphType> morphTypeDataLookup)
+        IReadOnlyDictionary<MorphTypeKind, MorphType> morphTypeDataLookup)
     {
         // Include headwords (with morph tokens) for ALL vernacular writing systems (space-separated).
         // This ensures FTS matches across all WS, including morph-token-decorated forms.

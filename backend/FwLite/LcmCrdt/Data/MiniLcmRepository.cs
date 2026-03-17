@@ -73,12 +73,12 @@ public class MiniLcmRepository(
     public IQueryable<SemanticDomain> SemanticDomains => dbContext.SemanticDomains;
     public IQueryable<PartOfSpeech> PartsOfSpeech => dbContext.PartsOfSpeech;
 
-    private IReadOnlyDictionary<MorphType, MorphType>? _morphTypeDataLookup;
+    private IReadOnlyDictionary<MorphTypeKind, MorphType>? _morphTypeDataLookup;
 
-    private async ValueTask<IReadOnlyDictionary<MorphType, MorphType>> GetMorphTypeDataLookup()
+    private async ValueTask<IReadOnlyDictionary<MorphTypeKind, MorphType>> GetMorphTypeDataLookup()
     {
-        return _morphTypeDataLookup ??= await AllMorphTypeData
-            .ToDictionaryAsyncEF(m => m.MorphType);
+        return _morphTypeDataLookup ??= await MorphTypes
+            .ToDictionaryAsyncEF(m => m.Kind);
     }
 
     public IQueryable<Publication> Publications => dbContext.Publications;

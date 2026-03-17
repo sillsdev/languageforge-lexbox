@@ -6,14 +6,14 @@ public static class Sorting
 {
     public static IQueryable<Entry> ApplyHeadwordOrder(this IQueryable<Entry> entries, ITable<MorphType> morphTypes, SortOptions order, string? query = null)
     {
-        var stemOrder = morphTypes.Where(m => m.MorphType == MorphType.Stem).Select(m => m.SecondaryOrder);
+        var stemOrder = morphTypes.Where(m => m.Kind == MorphTypeKind.Stem).Select(m => m.SecondaryOrder);
         if (order.Ascending)
         {
             return
                 from entry in entries
                 orderby
                     entry.Headword(order.WritingSystem).CollateUnicode(order.WritingSystem),
-                    morphTypes.Where(m => m.MorphType == entry.MorphType)
+                    morphTypes.Where(m => m.Kind == entry.MorphType)
                         .Select(m => (int?)m.SecondaryOrder).FirstOrDefault() ?? stemOrder.FirstOrDefault(),
                     // entry.HomographNumber,
                     entry.Id
@@ -25,7 +25,7 @@ public static class Sorting
                 from entry in entries
                 orderby
                     entry.Headword(order.WritingSystem).CollateUnicode(order.WritingSystem) descending,
-                    (morphTypes.Where(m => m.MorphType == entry.MorphType)
+                    (morphTypes.Where(m => m.Kind == entry.MorphType)
                         .Select(m => (int?)m.SecondaryOrder).FirstOrDefault() ?? stemOrder.FirstOrDefault()) descending,
                     // entry.HomographNumber descending,
                     entry.Id descending
@@ -40,12 +40,12 @@ public static class Sorting
     /// </summary>
     public static IQueryable<Entry> ApplyRoughBestMatchOrder(this IQueryable<Entry> entries, ITable<MorphType> morphTypes, SortOptions order, string? query = null)
     {
-        var stemOrder = morphTypes.Where(m => m.MorphType == MorphType.Stem).Select(m => m.SecondaryOrder);
+        var stemOrder = morphTypes.Where(m => m.Kind == MorphTypeKind.Stem).Select(m => m.SecondaryOrder);
         if (order.Ascending)
         {
             return
                 from e in entries
-                join mt in morphTypes on e.MorphType equals mt.MorphType into mtGroup
+                join mt in morphTypes on e.MorphType equals mt.Kind into mtGroup
                 from mt in mtGroup.DefaultIfEmpty()
                 orderby
                     !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.Headword(order.WritingSystem), query!) descending,
@@ -61,7 +61,7 @@ public static class Sorting
         {
             return
                 from e in entries
-                join mt in morphTypes on e.MorphType equals mt.MorphType into mtGroup
+                join mt in morphTypes on e.MorphType equals mt.Kind into mtGroup
                 from mt in mtGroup.DefaultIfEmpty()
                 orderby
                     !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.Headword(order.WritingSystem), query!),

@@ -7,7 +7,7 @@ public static class QueryHelpers
 {
     public static void Finalize(this Entry entry,
         IComparer<ComplexFormComponent> complexFormComparer,
-        IReadOnlyDictionary<MorphType, MorphType> morphTypeDataLookup)
+        IReadOnlyDictionary<MorphTypeKind, MorphType> morphTypeDataLookup)
     {
         entry.Senses.ApplySortOrder();
         entry.Components.ApplySortOrder();
