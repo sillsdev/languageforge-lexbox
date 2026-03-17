@@ -16,11 +16,6 @@ public class ComplexFormComponentTests : ComplexFormComponentTestsBase
         await _fixture.DisposeAsync();
     }
 
-    private async Task<Entry> GetEntry(Guid id)
-    {
-        return (await Api.GetEntry(id))!;
-    }
-
     [Fact]
     public async Task Create_ChangingProperty_ProducesNewEntityId()
     {
@@ -34,8 +29,8 @@ public class ComplexFormComponentTests : ComplexFormComponentTestsBase
         });
 
         var input = ComplexFormComponent.FromEntries(
-            await GetEntry(_complexFormEntryId),
-            await GetEntry(_componentEntryId));
+            (await Api.GetEntry(_complexFormEntryId))!,
+            (await Api.GetEntry(_componentEntryId))!);
         var first = await Api.CreateComplexFormComponent(input);
 
         input.ComponentEntryId = newComponentEntry.Id;
@@ -51,8 +46,8 @@ public class ComplexFormComponentTests : ComplexFormComponentTestsBase
         // never used. This matches FwData behavior (which ignores the ID entirely) and
         // prevents Harmony duplicate-ID pitfalls during sync.
         var input = ComplexFormComponent.FromEntries(
-            await GetEntry(_complexFormEntryId),
-            await GetEntry(_componentEntryId));
+            (await Api.GetEntry(_complexFormEntryId))!,
+            (await Api.GetEntry(_componentEntryId))!);
         var providedId = input.Id;
 
         var created = await Api.CreateComplexFormComponent(input);
