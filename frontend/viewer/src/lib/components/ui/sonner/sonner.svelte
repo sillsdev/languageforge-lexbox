@@ -40,7 +40,7 @@ I.e. If there's small, big, small, then sonner thinks the big one is small and p
         size: 'sm',
         variant: 'default',
         class:
-          'group-[.toast]:bg-primary! group-[.toast]:text-primary-foreground! h-9! min-h-9 px-3! group-[.toast[data-type="error"]]:i-mdi-content-copy [&.copied]:i-mdi-check! group-[.toast[data-promise="true"][data-type="loading"]]:hidden',
+          'group-[.toast]:bg-primary! group-[.toast]:text-primary-foreground! h-9! min-h-9 px-3! group-[.toast[data-type="error"]]:i-mdi-content-copy [&.copied]:i-mdi-check! group-[.toast[data-promise="true"][data-type="loading"]]:hidden!',
       }),
       cancelButton: buttonVariants({
         size: 'sm',
