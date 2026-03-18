@@ -1,6 +1,6 @@
 <script lang="ts">
   import type {ResourceReturn} from 'runed';
-  import {useProjectContext} from './project-context.svelte';
+  import {useProjectContext} from '../project-context.svelte';
 
   const props: {
     fetchData: () => Promise<string[]>;

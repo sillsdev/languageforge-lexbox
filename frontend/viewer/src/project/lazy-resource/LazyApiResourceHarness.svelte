@@ -2,7 +2,7 @@
   import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
   import type {ResourceReturn} from 'runed';
   import type {HarnessControls} from './lazy-api-resource-test-types';
-  import {initProjectContext} from './project-context.svelte';
+  import {initProjectContext} from '../project-context.svelte';
   import LazyApiResourceConsumer from './LazyApiResourceConsumer.svelte';
 
   const props: {
