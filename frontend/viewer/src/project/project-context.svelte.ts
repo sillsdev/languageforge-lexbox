@@ -140,7 +140,7 @@ export class ProjectContext {
   public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: ApiResourceOptions<T>): ResourceReturn<T, unknown, true> {
     // If API is not ready yet, lazily skip the first watch run so throttle/debounce
     // cannot swallow the first real fetch when API becomes available.
-    const lazy = options?.lazy ?? !this.#api;
+    const lazy = options?.lazy || !this.#api;
 
     return resource<IMiniLcmJsInvokable | undefined>(() => this.#api,
       (api) => {
