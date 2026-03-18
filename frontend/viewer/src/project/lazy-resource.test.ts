@@ -53,7 +53,7 @@ describe('LazyProjectResource', () => {
     expect(res.current).toBe(99);
   });
 
-  it('tracks loading and error states', async () => {
+  it('tracks loading state through resolve', async () => {
     let resolve!: (v: number) => void;
     function factory() {
       return new Promise<number>(r => {
@@ -71,8 +71,9 @@ describe('LazyProjectResource', () => {
       expect(res.current).toBe(42);
       expect(res.error).toBeUndefined();
     });
+  });
 
-    // error case
+  it('exposes error when factory rejects', async () => {
     const failing = new LazyProjectResource(0, () => Promise.reject(new Error('boom')), () => fakeApi);
     void failing.current;
     await vi.waitFor(() => {

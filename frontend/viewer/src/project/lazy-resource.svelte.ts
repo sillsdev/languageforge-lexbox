@@ -24,8 +24,10 @@ export class LazyProjectResource<T> implements ResourceReturn<T, unknown, true> 
   get current(): T {
     if (!this.#active) {
       this.#active = true;
-      const api = this.#getApi();
-      if (api) queueMicrotask(() => void this.#fetch(api));
+      if (this.#getApi()) queueMicrotask(() => {
+        const api = this.#getApi();
+        if (api) void this.#fetch(api);
+      });
     }
     return this.#current;
   }

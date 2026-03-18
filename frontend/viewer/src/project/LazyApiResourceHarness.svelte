@@ -1,14 +1,9 @@
 <script lang="ts">
-  import {initProjectContext} from './project-context.svelte';
   import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
   import type {ResourceReturn} from 'runed';
-
-  type HarnessControls = {
-    resource: ResourceReturn<string[], unknown, true>;
-    showConsumer: () => void;
-    destroyConsumer: () => void;
-    swapApi: (api: IMiniLcmJsInvokable) => void;
-  };
+  import type {HarnessControls} from './lazy-api-resource-test-types';
+  import {initProjectContext} from './project-context.svelte';
+  import LazyApiResourceConsumer from './LazyApiResourceConsumer.svelte';
 
   const props: {
     fetchData: () => Promise<string[]>;
@@ -24,12 +19,17 @@
     projectCode,
   });
 
-  const resource = projectContext.lazyApiResource([], () => props.fetchData());
-
   let consumer = $state(false);
+  let resource: ResourceReturn<string[], unknown, true> | undefined = $state(undefined);
+
+  function onResource(res: ResourceReturn<string[], unknown, true>) {
+    resource = res;
+  }
 
   const controls: HarnessControls = {
-    resource,
+    get resource() {
+      return resource!;
+    },
     showConsumer: () => {
       consumer = true;
     },
@@ -50,5 +50,5 @@
 </script>
 
 {#if consumer}
-  <span data-testid="consumer-count">{resource.current.length}</span>
+  <LazyApiResourceConsumer fetchData={props.fetchData} {onResource} />
 {/if}

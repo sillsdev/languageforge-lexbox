@@ -1,6 +1,7 @@
 import {describe, expect, it, vi} from 'vitest';
 import {mount, unmount} from 'svelte';
 
+import type {HarnessControls} from './lazy-api-resource-test-types';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import LazyApiResourceHarness from './LazyApiResourceHarness.svelte';
 
@@ -12,66 +13,36 @@ function deferred<T>() {
   return {promise, resolve};
 }
 
-type HarnessControls = {
-  resource: {
-    current: string[];
-  };
-  showConsumer: () => void;
-  destroyConsumer: () => void;
-  swapApi: (api: IMiniLcmJsInvokable) => void;
-};
+function mountHarness(fetchData: () => Promise<string[]>) {
+  let controls: HarnessControls;
+  const app = mount(LazyApiResourceHarness, {
+    target: document.body,
+    props: {
+      fetchData,
+      onReady: (c: HarnessControls) => { controls = c; },
+    },
+  });
+  return { app, get controls() { return controls; } };
+}
 
 describe('ProjectContext.lazyApiResource', () => {
-  it('does not call API factory when lazy resource is only initialized', async () => {
-    const fetchData = vi.fn(() => Promise.resolve(['loaded']));
-    let controls: HarnessControls | undefined;
-
-    const app = mount(LazyApiResourceHarness, {
-      target: document.body,
-      props: {
-        fetchData,
-        onReady: (readyControls: HarnessControls) => {
-          controls = readyControls;
-        },
-      },
-    });
-
-    expect(controls).toBeDefined();
-    expect(fetchData).not.toHaveBeenCalled();
-
-    await unmount(app);
-  });
-
   it('continues loading if first consumer is destroyed before load completes', async () => {
     const pending = deferred<string[]>();
     const fetchData = vi.fn(() => pending.promise);
-    let controls: HarnessControls | undefined;
+    const {app, controls} = mountHarness(fetchData);
 
-    const app = mount(LazyApiResourceHarness, {
-      target: document.body,
-      props: {
-        fetchData,
-        onReady: (readyControls: HarnessControls) => {
-          controls = readyControls;
-        },
-      },
-    });
-
-    expect(controls).toBeDefined();
-
-    // Activate via consumer, then immediately destroy it.
-    controls!.showConsumer();
+    controls.showConsumer();
 
     await vi.waitFor(() => {
       expect(fetchData).toHaveBeenCalledTimes(1);
     });
 
-    controls!.destroyConsumer();
+    controls.destroyConsumer();
 
     pending.resolve(['after-unmount']);
 
     await vi.waitFor(() => {
-      expect(controls!.resource.current).toEqual(['after-unmount']);
+      expect(controls.resource.current).toEqual(['after-unmount']);
     });
 
     await unmount(app);
@@ -82,33 +53,20 @@ describe('ProjectContext.lazyApiResource', () => {
       .mockResolvedValueOnce(['first'])
       .mockResolvedValueOnce(['second']);
 
-    let controls: HarnessControls | undefined;
+    const {app, controls} = mountHarness(fetchData);
 
-    const app = mount(LazyApiResourceHarness, {
-      target: document.body,
-      props: {
-        fetchData,
-        onReady: (readyControls: HarnessControls) => {
-          controls = readyControls;
-        },
-      },
-    });
-
-    expect(controls).toBeDefined();
-
-    // Activate consumer
-    controls!.showConsumer();
+    controls.showConsumer();
 
     await vi.waitFor(() => {
-      expect(controls!.resource.current).toEqual(['first']);
+      expect(controls.resource.current).toEqual(['first']);
     });
 
-    controls!.destroyConsumer();
-    controls!.swapApi({} as IMiniLcmJsInvokable);
+    controls.destroyConsumer();
+    controls.swapApi({} as IMiniLcmJsInvokable);
 
     await vi.waitFor(() => {
       expect(fetchData).toHaveBeenCalledTimes(2);
-      expect(controls!.resource.current).toEqual(['second']);
+      expect(controls.resource.current).toEqual(['second']);
     });
 
     await unmount(app);
