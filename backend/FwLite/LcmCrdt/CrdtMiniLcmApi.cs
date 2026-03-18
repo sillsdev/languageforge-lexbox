@@ -361,7 +361,13 @@ public class CrdtMiniLcmApi(
     public async Task<MorphType?> GetMorphType(Guid id)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.MorphTypes.SingleOrDefaultAsync(c => c.Id == id);
+        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Id == id);
+    }
+
+    public async Task<MorphType?> GetMorphType(MorphTypeKind kind)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Kind == kind);
     }
 
     public async Task<MorphType> CreateMorphType(MorphType morphType)

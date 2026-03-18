@@ -557,6 +557,15 @@ public class FwDataMiniLcmApi(
         return Task.FromResult<MorphType?>(FromLcmMorphType(lcmMorphType));
     }
 
+    public Task<MorphType?> GetMorphType(MorphTypeKind kind)
+    {
+        var guid = LcmHelpers.ToLcmMorphTypeId(kind);
+        if (guid is null) return Task.FromResult<MorphType?>(null);
+        MorphTypeRepository.TryGetObject(guid.Value, out var lcmMorphType);
+        if (lcmMorphType is null) return Task.FromResult<MorphType?>(null);
+        return Task.FromResult<MorphType?>(FromLcmMorphType(lcmMorphType));
+    }
+
     internal MorphType FromLcmMorphType(IMoMorphType morphType)
     {
         return new MorphType
