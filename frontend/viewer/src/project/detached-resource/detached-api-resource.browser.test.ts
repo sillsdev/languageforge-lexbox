@@ -25,7 +25,7 @@ function mountHarness(fetchData: () => Promise<string[]>) {
   return { app, get controls() { return controls; } };
 }
 
-describe('ProjectContext.detachedApiResource', () => {
+describe('ProjectContext.apiResource', () => {
   it('continues loading if first consumer is destroyed before load completes', async () => {
     const pending = deferred<string[]>();
     const fetchData = vi.fn(() => pending.promise);

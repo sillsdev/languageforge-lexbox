@@ -1,3 +1,4 @@
+import {useDebounce} from 'runed';
 import {useProjectContext} from '$project/project-context.svelte';
 import {useProjectEventBus} from '$lib/services/event-bus';
 
@@ -15,10 +16,10 @@ export function useProjectStats() {
       totalEntryCount,
     }
   }, {
-    debounce: 500,
     onAdd: (resource) => {
-      projectEventBus.onEntryDeleted(() => void resource.refetch());
-      projectEventBus.onEntryUpdated(() => void resource.refetch());
+      const debouncedRefetch = useDebounce(() => void resource.refetch(), 500);
+      projectEventBus.onEntryDeleted(() => void debouncedRefetch());
+      projectEventBus.onEntryUpdated(() => void debouncedRefetch());
     }
   });
   return statsResource;

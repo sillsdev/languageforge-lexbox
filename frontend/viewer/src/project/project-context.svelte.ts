@@ -6,7 +6,7 @@ import type {
 import type {
   ISyncServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-import {resource, type ResourceOptions, type ResourceReturn} from 'runed';
+import {resource, type ResourceReturn} from 'runed';
 import {DetachedResource} from './detached-resource';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
@@ -134,25 +134,11 @@ export class ProjectContext {
   }
 
   /**
-   * Creates a `resource` whose `$effect` is tied to the calling component's lifecycle.
-   * Callers must live as long as the project context; for short-lived components use {@link detachedApiResource} instead.
-   */
-  public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: ApiResourceOptions<T>): ResourceReturn<T, unknown, true> {
-    // If API is not ready yet, lazily skip the first watch run so throttle/debounce
-    // cannot swallow the first real fetch when API becomes available.
-    const lazy = options?.lazy || !this.#api;
-
-    return resource<IMiniLcmJsInvokable | undefined>(() => this.#api,
-      (api) => {
-        if (!api) return Promise.resolve(initialValue);
-        return factory(api);
-      }, {initialValue, ...options, lazy});
-  }
-
-  /**
    * Creates a `resource` whose lifecycle is manged by the project context.
+   * Note: we aren't using resource from runed, because it's based on $effect,
+   * which ties the resource lifecycle to the calling component, rather than the project.
    */
-  public detachedApiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: { eager?: boolean }): ResourceReturn<T, unknown, true> {
+  public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: { eager?: boolean }): ResourceReturn<T, unknown, true> {
     const res = new DetachedResource(initialValue, factory, () => this.#api, options);
     this.#detachedResources.add(res as DetachedResource<unknown>);
     return res;
@@ -168,8 +154,7 @@ export class ProjectContext {
   }
 }
 
-type ApiResourceOptions<T> = Partial<Omit<ResourceOptions<T>, 'initialValue'>>;
-
-type GetOrAddAsyncOptions<T> = ApiResourceOptions<T> & {
+type GetOrAddAsyncOptions<T> = {
+  eager?: boolean;
   onAdd?: (resource: ResourceReturn<T>) => void;
 }
