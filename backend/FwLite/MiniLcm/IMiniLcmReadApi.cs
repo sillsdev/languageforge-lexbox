@@ -18,6 +18,7 @@ public interface IMiniLcmReadApi
     IAsyncEnumerable<MorphType> GetMorphTypes();
     Task<ComplexFormType?> GetComplexFormType(Guid id);
     Task<MorphType?> GetMorphType(Guid id);
+    Task<MorphType?> GetMorphType(MorphTypeKind kind);
     Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null);
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);

@@ -35,6 +35,11 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return Task.FromResult<MorphType?>(null);
     }
 
+    public Task<MorphType?> GetMorphType(MorphTypeKind kind)
+    {
+        return Task.FromResult<MorphType?>(null);
+    }
+
     private Dictionary<Guid, PartOfSpeech>? _partsOfSpeechCacheByGuid = null;
     private Dictionary<string, PartOfSpeech>? _partsOfSpeechCacheByStringKey = null;
 
