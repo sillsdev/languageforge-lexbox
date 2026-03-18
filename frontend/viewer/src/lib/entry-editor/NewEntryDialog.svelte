@@ -60,8 +60,8 @@
     if (!validateEntry()) return;
 
     loading = true;
-    console.debug('Creating entry', entry);
-    await saveHandler.handleSave(() => lexboxApi.createEntry(entry));
+    const entrySnapshot = $state.snapshot(entry);
+    await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot));
     requester.resolve(entry);
     requester = undefined;
     loading = false;
