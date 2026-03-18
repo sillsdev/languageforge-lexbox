@@ -368,7 +368,8 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
 
-        // Duplicate MorphTypes (by kind) are not allowed (TODO: This, and similar in FwDataMiniLcmApi, should move into validation wrapper)
+        // Duplicate MorphTypes (by kind) are not allowed
+        // Note: can't put this in validation wrapper since we need a repo
         var exists = await repo.MorphTypes.AnyAsync(m => m.Kind == morphType.Kind);
         if (exists) throw new DuplicateObjectException($"Morph type {morphType.Kind} already exists");
 
@@ -382,15 +383,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
-        // Updates are not allowed to change MorphType: any update that attempts to do so will be rejected
-        if (update.Patch.Operations.Any(op => op.Path == $"/{nameof(MorphType.Kind)}"))
-        {
-            // Reject patch entirely, including any *other* changes that might have been included
-            // Rationale: the edit that attempted to change the MorphType may have been trying to convert its
-            // name, description, etc., from "root" to "prefix". Allowing the name, description, etc. changes
-            // to go through could cause an inconsistent state.
-            throw new InvalidOperationException("MorphTypes cannot be changed to a different kind after creation");
-        }
         await AddChange(new JsonPatchChange<MorphType>(id, update.Patch));
         return await GetMorphType(id) ?? throw NotFoundException.ForType<MorphType>(id);
     }

@@ -19,13 +19,6 @@ public static class MorphTypeSync
         MorphType after,
         IMiniLcmApi api)
     {
-        if (before.Kind != after.Kind)
-        {
-            // Reject change entirely, for consistency with how api.UpdateMorphType(after.Id, updateObjectInput) handles things
-            // Rationale: any attempt to change the MorphType may have tried to change the name, description, etc. to match, so allowing the
-            // *other* changes through while rejecting just the change to the MorphType enum could leave the object in an inconsistent state.
-            throw new InvalidOperationException("MorphTypes cannot be changed to a different kind after creation");
-        }
         var updateObjectInput = MorphTypeDiffToUpdate(before, after);
         if (updateObjectInput is not null) await api.UpdateMorphType(after.Id, updateObjectInput);
         return updateObjectInput is null ? 0 : 1;
@@ -34,6 +27,10 @@ public static class MorphTypeSync
     public static UpdateObjectInput<MorphType>? MorphTypeDiffToUpdate(MorphType beforeMorphType, MorphType afterMorphType)
     {
         JsonPatchDocument<MorphType> patchDocument = new();
+        // TODO: Write unit test to verify that changing Kind triggers a validation failure
+        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<MorphType>(nameof(MorphType.Kind),
+            beforeMorphType.Kind.ToString(),
+            afterMorphType.Kind.ToString()));
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<MorphType>(nameof(MorphType.Name),
             beforeMorphType.Name,
             afterMorphType.Name));
@@ -52,7 +49,6 @@ public static class MorphTypeSync
         patchDocument.Operations.AddRange(IntegerDiff.GetIntegerDiff<MorphType>(nameof(MorphType.SecondaryOrder),
             beforeMorphType.SecondaryOrder,
             afterMorphType.SecondaryOrder));
-        // Do NOT add an operation for changing MorphType.Kind, as changing that property is not allowed
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<MorphType>(patchDocument);
     }
