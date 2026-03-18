@@ -98,6 +98,28 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Integration")]
+    public async Task CanonicalMorphTypes_MatchFwDataMorphTypes()
+    {
+        var fwDataMorphTypes = await _fwDataApi.GetMorphTypes().ToArrayAsync();
+        fwDataMorphTypes.Should().NotBeEmpty("Sena 3 should have morph types");
+
+        foreach (var fwMorphType in fwDataMorphTypes)
+        {
+            if (fwMorphType.Kind == MorphTypeKind.Unknown || fwMorphType.Kind == MorphTypeKind.Other)
+                continue;
+
+            CanonicalMorphTypes.All.Should().ContainKey(fwMorphType.Kind,
+                $"canonical morph types should include {fwMorphType.Kind}");
+            var canonical = CanonicalMorphTypes.All[fwMorphType.Kind];
+            canonical.Id.Should().Be(fwMorphType.Id, $"GUID for {fwMorphType.Kind} should match FwData");
+            canonical.Prefix.Should().Be(fwMorphType.Prefix, $"Prefix for {fwMorphType.Kind} should match FwData");
+            canonical.Postfix.Should().Be(fwMorphType.Postfix, $"Postfix for {fwMorphType.Kind} should match FwData");
+            canonical.SecondaryOrder.Should().Be(fwMorphType.SecondaryOrder, $"SecondaryOrder for {fwMorphType.Kind} should match FwData");
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
     public async Task DryRunImport_MakesNoChanges()
     {
         await WorkaroundMissingWritingSystems();

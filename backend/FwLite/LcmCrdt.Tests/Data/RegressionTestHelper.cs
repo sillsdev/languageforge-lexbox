@@ -73,6 +73,7 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
     public enum RegressionVersion
     {
         v1,
-        v2
+        v2,
+        v3
     }
 }
