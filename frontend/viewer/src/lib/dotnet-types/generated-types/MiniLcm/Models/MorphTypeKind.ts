@@ -23,7 +23,6 @@ export enum MorphTypeKind {
 	PrefixingInterfix = "PrefixingInterfix",
 	SuffixingInterfix = "SuffixingInterfix",
 	Phrase = "Phrase",
-	DiscontiguousPhrase = "DiscontiguousPhrase",
-	Other = "Other"
+	DiscontiguousPhrase = "DiscontiguousPhrase"
 }
 /* eslint-enable */

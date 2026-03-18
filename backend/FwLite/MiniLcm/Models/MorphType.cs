@@ -25,7 +25,6 @@ public enum MorphTypeKind
     SuffixingInterfix,
     Phrase,
     DiscontiguousPhrase,
-    Other,
 }
 
 public class MorphType : IObjectWithId<MorphType>

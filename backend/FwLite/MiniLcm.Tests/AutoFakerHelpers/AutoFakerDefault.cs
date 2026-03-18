@@ -48,8 +48,8 @@ public static class AutoFakerDefault
                 }, true),
                 new PredicateOverride<MorphTypeKind>(morph =>
                 {
-                    // these values map to null and get replaced with MorphType.Stem so they're no round-tripped
-                    return morph is not MorphTypeKind.Unknown and not MorphTypeKind.Other;
+                    // Unkown values map to null and get replaced with MorphType.Stem so they're not round-tripped
+                    return morph is not MorphTypeKind.Unknown;
                 }, true),
                 new SimpleGenericOverride(typeof(JsonPatchDocument<>), context =>
                 {
