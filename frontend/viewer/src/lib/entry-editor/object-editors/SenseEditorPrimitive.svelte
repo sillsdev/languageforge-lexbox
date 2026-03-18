@@ -5,13 +5,13 @@
   import type {ISense} from '$lib/dotnet-types';
   import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
   import {cn} from '$lib/utils';
-  import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
-  import {vt} from '$lib/views/view-text';
+  import {objectTemplateAreas, useViewService} from '$lib/views/view-service.svelte';
+  import {fieldRecord} from '$lib/views/view-data';
   import {usePartsOfSpeech, useSemanticDomains, useWritingSystemService} from '$project/data';
   import {mergeProps} from 'bits-ui';
   import type {Snippet} from 'svelte';
-  import {t} from 'svelte-i18n-lingui';
-  import {fieldData, type SenseFieldId} from '../../views/fields';
+  import {entityConfig, type SenseFieldId} from '../../views/entity-config';
+  import {tvt} from '$lib/views/view-text';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     sense: ISense;
@@ -33,40 +33,41 @@
   const writingSystemService = useWritingSystemService();
   const partsOfSpeech = usePartsOfSpeech();
   const semanticDomains = useSemanticDomains();
-  const currentView = useCurrentView();
+  const viewService = useViewService();
   initSubjectContext(() => sense);
   function onFieldChanged(field: SenseFieldId) {
     onchange?.(sense, field);
   }
 
-  const fields = $derived($currentView.fields.sense);
+  const senseFields = $derived(viewService.currentView.senseFields);
+  const fields = $derived(fieldRecord(senseFields));
 </script>
 
-<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas(fields) } })}>
-  <Editor.Field.Root fieldId="gloss" class={cn(fields.gloss.show || 'hidden')}>
-    <Editor.Field.Title name={$t`Gloss`} helpId={fieldData.sense.gloss.helpId} />
+<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas(senseFields) } })}>
+  <Editor.Field.Root fieldId="gloss" class={cn(fields.gloss?.show || 'hidden')}>
+    <Editor.Field.Title name={$tvt(entityConfig.sense.gloss.label)} helpId={entityConfig.sense.gloss.helpId} />
     <Editor.Field.Body subGrid>
       <MultiWsInput
           onchange={() => onFieldChanged('gloss')}
           bind:value={sense.gloss}
           {readonly}
-          writingSystems={writingSystemService.viewAnalysis($currentView)} />
+          writingSystems={writingSystemService.viewAnalysis(viewService.currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root fieldId="definition" class={cn(fields.definition.show || 'hidden')}>
-    <Editor.Field.Title name={$t`Definition`} helpId={fieldData.sense.definition.helpId} />
+  <Editor.Field.Root fieldId="definition" class={cn(fields.definition?.show || 'hidden')}>
+    <Editor.Field.Title name={$tvt(entityConfig.sense.definition.label)} helpId={entityConfig.sense.definition.helpId} />
     <Editor.Field.Body subGrid>
       <RichMultiWsInput
           onchange={() => onFieldChanged('definition')}
           bind:value={sense.definition}
           {readonly}
-          writingSystems={writingSystemService.viewAnalysis($currentView)} />
+          writingSystems={writingSystemService.viewAnalysis(viewService.currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root fieldId="partOfSpeechId" class={cn(fields.partOfSpeechId.show || 'hidden')}>
-    <Editor.Field.Title name={vt($t`Grammatical info.`, $t`Part of speech`)} helpId={fieldData.sense.partOfSpeechId.helpId}/>
+  <Editor.Field.Root fieldId="partOfSpeechId" class={cn(fields.partOfSpeechId?.show || 'hidden')}>
+    <Editor.Field.Title name={$tvt(entityConfig.sense.partOfSpeechId.label)} helpId={entityConfig.sense.partOfSpeechId.helpId}/>
     <Editor.Field.Body>
       <Select
           onchange={() => {
@@ -82,8 +83,8 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root fieldId="semanticDomains" class={cn(fields.semanticDomains.show || 'hidden')}>
-    <Editor.Field.Title name={$t`Semantic domains`} helpId={fieldData.sense.semanticDomains.helpId} />
+  <Editor.Field.Root fieldId="semanticDomains" class={cn(fields.semanticDomains?.show || 'hidden')}>
+    <Editor.Field.Title name={$tvt(entityConfig.sense.semanticDomains.label)} helpId={entityConfig.sense.semanticDomains.helpId} />
     <Editor.Field.Body>
       <MultiSelect
           onchange={() => onFieldChanged('semanticDomains')}

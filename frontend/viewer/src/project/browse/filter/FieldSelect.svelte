@@ -10,14 +10,15 @@
 <script lang="ts">
   import * as Select from '$lib/components/ui/select';
   import {t} from 'svelte-i18n-lingui';
-  import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {pt, tvt} from '$lib/views/view-text';
+  import {useViewService} from '$lib/views/view-service.svelte';
+  import {entityConfig} from '$lib/views/entity-config';
 
-  const currentView = useCurrentView();
+  const viewService = useViewService();
   let fields: LabeledSelectedField[] = $derived([
-    { id: 'lexemeForm', label: pt($t`Lexeme Form`, $t`Word`, $currentView), ws: 'vernacular-no-audio' },
-    { id: 'citationForm', label: pt($t`Citation Form`, $t`Display as`, $currentView), ws: 'vernacular-no-audio' },
-    { id: 'senses.gloss', label: $t`Gloss`, ws: 'analysis-no-audio' },
+    { id: 'lexemeForm', label: pt($tvt(entityConfig.entry.lexemeForm.label), viewService.currentView), ws: 'vernacular-no-audio' },
+    { id: 'citationForm', label: pt($tvt(entityConfig.entry.citationForm.label), viewService.currentView), ws: 'vernacular-no-audio' },
+    { id: 'senses.gloss', label: $t(entityConfig.sense.gloss.label), ws: 'analysis-no-audio' },
   ]);
 
   let {value = $bindable()}: { value: SelectedField | null } = $props();

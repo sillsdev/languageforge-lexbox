@@ -6,11 +6,11 @@
 
   import { Link } from 'svelte-routing';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {useMultiWindowService} from '$lib/services/multi-window-service';
   import {entryBrowseParams} from '$lib/utils/search-params';
 
-  const currentView = useCurrentView();
+  const viewService = useViewService();
   const multiWindowService = useMultiWindowService();
 
   interface Props extends Omit<ItemListProps<T>, 'getDisplayName'> {
@@ -31,7 +31,7 @@
       {#snippet child({props})}
         <Link {...props} to="browse?{entryBrowseParams(entryId)}">
           <Icon icon="i-mdi-book-outline" />
-          {$t`Go to ${pt($t`Entry`, $t`Word`, $currentView)}`}
+          {$t`Go to ${pt($t`Entry`, $t`Word`, viewService.currentView)}`}
         </Link>
       {/snippet}
     </DropdownMenu.Item>

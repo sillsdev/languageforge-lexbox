@@ -7,7 +7,7 @@
 <script lang="ts">
   import type {IEntry, ISense} from '$lib/dotnet-types';
   import {t} from 'svelte-i18n-lingui';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import {useSaveHandler} from '../services/save-event-service.svelte';
@@ -34,7 +34,7 @@
   // svelte-ignore state_referenced_locally
   let sense = $state<ISense | undefined>(defaultSense(entry.id));
 
-  const currentView = useCurrentView();
+  const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
   const dialogsService = useDialogsService();
   dialogsService.invokeNewEntryDialog = openWithValue;
@@ -73,7 +73,7 @@
     errors = [];
     // Allow entries with only an audio lexeme-form or citation-form to be created
     if (!(writingSystemService.first(entry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
-      errors.push(pt($t`Lexeme form or Citation form is required`, $t`Word or Display as is required`, $currentView));
+      errors.push(pt($t`Lexeme form or Citation form is required`, $t`Word or Display as is required`, viewService.currentView));
     }
     return errors.length === 0;
   }
@@ -154,7 +154,7 @@
 <Dialog.Root bind:open={open}>
   <Dialog.DialogContent onkeydown={handleKeydown} class="sm:min-h-[min(calc(100%-16px),30rem)] max-md:px-2">
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>{pt($t`New Entry`, $t`New Word`, $currentView)}</Dialog.DialogTitle>
+      <Dialog.DialogTitle>{pt($t`New Entry`, $t`New Word`, viewService.currentView)}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     <div>
       <OverrideFields shownFields={[
@@ -196,7 +196,7 @@
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
       <Button onclick={e => createEntry(e)} disabled={loading} {loading}>
-        {pt($t`Create Entry`, $t`Add Word`, $currentView)}
+        {pt($t`Create Entry`, $t`Add Word`, viewService.currentView)}
       </Button>
     </Dialog.DialogFooter>
   </Dialog.DialogContent>

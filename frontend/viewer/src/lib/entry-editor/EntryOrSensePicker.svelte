@@ -27,12 +27,12 @@
   import type {DialogTriggerProps} from 'bits-ui';
   import {Badge} from '$lib/components/ui/badge';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
   import {cn} from '$lib/utils';
   import {useWritingSystemService} from '$project/data';
 
-  const currentView = useCurrentView();
+  const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
   const dialogsService = useDialogsService();
 
@@ -152,7 +152,7 @@
       <Dialog.Title class="mb-4">
         {title}
       </Dialog.Title>
-      <ComposableInput bind:value={search} placeholder={pt($t`Find entry...`, $t`Find word...`, $currentView)} autofocus class="px-1">
+      <ComposableInput bind:value={search} placeholder={pt($t`Find entry...`, $t`Find word...`, viewService.currentView)} autofocus class="px-1">
         {#snippet before()}
           <Icon icon="i-mdi-book-search-outline"/>
         {/snippet}
@@ -186,7 +186,7 @@
         {:else}
           <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
             {#if search}
-              {pt($t`No entries found`, $t`No words found`, $currentView)}
+              {pt($t`No entries found`, $t`No words found`, viewService.currentView)}
               <Icon icon="i-mdi-magnify-remove-outline"/>
               <NewEntryButton onclick={onClickCreateNewEntry}/>
             {:else}
@@ -218,7 +218,7 @@
           <Collapsible.Root bind:open={isEntryOrSenseOpen}>
             <Collapsible.Trigger class={cn(buttonVariants({variant: 'ghost', size: 'sm'}), 'w-full justify-between text-muted-foreground')}>
               <span class="flex items-center gap-1.5 truncate">
-                <span>{pt($t`Entry or sense:`, $t`Word or meaning:`, $currentView)}</span>
+                <span>{pt($t`Entry or sense:`, $t`Word or meaning:`, viewService.currentView)}</span>
                 <span class="text-foreground truncate">
                   {collapsedSelectionPreview}
                 </span>
@@ -231,7 +231,7 @@
                 disabled={!!disableEntry?.(selectedEntry)}
                 selected={!selectedSense}
                 onclick={() => select(selectedEntry, undefined)}>
-                <p class="font-medium">{pt($t`Entry Only`, $t`Word only`, $currentView)}</p>
+                <p class="font-medium">{pt($t`Entry Only`, $t`Word only`, viewService.currentView)}</p>
                 {#if disabledEntry}
                   <Badge variant="outline" class="border-destructive text-destructive">
                     {disabledEntry.reason}
@@ -269,7 +269,7 @@
         canSubmit={!!(selectedEntry && (!disableEntry || !disableEntry(selectedEntry) || selectedSense))}
         onCancel={() => open = false}
         onSubmit={onPick}
-        submitLabel={$t`Select ${selectedSense ? pt($t`Sense`, $t`Meaning`, $currentView) : pt($t`Entry`, $t`Word`, $currentView)}`}
+        submitLabel={$t`Select ${selectedSense ? pt($t`Sense`, $t`Meaning`, viewService.currentView) : pt($t`Entry`, $t`Word`, viewService.currentView)}`}
         class="p-4"
       />
 

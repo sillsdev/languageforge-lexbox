@@ -4,7 +4,8 @@
   import {t} from 'svelte-i18n-lingui';
   import {useProjectStats, useWritingSystemService} from '$project/data';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {ViewBase} from '$lib/dotnet-types';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {formatNumber} from '$lib/components/ui/format';
   import ViewT from '$lib/views/ViewT.svelte';
   import {Input} from '$lib/components/ui/input';
@@ -24,7 +25,7 @@
   import {Button} from '$lib/components/ui/button';
 
   const stats = useProjectStats();
-  const currentView = useCurrentView();
+  const viewService = useViewService();
   const wsService = useWritingSystemService();
 
   let {
@@ -99,7 +100,7 @@
     // all user selected filters should be before this line!
     userFilterActive = newFilter.length > 0;
 
-    if ($currentView.type === 'fw-lite') {
+    if (viewService.currentView.base === ViewBase.FwLite) {
       const morphTypeFilters = Array.from(LITE_MORPHEME_TYPES).map(mt => `MorphType=${mt}`);
       newFilter.push('(' + morphTypeFilters.join('|') + ')');
     }
@@ -118,13 +119,13 @@
 
 {#snippet placeholder()}
   {#if stats.current?.totalEntryCount !== undefined}
-    <ViewT view={$currentView} classic={$t`Filter # entries`} lite={$t`Filter # words`}>
+    <ViewT view={viewService.currentView} classic={$t`Filter # entries`} lite={$t`Filter # words`}>
       <span class="font-bold">
         {formatNumber(stats.current.totalEntryCount)}
       </span>
     </ViewT>
   {:else}
-    {pt($t`Filter entries`, $t`Filter words`, $currentView)}
+    {pt($t`Filter entries`, $t`Filter words`, viewService.currentView)}
   {/if}
 {/snippet}
 
@@ -177,7 +178,7 @@
             />
           </div>
           <div class="flex flex-col">
-            <Label class="p-2">{pt($t`Grammatical info.`, $t`Part of speech`, $currentView)}</Label>
+            <Label class="p-2">{pt($t`Grammatical info.`, $t`Part of speech`, viewService.currentView)}</Label>
             <PartOfSpeechSelect bind:value={partOfSpeech} />
           </div>
           <div class="flex flex-col">

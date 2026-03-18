@@ -120,7 +120,7 @@
     "prosemirror-state": "^1.4.4",
     "prosemirror-view": "1.41.3",
     "runed": "catalog:",
-    "svelte-dnd-action": "^0.9.67",
+    "svelte-dnd-action": "^0.9.69",
     "svelte-exmarkdown": "catalog:",
     "svelte-i18n-lingui": "^0.2.2",
     "svelte-preprocess": "catalog:",

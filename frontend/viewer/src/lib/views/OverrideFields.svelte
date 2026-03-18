@@ -1,9 +1,8 @@
 <script lang="ts">
-  import {initView, useCurrentView} from '$lib/views/view-service';
-  import type {EntityViewFields, FieldView, Overrides} from './view-data';
+  import {initViewService, useViewService} from '$lib/views/view-service.svelte';
+  import type {TypedViewField, Overrides} from './view-data';
   import type {Snippet} from 'svelte';
-  import {watch} from 'runed';
-  import type {FieldId} from './fields';
+  import type {FieldId} from './entity-config';
 
   interface Props {
     shownFields?: FieldId[];
@@ -19,31 +18,26 @@
     overrides = {}
   }: Props = $props();
 
-  const currentView = useCurrentView();
-  const overrideView = initView(undefined, false);
-  watch(() => [shownFields, respectOrder, $currentView, overrides] as const, ([shownFields, respectOrder, currentView, overrides]) => {
-    $overrideView = {
-      ...currentView,
-      fields: {
-        entry: overrideEntityFields(currentView.fields.entry, shownFields, respectOrder),
-        sense: overrideEntityFields(currentView.fields.sense, shownFields, respectOrder),
-        example: overrideEntityFields(currentView.fields.example, shownFields, respectOrder),
-      },
-      overrides: {
-        ...currentView.overrides,
-        ...overrides
-      }
-    };
+  const parentService = useViewService();
+  const overrideService = initViewService({persist: false});
+
+  $effect.pre(() => {
+    const rootView = parentService.rootView;
+    overrideService.overrideView({
+      ...rootView,
+      entryFields: overrideEntityFields(rootView.entryFields, shownFields, respectOrder),
+      senseFields: overrideEntityFields(rootView.senseFields, shownFields, respectOrder),
+      exampleFields: overrideEntityFields(rootView.exampleFields, shownFields, respectOrder),
+      ...overrides,
+    });
   });
 
-  function overrideEntityFields<T extends EntityViewFields>(entityFields: T, shownFields: FieldId[], respectOrder: boolean): T {
-    return Object.fromEntries(
-      (Object.entries(entityFields) as [FieldId, FieldView][]).map(([id, field]) => [id, {
-        ...field,
-        show: shownFields.includes(id),
-        order: respectOrder ? shownFields.indexOf(id) : field.order
-      }])
-    ) as T;
+  function overrideEntityFields<T extends FieldId>(entityFields: TypedViewField<T>[], shownFields: FieldId[], respectOrder: boolean): TypedViewField<T>[] {
+    const filteredFields = entityFields.filter(f => shownFields.includes(f.fieldId));
+    if (respectOrder) {
+      filteredFields.sort((a, b) => shownFields.indexOf(a.fieldId) - shownFields.indexOf(b.fieldId));
+    }
+    return filteredFields;
   }
 </script>
 

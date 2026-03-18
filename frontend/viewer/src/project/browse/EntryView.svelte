@@ -22,13 +22,13 @@
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
   import * as Alert from '$lib/components/ui/alert';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
 
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
   const features = useFeatures();
-  const currentView = useCurrentView();
+  const viewService = useViewService();
   const {
     entryId,
     onClose,
@@ -127,7 +127,7 @@
         </div>
       </div>
       {#if deleted}
-        {@const entity = pt($t`entry`, $t`word`, $currentView)}
+        {@const entity = pt($t`entry`, $t`word`, viewService.currentView)}
         <div class="mb-2 px-2">
           <Alert.Root variant="destructive">
             <Alert.Description class="flex justify-between items-center">

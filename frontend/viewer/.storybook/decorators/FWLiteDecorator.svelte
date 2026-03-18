@@ -17,7 +17,7 @@
 <script lang="ts">
   import { ResizablePaneGroup, ResizablePane, ResizableHandle } from '$lib/components/ui/resizable';
   import ThemePicker from '$lib/components/ThemePicker.svelte';
-  import {initView} from '$lib/views/view-service';
+  import {initViewService} from '$lib/views/view-service.svelte';
   import {ModeWatcher} from 'mode-watcher';
   import {Context} from 'runed';
   import { type Snippet } from 'svelte';
@@ -40,7 +40,7 @@
   setupDotnetServiceProvider();
   setupBrowserAppServices();
   InMemoryDemoApi.setup();
-  initView();
+  initViewService();
   const storyContext = useSvelteStoryContext();
   setupGlobalErrorHandlers();
   initRootLocation(readable());

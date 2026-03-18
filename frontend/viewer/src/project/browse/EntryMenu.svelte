@@ -8,7 +8,7 @@
   import {useProjectEventBus} from '$lib/services/event-bus';
   import {useMiniLcmApi} from '$lib/services/service-provider';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {useFeatures} from '$lib/services/feature-service';
   import HistoryView from '$lib/history/HistoryView.svelte';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
@@ -21,7 +21,7 @@
   const projectEventBus = useProjectEventBus();
   const writingSystemService = useWritingSystemService();
   const miniLcmApi = useMiniLcmApi();
-  const currentView = useCurrentView();
+  const viewService = useViewService();
 
   let { entry, contextMenu = false, children = undefined } = $props<{
     entry: IEntry;
@@ -34,7 +34,7 @@
   let open = $state(false);
 
   async function onDelete() {
-    if (!await dialogsService.promptDelete(pt($t`Entry`, $t`Word`, $currentView), headword)) return;
+    if (!await dialogsService.promptDelete(pt($t`Entry`, $t`Word`, viewService.currentView), headword)) return;
     await miniLcmApi.deleteEntry(entry.id);
     projectEventBus.notifyEntryDeleted(entry.id);
   }
@@ -52,7 +52,7 @@
   <ResponsiveMenu.Content>
     {#if features.write}
       <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onDelete}>
-        {pt($t`Delete Entry`, $t`Delete Word`, $currentView)}
+        {pt($t`Delete Entry`, $t`Delete Word`, viewService.currentView)}
       </ResponsiveMenu.Item>
     {/if}
     {#if features.history}

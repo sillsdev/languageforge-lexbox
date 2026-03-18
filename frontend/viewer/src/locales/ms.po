@@ -185,6 +185,10 @@ msgstr "Tambah Perkataan"
 msgid "an entry"
 msgstr "satu entri"
 
+#: src/lib/views/CustomViewWritingSystems.svelte
+msgid "Analysis"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
 #. Filter option: clear grammatical info filter
@@ -260,6 +264,14 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Segerakkan automatik"
 
+#: src/lib/views/CustomViewForm.svelte
+msgid "Based on"
+msgstr ""
+
+#: src/lib/views/ManageCustomViewsDialog.svelte
+msgid "Based on {0}"
+msgstr ""
+
 #. Sort option
 #: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
@@ -285,6 +297,7 @@ msgstr "Terokai"
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Batal"
 
@@ -311,16 +324,9 @@ msgstr "Pilih tema"
 #. Relevant view: Classic
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Citation form"
 msgstr "Bentuk petikan"
-
-#. Relevant view: Classic
-#. Lite view equivalent: "Display as"
-#. Filter option: narrow by citation form
-#: src/project/browse/filter/FieldSelect.svelte
-msgid "Citation Form"
-msgstr "Bentuk Petikan"
 
 #. Section header for projects from FieldWorks
 #: src/home/HomeView.svelte
@@ -362,7 +368,7 @@ msgstr "Bentuk Kompleks"
 #. Field label
 #. Classifies the type of complex form relationship (user-configurable)
 #. Examples: "compound", "derivative", "inflectional" (varies by project)
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Complex form types"
 msgstr "Jenis bentuk kompleks"
 
@@ -372,7 +378,7 @@ msgid "Complex form:"
 msgstr "Bentuk kompleks:"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Complex forms"
 msgstr "Bentuk kompleks"
 
@@ -393,7 +399,7 @@ msgid "Component:"
 msgstr "Komponen:"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Components"
 msgstr "Komponen-komponen"
 
@@ -414,6 +420,10 @@ msgstr "Disalin ke papan keratan"
 msgid "Copy version"
 msgstr "Salin versi"
 
+#: src/lib/views/CreateCustomViewDialog.svelte
+msgid "Create Custom View"
+msgstr ""
+
 #. Button label (view-dependent: "Create entry" in Classic, "Add new word" in Lite)
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
@@ -430,6 +440,10 @@ msgstr "Cipta Entri"
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Cipta Projek Contoh"
+
+#: src/lib/views/CreateCustomViewDialog.svelte
+msgid "Create View"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
@@ -452,6 +466,14 @@ msgstr "Versi semasa"
 msgid "Current Word"
 msgstr "Perkataan Semasa"
 
+#: src/lib/views/CustomViewWritingSystems.svelte
+msgid "Custom"
+msgstr ""
+
+#: src/lib/views/ManageCustomViewsDialog.svelte
+msgid "Custom view"
+msgstr ""
+
 #. Theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "Dark"
@@ -467,10 +489,14 @@ msgstr "Papan Pemuka"
 msgid "Data Directory"
 msgstr "Direktori Data"
 
+#: src/lib/views/CustomViewWritingSystems.svelte
+msgid "All"
+msgstr ""
+
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Definition"
 msgstr "Definisi"
 
@@ -536,8 +562,7 @@ msgstr "Buang"
 #. Relevant view: Lite
 #. Classic view equivalent: "Citation Form"
 #. Lexicography term: choose which form of the entry to display
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-#: src/project/browse/filter/FieldSelect.svelte
+#: src/lib/views/entity-config.ts
 msgid "Display as"
 msgstr "Papar sebagai"
 
@@ -604,6 +629,10 @@ msgstr "Memuat turun {0}..."
 msgid "Downloading..."
 msgstr "Memuat turun..."
 
+#: src/lib/views/EditCustomViewDialog.svelte
+msgid "Edit Custom View"
+msgstr ""
+
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
@@ -635,7 +664,7 @@ msgstr "Entri"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
 msgid "Entry"
 msgstr "Entri"
@@ -680,6 +709,7 @@ msgstr "Ralat mendapatkan status penyegerakan."
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Example"
 msgstr "Contoh"
 
@@ -734,6 +764,10 @@ msgstr "Maklum Balas & Sokongan"
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr "Bidang"
+
+#: src/lib/views/CustomViewForm.svelte
+msgid "Fields"
+msgstr ""
 
 #. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -880,8 +914,7 @@ msgstr "Dapatkan sokongan"
 #. Brief translation/equivalent (one word or short phrase)
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
-#: src/project/browse/filter/FieldSelect.svelte
+#: src/lib/views/entity-config.ts
 msgid "Gloss"
 msgstr "Glos"
 
@@ -897,7 +930,7 @@ msgstr "Pergi ke {0}"
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
 #. Field label: grammatical category (noun, verb, adjective, etc.)
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
 msgstr "Maklumat tatabahasa."
@@ -994,18 +1027,12 @@ msgstr "Logo Lexbox"
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Field label: the main headword/base form
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Lexeme form"
 msgstr "Bentuk leksem"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Word"
-#. Filter option: narrow results by headword/base form
-#: src/project/browse/filter/FieldSelect.svelte
-msgid "Lexeme Form"
-msgstr "Bentuk Leksem"
-
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/custom-view-form/validation.ts
 msgid "Lexeme form or Citation form is required"
 msgstr ""
 
@@ -1020,7 +1047,7 @@ msgstr "Mod senarai"
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "Makna harfiah"
 
@@ -1066,6 +1093,14 @@ msgstr "Buat cadangan"
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Pastikan [perubahan anda diselaraskan]({0}) ke Lexbox."
+
+#: src/lib/views/ManageCustomViewsButton.svelte
+msgid "Manage custom views"
+msgstr ""
+
+#: src/lib/views/ManageCustomViewsDialog.svelte
+msgid "Manage Custom Views"
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
@@ -1117,6 +1152,18 @@ msgstr "Mod"
 msgid "Move"
 msgstr "Gerak"
 
+#: src/lib/views/CustomViewForm.svelte
+msgid "My custom view..."
+msgstr ""
+
+#: src/lib/views/CustomViewForm.svelte
+msgid "Name"
+msgstr ""
+
+#: src/lib/views/custom-view-form/validation.ts
+msgid "Name is required"
+msgstr ""
+
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1126,6 +1173,10 @@ msgstr "Tidak Pernah"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Baru"
+
+#: src/lib/views/ManageCustomViewsDialog.svelte
+msgid "New Custom View"
+msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "New data"
@@ -1160,6 +1211,10 @@ msgstr "Tiada aktiviti ditemui"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "Tiada audio"
+
+#: src/lib/views/ManageCustomViewsDialog.svelte
+msgid "No custom views yet."
+msgstr ""
 
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
@@ -1237,7 +1292,7 @@ msgstr "Tidak disegerakkan"
 #. Field label
 #. General notes/remarks field in entry editor
 #. Unconstrained text for additional metadata/comments
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Note"
 msgstr "Nota"
 
@@ -1314,14 +1369,14 @@ msgstr "Bahagian"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Part of"
 msgstr "Sebahagian daripada"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "Jenis Perkataan"
@@ -1388,15 +1443,18 @@ msgstr "Nama projek..."
 msgid "Publication"
 msgstr ""
 
-#. Label for publication domain selector
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-msgid "Publish {0} in"
-msgstr "Terbitkan {0} dalam"
+#: src/lib/views/entity-config.ts
+msgid "Publish Entry in"
+msgstr ""
+
+#: src/lib/views/entity-config.ts
+msgid "Publish Word in"
+msgstr ""
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Reference"
 msgstr "Rujukan"
 
@@ -1457,6 +1515,10 @@ msgstr "Semak"
 msgid "rose"
 msgstr "merah jambu"
 
+#: src/lib/views/CustomViewForm.svelte
+msgid "Save"
+msgstr ""
+
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1466,6 +1528,10 @@ msgstr "Simpan Sebagai"
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
 msgstr "Simpan audio"
+
+#: src/lib/views/EditCustomViewDialog.svelte
+msgid "Save Changes"
+msgstr ""
 
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1492,6 +1558,14 @@ msgstr "Pilih {0} untuk melihat butiran"
 msgid "Select a new task to work on"
 msgstr "Pilih tugas baru untuk dikerjakan"
 
+#: src/lib/views/custom-view-form/validation.ts
+msgid "Select at least one analysis writing system"
+msgstr ""
+
+#: src/lib/views/custom-view-form/validation.ts
+msgid "Select at least one vernacular writing system"
+msgstr ""
+
 #. Dialog button
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
@@ -1508,7 +1582,7 @@ msgstr "Domain semantik"
 #. Field label
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
 #. Appears under each Sense/Meaning; usually multiple selection allowed
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Semantic domains"
 msgstr "Domain semantik"
 
@@ -1524,13 +1598,14 @@ msgstr "Hantar kami mesej"
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Makna"
 
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Ayat"
 
@@ -1762,14 +1837,9 @@ msgid "Toggle pinned"
 msgstr "Togol disemat"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Terjemahan"
-
-#. Language-specific translation field
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
-msgid "Translation {0}"
-msgstr "Terjemahan {0}"
 
 #. Menu item for help/debug
 #: src/home/HomeView.svelte
@@ -1895,9 +1965,13 @@ msgid "Updates"
 msgstr "Kemas kini"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "Menggunakan komponen sebagai"
+
+#: src/lib/views/CustomViewWritingSystems.svelte
+msgid "Vernacular"
+msgstr ""
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
@@ -1931,10 +2005,9 @@ msgstr "Perkataan"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
+#: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
-#: src/project/browse/filter/FieldSelect.svelte
 msgid "Word"
 msgstr "Perkataan"
 
@@ -1946,6 +2019,7 @@ msgid "Word only"
 msgstr "Perkataan sahaja"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/custom-view-form/validation.ts
 msgid "Word or Display as is required"
 msgstr ""
 
@@ -1964,6 +2038,10 @@ msgstr "Sistem Penulisan"
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
 msgstr "Sistem penulisan: {0}"
+
+#: src/lib/views/CustomViewForm.svelte
+msgid "Writing systems"
+msgstr ""
 
 #. Filter section title
 #: src/project/browse/filter/WsSelect.svelte

@@ -14,7 +14,7 @@
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService, hasVisibleFields} from '$lib/views/view-service.svelte';
   import {cn, defaultExampleSentence, defaultSense} from '$lib/utils';
   import {useWritingSystemService} from '$project/data';
   import EntityListItemActions from '../EntityListItemActions.svelte';
@@ -74,7 +74,7 @@
       entry.senses = entry.senses.filter(s => s.id !== sense.id);
       return;
     }
-    if (!await dialogService.promptDelete(pt($t`Sense`, $t`Meaning`, $currentView), writingSystemService.firstGloss(sense))) return;
+    if (!await dialogService.promptDelete(pt($t`Sense`, $t`Meaning`, viewService.currentView), writingSystemService.firstGloss(sense))) return;
     entry.senses = entry.senses.filter(s => s.id !== sense.id);
     ondelete?.({entry, sense});
   }
@@ -156,63 +156,67 @@
     return elementRect.top <= viewportHeight;
   }
 
-  const currentView = useCurrentView();
+  const viewService = useViewService();
+  const showSenses = $derived(hasVisibleFields(viewService.currentView.senseFields));
+  const showExamples = $derived(hasVisibleFields(viewService.currentView.exampleFields));
 </script>
 
 <Editor.Root bind:ref>
   <Editor.Grid bind:ref={editorElem}>
     <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
-    {#each entry.senses as sense, i (sense.id)}
-      <Editor.SubGrid class={cn(sense.id === highlighted?.entity.id && 'highlight')}>
-        <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
+    {#if showSenses}
+      {#each entry.senses as sense, i (sense.id)}
+        <Editor.SubGrid class={cn(sense.id === highlighted?.entity.id && 'highlight')}>
+          <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
 
-        <ObjectHeader type="sense" index={i + 1} class={cn(modalMode || 'sticky',
-          'top-0 bg-background z-1 w-[calc(100%+2px)] pr-0.5 animate-fade-out animation-scroll')}>
-          <EntityListItemActions {i}
-              items={entry.senses}
-              getDisplayName={(sense) => writingSystemService.firstDefOrGlossVal(sense)}
-              {readonly}
-              onmove={(newIndex) => moveSense(sense, newIndex)}
-              ondelete={() => deleteSense(sense)} id={sense.id} />
-        </ObjectHeader>
+          <ObjectHeader type="sense" index={i + 1} class={cn(modalMode || 'sticky',
+            'top-0 bg-background z-1 w-[calc(100%+2px)] pr-0.5 animate-fade-out animation-scroll')}>
+            <EntityListItemActions {i}
+                items={entry.senses}
+                getDisplayName={(sense) => writingSystemService.firstDefOrGlossVal(sense)}
+                {readonly}
+                onmove={(newIndex) => moveSense(sense, newIndex)}
+                ondelete={() => deleteSense(sense)} id={sense.id} />
+          </ObjectHeader>
 
-        <SenseEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
+          <SenseEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
 
-        {#if sense.exampleSentences.length}
-          <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
-            {#each sense.exampleSentences as example, j (example.id)}
-              <Editor.SubGrid class={cn(example.id === highlighted?.entity.id && 'highlight')}>
-                <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
-                <ObjectHeader type="example" index={j + 1}>
-                  <EntityListItemActions i={j} {readonly}
-                                        items={sense.exampleSentences}
-                                        getDisplayName={example => writingSystemService.firstSentenceOrTranslationVal(example)}
-                                        onmove={(newIndex) => moveExample(sense, example, newIndex)}
-                                        ondelete={() => deleteExample(sense, example)}
-                                        id={example.id} />
-                </ObjectHeader>
+          {#if showExamples && sense.exampleSentences.length}
+            <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
+              {#each sense.exampleSentences as example, j (example.id)}
+                <Editor.SubGrid class={cn(example.id === highlighted?.entity.id && 'highlight')}>
+                  <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
+                  <ObjectHeader type="example" index={j + 1}>
+                    <EntityListItemActions i={j} {readonly}
+                                          items={sense.exampleSentences}
+                                          getDisplayName={example => writingSystemService.firstSentenceOrTranslationVal(example)}
+                                          onmove={(newIndex) => moveExample(sense, example, newIndex)}
+                                          ondelete={() => deleteExample(sense, example)}
+                                          id={example.id} />
+                  </ObjectHeader>
 
-                <ExampleEditorPrimitive
-                  class={ENTITY_FIELD_CONTAINER_CLASS}
-                  bind:example={sense.exampleSentences[j]}
-                  {readonly}
-                  onchange={() => onExampleChange(sense, example)}
-                  />
-              </Editor.SubGrid>
-            {/each}
-          </Editor.SubGrid>
-        {/if}
-        {#if !readonly && canAddExample}
-          <div class="col-span-full flex justify-end mt-4">
-            <Button onclick={() => addExample(sense)} icon="i-mdi-plus" size="xs">
-              {$t`Add Example`}
-            </Button>
-          </div>
-        {/if}
-      </Editor.SubGrid>
-    {/each}
-    {#if !readonly && canAddSense}
+                  <ExampleEditorPrimitive
+                    class={ENTITY_FIELD_CONTAINER_CLASS}
+                    bind:example={sense.exampleSentences[j]}
+                    {readonly}
+                    onchange={() => onExampleChange(sense, example)}
+                    />
+                </Editor.SubGrid>
+              {/each}
+            </Editor.SubGrid>
+          {/if}
+          {#if showExamples && !readonly && canAddExample}
+            <div class="col-span-full flex justify-end mt-4">
+              <Button onclick={() => addExample(sense)} icon="i-mdi-plus" size="xs">
+                {$t`Add Example`}
+              </Button>
+            </div>
+          {/if}
+        </Editor.SubGrid>
+      {/each}
+    {/if}
+    {#if showSenses && !readonly && canAddSense}
       <hr class="col-span-full grow border-t-4">
       {#if IsMobile.value && !modalMode}
         <FabContainer class="sticky col-span-full mt-2">

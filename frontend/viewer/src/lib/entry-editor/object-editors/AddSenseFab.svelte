@@ -1,6 +1,6 @@
 <script lang="ts">
   import {Button} from '$lib/components/ui/button';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
 
@@ -8,9 +8,9 @@
     onclick,
   } = $props<{ onclick: () => void }>();
 
-  const currentView = useCurrentView();
+  const viewService = useViewService();
 </script>
 
 <Button {onclick} variant="default" size="extended-fab" class="font-semibold" icon="i-mdi-plus-thick">
-  {pt($t`Sense`, $t`Meaning`, $currentView)}
+  {pt($t`Sense`, $t`Meaning`, viewService.currentView)}
 </Button>

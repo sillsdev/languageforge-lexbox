@@ -10,7 +10,7 @@
   import {writingSystems} from '$project/demo/demo-entry-data';
   import {type IMultiString} from '$lib/dotnet-types';
   import {type IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
-  import {fieldData} from '$lib/views/fields';
+  import {entityConfig} from '$lib/views/entity-config';
   import ViewPicker from '../../project/browse/EditorViewOptions.svelte';
   import WsInput from '$lib/components/field-editors/ws-input.svelte';
   import {vt} from '$lib/views/view-text';
@@ -131,7 +131,7 @@
         <Editor.Field.Root>
           <Editor.Field.Title
             name="Semantic domains"
-            helpId={fieldData.sense.semanticDomains.helpId}
+            helpId={entityConfig.sense.semanticDomains.helpId}
           />
           <Editor.Field.Body>
             <MultiSelect
@@ -151,7 +151,7 @@
         <Editor.Field.Root>
           <Editor.Field.Title
             name="Note"
-            helpId={fieldData.entry.note.helpId}
+            helpId={entityConfig.entry.note.helpId}
           />
           <Editor.Field.Body>
             <LcmRichTextEditor bind:value={entry.note} normalWs="en" readonly={editorReadonly} onchange={() => onChange('note')} />
@@ -160,7 +160,7 @@
         <Editor.Field.Root>
           <Editor.Field.Title
             name={{lite: 'Part of speech', classic: 'Grammatical info'}}
-            helpId={fieldData.sense.partOfSpeechId.helpId}
+            helpId={entityConfig.sense.partOfSpeechId.helpId}
           />
           <Editor.Field.Body>
             <Select

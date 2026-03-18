@@ -1,6 +1,6 @@
 <script lang="ts">
   import {cn} from '$lib/utils';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
   import type {Snippet} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
@@ -14,13 +14,13 @@
 
   let { type, index, children, class: className, ...restProps }: Props = $props();
 
-  const currentView = useCurrentView();
+  const viewService = useViewService();
 </script>
 
 {#if type === 'sense'}
   <div class={cn('col-span-full flex items-center py-2 mb-1', className)} {...restProps}>
     <h2 class="text-lg text-muted-foreground">
-      <span>{pt($t`Sense`, $t`Meaning`, $currentView)}</span>
+      <span>{pt($t`Sense`, $t`Meaning`, viewService.currentView)}</span>
       {#if index}<span>{index}</span>{/if}
     </h2>
     <hr class="grow border-t-2 mx-4" />

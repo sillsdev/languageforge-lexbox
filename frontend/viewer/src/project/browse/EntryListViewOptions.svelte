@@ -45,7 +45,7 @@
       </Tabs.Root>
     </div>
 
-    <ViewPicker />
+    <ViewPicker onClose={() => open = false} />
 
     <DevContent>
       <div class="space-y-2">

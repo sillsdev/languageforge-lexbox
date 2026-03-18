@@ -3,17 +3,22 @@
   import * as RadioGroup from '$lib/components/ui/radio-group';
   import NewTabLinkMarkdown from '$lib/markdown/NewTabLinkMarkdown.svelte';
   import {delay} from '$lib/utils/time';
-  import {views} from '$lib/views/view-data';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
+  import ManageCustomViewsButton from '$lib/views/ManageCustomViewsButton.svelte';
   import Markdown from 'svelte-exmarkdown';
   import {t} from 'svelte-i18n-lingui';
+  import {Label} from '$lib/components/ui/label';
+  import {isCustomView} from '$lib/views/view-data';
+  import {ViewBase} from '$lib/dotnet-types';
 
-  const currentView = useCurrentView();
+  let {onClose}: {onClose?: () => void} = $props();
+  const viewService = useViewService();
+
   function getCurrentView() {
-    return $currentView.id;
+    return viewService.currentView.id;
   }
   function setCurrentView(id: string) {
-    currentView.set(views.find((v) => v.id === id) ?? views[0]);
+    viewService.selectView(id);
   }
 
   let popoverContent = $state<HTMLElement | null>(null);
@@ -42,7 +47,17 @@
       <NewTabLinkMarkdown md={$t`The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*.`} />
     </Popover.Content>
   </Popover.Root>
-  {#each views as view (view.id)}
-    <RadioGroup.Item value={view.id} label={view.label} />
+
+  {#each viewService.views as view (view.id)}
+    <Label class="cursor-pointer flex items-center gap-4 md:gap-2 max-md:py-3">
+      <RadioGroup.Item value={view.id} />
+      <span>{view.name}</span>
+      {#if isCustomView(view)}
+        <span class="text-muted-foreground">({view.base === ViewBase.FieldWorks ? 'Classic' : 'Lite'})</span>
+      {/if}
+    </Label>
   {/each}
+  <div class="mt-1">
+    <ManageCustomViewsButton {onClose} />
+  </div>
 </RadioGroup.Root>
