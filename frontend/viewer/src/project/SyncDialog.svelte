@@ -33,22 +33,8 @@
   );
   let latestSyncedCommitDate = $state<string>();
 
-  // Use a local boolean for the dialog's open state to decouple from QueryParamStateBool's
-  // history management (history.go(-1) on close). Without this, the popstate event from
-  // history.go(-1) can re-invalidate the Drawer's open binding, delaying its unmount and
-  // leaving an invisible overlay that blocks the first tap on the sidebar overlay.
-  let isOpen = $state(openQueryParam.current);
-
-  // Sync query param → local state, and handle open/close callbacks
   watch(() => openQueryParam.current, (newValue) => {
-    isOpen = newValue;
     if (newValue) void onOpen();
-    else setTimeout(onClose, 500); // don't clear contents until close animation is done
-  });
-
-  // Sync local state → query param (when dialog is closed via overlay/gesture)
-  watch(() => isOpen, (newValue) => {
-    openQueryParam.current = newValue;
   });
 
   export function open(): void {
@@ -56,18 +42,17 @@
   }
 
   async function onOpen(): Promise<void> {
+    // Clear stale data before fetching so the dialog shows a loading state
+    localStatus = undefined;
+    remoteStatus = undefined;
+    latestSyncedCommitDate = undefined;
+
     await Promise.all([
       service.getLocalStatus().then(s => localStatus = s),
       service.getStatus().then(s => remoteStatus = s),
       service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
       service.getCurrentServer().then(s => server = s),
     ]);
-  }
-
-  function onClose(): void {
-    localStatus = undefined;
-    remoteStatus = undefined;
-    latestSyncedCommitDate = undefined;
   }
 
   async function syncLexboxToFlex() {
@@ -134,7 +119,7 @@
   }
 </script>
 
-<ResponsiveDialog bind:open={isOpen} disableBackHandler title={$t`Sync Changes`}
+<ResponsiveDialog bind:open={openQueryParam.current} disableBackHandler title={$t`Sync Changes`}
   contentProps={{ class: 'sm:min-w-140 grid-rows-[auto_1fr] items-center' }}>
   <SyncStatusPrimitive
     {syncStatus}
