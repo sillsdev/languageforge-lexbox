@@ -112,7 +112,8 @@ internal static class LcmHelpers
             Guid g when g == MoMorphTypeTags.kguidMorphSuffixingInterfix => MorphTypeKind.SuffixingInterfix,
             Guid g when g == MoMorphTypeTags.kguidMorphPhrase => MorphTypeKind.Phrase,
             Guid g when g == MoMorphTypeTags.kguidMorphDiscontiguousPhrase => MorphTypeKind.DiscontiguousPhrase,
-            _ => MorphTypeKind.Other,
+            // Non-canonical Guids should not be guessed, but be mapped to Unknown
+            _ => MorphTypeKind.Unknown,
         };
     }
 
@@ -140,7 +141,6 @@ internal static class LcmHelpers
             MorphTypeKind.Phrase => MoMorphTypeTags.kguidMorphPhrase,
             MorphTypeKind.DiscontiguousPhrase => MoMorphTypeTags.kguidMorphDiscontiguousPhrase,
             MorphTypeKind.Unknown => null,
-            MorphTypeKind.Other => null, // Note that this will not round-trip with FromLcmMorphType
             _ => null,
         };
     }
