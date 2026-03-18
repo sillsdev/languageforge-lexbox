@@ -4,9 +4,10 @@ import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
 /**
  * Like runed's `resource`, but uses Promise + $state instead of $effect,
  * so the fetch is not tied to (and torn down with) the creating component's lifecycle.
- * Lazy: the first fetch is deferred until `.current` is read or `.refetch()` is called.
+ * By default the first fetch is deferred until `.current` is read or `.refetch()` is called;
+ * pass `eager: true` to fetch immediately.
  */
-export class LazyProjectResource<T> implements ResourceReturn<T, unknown, true> {
+export class DetachedResource<T> implements ResourceReturn<T, unknown, true> {
   #current: T = $state()!;
   #loading = $state(false);
   #error: Error | undefined = $state(undefined);
@@ -15,10 +16,15 @@ export class LazyProjectResource<T> implements ResourceReturn<T, unknown, true> 
   #factory: (api: IMiniLcmJsInvokable) => Promise<T>;
   #getApi: () => IMiniLcmJsInvokable | undefined;
 
-  constructor(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, getApi: () => IMiniLcmJsInvokable | undefined) {
+  constructor(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, getApi: () => IMiniLcmJsInvokable | undefined, options?: { eager?: boolean }) {
     this.#current = initialValue;
     this.#factory = factory;
     this.#getApi = getApi;
+    if (options?.eager) {
+      this.#active = true;
+      const api = this.#getApi();
+      if (api) queueMicrotask(() => void this.#fetch(api));
+    }
   }
 
   get current(): T {

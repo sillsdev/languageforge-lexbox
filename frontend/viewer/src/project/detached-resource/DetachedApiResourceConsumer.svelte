@@ -8,7 +8,7 @@
   } = $props();
 
   const projectContext = useProjectContext();
-  const resource = projectContext.lazyApiResource([], () => props.fetchData());
+  const resource = projectContext.detachedApiResource([], () => props.fetchData());
 
   // svelte-ignore state_referenced_locally
   props.onResource(resource);

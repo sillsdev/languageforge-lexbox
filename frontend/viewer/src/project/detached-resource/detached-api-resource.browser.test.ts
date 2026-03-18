@@ -1,9 +1,9 @@
 import {describe, expect, it, vi} from 'vitest';
 import {mount, unmount} from 'svelte';
 
-import type {HarnessControls} from './lazy-api-resource-test-types';
+import type {HarnessControls} from './detached-api-resource-test-types';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
-import LazyApiResourceHarness from './LazyApiResourceHarness.svelte';
+import DetachedApiResourceHarness from './DetachedApiResourceHarness.svelte';
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -15,7 +15,7 @@ function deferred<T>() {
 
 function mountHarness(fetchData: () => Promise<string[]>) {
   let controls: HarnessControls;
-  const app = mount(LazyApiResourceHarness, {
+  const app = mount(DetachedApiResourceHarness, {
     target: document.body,
     props: {
       fetchData,
@@ -25,7 +25,7 @@ function mountHarness(fetchData: () => Promise<string[]>) {
   return { app, get controls() { return controls; } };
 }
 
-describe('ProjectContext.lazyApiResource', () => {
+describe('ProjectContext.detachedApiResource', () => {
   it('continues loading if first consumer is destroyed before load completes', async () => {
     const pending = deferred<string[]>();
     const fetchData = vi.fn(() => pending.promise);

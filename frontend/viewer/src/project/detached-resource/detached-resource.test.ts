@@ -1,14 +1,14 @@
 import {describe, expect, it, vi} from 'vitest';
 
-import {LazyProjectResource} from './lazy-resource.svelte';
+import {DetachedResource} from './detached-resource.svelte';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
 
 const fakeApi = {} as IMiniLcmJsInvokable;
 
-describe('LazyProjectResource', () => {
+describe('DetachedResource', () => {
   it('does not fetch until .current is read, then fetches exactly once', async () => {
     const factory = vi.fn(() => Promise.resolve(7));
-    const res = new LazyProjectResource(0, factory, () => fakeApi);
+    const res = new DetachedResource(0, factory, () => fakeApi);
 
     expect(factory).not.toHaveBeenCalled();
 
@@ -24,7 +24,7 @@ describe('LazyProjectResource', () => {
 
   it('does not fetch if api is not available', () => {
     const factory = vi.fn(() => Promise.resolve(7));
-    const res = new LazyProjectResource(0, factory, () => undefined);
+    const res = new DetachedResource(0, factory, () => undefined);
 
     void res.current;
     expect(factory).not.toHaveBeenCalled();
@@ -32,8 +32,8 @@ describe('LazyProjectResource', () => {
 
   it('fetches on onApiChange only if already active', () => {
     const factory = vi.fn(() => Promise.resolve(7));
-    const inactive = new LazyProjectResource(0, factory, () => undefined);
-    const active = new LazyProjectResource(0, factory, () => undefined);
+    const inactive = new DetachedResource(0, factory, () => undefined);
+    const active = new DetachedResource(0, factory, () => undefined);
 
     void active.current; // activate
 
@@ -46,7 +46,7 @@ describe('LazyProjectResource', () => {
 
   it('activates on refetch even if current was never read', async () => {
     const factory = vi.fn(() => Promise.resolve(99));
-    const res = new LazyProjectResource(0, factory, () => fakeApi);
+    const res = new DetachedResource(0, factory, () => fakeApi);
 
     await res.refetch();
     expect(factory).toHaveBeenCalledTimes(1);
@@ -60,7 +60,7 @@ describe('LazyProjectResource', () => {
         resolve = r;
       });
     }
-    const res = new LazyProjectResource(0, factory, () => fakeApi);
+    const res = new DetachedResource(0, factory, () => fakeApi);
 
     void res.current;
     await vi.waitFor(() => expect(res.loading).toBe(true));
@@ -74,10 +74,28 @@ describe('LazyProjectResource', () => {
   });
 
   it('exposes error when factory rejects', async () => {
-    const failing = new LazyProjectResource(0, () => Promise.reject(new Error('boom')), () => fakeApi);
+    const failing = new DetachedResource(0, () => Promise.reject(new Error('boom')), () => fakeApi);
     void failing.current;
     await vi.waitFor(() => {
       expect(failing.error?.message).toBe('boom');
     });
+  });
+
+  it('fetches immediately when eager is true', async () => {
+    const factory = vi.fn(() => Promise.resolve(42));
+    const res = new DetachedResource(0, factory, () => fakeApi, { eager: true });
+
+    // Should fetch without reading .current
+    await vi.waitFor(() => {
+      expect(factory).toHaveBeenCalledTimes(1);
+      expect(res.current).toBe(42);
+    });
+  });
+
+  it('does not fetch eagerly if api is not available', () => {
+    const factory = vi.fn(() => Promise.resolve(42));
+    new DetachedResource(0, factory, () => undefined, { eager: true });
+
+    expect(factory).not.toHaveBeenCalled();
   });
 });

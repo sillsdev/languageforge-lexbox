@@ -7,7 +7,7 @@ import type {
   ISyncServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {resource, type ResourceOptions, type ResourceReturn} from 'runed';
-import {LazyProjectResource} from './lazy-resource';
+import {DetachedResource} from './detached-resource';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
 
@@ -45,7 +45,7 @@ export class ProjectContext {
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
   #paratext = $state(false);
-  #lazyResources = new SvelteSet<LazyProjectResource<unknown>>();
+  #detachedResources = new SvelteSet<DetachedResource<unknown>>();
   #features = resource(() => this.#api, (api) => {
     if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
     return api.supportedFeatures();
@@ -117,7 +117,7 @@ export class ProjectContext {
     this.#projectData = args.projectData;
     this.#paratext = args.paratext ?? false;
 
-    for (const res of this.#lazyResources) {
+    for (const res of this.#detachedResources) {
       res.onApiChange(args.api);
     }
   }
@@ -135,7 +135,7 @@ export class ProjectContext {
 
   /**
    * Creates a `resource` whose `$effect` is tied to the calling component's lifecycle.
-   * Callers must live as long as the project context; for short-lived components use {@link lazyApiResource} instead.
+   * Callers must live as long as the project context; for short-lived components use {@link detachedApiResource} instead.
    */
   public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: ApiResourceOptions<T>): ResourceReturn<T, unknown, true> {
     // If API is not ready yet, lazily skip the first watch run so throttle/debounce
@@ -150,11 +150,11 @@ export class ProjectContext {
   }
 
   /**
-   * Creates a `resource` whose lifecycle is tied to project context.
+   * Creates a `resource` whose lifecycle is manged by the project context.
    */
-  public lazyApiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>): ResourceReturn<T, unknown, true> {
-    const res = new LazyProjectResource(initialValue, factory, () => this.#api);
-    this.#lazyResources.add(res as LazyProjectResource<unknown>);
+  public detachedApiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: { eager?: boolean }): ResourceReturn<T, unknown, true> {
+    const res = new DetachedResource(initialValue, factory, () => this.#api, options);
+    this.#detachedResources.add(res as DetachedResource<unknown>);
     return res;
   }
 

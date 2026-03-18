@@ -1,9 +1,9 @@
 <script lang="ts">
   import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
   import type {ResourceReturn} from 'runed';
-  import type {HarnessControls} from './lazy-api-resource-test-types';
+  import type {HarnessControls} from './detached-api-resource-test-types';
   import {initProjectContext} from '../project-context.svelte';
-  import LazyApiResourceConsumer from './LazyApiResourceConsumer.svelte';
+  import DetachedApiResourceConsumer from './DetachedApiResourceConsumer.svelte';
 
   const props: {
     fetchData: () => Promise<string[]>;
@@ -50,5 +50,5 @@
 </script>
 
 {#if consumer}
-  <LazyApiResourceConsumer fetchData={props.fetchData} {onResource} />
+  <DetachedApiResourceConsumer fetchData={props.fetchData} {onResource} />
 {/if}
