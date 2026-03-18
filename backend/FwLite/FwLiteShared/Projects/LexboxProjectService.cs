@@ -220,6 +220,25 @@ public class LexboxProjectService : IDisposable
         if (!options.Value.TryGetServer(projectData, out var server)) return;
         var lexboxConnection = await StartLexboxProjectChangeListener(server, stoppingToken);
         if (lexboxConnection is null) return;
+        // If the connection isn't active yet, avoid SendAsync which throws in Reconnecting/Disconnected.
+        if (lexboxConnection.State == HubConnectionState.Reconnecting)
+        {
+            // Reconnected handler will resubscribe when the connection comes back.
+            return;
+        }
+        if (lexboxConnection.State == HubConnectionState.Disconnected)
+        {
+            // Connection can be Disconnected after auth-loss StopAsync or a failed StartAsync; try to recover here.
+            try
+            {
+                await lexboxConnection.StartAsync(stoppingToken);
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to restart Lexbox listener");
+                return;
+            }
+        }
         var subscribedProjects = _reconnectProjects.GetValue(lexboxConnection, static conn =>
         {
             var projects = new HashSet<Guid>();
@@ -248,7 +267,15 @@ public class LexboxProjectService : IDisposable
         {
             subscribedProjects.Add(projectData.Id);
         }
-        await lexboxConnection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectData.Id, stoppingToken);
+        try
+        {
+            await lexboxConnection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectData.Id, stoppingToken);
+        }
+        catch (InvalidOperationException e)
+        {
+            // Can happen if the connection dropped between the state check and SendAsync.
+            logger.LogWarning(e, "SignalR connection not active while subscribing to project changes");
+        }
     }
 
     private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
@@ -270,17 +297,15 @@ public class LexboxProjectService : IDisposable
     public async Task<HubConnection?> StartLexboxProjectChangeListener(LexboxServer server,
         CancellationToken stoppingToken)
     {
-        HubConnection? connection;
-        if (cache.TryGetValue(HubConnectionCacheKey(server), out connection) && connection is not null)
-        {
-            return connection;
-        }
-
         if (await clientFactory.GetClient(server).GetCurrentToken() is null)
         {
-
+            cache.Remove(HubConnectionCacheKey(server));
             logger.LogWarning("Unable to create signalR client, user is not authenticated to {OriginDomain}", server.Authority);
             return null;
+        }
+        if (cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? connection) && connection is not null)
+        {
+            return connection;
         }
 
         connection = new HubConnectionBuilder()
@@ -311,7 +336,28 @@ public class LexboxProjectService : IDisposable
 
         try
         {
-            //todo handle failure better, retry, maybe when a project sync is triggered.
+            connection.Reconnecting += async exception =>
+            {
+                // Reconnecting can loop forever with infinite retry; log and bail if auth is missing.
+                if (exception is not null)
+                    logger.LogWarning(exception, "SignalR connection reconnecting");
+                else
+                    logger.LogInformation("SignalR connection reconnecting");
+
+                if (await clientFactory.GetClient(server).GetCurrentToken() is not null) return;
+
+                cache.Remove(HubConnectionCacheKey(server));
+                logger.LogWarning(exception, "SignalR reconnect failed due to missing auth token");
+                try
+                {
+                    await connection.StopAsync();
+                }
+                catch (Exception e)
+                {
+                    logger.LogWarning(e, "Failed to stop SignalR connection after auth loss");
+                }
+            };
+            // TODO: If StartAsync fails due to transient network, consider retrying on next sync/on-demand
             await connection.StartAsync(stoppingToken);
 
             connection.Closed += async (exception) =>
@@ -332,6 +378,7 @@ public class LexboxProjectService : IDisposable
         }
         catch (Exception e)
         {
+            cache.Remove(HubConnectionCacheKey(server));
             logger.LogWarning(e, "Failed to start Lexbox listener");
             return null;
         }
