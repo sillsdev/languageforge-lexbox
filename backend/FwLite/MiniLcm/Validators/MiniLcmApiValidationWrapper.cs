@@ -78,6 +78,12 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.UpdateComplexFormType(before, after, api ?? this);
     }
 
+    public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
+    {
+        await validators.ValidateAndThrow(update);
+        return await _api.UpdateMorphType(id, update);
+    }
+
     public async Task<Entry> CreateEntry(Entry entry)
     {
         await validators.ValidateAndThrow(entry);
