@@ -701,78 +701,68 @@
   },
   {
     "$type": "CreateCustomViewChange",
-    "Name": "bleeding-edge",
-    "Base": "FwLite",
+    "Name": "Afghani",
+    "Base": "FieldWorks",
     "EntryFields": [
       {
-        "FieldId": "synthesize",
-        "Visible": true
+        "FieldId": "middleware"
       }
     ],
     "SenseFields": [
       {
-        "FieldId": "Small Soft Towels",
-        "Visible": true
+        "FieldId": "SMS"
       }
     ],
     "ExampleFields": [
       {
-        "FieldId": "Borders",
-        "Visible": true
+        "FieldId": "Nebraska"
       }
     ],
     "Vernacular": [
       {
-        "WritingSystemId": "ots",
-        "Visible": true
+        "WsId": "txq"
       }
     ],
     "Analysis": [
       {
-        "WritingSystemId": "bvj",
-        "Visible": true
+        "WsId": "sja"
       }
     ],
-    "EntityId": "a3145eb5-fc0e-c3c8-e717-89101b3a0f19"
+    "EntityId": "935d8100-6254-f587-c712-65469362105f"
   },
   {
     "$type": "EditCustomViewChange",
-    "Name": "coherent",
-    "Base": "FwLite",
+    "Name": "Rial Omani",
+    "Base": "FieldWorks",
     "EntryFields": [
       {
-        "FieldId": "dot-com",
-        "Visible": true
+        "FieldId": "fresh-thinking"
       }
     ],
     "SenseFields": [
       {
-        "FieldId": "Ergonomic",
-        "Visible": true
+        "FieldId": "Auto Loan Account"
       }
     ],
     "ExampleFields": [
       {
-        "FieldId": "Awesome",
-        "Visible": true
+        "FieldId": "SMTP"
       }
     ],
     "Vernacular": [
       {
-        "WritingSystemId": "pmz",
-        "Visible": true
+        "WsId": "nrk"
       }
     ],
     "Analysis": [
       {
-        "WritingSystemId": "vae",
-        "Visible": true
+        "WsId": "zoh"
       }
     ],
-    "EntityId": "71978d33-9454-2568-3639-5059f11527fa"
+    "EntityId": "99082da6-745e-9aaa-5231-3b83bd84e0e7"
   },
   {
     "$type": "delete:CustomView",
-    "EntityId": "f62e3014-7617-36aa-8ac2-b1a7ac15c552"
+    "EntityId": "c954bd38-e4b5-ce57-0069-2a6edc91e629"
   }
 ]

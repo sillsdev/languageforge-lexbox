@@ -1,4 +1,4 @@
-﻿[
+[
   {
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
@@ -1590,42 +1590,37 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "CustomView",
-      "Id": "c480a062-fcdb-ad53-e5b9-7d38a375fabb",
+      "Id": "72bcb2dd-4d73-486c-d5df-e5d7b9a6a3eb",
       "DeletedAt": null,
-      "Name": "Exclusive",
+      "Name": "Mountain",
       "Base": "FieldWorks",
       "EntryFields": [
         {
-          "FieldId": "Integration",
-          "Visible": true
+          "FieldId": "spidy"
         }
       ],
       "SenseFields": [
         {
-          "FieldId": "AGP",
-          "Visible": true
+          "FieldId": "Division"
         }
       ],
       "ExampleFields": [
         {
-          "FieldId": "payment",
-          "Visible": true
+          "FieldId": "card"
         }
       ],
       "Vernacular": [
         {
-          "WritingSystemId": "gnk",
-          "Visible": true
+          "WsId": "kup"
         }
       ],
       "Analysis": [
         {
-          "WritingSystemId": "guw",
-          "Visible": true
+          "WsId": "pas"
         }
       ]
     },
-    "Id": "c480a062-fcdb-ad53-e5b9-7d38a375fabb",
+    "Id": "72bcb2dd-4d73-486c-d5df-e5d7b9a6a3eb",
     "DeletedAt": null
   }
 ]
