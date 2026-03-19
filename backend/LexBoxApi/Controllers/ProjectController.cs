@@ -146,7 +146,7 @@ public class ProjectController(
         Dictionary<string, int> result = [];
         foreach (var projectCode in projectCodes)
         {
-            var regexCount = await hgService.GetRegexCount(projectCode, includeFileRegex, matchCountRegex, excludeFileRegex, token);
+            var regexCount = await hgService.CountProjectMatches(projectCode, includeFileRegex, matchCountRegex, excludeFileRegex, token);
             result.Add(projectCode, regexCount ?? 0);
         }
         return Ok(result);
