@@ -63,12 +63,13 @@ export class ViewService {
   }
 }
 
-// Pure utilities — no instance needed
-
 export function hasVisibleFields(fields: TypedViewField<FieldId>[]): boolean {
   return fields.some((field) => field.show);
 }
 
+/**
+ * Each visible field becomes one CSS grid-template-areas row: `"<fieldId> <fieldId> <fieldId>"`
+ */
 export function objectTemplateAreas(fields: TypedViewField<FieldId>[]): string {
   return fields
     .filter((field) => field.show)

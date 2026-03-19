@@ -1,6 +1,6 @@
-import {afterEach, beforeEach, describe, expect, it} from 'vitest';
+import {describe, expect, it} from 'vitest';
 import {hasVisibleFields, objectTemplateAreas} from './view-service.svelte';
-import {fieldRecord, isCustomView, BUILT_IN_VIEWS, FW_LITE_VIEW, FW_CLASSIC_VIEW, type View, type TypedViewField} from './view-data';
+import {isCustomView, BUILT_IN_VIEWS, FW_LITE_VIEW, FW_CLASSIC_VIEW, type View, type TypedViewField} from './view-data';
 import {ViewService} from './view-service.svelte';
 import {ViewBase} from '$lib/dotnet-types';
 import type {CustomView} from './view-data';
@@ -51,15 +51,6 @@ describe('objectTemplateAreas', () => {
   });
 });
 
-describe('fieldRecord', () => {
-  it('converts field array to a record keyed by fieldId', () => {
-    const fields = FW_LITE_VIEW.entryFields;
-    const record = fieldRecord(fields);
-    expect(record.lexemeForm).toEqual(fields.find(f => f.fieldId === 'lexemeForm'));
-    expect(record.note).toEqual(fields.find(f => f.fieldId === 'note'));
-  });
-});
-
 describe('isCustomView', () => {
   it('returns false for built-in views', () => {
     expect(isCustomView(FW_LITE_VIEW)).toBe(false);
@@ -91,16 +82,6 @@ function createViewService(customViews: CustomView[] = []): {service: ViewServic
 }
 
 describe('ViewService', () => {
-  let cleanup: () => void;
-
-  beforeEach(() => {
-    cleanup = $effect.root(() => {});
-  });
-
-  afterEach(() => {
-    cleanup();
-  });
-
   it('defaults to the first built-in view', () => {
     const {service} = createViewService();
     expect(service.currentView.id).toBe(BUILT_IN_VIEWS[0].id);

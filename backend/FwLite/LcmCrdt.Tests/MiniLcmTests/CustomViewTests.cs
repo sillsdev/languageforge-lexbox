@@ -96,6 +96,26 @@ public class CustomViewTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
     }
 
     [Fact]
+    public async Task CreateCustomView_RoundTrip_AllFieldsPersisted()
+    {
+        await SetCurrentUser(ManagerUserId, UserProjectRole.Manager);
+        var input = NewCustomView("Round Trip");
+
+        input.Analysis = null;
+        var created = await fixture.Api.CreateCustomView(input);
+        var fetched = await fixture.Api.GetCustomView(created.Id);
+
+        fetched.Should().NotBeNull();
+        fetched.Name.Should().Be("Round Trip");
+        fetched.Base.Should().Be(ViewBase.FwLite);
+        fetched.EntryFields.Should().ContainSingle(f => f.FieldId == "lexemeForm");
+        fetched.SenseFields.Should().ContainSingle(f => f.FieldId == "gloss");
+        fetched.ExampleFields.Should().ContainSingle(f => f.FieldId == "sentence");
+        fetched.Vernacular.Should().ContainSingle(ws => ws.WsId == "en");
+        fetched.Analysis.Should().BeNull();
+    }
+
+    [Fact]
     public async Task GetCustomViews_ReturnsAllViews_ForEditor()
     {
         var view1 = await CreateViewAsManager("View 1");
