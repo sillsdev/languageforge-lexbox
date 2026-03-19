@@ -552,19 +552,20 @@ public partial class HgService : IHgService, IHostedService
 
     private async Task<HttpContent> ExecuteHgCommandServerCommand(ProjectCode code, string command, CancellationToken token, IDictionary<string, string?>? queryParams = null)
     {
-        var httpClient = _hgClient.Value;
-        var baseUri = _options.Value.HgCommandServer;
-        var uri = $"{baseUri}{code}/{command}";
-        if (queryParams is not null)
-        {
-            uri = QueryHelpers.AddQueryString(uri, queryParams);
-        }
-        var response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
+        var response = await ExecuteHgCommandServerCommandImpl(code, command, token, queryParams);
         response.EnsureSuccessStatusCode();
         return response.Content;
     }
 
     private async Task<HttpContent?> MaybeExecuteHgCommandServerCommand(ProjectCode code, string command, IEnumerable<HttpStatusCode> okErrors, CancellationToken token, IDictionary<string, string?>? queryParams = null)
+    {
+        var response = await ExecuteHgCommandServerCommandImpl(code, command, token, queryParams);
+        if (okErrors.Contains(response.StatusCode)) return null;
+        response.EnsureSuccessStatusCode();
+        return response.Content;
+    }
+
+    private Task<HttpResponseMessage> ExecuteHgCommandServerCommandImpl(ProjectCode code, string command, CancellationToken token, IDictionary<string, string?>? queryParams = null)
     {
         var httpClient = _hgClient.Value;
         var baseUri = _options.Value.HgCommandServer;
@@ -573,10 +574,7 @@ public partial class HgService : IHgService, IHostedService
         {
             uri = QueryHelpers.AddQueryString(uri, queryParams);
         }
-        var response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
-        if (okErrors.Contains(response.StatusCode)) return null;
-        response.EnsureSuccessStatusCode();
-        return response.Content;
+        return httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
     }
 
     public async Task<ProjectType> DetermineProjectType(ProjectCode projectCode)
