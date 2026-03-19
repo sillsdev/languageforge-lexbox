@@ -3,12 +3,13 @@
   import {Button} from '$lib/components/ui/button';
   import {t} from 'svelte-i18n-lingui';
   import {useViewService} from './view-service.svelte';
-  import {isCustomView, type CustomView, type View} from './view-data';
+  import {FW_CLASSIC_VIEW, FW_LITE_VIEW, type CustomView} from './view-data';
   import {Icon} from '$lib/components/ui/icon';
   import CreateCustomViewDialog from './CreateCustomViewDialog.svelte';
   import EditCustomViewDialog from './EditCustomViewDialog.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useCustomViewService} from '$project/data/custom-view-service.svelte';
+  import {ViewBase} from '$lib/dotnet-types';
 
   interface Props {
     open: boolean;
@@ -23,16 +24,10 @@
 
   let createOpen = $state(false);
   let editOpen = $state(true);
-  let editValue = $state<View | undefined>(undefined);
+  let editValue = $state<CustomView | undefined>(undefined);
 
   function openEdit(view: CustomView) {
-    const {parentView: _, ...rest} = view;
-    editValue = {
-      ...rest,
-      entryFields: rest.entryFields.map((f) => ({...f})),
-      senseFields: rest.senseFields.map((f) => ({...f})),
-      exampleFields: rest.exampleFields.map((f) => ({...f})),
-    };
+    editValue = { ...view };
     editOpen = true;
   }
 
@@ -75,14 +70,14 @@
             <div class="min-w-0">
               <div class="truncate text-sm font-medium">{view.name}</div>
               <div class="truncate text-xs text-muted-foreground">
-                {$t`Based on ${view.parentView.name}`}
+                {$t`Based on ${view.base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW.name : FW_LITE_VIEW.name}`}
               </div>
             </div>
             <div class="flex items-center gap-1">
               <Button
                 size="icon"
                 variant="ghost"
-                class="hover:!bg-destructive/20 hover:text-destructive"
+                class="hover:bg-destructive/20! hover:text-destructive"
                 icon="i-mdi-trash-can-outline"
                 onclick={(e: MouseEvent) => {
                   e.stopPropagation();

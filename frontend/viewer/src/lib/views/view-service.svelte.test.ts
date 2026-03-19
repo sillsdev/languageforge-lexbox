@@ -66,12 +66,12 @@ describe('isCustomView', () => {
     expect(isCustomView(FW_CLASSIC_VIEW)).toBe(false);
   });
 
-  it('returns true when the view has a parentView property', () => {
-    const custom: CustomView = {
+  it('returns true when the view has a custom property', () => {
+    const custom: View = {
       ...FW_LITE_VIEW,
       id: 'custom-1',
-      parentView: FW_LITE_VIEW,
-    };
+      custom: true,
+    } as CustomView;
     expect(isCustomView(custom)).toBe(true);
   });
 });
@@ -111,7 +111,7 @@ describe('ViewService', () => {
       ...FW_LITE_VIEW,
       id: 'custom-1',
       name: 'My Custom View',
-      parentView: FW_LITE_VIEW,
+      custom: true,
     };
     const {service} = createViewService([custom]);
     expect(service.views.map(v => v.id)).toContain('custom-1');
@@ -169,7 +169,7 @@ describe('ViewService', () => {
       ...FW_CLASSIC_VIEW,
       id: 'custom-1',
       name: 'My Custom View',
-      parentView: FW_CLASSIC_VIEW,
+      custom: true,
     };
     const {service, mockCustomViewService} = createViewService([custom]);
     service.selectView(custom.id);

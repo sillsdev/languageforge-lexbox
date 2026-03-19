@@ -28,14 +28,18 @@
 
   // svelte-ignore state_referenced_locally
   let fieldSelectionDirty = $state(!!editingValue);
-
   // svelte-ignore state_referenced_locally
-  const value = $state(editingValue ?? {
-    ...structuredClone(FW_LITE_VIEW),
-    parentView: FW_LITE_VIEW,
-    id: randomId(),
-    name: '',
-  });
+  const value = $state($state.snapshot(editingValue) ?? defaultCustomView());
+
+  function defaultCustomView(): CustomView {
+    const { root: _, ...view } = FW_LITE_VIEW;
+    return {
+      ...structuredClone(view),
+      custom: true as const,
+      id: randomId(),
+      name: '',
+    };
+  }
 
   let saving = $state(false);
   let error = $state<string | undefined>(undefined);

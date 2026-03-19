@@ -46,7 +46,7 @@ describe('custom-view-service', () => {
     ]);
 
     const view: CustomView = service.current[0];
-    expect(view.parentView.id).toBe(ViewBase.FieldWorks);
+    expect(view.base).toBe(ViewBase.FieldWorks);
     // Builtin order is used, not API order
     expect(view.entryFields.map(f => f.fieldId).slice(0, 2)).toEqual(['lexemeForm', 'citationForm']);
     expect(view.entryFields.find(f => f.fieldId === 'lexemeForm')?.show).toBe(true);

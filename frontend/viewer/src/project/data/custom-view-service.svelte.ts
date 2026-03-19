@@ -3,7 +3,8 @@ import type {FieldId} from '$lib/views/entity-config';
 import {
   FW_CLASSIC_VIEW,
   FW_LITE_VIEW, type CustomView,
-  type TypedViewField
+  type TypedViewField,
+  type View
 } from '$lib/views/view-data';
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import type {ResourceReturn} from 'runed';
@@ -30,13 +31,13 @@ export class CustomViewService {
       .toSorted((a, b) => a.name.localeCompare(b.name))
   );
 
-  async add(customView: CustomView): Promise<CustomView> {
+  async add(customView: View): Promise<CustomView> {
     const created = await this.#projectContext.api.createCustomView(this.#toApiCustomView(customView));
     await this.#customViewsResource.refetch();
     return this.#buildCustomView(created);
   }
 
-  async update(viewId: string, customView: CustomView): Promise<CustomView> {
+  async update(viewId: string, customView: View): Promise<CustomView> {
     const updated = await this.#projectContext.api.updateCustomView(viewId, this.#toApiCustomView(customView));
     await this.#customViewsResource.refetch();
     return this.#buildCustomView(updated);
@@ -48,23 +49,22 @@ export class CustomViewService {
   }
 
   #buildCustomView(customView: ICustomView): CustomView {
-    const parentView = customView.base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW : FW_LITE_VIEW;
+    const baseView = structuredClone(customView.base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW : FW_LITE_VIEW);
     return {
       ...customView,
-      entryFields: this.#resolveViewFields(customView.entryFields, parentView.entryFields),
-      senseFields: this.#resolveViewFields(customView.senseFields, parentView.senseFields),
-      exampleFields: this.#resolveViewFields(customView.exampleFields, parentView.exampleFields),
-      parentView,
+      custom: true,
+      entryFields: this.#resolveViewFields(customView.entryFields, baseView.entryFields),
+      senseFields: this.#resolveViewFields(customView.senseFields, baseView.senseFields),
+      exampleFields: this.#resolveViewFields(customView.exampleFields, baseView.exampleFields),
     };
   }
 
-  #toApiCustomView(customView: CustomView): ICustomView {
-    const {parentView: _, ...view} = customView;
+  #toApiCustomView(customView: View): ICustomView {
     return {
-      ...view,
-      entryFields: view.entryFields.filter(field => field.show),
-      senseFields: view.senseFields.filter(field => field.show),
-      exampleFields: view.exampleFields.filter(field => field.show),
+      ...customView,
+      entryFields: customView.entryFields.filter(field => field.show),
+      senseFields: customView.senseFields.filter(field => field.show),
+      exampleFields: customView.exampleFields.filter(field => field.show),
     };
   }
 

@@ -15,15 +15,15 @@ export type View = Merge<Omit<ICustomView, 'deletedAt'>, {
 }>;
 
 export interface RootView extends View {
-  parentView?: never
+  root: true;
 }
 
 export interface CustomView extends View {
-  parentView: RootView;
+  custom: true;
 }
 
 export function isCustomView(view: View): view is CustomView {
-  return 'parentView' in view;
+  return 'custom' in view;
 }
 
 export type Overrides = Pick<Partial<View>, 'vernacular' | 'analysis'>;
@@ -41,6 +41,7 @@ type BuiltInEntityFields<T extends EntityType> = {[F in EntityFields<T>]: BuiltI
 type BuiltInFieldsView = {[T in EntityType]: BuiltInEntityFields<T>};
 
 export const FW_LITE_VIEW: RootView = {
+  root: true,
   id: ViewBase.FwLite,
   name: 'FieldWorks Lite',
   base: ViewBase.FwLite,
@@ -70,6 +71,7 @@ export const FW_LITE_VIEW: RootView = {
 };
 
 export const FW_CLASSIC_VIEW: RootView = {
+  root: true,
   id: ViewBase.FieldWorks,
   name: 'FieldWorks Classic',
   base: ViewBase.FieldWorks,
