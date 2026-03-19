@@ -15,7 +15,8 @@ public class ConfigRegistrationTests
         typeof(ReplaceComplexFormTypeChange), //not currently in use
         typeof(JsonPatchChange<ComplexFormComponent>), //not supported
         typeof(JsonPatchChange<RemoteResource>), //not supported
-        typeof(JsonPatchChange<ExampleSentence>)//replaced by JsonPatchExampleSentenceChange
+        typeof(JsonPatchChange<ExampleSentence>), //replaced by JsonPatchExampleSentenceChange
+        typeof(JsonPatchChange<CustomView>), //not supported. Use EditCustomViewChange
     ];
 
     private readonly CrdtConfig _config;
