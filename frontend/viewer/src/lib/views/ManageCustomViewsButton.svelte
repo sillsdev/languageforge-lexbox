@@ -15,7 +15,7 @@
   <Button
     variant="outline"
     size="sm"
-    class="justify-start w-full"
+    class="w-full"
     icon="i-mdi-cog-outline"
     onclick={() => { onClose?.(); dialogsService.openManageCustomViews(); }}
   >

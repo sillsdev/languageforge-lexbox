@@ -23,8 +23,11 @@
   const customViews = $derived(customViewService.current);
 
   let createOpen = $state(false);
-  let editOpen = $state(true);
+  let editOpen = $state(false);
   let editValue = $state<CustomView | undefined>(undefined);
+
+  const subDialogOpen = $derived(createOpen || editOpen);
+  const manageOpen = $derived(open && !subDialogOpen);
 
   function openEdit(view: CustomView) {
     editValue = { ...view };
@@ -49,49 +52,49 @@
   }
 </script>
 
-<ResponsiveDialog bind:open title={$t`Manage Custom Views`} contentProps={{class: 'max-w-lg'}}>
-  <div class="space-y-3">
-    <div class="flex justify-end">
-      <Button icon="i-mdi-plus" onclick={() => createOpen = true}>
-        {$t`New Custom View`}
-      </Button>
-    </div>
-
-    {#if customViews.length === 0}
-      <p class="text-sm text-muted-foreground">{$t`No custom views yet.`}</p>
-    {:else}
-      <div class="rounded-md border divide-y">
-        {#each customViews as view (view.id)}
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-muted cursor-pointer"
-            onclick={() => openEdit(view)}
-          >
-            <div class="min-w-0">
-              <div class="truncate text-sm font-medium">{view.name}</div>
-              <div class="truncate text-xs text-muted-foreground">
-                {$t`Based on ${view.base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW.name : FW_LITE_VIEW.name}`}
-              </div>
-            </div>
-            <div class="flex items-center gap-1">
-              <Button
-                size="icon"
-                variant="ghost"
-                class="hover:bg-destructive/20! hover:text-destructive"
-                icon="i-mdi-trash-can-outline"
-                onclick={(e: MouseEvent) => {
-                  e.stopPropagation();
-                  void onDelete(view);
-                }}
-              />
-              <Icon icon="i-mdi-chevron-right" class="text-muted-foreground" />
-            </div>
-          </button>
-        {/each}
+  <ResponsiveDialog open={manageOpen} onOpenChange={(v) => { if (!v) open = false; }} title={$t`Manage Custom Views`} contentProps={{class: 'max-w-lg'}}>
+    <div class="space-y-3">
+      <div class="flex justify-end">
+        <Button icon="i-mdi-plus" onclick={() => createOpen = true}>
+          {$t`New Custom View`}
+        </Button>
       </div>
-    {/if}
-  </div>
-</ResponsiveDialog>
+
+      {#if customViews.length === 0}
+        <p class="text-sm text-muted-foreground">{$t`No custom views yet.`}</p>
+      {:else}
+        <div class="rounded-md border divide-y">
+          {#each customViews as view (view.id)}
+            <button
+              type="button"
+              class="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-muted cursor-pointer"
+              onclick={() => openEdit(view)}
+            >
+              <div class="min-w-0">
+                <div class="truncate text-sm font-medium">{view.name}</div>
+                <div class="truncate text-xs text-muted-foreground">
+                  {$t`Based on ${view.base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW.name : FW_LITE_VIEW.name}`}
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  class="hover:bg-destructive/20! hover:text-destructive"
+                  icon="i-mdi-trash-can-outline"
+                  onclick={(e: MouseEvent) => {
+                    e.stopPropagation();
+                    void onDelete(view);
+                  }}
+                />
+                <Icon icon="i-mdi-chevron-right" class="text-muted-foreground" />
+              </div>
+            </button>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  </ResponsiveDialog>
 
 <CreateCustomViewDialog bind:open={createOpen} {onCreate} />
 

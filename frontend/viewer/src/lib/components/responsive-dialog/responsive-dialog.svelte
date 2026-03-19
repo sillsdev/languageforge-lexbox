@@ -33,7 +33,7 @@
 {:else}
   <Drawer.Root bind:open {...rest}>
     {#if trigger}<Drawer.Trigger child={trigger} />{/if}
-    <Drawer.Content {...contentProps}>
+    <Drawer.Content {...contentProps} class={cn(contentProps?.class, 'max-w-none')}>
       <Drawer.Close class={buttonVariants({variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10'})}>
         <Icon icon="i-mdi-close" />
       </Drawer.Close>

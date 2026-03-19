@@ -32,8 +32,8 @@
 </script>
 <RadioGroup.Root bind:value={getCurrentView, setCurrentView}>
   <Popover.Root onOpenChange={onPopoverOpenChange}>
-    <Popover.InfoTrigger class="text-start w-fit">
-      <h3 class="inline font-normal max-md:mb-1">{$t`View`}</h3>
+    <Popover.InfoTrigger class="text-start w-fit max-md:mb-1">
+      <h3 class="inline font-normal">{$t`View`}</h3>
     </Popover.InfoTrigger>
     <Popover.Content bind:ref={popoverContent} class="max-h-[40vh] overflow-y-auto text-sm flex flex-col gap-2">
       <div>
@@ -48,15 +48,19 @@
     </Popover.Content>
   </Popover.Root>
 
-  {#each viewService.views as view (view.id)}
-    <Label class="cursor-pointer flex items-center gap-4 md:gap-2 max-md:py-3">
-      <RadioGroup.Item value={view.id} />
-      <span>{view.name}</span>
-      {#if isCustomView(view)}
-        <span class="text-muted-foreground">({view.base === ViewBase.FieldWorks ? 'Classic' : 'Lite'})</span>
-      {/if}
-    </Label>
-  {/each}
+  <RadioGroup.Root>
+    {#each viewService.views as view (view.id)}
+      <Label class="flex items-center gap-4 md:gap-2 max-md:py-3">
+        <RadioGroup.Item value={view.id} />
+        <span>
+          {view.name}
+          {#if isCustomView(view)}
+            <span class="text-muted-foreground">({view.base === ViewBase.FieldWorks ? 'Classic' : 'Lite'})</span>
+          {/if}
+        </span>
+      </Label>
+    {/each}
+  </RadioGroup.Root>
   <div class="mt-1">
     <ManageCustomViewsButton {onClose} />
   </div>
