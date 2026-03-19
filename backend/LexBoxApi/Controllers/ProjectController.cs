@@ -130,6 +130,8 @@ public class ProjectController(
     }
 
     [HttpGet("countProjectMatches")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [AdminRequired]
     public async Task<ActionResult<Dictionary<string, int>>> CountProjectMatches(
         CancellationToken token,
@@ -146,8 +148,23 @@ public class ProjectController(
         Dictionary<string, int> result = [];
         foreach (var projectCode in projectCodes)
         {
-            var regexCount = await hgService.CountProjectMatches(projectCode, includeFileRegex, matchCountRegex, excludeFileRegex, token);
-            result.Add(projectCode, regexCount ?? 0);
+            try
+            {
+                var regexCount = await hgService.CountProjectMatches(projectCode, includeFileRegex, matchCountRegex, excludeFileRegex, token);
+                result.Add(projectCode, regexCount ?? 0);
+            }
+            catch (HttpRequestException e)
+            {
+                if (e.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    return BadRequest(e.Message);
+                }
+                // It's possible a project was deleted in between building the code list and running the command; just skip the missing one
+                if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    continue;
+                }
+            }
         }
         return Ok(result);
     }

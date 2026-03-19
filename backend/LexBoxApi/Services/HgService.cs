@@ -418,7 +418,7 @@ public partial class HgService : IHgService, IHostedService
         return response;
     }
 
-    public Task<HttpContent> InvalidateDirCache(ProjectCode code, CancellationToken token = default)
+    public Task<HttpContent?> InvalidateDirCache(ProjectCode code, CancellationToken token = default)
     {
         var repoPath = Path.Join(PrefixRepoFilePath(code));
         if (Directory.Exists(repoPath))
@@ -434,8 +434,8 @@ public partial class HgService : IHgService, IHostedService
             }
             catch (Exception) { }
         }
-        var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", token);
-        return result;
+        // It's okay if the project doesn't exist, because it might have been deleted just now
+        return MaybeExecuteHgCommandServerCommand(code, "invalidatedircache", [HttpStatusCode.NotFound], token);
     }
 
     public static DateTimeOffset? ConvertHgDate(string? dateStr)

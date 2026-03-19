@@ -27,7 +27,7 @@ public interface IHgService
     Task<string?> GetRepositoryIdentifier(Project project);
     Task<ZipArchive?> GetLdmlZip(ProjectCode code, CancellationToken token = default);
     Task<HttpContent> ExecuteHgRecover(ProjectCode code, CancellationToken token);
-    Task<HttpContent> InvalidateDirCache(ProjectCode code, CancellationToken token = default);
+    Task<HttpContent?> InvalidateDirCache(ProjectCode code, CancellationToken token = default);
     bool HasAbandonedTransactions(ProjectCode projectCode);
     Task<string> HgCommandHealth();
 
