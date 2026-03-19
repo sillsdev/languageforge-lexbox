@@ -36,6 +36,7 @@ public static class CanonicalMorphTypes
             Kind = MorphTypeKind.Circumfix,
             Name = new MultiString { { "en", "circumfix" } },
             Abbreviation = new MultiString { { "en", "cfx" } },
+            SecondaryOrder = 0,
         },
         new()
         {
@@ -43,6 +44,7 @@ public static class CanonicalMorphTypes
             Kind = MorphTypeKind.Clitic,
             Name = new MultiString { { "en", "clitic" } },
             Abbreviation = new MultiString { { "en", "clit" } },
+            SecondaryOrder = 0,
         },
         new()
         {
@@ -69,6 +71,7 @@ public static class CanonicalMorphTypes
             Kind = MorphTypeKind.Particle,
             Name = new MultiString { { "en", "particle" } },
             Abbreviation = new MultiString { { "en", "part" } },
+            SecondaryOrder = 0,
         },
         new()
         {
@@ -94,6 +97,7 @@ public static class CanonicalMorphTypes
             Kind = MorphTypeKind.Root,
             Name = new MultiString { { "en", "root" } },
             Abbreviation = new MultiString { { "en", "ubd root" } },
+            SecondaryOrder = 0,
         },
         new()
         {
@@ -111,6 +115,7 @@ public static class CanonicalMorphTypes
             Kind = MorphTypeKind.Stem,
             Name = new MultiString { { "en", "stem" } },
             Abbreviation = new MultiString { { "en", "ubd stem" } },
+            SecondaryOrder = 0,
         },
         new()
         {
@@ -139,6 +144,7 @@ public static class CanonicalMorphTypes
             Abbreviation = new MultiString { { "en", "ifxnfx" } },
             Prefix = "-",
             Postfix = "-",
+            SecondaryOrder = 0,
         },
         new()
         {
@@ -147,6 +153,7 @@ public static class CanonicalMorphTypes
             Name = new MultiString { { "en", "prefixing interfix" } },
             Abbreviation = new MultiString { { "en", "pfxnfx" } },
             Postfix = "-",
+            SecondaryOrder = 0,
         },
         new()
         {
@@ -155,6 +162,7 @@ public static class CanonicalMorphTypes
             Name = new MultiString { { "en", "suffixing interfix" } },
             Abbreviation = new MultiString { { "en", "sfxnfx" } },
             Prefix = "-",
+            SecondaryOrder = 0,
         },
         new()
         {
@@ -162,6 +170,7 @@ public static class CanonicalMorphTypes
             Kind = MorphTypeKind.Phrase,
             Name = new MultiString { { "en", "phrase" } },
             Abbreviation = new MultiString { { "en", "phr" } },
+            SecondaryOrder = 0,
         },
         new()
         {
@@ -169,6 +178,7 @@ public static class CanonicalMorphTypes
             Kind = MorphTypeKind.DiscontiguousPhrase,
             Name = new MultiString { { "en", "discontiguous phrase" } },
             Abbreviation = new MultiString { { "en", "dis phr" } },
+            SecondaryOrder = 0,
         },
     ];
 }
