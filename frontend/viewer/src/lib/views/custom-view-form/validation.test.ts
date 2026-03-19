@@ -28,7 +28,10 @@ describe('validateForm', () => {
         {fieldId: 'note'},
       ],
     });
-    expect(result).toBe('At least Word or Display As must be visible');
+    expect(result).toEqual({
+      lite: 'Word or Display as is required',
+      classic: 'Lexeme form or Citation form is required',
+    });
   });
 
   it('passes when only citationForm is present', () => {

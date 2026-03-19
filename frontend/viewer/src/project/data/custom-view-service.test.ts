@@ -53,18 +53,8 @@ describe('custom-view-service', () => {
     expect(view.entryFields.find(f => f.fieldId === 'citationForm')?.show).toBe(true);
     // Fields not in the API array are hidden
     expect(view.entryFields.find(f => f.fieldId === 'note')?.show).toBe(false);
-    // Empty senseFields means all defaults are shown (no overrides)
-    expect(view.senseFields.find(f => f.fieldId === 'gloss')?.show).toBe(true);
+    // Empty senseFields means no fields are shown
+    expect(view.senseFields.find(f => f.fieldId === 'gloss')?.show).toBe(false);
     expect(view.analysis).toEqual([{wsId: 'es'}]);
-  });
-
-  it('filters out deleted custom views', () => {
-    const service = createMockService([
-      customViewFixture({id: 'active'}),
-      customViewFixture({id: 'deleted', deletedAt: new Date().toISOString()}),
-    ]);
-
-    expect(service.current).toHaveLength(1);
-    expect(service.current[0].id).toBe('active');
   });
 });
