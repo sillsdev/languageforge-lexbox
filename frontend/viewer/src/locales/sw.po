@@ -178,6 +178,10 @@ msgstr "Ongeza Maana"
 msgid "Add Word"
 msgstr "Ongeza Neno"
 
+#: src/lib/views/CustomViewWritingSystems.svelte
+msgid "All"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
 #. Placeholder/suggestion in search field
@@ -488,10 +492,6 @@ msgstr "Dashibodi"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Data Directory"
 msgstr "Faharasa ya Data"
-
-#: src/lib/views/CustomViewWritingSystems.svelte
-msgid "All"
-msgstr ""
 
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")

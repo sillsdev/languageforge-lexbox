@@ -178,6 +178,10 @@ msgstr "Ajouter du sens"
 msgid "Add Word"
 msgstr "Ajouter un mot"
 
+#: src/lib/views/CustomViewWritingSystems.svelte
+msgid "All"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
 #. Placeholder/suggestion in search field
@@ -488,10 +492,6 @@ msgstr "Tableau de bord"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Data Directory"
 msgstr "Répertoire de données"
-
-#: src/lib/views/CustomViewWritingSystems.svelte
-msgid "All"
-msgstr ""
 
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
