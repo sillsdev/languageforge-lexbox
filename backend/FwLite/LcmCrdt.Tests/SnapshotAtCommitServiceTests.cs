@@ -329,7 +329,7 @@ public class SnapshotAtCommitServiceFileBasedTests : IAsyncLifetime
     public async Task DisposeAsync()
     {
         await _dbContext.Database.CloseConnectionAsync();
-        SqliteConnection.ClearAllPools();
+        SqliteConnection.ClearPool(new SqliteConnection($"Data Source={_dbPath}"));
         await _dbContext.Database.EnsureDeletedAsync();
         await _services.DisposeAsync();
         if (File.Exists(_dbPath))
