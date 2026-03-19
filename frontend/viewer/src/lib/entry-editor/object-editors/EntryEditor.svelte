@@ -157,8 +157,8 @@
   }
 
   const viewService = useViewService();
-  const showSenses = $derived(hasVisibleFields(viewService.currentView.senseFields));
   const showExamples = $derived(hasVisibleFields(viewService.currentView.exampleFields));
+  const showSenses = $derived(showExamples || hasVisibleFields(viewService.currentView.senseFields));
 </script>
 
 <Editor.Root bind:ref>
