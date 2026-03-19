@@ -34,8 +34,10 @@ class ProjectStorageProp extends StorageProp {
 
 export class ProjectStorage {
   readonly selectedTaskId: ProjectStorageProp;
+  readonly currentView: ProjectStorageProp;
 
   constructor(projectCode: string, backend: IPreferencesService) {
     this.selectedTaskId = new ProjectStorageProp(projectCode, 'selectedTaskId', backend);
+    this.currentView = new ProjectStorageProp(projectCode, 'currentView', backend);
   }
 }

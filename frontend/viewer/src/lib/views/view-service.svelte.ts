@@ -3,11 +3,13 @@ import {ViewBase} from '$lib/dotnet-types';
 import {useCustomViewService, type CustomViewService} from '$project/data/custom-view-service.svelte';
 import {BUILT_IN_VIEWS, FW_CLASSIC_VIEW, FW_LITE_VIEW, type RootView, type TypedViewField, type View} from './view-data';
 import type {FieldId} from './entity-config';
+import {type ProjectStorage, useProjectStorage} from '$lib/storage/project-storage.svelte';
 
 const contextKey = Symbol('view-service');
 
 export function initViewService(options?: {persist?: boolean}): ViewService {
-  const service = new ViewService(useCustomViewService(), options);
+  const projectStorage = useProjectStorage();
+  const service = new ViewService(useCustomViewService(), projectStorage, options);
   setContext(contextKey, service);
   return service;
 }
@@ -20,6 +22,7 @@ export function useViewService(): ViewService {
 
 export class ViewService {
   #customViewService: CustomViewService;
+  #projectStorage: ProjectStorage;
   /** Persisted ID enables correct lazy initialization of async-loaded custom views. */
   #selectedId = $state<string | null>(null);
   /** Transient override view (e.g. from OverrideFields), not in the views list. */
@@ -30,7 +33,8 @@ export class ViewService {
 
   currentView: View = $derived.by(() => {
     if (this.#override) return this.#override;
-    const found = this.views.find(v => v.id === this.#selectedId);
+    const id = this.#selectedId || this.#projectStorage.currentView.current;
+    const found = this.views.find(v => v.id === id);
     return found ?? this.views[0];
   });
 
@@ -38,10 +42,10 @@ export class ViewService {
     this.currentView.base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW : FW_LITE_VIEW
   );
 
-  constructor(customViewService: CustomViewService, options?: {persist?: boolean}) {
+  constructor(customViewService: CustomViewService, projectStorage: ProjectStorage, options?: {persist?: boolean}) {
     this.#customViewService = customViewService;
     this.#persist = options?.persist ?? true;
-    this.#selectedId = localStorage.getItem('currentView') ?? null;
+    this.#projectStorage = projectStorage;
   }
 
   /** Select a view from the known views list by ID. */
@@ -53,7 +57,7 @@ export class ViewService {
     this.#override = null;
     this.#selectedId = viewId;
     if (this.#persist) {
-      localStorage.setItem('currentView', viewId);
+      void this.#projectStorage.currentView.set(viewId);
     }
   }
 
