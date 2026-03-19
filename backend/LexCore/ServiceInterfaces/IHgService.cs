@@ -23,7 +23,7 @@ public interface IHgService
     Task<string> GetTipHash(ProjectCode code, CancellationToken token = default);
     Task<int?> GetRepoSizeInKb(ProjectCode code, CancellationToken token = default);
     Task<int?> GetLexEntryCount(ProjectCode code, ProjectType projectType);
-    Task<int?> CountProjectMatches(ProjectCode code, string fileRegex, string contentRegex, string? fileExcludeRegex = null, CancellationToken token = default);
+    Task<int?> CountProjectMatches(ProjectCode code, string includeFileRegex, string matchCountRegex, string? excludeFileRegex = null, CancellationToken token = default);
     Task<string?> GetRepositoryIdentifier(Project project);
     Task<ZipArchive?> GetLdmlZip(ProjectCode code, CancellationToken token = default);
     Task<HttpContent> ExecuteHgRecover(ProjectCode code, CancellationToken token);

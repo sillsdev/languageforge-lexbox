@@ -68,32 +68,32 @@ if [[ $command_name == "regexcount" ]]; then
             key=${KEYVALUE[0]}
             value=$(urldecode ${KEYVALUE[1]})
             case $key in
-                fileExclude)
-                    fileExclude="$value"
+                excludeFileRegex)
+                    excludeFileRegex="$value"
                     ;;
-                file)
-                    fileInclude="$value"
+                includeFileRegex)
+                    includeFileRegex="$value"
                     ;;
-                regex)
-                    contentRegex="$value"
+                matchCountRegex)
+                    matchCountRegex="$value"
                     ;;
             esac
         done
     fi
 
-    # fileExclude is optional, others required
-    if [[ -z "$fileInclude" || -z "$contentRegex" ]]; then
+    # excludeFileRegex is optional, others required
+    if [[ -z "$includeFileRegex" || -z "$matchCountRegex" ]]; then
         echo "Content-type: text/plain"
         echo "Status: 400 Bad Request"
         echo ""
         echo "regexcount command did not receive sufficient parameters"
-        if [[ -z "$fileInclude" ]]; then
+        if [[ -z "$includeFileRegex" ]]; then
             echo "includeFileRegex parameter (required) was missing"
         fi
-        if [[ -z "$contentRegex" ]]; then
+        if [[ -z "$matchCountRegex" ]]; then
             echo "matchCountRegex parameter (required) was missing"
         fi
-        if [[ -z "$fileExclude" ]]; then
+        if [[ -z "$excludeFileRegex" ]]; then
             echo "excludeFileRegex parameter (optional) was also missing (not an error)"
         fi
         exit 1
@@ -127,10 +127,10 @@ case $command_name in
         ;;
 
     regexcount)
-        if [[ -z "$fileExclude" ]]; then
-            chg cat -r tip --include="re:$fileInclude" 'glob:**' | grep -o -P "$contentRegex" | wc -l
+        if [[ -z "$excludeFileRegex" ]]; then
+            chg cat -r tip --include="re:$includeFileRegex" 'glob:**' | grep -o -P "$matchCountRegex" | wc -l
         else
-            chg cat -r tip --include="re:$fileInclude" --exclude="re:$fileExclude" 'glob:**' | grep -o -P "$contentRegex" | wc -l
+            chg cat -r tip --include="re:$includeFileRegex" --exclude="re:$excludeFileRegex" 'glob:**' | grep -o -P "$matchCountRegex" | wc -l
         fi
         ;;
 

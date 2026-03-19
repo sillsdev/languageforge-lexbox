@@ -523,13 +523,13 @@ public partial class HgService : IHgService, IHostedService
         return int.TryParse(str, out int result) ? result : null;
     }
 
-    public async Task<int?> CountProjectMatches(ProjectCode code, string fileRegex, string contentRegex, string? fileExcludeRegex = null, CancellationToken token = default)
+    public async Task<int?> CountProjectMatches(ProjectCode code, string includeFileRegex, string matchCountRegex, string? excludeFileRegex = null, CancellationToken token = default)
     {
         var command = "regexcount";
-        Dictionary<string, string?> queryParams = new() { { "file", fileRegex }, { "regex", contentRegex } };
-        if (fileExcludeRegex is not null)
+        Dictionary<string, string?> queryParams = new() { { "includeFileRegex", includeFileRegex }, { "matchCountRegex", matchCountRegex } };
+        if (excludeFileRegex is not null)
         {
-            queryParams.Add("fileExclude", fileExcludeRegex);
+            queryParams.Add("excludeFileRegex", excludeFileRegex);
         }
         var content = await ExecuteHgCommandServerCommand(code, command, token, queryParams);
         var str = await content.ReadAsStringAsync();
