@@ -54,6 +54,7 @@ public class ProjectSnapshotSerializationTests
     }
 
     [Fact]
+    [Trait("Category", "Verified")]
     public async Task LatestSena3SnapshotRoundTrips()
     {
         // arrange

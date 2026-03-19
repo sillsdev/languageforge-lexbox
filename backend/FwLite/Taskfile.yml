@@ -119,3 +119,17 @@ tasks:
     cmd: dotnet test ../../FwLiteOnly.slnf --filter Category!=Slow
   test-full:
     cmd: dotnet test ../../FwLiteOnly.slnf
+  test-verified:
+    desc: Run only tests that generate verified snapshot files
+    # always produces exit status 1, because the framework isn't valid for all test projects
+    cmd: dotnet test ../../FwLiteOnly.slnf --filter "Category=Verified" --framework net9.0 --logger "console;verbosity=minimal"
+  reset-verified:
+    desc: Reset all verified snapshot files to their state on origin/develop
+    cmds:
+      - git fetch origin develop
+      - git checkout origin/develop -- ":(glob)**/*.verified.*"
+  reverify:
+    desc: Reset verified snapshots to origin/develop, then re-run verified tests to regenerate them
+    cmds:
+      - task: reset-verified
+      - task: test-verified
