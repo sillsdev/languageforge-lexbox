@@ -54,6 +54,7 @@ public class MigrationTests : IAsyncLifetime
     [Theory]
     [InlineData(RegressionTestHelper.RegressionVersion.v1)]
     [InlineData(RegressionTestHelper.RegressionVersion.v2)]
+    [Trait("Category", "Verified")]
     public async Task VerifyAfterMigrationFromScriptedDb(RegressionTestHelper.RegressionVersion regressionVersion)
     {
         await _helper.InitializeAsync(regressionVersion);
@@ -105,6 +106,7 @@ public class MigrationTests : IAsyncLifetime
     [Theory]
     [InlineData(RegressionTestHelper.RegressionVersion.v1)]
     [InlineData(RegressionTestHelper.RegressionVersion.v2)]
+    [Trait("Category", "Verified")]
     public async Task VerifyRegeneratedSnapshotsAfterMigrationFromScriptedDb(RegressionTestHelper.RegressionVersion regressionVersion)
     {
         await _helper.InitializeAsync(regressionVersion);

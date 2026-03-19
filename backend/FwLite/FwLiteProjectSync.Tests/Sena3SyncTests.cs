@@ -207,6 +207,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     /// </summary>
     [Fact]
     [Trait("Category", "Integration")]
+    [Trait("Category", "Verified")]
     public async Task LiveSena3Sync()
     {
         // arrange - put "live" crdt db and fw-headless snapshot in place

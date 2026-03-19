@@ -81,6 +81,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Verified")]
     public async Task SearchTableIsUpdatedAutomaticallyOnInsert()
     {
         var id = Guid.NewGuid();
@@ -117,6 +118,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Verified")]
     public async Task SearchTableIsUpdatedAutomaticallyOnUpdate()
     {
         var id = Guid.NewGuid();

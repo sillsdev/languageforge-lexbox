@@ -124,6 +124,7 @@ public class ChangeSerializationTests : BaseSerializationTest
     }
 
     [Fact]
+    [Trait("Category", "Verified")]
     public async Task RegressionDataUpToDate()
     {
         var legacyJsonArray = ReadJsonArrayFromFile(GetJsonFilePath("ChangeDeserializationRegressionData.legacy.verified.txt"));
