@@ -633,4 +633,58 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         _fixture.FwDataApi.GetComplexFormTypes().ToBlockingEnumerable().Should().ContainEquivalentOf(complexFormEntry);
     }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task HomographNumbers_CorrectedByFwDataAfterTwoSyncs()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+
+        // Import and establish sync baseline
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        // Create two entries in CRDT with the same headword. Auto-assignment gives them (1, 2).
+        var entry1 = await crdtApi.CreateEntry(new Entry
+        {
+            LexemeForm = { { "en", "homographtest" } },
+        });
+        var entry2 = await crdtApi.CreateEntry(new Entry
+        {
+            LexemeForm = { { "en", "homographtest" } },
+        });
+        entry1 = await crdtApi.GetEntry(entry1.Id) ?? throw new NullReferenceException();
+        entry1.HomographNumber.Should().Be(1);
+        entry2.HomographNumber.Should().Be(2);
+
+        // Delete entry1 in CRDT
+        await crdtApi.DeleteEntry(entry1.Id);
+
+        // After deleting, entry2 should still have HomographNumber 2 in CRDT
+        // (we don't recalculate on delete in CRDT — that's intentional for now)
+        var entry2AfterDelete = await crdtApi.GetEntry(entry2.Id) ?? throw new NullReferenceException();
+        // If this assertion fails, it means CRDT now adjusts homograph numbers on delete.
+        // In that case, remove this test and add a test verifying CRDT handles it correctly.
+        entry2AfterDelete.HomographNumber.Should().Be(2,
+            "CRDT does not yet recalculate homograph numbers on delete — that's LibLCM's job");
+
+        // First sync: Syncs the entry with the broken homograph number to fwdata.
+        // LibLCM's CorrectHomographNumbers should update entry2 from 2→0 (since it's now the only entry with that headword).
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+        projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        // After first sync, entry2 should still have HomographNumber 2 in CRDT
+        // (just a sanity check)
+        var entry2AfterFirstSync = await crdtApi.GetEntry(entry2.Id) ?? throw new NullReferenceException();
+        entry2AfterFirstSync.HomographNumber.Should().Be(2,
+            "A single sync is not enough to fix homograph numbers in CRDT");
+
+        // Second sync: FwData's corrected HomographNumber (0) should sync back to CRDT
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        var entry2Final = await crdtApi.GetEntry(entry2.Id) ?? throw new NullReferenceException();
+        entry2Final.HomographNumber.Should().Be(0,
+            "after 2 syncs, LibLCM should have corrected HomographNumber to 0 (sole entry with this headword)");
+    }
 }

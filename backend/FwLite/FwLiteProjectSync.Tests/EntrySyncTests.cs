@@ -419,6 +419,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         var actualNewEntry = await Api.GetEntry(newEntry.Id);
         actualNewEntry.Should().BeEquivalentTo(newEntry, options => options
             .Excluding(e => e.ComplexFormTypes) // LibLcm automatically creates a complex form type. Should we?
+            .Excluding(e => e.HomographNumber) // auto-assigned/updated by API
             .For(e => e.Components).Exclude(c => c.Id)
             .For(e => e.Components).Exclude(c => c.Order));
     }
@@ -486,14 +487,18 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
 
         // assert
         var actualComponent = await Api.GetEntry(componentAfter.Id);
-        actualComponent.Should().BeEquivalentTo(componentAfter,
-            options => options.Excluding(e => e.ComplexForms));
+        actualComponent.Should().BeEquivalentTo(componentAfter, options => options
+            .Excluding(e => e.ComplexForms)
+            .Excluding(e => e.HomographNumber) // auto-assigned/updated by API
+        );
         actualComponent.ComplexForms.Should().BeEmpty();
 
         var actualComplexForm = await Api.GetEntry(complexForm.Id);
         addedComplexForm.Should().BeEquivalentTo(actualComplexForm);
-        actualComplexForm.Should().BeEquivalentTo(complexForm,
-            options => options.Excluding(e => e.Components));
+        actualComplexForm.Should().BeEquivalentTo(complexForm, options => options
+            .Excluding(e => e.Components)
+            .Excluding(e => e.HomographNumber) // auto-assigned/updated by API
+        );
         actualComplexForm.Components.Should().BeEmpty();
     }
 
@@ -525,14 +530,18 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         // assert
         var actualComponent = await Api.GetEntry(component.Id);
         addedComponent.Should().BeEquivalentTo(actualComponent);
-        actualComponent.Should().BeEquivalentTo(component,
-            options => options.Excluding(e => e.ComplexForms));
+        actualComponent.Should().BeEquivalentTo(component, options => options
+            .Excluding(e => e.ComplexForms)
+            .Excluding(e => e.HomographNumber) // auto-assigned/updated by API
+        );
         actualComponent.ComplexForms.Should().BeEmpty();
 
         var actualComplexForm = await Api.GetEntry(complexForm.Id);
         addedComplexForm.Should().BeEquivalentTo(actualComplexForm);
-        actualComplexForm.Should().BeEquivalentTo(complexForm,
-            options => options.Excluding(e => e.Components));
+        actualComplexForm.Should().BeEquivalentTo(complexForm, options => options
+            .Excluding(e => e.Components)
+            .Excluding(e => e.HomographNumber) // auto-assigned/updated by API
+        );
         actualComplexForm.Components.Should().BeEmpty();
     }
 

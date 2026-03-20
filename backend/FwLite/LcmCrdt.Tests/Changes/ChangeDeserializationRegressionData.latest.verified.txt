@@ -164,6 +164,7 @@
       }
     },
     "MorphType": null,
+    "HomographNumber": 0,
     "EntityId": "46d2a7aa-186e-0820-6ab7-9d9f2c4359fb"
   },
   {
@@ -221,6 +222,7 @@
       }
     },
     "MorphType": "Infix",
+    "HomographNumber": 0,
     "EntityId": "46d2a7aa-186e-0820-6ab7-9d9f2c4359fb"
   },
   {
@@ -878,5 +880,17 @@
     "SecondaryOrder": -166466953,
     "Kind": "Enclitic",
     "EntityId": "60f57218-abe5-182c-2bf1-57ce58b65cbc"
+  },
+  {
+    "$type": "CreateEntryChange",
+    "LexemeForm": {
+      "kvj": "Florida"
+    },
+    "CitationForm": null,
+    "LiteralMeaning": null,
+    "Note": null,
+    "MorphType": "Prefix",
+    "HomographNumber": 4,
+    "EntityId": "d8005217-eba2-7937-34f9-b76d6543eea6"
   }
 ]

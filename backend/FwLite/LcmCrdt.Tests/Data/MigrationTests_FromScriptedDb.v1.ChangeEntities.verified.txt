@@ -47,6 +47,7 @@
       },
       "Note": {},
       "MorphType": null,
+      "HomographNumber": 0,
       "EntityId": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1"
     }
   },

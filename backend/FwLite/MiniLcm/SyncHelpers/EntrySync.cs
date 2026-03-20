@@ -133,6 +133,8 @@ public static class EntrySync
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.LiteralMeaning), beforeEntry.LiteralMeaning, afterEntry.LiteralMeaning));
         if (beforeEntry.MorphType != afterEntry.MorphType)
             patchDocument.Operations.Add(new Operation<Entry>("replace", $"/{nameof(Entry.MorphType)}", null, afterEntry.MorphType));
+        if (beforeEntry.HomographNumber != afterEntry.HomographNumber)
+            patchDocument.Operations.Add(new Operation<Entry>("replace", $"/{nameof(Entry.HomographNumber)}", null, afterEntry.HomographNumber));
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Entry>(patchDocument);
     }

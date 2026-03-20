@@ -17,6 +17,7 @@ public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntry
         LiteralMeaning = entry.LiteralMeaning;
         Note = entry.Note;
         MorphType = entry.MorphType;
+        HomographNumber = entry.HomographNumber;
     }
 
     [JsonConstructor]
@@ -34,6 +35,8 @@ public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntry
 
     public MorphTypeKind? MorphType { get; set; }
 
+    public int HomographNumber { get; set; }
+
     public override ValueTask<Entry> NewEntity(Commit commit, IChangeContext context)
     {
         return new(new Entry
@@ -44,6 +47,7 @@ public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntry
             LiteralMeaning = LiteralMeaning ?? new(),
             Note = Note ?? new(),
             MorphType = MorphType ?? MiniLcm.Models.MorphTypeKind.Stem,
+            HomographNumber = HomographNumber,
         });
     }
 }

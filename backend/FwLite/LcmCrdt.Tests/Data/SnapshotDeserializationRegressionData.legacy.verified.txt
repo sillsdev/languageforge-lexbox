@@ -144,6 +144,7 @@
         "CitationForm": {},
         "LiteralMeaning": {},
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {},
         "Components": [],
@@ -230,6 +231,7 @@
           }
         },
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {
           "en": {
