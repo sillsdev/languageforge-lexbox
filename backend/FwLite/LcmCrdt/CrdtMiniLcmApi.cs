@@ -515,6 +515,10 @@ public class CrdtMiniLcmApi(
     {
         options ??= CreateEntryOptions.Everything;
         await using var repo = await repoFactory.CreateRepoAsync();
+        if (entry.HomographNumber == 0)
+        {
+            await AssignHomographNumber(entry, repo);
+        }
         await AddChanges([
             new CreateEntryChange(entry),
             ..await entry.Senses.ToAsyncEnumerable()
@@ -617,6 +621,54 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         return !await repo.Entries.AnyAsyncEF(e => e.Id == id);
+    }
+
+    /// <summary>
+    /// When creating a new entry whose HomographNumber is 0, find entries in the same
+    /// "homograph scope" (same headword + SecondaryOrder) and assign the next number.
+    /// If a lone existing entry has HomographNumber 0, promote it to 1.
+    /// </summary>
+    private async Task AssignHomographNumber(Entry entry, MiniLcmRepository repo)
+    {
+        var defaultVernacularWs = await repo.GetWritingSystem(new WritingSystemId("default"), WritingSystemType.Vernacular);
+        if (defaultVernacularWs is null) return;
+
+        var wsId = defaultVernacularWs.WsId;
+        var newHeadword = entry.Headword(wsId);
+        if (string.IsNullOrEmpty(newHeadword)) return;
+
+        // Single DB query: join MorphTypes for SecondaryOrder filtering (same pattern as Sorting.cs)
+        var morphTypes = repo.MorphTypes.ToLinqToDB();
+        var stemOrder = morphTypes.Where(m => m.Kind == MorphTypeKind.Stem).Select(m => m.SecondaryOrder);
+        var newSecondaryOrder = morphTypes
+            .Where(m => m.Kind == entry.MorphType)
+            .Select(m => (int?)m.SecondaryOrder).FirstOrDefault()
+            ?? stemOrder.FirstOrDefault();
+
+        var matchingEntries = await (
+            from e in repo.Entries
+            where e.Id != entry.Id && e.Headword(wsId) == newHeadword
+            let so = morphTypes.Where(m => m.Kind == e.MorphType)
+                .Select(m => (int?)m.SecondaryOrder).FirstOrDefault()
+                ?? stemOrder.FirstOrDefault()
+            where so == newSecondaryOrder
+            select new { e.Id, e.HomographNumber }
+        ).ToListAsyncLinqToDB();
+
+        if (matchingEntries.Count == 0) return;
+
+        var maxHomograph = matchingEntries.Max(e => e.HomographNumber);
+
+        // If there's exactly one existing entry with HomographNumber 0, update it to 1
+        if (matchingEntries.Count == 1 && matchingEntries[0].HomographNumber == 0)
+        {
+            var patchDoc = new SystemTextJsonPatch.JsonPatchDocument<Entry>();
+            patchDoc.Replace(e => e.HomographNumber, 1);
+            await AddChanges(patchDoc.ToChanges(matchingEntries[0].Id));
+            maxHomograph = 1;
+        }
+
+        entry.HomographNumber = maxHomograph + 1;
     }
 
     public async Task<Entry> UpdateEntry(Guid id,

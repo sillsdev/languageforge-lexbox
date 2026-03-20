@@ -15,7 +15,7 @@ public static class Sorting
                     entry.Headword(order.WritingSystem).CollateUnicode(order.WritingSystem),
                     morphTypes.Where(m => m.Kind == entry.MorphType)
                         .Select(m => (int?)m.SecondaryOrder).FirstOrDefault() ?? stemOrder.FirstOrDefault(),
-                    // entry.HomographNumber,
+                    entry.HomographNumber,
                     entry.Id
                 select entry;
         }
@@ -27,7 +27,7 @@ public static class Sorting
                     entry.Headword(order.WritingSystem).CollateUnicode(order.WritingSystem) descending,
                     (morphTypes.Where(m => m.Kind == entry.MorphType)
                         .Select(m => (int?)m.SecondaryOrder).FirstOrDefault() ?? stemOrder.FirstOrDefault()) descending,
-                    // entry.HomographNumber descending,
+                    entry.HomographNumber descending,
                     entry.Id descending
                 select entry;
         }
@@ -53,7 +53,7 @@ public static class Sorting
                     e.Headword(order.WritingSystem).Length,
                     e.Headword(order.WritingSystem),
                     mt != null ? mt.SecondaryOrder : stemOrder.FirstOrDefault(),
-                    // e.HomographNumber,
+                    e.HomographNumber,
                     e.Id
                 select e;
         }
@@ -69,7 +69,7 @@ public static class Sorting
                     e.Headword(order.WritingSystem).Length descending,
                     e.Headword(order.WritingSystem) descending,
                     (mt != null ? mt.SecondaryOrder : stemOrder.FirstOrDefault()) descending,
-                    // e.HomographNumber descending,
+                    e.HomographNumber descending,
                     e.Id descending
                 select e;
         }

@@ -132,6 +132,70 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateEntry_AutoAssignsHomographNumber_WhenDuplicateHeadword()
+    {
+        var entry1 = await Api.CreateEntry(new() { LexemeForm = { { "en", "homograph" } } });
+        entry1.HomographNumber.Should().Be(0, "single entry should have HomographNumber 0");
+
+        var entry2 = await Api.CreateEntry(new() { LexemeForm = { { "en", "homograph" } } });
+        entry2.HomographNumber.Should().Be(2, "second entry should get HomographNumber 2");
+
+        // Re-read entry1 to verify it was updated from 0 to 1
+        entry1 = await Api.GetEntry(entry1.Id) ?? throw new NullReferenceException();
+        entry1.HomographNumber.Should().Be(1, "first entry should be updated to HomographNumber 1");
+    }
+
+    [Fact]
+    public async Task CreateEntry_RespectsExplicitHomographNumber()
+    {
+        var entry1 = await Api.CreateEntry(new() { LexemeForm = { { "en", "explicit" } }, HomographNumber = 5 });
+        entry1.HomographNumber.Should().Be(5, "explicit HomographNumber should be preserved");
+    }
+
+    [Fact]
+    public async Task CreateEntry_DifferentSecondaryOrder_DoesNotShareHomographNumbers()
+    {
+        // Create MorphTypes with different SecondaryOrders
+        await Api.CreateMorphType(new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Root, Name = { ["en"] = "Root" }, SecondaryOrder = 1 });
+        await Api.CreateMorphType(new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.BoundRoot, Name = { ["en"] = "BoundRoot" }, SecondaryOrder = 2 });
+
+        var rootEntry = await Api.CreateEntry(new() { LexemeForm = { { "en", "morphtest" } }, MorphType = MorphTypeKind.Root });
+        rootEntry.HomographNumber.Should().Be(0, "lone Root entry should have HomographNumber 0");
+
+        var boundRootEntry = await Api.CreateEntry(new() { LexemeForm = { { "en", "morphtest" } }, MorphType = MorphTypeKind.BoundRoot });
+        boundRootEntry.HomographNumber.Should().Be(0, "BoundRoot with different SecondaryOrder should have HomographNumber 0");
+    }
+
+    [Fact]
+    public async Task CreateEntry_AutoAssignsHomographNumber_WithCitationForm()
+    {
+        var entry1 = await Api.CreateEntry(new() { LexemeForm = { { "en", "cfLexeme1" } }, CitationForm = { { "en", "cfHomograph" } } });
+        entry1.HomographNumber.Should().Be(0, "single entry should have HomographNumber 0");
+
+        var entry2 = await Api.CreateEntry(new() { LexemeForm = { { "en", "cfLexeme2" } }, CitationForm = { { "en", "cfHomograph" } } });
+        entry2.HomographNumber.Should().Be(2, "second entry with same CitationForm should get HomographNumber 2");
+
+        entry1 = await Api.GetEntry(entry1.Id) ?? throw new NullReferenceException();
+        entry1.HomographNumber.Should().Be(1, "first entry should be updated to HomographNumber 1");
+    }
+
+    [Fact]
+    public async Task CreateEntry_AutoAssignsHomographNumber_ThreeEntries()
+    {
+        var entry1 = await Api.CreateEntry(new() { LexemeForm = { { "en", "triple" } } });
+        entry1.HomographNumber.Should().Be(0);
+
+        var entry2 = await Api.CreateEntry(new() { LexemeForm = { { "en", "triple" } } });
+        entry2.HomographNumber.Should().Be(2);
+
+        var entry3 = await Api.CreateEntry(new() { LexemeForm = { { "en", "triple" } } });
+        entry3.HomographNumber.Should().Be(3, "third entry should get HomographNumber 3");
+
+        entry1 = await Api.GetEntry(entry1.Id) ?? throw new NullReferenceException();
+        entry1.HomographNumber.Should().Be(1, "first entry should remain HomographNumber 1");
+    }
+
+    [Fact]
     public async Task CanCreate_WithRichSpanTag()
     {
         var tag1 = Guid.NewGuid();

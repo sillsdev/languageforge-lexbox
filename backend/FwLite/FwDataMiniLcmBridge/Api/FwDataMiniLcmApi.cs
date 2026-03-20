@@ -660,6 +660,7 @@ public class FwDataMiniLcmApi(
                 CitationForm = FromLcmMultiString(entry.CitationForm),
                 LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
                 MorphType = LcmHelpers.FromLcmMorphType(entry.PrimaryMorphType), // TODO: Decide what to do about entries with *mixed* morph types
+                HomographNumber = entry.HomographNumber,
                 Senses = [.. entry.AllSenses.Select(FromLexSense)],
                 ComplexFormTypes = ToComplexFormTypes(entry),
                 Components = [.. ToComplexFormComponents(entry)],
@@ -1001,6 +1002,7 @@ public class FwDataMiniLcmApi(
                     UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
                     UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);
                     UpdateLcmMultiString(lexEntry.Comment, entry.Note);
+                    lexEntry.HomographNumber = entry.HomographNumber;
 
                     foreach (var sense in entry.Senses)
                     {
