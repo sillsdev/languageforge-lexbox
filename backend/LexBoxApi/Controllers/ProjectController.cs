@@ -164,6 +164,7 @@ public class ProjectController(
                 {
                     continue;
                 }
+                throw;
             }
         }
         return Ok(result);
