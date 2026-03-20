@@ -66,7 +66,7 @@ if [[ $command_name == "regexcount" ]]; then
         for i in "${!QUERY_PARAMS[@]}"; do
             IFS='=' read -ra KEYVALUE <<< "${QUERY_PARAMS[$i]}"
             key=${KEYVALUE[0]}
-            value=$(urldecode ${KEYVALUE[1]})
+            value=$(urldecode "${KEYVALUE[1]}")
             case $key in
                 excludeFileRegex)
                     excludeFileRegex="$value"
@@ -117,6 +117,8 @@ echo ""
 
 # First ensure NFS cache is refreshed in case project repo changed in another pod (e.g., project reset)
 ls /var/hg/repos/$first_char/$project_code/.hg >/dev/null 2>/dev/null  # Don't need output; this is enough to refresh NFS dir cache
+# If running invalidatedircache then that's all we need, so exit without running any hg commands
+[ "x$command_name" = "xinvalidatedircache" ] && exit 0
 # Now run the hg command, simply outputting to stdout
 cd /var/hg/repos/$first_char/$project_code
 case $command_name in
