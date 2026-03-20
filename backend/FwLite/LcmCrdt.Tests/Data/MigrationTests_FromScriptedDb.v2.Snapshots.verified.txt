@@ -101,6 +101,7 @@
           }
         },
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {},
         "Components": [],
@@ -145,6 +146,7 @@
           }
         },
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {},
         "Components": [],
@@ -190,6 +192,7 @@
           }
         },
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {},
         "Components": [],
@@ -235,6 +238,7 @@
           }
         },
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {},
         "Components": [],
@@ -296,6 +300,7 @@
           }
         },
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {},
         "Components": [],
@@ -357,6 +362,7 @@
           }
         },
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {
           "en": {
@@ -417,6 +423,7 @@
           }
         },
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {},
         "Components": [],
@@ -460,6 +467,7 @@
           }
         },
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {},
         "Components": [],
@@ -503,6 +511,7 @@
           }
         },
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {},
         "Components": [],

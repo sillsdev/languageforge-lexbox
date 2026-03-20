@@ -74,6 +74,7 @@
       "CitationForm": {},
       "LiteralMeaning": {},
       "MorphType": "Stem",
+      "HomographNumber": 0,
       "Senses": [],
       "Note": {},
       "Components": [],
@@ -123,6 +124,7 @@
         }
       },
       "MorphType": "Particle",
+      "HomographNumber": 0,
       "Senses": [],
       "Note": {
         "ekl": {
@@ -220,6 +222,7 @@
         }
       },
       "MorphType": "Stem",
+      "HomographNumber": 0,
       "Senses": [],
       "Note": {
         "en": {
@@ -314,6 +317,7 @@
         }
       },
       "MorphType": "BoundStem",
+      "HomographNumber": 0,
       "Senses": [],
       "Note": {
         "rkw": {
@@ -409,6 +413,29 @@
       ]
     },
     "Id": "8dbc0f41-998e-836a-97e1-f05d46d95c92",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Entry",
+      "Id": "249c38f3-fc0d-195f-7533-97e8c140d0d7",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "kvj": "Florida"
+      },
+      "CitationForm": null,
+      "LiteralMeaning": null,
+      "MorphType": "Prefix",
+      "HomographNumber": 4,
+      "Senses": [],
+      "Note": null,
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": []
+    },
+    "Id": "249c38f3-fc0d-195f-7533-97e8c140d0d7",
     "DeletedAt": null
   },
   {

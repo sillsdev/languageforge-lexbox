@@ -11,6 +11,7 @@ public record Entry : IObjectWithId<Entry>
 
     public virtual RichMultiString LiteralMeaning { get; set; } = new();
     public virtual MorphTypeKind MorphType { get; set; } = MorphTypeKind.Stem;
+    public virtual int HomographNumber { get; set; }
     public virtual List<Sense> Senses { get; set; } = [];
 
     public virtual RichMultiString Note { get; set; } = new();
@@ -53,6 +54,7 @@ public record Entry : IObjectWithId<Entry>
             LiteralMeaning = LiteralMeaning.Copy(),
             Note = Note.Copy(),
             MorphType = MorphType,
+            HomographNumber = HomographNumber,
             Senses = [..Senses.Select(s => s.Copy())],
             Components =
             [

@@ -493,8 +493,29 @@ public class CrdtMiniLcmApi(
     {
         options ??= CreateEntryOptions.Everything;
         await using var repo = await repoFactory.CreateRepoAsync();
+
+        // This is our primitive logic for now:
+        // If 0, we assume the caller did not specify a number, so we're responsible
+        // for keeping homograph numbers accurate.
+        // That's it.
+        // There are other scenarios that we're NOT handling correctly for now:
+        // Deletes, headword changes, non 0's for inserted entries coming from fwdata etc.
+        // These will be automatically corrected after 2 fw-headless syncs.
+        IChange? homographPromotionChange = null;
+        if (entry.HomographNumber == 0)
+        {
+            var resolution = await HomographResolver.ResolveForNewEntry(entry, repo);
+            entry.HomographNumber = resolution.NewEntryNumber;
+            if (resolution.Promotion is { } promotion)
+            {
+                var patchDoc = new SystemTextJsonPatch.JsonPatchDocument<Entry>();
+                patchDoc.Replace(e => e.HomographNumber, promotion.NewNumber);
+                homographPromotionChange = patchDoc.ToChanges(promotion.EntryId).Single();
+            }
+        }
         await AddChanges([
             new CreateEntryChange(entry),
+            ..homographPromotionChange is null ? [] : new[] { homographPromotionChange },
             ..await entry.Senses.ToAsyncEnumerable()
                 .SelectMany((s, i) =>
                 {

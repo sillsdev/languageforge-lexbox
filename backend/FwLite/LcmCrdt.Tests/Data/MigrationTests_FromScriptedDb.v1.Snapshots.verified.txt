@@ -71,6 +71,7 @@
           }
         },
         "MorphType": "Stem",
+        "HomographNumber": 0,
         "Senses": [],
         "Note": {},
         "Components": [],
