@@ -39,20 +39,6 @@ if [[ $command_name == "healthz" ]]; then
     exit 0
 fi
 
-if [[ $command_name == "ldmlzip" ]]; then
-    # Preflight check: ldml zip access is only allowed if LexiconSettings.plsx contains addToSldr="true"
-    first_char=$(echo $project_code | cut -c1)
-    if (chg --cwd /var/hg/repos/$first_char/$project_code cat -r tip CachedSettings/SharedSettings/LexiconSettings.plsx | grep '<WritingSystems' | grep 'addToSldr="true"' >/dev/null); then
-        CONTENT_TYPE="application/zip"
-    else
-        echo "Content-type: text/plain"
-        echo "Status: 403 Forbidden"
-        echo ""
-        echo "Forbidden. Project does not allow sharing writing systems with SLDR or project does not exist"
-        exit 1
-    fi
-fi
-
 if [[ $command_name == "regexcount" ]]; then
     # Preflight check for valid parameters
     urldecode() {
@@ -108,6 +94,20 @@ if [[ ! -d "/var/hg/repos/$first_char/$project_code" ]]; then
     echo ""
     echo "Project $project_code not found."
     exit 1
+fi
+
+if [[ $command_name == "ldmlzip" ]]; then
+    # Preflight check: ldml zip access is only allowed if LexiconSettings.plsx contains addToSldr="true"
+    first_char=$(echo $project_code | cut -c1)
+    if (chg --cwd /var/hg/repos/$first_char/$project_code cat -r tip CachedSettings/SharedSettings/LexiconSettings.plsx | grep '<WritingSystems' | grep 'addToSldr="true"' >/dev/null); then
+        CONTENT_TYPE="application/zip"
+    else
+        echo "Content-type: text/plain"
+        echo "Status: 403 Forbidden"
+        echo ""
+        echo "Forbidden. Project does not allow sharing writing systems with SLDR or project was not a FLEx project"
+        exit 1
+    fi
 fi
 
 CONTENT_TYPE="${CONTENT_TYPE:-text/plain}"
