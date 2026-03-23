@@ -6,6 +6,7 @@ import {ViewBase} from '$lib/dotnet-types';
 import type {CustomView} from './view-data';
 import type {CustomViewService} from '$project/data/custom-view-service.svelte';
 import type {FieldId} from './entity-config';
+import type {ProjectStorage} from '$lib/storage';
 
 // -- Pure utility tests --
 
@@ -76,9 +77,15 @@ class MockCustomViewService {
   }
 }
 
+const mockProjectStorage = {
+  currentView: {
+    current: undefined,
+  }
+} as unknown as ProjectStorage;
+
 function createViewService(customViews: CustomView[] = []): {service: ViewService, mockCustomViewService: MockCustomViewService} {
   const mockCustomViewService = new MockCustomViewService(customViews);
-  return {service: new ViewService(mockCustomViewService as unknown as CustomViewService, {persist: false}), mockCustomViewService};
+  return {service: new ViewService(mockCustomViewService as unknown as CustomViewService, mockProjectStorage, {persist: false}), mockCustomViewService};
 }
 
 describe('ViewService', () => {
