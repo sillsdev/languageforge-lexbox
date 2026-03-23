@@ -68,9 +68,6 @@ public class SnapshotAtCommitService(
             {
                 try
                 {
-                    // Clear only the fork connection pool, not all pools.
-                    // ClearAllPools() would destroy connections to other databases
-                    // (including in-memory test databases).
                     using var clearConn = new SqliteConnection($"Data Source={forkDbPath}");
                     SqliteConnection.ClearPool(clearConn);
                     File.Delete(forkDbPath);
