@@ -40,6 +40,7 @@ import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShare
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
+import {initProjectStorage} from '$lib/storage';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -105,6 +106,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const eventBus = useEventBus();
     const inMemoryLexboxApi = new InMemoryDemoApi(projectContext, eventBus);
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
+    initProjectStorage(projectContext.projectCode);
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
