@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
@@ -1604,21 +1604,13 @@
           "FieldId": "Division"
         }
       ],
-      "ExampleFields": [
-        {
-          "FieldId": "card"
-        }
-      ],
+      "ExampleFields": [],
       "Vernacular": [
         {
           "WsId": "kup"
         }
       ],
-      "Analysis": [
-        {
-          "WsId": "pas"
-        }
-      ]
+      "Analysis": null
     },
     "Id": "72bcb2dd-4d73-486c-d5df-e5d7b9a6a3eb",
     "DeletedAt": null

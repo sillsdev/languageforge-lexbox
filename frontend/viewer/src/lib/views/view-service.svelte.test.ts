@@ -58,7 +58,7 @@ describe('isCustomView', () => {
     expect(isCustomView(FW_CLASSIC_VIEW)).toBe(false);
   });
 
-  it('returns true when the view has a custom property', () => {
+  it('returns true when the view is marked as custom', () => {
     const custom: View = {
       ...FW_LITE_VIEW,
       id: 'custom-1',
@@ -144,12 +144,23 @@ describe('ViewService', () => {
   });
 
   it('rootView reflects the base of the current view', () => {
-    const {service} = createViewService();
+    const custom: CustomView = {
+      ...FW_LITE_VIEW,
+      id: 'custom-1',
+      name: 'My Custom View',
+      custom: true,
+    };
+    const {service} = createViewService([custom]);
+
     service.selectView(ViewBase.FwLite);
     expect(service.rootView.id).toBe(ViewBase.FwLite);
 
     service.selectView(ViewBase.FieldWorks);
     expect(service.rootView.id).toBe(ViewBase.FieldWorks);
+
+    service.selectView('custom-1');
+    expect(service.rootView.id).toBe(ViewBase.FwLite);
+
   });
 
   it('deleting the currently selected custom view reverts to the first built-in view', () => {

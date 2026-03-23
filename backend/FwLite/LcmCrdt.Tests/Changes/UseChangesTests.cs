@@ -266,9 +266,9 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
             Name = "Test View",
             Base = ViewBase.FwLite,
             EntryFields = [new ViewField { FieldId = "lexemeForm" }],
-            SenseFields = [new ViewField { FieldId = "gloss" }],
+            SenseFields = [],
             ExampleFields = [new ViewField { FieldId = "sentence" }],
-            Vernacular = [new ViewWritingSystem { WsId = "en" }],
+            Vernacular = null,
             Analysis = [new ViewWritingSystem { WsId = "en" }],
         };
         var createCustomViewChange = new CreateCustomViewChange(
@@ -284,9 +284,9 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
                 Base = ViewBase.FieldWorks,
                 EntryFields = [new ViewField { FieldId = "citationForm" }],
                 SenseFields = [new ViewField { FieldId = "definition" }],
-                ExampleFields = [new ViewField { FieldId = "translations" }],
+                ExampleFields = [],
                 Vernacular = [new ViewWritingSystem { WsId = "fr" }],
-                Analysis = [new ViewWritingSystem { WsId = "en" }]
+                Analysis = null
             });
         yield return new ChangeWithDependencies(editCustomViewChange, [createCustomViewChange]);
     }

@@ -62,6 +62,6 @@
   {/each}
 </RadioGroup.Root>
 
-<div class="mt-1">
+<div class="not-empty:mt-1">
   <ManageCustomViewsButton {onClose} />
 </div>

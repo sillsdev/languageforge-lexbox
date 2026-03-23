@@ -27,6 +27,9 @@
   let editValue = $state<CustomView | undefined>(undefined);
 
   const subDialogOpen = $derived(createOpen || editOpen);
+  // We close the "manage" dialog if a "sub" dialog is open, because
+  // the sub dialog appears behind the "manage" drawer on mobile.
+  // We also happen to get more elegant animations this way.
   const manageOpen = $derived(open && !subDialogOpen);
 
   function openEdit(view: CustomView) {

@@ -1,6 +1,6 @@
+import type {IViewField, IViewWritingSystem} from '$lib/dotnet-types';
 import {describe, expect, it} from 'vitest';
 
-import type {IViewField, IViewWritingSystem} from '$lib/dotnet-types';
 import {validateForm} from './validation';
 
 const baseParams = {
@@ -21,7 +21,7 @@ describe('validateForm', () => {
     expect(result).toBe('Name is required');
   });
 
-  it('returns error when neither lexemeForm nor citationForm is present', () => {
+  it('returns error when neither lexemeForm nor citationForm is selected', () => {
     const result = validateForm({
       ...baseParams,
       entryFields: [
@@ -34,7 +34,17 @@ describe('validateForm', () => {
     });
   });
 
-  it('passes when only citationForm is present', () => {
+  it('passes when only lexemeForm is selected', () => {
+    const result = validateForm({
+      ...baseParams,
+      entryFields: [
+        {fieldId: 'lexemeForm'},
+      ],
+    });
+    expect(result).toBeUndefined();
+  });
+
+  it('passes when only citationForm is selected', () => {
     const result = validateForm({
       ...baseParams,
       entryFields: [
@@ -61,6 +71,16 @@ describe('validateForm', () => {
   it('returns error for custom analysis with no selected items', () => {
     const result = validateForm({...baseParams, analysis: []});
     expect(result).toBe('Select at least one analysis writing system');
+  });
+
+  it('allows vernacular to be undefined', () => {
+    const result = validateForm({...baseParams, vernacular: undefined});
+    expect(result).toBeUndefined();
+  });
+
+  it('allows analysis to be undefined', () => {
+    const result = validateForm({...baseParams, analysis: undefined});
+    expect(result).toBeUndefined();
   });
 
   it('returns undefined for valid input', () => {

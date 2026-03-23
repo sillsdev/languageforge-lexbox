@@ -713,21 +713,13 @@
         "FieldId": "SMS"
       }
     ],
-    "ExampleFields": [
-      {
-        "FieldId": "Nebraska"
-      }
-    ],
+    "ExampleFields": [],
     "Vernacular": [
       {
         "WsId": "txq"
       }
     ],
-    "Analysis": [
-      {
-        "WsId": "sja"
-      }
-    ],
+    "Analysis": null,
     "EntityId": "935d8100-6254-f587-c712-65469362105f"
   },
   {
@@ -744,21 +736,13 @@
         "FieldId": "Auto Loan Account"
       }
     ],
-    "ExampleFields": [
-      {
-        "FieldId": "SMTP"
-      }
-    ],
+    "ExampleFields": [],
     "Vernacular": [
       {
         "WsId": "nrk"
       }
     ],
-    "Analysis": [
-      {
-        "WsId": "zoh"
-      }
-    ],
+    "Analysis": null,
     "EntityId": "99082da6-745e-9aaa-5231-3b83bd84e0e7"
   },
   {

@@ -1,5 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
-using MiniLcm.Models;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
@@ -8,6 +8,7 @@ namespace LcmCrdt.Changes;
 
 public class EditCustomViewChange : EditChange<CustomView>, ISelfNamedType<EditCustomViewChange>
 {
+    [SetsRequiredMembers]
     public EditCustomViewChange(Guid entityId, CustomView customView) : base(entityId)
     {
         Name = customView.Name;
@@ -24,11 +25,11 @@ public class EditCustomViewChange : EditChange<CustomView>, ISelfNamedType<EditC
     {
     }
 
-    public string Name { get; set; } = string.Empty;
-    public ViewBase Base { get; set; }
-    public ViewField[] EntryFields { get; set; } = [];
-    public ViewField[] SenseFields { get; set; } = [];
-    public ViewField[] ExampleFields { get; set; } = [];
+    public required string Name { get; set; }
+    public required ViewBase Base { get; set; }
+    public required ViewField[] EntryFields { get; set; }
+    public required ViewField[] SenseFields { get; set; }
+    public required ViewField[] ExampleFields { get; set; }
     public ViewWritingSystem[]? Vernacular { get; set; }
     public ViewWritingSystem[]? Analysis { get; set; }
 

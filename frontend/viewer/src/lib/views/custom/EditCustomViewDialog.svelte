@@ -29,7 +29,7 @@
     </Dialog.Header>
     <CustomViewForm
       {value}
-      submitLabel={$t`Save Changes`}
+      submitLabel={$t`Save View`}
       onSubmit={handleSave}
       onCancel={handleCancel}
     />

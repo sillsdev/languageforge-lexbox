@@ -41,9 +41,7 @@
   <div class="pb-1 md:pb-3 text-xs font-medium text-muted-foreground">
     {pt($tvt(entity.$label), baseView)}
   </div>
-  <!-- TODO: Reordering disabled — builtin order is used. If view-level field ordering is
-       desired, an explicit flag should be introduced on the view. The drag-handle and
-       Reorderer code has been removed; see git history for the previous implementation. -->
+  <!-- If view-level field ordering is desired, an explicit flag should be introduced on the view. -->
   <Checkbox.Group>
     {#each fieldIds as fieldId (fieldId)}
       {@const checkboxId = `field-${entityType}-${fieldId as string}`}

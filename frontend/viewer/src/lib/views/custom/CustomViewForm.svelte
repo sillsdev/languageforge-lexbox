@@ -17,14 +17,14 @@
 
   interface Props {
     value?: CustomView | null;
-    submitLabel?: string;
+    submitLabel: string;
     onSubmit: (result: CustomView) => void | Promise<void>;
     onCancel: () => void;
   }
 
   const viewService = useViewService();
 
-  let {value: editingValue, submitLabel = $t`Save`, onSubmit, onCancel}: Props = $props();
+  let {value: editingValue, submitLabel, onSubmit, onCancel}: Props = $props();
 
   // svelte-ignore state_referenced_locally
   let fieldSelectionDirty = $state(!!editingValue);
@@ -44,7 +44,6 @@
   let saving = $state(false);
   let error = $state<string | undefined>(undefined);
 
-  // When base view changes, update default fields (unless user has customized them)
   watch(
     () => value?.base,
     () => {
