@@ -1,5 +1,5 @@
-import type {ResourceReturn} from 'runed';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
+import type {ResourceReturn} from 'runed';
 
 /**
  * Like runed's `resource`, but uses Promise + $state instead of $effect,
@@ -21,19 +21,13 @@ export class DetachedResource<T> implements ResourceReturn<T, unknown, true> {
     this.#factory = factory;
     this.#getApi = getApi;
     if (options?.eager) {
-      this.#active = true;
-      const api = this.#getApi();
-      if (api) queueMicrotask(() => void this.#fetch(api));
+      this.#activate();
     }
   }
 
   get current(): T {
     if (!this.#active) {
-      this.#active = true;
-      if (this.#getApi()) queueMicrotask(() => {
-        const api = this.#getApi();
-        if (api) void this.#fetch(api);
-      });
+      this.#activate();
     }
     return this.#current;
   }
@@ -59,6 +53,16 @@ export class DetachedResource<T> implements ResourceReturn<T, unknown, true> {
 
   onApiChange(api: IMiniLcmJsInvokable) {
     if (this.#active) void this.#fetch(api);
+  }
+
+  #activate() {
+    this.#active = true;
+    // #fetch write to $state, which we might not be
+    // allowed to do in the current context
+    queueMicrotask(() => {
+      const api = this.#getApi();
+      if (api) void this.#fetch(api);
+    });
   }
 
   async #fetch(api: IMiniLcmJsInvokable): Promise<T> {
