@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "tipdate" "ldmlzip" "reposizeinkb" "wesaylexentrycount" "lexentrycount" "flexprojectid" "flexwritingsystems" "flexmodelversion" "recover" "healthz" "invalidatedircache")
+allowed_commands=("verify" "tip" "tipdate" "ldmlzip" "reposizeinkb" "wesaylexentrycount" "lexentrycount" "regexcount" "flexprojectid" "flexwritingsystems" "flexmodelversion" "recover" "healthz" "invalidatedircache")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
 project_code="${PATH_SEGMENTS[1]}"
 command_name="${PATH_SEGMENTS[2]}"
+
 
 # Ensure the project code and command name are safe to use in a shell command
 if [[ ! "$project_code" =~ ^[a-z0-9][a-z0-9-]*$ ]] || [[ ! "$command_name" =~ ^[a-zA-Z0-9]+$ ]]; then
@@ -38,6 +39,63 @@ if [[ $command_name == "healthz" ]]; then
     exit 0
 fi
 
+if [[ $command_name == "regexcount" ]]; then
+    # Preflight check for valid parameters
+    urldecode() {
+        local with_spaces="${1//+/ }"
+        printf '%b' "${with_spaces//%/\\x}"
+    }
+
+    # Get the query string from the URL
+    IFS='&' read -ra QUERY_PARAMS <<< "$QUERY_STRING"
+    if [[ ${#QUERY_PARAMS[@]} -gt 0 ]]; then
+        for i in "${!QUERY_PARAMS[@]}"; do
+            IFS='=' read -ra KEYVALUE <<< "${QUERY_PARAMS[$i]}"
+            key=${KEYVALUE[0]}
+            value=$(urldecode "${KEYVALUE[1]}")
+            case $key in
+                excludeFileRegex)
+                    excludeFileRegex="$value"
+                    ;;
+                includeFileRegex)
+                    includeFileRegex="$value"
+                    ;;
+                matchCountRegex)
+                    matchCountRegex="$value"
+                    ;;
+            esac
+        done
+    fi
+
+    # excludeFileRegex is optional, others required
+    if [[ -z "$includeFileRegex" || -z "$matchCountRegex" ]]; then
+        echo "Content-type: text/plain"
+        echo "Status: 400 Bad Request"
+        echo ""
+        echo "regexcount command did not receive sufficient parameters"
+        if [[ -z "$includeFileRegex" ]]; then
+            echo "includeFileRegex parameter (required) was missing"
+        fi
+        if [[ -z "$matchCountRegex" ]]; then
+            echo "matchCountRegex parameter (required) was missing"
+        fi
+        if [[ -z "$excludeFileRegex" ]]; then
+            echo "excludeFileRegex parameter (optional) was also missing (not an error)"
+        fi
+        exit 1
+    fi
+fi
+
+# Pre-flight check: return 404 if project not found at all
+first_char=$(echo $project_code | cut -c1)
+if [[ ! -d "/var/hg/repos/$first_char/$project_code" ]]; then
+    echo "Content-type: text/plain"
+    echo "Status: 404 Not Found"
+    echo ""
+    echo "Project $project_code not found."
+    exit 1
+fi
+
 if [[ $command_name == "ldmlzip" ]]; then
     # Preflight check: ldml zip access is only allowed if LexiconSettings.plsx contains addToSldr="true"
     first_char=$(echo $project_code | cut -c1)
@@ -47,7 +105,7 @@ if [[ $command_name == "ldmlzip" ]]; then
         echo "Content-type: text/plain"
         echo "Status: 403 Forbidden"
         echo ""
-        echo "Forbidden. Project does not allow sharing writing systems with SLDR or project does not exist"
+        echo "Forbidden. Project does not allow sharing writing systems with SLDR or project was not a FLEx project"
         exit 1
     fi
 fi
@@ -57,12 +115,11 @@ CONTENT_TYPE="${CONTENT_TYPE:-text/plain}"
 echo "Content-type: ${CONTENT_TYPE}"
 echo ""
 
-# Run the hg command, simply output to stdout
-first_char=$(echo $project_code | cut -c1)
-# Ensure NFS cache is refreshed in case project repo changed in another pod (e.g., project reset)
+# First ensure NFS cache is refreshed in case project repo changed in another pod (e.g., project reset)
 ls /var/hg/repos/$first_char/$project_code/.hg >/dev/null 2>/dev/null  # Don't need output; this is enough to refresh NFS dir cache
-# Sometimes invalidatedircache is called after deleting a project, so the cd would fail. So exit fast in that case.
+# If running invalidatedircache then that's all we need, so exit without running any hg commands
 [ "x$command_name" = "xinvalidatedircache" ] && exit 0
+# Now run the hg command, simply outputting to stdout
 cd /var/hg/repos/$first_char/$project_code
 case $command_name in
 
@@ -76,6 +133,14 @@ case $command_name in
         LIFTFILE=$(chg manifest -r tip | grep '\.lift$' | head -n 1)
         # The \b for word boundary is not necessary for .lift files
         [ -n "${LIFTFILE}" ] && (chg cat -r tip "${LIFTFILE}" | grep -c '<entry') || echo 0
+        ;;
+
+    regexcount)
+        if [[ -z "$excludeFileRegex" ]]; then
+            chg cat -r tip --include="re:$includeFileRegex" 'glob:**' | grep -o -P "$matchCountRegex" | wc -l
+        else
+            chg cat -r tip --include="re:$includeFileRegex" --exclude="re:$excludeFileRegex" 'glob:**' | grep -o -P "$matchCountRegex" | wc -l
+        fi
         ;;
 
     flexprojectid)

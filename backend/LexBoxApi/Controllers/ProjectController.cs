@@ -129,6 +129,47 @@ public class ProjectController(
         return result;
     }
 
+    [HttpGet("countProjectMatches")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [AdminRequired]
+    public async Task<ActionResult<Dictionary<string, int>>> CountProjectMatches(
+        CancellationToken token,
+        [FromQuery] ProjectType projectType,
+        [FromQuery] string includeFileRegex,
+        [FromQuery] string matchCountRegex,
+        [FromQuery] string? excludeFileRegex)
+    {
+        var projectCodes = await lexBoxDbContext.Projects
+            .Where(p => p.Type == projectType)
+            .OrderBy(p => p.Code)
+            .Select(p => p.Code)
+            .ToArrayAsync();
+        Dictionary<string, int> result = [];
+        foreach (var projectCode in projectCodes)
+        {
+            try
+            {
+                var regexCount = await hgService.CountProjectMatches(projectCode, includeFileRegex, matchCountRegex, excludeFileRegex, token);
+                result.Add(projectCode, regexCount ?? 0);
+            }
+            catch (HttpRequestException e)
+            {
+                if (e.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    return BadRequest(e.Message);
+                }
+                // It's possible a project was deleted in between building the code list and running the command; just skip the missing one
+                if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    continue;
+                }
+                throw;
+            }
+        }
+        return Ok(result);
+    }
+
     [HttpGet("backupProject/{code}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [AdminRequired]
