@@ -178,6 +178,8 @@ msgstr "Thêm Ý nghĩa (sense)"
 msgid "Add Word"
 msgstr "Thêm Từ"
 
+#. Radio option in custom view writing system picker.
+#. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr ""
@@ -189,6 +191,8 @@ msgstr ""
 msgid "an entry"
 msgstr "một mục"
 
+#. Section heading in custom view writing system picker.
+#. Labels the analysis language writing systems (e.g., English definitions/glosses).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr ""
@@ -268,10 +272,14 @@ msgstr "Tự động"
 msgid "Auto syncing"
 msgstr "Đang đồng bộ tự động"
 
+#. Section label in custom view form.
+#. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Based on"
 msgstr ""
 
+#. Subtitle under each custom view in the manage dialog.
+#. {0} = name of the base view preset (e.g., "FieldWorks Lite" or "FieldWorks Classic").
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Based on {0}"
 msgstr ""
@@ -424,6 +432,7 @@ msgstr "Đã sao chép vào khay nhớ tạm"
 msgid "Copy version"
 msgstr "Sao chép phiên bản"
 
+#. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
 msgstr ""
@@ -445,6 +454,7 @@ msgstr "Tạo mục"
 msgid "Create Example Project"
 msgstr "Tạo Dự án ví dụ"
 
+#. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
 msgstr ""
@@ -470,10 +480,13 @@ msgstr "Phiên bản hiện tại"
 msgid "Current Word"
 msgstr "Từ hiện tại"
 
+#. Radio option in custom view writing system picker.
+#. Enables manual selection of individual writing systems.
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Custom"
 msgstr ""
 
+#. Label used in delete confirmation prompt for a custom view.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr ""
@@ -629,6 +642,7 @@ msgstr "Đang tải xuống {0}..."
 msgid "Downloading..."
 msgstr "Đang tải xuống..."
 
+#. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr ""
@@ -765,6 +779,8 @@ msgstr "Phản hồi & Hỗ trợ"
 msgid "Field"
 msgstr "Trường"
 
+#. Section label in custom view form.
+#. Shows checkboxes to select which dictionary fields are visible (grouped by entry, sense, example).
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Fields"
 msgstr ""
@@ -1094,10 +1110,13 @@ msgstr "Gợi ý"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Hãy đảm bảo [các thay đổi của bạn đã được đồng bộ]({0}) với Lexbox."
 
+#. Button label in view picker; opens the manage custom views dialog.
+#. Only visible to project managers.
 #: src/lib/views/custom/ManageCustomViewsButton.svelte
 msgid "Manage custom views"
 msgstr ""
 
+#. Dialog title for managing all custom views (create, edit, delete).
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Manage Custom Views"
 msgstr ""
@@ -1152,14 +1171,17 @@ msgstr "Chế độ"
 msgid "Move"
 msgstr "Di chuyển"
 
+#. Placeholder text in the name input of the custom view form.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "My custom view..."
 msgstr ""
 
+#. Field label for the custom view name input.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr ""
 
+#. Validation error shown when the custom view name is empty.
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr ""
@@ -1174,6 +1196,7 @@ msgstr "Không bao giờ"
 msgid "New"
 msgstr "Mới"
 
+#. Button label in the manage custom views dialog; opens the create form.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "New Custom View"
 msgstr ""
@@ -1212,6 +1235,7 @@ msgstr "Không tìm thấy hoạt động"
 msgid "No audio"
 msgstr "Không có âm thanh"
 
+#. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
 msgstr ""
@@ -1443,10 +1467,16 @@ msgstr "Tên dự án..."
 msgid "Publication"
 msgstr "Phát hành"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Publish Word in"
+#. Field label: selects which publications an entry appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Entry in"
 msgstr ""
 
+#. Relevant view: Lite
+#. Classic view equivalent: "Publish Entry in"
+#. Field label: selects which publications a word appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
 msgstr ""
@@ -1515,10 +1545,6 @@ msgstr "Xem lại"
 msgid "rose"
 msgstr "hoa hồng"
 
-#: src/lib/views/custom/CustomViewForm.svelte
-msgid "Save"
-msgstr ""
-
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1529,8 +1555,9 @@ msgstr "Lưu thành"
 msgid "Save audio"
 msgstr "Lưu âm thanh"
 
+#. Submit button in the edit custom view dialog.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
-msgid "Save Changes"
+msgid "Save View"
 msgstr ""
 
 #. Search placeholder
@@ -1558,10 +1585,12 @@ msgstr "Chọn {0} để xem chi tiết"
 msgid "Select a new task to work on"
 msgstr "Chọn nhiệm vụ mới để thực hiện"
 
+#. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
 msgstr ""
 
+#. Validation error when no vernacular writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one vernacular writing system"
 msgstr ""
@@ -1969,6 +1998,8 @@ msgstr "Cập nhật"
 msgid "Uses components as"
 msgstr "Sử dụng các thành phần như"
 
+#. Section heading in custom view writing system picker.
+#. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr ""
@@ -2039,6 +2070,8 @@ msgstr "Hệ chữ"
 msgid "Writing system: {0}"
 msgstr "Hệ chữ: {0}"
 
+#. Section label in custom view form.
+#. Configures which vernacular and analysis writing systems are shown.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Writing systems"
 msgstr ""

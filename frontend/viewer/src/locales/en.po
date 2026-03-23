@@ -173,6 +173,8 @@ msgstr "Add Sense"
 msgid "Add Word"
 msgstr "Add Word"
 
+#. Radio option in custom view writing system picker.
+#. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "All"
@@ -184,6 +186,8 @@ msgstr "All"
 msgid "an entry"
 msgstr "an entry"
 
+#. Section heading in custom view writing system picker.
+#. Labels the analysis language writing systems (e.g., English definitions/glosses).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr "Analysis"
@@ -263,10 +267,14 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Auto syncing"
 
+#. Section label in custom view form.
+#. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Based on"
 msgstr "Based on"
 
+#. Subtitle under each custom view in the manage dialog.
+#. {0} = name of the base view preset (e.g., "FieldWorks Lite" or "FieldWorks Classic").
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Based on {0}"
 msgstr "Based on {0}"
@@ -419,6 +427,7 @@ msgstr "Copied to clipboard"
 msgid "Copy version"
 msgstr "Copy version"
 
+#. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
 msgstr "Create Custom View"
@@ -440,6 +449,7 @@ msgstr "Create Entry"
 msgid "Create Example Project"
 msgstr "Create Example Project"
 
+#. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
 msgstr "Create View"
@@ -465,10 +475,13 @@ msgstr "Current version"
 msgid "Current Word"
 msgstr "Current Word"
 
+#. Radio option in custom view writing system picker.
+#. Enables manual selection of individual writing systems.
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Custom"
 msgstr "Custom"
 
+#. Label used in delete confirmation prompt for a custom view.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr "Custom view"
@@ -624,6 +637,7 @@ msgstr "Downloading {0}..."
 msgid "Downloading..."
 msgstr "Downloading..."
 
+#. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Edit Custom View"
@@ -760,6 +774,8 @@ msgstr "Feedback & Support"
 msgid "Field"
 msgstr "Field"
 
+#. Section label in custom view form.
+#. Shows checkboxes to select which dictionary fields are visible (grouped by entry, sense, example).
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Fields"
 msgstr "Fields"
@@ -1089,10 +1105,13 @@ msgstr "Make a suggestion"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Make sure your [changes are synced]({0}) to Lexbox."
 
+#. Button label in view picker; opens the manage custom views dialog.
+#. Only visible to project managers.
 #: src/lib/views/custom/ManageCustomViewsButton.svelte
 msgid "Manage custom views"
 msgstr "Manage custom views"
 
+#. Dialog title for managing all custom views (create, edit, delete).
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Manage Custom Views"
 msgstr "Manage Custom Views"
@@ -1147,14 +1166,17 @@ msgstr "Mode"
 msgid "Move"
 msgstr "Move"
 
+#. Placeholder text in the name input of the custom view form.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "My custom view..."
 msgstr "My custom view..."
 
+#. Field label for the custom view name input.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Name"
 
+#. Validation error shown when the custom view name is empty.
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Name is required"
@@ -1169,6 +1191,7 @@ msgstr "Never"
 msgid "New"
 msgstr "New"
 
+#. Button label in the manage custom views dialog; opens the create form.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "New Custom View"
 msgstr "New Custom View"
@@ -1207,6 +1230,7 @@ msgstr "No activity found"
 msgid "No audio"
 msgstr "No audio"
 
+#. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
 msgstr "No custom views yet."
@@ -1438,10 +1462,16 @@ msgstr "Project name..."
 msgid "Publication"
 msgstr "Publication"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Publish Word in"
+#. Field label: selects which publications an entry appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Entry in"
 msgstr "Publish Entry in"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "Publish Entry in"
+#. Field label: selects which publications a word appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
 msgstr "Publish Word in"
@@ -1510,10 +1540,6 @@ msgstr "Review"
 msgid "rose"
 msgstr "rose"
 
-#: src/lib/views/custom/CustomViewForm.svelte
-msgid "Save"
-msgstr "Save"
-
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1524,9 +1550,10 @@ msgstr "Save As"
 msgid "Save audio"
 msgstr "Save audio"
 
+#. Submit button in the edit custom view dialog.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
-msgid "Save Changes"
-msgstr "Save Changes"
+msgid "Save View"
+msgstr "Save View"
 
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1553,10 +1580,12 @@ msgstr "Select {0} to view details"
 msgid "Select a new task to work on"
 msgstr "Select a new task to work on"
 
+#. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
 msgstr "Select at least one analysis writing system"
 
+#. Validation error when no vernacular writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one vernacular writing system"
 msgstr "Select at least one vernacular writing system"
@@ -1964,6 +1993,8 @@ msgstr "Updates"
 msgid "Uses components as"
 msgstr "Uses components as"
 
+#. Section heading in custom view writing system picker.
+#. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Vernacular"
@@ -2034,6 +2065,8 @@ msgstr "Writing System"
 msgid "Writing system: {0}"
 msgstr "Writing system: {0}"
 
+#. Section label in custom view form.
+#. Configures which vernacular and analysis writing systems are shown.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Writing systems"
 msgstr "Writing systems"

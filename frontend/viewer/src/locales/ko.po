@@ -178,6 +178,8 @@ msgstr "센스 추가"
 msgid "Add Word"
 msgstr "단어 추가"
 
+#. Radio option in custom view writing system picker.
+#. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr ""
@@ -189,6 +191,8 @@ msgstr ""
 msgid "an entry"
 msgstr "항목"
 
+#. Section heading in custom view writing system picker.
+#. Labels the analysis language writing systems (e.g., English definitions/glosses).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr ""
@@ -268,10 +272,14 @@ msgstr "자동"
 msgid "Auto syncing"
 msgstr "자동 동기화"
 
+#. Section label in custom view form.
+#. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Based on"
 msgstr ""
 
+#. Subtitle under each custom view in the manage dialog.
+#. {0} = name of the base view preset (e.g., "FieldWorks Lite" or "FieldWorks Classic").
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Based on {0}"
 msgstr ""
@@ -424,6 +432,7 @@ msgstr "클립보드에 복사"
 msgid "Copy version"
 msgstr "복사 버전"
 
+#. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
 msgstr ""
@@ -445,6 +454,7 @@ msgstr "항목 만들기"
 msgid "Create Example Project"
 msgstr "예제 프로젝트 만들기"
 
+#. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
 msgstr ""
@@ -470,10 +480,13 @@ msgstr "현재 버전"
 msgid "Current Word"
 msgstr "현재 단어"
 
+#. Radio option in custom view writing system picker.
+#. Enables manual selection of individual writing systems.
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Custom"
 msgstr ""
 
+#. Label used in delete confirmation prompt for a custom view.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr ""
@@ -629,6 +642,7 @@ msgstr "다운로드 {0}..."
 msgid "Downloading..."
 msgstr "다운로드 중..."
 
+#. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr ""
@@ -765,6 +779,8 @@ msgstr "피드백 및 지원"
 msgid "Field"
 msgstr "필드"
 
+#. Section label in custom view form.
+#. Shows checkboxes to select which dictionary fields are visible (grouped by entry, sense, example).
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Fields"
 msgstr ""
@@ -1094,10 +1110,13 @@ msgstr "제안하기"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "변경 사항이 렉스박스에 [동기화되었는지]({0}) 확인합니다."
 
+#. Button label in view picker; opens the manage custom views dialog.
+#. Only visible to project managers.
 #: src/lib/views/custom/ManageCustomViewsButton.svelte
 msgid "Manage custom views"
 msgstr ""
 
+#. Dialog title for managing all custom views (create, edit, delete).
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Manage Custom Views"
 msgstr ""
@@ -1152,14 +1171,17 @@ msgstr "모드"
 msgid "Move"
 msgstr "이동"
 
+#. Placeholder text in the name input of the custom view form.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "My custom view..."
 msgstr ""
 
+#. Field label for the custom view name input.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr ""
 
+#. Validation error shown when the custom view name is empty.
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr ""
@@ -1174,6 +1196,7 @@ msgstr "절대로"
 msgid "New"
 msgstr "신규"
 
+#. Button label in the manage custom views dialog; opens the create form.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "New Custom View"
 msgstr ""
@@ -1212,6 +1235,7 @@ msgstr "활동을 찾을 수 없습니다."
 msgid "No audio"
 msgstr "오디오 없음"
 
+#. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
 msgstr ""
@@ -1443,10 +1467,16 @@ msgstr "프로젝트 이름..."
 msgid "Publication"
 msgstr "출판"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Publish Word in"
+#. Field label: selects which publications an entry appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Entry in"
 msgstr ""
 
+#. Relevant view: Lite
+#. Classic view equivalent: "Publish Entry in"
+#. Field label: selects which publications a word appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
 msgstr ""
@@ -1515,10 +1545,6 @@ msgstr "검토"
 msgid "rose"
 msgstr "rose"
 
-#: src/lib/views/custom/CustomViewForm.svelte
-msgid "Save"
-msgstr ""
-
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1529,8 +1555,9 @@ msgstr "다른 이름으로 저장"
 msgid "Save audio"
 msgstr "오디오 저장"
 
+#. Submit button in the edit custom view dialog.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
-msgid "Save Changes"
+msgid "Save View"
 msgstr ""
 
 #. Search placeholder
@@ -1558,10 +1585,12 @@ msgstr "자세한 내용을 보려면 {0} 을 선택하세요."
 msgid "Select a new task to work on"
 msgstr "작업할 새 작업 선택"
 
+#. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
 msgstr ""
 
+#. Validation error when no vernacular writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one vernacular writing system"
 msgstr ""
@@ -1969,6 +1998,8 @@ msgstr "업데이트"
 msgid "Uses components as"
 msgstr "구성 요소를 다음과 같이 사용합니다."
 
+#. Section heading in custom view writing system picker.
+#. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr ""
@@ -2039,6 +2070,8 @@ msgstr "쓰기 시스템"
 msgid "Writing system: {0}"
 msgstr "쓰기 시스템: {0}"
 
+#. Section label in custom view form.
+#. Configures which vernacular and analysis writing systems are shown.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Writing systems"
 msgstr ""

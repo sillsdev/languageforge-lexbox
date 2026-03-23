@@ -178,6 +178,8 @@ msgstr "Tambah Makna"
 msgid "Add Word"
 msgstr "Tambah Perkataan"
 
+#. Radio option in custom view writing system picker.
+#. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr ""
@@ -189,6 +191,8 @@ msgstr ""
 msgid "an entry"
 msgstr "satu entri"
 
+#. Section heading in custom view writing system picker.
+#. Labels the analysis language writing systems (e.g., English definitions/glosses).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr ""
@@ -268,10 +272,14 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Segerakkan automatik"
 
+#. Section label in custom view form.
+#. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Based on"
 msgstr ""
 
+#. Subtitle under each custom view in the manage dialog.
+#. {0} = name of the base view preset (e.g., "FieldWorks Lite" or "FieldWorks Classic").
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Based on {0}"
 msgstr ""
@@ -424,6 +432,7 @@ msgstr "Disalin ke papan keratan"
 msgid "Copy version"
 msgstr "Salin versi"
 
+#. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
 msgstr ""
@@ -445,6 +454,7 @@ msgstr "Cipta Entri"
 msgid "Create Example Project"
 msgstr "Cipta Projek Contoh"
 
+#. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
 msgstr ""
@@ -470,10 +480,13 @@ msgstr "Versi semasa"
 msgid "Current Word"
 msgstr "Perkataan Semasa"
 
+#. Radio option in custom view writing system picker.
+#. Enables manual selection of individual writing systems.
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Custom"
 msgstr ""
 
+#. Label used in delete confirmation prompt for a custom view.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr ""
@@ -629,6 +642,7 @@ msgstr "Memuat turun {0}..."
 msgid "Downloading..."
 msgstr "Memuat turun..."
 
+#. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr ""
@@ -765,6 +779,8 @@ msgstr "Maklum Balas & Sokongan"
 msgid "Field"
 msgstr "Bidang"
 
+#. Section label in custom view form.
+#. Shows checkboxes to select which dictionary fields are visible (grouped by entry, sense, example).
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Fields"
 msgstr ""
@@ -1094,10 +1110,13 @@ msgstr "Buat cadangan"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Pastikan [perubahan anda diselaraskan]({0}) ke Lexbox."
 
+#. Button label in view picker; opens the manage custom views dialog.
+#. Only visible to project managers.
 #: src/lib/views/custom/ManageCustomViewsButton.svelte
 msgid "Manage custom views"
 msgstr ""
 
+#. Dialog title for managing all custom views (create, edit, delete).
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Manage Custom Views"
 msgstr ""
@@ -1152,14 +1171,17 @@ msgstr "Mod"
 msgid "Move"
 msgstr "Gerak"
 
+#. Placeholder text in the name input of the custom view form.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "My custom view..."
 msgstr ""
 
+#. Field label for the custom view name input.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr ""
 
+#. Validation error shown when the custom view name is empty.
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr ""
@@ -1174,6 +1196,7 @@ msgstr "Tidak Pernah"
 msgid "New"
 msgstr "Baru"
 
+#. Button label in the manage custom views dialog; opens the create form.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "New Custom View"
 msgstr ""
@@ -1212,6 +1235,7 @@ msgstr "Tiada aktiviti ditemui"
 msgid "No audio"
 msgstr "Tiada audio"
 
+#. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
 msgstr ""
@@ -1443,10 +1467,16 @@ msgstr "Nama projek..."
 msgid "Publication"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Publish Word in"
+#. Field label: selects which publications an entry appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Entry in"
 msgstr ""
 
+#. Relevant view: Lite
+#. Classic view equivalent: "Publish Entry in"
+#. Field label: selects which publications a word appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
 msgstr ""
@@ -1515,10 +1545,6 @@ msgstr "Semak"
 msgid "rose"
 msgstr "merah jambu"
 
-#: src/lib/views/custom/CustomViewForm.svelte
-msgid "Save"
-msgstr ""
-
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1529,8 +1555,9 @@ msgstr "Simpan Sebagai"
 msgid "Save audio"
 msgstr "Simpan audio"
 
+#. Submit button in the edit custom view dialog.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
-msgid "Save Changes"
+msgid "Save View"
 msgstr ""
 
 #. Search placeholder
@@ -1558,10 +1585,12 @@ msgstr "Pilih {0} untuk melihat butiran"
 msgid "Select a new task to work on"
 msgstr "Pilih tugas baru untuk dikerjakan"
 
+#. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
 msgstr ""
 
+#. Validation error when no vernacular writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one vernacular writing system"
 msgstr ""
@@ -1969,6 +1998,8 @@ msgstr "Kemas kini"
 msgid "Uses components as"
 msgstr "Menggunakan komponen sebagai"
 
+#. Section heading in custom view writing system picker.
+#. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr ""
@@ -2039,6 +2070,8 @@ msgstr "Sistem Penulisan"
 msgid "Writing system: {0}"
 msgstr "Sistem penulisan: {0}"
 
+#. Section label in custom view form.
+#. Configures which vernacular and analysis writing systems are shown.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Writing systems"
 msgstr ""
