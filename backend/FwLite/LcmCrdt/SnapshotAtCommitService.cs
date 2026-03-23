@@ -24,7 +24,7 @@ public class SnapshotAtCommitService(
     {
         using var activity = _activitySource.StartActivity();
         activity?.SetTag("app.commit_id", commitId);
-        var dbContext = await crdtDbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await crdtDbContextFactory.CreateDbContextAsync();
         var commit = await dbContext.Commits.SingleOrDefaultAsync(c => c.Id == commitId);
         if (commit is null)
         {
@@ -42,7 +42,7 @@ public class SnapshotAtCommitService(
             await ForkDatabase(dbPath, forkDbPath);
 
             var project = new CrdtProject(currentProjectService.Project.Name, forkDbPath);
-            var serviceScope = serviceProvider.CreateAsyncScope();
+            await using var serviceScope = serviceProvider.CreateAsyncScope();
             var scopedCurrentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
             var projectData = await scopedCurrentProjectService.SetupProjectContext(project);
 
@@ -51,7 +51,7 @@ public class SnapshotAtCommitService(
             var optionsBuilder = new DbContextOptionsBuilder<LcmCrdtDbContext>()
                 .UseSqlite($"Data Source={forkDbPath}");
             LcmCrdtKernel.ConfigureDbOptions(serviceScope.ServiceProvider, optionsBuilder);
-            ICrdtDbContext forkDbContext = new LcmCrdtDbContext(optionsBuilder.Options, crdtConfig);
+            await using var forkDbContext = new LcmCrdtDbContext(optionsBuilder.Options, crdtConfig);
 
             var deleted = await DeleteCommitsAfter(forkDbContext, commit, preserveAllFieldWorksCommits);
             logger.LogInformation("Deleted {Deleted} commits after {CommitId}", deleted, commitId);
@@ -68,7 +68,8 @@ public class SnapshotAtCommitService(
             {
                 try
                 {
-                    SqliteConnection.ClearAllPools();
+                    using var clearConn = new SqliteConnection($"Data Source={forkDbPath}");
+                    SqliteConnection.ClearPool(clearConn);
                     File.Delete(forkDbPath);
                 }
                 catch (Exception ex)

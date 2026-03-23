@@ -5,6 +5,7 @@ using Soenneker.Utils.AutoBogus;
 using SIL.Harmony.Db;
 using Microsoft.Data.Sqlite;
 using SIL.Harmony.Core;
+using Bogus.DataSets;
 
 namespace LcmCrdt.Tests;
 
@@ -329,8 +330,10 @@ public class SnapshotAtCommitServiceFileBasedTests : IAsyncLifetime
     public async Task DisposeAsync()
     {
         await _dbContext.Database.CloseConnectionAsync();
-        SqliteConnection.ClearAllPools();
+        using var clearConn = new SqliteConnection($"Data Source={_dbPath}");
+        SqliteConnection.ClearPool(clearConn);
         await _dbContext.Database.EnsureDeletedAsync();
+        await _dbContext.DisposeAsync();
         await _services.DisposeAsync();
         if (File.Exists(_dbPath))
         {
