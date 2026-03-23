@@ -178,7 +178,7 @@ msgstr "Thêm Ý nghĩa (sense)"
 msgid "Add Word"
 msgstr "Thêm Từ"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr ""
 
@@ -189,7 +189,7 @@ msgstr ""
 msgid "an entry"
 msgstr "một mục"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr ""
 
@@ -268,11 +268,11 @@ msgstr "Tự động"
 msgid "Auto syncing"
 msgstr "Đang đồng bộ tự động"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Based on"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Based on {0}"
 msgstr ""
 
@@ -301,7 +301,7 @@ msgstr "Duyệt"
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Hủy"
 
@@ -424,7 +424,7 @@ msgstr "Đã sao chép vào khay nhớ tạm"
 msgid "Copy version"
 msgstr "Sao chép phiên bản"
 
-#: src/lib/views/CreateCustomViewDialog.svelte
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
 msgstr ""
 
@@ -445,7 +445,7 @@ msgstr "Tạo mục"
 msgid "Create Example Project"
 msgstr "Tạo Dự án ví dụ"
 
-#: src/lib/views/CreateCustomViewDialog.svelte
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
 msgstr ""
 
@@ -470,11 +470,11 @@ msgstr "Phiên bản hiện tại"
 msgid "Current Word"
 msgstr "Từ hiện tại"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Custom"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr ""
 
@@ -629,7 +629,7 @@ msgstr "Đang tải xuống {0}..."
 msgid "Downloading..."
 msgstr "Đang tải xuống..."
 
-#: src/lib/views/EditCustomViewDialog.svelte
+#: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr ""
 
@@ -765,7 +765,7 @@ msgstr "Phản hồi & Hỗ trợ"
 msgid "Field"
 msgstr "Trường"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Fields"
 msgstr ""
 
@@ -1032,7 +1032,7 @@ msgid "Lexeme form"
 msgstr "Hình thức lexeme"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Lexeme form or Citation form is required"
 msgstr ""
 
@@ -1094,11 +1094,11 @@ msgstr "Gợi ý"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Hãy đảm bảo [các thay đổi của bạn đã được đồng bộ]({0}) với Lexbox."
 
-#: src/lib/views/ManageCustomViewsButton.svelte
+#: src/lib/views/custom/ManageCustomViewsButton.svelte
 msgid "Manage custom views"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Manage Custom Views"
 msgstr ""
 
@@ -1152,15 +1152,15 @@ msgstr "Chế độ"
 msgid "Move"
 msgstr "Di chuyển"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "My custom view..."
 msgstr ""
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr ""
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr ""
 
@@ -1174,7 +1174,7 @@ msgstr "Không bao giờ"
 msgid "New"
 msgstr "Mới"
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "New Custom View"
 msgstr ""
 
@@ -1212,7 +1212,7 @@ msgstr "Không tìm thấy hoạt động"
 msgid "No audio"
 msgstr "Không có âm thanh"
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
 msgstr ""
 
@@ -1515,7 +1515,7 @@ msgstr "Xem lại"
 msgid "rose"
 msgstr "hoa hồng"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Save"
 msgstr ""
 
@@ -1529,7 +1529,7 @@ msgstr "Lưu thành"
 msgid "Save audio"
 msgstr "Lưu âm thanh"
 
-#: src/lib/views/EditCustomViewDialog.svelte
+#: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Save Changes"
 msgstr ""
 
@@ -1558,11 +1558,11 @@ msgstr "Chọn {0} để xem chi tiết"
 msgid "Select a new task to work on"
 msgstr "Chọn nhiệm vụ mới để thực hiện"
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
 msgstr ""
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Select at least one vernacular writing system"
 msgstr ""
 
@@ -1969,7 +1969,7 @@ msgstr "Cập nhật"
 msgid "Uses components as"
 msgstr "Sử dụng các thành phần như"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr ""
 
@@ -2019,7 +2019,7 @@ msgid "Word only"
 msgstr "Chỉ từ"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Word or Display as is required"
 msgstr ""
 
@@ -2039,7 +2039,7 @@ msgstr "Hệ chữ"
 msgid "Writing system: {0}"
 msgstr "Hệ chữ: {0}"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Writing systems"
 msgstr ""
 

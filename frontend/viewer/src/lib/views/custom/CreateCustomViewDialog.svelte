@@ -2,7 +2,7 @@
   import * as Dialog from '$lib/components/ui/dialog';
   import {t} from 'svelte-i18n-lingui';
   import CustomViewForm from './CustomViewForm.svelte';
-  import type {CustomView} from './view-data';
+  import type {CustomView} from '../view-data';
 
   interface Props {
     open: boolean;

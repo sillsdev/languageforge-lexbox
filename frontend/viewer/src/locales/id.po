@@ -178,7 +178,7 @@ msgstr "Tambahkan Pengertian"
 msgid "Add Word"
 msgstr "Tambahkan Kata"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr ""
 
@@ -189,7 +189,7 @@ msgstr ""
 msgid "an entry"
 msgstr "sebuah entri"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr ""
 
@@ -268,11 +268,11 @@ msgstr "Otomatis"
 msgid "Auto syncing"
 msgstr "Sinkronisasi otomatis"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Based on"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Based on {0}"
 msgstr ""
 
@@ -301,7 +301,7 @@ msgstr "Jelajahi"
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Batal"
 
@@ -424,7 +424,7 @@ msgstr "Disalin ke papan klip"
 msgid "Copy version"
 msgstr "Versi salin"
 
-#: src/lib/views/CreateCustomViewDialog.svelte
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
 msgstr ""
 
@@ -445,7 +445,7 @@ msgstr "Membuat Entri"
 msgid "Create Example Project"
 msgstr "Buat Proyek Contoh"
 
-#: src/lib/views/CreateCustomViewDialog.svelte
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
 msgstr ""
 
@@ -470,11 +470,11 @@ msgstr "Versi saat ini"
 msgid "Current Word"
 msgstr "Kata saat ini"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Custom"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr ""
 
@@ -629,7 +629,7 @@ msgstr "Mengunduh {0}..."
 msgid "Downloading..."
 msgstr "Mengunduh..."
 
-#: src/lib/views/EditCustomViewDialog.svelte
+#: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr ""
 
@@ -765,7 +765,7 @@ msgstr "Umpan Balik & Dukungan"
 msgid "Field"
 msgstr "Bidang"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Fields"
 msgstr ""
 
@@ -1032,7 +1032,7 @@ msgid "Lexeme form"
 msgstr "Bentuk leksem"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Lexeme form or Citation form is required"
 msgstr ""
 
@@ -1094,11 +1094,11 @@ msgstr "Berikan saran"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Pastikan [perubahan telah disinkronkan]({0}) ke Lexbox."
 
-#: src/lib/views/ManageCustomViewsButton.svelte
+#: src/lib/views/custom/ManageCustomViewsButton.svelte
 msgid "Manage custom views"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Manage Custom Views"
 msgstr ""
 
@@ -1152,15 +1152,15 @@ msgstr "Mode"
 msgid "Move"
 msgstr "Pindah"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "My custom view..."
 msgstr ""
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr ""
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr ""
 
@@ -1174,7 +1174,7 @@ msgstr "Tidak pernah."
 msgid "New"
 msgstr "Baru"
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "New Custom View"
 msgstr ""
 
@@ -1212,7 +1212,7 @@ msgstr "Tidak ada aktivitas yang ditemukan"
 msgid "No audio"
 msgstr "Tidak ada audio"
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
 msgstr ""
 
@@ -1515,7 +1515,7 @@ msgstr "Ulasan"
 msgid "rose"
 msgstr "naik"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Save"
 msgstr ""
 
@@ -1529,7 +1529,7 @@ msgstr "Simpan Sebagai"
 msgid "Save audio"
 msgstr "Menyimpan audio"
 
-#: src/lib/views/EditCustomViewDialog.svelte
+#: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Save Changes"
 msgstr ""
 
@@ -1558,11 +1558,11 @@ msgstr "Pilih {0} untuk melihat detailnya"
 msgid "Select a new task to work on"
 msgstr "Pilih tugas baru untuk dikerjakan"
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
 msgstr ""
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Select at least one vernacular writing system"
 msgstr ""
 
@@ -1969,7 +1969,7 @@ msgstr "Pembaruan"
 msgid "Uses components as"
 msgstr "Menggunakan komponen sebagai"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr ""
 
@@ -2019,7 +2019,7 @@ msgid "Word only"
 msgstr "Hanya kata"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Word or Display as is required"
 msgstr ""
 
@@ -2039,7 +2039,7 @@ msgstr "Sistem Penulisan"
 msgid "Writing system: {0}"
 msgstr "Sistem penulisan: {0}"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Writing systems"
 msgstr ""
 

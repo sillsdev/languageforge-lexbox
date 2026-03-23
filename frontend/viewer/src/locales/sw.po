@@ -178,7 +178,7 @@ msgstr "Ongeza Maana"
 msgid "Add Word"
 msgstr "Ongeza Neno"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr ""
 
@@ -189,7 +189,7 @@ msgstr ""
 msgid "an entry"
 msgstr "ingizo"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr ""
 
@@ -268,11 +268,11 @@ msgstr "Otomatiki"
 msgid "Auto syncing"
 msgstr "Kuoanisha otomatiki"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Based on"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Based on {0}"
 msgstr ""
 
@@ -301,7 +301,7 @@ msgstr "Angalia"
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Ghairi"
 
@@ -424,7 +424,7 @@ msgstr "Imenakiliwa kwenye ubao wa kunakili"
 msgid "Copy version"
 msgstr "Nakili toleo"
 
-#: src/lib/views/CreateCustomViewDialog.svelte
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
 msgstr ""
 
@@ -445,7 +445,7 @@ msgstr "Tengeneza Ingizo"
 msgid "Create Example Project"
 msgstr "Tengeneza Mradi wa Mfano"
 
-#: src/lib/views/CreateCustomViewDialog.svelte
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
 msgstr ""
 
@@ -470,11 +470,11 @@ msgstr "Toleo Sasa"
 msgid "Current Word"
 msgstr "Neno Sasa"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Custom"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr ""
 
@@ -629,7 +629,7 @@ msgstr "Inapakua {0}..."
 msgid "Downloading..."
 msgstr "Inapakua..."
 
-#: src/lib/views/EditCustomViewDialog.svelte
+#: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr ""
 
@@ -765,7 +765,7 @@ msgstr "Maoni & Msaada"
 msgid "Field"
 msgstr "Sehemu"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Fields"
 msgstr ""
 
@@ -1032,7 +1032,7 @@ msgid "Lexeme form"
 msgstr "Fomu ya Neno"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Lexeme form or Citation form is required"
 msgstr ""
 
@@ -1094,11 +1094,11 @@ msgstr "Tengeneza pendekezo"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Hakikisha mabadiliko yako [yameoanishwa]({0}) kwa Lexbox."
 
-#: src/lib/views/ManageCustomViewsButton.svelte
+#: src/lib/views/custom/ManageCustomViewsButton.svelte
 msgid "Manage custom views"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Manage Custom Views"
 msgstr ""
 
@@ -1152,15 +1152,15 @@ msgstr "Hali"
 msgid "Move"
 msgstr "Sogeza"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "My custom view..."
 msgstr ""
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr ""
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr ""
 
@@ -1174,7 +1174,7 @@ msgstr "Kamwe"
 msgid "New"
 msgstr "Mpya"
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "New Custom View"
 msgstr ""
 
@@ -1212,7 +1212,7 @@ msgstr "Hakuna shughuli iliyopatikana"
 msgid "No audio"
 msgstr "Hakuna sauti"
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
 msgstr ""
 
@@ -1515,7 +1515,7 @@ msgstr "Tathmini"
 msgid "rose"
 msgstr "waridi"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Save"
 msgstr ""
 
@@ -1529,7 +1529,7 @@ msgstr "Hifadhi Kama"
 msgid "Save audio"
 msgstr "Hifadhi sauti"
 
-#: src/lib/views/EditCustomViewDialog.svelte
+#: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Save Changes"
 msgstr ""
 
@@ -1558,11 +1558,11 @@ msgstr "Chagua {0} kuona maelezo"
 msgid "Select a new task to work on"
 msgstr "Chagua jukumu jipya la kufanya"
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
 msgstr ""
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Select at least one vernacular writing system"
 msgstr ""
 
@@ -1969,7 +1969,7 @@ msgstr "Masasisho"
 msgid "Uses components as"
 msgstr "Inatumia sehemu kama"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr ""
 
@@ -2019,7 +2019,7 @@ msgid "Word only"
 msgstr "Neno tu"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Word or Display as is required"
 msgstr ""
 
@@ -2039,7 +2039,7 @@ msgstr "Mfumo wa Kuandika"
 msgid "Writing system: {0}"
 msgstr "Mfumo wa kuandika: {0}"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Writing systems"
 msgstr ""
 

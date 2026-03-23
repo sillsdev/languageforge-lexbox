@@ -4,7 +4,7 @@
   import NewTabLinkMarkdown from '$lib/markdown/NewTabLinkMarkdown.svelte';
   import {delay} from '$lib/utils/time';
   import {useViewService} from '$lib/views/view-service.svelte';
-  import ManageCustomViewsButton from '$lib/views/ManageCustomViewsButton.svelte';
+  import ManageCustomViewsButton from '$lib/views/custom/ManageCustomViewsButton.svelte';
   import Markdown from 'svelte-exmarkdown';
   import {t} from 'svelte-i18n-lingui';
   import {Label} from '$lib/components/ui/label';

@@ -178,7 +178,7 @@ msgstr "Añadir acepción"
 msgid "Add Word"
 msgstr "Añadir palabra"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr ""
 
@@ -189,7 +189,7 @@ msgstr ""
 msgid "an entry"
 msgstr "una entrada"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr ""
 
@@ -268,11 +268,11 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Sincronización automática"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Based on"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Based on {0}"
 msgstr ""
 
@@ -301,7 +301,7 @@ msgstr "Visite"
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -424,7 +424,7 @@ msgstr "Copiado al portapapeles"
 msgid "Copy version"
 msgstr "Copiar versión"
 
-#: src/lib/views/CreateCustomViewDialog.svelte
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
 msgstr ""
 
@@ -445,7 +445,7 @@ msgstr "Crear entrada"
 msgid "Create Example Project"
 msgstr "Crear un proyecto de ejemplo"
 
-#: src/lib/views/CreateCustomViewDialog.svelte
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
 msgstr ""
 
@@ -470,11 +470,11 @@ msgstr "Versión actual"
 msgid "Current Word"
 msgstr "Palabra actual"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Custom"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr ""
 
@@ -629,7 +629,7 @@ msgstr "Descargando {0}..."
 msgid "Downloading..."
 msgstr "Descargando..."
 
-#: src/lib/views/EditCustomViewDialog.svelte
+#: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr ""
 
@@ -765,7 +765,7 @@ msgstr "Comentarios y Soporte"
 msgid "Field"
 msgstr "Campo"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Fields"
 msgstr ""
 
@@ -1032,7 +1032,7 @@ msgid "Lexeme form"
 msgstr "Forma del lexema"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Lexeme form or Citation form is required"
 msgstr ""
 
@@ -1094,11 +1094,11 @@ msgstr "Haz una sugerencia"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Asegúrese de que su [cambios están sincronizados]({0}) en Lexbox."
 
-#: src/lib/views/ManageCustomViewsButton.svelte
+#: src/lib/views/custom/ManageCustomViewsButton.svelte
 msgid "Manage custom views"
 msgstr ""
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Manage Custom Views"
 msgstr ""
 
@@ -1152,15 +1152,15 @@ msgstr "Modo"
 msgid "Move"
 msgstr "Mover"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "My custom view..."
 msgstr ""
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr ""
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr ""
 
@@ -1174,7 +1174,7 @@ msgstr "Nunca"
 msgid "New"
 msgstr "Nuevo"
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "New Custom View"
 msgstr ""
 
@@ -1212,7 +1212,7 @@ msgstr "No se ha encontrado actividad"
 msgid "No audio"
 msgstr "Sin audio"
 
-#: src/lib/views/ManageCustomViewsDialog.svelte
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
 msgstr ""
 
@@ -1515,7 +1515,7 @@ msgstr "Revisión"
 msgid "rose"
 msgstr "rosa"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Save"
 msgstr ""
 
@@ -1529,7 +1529,7 @@ msgstr "Guardar como"
 msgid "Save audio"
 msgstr "Guardar audio"
 
-#: src/lib/views/EditCustomViewDialog.svelte
+#: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Save Changes"
 msgstr ""
 
@@ -1558,11 +1558,11 @@ msgstr "Seleccione {0} para ver los detalles"
 msgid "Select a new task to work on"
 msgstr "Seleccione una nueva tarea en la que trabajar"
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
 msgstr ""
 
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Select at least one vernacular writing system"
 msgstr ""
 
@@ -1969,7 +1969,7 @@ msgstr "Actualizaciones"
 msgid "Uses components as"
 msgstr "Utiliza componentes como"
 
-#: src/lib/views/CustomViewWritingSystems.svelte
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr ""
 
@@ -2019,7 +2019,7 @@ msgid "Word only"
 msgstr "Sólo palabras"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-#: src/lib/views/custom-view-form/validation.ts
+#: src/lib/views/custom/validation.ts
 msgid "Word or Display as is required"
 msgstr ""
 
@@ -2039,7 +2039,7 @@ msgstr "Sistema de escritura"
 msgid "Writing system: {0}"
 msgstr "Sistema de escritura: {0}"
 
-#: src/lib/views/CustomViewForm.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Writing systems"
 msgstr ""
 

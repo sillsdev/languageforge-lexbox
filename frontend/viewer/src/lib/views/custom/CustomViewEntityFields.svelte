@@ -3,7 +3,7 @@
 
   import {type EntityType, getEntityConfig, entityFieldIds} from '$lib/views/entity-config';
   import type {IViewField, ViewBase} from '$lib/dotnet-types';
-  import {pt, tvt} from './view-text';
+  import {pt, tvt} from '../view-text';
 
   interface Props {
     entityType: T;

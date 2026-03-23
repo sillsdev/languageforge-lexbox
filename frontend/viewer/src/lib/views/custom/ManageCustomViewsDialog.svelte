@@ -2,8 +2,8 @@
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
   import {Button} from '$lib/components/ui/button';
   import {t} from 'svelte-i18n-lingui';
-  import {useViewService} from './view-service.svelte';
-  import {FW_CLASSIC_VIEW, FW_LITE_VIEW, type CustomView} from './view-data';
+  import {useViewService} from '../view-service.svelte';
+  import {FW_CLASSIC_VIEW, FW_LITE_VIEW, type CustomView} from '../view-data';
   import {Icon} from '$lib/components/ui/icon';
   import CreateCustomViewDialog from './CreateCustomViewDialog.svelte';
   import EditCustomViewDialog from './EditCustomViewDialog.svelte';

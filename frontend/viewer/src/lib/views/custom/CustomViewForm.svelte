@@ -5,15 +5,15 @@
   import {Input} from '$lib/components/ui/input';
   import {t} from 'svelte-i18n-lingui';
 
-  import {FW_CLASSIC_VIEW, FW_LITE_VIEW, type CustomView} from './view-data';
+  import {FW_CLASSIC_VIEW, FW_LITE_VIEW, type CustomView} from '../view-data';
   import {ViewBase} from '$lib/dotnet-types';
-  import {validateForm} from './custom-view-form/validation';
+  import {validateForm} from './validation';
   import {randomId} from '$lib/utils';
 
   import CustomViewEntityFields from './CustomViewEntityFields.svelte';
   import CustomViewWritingSystems from './CustomViewWritingSystems.svelte';
-  import {useViewService} from './view-service.svelte';
-  import {pt} from './view-text';
+  import {useViewService} from '../view-service.svelte';
+  import {pt} from '../view-text';
 
   interface Props {
     value?: CustomView | null;
