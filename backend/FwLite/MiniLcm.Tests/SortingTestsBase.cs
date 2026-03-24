@@ -62,15 +62,6 @@ public abstract class SortingTestsBase : MiniLcmTestBase
     [InlineData("a", SortField.SearchRelevance)] // non-FTS
     public async Task MorphTokens_DoNotAffectSortOrder(string query, SortField sortField)
     {
-        MorphType[] morphTypes = [
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Root, Name = { ["en"] = "Root" }, SecondaryOrder = 1 },
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Prefix, Name = { ["en"] = "Prefix" }, Prefix = "-", SecondaryOrder = 3 },
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Suffix, Name = { ["en"] = "Suffix" }, Postfix = "-", SecondaryOrder = 6 },
-        ];
-
-        foreach (var morphType in morphTypes)
-            await Api.CreateMorphType(morphType);
-
         // All three entries have LexemeForm "aaaa". Their headwords are:
         //   Root:   "aaaa"   (no tokens)
         //   Prefix: "-aaaa"  (leading token "-")
@@ -100,16 +91,6 @@ public abstract class SortingTestsBase : MiniLcmTestBase
     [InlineData("a")] // non-FTS rank
     public async Task SecondaryOrder_Relevance_LexemeForm(string searchTerm)
     {
-        MorphType[] morphTypes = [
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Root, Name = { ["en"] = "Root" }, SecondaryOrder = 1 },
-            // new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Stem, Name = { ["en"] = "Stem" }, SecondaryOrder = 1 },
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.BoundRoot, Name = { ["en"] = "BoundRoot" }, SecondaryOrder = 2 },
-            // new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.BoundStem, Name = { ["en"] = "BoundStem" }, SecondaryOrder = 2 },
-        ];
-
-        foreach (var morphType in morphTypes)
-            await Api.CreateMorphType(morphType);
-
         static Entry[] CreateSortedEntrySet(string headword)
         {
             return [
@@ -168,16 +149,6 @@ public abstract class SortingTestsBase : MiniLcmTestBase
     [InlineData("a")] // non-FTS rank
     public async Task SecondaryOrder_Relevance_CitationForm(string searchTerm)
     {
-        MorphType[] morphTypes = [
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Root, Name = { ["en"] = "Root" }, SecondaryOrder = 1 },
-            // new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Stem, Name = { ["en"] = "Stem" }, SecondaryOrder = 1 },
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.BoundRoot, Name = { ["en"] = "BoundRoot" }, SecondaryOrder = 2 },
-            // new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.BoundStem, Name = { ["en"] = "BoundStem" }, SecondaryOrder = 2 },
-        ];
-
-        foreach (var morphType in morphTypes)
-            await Api.CreateMorphType(morphType);
-
         static Entry[] CreateSortedEntrySet(string headword)
         {
             return [
@@ -236,16 +207,6 @@ public abstract class SortingTestsBase : MiniLcmTestBase
     [InlineData("b")] // non-FTS rank
     public async Task SecondaryOrder_Headword_LexemeForm(string searchTerm)
     {
-        MorphType[] morphTypes = [
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Root, Name = { ["en"] = "Root" }, SecondaryOrder = 1 },
-            // new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Stem, Name = { ["en"] = "Stem" }, SecondaryOrder = 1 },
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.BoundRoot, Name = { ["en"] = "BoundRoot" }, SecondaryOrder = 2 },
-            // new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.BoundStem, Name = { ["en"] = "BoundStem" }, SecondaryOrder = 2 },
-        ];
-
-        foreach (var morphType in morphTypes)
-            await Api.CreateMorphType(morphType);
-
         Entry[] expected = [
             // Root/Stem - SecondaryOrder: 1
             new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "abaaa" }, MorphType = MorphTypeKind.Root/*, HomographNumber = 1*/ },
@@ -281,16 +242,6 @@ public abstract class SortingTestsBase : MiniLcmTestBase
     [InlineData("b")] // non-FTS rank
     public async Task SecondaryOrder_Headword_CitationForm(string searchTerm)
     {
-        MorphType[] morphTypes = [
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Root, Name = { ["en"] = "Root" }, SecondaryOrder = 1 },
-            // new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Stem, Name = { ["en"] = "Stem" }, SecondaryOrder = 1 },
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.BoundRoot, Name = { ["en"] = "BoundRoot" }, SecondaryOrder = 2 },
-            // new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.BoundStem, Name = { ["en"] = "BoundStem" }, SecondaryOrder = 2 },
-        ];
-
-        foreach (var morphType in morphTypes)
-            await Api.CreateMorphType(morphType);
-
         Entry[] expected = [
             // Root/Stem - SecondaryOrder: 1
             new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = "abaaa" }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.Root/*, HomographNumber = 1*/ },

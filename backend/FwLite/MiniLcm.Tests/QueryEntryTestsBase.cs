@@ -523,14 +523,6 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     public async Task SearchEntries_MatchesLexeme(string searchTerm)
     {
         var prefixQuery = $"{searchTerm}-";
-        await Api.CreateMorphType(new MorphType
-        {
-            Id = Guid.NewGuid(),
-            Kind = MorphTypeKind.Prefix,
-            Name = { ["en"] = "Prefix" },
-            Postfix = "-",
-            SecondaryOrder = 3
-        });
         var lexemeOnlyMatchEntry = await Api.CreateEntry(new Entry
         {
             LexemeForm = { ["en"] = "mango" },
@@ -554,14 +546,6 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     public async Task SearchEntries_CitationFormOverridesMorphTokens(string searchTerm)
     {
         var prefixQuery = $"{searchTerm}-";
-        await Api.CreateMorphType(new MorphType
-        {
-            Id = Guid.NewGuid(),
-            Kind = MorphTypeKind.Prefix,
-            Name = { ["en"] = "Prefix" },
-            Postfix = "-",
-            SecondaryOrder = 3
-        });
         var entryWithOverriddenMorphToken = await Api.CreateEntry(new Entry
         {
             LexemeForm = { ["en"] = "mango" },
@@ -578,14 +562,6 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [InlineData("o-")] // non-FTS
     public async Task MorphTokenSearch_FindsPrefixEntry(string searchTerm)
     {
-        await Api.CreateMorphType(new MorphType
-        {
-            Id = Guid.NewGuid(),
-            Kind = MorphTypeKind.Prefix,
-            Name = { ["en"] = "Prefix" },
-            Postfix = "-",
-            SecondaryOrder = 3
-        });
         var id = Guid.NewGuid();
         await Api.CreateEntry(new Entry { Id = id, LexemeForm = { ["en"] = "mango" }, MorphType = MorphTypeKind.Prefix });
 
@@ -598,14 +574,6 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [InlineData("-m")] // non-FTS
     public async Task MorphTokenSearch_FindsSuffixEntry(string searchTerm)
     {
-        await Api.CreateMorphType(new MorphType
-        {
-            Id = Guid.NewGuid(),
-            Kind = MorphTypeKind.Suffix,
-            Name = { ["en"] = "Suffix" },
-            Prefix = "-",
-            SecondaryOrder = 6
-        });
         var id = Guid.NewGuid();
         await Api.CreateEntry(new Entry { Id = id, LexemeForm = { ["en"] = "mango" }, MorphType = MorphTypeKind.Suffix });
 
@@ -616,14 +584,6 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [Fact]
     public async Task MorphTokenSearch_DoesNotMatchWithoutToken()
     {
-        await Api.CreateMorphType(new MorphType
-        {
-            Id = Guid.NewGuid(),
-            Kind = MorphTypeKind.Prefix,
-            Name = { ["en"] = "Prefix" },
-            Postfix = "-",
-            SecondaryOrder = 3
-        });
         await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "mango" }, MorphType = MorphTypeKind.Root });
 
         // Searching for "-mango" should NOT match a Root entry (no morph tokens)
