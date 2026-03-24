@@ -14,21 +14,12 @@ public class SortingTests(ProjectLoaderFixture fixture) : SortingTestsBase
     }
 
     [Theory]
-    [InlineData("aaaa", SortField.Headword)] // FTS rank
-    [InlineData("a", SortField.Headword)] // non-FTS rank
-    [InlineData("aaaa", SortField.SearchRelevance)] // FTS rank
-    [InlineData("a", SortField.SearchRelevance)] // non-FTS rank
+    [InlineData("aaaa", SortField.Headword)] // FTS
+    [InlineData("a", SortField.Headword)] // non-FTS
+    [InlineData("aaaa", SortField.SearchRelevance)] // FTS
+    [InlineData("a", SortField.SearchRelevance)] // non-FTS
     public async Task SecondaryOrder_DefaultsToStem(string query, SortField sortField)
     {
-        MorphType[] morphTypes = [
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Stem, Name = { ["en"] = "Stem" }, SecondaryOrder = 1 },
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.BoundStem, Name = { ["en"] = "BoundStem" }, SecondaryOrder = 2 },
-            new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Suffix, Name = { ["en"] = "Suffix" }, Postfix = "-", SecondaryOrder = 6 },
-        ];
-
-        foreach (var morphType in morphTypes)
-            await Api.CreateMorphType(morphType);
-
         var otherMorphTypeEntryId = Guid.NewGuid();
         Entry[] expected = [
             new() { Id = otherMorphTypeEntryId, LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Unknown }, // SecondaryOrder defaults to Stem = 1

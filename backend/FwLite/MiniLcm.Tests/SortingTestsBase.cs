@@ -56,10 +56,10 @@ public abstract class SortingTestsBase : MiniLcmTestBase
     }
 
     [Theory]
-    [InlineData("aaaa", SortField.Headword)] // FTS rank
-    [InlineData("a", SortField.Headword)] // non-FTS rank
-    [InlineData("aaaa", SortField.SearchRelevance)] // FTS rank
-    [InlineData("a", SortField.SearchRelevance)] // non-FTS rank
+    [InlineData("aaaa", SortField.Headword)] // FTS
+    [InlineData("a", SortField.Headword)] // non-FTS
+    [InlineData("aaaa", SortField.SearchRelevance)] // FTS
+    [InlineData("a", SortField.SearchRelevance)] // non-FTS
     public async Task MorphTokens_DoNotAffectSortOrder(string query, SortField sortField)
     {
         MorphType[] morphTypes = [
