@@ -31,7 +31,7 @@ public record Entry : IObjectWithId<Entry>
 
     public const string UnknownHeadword = "(Unknown)";
 
-    public string HeadwordText()
+    public string Headword()
     {
         //order by code to ensure the headword is stable
         //todo choose ws by preference based on ws order/default

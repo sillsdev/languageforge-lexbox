@@ -28,14 +28,14 @@ public class SetComplexFormComponentChange : EditChange<ComplexFormComponent>, I
         {
             entity.ComplexFormEntryId = ComplexFormEntryId.Value;
             var complexFormEntry = await context.GetCurrent<Entry>(ComplexFormEntryId.Value);
-            entity.ComplexFormHeadword = complexFormEntry?.HeadwordText();
+            entity.ComplexFormHeadword = complexFormEntry?.Headword();
             entity.DeletedAt = complexFormEntry?.DeletedAt != null ? context.Commit.DateTime : (DateTime?)null;
         }
         if (ComponentEntryId.HasValue)
         {
             entity.ComponentEntryId = ComponentEntryId.Value;
             var componentEntry = await context.GetCurrent<Entry>(ComponentEntryId.Value);
-            entity.ComponentHeadword = componentEntry?.HeadwordText();
+            entity.ComponentHeadword = componentEntry?.Headword();
             entity.DeletedAt = componentEntry?.DeletedAt != null ? context.Commit.DateTime : (DateTime?)null;
         }
         entity.ComponentSenseId = ComponentSenseId;

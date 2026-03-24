@@ -159,7 +159,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 .Select(createdCfc =>
                 {
                     var copy = createdCfc.Copy();
-                    copy.ComponentHeadword = after.HeadwordText();
+                    copy.ComponentHeadword = after.Headword();
                     return copy;
                 }),
                 // keep new
@@ -175,7 +175,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 .Select(createdCfc =>
                 {
                     var copy = createdCfc.Copy();
-                    copy.ComplexFormHeadword = after.HeadwordText();
+                    copy.ComplexFormHeadword = after.Headword();
                     return copy;
                 }),
                 // keep new
@@ -280,7 +280,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 new ComplexFormComponent()
                 {
                     ComponentEntryId = component1.Id,
-                    ComponentHeadword = component1.HeadwordText(),
+                    ComponentHeadword = component1.Headword(),
                     ComplexFormEntryId = complexFormId,
                     ComplexFormHeadword = "complex form"
                 }
@@ -288,7 +288,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         });
         var complexFormAfter = complexForm.Copy();
         complexFormAfter.Components[0].ComponentEntryId = component2.Id;
-        complexFormAfter.Components[0].ComponentHeadword = component2.HeadwordText();
+        complexFormAfter.Components[0].ComponentHeadword = component2.Headword();
 
         await EntrySync.SyncFull(complexForm, complexFormAfter, Api);
 
@@ -315,13 +315,13 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                     ComponentEntryId = componentId,
                     ComponentHeadword = "component",
                     ComplexFormEntryId = complexForm1.Id,
-                    ComplexFormHeadword = complexForm1.HeadwordText()
+                    ComplexFormHeadword = complexForm1.Headword()
                 }
             ]
         });
         var componentAter = component.Copy();
         componentAter.ComplexForms[0].ComplexFormEntryId = complexForm2.Id;
-        componentAter.ComplexForms[0].ComplexFormHeadword = complexForm2.HeadwordText();
+        componentAter.ComplexForms[0].ComplexFormHeadword = complexForm2.Headword();
 
         await EntrySync.SyncFull(component, componentAter, Api);
 
@@ -636,7 +636,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 new ComplexFormComponent()
                 {
                     ComponentEntryId = componentA.Id,
-                    ComponentHeadword = componentA.HeadwordText(),
+                    ComponentHeadword = componentA.Headword(),
                     ComplexFormEntryId = complexFormId,
                     ComplexFormHeadword = "complex form",
                     Order = 1
@@ -644,7 +644,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 new ComplexFormComponent()
                 {
                     ComponentEntryId = componentB.Id,
-                    ComponentHeadword = componentB.HeadwordText(),
+                    ComponentHeadword = componentB.Headword(),
                     ComplexFormEntryId = complexFormId,
                     ComplexFormHeadword = "complex form",
                     Order = 2

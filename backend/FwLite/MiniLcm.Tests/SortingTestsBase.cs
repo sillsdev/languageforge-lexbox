@@ -33,7 +33,7 @@ public abstract class SortingTestsBase : MiniLcmTestBase
         {
             await CreateEntry(headword);
         }
-        var entries = await Api.GetEntries().Select(e => e.HeadwordText()).ToArrayAsync();
+        var entries = await Api.GetEntries().Select(e => e.Headword()).ToArrayAsync();
         entries.Should().Equal(headwordList);
     }
 

@@ -53,6 +53,6 @@ public class EntryValidator : AbstractValidator<Entry>
 
     private string GetEntryIdentifier(Entry entry)
     {
-        return $"{entry.HeadwordText()} - {entry.Id}";
+        return $"{entry.Headword()} - {entry.Id}";
     }
 }

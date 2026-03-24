@@ -13,6 +13,6 @@ public class EntryTests
         {
             LexemeForm = new MultiString() { { "fr", "test2" }, { "en", "test" } }
         };
-        entry.HeadwordText().Should().Be(entry2.HeadwordText());
+        entry.Headword().Should().Be(entry2.Headword());
     }
 }
