@@ -127,10 +127,14 @@ export class WritingSystemService {
 
   headword(entry: ReadonlyDeep<IEntry>, ws?: string): string {
     if (ws) {
-      return this.#morphTypesService.decorate(headword(entry, ws), entry.morphType) || '';
+      return this.#decorated(entry, ws) || '';
     }
+    return firstTruthy(this.vernacularNoAudio, ws => this.#decorated(entry, ws.wsId)) || '';
+  }
 
-    return firstTruthy(this.vernacularNoAudio, ws => this.#morphTypesService.decorate(headword(entry, ws.wsId), entry.morphType)) || '';
+  #decorated(entry: ReadonlyDeep<IEntry>, ws: string): string | undefined {
+    // Citation forms should not be decorated with prefix/postfix tokens, only lexeme forms get decorated
+    return entry.citationForm[ws] || this.#morphTypesService.decorate(entry.lexemeForm[ws], entry.morphType);
   }
 
   pickBestAlternative(value: IMultiString, wss: 'vernacular' | 'analysis'): string
@@ -210,10 +214,6 @@ export function asString(value: IRichString | string | undefined): string | unde
 type WritingSystemColors = {
   vernacular: Record<string, typeof vernacularColors[number]>;
   analysis: Record<string, typeof analysisColors[number]>;
-}
-
-function headword(entry: ReadonlyDeep<IEntry>, ws: string): string | undefined {
-  return entry.citationForm[ws] || entry.lexemeForm[ws];
 }
 
 function calcWritingSystemColors(writingSystems: IWritingSystems): WritingSystemColors {
