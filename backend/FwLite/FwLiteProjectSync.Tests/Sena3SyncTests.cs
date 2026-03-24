@@ -106,7 +106,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         // Verify every FwData morph type has a matching canonical entry
         foreach (var fwMorphType in fwDataMorphTypes)
         {
-            if (fwMorphType.Kind == MorphTypeKind.Unknown || fwMorphType.Kind == MorphTypeKind.Other)
+            if (fwMorphType.Kind == MorphTypeKind.Unknown)
                 continue;
 
             CanonicalMorphTypes.All.Should().ContainKey(fwMorphType.Kind,
@@ -120,7 +120,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
         // Verify every canonical morph type exists in FwData (no extras we shouldn't have)
         var fwDataKinds = fwDataMorphTypes
-            .Where(m => m.Kind != MorphTypeKind.Unknown && m.Kind != MorphTypeKind.Other)
+            .Where(m => m.Kind != MorphTypeKind.Unknown)
             .Select(m => m.Kind)
             .ToHashSet();
         CanonicalMorphTypes.All.Keys.Should().BeSubsetOf(fwDataKinds,

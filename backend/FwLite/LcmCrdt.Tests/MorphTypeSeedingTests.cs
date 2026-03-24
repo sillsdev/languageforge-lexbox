@@ -114,7 +114,7 @@ public class MorphTypeSeedingTests
     public void CanonicalMorphTypes_CoverAllKindsExceptUnknown()
     {
         var allKinds = Enum.GetValues<MorphTypeKind>()
-            .Where(k => k != MorphTypeKind.Unknown && k != MorphTypeKind.Other)
+            .Where(k => k != MorphTypeKind.Unknown)
             .ToHashSet();
 
         CanonicalMorphTypes.All.Keys.Should().BeEquivalentTo(allKinds);
