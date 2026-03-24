@@ -92,7 +92,7 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .ToList();
 
         results.Should().BeEquivalentTo(expected,
-            options => options.Excluding(e => e.Headword).WithStrictOrdering());
+            options => options.WithStrictOrdering());
     }
 
     [Theory]
@@ -158,9 +158,9 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .ToList();
 
         results.Should().BeEquivalentTo(expected,
-            options => options.Excluding(e => e.Headword));
+            options => options);
         results.Should().BeEquivalentTo(expected,
-            options => options.Excluding(e => e.Headword).WithStrictOrdering());
+            options => options.WithStrictOrdering());
     }
 
     [Theory]
@@ -226,9 +226,9 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .ToList();
 
         results.Should().BeEquivalentTo(expected,
-            options => options.Excluding(e => e.Headword));
+            options => options);
         results.Should().BeEquivalentTo(expected,
-            options => options.Excluding(e => e.Headword).WithStrictOrdering());
+            options => options.WithStrictOrdering());
     }
 
     [Theory]
@@ -271,9 +271,9 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .ToList();
 
         results.Should().BeEquivalentTo(expected,
-            options => options.Excluding(e => e.Headword));
+            options => options);
         results.Should().BeEquivalentTo(expected,
-            options => options.Excluding(e => e.Headword).WithStrictOrdering());
+            options => options.WithStrictOrdering());
     }
 
     [Theory]
@@ -316,8 +316,8 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .ToList();
 
         results.Should().BeEquivalentTo(expected,
-            options => options.Excluding(e => e.Headword));
+            options => options);
         results.Should().BeEquivalentTo(expected,
-            options => options.Excluding(e => e.Headword).WithStrictOrdering());
+            options => options.WithStrictOrdering());
     }
 }

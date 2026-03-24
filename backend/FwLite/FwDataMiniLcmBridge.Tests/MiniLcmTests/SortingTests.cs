@@ -57,6 +57,6 @@ public class SortingTests(ProjectLoaderFixture fixture) : SortingTestsBase
             .ToList();
 
         results.Should().BeEquivalentTo(expected,
-            options => options.Excluding(e => e.Headword).WithStrictOrdering());
+            options => options.WithStrictOrdering());
     }
 }

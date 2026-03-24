@@ -85,7 +85,6 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     internal static EquivalencyOptions<Entry> SyncExclusions(EquivalencyOptions<Entry> options)
     {
         options = options
-            .Excluding(e => e.Headword) // Computed property, populated by Finalize
             .For(e => e.Senses).Exclude(s => s.Order)
             .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
             .For(e => e.Components).Exclude(c => c.Id)

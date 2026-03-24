@@ -210,18 +210,19 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         {
             options = options
                 .WithStrictOrdering()
-                .Excluding(e => e.Headword) // Computed property, populated by Finalize
                 .WithoutStrictOrderingFor(e => e.ComplexForms) // sorted alphabetically
                 .WithoutStrictOrderingFor(e => e.Path.EndsWith($".{nameof(Sense.SemanticDomains)}")) // not sorted
                 .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Order)
                 .For(e => e.ComplexForms).Exclude(c => c.Order)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order);
-            // ComplexFormHeadword/ComponentHeadword are computed from HeadwordText() which
-            // depends on the computed Headword property — exclude since AutoFaker randomizes it.
-            options = options
-                .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
-                .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
+            if (currentApiType == ApiType.Crdt)
+            {
+                // does not yet update Headwords 😕
+                options = options
+                    .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
+                    .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
+            }
             if (currentApiType == ApiType.FwData)
             {
                 // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)
@@ -412,13 +413,11 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         // assert
         var actualExistingEntry = await Api.GetEntry(existingEntryAfter.Id);
         actualExistingEntry.Should().BeEquivalentTo(existingEntryAfter, options => options
-            .Excluding(e => e.Headword)
             .For(e => e.ComplexForms).Exclude(c => c.Id)
             .For(e => e.ComplexForms).Exclude(c => c.Order));
 
         var actualNewEntry = await Api.GetEntry(newEntry.Id);
         actualNewEntry.Should().BeEquivalentTo(newEntry, options => options
-            .Excluding(e => e.Headword)
             .Excluding(e => e.ComplexFormTypes) // LibLcm automatically creates a complex form type. Should we?
             .For(e => e.Components).Exclude(c => c.Id)
             .For(e => e.Components).Exclude(c => c.Order));
@@ -488,13 +487,13 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         // assert
         var actualComponent = await Api.GetEntry(componentAfter.Id);
         actualComponent.Should().BeEquivalentTo(componentAfter,
-            options => options.Excluding(e => e.ComplexForms).Excluding(e => e.Headword));
+            options => options.Excluding(e => e.ComplexForms));
         actualComponent.ComplexForms.Should().BeEmpty();
 
         var actualComplexForm = await Api.GetEntry(complexForm.Id);
         addedComplexForm.Should().BeEquivalentTo(actualComplexForm);
         actualComplexForm.Should().BeEquivalentTo(complexForm,
-            options => options.Excluding(e => e.Components).Excluding(e => e.Headword));
+            options => options.Excluding(e => e.Components));
         actualComplexForm.Components.Should().BeEmpty();
     }
 
@@ -527,13 +526,13 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         var actualComponent = await Api.GetEntry(component.Id);
         addedComponent.Should().BeEquivalentTo(actualComponent);
         actualComponent.Should().BeEquivalentTo(component,
-            options => options.Excluding(e => e.ComplexForms).Excluding(e => e.Headword));
+            options => options.Excluding(e => e.ComplexForms));
         actualComponent.ComplexForms.Should().BeEmpty();
 
         var actualComplexForm = await Api.GetEntry(complexForm.Id);
         addedComplexForm.Should().BeEquivalentTo(actualComplexForm);
         actualComplexForm.Should().BeEquivalentTo(complexForm,
-            options => options.Excluding(e => e.Components).Excluding(e => e.Headword));
+            options => options.Excluding(e => e.Components));
         actualComplexForm.Components.Should().BeEmpty();
     }
 

@@ -49,6 +49,6 @@ public class SortingTests : SortingTestsBase
             .ToList();
 
         results.Should().BeEquivalentTo(expected,
-            options => options.Excluding(e => e.Headword).WithStrictOrdering());
+            options => options.WithStrictOrdering());
     }
 }
