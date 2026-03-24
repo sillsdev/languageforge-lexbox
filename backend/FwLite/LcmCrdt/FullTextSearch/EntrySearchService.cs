@@ -29,9 +29,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     //linq2db table
     private ITable<EntrySearchRecord> EntrySearchRecordsTable => dbContext.GetTable<EntrySearchRecord>();
 
-    public IQueryable<Entry> Filter(IQueryable<Entry> queryable, string query, WritingSystemId wsId)
+    public IQueryable<Entry> Filter(IQueryable<Entry> queryable, string query, WritingSystemId wsId, MorphType[] morphTypes)
     {
-        return FilterInternal(queryable, query, wsId).Select(t => t.Entry);
+        return FilterInternal(queryable, query, wsId, morphTypes).Select(t => t.Entry);
     }
 
     /// <summary>
@@ -42,10 +42,11 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     /// </summary>
     public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable,
         string query,
-        WritingSystemId wsId)
+        WritingSystemId wsId,
+        MorphType[] morphTypes)
     {
         var morphTypeTable = dbContext.GetTable<MorphType>();
-        var filtered = FilterInternal(queryable, query, wsId);
+        var filtered = FilterInternal(queryable, query, wsId, morphTypes);
         var ordered = filtered
             .OrderByDescending(t => t.HeadwordMatches ? 0 : Sql.Ext.SQLite().Rank(t.SearchRecord))
             .ThenByDescending(t => t.HeadwordPrefixMatches)
@@ -64,11 +65,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, string Headword, bool HeadwordMatches, bool HeadwordPrefixMatches);
 
-    private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query, WritingSystemId wsId)
+    private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query, WritingSystemId wsId, MorphType[] morphTypes)
     {
         var ftsString = ToFts5LiteralString(query);
-        var morphTypes = dbContext.GetTable<MorphType>().ToArray();
-
         var queryWithoutMorphTokens = StripMorphTokens(query, morphTypes);
 
         return

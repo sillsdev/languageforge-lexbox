@@ -201,18 +201,19 @@ public class MiniLcmRepository(
         {
             if (SearchService is not null && SearchService.ValidSearchTerm(query))
             {
+                var morphTypes = await dbContext.MorphTypes.ToArrayAsyncEF();
                 if (sortOptions is not null && sortOptions.Field == SortField.SearchRelevance)
                 {
                     //ranking must be done at the same time as part of the full-text search, so we can't use normal sorting
                     sortingHandled = true;
-                    queryable = SearchService.FilterAndRank(queryable, query, sortOptions.WritingSystem);
+                    queryable = SearchService.FilterAndRank(queryable, query, sortOptions.WritingSystem, morphTypes);
                 }
                 else
                 {
                     var filterWs = sortOptions?.WritingSystem
                         ?? (await GetWritingSystem(default, WritingSystemType.Vernacular))?.WsId
                         ?? default;
-                    queryable = SearchService.Filter(queryable, query, filterWs);
+                    queryable = SearchService.Filter(queryable, query, filterWs, morphTypes);
                 }
             }
             else
