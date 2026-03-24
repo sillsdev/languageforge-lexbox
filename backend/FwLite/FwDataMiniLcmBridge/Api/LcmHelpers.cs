@@ -35,9 +35,9 @@ internal static class LcmHelpers
         return (leading + lexemeForm + trailing).Trim(WhitespaceChars);
     }
 
-    internal static string LexEntryHeadwordOrUnknown(this ILexEntry entry, int? ws = null)
+    internal static string LexEntryHeadwordOrUnknown(this ILexEntry entry, int? ws = null, bool applyMorphTokens = true)
     {
-        var headword = entry.LexEntryHeadword(ws);
+        var headword = entry.LexEntryHeadword(ws, applyMorphTokens);
         return string.IsNullOrEmpty(headword) ? Entry.UnknownHeadword : headword;
     }
 
