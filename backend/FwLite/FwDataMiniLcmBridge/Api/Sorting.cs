@@ -37,8 +37,8 @@ internal static class Sorting
         if (order.Ascending)
         {
             return projected
-                .OrderByDescending(x => !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!) ?? false))
-                .ThenByDescending(x => !string.IsNullOrEmpty(query) && (x.Headword?.StartsWithDiacriticMatch(query!) ?? false))
+                .OrderByDescending(x => !string.IsNullOrEmpty(query) && (x.Headword?.StartsWithDiacriticMatch(query!) ?? false))
+                .ThenByDescending(x => !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!) ?? false))
                 .ThenBy(x => x.Headword?.Length ?? 0)
                 .ThenBy(x => x.Headword)
                 .ThenBy(x => x.Entry.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
@@ -49,8 +49,8 @@ internal static class Sorting
         else
         {
             return projected
-                .OrderBy(x => !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!) ?? false))
-                .ThenBy(x => !string.IsNullOrEmpty(query) && (x.Headword?.StartsWithDiacriticMatch(query!) ?? false))
+                .OrderBy(x => !string.IsNullOrEmpty(query) && (x.Headword?.StartsWithDiacriticMatch(query!) ?? false))
+                .ThenBy(x => !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!) ?? false))
                 .ThenByDescending(x => x.Headword?.Length ?? 0)
                 .ThenByDescending(x => x.Headword)
                 .ThenByDescending(x => x.Entry.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
