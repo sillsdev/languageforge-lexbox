@@ -9,6 +9,7 @@ import {
   type IFilterQueryOptions,
   type IIndexQueryOptions,
   type IMiniLcmJsInvokable,
+  type IMorphType,
   type IPartOfSpeech,
   type IProjectModel,
   type IPublication,
@@ -20,7 +21,7 @@ import {
   type IWritingSystems,
   type WritingSystemType
 } from '$lib/dotnet-types';
-import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
+import {entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
@@ -37,6 +38,7 @@ import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShare
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
+import {MorphTypesService} from '$project/data/morph-types.svelte';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -90,10 +92,12 @@ const mockJsEventListener: IJsEventListener = {
 };
 
 export class InMemoryDemoApi implements IMiniLcmJsInvokable {
+  #morphTypesService: MorphTypesService;
   #writingSystemService: WritingSystemService;
   #projectEventBus: ProjectEventBus;
   constructor(projectContext: ProjectContext, eventBus: EventBus) {
-    this.#writingSystemService = new WritingSystemService(projectContext);
+    this.#morphTypesService = new MorphTypesService(projectContext);
+    this.#writingSystemService = new WritingSystemService(projectContext, this.#morphTypesService);
     this.#projectEventBus = new ProjectEventBus(projectContext, eventBus);
   }
 
@@ -151,6 +155,17 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         {id: '15', name: {en: 'Idiom'},}
       ]
       //*/
+    );
+  }
+
+  getMorphTypes(): Promise<IMorphType[]> {
+    return Promise.resolve(
+      morphTypes
+      // [
+      //     {id: 'd7f713e8-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Stem},
+      //     {id: 'd7f713db-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Prefix, postfix='-'},
+      //     {id: 'd7f713dd-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Suffix, prefix='-'},
+      // ]
     );
   }
 
