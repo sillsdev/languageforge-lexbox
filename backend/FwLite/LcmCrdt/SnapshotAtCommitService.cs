@@ -98,8 +98,9 @@ public class SnapshotAtCommitService(
             // JSON Sqlite gotcha: null != "FieldWorks" == false (apparently)
             (Json.Value(c.Metadata, m => m.AuthorName) ?? "") != "FieldWorks");
         }
+        var count = await commitsToDelete.CountAsyncLinqToDB();
         context.Set<Commit>().RemoveRange(commitsToDelete);
         await context.SaveChangesAsync();
-        return commitsToDelete.Count();
+        return count;
     }
 }
