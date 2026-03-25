@@ -1,188 +1,158 @@
-using MiniLcm.Tests.AutoFakerHelpers;
+using MiniLcm.Models;
+using FluentAssertions;
+using MiniLcm.RichText;
 
 namespace MiniLcm.Tests;
 
 public abstract class CreateEntryTestsBase : MiniLcmTestBase
 {
+    private readonly Func<Task<IMiniLcmApi>> _apiFactory;
+    private IMiniLcmApi _api = null!;
+    public IMiniLcmApi Api => _api;
+
+    public CreateEntryTestsBase(Func<Task<IMiniLcmApi>> apiFactory)
+    {
+        _apiFactory = apiFactory;
+    }
+
+    public virtual async Task InitializeAsync()
+    {
+        _api = await _apiFactory();
+    }
+
+    public virtual Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
+
     [Fact]
     public async Task CanCreateEntry()
     {
-        var entry = await Api.CreateEntry(new() { LexemeForm = { { "en", "test" } } });
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } } });
         entry.Should().NotBeNull();
-        entry.LexemeForm.Values.Should().ContainKey("en");
-        entry.LexemeForm["en"].Should().Be("test");
+        entry.LexemeForm.Values["en"].Should().Be("test");
     }
 
     [Fact]
-    public async Task CanCreateEntry_AutoFaker()
+    public async Task CanCreateEntry_AutoIncrementHomographNumber()
     {
-        var entry = await AutoFaker.EntryReadyForCreation(Api);
-        var createdEntry = await Api.CreateEntry(entry);
-        createdEntry.Should().BeEquivalentTo(entry, options => options
-            .For(e => e.Components).Exclude(e => e.Id)
-            .For(e => e.ComplexForms).Exclude(e => e.Id));
+        var entry1 = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } } });
+        var entry2 = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } } });
+        entry1 = await Api.GetEntry(entry1.Id) ?? throw new NullReferenceException();
+        entry2 = await Api.GetEntry(entry2.Id) ?? throw new NullReferenceException();
+        entry1.LexemeForm.Values["en"].Should().Be("test");
+        entry2.LexemeForm.Values["en"].Should().Be("test");
     }
 
     [Fact]
-    public async Task CanCreate_WithComponentsProperty()
+    public async Task CanCreateEntry_WithASense()
     {
-        var component = await Api.CreateEntry(new() { LexemeForm = { { "en", "test component" } } });
-        var entryId = Guid.NewGuid();
-        var entry = await Api.CreateEntry(new()
+        var entry = await Api.CreateEntry(new Entry
         {
-            Id = entryId,
             LexemeForm = { { "en", "test" } },
-            Components =
+            Senses =
             [
-                new ComplexFormComponent()
+                new Sense
                 {
-                    Id = Guid.NewGuid(),
-                    ComponentEntryId = component.Id,
-                    ComponentHeadword = component.Headword(),
-                    ComplexFormEntryId = entryId,
-                    ComplexFormHeadword = "test"
+                    Gloss = { { "en", "test" } },
+                    Definition = { { "en", "test" } },
                 }
             ]
         });
-        entry = await Api.GetEntry(entry.Id);
         entry.Should().NotBeNull();
-        entry.Components.Should().ContainSingle(c => c.ComponentEntryId == component.Id);
+        entry.Senses.Should().ContainSingle();
     }
 
     [Fact]
-    public async Task CanCreate_WithComplexFormsProperty()
+    public async Task CanCreateEntry_WithASenseAndExampleSentence()
     {
-        var complexForm = await Api.CreateEntry(new() { LexemeForm = { { "en", "test complex form" } } });
-        var entryId = Guid.NewGuid();
-        var entry = await Api.CreateEntry(new()
+        var entry = await Api.CreateEntry(new Entry
         {
-            Id = entryId,
             LexemeForm = { { "en", "test" } },
-            ComplexForms =
+            Senses =
             [
-                new ComplexFormComponent()
+                new Sense
                 {
-                    Id = Guid.NewGuid(),
-                    ComponentEntryId = entryId,
-                    ComponentHeadword = "test",
-                    ComplexFormEntryId = complexForm.Id,
-                    ComplexFormHeadword = "test complex form"
+                    Gloss = { { "en", "test" } },
+                    Definition = { { "en", "test" } },
+                    ExampleSentences =
+                    [
+                        new ExampleSentence
+                        {
+                            Sentence = { { "en", "This is a test sentence." } },
+                        }
+                    ]
                 }
             ]
         });
-        entry = await Api.GetEntry(entry.Id);
         entry.Should().NotBeNull();
-        entry.ComplexForms.Should().ContainSingle(c => c.ComplexFormEntryId == complexForm.Id);
+        entry.Senses.Should().ContainSingle().Which.ExampleSentences.Should().ContainSingle();
     }
 
     [Fact]
-    public async Task CreateEntry_WithComponentSenseDoesShowOnEntryComplexFormsList()
+    public async Task CanCreateEntry_WithRichTextValue()
     {
-        var componentSenseId = Guid.NewGuid();
-        var component = await Api.CreateEntry(new()
+        var entry = await Api.CreateEntry(new Entry
         {
-            LexemeForm = { { "en", "test component" } },
-            Senses = [new Sense() { Id = componentSenseId, Gloss = { { "en", "test component sense" } } }]
+            LexemeForm = { { "en", RichTextMapping.FromMultiText(
+                new RichSpan() { Text = "plain text", Ws = "en" },
+                new RichSpan() { Text = "bold text", Ws = "en", Bold = true },
+                new RichSpan() { Text = "italic text", Ws = "en", Italic = true }
+            ) } }
         });
-        var complexFormEntryId = Guid.NewGuid();
-        await Api.CreateEntry(new()
-        {
-            Id = complexFormEntryId,
-            LexemeForm = { { "en", "test" } },
-            Components =
-            [
-                new ComplexFormComponent()
-                {
-                    Id = Guid.NewGuid(),
-                    ComponentEntryId = component.Id,
-                    ComponentHeadword = component.Headword(),
-                    ComponentSenseId = componentSenseId,
-                    ComplexFormEntryId = complexFormEntryId,
-                    ComplexFormHeadword = "test"
-                }
-            ]
-        });
-
-        var entry = await Api.GetEntry(component.Id);
         entry.Should().NotBeNull();
-        entry.ComplexForms.Should().ContainSingle().Which.ComponentSenseId.Should().Be(componentSenseId);
-
-        entry = await Api.GetEntry(complexFormEntryId);
-        entry.Should().NotBeNull();
-        entry.Components.Should().ContainSingle(c =>
-            c.ComplexFormEntryId == complexFormEntryId && c.ComponentEntryId == component.Id &&
-            c.ComponentSenseId == componentSenseId);
+        entry.LexemeForm.RichValues["en"].Should().HaveCount(3);
     }
 
     [Fact]
-    public async Task CanCreate_WithComplexFormTypesProperty()
+    public async Task CanCreateEntry_WithRichTextTag()
     {
-        var complexFormType = await Api.CreateComplexFormType(new()
+        var tag1 = new RichTextTagInfo { TagGuid = Guid.NewGuid(), Type = "charStyle", NamedStyle = "my-style" };
+        var entry = await Api.CreateEntry(new Entry
         {
-            Name = new MultiString() { { "en", "test complex form type" } }
-        });
-
-        var entry = await Api.CreateEntry(new()
-        {
-            LexemeForm = { { "en", "test" } }, ComplexFormTypes = [complexFormType]
-        });
-        entry = await Api.GetEntry(entry.Id);
-        entry.Should().NotBeNull();
-        entry.ComplexFormTypes.Should().ContainSingle(c => c.Id == complexFormType.Id);
-    }
-
-    [Fact]
-    public async Task CanCreate_WithRichSpanTag()
-    {
-        var tag1 = Guid.NewGuid();
-        var entry = await Api.CreateEntry(new()
-        {
-            LexemeForm = { { "en", "test" } },
-            LiteralMeaning =
-            {
-                { "en", new RichString([new RichSpan() { Text = "span", Ws = "en", Tags = [tag1] }]) }
-            }
+            LexemeForm = { { "en", RichTextMapping.FromMultiText(
+                new RichSpan() { Text = "span", Ws = "en", Tags = [tag1] }
+            ) } }
         });
         entry.Should().NotBeNull();
-        entry.LiteralMeaning["en"].Should().BeEquivalentTo(new RichString([
-            new RichSpan() { Text = "span", Ws = "en", Tags = [tag1] }
-        ]));
+        entry.LexemeForm.RichValues["en"].Should().ContainSingle()
+            .Which.Tags.Should().ContainSingle().Which.TagGuid.Should().Be(tag1.TagGuid);
     }
 
     [Fact]
-    public async Task CreateEntry_AutoAddsDefaultPublication_WhenEnabled()
+    public async Task CreateEntry_AutoAddsMainPublication_WhenEnabled()
     {
-        var defaultPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
+        var mainPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
 
-        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddDefaultPublication: true));
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddMainPublication: true));
 
-        entry.PublishIn.Should().ContainSingle(pub => pub.Id == defaultPublication.Id);
+        entry.PublishIn.Should().ContainSingle(pub => pub.Id == mainPublication.Id);
     }
 
     [Fact]
-    public async Task CreateEntry_DoesNotAutoAddDefaultPublication_WhenDisabled()
+    public async Task CreateEntry_DoesNotAutoAddMainPublication_WhenDisabled()
     {
         await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
 
-        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddDefaultPublication: false));
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddMainPublication: false));
 
         entry.PublishIn.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task CreateEntry_DoesNotDoubleAddDefaultPublication()
+    public async Task CreateEntry_DoesNotDoubleAddMainPublication()
     {
-        var defaultPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
+        var mainPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
 
-        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [defaultPublication] });
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [mainPublication] });
 
-        entry.PublishIn.Count(pub => pub.Id == defaultPublication.Id).Should().Be(1);
+        entry.PublishIn.Count(pub => pub.Id == mainPublication.Id).Should().Be(1);
     }
 
     [Fact]
-    public async Task CreateEntry_DoesNothingWhenNoDefaultPublicationExists()
+    public async Task CreateEntry_DoesNothingWhenNoMainPublicationExists()
     {
-        await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Not default" } } });
+        await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Not main" } } });
 
         var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] });
 

@@ -981,15 +981,15 @@ public class FwDataMiniLcmApi(
     {
         options ??= CreateEntryOptions.Everything;
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
-        if (options.AutoAddDefaultPublication)
+        if (options.AutoAddMainPublication)
         {
-            var defaultPublication = Publications.PossibilitiesOS
+            var mainPublication = Publications.PossibilitiesOS
                 .Where(pub => pub.IsProtected)
                 .OrderBy(pub => pub.Guid)
                 .FirstOrDefault();
-            if (defaultPublication is not null && entry.PublishIn.All(pub => pub.Id != defaultPublication.Guid))
+            if (mainPublication is not null && entry.PublishIn.All(pub => pub.Id != mainPublication.Guid))
             {
-                entry.PublishIn.Add(FromLcmPossibility(defaultPublication));
+                entry.PublishIn.Add(FromLcmPossibility(mainPublication));
             }
         }
         try

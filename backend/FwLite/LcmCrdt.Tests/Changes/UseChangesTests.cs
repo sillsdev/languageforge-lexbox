@@ -244,8 +244,8 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var createPublication2Change = new CreatePublicationChange(publication2.Id, publication2.Name);
         yield return new ChangeWithDependencies(createPublication2Change);
 
-        var setDefaultPublicationChange = new SetDefaultPublicationChange(publication.Id);
-        yield return new ChangeWithDependencies(setDefaultPublicationChange, [createPublicationChange]);
+        var setMainPublicationChange = new SetMainPublicationChange(publication.Id);
+        yield return new ChangeWithDependencies(setMainPublicationChange, [createPublicationChange]);
 
         var addPublicationChange = new AddPublicationChange(entry.Id, publication);
         yield return new ChangeWithDependencies(addPublicationChange, [createPublicationChange, createEntryChange]);

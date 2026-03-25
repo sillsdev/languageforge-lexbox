@@ -180,7 +180,7 @@ public class CrdtMiniLcmApi(
         if (pub.IsMain)
         {
             await using var repo = await repoFactory.CreateRepoAsync();
-            var existingMain = await repo.GetDefaultPublication();
+            var existingMain = await repo.GetMainPublication();
             if (existingMain is not null)
                 throw new InvalidOperationException("Cannot create a second main publication. A main publication already exists.");
         }
@@ -212,11 +212,11 @@ public class CrdtMiniLcmApi(
             if (pub.IsMain)
                 throw new InvalidOperationException("Cannot turn off the IsMain flag on a publication.");
 
-            var existingMain = await repo.GetDefaultPublication();
+            var existingMain = await repo.GetMainPublication();
             if (existingMain is not null)
                 throw new InvalidOperationException("Cannot set IsMain on this publication. Another publication is already the main publication.");
 
-            changes.Add(new SetDefaultPublicationChange(pub.Id));
+            changes.Add(new SetMainPublicationChange(pub.Id));
         }
 
         if (changes.Count > 0)
@@ -527,12 +527,12 @@ public class CrdtMiniLcmApi(
     {
         options ??= CreateEntryOptions.Everything;
         await using var repo = await repoFactory.CreateRepoAsync();
-        if (options.AutoAddDefaultPublication)
+        if (options.AutoAddMainPublication)
         {
-            var defaultPublication = await repo.GetDefaultPublication();
-            if (defaultPublication is not null && entry.PublishIn.All(pub => pub.Id != defaultPublication.Id))
+            var mainPublication = await repo.GetMainPublication();
+            if (mainPublication is not null && entry.PublishIn.All(pub => pub.Id != mainPublication.Id))
             {
-                entry.PublishIn.Add(defaultPublication);
+                entry.PublishIn.Add(mainPublication);
             }
         }
         await AddChanges([
