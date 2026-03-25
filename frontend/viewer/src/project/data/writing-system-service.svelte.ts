@@ -77,14 +77,14 @@ export class WritingSystemService {
   }
 
   viewAnalysis(view: View) {
-    return this.filterAndSortWs(this.analysis, view?.analysis);
+    return this.filterWs(this.analysis, view?.analysis);
   }
 
   viewVernacular(view: View) {
-    return this.filterAndSortWs(this.vernacular, view?.vernacular);
+    return this.filterWs(this.vernacular, view?.vernacular);
   }
 
-  filterAndSortWs(writingSystems: IWritingSystem[], override?: IViewWritingSystem[]) {
+  filterWs(writingSystems: IWritingSystem[], override?: IViewWritingSystem[]) {
     if (!override) return writingSystems;
     return writingSystems.filter(ws => override.find(_ws => _ws.wsId === ws.wsId));
   }

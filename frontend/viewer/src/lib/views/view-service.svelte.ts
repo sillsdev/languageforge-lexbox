@@ -72,7 +72,9 @@ export function hasVisibleFields(fields: TypedViewField<FieldId>[]): boolean {
 }
 
 /**
- * Each visible field becomes one CSS grid-template-areas row: `"<fieldId> <fieldId> <fieldId>"`
+ * Returns a string that can be used as a grid-template-areas value for a grid with the given fields, ordered based on the current view.
+ * looks like `"lexemeForm lexemeForm lexemeForm" "citationForm citationForm citationForm" "literalMeaning literalMeaning literalMeaning"` etc. each group of fields in quotes is a row.
+ * there are 3 columns for each row and one field per row so the field name is repeated 3 times.
  */
 export function objectTemplateAreas(fields: TypedViewField<FieldId>[]): string {
   return fields
