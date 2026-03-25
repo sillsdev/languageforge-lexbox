@@ -5,7 +5,7 @@ import {type ResourceReturn} from 'runed';
 
 type LabeledPublication = IPublication & { label: string };
 
-export function resolveDefaultPublication(publications: IPublication[]): IPublication | undefined {
+export function resolveMainPublication(publications: IPublication[]): IPublication | undefined {
   return publications.find(pub => pub.isMain);
 }
 
@@ -33,7 +33,7 @@ export class PublicationService {
   });
 
 
-  defaultPublication: IPublication | undefined = $derived.by(() => resolveDefaultPublication(this.#publicationsResource.current));
+  mainPublication: IPublication | undefined = $derived.by(() => resolveMainPublication(this.#publicationsResource.current));
 
   async refetch() {
     await this.#publicationsResource.refetch();

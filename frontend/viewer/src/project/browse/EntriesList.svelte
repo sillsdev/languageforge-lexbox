@@ -124,7 +124,7 @@
 
   async function handleNewEntry(headword: string | undefined = undefined) {
     const entry = await dialogsService.createNewEntry(headword, {
-      publishIn: publication?.id === publicationService.defaultPublication?.id ? [] : (publication ? [publication] : []),
+      publishIn: publication?.id === publicationService.mainPublication?.id ? [] : (publication ? [publication] : []),
     }, {
       semanticDomains: semanticDomain ? [semanticDomain] : [],
       partOfSpeech: partOfSpeech,

@@ -5,7 +5,7 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
 
-public class SetDefaultPublicationChange(Guid entityId) : EditChange<Publication>(entityId), ISelfNamedType<SetDefaultPublicationChange>
+public class SetMainPublicationChange(Guid entityId) : EditChange<Publication>(entityId), ISelfNamedType<SetMainPublicationChange>
 {
     public override async ValueTask ApplyChange(Publication entity, IChangeContext context)
     {

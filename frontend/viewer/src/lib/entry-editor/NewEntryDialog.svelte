@@ -156,9 +156,9 @@
   </span>
 {/snippet}
 
-{#snippet defaultPublicationIncluded()}
+{#snippet mainPublicationIncluded()}
   <span class="text-sm text-muted-foreground mt-0.5 inline-flex items-center gap-1">
-    {$t`The default publication is always included.`}
+    {$t`The main publication is always included.`}
   </span>
 {/snippet}
 
@@ -178,7 +178,7 @@
         <Editor.Root bind:this={editor}>
           <Editor.Grid>
             <EntryEditorPrimitive bind:entry autofocus modalMode
-              publishInDescription={publishInIsFromTemplate ? fromActiveFilter : (publicationService.defaultPublication ? defaultPublicationIncluded : undefined)} />
+              publishInDescription={publishInIsFromTemplate ? fromActiveFilter : (publicationService.mainPublication ? mainPublicationIncluded : undefined)} />
             {#if sense}
               <Editor.SubGrid>
                 <ObjectHeader type="sense">

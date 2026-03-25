@@ -295,7 +295,7 @@ public class MiniLcmRepository(
         return sortedIds.IndexOf(entryId);
     }
 
-    public Task<Publication?> GetDefaultPublication()
+    public Task<Publication?> GetMainPublication()
     {
         return AsyncExtensions.FirstOrDefaultAsync(Publications
             .Where(pub => pub.IsMain)

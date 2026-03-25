@@ -152,39 +152,39 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
-    public async Task CreateEntry_AutoAddsDefaultPublication_WhenEnabled()
+    public async Task CreateEntry_AutoAddsMainPublication_WhenEnabled()
     {
-        var defaultPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
+        var mainPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
 
-        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddDefaultPublication: true));
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddMainPublication: true));
 
-        entry.PublishIn.Should().ContainSingle(pub => pub.Id == defaultPublication.Id);
+        entry.PublishIn.Should().ContainSingle(pub => pub.Id == mainPublication.Id);
     }
 
     [Fact]
-    public async Task CreateEntry_DoesNotAutoAddDefaultPublication_WhenDisabled()
+    public async Task CreateEntry_DoesNotAutoAddMainPublication_WhenDisabled()
     {
         await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
 
-        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddDefaultPublication: false));
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddMainPublication: false));
 
         entry.PublishIn.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task CreateEntry_DoesNotDoubleAddDefaultPublication()
+    public async Task CreateEntry_DoesNotDoubleAddMainPublication()
     {
-        var defaultPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
+        var mainPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
 
-        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [defaultPublication] });
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [mainPublication] });
 
-        entry.PublishIn.Count(pub => pub.Id == defaultPublication.Id).Should().Be(1);
+        entry.PublishIn.Count(pub => pub.Id == mainPublication.Id).Should().Be(1);
     }
 
     [Fact]
-    public async Task CreateEntry_DoesNothingWhenNoDefaultPublicationExists()
+    public async Task CreateEntry_DoesNothingWhenNoMainPublicationExists()
     {
-        await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Not default" } } });
+        await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Not main" } } });
 
         var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] });
 

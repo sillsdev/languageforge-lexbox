@@ -153,13 +153,13 @@ public static class EntrySync
             {
                 // Api.CreateEntry() is optimized and assumes all senses are new rather than moved.
                 // So, we use the "smarter" SensesSync for the senses, which can handle moved senses.
-                addedEntry = await api.CreateEntry(afterEntry with { Senses = [] }, new CreateEntryOptions(IncludeComplexFormsAndComponents: false, AutoAddDefaultPublication: false));
+                addedEntry = await api.CreateEntry(afterEntry with { Senses = [] }, new CreateEntryOptions(IncludeComplexFormsAndComponents: false, AutoAddMainPublication: false));
                 await SensesSync(addedEntry.Id, [], afterEntry.Senses, api, allBeforeSenses, allAfterSenses);
                 addedEntry = addedEntry with { Senses = afterEntry.Senses };
             }
             else
             {
-                addedEntry = await api.CreateEntry(afterEntry, new CreateEntryOptions(IncludeComplexFormsAndComponents: false, AutoAddDefaultPublication: false));
+                addedEntry = await api.CreateEntry(afterEntry, new CreateEntryOptions(IncludeComplexFormsAndComponents: false, AutoAddMainPublication: false));
             }
             return (1, addedEntry);
         }
