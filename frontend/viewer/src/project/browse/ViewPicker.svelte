@@ -50,7 +50,7 @@
 
 <RadioGroup.Root bind:value={getCurrentView, setCurrentView}>
   {#each viewService.views as view (view.id)}
-    <Label class="flex items-center gap-4 md:gap-2 max-md:py-3">
+    <Label class="flex items-center gap-4 md:gap-2 max-md:py-3 cursor-pointer">
       <RadioGroup.Item value={view.id} />
       <span>
         {view.name}
