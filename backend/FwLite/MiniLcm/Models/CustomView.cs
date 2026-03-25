@@ -35,24 +35,24 @@ public class ViewWritingSystem
 
 public record CustomView : IObjectWithId<CustomView>
 {
-    public virtual Guid Id { get; set; }
+    public Guid Id { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
 
-    public virtual required string Name { get; set; }
+    public required string Name { get; set; }
     public ViewBase Base { get; set; }
 
     // Visibility = presence in the array. Field order in the list is ignored; builtin order is used,
     // If view-level ordering is desired, an explicit flag should be introduced on the view,
     // since project-level field ordering is more likely.
-    public virtual ViewField[] EntryFields { get; set; } = [];
-    public virtual ViewField[] SenseFields { get; set; } = [];
-    public virtual ViewField[] ExampleFields { get; set; } = [];
+    public ViewField[] EntryFields { get; set; } = [];
+    public ViewField[] SenseFields { get; set; } = [];
+    public ViewField[] ExampleFields { get; set; } = [];
 
     // Visibility = presence in the array. WS order comes from the project.
     // If view-level WS ordering were introduced, it should probably propagate to views,
     // so an explicit flag would be appropriate.
-    public virtual ViewWritingSystem[]? Vernacular { get; set; } // null = inherit project defaults
-    public virtual ViewWritingSystem[]? Analysis { get; set; } // null = inherit project defaults
+    public ViewWritingSystem[]? Vernacular { get; set; } // null = inherit project defaults
+    public ViewWritingSystem[]? Analysis { get; set; } // null = inherit project defaults
 
     public Guid[] GetReferences()
     {
