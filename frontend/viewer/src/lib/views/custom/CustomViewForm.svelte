@@ -57,6 +57,7 @@
   );
 
   async function submit() {
+    error = undefined;
     const errorViewText = validateForm(value);
     if (errorViewText) {
       error = $t(pt(errorViewText, viewService.currentView));
