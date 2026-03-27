@@ -45,7 +45,7 @@
   let error = $state<string | undefined>(undefined);
 
   watch(
-    () => value?.base,
+    () => value.base,
     () => {
       if (!fieldSelectionDirty && value) {
         const baseView = value.base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW : FW_LITE_VIEW;
@@ -57,7 +57,6 @@
   );
 
   async function submit() {
-    if (!value) return;
     const errorViewText = validateForm(value);
     if (errorViewText) {
       error = $t(pt(errorViewText, viewService.currentView));
