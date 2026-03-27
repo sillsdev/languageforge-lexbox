@@ -1866,9 +1866,15 @@ msgid "Toggle pinned"
 msgstr "고정 토글"
 
 #. Field label
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "번역"
+
+#. Language-specific translation field
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+msgid "Translation {0}"
+msgstr "번역 {0}"
 
 #. Menu item for help/debug
 #: src/home/HomeView.svelte

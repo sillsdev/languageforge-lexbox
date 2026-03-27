@@ -52,8 +52,7 @@
 
   <Editor.Field.Root fieldId="translations" class={cn(fields.translations?.show || 'hidden', 'space-y-2 items-center')}>
     {#each (example.translations.length ? example.translations : [draftTranslation(example)]) as translation, i (translation.id)}
-      {@const label = $t(entityConfig.example.translations.label)}
-      {@const title = example.translations.length > 1 ? `${label} ${i + 1}` : label}
+      {@const title = example.translations.length > 1 ? $t`Translation ${i + 1}` : $t`Translation`}
       <Editor.SubGrid class="items-baseline">
         <Editor.Field.Title name={title} helpId={entityConfig.example.translations.helpId}/>
         <Editor.Field.Body subGrid>

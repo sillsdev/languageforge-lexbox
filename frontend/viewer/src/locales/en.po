@@ -1861,9 +1861,14 @@ msgid "Toggle pinned"
 msgstr "Toggle pinned"
 
 #. Field label
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Translation"
+
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+msgid "Translation {0}"
+msgstr "Translation {0}"
 
 #. Menu item for help/debug
 #: src/home/HomeView.svelte
