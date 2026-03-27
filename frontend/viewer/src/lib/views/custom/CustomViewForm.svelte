@@ -29,7 +29,7 @@
   // svelte-ignore state_referenced_locally
   let fieldSelectionDirty = $state(!!editingValue);
   // svelte-ignore state_referenced_locally
-  const value = $state($state.snapshot(editingValue) ?? defaultCustomView());
+  const value = $state(editingValue ?? defaultCustomView());
 
   function defaultCustomView(): CustomView {
     const { root: _, ...view } = FW_LITE_VIEW;
