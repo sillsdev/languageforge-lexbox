@@ -2,8 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {hasVisibleFields, objectTemplateAreas} from './view-service.svelte';
 import {isCustomView, BUILT_IN_VIEWS, FW_LITE_VIEW, FW_CLASSIC_VIEW, type View, type TypedViewField} from './view-data';
 import {ViewService} from './view-service.svelte';
-import {ViewBase} from '$lib/dotnet-types';
-import type {CustomView} from './view-data';
+import {ViewBase, type ICustomView} from '$lib/dotnet-types';
 import type {CustomViewService} from '$project/data/custom-view-service.svelte';
 import type {FieldId} from './entity-config';
 import type {ProjectStorage} from '$lib/storage';
@@ -59,11 +58,11 @@ describe('isCustomView', () => {
   });
 
   it('returns true when the view is marked as custom', () => {
-    const custom: View = {
+    const custom = {
       ...FW_LITE_VIEW,
       id: 'custom-1',
-      custom: true,
-    } as CustomView;
+      custom: true as const,
+    };
     expect(isCustomView(custom)).toBe(true);
   });
 });
@@ -71,8 +70,8 @@ describe('isCustomView', () => {
 // -- ViewService tests --
 
 class MockCustomViewService {
-  current = $state<CustomView[]>([]);
-  constructor(views: CustomView[] = []) {
+  current = $state<ICustomView[]>([]);
+  constructor(views: ICustomView[] = []) {
     this.current = views;
   }
 }
@@ -83,7 +82,7 @@ const mockProjectStorage = {
   }
 } as unknown as ProjectStorage;
 
-function createViewService(customViews: CustomView[] = []): {service: ViewService, mockCustomViewService: MockCustomViewService} {
+function createViewService(customViews: ICustomView[] = []): {service: ViewService, mockCustomViewService: MockCustomViewService} {
   const mockCustomViewService = new MockCustomViewService(customViews);
   return {service: new ViewService(mockCustomViewService as unknown as CustomViewService, mockProjectStorage, {persist: false}), mockCustomViewService};
 }
@@ -95,11 +94,13 @@ describe('ViewService', () => {
   });
 
   it('includes built-in and custom views in the views list', () => {
-    const custom: CustomView = {
-      ...FW_LITE_VIEW,
+    const custom: ICustomView = {
       id: 'custom-1',
       name: 'My Custom View',
-      custom: true,
+      base: ViewBase.FwLite,
+      entryFields: [{fieldId: 'lexemeForm'}],
+      senseFields: [],
+      exampleFields: [],
     };
     const {service} = createViewService([custom]);
     expect(service.views.map(v => v.id)).toContain('custom-1');
@@ -144,11 +145,13 @@ describe('ViewService', () => {
   });
 
   it('rootView reflects the base of the current view', () => {
-    const custom: CustomView = {
-      ...FW_LITE_VIEW,
+    const custom: ICustomView = {
       id: 'custom-1',
       name: 'My Custom View',
-      custom: true,
+      base: ViewBase.FwLite,
+      entryFields: [{fieldId: 'lexemeForm'}],
+      senseFields: [],
+      exampleFields: [],
     };
     const {service} = createViewService([custom]);
 
@@ -164,11 +167,13 @@ describe('ViewService', () => {
   });
 
   it('deleting the currently selected custom view reverts to the first built-in view', () => {
-    const custom: CustomView = {
-      ...FW_CLASSIC_VIEW,
+    const custom: ICustomView = {
       id: 'custom-1',
       name: 'My Custom View',
-      custom: true,
+      base: ViewBase.FieldWorks,
+      entryFields: [{fieldId: 'lexemeForm'}],
+      senseFields: [],
+      exampleFields: [],
     };
     const {service, mockCustomViewService} = createViewService([custom]);
     service.selectView(custom.id);

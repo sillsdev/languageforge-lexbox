@@ -2,17 +2,17 @@
   import * as Dialog from '$lib/components/ui/dialog';
   import {t} from 'svelte-i18n-lingui';
   import CustomViewForm from './CustomViewForm.svelte';
-  import type {CustomView} from '../view-data';
+  import type {ICustomView} from '$lib/dotnet-types';
 
   interface Props {
     open: boolean;
-    value: CustomView;
-    onSave: (result: CustomView) => void | Promise<void>;
+    value: ICustomView;
+    onSave: (result: ICustomView) => void | Promise<void>;
   }
 
   let {open = $bindable(), value, onSave}: Props = $props();
 
-  async function handleSave(result: CustomView) {
+  async function handleSave(result: ICustomView) {
     await onSave(result);
     open = false;
   }

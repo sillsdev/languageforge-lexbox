@@ -1,7 +1,7 @@
 import {getContext, setContext} from 'svelte';
-import {ViewBase} from '$lib/dotnet-types';
+import {ViewBase, type ICustomView, type IViewField} from '$lib/dotnet-types';
 import {useCustomViewService, type CustomViewService} from '$project/data/custom-view-service.svelte';
-import {BUILT_IN_VIEWS, FW_CLASSIC_VIEW, FW_LITE_VIEW, type RootView, type TypedViewField, type View} from './view-data';
+import {BUILT_IN_VIEWS, FW_CLASSIC_VIEW, FW_LITE_VIEW, type CustomView, type RootView, type TypedViewField, type View} from './view-data';
 import type {FieldId} from './entity-config';
 import {type ProjectStorage, useProjectStorage} from '$lib/storage/project-storage.svelte';
 
@@ -29,7 +29,10 @@ export class ViewService {
   #override = $state<View | null>(null);
   #persist: boolean;
 
-  views: View[] = $derived.by(() => ([...BUILT_IN_VIEWS, ...this.#customViewService.current]));
+  views: View[] = $derived.by(() => ([
+    ...BUILT_IN_VIEWS,
+    ...this.#customViewService.current.map(v => fromApiCustomView(v)),
+  ]));
 
   currentView: View = $derived.by(() => {
     if (this.#override) return this.#override;
@@ -81,4 +84,25 @@ export function objectTemplateAreas(fields: TypedViewField<FieldId>[]): string {
     .filter((field) => field.show)
     .map((field) => `"${field.fieldId} ${field.fieldId} ${field.fieldId}"`)
     .join(' ');
+}
+
+function fromApiCustomView(customView: ICustomView): CustomView {
+  const baseView = structuredClone(customView.base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW : FW_LITE_VIEW);
+  return {
+    ...customView,
+    custom: true,
+    entryFields: resolveViewFields(customView.entryFields, baseView.entryFields),
+    senseFields: resolveViewFields(customView.senseFields, baseView.senseFields),
+    exampleFields: resolveViewFields(customView.exampleFields, baseView.exampleFields),
+  };
+}
+
+/** Applies API visibility and ordering to the default fields, backfilling any missing fields as hidden. */
+function resolveViewFields<T extends FieldId>(apiFields: IViewField[] | undefined, defaults: TypedViewField<T>[]): TypedViewField<T>[] {
+  if (!apiFields) return defaults.map((f) => ({...f}));
+  return defaults.map((f) => ({...f, show: !!apiFields.find(_f => _f.fieldId === f.fieldId)}));
+}
+
+export function toApiViewFields(fields: TypedViewField<FieldId>[]): IViewField[] {
+  return fields.filter(f => f.show).map(f => ({fieldId: f.fieldId}));
 }

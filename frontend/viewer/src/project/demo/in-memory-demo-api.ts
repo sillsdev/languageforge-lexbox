@@ -410,24 +410,18 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     throw new Error('Method not implemented.');
   }
 
-  createCustomView(_customView: ICustomView): Promise<ICustomView> {
-    const created: ICustomView = {
-      ..._customView,
-      deletedAt: undefined,
-    };
-    this._customViews = [...this._customViews, JSON.parse(JSON.stringify(created)) as ICustomView];
-    return Promise.resolve(JSON.parse(JSON.stringify(created)) as ICustomView);
+  createCustomView(customView: ICustomView): Promise<ICustomView> {
+    const created = JSON.parse(JSON.stringify(customView)) as ICustomView
+    this._customViews = [...this._customViews, created];
+    return Promise.resolve(created);
   }
 
-  updateCustomView(_id: string, _customView: ICustomView): Promise<ICustomView> {
-    const index = this._customViews.findIndex(v => v.id === _id);
-    if (index === -1) throw new Error(`Custom view ${_id} not found`);
-    const updated: ICustomView = {
-      ..._customView,
-      id: _id,
-    };
-    this._customViews = this._customViews.map((v, i) => i === index ? (JSON.parse(JSON.stringify(updated)) as ICustomView) : v);
-    return Promise.resolve(JSON.parse(JSON.stringify(updated)) as ICustomView);
+  updateCustomView(_customView: ICustomView): Promise<ICustomView> {
+    const index = this._customViews.findIndex(v => v.id === _customView.id);
+    if (index === -1) throw new Error(`Custom view ${_customView.id} not found`);
+    const updated = JSON.parse(JSON.stringify(_customView)) as ICustomView;
+    this._customViews = this._customViews.map((v, i) => i === index ? updated : v);
+    return Promise.resolve(updated);
   }
 
   deleteCustomView(_id: string): Promise<void> {

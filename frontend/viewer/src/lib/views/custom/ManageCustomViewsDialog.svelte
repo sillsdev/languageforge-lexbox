@@ -3,13 +3,13 @@
   import {Button} from '$lib/components/ui/button';
   import {t} from 'svelte-i18n-lingui';
   import {useViewService} from '../view-service.svelte';
-  import {FW_CLASSIC_VIEW, FW_LITE_VIEW, type CustomView} from '../view-data';
+  import {FW_CLASSIC_VIEW, FW_LITE_VIEW} from '../view-data';
   import {Icon} from '$lib/components/ui/icon';
   import CreateCustomViewDialog from './CreateCustomViewDialog.svelte';
   import EditCustomViewDialog from './EditCustomViewDialog.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useCustomViewService} from '$project/data/custom-view-service.svelte';
-  import {ViewBase} from '$lib/dotnet-types';
+  import {ViewBase, type ICustomView} from '$lib/dotnet-types';
 
   interface Props {
     open: boolean;
@@ -24,7 +24,7 @@
 
   let createOpen = $state(false);
   let editOpen = $state(false);
-  let editValue = $state<CustomView | undefined>(undefined);
+  let editValue = $state<ICustomView | undefined>(undefined);
 
   const subDialogOpen = $derived(createOpen || editOpen);
   // We close the "manage" dialog if a "sub" dialog is open, because
@@ -32,23 +32,23 @@
   // We also happen to get more elegant animations this way.
   const manageOpen = $derived(open && !subDialogOpen);
 
-  function openEdit(view: CustomView) {
+  function openEdit(view: ICustomView) {
     editValue = structuredClone(view);
     editOpen = true;
   }
 
-  async function onCreate(result: CustomView) {
+  async function onCreate(result: ICustomView) {
     const created = await customViewService.add(result);
     viewService.selectView(created.id);
   }
 
-  async function onDelete(view: CustomView) {
+  async function onDelete(view: ICustomView) {
     const shouldDelete = await dialogsService.promptDelete($t`Custom view`, view.name);
     if (!shouldDelete) return;
     await customViewService.delete(view.id);
   }
 
-  async function onSave(result: CustomView) {
+  async function onSave(result: ICustomView) {
     if (!result.id) throw new Error('Edited custom view missing ID');
     if (result.id !== editValue?.id) throw new Error('Custom view IDs don\'t match')
     await customViewService.update(result.id, result);

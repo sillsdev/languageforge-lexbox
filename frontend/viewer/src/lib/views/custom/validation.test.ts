@@ -1,18 +1,20 @@
-import type {IViewField, IViewWritingSystem} from '$lib/dotnet-types';
+import {ViewBase, type ICustomView} from '$lib/dotnet-types';
 import {describe, expect, it} from 'vitest';
 
 import {validateForm} from './validation';
 
-const baseParams = {
+const baseParams: ICustomView = {
+  id: 'test-view',
   name: 'My View',
+  base: ViewBase.FwLite,
   entryFields: [
     {fieldId: 'lexemeForm'},
     {fieldId: 'citationForm'},
-  ] as IViewField[],
-  senseFields: [{fieldId: 'gloss'}] as IViewField[],
-  exampleFields: [] as IViewField[],
-  vernacular: [{wsId: 'en'}] as IViewWritingSystem[],
-  analysis: [{wsId: 'fr'}] as IViewWritingSystem[],
+  ],
+  senseFields: [{fieldId: 'gloss'}],
+  exampleFields: [],
+  vernacular: [{wsId: 'en'}],
+  analysis: [{wsId: 'fr'}],
 };
 
 describe('validateForm', () => {

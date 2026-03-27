@@ -5,20 +5,20 @@
   import {Input} from '$lib/components/ui/input';
   import {t} from 'svelte-i18n-lingui';
 
-  import {FW_CLASSIC_VIEW, FW_LITE_VIEW, type CustomView} from '../view-data';
-  import {ViewBase} from '$lib/dotnet-types';
+  import {FW_CLASSIC_VIEW, FW_LITE_VIEW} from '../view-data';
+  import {ViewBase, type ICustomView} from '$lib/dotnet-types';
   import {validateForm} from './validation';
   import {randomId} from '$lib/utils';
 
   import CustomViewEntityFields from './CustomViewEntityFields.svelte';
   import CustomViewWritingSystems from './CustomViewWritingSystems.svelte';
-  import {useViewService} from '../view-service.svelte';
+  import {toApiViewFields, useViewService} from '../view-service.svelte';
   import {pt} from '../view-text';
 
   interface Props {
-    value?: CustomView | null;
+    value?: ICustomView | null;
     submitLabel: string;
-    onSubmit: (result: CustomView) => void | Promise<void>;
+    onSubmit: (result: ICustomView) => void | Promise<void>;
     onCancel: () => void;
   }
 
@@ -31,13 +31,15 @@
   // svelte-ignore state_referenced_locally
   const value = $state(editingValue ?? defaultCustomView());
 
-  function defaultCustomView(): CustomView {
-    const { root: _, ...view } = FW_LITE_VIEW;
+  function defaultCustomView(base: ViewBase = ViewBase.FwLite): ICustomView {
+    const root = base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW : FW_LITE_VIEW;
     return {
-      ...structuredClone(view),
-      custom: true as const,
       id: randomId(),
       name: '',
+      base: root.base,
+      entryFields: toApiViewFields(root.entryFields),
+      senseFields: toApiViewFields(root.senseFields),
+      exampleFields: toApiViewFields(root.exampleFields),
     };
   }
 
@@ -48,10 +50,10 @@
     () => value.base,
     () => {
       if (!fieldSelectionDirty && value) {
-        const baseView = value.base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW : FW_LITE_VIEW;
-        value.entryFields = baseView.entryFields.map((f) => ({...f}));
-        value.senseFields = baseView.senseFields.map((f) => ({...f}));
-        value.exampleFields = baseView.exampleFields.map((f) => ({...f}));
+        const baseView = defaultCustomView(value.base);
+        value.entryFields = baseView.entryFields;
+        value.senseFields = baseView.senseFields;
+        value.exampleFields = baseView.exampleFields;
       }
     },
   );
@@ -101,19 +103,19 @@
         <CustomViewEntityFields
           entityType="entry"
           baseView={value.base}
-          bind:items={() => value.entryFields.filter(field => field.show), (fields) => value.entryFields = fields.map(field => ({...field, show: true}))}
+          bind:items={value.entryFields}
           onchange={() => (fieldSelectionDirty = true)}
         />
         <CustomViewEntityFields
           entityType="sense"
           baseView={value.base}
-          bind:items={() => value.senseFields.filter(field => field.show), (fields) => value.senseFields = fields.map(field => ({...field, show: true}))}
+          bind:items={value.senseFields}
           onchange={() => (fieldSelectionDirty = true)}
         />
         <CustomViewEntityFields
           entityType="example"
           baseView={value.base}
-          bind:items={() => value.exampleFields.filter(field => field.show), (fields) => value.exampleFields = fields.map(field => ({...field, show: true}))}
+          bind:items={value.exampleFields}
           onchange={() => (fieldSelectionDirty = true)}
         />
       </div>
