@@ -239,8 +239,9 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const sortWs = pickWs(options.order.writingSystem, defaultWs);
     return entries
       .sort((e1, e2) => {
-        const v1 = this.#writingSystemService.headword(e1, sortWs);
-        const v2 = this.#writingSystemService.headword(e2, sortWs);
+        // morph-tokens should not be included when sorting
+        const v1 = e1.citationForm[sortWs] || e1.lexemeForm[sortWs];
+        const v2 = e2.citationForm[sortWs] || e2.lexemeForm[sortWs];
         if (!v2) return -1;
         if (!v1) return 1;
         let compare = v1.localeCompare(v2, sortWs);
