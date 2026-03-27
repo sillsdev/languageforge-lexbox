@@ -72,7 +72,6 @@ public class MiniLcmRepository(
     public IQueryable<WritingSystem> WritingSystemsOrdered => dbContext.WritingSystemsOrdered;
     public IQueryable<SemanticDomain> SemanticDomains => dbContext.SemanticDomains;
     public IQueryable<PartOfSpeech> PartsOfSpeech => dbContext.PartsOfSpeech;
-
     public IQueryable<Publication> Publications => dbContext.Publications;
 
 

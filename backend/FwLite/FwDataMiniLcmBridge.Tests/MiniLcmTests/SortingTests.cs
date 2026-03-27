@@ -20,9 +20,9 @@ public class SortingTests(ProjectLoaderFixture fixture) : SortingTestsBase
     [InlineData("a", SortField.SearchRelevance)] // non-FTS
     public async Task SecondaryOrder_DefaultsToStem(string query, SortField sortField)
     {
-        var otherMorphTypeEntryId = Guid.NewGuid();
+        var unknownMorphTypeEntryId = Guid.NewGuid();
         Entry[] expected = [
-            new() { Id = otherMorphTypeEntryId, LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Unknown }, // SecondaryOrder defaults to Stem = 1
+            new() { Id = unknownMorphTypeEntryId, LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Unknown }, // SecondaryOrder defaults to Stem = 1
             new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.BoundStem }, // SecondaryOrder = 2
             new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Suffix }, // SecondaryOrder = 6
         ];
@@ -38,8 +38,8 @@ public class SortingTests(ProjectLoaderFixture fixture) : SortingTestsBase
             () =>
             {
                 // the fwdata api doesn't allow creating entries with MorphType.Other or Unknown, so we force it
-                var otherMorphTypeEntry = fwDataApi.EntriesRepository.GetObject(otherMorphTypeEntryId);
-                otherMorphTypeEntry.LexemeFormOA.MorphTypeRA = null;
+                var unknownMorphTypeEntry = fwDataApi.EntriesRepository.GetObject(unknownMorphTypeEntryId);
+                unknownMorphTypeEntry.LexemeFormOA.MorphTypeRA = null;
                 return ValueTask.CompletedTask;
             });
 
