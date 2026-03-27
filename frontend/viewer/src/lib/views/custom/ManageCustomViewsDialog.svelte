@@ -5,6 +5,7 @@
   import {useViewService} from '../view-service.svelte';
   import {FW_CLASSIC_VIEW, FW_LITE_VIEW} from '../view-data';
   import {Icon} from '$lib/components/ui/icon';
+  import * as ButtonGroup from '$lib/components/ui/button-group';
   import CreateCustomViewDialog from './CreateCustomViewDialog.svelte';
   import EditCustomViewDialog from './EditCustomViewDialog.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
@@ -67,33 +68,29 @@
       {#if customViews.length === 0}
         <p class="text-sm text-muted-foreground">{$t`No custom views yet.`}</p>
       {:else}
-        <div class="rounded-md border divide-y">
+        <div class="space-y-2">
           {#each customViews as view (view.id)}
-            <button
-              type="button"
-              class="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-muted cursor-pointer"
-              onclick={() => openEdit(view)}
-            >
-              <div class="min-w-0">
-                <div class="truncate text-sm font-medium">{view.name}</div>
-                <div class="truncate text-xs text-muted-foreground">
-                  {$t`Based on ${view.base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW.name : FW_LITE_VIEW.name}`}
+            <ButtonGroup.Root class="w-full">
+              <Button
+                variant="outline"
+                class="flex-1 text-start h-auto"
+                onclick={() => openEdit(view)}
+              >
+                <div class="min-w-0 grow">
+                  <div class="truncate text-sm font-medium">{view.name}</div>
+                  <div class="truncate text-xs text-muted-foreground">
+                    {$t`Based on ${view.base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW.name : FW_LITE_VIEW.name}`}
+                  </div>
                 </div>
-              </div>
-              <div class="flex items-center gap-1">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  class="hover:bg-destructive/20! hover:text-destructive"
-                  icon="i-mdi-trash-can-outline"
-                  onclick={(e: MouseEvent) => {
-                    e.stopPropagation();
-                    void onDelete(view);
-                  }}
-                />
                 <Icon icon="i-mdi-chevron-right" class="text-muted-foreground" />
-              </div>
-            </button>
+              </Button>
+              <Button
+                variant="outline"
+                class="h-auto hover:bg-destructive/20! hover:text-destructive"
+                icon="i-mdi-trash-can-outline"
+                onclick={() => void onDelete(view)}
+              />
+            </ButtonGroup.Root>
           {/each}
         </div>
       {/if}
