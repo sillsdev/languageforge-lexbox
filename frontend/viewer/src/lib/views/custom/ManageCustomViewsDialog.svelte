@@ -52,6 +52,7 @@
     if (!result.id) throw new Error('Edited custom view missing ID');
     if (result.id !== editValue?.id) throw new Error('Custom view IDs don\'t match')
     await customViewService.update(result);
+    viewService.selectView(result.id);
   }
 </script>
 
