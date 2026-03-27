@@ -230,13 +230,21 @@
             return true;
           },
           'Shift-Enter': (state, dispatch) => {
+            // If the field becomes empty, Siht+Enter results in a RangeError (seen in Chrome)
+            // And there's no reason to add a new line to an empty field
+            if (!state.doc.textContent) return true;
             if (dispatch) dispatch(state.tr.insertText(newLine));
             return true;
           },
           // eslint-disable-next-line @typescript-eslint/naming-convention
           Backspace: (state) => {
             // If the field is empty, backspace results in an error (on older devices at least)
-            return state.doc.content.size === 0;
+            return !state.doc.textContent;
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          Delete: (state) => {
+            // If the field becomes empty, delete results in a RangeError (seen in Chrome)
+            return !state.doc.textContent;
           },
         }),
         keymap(baseKeymap),
