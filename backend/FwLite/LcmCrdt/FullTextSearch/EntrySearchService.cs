@@ -81,7 +81,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             // this does not include morph tokens, which is actually what we want. Morph-tokens should not affect sorting.
             // If the user uses a citation form with morph tokens, then oh well. Not even FLEx trips the morph-tokens before sorting in that case.
             let headword = entry.Headword(wsId)
-            let headwordQuery = string.IsNullOrEmpty(Json.Value(entry.CitationForm, ms => ms[wsId]))
+            let headwordQuery = string.IsNullOrEmpty((Json.Value(entry.CitationForm, ms => ms[wsId]) ?? "").Trim())
                 ? queryWithoutMorphTokens : query
             let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(headword, headwordQuery)
             let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(headword, headwordQuery)
