@@ -56,7 +56,7 @@ public class CustomViewTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
     public async Task UpdateCustomView_AllowsManager()
     {
         var created = await CreateViewAsManager("My View");
-        var updated = await fixture.Api.UpdateCustomView(created.Id, created with { Name = "My Updated View" });
+        var updated = await fixture.Api.UpdateCustomView(created with { Name = "My Updated View" });
 
         var allCustomViews = await fixture.Api.GetCustomViews().ToArrayAsync();
         allCustomViews.Should().Contain(v => v.Id == created.Id && v.Name == "My Updated View");
@@ -69,7 +69,7 @@ public class CustomViewTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
 
         await SetCurrentUser(EditorUserId, UserProjectRole.Editor);
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
-            fixture.Api.UpdateCustomView(created.Id, created with { Name = "Should Fail" }));
+            fixture.Api.UpdateCustomView(created with { Name = "Should Fail" }));
     }
 
     [Fact]

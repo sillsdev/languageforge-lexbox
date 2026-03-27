@@ -828,12 +828,13 @@ public class CrdtMiniLcmApi(
         return await GetCustomView(customView.Id) ?? throw NotFoundException.ForType<CustomView>(customView.Id);
     }
 
-    public async Task<CustomView> UpdateCustomView(Guid id, CustomView customView)
+    public async Task<CustomView> UpdateCustomView(CustomView customView)
     {
         AssertManagerRoleForCustomViewWrite();
         await using var repo = await repoFactory.CreateRepoAsync();
-        var existing = await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
-        await AddChange(new EditCustomViewChange(existing.Id, customView));
+        var id = customView.Id;
+        var _ = await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
+        await AddChange(new EditCustomViewChange(id, customView));
         return await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
     }
 

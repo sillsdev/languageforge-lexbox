@@ -55,7 +55,7 @@ export interface IMiniLcmJsInvokable
 	updateComplexFormType(before: IComplexFormType, after: IComplexFormType) : Promise<IComplexFormType>;
 	deleteComplexFormType(id: string) : Promise<void>;
 	createCustomView(customView: ICustomView) : Promise<ICustomView>;
-	updateCustomView(id: string, customView: ICustomView) : Promise<ICustomView>;
+	updateCustomView(customView: ICustomView) : Promise<ICustomView>;
 	deleteCustomView(id: string) : Promise<void>;
 	createEntry(entry: IEntry) : Promise<IEntry>;
 	updateEntry(before: IEntry, after: IEntry) : Promise<IEntry>;

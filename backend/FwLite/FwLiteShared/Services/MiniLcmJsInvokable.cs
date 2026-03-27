@@ -253,9 +253,9 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public async Task<CustomView> UpdateCustomView(Guid id, CustomView customView)
+    public async Task<CustomView> UpdateCustomView(CustomView customView)
     {
-        var updatedCustomView = await _wrappedApi.UpdateCustomView(id, customView);
+        var updatedCustomView = await _wrappedApi.UpdateCustomView(customView);
         OnDataChanged();
         return updatedCustomView;
     }

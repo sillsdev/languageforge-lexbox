@@ -51,7 +51,7 @@
   async function onSave(result: ICustomView) {
     if (!result.id) throw new Error('Edited custom view missing ID');
     if (result.id !== editValue?.id) throw new Error('Custom view IDs don\'t match')
-    await customViewService.update(result.id, result);
+    await customViewService.update(result);
   }
 </script>
 

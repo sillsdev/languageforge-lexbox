@@ -117,7 +117,7 @@ public interface IMiniLcmWriteApi
     {
         throw new NotSupportedException("Custom views are only supported by CRDT projects");
     }
-    Task<CustomView> UpdateCustomView(Guid id, CustomView customView)
+    Task<CustomView> UpdateCustomView(CustomView customView)
     {
         throw new NotSupportedException("Custom views are only supported by CRDT projects");
     }
