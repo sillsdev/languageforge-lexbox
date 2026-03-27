@@ -8,7 +8,9 @@
   let {onClose}: {onClose?: () => void} = $props();
   const projectContext = useProjectContext();
   const dialogsService = useDialogsService();
-  const canManageCustomViews = $derived(projectContext.projectData?.role === UserProjectRole.Manager);
+  const canManageCustomViews = $derived(
+    projectContext.features.customViews && projectContext.projectData?.role === UserProjectRole.Manager
+  );
 </script>
 
 {#if canManageCustomViews}

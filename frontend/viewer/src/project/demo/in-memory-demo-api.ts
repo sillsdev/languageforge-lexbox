@@ -180,6 +180,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve({
       write: true,
       audio: true,
+      customViews: true,
     } satisfies IMiniLcmFeatures);
   }
 

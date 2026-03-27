@@ -24,14 +24,14 @@ public class MiniLcmJsInvokable(
 {
     private readonly IMiniLcmApi _wrappedApi = api.WrapWith([normalizationWrapperFactory, validationWrapperFactory, notificationWrapperFactory], project);
 
-    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio);
+    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio, bool? CustomViews);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
     [JSInvokable]
     public MiniLcmFeatures SupportedFeatures()
     {
         var isCrdtProject = project.DataFormat == ProjectDataFormat.Harmony;
         var isFwDataProject = project.DataFormat == ProjectDataFormat.FwData;
-        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true);
+        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true, CustomViews: isCrdtProject);
     }
 
     private bool CanWrite =>
