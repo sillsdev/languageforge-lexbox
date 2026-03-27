@@ -33,7 +33,7 @@
   const manageOpen = $derived(open && !subDialogOpen);
 
   function openEdit(view: ICustomView) {
-    editValue = structuredClone(view);
+    editValue = structuredClone($state.snapshot(view));
     editOpen = true;
   }
 
