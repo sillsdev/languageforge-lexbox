@@ -505,30 +505,6 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         fwdataStemAfterSync.Abbreviation["en"].Should().Be(newAbbr);
     }
 
-    [Fact(Skip = "Needs validation wrapper around test fixture API in order to properly reject UpdateMorphType")]
-    [Trait("Category", "Integration")]
-    public async Task MorphTypeUpdatesMayNotChangeKind()
-    {
-        var crdtApi = _fixture.CrdtApi;
-        var fwdataApi = _fixture.FwDataApi;
-        await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
-        var fwdataStem = await fwdataApi.GetMorphType(MorphTypeKind.Stem);
-        fwdataStem.Should().NotBeNull();
-        var stem = await crdtApi.GetMorphType(MorphTypeKind.Stem);
-        stem.Should().NotBeNull();
-
-        var editedStem = stem.Copy();
-        editedStem.Kind = MorphTypeKind.BoundStem;
-        // Validation wrapper is supposed to catch this, but this test fixture doesn't have the validation wrapper around the API
-        // TODO: Figure out how to wrap the validation wrapper around crdtApi just for this test, then unskip the test
-        await crdtApi.UpdateMorphType(stem, editedStem);
-
-        var syncResult = await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
-        syncResult.CrdtChanges.Should().Be(0);
-        syncResult.FwdataChanges.Should().Be(0);
-    }
-
     [Fact]
     [Trait("Category", "Integration")]
     public async Task MorphTypeCreationDoesNotSyncCrdtToFw()
