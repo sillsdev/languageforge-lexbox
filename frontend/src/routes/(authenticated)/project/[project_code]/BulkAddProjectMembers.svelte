@@ -29,10 +29,11 @@
   }
 
   const { projectId, userLocale }: Props = $props();
+
   const schema = z.object({
     usernamesText: z.string().trim().min(1, $t('project_page.bulk_add_members.empty_user_field')),
     password: passwordFormRules($t),
-    locale: z.string().trim().min(2).default(userLocale),
+    locale: z.string().trim().min(2),
   });
 
   let formModal: FormModal<typeof schema> | undefined = $state();
@@ -59,7 +60,7 @@
   async function openModal(): Promise<void> {
     if (!formModal) return;
     currentStep = BulkAddSteps.Add;
-    const { response } = await formModal.open(undefined, async (state) => {
+    const { response } = await formModal.open({ locale: userLocale }, async (state) => {
       const passwordHash = await hash(state.password.currentValue);
       const usernames = state.usernamesText.currentValue
         .split('\n')

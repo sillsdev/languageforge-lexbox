@@ -7,13 +7,12 @@
   import {DropdownMenuContent} from '../ui/dropdown-menu';
   import * as Drawer from '../ui/drawer';
   import type {Snippet} from 'svelte';
-  import type {ContextMenuContentProps, DropdownMenuContentProps} from 'bits-ui';
+  import type {ContextMenuContentProps} from 'bits-ui';
   import type {DrawerContentProps} from 'vaul-svelte';
 
   type Props = {
     children?: Snippet;
   } & ContextMenuContentProps &
-    DropdownMenuContentProps &
     DrawerContentProps;
 
   let {children, ref = $bindable(null), ...rest}: Props = $props();
