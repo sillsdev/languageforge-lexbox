@@ -14,7 +14,7 @@ public class FilteringTests
             new Entry { LexemeForm = { { "en", "123" } }, },
             new Entry { LexemeForm = { { "en", "456" } }, }
         ];
-        _morphTypes = Array.Empty<MorphType>().AsQueryable();
+        _morphTypes = new MorphType[] { new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Stem, Name = { ["en"] = "Stem" }, SecondaryOrder = 1 } }.AsQueryable();
     }
 
     [Theory]

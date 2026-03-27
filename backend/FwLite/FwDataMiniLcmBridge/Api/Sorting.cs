@@ -13,7 +13,7 @@ internal static class Sorting
             return entries
                 .OrderBy(e => e.LexEntryHeadword(sortWsHandle, applyMorphTokens: false))
                 .ThenBy(e => e.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
-                .ThenBy(e => e.HomographNumber)
+                // .ThenBy(e => e.HomographNumber)
                 .ThenBy(e => e.Id.Guid);
         }
         else
@@ -21,7 +21,7 @@ internal static class Sorting
             return entries
                 .OrderByDescending(e => e.LexEntryHeadword(sortWsHandle, applyMorphTokens: false))
                 .ThenByDescending(e => e.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
-                .ThenByDescending(e => e.HomographNumber)
+                // .ThenByDescending(e => e.HomographNumber)
                 .ThenByDescending(e => e.Id.Guid);
         }
     }
@@ -42,7 +42,7 @@ internal static class Sorting
                 .ThenBy(x => x.Headword?.Length ?? 0)
                 .ThenBy(x => x.Headword)
                 .ThenBy(x => x.Entry.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
-                .ThenBy(x => x.Entry.HomographNumber)
+                // .ThenBy(x => x.Entry.HomographNumber)
                 .ThenBy(x => x.Entry.Id.Guid)
                 .Select(x => x.Entry);
         }
@@ -54,7 +54,7 @@ internal static class Sorting
                 .ThenByDescending(x => x.Headword?.Length ?? 0)
                 .ThenByDescending(x => x.Headword)
                 .ThenByDescending(x => x.Entry.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
-                .ThenByDescending(x => x.Entry.HomographNumber)
+                // .ThenByDescending(x => x.Entry.HomographNumber)
                 .ThenByDescending(x => x.Entry.Id.Guid)
                 .Select(x => x.Entry);
         }
