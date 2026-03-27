@@ -62,7 +62,7 @@
     error = undefined;
     const errorViewText = validateForm(value);
     if (errorViewText) {
-      error = $t(pt(errorViewText, viewService.currentView));
+      error = pt(errorViewText, viewService.currentView);
       return;
     }
 
