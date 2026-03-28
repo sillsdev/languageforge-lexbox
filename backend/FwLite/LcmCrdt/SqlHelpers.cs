@@ -36,4 +36,7 @@ public static class SqlHelpers
 
     [Sql.Expression(CustomSqliteFunctionInterceptor.StartsWithFunction + "({0}, {1})")]
     public static bool StartsWithIgnoreCaseAccents(string s, string search) => s.StartsWithDiacriticMatch(search);
+
+    [Sql.Expression("({0} || {1} || {2})", PreferServerSide = true)]
+    public static string ConcatTokens(string leading, string value, string trailing) => leading + value + trailing;
 }

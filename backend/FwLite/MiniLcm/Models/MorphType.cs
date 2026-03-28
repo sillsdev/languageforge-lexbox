@@ -30,7 +30,7 @@ public enum MorphTypeKind
 public class MorphType : IObjectWithId<MorphType>
 {
     public virtual Guid Id { get; set; }
-    public virtual MorphTypeKind Kind { get; set; }
+    public virtual required MorphTypeKind Kind { get; set; }
     public virtual MultiString Name { get; set; } = [];
     public virtual MultiString Abbreviation { get; set; } = [];
     public virtual RichMultiString Description { get; set; } = [];

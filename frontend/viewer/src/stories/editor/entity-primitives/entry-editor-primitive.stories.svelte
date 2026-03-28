@@ -9,6 +9,9 @@
 
   let entry: IEntry = $state({
     id: '36b8f84d-df4e-4d49-b662-bcde71a8764f',
+    headword: {
+      'seh': 'Citation form',
+    },
     lexemeForm: {
       'seh': 'Lexeme form',
     },

@@ -1,6 +1,112 @@
 ﻿{
   "Entries": [
     {
+      "Id": "cd045907-e8fc-46a3-8f8d-f71bd956275f",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "seh": "a"
+      },
+      "CitationForm": {},
+      "LiteralMeaning": {},
+      "MorphType": "Root",
+      "Senses": [
+        {
+          "Id": "c33c51d4-f405-4d34-99c3-5eb36881a0d1",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "cd045907-e8fc-46a3-8f8d-f71bd956275f",
+          "Definition": {
+            "en": {
+              "Spans": [
+                {
+                  "Text": "of",
+                  "Ws": "en"
+                }
+              ]
+            },
+            "pt": {
+              "Spans": [
+                {
+                  "Text": "de",
+                  "Ws": "pt"
+                }
+              ]
+            }
+          },
+          "Gloss": {
+            "en": "ASSOC",
+            "pt": "ASSOC"
+          },
+          "PartOfSpeech": {
+            "Id": "8d0461bd-2b2e-4d65-9f17-0ab5b99d0736",
+            "Name": {
+              "en": "Associative",
+              "pt": "Associativo"
+            },
+            "DeletedAt": null,
+            "Predefined": false
+          },
+          "PartOfSpeechId": "8d0461bd-2b2e-4d65-9f17-0ab5b99d0736",
+          "SemanticDomains": [],
+          "ExampleSentences": [
+            {
+              "Id": "6f7fe99a-de48-4761-b58f-688bfec15073",
+              "Order": 1,
+              "Sentence": {
+                "seh": {
+                  "Spans": [
+                    {
+                      "Text": "mwana wa Fa\u0301tima",
+                      "Ws": "seh"
+                    }
+                  ]
+                }
+              },
+              "Translations": [
+                {
+                  "Id": "2e9fb296-e4a6-4959-ad95-d18d19474a3d",
+                  "Text": {
+                    "en": {
+                      "Spans": [
+                        {
+                          "Text": "child of Fatima",
+                          "Ws": "en"
+                        }
+                      ]
+                    },
+                    "pt": {
+                      "Spans": [
+                        {
+                          "Text": "crianc\u0327a de Fa\u0301tima",
+                          "Ws": "pt"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "Reference": null,
+              "SenseId": "c33c51d4-f405-4d34-99c3-5eb36881a0d1",
+              "DeletedAt": null
+            }
+          ]
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": [
+        {
+          "Id": "70c0a758-5901-4884-b992-94ca31087607",
+          "DeletedAt": null,
+          "Name": {
+            "en": "Main Dictionary"
+          }
+        }
+      ]
+    },
+    {
       "Id": "34779c06-5a73-4fe9-8325-b110b23f9293",
       "DeletedAt": null,
       "LexemeForm": {
@@ -363,160 +469,6 @@
       ]
     },
     {
-      "Id": "af56599e-3eb6-4b61-984d-f69267a0b4a2",
-      "DeletedAt": null,
-      "LexemeForm": {
-        "seh": "a"
-      },
-      "CitationForm": {},
-      "LiteralMeaning": {},
-      "MorphType": "Suffix",
-      "Senses": [
-        {
-          "Id": "6b9b59b9-629f-4c8d-90c8-878a40a35ee8",
-          "Order": 1,
-          "DeletedAt": null,
-          "EntryId": "af56599e-3eb6-4b61-984d-f69267a0b4a2",
-          "Definition": {},
-          "Gloss": {
-            "en": "-er",
-            "pt": "nominalizador"
-          },
-          "PartOfSpeech": {
-            "Id": "c99beb3a-995d-4156-a66c-9b7d0860c332",
-            "Name": {
-              "en": "Nominalizer",
-              "pt": "Nominalizador"
-            },
-            "DeletedAt": null,
-            "Predefined": false
-          },
-          "PartOfSpeechId": "c99beb3a-995d-4156-a66c-9b7d0860c332",
-          "SemanticDomains": [],
-          "ExampleSentences": []
-        }
-      ],
-      "Note": {},
-      "Components": [],
-      "ComplexForms": [],
-      "ComplexFormTypes": [],
-      "PublishIn": [
-        {
-          "Id": "70c0a758-5901-4884-b992-94ca31087607",
-          "DeletedAt": null,
-          "Name": {
-            "en": "Main Dictionary"
-          }
-        }
-      ]
-    },
-    {
-      "Id": "cd045907-e8fc-46a3-8f8d-f71bd956275f",
-      "DeletedAt": null,
-      "LexemeForm": {
-        "seh": "a"
-      },
-      "CitationForm": {},
-      "LiteralMeaning": {},
-      "MorphType": "Root",
-      "Senses": [
-        {
-          "Id": "c33c51d4-f405-4d34-99c3-5eb36881a0d1",
-          "Order": 1,
-          "DeletedAt": null,
-          "EntryId": "cd045907-e8fc-46a3-8f8d-f71bd956275f",
-          "Definition": {
-            "en": {
-              "Spans": [
-                {
-                  "Text": "of",
-                  "Ws": "en"
-                }
-              ]
-            },
-            "pt": {
-              "Spans": [
-                {
-                  "Text": "de",
-                  "Ws": "pt"
-                }
-              ]
-            }
-          },
-          "Gloss": {
-            "en": "ASSOC",
-            "pt": "ASSOC"
-          },
-          "PartOfSpeech": {
-            "Id": "8d0461bd-2b2e-4d65-9f17-0ab5b99d0736",
-            "Name": {
-              "en": "Associative",
-              "pt": "Associativo"
-            },
-            "DeletedAt": null,
-            "Predefined": false
-          },
-          "PartOfSpeechId": "8d0461bd-2b2e-4d65-9f17-0ab5b99d0736",
-          "SemanticDomains": [],
-          "ExampleSentences": [
-            {
-              "Id": "6f7fe99a-de48-4761-b58f-688bfec15073",
-              "Order": 1,
-              "Sentence": {
-                "seh": {
-                  "Spans": [
-                    {
-                      "Text": "mwana wa Fa\u0301tima",
-                      "Ws": "seh"
-                    }
-                  ]
-                }
-              },
-              "Translations": [
-                {
-                  "Id": "2e9fb296-e4a6-4959-ad95-d18d19474a3d",
-                  "Text": {
-                    "en": {
-                      "Spans": [
-                        {
-                          "Text": "child of Fatima",
-                          "Ws": "en"
-                        }
-                      ]
-                    },
-                    "pt": {
-                      "Spans": [
-                        {
-                          "Text": "crianc\u0327a de Fa\u0301tima",
-                          "Ws": "pt"
-                        }
-                      ]
-                    }
-                  }
-                }
-              ],
-              "Reference": null,
-              "SenseId": "c33c51d4-f405-4d34-99c3-5eb36881a0d1",
-              "DeletedAt": null
-            }
-          ]
-        }
-      ],
-      "Note": {},
-      "Components": [],
-      "ComplexForms": [],
-      "ComplexFormTypes": [],
-      "PublishIn": [
-        {
-          "Id": "70c0a758-5901-4884-b992-94ca31087607",
-          "DeletedAt": null,
-          "Name": {
-            "en": "Main Dictionary"
-          }
-        }
-      ]
-    },
-    {
       "Id": "d7029d27-45bc-4e53-968e-3c754805eb0a",
       "DeletedAt": null,
       "LexemeForm": {
@@ -535,54 +487,6 @@
           "Gloss": {
             "en": "3S\u002B1",
             "pt": "3S\u002B1"
-          },
-          "PartOfSpeech": {
-            "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-            "Name": {
-              "en": "Verb",
-              "pt": "Verbo"
-            },
-            "DeletedAt": null,
-            "Predefined": true
-          },
-          "PartOfSpeechId": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-          "SemanticDomains": [],
-          "ExampleSentences": []
-        }
-      ],
-      "Note": {},
-      "Components": [],
-      "ComplexForms": [],
-      "ComplexFormTypes": [],
-      "PublishIn": [
-        {
-          "Id": "70c0a758-5901-4884-b992-94ca31087607",
-          "DeletedAt": null,
-          "Name": {
-            "en": "Main Dictionary"
-          }
-        }
-      ]
-    },
-    {
-      "Id": "d7a3eba8-7cd3-43c2-8f77-2dd39d41643c",
-      "DeletedAt": null,
-      "LexemeForm": {
-        "seh": "a"
-      },
-      "CitationForm": {},
-      "LiteralMeaning": {},
-      "MorphType": "Suffix",
-      "Senses": [
-        {
-          "Id": "b2c77883-9555-4f6f-9b63-2d5e3e0921e7",
-          "Order": 1,
-          "DeletedAt": null,
-          "EntryId": "d7a3eba8-7cd3-43c2-8f77-2dd39d41643c",
-          "Definition": {},
-          "Gloss": {
-            "en": "IND",
-            "pt": "IND"
           },
           "PartOfSpeech": {
             "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
@@ -724,6 +628,102 @@
               "DeletedAt": null
             }
           ]
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": [
+        {
+          "Id": "70c0a758-5901-4884-b992-94ca31087607",
+          "DeletedAt": null,
+          "Name": {
+            "en": "Main Dictionary"
+          }
+        }
+      ]
+    },
+    {
+      "Id": "af56599e-3eb6-4b61-984d-f69267a0b4a2",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "seh": "a"
+      },
+      "CitationForm": {},
+      "LiteralMeaning": {},
+      "MorphType": "Suffix",
+      "Senses": [
+        {
+          "Id": "6b9b59b9-629f-4c8d-90c8-878a40a35ee8",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "af56599e-3eb6-4b61-984d-f69267a0b4a2",
+          "Definition": {},
+          "Gloss": {
+            "en": "-er",
+            "pt": "nominalizador"
+          },
+          "PartOfSpeech": {
+            "Id": "c99beb3a-995d-4156-a66c-9b7d0860c332",
+            "Name": {
+              "en": "Nominalizer",
+              "pt": "Nominalizador"
+            },
+            "DeletedAt": null,
+            "Predefined": false
+          },
+          "PartOfSpeechId": "c99beb3a-995d-4156-a66c-9b7d0860c332",
+          "SemanticDomains": [],
+          "ExampleSentences": []
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": [
+        {
+          "Id": "70c0a758-5901-4884-b992-94ca31087607",
+          "DeletedAt": null,
+          "Name": {
+            "en": "Main Dictionary"
+          }
+        }
+      ]
+    },
+    {
+      "Id": "d7a3eba8-7cd3-43c2-8f77-2dd39d41643c",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "seh": "a"
+      },
+      "CitationForm": {},
+      "LiteralMeaning": {},
+      "MorphType": "Suffix",
+      "Senses": [
+        {
+          "Id": "b2c77883-9555-4f6f-9b63-2d5e3e0921e7",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "d7a3eba8-7cd3-43c2-8f77-2dd39d41643c",
+          "Definition": {},
+          "Gloss": {
+            "en": "IND",
+            "pt": "IND"
+          },
+          "PartOfSpeech": {
+            "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+            "Name": {
+              "en": "Verb",
+              "pt": "Verbo"
+            },
+            "DeletedAt": null,
+            "Predefined": true
+          },
+          "PartOfSpeechId": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+          "SemanticDomains": [],
+          "ExampleSentences": []
         }
       ],
       "Note": {},
@@ -19391,6 +19391,131 @@
       ]
     },
     {
+      "Id": "af8c4882-d0f9-44ae-9bc8-6f0073e2b859",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "seh": "dz"
+      },
+      "CitationForm": {
+        "seh": "dza"
+      },
+      "LiteralMeaning": {},
+      "MorphType": "Root",
+      "Senses": [
+        {
+          "Id": "089f49ef-98ab-4903-8e66-1872c4fa94e6",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "af8c4882-d0f9-44ae-9bc8-6f0073e2b859",
+          "Definition": {},
+          "Gloss": {
+            "en": "come",
+            "pt": "vir"
+          },
+          "PartOfSpeech": {
+            "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+            "Name": {
+              "en": "Verb",
+              "pt": "Verbo"
+            },
+            "DeletedAt": null,
+            "Predefined": true
+          },
+          "PartOfSpeechId": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+          "SemanticDomains": [],
+          "ExampleSentences": [
+            {
+              "Id": "bfddcb41-e689-40d7-a66d-8b314a33c546",
+              "Order": 1,
+              "Sentence": {
+                "seh": {
+                  "Spans": [
+                    {
+                      "Text": "adza kationa",
+                      "Ws": "seh"
+                    }
+                  ]
+                }
+              },
+              "Translations": [
+                {
+                  "Id": "801666fc-5b3f-4f5e-9600-617fe9e6e2dc",
+                  "Text": {
+                    "pt": {
+                      "Spans": [
+                        {
+                          "Text": "veio visitar-nos",
+                          "Ws": "pt"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "Reference": {
+                "Spans": [
+                  {
+                    "Text": "Meque",
+                    "Ws": "en"
+                  }
+                ]
+              },
+              "SenseId": "089f49ef-98ab-4903-8e66-1872c4fa94e6",
+              "DeletedAt": null
+            }
+          ]
+        },
+        {
+          "Id": "3033d933-d549-4f5e-b519-644f16d2bd2b",
+          "Order": 2,
+          "DeletedAt": null,
+          "EntryId": "af8c4882-d0f9-44ae-9bc8-6f0073e2b859",
+          "Definition": {},
+          "Gloss": {
+            "en": "come and fetch",
+            "pt": "vir buscar"
+          },
+          "PartOfSpeech": {
+            "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+            "Name": {
+              "en": "Verb",
+              "pt": "Verbo"
+            },
+            "DeletedAt": null,
+            "Predefined": true
+          },
+          "PartOfSpeechId": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+          "SemanticDomains": [],
+          "ExampleSentences": []
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [
+        {
+          "Id": "fa0fcded-b553-49fd-a555-13aa2afb66f7",
+          "MaybeId": "fa0fcded-b553-49fd-a555-13aa2afb66f7",
+          "Order": 1,
+          "DeletedAt": null,
+          "ComplexFormEntryId": "a4833ca4-bcc3-44db-a525-c88993150c07",
+          "ComplexFormHeadword": "kudza",
+          "ComponentEntryId": "af8c4882-d0f9-44ae-9bc8-6f0073e2b859",
+          "ComponentSenseId": null,
+          "ComponentHeadword": "dza"
+        }
+      ],
+      "ComplexFormTypes": [],
+      "PublishIn": [
+        {
+          "Id": "70c0a758-5901-4884-b992-94ca31087607",
+          "DeletedAt": null,
+          "Name": {
+            "en": "Main Dictionary"
+          }
+        }
+      ]
+    },
+    {
       "Id": "241ca9b4-9077-4050-b8c9-6e1759a989d3",
       "DeletedAt": null,
       "LexemeForm": {
@@ -19524,131 +19649,6 @@
       "Note": {},
       "Components": [],
       "ComplexForms": [],
-      "ComplexFormTypes": [],
-      "PublishIn": [
-        {
-          "Id": "70c0a758-5901-4884-b992-94ca31087607",
-          "DeletedAt": null,
-          "Name": {
-            "en": "Main Dictionary"
-          }
-        }
-      ]
-    },
-    {
-      "Id": "af8c4882-d0f9-44ae-9bc8-6f0073e2b859",
-      "DeletedAt": null,
-      "LexemeForm": {
-        "seh": "dz"
-      },
-      "CitationForm": {
-        "seh": "dza"
-      },
-      "LiteralMeaning": {},
-      "MorphType": "Root",
-      "Senses": [
-        {
-          "Id": "089f49ef-98ab-4903-8e66-1872c4fa94e6",
-          "Order": 1,
-          "DeletedAt": null,
-          "EntryId": "af8c4882-d0f9-44ae-9bc8-6f0073e2b859",
-          "Definition": {},
-          "Gloss": {
-            "en": "come",
-            "pt": "vir"
-          },
-          "PartOfSpeech": {
-            "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-            "Name": {
-              "en": "Verb",
-              "pt": "Verbo"
-            },
-            "DeletedAt": null,
-            "Predefined": true
-          },
-          "PartOfSpeechId": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-          "SemanticDomains": [],
-          "ExampleSentences": [
-            {
-              "Id": "bfddcb41-e689-40d7-a66d-8b314a33c546",
-              "Order": 1,
-              "Sentence": {
-                "seh": {
-                  "Spans": [
-                    {
-                      "Text": "adza kationa",
-                      "Ws": "seh"
-                    }
-                  ]
-                }
-              },
-              "Translations": [
-                {
-                  "Id": "801666fc-5b3f-4f5e-9600-617fe9e6e2dc",
-                  "Text": {
-                    "pt": {
-                      "Spans": [
-                        {
-                          "Text": "veio visitar-nos",
-                          "Ws": "pt"
-                        }
-                      ]
-                    }
-                  }
-                }
-              ],
-              "Reference": {
-                "Spans": [
-                  {
-                    "Text": "Meque",
-                    "Ws": "en"
-                  }
-                ]
-              },
-              "SenseId": "089f49ef-98ab-4903-8e66-1872c4fa94e6",
-              "DeletedAt": null
-            }
-          ]
-        },
-        {
-          "Id": "3033d933-d549-4f5e-b519-644f16d2bd2b",
-          "Order": 2,
-          "DeletedAt": null,
-          "EntryId": "af8c4882-d0f9-44ae-9bc8-6f0073e2b859",
-          "Definition": {},
-          "Gloss": {
-            "en": "come and fetch",
-            "pt": "vir buscar"
-          },
-          "PartOfSpeech": {
-            "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-            "Name": {
-              "en": "Verb",
-              "pt": "Verbo"
-            },
-            "DeletedAt": null,
-            "Predefined": true
-          },
-          "PartOfSpeechId": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-          "SemanticDomains": [],
-          "ExampleSentences": []
-        }
-      ],
-      "Note": {},
-      "Components": [],
-      "ComplexForms": [
-        {
-          "Id": "fa0fcded-b553-49fd-a555-13aa2afb66f7",
-          "MaybeId": "fa0fcded-b553-49fd-a555-13aa2afb66f7",
-          "Order": 1,
-          "DeletedAt": null,
-          "ComplexFormEntryId": "a4833ca4-bcc3-44db-a525-c88993150c07",
-          "ComplexFormHeadword": "kudza",
-          "ComponentEntryId": "af8c4882-d0f9-44ae-9bc8-6f0073e2b859",
-          "ComponentSenseId": null,
-          "ComponentHeadword": "dza"
-        }
-      ],
       "ComplexFormTypes": [],
       "PublishIn": [
         {
@@ -27604,104 +27604,6 @@
       ]
     },
     {
-      "Id": "15dddc00-6015-4412-aa3b-644db854c89e",
-      "DeletedAt": null,
-      "LexemeForm": {
-        "seh": "i"
-      },
-      "CitationForm": {},
-      "LiteralMeaning": {},
-      "MorphType": "Suffix",
-      "Senses": [
-        {
-          "Id": "62af26f3-cd22-4b25-82dc-3dc7cb6ba886",
-          "Order": 1,
-          "DeletedAt": null,
-          "EntryId": "15dddc00-6015-4412-aa3b-644db854c89e",
-          "Definition": {
-            "en": {
-              "Spans": [
-                {
-                  "Text": "nominalizer",
-                  "Ws": "en"
-                }
-              ]
-            }
-          },
-          "Gloss": {
-            "en": "NZR",
-            "pt": "NZR"
-          },
-          "PartOfSpeech": {
-            "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-            "Name": {
-              "en": "Verb",
-              "pt": "Verbo"
-            },
-            "DeletedAt": null,
-            "Predefined": true
-          },
-          "PartOfSpeechId": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-          "SemanticDomains": [],
-          "ExampleSentences": [
-            {
-              "Id": "8e0de300-01df-4985-aa81-83ad5e128f7c",
-              "Order": 1,
-              "Sentence": {
-                "seh": {
-                  "Spans": [
-                    {
-                      "Text": "kutonga, utongi",
-                      "Ws": "seh"
-                    }
-                  ]
-                }
-              },
-              "Translations": [
-                {
-                  "Id": "37167151-661f-4e68-8ff5-dc58b93744c6",
-                  "Text": {
-                    "en": {
-                      "Spans": [
-                        {
-                          "Text": "to judge, justice",
-                          "Ws": "en"
-                        }
-                      ]
-                    },
-                    "pt": {
-                      "Spans": [
-                        {
-                          "Text": "julgar, justic\u0327a",
-                          "Ws": "pt"
-                        }
-                      ]
-                    }
-                  }
-                }
-              ],
-              "Reference": null,
-              "SenseId": "62af26f3-cd22-4b25-82dc-3dc7cb6ba886",
-              "DeletedAt": null
-            }
-          ]
-        }
-      ],
-      "Note": {},
-      "Components": [],
-      "ComplexForms": [],
-      "ComplexFormTypes": [],
-      "PublishIn": [
-        {
-          "Id": "70c0a758-5901-4884-b992-94ca31087607",
-          "DeletedAt": null,
-          "Name": {
-            "en": "Main Dictionary"
-          }
-        }
-      ]
-    },
-    {
       "Id": "41eaf8e3-fad8-4957-b901-21870f508091",
       "DeletedAt": null,
       "LexemeForm": {
@@ -27802,6 +27704,104 @@
           "PartOfSpeechId": "b460265b-9132-4e52-bb51-64b5a2aa7f69",
           "SemanticDomains": [],
           "ExampleSentences": []
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": [
+        {
+          "Id": "70c0a758-5901-4884-b992-94ca31087607",
+          "DeletedAt": null,
+          "Name": {
+            "en": "Main Dictionary"
+          }
+        }
+      ]
+    },
+    {
+      "Id": "15dddc00-6015-4412-aa3b-644db854c89e",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "seh": "i"
+      },
+      "CitationForm": {},
+      "LiteralMeaning": {},
+      "MorphType": "Suffix",
+      "Senses": [
+        {
+          "Id": "62af26f3-cd22-4b25-82dc-3dc7cb6ba886",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "15dddc00-6015-4412-aa3b-644db854c89e",
+          "Definition": {
+            "en": {
+              "Spans": [
+                {
+                  "Text": "nominalizer",
+                  "Ws": "en"
+                }
+              ]
+            }
+          },
+          "Gloss": {
+            "en": "NZR",
+            "pt": "NZR"
+          },
+          "PartOfSpeech": {
+            "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+            "Name": {
+              "en": "Verb",
+              "pt": "Verbo"
+            },
+            "DeletedAt": null,
+            "Predefined": true
+          },
+          "PartOfSpeechId": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+          "SemanticDomains": [],
+          "ExampleSentences": [
+            {
+              "Id": "8e0de300-01df-4985-aa81-83ad5e128f7c",
+              "Order": 1,
+              "Sentence": {
+                "seh": {
+                  "Spans": [
+                    {
+                      "Text": "kutonga, utongi",
+                      "Ws": "seh"
+                    }
+                  ]
+                }
+              },
+              "Translations": [
+                {
+                  "Id": "37167151-661f-4e68-8ff5-dc58b93744c6",
+                  "Text": {
+                    "en": {
+                      "Spans": [
+                        {
+                          "Text": "to judge, justice",
+                          "Ws": "en"
+                        }
+                      ]
+                    },
+                    "pt": {
+                      "Spans": [
+                        {
+                          "Text": "julgar, justic\u0327a",
+                          "Ws": "pt"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "Reference": null,
+              "SenseId": "62af26f3-cd22-4b25-82dc-3dc7cb6ba886",
+              "DeletedAt": null
+            }
+          ]
         }
       ],
       "Note": {},
@@ -35675,67 +35675,6 @@
       ]
     },
     {
-      "Id": "942fb913-e648-473c-a6ee-a592dd8996db",
-      "DeletedAt": null,
-      "LexemeForm": {
-        "seh": "-ko"
-      },
-      "CitationForm": {
-        "seh": "ko"
-      },
-      "LiteralMeaning": {},
-      "MorphType": "Suffix",
-      "Senses": [
-        {
-          "Id": "8d3e8de3-e531-4c01-98ac-6143f6bf3559",
-          "Order": 1,
-          "DeletedAt": null,
-          "EntryId": "942fb913-e648-473c-a6ee-a592dd8996db",
-          "Definition": {},
-          "Gloss": {
-            "en": "LOC there",
-            "pt": "ali"
-          },
-          "PartOfSpeech": null,
-          "PartOfSpeechId": null,
-          "SemanticDomains": [],
-          "ExampleSentences": [
-            {
-              "Id": "403597a6-4605-423d-a9da-2c079427acfd",
-              "Order": 1,
-              "Sentence": {
-                "seh": {
-                  "Spans": [
-                    {
-                      "Text": "kauka-ko eko noko kubazari-ko",
-                      "Ws": "seh"
-                    }
-                  ]
-                }
-              },
-              "Translations": [],
-              "Reference": null,
-              "SenseId": "8d3e8de3-e531-4c01-98ac-6143f6bf3559",
-              "DeletedAt": null
-            }
-          ]
-        }
-      ],
-      "Note": {},
-      "Components": [],
-      "ComplexForms": [],
-      "ComplexFormTypes": [],
-      "PublishIn": [
-        {
-          "Id": "70c0a758-5901-4884-b992-94ca31087607",
-          "DeletedAt": null,
-          "Name": {
-            "en": "Main Dictionary"
-          }
-        }
-      ]
-    },
-    {
       "Id": "ef57f28b-7741-4249-9572-63de6aa524d7",
       "DeletedAt": null,
       "LexemeForm": {
@@ -35784,6 +35723,67 @@
           "PartOfSpeechId": "61b871bd-293d-4144-9c36-4ffe3d3d078f",
           "SemanticDomains": [],
           "ExampleSentences": []
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": [
+        {
+          "Id": "70c0a758-5901-4884-b992-94ca31087607",
+          "DeletedAt": null,
+          "Name": {
+            "en": "Main Dictionary"
+          }
+        }
+      ]
+    },
+    {
+      "Id": "942fb913-e648-473c-a6ee-a592dd8996db",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "seh": "-ko"
+      },
+      "CitationForm": {
+        "seh": "ko"
+      },
+      "LiteralMeaning": {},
+      "MorphType": "Suffix",
+      "Senses": [
+        {
+          "Id": "8d3e8de3-e531-4c01-98ac-6143f6bf3559",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "942fb913-e648-473c-a6ee-a592dd8996db",
+          "Definition": {},
+          "Gloss": {
+            "en": "LOC there",
+            "pt": "ali"
+          },
+          "PartOfSpeech": null,
+          "PartOfSpeechId": null,
+          "SemanticDomains": [],
+          "ExampleSentences": [
+            {
+              "Id": "403597a6-4605-423d-a9da-2c079427acfd",
+              "Order": 1,
+              "Sentence": {
+                "seh": {
+                  "Spans": [
+                    {
+                      "Text": "kauka-ko eko noko kubazari-ko",
+                      "Ws": "seh"
+                    }
+                  ]
+                }
+              },
+              "Translations": [],
+              "Reference": null,
+              "SenseId": "8d3e8de3-e531-4c01-98ac-6143f6bf3559",
+              "DeletedAt": null
+            }
+          ]
         }
       ],
       "Note": {},
@@ -36858,6 +36858,64 @@
       ]
     },
     {
+      "Id": "76be65ab-4221-41d9-a68f-db80ef100c96",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "seh": "ku"
+      },
+      "CitationForm": {},
+      "LiteralMeaning": {},
+      "MorphType": "Stem",
+      "Senses": [
+        {
+          "Id": "d59897d5-86fc-4e24-9d9a-f1ef7a104c77",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "76be65ab-4221-41d9-a68f-db80ef100c96",
+          "Definition": {},
+          "Gloss": {
+            "en": "to",
+            "pt": "a\u0301"
+          },
+          "PartOfSpeech": {
+            "Id": "24f4134f-0530-449c-b809-8a633ced440d",
+            "Name": {
+              "en": "Preposition",
+              "pt": "Preposic\u0327a\u0303o"
+            },
+            "DeletedAt": null,
+            "Predefined": false
+          },
+          "PartOfSpeechId": "24f4134f-0530-449c-b809-8a633ced440d",
+          "SemanticDomains": [],
+          "ExampleSentences": [
+            {
+              "Id": "7336f02a-0896-4169-9174-e2f11fb4f00d",
+              "Order": 1,
+              "Sentence": {},
+              "Translations": [],
+              "Reference": null,
+              "SenseId": "d59897d5-86fc-4e24-9d9a-f1ef7a104c77",
+              "DeletedAt": null
+            }
+          ]
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": [
+        {
+          "Id": "70c0a758-5901-4884-b992-94ca31087607",
+          "DeletedAt": null,
+          "Name": {
+            "en": "Main Dictionary"
+          }
+        }
+      ]
+    },
+    {
       "Id": "25104932-acb5-4b6c-b1da-2e3289c4b6ed",
       "DeletedAt": null,
       "LexemeForm": {
@@ -37230,64 +37288,6 @@
           "PartOfSpeechId": "a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5",
           "SemanticDomains": [],
           "ExampleSentences": []
-        }
-      ],
-      "Note": {},
-      "Components": [],
-      "ComplexForms": [],
-      "ComplexFormTypes": [],
-      "PublishIn": [
-        {
-          "Id": "70c0a758-5901-4884-b992-94ca31087607",
-          "DeletedAt": null,
-          "Name": {
-            "en": "Main Dictionary"
-          }
-        }
-      ]
-    },
-    {
-      "Id": "76be65ab-4221-41d9-a68f-db80ef100c96",
-      "DeletedAt": null,
-      "LexemeForm": {
-        "seh": "ku"
-      },
-      "CitationForm": {},
-      "LiteralMeaning": {},
-      "MorphType": "Stem",
-      "Senses": [
-        {
-          "Id": "d59897d5-86fc-4e24-9d9a-f1ef7a104c77",
-          "Order": 1,
-          "DeletedAt": null,
-          "EntryId": "76be65ab-4221-41d9-a68f-db80ef100c96",
-          "Definition": {},
-          "Gloss": {
-            "en": "to",
-            "pt": "a\u0301"
-          },
-          "PartOfSpeech": {
-            "Id": "24f4134f-0530-449c-b809-8a633ced440d",
-            "Name": {
-              "en": "Preposition",
-              "pt": "Preposic\u0327a\u0303o"
-            },
-            "DeletedAt": null,
-            "Predefined": false
-          },
-          "PartOfSpeechId": "24f4134f-0530-449c-b809-8a633ced440d",
-          "SemanticDomains": [],
-          "ExampleSentences": [
-            {
-              "Id": "7336f02a-0896-4169-9174-e2f11fb4f00d",
-              "Order": 1,
-              "Sentence": {},
-              "Translations": [],
-              "Reference": null,
-              "SenseId": "d59897d5-86fc-4e24-9d9a-f1ef7a104c77",
-              "DeletedAt": null
-            }
-          ]
         }
       ],
       "Note": {},
@@ -56274,6 +56274,81 @@
       ]
     },
     {
+      "Id": "d2a90aca-1c65-4a90-955a-4ffe3ec34185",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "seh": "mu"
+      },
+      "CitationForm": {},
+      "LiteralMeaning": {},
+      "MorphType": "Stem",
+      "Senses": [
+        {
+          "Id": "712de4ef-13ce-4516-a450-4f4e3aa1c027",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "d2a90aca-1c65-4a90-955a-4ffe3ec34185",
+          "Definition": {
+            "en": {
+              "Spans": [
+                {
+                  "Text": "in, into",
+                  "Ws": "en"
+                }
+              ]
+            },
+            "pt": {
+              "Spans": [
+                {
+                  "Text": "em",
+                  "Ws": "pt"
+                }
+              ]
+            }
+          },
+          "Gloss": {
+            "en": "in",
+            "pt": "em"
+          },
+          "PartOfSpeech": {
+            "Id": "24f4134f-0530-449c-b809-8a633ced440d",
+            "Name": {
+              "en": "Preposition",
+              "pt": "Preposic\u0327a\u0303o"
+            },
+            "DeletedAt": null,
+            "Predefined": false
+          },
+          "PartOfSpeechId": "24f4134f-0530-449c-b809-8a633ced440d",
+          "SemanticDomains": [],
+          "ExampleSentences": [
+            {
+              "Id": "f4864315-6769-4836-bb01-ee069d68dab4",
+              "Order": 1,
+              "Sentence": {},
+              "Translations": [],
+              "Reference": null,
+              "SenseId": "712de4ef-13ce-4516-a450-4f4e3aa1c027",
+              "DeletedAt": null
+            }
+          ]
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": [
+        {
+          "Id": "70c0a758-5901-4884-b992-94ca31087607",
+          "DeletedAt": null,
+          "Name": {
+            "en": "Main Dictionary"
+          }
+        }
+      ]
+    },
+    {
       "Id": "30caab0e-4a54-44ba-8eeb-35a1b69ac231",
       "DeletedAt": null,
       "LexemeForm": {
@@ -56717,81 +56792,6 @@
           "PartOfSpeechId": "b460265b-9132-4e52-bb51-64b5a2aa7f69",
           "SemanticDomains": [],
           "ExampleSentences": []
-        }
-      ],
-      "Note": {},
-      "Components": [],
-      "ComplexForms": [],
-      "ComplexFormTypes": [],
-      "PublishIn": [
-        {
-          "Id": "70c0a758-5901-4884-b992-94ca31087607",
-          "DeletedAt": null,
-          "Name": {
-            "en": "Main Dictionary"
-          }
-        }
-      ]
-    },
-    {
-      "Id": "d2a90aca-1c65-4a90-955a-4ffe3ec34185",
-      "DeletedAt": null,
-      "LexemeForm": {
-        "seh": "mu"
-      },
-      "CitationForm": {},
-      "LiteralMeaning": {},
-      "MorphType": "Stem",
-      "Senses": [
-        {
-          "Id": "712de4ef-13ce-4516-a450-4f4e3aa1c027",
-          "Order": 1,
-          "DeletedAt": null,
-          "EntryId": "d2a90aca-1c65-4a90-955a-4ffe3ec34185",
-          "Definition": {
-            "en": {
-              "Spans": [
-                {
-                  "Text": "in, into",
-                  "Ws": "en"
-                }
-              ]
-            },
-            "pt": {
-              "Spans": [
-                {
-                  "Text": "em",
-                  "Ws": "pt"
-                }
-              ]
-            }
-          },
-          "Gloss": {
-            "en": "in",
-            "pt": "em"
-          },
-          "PartOfSpeech": {
-            "Id": "24f4134f-0530-449c-b809-8a633ced440d",
-            "Name": {
-              "en": "Preposition",
-              "pt": "Preposic\u0327a\u0303o"
-            },
-            "DeletedAt": null,
-            "Predefined": false
-          },
-          "PartOfSpeechId": "24f4134f-0530-449c-b809-8a633ced440d",
-          "SemanticDomains": [],
-          "ExampleSentences": [
-            {
-              "Id": "f4864315-6769-4836-bb01-ee069d68dab4",
-              "Order": 1,
-              "Sentence": {},
-              "Translations": [],
-              "Reference": null,
-              "SenseId": "712de4ef-13ce-4516-a450-4f4e3aa1c027",
-              "DeletedAt": null
-            }
-          ]
         }
       ],
       "Note": {},
@@ -61713,71 +61713,6 @@
       ]
     },
     {
-      "Id": "681dcfd8-824e-49f3-a0ed-ca68f31ee706",
-      "DeletedAt": null,
-      "LexemeForm": {
-        "seh": "na"
-      },
-      "CitationForm": {},
-      "LiteralMeaning": {},
-      "MorphType": "Prefix",
-      "Senses": [
-        {
-          "Id": "81181c3d-cf69-40a1-89d4-d3ab0077528a",
-          "Order": 1,
-          "DeletedAt": null,
-          "EntryId": "681dcfd8-824e-49f3-a0ed-ca68f31ee706",
-          "Definition": {
-            "en": {
-              "Spans": [
-                {
-                  "Text": "nonpast",
-                  "Ws": "en"
-                }
-              ]
-            },
-            "pt": {
-              "Spans": [
-                {
-                  "Text": "na\u0303o passado",
-                  "Ws": "pt"
-                }
-              ]
-            }
-          },
-          "Gloss": {
-            "en": "NONPST",
-            "pt": "NONPST"
-          },
-          "PartOfSpeech": {
-            "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-            "Name": {
-              "en": "Verb",
-              "pt": "Verbo"
-            },
-            "DeletedAt": null,
-            "Predefined": true
-          },
-          "PartOfSpeechId": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-          "SemanticDomains": [],
-          "ExampleSentences": []
-        }
-      ],
-      "Note": {},
-      "Components": [],
-      "ComplexForms": [],
-      "ComplexFormTypes": [],
-      "PublishIn": [
-        {
-          "Id": "70c0a758-5901-4884-b992-94ca31087607",
-          "DeletedAt": null,
-          "Name": {
-            "en": "Main Dictionary"
-          }
-        }
-      ]
-    },
-    {
       "Id": "9f64c8e1-7682-44eb-967a-5dc788f9d680",
       "DeletedAt": null,
       "LexemeForm": {
@@ -62194,6 +62129,71 @@
           "ComponentHeadword": "na"
         }
       ],
+      "ComplexFormTypes": [],
+      "PublishIn": [
+        {
+          "Id": "70c0a758-5901-4884-b992-94ca31087607",
+          "DeletedAt": null,
+          "Name": {
+            "en": "Main Dictionary"
+          }
+        }
+      ]
+    },
+    {
+      "Id": "681dcfd8-824e-49f3-a0ed-ca68f31ee706",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "seh": "na"
+      },
+      "CitationForm": {},
+      "LiteralMeaning": {},
+      "MorphType": "Prefix",
+      "Senses": [
+        {
+          "Id": "81181c3d-cf69-40a1-89d4-d3ab0077528a",
+          "Order": 1,
+          "DeletedAt": null,
+          "EntryId": "681dcfd8-824e-49f3-a0ed-ca68f31ee706",
+          "Definition": {
+            "en": {
+              "Spans": [
+                {
+                  "Text": "nonpast",
+                  "Ws": "en"
+                }
+              ]
+            },
+            "pt": {
+              "Spans": [
+                {
+                  "Text": "na\u0303o passado",
+                  "Ws": "pt"
+                }
+              ]
+            }
+          },
+          "Gloss": {
+            "en": "NONPST",
+            "pt": "NONPST"
+          },
+          "PartOfSpeech": {
+            "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+            "Name": {
+              "en": "Verb",
+              "pt": "Verbo"
+            },
+            "DeletedAt": null,
+            "Predefined": true
+          },
+          "PartOfSpeechId": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
+          "SemanticDomains": [],
+          "ExampleSentences": []
+        }
+      ],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
       "ComplexFormTypes": [],
       "PublishIn": [
         {

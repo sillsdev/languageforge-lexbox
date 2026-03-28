@@ -652,7 +652,7 @@ public class FwDataMiniLcmApi(
     {
         try
         {
-            return new Entry
+            var result = new Entry
             {
                 Id = entry.Guid,
                 Note = FromLcmMultiString(entry.Comment),
@@ -670,6 +670,7 @@ public class FwDataMiniLcmApi(
                 // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
                 PublishIn = entry.PublishIn.Select(FromLcmPossibility).ToList(),
             };
+            return result;
         }
         catch (Exception e)
         {
@@ -725,14 +726,12 @@ public class FwDataMiniLcmApi(
         return new ComplexFormComponent
         {
             ComponentEntryId = component.Guid,
-            ComponentHeadword = component.LexEntryHeadwordOrUnknown(),
+            ComponentHeadword = component.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
             Order = Order(component, complexEntry)
         };
     }
-
-
 
     private ComplexFormComponent ToSenseReference(ILexSense componentSense, ILexEntry complexEntry)
     {
@@ -740,9 +739,9 @@ public class FwDataMiniLcmApi(
         {
             ComponentEntryId = componentSense.Entry.Guid,
             ComponentSenseId = componentSense.Guid,
-            ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(),
+            ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
             Order = Order(componentSense, complexEntry)
         };
     }
@@ -939,12 +938,13 @@ public class FwDataMiniLcmApi(
     private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query)
     {
         var sortWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Vernacular);
+        var stemSecondaryOrder = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphStem).SecondaryOrder;
         if (order.Field == SortField.SearchRelevance)
         {
-            return entries.ApplyRoughBestMatchOrder(order, sortWs, query);
+            return entries.ApplyRoughBestMatchOrder(order, sortWs, stemSecondaryOrder, query);
         }
 
-        return order.ApplyOrder(entries, e => e.LexEntryHeadword(sortWs));
+        return entries.ApplyHeadwordOrder(order, sortWs, stemSecondaryOrder);
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
@@ -956,7 +956,7 @@ public class FwDataMiniLcmApi(
     private Func<ILexEntry, bool>? EntrySearchPredicate(string? query = null)
     {
         if (string.IsNullOrEmpty(query)) return null;
-        return entry => entry.CitationForm.SearchValue(query) ||
+        return entry => entry.SearchHeadWord(query) || // CitationForm.SearchValue would be redundant
                         entry.LexemeFormOA?.Form.SearchValue(query) is true ||
                         entry.AllSenses.Any(s => s.Gloss.SearchValue(query));
     }
