@@ -11,7 +11,7 @@ namespace FwDataMiniLcmBridge.Api;
 
 internal static class LcmHelpers
 {
-    internal static string? LexEntryHeadword(this ILexEntry entry, int? ws = null)
+    internal static string? LexEntryHeadword(this ILexEntry entry, int? ws = null, bool applyMorphTokens = true)
     {
         var citationFormTs =
             ws.HasValue ? entry.CitationForm.get_String(ws.Value)
@@ -27,13 +27,31 @@ internal static class LcmHelpers
             : null;
         var lexemeForm = lexemeFormTs?.Text?.Trim(WhitespaceChars);
 
-        return lexemeForm;
+        if (string.IsNullOrEmpty(lexemeForm) || !applyMorphTokens) return lexemeForm;
+
+        var morphType = entry.LexemeFormOA?.MorphTypeRA;
+        var leading = morphType?.Prefix ?? "";
+        var trailing = morphType?.Postfix ?? "";
+        return (leading + lexemeForm + trailing).Trim(WhitespaceChars);
     }
 
-    internal static string LexEntryHeadwordOrUnknown(this ILexEntry entry, int? ws = null)
+    internal static string LexEntryHeadwordOrUnknown(this ILexEntry entry, int? ws = null, bool applyMorphTokens = true)
     {
-        var headword = entry.LexEntryHeadword(ws);
+        var headword = entry.LexEntryHeadword(ws, applyMorphTokens);
         return string.IsNullOrEmpty(headword) ? Entry.UnknownHeadword : headword;
+    }
+
+    internal static bool SearchHeadWord(this ILexEntry entry, string value)
+    {
+        foreach (var ws in entry.Cache.ServiceLocator.WritingSystems.VernacularWritingSystems)
+        {
+            var headword = entry.HeadWordForWs(ws.Handle);
+            if (headword is null) continue;
+            var text = headword.Text;
+            if (string.IsNullOrEmpty(text)) continue;
+            if (text.ContainsDiacriticMatch(value)) return true;
+        }
+        return false;
     }
 
     internal static bool SearchValue(this ITsMultiString multiString, string value)

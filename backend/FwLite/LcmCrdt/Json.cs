@@ -164,6 +164,15 @@ public static class Json
         return (values) => values.QueryInternal().Select(v => v.Value);
     }
 
+    [ExpressionMethod(nameof(QueryEntriesExpressionMultiString))]
+    internal static IQueryable<JsonEach<string>> QueryEntries(MultiString values)
+    {
+        return values.Values.Select(kv => new JsonEach<string>(kv.Value, kv.Key.Code, "", 0, "", "")).AsQueryable();
+    }
+
+    private static Expression<Func<MultiString, IQueryable<JsonEach<string>>>> QueryEntriesExpressionMultiString() =>
+        (values) => values.QueryInternal();
+
     //indicates that linq2db should rewrite Sense.SemanticDomains.Query(d => d.Code)
     //into code in QueryExpression: Sense.SemanticDomains.QueryInternal().Select(v => Sql.Value(v.Value, d => d.Code))
     [ExpressionMethod(nameof(QuerySelectExpression))]
@@ -204,7 +213,7 @@ public static class Json
     }
 
     //maps to a row from json_each
-    private record JsonEach<T>(
+    internal record JsonEach<T>(
         [property: Column("value")] T Value,
         [property: Column("key")] string Key,
         [property: Column("type")] string Type,
