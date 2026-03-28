@@ -4,7 +4,8 @@ namespace LcmCrdt;
 
 public static class QueryHelpers
 {
-    public static void Finalize(this Entry entry, IComparer<ComplexFormComponent> complexFormComparer)
+    public static void Finalize(this Entry entry,
+        IComparer<ComplexFormComponent> complexFormComparer)
     {
         entry.Senses.ApplySortOrder();
         entry.Components.ApplySortOrder();

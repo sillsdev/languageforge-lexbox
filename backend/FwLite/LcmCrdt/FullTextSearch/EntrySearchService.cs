@@ -29,9 +29,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     //linq2db table
     private ITable<EntrySearchRecord> EntrySearchRecordsTable => dbContext.GetTable<EntrySearchRecord>();
 
-    public IQueryable<Entry> Filter(IQueryable<Entry> queryable, string query)
+    public IQueryable<Entry> Filter(IQueryable<Entry> queryable, string query, WritingSystemId wsId, MorphType[] morphTypes)
     {
-        return FilterInternal(queryable, query).Select(t => t.Entry);
+        return FilterInternal(queryable, query, wsId, morphTypes).Select(t => t.Entry);
     }
 
     /// <summary>
@@ -42,39 +42,85 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     /// </summary>
     public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable,
         string query,
-        WritingSystemId wsId)
+        WritingSystemId wsId,
+        MorphType[] morphTypes)
     {
-        var filtered = FilterInternal(queryable, query);
+        var morphTypeTable = dbContext.GetTable<MorphType>();
+        var filtered = FilterInternal(queryable, query, wsId, morphTypes);
         var ordered = filtered
-            .OrderByDescending(t => t.HeadwordMatches)
+            .OrderByDescending(t => t.HeadwordMatches ? 0 : Sql.Ext.SQLite().Rank(t.SearchRecord))
             .ThenByDescending(t => t.HeadwordPrefixMatches)
-            .ThenBy(t => t.HeadwordMatches ? t.SearchRecord.Headword.Length : int.MaxValue)
-            .ThenBy(t =>
-                t.HeadwordMatches
-                ? t.SearchRecord.Headword.CollateUnicode(wsId)
-                : string.Empty)
-            .ThenBy(t => Sql.Ext.SQLite().Rank(t.SearchRecord)).ThenBy(t => t.Entry.Id);
+            .ThenBy(t => t.Headword.Length)
+            .ThenBy(t => t.Headword.CollateUnicode(wsId))
+            .ThenBy(t => t.HeadwordMatches
+                ? morphTypeTable.Where(mt => mt.Kind == t.Entry.MorphType || mt.Kind == MorphTypeKind.Stem)
+                    .OrderBy(mt => mt.Kind == MorphTypeKind.Stem ? 1 : 0) // stem is the fallback, so it should come last
+                    .Select(mt => mt.SecondaryOrder).FirstOrDefault()
+                : int.MaxValue)
+            // .ThenBy(t => t.Entry.HomographNumber)
+            .ThenBy(t => t.Entry.Id);
 
         return ordered.Select(t => t.Entry);
     }
 
-    private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, bool HeadwordMatches, bool HeadwordPrefixMatches);
+    private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, string Headword, bool HeadwordMatches, bool HeadwordPrefixMatches);
 
-    private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query)
+    private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query, WritingSystemId wsId, MorphType[] morphTypes)
     {
         var ftsString = ToFts5LiteralString(query);
+        var queryWithoutMorphTokens = StripMorphTokens(query, morphTypes);
 
-        //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
         return
             from searchRecord in EntrySearchRecordsTable
             from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
             where Sql.Ext.SQLite().Match(searchRecord, ftsString) &&
-                (entry.LexemeForm.SearchValue(query)
+                (entry.LexemeForm.SearchValue(queryWithoutMorphTokens)
                 || entry.CitationForm.SearchValue(query)
-                || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
-            let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(searchRecord.Headword, query)
-            let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(searchRecord.Headword, query)
-            select new FilterProjection(entry, searchRecord, headwordMatches, headwordPrefixMatches);
+                || entry.Senses.Any(s => s.Gloss.SearchValue(query))
+                || SqlHelpers.ContainsIgnoreCaseAccents(entry.Headword(wsId), query))
+            // this does not include morph tokens, which is actually what we want. Morph-tokens should not affect sorting.
+            // If the user uses a citation form with morph tokens, then oh well. Not even FLEx strips the morph-tokens before sorting in that case.
+            let headword = entry.Headword(wsId)
+            let headwordQuery = string.IsNullOrEmpty((Json.Value(entry.CitationForm, ms => ms[wsId]) ?? "").Trim())
+                ? queryWithoutMorphTokens : query
+            let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(headword, headwordQuery)
+            let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(headword, headwordQuery)
+            select new FilterProjection(entry, searchRecord, headword, headwordMatches, headwordPrefixMatches);
+    }
+
+    private static string StripMorphTokens(string input, MorphType[] morphTypes)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+
+        var bestMatchScore = 0;
+        MorphType? bestMorphTypeMatch = null;
+
+        foreach (var morphType in morphTypes)
+        {
+            var currMatchScore = 0;
+            if (morphType.Prefix is not null && input.StartsWith(morphType.Prefix))
+                currMatchScore += 2; // prefer leading tokens
+            if (morphType.Postfix is not null && input.EndsWith(morphType.Postfix))
+                currMatchScore += 1;
+
+            if (currMatchScore > bestMatchScore)
+            {
+                bestMorphTypeMatch = morphType;
+                bestMatchScore = currMatchScore;
+            }
+        }
+
+        if (bestMorphTypeMatch is not null)
+        {
+            var result = input;
+            if (bestMorphTypeMatch.Prefix is not null && input.StartsWith(bestMorphTypeMatch.Prefix))
+                result = result[bestMorphTypeMatch.Prefix.Length..];
+            if (bestMorphTypeMatch.Postfix is not null && input.EndsWith(bestMorphTypeMatch.Postfix))
+                result = result[..^bestMorphTypeMatch.Postfix.Length];
+            return result;
+        }
+
+        return input;
     }
 
     private static string ToFts5LiteralString(string query)
@@ -166,7 +212,8 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     public async Task UpdateEntrySearchTable(Entry entry)
     {
         var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
-        var record = ToEntrySearchRecord(entry, writingSystems);
+        var morphTypeDataLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
+        var record = ToEntrySearchRecord(entry, writingSystems, morphTypeDataLookup);
         await InsertOrUpdateEntrySearchRecord(record, EntrySearchRecordsTable);
     }
 
@@ -214,7 +261,8 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             return ws1.Id.CompareTo(ws2.Id);
         });
         var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
-        var searchRecords = entries.Select(entry => ToEntrySearchRecord(entry, writingSystems));
+        var morphTypeDataLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
+        var searchRecords = entries.Select(entry => ToEntrySearchRecord(entry, writingSystems, morphTypeDataLookup));
         foreach (var entrySearchRecord in searchRecords)
         {
             //can't use bulk copy here because that creates duplicate rows
@@ -232,11 +280,12 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         await EntrySearchRecordsTable.TruncateAsync();
 
         var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
+        var morphTypeDataLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
         await EntrySearchRecordsTable
             .BulkCopyAsync(dbContext.Set<Entry>()
                 .LoadWith(e => e.Senses)
                 .AsQueryable()
-                .Select(entry => ToEntrySearchRecord(entry, writingSystems))
+                .Select(entry => ToEntrySearchRecord(entry, writingSystems, morphTypeDataLookup))
                 .AsAsyncEnumerable());
         await transaction.CommitAsync();
     }
@@ -256,12 +305,21 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         return await EntrySearchRecordsTable.CountAsync() != await dbContext.Set<Entry>().CountAsync();
     }
 
-    private static EntrySearchRecord ToEntrySearchRecord(Entry entry, WritingSystem[] writingSystems)
+    private static EntrySearchRecord ToEntrySearchRecord(Entry entry, WritingSystem[] writingSystems,
+        IReadOnlyDictionary<MorphTypeKind, MorphType> morphTypeDataLookup)
     {
+        // Include headwords (with morph tokens) for ALL vernacular writing systems (space-separated).
+        // This ensures FTS matches across all WS, including morph-token-decorated forms.
+        var headwords = EntryQueryHelpers.ComputeHeadwords(entry, morphTypeDataLookup);
+        var headword = string.Join(" ",
+            writingSystems.Where(ws => ws.Type == WritingSystemType.Vernacular)
+                .Select(ws => headwords[ws.WsId])
+                .Where(h => !string.IsNullOrEmpty(h)));
+
         return new EntrySearchRecord()
         {
             Id = entry.Id,
-            Headword = entry.Headword(writingSystems.First(ws => ws.Type == WritingSystemType.Vernacular).WsId),
+            Headword = headword,
             LexemeForm = LexemeForm(writingSystems, entry),
             CitationForm = CitationForm(writingSystems, entry),
             Definition = Definition(writingSystems, entry),

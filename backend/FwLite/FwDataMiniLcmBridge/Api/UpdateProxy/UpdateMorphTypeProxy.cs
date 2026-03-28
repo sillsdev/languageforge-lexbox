@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using MiniLcm.Models;
 using SIL.LCModel;
 
@@ -8,11 +9,13 @@ public class UpdateMorphTypeProxy : MorphType
     private readonly IMoMorphType _lcmMorphType;
     private readonly FwDataMiniLcmApi _lexboxLcmApi;
 
+    [SetsRequiredMembers]
     public UpdateMorphTypeProxy(IMoMorphType lcmMorphType, FwDataMiniLcmApi lexboxLcmApi)
     {
         _lcmMorphType = lcmMorphType;
         Id = lcmMorphType.Guid;
         _lexboxLcmApi = lexboxLcmApi;
+        Kind = LcmHelpers.FromLcmMorphType(lcmMorphType);
     }
 
     public override MultiString Name
