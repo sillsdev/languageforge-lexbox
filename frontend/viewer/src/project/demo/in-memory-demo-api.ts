@@ -10,6 +10,7 @@ import {
   type IIndexQueryOptions,
   type IMiniLcmFeatures,
   type IMiniLcmJsInvokable,
+  type IMorphType,
   type IPartOfSpeech,
   type IProjectModel,
   type IPublication,
@@ -23,7 +24,7 @@ import {
   type ICustomView,
   ViewBase,
 } from '$lib/dotnet-types';
-import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
+import {entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
@@ -41,6 +42,7 @@ import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-t
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import {initProjectStorage} from '$lib/storage';
+import {MorphTypesService} from '$project/data/morph-types.svelte';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -94,10 +96,12 @@ const mockJsEventListener: IJsEventListener = {
 };
 
 export class InMemoryDemoApi implements IMiniLcmJsInvokable {
+  #morphTypesService: MorphTypesService;
   #writingSystemService: WritingSystemService;
   #projectEventBus: ProjectEventBus;
   constructor(projectContext: ProjectContext, eventBus: EventBus) {
-    this.#writingSystemService = new WritingSystemService(projectContext);
+    this.#morphTypesService = new MorphTypesService(projectContext);
+    this.#writingSystemService = new WritingSystemService(projectContext, this.#morphTypesService);
     this.#projectEventBus = new ProjectEventBus(projectContext, eventBus);
   }
 
@@ -156,6 +160,17 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         {id: '15', name: {en: 'Idiom'},}
       ]
       //*/
+    );
+  }
+
+  getMorphTypes(): Promise<IMorphType[]> {
+    return Promise.resolve(
+      morphTypes
+      // [
+      //     {id: 'd7f713e8-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Stem},
+      //     {id: 'd7f713db-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Prefix, postfix='-'},
+      //     {id: 'd7f713dd-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Suffix, prefix='-'},
+      // ]
     );
   }
 
@@ -258,8 +273,9 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const sortWs = pickWs(options.order.writingSystem, defaultWs);
     return entries
       .sort((e1, e2) => {
-        const v1 = this.#writingSystemService.headword(e1, sortWs);
-        const v2 = this.#writingSystemService.headword(e2, sortWs);
+        // morph-tokens should not be included when sorting
+        const v1 = e1.citationForm[sortWs] || e1.lexemeForm[sortWs];
+        const v2 = e2.citationForm[sortWs] || e2.lexemeForm[sortWs];
         if (!v2) return -1;
         if (!v1) return 1;
         let compare = v1.localeCompare(v2, sortWs);
