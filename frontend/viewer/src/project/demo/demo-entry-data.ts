@@ -1,4 +1,4 @@
-import {type IEntry, type IWritingSystems, MorphTypeKind, WritingSystemType} from '$lib/dotnet-types';
+import {type IEntry, type IMorphType, type IWritingSystems, MorphTypeKind, WritingSystemType} from '$lib/dotnet-types';
 
 export const projectName = 'Sena 3';
 
@@ -28,6 +28,35 @@ export const partsOfSpeech = [
   {id: 'd35c60bd-e436-4769-a6c6-96770a849831', name: {en: 'Personal Pronoun'}, predefined: true},
   {id: 'dbf8cf00-ef63-466a-bfb1-472e1fdae57d', name: {en: 'Irregular Verb - na'}, predefined: true},
 
+];
+
+export const morphTypes: IMorphType[] = [
+  {
+    id: 'd7f713e8-e8cf-11d3-9764-00c04f186933',
+    kind: MorphTypeKind.Stem,
+    name: {en: 'stem' },
+    abbreviation: {en: 'ubd stem' },
+    description: {},
+    secondaryOrder: 0,
+  },
+  {
+    id: 'd7f713db-e8cf-11d3-9764-00c04f186933',
+    kind: MorphTypeKind.Prefix,
+    name: {en: 'prefix' },
+    abbreviation: {en: 'pfx' },
+    description: {},
+    postfix: '-',
+    secondaryOrder: 20,
+  },
+  {
+    id: 'd7f713dd-e8cf-11d3-9764-00c04f186933',
+    kind: MorphTypeKind.Suffix,
+    name: {en: 'suffix' },
+    abbreviation: {en: 'sfx' },
+    description: {},
+    prefix: '-',
+    secondaryOrder: 70,
+  },
 ];
 
 export const writingSystems: IWritingSystems = {
