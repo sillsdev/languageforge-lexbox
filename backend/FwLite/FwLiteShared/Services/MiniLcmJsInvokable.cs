@@ -103,6 +103,12 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public ValueTask<MorphType[]> GetMorphTypes()
+    {
+        return _wrappedApi.GetMorphTypes().ToArrayAsync();
+    }
+
+    [JSInvokable]
     public Task<int> CountEntries(string? query, FilterQueryOptions? options)
     {
         return Task.Run(() => _wrappedApi.CountEntries(query, options));

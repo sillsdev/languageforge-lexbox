@@ -160,12 +160,12 @@ test.describe('EntriesList', () => {
       expect(firstEntryText).toBeTruthy();
 
       // Update first entry by prepending to its headword (so it stays at index 0)
-      const {updatedHeadword} = await api.updateEntryHeadwordPrepend(0, '-UPDATED-');
+      const {updatedHeadword} = await api.updateEntryHeadwordPrepend(0, '---UPDATED---');
 
       // The first entry in UI should now show the updated text
       await expect(async () => {
         const newFirstEntryText = await entriesList.entryRows.first().textContent();
-        expect(newFirstEntryText).toContain('-UPDATED-');
+        expect(newFirstEntryText).toContain('---UPDATED---');
       }).toPass({timeout: 5000});
 
       await expect(entriesList.entryWithText(updatedHeadword)).toBeVisible();
