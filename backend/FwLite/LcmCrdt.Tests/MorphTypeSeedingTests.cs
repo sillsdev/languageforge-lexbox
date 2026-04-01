@@ -75,7 +75,8 @@ public class MorphTypeSeedingTests
     [Fact]
     public async Task SeedingIsIdempotent_OpeningProjectTwiceDoesNotDuplicate()
     {
-        var sqliteFile = "MorphTypeSeed_Idempotent.sqlite";
+        var code = "morph-type-seed-idempotent";
+        var sqliteFile = $"{code}.sqlite";
         if (File.Exists(sqliteFile)) File.Delete(sqliteFile);
         var builder = Host.CreateEmptyApplicationBuilder(null);
         builder.Services.AddTestLcmCrdtClient();
@@ -87,7 +88,7 @@ public class MorphTypeSeedingTests
             var crdtProjectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
             var crdtProject = await crdtProjectsService.CreateProject(new(
                 Name: "MorphTypeSeedIdempotent",
-                Code: "morph-type-seed-idempotent",
+                Code: code,
                 Path: "",
                 SeedNewProjectData: true));
             await scope.ServiceProvider.OpenCrdtProject(crdtProject);
@@ -99,15 +100,17 @@ public class MorphTypeSeedingTests
         // Instead, we verify by count that the seeding itself is duplicate-safe.
         {
             await using var scope = host.Services.CreateAsyncScope();
-            var api = scope.ServiceProvider.GetRequiredService<IMiniLcmApi>();
+            var crdtProjectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
+            var crdtProject = crdtProjectsService.GetProject(code);
+            crdtProject.Should().NotBeNull();
+            var api = await crdtProjectsService.OpenProject(crdtProject, scope.ServiceProvider);
             var morphTypes = await api.GetMorphTypes().ToArrayAsync();
             morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count,
                 "morph types should not be duplicated");
-        }
 
-        await using var cleanupScope = host.Services.CreateAsyncScope();
-        await using var dbContext = await cleanupScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
-        await dbContext.Database.EnsureDeletedAsync();
+            await using var dbContext = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+            await dbContext.Database.EnsureDeletedAsync();
+        }
     }
 
     [Fact]
