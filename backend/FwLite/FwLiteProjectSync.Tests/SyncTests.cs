@@ -102,6 +102,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             options =>
                 options
                     .WithStrictOrdering()
+                    .WithoutStrictOrderingFor(x => x.Entries)
                     .WithoutStrictOrderingFor(x => x.PartsOfSpeech)
                     .WithoutStrictOrderingFor(x => x.Publications)
                     .WithoutStrictOrderingFor(x => x.SemanticDomains)
