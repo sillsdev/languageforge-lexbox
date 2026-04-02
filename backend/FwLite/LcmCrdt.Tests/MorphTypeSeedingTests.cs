@@ -11,7 +11,8 @@ public class MorphTypeSeedingTests
     [Fact]
     public async Task NewProjectWithSeedData_HasAllCanonicalMorphTypes()
     {
-        var sqliteFile = "MorphTypeSeed_NewProject.sqlite";
+        var code = "morph-type-seed-test";
+        var sqliteFile = $"{code}.sqlite";
         if (File.Exists(sqliteFile)) File.Delete(sqliteFile);
         var builder = Host.CreateEmptyApplicationBuilder(null);
         builder.Services.AddTestLcmCrdtClient();
@@ -21,7 +22,7 @@ public class MorphTypeSeedingTests
         var crdtProjectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
         var crdtProject = await crdtProjectsService.CreateProject(new(
             Name: "MorphTypeSeedTest",
-            Code: "morph-type-seed-test",
+            Code: code,
             Path: "",
             SeedNewProjectData: true));
 
@@ -47,7 +48,8 @@ public class MorphTypeSeedingTests
     [Fact]
     public async Task ExistingProjectWithoutMorphTypes_GetsMorphTypesOnOpen()
     {
-        var sqliteFile = "MorphTypeSeed_ExistingProject.sqlite";
+        var code = "morph-type-seed-existing";
+        var sqliteFile = $"{code}.sqlite";
         if (File.Exists(sqliteFile)) File.Delete(sqliteFile);
         var builder = Host.CreateEmptyApplicationBuilder(null);
         builder.Services.AddTestLcmCrdtClient();
@@ -58,7 +60,7 @@ public class MorphTypeSeedingTests
         // Create project WITHOUT seeding
         var crdtProject = await crdtProjectsService.CreateProject(new(
             Name: "MorphTypeSeedExisting",
-            Code: "morph-type-seed-existing",
+            Code: code,
             Path: "",
             SeedNewProjectData: false));
 
@@ -138,6 +140,7 @@ public class MorphTypeSeedingTests
             mt.Id.Should().NotBe(Guid.Empty, $"MorphType {mt.Kind} should have a non-empty Id");
             mt.Name["en"].Should().NotBeNullOrWhiteSpace($"MorphType {mt.Kind} should have an English name");
             mt.Abbreviation["en"].Should().NotBeNullOrWhiteSpace($"MorphType {mt.Kind} should have an English abbreviation");
+            mt.Description["en"].IsEmpty.Should().BeFalse($"MorphType {mt.Kind} should have an English description");
         }
     }
 }
