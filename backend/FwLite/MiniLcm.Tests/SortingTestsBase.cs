@@ -68,9 +68,9 @@ public abstract class SortingTestsBase : MiniLcmTestBase
         //   Suffix: "aaaa-"  (trailing token "-")
         // Sort order should ignore morph tokens and differentiate only by SecondaryOrder.
         Entry[] expected = [
-            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Root }, // SecondaryOrder = 1
-            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Prefix }, // SecondaryOrder = 3
-            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Suffix }, // SecondaryOrder = 6
+            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Root }, // SecondaryOrder = 0
+            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Prefix }, // SecondaryOrder = 20
+            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Suffix }, // SecondaryOrder = 70
         ];
 
         var ids = expected.Select(e => e.Id).ToHashSet();
@@ -94,10 +94,10 @@ public abstract class SortingTestsBase : MiniLcmTestBase
         static Entry[] CreateSortedEntrySet(string headword)
         {
             return [
-                // Root/Stem - SecondaryOrder: 1
+                // Root/Stem - SecondaryOrder: 0
                 new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = headword }, MorphType = MorphTypeKind.Root/*, HomographNumber = 1*/ },
                 // new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = lexeme }, MorphType = MorphTypeKind.Stem, HomographNumber = 2 },
-                // BoundRoot/BoundStem - SecondaryOrder: 2
+                // BoundRoot/BoundStem - SecondaryOrder: 10
                 new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = headword }, MorphType = MorphTypeKind.BoundRoot/*, HomographNumber = 1*/ },
                 // new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = lexeme }, MorphType = MorphTypeKind.BoundStem, HomographNumber = 2 },
             ];
@@ -152,10 +152,10 @@ public abstract class SortingTestsBase : MiniLcmTestBase
         static Entry[] CreateSortedEntrySet(string headword)
         {
             return [
-                // Root/Stem - SecondaryOrder: 1
+                // Root/Stem - SecondaryOrder: 0
                 new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = headword }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.Root/*, HomographNumber = 1*/ },
                 // new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = headword }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.Stem, HomographNumber = 2 },
-                // BoundRoot/BoundStem - SecondaryOrder: 2
+                // BoundRoot/BoundStem - SecondaryOrder: 10
                 new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = headword }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.BoundRoot/*, HomographNumber = 1*/ },
                 // new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = headword }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.BoundStem, HomographNumber = 2 },
             ];
@@ -208,16 +208,16 @@ public abstract class SortingTestsBase : MiniLcmTestBase
     public async Task SecondaryOrder_Headword_LexemeForm(string searchTerm)
     {
         Entry[] expected = [
-            // Root/Stem - SecondaryOrder: 1
+            // Root/Stem - SecondaryOrder: 0
             new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "abaaa" }, MorphType = MorphTypeKind.Root/*, HomographNumber = 1*/ },
             // new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "abaaa" }, MorphType = MorphTypeKind.Stem, HomographNumber = 2 },
-            // BoundRoot/BoundStem - SecondaryOrder: 2
+            // BoundRoot/BoundStem - SecondaryOrder: 10
             new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "abaaa" }, MorphType = MorphTypeKind.BoundRoot/*, HomographNumber = 1*/ },
             // new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "abaaa" }, MorphType = MorphTypeKind.BoundStem, HomographNumber = 2 },
-            // Root/Stem - SecondaryOrder: 1
+            // Root/Stem - SecondaryOrder: 0
             new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "baaa" }, MorphType = MorphTypeKind.Root/*, HomographNumber = 1*/ },
             // new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "baaa" }, MorphType = MorphTypeKind.Stem, HomographNumber = 2 },
-            // BoundRoot/BoundStem - SecondaryOrder: 2
+            // BoundRoot/BoundStem - SecondaryOrder: 10
             new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "baaa" }, MorphType = MorphTypeKind.BoundRoot/*, HomographNumber = 1*/ },
             // new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "baaa" }, MorphType = MorphTypeKind.BoundStem, HomographNumber = 2 },
         ];
@@ -243,16 +243,16 @@ public abstract class SortingTestsBase : MiniLcmTestBase
     public async Task SecondaryOrder_Headword_CitationForm(string searchTerm)
     {
         Entry[] expected = [
-            // Root/Stem - SecondaryOrder: 1
+            // Root/Stem - SecondaryOrder: 0
             new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = "abaaa" }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.Root/*, HomographNumber = 1*/ },
             // new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = "abaaa" }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.Stem, HomographNumber = 2 },
-            // BoundRoot/BoundStem - SecondaryOrder: 2
+            // BoundRoot/BoundStem - SecondaryOrder: 10
             new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = "abaaa" }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.BoundRoot/*, HomographNumber = 1*/ },
             // new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = "abaaa" }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.BoundStem, HomographNumber = 2 },
-            // Root/Stem - SecondaryOrder: 1
+            // Root/Stem - SecondaryOrder: 0
             new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = "baaa" }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.Root/*, HomographNumber = 1*/ },
             // new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = "baaa" }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.Stem, HomographNumber = 2 },
-            // BoundRoot/BoundStem - SecondaryOrder: 2
+            // BoundRoot/BoundStem - SecondaryOrder: 10
             new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = "baaa" }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.BoundRoot/*, HomographNumber = 1*/ },
             // new() { Id = Guid.NewGuid(), CitationForm = { ["en"] = "baaa" }, LexemeForm = { ["en"] = "❌" }, MorphType = MorphTypeKind.BoundStem, HomographNumber = 2 },
         ];

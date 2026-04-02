@@ -25,9 +25,9 @@ public class SortingTests : SortingTestsBase
     public async Task SecondaryOrder_DefaultsToStem(string query, SortField sortField)
     {
         Entry[] expected = [
-            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Unknown }, // SecondaryOrder defaults to Stem = 1
-            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.BoundStem }, // SecondaryOrder = 2
-            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Suffix }, // SecondaryOrder = 6
+            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Unknown }, // SecondaryOrder defaults to Stem = 0
+            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.BoundStem }, // SecondaryOrder = 10
+            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Suffix }, // SecondaryOrder = 70
         ];
 
         var ids = expected.Select(e => e.Id).ToHashSet();
