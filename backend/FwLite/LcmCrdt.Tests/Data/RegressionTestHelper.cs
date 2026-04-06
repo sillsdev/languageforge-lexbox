@@ -74,6 +74,5 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
     {
         v1,
         v2,
-        v3
     }
 }
