@@ -36,6 +36,8 @@ public class MorphTypeSeedingTests
             mt.Id.Should().Be(canonical.Id);
             mt.Name["en"].Should().Be(canonical.Name["en"]);
             mt.Abbreviation["en"].Should().Be(canonical.Abbreviation["en"]);
+            mt.Description["en"].GetPlainText().Should().Be(canonical.Description["en"].GetPlainText());
+            mt.Description["en"].Spans.Should().BeEquivalentTo(canonical.Description["en"].Spans);
             mt.Prefix.Should().Be(canonical.Prefix);
             mt.Postfix.Should().Be(canonical.Postfix);
             mt.SecondaryOrder.Should().Be(canonical.SecondaryOrder);
@@ -93,19 +95,20 @@ public class MorphTypeSeedingTests
                 Code: code,
                 Path: "",
                 SeedNewProjectData: true));
-            await scope.ServiceProvider.OpenCrdtProject(crdtProject);
+            var api = await crdtProjectsService.OpenProject(crdtProject, scope.ServiceProvider);
+            var morphTypes = await api.GetMorphTypes().ToArrayAsync();
+            morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count,
+                "morph types should have been seeded");
         }
 
-        // Second open: MigrateDb should detect existing morph types and skip seeding
-        // Note: MigrationTasks is static, so we need to clear it to re-trigger MigrateDb.
-        // In production, this doesn't happen (each process lifetime runs once).
-        // Instead, we verify by count that the seeding itself is duplicate-safe.
+        // Second open: morph types
         {
             await using var scope = host.Services.CreateAsyncScope();
             var crdtProjectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
             var crdtProject = crdtProjectsService.GetProject(code);
             crdtProject.Should().NotBeNull();
             var api = await crdtProjectsService.OpenProject(crdtProject, scope.ServiceProvider);
+            // OpenProject calls MigrateDb(), which includes seeding morph types but only if they're not already seeded
             var morphTypes = await api.GetMorphTypes().ToArrayAsync();
             morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count,
                 "morph types should not be duplicated");
