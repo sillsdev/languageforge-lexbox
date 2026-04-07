@@ -36,3 +36,5 @@ failedSyncs/
 
 # just ignore everything rider related
 .idea
+
+*.lscache
