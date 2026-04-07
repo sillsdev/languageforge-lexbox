@@ -25,10 +25,10 @@
       size: {
         // Reduce padding at the start if the button's icon prop is being used OR at the end if an icon was added as children content at the end
         default:
-          'h-10 px-4 py-2 has-[>span:first-child>:first-child[class*="i-mdi-"]]:ps-2 has-[>:last-child[class*="i-mdi-"]]:pe-2',
-        xs: 'h-8 gap-1.5 rounded-md px-3 has-[>span:first-child>:first-child[class*="i-mdi-"]]:ps-1.5 has-[>:last-child[class*="i-mdi-"]]:pe-1.5',
-        sm: 'h-9 gap-1.5 rounded-md px-3 has-[>span:first-child>:first-child[class*="i-mdi-"]]:ps-1.5 has-[>:last-child[class*="i-mdi-"]]:pe-1.5',
-        lg: 'h-11 rounded-md px-8 has-[>span:first-child>:first-child[class*="i-mdi-"]]:ps-6 has-[>:last-child[class*="i-mdi-"]]:pe-6',
+          'h-10 px-4 py-2 has-[>.icon-wrapper:first-child>:first-child[class*="i-mdi-"]]:ps-2 has-[>:last-child[class*="i-mdi-"]]:pe-2',
+        xs: 'h-8 gap-1.5 rounded-md px-3 has-[>.icon-wrapper:first-child>:first-child[class*="i-mdi-"]]:ps-1.5 has-[>:last-child[class*="i-mdi-"]]:pe-1.5',
+        sm: 'h-9 gap-1.5 rounded-md px-3 has-[>.icon-wrapper:first-child>:first-child[class*="i-mdi-"]]:ps-1.5 has-[>:last-child[class*="i-mdi-"]]:pe-1.5',
+        lg: 'h-11 rounded-md px-8 has-[>.icon-wrapper:first-child>:first-child[class*="i-mdi-"]]:ps-6 has-[>:last-child[class*="i-mdi-"]]:pe-6',
         'extended-fab': 'h-14 ps-4 pe-5',
         icon: 'h-10 w-10 min-h-10 min-w-10 max-h-10 max-w-10',
         'icon-xs': 'h-8 w-8 min-h-8 min-w-8 max-h-8 max-w-8',
@@ -93,7 +93,7 @@
 
 {#snippet content()}
   {#if loading || iconProps}
-    <span transition:slide={{axis: 'x'}}>
+    <span class="icon-wrapper" transition:slide={{axis: 'x'}}>
       {#if loading}
         <Icon {...mergeProps({class: 'animate-spin align-middle'}, iconProps ?? {})} icon="i-mdi-loading" />
       {:else if iconProps}
