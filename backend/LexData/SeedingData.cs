@@ -325,7 +325,7 @@ public class SeedingData(
                 OpenIddictConstants.Permissions.ResponseTypes.Code,
                 OpenIddictConstants.Permissions.Scopes.Email,
                 OpenIddictConstants.Permissions.Scopes.Profile,
-                OpenIddictConstants.Permissions.Prefixes.Scope + LexboxAuthScope.SendAndReceive.ToString().ToLower()
+                OpenIddictConstants.Permissions.Prefixes.Scope + LexboxAuthScope.LexboxApi.ToString().ToLower()
             },
             RedirectUris = {
                 new Uri("http://localhost:5000/v1/auth/oauth-callback"), // dev with npm start
