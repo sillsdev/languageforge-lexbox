@@ -56,7 +56,9 @@
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
-  let undebouncedSearch: string | undefined = $derived($allFilters[searchKey]);
+
+  let dedupedUndebouncedSearch = $derived($allFilters[searchKey]);
+  let undebouncedSearch = $derived(dedupedUndebouncedSearch);
 
   const watcher = $derived.by(() => {
     if (debounce === false) {
@@ -70,7 +72,7 @@
 
   watch(() => watcher(), (value) => {
     if ($allFilters[searchKey] === value) return;
-    $allFilters[searchKey] = value as Filters[typeof searchKey];
+    $allFilters[searchKey] = value;
   });
 
   function onClearFiltersClick(): void {
