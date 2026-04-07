@@ -5,14 +5,14 @@
   import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import {Button} from '$lib/components/ui/button';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
   import {AppNotification} from '$lib/notifications/notifications';
 
   const api = useMiniLcmApi();
-  const currentView = useCurrentView();
-  let entryLabel = $derived(pt($t`Entry`, $t`Word`, $currentView));
+  const viewService = useViewService();
+  let entryLabel = $derived(pt($t`Entry`, $t`Word`, viewService.currentView));
   let {
     entryId,
     open = $bindable(false),

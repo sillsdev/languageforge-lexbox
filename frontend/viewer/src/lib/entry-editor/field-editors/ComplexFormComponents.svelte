@@ -7,7 +7,7 @@
   import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import type {ReadonlyDeep} from 'type-fest';
 
   type Props = {
@@ -25,7 +25,7 @@
   }: Props = $props();
 
   const writingSystemService = useWritingSystemService();
-  const currentView = useCurrentView();
+  const viewService = useViewService();
 
   function addComponent(selection: EntrySenseSelection) {
     const component: IComplexFormComponent = {
@@ -41,14 +41,14 @@
   }
 
   function disableEntry(e: IEntry): false | { disableSenses?: true, reason: string } {
-    if (e.id === entry.id) return { reason: pt($t`Current Entry`, $t`Current Word`, $currentView), disableSenses: true };
-    if (entry.components.some((c) => c.componentEntryId === e.id && !c.componentSenseId)) return { reason: pt($t`Component`, $t`Part`, $currentView) };
-    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: pt($t`Complex Form`, $t`Part of`, $currentView), disableSenses: true };
+    if (e.id === entry.id) return { reason: pt($t`Current Entry`, $t`Current Word`, viewService.currentView), disableSenses: true };
+    if (entry.components.some((c) => c.componentEntryId === e.id && !c.componentSenseId)) return { reason: pt($t`Component`, $t`Part`, viewService.currentView) };
+    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: pt($t`Complex Form`, $t`Part of`, viewService.currentView), disableSenses: true };
     return false;
   }
 
   function disableSense(s: ISense, e: IEntry): false | string {
-    if (entry.components.some((c) => c.componentEntryId === e.id && c.componentSenseId === s.id)) return pt($t`Component`, $t`Part of`, $currentView);
+    if (entry.components.some((c) => c.componentEntryId === e.id && c.componentSenseId === s.id)) return pt($t`Component`, $t`Part of`, viewService.currentView);
     return false;
   }
 </script>

@@ -178,12 +178,24 @@ msgstr "Ongeza Maana"
 msgid "Add Word"
 msgstr "Ongeza Neno"
 
+#. Radio option in custom view writing system picker.
+#. Includes all writing systems (no filtering).
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "All"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
 #. Placeholder/suggestion in search field
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "ingizo"
+
+#. Section heading in custom view writing system picker.
+#. Labels the analysis language writing systems (e.g., English definitions/glosses).
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "Analysis"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -260,6 +272,18 @@ msgstr "Otomatiki"
 msgid "Auto syncing"
 msgstr "Kuoanisha otomatiki"
 
+#. Section label in custom view form.
+#. Selects the base view preset (Classic or Lite) that the custom view inherits from.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Based on"
+msgstr ""
+
+#. Subtitle under each custom view in the manage dialog.
+#. {0} = name of the base view preset (e.g., "FieldWorks Lite" or "FieldWorks Classic").
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "Based on {0}"
+msgstr ""
+
 #. Sort option
 #: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
@@ -285,6 +309,7 @@ msgstr "Angalia"
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Ghairi"
 
@@ -311,15 +336,8 @@ msgstr "Chagua mandhari"
 #. Relevant view: Classic
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Citation form"
-msgstr "Fomu ya Manukuu"
-
-#. Relevant view: Classic
-#. Lite view equivalent: "Display as"
-#. Filter option: narrow by citation form
-#: src/project/browse/filter/FieldSelect.svelte
-msgid "Citation Form"
 msgstr "Fomu ya Manukuu"
 
 #. Section header for projects from FieldWorks
@@ -362,7 +380,7 @@ msgstr "Fomu Changamano"
 #. Field label
 #. Classifies the type of complex form relationship (user-configurable)
 #. Examples: "compound", "derivative", "inflectional" (varies by project)
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Complex form types"
 msgstr "Aina za fomu changamano"
 
@@ -372,7 +390,7 @@ msgid "Complex form:"
 msgstr "Fomu changamano:"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Complex forms"
 msgstr "Fomu changamano"
 
@@ -393,7 +411,7 @@ msgid "Component:"
 msgstr "Sehemu:"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Components"
 msgstr "Sehemu"
 
@@ -414,6 +432,11 @@ msgstr "Imenakiliwa kwenye ubao wa kunakili"
 msgid "Copy version"
 msgstr "Nakili toleo"
 
+#. Dialog title when creating a new custom view.
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
+msgid "Create Custom View"
+msgstr ""
+
 #. Button label (view-dependent: "Create entry" in Classic, "Add new word" in Lite)
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
@@ -430,6 +453,11 @@ msgstr "Tengeneza Ingizo"
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Tengeneza Mradi wa Mfano"
+
+#. Submit button in the create custom view dialog.
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
+msgid "Create View"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
@@ -452,6 +480,17 @@ msgstr "Toleo Sasa"
 msgid "Current Word"
 msgstr "Neno Sasa"
 
+#. Radio option in custom view writing system picker.
+#. Enables manual selection of individual writing systems.
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "Custom"
+msgstr ""
+
+#. Label used in delete confirmation prompt for a custom view.
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "Custom view"
+msgstr ""
+
 #. Theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "Dark"
@@ -470,7 +509,7 @@ msgstr "Faharasa ya Data"
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Definition"
 msgstr "Maana"
 
@@ -536,8 +575,7 @@ msgstr "Kataa mabadiliko"
 #. Relevant view: Lite
 #. Classic view equivalent: "Citation Form"
 #. Lexicography term: choose which form of the entry to display
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-#: src/project/browse/filter/FieldSelect.svelte
+#: src/lib/views/entity-config.ts
 msgid "Display as"
 msgstr "Onyesha kama"
 
@@ -604,6 +642,11 @@ msgstr "Inapakua {0}..."
 msgid "Downloading..."
 msgstr "Inapakua..."
 
+#. Dialog title when editing an existing custom view.
+#: src/lib/views/custom/EditCustomViewDialog.svelte
+msgid "Edit Custom View"
+msgstr ""
+
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
@@ -635,7 +678,7 @@ msgstr "Ingizo"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
 msgid "Entry"
 msgstr "Ingizo"
@@ -680,6 +723,7 @@ msgstr "Hitilafu katika kupata hali ya kuoanisha."
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Example"
 msgstr "Mfano"
 
@@ -734,6 +778,12 @@ msgstr "Maoni & Msaada"
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr "Sehemu"
+
+#. Section label in custom view form.
+#. Shows checkboxes to select which dictionary fields are visible (grouped by entry, sense, example).
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Fields"
+msgstr ""
 
 #. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -880,8 +930,7 @@ msgstr "Pata msaada"
 #. Brief translation/equivalent (one word or short phrase)
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
-#: src/project/browse/filter/FieldSelect.svelte
+#: src/lib/views/entity-config.ts
 msgid "Gloss"
 msgstr "Glosi"
 
@@ -897,7 +946,7 @@ msgstr "Nenda kwa {0}"
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
 #. Field label: grammatical category (noun, verb, adjective, etc.)
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
 msgstr "Taarifa ya sarufi"
@@ -994,18 +1043,12 @@ msgstr "Nembo ya Lexbox"
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Field label: the main headword/base form
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Lexeme form"
 msgstr "Fomu ya Neno"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Word"
-#. Filter option: narrow results by headword/base form
-#: src/project/browse/filter/FieldSelect.svelte
-msgid "Lexeme Form"
-msgstr "Fomu ya Lexeme"
-
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/custom/validation.ts
 msgid "Lexeme form or Citation form is required"
 msgstr ""
 
@@ -1020,7 +1063,7 @@ msgstr "Hali ya orodha"
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "Maana halisi"
 
@@ -1066,6 +1109,17 @@ msgstr "Tengeneza pendekezo"
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Hakikisha mabadiliko yako [yameoanishwa]({0}) kwa Lexbox."
+
+#. Button label in view picker; opens the manage custom views dialog.
+#. Only visible to project managers.
+#: src/lib/views/custom/ManageCustomViewsButton.svelte
+msgid "Manage custom views"
+msgstr ""
+
+#. Dialog title for managing all custom views (create, edit, delete).
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "Manage Custom Views"
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
@@ -1117,6 +1171,21 @@ msgstr "Hali"
 msgid "Move"
 msgstr "Sogeza"
 
+#. Placeholder text in the name input of the custom view form.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "My custom view..."
+msgstr ""
+
+#. Field label for the custom view name input.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Name"
+msgstr ""
+
+#. Validation error shown when the custom view name is empty.
+#: src/lib/views/custom/validation.ts
+msgid "Name is required"
+msgstr ""
+
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1126,6 +1195,11 @@ msgstr "Kamwe"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Mpya"
+
+#. Button label in the manage custom views dialog; opens the create form.
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "New Custom View"
+msgstr ""
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "New data"
@@ -1160,6 +1234,11 @@ msgstr "Hakuna shughuli iliyopatikana"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "Hakuna sauti"
+
+#. Empty state message in the manage custom views dialog when none exist.
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "No custom views yet."
+msgstr ""
 
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
@@ -1237,7 +1316,7 @@ msgstr "Haijaoanishwa"
 #. Field label
 #. General notes/remarks field in entry editor
 #. Unconstrained text for additional metadata/comments
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Note"
 msgstr "Tanbihi"
 
@@ -1314,14 +1393,14 @@ msgstr "Sehemu"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Part of"
 msgstr "Sehemu ya"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "Sehemu za mazungumzo"
@@ -1388,15 +1467,24 @@ msgstr "Jina la mradi..."
 msgid "Publication"
 msgstr ""
 
-#. Label for publication domain selector
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-msgid "Publish {0} in"
-msgstr "Chapisha {0} ndani"
+#. Relevant view: Classic
+#. Lite view equivalent: "Publish Word in"
+#. Field label: selects which publications an entry appears in.
+#: src/lib/views/entity-config.ts
+msgid "Publish Entry in"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Publish Entry in"
+#. Field label: selects which publications a word appears in.
+#: src/lib/views/entity-config.ts
+msgid "Publish Word in"
+msgstr ""
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Reference"
 msgstr "Rejeleo"
 
@@ -1467,6 +1555,11 @@ msgstr "Hifadhi Kama"
 msgid "Save audio"
 msgstr "Hifadhi sauti"
 
+#. Submit button in the edit custom view dialog.
+#: src/lib/views/custom/EditCustomViewDialog.svelte
+msgid "Save View"
+msgstr ""
+
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
@@ -1492,6 +1585,16 @@ msgstr "Chagua {0} kuona maelezo"
 msgid "Select a new task to work on"
 msgstr "Chagua jukumu jipya la kufanya"
 
+#. Validation error when no analysis writing systems are selected in custom view form.
+#: src/lib/views/custom/validation.ts
+msgid "Select at least one analysis writing system"
+msgstr ""
+
+#. Validation error when no vernacular writing systems are selected in custom view form.
+#: src/lib/views/custom/validation.ts
+msgid "Select at least one vernacular writing system"
+msgstr ""
+
 #. Dialog button
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
@@ -1508,7 +1611,7 @@ msgstr "Kikoa cha kumkutania"
 #. Field label
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
 #. Appears under each Sense/Meaning; usually multiple selection allowed
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Semantic domains"
 msgstr "Miji ya kumkutania"
 
@@ -1524,13 +1627,14 @@ msgstr "Tuambii ujumbe"
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Kwa maana"
 
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Sentensi"
 
@@ -1763,6 +1867,7 @@ msgstr "Geuza iliyobandikwa"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Tafsiri"
 
@@ -1895,9 +2000,15 @@ msgid "Updates"
 msgstr "Masasisho"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "Inatumia sehemu kama"
+
+#. Section heading in custom view writing system picker.
+#. Labels the vernacular language writing systems (the language being documented).
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "Vernacular"
+msgstr ""
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
@@ -1931,10 +2042,9 @@ msgstr "Neno"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
+#: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
-#: src/project/browse/filter/FieldSelect.svelte
 msgid "Word"
 msgstr "Neno"
 
@@ -1946,6 +2056,7 @@ msgid "Word only"
 msgstr "Neno tu"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/custom/validation.ts
 msgid "Word or Display as is required"
 msgstr ""
 
@@ -1964,6 +2075,12 @@ msgstr "Mfumo wa Kuandika"
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
 msgstr "Mfumo wa kuandika: {0}"
+
+#. Section label in custom view form.
+#. Configures which vernacular and analysis writing systems are shown.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Writing systems"
+msgstr ""
 
 #. Filter section title
 #: src/project/browse/filter/WsSelect.svelte

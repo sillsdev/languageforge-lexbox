@@ -698,5 +698,55 @@
     "$type": "SetFirstTranslationIdChange",
     "TranslationId": "349419f8-65f4-1a81-42f4-b641837fa203",
     "EntityId": "d5ddbafb-d417-5df1-f4a4-d1224bdfac42"
+  },
+  {
+    "$type": "CreateCustomViewChange",
+    "Name": "Afghani",
+    "Base": "FieldWorks",
+    "EntryFields": [
+      {
+        "FieldId": "middleware"
+      }
+    ],
+    "SenseFields": [
+      {
+        "FieldId": "SMS"
+      }
+    ],
+    "ExampleFields": [],
+    "Vernacular": [
+      {
+        "WsId": "txq"
+      }
+    ],
+    "Analysis": null,
+    "EntityId": "935d8100-6254-f587-c712-65469362105f"
+  },
+  {
+    "$type": "EditCustomViewChange",
+    "Name": "Rial Omani",
+    "Base": "FieldWorks",
+    "EntryFields": [
+      {
+        "FieldId": "fresh-thinking"
+      }
+    ],
+    "SenseFields": [
+      {
+        "FieldId": "Auto Loan Account"
+      }
+    ],
+    "ExampleFields": [],
+    "Vernacular": [
+      {
+        "WsId": "nrk"
+      }
+    ],
+    "Analysis": null,
+    "EntityId": "99082da6-745e-9aaa-5231-3b83bd84e0e7"
+  },
+  {
+    "$type": "delete:CustomView",
+    "EntityId": "c954bd38-e4b5-ce57-0069-2a6edc91e629"
   }
 ]

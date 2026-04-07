@@ -1,6 +1,7 @@
 <script lang="ts">
   import NewEntryDialog from '$lib/entry-editor/NewEntryDialog.svelte';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
+  import ManageCustomViewsDialog from '$lib/views/custom/ManageCustomViewsDialog.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useProjectContext} from '$project/project-context.svelte';
   const projectContext = useProjectContext();
@@ -9,9 +10,15 @@
   $effect(() => {
     dialogsService.invokeDeleteDialog = deleteDialog?.prompt;
   })
+
+  let manageCustomViewsOpen = $state(false);
+  $effect(() => {
+    dialogsService.invokeManageCustomViews = () => manageCustomViewsOpen = true;
+  });
 </script>
 
 {#if projectContext.maybeApi}
   <NewEntryDialog/>
 {/if}
 <DeleteDialog bind:this={deleteDialog}/>
+<ManageCustomViewsDialog bind:open={manageCustomViewsOpen} />

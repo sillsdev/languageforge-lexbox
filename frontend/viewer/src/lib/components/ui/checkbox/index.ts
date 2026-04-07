@@ -1,6 +1,12 @@
+import Group from './checkbox-group.svelte';
+import Item from './checkbox-item.svelte';
 import Root from './checkbox.svelte';
 export {
+  Root,
+  Group,
+  Item,
   //
   Root as Checkbox,
-  Root,
+  Group as CheckboxGroup,
+  Item as CheckboxItem,
 };

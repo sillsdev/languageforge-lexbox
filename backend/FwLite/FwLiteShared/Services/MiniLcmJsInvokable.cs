@@ -24,14 +24,14 @@ public class MiniLcmJsInvokable(
 {
     private readonly IMiniLcmApi _wrappedApi = api.WrapWith([normalizationWrapperFactory, validationWrapperFactory, notificationWrapperFactory], project);
 
-    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio);
+    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio, bool? CustomViews);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
     [JSInvokable]
     public MiniLcmFeatures SupportedFeatures()
     {
         var isCrdtProject = project.DataFormat == ProjectDataFormat.Harmony;
         var isFwDataProject = project.DataFormat == ProjectDataFormat.FwData;
-        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true);
+        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true, CustomViews: isCrdtProject);
     }
 
     private bool CanWrite =>
@@ -80,6 +80,19 @@ public class MiniLcmJsInvokable(
     public ValueTask<ComplexFormType[]> GetComplexFormTypes()
     {
         return _wrappedApi.GetComplexFormTypes().ToArrayAsync();
+    }
+
+    [JSInvokable]
+    public ValueTask<CustomView[]> GetCustomViews()
+    {
+        return _wrappedApi.GetCustomViews().ToArrayAsync();
+    }
+
+    [JSInvokable]
+    [TsFunction(Type = "Promise<ICustomView | null>")]
+    public Task<CustomView?> GetCustomView(Guid id)
+    {
+        return _wrappedApi.GetCustomView(id);
     }
 
     [JSInvokable]
@@ -228,6 +241,29 @@ public class MiniLcmJsInvokable(
     public async Task DeleteComplexFormType(Guid id)
     {
         await _wrappedApi.DeleteComplexFormType(id);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task<CustomView> CreateCustomView(CustomView customView)
+    {
+        var createdCustomView = await _wrappedApi.CreateCustomView(customView);
+        OnDataChanged();
+        return createdCustomView;
+    }
+
+    [JSInvokable]
+    public async Task<CustomView> UpdateCustomView(CustomView customView)
+    {
+        var updatedCustomView = await _wrappedApi.UpdateCustomView(customView);
+        OnDataChanged();
+        return updatedCustomView;
+    }
+
+    [JSInvokable]
+    public async Task DeleteCustomView(Guid id)
+    {
+        await _wrappedApi.DeleteCustomView(id);
         OnDataChanged();
     }
 

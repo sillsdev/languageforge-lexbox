@@ -72,6 +72,7 @@ public class MiniLcmRepository(
     public IQueryable<SemanticDomain> SemanticDomains => dbContext.SemanticDomains;
     public IQueryable<PartOfSpeech> PartsOfSpeech => dbContext.PartsOfSpeech;
     public IQueryable<Publication> Publications => dbContext.Publications;
+    public IQueryable<CustomView> CustomViews => dbContext.CustomViews;
 
 
     private WritingSystem? _defaultVernacularWs;
@@ -295,5 +296,12 @@ public class MiniLcmRepository(
         var publication = await AsyncExtensions.SingleOrDefaultAsync(Publications
                 .AsQueryable(), p => p.Id == publicationId);
         return publication;
+    }
+
+    public async Task<CustomView?> GetCustomView(Guid customViewId)
+    {
+        var customView = await AsyncExtensions.SingleOrDefaultAsync(CustomViews
+            .AsQueryable(), cv => cv.Id == customViewId);
+        return customView;
     }
 }

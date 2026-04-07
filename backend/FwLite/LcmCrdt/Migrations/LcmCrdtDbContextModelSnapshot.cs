@@ -167,6 +167,51 @@ namespace LcmCrdt.Migrations
                     b.ToTable("ComplexFormType");
                 });
 
+            modelBuilder.Entity("MiniLcm.Models.CustomView", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Analysis")
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("Base")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EntryFields")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("ExampleFields")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SenseFields")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid?>("SnapshotId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Vernacular")
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SnapshotId")
+                        .IsUnique();
+
+                    b.ToTable("CustomView");
+                });
+
             modelBuilder.Entity("MiniLcm.Models.Entry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -595,6 +640,14 @@ namespace LcmCrdt.Migrations
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
                         .WithOne()
                         .HasForeignKey("MiniLcm.Models.ComplexFormType", "SnapshotId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("MiniLcm.Models.CustomView", b =>
+                {
+                    b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
+                        .WithOne()
+                        .HasForeignKey("MiniLcm.Models.CustomView", "SnapshotId")
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 

@@ -32,9 +32,9 @@
 {/snippet}
 
 {#if label}
-  <Label class="cursor-pointer flex items-center gap-4 md:gap-2 max-md:py-3">
+  <Label class={cn('flex items-center gap-4 md:gap-2 max-md:py-3', restProps.disabled || 'cursor-pointer')}>
     {@render control()}
-    <span>{label}</span>
+    <span class="min-w-0 flex-1 text-sm truncate">{label}</span>
   </Label>
 {:else}
   {@render control()}

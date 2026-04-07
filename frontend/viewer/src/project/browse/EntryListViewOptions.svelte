@@ -32,7 +32,7 @@
     <div class="grid gap-2">
       <h3>{$t`List mode`}</h3>
       <Tabs.Root bind:value={entryMode} class="text-center">
-        <Tabs.List onkeydown={(e) => {if (e.key === 'Enter') open = false}}>
+        <Tabs.List class="w-full" onkeydown={(e) => {if (e.key === 'Enter') open = false}}>
           <Tabs.Trigger value="simple" onclick={() => open = false}>
             <Icon icon="i-mdi-format-list-bulleted-square" class="mr-1"/>
             {$t`Simple`}
@@ -45,7 +45,7 @@
       </Tabs.Root>
     </div>
 
-    <ViewPicker />
+    <ViewPicker onClose={() => open = false} />
 
     <DevContent>
       <div class="space-y-2">

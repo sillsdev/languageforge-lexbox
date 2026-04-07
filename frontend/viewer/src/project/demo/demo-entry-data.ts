@@ -85,6 +85,16 @@ export const writingSystems: IWritingSystems = {
       isAudio: false,
     },
     {
+      'id': 'seh-Zxxx-x-audio',
+      'wsId': 'seh-Zxxx-x-audio',
+      'name': 'Sena Audio',
+      'abbreviation': 'seh 🔉',
+      'font': '???',
+      'exemplars': [],
+      'type': WritingSystemType.Vernacular,
+      isAudio: true,
+    },
+    {
       'id': 'ny',
       'wsId': 'ny',
       'name': 'Chichewa',

@@ -35,15 +35,16 @@
   } = $props();
   const overrides = $derived.by((): Overrides => {
     if (!task.subjectWritingSystemId) return {};
+    const ws = {wsId: task.subjectWritingSystemId};
     if (task.subjectWritingSystemType === WritingSystemType.Analysis) {
       return {
-        analysisWritingSystems: [task.subjectWritingSystemId],
-        vernacularWritingSystems: [],
+        analysis: [ws],
+        vernacular: [],
       };
     } else {
       return {
-        analysisWritingSystems: [],
-        vernacularWritingSystems: [task.subjectWritingSystemId]
+        analysis: [],
+        vernacular: [ws],
       };
     }
   });

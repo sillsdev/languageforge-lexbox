@@ -3,13 +3,13 @@
   import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Checkbox} from '$lib/components/ui/checkbox';
   import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
-  import type {FieldId} from '$lib/views/fields';
+  import type {FieldId} from '$lib/views/entity-config';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import {InMemoryDemoApi} from '$project/demo/in-memory-demo-api';
   import {AppNotification} from '$lib/notifications/notifications';
   import {tryUseService} from '$lib/services/service-provider';
   import {delay} from '$lib/utils/time';
-  import {initView, initViewSettings} from '$lib/views/view-service';
+  import {initViewService} from '$lib/views/view-service.svelte';
   import {dndzone} from 'svelte-dnd-action';
   import * as Resizable from '$lib/components/ui/resizable';
   import LcmRichTextEditor, {lineSeparator} from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
@@ -49,8 +49,7 @@
   }
 
   InMemoryDemoApi.setup();
-  initView();
-  initViewSettings();
+  initViewService();
   const writingSystemService = useWritingSystemService();
 
   function makeSense(s: ISense) {
@@ -58,7 +57,7 @@
   }
 
   let senseFields: ({ id: FieldId })[] = $state([{id: 'gloss'}, {id: 'definition'}]);
-  let overrides = $state<View['overrides']>({});
+  let overrides = $state<Partial<View>>({});
 
   function updateFields(e: CustomEvent<{ items: ({ id: FieldId })[] }>) {
     senseFields = e.detail.items;
@@ -330,7 +329,7 @@
         <h3>Override Fields</h3>
       </div>
       <div>
-        <Button onclick={() => overrides = {vernacularWritingSystems: ['en'], analysisWritingSystems: ['en']}}>Set en only</Button>
+        <Button onclick={() => overrides = {vernacular: [{wsId: 'en'}], analysis: [{wsId: 'en'}]}}>Set en only</Button>
         <Button onclick={() => overrides = {}}>Reset</Button>
         <p>Shown:</p>
         <div class="p-2" use:dndzone={{items: senseFields, flipDurationMs: 200}} onconsider={updateFields}

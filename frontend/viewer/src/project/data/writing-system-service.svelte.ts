@@ -5,6 +5,7 @@ import type {
   IRichMultiString,
   IRichString,
   ISense,
+  IViewWritingSystem,
   IWritingSystem,
   IWritingSystems
 } from '$lib/dotnet-types';
@@ -76,18 +77,16 @@ export class WritingSystemService {
   }
 
   viewAnalysis(view: View) {
-    return this.filterAndSortWs(this.analysis, view?.overrides?.analysisWritingSystems);
+    return this.filterWs(this.analysis, view?.analysis);
   }
 
   viewVernacular(view: View) {
-    return this.filterAndSortWs(this.vernacular, view?.overrides?.vernacularWritingSystems);
+    return this.filterWs(this.vernacular, view?.vernacular);
   }
 
-  filterAndSortWs(writingSystems: IWritingSystem[], override?: string[]) {
+  filterWs(writingSystems: IWritingSystem[], override?: IViewWritingSystem[]) {
     if (!override) return writingSystems;
-    return override
-      .map(wsId => writingSystems.find(ws => ws.wsId === wsId))
-      .filter(ws => !!ws);
+    return writingSystems.filter(ws => override.find(_ws => _ws.wsId === ws.wsId));
   }
 
   pickWritingSystems(

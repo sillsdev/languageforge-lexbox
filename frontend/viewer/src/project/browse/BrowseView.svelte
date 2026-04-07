@@ -11,7 +11,7 @@
   import {QueryParamState, QueryParamStateBool} from '$lib/utils/url.svelte';
   import {BrowseParam} from '$lib/utils/search-params';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import IfOnce from '$lib/components/if-once/if-once.svelte';
   import {SortField, type IPartOfSpeech, type IPublication, type ISemanticDomain} from '$lib/dotnet-types';
   import SortMenu from './sort/SortMenu.svelte';
@@ -21,7 +21,7 @@
   import EntryListViewOptions from './EntryListViewOptions.svelte';
 
   const projectContext = useProjectContext();
-  const currentView = useCurrentView();
+  const viewService = useViewService();
   const dialogsService = useDialogsService();
 
   // DESKTOP: the entry is a sibling of the list (it's a split view). We can switch between selected entries.
@@ -113,7 +113,7 @@
         defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
           {#if !selectedEntryId.current}
             <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
-              <p>{$t`Select ${pt($t`an entry`, $t`a word`, $currentView)} to view details`}</p>
+              <p>{$t`Select ${pt($t`an entry`, $t`a word`, viewService.currentView)} to view details`}</p>
             </div>
           {:else if projectContext.maybeApi}
             <div class="md:p-4 md:pl-4 h-full">

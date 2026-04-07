@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
@@ -1585,5 +1585,34 @@
     "Id": "fce4cb31-93bd-f380-fd73-3fb0d09c0fa5",
     "DeletedAt": "2025-09-17T23:53:03.6147633+02:00",
     "RemoteId": "end-to-end"
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "CustomView",
+      "Id": "72bcb2dd-4d73-486c-d5df-e5d7b9a6a3eb",
+      "DeletedAt": null,
+      "Name": "Mountain",
+      "Base": "FieldWorks",
+      "EntryFields": [
+        {
+          "FieldId": "spidy"
+        }
+      ],
+      "SenseFields": [
+        {
+          "FieldId": "Division"
+        }
+      ],
+      "ExampleFields": [],
+      "Vernacular": [
+        {
+          "WsId": "kup"
+        }
+      ],
+      "Analysis": null
+    },
+    "Id": "72bcb2dd-4d73-486c-d5df-e5d7b9a6a3eb",
+    "DeletedAt": null
   }
 ]

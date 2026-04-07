@@ -8,6 +8,7 @@ import {
   type IExampleSentence,
   type IFilterQueryOptions,
   type IIndexQueryOptions,
+  type IMiniLcmFeatures,
   type IMiniLcmJsInvokable,
   type IPartOfSpeech,
   type IProjectModel,
@@ -18,7 +19,9 @@ import {
   type IServerProjects,
   type IWritingSystem,
   type IWritingSystems,
-  type WritingSystemType
+  type WritingSystemType,
+  type ICustomView,
+  ViewBase,
 } from '$lib/dotnet-types';
 import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
@@ -37,6 +40,7 @@ import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShare
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
+import {initProjectStorage} from '$lib/storage';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -102,6 +106,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const eventBus = useEventBus();
     const inMemoryLexboxApi = new InMemoryDemoApi(projectContext, eventBus);
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
+    initProjectStorage(projectContext.projectCode);
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
@@ -174,10 +179,39 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   supportedFeatures() {
     return Promise.resolve({
       write: true,
-    });
+      audio: true,
+      customViews: true,
+    } satisfies IMiniLcmFeatures);
   }
 
   readonly projectName = projectName;
+
+  private _customViews: ICustomView[] = [{
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    name: 'Portuguese and audio',
+    base: ViewBase.FwLite,
+    entryFields: [
+      {fieldId: 'lexemeForm'},
+    ],
+    senseFields: [
+      {fieldId: 'gloss'},
+    ],
+    exampleFields: [
+      {fieldId: 'sentence'},
+      {fieldId: 'translations'},
+    ],
+    analysis: [{wsId: 'pt'}],
+    vernacular: [{wsId: 'seh-Zxxx-x-audio'}],
+  }];
+
+  getCustomViews(): Promise<ICustomView[]> {
+    return Promise.resolve(JSON.parse(JSON.stringify(this._customViews)) as ICustomView[]);
+  }
+
+  getCustomView(id: string): Promise<ICustomView | null> {
+    const found = this._customViews.find(v => v.id === id) ?? null;
+    return Promise.resolve(found ? (JSON.parse(JSON.stringify(found)) as ICustomView) : null);
+  }
 
   private _entries = entries;
 
@@ -374,6 +408,25 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   deleteComplexFormType(_id: string): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  createCustomView(customView: ICustomView): Promise<ICustomView> {
+    const created = JSON.parse(JSON.stringify(customView)) as ICustomView
+    this._customViews = [...this._customViews, created];
+    return Promise.resolve(created);
+  }
+
+  updateCustomView(_customView: ICustomView): Promise<ICustomView> {
+    const index = this._customViews.findIndex(v => v.id === _customView.id);
+    if (index === -1) throw new Error(`Custom view ${_customView.id} not found`);
+    const updated = JSON.parse(JSON.stringify(_customView)) as ICustomView;
+    this._customViews = this._customViews.map((v, i) => i === index ? updated : v);
+    return Promise.resolve(updated);
+  }
+
+  deleteCustomView(_id: string): Promise<void> {
+    this._customViews = this._customViews.filter(v => v.id !== _id);
+    return Promise.resolve();
   }
 
   createComplexFormComponent(_complexFormComponent: IComplexFormComponent): Promise<IComplexFormComponent> {
