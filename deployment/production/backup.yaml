@@ -98,7 +98,7 @@ spec:
                 claimName: kopia-cache
             - name: pg-dump
               emptyDir:
-                sizeLimit: 1Gi
+                sizeLimit: 2Gi
             - name: hg-repos
               persistentVolumeClaim:
                 claimName: hg-repos
