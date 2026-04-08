@@ -1130,6 +1130,10 @@ msgstr "Msimamizi"
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Sasisho la mwongozo linahitajika. Tafadhali fuata maelekezo yaliyotolewa."
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Match diacritics"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word
@@ -1871,7 +1875,6 @@ msgstr "Geuza iliyobandikwa"
 msgid "Translation"
 msgstr "Tafsiri"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Tafsiri {0}"

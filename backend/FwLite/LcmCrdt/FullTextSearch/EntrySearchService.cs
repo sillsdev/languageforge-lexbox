@@ -29,9 +29,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     //linq2db table
     private ITable<EntrySearchRecord> EntrySearchRecordsTable => dbContext.GetTable<EntrySearchRecord>();
 
-    public IQueryable<Entry> Filter(IQueryable<Entry> queryable, string query)
+    public IQueryable<Entry> Filter(IQueryable<Entry> queryable, string query, bool matchDiacritics = false)
     {
-        return FilterInternal(queryable, query).Select(t => t.Entry);
+        return FilterInternal(queryable, query, matchDiacritics).Select(t => t.Entry);
     }
 
     /// <summary>
@@ -42,9 +42,10 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     /// </summary>
     public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable,
         string query,
-        WritingSystemId wsId)
+        WritingSystemId wsId,
+        bool matchDiacritics = false)
     {
-        var filtered = FilterInternal(queryable, query);
+        var filtered = FilterInternal(queryable, query, matchDiacritics);
         var ordered = filtered
             .OrderByDescending(t => t.HeadwordMatches)
             .ThenByDescending(t => t.HeadwordPrefixMatches)
@@ -53,14 +54,15 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
                 t.HeadwordMatches
                 ? t.SearchRecord.Headword.CollateUnicode(wsId)
                 : string.Empty)
+            .ThenByDescending(t => t.ExactDiacriticMatch)
             .ThenBy(t => Sql.Ext.SQLite().Rank(t.SearchRecord)).ThenBy(t => t.Entry.Id);
 
         return ordered.Select(t => t.Entry);
     }
 
-    private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, bool HeadwordMatches, bool HeadwordPrefixMatches);
+    private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, bool HeadwordMatches, bool HeadwordPrefixMatches, bool ExactDiacriticMatch);
 
-    private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query)
+    private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query, bool matchDiacritics)
     {
         var ftsString = ToFts5LiteralString(query);
 
@@ -69,12 +71,13 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             from searchRecord in EntrySearchRecordsTable
             from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
             where Sql.Ext.SQLite().Match(searchRecord, ftsString) &&
-                (entry.LexemeForm.SearchValue(query)
-                || entry.CitationForm.SearchValue(query)
-                || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
-            let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(searchRecord.Headword, query)
-            let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(searchRecord.Headword, query)
-            select new FilterProjection(entry, searchRecord, headwordMatches, headwordPrefixMatches);
+                (entry.LexemeForm.SearchValue(query, matchDiacritics)
+                || entry.CitationForm.SearchValue(query, matchDiacritics)
+                || entry.Senses.Any(s => s.Gloss.SearchValue(query, matchDiacritics)))
+            let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(searchRecord.Headword, query, matchDiacritics)
+            let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(searchRecord.Headword, query, matchDiacritics)
+            let exactDiacriticMatch = !matchDiacritics && SqlHelpers.ContainsIgnoreCaseAccents(searchRecord.Headword, query, true)
+            select new FilterProjection(entry, searchRecord, headwordMatches, headwordPrefixMatches, exactDiacriticMatch);
     }
 
     private static string ToFts5LiteralString(string query)

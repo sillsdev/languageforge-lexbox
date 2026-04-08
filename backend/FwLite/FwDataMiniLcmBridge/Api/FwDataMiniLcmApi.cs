@@ -869,7 +869,7 @@ public class FwDataMiniLcmApi(
     public Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
     {
         if (options?.HasFilter == true || query?.Length is > 0)
-            return Task.FromResult(GetLexEntries(EntrySearchPredicate(query), options).Count());
+            return Task.FromResult(GetLexEntries(EntrySearchPredicate(query, options?.MatchDiacritics ?? false), options).Count());
         return Task.FromResult(EntriesRepository.Count);
     }
 
@@ -924,15 +924,15 @@ public class FwDataMiniLcmApi(
     private IEnumerable<ILexEntry> GetFilteredAndSortedEntries(Func<ILexEntry, bool>? predicate, FilterQueryOptions? filterOptions, SortOptions order, string? query)
     {
         var entries = GetLexEntries(predicate, filterOptions);
-        return ApplySorting(order, entries, query);
+        return ApplySorting(order, entries, query, filterOptions?.MatchDiacritics ?? false);
     }
 
-    private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query)
+    private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query, bool matchDiacritics = false)
     {
         var sortWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Vernacular);
         if (order.Field == SortField.SearchRelevance)
         {
-            return entries.ApplyRoughBestMatchOrder(order, sortWs, query);
+            return entries.ApplyRoughBestMatchOrder(order, sortWs, query, matchDiacritics);
         }
 
         return order.ApplyOrder(entries, e => e.LexEntryHeadword(sortWs));
@@ -940,16 +940,17 @@ public class FwDataMiniLcmApi(
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
-        var entries = GetEntries(EntrySearchPredicate(query), options, query);
+        var matchDiacritics = options?.MatchDiacritics ?? false;
+        var entries = GetEntries(EntrySearchPredicate(query, matchDiacritics), options, query);
         return entries;
     }
 
-    private Func<ILexEntry, bool>? EntrySearchPredicate(string? query = null)
+    private Func<ILexEntry, bool>? EntrySearchPredicate(string? query = null, bool matchDiacritics = false)
     {
         if (string.IsNullOrEmpty(query)) return null;
-        return entry => entry.CitationForm.SearchValue(query) ||
-                        entry.LexemeFormOA?.Form.SearchValue(query) is true ||
-                        entry.AllSenses.Any(s => s.Gloss.SearchValue(query));
+        return entry => entry.CitationForm.SearchValue(query, matchDiacritics) ||
+                        entry.LexemeFormOA?.Form.SearchValue(query, matchDiacritics) is true ||
+                        entry.AllSenses.Any(s => s.Gloss.SearchValue(query, matchDiacritics));
     }
 
     public Task<Entry?> GetEntry(Guid id)
@@ -960,7 +961,7 @@ public class FwDataMiniLcmApi(
 
     public Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
     {
-        var predicate = EntrySearchPredicate(query);
+        var predicate = EntrySearchPredicate(query, options?.MatchDiacritics ?? false);
         var entries = GetFilteredAndSortedEntries(predicate, options, options?.Order ?? SortOptions.Default, query);
 
         var rowIndex = 0;

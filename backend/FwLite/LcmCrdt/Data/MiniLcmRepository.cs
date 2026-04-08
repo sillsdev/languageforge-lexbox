@@ -196,6 +196,7 @@ public class MiniLcmRepository(
         }
 
         bool sortingHandled = false;
+        var matchDiacritics = options.MatchDiacritics;
         if (!string.IsNullOrEmpty(query))
         {
             if (SearchService is not null && SearchService.ValidSearchTerm(query))
@@ -204,16 +205,16 @@ public class MiniLcmRepository(
                 {
                     //ranking must be done at the same time as part of the full-text search, so we can't use normal sorting
                     sortingHandled = true;
-                    queryable = SearchService.FilterAndRank(queryable, query, sortOptions.WritingSystem);
+                    queryable = SearchService.FilterAndRank(queryable, query, sortOptions.WritingSystem, matchDiacritics);
                 }
                 else
                 {
-                    queryable = SearchService.Filter(queryable, query);
+                    queryable = SearchService.Filter(queryable, query, matchDiacritics);
                 }
             }
             else
             {
-                queryable = queryable.Where(Filtering.SearchFilter(query));
+                queryable = queryable.Where(Filtering.SearchFilter(query, matchDiacritics));
             }
         }
 
@@ -228,7 +229,7 @@ public class MiniLcmRepository(
         var wsId = options.Order.WritingSystem;
         IQueryable<Entry> result = options.Order.Field switch
         {
-            SortField.SearchRelevance => queryable.ApplyRoughBestMatchOrder(options.Order, query),
+            SortField.SearchRelevance => queryable.ApplyRoughBestMatchOrder(options.Order, query, options.MatchDiacritics),
             SortField.Headword =>
                 options.ApplyOrder(queryable, e => e.Headword(wsId).CollateUnicode(wsId)).ThenBy(e => e.Id),
             _ => throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field)

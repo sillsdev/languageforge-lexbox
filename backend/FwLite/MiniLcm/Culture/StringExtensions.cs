@@ -7,21 +7,21 @@ public static class StringExtensions
 {
     /// <summary>
     /// Checks if <paramref name="str"/> contains <paramref name="search"/>, ignoring case.
-    /// Diacritics are also ignored unless the search string itself contains diacritics.
+    /// When <paramref name="matchDiacritics"/> is false (default), diacritics are also ignored.
     /// </summary>
-    public static bool ContainsDiacriticMatch(this string str, string search)
+    public static bool ContainsDiacriticMatch(this string str, string search, bool matchDiacritics = false)
     {
-        var options = DiacriticMatchOptions(search);
+        var options = DiacriticMatchOptions(matchDiacritics);
         return CultureInfo.InvariantCulture.CompareInfo.Contains(str, search, options);
     }
 
     /// <summary>
     /// Checks if <paramref name="str"/> starts with <paramref name="search"/>, ignoring case.
-    /// Diacritics are also ignored unless the search string itself contains diacritics.
+    /// When <paramref name="matchDiacritics"/> is false (default), diacritics are also ignored.
     /// </summary>
-    public static bool StartsWithDiacriticMatch(this string str, string search)
+    public static bool StartsWithDiacriticMatch(this string str, string search, bool matchDiacritics = false)
     {
-        var options = DiacriticMatchOptions(search);
+        var options = DiacriticMatchOptions(matchDiacritics);
         return CultureInfo.InvariantCulture.CompareInfo.IsPrefix(str, search, options);
     }
 
@@ -30,9 +30,9 @@ public static class StringExtensions
         return compareInfo.IndexOf(source, value, options) >= 0;
     }
 
-    private static CompareOptions DiacriticMatchOptions(string search)
+    private static CompareOptions DiacriticMatchOptions(bool matchDiacritics)
     {
-        return ContainsDiacritic(search)
+        return matchDiacritics
             ? CompareOptions.IgnoreCase
             : CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace;
     }

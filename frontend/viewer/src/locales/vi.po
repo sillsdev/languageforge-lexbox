@@ -1130,6 +1130,10 @@ msgstr "Quản lý"
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Cần thực hiện cập nhật thủ công. Vui lòng làm theo các hướng dẫn được cung cấp."
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Match diacritics"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word
@@ -1871,7 +1875,6 @@ msgstr "Chuyển trạng thái ghim"
 msgid "Translation"
 msgstr "Bản dịch"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Bản dịch {0}"

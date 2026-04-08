@@ -21,19 +21,19 @@ public static class SqlHelpers
     }
 
     [ExpressionMethod(nameof(SearchValueExpression))]
-    public static bool SearchValue(this MultiString ms, string search)
+    public static bool SearchValue(this MultiString ms, string search, bool matchDiacritics = false)
     {
-        return ms.Values.Any(pair => pair.Value.ContainsDiacriticMatch(search));
+        return ms.Values.Any(pair => pair.Value.ContainsDiacriticMatch(search, matchDiacritics));
     }
 
-    private static Expression<Func<MultiString, string, bool>> SearchValueExpression()
+    private static Expression<Func<MultiString, string, bool, bool>> SearchValueExpression()
     {
-        return (ms, search) => Json.QueryValues(ms).Any(s => ContainsIgnoreCaseAccents(s, search));
+        return (ms, search, matchDiacritics) => Json.QueryValues(ms).Any(s => ContainsIgnoreCaseAccents(s, search, matchDiacritics));
     }
 
-    [Sql.Expression(CustomSqliteFunctionInterceptor.ContainsFunction + "({0}, {1})")]
-    public static bool ContainsIgnoreCaseAccents(string s, string search) => s.ContainsDiacriticMatch(search);
+    [Sql.Expression(CustomSqliteFunctionInterceptor.ContainsFunction + "({0}, {1}, {2})")]
+    public static bool ContainsIgnoreCaseAccents(string s, string search, bool matchDiacritics = false) => s.ContainsDiacriticMatch(search, matchDiacritics);
 
-    [Sql.Expression(CustomSqliteFunctionInterceptor.StartsWithFunction + "({0}, {1})")]
-    public static bool StartsWithIgnoreCaseAccents(string s, string search) => s.StartsWithDiacriticMatch(search);
+    [Sql.Expression(CustomSqliteFunctionInterceptor.StartsWithFunction + "({0}, {1}, {2})")]
+    public static bool StartsWithIgnoreCaseAccents(string s, string search, bool matchDiacritics = false) => s.StartsWithDiacriticMatch(search, matchDiacritics);
 }

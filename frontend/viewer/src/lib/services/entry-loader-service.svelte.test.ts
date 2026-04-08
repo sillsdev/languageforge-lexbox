@@ -53,6 +53,7 @@ async function createService(allEntries: IEntry[], totalCount = allEntries.lengt
       search: () => '',
       sort: () => undefined,
       gridifyFilter: () => undefined,
+      matchDiacritics: () => false,
     }, BATCH_SIZE);
     return () => service.destroy();
   }));
@@ -316,6 +317,7 @@ describe('EntryLoaderService', () => {
           search: () => search,
           sort: () => undefined,
           gridifyFilter: () => gridifyFilter,
+          matchDiacritics: () => false,
         }, BATCH_SIZE);
 
         search = 'test-search';

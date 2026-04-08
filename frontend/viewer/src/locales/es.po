@@ -1130,6 +1130,10 @@ msgstr "Gerente"
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Se requiere una actualización manual. Siga las instrucciones proporcionadas."
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Match diacritics"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word
@@ -1871,7 +1875,6 @@ msgstr "Alternar fijado"
 msgid "Translation"
 msgstr "Traducción"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Traducción {0}"

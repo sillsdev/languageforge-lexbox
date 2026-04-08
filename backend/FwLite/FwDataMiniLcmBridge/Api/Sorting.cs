@@ -11,26 +11,28 @@ internal static class Sorting
     /// prefix matches (e.g. when searching "tan" then "tanan" is before "matan"), then shorter, then alphabetical.
     /// See also: EntrySearchService.FilterAndRank for the FTS-based equivalent in LcmCrdt.
     /// </summary>
-    public static IEnumerable<ILexEntry> ApplyRoughBestMatchOrder(this IEnumerable<ILexEntry> entries, SortOptions order, int sortWsHandle, string? query = null)
+    public static IEnumerable<ILexEntry> ApplyRoughBestMatchOrder(this IEnumerable<ILexEntry> entries, SortOptions order, int sortWsHandle, string? query = null, bool matchDiacritics = false)
     {
         var projected = entries.Select(e => (Entry: e, Headword: e.LexEntryHeadword(sortWsHandle)));
         if (order.Ascending)
         {
             return projected
-                .OrderByDescending(x => !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!) ?? false))
-                .ThenByDescending(x => !string.IsNullOrEmpty(query) && (x.Headword?.StartsWithDiacriticMatch(query!) ?? false))
+                .OrderByDescending(x => !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!, matchDiacritics) ?? false))
+                .ThenByDescending(x => !string.IsNullOrEmpty(query) && (x.Headword?.StartsWithDiacriticMatch(query!, matchDiacritics) ?? false))
                 .ThenBy(x => x.Headword?.Length ?? 0)
                 .ThenBy(x => x.Headword)
+                .ThenByDescending(x => !matchDiacritics && !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!, true) ?? false))
                 .ThenBy(x => x.Entry.Id.Guid)
                 .Select(x => x.Entry);
         }
         else
         {
             return projected
-                .OrderBy(x => !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!) ?? false))
-                .ThenBy(x => !string.IsNullOrEmpty(query) && (x.Headword?.StartsWithDiacriticMatch(query!) ?? false))
+                .OrderBy(x => !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!, matchDiacritics) ?? false))
+                .ThenBy(x => !string.IsNullOrEmpty(query) && (x.Headword?.StartsWithDiacriticMatch(query!, matchDiacritics) ?? false))
                 .ThenByDescending(x => x.Headword?.Length ?? 0)
                 .ThenByDescending(x => x.Headword)
+                .ThenBy(x => !matchDiacritics && !string.IsNullOrEmpty(query) && (x.Headword?.ContainsDiacriticMatch(query!, true) ?? false))
                 .ThenByDescending(x => x.Entry.Id.Guid)
                 .Select(x => x.Entry);
         }

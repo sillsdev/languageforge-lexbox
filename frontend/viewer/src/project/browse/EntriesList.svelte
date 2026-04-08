@@ -29,6 +29,7 @@
     sort,
     onSelectEntry,
     gridifyFilter = undefined,
+    matchDiacritics = false,
     previewDictionary = false,
     disableNewEntry = false,
     entryCount = $bindable(null),
@@ -41,6 +42,7 @@
     sort?: SortConfig;
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
+    matchDiacritics?: boolean;
     previewDictionary?: boolean,
     disableNewEntry?: boolean,
     entryCount?: number | null,
@@ -55,6 +57,7 @@
     search: () => search,
     sort: () => sort,
     gridifyFilter: () => gridifyFilter,
+    matchDiacritics: () => matchDiacritics,
   };
 
   let entryLoader = $derived(!miniLcmApi ? undefined : untrack(() => new EntryLoaderService(miniLcmApi, deps)));

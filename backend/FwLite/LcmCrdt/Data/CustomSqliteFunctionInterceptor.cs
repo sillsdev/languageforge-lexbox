@@ -57,7 +57,7 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor, IConnec
     public static void RegisterCustomFunctions(SqliteConnection sqliteConnection)
     {
         sqliteConnection.CreateFunction(ContainsFunction,
-            (byte[]? str, byte[]? value) =>
+            (byte[]? str, byte[]? value, bool matchDiacritics) =>
             {
                 if (str is null || value is null) return false;
 
@@ -65,12 +65,12 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor, IConnec
                 Span<char> search = stackalloc char[Encoding.UTF8.GetCharCount(value)];
                 Encoding.UTF8.GetChars(str, source);
                 Encoding.UTF8.GetChars(value, search);
-                var options = DiacriticMatchOptions(search);
+                var options = DiacriticMatchOptions(matchDiacritics);
                 return CultureInfo.InvariantCulture.CompareInfo.IndexOf(source, search, options) >= 0;
             });
 
         sqliteConnection.CreateFunction(StartsWithFunction,
-            (byte[]? str, byte[]? value) =>
+            (byte[]? str, byte[]? value, bool matchDiacritics) =>
             {
                 if (str is null || value is null) return false;
 
@@ -78,31 +78,15 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor, IConnec
                 Span<char> search = stackalloc char[Encoding.UTF8.GetCharCount(value)];
                 Encoding.UTF8.GetChars(str, source);
                 Encoding.UTF8.GetChars(value, search);
-                var options = DiacriticMatchOptions(search);
+                var options = DiacriticMatchOptions(matchDiacritics);
                 return CultureInfo.InvariantCulture.CompareInfo.IsPrefix(source, search, options);
             });
     }
 
-    private static CompareOptions DiacriticMatchOptions(in ReadOnlySpan<char> search)
+    private static CompareOptions DiacriticMatchOptions(bool matchDiacritics)
     {
-        return ContainsDiacritic(search)
+        return matchDiacritics
             ? CompareOptions.IgnoreCase
             : CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace;
-    }
-
-    private static bool ContainsDiacritic(in ReadOnlySpan<char> value)
-    {
-        bool hasAccent = false;
-        //todo we could maybe get rid of this normalization step if the text is already normalized
-        //that would mean we could just iterate the value here rather than creating a new string
-        foreach (var ch in new string(value).Normalize(NormalizationForm.FormD))
-        {
-            if (CharUnicodeInfo.GetUnicodeCategory(ch) == UnicodeCategory.NonSpacingMark)
-            {
-                hasAccent = true;
-                break;
-            }
-        }
-        return hasAccent;
     }
 }

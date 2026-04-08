@@ -33,6 +33,7 @@
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
   let gridifyFilter = $state<string>();
+  let matchDiacritics = $state(false);
   let publication = $state<IPublication>();
   let semanticDomain = $state<ISemanticDomain>();
   let partOfSpeech = $state<IPartOfSpeech>();
@@ -81,7 +82,7 @@
       >
         <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
           <div class="md:mr-3">
-            <SearchFilter bind:search bind:gridifyFilter bind:publication bind:semanticDomain bind:partOfSpeech />
+            <SearchFilter bind:search bind:gridifyFilter bind:matchDiacritics bind:publication bind:semanticDomain bind:partOfSpeech />
             <div class="my-2 flex items-center justify-between">
               <SortMenu bind:value={sort}
                 autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
@@ -93,6 +94,7 @@
                        selectedEntryId={selectedEntryId.current}
                        {sort}
                        {gridifyFilter}
+                       {matchDiacritics}
                        {publication}
                        {partOfSpeech}
                        {semanticDomain}

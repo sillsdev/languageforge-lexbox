@@ -10,5 +10,6 @@ export interface IFilterQueryOptions
 {
 	exemplar?: IExemplarOptions;
 	filter?: IEntryFilter;
+	matchDiacritics?: boolean;
 }
 /* eslint-enable */

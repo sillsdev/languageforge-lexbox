@@ -1125,6 +1125,10 @@ msgstr "Manager"
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Manual update is required. Please follow the instructions provided."
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Match diacritics"
+msgstr "Match diacritics"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word

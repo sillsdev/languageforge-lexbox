@@ -387,25 +387,29 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Theory]
+    // Basic matches (diacritics ignored by default)
     [InlineData("a", "a", true)]
     [InlineData("a", "A", false)]
-    [InlineData("A", "Ã", false)]
     [InlineData("ap", "apple", false)]
     [InlineData("ap", "APPLE", false)]
     [InlineData("ing", "walking", false)]
     [InlineData("ing", "WALKING", false)]
+    // Diacritics are ignored: base matches accented and vice versa
+    [InlineData("A", "Ã", false)]
+    [InlineData("Ã", "A", false)]
     [InlineData("Ãp", "Ãpple", false)]
     [InlineData("Ãp", "ãpple", false)]
-    [InlineData("ap", "Ãpple", false)]
-    [InlineData("app", "Ãpple", false)]//crdt fts only kicks in at 3 chars
+    [InlineData("ap", "Ãpple", false)] // non-FTS: base search matches accented word
+    [InlineData("app", "Ãpple", false)] // FTS: base search matches accented word
+    [InlineData("Ãpp", "apple", false)] // FTS: accented search matches base word
+    [InlineData("É", "È", false)] // different accents match when diacritics ignored
+    // Normalization: Cyrillic FormC/FormD pairs
     [InlineData("й", "й", false)] // D, C
     [InlineData("й", "й", false)] // C, D
     [InlineData("й", "й", true)] // C, C
-    [InlineData("й", "й", true)] // D, D
     [InlineData("ймыл", "ймыл", false)] // D, C
     [InlineData("ймыл", "ймыл", false)] // C, D
     [InlineData("ймыл", "ймыл", true)] // C, C
-    [InlineData("ймыл", "ймыл", true)] // D, D
     public async Task SuccessfulMatches(string searchTerm, string word, bool identical)
     {
         // identical is to make the test cases more readable when they only differ in their normalization
@@ -422,17 +426,72 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [Theory]
     [InlineData("a", "b")]
     [InlineData("ab", "b")]
-    [InlineData("Ã", "A")] // Accented should not match base
-    [InlineData("apple", "orange")] // Completely different words
-    [InlineData("É", "È")] // Different accents
+    [InlineData("apple", "orange")]
     public async Task NegativeMatches(string searchTerm, string word)
     {
         word = word.Normalize(NormalizationForm.FormD);
-        //should we be normalizing the search term internally?
         searchTerm = searchTerm.Normalize(NormalizationForm.FormD);
         await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
         var words = await Api.SearchEntries(searchTerm).Select(e => e.LexemeForm["en"]).ToArrayAsync();
         words.Should().NotContain(word);
+    }
+
+    [Theory]
+    // Non-FTS: accented search should NOT match base when diacritics are matched
+    [InlineData("Ã", "A")]
+    [InlineData("á", "a")]
+    // Non-FTS: base search should NOT match accented when diacritics are matched
+    [InlineData("a", "á")]
+    // FTS: different accents should NOT match
+    [InlineData("app", "ãpple")]
+    [InlineData("ãpp", "apple")]
+    [InlineData("Élan", "Èlan")]
+    public async Task MatchDiacritics_NegativeMatches(string searchTerm, string word)
+    {
+        word = word.Normalize(NormalizationForm.FormD);
+        searchTerm = searchTerm.Normalize(NormalizationForm.FormD);
+        await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
+        var words = await Api.SearchEntries(searchTerm, new QueryOptions { MatchDiacritics = true })
+            .Select(e => e.LexemeForm["en"]).ToArrayAsync();
+        words.Should().NotContain(word.Normalize(NormalizationForm.FormD));
+    }
+
+    [Theory]
+    // Non-FTS: exact diacritic matches still work in strict mode
+    [InlineData("á", "á")]
+    [InlineData("Ã", "Ã")]
+    // FTS: exact diacritic matches still work in strict mode
+    [InlineData("ãpp", "ãpple")]
+    public async Task MatchDiacritics_PositiveMatches(string searchTerm, string word)
+    {
+        word = word.Normalize(NormalizationForm.FormD);
+        await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
+        var words = await Api.SearchEntries(searchTerm, new QueryOptions { MatchDiacritics = true })
+            .Select(e => e.LexemeForm["en"]).ToArrayAsync();
+        words.Should().Contain(word.Normalize(NormalizationForm.FormD));
+    }
+
+    [Theory]
+    // FTS path (≥3 chars): exact diacritic match sorts first
+    [InlineData("app", "ãpple,apple", "apple,ãpple")]
+    // Non-FTS path (<3 chars): exact diacritic match sorts first
+    [InlineData("á", "a,á", "á,a")]
+    public async Task ExactDiacriticMatchRankedHigher(string searchTerm, string words, string expectedOrder)
+    {
+        var ids = new HashSet<Guid>();
+        foreach (var word in words.Split(",").Reverse()) // insert in reverse so order is not by insertion
+        {
+            var normalizedWord = word.Normalize(NormalizationForm.FormD);
+            var id = Guid.NewGuid();
+            ids.Add(id);
+            await Api.CreateEntry(new Entry { Id = id, LexemeForm = { ["en"] = normalizedWord } });
+        }
+        var result = await Api.SearchEntries(searchTerm, new QueryOptions(new SortOptions(SortField.SearchRelevance)))
+            .Where(e => ids.Contains(e.Id))
+            .Select(e => e.LexemeForm["en"])
+            .ToArrayAsync();
+        var normalizedExpected = expectedOrder.Split(",").Select(w => w.Normalize(NormalizationForm.FormD)).ToArray();
+        result.Should().ContainInOrder(normalizedExpected);
     }
 
     [Theory]

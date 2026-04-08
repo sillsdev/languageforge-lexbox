@@ -50,26 +50,28 @@ public interface IMiniLcmReadApi
 public record IndexQueryOptions(
     SortOptions? Order = null,
     ExemplarOptions? Exemplar = null,
-    EntryFilter? Filter = null) : FilterQueryOptions(Exemplar, Filter)
+    EntryFilter? Filter = null,
+    bool MatchDiacritics = false) : FilterQueryOptions(Exemplar, Filter, MatchDiacritics)
 {
     public static new IndexQueryOptions Default { get; } = new();
     public SortOptions Order { get; init; } = Order ?? SortOptions.Default;
 
     public override IndexQueryOptions Normalized(NormalizationForm form)
     {
-        return new(Order, Exemplar?.Normalized(form), Filter?.Normalized(form));
+        return new(Order, Exemplar?.Normalized(form), Filter?.Normalized(form), MatchDiacritics);
     }
 }
 
 public record FilterQueryOptions(
     ExemplarOptions? Exemplar = null,
-    EntryFilter? Filter = null)
+    EntryFilter? Filter = null,
+    bool MatchDiacritics = false)
 {
     public static FilterQueryOptions Default { get; } = new();
     public bool HasFilter => Filter is { GridifyFilter.Length: > 0 } || Exemplar is { Value.Length: > 0 };
     public virtual FilterQueryOptions Normalized(NormalizationForm form)
     {
-        return new(Exemplar?.Normalized(form), Filter?.Normalized(form));
+        return new(Exemplar?.Normalized(form), Filter?.Normalized(form), MatchDiacritics);
     }
 }
 
@@ -78,7 +80,8 @@ public record QueryOptions(
     ExemplarOptions? Exemplar = null,
     int Count = QueryOptions.DefaultCount,
     int Offset = 0,
-    EntryFilter? Filter = null) : FilterQueryOptions(Exemplar, Filter)
+    EntryFilter? Filter = null,
+    bool MatchDiacritics = false) : FilterQueryOptions(Exemplar, Filter, MatchDiacritics)
 {
     public static new QueryOptions Default { get; } = new();
     public const int QueryAll = -1;
@@ -87,7 +90,7 @@ public record QueryOptions(
 
     public override QueryOptions Normalized(NormalizationForm form)
     {
-        return new(Order, Exemplar?.Normalized(form), Count, Offset, Filter?.Normalized(form));
+        return new(Order, Exemplar?.Normalized(form), Count, Offset, Filter?.Normalized(form), MatchDiacritics);
     }
 
     public IEnumerable<T> ApplyPaging<T>(IEnumerable<T> enumerable)

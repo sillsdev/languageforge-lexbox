@@ -31,12 +31,14 @@
   let {
     search = $bindable(),
     gridifyFilter = $bindable(undefined),
+    matchDiacritics = $bindable(false),
     semanticDomain = $bindable(),
     partOfSpeech = $bindable(),
     publication = $bindable(),
   }: {
     search: string;
     gridifyFilter?: string;
+    matchDiacritics?: boolean;
     semanticDomain?: ISemanticDomain;
     partOfSpeech?: IPartOfSpeech;
     publication?: IPublication;
@@ -98,7 +100,7 @@
     }
 
     // all user selected filters should be before this line!
-    userFilterActive = newFilter.length > 0;
+    userFilterActive = newFilter.length > 0 || matchDiacritics;
 
     if (viewService.currentView.base === ViewBase.FwLite) {
       const morphTypeFilters = Array.from(LITE_MORPHEME_TYPES).map(mt => `MorphType=${mt}`);
@@ -148,6 +150,10 @@
             aria-label={$t`Toggle filters`} />
         {/snippet}
         <div class="space-y-4">
+          <Switch
+            bind:checked={matchDiacritics}
+            label={$t`Match diacritics`}
+          />
           <div class="flex flex-col">
             <Label class="p-2">{$t`Specific field`}</Label>
             <div class="flex flex-col gap-2 items-stretch">

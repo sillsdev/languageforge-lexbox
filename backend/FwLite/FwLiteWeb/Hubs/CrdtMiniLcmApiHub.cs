@@ -87,7 +87,7 @@ public class CrdtMiniLcmApiHub(
     public override IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         CurrentFilter =
-            Filtering.CompiledFilter(null, options?.Exemplar?.WritingSystem ?? "default", options?.Exemplar?.Value);
+            Filtering.CompiledFilter(null, options?.Exemplar?.WritingSystem ?? "default", options?.Exemplar?.Value, options?.MatchDiacritics ?? false);
         return base.GetEntries(options);
     }
 
@@ -95,7 +95,8 @@ public class CrdtMiniLcmApiHub(
     {
         CurrentFilter = Filtering.CompiledFilter(query,
             options?.Exemplar?.WritingSystem ?? "default",
-            options?.Exemplar?.Value);
+            options?.Exemplar?.Value,
+            options?.MatchDiacritics ?? false);
         return base.SearchEntries(query, options);
     }
 

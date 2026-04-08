@@ -36,13 +36,13 @@ internal static class LcmHelpers
         return string.IsNullOrEmpty(headword) ? Entry.UnknownHeadword : headword;
     }
 
-    internal static bool SearchValue(this ITsMultiString multiString, string value)
+    internal static bool SearchValue(this ITsMultiString multiString, string value, bool matchDiacritics = false)
     {
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var _);
             if (string.IsNullOrEmpty(tsString.Text)) continue;
-            if (tsString.Text.ContainsDiacriticMatch(value))
+            if (tsString.Text.ContainsDiacriticMatch(value, matchDiacritics))
             {
                 return true;
             }

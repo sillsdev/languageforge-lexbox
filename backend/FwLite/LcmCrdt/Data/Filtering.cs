@@ -15,39 +15,39 @@ public static class Filtering
         return query.Where(e => e.Headword(ws).StartsWith(exemplar));
     }
 
-    public static Expression<Func<Entry, bool>> SearchFilter(string query)
+    public static Expression<Func<Entry, bool>> SearchFilter(string query, bool matchDiacritics = false)
     {
-        return e => e.LexemeForm.SearchValue(query)
-                    || e.CitationForm.SearchValue(query)
-                    || e.Senses.Any(s => s.Gloss.SearchValue(query));
+        return e => e.LexemeForm.SearchValue(query, matchDiacritics)
+                    || e.CitationForm.SearchValue(query, matchDiacritics)
+                    || e.Senses.Any(s => s.Gloss.SearchValue(query, matchDiacritics));
     }
 
     public static Expression<Func<Entry, bool>> FtsFilter(string query, IQueryable<EntrySearchRecord>
-        queryableEntrySearch)
+        queryableEntrySearch, bool matchDiacritics = false)
     {
         return e => queryableEntrySearch
                         .Where(fts => Sql.Ext.SQLite().Match(fts, query))
                         .Select(fts => fts.Id)
                         .Contains(e.Id) &&
-                    (e.LexemeForm.SearchValue(query)
-                     || e.CitationForm.SearchValue(query)
-                     || e.Senses.Any(s => s.Gloss.SearchValue(query)));
+                    (e.LexemeForm.SearchValue(query, matchDiacritics)
+                     || e.CitationForm.SearchValue(query, matchDiacritics)
+                     || e.Senses.Any(s => s.Gloss.SearchValue(query, matchDiacritics)));
     }
 
-    public static Func<Entry, bool> CompiledFilter(string? query, WritingSystemId ws, string? exemplar)
+    public static Func<Entry, bool> CompiledFilter(string? query, WritingSystemId ws, string? exemplar, bool matchDiacritics = false)
     {
         query = string.IsNullOrEmpty(query) ? null : query;
         return (query, exemplar) switch
         {
             (null, null) => _ => true,
-            (not null, null) => e => e.LexemeForm.SearchValue(query)
-                                     || e.CitationForm.SearchValue(query)
-                                     || e.Senses.Any(s => s.Gloss.SearchValue(query)),
+            (not null, null) => e => e.LexemeForm.SearchValue(query, matchDiacritics)
+                                     || e.CitationForm.SearchValue(query, matchDiacritics)
+                                     || e.Senses.Any(s => s.Gloss.SearchValue(query, matchDiacritics)),
             (null, not null) => e => e.Headword(ws).StartsWith(exemplar),
             (_, _) => e => e.Headword(ws).StartsWith(exemplar)
-                           && (e.LexemeForm.SearchValue(query)
-                               || e.CitationForm.SearchValue(query)
-                               || e.Senses.Any(s => s.Gloss.SearchValue(query)))
+                           && (e.LexemeForm.SearchValue(query, matchDiacritics)
+                               || e.CitationForm.SearchValue(query, matchDiacritics)
+                               || e.Senses.Any(s => s.Gloss.SearchValue(query, matchDiacritics)))
         };
     }
 }

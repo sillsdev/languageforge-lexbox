@@ -1130,6 +1130,10 @@ msgstr "Manajer"
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Diperlukan pembaruan manual. Ikuti petunjuk yang diberikan."
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Match diacritics"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word
@@ -1871,7 +1875,6 @@ msgstr "Beralih disematkan"
 msgid "Translation"
 msgstr "Terjemahan"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Terjemahan {0}"
