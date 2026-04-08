@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-03-13 10:05\n"
+"PO-Revision-Date: 2026-04-08 07:59\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -178,12 +178,24 @@ msgstr "센스 추가"
 msgid "Add Word"
 msgstr "단어 추가"
 
+#. Radio option in custom view writing system picker.
+#. Includes all writing systems (no filtering).
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "All"
+msgstr "모두"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
 #. Placeholder/suggestion in search field
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "항목"
+
+#. Section heading in custom view writing system picker.
+#. Labels the analysis language writing systems (e.g., English definitions/glosses).
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "Analysis"
+msgstr "분석"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -260,6 +272,18 @@ msgstr "자동"
 msgid "Auto syncing"
 msgstr "자동 동기화"
 
+#. Section label in custom view form.
+#. Selects the base view preset (Classic or Lite) that the custom view inherits from.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Based on"
+msgstr "기준"
+
+#. Subtitle under each custom view in the manage dialog.
+#. {0} = name of the base view preset (e.g., "FieldWorks Lite" or "FieldWorks Classic").
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "Based on {0}"
+msgstr "{0} 기준"
+
 #. Sort option
 #: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
@@ -285,6 +309,7 @@ msgstr "찾아보기"
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "취소"
 
@@ -311,15 +336,8 @@ msgstr "테마 선택"
 #. Relevant view: Classic
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Citation form"
-msgstr "인용 양식"
-
-#. Relevant view: Classic
-#. Lite view equivalent: "Display as"
-#. Filter option: narrow by citation form
-#: src/project/browse/filter/FieldSelect.svelte
-msgid "Citation Form"
 msgstr "인용 양식"
 
 #. Section header for projects from FieldWorks
@@ -362,7 +380,7 @@ msgstr "복잡한 양식"
 #. Field label
 #. Classifies the type of complex form relationship (user-configurable)
 #. Examples: "compound", "derivative", "inflectional" (varies by project)
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Complex form types"
 msgstr "복잡한 양식 유형"
 
@@ -372,7 +390,7 @@ msgid "Complex form:"
 msgstr "복잡한 양식:"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Complex forms"
 msgstr "복잡한 양식"
 
@@ -393,7 +411,7 @@ msgid "Component:"
 msgstr "컴포넌트:"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Components"
 msgstr "구성 요소"
 
@@ -414,6 +432,11 @@ msgstr "클립보드에 복사"
 msgid "Copy version"
 msgstr "복사 버전"
 
+#. Dialog title when creating a new custom view.
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
+msgid "Create Custom View"
+msgstr "사용자 지정 뷰 만들기"
+
 #. Button label (view-dependent: "Create entry" in Classic, "Add new word" in Lite)
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
@@ -430,6 +453,11 @@ msgstr "항목 만들기"
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "예제 프로젝트 만들기"
+
+#. Submit button in the create custom view dialog.
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
+msgid "Create View"
+msgstr "보기 만들기"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
@@ -452,6 +480,17 @@ msgstr "현재 버전"
 msgid "Current Word"
 msgstr "현재 단어"
 
+#. Radio option in custom view writing system picker.
+#. Enables manual selection of individual writing systems.
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "Custom"
+msgstr "사용자 지정"
+
+#. Label used in delete confirmation prompt for a custom view.
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "Custom view"
+msgstr "사용자 지정 보기"
+
 #. Theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "Dark"
@@ -470,7 +509,7 @@ msgstr "데이터 디렉토리"
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Definition"
 msgstr "정의"
 
@@ -536,8 +575,7 @@ msgstr "폐기"
 #. Relevant view: Lite
 #. Classic view equivalent: "Citation Form"
 #. Lexicography term: choose which form of the entry to display
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-#: src/project/browse/filter/FieldSelect.svelte
+#: src/lib/views/entity-config.ts
 msgid "Display as"
 msgstr "다음으로 표시"
 
@@ -604,6 +642,11 @@ msgstr "다운로드 {0}..."
 msgid "Downloading..."
 msgstr "다운로드 중..."
 
+#. Dialog title when editing an existing custom view.
+#: src/lib/views/custom/EditCustomViewDialog.svelte
+msgid "Edit Custom View"
+msgstr "사용자 지정 보기 편집"
+
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
@@ -635,7 +678,7 @@ msgstr "항목"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
 msgid "Entry"
 msgstr "항목"
@@ -680,6 +723,7 @@ msgstr "동기화 상태를 가져오는 중 오류가 발생했습니다."
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Example"
 msgstr "예"
 
@@ -733,6 +777,12 @@ msgstr "피드백 및 지원"
 #. Dropdown showing available fields to filter by (Word, Definition, Example, etc.)
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
+msgstr "필드"
+
+#. Section label in custom view form.
+#. Shows checkboxes to select which dictionary fields are visible (grouped by entry, sense, example).
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Fields"
 msgstr "필드"
 
 #. Product name
@@ -880,8 +930,7 @@ msgstr "지원 받기"
 #. Brief translation/equivalent (one word or short phrase)
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
-#: src/project/browse/filter/FieldSelect.svelte
+#: src/lib/views/entity-config.ts
 msgid "Gloss"
 msgstr "광택"
 
@@ -897,7 +946,7 @@ msgstr "{0}으로 이동"
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
 #. Field label: grammatical category (noun, verb, adjective, etc.)
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
 msgstr "문법 정보."
@@ -994,18 +1043,12 @@ msgstr "렉스박스 로고"
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Field label: the main headword/base form
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Lexeme form"
 msgstr "Lexeme 양식"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Word"
-#. Filter option: narrow results by headword/base form
-#: src/project/browse/filter/FieldSelect.svelte
-msgid "Lexeme Form"
-msgstr "Lexeme 양식"
-
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/custom/validation.ts
 msgid "Lexeme form or Citation form is required"
 msgstr "Lexeme 양식 또는 인용 양식이 필요합니다."
 
@@ -1020,7 +1063,7 @@ msgstr "목록 모드"
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "문자 그대로의 의미"
 
@@ -1066,6 +1109,17 @@ msgstr "제안하기"
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "변경 사항이 렉스박스에 [동기화되었는지]({0}) 확인합니다."
+
+#. Button label in view picker; opens the manage custom views dialog.
+#. Only visible to project managers.
+#: src/lib/views/custom/ManageCustomViewsButton.svelte
+msgid "Manage custom views"
+msgstr "사용자 지정 보기 관리"
+
+#. Dialog title for managing all custom views (create, edit, delete).
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "Manage Custom Views"
+msgstr "사용자 지정 보기 관리"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
@@ -1117,6 +1171,21 @@ msgstr "모드"
 msgid "Move"
 msgstr "이동"
 
+#. Placeholder text in the name input of the custom view form.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "My custom view..."
+msgstr "내 사용자 지정 보기..."
+
+#. Field label for the custom view name input.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Name"
+msgstr "이름"
+
+#. Validation error shown when the custom view name is empty.
+#: src/lib/views/custom/validation.ts
+msgid "Name is required"
+msgstr "이름은 필수 입력 사항입니다."
+
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1126,6 +1195,11 @@ msgstr "절대로"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "신규"
+
+#. Button label in the manage custom views dialog; opens the create form.
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "New Custom View"
+msgstr "새로운 사용자 지정 보기"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "New data"
@@ -1160,6 +1234,11 @@ msgstr "활동을 찾을 수 없습니다."
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "오디오 없음"
+
+#. Empty state message in the manage custom views dialog when none exist.
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "No custom views yet."
+msgstr "아직 사용자 지정 보기가 없습니다."
 
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
@@ -1237,7 +1316,7 @@ msgstr "동기화되지 않음"
 #. Field label
 #. General notes/remarks field in entry editor
 #. Unconstrained text for additional metadata/comments
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Note"
 msgstr "참고"
 
@@ -1314,14 +1393,14 @@ msgstr "Part"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Part of"
 msgstr "의 일부"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "품사"
@@ -1388,15 +1467,24 @@ msgstr "프로젝트 이름..."
 msgid "Publication"
 msgstr "출판"
 
-#. Label for publication domain selector
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-msgid "Publish {0} in"
-msgstr "에 {0} 게시"
+#. Relevant view: Classic
+#. Lite view equivalent: "Publish Word in"
+#. Field label: selects which publications an entry appears in.
+#: src/lib/views/entity-config.ts
+msgid "Publish Entry in"
+msgstr "에 항목 게시"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Publish Entry in"
+#. Field label: selects which publications a word appears in.
+#: src/lib/views/entity-config.ts
+msgid "Publish Word in"
+msgstr "Word를 다음 위치에 게시"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Reference"
 msgstr "참조"
 
@@ -1467,6 +1555,11 @@ msgstr "다른 이름으로 저장"
 msgid "Save audio"
 msgstr "오디오 저장"
 
+#. Submit button in the edit custom view dialog.
+#: src/lib/views/custom/EditCustomViewDialog.svelte
+msgid "Save View"
+msgstr "보기 저장"
+
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
@@ -1492,6 +1585,16 @@ msgstr "자세한 내용을 보려면 {0} 을 선택하세요."
 msgid "Select a new task to work on"
 msgstr "작업할 새 작업 선택"
 
+#. Validation error when no analysis writing systems are selected in custom view form.
+#: src/lib/views/custom/validation.ts
+msgid "Select at least one analysis writing system"
+msgstr "하나 이상의 분석 작성 시스템을 선택합니다."
+
+#. Validation error when no vernacular writing systems are selected in custom view form.
+#: src/lib/views/custom/validation.ts
+msgid "Select at least one vernacular writing system"
+msgstr "하나 이상의 모국어 쓰기 체계를 선택하세요."
+
 #. Dialog button
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
@@ -1508,7 +1611,7 @@ msgstr "시맨틱 도메인"
 #. Field label
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
 #. Appears under each Sense/Meaning; usually multiple selection allowed
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Semantic domains"
 msgstr "시맨틱 도메인"
 
@@ -1524,13 +1627,14 @@ msgstr "메시지 보내기"
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Sense"
 
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "문장"
 
@@ -1763,10 +1867,10 @@ msgstr "고정 토글"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "번역"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "번역 {0}"
@@ -1895,9 +1999,15 @@ msgid "Updates"
 msgstr "업데이트"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "구성 요소를 다음과 같이 사용합니다."
+
+#. Section heading in custom view writing system picker.
+#. Labels the vernacular language writing systems (the language being documented).
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "Vernacular"
+msgstr "토착어"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
@@ -1931,10 +2041,9 @@ msgstr "단어"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
+#: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
-#: src/project/browse/filter/FieldSelect.svelte
 msgid "Word"
 msgstr "Word"
 
@@ -1946,6 +2055,7 @@ msgid "Word only"
 msgstr "단어 전용"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/custom/validation.ts
 msgid "Word or Display as is required"
 msgstr "단어 또는 필요에 따라 표시"
 
@@ -1964,6 +2074,12 @@ msgstr "쓰기 시스템"
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
 msgstr "쓰기 시스템: {0}"
+
+#. Section label in custom view form.
+#. Configures which vernacular and analysis writing systems are shown.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Writing systems"
+msgstr "쓰기 시스템"
 
 #. Filter section title
 #: src/project/browse/filter/WsSelect.svelte
