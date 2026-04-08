@@ -119,7 +119,7 @@ public class CurrentProjectService(
 
                 if (EntrySearchServiceFactory is not null)
                 {
-                    await using var  ess = EntrySearchServiceFactory.CreateSearchService(dbContext);
+                    await using var ess = EntrySearchServiceFactory.CreateSearchService(dbContext);
                     await ess.RegenerateIfMissing();
                 }
             }

@@ -1,4 +1,3 @@
-using LcmCrdt.Objects;
 using LcmCrdt.Tests;
 using Microsoft.Extensions.Logging.Abstractions;
 using MiniLcm;

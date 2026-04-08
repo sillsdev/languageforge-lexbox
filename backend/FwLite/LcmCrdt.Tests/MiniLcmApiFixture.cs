@@ -76,6 +76,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
         await CrdtProjectsService.InitProjectDb(_crdtDbContext,
             projectData);
         await currentProjectService.RefreshProjectData();
+        // also need to manually add morph-types, because we're not using CreateProject
         await PreDefinedData.PredefinedMorphTypes(_services.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
         if (_seedWs)
         {

@@ -1,5 +1,4 @@
 using LcmCrdt.Changes;
-using MiniLcm.Models;
 using SIL.Harmony;
 
 namespace LcmCrdt.Objects;
@@ -78,7 +77,7 @@ public static class PreDefinedData
     internal static async Task PredefinedMorphTypes(DataModel dataModel, Guid clientId)
     {
         await dataModel.AddChanges(clientId,
-            CanonicalMorphTypes.All.Values.Select(mt => new CreateMorphTypeChange(mt)).ToArray(),
+            [.. CanonicalMorphTypes.All.Values.Select(mt => new CreateMorphTypeChange(mt))],
             new Guid("a7b2c3d4-e5f6-4a8b-9c0d-1e2f3a4b5c6d"));
     }
 }
