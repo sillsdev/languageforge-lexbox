@@ -17,6 +17,8 @@ public class CanonicalMorphTypeTests : IDisposable
     {
         var services = new ServiceCollection()
             .AddTestFwDataBridge(mockProjectLoader: false)
+            .PostConfigure<FwDataBridgeConfig>(config =>
+                config.TemplatesFolder = Path.GetFullPath("Templates"))
             .BuildServiceProvider();
         _serviceProvider = services;
 
