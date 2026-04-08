@@ -31,6 +31,7 @@ using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Text.Json.Serialization.Metadata;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace LcmCrdt;
 
@@ -104,6 +105,16 @@ public static class LcmCrdtKernel
         builder.EnableSensitiveDataLogging();
 #endif
         builder.EnableDetailedErrors();
+        if (OperatingSystem.IsAndroid())
+        {
+            // AOT on Android produces a model hash that differs from the migration snapshot, causing a
+            // false PendingModelChangesWarning even though no schema changes exist.
+            // Reducing it to a log (instead of a throw) is safe, because any genuinely missing migration
+            // would still fail on non-AOT platforms (Windows/Web) during development.
+            // Using EF Core compiled models would eliminate this entirely.
+            builder.ConfigureWarnings(w =>
+                w.Log(RelationalEventId.PendingModelChangesWarning));
+        }
         builder.UseSqlite($"Data Source={projectContext.Project.DbPath}")
             .UseLinqToDbCrdt(provider)
             .UseLinqToDB(optionsBuilder =>
