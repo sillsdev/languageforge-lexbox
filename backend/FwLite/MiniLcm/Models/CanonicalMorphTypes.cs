@@ -3,8 +3,8 @@ using System.Collections.Frozen;
 namespace MiniLcm.Models;
 
 /// <summary>
-/// Canonical morph-type definitions matching FieldWorks/LibLCM MoMorphTypeTags.
-/// GUIDs match SIL.LCModel constants (kguidMorph*). Data verified against Sena 3 FwData project.
+/// Canonical morph-type definitions copied from:
+/// https://github.com/sillsdev/liblcm/blob/master/src/SIL.LCModel/Templates/NewLangProj.fwdata
 /// </summary>
 public static class CanonicalMorphTypes
 {
