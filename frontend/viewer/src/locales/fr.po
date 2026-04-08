@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-03-13 10:05\n"
+"PO-Revision-Date: 2026-04-08 07:59\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -178,12 +178,24 @@ msgstr "Ajouter du sens"
 msgid "Add Word"
 msgstr "Ajouter un mot"
 
+#. Radio option in custom view writing system picker.
+#. Includes all writing systems (no filtering).
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "All"
+msgstr "Tous"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
 #. Placeholder/suggestion in search field
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "une entrée"
+
+#. Section heading in custom view writing system picker.
+#. Labels the analysis language writing systems (e.g., English definitions/glosses).
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "Analysis"
+msgstr "Analyse"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -260,6 +272,18 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Synchronisation automatique"
 
+#. Section label in custom view form.
+#. Selects the base view preset (Classic or Lite) that the custom view inherits from.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Based on"
+msgstr "Basé sur"
+
+#. Subtitle under each custom view in the manage dialog.
+#. {0} = name of the base view preset (e.g., "FieldWorks Lite" or "FieldWorks Classic").
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "Based on {0}"
+msgstr "Basé sur {0}"
+
 #. Sort option
 #: src/project/browse/sort/SortMenu.svelte
 msgid "Best match"
@@ -285,6 +309,7 @@ msgstr "Parcourir"
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -311,15 +336,8 @@ msgstr "Choisir un thème"
 #. Relevant view: Classic
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Citation form"
-msgstr "Autonyme"
-
-#. Relevant view: Classic
-#. Lite view equivalent: "Display as"
-#. Filter option: narrow by citation form
-#: src/project/browse/filter/FieldSelect.svelte
-msgid "Citation Form"
 msgstr "Autonyme"
 
 #. Section header for projects from FieldWorks
@@ -362,7 +380,7 @@ msgstr "Forme complexe"
 #. Field label
 #. Classifies the type of complex form relationship (user-configurable)
 #. Examples: "compound", "derivative", "inflectional" (varies by project)
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Complex form types"
 msgstr "Types de formes complexes"
 
@@ -372,7 +390,7 @@ msgid "Complex form:"
 msgstr "Forme complexe :"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Complex forms"
 msgstr "Formes complexes"
 
@@ -393,7 +411,7 @@ msgid "Component:"
 msgstr "Composant :"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Components"
 msgstr "Composants"
 
@@ -414,6 +432,11 @@ msgstr "Copié dans le presse-papiers"
 msgid "Copy version"
 msgstr "Copier la version dans le presse-papiers"
 
+#. Dialog title when creating a new custom view.
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
+msgid "Create Custom View"
+msgstr "Créer une vue personnalisée"
+
 #. Button label (view-dependent: "Create entry" in Classic, "Add new word" in Lite)
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Create entry"
@@ -430,6 +453,11 @@ msgstr "Créer une entrée"
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Créer un projet exemplaire"
+
+#. Submit button in the create custom view dialog.
+#: src/lib/views/custom/CreateCustomViewDialog.svelte
+msgid "Create View"
+msgstr "Créer une vue"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
@@ -452,6 +480,17 @@ msgstr "Version actuelle"
 msgid "Current Word"
 msgstr "Mot actuel"
 
+#. Radio option in custom view writing system picker.
+#. Enables manual selection of individual writing systems.
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "Custom"
+msgstr "Personnalisé"
+
+#. Label used in delete confirmation prompt for a custom view.
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "Custom view"
+msgstr "Vue personnalisée"
+
 #. Theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "Dark"
@@ -470,7 +509,7 @@ msgstr "Répertoire de données"
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Definition"
 msgstr "Définition"
 
@@ -536,8 +575,7 @@ msgstr "Rejeter"
 #. Relevant view: Lite
 #. Classic view equivalent: "Citation Form"
 #. Lexicography term: choose which form of the entry to display
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-#: src/project/browse/filter/FieldSelect.svelte
+#: src/lib/views/entity-config.ts
 msgid "Display as"
 msgstr "Afficher comme"
 
@@ -604,6 +642,11 @@ msgstr "Téléchargement en cours {0}..."
 msgid "Downloading..."
 msgstr "Téléchargement en cours..."
 
+#. Dialog title when editing an existing custom view.
+#: src/lib/views/custom/EditCustomViewDialog.svelte
+msgid "Edit Custom View"
+msgstr "Modifier la vue personnalisée"
+
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
@@ -635,7 +678,7 @@ msgstr "entrée"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
 msgid "Entry"
 msgstr "Entrée"
@@ -680,6 +723,7 @@ msgstr "Erreur dans l'obtention de l'état de la synchronisation."
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Example"
 msgstr "Exemple"
 
@@ -734,6 +778,12 @@ msgstr "Commentaires & Support"
 #: src/project/browse/filter/FieldSelect.svelte
 msgid "Field"
 msgstr "Champ"
+
+#. Section label in custom view form.
+#. Shows checkboxes to select which dictionary fields are visible (grouped by entry, sense, example).
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Fields"
+msgstr "Champs"
 
 #. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -880,8 +930,7 @@ msgstr "Obtenir de l'aide"
 #. Brief translation/equivalent (one word or short phrase)
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
-#: src/project/browse/filter/FieldSelect.svelte
+#: src/lib/views/entity-config.ts
 msgid "Gloss"
 msgstr "Glose"
 
@@ -897,7 +946,7 @@ msgstr "Naviguer à {0}"
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
 #. Field label: grammatical category (noun, verb, adjective, etc.)
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Grammatical info."
 msgstr "Informations grammaticales."
@@ -994,18 +1043,12 @@ msgstr "Logo Lexbox"
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Field label: the main headword/base form
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Lexeme form"
 msgstr "Forme de lexème"
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Word"
-#. Filter option: narrow results by headword/base form
-#: src/project/browse/filter/FieldSelect.svelte
-msgid "Lexeme Form"
-msgstr "Forme de lexème"
-
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/custom/validation.ts
 msgid "Lexeme form or Citation form is required"
 msgstr "La forme de lexème ou la forme de citation est requise"
 
@@ -1020,7 +1063,7 @@ msgstr "Mode liste"
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "Sens littéral"
 
@@ -1066,6 +1109,17 @@ msgstr "Faire une suggestion"
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Assurez-vous que vos [changements sont synchronisés]({0}) vers Lexbox."
+
+#. Button label in view picker; opens the manage custom views dialog.
+#. Only visible to project managers.
+#: src/lib/views/custom/ManageCustomViewsButton.svelte
+msgid "Manage custom views"
+msgstr "Gérer les vues personnalisées"
+
+#. Dialog title for managing all custom views (create, edit, delete).
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "Manage Custom Views"
+msgstr "Gérer les vues personnalisées"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Manager"
@@ -1117,6 +1171,21 @@ msgstr "Mode"
 msgid "Move"
 msgstr "Déplacer"
 
+#. Placeholder text in the name input of the custom view form.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "My custom view..."
+msgstr "Ma vue personnalisée..."
+
+#. Field label for the custom view name input.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Name"
+msgstr "Nom"
+
+#. Validation error shown when the custom view name is empty.
+#: src/lib/views/custom/validation.ts
+msgid "Name is required"
+msgstr "Le nom est requis"
+
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1126,6 +1195,11 @@ msgstr "Jamais"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Nouveau"
+
+#. Button label in the manage custom views dialog; opens the create form.
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "New Custom View"
+msgstr "Nouvelle vue personnalisée"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "New data"
@@ -1160,6 +1234,11 @@ msgstr "Aucune activité trouvée"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "Aucun contenu audio"
+
+#. Empty state message in the manage custom views dialog when none exist.
+#: src/lib/views/custom/ManageCustomViewsDialog.svelte
+msgid "No custom views yet."
+msgstr "Aucune vue personnalisée pour le moment."
 
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
@@ -1237,7 +1316,7 @@ msgstr "Non synchronisé"
 #. Field label
 #. General notes/remarks field in entry editor
 #. Unconstrained text for additional metadata/comments
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Note"
 msgstr "Note"
 
@@ -1314,14 +1393,14 @@ msgstr "Partie"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Part of"
 msgstr "Une partie de"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "Partie du discours"
@@ -1388,15 +1467,24 @@ msgstr "Nom du projet..."
 msgid "Publication"
 msgstr "Publication"
 
-#. Label for publication domain selector
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-msgid "Publish {0} in"
-msgstr "Publier {0} dans"
+#. Relevant view: Classic
+#. Lite view equivalent: "Publish Word in"
+#. Field label: selects which publications an entry appears in.
+#: src/lib/views/entity-config.ts
+msgid "Publish Entry in"
+msgstr "Publier l'entrée dans"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Publish Entry in"
+#. Field label: selects which publications a word appears in.
+#: src/lib/views/entity-config.ts
+msgid "Publish Word in"
+msgstr "Publier mot dans"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Reference"
 msgstr "Référence"
 
@@ -1467,6 +1555,11 @@ msgstr "Enregistrer sous"
 msgid "Save audio"
 msgstr "Sauvegarder l'audio"
 
+#. Submit button in the edit custom view dialog.
+#: src/lib/views/custom/EditCustomViewDialog.svelte
+msgid "Save View"
+msgstr "Enregistrer la vue"
+
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
@@ -1492,6 +1585,16 @@ msgstr "Sélectionner {0} pour voir les détails"
 msgid "Select a new task to work on"
 msgstr "Sélectionner une nouvelle tâche à effectuer"
 
+#. Validation error when no analysis writing systems are selected in custom view form.
+#: src/lib/views/custom/validation.ts
+msgid "Select at least one analysis writing system"
+msgstr "Sélectionnez au moins un système d'écriture d'analyse"
+
+#. Validation error when no vernacular writing systems are selected in custom view form.
+#: src/lib/views/custom/validation.ts
+msgid "Select at least one vernacular writing system"
+msgstr "Sélectionnez au moins un système d'écriture vernaculaire"
+
 #. Dialog button
 #: src/lib/components/audio/audio-provider.svelte
 #: src/lib/components/audio/audio-provider.svelte
@@ -1508,7 +1611,7 @@ msgstr "Domaine sémantique"
 #. Field label
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
 #. Appears under each Sense/Meaning; usually multiple selection allowed
-#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Semantic domains"
 msgstr "Domaines sémantiques"
 
@@ -1524,13 +1627,14 @@ msgstr "Envoyez-nous un message"
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Sens"
 
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
-#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Phrase"
 
@@ -1763,10 +1867,10 @@ msgstr "Activer/désactiver épinglé"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Traduction"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Traduction {0}"
@@ -1895,9 +1999,15 @@ msgid "Updates"
 msgstr "Mises à jour"
 
 #. Field label
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "Utilise des composants comme"
+
+#. Section heading in custom view writing system picker.
+#. Labels the vernacular language writing systems (the language being documented).
+#: src/lib/views/custom/CustomViewWritingSystems.svelte
+msgid "Vernacular"
+msgstr "Vernaculaire"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
@@ -1931,10 +2041,9 @@ msgstr "mot"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
+#: src/lib/views/entity-config.ts
+#: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
-#: src/project/browse/filter/FieldSelect.svelte
 msgid "Word"
 msgstr "Mot"
 
@@ -1946,6 +2055,7 @@ msgid "Word only"
 msgstr "Mot seulement"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/views/custom/validation.ts
 msgid "Word or Display as is required"
 msgstr "Mot ou affichage tel que requis"
 
@@ -1964,6 +2074,12 @@ msgstr "Système d'écriture"
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
 msgstr "Système d'écriture : {0}"
+
+#. Section label in custom view form.
+#. Configures which vernacular and analysis writing systems are shown.
+#: src/lib/views/custom/CustomViewForm.svelte
+msgid "Writing systems"
+msgstr "Systèmes d'écriture"
 
 #. Filter section title
 #: src/project/browse/filter/WsSelect.svelte
