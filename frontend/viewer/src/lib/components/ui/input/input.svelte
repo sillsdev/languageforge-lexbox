@@ -23,7 +23,7 @@
           'border-input bg-background selection:bg-primary dark:bg-input/30 selection:text-primary-foreground ring-offset-background placeholder:text-muted-foreground flex h-10 w-full min-w-0 rounded-md border text-base shadow-xs transition-[color,box-shadow] outline-none has-disabled:cursor-not-allowed has-disabled:opacity-50 md:text-sm',
           'flex gap-2 items-center justify-between',
           'has-[.real-input:focus-visible]:border-ring has-[.real-input:focus-visible]:ring-ring/50 has-[.real-input:focus-visible]:ring-[3px]',
-          'has-[.real-input[aria-invalid]]:ring-destructive/20 dark:has-[.real-input[aria-invalid]]:ring-destructive/40 has-[.real-input[aria-invalid]]:border-destructive',
+          'has-[.real-input[aria-invalid=true]]:ring-destructive/20 dark:has-[.real-input[aria-invalid=true]]:ring-destructive/40 has-[.real-input[aria-invalid=true]]:border-destructive',
         ),
       },
       visibleFocus: {
