@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MiniLcm.Models;
-using static LcmCrdt.CrdtProjectsService;
 
 namespace LcmCrdt.Tests;
 
@@ -29,19 +27,7 @@ public class MorphTypeSeedingTests
         var api = (CrdtMiniLcmApi)await scope.ServiceProvider.OpenCrdtProject(crdtProject);
         var morphTypes = await api.GetMorphTypes().ToArrayAsync();
 
-        morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count);
-        foreach (var canonical in CanonicalMorphTypes.All.Values)
-        {
-            var mt = morphTypes.Should().ContainSingle(m => m.Kind == canonical.Kind).Subject;
-            mt.Id.Should().Be(canonical.Id);
-            mt.Name["en"].Should().Be(canonical.Name["en"]);
-            mt.Abbreviation["en"].Should().Be(canonical.Abbreviation["en"]);
-            mt.Description["en"].GetPlainText().Should().Be(canonical.Description["en"].GetPlainText());
-            mt.Description["en"].Spans.Should().BeEquivalentTo(canonical.Description["en"].Spans);
-            mt.Prefix.Should().Be(canonical.Prefix);
-            mt.Postfix.Should().Be(canonical.Postfix);
-            mt.SecondaryOrder.Should().Be(canonical.SecondaryOrder);
-        }
+        morphTypes.Should().BeEquivalentTo(CanonicalMorphTypes.All.Values);
 
         await using var dbContext = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await dbContext.Database.EnsureDeletedAsync();
