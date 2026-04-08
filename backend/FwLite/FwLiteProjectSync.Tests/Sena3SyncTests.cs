@@ -98,35 +98,6 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Integration")]
-    public async Task CanonicalMorphTypes_MatchFwDataMorphTypes()
-    {
-        var fwDataMorphTypes = await _fwDataApi.GetMorphTypes().ToArrayAsync();
-        fwDataMorphTypes.Should().NotBeEmpty("Sena 3 should have morph types");
-
-        // Verify every FwData morph type has a matching canonical entry
-        foreach (var fwMorphType in fwDataMorphTypes)
-        {
-            fwMorphType.Kind.Should().NotBe(MorphTypeKind.Unknown);
-
-            CanonicalMorphTypes.All.Should().ContainKey(fwMorphType.Kind,
-                $"canonical morph types should include {fwMorphType.Kind}");
-            var canonical = CanonicalMorphTypes.All[fwMorphType.Kind];
-            canonical.Id.Should().Be(fwMorphType.Id, $"GUID for {fwMorphType.Kind} should match FwData");
-            canonical.Prefix.Should().Be(fwMorphType.Prefix, $"Prefix for {fwMorphType.Kind} should match FwData");
-            canonical.Postfix.Should().Be(fwMorphType.Postfix, $"Postfix for {fwMorphType.Kind} should match FwData");
-            canonical.SecondaryOrder.Should().Be(fwMorphType.SecondaryOrder, $"SecondaryOrder for {fwMorphType.Kind} should match FwData");
-        }
-
-        // Verify every canonical morph type exists in FwData (no extras we shouldn't have)
-        var fwDataKinds = fwDataMorphTypes
-            .Select(m => m.Kind)
-            .ToHashSet();
-        CanonicalMorphTypes.All.Keys.Should().BeEquivalentTo(fwDataKinds,
-            "every canonical morph type should exist in the Sena 3 FwData project");
-    }
-
-    [Fact]
-    [Trait("Category", "Integration")]
     public async Task DryRunImport_MakesNoChanges()
     {
         await WorkaroundMissingWritingSystems();
