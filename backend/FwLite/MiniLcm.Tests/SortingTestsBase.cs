@@ -56,6 +56,35 @@ public abstract class SortingTestsBase : MiniLcmTestBase
     }
 
     [Theory]
+    [InlineData("a-", SortField.Headword)] // non-FTS
+    [InlineData("a-", SortField.SearchRelevance)] // non-FTS
+    [InlineData("aaaa-", SortField.Headword)] // FTS
+    [InlineData("aaaa-", SortField.SearchRelevance)] // FTS
+    public async Task MorphTokenSearch_PrefixHeadwordBeatsIncidentalContains(string query, SortField sortField)
+    {
+        // An entry with lexeme "a" and MorphType=Prefix has headword "a-".
+        // An entry "toma-toma" incidentally contains "a-" in the middle.
+        // The prefix entry should sort first because it's a headword-starts-with match,
+        // not just an incidental contains match.
+        var baseForm = query.TrimEnd('-');
+        Entry prefixEntry = new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = baseForm }, MorphType = MorphTypeKind.Prefix };
+        Entry containsEntry = new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = $"tom{baseForm}-tom" }, MorphType = MorphTypeKind.Root };
+
+        var ids = new[] { prefixEntry.Id, containsEntry.Id }.ToHashSet();
+
+        // Insert in reverse order to ensure sorting is actually tested
+        await Api.CreateEntry(containsEntry);
+        await Api.CreateEntry(prefixEntry);
+
+        var results = (await Api.SearchEntries(query, new(new(sortField))).ToArrayAsync())
+            .Where(e => ids.Contains(e.Id))
+            .ToList();
+
+        results.Should().BeEquivalentTo([prefixEntry, containsEntry],
+            options => options.WithStrictOrdering());
+    }
+
+    [Theory]
     [InlineData("aaaa", SortField.Headword)] // FTS
     [InlineData("a", SortField.Headword)] // non-FTS
     [InlineData("aaaa", SortField.SearchRelevance)] // FTS
@@ -97,9 +126,9 @@ public abstract class SortingTestsBase : MiniLcmTestBase
                 // Root/Stem - SecondaryOrder: 0
                 new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = headword }, MorphType = MorphTypeKind.Root/*, HomographNumber = 1*/ },
                 // new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = lexeme }, MorphType = MorphTypeKind.Stem, HomographNumber = 2 },
-                // BoundRoot/BoundStem - SecondaryOrder: 10
-                new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = headword }, MorphType = MorphTypeKind.BoundRoot/*, HomographNumber = 1*/ },
-                // new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = lexeme }, MorphType = MorphTypeKind.BoundStem, HomographNumber = 2 },
+                // Prefix - SecondaryOrder: 20 (no leading token, so headword still starts with the lexeme)
+                new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = headword }, MorphType = MorphTypeKind.Prefix/*, HomographNumber = 1*/ },
+                // new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = lexeme }, MorphType = MorphTypeKind.Prefix, HomographNumber = 2 },
             ];
         }
 

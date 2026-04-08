@@ -48,8 +48,8 @@ public static class Sorting
                 join mt in morphTypes on e.MorphType equals mt.Kind into mtGroup
                 from mt in mtGroup.DefaultIfEmpty()
                 orderby
-                    !string.IsNullOrEmpty(query) && SqlHelpers.StartsWithIgnoreCaseAccents(e.Headword(order.WritingSystem), query!) descending,
-                    !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.Headword(order.WritingSystem), query!) descending,
+                    !string.IsNullOrEmpty(query) && SqlHelpers.StartsWithIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!) descending,
+                    !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!) descending,
                     e.Headword(order.WritingSystem).Length,
                     e.Headword(order.WritingSystem),
                     mt != null ? mt.SecondaryOrder : stemOrder.FirstOrDefault(),
@@ -64,8 +64,8 @@ public static class Sorting
                 join mt in morphTypes on e.MorphType equals mt.Kind into mtGroup
                 from mt in mtGroup.DefaultIfEmpty()
                 orderby
-                    !string.IsNullOrEmpty(query) && SqlHelpers.StartsWithIgnoreCaseAccents(e.Headword(order.WritingSystem), query!),
-                    !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.Headword(order.WritingSystem), query!),
+                    !string.IsNullOrEmpty(query) && SqlHelpers.StartsWithIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!),
+                    !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!),
                     e.Headword(order.WritingSystem).Length descending,
                     e.Headword(order.WritingSystem) descending,
                     (mt != null ? mt.SecondaryOrder : stemOrder.FirstOrDefault()) descending,
