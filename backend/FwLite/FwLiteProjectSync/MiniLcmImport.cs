@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.Project;
+using MiniLcm.SyncHelpers;
 
 namespace FwLiteProjectSync;
 
@@ -69,6 +70,11 @@ public class MiniLcmImport(
             await importTo.CreateComplexFormType(complexFormType);
             logger.LogInformation("Imported complex form type {Id}", complexFormType.Id);
         }
+
+        // Morph types are created automatically for CRDT projects, so we update them instead of creating them
+        var importFromMorphTypes = await importFrom.GetMorphTypes().ToArrayAsync();
+        var existingMorphTypes = await importTo.GetMorphTypes().ToArrayAsync();
+        await MorphTypeSync.Sync(existingMorphTypes, importFromMorphTypes, importTo);
 
         await foreach (var morphType in importFrom.GetMorphTypes())
         {
