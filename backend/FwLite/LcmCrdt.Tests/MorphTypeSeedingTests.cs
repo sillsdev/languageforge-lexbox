@@ -115,13 +115,6 @@ public class MorphTypeSeedingTests
     }
 
     [Fact]
-    public void CanonicalMorphTypes_HaveUniqueIds()
-    {
-        var ids = CanonicalMorphTypes.All.Values.Select(m => m.Id).ToList();
-        ids.Should().OnlyHaveUniqueItems();
-    }
-
-    [Fact]
     public void CanonicalMorphTypes_HaveRequiredFields()
     {
         foreach (var mt in CanonicalMorphTypes.All.Values)

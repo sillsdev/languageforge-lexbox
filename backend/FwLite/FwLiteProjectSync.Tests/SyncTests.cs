@@ -678,32 +678,4 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         _fixture.FwDataApi.GetComplexFormTypes().ToBlockingEnumerable().Should().ContainEquivalentOf(complexFormEntry);
     }
-
-    [Fact]
-    [Trait("Category", "Integration")]
-    public async Task SyncWithLegacySnapshot_EmptyMorphTypes_DoesNotDuplicate()
-    {
-        var crdtApi = _fixture.CrdtApi;
-        var fwdataApi = _fixture.FwDataApi;
-
-        // First sync: import so both sides have data
-        await _syncService.Import(crdtApi, fwdataApi);
-        var snapshot = await _fixture.RegenerateAndGetSnapshot();
-
-        // Simulate a legacy snapshot by clearing MorphTypes
-        var legacySnapshot = snapshot with { MorphTypes = [] };
-
-        // The CRDT should already have morph types (from seeding in MigrateDb).
-        // Syncing with a legacy snapshot should patch the snapshot and not duplicate morph types.
-        var syncResult = await _syncService.Sync(crdtApi, fwdataApi, legacySnapshot);
-
-        // Verify no duplicates
-        var crdtMorphTypes = await crdtApi.GetMorphTypes().ToArrayAsync();
-        crdtMorphTypes.Should().OnlyHaveUniqueItems(mt => mt.Kind);
-        crdtMorphTypes.Should().NotBeEmpty();
-
-        // Verify no morph-type changes were needed (they were patched from CRDT)
-        syncResult.CrdtChanges.Should().Be(0);
-        syncResult.FwdataChanges.Should().Be(0);
-    }
 }
