@@ -31,7 +31,7 @@ using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Text.Json.Serialization.Metadata;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LcmCrdt;
 
@@ -107,13 +107,18 @@ public static class LcmCrdtKernel
         builder.EnableDetailedErrors();
         if (OperatingSystem.IsAndroid())
         {
-            // AOT on Android produces a model hash that differs from the migration snapshot, causing a
-            // false PendingModelChangesWarning even though no schema changes exist.
-            // Reducing it to a log (instead of a throw) is safe, because any genuinely missing migration
-            // would still fail on non-AOT platforms (Windows/Web) during development.
-            // Using EF Core compiled models would eliminate this entirely.
-            builder.ConfigureWarnings(w =>
-                w.Log(RelationalEventId.PendingModelChangesWarning));
+            // Sometimes Android can throw a pending model changes warning, even though no changes are
+            // detected on Windows/Desktop. Something to do with how it's compiled/what gets lost/trimmed when compiling.
+            // When that happens it can be challenging to figure out what the reason is, but it can also be critical.
+            // One strategy is to uncomment the lines below, so that the warning is reduced to a log
+            // instead of a throw, so that the app will at least run.
+            // Then exercise every aspect of the new model and look for root-cause exceptions.
+            // E.g. property nullability might get lost/mishandeled.
+
+            // Using a compiled model is potentially the correct long-term path to more explicitly prevent discrepencies like this. 🤷
+
+            // builder.ConfigureWarnings(w =>
+            //     w.Log(RelationalEventId.PendingModelChangesWarning));
         }
         builder.UseSqlite($"Data Source={projectContext.Project.DbPath}")
             .UseLinqToDbCrdt(provider)
@@ -256,16 +261,18 @@ public static class LcmCrdtKernel
                     .HasConversion(
                         list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => JsonSerializer.Deserialize<ViewField[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<ViewField>());
+
+                var writingSystemArrayConverter = new ValueConverter<ViewWritingSystem[]?, string?>(
+                    list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                    json => json == null ? null : JsonSerializer.Deserialize<ViewWritingSystem[]>(json, (JsonSerializerOptions?)null));
                 builder.Property(v => v.Vernacular)
+                    .IsRequired(false) // required on Android
                     .HasColumnType("jsonb")
-                    .HasConversion(
-                        list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => json == null ? null : JsonSerializer.Deserialize<ViewWritingSystem[]>(json, (JsonSerializerOptions?)null));
+                    .HasConversion(writingSystemArrayConverter);
                 builder.Property(v => v.Analysis)
+                    .IsRequired(false) // required on Android
                     .HasColumnType("jsonb")
-                    .HasConversion(
-                        list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => json == null ? null : JsonSerializer.Deserialize<ViewWritingSystem[]>(json, (JsonSerializerOptions?)null));
+                    .HasConversion(writingSystemArrayConverter);
             })
             .Add<ComplexFormComponent>(builder =>
             {
