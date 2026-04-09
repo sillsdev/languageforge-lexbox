@@ -86,7 +86,7 @@
   >
     <div class="flex flex-col gap-2">
       <div class="text-sm font-medium">{$t`Name`}</div>
-      <Input bind:value={value.name} placeholder={$t`My custom view...`} />
+      <Input bind:value={value.name} placeholder={$t`My custom view...`} autocapitalize="on" />
     </div>
 
     <div class="flex flex-col gap-2">
