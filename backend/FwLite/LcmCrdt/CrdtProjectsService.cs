@@ -245,6 +245,7 @@ public partial class CrdtProjectsService(
         await PreDefinedData.PredefinedPartsOfSpeech(dataModel, clientId);
         await PreDefinedData.PredefinedSemanticDomains(dataModel, clientId);
         await PreDefinedData.PredefinedCustomViews(dataModel, clientId);
+        await PreDefinedData.PredefinedMorphTypes(dataModel, clientId);
     }
 
     [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]

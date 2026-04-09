@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using LcmCrdt.MediaServer;
+using LcmCrdt.Objects;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,9 +72,12 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
         _crdtDbContext = await _services.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await _crdtDbContext.Database.OpenConnectionAsync();
         //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
+        var projectData = new ProjectData("Sena 3", projectName, Guid.NewGuid(), null, Guid.NewGuid());
         await CrdtProjectsService.InitProjectDb(_crdtDbContext,
-            new ProjectData("Sena 3", projectName, Guid.NewGuid(), null, Guid.NewGuid()));
+            projectData);
         await currentProjectService.RefreshProjectData();
+        // also need to manually add morph-types, because we're not using CreateProject
+        await PreDefinedData.PredefinedMorphTypes(_services.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
         if (_seedWs)
         {
             await Api.CreateWritingSystem(new WritingSystem()

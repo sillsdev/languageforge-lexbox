@@ -12,9 +12,9 @@ public class FilteringTests
         _entries =
         [
             new Entry { LexemeForm = { { "en", "123" } }, },
-            new Entry { LexemeForm = { { "en", "456" } }, }
+            new Entry { LexemeForm = { { "en", "456" } }, },
         ];
-        _morphTypes = new MorphType[] { new() { Id = Guid.NewGuid(), Kind = MorphTypeKind.Stem, Name = { ["en"] = "Stem" }, SecondaryOrder = 1 } }.AsQueryable();
+        _morphTypes = CanonicalMorphTypes.All.Values.ToArray().AsQueryable();
     }
 
     [Theory]
