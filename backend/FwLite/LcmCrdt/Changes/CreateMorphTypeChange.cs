@@ -11,9 +11,14 @@ namespace LcmCrdt.Changes;
 public class CreateMorphTypeChange : CreateChange<MorphType>, ISelfNamedType<CreateMorphTypeChange>
 {
     [SetsRequiredMembers]
-    public CreateMorphTypeChange(MorphType morphType) : base(morphType.Id == Guid.Empty ? Guid.NewGuid() : morphType.Id)
+    public CreateMorphTypeChange(MorphType morphType) : base(morphType.Id)
     {
-        morphType.Id = EntityId;
+        if (!CanonicalMorphTypes.IsCanonical(morphType.Id))
+        {
+            throw new ArgumentException(
+                $"Morph type Id {morphType.Id} is not a canonical morph-type Id. Custom morph types are not supported.",
+                nameof(morphType));
+        }
         Name = morphType.Name;
         Abbreviation = morphType.Abbreviation;
         Description = morphType.Description;

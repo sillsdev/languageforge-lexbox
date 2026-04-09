@@ -195,10 +195,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var createComplexFormComponentChange = new AddEntryComponentChange(complexFormComponent);
         yield return new ChangeWithDependencies(createComplexFormComponentChange, [createComplexFormEntryChange, createEntryChange, createSenseChange]);
 
-        var morphTypeName = new MultiString { { "en", "test morphtype" } };
-        var morphTypeAbbreviation = new MultiString { { "en", "test mph" } };
-        var morphTypeDescription = new RichMultiString { { "en", new RichString("test desc") } };
-        var morphType = new MorphType { Id = Guid.NewGuid(), Name = morphTypeName, Abbreviation = morphTypeAbbreviation, Description = morphTypeDescription, SecondaryOrder = 0, Kind = MorphTypeKind.Root };
+        var morphType = CanonicalMorphTypes.All[MorphTypeKind.Root].Copy();
         var createMorphTypeChange = new CreateMorphTypeChange(morphType);
         yield return new ChangeWithDependencies(createMorphTypeChange);
 

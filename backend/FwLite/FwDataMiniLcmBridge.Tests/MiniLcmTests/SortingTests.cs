@@ -22,9 +22,9 @@ public class SortingTests(ProjectLoaderFixture fixture) : SortingTestsBase
     {
         var unknownMorphTypeEntryId = Guid.NewGuid();
         Entry[] expected = [
-            new() { Id = unknownMorphTypeEntryId, LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Unknown }, // SecondaryOrder defaults to Stem = 1
-            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.BoundStem }, // SecondaryOrder = 2
-            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Suffix }, // SecondaryOrder = 6
+            new() { Id = unknownMorphTypeEntryId, LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Unknown }, // SecondaryOrder defaults to Stem = 0
+            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.BoundStem }, // SecondaryOrder = 10
+            new() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "aaaa" }, MorphType = MorphTypeKind.Suffix }, // SecondaryOrder = 70
         ];
 
         var ids = expected.Select(e => e.Id).ToHashSet();

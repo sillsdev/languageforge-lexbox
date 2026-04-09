@@ -35,5 +35,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="TestData\" />
+    <PackageReference Include="SIL.LCModel" GeneratePathProperty="true" />
+    <Content Include="$(PkgSIL_LCModel)/contentFiles/Templates/*.*"
+      Link="Templates/%(Filename)%(Extension)"
+      CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

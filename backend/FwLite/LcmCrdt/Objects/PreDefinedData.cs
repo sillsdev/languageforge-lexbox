@@ -5,7 +5,7 @@ namespace LcmCrdt.Objects;
 
 public static class PreDefinedData
 {
-    internal static async Task PredefinedComplexFormTypes(DataModel dataModel, Guid clientId)
+    internal static async Task AddPredefinedComplexFormTypes(DataModel dataModel, Guid clientId)
     {
         await dataModel.AddChanges(clientId,
             [
@@ -15,7 +15,7 @@ public static class PreDefinedData
             new Guid("dc60d2a9-0cc2-48ed-803c-a238a14b6eae"));
     }
 
-    internal static async Task PredefinedSemanticDomains(DataModel dataModel, Guid clientId)
+    internal static async Task AddPredefinedSemanticDomains(DataModel dataModel, Guid clientId)
     {
         //todo load from xml instead of hardcoding and use real IDs
         await dataModel.AddChanges(clientId,
@@ -31,7 +31,7 @@ public static class PreDefinedData
             new Guid("023faebb-711b-4d2f-a14f-a15621fc66bc"));
     }
 
-    public static async Task PredefinedPartsOfSpeech(DataModel dataModel, Guid clientId)
+    public static async Task AddPredefinedPartsOfSpeech(DataModel dataModel, Guid clientId)
     {
         //todo load from xml instead of hardcoding
         await dataModel.AddChanges(clientId,
@@ -43,7 +43,7 @@ public static class PreDefinedData
             new Guid("023faebb-711b-4d2f-b34f-a15621fc66bb"));
     }
 
-    internal static async Task PredefinedCustomViews(DataModel dataModel, Guid clientId)
+    internal static async Task AddPredefinedCustomViews(DataModel dataModel, Guid clientId)
     {
         await dataModel.AddChanges(clientId,
             [
@@ -72,5 +72,14 @@ public static class PreDefinedData
                     })
             ],
             new Guid("b2c3d4e5-f6a7-8901-bcde-f12345678901"));
+    }
+
+    public static readonly Guid MorphTypesSeedCommitId = new("a7b2c3d4-e5f6-4a8b-9c0d-1e2f3a4b5c6d");
+
+    internal static async Task AddPredefinedMorphTypes(DataModel dataModel, Guid clientId)
+    {
+        await dataModel.AddChanges(clientId,
+            [.. CanonicalMorphTypes.All.Values.Select(mt => new CreateMorphTypeChange(mt))],
+            MorphTypesSeedCommitId);
     }
 }

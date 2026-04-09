@@ -193,6 +193,14 @@
       TypeDiscriminator: CreateCustomViewChange
     },
     {
+      DerivedType: EditCustomViewChange,
+      TypeDiscriminator: EditCustomViewChange
+    },
+    {
+      DerivedType: DeleteChange<CustomView>,
+      TypeDiscriminator: delete:CustomView
+    },
+    {
       DerivedType: CreateMorphTypeChange,
       TypeDiscriminator: CreateMorphTypeChange
     },

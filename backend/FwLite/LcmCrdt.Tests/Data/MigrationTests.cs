@@ -22,6 +22,7 @@ public class MigrationTests : IAsyncLifetime
     internal static void Init()
     {
         VerifySystemJson.Initialize();
+        VerifierSettings.OmitContentFromException();
     }
 
     public Task InitializeAsync()

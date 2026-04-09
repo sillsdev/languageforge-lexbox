@@ -1,10 +1,12 @@
 using System.Collections.Concurrent;
 using LcmCrdt.FullTextSearch;
+using LcmCrdt.Objects;
 using LcmCrdt.Project;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SIL.Harmony;
 
 namespace LcmCrdt;
 
@@ -105,9 +107,20 @@ public class CurrentProjectService(
             {
                 await using var dbContext = await DbContextFactory.CreateDbContextAsync();
                 await dbContext.Database.MigrateAsync();
+
+                // Seed morph-types if missing (for existing projects created before morph-type support).
+                // Must happen BEFORE FTS regeneration so headwords include morph-type tokens.
+                // (querying Commits instead of MorphTypes, because the commit may not be projected yet)
+                if (!await dbContext.Set<Commit>().AsNoTracking().AnyAsync(c => c.Id == PreDefinedData.MorphTypesSeedCommitId))
+                {
+                    var dataModel = services.GetRequiredService<DataModel>();
+                    var projectData = await dbContext.ProjectData.AsNoTracking().FirstAsync();
+                    await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData.ClientId);
+                }
+
                 if (EntrySearchServiceFactory is not null)
                 {
-                    await using var  ess = EntrySearchServiceFactory.CreateSearchService(dbContext);
+                    await using var ess = EntrySearchServiceFactory.CreateSearchService(dbContext);
                     await ess.RegenerateIfMissing();
                 }
             }
