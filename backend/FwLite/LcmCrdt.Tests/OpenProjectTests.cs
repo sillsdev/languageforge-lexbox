@@ -51,7 +51,7 @@ public class OpenProjectTests
     [Fact]
     public async Task OpeningAProjectWorks()
     {
-        var sqliteConnectionString = "OpeningAProjectWorks.sqlite";
+        var sqliteConnectionString = "opening-a-project-works.sqlite";
         if (File.Exists(sqliteConnectionString)) File.Delete(sqliteConnectionString);
         var builder = Host.CreateEmptyApplicationBuilder(null);
         builder.Services.AddTestLcmCrdtClient();
