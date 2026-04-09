@@ -3,6 +3,7 @@
   import {t} from 'svelte-i18n-lingui';
   import CustomViewForm from './CustomViewForm.svelte';
   import type {ICustomView} from '$lib/dotnet-types';
+  import {useBackHandler} from '$lib/utils/back-handler.svelte';
 
   interface Props {
     open: boolean;
@@ -11,6 +12,7 @@
   }
 
   let {open = $bindable(), value, onSave}: Props = $props();
+  useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'edit-custom-view-dialog'});
 
   async function handleSave(result: ICustomView) {
     await onSave(result);

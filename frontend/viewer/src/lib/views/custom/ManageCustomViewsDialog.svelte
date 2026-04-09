@@ -11,6 +11,7 @@
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useCustomViewService} from '$project/data/custom-view-service.svelte';
   import {ViewBase, type ICustomView} from '$lib/dotnet-types';
+  import {useBackHandler} from '$lib/utils/back-handler.svelte';
 
   interface Props {
     open: boolean;
@@ -32,6 +33,7 @@
   // the sub dialog appears behind the "manage" drawer on mobile.
   // We also happen to get more elegant animations this way.
   const manageOpen = $derived(open && !subDialogOpen);
+  useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'manage-custom-views-dialog'});
 
   function openEdit(view: ICustomView) {
     editValue = structuredClone($state.snapshot(view));

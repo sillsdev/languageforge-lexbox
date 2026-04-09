@@ -3,6 +3,7 @@
   import {t} from 'svelte-i18n-lingui';
   import CustomViewForm from './CustomViewForm.svelte';
   import type {ICustomView} from '$lib/dotnet-types';
+  import {useBackHandler} from '$lib/utils/back-handler.svelte';
 
   interface Props {
     open: boolean;
@@ -10,6 +11,7 @@
   }
 
   let {open = $bindable(), onCreate}: Props = $props();
+  useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'create-custom-view-dialog'});
 
   async function handleCreate(result: ICustomView) {
     await onCreate(result);
