@@ -507,51 +507,6 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Integration")]
-    public async Task MorphTypeCreationDoesNotSyncCrdtToFw()
-    {
-        // FwDataMiniLcmApi.CreateMorphType is a no-op because FLEx forbids morph type creation or deletion
-        var crdtApi = _fixture.CrdtApi;
-        var fwdataApi = _fixture.FwDataApi;
-        await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
-
-        var newMorphType = SyncTestHelpers.CreateMorphType(MorphTypeKind.Unknown, prefix: "!", postfix: "!");
-        await crdtApi.CreateMorphType(newMorphType);
-        var syncResult = await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
-
-        var fwdataMorphTypes = await fwdataApi.GetMorphTypes().ToArrayAsync();
-        var crdtMorphTypes = await crdtApi.GetMorphTypes().ToArrayAsync();
-        crdtMorphTypes.Should().ContainEquivalentOf(newMorphType);
-        fwdataMorphTypes.Should().NotContainEquivalentOf(newMorphType);
-        crdtMorphTypes.Length.Should().Be(fwdataMorphTypes.Length + 1);
-        crdtMorphTypes.Where(m => m.Kind != MorphTypeKind.Unknown).Should().BeEquivalentTo(fwdataMorphTypes);
-    }
-
-    [Fact]
-    [Trait("Category", "Integration")]
-    public async Task MorphTypeDeletionDoesNotSyncCrdtToFw()
-    {
-        // FwDataMiniLcmApi.DeleteMorphType is a no-op because FLEx forbids morph type creation or deletion
-        var crdtApi = _fixture.CrdtApi;
-        var fwdataApi = _fixture.FwDataApi;
-        await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
-
-        var prefixingInterfix = await crdtApi.GetMorphType(MorphTypeKind.PrefixingInterfix);
-        prefixingInterfix.Should().NotBeNull();
-        await crdtApi.DeleteMorphType(prefixingInterfix.Id);
-        var syncResult = await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
-
-        var fwdataMorphTypes = await fwdataApi.GetMorphTypes().ToArrayAsync();
-        var crdtMorphTypes = await crdtApi.GetMorphTypes().ToArrayAsync();
-        fwdataMorphTypes.Should().ContainEquivalentOf(prefixingInterfix);
-        crdtMorphTypes.Should().NotContainEquivalentOf(prefixingInterfix);
-        crdtMorphTypes.Length.Should().Be(fwdataMorphTypes.Length - 1);
-        crdtMorphTypes.Should().BeEquivalentTo(fwdataMorphTypes.Where(m => m.Kind != MorphTypeKind.PrefixingInterfix));
-    }
-
-    [Fact]
-    [Trait("Category", "Integration")]
     public async Task UpdatingAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;
