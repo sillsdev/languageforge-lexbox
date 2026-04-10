@@ -59,7 +59,7 @@ public static class LexBoxKernel
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddOptions<MaintenanceModeConfig>()
-            .BindConfiguration("MaintenanceModeConfig")
+            .BindConfiguration("MaintenanceMode")
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddHttpClient();

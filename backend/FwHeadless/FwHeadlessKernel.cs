@@ -22,7 +22,7 @@ public static class FwHeadlessKernel
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddOptions<MaintenanceModeConfig>()
-            .BindConfiguration("MaintenanceModeConfig")
+            .BindConfiguration("MaintenanceMode")
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddSingleton<ISyncJobStatusService, SyncJobStatusService>();
