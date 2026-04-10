@@ -189,11 +189,6 @@ internal partial class UnreliableApi(IMiniLcmApi api, Random random) : IMiniLcmA
         ResumableTests.MaybeThrowRandom(random, 0.2);
         return _api.CreateComplexFormType(complexFormType);
     }
-    Task<MorphType> IMiniLcmWriteApi.CreateMorphType(MorphType morphType)
-    {
-        ResumableTests.MaybeThrowRandom(random, 0.02);
-        return _api.CreateMorphType(morphType);
-    }
     Task<SemanticDomain> IMiniLcmWriteApi.CreateSemanticDomain(SemanticDomain semanticDomain)
     {
         ResumableTests.MaybeThrowRandom(random, 0.2);

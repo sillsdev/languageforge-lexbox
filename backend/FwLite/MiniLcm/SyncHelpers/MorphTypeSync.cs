@@ -55,16 +55,16 @@ public static class MorphTypeSync
 
     private class MorphTypeDiffApi(IMiniLcmApi api) : ObjectWithIdCollectionDiffApi<MorphType>
     {
-        public override async Task<int> Add(MorphType currentMorphType)
+        public override Task<int> Add(MorphType currentMorphType)
         {
-            await api.CreateMorphType(currentMorphType);
-            return 1;
+            throw new InvalidOperationException(
+                $"MorphTypes are predefined and cannot be created. Unexpected morph type: {currentMorphType.Kind} ({currentMorphType.Id}). This indicates a data inconsistency.");
         }
 
-        public override async Task<int> Remove(MorphType beforeMorphType)
+        public override Task<int> Remove(MorphType beforeMorphType)
         {
-            await api.DeleteMorphType(beforeMorphType.Id);
-            return 1;
+            throw new InvalidOperationException(
+                $"MorphTypes are predefined and cannot be deleted. Unexpected morph type removal: {beforeMorphType.Kind} ({beforeMorphType.Id}). This indicates a data inconsistency.");
         }
 
         public override Task<int> Replace(MorphType beforeMorphType, MorphType afterMorphType)
