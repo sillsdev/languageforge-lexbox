@@ -21,6 +21,10 @@ public static class FwHeadlessKernel
             .BindConfiguration("FwHeadlessConfig")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<MaintenanceModeConfig>()
+            .BindConfiguration("MaintenanceModeConfig")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddSingleton<ISyncJobStatusService, SyncJobStatusService>();
         services.AddScoped<ISendReceiveService, SendReceiveService>();
         services.AddScoped<IProjectLookupService, ProjectLookupService>();

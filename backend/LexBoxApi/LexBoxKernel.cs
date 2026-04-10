@@ -58,6 +58,10 @@ public static class LexBoxKernel
             .BindConfiguration("FwLiteRelease")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<MaintenanceModeConfig>()
+            .BindConfiguration("MaintenanceModeConfig")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddHttpClient();
         services.AddServiceDiscovery();
         services.AddHttpClient<FwHeadlessClient>(client => client.BaseAddress = new ("http://fwHeadless"))

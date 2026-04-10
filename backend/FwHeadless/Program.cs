@@ -63,6 +63,9 @@ app.Use(async (context, next) =>
     await next();
 });
 
+// Allow read-only mode during maintenance windows
+app.UseMiddleware<MaintenanceModeMiddleware>();
+
 // Load project ID from request
 app.Use((context, next) =>
 {

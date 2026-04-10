@@ -1,5 +1,6 @@
 import {loadI18n, pickBestLocale} from '$lib/i18n';
 import {AUTH_COOKIE_NAME, getUser, isAuthn} from '$lib/user';
+import {maintenanceMessage} from '$lib/util/maintenance';
 import {apiVersion} from '$lib/util/version';
 import {redirect, type Handle, type HandleFetch, type HandleServerError, type RequestEvent, type ResolveOptions} from '@sveltejs/kit';
 import {ensureErrorIsTraced, traceRequest, traceFetch} from '$lib/otel/otel.server';
@@ -86,6 +87,12 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
 
   if (response.headers.has('lexbox-version')) {
     apiVersion.value = response.headers.get('lexbox-version');
+  }
+
+  if (response.headers.has('maintenance-message')) {
+    maintenanceMessage.value = response.headers.get('maintenance-message');
+  } else {
+    maintenanceMessage.value = null;
   }
 
   const lexBoxSetAuthCookieHeader = response.headers.getSetCookie()
