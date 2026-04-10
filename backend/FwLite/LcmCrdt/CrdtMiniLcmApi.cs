@@ -370,23 +370,6 @@ public class CrdtMiniLcmApi(
         return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Kind == kind);
     }
 
-    public async Task<MorphType> CreateMorphType(MorphType morphType)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-
-        // Duplicate MorphTypes (by kind) are not allowed
-        // Note: can't put this in validation wrapper since we need a repo
-        var exists = await repo.MorphTypes.AnyAsync(m => m.Kind == morphType.Kind);
-        if (exists) throw new DuplicateObjectException($"Morph type {morphType.Kind} already exists");
-
-        await AddChange(new CreateMorphTypeChange(morphType));
-        // MorphTypeKind value must be unique in DB, so return by MorphType rather than Id in case a race condition
-        // ended up causing two CreateMorphType calls to happen at the same time. It's possible that the other
-        // call went through, creating a MorphType entry with a different GUID but the same Kind (which would
-        // violate the constraint). So we fetch by Kind rather than by Id here to mitigate that rare case.
-        return await repo.MorphTypes.SingleAsync(c => c.Kind == morphType.Kind);
-    }
-
     public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
         await AddChange(new JsonPatchChange<MorphType>(id, update.Patch));
@@ -397,11 +380,6 @@ public class CrdtMiniLcmApi(
     {
         await MorphTypeSync.Sync(before, after, api ?? this);
         return await GetMorphType(after.Id) ?? throw NotFoundException.ForType<MorphType>(after.Id);
-    }
-
-    public async Task DeleteMorphType(Guid id)
-    {
-        await AddChange(new DeleteChange<MorphType>(id));
     }
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)

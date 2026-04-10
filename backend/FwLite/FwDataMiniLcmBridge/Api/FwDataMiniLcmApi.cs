@@ -581,12 +581,6 @@ public class FwDataMiniLcmApi(
         };
     }
 
-    public Task<MorphType> CreateMorphType(MorphType morphType)
-    {
-        // Creating new morph types not allowed in FwData projects, so silently ignore operation
-        return Task.FromResult(morphType);
-    }
-
     public Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
         var lcmMorphType = MorphTypeRepository.GetObject(id);
@@ -606,12 +600,6 @@ public class FwDataMiniLcmApi(
     {
         await MorphTypeSync.Sync(before, after, api ?? this);
         return await GetMorphType(after.Id) ?? throw new NullReferenceException("unable to find morph type with id " + after.Id);
-    }
-
-    public Task DeleteMorphType(Guid id)
-    {
-        // Deleting morph types not allowed in FwData projects, so silently ignore operation
-        return Task.CompletedTask;
     }
 
     public IAsyncEnumerable<VariantType> GetVariantTypes()
