@@ -211,7 +211,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                 .Ascending(entry => entry.MorphologyType)
                 .Ascending(entry => entry.Guid))
             .Skip(options.Offset)
-            .Limit(options.Count)
+            .Limit(options.Count == QueryOptions.QueryAll ? 0 : options.Count)
             .Project(entry => entry as Entities.Entry);
 
         await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
