@@ -50,17 +50,13 @@ public class ObjectWithIdCollectionReplaceDiffApi<T>(Func<T, T, Task<int>> Repla
     }
 }
 
-public interface IOrderableCollectionDiffApi<T> where T : IOrderable
+public interface IOrderableCollectionDiffApi<T, TId> where T : IOrderableNoId where TId : notnull
 {
-    Task<int> Add(T value, BetweenPosition between);
+    Task<int> Add(T value, BetweenPosition<T> between);
     Task<int> Remove(T value);
-    Task<int> Move(T value, BetweenPosition between);
+    Task<int> Move(T value, BetweenPosition<T> between);
     Task<int> Replace(T before, T after);
-
-    Guid GetId(T value)
-    {
-        return value.Id;
-    }
+    TId GetId(T value);
 }
 
 public static class DiffCollection
@@ -106,10 +102,10 @@ public static class DiffCollection
         return changes;
     }
 
-    public static async Task<int> DiffOrderable<T>(
+    public static async Task<int> DiffOrderable<T, TId>(
         IList<T> before,
         IList<T> after,
-        IOrderableCollectionDiffApi<T> diffApi) where T : IOrderable
+        IOrderableCollectionDiffApi<T, TId> diffApi) where T : IOrderableNoId where TId : notnull
     {
         var changes = 0;
 
@@ -159,38 +155,50 @@ public static class DiffCollection
         return changes;
     }
 
-    private static BetweenPosition GetStableBetween<T>(int i, IList<T> current, HashSet<Guid> stable, Func<T, Guid> GetId)
+    private static BetweenPosition<T> GetStableBetween<T, TId>(int i, IList<T> current, HashSet<TId> stable, Func<T, TId> getId) where TId : notnull
     {
-        T? beforeEntity = default;
-        T? afterEntity = default;
+        T? previous = default;
+        T? next = default;
         for (var j = i - 1; j >= 0; j--)
         {
-            if (stable.Contains(GetId(current[j])))
+            if (stable.Contains(getId(current[j])))
             {
-                beforeEntity = current[j];
+                previous = current[j];
                 break;
             }
         }
         for (var j = i + 1; j < current.Count; j++)
         {
-            if (stable.Contains(GetId(current[j])))
+            if (stable.Contains(getId(current[j])))
             {
-                afterEntity = current[j];
+                next = current[j];
                 break;
             }
         }
-        return new BetweenPosition(
-            beforeEntity is not null ? GetId(beforeEntity) : null,
-            afterEntity is not null ? GetId(afterEntity) : null);
+        return new BetweenPosition<T>(previous, next);
     }
 
-    private static ImmutableSortedDictionary<int, PositionDiff>? DiffPositions<T>(
+    private static ImmutableSortedDictionary<int, PositionDiff>? DiffPositions<T, TId>(
         IList<T> before,
         IList<T> after,
-        Func<T, Guid> GetId)
+        Func<T, TId> getId) where TId : notnull
     {
-        var beforeJson = new JsonArray([.. before.Select(item => JsonValue.Create(GetId(item)))]);
-        var afterJson = new JsonArray([.. after.Select(item => JsonValue.Create(GetId(item)))]);
+        // Map TIds to integers for JSON serialization (supports non-Guid ID types like tuples)
+        var idToInt = new Dictionary<TId, int>();
+        int idx = 0;
+        foreach (var item in before)
+        {
+            var id = getId(item);
+            if (!idToInt.ContainsKey(id)) idToInt[id] = idx++;
+        }
+        foreach (var item in after)
+        {
+            var id = getId(item);
+            if (!idToInt.ContainsKey(id)) idToInt[id] = idx++;
+        }
+
+        var beforeJson = new JsonArray([.. before.Select(item => JsonValue.Create(idToInt[getId(item)]))]);
+        var afterJson = new JsonArray([.. after.Select(item => JsonValue.Create(idToInt[getId(item)]))]);
         return JsonDiffPatcher.Diff(beforeJson, afterJson, DiffFormatter.Instance);
     }
 

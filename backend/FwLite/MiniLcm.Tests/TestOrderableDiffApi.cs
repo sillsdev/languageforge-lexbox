@@ -13,7 +13,7 @@ public class TestOrderableDiffApiTests
 
         // act
         var diffApi = new TestOrderableDiffApi([value1]);
-        var position = new BetweenPosition(value1.Id, null);
+        var position = new BetweenPosition<TestOrderable>(value1, null);
         await diffApi.Add(value2, position);
 
         // assert
@@ -53,7 +53,7 @@ public class TestOrderableDiffApiTests
 
         // act
         var diffApi = new TestOrderableDiffApi([value1, value2, value3]);
-        var position = new BetweenPosition(value1.Id, value2.Id);
+        var position = new BetweenPosition<TestOrderable>(value1, value2);
         await diffApi.Move(value3, position);
 
         // assert
@@ -82,28 +82,33 @@ public class TestOrderableDiffApiTests
     }
 }
 
-public class TestOrderableDiffApi(TestOrderable[] before) : IOrderableCollectionDiffApi<TestOrderable>
+public class TestOrderableDiffApi(TestOrderable[] before) : IOrderableCollectionDiffApi<TestOrderable, Guid>
 {
     public List<TestOrderable> Current { get; } = [.. before];
     public List<CollectionDiffOperation> DiffOperations = [];
     public List<(TestOrderable before, TestOrderable after)> Replacements = [];
 
-    public Task<int> Add(TestOrderable value, BetweenPosition between)
+    public Guid GetId(TestOrderable value)
+    {
+        return value.Id;
+    }
+
+    public Task<int> Add(TestOrderable value, BetweenPosition<TestOrderable> between)
     {
         DiffOperations.Add(new CollectionDiffOperation(value, PositionDiffKind.Add, between));
         return AddInternal(value, between);
     }
 
-    private Task<int> AddInternal(TestOrderable value, BetweenPosition between)
+    private Task<int> AddInternal(TestOrderable value, BetweenPosition<TestOrderable> between)
     {
         if (between.Previous is not null)
         {
-            var previousIndex = Current.FindIndex(v => v.Id == between.Previous);
+            var previousIndex = Current.FindIndex(v => v.Id == between.Previous.Id);
             Current.Insert(previousIndex + 1, value);
         }
         else if (between.Next is not null)
         {
-            var nextIndex = Current.FindIndex(v => v.Id == between.Next);
+            var nextIndex = Current.FindIndex(v => v.Id == between.Next.Id);
             Current.Insert(nextIndex, value);
         }
         else
@@ -126,7 +131,7 @@ public class TestOrderableDiffApi(TestOrderable[] before) : IOrderableCollection
         return Task.FromResult(1);
     }
 
-    public async Task<int> Move(TestOrderable value, BetweenPosition between)
+    public async Task<int> Move(TestOrderable value, BetweenPosition<TestOrderable> between)
     {
         DiffOperations.Add(new CollectionDiffOperation(value, PositionDiffKind.Move, between));
         await RemoveInternal(value);
@@ -151,7 +156,7 @@ public class TestOrderableDiffApi(TestOrderable[] before) : IOrderableCollection
     }
 }
 
-public record CollectionDiffOperation(TestOrderable Value, PositionDiffKind Kind, BetweenPosition? Between = null);
+public record CollectionDiffOperation(TestOrderable Value, PositionDiffKind Kind, BetweenPosition<TestOrderable>? Between = null);
 
 public class TestOrderable(double order, Guid id) : IOrderable
 {
