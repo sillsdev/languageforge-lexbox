@@ -1,6 +1,6 @@
 // Modified from paranext-core/extensions/src/components/dictionary/dictionary-list-item.component.tsx
 
-import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'fw-lite-extension';
+import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'dictionary';
 import { cn, Separator } from 'platform-bible-react';
 import DomainsDisplay from './domains-display';
 import { entryGlossText, entryHeadwordText } from '../utils/entry-display-text';

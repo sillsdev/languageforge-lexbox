@@ -4,7 +4,7 @@ import type {
   DictionaryWebViewOptions,
   ProjectWebViewOptions,
   WebViewIds,
-} from 'fw-lite-extension';
+} from 'dictionary';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
 // eslint-disable-next-line no-restricted-imports
 import type { Layout } from 'shared/models/docking-framework.model';
@@ -19,41 +19,41 @@ export class ProjectManager {
     this.projectId = projectId;
   }
 
-  static async getFwDictionaryCode(projectId: string): Promise<string | undefined> {
-    return await new ProjectManager(projectId).getFwDictionaryCode();
+  static async getDictionaryCode(projectId: string): Promise<string | undefined> {
+    return await new ProjectManager(projectId).getDictionaryCode();
   }
 
-  async getFwAnalysisLanguage(): Promise<string | undefined> {
-    return await this.getSetting(ProjectSettingKey.FwAnalysisLanguage);
+  async getAnalysisLanguage(): Promise<string | undefined> {
+    return await this.getSetting(ProjectSettingKey.AnalysisLanguage);
   }
 
-  async setFwAnalysisLanguage(analysisLanguage: string): Promise<void> {
-    if ((await this.getFwAnalysisLanguage()) === analysisLanguage) return;
-    await this.setSetting(ProjectSettingKey.FwAnalysisLanguage, analysisLanguage);
+  async setAnalysisLanguage(analysisLanguage: string): Promise<void> {
+    if ((await this.getAnalysisLanguage()) === analysisLanguage) return;
+    await this.setSetting(ProjectSettingKey.AnalysisLanguage, analysisLanguage);
   }
 
-  async getFwDictionaryCode(): Promise<string | undefined> {
-    return await this.getSetting(ProjectSettingKey.FwDictionaryCode);
+  async getDictionaryCode(): Promise<string | undefined> {
+    return await this.getSetting(ProjectSettingKey.DictionaryCode);
   }
 
-  async getFwDictionaryCodeOrOpenSelector(): Promise<string | void> {
-    const dictionaryCode = await this.getSetting(ProjectSettingKey.FwDictionaryCode);
+  async getDictionaryCodeOrOpenSelector(): Promise<string | void> {
+    const dictionaryCode = await this.getSetting(ProjectSettingKey.DictionaryCode);
     const nameOrId = await this.getNameOrId();
     if (dictionaryCode) {
-      logger.info(`Project '${nameOrId}' is using FieldWorks dictionary '${dictionaryCode}'`);
+      logger.info(`Project '${nameOrId}' is using dictionary '${dictionaryCode}'`);
       return dictionaryCode;
     }
 
-    logger.info(`FieldWorks dictionary not yet selected for project '${nameOrId}'`);
+    logger.info(`Dictionary not yet selected for project '${nameOrId}'`);
     await this.openWebView(WebViewType.DictionarySelect, {
       floatSize: { height: 500, width: 400 },
       type: 'float',
     });
   }
 
-  async setFwDictionaryCode(dictionaryCode: string): Promise<void> {
-    if ((await this.getFwDictionaryCode()) === dictionaryCode) return;
-    await this.setSetting(ProjectSettingKey.FwDictionaryCode, dictionaryCode);
+  async setDictionaryCode(dictionaryCode: string): Promise<void> {
+    if ((await this.getDictionaryCode()) === dictionaryCode) return;
+    await this.setSetting(ProjectSettingKey.DictionaryCode, dictionaryCode);
   }
 
   async getLanguageTag(): Promise<string | undefined> {
@@ -70,8 +70,8 @@ export class ProjectManager {
 
   async getDictionaryWebViewOptions(word?: string): Promise<DictionaryWebViewOptions> {
     return {
-      analysisLanguage: await this.getFwAnalysisLanguage(),
-      dictionaryCode: await this.getFwDictionaryCode(),
+      analysisLanguage: await this.getAnalysisLanguage(),
+      dictionaryCode: await this.getDictionaryCode(),
       vernacularLanguage: await this.getLanguageTag(),
       word,
     };

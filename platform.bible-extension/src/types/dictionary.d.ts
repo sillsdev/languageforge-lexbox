@@ -1,9 +1,9 @@
 import type { OpenWebViewOptions, WebViewProps } from '@papi/core';
-import type { IEntryService, IProjectModel, SuccessHolder } from 'fw-lite-extension';
+import type { IEntryService, IProjectModel, SuccessHolder } from 'dictionary';
 
 // TODO: Sort out internal types and those that need to be exposed for other extensions.
 
-declare module 'fw-lite-extension' {
+declare module 'dictionary' {
   /* eslint-disable @typescript-eslint/no-shadow */
 
   export type IEntry = import('@dotnet-types').IEntry;
@@ -59,15 +59,15 @@ declare module 'fw-lite-extension' {
   /** Base extension of WebViewProps for all project-specific WebViews. */
   type ProjectWebViewProps = WebViewProps & ProjectOptions;
 
-  /** Additions for options/props of WebViews that browse FieldWorks Lite. */
+  /** Additions for options/props of WebViews that browse FW Lite. */
   interface BrowseOptions {
     url?: string;
   }
 
-  /** Options for WebViews that browse FieldWorks Lite. */
+  /** Options for WebViews that browse FW Lite. */
   export interface BrowseWebViewOptions extends ProjectWebViewOptions, BrowseOptions {}
 
-  /** Props for WebViews that browse FieldWorks Lite. */
+  /** Props for WebViews that browse FW Lite. */
   export type BrowseWebViewProps = ProjectWebViewProps & BrowseOptions;
 
   export interface DictionaryLanguages {
@@ -92,27 +92,27 @@ declare module 'fw-lite-extension' {
 
 declare module 'papi-shared-types' {
   export interface CommandHandlers {
-    'fwLiteExtension.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
-    'fwLiteExtension.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
-    'fwLiteExtension.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
-    'fwLiteExtension.selectDictionary': (
+    'dictionary.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'dictionary.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
+    'dictionary.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
+    'dictionary.selectDictionary': (
       projectId: string,
       dictionaryCode: string,
     ) => Promise<SuccessHolder>;
-    'fwLiteExtension.fwDictionaries': (projectId?: string) => Promise<IProjectModel[] | undefined>;
-    'fwLiteExtension.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
-    'fwLiteExtension.findRelatedEntries': (
+    'dictionary.dictionaries': (projectId?: string) => Promise<IProjectModel[] | undefined>;
+    'dictionary.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'dictionary.findRelatedEntries': (
       webViewId: string,
       entry: string,
     ) => Promise<SuccessHolder>;
   }
 
   export interface ProjectSettingTypes {
-    'fw-lite-extension.fwAnalysisLanguage': string;
-    'fw-lite-extension.fwDictionaryCode': string;
+    'dictionary.analysisLanguage': string;
+    'dictionary.dictionaryCode': string;
   }
 
   export interface NetworkableObject {
-    'fwLiteExtension.entryService': IEntryService;
+    'dictionary.entryService': IEntryService;
   }
 }

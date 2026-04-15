@@ -6,7 +6,7 @@ import type {
   IEntry,
   IEntryService,
   PartialEntry,
-} from 'fw-lite-extension';
+} from 'dictionary';
 import { SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -15,7 +15,7 @@ import DictionaryList from '../components/dictionary-list';
 import DictionaryListWrapper from '../components/dictionary-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
-globalThis.webViewComponent = function FwLiteFindWord({
+globalThis.webViewComponent = function DictionaryFindWord({
   analysisLanguage,
   projectId,
   vernacularLanguage,
@@ -24,7 +24,7 @@ globalThis.webViewComponent = function FwLiteFindWord({
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   const [matchingEntries, setMatchingEntries] = useState<IEntry[] | undefined>();
-  const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
+  const [dictionaryNetworkObject, setDictionaryNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
   const [isFetching, setIsFetching] = useState(false);
@@ -32,23 +32,23 @@ globalThis.webViewComponent = function FwLiteFindWord({
 
   useEffect(() => {
     papi.networkObjects
-      .get<IEntryService>('fwliteextension.entryService')
+      .get<IEntryService>('dictionary.entryService')
       // eslint-disable-next-line promise/always-return
       .then((networkObject) => {
         logger.info('Got network object:', networkObject);
-        setFwLiteNetworkObject(networkObject);
+        setDictionaryNetworkObject(networkObject);
       })
       .catch((e) =>
-        logger.error(`${localizedStrings['%fwLiteExtension_error_gettingNetworkObject%']}`, e),
+        logger.error(`${localizedStrings['%dictionary_error_gettingNetworkObject%']}`, e),
       );
   }, [localizedStrings]);
 
   const fetchEntries = useCallback(
     async (untrimmedSurfaceForm: string) => {
-      if (!projectId || !fwLiteNetworkObject) {
-        const errMissingParam = localizedStrings['%fwLiteExtension_error_missingParam%'];
+      if (!projectId || !dictionaryNetworkObject) {
+        const errMissingParam = localizedStrings['%dictionary_error_missingParam%'];
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!fwLiteNetworkObject) logger.warn(`${errMissingParam}fwLiteNetworkObject`);
+        if (!dictionaryNetworkObject) logger.warn(`${errMissingParam}dictionaryNetworkObject`);
         return;
       }
 
@@ -60,11 +60,11 @@ globalThis.webViewComponent = function FwLiteFindWord({
 
       logger.info(`Fetching entries for ${surfaceForm}`);
       setIsFetching(true);
-      const entries = await fwLiteNetworkObject.getEntries(projectId, { surfaceForm });
+      const entries = await dictionaryNetworkObject.getEntries(projectId, { surfaceForm });
       setIsFetching(false);
       setMatchingEntries(entries ?? []);
     },
-    [fwLiteNetworkObject, localizedStrings, projectId],
+    [dictionaryNetworkObject, localizedStrings, projectId],
   );
 
   const debouncedFetchEntries = useMemo(() => debounce(fetchEntries, 500), [fetchEntries]);
@@ -79,23 +79,23 @@ globalThis.webViewComponent = function FwLiteFindWord({
 
   const addEntry = useCallback(
     async (entry: PartialEntry) => {
-      if (!projectId || !fwLiteNetworkObject) {
-        const errMissingParam = localizedStrings['%fwLiteExtension_error_missingParam%'];
+      if (!projectId || !dictionaryNetworkObject) {
+        const errMissingParam = localizedStrings['%dictionary_error_missingParam%'];
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!fwLiteNetworkObject) logger.warn(`${errMissingParam}fwLiteNetworkObject`);
+        if (!dictionaryNetworkObject) logger.warn(`${errMissingParam}dictionaryNetworkObject`);
         return;
       }
 
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      const addedEntry = await fwLiteNetworkObject.addEntry(projectId, entry);
+      const addedEntry = await dictionaryNetworkObject.addEntry(projectId, entry);
       if (addedEntry) {
         onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
-        await papi.commands.sendCommand('fwLiteExtension.displayEntry', projectId, addedEntry.id);
+        await papi.commands.sendCommand('dictionary.displayEntry', projectId, addedEntry.id);
       } else {
-        logger.error(`${localizedStrings['%fwLiteExtension_error_failedToAddEntry%']}`);
+        logger.error(`${localizedStrings['%dictionary_error_failedToAddEntry%']}`);
       }
     },
-    [fwLiteNetworkObject, localizedStrings, onSearch, projectId],
+    [dictionaryNetworkObject, localizedStrings, onSearch, projectId],
   );
 
   return (
@@ -105,7 +105,7 @@ globalThis.webViewComponent = function FwLiteFindWord({
           <div className="tw-max-w-72">
             <SearchBar
               onSearch={onSearch}
-              placeholder={localizedStrings['%fwLiteExtension_findWord_textField%']}
+              placeholder={localizedStrings['%dictionary_findWord_textField%']}
               value={searchTerm}
             />
           </div>

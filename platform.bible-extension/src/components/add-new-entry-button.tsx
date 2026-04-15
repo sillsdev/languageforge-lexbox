@@ -1,5 +1,5 @@
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { DictionaryLanguages, PartialEntry } from 'fw-lite-extension';
+import type { DictionaryLanguages, PartialEntry } from 'dictionary';
 import { Button } from 'platform-bible-react';
 import { type ReactElement, useState } from 'react';
 import AddNewEntry from './add-new-entry';
@@ -34,7 +34,7 @@ export default function AddNewEntryButton({
     </div>
   ) : (
     <Button onClick={() => setAdding(true)}>
-      {localizedStrings['%fwLiteExtension_addWord_buttonAdd%']}
+      {localizedStrings['%dictionary_addWord_buttonAdd%']}
     </Button>
   );
 }

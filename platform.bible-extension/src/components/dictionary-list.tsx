@@ -1,6 +1,6 @@
 // Modified from paranext-core/extensions/src/components/dictionary/dictionary-list.component.tsx
 
-import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'fw-lite-extension';
+import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'dictionary';
 import {
   cn,
   Drawer,
@@ -27,10 +27,8 @@ type DictionaryListProps = DictionaryLanguages & {
 /**
  * A list of dictionary entries.
  *
- * This component renders a listbox of dictionary entries. Each list item contains the lemma of the
- * dictionary entry, the number of occurrences in the chapter, and a list of Strong's codes. The
- * component also renders a drawer to the right of the list item that contains a detailed view of
- * the dictionary entry.
+ * This component renders a listbox of dictionary entries. The component also renders a drawer to
+ * the right of the list item that contains a detailed view of the dictionary entry.
  *
  * The component uses the `useListbox` hook from the `listbox-keyboard-navigation.util` module to
  * handle keyboard navigation of the list.

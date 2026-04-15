@@ -1,6 +1,6 @@
-# fw-lite-extension
+# dictionary
 
-FieldWorks Lite packaged as an extension for Platform.Bible.
+The Platform.Bible extension for managing the dictionary for your project's target/vernacular language.
 
 <!--
 
@@ -94,7 +94,7 @@ The general file structure is as follows:
   - `src/components/` contains stand-alone (i.e., WebView- and service-independent) components
   - `src/main.ts` is the main entry file for the extension
   - `src/services/` contains services to be used with `networkObjects.set()` in `src/main.ts`
-  - `src/types/fw-lite-extension.d.ts` is this extension's types file that defines how other extensions can use this extension through the `papi`. It is copied into the build folder
+  - `src/types/dictionary.d.ts` is this extension's types file that defines how other extensions can use this extension through the `papi`. It is copied into the build folder
   - `src/utils/` contains utility classes and functions
   - `src/web-views/` contains WebView components to be used with `registerWebViewProvider()` in `src/main.ts`
     - `*.web-view.tsx` files will be treated as React WebViews
@@ -124,13 +124,13 @@ In order to interact with `paranext-core`, you must clone `paranext-core` in the
 
 ## To run
 
-First, you must build FieldWorks Lite using the task defined in this folder:
+First, you must build FieldWorks Lite (FW Lite) using the task defined in this folder:
 
 ```bash
-task build-fw-lite-web
+task build-fw-lite
 ```
 
-This is a normal production build, so changes to FwLite files will not be rebuilt automatically. If you want to do FwLite development, look at [README.md](../backend/FwLite/README.md)
+This is a normal production build, so changes to FW Lite files will not be rebuilt automatically. If you want to do FW Lite development, look at [README.md](../backend/FwLite/README.md)
 
 ### Running Platform.Bible with this extension
 

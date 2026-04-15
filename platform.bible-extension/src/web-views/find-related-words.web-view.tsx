@@ -7,7 +7,7 @@ import type {
   IEntryService,
   ISemanticDomain,
   PartialEntry,
-} from 'fw-lite-extension';
+} from 'dictionary';
 import { Network } from 'lucide-react';
 import { Label, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
@@ -18,7 +18,7 @@ import DictionaryListWrapper from '../components/dictionary-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 import { domainText } from '../utils/entry-display-text';
 
-globalThis.webViewComponent = function FwLiteFindRelatedWords({
+globalThis.webViewComponent = function DictionaryFindRelatedWords({
   analysisLanguage,
   projectId,
   vernacularLanguage,
@@ -26,7 +26,7 @@ globalThis.webViewComponent = function FwLiteFindRelatedWords({
 }: DictionaryWebViewProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
-  const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
+  const [dictionaryNetworkObject, setDictionaryNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
   const [isFetching, setIsFetching] = useState(false);
@@ -37,14 +37,14 @@ globalThis.webViewComponent = function FwLiteFindRelatedWords({
 
   useEffect(() => {
     papi.networkObjects
-      .get<IEntryService>('fwliteextension.entryService')
+      .get<IEntryService>('dictionary.entryService')
       // eslint-disable-next-line promise/always-return
       .then((networkObject) => {
         logger.info('Got network object:', networkObject);
-        setFwLiteNetworkObject(networkObject);
+        setDictionaryNetworkObject(networkObject);
       })
       .catch((e) =>
-        logger.error(`${localizedStrings['%fwLiteExtension_error_gettingNetworkObject%']}`, e),
+        logger.error(`${localizedStrings['%dictionary_error_gettingNetworkObject%']}`, e),
       );
   }, [localizedStrings]);
 
@@ -57,10 +57,10 @@ globalThis.webViewComponent = function FwLiteFindRelatedWords({
 
   const fetchEntries = useCallback(
     async (untrimmedSurfaceForm: string) => {
-      if (!projectId || !fwLiteNetworkObject) {
-        const errMissingParam = localizedStrings['%fwLiteExtension_error_missingParam%'];
+      if (!projectId || !dictionaryNetworkObject) {
+        const errMissingParam = localizedStrings['%dictionary_error_missingParam%'];
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!fwLiteNetworkObject) logger.warn(`${errMissingParam}fwLiteNetworkObject`);
+        if (!dictionaryNetworkObject) logger.warn(`${errMissingParam}dictionaryNetworkObject`);
         return;
       }
 
@@ -72,7 +72,7 @@ globalThis.webViewComponent = function FwLiteFindRelatedWords({
 
       logger.info(`Fetching entries for ${surfaceForm}`);
       setIsFetching(true);
-      let entries = (await fwLiteNetworkObject.getEntries(projectId, { surfaceForm })) ?? [];
+      let entries = (await dictionaryNetworkObject.getEntries(projectId, { surfaceForm })) ?? [];
       // Only consider entries and senses with at least one semantic domain.
       entries = entries
         .map((e) => ({ ...e, senses: e.senses.filter((s) => s.semanticDomains.length) }))
@@ -80,25 +80,25 @@ globalThis.webViewComponent = function FwLiteFindRelatedWords({
       setIsFetching(false);
       setMatchingEntries(entries);
     },
-    [fwLiteNetworkObject, localizedStrings, projectId],
+    [dictionaryNetworkObject, localizedStrings, projectId],
   );
 
   const fetchRelatedEntries = useCallback(
     async (semanticDomain: string) => {
-      if (!projectId || !fwLiteNetworkObject) {
-        const errMissingParam = localizedStrings['%fwLiteExtension_error_missingParam%'];
+      if (!projectId || !dictionaryNetworkObject) {
+        const errMissingParam = localizedStrings['%dictionary_error_missingParam%'];
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!fwLiteNetworkObject) logger.warn(`${errMissingParam}fwLiteNetworkObject`);
+        if (!dictionaryNetworkObject) logger.warn(`${errMissingParam}dictionaryNetworkObject`);
         return;
       }
 
       logger.info(`Fetching entries in semantic domain ${semanticDomain}`);
       setIsFetching(true);
-      const entries = await fwLiteNetworkObject.getEntries(projectId, { semanticDomain });
+      const entries = await dictionaryNetworkObject.getEntries(projectId, { semanticDomain });
       setIsFetching(false);
       setRelatedEntries(entries ?? []);
     },
-    [fwLiteNetworkObject, localizedStrings, projectId],
+    [dictionaryNetworkObject, localizedStrings, projectId],
   );
 
   useEffect(() => {
@@ -117,9 +117,9 @@ globalThis.webViewComponent = function FwLiteFindRelatedWords({
 
   const addEntryInDomain = useCallback(
     async (entry: PartialEntry) => {
-      if (!fwLiteNetworkObject || !projectId || !selectedDomain || !entry.senses?.length) {
-        const errMissingParam = localizedStrings['%fwLiteExtension_error_missingParam%'];
-        if (!fwLiteNetworkObject) logger.warn(`${errMissingParam}fwLiteNetworkObject`);
+      if (!dictionaryNetworkObject || !projectId || !selectedDomain || !entry.senses?.length) {
+        const errMissingParam = localizedStrings['%dictionary_error_missingParam%'];
+        if (!dictionaryNetworkObject) logger.warn(`${errMissingParam}dictionaryNetworkObject`);
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
         if (!selectedDomain) logger.warn(`${errMissingParam}selectedDomain`);
         if (!entry.senses?.length) logger.warn('Cannot add entry without senses');
@@ -129,15 +129,15 @@ globalThis.webViewComponent = function FwLiteFindRelatedWords({
       if (!entry.senses[0].semanticDomains) entry.senses[0].semanticDomains = [];
       entry.senses[0].semanticDomains.push(selectedDomain);
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      const addedEntry = await fwLiteNetworkObject.addEntry(projectId, entry);
+      const addedEntry = await dictionaryNetworkObject.addEntry(projectId, entry);
       if (addedEntry) {
         onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
-        await papi.commands.sendCommand('fwLiteExtension.displayEntry', projectId, addedEntry.id);
+        await papi.commands.sendCommand('dictionary.displayEntry', projectId, addedEntry.id);
       } else {
-        logger.error(`${localizedStrings['%fwLiteExtension_error_failedToAddEntry%']}`);
+        logger.error(`${localizedStrings['%dictionary_error_failedToAddEntry%']}`);
       }
     },
-    [fwLiteNetworkObject, localizedStrings, onSearch, projectId, selectedDomain],
+    [dictionaryNetworkObject, localizedStrings, onSearch, projectId, selectedDomain],
   );
 
   return (
@@ -148,7 +148,7 @@ globalThis.webViewComponent = function FwLiteFindRelatedWords({
             <div className="tw-max-w-128">
               <SearchBar
                 onSearch={onSearch}
-                placeholder={localizedStrings['%fwLiteExtension_findRelatedWord_textField%']}
+                placeholder={localizedStrings['%dictionary_findRelatedWord_textField%']}
                 value={searchTerm}
               />
             </div>
@@ -167,7 +167,7 @@ globalThis.webViewComponent = function FwLiteFindRelatedWords({
 
           {matchingEntries && !selectedDomain && (
             <h3 className="tw-font-semibold tw-m-2">
-              {localizedStrings['%fwLiteExtension_findRelatedWord_selectInstruction%']}
+              {localizedStrings['%dictionary_findRelatedWord_selectInstruction%']}
             </h3>
           )}
 
@@ -190,7 +190,7 @@ globalThis.webViewComponent = function FwLiteFindRelatedWords({
           />
         ) : !relatedEntries?.length ? (
           <div className="tw-flex tw-justify-center tw-m-4 ">
-            <Label>{localizedStrings['%fwLiteExtension_findRelatedWord_noResultsInDomain%']}</Label>
+            <Label>{localizedStrings['%dictionary_findRelatedWord_noResultsInDomain%']}</Label>
           </div>
         ) : (
           <DictionaryList

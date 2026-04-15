@@ -1,12 +1,12 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { DictionaryWebViewProps, IEntryService, PartialEntry } from 'fw-lite-extension';
+import type { DictionaryWebViewProps, IEntryService, PartialEntry } from 'dictionary';
 import { useCallback, useEffect, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
-globalThis.webViewComponent = function FwLiteAddWord({
+globalThis.webViewComponent = function DictionaryAddWord({
   analysisLanguage,
   projectId,
   vernacularLanguage,
@@ -14,7 +14,7 @@ globalThis.webViewComponent = function FwLiteAddWord({
 }: DictionaryWebViewProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
-  const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
+  const [dictionaryNetworkObject, setDictionaryNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,39 +22,39 @@ globalThis.webViewComponent = function FwLiteAddWord({
 
   useEffect(() => {
     papi.networkObjects
-      .get<IEntryService>('fwliteextension.entryService')
+      .get<IEntryService>('dictionary.entryService')
       // eslint-disable-next-line promise/always-return
       .then((networkObject) => {
         logger.info('Got network object:', networkObject);
-        setFwLiteNetworkObject(networkObject);
+        setDictionaryNetworkObject(networkObject);
       })
       .catch((e) =>
-        logger.error(`${localizedStrings['%fwLiteExtension_error_gettingNetworkObject%']}`, e),
+        logger.error(`${localizedStrings['%dictionary_error_gettingNetworkObject%']}`, e),
       );
   }, [localizedStrings]);
 
   const addEntry = useCallback(
     async (entry: PartialEntry) => {
-      if (!projectId || !fwLiteNetworkObject) {
-        const errMissingParam = localizedStrings['%fwLiteExtension_error_missingParam%'];
+      if (!projectId || !dictionaryNetworkObject) {
+        const errMissingParam = localizedStrings['%dictionary_error_missingParam%'];
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!fwLiteNetworkObject) logger.warn(`${errMissingParam}fwLiteNetworkObject`);
+        if (!dictionaryNetworkObject) logger.warn(`${errMissingParam}dictionaryNetworkObject`);
         return;
       }
 
       setIsSubmitted(false);
       setIsSubmitting(true);
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      const entryId = (await fwLiteNetworkObject.addEntry(projectId, entry))?.id;
+      const entryId = (await dictionaryNetworkObject.addEntry(projectId, entry))?.id;
       setIsSubmitting(false);
       if (entryId) {
         setIsSubmitted(true);
-        await papi.commands.sendCommand('fwLiteExtension.displayEntry', projectId, entryId);
+        await papi.commands.sendCommand('dictionary.displayEntry', projectId, entryId);
       } else {
-        logger.error(`${localizedStrings['%fwLiteExtension_error_failedToAddEntry%']}`);
+        logger.error(`${localizedStrings['%dictionary_error_failedToAddEntry%']}`);
       }
     },
-    [fwLiteNetworkObject, localizedStrings, projectId],
+    [dictionaryNetworkObject, localizedStrings, projectId],
   );
 
   return (
@@ -65,7 +65,7 @@ globalThis.webViewComponent = function FwLiteAddWord({
         headword={word}
         vernacularLanguage={vernacularLanguage ?? ''}
       />
-      {isSubmitting && <p>Adding entry to FieldWorks...</p>}
+      {isSubmitting && <p>Adding entry to dictionary...</p>}
       {isSubmitted && <p>Entry added!</p>}
     </div>
   );

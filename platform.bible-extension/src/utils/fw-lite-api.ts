@@ -5,7 +5,7 @@ import type {
   IProjectModel,
   IWritingSystems,
   PartialEntry,
-} from 'fw-lite-extension';
+} from 'dictionary';
 import { GridifyConditionalOperator } from '../types/enums';
 
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */

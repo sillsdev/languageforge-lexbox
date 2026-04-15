@@ -1,5 +1,5 @@
 import { logger } from '@papi/backend';
-import type { IEntry, IEntryQuery, IEntryService, PartialEntry } from 'fw-lite-extension';
+import type { IEntry, IEntryQuery, IEntryService, PartialEntry } from 'dictionary';
 import { FwLiteApi } from '../utils/fw-lite-api';
 import { ProjectManager } from '../utils/project-manager';
 
@@ -15,7 +15,7 @@ export class EntryService implements IEntryService {
       logger.debug('No query!');
       return;
     }
-    const dictionaryCode = await ProjectManager.getFwDictionaryCode(projectId);
+    const dictionaryCode = await ProjectManager.getDictionaryCode(projectId);
     if (!dictionaryCode) return;
     logger.info(
       `Fetching entries for '${surfaceForm}' (semantic domain '${semanticDomain}') in '${dictionaryCode}'`,
@@ -24,7 +24,7 @@ export class EntryService implements IEntryService {
   }
 
   async addEntry(projectId: string, entry: PartialEntry): Promise<IEntry | undefined> {
-    const dictionaryCode = await ProjectManager.getFwDictionaryCode(projectId);
+    const dictionaryCode = await ProjectManager.getDictionaryCode(projectId);
     if (!dictionaryCode) return;
     return await this.fwLiteApi.postNewEntry(entry, dictionaryCode);
   }
@@ -35,7 +35,7 @@ export class EntryService implements IEntryService {
   }
 
   async deleteEntry(projectId: string, id: string): Promise<undefined> {
-    const dictionaryCode = await ProjectManager.getFwDictionaryCode(projectId);
+    const dictionaryCode = await ProjectManager.getDictionaryCode(projectId);
     if (!dictionaryCode) return;
     await this.fwLiteApi.deleteEntry(id, dictionaryCode);
   }

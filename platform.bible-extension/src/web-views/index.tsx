@@ -3,17 +3,17 @@ import type {
   BrowseWebViewOptions,
   DictionaryWebViewOptions,
   ProjectWebViewOptions,
-} from 'fw-lite-extension';
+} from 'dictionary';
 import mainCssStyles from '../styles.css?inline';
 import tailwindCssStyles from '../tailwind.css?inline';
 import { WebViewType } from '../types/enums';
-import fwAddWordWindow from './add-word.web-view?inline';
-import fwDictionarySelectWindow from './dictionary-select.web-view?inline';
-import fwFindRelatedWordsWindow from './find-related-words.web-view?inline';
-import fwFindWordWindow from './find-word.web-view?inline';
+import addWordWindow from './add-word.web-view?inline';
+import dictionarySelectWindow from './dictionary-select.web-view?inline';
+import findRelatedWordsWindow from './find-related-words.web-view?inline';
+import findWordWindow from './find-word.web-view?inline';
 import fwMainWindow from './main.web-view?inline';
 
-const iconUrl = 'papi-extension://fw-lite-extension/assets/logo-dark.png';
+const iconUrl = 'papi-extension://dictionary/assets/logo-dark.png';
 
 /* eslint-disable @typescript-eslint/require-await */
 
@@ -33,7 +33,7 @@ export const mainWebViewProvider: IWebViewProvider = {
       content: fwMainWindow,
       iconUrl,
       styles: mainCssStyles,
-      title: '%fwLiteExtension_webViewTitle_browseDictionary%',
+      title: '%dictionary_webViewTitle_browseDictionary%',
     };
   },
 };
@@ -50,10 +50,10 @@ export const addWordWebViewProvider: IWebViewProvider = {
     return {
       ...savedWebView,
       ...options,
-      content: fwAddWordWindow,
+      content: addWordWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_webViewTitle_addWord%',
+      title: '%dictionary_webViewTitle_addWord%',
     };
   },
 };
@@ -70,10 +70,10 @@ export const dictionarySelectWebViewProvider: IWebViewProvider = {
     return {
       ...savedWebView,
       ...options,
-      content: fwDictionarySelectWindow,
+      content: dictionarySelectWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_webViewTitle_selectDictionary%',
+      title: '%dictionary_webViewTitle_selectDictionary%',
     };
   },
 };
@@ -90,10 +90,10 @@ export const findWordWebViewProvider: IWebViewProvider = {
     return {
       ...savedWebView,
       ...options,
-      content: fwFindWordWindow,
+      content: findWordWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_webViewTitle_findWord%',
+      title: '%dictionary_webViewTitle_findWord%',
     };
   },
 };
@@ -110,10 +110,10 @@ export const findRelatedWordsWebViewProvider: IWebViewProvider = {
     return {
       ...savedWebView,
       ...options,
-      content: fwFindRelatedWordsWindow,
+      content: findRelatedWordsWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_webViewTitle_findRelatedWords%',
+      title: '%dictionary_webViewTitle_findRelatedWords%',
     };
   },
 };

@@ -1,6 +1,6 @@
 import { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { IProjectModel } from 'fw-lite-extension';
+import type { IProjectModel } from 'dictionary';
 import { Button, ComboBox } from 'platform-bible-react';
 import { type ReactElement, useCallback, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
@@ -11,7 +11,7 @@ interface DictionaryComboBoxProps {
   selectDictionary: (dictionaryCode: string) => Promise<void>;
 }
 
-/** A combo-box for selecting a FieldWorks dictionary for a project. */
+/** A combo-box for selecting a dictionary for a project. */
 export default function DictionaryComboBox({
   dictionaries,
   selectDictionary,
@@ -31,7 +31,7 @@ export default function DictionaryComboBox({
         .then(() => setSettingSaved(true))
         .catch((e) =>
           logger.error(
-            localizedStrings['%fwLiteExtension_dictionarySelect_saveError%'],
+            localizedStrings['%dictionary_dictionarySelect_saveError%'],
             JSON.stringify(e),
           ),
         )
@@ -43,7 +43,7 @@ export default function DictionaryComboBox({
   if (settingSaving) {
     return (
       <h3 className="tw-font-semibold tw-m-2">
-        {localizedStrings['%fwLiteExtension_dictionarySelect_saving%']} {selectedDictionaryCode} ...
+        {localizedStrings['%dictionary_dictionarySelect_saving%']} {selectedDictionaryCode} ...
       </h3>
     );
   }
@@ -51,7 +51,7 @@ export default function DictionaryComboBox({
   if (settingSaved) {
     return (
       <h3 className="tw-font-semibold tw-m-2">
-        {localizedStrings['%fwLiteExtension_dictionarySelect_saved%']}
+        {localizedStrings['%dictionary_dictionarySelect_saved%']}
       </h3>
     );
   }
@@ -62,29 +62,29 @@ export default function DictionaryComboBox({
         buttonPlaceholder={
           /* eslint-disable no-nested-ternary */
           !dictionaries
-            ? localizedStrings['%fwLiteExtension_dictionarySelect_loading%']
+            ? localizedStrings['%dictionary_dictionarySelect_loading%']
             : !dictionaries.length
-              ? localizedStrings['%fwLiteExtension_dictionarySelect_noneFound%']
+              ? localizedStrings['%dictionary_dictionarySelect_noneFound%']
               : !selectedDictionaryCode
-                ? localizedStrings['%fwLiteExtension_dictionarySelect_select%']
-                : `${localizedStrings['%fwLiteExtension_dictionarySelect_selected%']} ${selectedDictionaryCode}`
+                ? localizedStrings['%dictionary_dictionarySelect_select%']
+                : `${localizedStrings['%dictionary_dictionarySelect_selected%']} ${selectedDictionaryCode}`
           /* eslint-enable no-nested-ternary */
         }
-        commandEmptyMessage={localizedStrings['%fwLiteExtension_dictionarySelect_noneFound%']}
+        commandEmptyMessage={localizedStrings['%dictionary_dictionarySelect_noneFound%']}
         isDisabled={!dictionaries?.length}
         onChange={setSelectedDictionaryCode}
         options={dictionaries?.map((p) => p.code)}
-        textPlaceholder={localizedStrings['%fwLiteExtension_dictionarySelect_select%']}
+        textPlaceholder={localizedStrings['%dictionary_dictionarySelect_select%']}
       />
 
       {!!selectedDictionaryCode && (
         <div className="tw-flex tw-gap-2 tw-items-center">
           <Button onClick={() => saveSetting(selectedDictionaryCode)} type="button">
-            {localizedStrings['%fwLiteExtension_dictionarySelect_confirm%']}
+            {localizedStrings['%dictionary_dictionarySelect_confirm%']}
           </Button>
 
           <Button onClick={() => setSelectedDictionaryCode('')} type="button" variant="secondary">
-            {localizedStrings['%fwLiteExtension_dictionarySelect_clear%']}
+            {localizedStrings['%dictionary_dictionarySelect_clear%']}
           </Button>
         </div>
       )}

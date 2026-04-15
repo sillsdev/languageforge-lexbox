@@ -1,5 +1,5 @@
 {
-  "name": "fw-lite-extension",
+  "name": "dictionary",
   "version": "0.0.1",
   "publisher": "LexicalTools",
   "displayData": "assets/displayData.json",
@@ -8,7 +8,7 @@
   "main": "src/main.js",
   "extensionDependencies": {},
   "elevatedPrivileges": ["createProcess"],
-  "types": "src/types/fw-lite-extension.d.ts",
+  "types": "src/types/dictionary.d.ts",
   "menus": "contributions/menus.json",
   "settings": "contributions/settings.json",
   "projectSettings": "contributions/projectSettings.json",

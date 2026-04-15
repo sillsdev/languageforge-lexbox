@@ -18,35 +18,35 @@
       "topMenu": {
         "columns": {},
         "groups": {
-          "fw-lite-extension.editor": {
+          "dictionary.editor": {
             "column": "platformScriptureEditor.edit",
             "order": 11
           }
         },
         "items": [
           {
-            "label": "%fwLiteExtension_menu_browseDictionary%",
-            "group": "fw-lite-extension.editor",
+            "label": "%dictionary_menu_browseDictionary%",
+            "group": "dictionary.editor",
             "order": 1,
-            "command": "fwLiteExtension.browseDictionary"
+            "command": "dictionary.browseDictionary"
           },
           {
-            "label": "%fwLiteExtension_menu_addEntry%",
-            "group": "fw-lite-extension.editor",
+            "label": "%dictionary_menu_addEntry%",
+            "group": "dictionary.editor",
             "order": 2,
-            "command": "fwLiteExtension.addEntry"
+            "command": "dictionary.addEntry"
           },
           {
-            "label": "%fwLiteExtension_menu_findEntry%",
-            "group": "fw-lite-extension.editor",
+            "label": "%dictionary_menu_findEntry%",
+            "group": "dictionary.editor",
             "order": 3,
-            "command": "fwLiteExtension.findEntry"
+            "command": "dictionary.findEntry"
           },
           {
-            "label": "%fwLiteExtension_menu_findRelatedEntries%",
-            "group": "fw-lite-extension.editor",
+            "label": "%dictionary_menu_findRelatedEntries%",
+            "group": "dictionary.editor",
             "order": 4,
-            "command": "fwLiteExtension.findRelatedEntries"
+            "command": "dictionary.findRelatedEntries"
           }
         ]
       }

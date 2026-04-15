@@ -1,15 +1,15 @@
 [
   {
-    "label": "%fwLiteExtension_projectSettings_title%",
+    "label": "%dictionary_projectSettings_title%",
     "properties": {
-      "fw-lite-extension.fwAnalysisLanguage": {
-        "label": "%fwLiteExtension_projectSettings_analysisLanguage%",
+      "dictionary.analysisLanguage": {
+        "label": "%dictionary_projectSettings_analysisLanguage%",
         "default": "",
         "isHidden": true
       },
-      "fw-lite-extension.fwDictionaryCode": {
-        "label": "%fwLiteExtension_projectSettings_dictionary%",
-        "description": "%fwLiteExtension_projectSettings_dictionaryDescription%",
+      "dictionary.dictionaryCode": {
+        "label": "%dictionary_projectSettings_dictionary%",
+        "description": "%dictionary_projectSettings_dictionaryDescription%",
         "default": ""
       }
     }

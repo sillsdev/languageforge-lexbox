@@ -1,6 +1,6 @@
 import { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { DictionaryLanguages, PartialEntry } from 'fw-lite-extension';
+import type { DictionaryLanguages, PartialEntry } from 'dictionary';
 import { Button, Input, Label } from 'platform-bible-react';
 import { type ReactElement, useCallback, useEffect, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
@@ -56,13 +56,13 @@ export default function AddNewEntry({
   return (
     <div className="tw-flex tw-flex-col tw-items-start">
       <h3 className="tw-font-semibold tw-mb-2">
-        {localizedStrings['%fwLiteExtension_addWord_title%']}
+        {localizedStrings['%dictionary_addWord_title%']}
       </h3>
 
       <div className="tw-flex tw-flex-col tw-gap-1">
         <div>
           <Label htmlFor="newEntryHeadword">
-            {localizedStrings['%fwLiteExtension_entryDisplay_headword%']} ({vernacularLanguage}):
+            {localizedStrings['%dictionary_entryDisplay_headword%']} ({vernacularLanguage}):
           </Label>
           <Input
             id="newEntryHeadword"
@@ -73,14 +73,14 @@ export default function AddNewEntry({
 
         <div>
           <Label htmlFor="newEntryGloss">
-            {localizedStrings['%fwLiteExtension_entryDisplay_gloss%']} ({analysisLanguage}):
+            {localizedStrings['%dictionary_entryDisplay_gloss%']} ({analysisLanguage}):
           </Label>
           <Input id="newEntryGloss" onChange={(e) => setGloss(e.target.value)} value={gloss} />
         </div>
 
         <div>
           <Label htmlFor="newEntryDefinition">
-            {localizedStrings['%fwLiteExtension_entryDisplay_definition%']} ({analysisLanguage}):
+            {localizedStrings['%dictionary_entryDisplay_definition%']} ({analysisLanguage}):
           </Label>
           <Input
             id="newEntryDefinition"
@@ -91,10 +91,10 @@ export default function AddNewEntry({
 
         <div className="tw-flex tw-gap-1 tw-mt-2">
           <Button disabled={!ready} onClick={() => onSubmit()}>
-            {localizedStrings['%fwLiteExtension_addWord_buttonSubmit%']}
+            {localizedStrings['%dictionary_addWord_buttonSubmit%']}
           </Button>
           <Button onClick={clearEntry}>
-            {localizedStrings['%fwLiteExtension_button_cancel%']}
+            {localizedStrings['%dictionary_button_cancel%']}
           </Button>
         </div>
       </div>
