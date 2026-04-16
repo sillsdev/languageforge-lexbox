@@ -1,15 +1,15 @@
 import type { WebViewProps } from '@papi/core';
 import { commands, logger } from '@papi/frontend';
-import type { IProjectModel } from 'dictionary';
+import type { IProjectModel } from 'lexicon';
 import { useCallback, useEffect, useState } from 'react';
 import DictionaryComboBox from '../components/dictionary-combo-box';
 
-globalThis.webViewComponent = function DictionarySelect({ projectId }: WebViewProps) {
+globalThis.webViewComponent = function LexiconSelect({ projectId }: WebViewProps) {
   const [dictionaries, setDictionaries] = useState<IProjectModel[] | undefined>();
 
   const selectDictionary = useCallback(
     async (code: string): Promise<void> => {
-      await commands.sendCommand('dictionary.selectDictionary', projectId ?? '', code);
+      await commands.sendCommand('lexicon.selectDictionary', projectId ?? '', code);
     },
     [projectId],
   );
@@ -17,7 +17,7 @@ globalThis.webViewComponent = function DictionarySelect({ projectId }: WebViewPr
   useEffect(() => {
     logger.info(`This WebView was opened for project '${projectId}'`);
     commands
-      .sendCommand('dictionary.dictionaries', projectId)
+      .sendCommand('lexicon.dictionaries', projectId)
       .then(setDictionaries)
       .catch((e) => logger.error('Error fetching dictionaries:', JSON.stringify(e)));
   }, [projectId]);

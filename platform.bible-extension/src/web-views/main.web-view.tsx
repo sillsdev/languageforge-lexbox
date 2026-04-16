@@ -1,11 +1,11 @@
 import { themes } from '@papi/frontend';
 import { useData } from '@papi/frontend/react';
-import type { BrowseWebViewProps } from 'dictionary';
+import type { BrowseWebViewProps } from 'lexicon';
 import { useMemo, useRef } from 'react';
 
 const DEFAULT_THEME = themes.getCurrentThemeSync();
 
-globalThis.webViewComponent = function DictionaryMainWindow({ url }: BrowseWebViewProps) {
+globalThis.webViewComponent = function LexiconMainWindow({ url }: BrowseWebViewProps) {
   // eslint-disable-next-line no-null/no-null
   const iframe = useRef<HTMLIFrameElement | null>(null);
 
@@ -14,7 +14,7 @@ globalThis.webViewComponent = function DictionaryMainWindow({ url }: BrowseWebVi
   const themeType = useMemo(() => ('type' in theme ? theme.type : undefined), [theme]);
 
   return url ? (
-    <iframe ref={iframe} src={url} style={{ colorScheme: themeType }} title="Dictionary" />
+    <iframe ref={iframe} src={url} style={{ colorScheme: themeType }} title="Lexicon" />
   ) : (
     <p>Loading...</p>
   );

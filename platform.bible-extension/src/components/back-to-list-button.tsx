@@ -32,7 +32,7 @@ export default function BackToListButton({
   const button = (
     <Button className="tw-flex tw-items-center" onClick={handleBackToListButton} variant="link">
       <ArrowLeft className="tw-mr-1 tw-h-4 tw-w-4" />
-      {localizedStrings['%dictionary_dictionary_backToList%']}
+      {localizedStrings['%lexicon_lexicon_backToList%']}
     </Button>
   );
 

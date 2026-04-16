@@ -1,9 +1,9 @@
 import type { OpenWebViewOptions, WebViewProps } from '@papi/core';
-import type { IEntryService, IProjectModel, SuccessHolder } from 'dictionary';
+import type { IEntryService, IProjectModel, SuccessHolder } from 'lexicon';
 
 // TODO: Sort out internal types and those that need to be exposed for other extensions.
 
-declare module 'dictionary' {
+declare module 'lexicon' {
   /* eslint-disable @typescript-eslint/no-shadow */
 
   export type IEntry = import('@dotnet-types').IEntry;
@@ -92,27 +92,24 @@ declare module 'dictionary' {
 
 declare module 'papi-shared-types' {
   export interface CommandHandlers {
-    'dictionary.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
-    'dictionary.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
-    'dictionary.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
-    'dictionary.selectDictionary': (
+    'lexicon.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'lexicon.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
+    'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
+    'lexicon.selectDictionary': (
       projectId: string,
       dictionaryCode: string,
     ) => Promise<SuccessHolder>;
-    'dictionary.dictionaries': (projectId?: string) => Promise<IProjectModel[] | undefined>;
-    'dictionary.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
-    'dictionary.findRelatedEntries': (
-      webViewId: string,
-      entry: string,
-    ) => Promise<SuccessHolder>;
+    'lexicon.dictionaries': (projectId?: string) => Promise<IProjectModel[] | undefined>;
+    'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
   }
 
   export interface ProjectSettingTypes {
-    'dictionary.analysisLanguage': string;
-    'dictionary.dictionaryCode': string;
+    'lexicon.analysisLanguage': string;
+    'lexicon.dictionaryCode': string;
   }
 
   export interface NetworkableObject {
-    'dictionary.entryService': IEntryService;
+    'lexicon.entryService': IEntryService;
   }
 }

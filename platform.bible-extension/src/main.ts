@@ -1,7 +1,7 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
 import { ChildProcessByStdio } from 'child_process';
-import type { BrowseWebViewOptions } from 'dictionary';
+import type { BrowseWebViewOptions } from 'lexicon';
 import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
@@ -12,7 +12,7 @@ import * as webViewProviders from './web-views';
 let fwLiteProcess: ChildProcessByStdio<Stream.Writable, Stream.Readable, Stream.Readable>;
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
-  logger.info('Dictionary extension activating!');
+  logger.info('Lexicon extension activating!');
 
   /* Register WebViews */
 
@@ -49,20 +49,20 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   /* Set network services */
 
   const entryService = papi.networkObjects.set(
-    'dictionary.entryService',
+    'lexicon.entryService',
     new EntryService(baseUrl),
-    'dictionary.IEntryService',
+    'lexicon.IEntryService',
   );
 
   /* Register settings validators */
 
   const validateAnalysisLanguage = papi.projectSettings.registerValidator(
-    'dictionary.analysisLanguage',
+    'lexicon.analysisLanguage',
     async (newValue) => !newValue || Intl.getCanonicalLocales(newValue)[0] === newValue,
   );
 
   const validateDictionaryCode = papi.projectSettings.registerValidator(
-    'dictionary.dictionaryCode',
+    'lexicon.dictionaryCode',
     async (newValue) => {
       if (!newValue) {
         logger.info('Dictionary code cleared in project settings');
@@ -84,7 +84,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   /* Register commands */
 
   const addEntryCommandPromise = papi.commands.registerCommand(
-    'dictionary.addEntry',
+    'lexicon.addEntry',
     async (webViewId: string, word: string) => {
       let success = false;
 
@@ -101,7 +101,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   const browseDictionaryCommandPromise = papi.commands.registerCommand(
-    'dictionary.browseDictionary',
+    'lexicon.browseDictionary',
     async (webViewId: string) => {
       let success = false;
 
@@ -119,7 +119,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   const displayEntryCommandPromise = papi.commands.registerCommand(
-    'dictionary.displayEntry',
+    'lexicon.displayEntry',
     async (projectId: string, entryId: string) => {
       let success = false;
 
@@ -138,7 +138,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   const findEntryCommandPromise = papi.commands.registerCommand(
-    'dictionary.findEntry',
+    'lexicon.findEntry',
     async (webViewId: string, word: string) => {
       let success = false;
 
@@ -155,7 +155,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   const findRelatedEntriesCommandPromise = papi.commands.registerCommand(
-    'dictionary.findRelatedEntries',
+    'lexicon.findRelatedEntries',
     async (webViewId: string, word: string) => {
       let success = false;
 
@@ -172,7 +172,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   const selectDictionaryCommandPromise = papi.commands.registerCommand(
-    'dictionary.selectDictionary',
+    'lexicon.selectDictionary',
     async (projectId: string, dictionaryCode: string) => {
       logger.info(`Selecting dictionary '${dictionaryCode}' for project '${projectId}'`);
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
@@ -198,7 +198,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   const dictionariesCommandPromise = papi.commands.registerCommand(
-    'dictionary.dictionaries',
+    'lexicon.dictionaries',
     async (projectId?: string) => {
       logger.info('Fetching local dictionaries');
       if (!projectId) return await fwLiteApi.getProjects();
@@ -233,11 +233,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await entryService,
   );
 
-  logger.info('Dictionary extension finished activating!');
+  logger.info('Lexicon extension finished activating!');
 }
 
 export async function deactivate(): Promise<boolean> {
-  logger.info('Dictionary extension deactivating!');
+  logger.info('Lexicon extension deactivating!');
   return await shutDownFwLite();
 }
 

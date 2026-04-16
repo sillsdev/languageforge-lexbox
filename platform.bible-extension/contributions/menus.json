@@ -18,35 +18,35 @@
       "topMenu": {
         "columns": {},
         "groups": {
-          "dictionary.editor": {
+          "lexicon.editor": {
             "column": "platformScriptureEditor.edit",
             "order": 11
           }
         },
         "items": [
           {
-            "label": "%dictionary_menu_browseDictionary%",
-            "group": "dictionary.editor",
+            "label": "%lexicon_menu_browseDictionary%",
+            "group": "lexicon.editor",
             "order": 1,
-            "command": "dictionary.browseDictionary"
+            "command": "lexicon.browseDictionary"
           },
           {
-            "label": "%dictionary_menu_addEntry%",
-            "group": "dictionary.editor",
+            "label": "%lexicon_menu_addEntry%",
+            "group": "lexicon.editor",
             "order": 2,
-            "command": "dictionary.addEntry"
+            "command": "lexicon.addEntry"
           },
           {
-            "label": "%dictionary_menu_findEntry%",
-            "group": "dictionary.editor",
+            "label": "%lexicon_menu_findEntry%",
+            "group": "lexicon.editor",
             "order": 3,
-            "command": "dictionary.findEntry"
+            "command": "lexicon.findEntry"
           },
           {
-            "label": "%dictionary_menu_findRelatedEntries%",
-            "group": "dictionary.editor",
+            "label": "%lexicon_menu_findRelatedEntries%",
+            "group": "lexicon.editor",
             "order": 4,
-            "command": "dictionary.findRelatedEntries"
+            "command": "lexicon.findRelatedEntries"
           }
         ]
       }

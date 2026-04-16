@@ -29,12 +29,12 @@ export default function DictionaryListWrapper({
 
       {isLoading && (
         <div className="tw-flex-1 tw-p-2 tw-space-y-4">
-          <Label>{localizedStrings['%dictionary_dictionary_loading%']}</Label>
+          <Label>{localizedStrings['%lexicon_lexicon_loading%']}</Label>
         </div>
       )}
       {!hasItems && !isLoading && (
         <div className="tw-m-4 tw-flex tw-justify-center">
-          <Label>{localizedStrings['%dictionary_dictionary_noResults%']}</Label>
+          <Label>{localizedStrings['%lexicon_lexicon_noResults%']}</Label>
         </div>
       )}
       {hasItems && elementList}

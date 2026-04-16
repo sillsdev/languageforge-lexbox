@@ -1,6 +1,6 @@
-# dictionary
+# lexicon
 
-The Platform.Bible extension for managing the dictionary for your project's target/vernacular language.
+The Platform.Bible extension for managing the lexicon for your project's target/vernacular language.
 
 <!--
 
@@ -94,7 +94,7 @@ The general file structure is as follows:
   - `src/components/` contains stand-alone (i.e., WebView- and service-independent) components
   - `src/main.ts` is the main entry file for the extension
   - `src/services/` contains services to be used with `networkObjects.set()` in `src/main.ts`
-  - `src/types/dictionary.d.ts` is this extension's types file that defines how other extensions can use this extension through the `papi`. It is copied into the build folder
+  - `src/types/lexicon.d.ts` is this extension's types file that defines how other extensions can use this extension through the `papi`. It is copied into the build folder
   - `src/utils/` contains utility classes and functions
   - `src/web-views/` contains WebView components to be used with `registerWebViewProvider()` in `src/main.ts`
     - `*.web-view.tsx` files will be treated as React WebViews

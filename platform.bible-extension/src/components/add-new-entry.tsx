@@ -1,6 +1,6 @@
 import { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { DictionaryLanguages, PartialEntry } from 'dictionary';
+import type { DictionaryLanguages, PartialEntry } from 'lexicon';
 import { Button, Input, Label } from 'platform-bible-react';
 import { type ReactElement, useCallback, useEffect, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
@@ -55,14 +55,12 @@ export default function AddNewEntry({
 
   return (
     <div className="tw-flex tw-flex-col tw-items-start">
-      <h3 className="tw-font-semibold tw-mb-2">
-        {localizedStrings['%dictionary_addWord_title%']}
-      </h3>
+      <h3 className="tw-font-semibold tw-mb-2">{localizedStrings['%lexicon_addWord_title%']}</h3>
 
       <div className="tw-flex tw-flex-col tw-gap-1">
         <div>
           <Label htmlFor="newEntryHeadword">
-            {localizedStrings['%dictionary_entryDisplay_headword%']} ({vernacularLanguage}):
+            {localizedStrings['%lexicon_entryDisplay_headword%']} ({vernacularLanguage}):
           </Label>
           <Input
             id="newEntryHeadword"
@@ -73,14 +71,14 @@ export default function AddNewEntry({
 
         <div>
           <Label htmlFor="newEntryGloss">
-            {localizedStrings['%dictionary_entryDisplay_gloss%']} ({analysisLanguage}):
+            {localizedStrings['%lexicon_entryDisplay_gloss%']} ({analysisLanguage}):
           </Label>
           <Input id="newEntryGloss" onChange={(e) => setGloss(e.target.value)} value={gloss} />
         </div>
 
         <div>
           <Label htmlFor="newEntryDefinition">
-            {localizedStrings['%dictionary_entryDisplay_definition%']} ({analysisLanguage}):
+            {localizedStrings['%lexicon_entryDisplay_definition%']} ({analysisLanguage}):
           </Label>
           <Input
             id="newEntryDefinition"
@@ -91,11 +89,9 @@ export default function AddNewEntry({
 
         <div className="tw-flex tw-gap-1 tw-mt-2">
           <Button disabled={!ready} onClick={() => onSubmit()}>
-            {localizedStrings['%dictionary_addWord_buttonSubmit%']}
+            {localizedStrings['%lexicon_addWord_buttonSubmit%']}
           </Button>
-          <Button onClick={clearEntry}>
-            {localizedStrings['%dictionary_button_cancel%']}
-          </Button>
+          <Button onClick={clearEntry}>{localizedStrings['%lexicon_button_cancel%']}</Button>
         </div>
       </div>
     </div>

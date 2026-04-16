@@ -1,6 +1,6 @@
 // Modified from paranext-core/extensions/src/platform-lexical-tools/src/components/dictionary/domains-display.component.tsx
 
-import type { ISemanticDomain } from 'dictionary';
+import type { ISemanticDomain } from 'lexicon';
 import { Network } from 'lucide-react';
 import { useMemo } from 'react';
 import { domainText } from '../utils/entry-display-text';

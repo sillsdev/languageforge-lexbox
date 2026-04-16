@@ -1,5 +1,5 @@
 import { logger } from '@papi/backend';
-import type { IEntry, IEntryQuery, IEntryService, PartialEntry } from 'dictionary';
+import type { IEntry, IEntryQuery, IEntryService, PartialEntry } from 'lexicon';
 import { FwLiteApi } from '../utils/fw-lite-api';
 import { ProjectManager } from '../utils/project-manager';
 

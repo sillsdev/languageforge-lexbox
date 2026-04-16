@@ -7,7 +7,7 @@ import type {
   IEntryService,
   ISemanticDomain,
   PartialEntry,
-} from 'dictionary';
+} from 'lexicon';
 import { Network } from 'lucide-react';
 import { Label, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
@@ -18,7 +18,7 @@ import DictionaryListWrapper from '../components/dictionary-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 import { domainText } from '../utils/entry-display-text';
 
-globalThis.webViewComponent = function DictionaryFindRelatedWords({
+globalThis.webViewComponent = function LexiconFindRelatedWords({
   analysisLanguage,
   projectId,
   vernacularLanguage,
@@ -26,7 +26,7 @@ globalThis.webViewComponent = function DictionaryFindRelatedWords({
 }: DictionaryWebViewProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
-  const [dictionaryNetworkObject, setDictionaryNetworkObject] = useState<
+  const [lexiconNetworkObject, setLexiconNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
   const [isFetching, setIsFetching] = useState(false);
@@ -37,15 +37,13 @@ globalThis.webViewComponent = function DictionaryFindRelatedWords({
 
   useEffect(() => {
     papi.networkObjects
-      .get<IEntryService>('dictionary.entryService')
+      .get<IEntryService>('lexicon.entryService')
       // eslint-disable-next-line promise/always-return
       .then((networkObject) => {
         logger.info('Got network object:', networkObject);
-        setDictionaryNetworkObject(networkObject);
+        setLexiconNetworkObject(networkObject);
       })
-      .catch((e) =>
-        logger.error(`${localizedStrings['%dictionary_error_gettingNetworkObject%']}`, e),
-      );
+      .catch((e) => logger.error(`${localizedStrings['%lexicon_error_gettingNetworkObject%']}`, e));
   }, [localizedStrings]);
 
   useEffect(() => {
@@ -57,10 +55,10 @@ globalThis.webViewComponent = function DictionaryFindRelatedWords({
 
   const fetchEntries = useCallback(
     async (untrimmedSurfaceForm: string) => {
-      if (!projectId || !dictionaryNetworkObject) {
-        const errMissingParam = localizedStrings['%dictionary_error_missingParam%'];
+      if (!projectId || !lexiconNetworkObject) {
+        const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!dictionaryNetworkObject) logger.warn(`${errMissingParam}dictionaryNetworkObject`);
+        if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
         return;
       }
 
@@ -72,7 +70,7 @@ globalThis.webViewComponent = function DictionaryFindRelatedWords({
 
       logger.info(`Fetching entries for ${surfaceForm}`);
       setIsFetching(true);
-      let entries = (await dictionaryNetworkObject.getEntries(projectId, { surfaceForm })) ?? [];
+      let entries = (await lexiconNetworkObject.getEntries(projectId, { surfaceForm })) ?? [];
       // Only consider entries and senses with at least one semantic domain.
       entries = entries
         .map((e) => ({ ...e, senses: e.senses.filter((s) => s.semanticDomains.length) }))
@@ -80,25 +78,25 @@ globalThis.webViewComponent = function DictionaryFindRelatedWords({
       setIsFetching(false);
       setMatchingEntries(entries);
     },
-    [dictionaryNetworkObject, localizedStrings, projectId],
+    [lexiconNetworkObject, localizedStrings, projectId],
   );
 
   const fetchRelatedEntries = useCallback(
     async (semanticDomain: string) => {
-      if (!projectId || !dictionaryNetworkObject) {
-        const errMissingParam = localizedStrings['%dictionary_error_missingParam%'];
+      if (!projectId || !lexiconNetworkObject) {
+        const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!dictionaryNetworkObject) logger.warn(`${errMissingParam}dictionaryNetworkObject`);
+        if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
         return;
       }
 
       logger.info(`Fetching entries in semantic domain ${semanticDomain}`);
       setIsFetching(true);
-      const entries = await dictionaryNetworkObject.getEntries(projectId, { semanticDomain });
+      const entries = await lexiconNetworkObject.getEntries(projectId, { semanticDomain });
       setIsFetching(false);
       setRelatedEntries(entries ?? []);
     },
-    [dictionaryNetworkObject, localizedStrings, projectId],
+    [lexiconNetworkObject, localizedStrings, projectId],
   );
 
   useEffect(() => {
@@ -117,9 +115,9 @@ globalThis.webViewComponent = function DictionaryFindRelatedWords({
 
   const addEntryInDomain = useCallback(
     async (entry: PartialEntry) => {
-      if (!dictionaryNetworkObject || !projectId || !selectedDomain || !entry.senses?.length) {
-        const errMissingParam = localizedStrings['%dictionary_error_missingParam%'];
-        if (!dictionaryNetworkObject) logger.warn(`${errMissingParam}dictionaryNetworkObject`);
+      if (!lexiconNetworkObject || !projectId || !selectedDomain || !entry.senses?.length) {
+        const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
+        if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
         if (!selectedDomain) logger.warn(`${errMissingParam}selectedDomain`);
         if (!entry.senses?.length) logger.warn('Cannot add entry without senses');
@@ -129,15 +127,15 @@ globalThis.webViewComponent = function DictionaryFindRelatedWords({
       if (!entry.senses[0].semanticDomains) entry.senses[0].semanticDomains = [];
       entry.senses[0].semanticDomains.push(selectedDomain);
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      const addedEntry = await dictionaryNetworkObject.addEntry(projectId, entry);
+      const addedEntry = await lexiconNetworkObject.addEntry(projectId, entry);
       if (addedEntry) {
         onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
-        await papi.commands.sendCommand('dictionary.displayEntry', projectId, addedEntry.id);
+        await papi.commands.sendCommand('lexicon.displayEntry', projectId, addedEntry.id);
       } else {
-        logger.error(`${localizedStrings['%dictionary_error_failedToAddEntry%']}`);
+        logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
       }
     },
-    [dictionaryNetworkObject, localizedStrings, onSearch, projectId, selectedDomain],
+    [lexiconNetworkObject, localizedStrings, onSearch, projectId, selectedDomain],
   );
 
   return (
@@ -148,7 +146,7 @@ globalThis.webViewComponent = function DictionaryFindRelatedWords({
             <div className="tw-max-w-128">
               <SearchBar
                 onSearch={onSearch}
-                placeholder={localizedStrings['%dictionary_findRelatedWord_textField%']}
+                placeholder={localizedStrings['%lexicon_findRelatedWord_textField%']}
                 value={searchTerm}
               />
             </div>
@@ -167,7 +165,7 @@ globalThis.webViewComponent = function DictionaryFindRelatedWords({
 
           {matchingEntries && !selectedDomain && (
             <h3 className="tw-font-semibold tw-m-2">
-              {localizedStrings['%dictionary_findRelatedWord_selectInstruction%']}
+              {localizedStrings['%lexicon_findRelatedWord_selectInstruction%']}
             </h3>
           )}
 
@@ -190,7 +188,7 @@ globalThis.webViewComponent = function DictionaryFindRelatedWords({
           />
         ) : !relatedEntries?.length ? (
           <div className="tw-flex tw-justify-center tw-m-4 ">
-            <Label>{localizedStrings['%dictionary_findRelatedWord_noResultsInDomain%']}</Label>
+            <Label>{localizedStrings['%lexicon_findRelatedWord_noResultsInDomain%']}</Label>
           </div>
         ) : (
           <DictionaryList

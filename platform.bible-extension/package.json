@@ -1,9 +1,9 @@
 {
-  "name": "dictionary",
+  "name": "lexicon",
   "private": true,
   "version": "0.0.1",
   "main": "src/main.js",
-  "types": "src/types/dictionary.d.ts",
+  "types": "src/types/lexicon.d.ts",
   "author": "SIL Global",
   "license": "MIT",
   "scripts": {

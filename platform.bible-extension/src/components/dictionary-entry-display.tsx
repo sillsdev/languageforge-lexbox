@@ -1,7 +1,7 @@
 // Modified from paranext-core/extensions/src/components/dictionary/dictionary-entry-display.component.tsx
 
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'dictionary';
+import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'lexicon';
 import { ChevronUpIcon } from 'lucide-react';
 import { Button, DrawerDescription, DrawerTitle, Separator } from 'platform-bible-react';
 import BackToListButton from './back-to-list-button';
@@ -83,7 +83,7 @@ export default function DictionaryEntryDisplay({
 
       <div className="tw-mb-4">
         <h3 className="tw-mb-1 tw-font-semibold">
-          {localizedStrings['%dictionary_entryDisplay_senses%']}
+          {localizedStrings['%lexicon_entryDisplay_senses%']}
         </h3>
 
         <div className="tw-flex tw-flex-col tw-gap-3">
@@ -105,7 +105,7 @@ export default function DictionaryEntryDisplay({
 
               {sense.partOfSpeech?.id && (
                 <div className="tw-mt-1 tw-max-w-lg tw-text-start tw-text-sm tw-text-muted-foreground">
-                  <span>{`${localizedStrings['%dictionary_entryDisplay_partOfSpeech%']}: ${partOfSpeechText(sense.partOfSpeech, analysisLanguage)}`}</span>
+                  <span>{`${localizedStrings['%lexicon_entryDisplay_partOfSpeech%']}: ${partOfSpeechText(sense.partOfSpeech, analysisLanguage)}`}</span>
                 </div>
               )}
 

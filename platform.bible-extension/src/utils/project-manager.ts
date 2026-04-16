@@ -1,10 +1,6 @@
 import { logger, projectDataProviders, webViews } from '@papi/backend';
 import type { MandatoryProjectDataTypes } from '@papi/core';
-import type {
-  DictionaryWebViewOptions,
-  ProjectWebViewOptions,
-  WebViewIds,
-} from 'dictionary';
+import type { DictionaryWebViewOptions, ProjectWebViewOptions, WebViewIds } from 'lexicon';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
 // eslint-disable-next-line no-restricted-imports
 import type { Layout } from 'shared/models/docking-framework.model';

@@ -1,6 +1,6 @@
 // Modified from paranext-core/extensions/src/components/dictionary/dictionary-list.component.tsx
 
-import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'dictionary';
+import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'lexicon';
 import {
   cn,
   Drawer,

@@ -1,11 +1,5 @@
 import papi, { logger } from '@papi/backend';
-import type {
-  DictionaryRef,
-  IEntry,
-  IProjectModel,
-  IWritingSystems,
-  PartialEntry,
-} from 'dictionary';
+import type { DictionaryRef, IEntry, IProjectModel, IWritingSystems, PartialEntry } from 'lexicon';
 import { GridifyConditionalOperator } from '../types/enums';
 
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */
