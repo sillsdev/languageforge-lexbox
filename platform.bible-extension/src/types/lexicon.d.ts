@@ -93,7 +93,7 @@ declare module 'lexicon' {
 declare module 'papi-shared-types' {
   export interface CommandHandlers {
     'lexicon.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
-    'lexicon.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
+    'lexicon.browseLexicon': (webViewId: string) => Promise<SuccessHolder>;
     'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
     'lexicon.selectDictionary': (
       projectId: string,

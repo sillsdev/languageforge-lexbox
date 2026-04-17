@@ -3,8 +3,8 @@ import { Label } from 'platform-bible-react';
 import { ReactNode } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
-/** Props for the DictionaryListWrapper component */
-type DictionaryListWrapperProps = {
+/** Props for the EntryListWrapper component */
+type EntryListWrapperProps = {
   elementHeader: ReactNode;
   elementList: ReactNode;
   isLoading: boolean;
@@ -12,12 +12,12 @@ type DictionaryListWrapperProps = {
 };
 
 /** A wrapper layout with a sticky header and a loading/no-results/list body. */
-export default function DictionaryListWrapper({
+export default function EntryListWrapper({
   elementHeader,
   elementList,
   hasItems,
   isLoading,
-}: DictionaryListWrapperProps) {
+}: EntryListWrapperProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   // Match className from paranext-core/extensions/src/platform-lexical-tools/src/web-views/dictionary.web-view.tsx
@@ -29,12 +29,12 @@ export default function DictionaryListWrapper({
 
       {isLoading && (
         <div className="tw-flex-1 tw-p-2 tw-space-y-4">
-          <Label>{localizedStrings['%lexicon_dictionary_loading%']}</Label>
+          <Label>{localizedStrings['%lexicon_entryList_loading%']}</Label>
         </div>
       )}
       {!hasItems && !isLoading && (
         <div className="tw-m-4 tw-flex tw-justify-center">
-          <Label>{localizedStrings['%lexicon_dictionary_noResults%']}</Label>
+          <Label>{localizedStrings['%lexicon_entryList_noResults%']}</Label>
         </div>
       )}
       {hasItems && elementList}

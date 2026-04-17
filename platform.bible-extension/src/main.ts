@@ -100,8 +100,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  const browseDictionaryCommandPromise = papi.commands.registerCommand(
-    'lexicon.browseDictionary',
+  const browseLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.browseLexicon',
     async (webViewId: string) => {
       let success = false;
 
@@ -223,7 +223,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await validateDictionaryCode,
     // Commands
     await addEntryCommandPromise,
-    await browseDictionaryCommandPromise,
+    await browseLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,

@@ -11,7 +11,7 @@ import addWordWindow from './add-word.web-view?inline';
 import dictionarySelectWindow from './dictionary-select.web-view?inline';
 import findRelatedWordsWindow from './find-related-words.web-view?inline';
 import findWordWindow from './find-word.web-view?inline';
-import fwMainWindow from './main.web-view?inline';
+import mainWindow from './main.web-view?inline';
 
 const iconUrl = 'papi-extension://lexicon/assets/logo-dark.png';
 
@@ -30,10 +30,10 @@ export const mainWebViewProvider: IWebViewProvider = {
       ...savedWebView,
       ...options,
       allowedFrameSources: ['http://localhost:*'],
-      content: fwMainWindow,
+      content: mainWindow,
       iconUrl,
       styles: mainCssStyles,
-      title: '%lexicon_webViewTitle_browseDictionary%',
+      title: '%lexicon_webViewTitle_browseLexicon%',
     };
   },
 };

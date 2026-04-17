@@ -1,4 +1,4 @@
-// Modified from paranext-core/extensions/src/components/dictionary/dictionary-entry-display.component.tsx
+// Modified from paranext-core/extensions/src/components/dictionary/entry-display.component.tsx
 
 import { useLocalizedStrings } from '@papi/frontend/react';
 import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'lexicon';
@@ -15,10 +15,10 @@ import {
   senseGlossText,
 } from '../utils/entry-display-text';
 
-/** Props for the DictionaryEntryDisplay component */
-export type DictionaryEntryDisplayProps = DictionaryLanguages & {
-  /** Dictionary entry object to display */
-  dictionaryEntry: IEntry;
+/** Props for the EntryDisplay component */
+export type EntryDisplayProps = DictionaryLanguages & {
+  /** Entry object to display */
+  entry: IEntry;
   /** Whether the display is in a drawer or just next to the list */
   isDrawer: boolean;
   /** Callback function to handle back button click, returning to the list view */
@@ -30,19 +30,18 @@ export type DictionaryEntryDisplayProps = DictionaryLanguages & {
 };
 
 /**
- * Renders a detailed view of a dictionary entry, displaying its key properties such as Hebrew text,
- * transliteration, Strong's number, part of speech, definition, and usage occurrences. Includes a
- * back button to navigate back to the list view.
+ * Renders a detailed view of an entry, displaying its key properties. Includes a back button to
+ * navigate back to the list view.
  */
-export default function DictionaryEntryDisplay({
+export default function EntryDisplay({
   analysisLanguage,
-  dictionaryEntry,
+  entry,
   isDrawer,
   handleBackToListButton,
   onClickScrollToTop,
   onClickSemanticDomain,
   vernacularLanguage,
-}: DictionaryEntryDisplayProps) {
+}: EntryDisplayProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   // Cannot use Drawer components when there is no Drawer, if the screen is considered wide it will render Button and span here.
@@ -70,10 +69,10 @@ export default function DictionaryEntryDisplay({
         <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2">
           <span className="tw-flex tw-flex-row tw-items-baseline tw-gap-2">
             <TitleComponent className="tw-text-2xl tw-font-bold">
-              {entryHeadwordText(dictionaryEntry, vernacularLanguage)}
+              {entryHeadwordText(entry, vernacularLanguage)}
             </TitleComponent>
             <DescriptionComponent className="tw-text-lg tw-text-muted-foreground">
-              {entryGlossText(dictionaryEntry, analysisLanguage)}
+              {entryGlossText(entry, analysisLanguage)}
             </DescriptionComponent>
           </span>
         </div>
@@ -87,7 +86,7 @@ export default function DictionaryEntryDisplay({
         </h3>
 
         <div className="tw-flex tw-flex-col tw-gap-3">
-          {dictionaryEntry.senses.filter(Boolean).map((sense, senseIndex) => (
+          {entry.senses.filter(Boolean).map((sense, senseIndex) => (
             <div
               key={sense.id}
               className="tw-flex tw-w-full tw-h-fit tw-flex-col tw-items-start tw-border tw-rounded-lg tw-shadow-sm tw-p-4 tw-transition-colors"

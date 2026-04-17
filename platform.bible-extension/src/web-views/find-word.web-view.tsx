@@ -6,8 +6,8 @@ import { SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import AddNewEntryButton from '../components/add-new-entry-button';
-import DictionaryList from '../components/dictionary-list';
-import DictionaryListWrapper from '../components/dictionary-list-wrapper';
+import EntryList from '../components/entry-list';
+import EntryListWrapper from '../components/entry-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 globalThis.webViewComponent = function LexiconFindWord({
@@ -92,7 +92,7 @@ globalThis.webViewComponent = function LexiconFindWord({
   );
 
   return (
-    <DictionaryListWrapper
+    <EntryListWrapper
       elementHeader={
         <div className="tw-flex tw-gap-2">
           <div className="tw-max-w-72">
@@ -115,9 +115,9 @@ globalThis.webViewComponent = function LexiconFindWord({
       }
       elementList={
         matchingEntries ? (
-          <DictionaryList
+          <EntryList
             analysisLanguage={analysisLanguage ?? ''}
-            dictionaryData={matchingEntries}
+            entries={matchingEntries}
             vernacularLanguage={vernacularLanguage ?? ''}
           />
         ) : undefined

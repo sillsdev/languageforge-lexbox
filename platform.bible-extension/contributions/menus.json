@@ -25,10 +25,10 @@
         },
         "items": [
           {
-            "label": "%lexicon_menu_browseDictionary%",
+            "label": "%lexicon_menu_browseLexicon%",
             "group": "lexicon.editor",
             "order": 1,
-            "command": "lexicon.browseDictionary"
+            "command": "lexicon.browseLexicon"
           },
           {
             "label": "%lexicon_menu_addEntry%",

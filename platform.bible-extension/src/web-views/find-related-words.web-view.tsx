@@ -13,8 +13,8 @@ import { Label, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import AddNewEntryButton from '../components/add-new-entry-button';
-import DictionaryList from '../components/dictionary-list';
-import DictionaryListWrapper from '../components/dictionary-list-wrapper';
+import EntryList from '../components/entry-list';
+import EntryListWrapper from '../components/entry-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 import { domainText } from '../utils/entry-display-text';
 
@@ -139,7 +139,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
   );
 
   return (
-    <DictionaryListWrapper
+    <EntryListWrapper
       elementHeader={
         <div className="tw-flex tw-flex-col tw-gap-2">
           <div className="tw-flex tw-gap-2">
@@ -180,9 +180,9 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       elementList={
         /* eslint-disable no-nested-ternary */
         !matchingEntries ? undefined : !selectedDomain ? (
-          <DictionaryList
+          <EntryList
             analysisLanguage={analysisLanguage ?? ''}
-            dictionaryData={matchingEntries}
+            entries={matchingEntries}
             onClickSemanticDomain={setSelectedDomain}
             vernacularLanguage={vernacularLanguage ?? ''}
           />
@@ -191,9 +191,9 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
             <Label>{localizedStrings['%lexicon_findRelatedWord_noResultsInDomain%']}</Label>
           </div>
         ) : (
-          <DictionaryList
+          <EntryList
             analysisLanguage={analysisLanguage ?? ''}
-            dictionaryData={relatedEntries}
+            entries={relatedEntries}
             vernacularLanguage={vernacularLanguage ?? ''}
           />
         )

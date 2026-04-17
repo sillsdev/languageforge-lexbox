@@ -8,8 +8,8 @@
         "isHidden": true
       },
       "lexicon.dictionaryCode": {
-        "label": "%lexicon_projectSettings_dictionary%",
-        "description": "%lexicon_projectSettings_dictionaryDescription%",
+        "label": "%lexicon_projectSettings_lexicon%",
+        "description": "%lexicon_projectSettings_lexiconDescription%",
         "default": ""
       }
     }
