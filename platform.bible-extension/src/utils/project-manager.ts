@@ -101,12 +101,12 @@ export class ProjectManager {
   }
 
   private async getSetting(setting: ProjectSettingKey): Promise<string | undefined> {
-    logger.info(`Getting '${ProjectSettingKey.ProjectLanguageTag}'`);
+    logger.info(`Getting '${setting}'`);
     return await (await this.getDataProvider())?.getSetting(setting);
   }
 
   private async setSetting(setting: ProjectSettingKey, value: string): Promise<void> {
-    logger.info(`Setting '${ProjectSettingKey.ProjectLanguageTag}' to '${value}'`);
+    logger.info(`Setting '${setting}' to '${value}'`);
     await (await this.getDataProvider())?.setSetting(setting, value);
   }
 }

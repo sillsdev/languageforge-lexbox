@@ -1,8 +1,8 @@
 export enum WebViewType {
-  AddWord = 'dictionary-add-word.react',
-  DictionarySelect = 'dictionary-select.react',
-  FindRelatedWords = 'dictionary-find-related-words.react',
-  FindWord = 'dictionary-find-word.react',
+  AddWord = 'lexicon-add-word.react',
+  DictionarySelect = 'lexicon-dictionary-select.react',
+  FindRelatedWords = 'lexicon-find-related-words.react',
+  FindWord = 'lexicon-find-word.react',
   Main = 'lexicon.react',
 }
 

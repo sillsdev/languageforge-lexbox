@@ -13,7 +13,7 @@ import findRelatedWordsWindow from './find-related-words.web-view?inline';
 import findWordWindow from './find-word.web-view?inline';
 import fwMainWindow from './main.web-view?inline';
 
-const iconUrl = 'papi-extension://dictionary/assets/logo-dark.png';
+const iconUrl = 'papi-extension://lexicon/assets/logo-dark.png';
 
 /* eslint-disable @typescript-eslint/require-await */
 
