@@ -1,7 +1,7 @@
 // Modified from paranext-core/extensions/src/components/dictionary/entry-display.component.tsx
 
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'lexicon';
+import type { IEntry, ISemanticDomain, LexiconLanguages } from 'lexicon';
 import { ChevronUpIcon } from 'lucide-react';
 import { Button, DrawerDescription, DrawerTitle, Separator } from 'platform-bible-react';
 import BackToListButton from './back-to-list-button';
@@ -16,7 +16,7 @@ import {
 } from '../utils/entry-display-text';
 
 /** Props for the EntryDisplay component */
-export type EntryDisplayProps = DictionaryLanguages & {
+export type EntryDisplayProps = LexiconLanguages & {
   /** Entry object to display */
   entry: IEntry;
   /** Whether the display is in a drawer or just next to the list */

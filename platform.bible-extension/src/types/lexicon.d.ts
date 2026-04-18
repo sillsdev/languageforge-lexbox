@@ -70,22 +70,22 @@ declare module 'lexicon' {
   /** Props for WebViews that browse FW Lite. */
   export type BrowseWebViewProps = ProjectWebViewProps & BrowseOptions;
 
-  export interface DictionaryLanguages {
+  export interface LexiconLanguages {
     analysisLanguage: string;
     vernacularLanguage: string;
   }
 
-  /** Additions for options/props of WebViews that interact with a dictionary via the FwLiteApi. */
-  interface DictionaryOptions extends Partial<DictionaryLanguages> {
-    dictionaryCode?: string;
+  /** Additions for options/props of WebViews that interact with a lexicon via the FwLiteApi. */
+  interface LexiconOptions extends Partial<LexiconLanguages> {
+    lexiconCode?: string;
     word?: string;
   }
 
-  /** Options for WebViews that interact with a dictionary via the FwLiteApi. */
-  export interface DictionaryWebViewOptions extends ProjectWebViewOptions, DictionaryOptions {}
+  /** Options for WebViews that interact with a lexicon via the FwLiteApi. */
+  export interface DictionaryWebViewOptions extends ProjectWebViewOptions, LexiconOptions {}
 
-  /** Props for WebViews that interact with a dictionary via the FwLiteApi. */
-  export type DictionaryWebViewProps = ProjectWebViewProps & DictionaryOptions;
+  /** Props for WebViews that interact with a lexicon via the FwLiteApi. */
+  export type DictionaryWebViewProps = ProjectWebViewProps & LexiconOptions;
 
   /* eslint-enable @typescript-eslint/no-shadow */
 }
@@ -95,18 +95,15 @@ declare module 'papi-shared-types' {
     'lexicon.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.browseLexicon': (webViewId: string) => Promise<SuccessHolder>;
     'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
-    'lexicon.selectDictionary': (
-      projectId: string,
-      dictionaryCode: string,
-    ) => Promise<SuccessHolder>;
-    'lexicon.dictionaries': (projectId?: string) => Promise<IProjectModel[] | undefined>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'lexicon.lexicons': (projectId?: string) => Promise<IProjectModel[] | undefined>;
+    'lexicon.selectLexicon': (projectId: string, lexiconCode: string) => Promise<SuccessHolder>;
   }
 
   export interface ProjectSettingTypes {
     'lexicon.analysisLanguage': string;
-    'lexicon.dictionaryCode': string;
+    'lexicon.lexiconCode': string;
   }
 
   export interface NetworkableObject {

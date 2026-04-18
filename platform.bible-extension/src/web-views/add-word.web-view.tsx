@@ -63,7 +63,7 @@ globalThis.webViewComponent = function LexiconAddWord({
         headword={word}
         vernacularLanguage={vernacularLanguage ?? ''}
       />
-      {isSubmitting && <p>Adding entry to dictionary...</p>}
+      {isSubmitting && <p>Adding entry to lexicon...</p>}
       {isSubmitted && <p>Entry added!</p>}
     </div>
   );

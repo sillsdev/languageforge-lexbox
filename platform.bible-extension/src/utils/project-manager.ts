@@ -15,8 +15,8 @@ export class ProjectManager {
     this.projectId = projectId;
   }
 
-  static async getDictionaryCode(projectId: string): Promise<string | undefined> {
-    return await new ProjectManager(projectId).getDictionaryCode();
+  static async getLexiconCode(projectId: string): Promise<string | undefined> {
+    return await new ProjectManager(projectId).getLexiconCode();
   }
 
   async getAnalysisLanguage(): Promise<string | undefined> {
@@ -28,28 +28,28 @@ export class ProjectManager {
     await this.setSetting(ProjectSettingKey.AnalysisLanguage, analysisLanguage);
   }
 
-  async getDictionaryCode(): Promise<string | undefined> {
-    return await this.getSetting(ProjectSettingKey.DictionaryCode);
+  async getLexiconCode(): Promise<string | undefined> {
+    return await this.getSetting(ProjectSettingKey.LexiconCode);
   }
 
-  async getDictionaryCodeOrOpenSelector(): Promise<string | void> {
-    const dictionaryCode = await this.getSetting(ProjectSettingKey.DictionaryCode);
+  async getLexiconCodeOrOpenSelector(): Promise<string | void> {
+    const lexiconCode = await this.getSetting(ProjectSettingKey.LexiconCode);
     const nameOrId = await this.getNameOrId();
-    if (dictionaryCode) {
-      logger.info(`Project '${nameOrId}' is using dictionary '${dictionaryCode}'`);
-      return dictionaryCode;
+    if (lexiconCode) {
+      logger.info(`Project '${nameOrId}' is using lexicon '${lexiconCode}'`);
+      return lexiconCode;
     }
 
     logger.info(`Dictionary not yet selected for project '${nameOrId}'`);
-    await this.openWebView(WebViewType.DictionarySelect, {
+    await this.openWebView(WebViewType.SelectLexicon, {
       floatSize: { height: 500, width: 400 },
       type: 'float',
     });
   }
 
-  async setDictionaryCode(dictionaryCode: string): Promise<void> {
-    if ((await this.getDictionaryCode()) === dictionaryCode) return;
-    await this.setSetting(ProjectSettingKey.DictionaryCode, dictionaryCode);
+  async setLexiconCode(lexiconCode: string): Promise<void> {
+    if ((await this.getLexiconCode()) === lexiconCode) return;
+    await this.setSetting(ProjectSettingKey.LexiconCode, lexiconCode);
   }
 
   async getLanguageTag(): Promise<string | undefined> {
@@ -67,7 +67,7 @@ export class ProjectManager {
   async getDictionaryWebViewOptions(word?: string): Promise<DictionaryWebViewOptions> {
     return {
       analysisLanguage: await this.getAnalysisLanguage(),
-      dictionaryCode: await this.getDictionaryCode(),
+      lexiconCode: await this.getLexiconCode(),
       vernacularLanguage: await this.getLanguageTag(),
       word,
     };

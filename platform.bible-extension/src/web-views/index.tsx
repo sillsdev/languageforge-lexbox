@@ -8,7 +8,7 @@ import mainCssStyles from '../styles.css?inline';
 import tailwindCssStyles from '../tailwind.css?inline';
 import { WebViewType } from '../types/enums';
 import addWordWindow from './add-word.web-view?inline';
-import dictionarySelectWindow from './dictionary-select.web-view?inline';
+import selectLexiconWindow from './select-lexicon.web-view?inline';
 import findRelatedWordsWindow from './find-related-words.web-view?inline';
 import findWordWindow from './find-word.web-view?inline';
 import mainWindow from './main.web-view?inline';
@@ -58,22 +58,22 @@ export const addWordWebViewProvider: IWebViewProvider = {
   },
 };
 
-export const dictionarySelectWebViewProvider: IWebViewProvider = {
+export const selectLexiconWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
     options: ProjectWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
-    if (savedWebView.webViewType !== String(WebViewType.DictionarySelect))
+    if (savedWebView.webViewType !== String(WebViewType.SelectLexicon))
       throw new Error(
-        `${WebViewType.DictionarySelect} provider received request to provide a ${savedWebView.webViewType} WebView`,
+        `${WebViewType.SelectLexicon} provider received request to provide a ${savedWebView.webViewType} WebView`,
       );
     return {
       ...savedWebView,
       ...options,
-      content: dictionarySelectWindow,
+      content: selectLexiconWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%lexicon_webViewTitle_selectDictionary%',
+      title: '%lexicon_webViewTitle_selectLexicon%',
     };
   },
 };

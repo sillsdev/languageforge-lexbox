@@ -1,6 +1,6 @@
 export enum WebViewType {
   AddWord = 'lexicon-add-word.react',
-  DictionarySelect = 'lexicon-dictionary-select.react',
+  SelectLexicon = 'lexicon-select-lexicon.react',
   FindRelatedWords = 'lexicon-find-related-words.react',
   FindWord = 'lexicon-find-word.react',
   Main = 'lexicon.react',
@@ -8,7 +8,7 @@ export enum WebViewType {
 
 export enum ProjectSettingKey {
   AnalysisLanguage = 'lexicon.analysisLanguage',
-  DictionaryCode = 'lexicon.dictionaryCode',
+  LexiconCode = 'lexicon.lexiconCode',
   ProjectLanguage = 'platform.language',
   ProjectLanguageTag = 'platform.languageTag',
   ProjectName = 'platform.name',

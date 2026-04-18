@@ -1,12 +1,12 @@
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { DictionaryLanguages, PartialEntry } from 'lexicon';
+import type { LexiconLanguages, PartialEntry } from 'lexicon';
 import { Button } from 'platform-bible-react';
 import { type ReactElement, useState } from 'react';
 import AddNewEntry from './add-new-entry';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 /** Props for the AddNewEntryButton component */
-interface AddNewEntryButtonProps extends DictionaryLanguages {
+interface AddNewEntryButtonProps extends LexiconLanguages {
   addEntry: (entry: PartialEntry) => Promise<void>;
   headword?: string;
 }

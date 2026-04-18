@@ -1,6 +1,6 @@
 // Modified from paranext-core/extensions/src/components/dictionary/entry-list.component.tsx
 
-import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'lexicon';
+import type { IEntry, ISemanticDomain, LexiconLanguages } from 'lexicon';
 import {
   cn,
   Drawer,
@@ -15,7 +15,7 @@ import EntryListItem from './entry-list-item';
 import useIsWideScreen from '../utils/use-is-wide-screen';
 
 /** Props for the EntryList component */
-type EntryListProps = DictionaryLanguages & {
+type EntryListProps = LexiconLanguages & {
   /** Array of entries */
   entries: IEntry[];
   /** Callback function to handle character press */

@@ -1,12 +1,12 @@
 // Modified from paranext-core/extensions/src/components/dictionary/entry-list-item.component.tsx
 
-import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'lexicon';
+import type { IEntry, ISemanticDomain, LexiconLanguages } from 'lexicon';
 import { cn, Separator } from 'platform-bible-react';
 import DomainsDisplay from './domains-display';
 import { entryGlossText, entryHeadwordText } from '../utils/entry-display-text';
 
 /** Props for the EntryListItem component */
-type EntryListItemProps = DictionaryLanguages & {
+type EntryListItemProps = LexiconLanguages & {
   /** The entry to display */
   entry: IEntry;
   /** Whether the entry is selected */

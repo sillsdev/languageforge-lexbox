@@ -1,12 +1,12 @@
 import { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { DictionaryLanguages, PartialEntry } from 'lexicon';
+import type { LexiconLanguages, PartialEntry } from 'lexicon';
 import { Button, Input, Label } from 'platform-bible-react';
 import { type ReactElement, useCallback, useEffect, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 /** Props for the AddNewEntry component */
-interface AddNewEntryProps extends DictionaryLanguages {
+interface AddNewEntryProps extends LexiconLanguages {
   addEntry: (entry: PartialEntry) => Promise<void>;
   headword?: string;
   onCancel?: () => void;

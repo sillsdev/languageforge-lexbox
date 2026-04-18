@@ -26,11 +26,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     webViewProviders.addWordWebViewProvider,
   );
 
-  const dictionarySelectWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
-    WebViewType.DictionarySelect,
-    webViewProviders.dictionarySelectWebViewProvider,
-  );
-
   const findRelatedWordsWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     WebViewType.FindRelatedWords,
     webViewProviders.findRelatedWordsWebViewProvider,
@@ -39,6 +34,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const findWordWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     WebViewType.FindWord,
     webViewProviders.findWordWebViewProvider,
+  );
+
+  const selectLexiconWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
+    WebViewType.SelectLexicon,
+    webViewProviders.selectLexiconWebViewProvider,
   );
 
   /* Launch FieldWorks Lite and manage the api */
@@ -61,14 +61,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (newValue) => !newValue || Intl.getCanonicalLocales(newValue)[0] === newValue,
   );
 
-  const validateDictionaryCode = papi.projectSettings.registerValidator(
-    'lexicon.dictionaryCode',
+  const validateLexiconCode = papi.projectSettings.registerValidator(
+    'lexicon.lexiconCode',
     async (newValue) => {
       if (!newValue) {
-        logger.info('Dictionary code cleared in project settings');
+        logger.info('Lexicon code cleared in project settings');
         return true;
       }
-      logger.info('Validating dictionary code:', newValue);
+      logger.info('Validating lexicon code:', newValue);
       try {
         return !!(await fwLiteApi.getWritingSystems(newValue)).analysis;
       } catch {
@@ -91,8 +91,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const dictionaryCode = await projectManager.getDictionaryCodeOrOpenSelector();
-      if (!dictionaryCode) return { success };
+      const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
+      if (!lexiconCode) return { success };
 
       const options = await projectManager.getDictionaryWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.AddWord, undefined, options);
@@ -108,10 +108,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const dictionaryCode = await projectManager.getDictionaryCodeOrOpenSelector();
-      if (!dictionaryCode) return { success };
+      const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
+      if (!lexiconCode) return { success };
 
-      const url = getBrowseUrl(baseUrl, dictionaryCode);
+      const url = getBrowseUrl(baseUrl, lexiconCode);
       const options: BrowseWebViewOptions = { url };
       success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       return { success };
@@ -126,11 +126,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success };
 
-      const dictionaryCode = await projectManager.getDictionaryCode();
-      if (!dictionaryCode) return { success };
+      const lexiconCode = await projectManager.getLexiconCode();
+      if (!lexiconCode) return { success };
 
-      logger.info(`Displaying entry '${entryId}' in dictionary '${dictionaryCode}'`);
-      const url = getBrowseUrl(baseUrl, dictionaryCode, entryId);
+      logger.info(`Displaying entry '${entryId}' in lexicon '${lexiconCode}'`);
+      const url = getBrowseUrl(baseUrl, lexiconCode, entryId);
       const options: BrowseWebViewOptions = { url };
       success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       return { success };
@@ -145,8 +145,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const dictionaryCode = await projectManager.getDictionaryCodeOrOpenSelector();
-      if (!dictionaryCode) return { success };
+      const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
+      if (!lexiconCode) return { success };
 
       const options = await projectManager.getDictionaryWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindWord, undefined, options);
@@ -162,8 +162,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const dictionaryCode = await projectManager.getDictionaryCodeOrOpenSelector();
-      if (!dictionaryCode) return { success };
+      const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
+      if (!lexiconCode) return { success };
 
       const options = await projectManager.getDictionaryWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindRelatedWords, undefined, options);
@@ -171,23 +171,23 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  const selectDictionaryCommandPromise = papi.commands.registerCommand(
-    'lexicon.selectDictionary',
-    async (projectId: string, dictionaryCode: string) => {
-      logger.info(`Selecting dictionary '${dictionaryCode}' for project '${projectId}'`);
+  const selectLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.selectLexicon',
+    async (projectId: string, lexiconCode: string) => {
+      logger.info(`Selecting lexicon '${lexiconCode}' for project '${projectId}'`);
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
 
-      await projectManager.setDictionaryCode(dictionaryCode);
-      if (dictionaryCode) {
+      await projectManager.setLexiconCode(lexiconCode);
+      if (lexiconCode) {
         const langs = await fwLiteApi
-          .getWritingSystems(dictionaryCode)
+          .getWritingSystems(lexiconCode)
           .catch((e) => logger.error('Error fetching writing systems:', JSON.stringify(e)));
         const analysisLang = langs?.analysis[0]?.wsId ?? '';
         if (analysisLang) {
-          logger.info(`Storing dictionary analysis language '${analysisLang}'`);
+          logger.info(`Storing lexicon analysis language '${analysisLang}'`);
         } else {
-          logger.info('Failed to get analysis language of the dictionary');
+          logger.info('Failed to get analysis language of the lexicon');
         }
         await projectManager
           .setAnalysisLanguage(analysisLang)
@@ -197,10 +197,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  const dictionariesCommandPromise = papi.commands.registerCommand(
-    'lexicon.dictionaries',
+  const lexiconsCommandPromise = papi.commands.registerCommand(
+    'lexicon.lexicons',
     async (projectId?: string) => {
-      logger.info('Fetching local dictionaries');
+      logger.info('Fetching local lexicons');
       if (!projectId) return await fwLiteApi.getProjects();
 
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
@@ -215,20 +215,20 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     // WebViews
     await mainWebViewProviderPromise,
     await addWordWebViewProviderPromise,
-    await dictionarySelectWebViewProviderPromise,
     await findRelatedWordsWebViewProviderPromise,
     await findWordWebViewProviderPromise,
+    await selectLexiconWebViewProviderPromise,
     // Validators
     await validateAnalysisLanguage,
-    await validateDictionaryCode,
+    await validateLexiconCode,
     // Commands
     await addEntryCommandPromise,
     await browseLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,
-    await selectDictionaryCommandPromise,
-    await dictionariesCommandPromise,
+    await lexiconsCommandPromise,
+    await selectLexiconCommandPromise,
     // Services
     await entryService,
   );

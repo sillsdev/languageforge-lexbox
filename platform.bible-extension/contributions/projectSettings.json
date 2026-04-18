@@ -7,7 +7,7 @@
         "default": "",
         "isHidden": true
       },
-      "lexicon.dictionaryCode": {
+      "lexicon.lexiconCode": {
         "label": "%lexicon_projectSettings_lexicon%",
         "description": "%lexicon_projectSettings_lexiconDescription%",
         "default": ""
