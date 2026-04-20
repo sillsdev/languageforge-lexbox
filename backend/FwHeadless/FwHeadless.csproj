@@ -10,6 +10,7 @@
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" />
     <PackageReference Include="SIL.Chorus.Mercurial" />
+    <PackageReference Include="SIL.Chorus.ChorusMerge" GeneratePathProperty="true" />
     <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -24,7 +25,20 @@
   <ItemGroup>
     <!-- json files get imported by default because this is a web project, so exclude those here so they aren't imported again below -->
     <Content Remove="Mercurial\contrib\asv.conf.json" />
+    <!-- Mercurial 6.5.2 and up has a new vs2022-settings.json file in its contrib folder that also needs excluding -->
+    <Content Remove="Mercurial\contrib\vs2022-settings.json" />
     <Content Include="Mercurial\**" CopyToOutputDirectory="Always" Watch="false" />
     <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" Watch="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="chorusmerge">
+      <Link>chorusmerge</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <!-- Do not update this net8.0 path when we change frameworks; instead, this should be updated if/when Chorus acquires a net10.0 build -->
+    <None Include="$(PkgSIL_Chorus_ChorusMerge)\lib\net8.0\ChorusMerge.runtimeconfig.json">
+      <Link>ChorusMerge.runtimeconfig.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

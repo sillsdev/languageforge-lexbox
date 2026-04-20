@@ -24,8 +24,8 @@ RUN apt-get update \
 	&& rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=publish /app/publish .
-# Ensure Mercurial exec bit was not stripped by dotnet CLI tools
-RUN chmod +x Mercurial/hg && chmod +x Mercurial/chg 2>/dev/null || true
+# Ensure Chorus and Mercurial exec bits were not stripped by dotnet CLI tools
+RUN chmod +x chorusmerge && chmod +x Mercurial/hg && chmod +x Mercurial/chg 2>/dev/null || true
 # Fix up mercurial.ini path to fixutf8
 RUN sed -i -e 's/fixutf8 = \/FwHeadless/fixutf8 = \/app/' Mercurial/mercurial.ini
 USER www-data:www-data
