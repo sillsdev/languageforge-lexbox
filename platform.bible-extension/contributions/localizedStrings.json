@@ -33,7 +33,7 @@
       "%lexicon_selectLexicon_confirm%": "Confirm selection",
       "%lexicon_selectLexicon_loading%": "Loading lexicons ...",
       "%lexicon_selectLexicon_noneFound%": "No lexicons found",
-      "%lexicon_selectLexicon_saved%": "Dictionary selection saved. You can close this window.",
+      "%lexicon_selectLexicon_saved%": "Lexicon selection saved. You can close this window.",
       "%lexicon_selectLexicon_saveError%": "Error saving lexicon selection:",
       "%lexicon_selectLexicon_saving%": "Saving lexicon selection",
       "%lexicon_selectLexicon_select%": "Select a lexicon",

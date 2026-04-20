@@ -2,7 +2,7 @@ import type { WebViewProps } from '@papi/core';
 import { commands, logger } from '@papi/frontend';
 import type { IProjectModel } from 'lexicon';
 import { useCallback, useEffect, useState } from 'react';
-import DictionaryComboBox from '../components/lexicon-combo-box';
+import LexiconComboBox from '../components/lexicon-combo-box';
 
 globalThis.webViewComponent = function LexiconSelect({ projectId }: WebViewProps) {
   const [lexicons, setLexicons] = useState<IProjectModel[] | undefined>();
@@ -22,5 +22,5 @@ globalThis.webViewComponent = function LexiconSelect({ projectId }: WebViewProps
       .catch((e) => logger.error('Error fetching lexicons:', JSON.stringify(e)));
   }, [projectId]);
 
-  return <DictionaryComboBox lexicons={lexicons} selectLexicon={selectLexicon} />;
+  return <LexiconComboBox lexicons={lexicons} selectLexicon={selectLexicon} />;
 };

@@ -1,7 +1,7 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { DictionaryWebViewProps, IEntry, IEntryService, PartialEntry } from 'lexicon';
+import type { IEntry, IEntryService, LexiconWebViewProps, PartialEntry } from 'lexicon';
 import { SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -15,7 +15,7 @@ globalThis.webViewComponent = function LexiconFindWord({
   projectId,
   vernacularLanguage,
   word,
-}: DictionaryWebViewProps) {
+}: LexiconWebViewProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   const [matchingEntries, setMatchingEntries] = useState<IEntry[] | undefined>();

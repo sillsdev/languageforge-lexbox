@@ -21,7 +21,7 @@ declare module 'lexicon' {
     senses?: Partial<ISense>[];
   };
 
-  export interface DictionaryRef {
+  export interface LexiconRef {
     code: string;
     type: 'FwData' | 'Harmony';
   }
@@ -82,10 +82,10 @@ declare module 'lexicon' {
   }
 
   /** Options for WebViews that interact with a lexicon via the FwLiteApi. */
-  export interface DictionaryWebViewOptions extends ProjectWebViewOptions, LexiconOptions {}
+  export interface LexiconWebViewOptions extends ProjectWebViewOptions, LexiconOptions {}
 
   /** Props for WebViews that interact with a lexicon via the FwLiteApi. */
-  export type DictionaryWebViewProps = ProjectWebViewProps & LexiconOptions;
+  export type LexiconWebViewProps = ProjectWebViewProps & LexiconOptions;
 
   /* eslint-enable @typescript-eslint/no-shadow */
 }

@@ -1,7 +1,7 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { DictionaryWebViewProps, IEntryService, PartialEntry } from 'lexicon';
+import type { IEntryService, LexiconWebViewProps, PartialEntry } from 'lexicon';
 import { useCallback, useEffect, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
@@ -11,7 +11,7 @@ globalThis.webViewComponent = function LexiconAddWord({
   projectId,
   vernacularLanguage,
   word,
-}: DictionaryWebViewProps) {
+}: LexiconWebViewProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   const [lexiconNetworkObject, setLexiconNetworkObject] = useState<

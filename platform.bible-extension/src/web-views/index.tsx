@@ -1,9 +1,5 @@
 import type { IWebViewProvider, SavedWebViewDefinition, WebViewDefinition } from '@papi/core';
-import type {
-  BrowseWebViewOptions,
-  DictionaryWebViewOptions,
-  ProjectWebViewOptions,
-} from 'lexicon';
+import type { BrowseWebViewOptions, LexiconWebViewOptions, ProjectWebViewOptions } from 'lexicon';
 import mainCssStyles from '../styles.css?inline';
 import tailwindCssStyles from '../tailwind.css?inline';
 import { WebViewType } from '../types/enums';
@@ -41,7 +37,7 @@ export const mainWebViewProvider: IWebViewProvider = {
 export const addWordWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: DictionaryWebViewOptions,
+    options: LexiconWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.AddWord))
       throw new Error(
@@ -81,7 +77,7 @@ export const selectLexiconWebViewProvider: IWebViewProvider = {
 export const findWordWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: DictionaryWebViewOptions,
+    options: LexiconWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.FindWord))
       throw new Error(
@@ -101,7 +97,7 @@ export const findWordWebViewProvider: IWebViewProvider = {
 export const findRelatedWordsWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: DictionaryWebViewOptions,
+    options: LexiconWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.FindRelatedWords))
       throw new Error(

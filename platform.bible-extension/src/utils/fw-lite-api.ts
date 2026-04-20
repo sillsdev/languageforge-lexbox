@@ -1,5 +1,5 @@
 import papi, { logger } from '@papi/backend';
-import type { DictionaryRef, IEntry, IProjectModel, IWritingSystems, PartialEntry } from 'lexicon';
+import type { IEntry, IProjectModel, IWritingSystems, LexiconRef, PartialEntry } from 'lexicon';
 import { GridifyConditionalOperator } from '../types/enums';
 
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */
@@ -112,7 +112,7 @@ export class FwLiteApi {
 
   /* eslint-enable no-type-assertion/no-type-assertion */
 
-  private checkLexiconCode(lexiconCode?: string): DictionaryRef {
+  private checkLexiconCode(lexiconCode?: string): LexiconRef {
     const code = sanitizeUrlComponent(lexiconCode || this.lexiconCode);
     return { code, type: 'FwData' };
   }

@@ -94,7 +94,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
       if (!lexiconCode) return { success };
 
-      const options = await projectManager.getDictionaryWebViewOptions(word);
+      const options = await projectManager.getLexiconWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.AddWord, undefined, options);
       return { success };
     },
@@ -148,7 +148,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
       if (!lexiconCode) return { success };
 
-      const options = await projectManager.getDictionaryWebViewOptions(word);
+      const options = await projectManager.getLexiconWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindWord, undefined, options);
       return { success };
     },
@@ -165,7 +165,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
       if (!lexiconCode) return { success };
 
-      const options = await projectManager.getDictionaryWebViewOptions(word);
+      const options = await projectManager.getLexiconWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindRelatedWords, undefined, options);
       return { success };
     },

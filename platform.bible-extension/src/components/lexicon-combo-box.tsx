@@ -5,17 +5,17 @@ import { Button, ComboBox } from 'platform-bible-react';
 import { type ReactElement, useCallback, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
-/** Props for the DictionaryComboBox component */
-interface DictionaryComboBoxProps {
+/** Props for the LexiconComboBox component */
+interface LexiconComboBoxProps {
   lexicons?: IProjectModel[];
   selectLexicon: (lexiconCode: string) => Promise<void>;
 }
 
 /** A combo-box for selecting a lexicon for a project. */
-export default function DictionaryComboBox({
+export default function LexiconComboBox({
   lexicons,
   selectLexicon,
-}: DictionaryComboBoxProps): ReactElement {
+}: LexiconComboBoxProps): ReactElement {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   const [selectedLexiconCode, setSelectedLexiconCode] = useState('');

@@ -1,6 +1,6 @@
 import { logger, projectDataProviders, webViews } from '@papi/backend';
 import type { MandatoryProjectDataTypes } from '@papi/core';
-import type { DictionaryWebViewOptions, ProjectWebViewOptions, WebViewIds } from 'lexicon';
+import type { LexiconWebViewOptions, ProjectWebViewOptions, WebViewIds } from 'lexicon';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
 // eslint-disable-next-line no-restricted-imports
 import type { Layout } from 'shared/models/docking-framework.model';
@@ -40,7 +40,7 @@ export class ProjectManager {
       return lexiconCode;
     }
 
-    logger.info(`Dictionary not yet selected for project '${nameOrId}'`);
+    logger.info(`Lexicon not yet selected for project '${nameOrId}'`);
     await this.openWebView(WebViewType.SelectLexicon, {
       floatSize: { height: 500, width: 400 },
       type: 'float',
@@ -64,7 +64,7 @@ export class ProjectManager {
     return (await this.getName()) || this.projectId;
   }
 
-  async getDictionaryWebViewOptions(word?: string): Promise<DictionaryWebViewOptions> {
+  async getLexiconWebViewOptions(word?: string): Promise<LexiconWebViewOptions> {
     return {
       analysisLanguage: await this.getAnalysisLanguage(),
       lexiconCode: await this.getLexiconCode(),

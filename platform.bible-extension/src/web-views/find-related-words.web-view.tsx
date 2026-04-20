@@ -2,10 +2,10 @@ import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
 import type {
-  DictionaryWebViewProps,
   IEntry,
   IEntryService,
   ISemanticDomain,
+  LexiconWebViewProps,
   PartialEntry,
 } from 'lexicon';
 import { Network } from 'lucide-react';
@@ -23,7 +23,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
   projectId,
   vernacularLanguage,
   word,
-}: DictionaryWebViewProps) {
+}: LexiconWebViewProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   const [lexiconNetworkObject, setLexiconNetworkObject] = useState<
