@@ -1,7 +1,7 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
 import { ChildProcessByStdio } from 'child_process';
-import type { BrowseWebViewOptions } from 'fw-lite-extension';
+import type { BrowseWebViewOptions } from 'lexicon';
 import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
@@ -12,7 +12,7 @@ import * as webViewProviders from './web-views';
 let fwLiteProcess: ChildProcessByStdio<Stream.Writable, Stream.Readable, Stream.Readable>;
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
-  logger.info('FieldWorks Lite is activating!');
+  logger.info('Lexicon extension activating!');
 
   /* Register WebViews */
 
@@ -26,11 +26,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     webViewProviders.addWordWebViewProvider,
   );
 
-  const dictionarySelectWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
-    WebViewType.DictionarySelect,
-    webViewProviders.dictionarySelectWebViewProvider,
-  );
-
   const findRelatedWordsWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     WebViewType.FindRelatedWords,
     webViewProviders.findRelatedWordsWebViewProvider,
@@ -41,34 +36,39 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     webViewProviders.findWordWebViewProvider,
   );
 
+  const selectLexiconWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
+    WebViewType.SelectLexicon,
+    webViewProviders.selectLexiconWebViewProvider,
+  );
+
   /* Launch FieldWorks Lite and manage the api */
 
-  const baseUrl = launchFwLiteWeb(context);
+  const baseUrl = launchFwLite(context);
   const fwLiteApi = new FwLiteApi(baseUrl);
 
   /* Set network services */
 
   const entryService = papi.networkObjects.set(
-    'fwliteextension.entryService',
+    'lexicon.entryService',
     new EntryService(baseUrl),
-    'fw-lite-extension.IEntryService',
+    'lexicon.IEntryService',
   );
 
   /* Register settings validators */
 
   const validateAnalysisLanguage = papi.projectSettings.registerValidator(
-    'fw-lite-extension.fwAnalysisLanguage',
+    'lexicon.analysisLanguage',
     async (newValue) => !newValue || Intl.getCanonicalLocales(newValue)[0] === newValue,
   );
 
-  const validateDictionaryCode = papi.projectSettings.registerValidator(
-    'fw-lite-extension.fwDictionaryCode',
+  const validateLexiconCode = papi.projectSettings.registerValidator(
+    'lexicon.lexiconCode',
     async (newValue) => {
       if (!newValue) {
-        logger.info('FieldWorks dictionary code cleared in project settings');
+        logger.info('Lexicon code cleared in project settings');
         return true;
       }
-      logger.info('Validating FieldWorks dictionary code:', newValue);
+      logger.info('Validating lexicon code:', newValue);
       try {
         return !!(await fwLiteApi.getWritingSystems(newValue)).analysis;
       } catch {
@@ -84,34 +84,34 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   /* Register commands */
 
   const addEntryCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.addEntry',
+    'lexicon.addEntry',
     async (webViewId: string, word: string) => {
       let success = false;
 
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
-      if (!dictionaryCode) return { success };
+      const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
+      if (!lexiconCode) return { success };
 
-      const options = await projectManager.getDictionaryWebViewOptions(word);
+      const options = await projectManager.getLexiconWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.AddWord, undefined, options);
       return { success };
     },
   );
 
-  const browseDictionaryCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.browseDictionary',
+  const browseLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.browseLexicon',
     async (webViewId: string) => {
       let success = false;
 
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
-      if (!dictionaryCode) return { success };
+      const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
+      if (!lexiconCode) return { success };
 
-      const url = getBrowseUrl(baseUrl, dictionaryCode);
+      const url = getBrowseUrl(baseUrl, lexiconCode);
       const options: BrowseWebViewOptions = { url };
       success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       return { success };
@@ -119,18 +119,18 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   const displayEntryCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.displayEntry',
+    'lexicon.displayEntry',
     async (projectId: string, entryId: string) => {
       let success = false;
 
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success };
 
-      const dictionaryCode = await projectManager.getFwDictionaryCode();
-      if (!dictionaryCode) return { success };
+      const lexiconCode = await projectManager.getLexiconCode();
+      if (!lexiconCode) return { success };
 
-      logger.info(`Displaying entry '${entryId}' in FieldWorks dictionary '${dictionaryCode}'`);
-      const url = getBrowseUrl(baseUrl, dictionaryCode, entryId);
+      logger.info(`Displaying entry '${entryId}' in lexicon '${lexiconCode}'`);
+      const url = getBrowseUrl(baseUrl, lexiconCode, entryId);
       const options: BrowseWebViewOptions = { url };
       success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       return { success };
@@ -138,69 +138,69 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   const findEntryCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.findEntry',
+    'lexicon.findEntry',
     async (webViewId: string, word: string) => {
       let success = false;
 
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
-      if (!dictionaryCode) return { success };
+      const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
+      if (!lexiconCode) return { success };
 
-      const options = await projectManager.getDictionaryWebViewOptions(word);
+      const options = await projectManager.getLexiconWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindWord, undefined, options);
       return { success };
     },
   );
 
   const findRelatedEntriesCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.findRelatedEntries',
+    'lexicon.findRelatedEntries',
     async (webViewId: string, word: string) => {
       let success = false;
 
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
-      if (!dictionaryCode) return { success };
+      const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
+      if (!lexiconCode) return { success };
 
-      const options = await projectManager.getDictionaryWebViewOptions(word);
+      const options = await projectManager.getLexiconWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindRelatedWords, undefined, options);
       return { success };
     },
   );
 
-  const selectFwDictionaryCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.selectDictionary',
-    async (projectId: string, dictionaryCode: string) => {
-      logger.info(`Selecting FieldWorks dictionary '${dictionaryCode}' for project '${projectId}'`);
+  const selectLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.selectLexicon',
+    async (projectId: string, lexiconCode: string) => {
+      logger.info(`Selecting lexicon '${lexiconCode}' for project '${projectId}'`);
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
 
-      await projectManager.setFwDictionaryCode(dictionaryCode);
-      if (dictionaryCode) {
+      await projectManager.setLexiconCode(lexiconCode);
+      if (lexiconCode) {
         const langs = await fwLiteApi
-          .getWritingSystems(dictionaryCode)
+          .getWritingSystems(lexiconCode)
           .catch((e) => logger.error('Error fetching writing systems:', JSON.stringify(e)));
         const analysisLang = langs?.analysis[0]?.wsId ?? '';
         if (analysisLang) {
-          logger.info(`Storing FieldWorks dictionary analysis language '${analysisLang}'`);
+          logger.info(`Storing lexicon analysis language '${analysisLang}'`);
         } else {
-          logger.info('Failed to get analysis language of the FieldWorks dictionary');
+          logger.info('Failed to get analysis language of the lexicon');
         }
         await projectManager
-          .setFwAnalysisLanguage(analysisLang)
+          .setAnalysisLanguage(analysisLang)
           .catch((e) => logger.error('Error setting analysis language:', JSON.stringify(e)));
       }
       return { success: true };
     },
   );
 
-  const fwDictionariesCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.fwDictionaries',
+  const lexiconsCommandPromise = papi.commands.registerCommand(
+    'lexicon.lexicons',
     async (projectId?: string) => {
-      logger.info('Fetching local FieldWorks dictionaries');
+      logger.info('Fetching local lexicons');
       if (!projectId) return await fwLiteApi.getProjects();
 
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
@@ -215,40 +215,40 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     // WebViews
     await mainWebViewProviderPromise,
     await addWordWebViewProviderPromise,
-    await dictionarySelectWebViewProviderPromise,
     await findRelatedWordsWebViewProviderPromise,
     await findWordWebViewProviderPromise,
+    await selectLexiconWebViewProviderPromise,
     // Validators
     await validateAnalysisLanguage,
-    await validateDictionaryCode,
+    await validateLexiconCode,
     // Commands
     await addEntryCommandPromise,
-    await browseDictionaryCommandPromise,
+    await browseLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,
-    await selectFwDictionaryCommandPromise,
-    await fwDictionariesCommandPromise,
+    await lexiconsCommandPromise,
+    await selectLexiconCommandPromise,
     // Services
     await entryService,
   );
 
-  logger.info('FieldWorks Lite is finished activating!');
+  logger.info('Lexicon extension finished activating!');
 }
 
 export async function deactivate(): Promise<boolean> {
-  logger.info('FieldWorks Lite is deactivating!');
+  logger.info('Lexicon extension deactivating!');
   return await shutDownFwLite();
 }
 
-/** Launches the FieldWorks Lite Web process and returns its URL domain. */
-function launchFwLiteWeb(context: ExecutionActivationContext): string {
+/** Launches the FieldWorks Lite process and returns its URL domain. */
+function launchFwLite(context: ExecutionActivationContext): string {
   const binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
-    throw new Error('FieldWorks Lite requires createProcess elevated privileges');
+    throw new Error('Requires createProcess elevated privileges to launch FW Lite');
   }
   if (context.elevatedPrivileges.createProcess.osData.platform !== 'win32') {
-    throw new Error('FieldWorks Lite only supports launching on Windows for now');
+    throw new Error('Requires Windows to launch FW Lite');
   }
   // TODO: Instead of hardcoding the URL and port we should run it and find them in the output.
   const baseUrl = 'http://localhost:29348';
@@ -267,16 +267,16 @@ function launchFwLiteWeb(context: ExecutionActivationContext): string {
     { stdio: ['pipe', 'pipe', 'pipe'] },
   );
   fwLiteProcess.once('exit', (code, signal) => {
-    logger.info(`[FwLiteWeb]: exited with code '${code}', signal '${signal}'`);
+    logger.info(`[FwLite]: exited with code '${code}', signal '${signal}'`);
   });
   if (fwLiteProcess.stdout) {
     fwLiteProcess.stdout.on('data', (data: Buffer) => {
-      logger.info(`[FwLiteWeb]: ${data.toString().trim()}`);
+      logger.info(`[FwLite]: ${data.toString().trim()}`);
     });
   }
   if (fwLiteProcess.stderr) {
     fwLiteProcess.stderr.on('data', (data: Buffer) => {
-      logger.error(`[FwLiteWeb]: ${data.toString().trim()}`);
+      logger.error(`[FwLite]: ${data.toString().trim()}`);
     });
   }
 
@@ -285,7 +285,7 @@ function launchFwLiteWeb(context: ExecutionActivationContext): string {
 
 function shutDownFwLite(): Promise<boolean> {
   return new Promise((resolve) => {
-    logger.info('[FwLiteWeb]: shutting down process');
+    logger.info('[FwLite]: shutting down process');
 
     let shutdownResolved = false;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -304,7 +304,7 @@ function shutDownFwLite(): Promise<boolean> {
         return false;
       }
 
-      logger.info('[FwLiteWeb]: process already exited');
+      logger.info('[FwLite]: process already exited');
       resolveShutdown(fwLiteProcess.exitCode === 0);
       return true;
     }
@@ -312,37 +312,37 @@ function shutDownFwLite(): Promise<boolean> {
     resolveIfExited();
 
     function killProcess(reason: string) {
-      logger.info('[FwLiteWeb]: killing process', reason);
+      logger.info('[FwLite]: killing process', reason);
       if (resolveIfExited()) return;
 
       const killed = fwLiteProcess.kill('SIGKILL');
       if (!killed) {
-        logger.error('[FwLiteWeb]: failed to kill process', reason);
+        logger.error('[FwLite]: failed to kill process', reason);
         resolveShutdown(false);
       } else {
-        logger.warn('[FwLiteWeb]: force killed process', reason);
+        logger.warn('[FwLite]: force killed process', reason);
         resolveShutdown(true);
       }
     }
 
     fwLiteProcess.once('exit', (code, signal) => {
       if (code === 0) {
-        logger.info('[FwLiteWeb]: shutdown successful');
+        logger.info('[FwLite]: shutdown successful');
         resolveShutdown(true);
       } else {
-        logger.error(`[FwLiteWeb]: shutdown failed with code '${code}', signal '${signal}'`);
+        logger.error(`[FwLite]: shutdown failed with code '${code}', signal '${signal}'`);
         resolveShutdown(false);
       }
     });
 
     fwLiteProcess.once('error', (error) => {
-      logger.error('[FwLiteWeb]: shutdown failed with error', error);
+      logger.error('[FwLite]: shutdown failed with error', error);
       // Only kill if we're not waiting for a graceful shutdown.
       if (!timeoutId) killProcess('on error');
     });
 
     if (!fwLiteProcess.stdin) {
-      logger.error('[FwLiteWeb]: shutdown failed because stdin is unavailable');
+      logger.error('[FwLite]: shutdown failed because stdin is unavailable');
       killProcess('because stdin is unavailable');
       return;
     }
@@ -354,7 +354,7 @@ function shutDownFwLite(): Promise<boolean> {
         killProcess('after shutdown timeout');
       }, 1400); // On shutdown, the extension host only waits 1.5 seconds before force killing us.
     } catch (error) {
-      logger.error('[FwLiteWeb]: failed to send shutdown command', error);
+      logger.error('[FwLite]: failed to send shutdown command', error);
       killProcess('after failed shutdown command');
     }
   });

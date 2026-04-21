@@ -1,9 +1,9 @@
 import type { OpenWebViewOptions, WebViewProps } from '@papi/core';
-import type { IEntryService, IProjectModel, SuccessHolder } from 'fw-lite-extension';
+import type { IEntryService, IProjectModel, SuccessHolder } from 'lexicon';
 
 // TODO: Sort out internal types and those that need to be exposed for other extensions.
 
-declare module 'fw-lite-extension' {
+declare module 'lexicon' {
   /* eslint-disable @typescript-eslint/no-shadow */
 
   export type IEntry = import('@dotnet-types').IEntry;
@@ -21,7 +21,7 @@ declare module 'fw-lite-extension' {
     senses?: Partial<ISense>[];
   };
 
-  export interface DictionaryRef {
+  export interface LexiconRef {
     code: string;
     type: 'FwData' | 'Harmony';
   }
@@ -59,60 +59,54 @@ declare module 'fw-lite-extension' {
   /** Base extension of WebViewProps for all project-specific WebViews. */
   type ProjectWebViewProps = WebViewProps & ProjectOptions;
 
-  /** Additions for options/props of WebViews that browse FieldWorks Lite. */
+  /** Additions for options/props of WebViews that browse FW Lite. */
   interface BrowseOptions {
     url?: string;
   }
 
-  /** Options for WebViews that browse FieldWorks Lite. */
+  /** Options for WebViews that browse FW Lite. */
   export interface BrowseWebViewOptions extends ProjectWebViewOptions, BrowseOptions {}
 
-  /** Props for WebViews that browse FieldWorks Lite. */
+  /** Props for WebViews that browse FW Lite. */
   export type BrowseWebViewProps = ProjectWebViewProps & BrowseOptions;
 
-  export interface DictionaryLanguages {
+  export interface LexiconLanguages {
     analysisLanguage: string;
     vernacularLanguage: string;
   }
 
-  /** Additions for options/props of WebViews that interact with a dictionary via the FwLiteApi. */
-  interface DictionaryOptions extends Partial<DictionaryLanguages> {
-    dictionaryCode?: string;
+  /** Additions for options/props of WebViews that interact with a lexicon via the FwLiteApi. */
+  interface LexiconOptions extends Partial<LexiconLanguages> {
+    lexiconCode?: string;
     word?: string;
   }
 
-  /** Options for WebViews that interact with a dictionary via the FwLiteApi. */
-  export interface DictionaryWebViewOptions extends ProjectWebViewOptions, DictionaryOptions {}
+  /** Options for WebViews that interact with a lexicon via the FwLiteApi. */
+  export interface LexiconWebViewOptions extends ProjectWebViewOptions, LexiconOptions {}
 
-  /** Props for WebViews that interact with a dictionary via the FwLiteApi. */
-  export type DictionaryWebViewProps = ProjectWebViewProps & DictionaryOptions;
+  /** Props for WebViews that interact with a lexicon via the FwLiteApi. */
+  export type LexiconWebViewProps = ProjectWebViewProps & LexiconOptions;
 
   /* eslint-enable @typescript-eslint/no-shadow */
 }
 
 declare module 'papi-shared-types' {
   export interface CommandHandlers {
-    'fwLiteExtension.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
-    'fwLiteExtension.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
-    'fwLiteExtension.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
-    'fwLiteExtension.selectDictionary': (
-      projectId: string,
-      dictionaryCode: string,
-    ) => Promise<SuccessHolder>;
-    'fwLiteExtension.fwDictionaries': (projectId?: string) => Promise<IProjectModel[] | undefined>;
-    'fwLiteExtension.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
-    'fwLiteExtension.findRelatedEntries': (
-      webViewId: string,
-      entry: string,
-    ) => Promise<SuccessHolder>;
+    'lexicon.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'lexicon.browseLexicon': (webViewId: string) => Promise<SuccessHolder>;
+    'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
+    'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'lexicon.lexicons': (projectId?: string) => Promise<IProjectModel[] | undefined>;
+    'lexicon.selectLexicon': (projectId: string, lexiconCode: string) => Promise<SuccessHolder>;
   }
 
   export interface ProjectSettingTypes {
-    'fw-lite-extension.fwAnalysisLanguage': string;
-    'fw-lite-extension.fwDictionaryCode': string;
+    'lexicon.analysisLanguage': string;
+    'lexicon.lexiconCode': string;
   }
 
   export interface NetworkableObject {
-    'fwLiteExtension.entryService': IEntryService;
+    'lexicon.entryService': IEntryService;
   }
 }

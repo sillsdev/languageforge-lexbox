@@ -18,35 +18,35 @@
       "topMenu": {
         "columns": {},
         "groups": {
-          "fw-lite-extension.editor": {
+          "lexicon.editor": {
             "column": "platformScriptureEditor.edit",
             "order": 11
           }
         },
         "items": [
           {
-            "label": "%fwLiteExtension_menu_browseDictionary%",
-            "group": "fw-lite-extension.editor",
+            "label": "%lexicon_menu_browseLexicon%",
+            "group": "lexicon.editor",
             "order": 1,
-            "command": "fwLiteExtension.browseDictionary"
+            "command": "lexicon.browseLexicon"
           },
           {
-            "label": "%fwLiteExtension_menu_addEntry%",
-            "group": "fw-lite-extension.editor",
+            "label": "%lexicon_menu_addEntry%",
+            "group": "lexicon.editor",
             "order": 2,
-            "command": "fwLiteExtension.addEntry"
+            "command": "lexicon.addEntry"
           },
           {
-            "label": "%fwLiteExtension_menu_findEntry%",
-            "group": "fw-lite-extension.editor",
+            "label": "%lexicon_menu_findEntry%",
+            "group": "lexicon.editor",
             "order": 3,
-            "command": "fwLiteExtension.findEntry"
+            "command": "lexicon.findEntry"
           },
           {
-            "label": "%fwLiteExtension_menu_findRelatedEntries%",
-            "group": "fw-lite-extension.editor",
+            "label": "%lexicon_menu_findRelatedEntries%",
+            "group": "lexicon.editor",
             "order": 4,
-            "command": "fwLiteExtension.findRelatedEntries"
+            "command": "lexicon.findRelatedEntries"
           }
         ]
       }

@@ -1,1 +1,1 @@
-FieldWorks Lite para Platform.Bible. Desarrollado por webpack.
+Manage the lexicon for your project's target/vernacular language.

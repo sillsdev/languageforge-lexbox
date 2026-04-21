@@ -1,11 +1,5 @@
 import papi, { logger } from '@papi/backend';
-import type {
-  DictionaryRef,
-  IEntry,
-  IProjectModel,
-  IWritingSystems,
-  PartialEntry,
-} from 'fw-lite-extension';
+import type { IEntry, IProjectModel, IWritingSystems, LexiconRef, PartialEntry } from 'lexicon';
 import { GridifyConditionalOperator } from '../types/enums';
 
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */
@@ -33,26 +27,26 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   return await results.json();
 }
 
-export function getBrowseUrl(baseUrl: string, dictionaryCode: string, entryId?: string): string {
-  let url = `${baseUrl}/paratext/fwdata/${sanitizeUrlComponent(dictionaryCode)}`;
+export function getBrowseUrl(baseUrl: string, lexiconCode: string, entryId?: string): string {
+  let url = `${baseUrl}/paratext/fwdata/${sanitizeUrlComponent(lexiconCode)}`;
   if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}&entryOpen=true`;
   return url;
 }
 
 export class FwLiteApi {
   private readonly baseUrl: string;
-  private dictionaryCode?: string;
-  constructor(baseUrl: string, dictionaryCode?: string) {
+  private lexiconCode?: string;
+  constructor(baseUrl: string, lexiconCode?: string) {
     this.baseUrl = baseUrl;
-    this.setDictionaryCode(dictionaryCode);
+    this.setLexiconCode(lexiconCode);
   }
 
-  setDictionaryCode(dictionaryCode?: string): void {
-    this.dictionaryCode = dictionaryCode;
+  setLexiconCode(lexiconCode?: string): void {
+    this.lexiconCode = lexiconCode;
   }
 
-  async deleteEntry(id: string, dictionaryCode?: string): Promise<void> {
-    const { code, type } = this.checkDictionaryCode(dictionaryCode);
+  async deleteEntry(id: string, lexiconCode?: string): Promise<void> {
+    const { code, type } = this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry/${id}`;
     await this.fetchPath(path, 'DELETE');
   }
@@ -70,9 +64,9 @@ export class FwLiteApi {
   async getEntries(
     search?: string,
     semanticDomain?: string,
-    dictionaryCode?: string,
+    lexiconCode?: string,
   ): Promise<IEntry[]> {
-    const { code, type } = this.checkDictionaryCode(dictionaryCode);
+    const { code, type } = this.checkLexiconCode(lexiconCode);
     let path = `mini-lcm/${type}/${code}/entries`;
     if (search) path += `/${search}`;
     if (semanticDomain) {
@@ -104,22 +98,22 @@ export class FwLiteApi {
     }
   }
 
-  async getWritingSystems(dictionaryCode?: string): Promise<IWritingSystems> {
-    const { code, type } = this.checkDictionaryCode(dictionaryCode);
+  async getWritingSystems(lexiconCode?: string): Promise<IWritingSystems> {
+    const { code, type } = this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/writingSystems`;
     return (await this.fetchPath(path)) as IWritingSystems;
   }
 
-  async postNewEntry(entry: PartialEntry, dictionaryCode?: string): Promise<IEntry> {
-    const { code, type } = this.checkDictionaryCode(dictionaryCode);
+  async postNewEntry(entry: PartialEntry, lexiconCode?: string): Promise<IEntry> {
+    const { code, type } = this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry`;
     return (await this.fetchPath(path, 'POST', entry)) as IEntry;
   }
 
   /* eslint-enable no-type-assertion/no-type-assertion */
 
-  private checkDictionaryCode(dictionaryCode?: string): DictionaryRef {
-    const code = sanitizeUrlComponent(dictionaryCode || this.dictionaryCode);
+  private checkLexiconCode(lexiconCode?: string): LexiconRef {
+    const code = sanitizeUrlComponent(lexiconCode || this.lexiconCode);
     return { code, type: 'FwData' };
   }
 

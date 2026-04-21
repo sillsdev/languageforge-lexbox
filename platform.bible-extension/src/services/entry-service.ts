@@ -1,12 +1,12 @@
 import { logger } from '@papi/backend';
-import type { IEntry, IEntryQuery, IEntryService, PartialEntry } from 'fw-lite-extension';
+import type { IEntry, IEntryQuery, IEntryService, PartialEntry } from 'lexicon';
 import { FwLiteApi } from '../utils/fw-lite-api';
 import { ProjectManager } from '../utils/project-manager';
 
 export class EntryService implements IEntryService {
   private fwLiteApi: FwLiteApi;
-  constructor(baseUrl: string, dictionaryCode?: string) {
-    this.fwLiteApi = new FwLiteApi(baseUrl, dictionaryCode);
+  constructor(baseUrl: string, lexiconCode?: string) {
+    this.fwLiteApi = new FwLiteApi(baseUrl, lexiconCode);
   }
 
   async getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined> {
@@ -15,18 +15,18 @@ export class EntryService implements IEntryService {
       logger.debug('No query!');
       return;
     }
-    const dictionaryCode = await ProjectManager.getFwDictionaryCode(projectId);
-    if (!dictionaryCode) return;
+    const lexiconCode = await ProjectManager.getLexiconCode(projectId);
+    if (!lexiconCode) return;
     logger.info(
-      `Fetching entries for '${surfaceForm}' (semantic domain '${semanticDomain}') in '${dictionaryCode}'`,
+      `Fetching entries for '${surfaceForm}' (semantic domain '${semanticDomain}') in '${lexiconCode}'`,
     );
-    return this.fwLiteApi.getEntries(surfaceForm, semanticDomain, dictionaryCode);
+    return this.fwLiteApi.getEntries(surfaceForm, semanticDomain, lexiconCode);
   }
 
   async addEntry(projectId: string, entry: PartialEntry): Promise<IEntry | undefined> {
-    const dictionaryCode = await ProjectManager.getFwDictionaryCode(projectId);
-    if (!dictionaryCode) return;
-    return await this.fwLiteApi.postNewEntry(entry, dictionaryCode);
+    const lexiconCode = await ProjectManager.getLexiconCode(projectId);
+    if (!lexiconCode) return;
+    return await this.fwLiteApi.postNewEntry(entry, lexiconCode);
   }
 
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this, @typescript-eslint/no-unused-vars
@@ -35,8 +35,8 @@ export class EntryService implements IEntryService {
   }
 
   async deleteEntry(projectId: string, id: string): Promise<undefined> {
-    const dictionaryCode = await ProjectManager.getFwDictionaryCode(projectId);
-    if (!dictionaryCode) return;
-    await this.fwLiteApi.deleteEntry(id, dictionaryCode);
+    const lexiconCode = await ProjectManager.getLexiconCode(projectId);
+    if (!lexiconCode) return;
+    await this.fwLiteApi.deleteEntry(id, lexiconCode);
   }
 }

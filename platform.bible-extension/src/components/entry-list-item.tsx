@@ -1,15 +1,15 @@
 // Modified from paranext-core/extensions/src/components/dictionary/dictionary-list-item.component.tsx
 
-import type { DictionaryLanguages, IEntry, ISemanticDomain } from 'fw-lite-extension';
+import type { IEntry, ISemanticDomain, LexiconLanguages } from 'lexicon';
 import { cn, Separator } from 'platform-bible-react';
 import DomainsDisplay from './domains-display';
 import { entryGlossText, entryHeadwordText } from '../utils/entry-display-text';
 
-/** Props for the DictionaryListItem component */
-type DictionaryListItemProps = DictionaryLanguages & {
-  /** The dictionary entry to display */
+/** Props for the EntryListItem component */
+type EntryListItemProps = LexiconLanguages & {
+  /** The entry to display */
   entry: IEntry;
-  /** Whether the dictionary entry is selected */
+  /** Whether the entry is selected */
   isSelected: boolean;
   /** Callback function to handle click on the entry */
   onClick: () => void;
@@ -18,25 +18,25 @@ type DictionaryListItemProps = DictionaryLanguages & {
 };
 
 /**
- * A list item for a dictionary entry.
+ * A list item for an entry.
  *
- * This component is used to display a dictionary entry in a list of dictionary entries.
+ * This component is used to display an entry in a list of entries.
  *
- * The component renders a list item with the lemma of the dictionary entry, the number of
- * occurrences in the chapter, and the Strong's codes for the dictionary entry. The component also
- * renders a tooltip that displays the number of occurrences in the chapter.
+ * The component renders a list item with the lemma of the entry, the number of occurrences in the
+ * chapter, and the Strong's codes for the entry. The component also renders a tooltip that displays
+ * the number of occurrences in the chapter.
  *
  * The component uses the `useListbox` hook from the `listbox-keyboard-navigation.util` module to
  * handle keyboard navigation of the list.
  */
-export default function DictionaryListItem({
+export default function EntryListItem({
   analysisLanguage,
   entry,
   isSelected,
   onClick,
   onClickSemanticDomain,
   vernacularLanguage,
-}: DictionaryListItemProps) {
+}: EntryListItemProps) {
   return (
     <>
       {/* This component does have keyboard navigation, it is being handled through the useListbox hook */}

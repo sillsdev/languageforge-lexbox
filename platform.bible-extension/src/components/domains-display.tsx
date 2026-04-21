@@ -1,6 +1,6 @@
 // Modified from paranext-core/extensions/src/platform-lexical-tools/src/components/dictionary/domains-display.component.tsx
 
-import type { ISemanticDomain } from 'fw-lite-extension';
+import type { ISemanticDomain } from 'lexicon';
 import { Network } from 'lucide-react';
 import { useMemo } from 'react';
 import { domainText } from '../utils/entry-display-text';
@@ -15,7 +15,7 @@ type DomainsDisplayProps = {
 };
 
 /**
- * Renders a list of domains for a dictionary entry or sense.
+ * Renders a list of domains for an entry or sense.
  *
  * The component displays each domain as a rounded, colored pill with a small icon. The text of the
  * pill is the code of the domain, followed by the label.
