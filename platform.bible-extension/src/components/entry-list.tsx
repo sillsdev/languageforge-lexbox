@@ -1,4 +1,4 @@
-// Modified from paranext-core/extensions/src/components/dictionary/entry-list.component.tsx
+// Modified from paranext-core/extensions/src/components/dictionary/dictionary-list.component.tsx
 
 import type { IEntry, ISemanticDomain, LexiconLanguages } from 'lexicon';
 import {

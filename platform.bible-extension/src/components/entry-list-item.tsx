@@ -1,4 +1,4 @@
-// Modified from paranext-core/extensions/src/components/dictionary/entry-list-item.component.tsx
+// Modified from paranext-core/extensions/src/components/dictionary/dictionary-list-item.component.tsx
 
 import type { IEntry, ISemanticDomain, LexiconLanguages } from 'lexicon';
 import { cn, Separator } from 'platform-bible-react';

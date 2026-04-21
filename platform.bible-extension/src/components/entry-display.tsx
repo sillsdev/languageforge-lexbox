@@ -1,4 +1,4 @@
-// Modified from paranext-core/extensions/src/components/dictionary/entry-display.component.tsx
+// Modified from paranext-core/extensions/src/components/dictionary/dictionary-entry-display.component.tsx
 
 import { useLocalizedStrings } from '@papi/frontend/react';
 import type { IEntry, ISemanticDomain, LexiconLanguages } from 'lexicon';
