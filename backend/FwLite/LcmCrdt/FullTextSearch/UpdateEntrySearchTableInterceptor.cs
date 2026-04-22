@@ -50,8 +50,35 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
             if (updatedEntry is not null) toUpdate.Add(updatedEntry);
             if (removed is not null) toRemove.Add(removed.Value);
         }
-        if (toUpdate is [] && toRemove is []) return;
-        await EntrySearchService.UpdateEntrySearchTable(toUpdate, toRemove, newWritingSystems, (LcmCrdtDbContext)dbContext);
+
+        // Morph types with changes to prefix or postfix tokens will also require updated entry search records
+        // (Note that morph types can't be added or deleted, so we only need to catch changes, which will be rare)
+        var changedMorphTypes = dbContext.ChangeTracker.Entries()
+            .Where(e => e.Entity is MorphType && e.State == EntityState.Modified)
+            .Select(e => (MorphType)e.Entity).ToList();
+        if (toUpdate is [] && toRemove is [] && changedMorphTypes is []) return;
+        Dictionary<MorphTypeKind, MorphType>? morphTypeDataLookup = null;
+        if (changedMorphTypes is not [])
+        {
+            morphTypeDataLookup = await dbContext.Set<MorphType>().ToDictionaryAsync(m => m.Kind);
+            var changedMorphTypeKinds = new HashSet<MorphTypeKind>();
+            foreach (var morphType in changedMorphTypes)
+            {
+                var original = morphTypeDataLookup[morphType.Kind];
+                if (original.Postfix != morphType.Postfix || original.Prefix != morphType.Prefix)
+                {
+                    morphTypeDataLookup[morphType.Kind] = morphType;
+                    changedMorphTypeKinds.Add(morphType.Kind);
+                }
+            }
+            if (changedMorphTypeKinds.Count > 0)
+            {
+                var updatePending = toUpdate.Select(e => e.Id).ToHashSet();
+                var removePending = toRemove.ToHashSet();
+                toUpdate.AddRange(dbContext.Set<Entry>().Where(e => changedMorphTypeKinds.Contains(e.MorphType) && !updatePending.Contains(e.Id) && !removePending.Contains(e.Id)));
+            }
+        }
+        await EntrySearchService.UpdateEntrySearchTable(toUpdate, toRemove, newWritingSystems, morphTypeDataLookup, (LcmCrdtDbContext)dbContext);
     }
 
     private async Task<(Entry? updatedEntry, Guid? removed)> ForUpdate(IEnumerable<EntityEntry> group, Guid entryId, DbContext dbContext)

@@ -241,12 +241,13 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public async Task UpdateEntrySearchTable(IEnumerable<Entry> entries)
     {
-        await UpdateEntrySearchTable(entries, [], [], dbContext);
+        await UpdateEntrySearchTable(entries, [], [], null, dbContext);
     }
 
     public static async Task UpdateEntrySearchTable(IEnumerable<Entry> entries,
         IEnumerable<Guid> removed,
         IEnumerable<WritingSystem> newWritingSystems,
+        Dictionary<MorphTypeKind, MorphType>? morphTypeDataLookup,
         LcmCrdtDbContext dbContext)
     {
         WritingSystem[] writingSystems =
@@ -261,7 +262,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             return ws1.Id.CompareTo(ws2.Id);
         });
         var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
-        var morphTypeDataLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
+        morphTypeDataLookup ??= await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
         var searchRecords = entries.Select(entry => ToEntrySearchRecord(entry, writingSystems, morphTypeDataLookup));
         foreach (var entrySearchRecord in searchRecords)
         {
