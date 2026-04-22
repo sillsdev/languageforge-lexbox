@@ -51,11 +51,14 @@
     }
   });
 
+  let editor = $state<Editor.Root>();
+
   async function createEntry(e: Event) {
     e.preventDefault();
     e.stopPropagation();
     if (!requester) throw new Error('No requester');
 
+    await editor?.commit();
     entry.senses = sense ? [sense] : [];
     if (!validateEntry()) return;
 
@@ -164,7 +167,7 @@
         ...(entryTemplate?.publishIn?.length ? ['publishIn'] as const : []),
         ...(senseTemplate?.semanticDomains?.length ? ['semanticDomains'] as const : [])
         ]}>
-        <Editor.Root>
+        <Editor.Root bind:this={editor}>
           <Editor.Grid>
             <EntryEditorPrimitive bind:entry autofocus modalMode
               publishInDescription={publishInIsFromTemplate ? fromActiveFilter : undefined} />

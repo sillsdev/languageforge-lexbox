@@ -49,6 +49,12 @@
   const dialogService = useDialogsService();
   const writingSystemService = useWritingSystemService();
 
+  let editor = $state<Editor.Root>();
+
+  export function commit() {
+    return editor?.commit();
+  }
+
   //used to not try to delete an object which has not been created yet
   let newSenses: ISense[] = [];
   let newExamples: IExampleSentence[] = [];
@@ -161,7 +167,7 @@
   const showSenses = $derived(showExamples || hasVisibleFields(viewService.currentView.senseFields));
 </script>
 
-<Editor.Root bind:ref>
+<Editor.Root bind:ref bind:this={editor}>
   <Editor.Grid bind:ref={editorElem}>
     <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
