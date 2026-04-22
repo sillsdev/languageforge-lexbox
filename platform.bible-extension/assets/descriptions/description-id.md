@@ -1,1 +1,1 @@
-FieldWorks Lite untuk Platform.Bible. Didukung oleh webpack.
+Kelola leksikon untuk bahasa target/bahasa sehari-hari proyek Anda.
