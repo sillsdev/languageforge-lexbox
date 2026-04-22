@@ -60,7 +60,7 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         Dictionary<MorphTypeKind, MorphType>? morphTypeDataLookup = null;
         if (changedMorphTypes is not [])
         {
-            morphTypeDataLookup = await dbContext.Set<MorphType>().ToDictionaryAsync(m => m.Kind);
+            morphTypeDataLookup = await dbContext.Set<MorphType>().AsNoTracking().ToDictionaryAsync(m => m.Kind);
             var changedMorphTypeKinds = new HashSet<MorphTypeKind>();
             foreach (var morphType in changedMorphTypes)
             {
@@ -75,7 +75,11 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
             {
                 var updatePending = toUpdate.Select(e => e.Id).ToHashSet();
                 var removePending = toRemove.ToHashSet();
-                toUpdate.AddRange(dbContext.Set<Entry>().Where(e => changedMorphTypeKinds.Contains(e.MorphType) && !updatePending.Contains(e.Id) && !removePending.Contains(e.Id)));
+                toUpdate.AddRange(dbContext.Set<Entry>().Include(e => e.Senses).Where(
+                    e => changedMorphTypeKinds.Contains(e.MorphType)
+                    && !updatePending.Contains(e.Id)
+                    && !removePending.Contains(e.Id)
+                ));
             }
         }
         await EntrySearchService.UpdateEntrySearchTable(toUpdate, toRemove, newWritingSystems, morphTypeDataLookup, (LcmCrdtDbContext)dbContext);
