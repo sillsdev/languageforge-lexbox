@@ -1,1 +1,1 @@
-FieldWorks Lite for Platform.Bible. Powered by webpack.
+Urus leksikon untuk bahasa sasaran/vernakular projek anda.
