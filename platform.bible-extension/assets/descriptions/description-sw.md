@@ -1,1 +1,1 @@
-FieldWorks Lite for Platform.Bible. Powered by webpack.
+Dhibiti kamusi ya lugha lengwa/lugha ya kienyeji ya mradi wako.
