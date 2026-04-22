@@ -1,1 +1,1 @@
-Platform.Bible용 FieldWorks Lite. 웹팩으로 구동됩니다.
+프로젝트의 대상 언어/모국어에 대한 어휘집을 관리하세요.
