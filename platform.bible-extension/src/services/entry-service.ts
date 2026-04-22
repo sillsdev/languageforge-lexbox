@@ -5,7 +5,6 @@ import { ProjectManager } from '../utils/project-manager';
 
 export class EntryService implements IEntryService {
   private fwLiteApi: FwLiteApi;
-  // TODO: remove the need to specify baseUrl, so other extensions can use this network service.
   constructor(baseUrl: string, lexiconCode?: string) {
     this.fwLiteApi = new FwLiteApi(baseUrl, lexiconCode);
   }

@@ -158,27 +158,24 @@ This extension has a network service that can be used by other extensions. Here'
 
 1. In `platform.bible-extension/`, run `task build-fw-lite` then `npm run package` then `npm run core:copy-package`.
 
-2. In the other extension's `main.ts`, add the following two things inside `activate`:
+2. Example uses of this network service are found in [add-word.web-view.tsx](src/web-views/add-word.web-view.tsx) and [find-word.web-view.tsx](src/web-views/find-word.web-view.tsx). Note the following key elements:
 
-```ts
-const entryService = papi.networkObjects.set(
-  'lexicon.entryService',
-  new EntryService('http://localhost:29348'), // TODO: avoid hard-coding the base URL
-  'lexicon.IEntryService',
-);
+- With types `NetworkObject` imported from `'@papi/core'` and `IEntryService` imported from `'lexicon'`:
+
+```
+const [lexiconService, setLexiconService] = useState<NetworkObject<IEntryService> | undefined>();
 ```
 
-```ts
-context.registrations.add(
-  /* ... along with other unsubscribers ... */
+- With `networkObjects` imported from `'@papi/frontend'`, a `useEffect` to fetch the network service via
 
-  await entryService,
-);
+```
+networkObjects.get<IEntryService>('lexicon.entryService').then(setLexiconService(networkObject));
 ```
 
-3. TODO: Add types instructions when https://github.com/sillsdev/languageforge-lexbox/pull/2208 is complete.
-
-4. An example of using this network service is found in [add-word.web-view.tsx](src/web-views/add-word.web-view.tsx).
+- The current PT project id (which the example WebViews get via their props).
+- Call any method defined in [entry-service.ts](src/services/entry-service.ts)
+  - To use `lexiconService.addEntry`, also import types `IEntry` and `PartialEntry` from `'lexicon'`.
+  - To use `lexiconService.getEntries`, also import types `IEntryQuery` and `PartialEntry` from `'lexicon'`.
 
 <!--
 ## To package for distribution
