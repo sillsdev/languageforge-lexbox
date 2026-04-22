@@ -45,8 +45,10 @@ export class EntryPersistence {
     if (this.initialEntry.id != entry.id) throw new Error('Entry id mismatch');
     const updatedEntry = await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry as IEntry, $state.snapshot(entry)));
     this.onUpdated();
-    // use the version from the server or else we might get unsaved changes in initialEntry
-    this.updateInitialEntry(updatedEntry);
+
+    // update with the version from the server or else we might get unsaved changes in initialEntry
+    this.updateInitialEntryIfIdMatches(updatedEntry);
+
     return updatedEntry;
   }
 
@@ -62,7 +64,7 @@ export class EntryPersistence {
       updatedSense = await this.saveHandler.handleSave(() => this.lexboxApi.createSense(sense.entryId, $state.snapshot(sense)));
       entry.senses.push(updatedSense);
     }
-    this.updateInitialEntry(entry);
+    this.updateInitialEntryIfIdMatches(entry);
     return updatedSense;
   }
 
@@ -80,8 +82,16 @@ export class EntryPersistence {
       updatedExample = await this.saveHandler.handleSave(() => this.lexboxApi.createExampleSentence(sense.entryId, example.senseId, $state.snapshot(example)));
       sense.exampleSentences.push(updatedExample);
     }
-    this.updateInitialEntry(entry);
+    this.updateInitialEntryIfIdMatches(entry);
     return updatedExample;
+  }
+
+  // The user/view may have switched to a different "initial entry" while we were saving
+  // in which case we should NOT update the initial entry with the result of this save
+  private updateInitialEntryIfIdMatches(entry: IEntry): void {
+    if (this.initialEntry?.id === entry.id) {
+      this.updateInitialEntry(entry);
+    }
   }
 
   private updateInitialEntry(entry: ReadonlyDeep<IEntry> | undefined | null): void {
