@@ -99,6 +99,7 @@ public static class MiniLcmRoutes
         api.MapGet("/entries", MiniLcm.GetEntries);
         api.MapGet("/entries/{search}", MiniLcm.SearchEntries);
         api.MapGet("/entry/{id:Guid}", MiniLcm.GetEntry);
+        api.MapGet("/sense/{id:Guid}", MiniLcm.GetSense);
         api.MapGet("/entry/{id:Guid}/index", MiniLcm.GetEntryIndex);
         api.MapGet("/parts-of-speech", MiniLcm.GetPartsOfSpeech);
         api.MapGet("/semantic-domains", MiniLcm.GetSemanticDomains);
@@ -136,6 +137,12 @@ public static class MiniLcmRoutes
         {
             var api = holder.MiniLcmApi;
             return api.GetEntry(id);
+        }
+
+        public static Task<Sense?> GetSense(Guid id, [FromServices] MiniLcmHolder holder)
+        {
+            var api = holder.MiniLcmApi;
+            return api.GetSense(Guid.Empty, id);
         }
 
         public static Task<int> GetEntryIndex(
@@ -193,7 +200,7 @@ public static class MiniLcmRoutes
                 exemplarOptions,
                 Count ?? QueryOptions.Default.Count,
                 Offset ?? QueryOptions.Default.Offset,
-                string.IsNullOrEmpty(GridifyFilter) ? null : new EntryFilter {GridifyFilter = GridifyFilter});
+                string.IsNullOrEmpty(GridifyFilter) ? null : new EntryFilter { GridifyFilter = GridifyFilter });
         }
 
         public IndexQueryOptions ToIndexQueryOptions()
@@ -206,7 +213,7 @@ public static class MiniLcmRoutes
                     SortWritingSystem ?? SortOptions.Default.WritingSystem,
                     Ascending ?? SortOptions.Default.Ascending),
                 exemplarOptions,
-                string.IsNullOrEmpty(GridifyFilter) ? null : new EntryFilter {GridifyFilter = GridifyFilter});
+                string.IsNullOrEmpty(GridifyFilter) ? null : new EntryFilter { GridifyFilter = GridifyFilter });
         }
 
         public SortField? SortField { get; set; } = SortOptions.Default.Field;

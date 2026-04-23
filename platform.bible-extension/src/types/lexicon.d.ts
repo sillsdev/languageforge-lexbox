@@ -43,6 +43,8 @@ declare module 'lexicon' {
 
   export interface IEntryService {
     getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined>;
+    getEntry(projectId: string, id: string): Promise<IEntry | undefined>;
+    getSense(projectId: string, id: string): Promise<ISense | undefined>;
     addEntry(projectId: string, reference: PartialEntry): Promise<IEntry | undefined>;
     updateEntry(projectId: string, reference: IEntry): Promise<void>;
     deleteEntry(projectId: string, id: string): Promise<void>;

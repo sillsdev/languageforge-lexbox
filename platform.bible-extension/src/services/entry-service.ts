@@ -1,5 +1,5 @@
 import { logger } from '@papi/backend';
-import type { IEntry, IEntryQuery, IEntryService, PartialEntry } from 'lexicon';
+import type { IEntry, IEntryQuery, IEntryService, ISense, PartialEntry } from 'lexicon';
 import { FwLiteApi } from '../utils/fw-lite-api';
 import { ProjectManager } from '../utils/project-manager';
 
@@ -23,6 +23,18 @@ export class EntryService implements IEntryService {
     return this.fwLiteApi.getEntries(surfaceForm, semanticDomain, lexiconCode);
   }
 
+  async getEntry(projectId: string, id: string): Promise<IEntry | undefined> {
+    const lexiconCode = await ProjectManager.getLexiconCode(projectId);
+    if (!lexiconCode) return;
+    return this.fwLiteApi.getEntry(id, lexiconCode);
+  }
+
+  async getSense(projectId: string, id: string): Promise<ISense | undefined> {
+    const lexiconCode = await ProjectManager.getLexiconCode(projectId);
+    if (!lexiconCode) return;
+    return this.fwLiteApi.getSense(id, lexiconCode);
+  }
+
   async addEntry(projectId: string, entry: PartialEntry): Promise<IEntry | undefined> {
     const lexiconCode = await ProjectManager.getLexiconCode(projectId);
     if (!lexiconCode) return;
@@ -30,7 +42,7 @@ export class EntryService implements IEntryService {
   }
 
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this, @typescript-eslint/no-unused-vars
-  updateEntry(projectId: string, reference: IEntry): Promise<void> {
+  updateEntry(_projectId: string, _reference: IEntry): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
