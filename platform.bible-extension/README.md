@@ -156,9 +156,16 @@ To build the extension once:
 
 This extension has a network service that can be used by other extensions. Here's how to make it available for active development of another extension:
 
-1. In `platform.bible-extension/`, run `task build-fw-lite` then `npm run package` then `npm run core:copy-package`.
+1. In `platform.bible-extension/`: run `task build-fw-lite`, then `npm run package`, then `npm run core:copy-package`.
 
-2. Example uses of this network service are found in [add-word.web-view.tsx](src/web-views/add-word.web-view.tsx) and [find-word.web-view.tsx](src/web-views/find-word.web-view.tsx). Note the following key elements:
+2. In `.eslintrc.js`, in the `'import/no-unresolved'` rule, add `'lexicon'` to the `ignore` array:
+
+```diff
+-'import/no-unresolved': ['error', { ignore: ['@papi'] }],
++'import/no-unresolved': ['error', { ignore: ['@papi', 'lexicon'] }],
+```
+
+3. Example uses of this network service are found in [add-word.web-view.tsx](src/web-views/add-word.web-view.tsx) and [find-word.web-view.tsx](src/web-views/find-word.web-view.tsx). Note the following key elements:
 
 - With types `NetworkObject` imported from `'@papi/core'` and `IEntryService` imported from `'lexicon'`:
 
