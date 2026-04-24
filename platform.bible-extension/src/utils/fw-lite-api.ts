@@ -1,5 +1,12 @@
 import papi, { logger } from '@papi/backend';
-import type { IEntry, IProjectModel, IWritingSystems, LexiconRef, PartialEntry } from 'lexicon';
+import type {
+  IEntry,
+  IProjectModel,
+  ISense,
+  IWritingSystems,
+  LexiconRef,
+  PartialEntry,
+} from 'lexicon';
 import { GridifyConditionalOperator } from '../types/enums';
 
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */
@@ -74,6 +81,18 @@ export class FwLiteApi {
       path += `?GridifyFilter=${encodeURIComponent(filterValue)}`;
     }
     return (await this.fetchPath(path)) as IEntry[];
+  }
+
+  async getEntry(id: string, lexiconCode?: string): Promise<IEntry> {
+    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const path = `mini-lcm/${type}/${code}/entry/${id}`;
+    return (await this.fetchPath(path)) as IEntry;
+  }
+
+  async getSense(id: string, lexiconCode?: string): Promise<ISense> {
+    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const path = `mini-lcm/${type}/${code}/sense/${id}`;
+    return (await this.fetchPath(path)) as ISense;
   }
 
   async getProjects(): Promise<IProjectModel[]> {
