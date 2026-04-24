@@ -169,14 +169,16 @@ This extension has a network service that can be used by other extensions. Here'
 
 - With types `NetworkObject` imported from `'@papi/core'` and `IEntryService` imported from `'lexicon'`:
 
-```
+```ts
 const [lexiconService, setLexiconService] = useState<NetworkObject<IEntryService> | undefined>();
 ```
 
-- With `networkObjects` imported from `'@papi/frontend'`, a `useEffect` to fetch the network service via
+- With `networkObjects` imported from `'@papi/frontend'`, get the network service via
 
-```
-networkObjects.get<IEntryService>('lexicon.entryService').then(setLexiconService(networkObject));
+```ts
+useEffect(() => {
+  networkObjects.get<IEntryService>('lexicon.entryService').then(setLexiconService);
+}, []);
 ```
 
 - The current PT project id (which the example WebViews get via their props).
