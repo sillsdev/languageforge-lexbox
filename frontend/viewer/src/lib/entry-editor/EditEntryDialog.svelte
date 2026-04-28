@@ -33,9 +33,12 @@
   const entryPersistence = new EntryPersistence(() => entry);
   let updating = $state(false);
 
+  let editor = $state<EntryEditor>();
+
   async function updateEntry() {
     if (!entry) return;
     updating = true;
+    await editor?.commit();
     await entryPersistence.updateEntry(entry).finally(() => updating = false);
     open = false;
   }
@@ -48,7 +51,7 @@
     {#if entryResource.loading}
       Loading...
     {:else if entry}
-      <EntryEditor autofocus modalMode bind:entry canAddSense={false} canAddExample={false}/>
+      <EntryEditor bind:this={editor} autofocus modalMode bind:entry canAddSense={false} canAddExample={false}/>
     {/if}
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>

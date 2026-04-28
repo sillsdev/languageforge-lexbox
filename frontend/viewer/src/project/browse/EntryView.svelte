@@ -45,9 +45,12 @@
   // We want to keep the deleted entry in the view, so the user can optionally restore it.
   const dedupedEntryId = $derived(entryId);
 
+  let editor = $state<EntryEditor>();
+
   const entryResource = resource(
     () => dedupedEntryId,
     async (id) => {
+      await editor?.commit();
       const entry = await miniLcmApi.getEntry(id);
       return setEntry(entry);
     },
@@ -157,7 +160,14 @@
         </div>
       {/if}
       <div class="max-md:p-2 md:pb-2 md:px-2">
-        <EntryEditor bind:ref={editorRef} bind:entry readonly={readonly || !features.write || deleted} {...entryPersistence.entryEditorProps} />
+        {#key entry.id}
+          <EntryEditor
+            bind:this={editor}
+            bind:ref={editorRef}
+            bind:entry
+            readonly={readonly || !features.write || deleted}
+            {...entryPersistence.entryEditorProps} />
+        {/key}
       </div>
     </ScrollArea>
   {/if}

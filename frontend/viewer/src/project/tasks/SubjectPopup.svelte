@@ -14,7 +14,6 @@
   import {t} from 'svelte-i18n-lingui';
   import type {TaskSubject} from './subject.svelte';
   import type {Overrides} from '$lib/views/view-data';
-  import {tick} from 'svelte';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
 
   let {
@@ -60,19 +59,13 @@
     subjectIndex = 0;
   });
 
+  let editor = $state<Editor.Root>();
 
   async function onNext(skip: boolean = false) {
     if (!skip) {
       if (!subject || !isSubjectComplete()) return;
 
-      if (document.activeElement instanceof HTMLElement) {
-        // We have change rich-text change handlers that
-        // (1) add WS's to spans (i.e. finalize rich-strings. It's maybe a bad idea that we currently do that lazily) and
-        // (2) run into errors if triggered too late (e.g. via onDestroy)
-        // this is a simple way to ensure they run cleanly before we move on
-        document.activeElement.blur();
-        await tick();
-      }
+      await editor?.commit();
 
       switch (task.subjectType) {
         case 'example-sentence':
@@ -147,7 +140,7 @@
           <form bind:this={form} onsubmit={(e) => {e.preventDefault(); void onNext()}}>
             <!--        lets us submit by pressing enter on any field-->
             <input type="submit" style="display: none;"/>
-            <Editor.Root>
+            <Editor.Root bind:this={editor}>
               <Editor.Grid>
                 <OverrideFields shownFields={task.subjectFields} {overrides}>
                   {#if task.subjectType === 'entry' && subject.entry}
