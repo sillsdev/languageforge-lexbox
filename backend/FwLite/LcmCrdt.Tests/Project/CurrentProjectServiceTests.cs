@@ -39,8 +39,7 @@ public class CurrentProjectServiceTests : IAsyncLifetime
 
     public Task InitializeAsync()
     {
-        if (Directory.Exists(_testRoot)) Directory.Delete(_testRoot, true);
-        if (!Directory.Exists(TestProjectPath)) Directory.CreateDirectory(TestProjectPath);
+        Directory.CreateDirectory(TestProjectPath);
         return Task.CompletedTask;
     }
 
