@@ -30,9 +30,9 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         if (maybeDbContext is not LcmCrdtDbContext dbContext) return;
         List<Entry> toUpdate = [];
         List<Guid> toRemove = [];
-        var newWritingSystems = dbContext.ChangeTracker.Entries()
-            .Where(e => e.Entity is WritingSystem && e.State == EntityState.Added)
-            .Select(e => (WritingSystem)e.Entity).ToList();
+        var newWritingSystems = dbContext.ChangeTracker.Entries<WritingSystem>()
+            .Where(e => e.State == EntityState.Added)
+            .Select(e => e.Entity).ToList();
         foreach (var group in dbContext.ChangeTracker.Entries()
                      .Where(e => e is { State: EntityState.Added or EntityState.Modified or EntityState.Deleted, Entity: Entry or Sense })
                      .GroupBy(e =>
