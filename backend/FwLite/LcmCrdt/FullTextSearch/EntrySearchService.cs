@@ -279,13 +279,14 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         return RegenerateEntrySearchTable(dbContext);
     }
 
-    public static async Task RegenerateEntrySearchTable(Microsoft.EntityFrameworkCore.DbContext dbContext)
+    public static async Task RegenerateEntrySearchTable(LcmCrdtDbContext dbContext)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
         await entrySearchRecordsTable.TruncateAsync();
 
-        var writingSystems = await dbContext.Set<WritingSystem>().OrderBy(ws => ws.Order).ThenBy(ws => ws.Id).ToArrayAsync();
+        var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
+        // Not using dbContext.MorphTypes since that uses .AsNoTracking(), which would *not* include any pending changes
         var morphTypeDataLookup = await dbContext.Set<MorphType>().ToDictionaryAsync(m => m.Kind);
         await entrySearchRecordsTable
             .BulkCopyAsync(dbContext.Set<Entry>()

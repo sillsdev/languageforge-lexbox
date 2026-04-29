@@ -63,7 +63,11 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         }
         else
         {
-            await EntrySearchService.RegenerateEntrySearchTable(dbContext);
+            // TODO: Move this check to the start of the method since the UpdateEntrySearchTable also needs an LcmCrdtDbContext
+            if (dbContext is LcmCrdtDbContext lcmCrdtDbContext)
+            {
+                await EntrySearchService.RegenerateEntrySearchTable(lcmCrdtDbContext);
+            }
         }
     }
 
