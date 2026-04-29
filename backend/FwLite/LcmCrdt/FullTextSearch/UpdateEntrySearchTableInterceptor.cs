@@ -27,7 +27,6 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
 
     private async Task UpdateSearchTableOnSave(DbContext? maybeDbContext)
     {
-        if (maybeDbContext is null) return;
         if (maybeDbContext is not LcmCrdtDbContext dbContext) return;
         List<Entry> toUpdate = [];
         List<Guid> toRemove = [];
