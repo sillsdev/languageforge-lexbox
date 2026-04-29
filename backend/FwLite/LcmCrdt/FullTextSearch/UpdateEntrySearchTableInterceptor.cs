@@ -28,12 +28,13 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
     private async Task UpdateSearchTableOnSave(DbContext? dbContext)
     {
         if (dbContext is null) return;
+        if (dbContext is not LcmCrdtDbContext lcmCrdtDbContext) return;
         List<Entry> toUpdate = [];
         List<Guid> toRemove = [];
-        var newWritingSystems = dbContext.ChangeTracker.Entries()
+        var newWritingSystems = lcmCrdtDbContext.ChangeTracker.Entries()
             .Where(e => e.Entity is WritingSystem && e.State == EntityState.Added)
             .Select(e => (WritingSystem)e.Entity).ToList();
-        foreach (var group in dbContext.ChangeTracker.Entries()
+        foreach (var group in lcmCrdtDbContext.ChangeTracker.Entries()
                      .Where(e => e is { State: EntityState.Added or EntityState.Modified or EntityState.Deleted, Entity: Entry or Sense })
                      .GroupBy(e =>
                      {
@@ -46,28 +47,24 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
                          };
                      }))
         {
-            var (updatedEntry, removed) = await ForUpdate(group, group.Key, dbContext);
+            var (updatedEntry, removed) = await ForUpdate(group, group.Key, lcmCrdtDbContext);
             if (updatedEntry is not null) toUpdate.Add(updatedEntry);
             if (removed is not null) toRemove.Add(removed.Value);
         }
 
         // Morph types with changes to prefix or postfix tokens will also require updated entry search records
         // (Note that morph types can't be added or deleted, so we only need to catch changes, which will be rare)
-        var changedMorphTypes = dbContext.ChangeTracker.Entries<MorphType>()
+        var changedMorphTypes = lcmCrdtDbContext.ChangeTracker.Entries<MorphType>()
             .Where(e => e.State == EntityState.Modified && (e.Property(m => m.Prefix).IsModified || e.Property(m => m.Postfix).IsModified))
             .Select(e => e.Entity).ToList();
         if (toUpdate is [] && toRemove is [] && changedMorphTypes is []) return;
         if (changedMorphTypes is [])
         {
-            await EntrySearchService.UpdateEntrySearchTable(toUpdate, toRemove, newWritingSystems, (LcmCrdtDbContext)dbContext);
+            await EntrySearchService.UpdateEntrySearchTable(toUpdate, toRemove, newWritingSystems, lcmCrdtDbContext);
         }
         else
         {
-            // TODO: Move this check to the start of the method since the UpdateEntrySearchTable also needs an LcmCrdtDbContext
-            if (dbContext is LcmCrdtDbContext lcmCrdtDbContext)
-            {
-                await EntrySearchService.RegenerateEntrySearchTable(lcmCrdtDbContext);
-            }
+            await EntrySearchService.RegenerateEntrySearchTable(lcmCrdtDbContext);
         }
     }
 
