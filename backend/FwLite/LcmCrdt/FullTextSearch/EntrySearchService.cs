@@ -241,13 +241,12 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public async Task UpdateEntrySearchTable(IEnumerable<Entry> entries)
     {
-        await UpdateEntrySearchTable(entries, [], [], null, dbContext);
+        await UpdateEntrySearchTable(entries, [], [], dbContext);
     }
 
     public static async Task UpdateEntrySearchTable(IEnumerable<Entry> entries,
         IEnumerable<Guid> removed,
         IEnumerable<WritingSystem> newWritingSystems,
-        Dictionary<MorphTypeKind, MorphType>? morphTypeDataLookup,
         LcmCrdtDbContext dbContext)
     {
         WritingSystem[] writingSystems =
@@ -262,7 +261,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             return ws1.Id.CompareTo(ws2.Id);
         });
         var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
-        morphTypeDataLookup ??= await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
+        var morphTypeDataLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
         var searchRecords = entries.Select(entry => ToEntrySearchRecord(entry, writingSystems, morphTypeDataLookup));
         foreach (var entrySearchRecord in searchRecords)
         {
@@ -275,14 +274,20 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             .DeleteAsync();
     }
 
-    public async Task RegenerateEntrySearchTable()
+    public Task RegenerateEntrySearchTable()
+    {
+        return RegenerateEntrySearchTable(dbContext);
+    }
+
+    public static async Task RegenerateEntrySearchTable(Microsoft.EntityFrameworkCore.DbContext dbContext)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
-        await EntrySearchRecordsTable.TruncateAsync();
+        var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
+        await entrySearchRecordsTable.TruncateAsync();
 
-        var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
-        var morphTypeDataLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
-        await EntrySearchRecordsTable
+        var writingSystems = await dbContext.Set<WritingSystem>().OrderBy(ws => ws.Order).ThenBy(ws => ws.Id).ToArrayAsync();
+        var morphTypeDataLookup = await dbContext.Set<MorphType>().ToDictionaryAsync(m => m.Kind);
+        await entrySearchRecordsTable
             .BulkCopyAsync(dbContext.Set<Entry>()
                 .LoadWith(e => e.Senses)
                 .AsQueryable()
