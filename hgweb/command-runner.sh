@@ -86,11 +86,12 @@ if [[ $command_name == "regexcount" ]]; then
     fi
 fi
 
+first_char=$(echo $project_code | cut -c1)
+
 # First ensure NFS cache is refreshed in case project repo changed in another pod (e.g., project reset)
 ls /var/hg/repos/$first_char/$project_code/.hg >/dev/null 2>/dev/null  # Don't need output; this is enough to refresh NFS dir cache
 
 # Pre-flight check: return 404 if project not found at all
-first_char=$(echo $project_code | cut -c1)
 if [[ ! -d "/var/hg/repos/$first_char/$project_code" ]]; then
     echo "Content-type: text/plain"
     echo "Status: 404 Not Found"
