@@ -88,17 +88,22 @@ public static class ExampleSentenceSync
         }
     }
 
-    private class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : IOrderableCollectionDiffApi<ExampleSentence>
+    private class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : IOrderableCollectionDiffApi<ExampleSentence, Guid>
     {
-        public async Task<int> Add(ExampleSentence afterExampleSentence, BetweenPosition between)
+        public Guid GetId(ExampleSentence value)
         {
-            await api.CreateExampleSentence(entryId, senseId, afterExampleSentence, between);
+            return value.Id;
+        }
+
+        public async Task<int> Add(ExampleSentence afterExampleSentence, BetweenPosition<ExampleSentence> between)
+        {
+            await api.CreateExampleSentence(entryId, senseId, afterExampleSentence, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
-        public async Task<int> Move(ExampleSentence example, BetweenPosition between)
+        public async Task<int> Move(ExampleSentence example, BetweenPosition<ExampleSentence> between)
         {
-            await api.MoveExampleSentence(entryId, senseId, example.Id, between);
+            await api.MoveExampleSentence(entryId, senseId, example.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 

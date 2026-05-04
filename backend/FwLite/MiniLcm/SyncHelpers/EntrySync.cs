@@ -66,7 +66,7 @@ public static class EntrySync
         try
         {
             var changes = 0;
-            changes += await SyncComplexFormComponents(afterEntry, beforeEntry.Components, afterEntry.Components, api);
+            changes += await SyncComplexFormComponents(beforeEntry.Components, afterEntry.Components, api);
             changes += await SyncComplexForms(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
             return changes;
         }
@@ -98,12 +98,12 @@ public static class EntrySync
             new ComplexFormTypesDiffApi(api, entryId));
     }
 
-    private static async Task<int> SyncComplexFormComponents(Entry afterEntry, IList<ComplexFormComponent> beforeComponents, IList<ComplexFormComponent> afterComponents, IMiniLcmApi api)
+    private static async Task<int> SyncComplexFormComponents(IList<ComplexFormComponent> beforeComponents, IList<ComplexFormComponent> afterComponents, IMiniLcmApi api)
     {
         return await DiffCollection.DiffOrderable(
             beforeComponents,
             afterComponents,
-            new ComplexFormComponentsDiffApi(afterEntry, api)
+            new ComplexFormComponentsDiffApi(api)
         );
     }
 
@@ -236,27 +236,19 @@ public static class EntrySync
         }
     }
 
-    private class ComplexFormComponentsDiffApi(Entry afterEntry, IMiniLcmApi api) : IOrderableCollectionDiffApi<ComplexFormComponent>
+    private class ComplexFormComponentsDiffApi(IMiniLcmApi api) : IOrderableCollectionDiffApi<ComplexFormComponent, (Guid, Guid, Guid?)>
     {
-        public Guid GetId(ComplexFormComponent component)
+        public (Guid, Guid, Guid?) GetId(ComplexFormComponent component)
         {
             // we can't use the ID as there's none defined by Fw so it won't work as a sync key
-            return component.ComponentSenseId ?? component.ComponentEntryId;
+            return (component.ComplexFormEntryId, component.ComponentEntryId, component.ComponentSenseId);
         }
 
-        private BetweenPosition<ComplexFormComponent> MapBackToEntities(BetweenPosition between)
+        public async Task<int> Add(ComplexFormComponent after, BetweenPosition<ComplexFormComponent> between)
         {
-            var previous = between!.Previous is null ? null : afterEntry.Components.Find(c => GetId(c) == between.Previous);
-            var next = between!.Next is null ? null : afterEntry.Components.Find(c => GetId(c) == between.Next);
-            return new BetweenPosition<ComplexFormComponent>(previous, next);
-        }
-
-        public async Task<int> Add(ComplexFormComponent after, BetweenPosition between)
-        {
-            var betweenComponents = MapBackToEntities(between);
             try
             {
-                await api.CreateComplexFormComponent(after, betweenComponents);
+                await api.CreateComplexFormComponent(after, between);
             }
             catch (NotFoundException)
             {
@@ -265,10 +257,9 @@ public static class EntrySync
             return 1;
         }
 
-        public async Task<int> Move(ComplexFormComponent component, BetweenPosition between)
+        public async Task<int> Move(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
         {
-            var betweenComponents = MapBackToEntities(between);
-            await api.MoveComplexFormComponent(component, betweenComponents);
+            await api.MoveComplexFormComponent(component, between);
             return 1;
         }
 
@@ -290,17 +281,22 @@ public static class EntrySync
         }
     }
 
-    private class SensesDiffApi(IMiniLcmApi api, Guid entryId) : IOrderableCollectionDiffApi<Sense>
+    private class SensesDiffApi(IMiniLcmApi api, Guid entryId) : IOrderableCollectionDiffApi<Sense, Guid>
     {
-        public async Task<int> Add(Sense sense, BetweenPosition between)
+        public Guid GetId(Sense sense)
         {
-            await api.CreateSense(entryId, sense, between);
+            return sense.Id;
+        }
+
+        public async Task<int> Add(Sense sense, BetweenPosition<Sense> between)
+        {
+            await api.CreateSense(entryId, sense, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
-        public async Task<int> Move(Sense sense, BetweenPosition between)
+        public async Task<int> Move(Sense sense, BetweenPosition<Sense> between)
         {
-            await api.MoveSense(entryId, sense.Id, between);
+            await api.MoveSense(entryId, sense.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 

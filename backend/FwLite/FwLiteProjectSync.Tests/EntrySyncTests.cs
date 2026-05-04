@@ -622,6 +622,40 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
     }
 
     [Fact]
+    public async Task CanSyncComponentWhenSenseMovesToDifferentEntry()
+    {
+        // Reproduces a real sync scenario: the snapshot (before) has a component pointing to
+        // sense S on entry A. In current FwData (after), sense S has moved to entry B (I don't know when that actually happens).
+        // So: same ComponentSenseId, different ComponentEntryId.
+        var senseId = Guid.NewGuid();
+        var oldComponentEntry = await Api.CreateEntry(new() { LexemeForm = { { "en", "old-component" } } });
+        var newComponentEntry = await Api.CreateEntry(new() { LexemeForm = { { "en", "new-component" } }, Senses = [new() { Id = senseId }] });
+        var complexFormId = Guid.NewGuid();
+        // Create the complex form with the old component (pointing to sense on old entry)
+        var complexForm = await Api.CreateEntry(new()
+        {
+            Id = complexFormId,
+            LexemeForm = { { "en", "complex form" } },
+            Components = [ComplexFormComponent.FromEntries(new Entry { Id = complexFormId }, oldComponentEntry, senseId)]
+        });
+
+        // after: FwData now has the component pointing to new entry with the same sense
+        var complexFormAfter = complexForm.Copy();
+        complexFormAfter.Components =
+        [
+            ComplexFormComponent.FromEntries(new Entry { Id = complexFormId }, newComponentEntry, senseId)
+        ];
+
+        await EntrySync.SyncComplexFormsAndComponents(complexForm, complexFormAfter, Api);
+
+        var actual = await Api.GetEntry(complexFormId);
+        actual.Should().NotBeNull();
+        actual.Components.Should().HaveCount(1);
+        actual.Components[0].ComponentEntryId.Should().Be(newComponentEntry.Id);
+        actual.Components[0].ComponentSenseId.Should().Be(senseId);
+    }
+
+    [Fact]
     public async Task SyncComplexFormsAndComponents_MovesComponentsToCorrectPosition()
     {
         var componentA = await Api.CreateEntry(new() { LexemeForm = { { "en", "componentA" } } });
