@@ -748,5 +748,11 @@
   {
     "$type": "delete:CustomView",
     "EntityId": "c954bd38-e4b5-ce57-0069-2a6edc91e629"
+  },
+  {
+    "$type": "MoveSenseToEntryChange",
+    "EntryId": "a71ce732-d089-6171-22f3-e5d571f4cc37",
+    "Order": 4.123,
+    "EntityId": "48c7b2d6-6c0a-9c43-e3b1-dee1ce0f9633"
   }
 ]

@@ -1423,10 +1423,22 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    public Task<Sense?> GetSense(Guid entryId, Guid id)
+    public Task<Sense?> GetSense(Guid id)
     {
         SenseRepository.TryGetObject(id, out var lcmSense);
         return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
+    }
+
+    public Task<Sense?> GetSense(Guid entryId, Guid id)
+    {
+        SenseRepository.TryGetObject(id, out var lcmSense);
+        if (lcmSense is not null) VerifySenseBelongsToEntry(entryId, lcmSense);
+        return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
+    }
+
+    private void VerifySenseBelongsToEntry(Guid entryId, ILexSense sense)
+    {
+        if (sense.Entry.Guid != entryId) throw new NotFoundException($"Sense {sense.Guid} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.Entry.Guid}", nameof(Sense));
     }
 
     public Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
@@ -1444,7 +1456,7 @@ public class FwDataMiniLcmApi(
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        if (lexSense.Entry.Guid != entryId) throw new InvalidOperationException($"Sense {senseId} does not belong to the expected entry, expected Id {entryId}, actual Id {lexSense.Entry.Guid}");
+        VerifySenseBelongsToEntry(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert sense",
             Cache.ServiceLocator.ActionHandler,
@@ -1458,13 +1470,15 @@ public class FwDataMiniLcmApi(
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
+        var lexSense = SenseRepository.GetObject(after.Id);
+        VerifySenseBelongsToEntry(entryId, lexSense);
         await Cache.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert Sense",
             async () =>
             {
                 await SenseSync.Sync(entryId, before, after, api ?? this);
             });
-        return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
+        return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
     }
 
     public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
@@ -1548,7 +1562,7 @@ public class FwDataMiniLcmApi(
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        if (lexSense.Entry.Guid != entryId) throw new InvalidOperationException("Sense does not belong to entry");
+        VerifySenseBelongsToEntry(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Sense",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,

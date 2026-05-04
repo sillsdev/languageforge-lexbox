@@ -312,6 +312,7 @@ public static class LcmCrdtKernel
             .Add<DeleteChange<ComplexFormComponent>>()
             .Add<DeleteChange<Publication>>()
             .Add<SetPartOfSpeechChange>()
+            .Add<MoveSenseToEntryChange>()
             .Add<AddSemanticDomainChange>()
             .Add<RemoveSemanticDomainChange>()
             .Add<ReplaceSemanticDomainChange>()

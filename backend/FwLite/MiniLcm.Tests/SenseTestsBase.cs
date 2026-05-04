@@ -1,3 +1,6 @@
+using MiniLcm.Exceptions;
+using MiniLcm.SyncHelpers;
+
 namespace MiniLcm.Tests;
 
 public abstract class SenseTestsBase : MiniLcmTestBase
@@ -61,5 +64,32 @@ public abstract class SenseTestsBase : MiniLcmTestBase
         var recreated = await Api.CreateSense(_entryId, initial);
         recreated.Should().NotBeNull();
         recreated.Should().BeEquivalentTo(initial);
+    }
+
+    [Fact]
+    public async Task MoveSense_ReparentsToDifferentEntry()
+    {
+        // FieldWorks lets users move a sense from one entry to another. The MoveSense API must reparent
+        // it (preserving identity), not just reorder it within the original entry.
+        var sourceEntry = await Api.CreateEntry(new() { LexemeForm = { { "en", "source" } } });
+        var destEntry = await Api.CreateEntry(new() { LexemeForm = { { "en", "dest" } } });
+        var sense = await Api.CreateSense(sourceEntry.Id, new() { Id = Guid.NewGuid(), Gloss = { { "en", "moving" } } });
+
+        await Api.MoveSense(destEntry.Id, sense.Id, new BetweenPosition(null, null));
+
+        var senseAfter = await Api.GetSense(destEntry.Id, sense.Id);
+        senseAfter.Should().NotBeNull();
+        senseAfter.EntryId.Should().Be(destEntry.Id);
+
+        var act = () => Api.GetSense(sourceEntry.Id, sense.Id);
+        await act.Should().ThrowAsync<NotFoundException>();
+
+        var sourceAfter = await Api.GetEntry(sourceEntry.Id);
+        sourceAfter.Should().NotBeNull();
+        sourceAfter.Senses.Should().BeEmpty();
+
+        var destAfter = await Api.GetEntry(destEntry.Id);
+        destAfter.Should().NotBeNull();
+        destAfter.Senses.Should().ContainSingle(s => s.Id == sense.Id);
     }
 }

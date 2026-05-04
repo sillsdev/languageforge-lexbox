@@ -414,6 +414,11 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return await ToSense(entryId, sense);
     }
 
+    public Task<Sense?> GetSense(Guid id)
+    {
+        throw new NotSupportedException("Getting a sense by ID without the entry ID is not supported in LfClassicMiniLcmApi");
+    }
+
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
         var entry = await Entries.Find(e => e.Guid == entryId).FirstOrDefaultAsync();

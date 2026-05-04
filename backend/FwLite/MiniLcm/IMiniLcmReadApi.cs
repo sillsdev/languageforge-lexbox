@@ -22,6 +22,8 @@ public interface IMiniLcmReadApi
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
     Task<Entry?> GetEntry(Guid id);
+    // a sense is an entity in its own right as it can be moved between entries
+    Task<Sense?> GetSense(Guid id);
     Task<Sense?> GetSense(Guid entryId, Guid id);
     Task<PartOfSpeech?> GetPartOfSpeech(Guid id);
     Task<Publication?> GetPublication(Guid id);

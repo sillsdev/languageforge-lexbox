@@ -198,6 +198,12 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var setPartOfSpeechChange = new SetPartOfSpeechChange(sense.Id, partOfSpeech.Id);
         yield return new ChangeWithDependencies(setPartOfSpeechChange, [createSenseChange, createPartOfSpeechChange]);
 
+        var senseEntryMoveTarget = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "sense move target" } } };
+        var createSenseEntryMoveTargetChange = new CreateEntryChange(senseEntryMoveTarget);
+        yield return new ChangeWithDependencies(createSenseEntryMoveTargetChange);
+        var setSenseEntryChange = new MoveSenseToEntryChange(sense.Id, senseEntryMoveTarget.Id, 1);
+        yield return new ChangeWithDependencies(setSenseEntryChange, [createSenseChange, createSenseEntryMoveTargetChange]);
+
         var addSemanticDomainChange = new AddSemanticDomainChange(semanticDomain, sense.Id);
         yield return new ChangeWithDependencies(addSemanticDomainChange, [createSenseChange, createSemanticDomainChange]);
 

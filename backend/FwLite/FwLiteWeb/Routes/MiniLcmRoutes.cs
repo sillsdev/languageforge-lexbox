@@ -142,7 +142,7 @@ public static class MiniLcmRoutes
         public static Task<Sense?> GetSense(Guid id, [FromServices] MiniLcmHolder holder)
         {
             var api = holder.MiniLcmApi;
-            return api.GetSense(Guid.Empty, id);
+            return api.GetSense(id);
         }
 
         public static Task<int> GetEntryIndex(
