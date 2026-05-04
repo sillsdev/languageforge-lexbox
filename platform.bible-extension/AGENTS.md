@@ -52,7 +52,7 @@ On activation, the extension:
 1. Launches the FW Lite process on `http://localhost:29348`
 2. Registers 5 WebView providers (Main, AddWord, FindWord, FindRelatedWords, SelectLexicon)
 3. Registers `lexicon.entryService` as a PAPI network object so other extensions can call it
-4. Registers 6 commands (`addEntry`, `browseLexicon`, `displayEntry`, `findEntry`, `findRelatedEntries`, `lexicons`, `selectLexicon`)
+4. Registers commands (`addEntry`, `browseLexicon`, `displayEntry`, `findEntry`, `findRelatedEntries`, `lexicons`, `selectLexicon`)
 5. Creates a `ProjectManagers` instance to manage per-project state
 
 ### Key abstractions
@@ -66,7 +66,7 @@ On activation, the extension:
 
 ### Build pipeline
 
-Webpack runs two passes: WebViews first (`webpack.config.web-view.ts`), then main (`webpack.config.main.ts`). SWC is used for fast transpilation. Tailwind CSS is processed via PostCSS. Output goes to `dist/`.
+Webpack runs two passes: WebViews first (`webpack/webpack.config.web-view.ts`), then main (`webpack/webpack.config.main.ts`). SWC is used for fast transpilation. Tailwind CSS is processed via PostCSS. Output goes to `dist/`.
 
 ### PAPI patterns
 
