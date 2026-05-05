@@ -160,7 +160,7 @@ public abstract class SortingTestsBase : MiniLcmTestBase
 
         var ids = expected.Select(e => e.Id).ToHashSet();
 
-        foreach (var entry in Faker.Faker.Random.Shuffle(expected))
+        foreach (var entry in expected)
             await Api.CreateEntry(entry);
 
         var results = (await Api.SearchEntries(searchTerm, new(new(SortField.SearchRelevance))).ToArrayAsync())
@@ -218,7 +218,7 @@ public abstract class SortingTestsBase : MiniLcmTestBase
 
         var ids = expected.Select(e => e.Id).ToHashSet();
 
-        foreach (var entry in Faker.Faker.Random.Shuffle(expected))
+        foreach (var entry in expected)
             await Api.CreateEntry(entry);
 
         var results = (await Api.SearchEntries(searchTerm, new(new(SortField.SearchRelevance))).ToArrayAsync())
@@ -253,7 +253,7 @@ public abstract class SortingTestsBase : MiniLcmTestBase
 
         var ids = expected.Select(e => e.Id).ToHashSet();
 
-        foreach (var entry in Faker.Faker.Random.Shuffle(expected))
+        foreach (var entry in expected)
             await Api.CreateEntry(entry);
 
         var results = (await Api.SearchEntries(searchTerm, new(new(SortField.Headword))).ToArrayAsync())
@@ -288,7 +288,7 @@ public abstract class SortingTestsBase : MiniLcmTestBase
 
         var ids = expected.Select(e => e.Id).ToHashSet();
 
-        foreach (var entry in Faker.Faker.Random.Shuffle(expected))
+        foreach (var entry in expected)
             await Api.CreateEntry(entry);
 
         var results = (await Api.SearchEntries(searchTerm, new(new(SortField.Headword))).ToArrayAsync())
