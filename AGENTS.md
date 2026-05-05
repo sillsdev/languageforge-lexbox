@@ -52,7 +52,8 @@ Key documentation for this project:
 
 ### Testing
 
-- ❌ **Do NOT run dotnet INTEGRATION tests** unless the user explicitly asks. They require full test infrastructure (database, services) which usually isn't available.
+- ❌ **Do NOT run LexBox dotnet INTEGRATION tests** unless the user explicitly asks. They require full test infrastructure (database, services) which usually isn't available.
+- ✅ **FwLite integration tests CAN be run** — e.g. `FwLiteProjectSync.Tests` They're just a bit slow, but run them freely when making critical changes to relevant code.
 - ✅ **DO run unit tests locally** and filter to the tests that are relevant to the changes you are making. Use IDE testing tools over the cli.
 
 ### Questions?
