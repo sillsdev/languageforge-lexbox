@@ -146,6 +146,7 @@
         Annotations: 
           Relational:ColumnType: jsonb
       DeletedAt (DateTimeOffset?)
+      HomographNumber (int) Required
       LexemeForm (MultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
