@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,7 +17,12 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
         var initialSqlFile = GetFilePath($"Scripts/{version}.sql");
         var projectsService = _asyncScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
         var crdtProject = new CrdtProject(dbName, $"{dbName}.sqlite");
-        if (File.Exists(crdtProject.DbPath)) File.Delete(crdtProject.DbPath);
+        if (File.Exists(crdtProject.DbPath))
+        {
+            using var clearConn = new SqliteConnection($"Data Source={crdtProject.DbPath}");
+            SqliteConnection.ClearPool(clearConn);
+            File.Delete(crdtProject.DbPath);
+        }
         projectsService.SetupProjectContextForNewDb(crdtProject);
         await using var lcmCrdtDbContext = await _asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         var sql = await File.ReadAllTextAsync(initialSqlFile);

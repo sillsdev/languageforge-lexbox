@@ -91,10 +91,11 @@ public static class LcmCrdtKernel
         return services;
     }
 
+    // DynamicDependency prevents the trimmer from removing ClearAllPools (used by LinqToDB via reflection)
+    // without actually calling it — ClearAllPools() clears ALL pools globally and breaks parallel tests.
+    [System.Diagnostics.CodeAnalysis.DynamicDependency(nameof(SqliteConnection.ClearAllPools), typeof(SqliteConnection))]
     private static void AvoidTrimming()
     {
-        //this is only here so that the compiler doesn't trim this method as Linq2Db uses it via reflection
-        SqliteConnection.ClearAllPools();
     }
 
     public static void ConfigureDbOptions(IServiceProvider provider, DbContextOptionsBuilder builder)
