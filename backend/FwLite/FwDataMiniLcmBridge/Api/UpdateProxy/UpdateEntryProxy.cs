@@ -41,7 +41,7 @@ public record UpdateEntryProxy : Entry
         set => throw new NotImplementedException();
     }
 
-    public override MorphType MorphType
+    public override MorphTypeKind MorphType
     {
         get => throw new NotImplementedException();
         set => Console.WriteLine("setting MorphType not implemented"); // Not throwing, for now

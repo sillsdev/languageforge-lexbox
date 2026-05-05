@@ -17,6 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="FwDataMiniLcmBridge.Tests" />
+    <InternalsVisibleTo Include="FwLiteProjectSync.Tests" />
     <InternalsVisibleTo Include="LcmDebugger" />
   </ItemGroup>
   <ItemGroup>

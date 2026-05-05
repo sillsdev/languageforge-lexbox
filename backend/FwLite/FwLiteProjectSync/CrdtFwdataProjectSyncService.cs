@@ -76,6 +76,18 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         {
             // Repair any missing translation IDs before doing the full sync, so the sync doesn't have to deal with them
             var syncedIdCount = await CrdtRepairs.SyncMissingTranslationIds(projectSnapshot.Entries, fwdata, crdt, dryRun);
+
+            // Patch legacy snapshots that were created before morph-type support.
+            // After seeding, the CRDT has morph-types but the snapshot still has [].
+            // Without this patch, the diff would see all morph-types as "new" and try to re-add them.
+            if (projectSnapshot.MorphTypes.Length == 0)
+            {
+                var currentCrdtMorphTypes = await crdt.GetMorphTypes().ToArrayAsync();
+                if (currentCrdtMorphTypes.Length > 0)
+                {
+                    projectSnapshot = projectSnapshot with { MorphTypes = currentCrdtMorphTypes };
+                }
+            }
         }
 
         var syncResult = projectSnapshot is null
@@ -121,6 +133,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         var currentFwDataComplexFormTypes = await fwdataApi.GetComplexFormTypes().ToArrayAsync();
         crdtChanges += await ComplexFormTypeSync.Sync(projectSnapshot.ComplexFormTypes, currentFwDataComplexFormTypes, crdtApi);
         fwdataChanges += await ComplexFormTypeSync.Sync(currentFwDataComplexFormTypes, await crdtApi.GetComplexFormTypes().ToArrayAsync(), fwdataApi);
+
+        var currentFwDataMorphTypes = await fwdataApi.GetMorphTypes().ToArrayAsync();
+        crdtChanges += await MorphTypeSync.Sync(projectSnapshot.MorphTypes, currentFwDataMorphTypes, crdtApi);
+        fwdataChanges += await MorphTypeSync.Sync(currentFwDataMorphTypes, await crdtApi.GetMorphTypes().ToArrayAsync(), fwdataApi);
 
         var currentFwDataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtChanges += await EntrySync.SyncFull(projectSnapshot.Entries, currentFwDataEntries, crdtApi);

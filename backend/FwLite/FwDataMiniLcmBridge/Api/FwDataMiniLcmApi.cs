@@ -541,7 +541,7 @@ public class FwDataMiniLcmApi(
             });
     }
 
-    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    public IAsyncEnumerable<MorphType> GetMorphTypes()
     {
         return
             MorphTypeRepository
@@ -550,35 +550,38 @@ public class FwDataMiniLcmApi(
             .Select(FromLcmMorphType);
     }
 
-    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    public Task<MorphType?> GetMorphType(Guid id)
     {
         MorphTypeRepository.TryGetObject(id, out var lcmMorphType);
-        if (lcmMorphType is null) return Task.FromResult<MorphTypeData?>(null);
-        return Task.FromResult<MorphTypeData?>(FromLcmMorphType(lcmMorphType));
+        if (lcmMorphType is null) return Task.FromResult<MorphType?>(null);
+        return Task.FromResult<MorphType?>(FromLcmMorphType(lcmMorphType));
     }
 
-    internal MorphTypeData FromLcmMorphType(IMoMorphType morphType)
+    public Task<MorphType?> GetMorphType(MorphTypeKind kind)
     {
-        return new MorphTypeData
+        var guid = LcmHelpers.ToLcmMorphTypeId(kind);
+        if (guid is null) return Task.FromResult<MorphType?>(null);
+        MorphTypeRepository.TryGetObject(guid.Value, out var lcmMorphType);
+        if (lcmMorphType is null) return Task.FromResult<MorphType?>(null);
+        return Task.FromResult<MorphType?>(FromLcmMorphType(lcmMorphType));
+    }
+
+    internal MorphType FromLcmMorphType(IMoMorphType morphType)
+    {
+        return new MorphType
         {
             Id = morphType.Guid,
-            MorphType = LcmHelpers.FromLcmMorphType(morphType),
+            Kind = LcmHelpers.FromLcmMorphType(morphType),
             Name = FromLcmMultiString(morphType.Name),
             Abbreviation = FromLcmMultiString(morphType.Abbreviation),
             Description = FromLcmMultiString(morphType.Description),
-            LeadingToken = morphType.Prefix,
-            TrailingToken = morphType.Postfix,
+            Prefix = morphType.Prefix,
+            Postfix = morphType.Postfix,
             SecondaryOrder = morphType.SecondaryOrder,
         };
     }
 
-    public Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphTypeData)
-    {
-        // Creating new morph types not allowed in FwData projects, so silently ignore operation
-        return Task.FromResult(morphTypeData);
-    }
-
-    public Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
+    public Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
         var lcmMorphType = MorphTypeRepository.GetObject(id);
         if (lcmMorphType is null) throw new NullReferenceException($"unable to find morph type with id {id}");
@@ -587,22 +590,16 @@ public class FwDataMiniLcmApi(
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var updateProxy = new UpdateMorphTypeDataProxy(lcmMorphType, this);
+                var updateProxy = new UpdateMorphTypeProxy(lcmMorphType, this);
                 update.Apply(updateProxy);
             });
         return Task.FromResult(FromLcmMorphType(lcmMorphType));
     }
 
-    public async Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
+    public async Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null)
     {
-        await MorphTypeDataSync.Sync(before, after, api ?? this);
-        return await GetMorphTypeData(after.Id) ?? throw new NullReferenceException("unable to find morph type with id " + after.Id);
-    }
-
-    public Task DeleteMorphTypeData(Guid id)
-    {
-        // Deleting morph types not allowed in FwData projects, so silently ignore operation
-        return Task.CompletedTask;
+        await MorphTypeSync.Sync(before, after, api ?? this);
+        return await GetMorphType(after.Id) ?? throw new NullReferenceException("unable to find morph type with id " + after.Id);
     }
 
     public IAsyncEnumerable<VariantType> GetVariantTypes()
@@ -643,7 +640,7 @@ public class FwDataMiniLcmApi(
     {
         try
         {
-            return new Entry
+            var result = new Entry
             {
                 Id = entry.Guid,
                 Note = FromLcmMultiString(entry.Comment),
@@ -661,6 +658,7 @@ public class FwDataMiniLcmApi(
                 // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
                 PublishIn = entry.PublishIn.Select(FromLcmPossibility).ToList(),
             };
+            return result;
         }
         catch (Exception e)
         {
@@ -716,14 +714,12 @@ public class FwDataMiniLcmApi(
         return new ComplexFormComponent
         {
             ComponentEntryId = component.Guid,
-            ComponentHeadword = component.LexEntryHeadwordOrUnknown(),
+            ComponentHeadword = component.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
             Order = Order(component, complexEntry)
         };
     }
-
-
 
     private ComplexFormComponent ToSenseReference(ILexSense componentSense, ILexEntry complexEntry)
     {
@@ -731,9 +727,9 @@ public class FwDataMiniLcmApi(
         {
             ComponentEntryId = componentSense.Entry.Guid,
             ComponentSenseId = componentSense.Guid,
-            ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(),
+            ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
             Order = Order(componentSense, complexEntry)
         };
     }
@@ -930,12 +926,13 @@ public class FwDataMiniLcmApi(
     private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query)
     {
         var sortWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Vernacular);
+        var stemSecondaryOrder = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphStem).SecondaryOrder;
         if (order.Field == SortField.SearchRelevance)
         {
-            return entries.ApplyRoughBestMatchOrder(order, sortWs, query);
+            return entries.ApplyRoughBestMatchOrder(order, sortWs, stemSecondaryOrder, query);
         }
 
-        return order.ApplyOrder(entries, e => e.LexEntryHeadword(sortWs));
+        return entries.ApplyHeadwordOrder(order, sortWs, stemSecondaryOrder);
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
@@ -947,7 +944,7 @@ public class FwDataMiniLcmApi(
     private Func<ILexEntry, bool>? EntrySearchPredicate(string? query = null)
     {
         if (string.IsNullOrEmpty(query)) return null;
-        return entry => entry.CitationForm.SearchValue(query) ||
+        return entry => entry.SearchHeadWord(query) || // CitationForm.SearchValue would be redundant
                         entry.LexemeFormOA?.Form.SearchValue(query) is true ||
                         entry.AllSenses.Any(s => s.Gloss.SearchValue(query));
     }

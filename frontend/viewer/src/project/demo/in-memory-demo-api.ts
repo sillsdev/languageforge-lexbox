@@ -10,6 +10,7 @@ import {
   type IIndexQueryOptions,
   type IMiniLcmFeatures,
   type IMiniLcmJsInvokable,
+  type IMorphType,
   type IPartOfSpeech,
   type IProjectModel,
   type IPublication,
@@ -22,8 +23,9 @@ import {
   type WritingSystemType,
   type ICustomView,
   ViewBase,
+  MorphTypeKind,
 } from '$lib/dotnet-types';
-import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
+import {entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
@@ -41,6 +43,7 @@ import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-t
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import {initProjectStorage} from '$lib/storage';
+import {MorphTypesService} from '$project/data/morph-types.svelte';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -49,17 +52,6 @@ function pickWs(ws: string, defaultWs: string): string {
 const complexFormTypes = entries
   .flatMap(entry => entry.complexFormTypes)
   .filter((value, index, all) => all.findIndex(v2 => v2.id === value.id) === index);
-
-function filterEntries(entries: IEntry[], query: string): IEntry[] {
-  return entries.filter(entry =>
-    [
-      ...Object.values(entry.lexemeForm ?? {}),
-      ...Object.values(entry.citationForm ?? {}),
-      ...entry.senses.flatMap(sense => [
-        ...Object.values(sense.gloss ?? {}),
-      ]),
-    ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
-}
 
 export const mockFwLiteConfig: IFwLiteConfig = {
   appVersion: 'dev',
@@ -94,11 +86,20 @@ const mockJsEventListener: IJsEventListener = {
 };
 
 export class InMemoryDemoApi implements IMiniLcmJsInvokable {
+  #morphTypesService: MorphTypesService;
   #writingSystemService: WritingSystemService;
   #projectEventBus: ProjectEventBus;
   constructor(projectContext: ProjectContext, eventBus: EventBus) {
-    this.#writingSystemService = new WritingSystemService(projectContext);
+    this.#morphTypesService = new MorphTypesService(projectContext);
+    this.#writingSystemService = new WritingSystemService(projectContext, this.#morphTypesService);
     this.#projectEventBus = new ProjectEventBus(projectContext, eventBus);
+
+    // Trigger activating/loading lazy resources.
+    // The fact that we need this "hack" might seem like lazy resources themselves are problematic,
+    // but a MiniLCM API is supposed to be across a solid boundary and not indirectly relying on itself!
+    // We're just doing it here for convenience and it's biting us a tad.
+    void this.#morphTypesService.refetch();
+    this.#writingSystemService.allWritingSystems();
   }
 
   public static setup(): InMemoryDemoApi {
@@ -156,6 +157,17 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         {id: '15', name: {en: 'Idiom'},}
       ]
       //*/
+    );
+  }
+
+  getMorphTypes(): Promise<IMorphType[]> {
+    return Promise.resolve(
+      morphTypes
+      // [
+      //     {id: 'd7f713e8-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Stem},
+      //     {id: 'd7f713db-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Prefix, postfix='-'},
+      //     {id: 'd7f713dd-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Suffix, prefix='-'},
+      // ]
     );
   }
 
@@ -250,27 +262,44 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return entries.slice(options.offset, options.offset + options.count);
   }
 
+  private filterEntries(entries: IEntry[], query: string): IEntry[] {
+    return entries.filter(entry =>
+      [
+        ...this.#writingSystemService.vernacular.map(ws => this.#writingSystemService.headword(entry, ws.wsId)),
+        ...Object.values(entry.lexemeForm ?? {}),
+        ...entry.senses.flatMap(sense => [
+          ...Object.values(sense.gloss ?? {}),
+        ]),
+      ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
+  }
+
   private getFilteredSortedEntries(query?: string, options?: Omit<IQueryOptions, 'count' | 'offset'>): IEntry[] {
     const entries = this.getFilteredEntries(query, options);
-
-    if (!options) return entries;
     const defaultWs = writingSystems.vernacular[0].wsId;
-    const sortWs = pickWs(options.order.writingSystem, defaultWs);
+    const sortWs = pickWs(options?.order?.writingSystem ?? defaultWs, defaultWs);
+    const ascending = options?.order?.ascending ?? true;
+    const stem = morphTypes.find(m => m.kind === MorphTypeKind.Stem)!;
     return entries
       .sort((e1, e2) => {
-        const v1 = this.#writingSystemService.headword(e1, sortWs);
-        const v2 = this.#writingSystemService.headword(e2, sortWs);
+        // morph-tokens should not be included when sorting
+        const v1 = e1.citationForm[sortWs] || e1.lexemeForm[sortWs];
+        const v2 = e2.citationForm[sortWs] || e2.lexemeForm[sortWs];
         if (!v2) return -1;
         if (!v1) return 1;
         let compare = v1.localeCompare(v2, sortWs);
-        if (compare == 0) compare = e1.id.localeCompare(e2.id);
-        return options.order.ascending ? compare : -compare;
+        if (compare === 0) {
+          const m1 = (morphTypes.find(m => m.kind === e1.morphType) ?? stem);
+          const m2 = (morphTypes.find(m => m.kind === e2.morphType) ?? stem);
+          compare = m1.secondaryOrder - m2.secondaryOrder;
+        }
+        if (compare === 0) compare = e1.id.localeCompare(e2.id);
+        return ascending ? compare : -compare;
       });
   }
 
   private getFilteredEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
     let entries = this._Entries();
-    if (query) entries = filterEntries(entries, query);
+    if (query) entries = this.filterEntries(entries, query);
     if (!options) return entries;
 
     const defaultWs = writingSystems.vernacular[0].wsId;

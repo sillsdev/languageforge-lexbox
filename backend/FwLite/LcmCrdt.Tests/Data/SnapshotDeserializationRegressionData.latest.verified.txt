@@ -1614,5 +1614,82 @@
     },
     "Id": "72bcb2dd-4d73-486c-d5df-e5d7b9a6a3eb",
     "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "MorphType",
+      "Id": "edd0c7a1-e37c-c67b-7522-eed5ec86fde8",
+      "Kind": "Prefix",
+      "Name": {
+        "nrc": "3rd generation",
+        "vic": "Fiji Dollar",
+        "gku": "turquoise",
+        "ynn": "Central"
+      },
+      "Abbreviation": {
+        "pbl": "Mobility",
+        "zat": "red",
+        "oru": "PCI",
+        "igo": "Associate"
+      },
+      "Description": {
+        "an": {
+          "Spans": [
+            {
+              "Text": "Tasty",
+              "Ws": "iti",
+              "Bold": "Off",
+              "FontSize": -1017543311,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "0ebd7b3e-175b-6f41-6c4b-7da14ac8f108"
+              ]
+            },
+            {
+              "Text": "Direct",
+              "Ws": "an",
+              "Tags": [
+                "b503f3c3-d81b-4b23-a955-b09edc34f671"
+              ]
+            },
+            {
+              "Text": "client-server",
+              "Ws": "an",
+              "Tags": [
+                "9ee0c2ea-c27d-4804-a8a0-f0fa9dcdc3ca"
+              ]
+            },
+            {
+              "Text": "haptic",
+              "Ws": "an",
+              "Tags": [
+                "b9bbc5a3-aecb-4c9c-84f2-06efc9680203"
+              ]
+            }
+          ]
+        },
+        "aag": {
+          "Spans": [
+            {
+              "Text": "grey",
+              "Ws": "emn",
+              "Bold": "On",
+              "FontSize": -1556897185,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "2ac27d27-9641-1715-5445-93707508db29"
+              ]
+            }
+          ]
+        }
+      },
+      "Prefix": "approach",
+      "Postfix": "syndicate",
+      "SecondaryOrder": 231566132,
+      "DeletedAt": null
+    },
+    "Id": "edd0c7a1-e37c-c67b-7522-eed5ec86fde8",
+    "DeletedAt": null
   }
 ]

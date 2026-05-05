@@ -47,6 +47,12 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi,
         return _miniLcmApi.GetComplexFormTypes();
     }
 
+    public virtual async Task<MorphType> UpdateMorphType(Guid id, JsonPatchDocument<MorphType> update)
+    {
+        var updatedMorphType = await _miniLcmApi.UpdateMorphType(id, new UpdateObjectInput<MorphType>(update));
+        return updatedMorphType;
+    }
+
     public virtual IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return _miniLcmApi.GetEntries(options);

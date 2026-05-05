@@ -31,7 +31,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         {
             Id = appleId,
             LexemeForm = { { "en", Apple } },
-            MorphType = MorphType.Root,
+            MorphType = MorphTypeKind.Root,
         });
         await Api.CreateEntry(new Entry()
         {
@@ -388,25 +388,25 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
 
     [Theory]
     [InlineData("a", "a", true)]
-    [InlineData("a", "A", false)]
-    [InlineData("A", "Ã", false)]
-    [InlineData("ap", "apple", false)]
-    [InlineData("ap", "APPLE", false)]
-    [InlineData("ing", "walking", false)]
-    [InlineData("ing", "WALKING", false)]
-    [InlineData("Ãp", "Ãpple", false)]
-    [InlineData("Ãp", "ãpple", false)]
-    [InlineData("ap", "Ãpple", false)]
-    [InlineData("app", "Ãpple", false)]//crdt fts only kicks in at 3 chars
-    [InlineData("й", "й", false)] // D, C
-    [InlineData("й", "й", false)] // C, D
+    [InlineData("a", "A")]
+    [InlineData("A", "Ã")]
+    [InlineData("ap", "apple")]
+    [InlineData("ap", "APPLE")]
+    [InlineData("ing", "walking")]
+    [InlineData("ing", "WALKING")]
+    [InlineData("Ãp", "Ãpple")]
+    [InlineData("Ãp", "ãpple")]
+    [InlineData("ap", "Ãpple")]
+    [InlineData("app", "Ãpple")]//crdt fts only kicks in at 3 chars
+    [InlineData("й", "й")] // D, C
+    [InlineData("й", "й")] // C, D
     [InlineData("й", "й", true)] // C, C
     [InlineData("й", "й", true)] // D, D
-    [InlineData("ймыл", "ймыл", false)] // D, C
-    [InlineData("ймыл", "ймыл", false)] // C, D
+    [InlineData("ймыл", "ймыл")] // D, C
+    [InlineData("ймыл", "ймыл")] // C, D
     [InlineData("ймыл", "ймыл", true)] // C, C
     [InlineData("ймыл", "ймыл", true)] // D, D
-    public async Task SuccessfulMatches(string searchTerm, string word, bool identical)
+    public async Task SuccessfulMatches(string searchTerm, string word, bool identical = false)
     {
         // identical is to make the test cases more readable when they only differ in their normalization
         (searchTerm == word).Should().Be(identical);
@@ -514,6 +514,95 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
         var results = await Api.SearchEntries(searchTerm).Select(e => e.LexemeForm["en"]).ToArrayAsync();
         results.Should().Contain(word);
+    }
+
+    // This test guards against the mistake of only matching on headword
+    [Theory]
+    [InlineData("mango")] // FTS
+    [InlineData("m")] // non-FTS
+    public async Task SearchEntries_MatchesLexeme(string searchTerm)
+    {
+        var prefixQuery = $"{searchTerm}-";
+        var lexemeOnlyMatchEntry = await Api.CreateEntry(new Entry
+        {
+            LexemeForm = { ["en"] = "mango" },
+            CitationForm = { ["en"] = "zzzzzzzz" },
+            MorphType = MorphTypeKind.Stem,
+        });
+        var lexemeOnlyMatchWithMorphToken = await Api.CreateEntry(new Entry
+        {
+            LexemeForm = { ["en"] = "mango" },
+            CitationForm = { ["en"] = "zzzzzzzz" },
+            MorphType = MorphTypeKind.Prefix,
+        });
+        var entries = await Api.SearchEntries(searchTerm).ToArrayAsync();
+        entries.Should().Contain(e => e.Id == lexemeOnlyMatchEntry.Id);
+        entries.Should().Contain(e => e.Id == lexemeOnlyMatchWithMorphToken.Id);
+    }
+
+    [Theory]
+    [InlineData("mango-")] // FTS
+    [InlineData("o-")] // non-FTS
+    public async Task SearchEntries_CitationFormOverridesMorphTokens(string searchTerm)
+    {
+        var prefixQuery = $"{searchTerm}-";
+        var entryWithOverriddenMorphToken = await Api.CreateEntry(new Entry
+        {
+            LexemeForm = { ["en"] = "mango" },
+            // citation form overrides "mango-"
+            CitationForm = { ["en"] = "zzzzzzzz" },
+            MorphType = MorphTypeKind.Prefix,
+        });
+        var entries = await Api.SearchEntries(searchTerm).ToArrayAsync();
+        entries.Should().NotContain(e => e.Id == entryWithOverriddenMorphToken.Id);
+    }
+
+    [Theory]
+    [InlineData("mango-")] // FTS
+    [InlineData("o-")] // non-FTS
+    public async Task MorphTokenSearch_FindsPrefixEntry(string searchTerm)
+    {
+        var id = Guid.NewGuid();
+        await Api.CreateEntry(new Entry { Id = id, LexemeForm = { ["en"] = "mango" }, MorphType = MorphTypeKind.Prefix });
+
+        var results = await Api.SearchEntries(searchTerm).ToArrayAsync();
+        results.Should().Contain(e => e.Id == id);
+    }
+
+    [Theory]
+    [InlineData("-mango")] // FTS
+    [InlineData("-m")] // non-FTS
+    public async Task MorphTokenSearch_FindsSuffixEntry(string searchTerm)
+    {
+        var id = Guid.NewGuid();
+        await Api.CreateEntry(new Entry { Id = id, LexemeForm = { ["en"] = "mango" }, MorphType = MorphTypeKind.Suffix });
+
+        var results = await Api.SearchEntries(searchTerm).ToArrayAsync();
+        results.Should().Contain(e => e.Id == id);
+    }
+
+    [Fact]
+    public async Task MorphTokenSearch_DoesNotMatchWithoutToken()
+    {
+        await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "mango" }, MorphType = MorphTypeKind.Root });
+
+        // Searching for "-mango" should NOT match a Root entry (no morph tokens)
+        var results = await Api.SearchEntries("mango-").Select(e => e.LexemeForm["en"]).ToArrayAsync();
+        results.Should().NotContain("mango");
+    }
+
+    [Theory]
+    [InlineData("mango", SortField.Headword)] // FTS
+    [InlineData("m", SortField.Headword)] // non-FTS
+    [InlineData("mango", SortField.SearchRelevance)] // FTS
+    [InlineData("m", SortField.SearchRelevance)] // non-FTS
+    public async Task SearchEntries_EntryWithNoMorphTypeData_Works(string searchTerm, SortField sortField)
+    {
+        // MorphType.Unknown will likely not be included in the morph-type DB-table
+        var id = Guid.NewGuid();
+        await Api.CreateEntry(new Entry { Id = id, LexemeForm = { ["en"] = "mango" }, MorphType = MorphTypeKind.Unknown });
+        var results = await Api.SearchEntries(searchTerm, new(new(sortField))).ToArrayAsync();
+        results.Should().Contain(e => e.Id == id);
     }
 }
 

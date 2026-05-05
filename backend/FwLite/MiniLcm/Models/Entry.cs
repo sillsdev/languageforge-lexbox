@@ -10,7 +10,7 @@ public record Entry : IObjectWithId<Entry>
     public virtual MultiString CitationForm { get; set; } = new();
 
     public virtual RichMultiString LiteralMeaning { get; set; } = new();
-    public virtual MorphType MorphType { get; set; } = MorphType.Stem;
+    public virtual MorphTypeKind MorphType { get; set; } = MorphTypeKind.Stem;
     public virtual List<Sense> Senses { get; set; } = [];
 
     public virtual RichMultiString Note { get; set; } = new();
@@ -35,10 +35,11 @@ public record Entry : IObjectWithId<Entry>
     {
         //order by code to ensure the headword is stable
         //todo choose ws by preference based on ws order/default
+        //todo this does not apply morph tokens — see #1284
         //https://github.com/sillsdev/languageforge-lexbox/issues/1284
-        var word = CitationForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
-        if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
-        return word?.Trim() ?? UnknownHeadword;
+        var word = CitationForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value?.Trim();
+        if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value?.Trim();
+        return string.IsNullOrEmpty(word) ? UnknownHeadword : word;
     }
 
     public Entry Copy()

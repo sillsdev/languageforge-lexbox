@@ -45,10 +45,8 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region MorphType
-    Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphType);
-    Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update);
-    Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null);
-    Task DeleteMorphTypeData(Guid id);
+    Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update);
+    Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null);
     #endregion
 
     #region Entry

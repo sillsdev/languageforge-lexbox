@@ -73,4 +73,11 @@ public static class PreDefinedData
             ],
             new Guid("b2c3d4e5-f6a7-8901-bcde-f12345678901"));
     }
+
+    internal static async Task PredefinedMorphTypes(DataModel dataModel, Guid clientId)
+    {
+        await dataModel.AddChanges(clientId,
+            [.. CanonicalMorphTypes.All.Values.Select(mt => new CreateMorphTypeChange(mt))],
+            new Guid("a7b2c3d4-e5f6-4a8b-9c0d-1e2f3a4b5c6d"));
+    }
 }

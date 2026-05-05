@@ -349,34 +349,37 @@ public class CrdtMiniLcmApi(
         await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
     }
 
-    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    public async IAsyncEnumerable<MorphType> GetMorphTypes()
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var morphType in repo.MorphTypes.AsAsyncEnumerable())
+        {
+            yield return morphType;
+        }
     }
 
-    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    public async Task<MorphType?> GetMorphType(Guid id)
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Id == id);
     }
 
-    public Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphTypeData)
+    public async Task<MorphType?> GetMorphType(MorphTypeKind kind)
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Kind == kind);
     }
 
-    public Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
+    public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
-        throw new NotImplementedException();
+        await AddChange(new JsonPatchChange<MorphType>(id, update.Patch));
+        return await GetMorphType(id) ?? throw NotFoundException.ForType<MorphType>(id);
     }
 
-    public Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
+    public async Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteMorphTypeData(Guid id)
-    {
-        throw new NotImplementedException();
+        await MorphTypeSync.Sync(before, after, api ?? this);
+        return await GetMorphType(after.Id) ?? throw NotFoundException.ForType<MorphType>(after.Id);
     }
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)

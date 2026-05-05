@@ -11,7 +11,7 @@ namespace FwDataMiniLcmBridge.Api;
 
 internal static class LcmHelpers
 {
-    internal static string? LexEntryHeadword(this ILexEntry entry, int? ws = null)
+    internal static string? LexEntryHeadword(this ILexEntry entry, int? ws = null, bool applyMorphTokens = true)
     {
         var citationFormTs =
             ws.HasValue ? entry.CitationForm.get_String(ws.Value)
@@ -27,13 +27,31 @@ internal static class LcmHelpers
             : null;
         var lexemeForm = lexemeFormTs?.Text?.Trim(WhitespaceChars);
 
-        return lexemeForm;
+        if (string.IsNullOrEmpty(lexemeForm) || !applyMorphTokens) return lexemeForm;
+
+        var morphType = entry.LexemeFormOA?.MorphTypeRA;
+        var leading = morphType?.Prefix ?? "";
+        var trailing = morphType?.Postfix ?? "";
+        return (leading + lexemeForm + trailing).Trim(WhitespaceChars);
     }
 
-    internal static string LexEntryHeadwordOrUnknown(this ILexEntry entry, int? ws = null)
+    internal static string LexEntryHeadwordOrUnknown(this ILexEntry entry, int? ws = null, bool applyMorphTokens = true)
     {
-        var headword = entry.LexEntryHeadword(ws);
+        var headword = entry.LexEntryHeadword(ws, applyMorphTokens);
         return string.IsNullOrEmpty(headword) ? Entry.UnknownHeadword : headword;
+    }
+
+    internal static bool SearchHeadWord(this ILexEntry entry, string value)
+    {
+        foreach (var ws in entry.Cache.ServiceLocator.WritingSystems.VernacularWritingSystems)
+        {
+            var headword = entry.HeadWordForWs(ws.Handle);
+            if (headword is null) continue;
+            var text = headword.Text;
+            if (string.IsNullOrEmpty(text)) continue;
+            if (text.ContainsDiacriticMatch(value)) return true;
+        }
+        return false;
     }
 
     internal static bool SearchValue(this ITsMultiString multiString, string value)
@@ -85,62 +103,62 @@ internal static class LcmHelpers
         '\u0640', // Arabic Tatweel
     ];
 
-    internal static MorphType FromLcmMorphType(IMoMorphType? morphType)
+    internal static MorphTypeKind FromLcmMorphType(IMoMorphType? morphType)
     {
         var lcmMorphTypeId = morphType?.Id.Guid;
 
         return lcmMorphTypeId switch
         {
-            null => MorphType.Unknown,
+            null => MorphTypeKind.Unknown,
             // Can't switch on Guids since they're not compile-type constants, but thankfully pattern matching works
-            Guid g when g == MoMorphTypeTags.kguidMorphBoundRoot => MorphType.BoundRoot,
-            Guid g when g == MoMorphTypeTags.kguidMorphBoundStem => MorphType.BoundStem,
-            Guid g when g == MoMorphTypeTags.kguidMorphCircumfix => MorphType.Circumfix,
-            Guid g when g == MoMorphTypeTags.kguidMorphClitic => MorphType.Clitic,
-            Guid g when g == MoMorphTypeTags.kguidMorphEnclitic => MorphType.Enclitic,
-            Guid g when g == MoMorphTypeTags.kguidMorphInfix => MorphType.Infix,
-            Guid g when g == MoMorphTypeTags.kguidMorphParticle => MorphType.Particle,
-            Guid g when g == MoMorphTypeTags.kguidMorphPrefix => MorphType.Prefix,
-            Guid g when g == MoMorphTypeTags.kguidMorphProclitic => MorphType.Proclitic,
-            Guid g when g == MoMorphTypeTags.kguidMorphRoot => MorphType.Root,
-            Guid g when g == MoMorphTypeTags.kguidMorphSimulfix => MorphType.Simulfix,
-            Guid g when g == MoMorphTypeTags.kguidMorphStem => MorphType.Stem,
-            Guid g when g == MoMorphTypeTags.kguidMorphSuffix => MorphType.Suffix,
-            Guid g when g == MoMorphTypeTags.kguidMorphSuprafix => MorphType.Suprafix,
-            Guid g when g == MoMorphTypeTags.kguidMorphInfixingInterfix => MorphType.InfixingInterfix,
-            Guid g when g == MoMorphTypeTags.kguidMorphPrefixingInterfix => MorphType.PrefixingInterfix,
-            Guid g when g == MoMorphTypeTags.kguidMorphSuffixingInterfix => MorphType.SuffixingInterfix,
-            Guid g when g == MoMorphTypeTags.kguidMorphPhrase => MorphType.Phrase,
-            Guid g when g == MoMorphTypeTags.kguidMorphDiscontiguousPhrase => MorphType.DiscontiguousPhrase,
-            _ => MorphType.Other,
+            Guid g when g == MoMorphTypeTags.kguidMorphBoundRoot => MorphTypeKind.BoundRoot,
+            Guid g when g == MoMorphTypeTags.kguidMorphBoundStem => MorphTypeKind.BoundStem,
+            Guid g when g == MoMorphTypeTags.kguidMorphCircumfix => MorphTypeKind.Circumfix,
+            Guid g when g == MoMorphTypeTags.kguidMorphClitic => MorphTypeKind.Clitic,
+            Guid g when g == MoMorphTypeTags.kguidMorphEnclitic => MorphTypeKind.Enclitic,
+            Guid g when g == MoMorphTypeTags.kguidMorphInfix => MorphTypeKind.Infix,
+            Guid g when g == MoMorphTypeTags.kguidMorphParticle => MorphTypeKind.Particle,
+            Guid g when g == MoMorphTypeTags.kguidMorphPrefix => MorphTypeKind.Prefix,
+            Guid g when g == MoMorphTypeTags.kguidMorphProclitic => MorphTypeKind.Proclitic,
+            Guid g when g == MoMorphTypeTags.kguidMorphRoot => MorphTypeKind.Root,
+            Guid g when g == MoMorphTypeTags.kguidMorphSimulfix => MorphTypeKind.Simulfix,
+            Guid g when g == MoMorphTypeTags.kguidMorphStem => MorphTypeKind.Stem,
+            Guid g when g == MoMorphTypeTags.kguidMorphSuffix => MorphTypeKind.Suffix,
+            Guid g when g == MoMorphTypeTags.kguidMorphSuprafix => MorphTypeKind.Suprafix,
+            Guid g when g == MoMorphTypeTags.kguidMorphInfixingInterfix => MorphTypeKind.InfixingInterfix,
+            Guid g when g == MoMorphTypeTags.kguidMorphPrefixingInterfix => MorphTypeKind.PrefixingInterfix,
+            Guid g when g == MoMorphTypeTags.kguidMorphSuffixingInterfix => MorphTypeKind.SuffixingInterfix,
+            Guid g when g == MoMorphTypeTags.kguidMorphPhrase => MorphTypeKind.Phrase,
+            Guid g when g == MoMorphTypeTags.kguidMorphDiscontiguousPhrase => MorphTypeKind.DiscontiguousPhrase,
+            // Non-canonical Guids should not be guessed, but be mapped to Unknown
+            _ => MorphTypeKind.Unknown,
         };
     }
 
-    internal static Guid? ToLcmMorphTypeId(MorphType morphType)
+    internal static Guid? ToLcmMorphTypeId(MorphTypeKind morphType)
     {
         return morphType switch
         {
-            MorphType.BoundRoot => MoMorphTypeTags.kguidMorphBoundRoot,
-            MorphType.BoundStem => MoMorphTypeTags.kguidMorphBoundStem,
-            MorphType.Circumfix => MoMorphTypeTags.kguidMorphCircumfix,
-            MorphType.Clitic => MoMorphTypeTags.kguidMorphClitic,
-            MorphType.Enclitic => MoMorphTypeTags.kguidMorphEnclitic,
-            MorphType.Infix => MoMorphTypeTags.kguidMorphInfix,
-            MorphType.Particle => MoMorphTypeTags.kguidMorphParticle,
-            MorphType.Prefix => MoMorphTypeTags.kguidMorphPrefix,
-            MorphType.Proclitic => MoMorphTypeTags.kguidMorphProclitic,
-            MorphType.Root => MoMorphTypeTags.kguidMorphRoot,
-            MorphType.Simulfix => MoMorphTypeTags.kguidMorphSimulfix,
-            MorphType.Stem => MoMorphTypeTags.kguidMorphStem,
-            MorphType.Suffix => MoMorphTypeTags.kguidMorphSuffix,
-            MorphType.Suprafix => MoMorphTypeTags.kguidMorphSuprafix,
-            MorphType.InfixingInterfix => MoMorphTypeTags.kguidMorphInfixingInterfix,
-            MorphType.PrefixingInterfix => MoMorphTypeTags.kguidMorphPrefixingInterfix,
-            MorphType.SuffixingInterfix => MoMorphTypeTags.kguidMorphSuffixingInterfix,
-            MorphType.Phrase => MoMorphTypeTags.kguidMorphPhrase,
-            MorphType.DiscontiguousPhrase => MoMorphTypeTags.kguidMorphDiscontiguousPhrase,
-            MorphType.Unknown => null,
-            MorphType.Other => null, // Note that this will not round-trip with FromLcmMorphType
+            MorphTypeKind.BoundRoot => MoMorphTypeTags.kguidMorphBoundRoot,
+            MorphTypeKind.BoundStem => MoMorphTypeTags.kguidMorphBoundStem,
+            MorphTypeKind.Circumfix => MoMorphTypeTags.kguidMorphCircumfix,
+            MorphTypeKind.Clitic => MoMorphTypeTags.kguidMorphClitic,
+            MorphTypeKind.Enclitic => MoMorphTypeTags.kguidMorphEnclitic,
+            MorphTypeKind.Infix => MoMorphTypeTags.kguidMorphInfix,
+            MorphTypeKind.Particle => MoMorphTypeTags.kguidMorphParticle,
+            MorphTypeKind.Prefix => MoMorphTypeTags.kguidMorphPrefix,
+            MorphTypeKind.Proclitic => MoMorphTypeTags.kguidMorphProclitic,
+            MorphTypeKind.Root => MoMorphTypeTags.kguidMorphRoot,
+            MorphTypeKind.Simulfix => MoMorphTypeTags.kguidMorphSimulfix,
+            MorphTypeKind.Stem => MoMorphTypeTags.kguidMorphStem,
+            MorphTypeKind.Suffix => MoMorphTypeTags.kguidMorphSuffix,
+            MorphTypeKind.Suprafix => MoMorphTypeTags.kguidMorphSuprafix,
+            MorphTypeKind.InfixingInterfix => MoMorphTypeTags.kguidMorphInfixingInterfix,
+            MorphTypeKind.PrefixingInterfix => MoMorphTypeTags.kguidMorphPrefixingInterfix,
+            MorphTypeKind.SuffixingInterfix => MoMorphTypeTags.kguidMorphSuffixingInterfix,
+            MorphTypeKind.Phrase => MoMorphTypeTags.kguidMorphPhrase,
+            MorphTypeKind.DiscontiguousPhrase => MoMorphTypeTags.kguidMorphDiscontiguousPhrase,
+            MorphTypeKind.Unknown => null,
             _ => null,
         };
     }
@@ -212,7 +230,7 @@ internal static class LcmHelpers
         return multiString.get_String(wsHandle)?.Text ?? string.Empty;
     }
 
-    internal static IMoForm CreateLexemeForm(this LcmCache cache, MorphType morphType)
+    internal static IMoForm CreateLexemeForm(this LcmCache cache, MorphTypeKind morphType)
     {
         return
             IsAffixMorphType(morphType)
@@ -220,27 +238,27 @@ internal static class LcmHelpers
             : cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
     }
 
-    internal static bool IsAffixMorphType(MorphType morphType)
+    internal static bool IsAffixMorphType(MorphTypeKind morphType)
     {
         return morphType switch
         {
             // Affixes of all types should use the Affix morph type factory
-            MorphType.Circumfix => true,
-            MorphType.Infix => true,
-            MorphType.Prefix => true,
-            MorphType.Simulfix => true,
-            MorphType.Suffix => true,
-            MorphType.Suprafix => true,
-            MorphType.InfixingInterfix => true,
-            MorphType.PrefixingInterfix => true,
-            MorphType.SuffixingInterfix => true,
+            MorphTypeKind.Circumfix => true,
+            MorphTypeKind.Infix => true,
+            MorphTypeKind.Prefix => true,
+            MorphTypeKind.Simulfix => true,
+            MorphTypeKind.Suffix => true,
+            MorphTypeKind.Suprafix => true,
+            MorphTypeKind.InfixingInterfix => true,
+            MorphTypeKind.PrefixingInterfix => true,
+            MorphTypeKind.SuffixingInterfix => true,
 
             // Everything else should use the Stem morph type factory
             _ => false,
         };
     }
 
-    internal static ILexEntry CreateEntry(this LcmCache cache, Guid id, MorphType morphType)
+    internal static ILexEntry CreateEntry(this LcmCache cache, Guid id, MorphTypeKind morphType)
     {
         var lexEntry = cache.ServiceLocator.GetInstance<ILexEntryFactory>().Create(id,
             cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
@@ -248,11 +266,11 @@ internal static class LcmHelpers
         return lexEntry;
     }
 
-    internal static IMoForm SetLexemeForm(ILexEntry lexEntry, MorphType morphType, LcmCache cache)
+    internal static IMoForm SetLexemeForm(ILexEntry lexEntry, MorphTypeKind morphType, LcmCache cache)
     {
         lexEntry.LexemeFormOA = cache.CreateLexemeForm(morphType);
         //must be done after the IMoForm is set on the LexemeForm property
-        var lcmMorphType = ToLcmMorphTypeId(morphType) ?? ToLcmMorphTypeId(MorphType.Stem);
+        var lcmMorphType = ToLcmMorphTypeId(morphType) ?? ToLcmMorphTypeId(MorphTypeKind.Stem);
         lexEntry.LexemeFormOA.MorphTypeRA = cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>().GetObject(lcmMorphType!.Value);
         return lexEntry.LexemeFormOA;
     }
