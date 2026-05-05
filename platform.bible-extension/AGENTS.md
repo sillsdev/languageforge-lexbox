@@ -4,7 +4,7 @@ This file provides guidance to AI agents when working with code in this reposito
 
 ## What this is
 
-A Platform.Bible extension (named `lexicon`) that provides lexicon management UI for Bible translation projects. It launches and communicates with a FieldWorks Lite (FW Lite) .NET backend process via HTTP REST.
+A Platform.Bible (aka, `paranext-core`) extension (named `lexicon`) that provides lexicon management UI for Bible translation projects. It launches and communicates with a FieldWorks Lite (FW Lite) .NET backend process via HTTP REST.
 
 ## Setup
 
@@ -13,9 +13,7 @@ A Platform.Bible extension (named `lexicon`) that provides lexicon management UI
 Install:
 
 ```
-# In paranext-core:
-npm install
-# In this folder:
+npm core:install
 npm install
 ```
 
