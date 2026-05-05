@@ -12,14 +12,14 @@ A Platform.Bible (aka, `paranext-core`) extension (named `lexicon`) that provide
 
 Install:
 
-```
+```bash
 npm core:install
 npm install
 ```
 
 Build FW Lite backend (required before running):
 
-```
+```bash
 task build-fw-lite
 ```
 
