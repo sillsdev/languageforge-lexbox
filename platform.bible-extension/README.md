@@ -152,6 +152,40 @@ To build the extension once:
 
 `npm run build`
 
+### Using this extension with another development extension
+
+This extension has a network service that can be used by other extensions. Here's how to make it available for active development of another extension:
+
+1. In `platform.bible-extension/`: run `task build-fw-lite`, then `npm run package`, then `npm run core:copy-package`.
+
+2. In `.eslintrc.js`, in the `'import/no-unresolved'` rule, add `'lexicon'` to the `ignore` array:
+
+```diff
+-'import/no-unresolved': ['error', { ignore: ['@papi'] }],
++'import/no-unresolved': ['error', { ignore: ['@papi', 'lexicon'] }],
+```
+
+3. Example uses of this network service are found in [add-word.web-view.tsx](src/web-views/add-word.web-view.tsx) and [find-word.web-view.tsx](src/web-views/find-word.web-view.tsx). Note the following key elements:
+
+- With types `NetworkObject` imported from `'@papi/core'` and `IEntryService` imported from `'lexicon'`:
+
+```ts
+const [lexiconService, setLexiconService] = useState<NetworkObject<IEntryService> | undefined>();
+```
+
+- With `networkObjects` imported from `'@papi/frontend'`, get the network service via
+
+```ts
+useEffect(() => {
+  networkObjects.get<IEntryService>('lexicon.entryService').then(setLexiconService);
+}, []);
+```
+
+- The current PT project id (which the example WebViews get via their props).
+- Call any method defined in [entry-service.ts](src/services/entry-service.ts)
+  - To use `lexiconService.addEntry`, also import types `IEntry` and `PartialEntry` from `'lexicon'`.
+  - To use `lexiconService.getEntries`, also import types `IEntryQuery` and `PartialEntry` from `'lexicon'`.
+
 <!--
 ## To package for distribution
 

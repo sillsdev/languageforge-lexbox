@@ -2,6 +2,7 @@ import webpack from 'webpack';
 import path from 'path';
 import merge from 'webpack-merge';
 import CopyPlugin from 'copy-webpack-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
 import configBase, { rootDir } from './webpack.config.base';
 import WebViewResolveWebpackPlugin from './web-view-resolve-webpack-plugin';
 import { LIBRARY_TYPE, outputFolder } from './webpack.util';
@@ -41,6 +42,14 @@ const configMain: webpack.Configuration = merge(configBase, {
     plugins: [
       // Get WebView files from the temp dir where they are built
       new WebViewResolveWebpackPlugin(),
+    ],
+  },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        // Preserve prebuilt FW Lite browser assets and only minify extension bundles.
+        exclude: /^fw-lite\/.*\.js$/,
+      }),
     ],
   },
 

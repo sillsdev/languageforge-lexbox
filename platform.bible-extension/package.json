@@ -27,6 +27,7 @@
     "lint-fix:scripts": "npm run format && npm run lint:scripts",
     "core:start": "npm --prefix ../../paranext-core start",
     "core:stop": "npm --prefix ../../paranext-core stop",
+    "core:copy-package": "node ./scripts/copy-package-to-core.cjs",
     "core:install": "npm --prefix ../../paranext-core install",
     "core:pull": "git -C ../../paranext-core pull --ff-only",
     "core:update": "npm run core:pull && npm run core:install"
