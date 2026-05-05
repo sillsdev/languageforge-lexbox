@@ -28,13 +28,25 @@ public static class EntrySync
     /// Syncs only the complex forms and components of the before and after entries.
     /// <exception cref="InvalidOperationException">When the before and after entries do not match.</exception>
     /// </summary>
+    /// <remarks>
+    /// Processes ALL <c>Entry.Components</c> diffs (the authoritative side — a complex form
+    /// dictates the order of its components) across every entry first, and only then processes
+    /// <c>Entry.ComplexForms</c> (the reverse view). This matters under a bulk-change batch:
+    /// both views queue an <c>AddEntryComponentChange</c> for the same logical link, and
+    /// Harmony's dedup keeps the first one — so the authoritative ordering must be queued first
+    /// to win dedup, regardless of the iteration order of the entries.
+    /// </remarks>
     public static async Task<int> SyncComplexFormsAndComponents(Entry[] beforeEntries,
         Entry[] afterEntries,
         IMiniLcmApi api)
     {
-        return await DiffCollection.Diff(beforeEntries, afterEntries,
+        var componentsChanges = await DiffCollection.Diff(beforeEntries, afterEntries,
             new ObjectWithIdCollectionReplaceDiffApi<Entry>(
-                (before, after) => SyncComplexFormsAndComponents(before, after, api)));
+                (before, after) => SyncComplexFormComponents(before.Components, after.Components, api)));
+        var complexFormsChanges = await DiffCollection.Diff(beforeEntries, afterEntries,
+            new ObjectWithIdCollectionReplaceDiffApi<Entry>(
+                (before, after) => SyncComplexForms(before.ComplexForms, after.ComplexForms, api)));
+        return componentsChanges + complexFormsChanges;
     }
 
     public static async Task<int> SyncFull(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)

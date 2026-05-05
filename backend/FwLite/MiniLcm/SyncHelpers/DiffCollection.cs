@@ -183,6 +183,21 @@ public static class DiffCollection
         IList<T> after,
         Func<T, TId> getId) where TId : notnull
     {
+        // Fast path: if both lists have the same IDs in the same order, no position changes
+        if (before.Count == after.Count)
+        {
+            var allMatch = true;
+            for (var i = 0; i < before.Count; i++)
+            {
+                if (!EqualityComparer<TId>.Default.Equals(getId(before[i]), getId(after[i])))
+                {
+                    allMatch = false;
+                    break;
+                }
+            }
+            if (allMatch) return null;
+        }
+
         // Map TIds to integers for JSON serialization (supports non-Guid ID types like tuples)
         var idToInt = new Dictionary<TId, int>();
         int idx = 0;

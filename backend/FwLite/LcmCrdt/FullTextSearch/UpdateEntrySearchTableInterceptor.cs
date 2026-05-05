@@ -7,6 +7,12 @@ namespace LcmCrdt.FullTextSearch;
 
 public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
 {
+    /// <summary>
+    /// When true, the interceptor skips FTS updates on save.
+    /// Callers should regenerate the FTS table after bulk operations.
+    /// </summary>
+    internal bool SuppressUpdates { get; set; }
+
     public InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         throw new NotImplementedException(
@@ -27,7 +33,7 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
 
     private async Task UpdateSearchTableOnSave(DbContext? dbContext)
     {
-        if (dbContext is null) return;
+        if (dbContext is null || SuppressUpdates) return;
         List<Entry> toUpdate = [];
         List<Guid> toRemove = [];
         var newWritingSystems = dbContext.ChangeTracker.Entries()

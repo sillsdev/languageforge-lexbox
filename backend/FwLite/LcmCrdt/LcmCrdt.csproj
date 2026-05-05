@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="LcmCrdt.Tests" />
+    <InternalsVisibleTo Include="FwLiteProjectSync" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Gridify.EntityFramework" />

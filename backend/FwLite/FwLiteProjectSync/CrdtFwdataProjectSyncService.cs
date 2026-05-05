@@ -4,6 +4,7 @@ using LcmCrdt;
 using LexCore.Sync;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
+using MiniLcm.Models;
 using MiniLcm.Normalization;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
@@ -80,7 +81,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
 
         var syncResult = projectSnapshot is null
             ? await ImportInternal(crdtApi, fwdataApi, fwdata.EntryCount)
-            : await SyncInternal(crdtApi, fwdataApi, projectSnapshot);
+            : await SyncInternal(crdt, crdtApi, fwdataApi, projectSnapshot);
 
         if (!dryRun)
         {
@@ -100,30 +101,39 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         return new SyncResult(entryCount, 0);
     }
 
-    private async Task<SyncResult> SyncInternal(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, ProjectSnapshot projectSnapshot)
+    private async Task<SyncResult> SyncInternal(CrdtMiniLcmApi crdt, IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, ProjectSnapshot projectSnapshot)
     {
+        // Load FwData state once — used for both sync directions to ensure consistency
         var currentFwDataWritingSystems = await fwdataApi.GetWritingSystems();
-        var crdtChanges = await WritingSystemSync.Sync(projectSnapshot.WritingSystems, currentFwDataWritingSystems, crdtApi);
-        var fwdataChanges = await WritingSystemSync.Sync(currentFwDataWritingSystems, await crdtApi.GetWritingSystems(), fwdataApi);
-
         var currentFwDataPublications = await fwdataApi.GetPublications().ToArrayAsync();
-        crdtChanges += await PublicationSync.Sync(projectSnapshot.Publications, currentFwDataPublications, crdtApi);
-        fwdataChanges += await PublicationSync.Sync(currentFwDataPublications, await crdtApi.GetPublications().ToArrayAsync(), fwdataApi);
-
         var currentFwDataPartsOfSpeech = await fwdataApi.GetPartsOfSpeech().ToArrayAsync();
-        crdtChanges += await PartOfSpeechSync.Sync(projectSnapshot.PartsOfSpeech, currentFwDataPartsOfSpeech, crdtApi);
-        fwdataChanges += await PartOfSpeechSync.Sync(currentFwDataPartsOfSpeech, await crdtApi.GetPartsOfSpeech().ToArrayAsync(), fwdataApi);
-
         var currentFwDataSemanticDomains = await fwdataApi.GetSemanticDomains().ToArrayAsync();
-        crdtChanges += await SemanticDomainSync.Sync(projectSnapshot.SemanticDomains, currentFwDataSemanticDomains, crdtApi);
-        fwdataChanges += await SemanticDomainSync.Sync(currentFwDataSemanticDomains, await crdtApi.GetSemanticDomains().ToArrayAsync(), fwdataApi);
-
         var currentFwDataComplexFormTypes = await fwdataApi.GetComplexFormTypes().ToArrayAsync();
-        crdtChanges += await ComplexFormTypeSync.Sync(projectSnapshot.ComplexFormTypes, currentFwDataComplexFormTypes, crdtApi);
-        fwdataChanges += await ComplexFormTypeSync.Sync(currentFwDataComplexFormTypes, await crdtApi.GetComplexFormTypes().ToArrayAsync(), fwdataApi);
-
         var currentFwDataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtChanges += await EntrySync.SyncFull(projectSnapshot.Entries, currentFwDataEntries, crdtApi);
+
+        // Sync metadata into CRDT (small number of changes — not worth deferring)
+        var crdtChanges = await WritingSystemSync.Sync(projectSnapshot.WritingSystems, currentFwDataWritingSystems, crdtApi);
+        crdtChanges += await PublicationSync.Sync(projectSnapshot.Publications, currentFwDataPublications, crdtApi);
+        crdtChanges += await PartOfSpeechSync.Sync(projectSnapshot.PartsOfSpeech, currentFwDataPartsOfSpeech, crdtApi);
+        crdtChanges += await SemanticDomainSync.Sync(projectSnapshot.SemanticDomains, currentFwDataSemanticDomains, crdtApi);
+        crdtChanges += await ComplexFormTypeSync.Sync(projectSnapshot.ComplexFormTypes, currentFwDataComplexFormTypes, crdtApi);
+
+        // Sync entries into CRDT (batched — bulk of changes, this is where the perf win is)
+        {
+            await using var batch = crdt.BeginBulkChangeBatch();
+            crdtChanges += await EntrySync.SyncFull(projectSnapshot.Entries, currentFwDataEntries, crdtApi);
+            logger.LogInformation("Flushing {Count} batched entry CRDT changes", batch.QueuedChangeCount);
+        }
+
+        // Phase 2: Sync crdt→fwdata changes into FwData
+        // Uses the same FwData data loaded above for the "before" side,
+        // and reads fresh CRDT state (now committed from Phase 1) for the "after" side.
+        var fwdataChanges = 0;
+        fwdataChanges += await WritingSystemSync.Sync(currentFwDataWritingSystems, await crdtApi.GetWritingSystems(), fwdataApi);
+        fwdataChanges += await PublicationSync.Sync(currentFwDataPublications, await crdtApi.GetPublications().ToArrayAsync(), fwdataApi);
+        fwdataChanges += await PartOfSpeechSync.Sync(currentFwDataPartsOfSpeech, await crdtApi.GetPartsOfSpeech().ToArrayAsync(), fwdataApi);
+        fwdataChanges += await SemanticDomainSync.Sync(currentFwDataSemanticDomains, await crdtApi.GetSemanticDomains().ToArrayAsync(), fwdataApi);
+        fwdataChanges += await ComplexFormTypeSync.Sync(currentFwDataComplexFormTypes, await crdtApi.GetComplexFormTypes().ToArrayAsync(), fwdataApi);
         fwdataChanges += await EntrySync.SyncFull(currentFwDataEntries, await crdtApi.GetAllEntries().ToArrayAsync(), fwdataApi);
 
         return new SyncResult(crdtChanges, fwdataChanges);
