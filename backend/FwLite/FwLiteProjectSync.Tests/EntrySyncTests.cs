@@ -3,6 +3,7 @@ using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using MiniLcm;
+using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Tests.AutoFakerHelpers;
@@ -671,6 +672,13 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         actualTargetEntry.Should().NotBeNull();
         actualTargetEntry.Senses.Should().HaveCount(1);
         actualTargetEntry.Senses[0].Id.Should().Be(senseId);
+
+        var actualMovedSense = await Api.GetSense(actualTargetEntry.Id, senseId);
+        actualMovedSense.Should().NotBeNull();
+        actualMovedSense.EntryId.Should().Be(targetEntry.Id);
+
+        var tryGetSenseFromSource = () => Api.GetSense(sourceEntry.Id, senseId);
+        await tryGetSenseFromSource.Should().ThrowAsync<NotFoundException>().WithMessage("*does not belong to the expected entry*");
     }
 
     [Theory]

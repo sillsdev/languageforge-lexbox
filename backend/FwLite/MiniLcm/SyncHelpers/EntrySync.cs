@@ -308,9 +308,9 @@ public static class EntrySync
         public async Task<int> Add(Sense sense, BetweenPosition<Sense> between)
         {
             /**
-            If we "move sense to different entry" a FieldWorks Lite feature, we could to add "?? await api.GetSense(sense.Id)"
+            If we make "move sense to different entry" a FieldWorks Lite feature, we could add "?? await api.GetSense(sense.Id)"
             when checking for existing senses. But that'd currently just be wasteful and it would probably
-            be better to make moving senses explicit in FieldWorks Lite (i.e. require the client to call MoveSense)
+            be better to make moving senses explicit in FieldWorks Lite (i.e. require the client to call MoveSense).
             */
             var existing = allBeforeSenses?.GetValueOrDefault(sense.Id);
             if (existing is not null && existing.EntryId != entryId)
