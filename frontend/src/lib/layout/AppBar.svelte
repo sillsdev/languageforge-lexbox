@@ -5,6 +5,7 @@
   import {AuthenticatedUserIcon, UserAddOutline, Icon} from '$lib/icons';
   import {onMount} from 'svelte';
   import type {LexAuthUser} from '$lib/user';
+  import {maintenanceMessage} from '$lib/util/maintenance';
   import {page} from '$app/state';
   import AppLogo from '$lib/icons/AppLogo.svelte';
   import DevContent from './DevContent.svelte';
@@ -25,6 +26,11 @@
 
 <!-- https://daisyui.com/components/navbar -->
 <header>
+  {#if maintenanceMessage.value}
+    <span class="flex gap-2 justify-center items-center bg-warning text-warning-content p-2">
+      {maintenanceMessage.value}
+    </span>
+  {/if}
   {#if environmentName !== 'production'}
     <a href="https://lexbox.org" class="flex gap-2 justify-center items-center bg-warning text-warning-content p-2 underline">
       {$t('environment_warning', { environmentName })}

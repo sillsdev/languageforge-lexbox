@@ -7,6 +7,7 @@ using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.ErrorHandling;
 using LexBoxApi.Hub;
+using LexBoxApi.Middleware;
 using LexBoxApi.Otel;
 using LexBoxApi.Proxies;
 using LexBoxApi.Services;
@@ -157,6 +158,7 @@ app.UseStatusCodePages();
 if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler();
 app.UseHealthChecks("/api/healthz");
+app.UseMiddleware<MaintenanceModeMiddleware>();
 // Configure the HTTP request pipeline.
 //for now allow this to run in prod, maybe later we want to disable it.
 {
