@@ -62,7 +62,29 @@ jobs:
         run: task fw-lite:has-pending-model-changes -- --no-build
 
       - name: Dotnet test
-        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build -p:BuildAndroid=false
+        # Benchmarks run in a separate Release-mode job — see `benchmark` below.
+        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build -p:BuildAndroid=false --filter "Category!=Benchmark"
+
+  benchmark:
+    name: Run FW Lite sync benchmarks
+    # BenchmarkDotNet timings are only meaningful in Release; this job runs the FwLiteProjectSync.Tests
+    # project in Release with --filter "Category=Benchmark" so threshold assertions actually fire.
+    timeout-minutes: 40
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Dotnet build (Release)
+        run: dotnet build backend/FwLite/FwLiteProjectSync.Tests/FwLiteProjectSync.Tests.csproj -c Release
+
+      - name: Dotnet test (benchmarks)
+        run: dotnet test backend/FwLite/FwLiteProjectSync.Tests/FwLiteProjectSync.Tests.csproj -c Release --logger GitHubActions --no-build --filter "Category=Benchmark"
 
   frontend:
     runs-on: ubuntu-latest

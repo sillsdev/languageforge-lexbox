@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageVersion Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.5.1" />
     <PackageVersion Include="BeaKona.AutoInterfaceGenerator" Version="1.0.42" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="CrystalQuartz.AspNetCore" Version="7.2.0-beta" />
     <PackageVersion Include="DataAnnotatedModelValidations" Version="6.0.0" />
