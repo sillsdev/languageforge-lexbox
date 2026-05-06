@@ -53,7 +53,7 @@ public class SyncBenchmark(Sena3Fixture fixture, ITestOutputHelper output)
 public class FirstSyncBench
 {
     // CI 2026-05-06: mean 49.5s, StdDev 2.4s (medium variance) => 57s (~3σ above mean)
-    public const double ThresholdSeconds = 57.0;
+    public const double ThresholdSeconds = 1;//57.0;
 
     internal static Sena3Fixture Fixture = null!;
 
