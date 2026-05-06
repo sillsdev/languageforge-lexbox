@@ -102,8 +102,8 @@
     <PackageVersion Include="SIL.Chorus.Mercurial" Version="6.5.1.43" />
     <PackageVersion Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0028" />
     <PackageVersion Include="SIL.Core" Version="14.2.0-beta0022" />
-    <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0138" />
-    <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0138" />
+    <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0162" />
+    <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0162" />
     <PackageVersion Include="SIL.WritingSystems" Version="14.2.0-beta0022" />
     <!-- Only included so it can be excluded. See FwLiteMaui.csproj. -->
     <PackageVersion Include="Mono.Unix" Version="7.1.0-final.1.21458.1" />
