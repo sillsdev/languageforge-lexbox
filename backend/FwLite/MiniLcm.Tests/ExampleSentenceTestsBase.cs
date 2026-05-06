@@ -49,13 +49,21 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
     {
         var expectedExampleSentence = new ExampleSentence()
         {
+            Id = Guid.NewGuid(),
             SenseId = _senseId,
             Reference = new RichString("This is a reference", "en"),
             Sentence = { { "en", new RichString("test", "en") } },
-            Translations = { new Translation() { Text = { { "en", new RichString("test", "en") } } } }
+            Translations = {
+                new Translation()
+                {
+                    Id = Guid.NewGuid(),
+                    Text = { { "en", new RichString("test", "en") } },
+                }
+            }
         };
         var actualSentence = await Api.CreateExampleSentence(_entryId, _senseId, expectedExampleSentence);
-        actualSentence.Should().BeEquivalentTo(expectedExampleSentence);
+        actualSentence.Should().BeEquivalentTo(expectedExampleSentence,
+            options => options.Excluding(s => s.Order));
     }
 
     [Fact]
@@ -63,10 +71,12 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
     {
         var expectedExampleSentence = new ExampleSentence()
         {
+            Id = Guid.NewGuid(),
             SenseId = _senseId
         };
         var actualSentence = await Api.CreateExampleSentence(_entryId, _senseId, expectedExampleSentence);
-        actualSentence.Should().BeEquivalentTo(expectedExampleSentence);
+        actualSentence.Should().BeEquivalentTo(expectedExampleSentence,
+            options => options.Excluding(s => s.Order));
     }
 
     [Fact]

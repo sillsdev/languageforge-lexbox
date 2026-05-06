@@ -78,6 +78,7 @@ public static class MiniLcmValidatorsExtensions
         services.AddTransient<IValidator<Publication>, PublicationValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<WritingSystem>>, WritingSystemUpdateValidator>();
         services.AddTransient<MiniLcmApiStringNormalizationWrapperFactory>();
+        services.AddTransient<MiniLcmWriteApiNormalizationWrapperFactory>();
         return services;
     }
 }
