@@ -14,6 +14,8 @@ export function trackUrl(appStorage: AppStorage) {
     const currentUrl = pathname + search + hash;
 
     if (currentUrl === lastSavedUrl) return;
+    if (pathname.startsWith('/api/')) return;
+
     await appStorage.lastUrl.set(pathname + search + hash);
     lastSavedUrl = currentUrl;
   }) as () => void;

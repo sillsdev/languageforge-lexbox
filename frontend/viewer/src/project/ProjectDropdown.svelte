@@ -108,10 +108,12 @@
         {:else}
           <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
           {#each projectsResource.current ?? [] as project (project)}
+            {@const isCurrentProject = project.crdt === isCrdt &&
+              (isCrdt ? project.name === projectName : project.code === projectName)}
             <Command.Item
-              value={project.name + project.crdt}
+              value={`${project.name}-${project.code}-${project.crdt}`}
               onSelect={() => handleSelect(project)}
-              class={cn('cursor-pointer', (project.name === projectName || project.code === projectName) && project.crdt === isCrdt && 'bg-secondary')}
+              class={cn('cursor-pointer', isCurrentProject && 'bg-secondary')}
             >
               {@render projectIcon(project.crdt)}
               <ProjectTitle {project} />

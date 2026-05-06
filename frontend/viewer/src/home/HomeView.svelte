@@ -181,7 +181,7 @@
                     onclick={() => refreshProjects()}/>
           </div>
           <div>
-            {#each projects.filter((p) => p.crdt) as project (project.id ?? project)}
+            {#each projects.filter((p) => p.crdt) as project (project)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
               <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
@@ -249,7 +249,9 @@
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
             <div>
-              {#each projects.filter((p) => p.fwdata) as project (project.name)}
+              <!-- project.name (and maybe code as well) can have duplicates
+              if there are 2 fwdata projects whose names are the name and code of a crdt project -->
+              {#each projects.filter((p) => p.fwdata) as project (project)}
                 <Anchor href={`/fwdata/${project.code}`}>
                   <ProjectListItem {project}>
                     {#snippet icon()}
