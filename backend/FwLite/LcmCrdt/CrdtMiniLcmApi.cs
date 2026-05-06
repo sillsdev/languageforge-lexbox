@@ -633,10 +633,24 @@ public class CrdtMiniLcmApi(
         }
     }
 
+    public async Task<Sense?> GetSense(Guid senseId)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetSense(senseId);
+    }
+
     public async Task<Sense?> GetSense(Guid entryId, Guid senseId)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetSense(entryId, senseId);
+        var sense = await repo.GetSense(senseId);
+        if (sense is null) return null;
+        VerifySenseBelongsToEntry(entryId, sense);
+        return sense;
+    }
+
+    private void VerifySenseBelongsToEntry(Guid entryId, Sense sense)
+    {
+        if (sense.EntryId != entryId) throw new NotFoundException($"Sense {sense.Id} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.EntryId}", nameof(Sense));
     }
 
     public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
@@ -647,7 +661,9 @@ public class CrdtMiniLcmApi(
 
         sense.Order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
         await AddChanges(await CreateSenseChanges(entryId, sense, repo.SemanticDomains).ToArrayAsync());
-        return await repo.GetSense(entryId, sense.Id) ?? throw NotFoundException.ForType<Sense>(sense.Id);
+        var createdSense = await repo.GetSense(sense.Id) ?? throw NotFoundException.ForType<Sense>(sense.Id);
+        VerifySenseBelongsToEntry(entryId, createdSense);
+        return createdSense;
     }
 
     public async Task<Sense> UpdateSense(Guid entryId,
@@ -655,22 +671,35 @@ public class CrdtMiniLcmApi(
         UpdateObjectInput<Sense> update)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var sense = await repo.GetSense(entryId, senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        var sense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        VerifySenseBelongsToEntry(entryId, sense);
         await AddChanges(update.Patch.ToChanges(sense.Id));
-        return await repo.GetSense(entryId, senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        var updatedSense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        VerifySenseBelongsToEntry(entryId, updatedSense);
+        return updatedSense;
     }
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
         await SenseSync.Sync(entryId, before, after, api ?? this);
-        return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
+        var sense = await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
+        VerifySenseBelongsToEntry(entryId, sense);
+        return sense;
     }
 
     public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
-        await AddChange(new Changes.SetOrderChange<Sense>(senseId, order));
+        var currentEntryId = await repo.Senses.Where(s => s.Id == senseId).Select(s => s.EntryId).FirstOrDefaultAsync();
+        if (currentEntryId != default && currentEntryId != entryId)
+        {
+            await AddChange(new MoveSenseToEntryChange(senseId, entryId, order));
+        }
+        else
+        {
+            await AddChange(new Changes.SetOrderChange<Sense>(senseId, order));
+        }
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)

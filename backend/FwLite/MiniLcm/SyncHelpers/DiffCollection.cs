@@ -68,18 +68,20 @@ public static class DiffCollection
     {
         var changes = 0;
         var afterEntriesDict = after.ToDictionary(diffApi.GetId);
+        List<T>? toRemove = null;
+
         foreach (var beforeEntry in before)
         {
-            if (afterEntriesDict.TryGetValue(diffApi.GetId(beforeEntry), out var afterEntry))
+            var id = diffApi.GetId(beforeEntry);
+            if (afterEntriesDict.TryGetValue(id, out var afterEntry))
             {
                 changes += await diffApi.Replace(beforeEntry, afterEntry);
+                afterEntriesDict.Remove(id);
             }
             else
             {
-                changes += await diffApi.Remove(beforeEntry);
+                (toRemove ??= []).Add(beforeEntry);
             }
-
-            afterEntriesDict.Remove(diffApi.GetId(beforeEntry));
         }
 
         foreach (var (id, value) in afterEntriesDict)
@@ -87,6 +89,16 @@ public static class DiffCollection
             var (addChanges, added) = await diffApi.AddAndGet(value);
             changes += addChanges;
             afterEntriesDict[id] = added;
+        }
+
+        // removes are done last to prevent cascading deletes to entities that are being moved
+        // (e.g. senses being moved from a deleted entry to a new or updated entry)
+        if (toRemove is not null)
+        {
+            foreach (var beforeEntry in toRemove)
+            {
+                changes += await diffApi.Remove(beforeEntry);
+            }
         }
 
         return (changes, afterEntriesDict.Values);

@@ -81,6 +81,10 @@
       TypeDiscriminator: SetPartOfSpeechChange
     },
     {
+      DerivedType: MoveSenseToEntryChange,
+      TypeDiscriminator: MoveSenseToEntryChange
+    },
+    {
       DerivedType: AddSemanticDomainChange,
       TypeDiscriminator: AddSemanticDomainChange
     },
