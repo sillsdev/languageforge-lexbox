@@ -27,7 +27,7 @@
     <PackageVersion Include="icu.net" Version="3.0.1" />
     <PackageVersion Include="linq2db.AspNet" Version="5.4.1" />
     <PackageVersion Include="linq2db.EntityFrameworkCore" Version="9.0.0" />
-    <PackageVersion Include="MailKit" Version="4.7.1.1" />
+    <PackageVersion Include="MailKit" Version="4.8.0" />
     <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="1.0.7" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
@@ -81,7 +81,7 @@
     <PackageVersion Include="OpenIddict.EntityFrameworkCore" Version="6.4.0" />
     <PackageVersion Include="OpenIddict.Quartz" Version="6.4.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.10.0" />
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.10.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.10.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.11.0-beta.1" />
@@ -119,7 +119,7 @@
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.2.0" />
     <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
     <PackageVersion Include="System.Reactive" Version="6.0.1" />
-    <PackageVersion Include="System.Security.Cryptography.Xml" Version="9.0.6" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="9.0.7" />
     <PackageVersion Include="System.Text.Encodings.Web" Version="9.0.6" />
     <PackageVersion Include="System.Text.Json" Version="9.0.6" />
     <PackageVersion Include="SystemTextJson.JsonDiffPatch" Version="2.0.0" />
