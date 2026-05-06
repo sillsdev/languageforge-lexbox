@@ -70,15 +70,15 @@ public class MutationSyncBench
     public static readonly IReadOnlyDictionary<string, double> ThresholdSecondsByProfile = new Dictionary<string, double>
     {
         // CI 2026-05-06: mean 58.3s, StdDev 4.1s (high variance) => 72s (~4σ above mean)
-        ["component-heavy"] = 72.0,
+        ["component-heavy"] = 1,//72.0,
         // CI 2026-05-06: mean 94.3s, StdDev 5.7s (high variance) => 115s (~4σ above mean)
-        ["delete-heavy"] = 115.0,
+        ["delete-heavy"] = 1,//115.0,
         // CI 2026-05-06: mean 36.2s, StdDev 3.3s (medium variance) => 45s (~3σ above mean)
-        ["mixed-realistic"] = 45.0,
+        ["mixed-realistic"] = 1,//45.0,
         // CI 2026-05-06: mean 5.05s, StdDev 0.4s (low variance) => 7s (generous margin since it's already pretty fast and we want to avoid false positives from noise).
-        ["patch-heavy"] = 7.0,
+        ["patch-heavy"] = 1,//7.0,
         // CI 2026-05-06: mean 0.77s, StdDev 0.2s (low variance) => 3s (super fast, so meh)
-        ["reorder-heavy"] = 3.0,
+        ["reorder-heavy"] = 1,//3.0,
     };
 
     public static IEnumerable<string> Profiles => ThresholdSecondsByProfile.Keys;
