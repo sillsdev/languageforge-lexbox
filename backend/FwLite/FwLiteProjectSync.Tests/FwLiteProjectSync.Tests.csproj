@@ -5,6 +5,7 @@
     <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
     <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
