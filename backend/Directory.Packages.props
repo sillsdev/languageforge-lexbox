@@ -97,8 +97,8 @@
     <PackageVersion Include="Refit.HttpClientFactory" Version="8.0.0" />
     <PackageVersion Include="Reinforced.Typings" Version="1.6.5" />
     <PackageVersion Include="Scalar.AspNetCore" Version="1.2.22" />
-    <PackageVersion Include="SIL.Chorus.ChorusMerge" Version="6.0.0-beta0055" />
-    <PackageVersion Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0055" />
+    <PackageVersion Include="SIL.Chorus.ChorusMerge" Version="6.0.0-beta0064" />
+    <PackageVersion Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0064" />
     <PackageVersion Include="SIL.Chorus.Mercurial" Version="6.5.1.43" />
     <PackageVersion Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0028" />
     <PackageVersion Include="SIL.Core" Version="17.0.0" />
