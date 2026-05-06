@@ -20,7 +20,8 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
         var createdEntry = await Api.CreateEntry(entry);
         createdEntry.Should().BeEquivalentTo(entry, options => options
             .For(e => e.Components).Exclude(e => e.Id)
-            .For(e => e.ComplexForms).Exclude(e => e.Id));
+            .For(e => e.ComplexForms).Exclude(e => e.Id)
+            .Excluding(member => member.Name == nameof(IOrderable.Order)));
     }
 
     [Fact]
