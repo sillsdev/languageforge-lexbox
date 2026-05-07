@@ -61,8 +61,8 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             throw new InvalidOperationException("Project sync state does not match presence of snapshot.");
         }
 
-        // Write normalisation is not applied here: data is already normalised on both sides
-        // (FwData internally by LibLCM; CRDT at the user-facing entry points before persistence).
+        // No write normalization: Data is already normalised on both sides.
+        // No query normalization: The sync doesn't do any querying.
         crdtApi = validationWrapperFactory.Create(crdtApi);
         fwdataApi = validationWrapperFactory.Create(fwdataApi);
 
