@@ -4,14 +4,15 @@ using MiniLcm.Validators;
 namespace MiniLcm.Wrappers;
 
 /// <summary>
-/// The standard wrapper stack applied at every user-facing API entry point
-/// (MiniLcmJsInvokable, MiniLcmApiHubBase, MiniLcmRoutes).
+/// The standard wrapper stack applied at every user-facing API entry point:
+/// MiniLcmJsInvokable, MiniLcmApiHubBase, and MiniLcmRoutes.
 ///
-/// Write normalisation is applied to both CRDT and FwData backends. For CRDT it ensures
-/// data enters the store in NFD. For FwData, LibLCM already normalises internally — but
-/// the wrapper also enforces the <c>api ?? this</c> self-reference contract on Update*
-/// overloads, giving consistent behaviour across backends. FwData is desktop-only, so
-/// the negligible cost of a redundant normalisation pass is of no concern.
+/// Write normalisation is applied uniformly to both CRDT and FwData. For CRDT it ensures
+/// NFD storage. For FwData, LibLCM already normalises, but uniform application also covers
+/// objects created transitively by Update* calls — senses or example sentences produced by
+/// the internal diff-and-sync logic during UpdateEntry, for example — which would otherwise
+/// escape normalisation if the wrapper were skipped for FwData. FwData is desktop-only,
+/// so the redundant pass is inconsequential.
 /// </summary>
 public class MiniLcmApiUserFacingWrappers(
     MiniLcmApiStringNormalizationWrapperFactory readNormalization,
