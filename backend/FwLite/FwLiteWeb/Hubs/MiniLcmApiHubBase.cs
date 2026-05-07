@@ -12,7 +12,7 @@ public abstract class MiniLcmApiHubBase(
     IMiniLcmApi miniLcmApi,
     MiniLcmApiValidationWrapperFactory validationWrapperFactory,
     MiniLcmApiStringNormalizationWrapperFactory readNormalizationWrapperFactory,
-    MiniLcmWriteApiNormalizationWrapperFactory? writeNormalizationWrapperFactory,
+    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory,
     IProjectIdentifier? projectIdentifier) : Hub<ILexboxHubClient>
 {
     private readonly IMiniLcmApi _miniLcmApi = miniLcmApi.WrapWith([

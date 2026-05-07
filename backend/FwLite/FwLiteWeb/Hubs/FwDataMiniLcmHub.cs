@@ -12,11 +12,10 @@ public class FwDataMiniLcmHub(
     FwDataFactory fwDataFactory,
     FwDataProjectContext context,
     MiniLcmApiValidationWrapperFactory validationWrapperFactory,
-    MiniLcmApiStringNormalizationWrapperFactory readNormalizationWrapperFactory
+    MiniLcmApiStringNormalizationWrapperFactory readNormalizationWrapperFactory,
+    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory
 )
-// Note: FwData already handles string normalization internally (via LCModel),
-// so we skip the write normalization wrapper for FwData APIs.
-: MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory, readNormalizationWrapperFactory, null, context.Project)
+: MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory, readNormalizationWrapperFactory, writeNormalizationWrapperFactory, context.Project)
 {
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()

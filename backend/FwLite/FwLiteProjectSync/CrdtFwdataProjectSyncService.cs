@@ -63,6 +63,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             throw new InvalidOperationException("Project sync state does not match presence of snapshot.");
         }
 
+        // Only read normalization (MiniLcmApiStringNormalizationWrapper) is applied here, NOT write normalization
+        // (MiniLcmWriteApiNormalizationWrapper). The sync process operates on data already persisted in both
+        // systems; normalizing on the way out would corrupt or mismatch persisted values. Write normalization
+        // is applied at user-facing entry points (MiniLcmJsInvokable, MiniLcmApiHubBase, MiniLcmRoutes).
         crdtApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(crdtApi));
         fwdataApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(fwdataApi));
 

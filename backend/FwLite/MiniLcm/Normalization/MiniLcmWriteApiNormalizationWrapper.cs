@@ -506,6 +506,26 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #endregion
 
+    #region CustomView
+
+    // CustomView.Name is view configuration metadata, not user-entered linguistic text, so no normalization is applied.
+    public async Task<CustomView> CreateCustomView(CustomView customView)
+    {
+        return await _api.CreateCustomView(customView);
+    }
+
+    public async Task<CustomView> UpdateCustomView(CustomView customView)
+    {
+        return await _api.UpdateCustomView(customView);
+    }
+
+    public Task DeleteCustomView(Guid id)
+    {
+        return _api.DeleteCustomView(id);
+    }
+
+    #endregion
+
     #region File Operations
 
     public Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
