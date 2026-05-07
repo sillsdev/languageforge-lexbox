@@ -1,22 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace LcmCrdt.Migrations
 {
     /// <inheritdoc />
+    // Backs harmony's default commit ordering. Hand-written because the index spans a
+    // ComplexProperty + regular property (efcore#11336). Perhaps move to harmony's fluent API
+    // via EFCore.ComplexIndexes when we're on .NET 10.
     public partial class AddCommitsOrderIndex : Migration
     {
-        /// <summary>
-    /// Name of the compound index over <c>(DateTime, Counter, Id)</c> on the <c>Commits</c> table.
-    /// </summary>
-    public const string CommitsOrderIndexName = "IX_Commits_DateTime_Counter_Id";
-
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateIndex(
-                name: CommitsOrderIndexName,
+                name: "IX_Commits_DateTime_Counter_Id",
                 table: "Commits",
                 columns: ["DateTime", "Counter", "Id"],
                 descending: [true, true, true]);
@@ -25,7 +23,7 @@ namespace LcmCrdt.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(name: CommitsOrderIndexName, table: "Commits");
+            migrationBuilder.DropIndex(name: "IX_Commits_DateTime_Counter_Id", table: "Commits");
         }
     }
 }
