@@ -327,14 +327,14 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         {
             Id = entry.Id,
             DeletedAt = entry.DeletedAt,
-            LexemeForm = StringNormalizer.Normalize(entry.LexemeForm ?? new()),
-            CitationForm = StringNormalizer.Normalize(entry.CitationForm ?? new()),
-            LiteralMeaning = StringNormalizer.Normalize(entry.LiteralMeaning ?? new()),
-            Note = StringNormalizer.Normalize(entry.Note ?? new()),
+            LexemeForm = StringNormalizer.Normalize(entry.LexemeForm),
+            CitationForm = StringNormalizer.Normalize(entry.CitationForm),
+            LiteralMeaning = StringNormalizer.Normalize(entry.LiteralMeaning),
+            Note = StringNormalizer.Normalize(entry.Note),
             MorphType = entry.MorphType,
-            Senses = [.. (entry.Senses ?? []).Select(NormalizeSense)],
-            Components = [.. (entry.Components ?? []).Select(NormalizeComplexFormComponent)],
-            ComplexForms = [.. (entry.ComplexForms ?? []).Select(NormalizeComplexFormComponent)],
+            Senses = [.. entry.Senses.Select(NormalizeSense)],
+            Components = [.. entry.Components.Select(NormalizeComplexFormComponent)],
+            ComplexForms = [.. entry.ComplexForms.Select(NormalizeComplexFormComponent)],
             ComplexFormTypes = entry.ComplexFormTypes,
             PublishIn = entry.PublishIn
         };
@@ -402,12 +402,12 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
             Order = sense.Order,
             DeletedAt = sense.DeletedAt,
             EntryId = sense.EntryId,
-            Definition = StringNormalizer.Normalize(sense.Definition ?? new()),
-            Gloss = StringNormalizer.Normalize(sense.Gloss ?? new()),
+            Definition = StringNormalizer.Normalize(sense.Definition),
+            Gloss = StringNormalizer.Normalize(sense.Gloss),
             PartOfSpeech = sense.PartOfSpeech is not null ? NormalizePartOfSpeech(sense.PartOfSpeech) : null,
             PartOfSpeechId = sense.PartOfSpeechId,
-            SemanticDomains = [.. (sense.SemanticDomains ?? []).Select(NormalizeSemanticDomain)],
-            ExampleSentences = [.. (sense.ExampleSentences ?? []).Select(NormalizeExampleSentence)]
+            SemanticDomains = [.. sense.SemanticDomains.Select(NormalizeSemanticDomain)],
+            ExampleSentences = [.. sense.ExampleSentences.Select(NormalizeExampleSentence)]
         };
     }
 
@@ -465,8 +465,8 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
             Order = example.Order,
             DeletedAt = example.DeletedAt,
             SenseId = example.SenseId,
-            Sentence = StringNormalizer.Normalize(example.Sentence ?? new()),
-            Translations = [.. (example.Translations ?? []).Select(NormalizeTranslation)],
+            Sentence = StringNormalizer.Normalize(example.Sentence),
+            Translations = [.. example.Translations.Select(NormalizeTranslation)],
             Reference = StringNormalizer.Normalize(example.Reference)
         };
     }
