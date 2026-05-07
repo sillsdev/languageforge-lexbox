@@ -22,11 +22,16 @@ public class MiniLcmApiWriteNormalizationWrapperFactory : IMiniLcmWrapperFactory
 }
 
 /// <summary>
-/// Normalizes all user-entered text to NFD on write operations.
+/// Normalizes user-entered linguistic text to NFD on write operations.
 ///
 /// Design notes:
 /// - Read operations are forwarded automatically via BeaKona.AutoInterface.
 /// - Write operations are manually implemented here (compile-time enforced by IMiniLcmApi).
+/// - Scope mirrors liblcm: TsString-equivalents (MultiString, RichString, RichMultiString) are normalized
+///   on every write, matching liblcm's generated property setters which call TsStringUtils.NormalizeNfd.
+/// - Plain-string properties that liblcm does not NFD-normalize are passed through unchanged. This currently
+///   covers WritingSystem.{Name, Abbreviation, Font, Exemplars} (LDML-managed) and
+///   MorphTypeData.{LeadingToken, TrailingToken} (punctuation markers).
 /// - JsonPatch overloads normalize string-ish values best-effort (string, RichString, MultiString, RichMultiString).
 ///   JsonElement values are only normalized when they are simple strings; complex JSON values are left as-is
 ///   to avoid guessing the target type.
@@ -47,36 +52,27 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #region WritingSystem
 
-    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
+    // WritingSystem fields (Name, Abbreviation, Font, Exemplars) are plain strings; in liblcm they are
+    // LDML-managed by WritingSystemManager rather than stored as TsString, so they aren't NFD-normalized.
+    public Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {
-        return await _api.CreateWritingSystem(NormalizeWritingSystem(writingSystem), between);
+        return _api.CreateWritingSystem(writingSystem, between);
     }
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
-        return _api.UpdateWritingSystem(id, type, NormalizePatch(update));
+        return _api.UpdateWritingSystem(id, type, update);
     }
 
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateWritingSystem(before, NormalizeWritingSystem(after), api);
+        return _api.UpdateWritingSystem(before, after, api);
     }
 
     public Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
     {
         return _api.MoveWritingSystem(id, type, between);
-    }
-
-    private static WritingSystem NormalizeWritingSystem(WritingSystem ws)
-    {
-        return ws with
-        {
-            Name = StringNormalizer.Normalize(ws.Name),
-            Abbreviation = StringNormalizer.Normalize(ws.Abbreviation),
-            Font = StringNormalizer.Normalize(ws.Font),
-            Exemplars = StringNormalizer.Normalize(ws.Exemplars)
-        };
     }
 
     #endregion
@@ -231,7 +227,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
     {
-        return _api.UpdateMorphTypeData(id, NormalizePatch(update));
+        return _api.UpdateMorphTypeData(id, NormalizePatch(update, MorphTypeDataPlainStringPaths));
     }
 
 
@@ -245,6 +241,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.DeleteMorphTypeData(id);
     }
 
+    // LeadingToken/TrailingToken are punctuation markers (e.g. "-", "="), not user-entered linguistic text.
+    private static readonly HashSet<string> MorphTypeDataPlainStringPaths = ["/LeadingToken", "/TrailingToken"];
+
     private static MorphTypeData NormalizeMorphTypeData(MorphTypeData mtd)
     {
         return new MorphTypeData
@@ -254,8 +253,8 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
             Name = StringNormalizer.Normalize(mtd.Name),
             Abbreviation = StringNormalizer.Normalize(mtd.Abbreviation),
             Description = StringNormalizer.Normalize(mtd.Description),
-            LeadingToken = StringNormalizer.Normalize(mtd.LeadingToken),
-            TrailingToken = StringNormalizer.Normalize(mtd.TrailingToken),
+            LeadingToken = mtd.LeadingToken,
+            TrailingToken = mtd.TrailingToken,
             SecondaryOrder = mtd.SecondaryOrder,
             DeletedAt = mtd.DeletedAt
         };
@@ -538,14 +537,15 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #region Patch Normalization
 
-    private static UpdateObjectInput<T> NormalizePatch<T>(UpdateObjectInput<T> update) where T : class
+    private static UpdateObjectInput<T> NormalizePatch<T>(UpdateObjectInput<T> update, HashSet<string>? skipPaths = null) where T : class
     {
         if (update.Patch.Operations.Count == 0) return update;
 
         var normalizedPatch = new SystemTextJsonPatch.JsonPatchDocument<T>();
         foreach (var op in update.Patch.Operations)
         {
-            var normalizedValue = NormalizePatchValue(op.Value);
+            var skip = skipPaths is not null && op.Path is not null && skipPaths.Contains(op.Path);
+            var normalizedValue = skip ? op.Value : NormalizePatchValue(op.Value);
             var normalizedOp = new SystemTextJsonPatch.Operations.Operation<T>
             {
                 Op = op.Op,

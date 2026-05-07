@@ -43,34 +43,51 @@ public class WriteNormalizationTests
 
     #region WritingSystem Tests
 
+    // WritingSystem.{Name, Abbreviation, Font, Exemplars} are plain strings; in liblcm they are
+    // LDML-managed by WritingSystemManager rather than stored as TsString, so the wrapper passes
+    // them through unchanged (no NFD normalization).
+
     [Fact]
-    public async Task CreateWritingSystem_NormalizesToNfd()
+    public async Task CreateWritingSystem_DoesNotNormalize()
     {
         var ws = NfcTestData.CreateNfcWritingSystem();
         AssertNfc(ws);
 
+        WritingSystem? captured = null;
+        Mock.Get(_mockApi)
+            .Setup(api => api.CreateWritingSystem(It.IsAny<WritingSystem>(), It.IsAny<MiniLcm.SyncHelpers.BetweenPosition<WritingSystemId?>?>()))
+            .Callback<WritingSystem, SyncHelpers.BetweenPosition<WritingSystemId?>?>((w, _) => captured = w)
+            .ReturnsAsync(ws);
+
         await _normalizingApi.CreateWritingSystem(ws);
 
-        Mock.Get(_mockApi).Verify(api => api.CreateWritingSystem(
-            It.Is<WritingSystem>(w => IsNfd(w)),
-            null
-        ));
+        captured.Should().NotBeNull();
+        captured.Name.Should().Be(NfcTestData.Nfc);
+        captured.Abbreviation.Should().Be(NfcTestData.Nfc);
+        captured.Font.Should().Be(NfcTestData.Nfc);
+        captured.Exemplars.Should().Equal(NfcTestData.Nfc, NfcTestData.Nfc);
     }
 
     [Fact]
-    public async Task UpdateWritingSystem_BeforeAfter_NormalizesToNfd()
+    public async Task UpdateWritingSystem_BeforeAfter_DoesNotNormalize()
     {
         var before = NfcTestData.CreateNfcWritingSystem();
         var after = NfcTestData.CreateNfcWritingSystem();
         AssertNfc(after);
 
+        WritingSystem? captured = null;
+        Mock.Get(_mockApi)
+            .Setup(api => api.UpdateWritingSystem(It.IsAny<WritingSystem>(), It.IsAny<WritingSystem>(), It.IsAny<IMiniLcmApi>()))
+            .Callback<WritingSystem, WritingSystem, IMiniLcmApi?>((_, a, _) => captured = a)
+            .ReturnsAsync(after);
+
         await _normalizingApi.UpdateWritingSystem(before, after);
 
-        Mock.Get(_mockApi).Verify(api => api.UpdateWritingSystem(
-            It.IsAny<WritingSystem>(),
-            It.Is<WritingSystem>(w => IsNfd(w)),
-            It.IsAny<IMiniLcmApi>()
-        ));
+        captured.Should().NotBeNull();
+        captured.Name.Should().Be(NfcTestData.Nfc);
+        captured.Abbreviation.Should().Be(NfcTestData.Nfc);
+        captured.Font.Should().Be(NfcTestData.Nfc);
+        captured.Exemplars.Should().Equal(NfcTestData.Nfc, NfcTestData.Nfc);
     }
 
     #endregion
@@ -243,33 +260,72 @@ public class WriteNormalizationTests
 
     #region MorphTypeData Tests
 
+    // MorphTypeData's MultiString/RichMultiString fields (Name, Abbreviation, Description) are normalized
+    // to NFD (matching liblcm); LeadingToken/TrailingToken are punctuation markers and pass through unchanged.
+
     [Fact]
-    public async Task CreateMorphTypeData_NormalizesToNfd()
+    public async Task CreateMorphTypeData_NormalizesMultiStringsToNfd_AndPassesTokensThrough()
     {
         var mtd = NfcTestData.CreateNfcMorphTypeData();
         AssertNfc(mtd);
 
+        MorphTypeData? captured = null;
+        Mock.Get(_mockApi)
+            .Setup(api => api.CreateMorphTypeData(It.IsAny<MorphTypeData>()))
+            .Callback<MorphTypeData>(m => captured = m)
+            .ReturnsAsync(mtd);
+
         await _normalizingApi.CreateMorphTypeData(mtd);
 
-        Mock.Get(_mockApi).Verify(api => api.CreateMorphTypeData(
-            It.Is<MorphTypeData>(m => IsNfd(m))
-        ));
+        captured.Should().NotBeNull();
+        IsNfd(captured).Should().BeTrue();
+        captured.LeadingToken.Should().Be(NfcTestData.Nfc);
+        captured.TrailingToken.Should().Be(NfcTestData.Nfc);
     }
 
     [Fact]
-    public async Task UpdateMorphTypeData_BeforeAfter_NormalizesToNfd()
+    public async Task UpdateMorphTypeData_BeforeAfter_NormalizesMultiStringsToNfd_AndPassesTokensThrough()
     {
         var before = NfcTestData.CreateNfcMorphTypeData();
         var after = NfcTestData.CreateNfcMorphTypeData();
         AssertNfc(after);
 
+        MorphTypeData? captured = null;
+        Mock.Get(_mockApi)
+            .Setup(api => api.UpdateMorphTypeData(It.IsAny<MorphTypeData>(), It.IsAny<MorphTypeData>(), It.IsAny<IMiniLcmApi>()))
+            .Callback<MorphTypeData, MorphTypeData, IMiniLcmApi?>((_, a, _) => captured = a)
+            .ReturnsAsync(after);
+
         await _normalizingApi.UpdateMorphTypeData(before, after);
 
-        Mock.Get(_mockApi).Verify(api => api.UpdateMorphTypeData(
-            It.IsAny<MorphTypeData>(),
-            It.Is<MorphTypeData>(m => IsNfd(m)),
-            It.IsAny<IMiniLcmApi>()
-        ));
+        captured.Should().NotBeNull();
+        IsNfd(captured).Should().BeTrue();
+        captured.LeadingToken.Should().Be(NfcTestData.Nfc);
+        captured.TrailingToken.Should().Be(NfcTestData.Nfc);
+    }
+
+    [Fact]
+    public async Task UpdateMorphTypeData_JsonPatch_NormalizesMultiString_AndPassesTokensThrough()
+    {
+        var update = new UpdateObjectInput<MorphTypeData>()
+            .Set(m => m.Name, NfcTestData.CreateNfcMultiString())
+            .Set(m => m.LeadingToken, NfcTestData.Nfc)
+            .Set(m => m.TrailingToken, NfcTestData.Nfc);
+
+        UpdateObjectInput<MorphTypeData>? captured = null;
+        Mock.Get(_mockApi)
+            .Setup(api => api.UpdateMorphTypeData(It.IsAny<Guid>(), It.IsAny<UpdateObjectInput<MorphTypeData>>()))
+            .Callback<Guid, UpdateObjectInput<MorphTypeData>>((_, patch) => captured = patch)
+            .ReturnsAsync(NfcTestData.CreateNfcMorphTypeData());
+
+        await _normalizingApi.UpdateMorphTypeData(Guid.NewGuid(), update);
+
+        captured.Should().NotBeNull();
+        var ops = captured.Patch.Operations;
+        var nameValue = ops.Single(o => o.Path == "/Name").Value.Should().BeOfType<MultiString>().Subject;
+        NormalizationAssert.AssertAllNfd(nameValue);
+        ops.Single(o => o.Path == "/LeadingToken").Value.Should().Be(NfcTestData.Nfc);
+        ops.Single(o => o.Path == "/TrailingToken").Value.Should().Be(NfcTestData.Nfc);
     }
 
     #endregion
@@ -402,9 +458,10 @@ public class WriteNormalizationTests
     }
 
     [Fact]
-    public async Task UpdateWritingSystem_JsonPatch_NormalizesStringArray()
+    public async Task UpdateWritingSystem_JsonPatch_DoesNotNormalize()
     {
         var update = new UpdateObjectInput<WritingSystem>()
+            .Set(ws => ws.Name, NfcTestData.Nfc)
             .Set(ws => ws.Exemplars, [NfcTestData.Nfc, NfcTestData.Nfc]);
 
         UpdateObjectInput<WritingSystem>? captured = null;
@@ -417,9 +474,12 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateWritingSystem("en", WritingSystemType.Analysis, update);
 
-        captured.Should().NotBeNull();
-        var values = captured!.Patch.Operations.Single().Value.Should().BeOfType<string[]>().Subject;
-        values.Should().AllSatisfy(value => value.IsNormalized(NormalizationForm.FormD).Should().BeTrue());
+        captured.Should().BeSameAs(update); // pass-through, not rebuilt
+        var ops = captured.Patch.Operations;
+        ops.Should().HaveCount(2);
+        ops.Single(o => o.Path == "/Name").Value.Should().Be(NfcTestData.Nfc);
+        var exemplars = ops.Single(o => o.Path == "/Exemplars").Value.Should().BeOfType<string[]>().Subject;
+        exemplars.Should().Equal(NfcTestData.Nfc, NfcTestData.Nfc);
     }
 
     private static void AssertPatchValuesNfd<T>(UpdateObjectInput<T> update) where T : class
@@ -901,14 +961,29 @@ public static class NormalizationAssert
     ];
 
     /// <summary>
-    /// Properties that should NOT be normalized (metadata, not user text)
+    /// Properties not normalized by the write wrapper, scoped per type. Includes both metadata
+    /// (e.g. SemanticDomain.Code, RichSpan.Ws) and fields liblcm itself doesn't NFD-normalize
+    /// (WritingSystem fields are LDML-managed plain strings; MorphType leading/trailing tokens are
+    /// punctuation markers, not linguistic text).
     /// </summary>
-    private static readonly HashSet<string> ExcludedProperties =
-    [
-        "Code", // SemanticDomain.Code is metadata
-        "WsId", // WritingSystemId is metadata
-        "Ws"    // RichSpan.Ws is a writing system ID
-    ];
+    private static readonly Dictionary<Type, HashSet<string>> NotNormalizedPerType = new()
+    {
+        [typeof(WritingSystem)] =
+        [
+            nameof(WritingSystem.WsId),
+            nameof(WritingSystem.Name),
+            nameof(WritingSystem.Abbreviation),
+            nameof(WritingSystem.Font),
+            nameof(WritingSystem.Exemplars),
+        ],
+        [typeof(MorphTypeData)] =
+        [
+            nameof(MorphTypeData.LeadingToken),
+            nameof(MorphTypeData.TrailingToken),
+        ],
+        [typeof(SemanticDomain)] = [nameof(SemanticDomain.Code)],
+        [typeof(RichSpan)] = [nameof(RichSpan.Ws)],
+    };
 
     /// <summary>
     /// Asserts that all normalizable properties in the object contain NFC strings.
@@ -1020,10 +1095,11 @@ public static class NormalizationAssert
 
         // Walk object properties
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        var perTypeSkip = NotNormalizedPerType.GetValueOrDefault(type);
         foreach (var prop in properties)
         {
             if (!prop.CanRead) continue;
-            if (ExcludedProperties.Contains(prop.Name)) continue;
+            if (perTypeSkip is not null && perTypeSkip.Contains(prop.Name)) continue;
 
             var value = prop.GetValue(obj);
             if (value == null) continue;
