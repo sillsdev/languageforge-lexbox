@@ -12,7 +12,7 @@ public class FwDataMiniLcmHub(
     FwDataProjectContext context,
     MiniLcmApiUserFacingWrappers userFacingWrappers
 )
-: MiniLcmApiHubBase(miniLcmApi, userFacingWrappers, context.Project)
+: MiniLcmApiHubBase(miniLcmApi, userFacingWrappers, context.Project ?? throw new InvalidOperationException("No project is set in the context."))
 {
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()

@@ -9,9 +9,9 @@ namespace FwLiteWeb.Hubs;
 public abstract class MiniLcmApiHubBase(
     IMiniLcmApi miniLcmApi,
     MiniLcmApiUserFacingWrappers userFacingWrappers,
-    IProjectIdentifier? projectIdentifier) : Hub<ILexboxHubClient>
+    IProjectIdentifier projectIdentifier) : Hub<ILexboxHubClient>
 {
-    private readonly IMiniLcmApi _miniLcmApi = userFacingWrappers.Apply(miniLcmApi, projectIdentifier!);
+    private readonly IMiniLcmApi _miniLcmApi = userFacingWrappers.Apply(miniLcmApi, projectIdentifier);
 
     public async Task<WritingSystems> GetWritingSystems()
     {
