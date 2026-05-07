@@ -27,6 +27,8 @@ public class MiniLcmApiUserFacingWrappers(
     /// </param>
     public IMiniLcmApi Apply(IMiniLcmApi api, IProjectIdentifier project, params IMiniLcmWrapperFactory?[] innerWrappers)
     {
+        // Validation before write normalisation: bad input is rejected with a clear error
+        // before the normaliser sees it, so the normaliser can assume structurally valid data.
         return api.WrapWith([readNormalization, validation, writeNormalization, ..innerWrappers], project);
     }
 }
