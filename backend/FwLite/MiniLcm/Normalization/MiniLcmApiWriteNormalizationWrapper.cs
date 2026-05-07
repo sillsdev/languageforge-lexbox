@@ -7,7 +7,7 @@ using MiniLcm.Wrappers;
 
 namespace MiniLcm.Normalization;
 
-public class MiniLcmWriteApiNormalizationWrapperFactory : IMiniLcmWrapperFactory
+public class MiniLcmApiWriteNormalizationWrapperFactory : IMiniLcmWrapperFactory
 {
     public IMiniLcmApi Create(IMiniLcmApi api, IProjectIdentifier _unused)
     {
@@ -17,7 +17,7 @@ public class MiniLcmWriteApiNormalizationWrapperFactory : IMiniLcmWrapperFactory
 
     public IMiniLcmApi Create(IMiniLcmApi api)
     {
-        return new MiniLcmWriteApiNormalizationWrapper(api);
+        return new MiniLcmApiWriteNormalizationWrapper(api);
     }
 }
 
@@ -31,7 +31,7 @@ public class MiniLcmWriteApiNormalizationWrapperFactory : IMiniLcmWrapperFactory
 ///   JsonElement values are only normalized when they are simple strings; complex JSON values are left as-is
 ///   to avoid guessing the target type.
 /// </summary>
-public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMiniLcmApi
+public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMiniLcmApi
 {
     private readonly IMiniLcmApi _api = api;
 
@@ -60,7 +60,7 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateWritingSystem(before, NormalizeWritingSystem(after), api ?? this);
+        return await _api.UpdateWritingSystem(before, NormalizeWritingSystem(after), api);
     }
 
     public Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
@@ -96,7 +96,7 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdatePartOfSpeech(before, NormalizePartOfSpeech(after), api ?? this);
+        return await _api.UpdatePartOfSpeech(before, NormalizePartOfSpeech(after), api);
     }
 
     public Task DeletePartOfSpeech(Guid id)
@@ -132,7 +132,7 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdatePublication(before, NormalizePublication(after), api ?? this);
+        return await _api.UpdatePublication(before, NormalizePublication(after), api);
     }
 
     public Task DeletePublication(Guid id)
@@ -167,7 +167,7 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateSemanticDomain(before, NormalizeSemanticDomain(after), api ?? this);
+        return await _api.UpdateSemanticDomain(before, NormalizeSemanticDomain(after), api);
     }
 
     public Task DeleteSemanticDomain(Guid id)
@@ -204,7 +204,7 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateComplexFormType(before, NormalizeComplexFormType(after), api ?? this);
+        return await _api.UpdateComplexFormType(before, NormalizeComplexFormType(after), api);
     }
 
     public Task DeleteComplexFormType(Guid id)
@@ -237,7 +237,7 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateMorphTypeData(before, NormalizeMorphTypeData(after), api ?? this);
+        return await _api.UpdateMorphTypeData(before, NormalizeMorphTypeData(after), api);
     }
 
     public Task DeleteMorphTypeData(Guid id)
@@ -278,7 +278,7 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateEntry(before, NormalizeEntry(after), api ?? this);
+        return await _api.UpdateEntry(before, NormalizeEntry(after), api);
     }
 
     public Task DeleteEntry(Guid id)
@@ -366,7 +366,7 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateSense(entryId, before, NormalizeSense(after), api ?? this);
+        return await _api.UpdateSense(entryId, before, NormalizeSense(after), api);
     }
 
     public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position)
@@ -428,7 +428,7 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId, Guid senseId, ExampleSentence before, ExampleSentence after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateExampleSentence(entryId, senseId, before, NormalizeExampleSentence(after), api ?? this);
+        return await _api.UpdateExampleSentence(entryId, senseId, before, NormalizeExampleSentence(after), api);
     }
 
     public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
@@ -502,6 +502,26 @@ public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMin
         {
             yield return normalize(item);
         }
+    }
+
+    #endregion
+
+    #region CustomView
+
+    // CustomView data is view configuration, not user-entered linguistic text, so no normalization is applied.
+    public async Task<CustomView> CreateCustomView(CustomView customView)
+    {
+        return await _api.CreateCustomView(customView);
+    }
+
+    public async Task<CustomView> UpdateCustomView(CustomView customView)
+    {
+        return await _api.UpdateCustomView(customView);
+    }
+
+    public Task DeleteCustomView(Guid id)
+    {
+        return _api.DeleteCustomView(id);
     }
 
     #endregion

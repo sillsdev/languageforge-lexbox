@@ -1,7 +1,6 @@
 using FwDataMiniLcmBridge;
 using MiniLcm;
-using MiniLcm.Normalization;
-using MiniLcm.Validators;
+using MiniLcm.Wrappers;
 using SIL.LCModel;
 
 namespace FwLiteWeb.Hubs;
@@ -11,12 +10,9 @@ public class FwDataMiniLcmHub(
     IMiniLcmApi miniLcmApi,
     FwDataFactory fwDataFactory,
     FwDataProjectContext context,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
-    MiniLcmApiStringNormalizationWrapperFactory readNormalizationWrapperFactory
+    MiniLcmApiUserFacingWrappers userFacingWrappers
 )
-// Note: FwData already handles string normalization internally (via LCModel),
-// so we skip the write normalization wrapper for FwData APIs.
-: MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory, readNormalizationWrapperFactory, null, context.Project)
+: MiniLcmApiHubBase(miniLcmApi, userFacingWrappers, context.Project ?? throw new InvalidOperationException("No project is set in the context."))
 {
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()
