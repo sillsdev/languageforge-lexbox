@@ -7,8 +7,6 @@ using MiniLcm;
 using MiniLcm.Filtering;
 using MiniLcm.Models;
 using MiniLcm.Project;
-using MiniLcm.Normalization;
-using MiniLcm.Validators;
 using MiniLcm.Wrappers;
 
 namespace FwLiteWeb.Routes;
@@ -89,15 +87,10 @@ public static class MiniLcmRoutes
                 }
 
                 var services = context.HttpContext.RequestServices;
-                var readNormalizationWrapperFactory = services.GetRequiredService<MiniLcmApiStringNormalizationWrapperFactory>();
-                var writeNormalizationWrapperFactory = services.GetRequiredService<MiniLcmWriteApiNormalizationWrapperFactory>();
-                var validationWrapperFactory = services.GetRequiredService<MiniLcmApiValidationWrapperFactory>();
+                var userFacingWrappers = services.GetRequiredService<MiniLcmApiUserFacingWrappers>();
 
-                miniLcmHolder.MiniLcmApi = (await projectProvider.OpenProject(project, services)).WrapWith([
-                    readNormalizationWrapperFactory,
-                    writeNormalizationWrapperFactory, // normalize data before validating
-                    validationWrapperFactory,
-                ], project);
+                miniLcmHolder.MiniLcmApi = userFacingWrappers.Apply(
+                    await projectProvider.OpenProject(project, services), project);
                 return await next(context);
             });
 

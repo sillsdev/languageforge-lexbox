@@ -1,7 +1,6 @@
 using FwDataMiniLcmBridge;
 using MiniLcm;
-using MiniLcm.Normalization;
-using MiniLcm.Validators;
+using MiniLcm.Wrappers;
 using SIL.LCModel;
 
 namespace FwLiteWeb.Hubs;
@@ -11,11 +10,9 @@ public class FwDataMiniLcmHub(
     IMiniLcmApi miniLcmApi,
     FwDataFactory fwDataFactory,
     FwDataProjectContext context,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
-    MiniLcmApiStringNormalizationWrapperFactory readNormalizationWrapperFactory,
-    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory
+    MiniLcmApiUserFacingWrappers userFacingWrappers
 )
-: MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory, readNormalizationWrapperFactory, writeNormalizationWrapperFactory, context.Project)
+: MiniLcmApiHubBase(miniLcmApi, userFacingWrappers, context.Project)
 {
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()

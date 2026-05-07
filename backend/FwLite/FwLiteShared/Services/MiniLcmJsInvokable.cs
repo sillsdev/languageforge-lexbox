@@ -5,8 +5,6 @@ using Microsoft.JSInterop;
 using MiniLcm;
 using MiniLcm.Media;
 using MiniLcm.Models;
-using MiniLcm.Normalization;
-using MiniLcm.Validators;
 using MiniLcm.Wrappers;
 using Reinforced.Typings.Attributes;
 
@@ -18,17 +16,10 @@ public class MiniLcmJsInvokable(
     IProjectIdentifier project,
     ILogger<MiniLcmJsInvokable> logger,
     MiniLcmApiNotifyWrapperFactory notificationWrapperFactory,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
-    MiniLcmApiStringNormalizationWrapperFactory readNormalizationWrapperFactory,
-    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory
+    MiniLcmApiUserFacingWrappers userFacingWrappers
     ) : IDisposable
 {
-    private readonly IMiniLcmApi _wrappedApi = api.WrapWith([
-        readNormalizationWrapperFactory,
-        writeNormalizationWrapperFactory, // normalize data before validating
-        validationWrapperFactory,
-        notificationWrapperFactory,
-    ], project);
+    private readonly IMiniLcmApi _wrappedApi = userFacingWrappers.Apply(api, project, notificationWrapperFactory);
 
     public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio, bool? CustomViews);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;

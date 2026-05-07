@@ -1,25 +1,17 @@
 using Microsoft.AspNetCore.SignalR;
 using MiniLcm;
 using MiniLcm.Models;
-using MiniLcm.Normalization;
-using MiniLcm.Validators;
-using SystemTextJsonPatch;
 using MiniLcm.Wrappers;
+using SystemTextJsonPatch;
 
 namespace FwLiteWeb.Hubs;
 
 public abstract class MiniLcmApiHubBase(
     IMiniLcmApi miniLcmApi,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
-    MiniLcmApiStringNormalizationWrapperFactory readNormalizationWrapperFactory,
-    MiniLcmWriteApiNormalizationWrapperFactory writeNormalizationWrapperFactory,
+    MiniLcmApiUserFacingWrappers userFacingWrappers,
     IProjectIdentifier? projectIdentifier) : Hub<ILexboxHubClient>
 {
-    private readonly IMiniLcmApi _miniLcmApi = miniLcmApi.WrapWith([
-            readNormalizationWrapperFactory,
-            writeNormalizationWrapperFactory, // normalize data before validating
-            validationWrapperFactory,
-        ], projectIdentifier!);
+    private readonly IMiniLcmApi _miniLcmApi = userFacingWrappers.Apply(miniLcmApi, projectIdentifier!);
 
     public async Task<WritingSystems> GetWritingSystems()
     {

@@ -4,7 +4,6 @@ using LcmCrdt;
 using LexCore.Sync;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
-using MiniLcm.Normalization;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
 
@@ -12,8 +11,7 @@ namespace FwLiteProjectSync;
 
 public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
     ILogger<CrdtFwdataProjectSyncService> logger,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
-    MiniLcmApiStringNormalizationWrapperFactory normalizationWrapperFactory)
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory)
 {
     public record DryRunSyncResult(
         int CrdtChanges,
@@ -63,12 +61,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             throw new InvalidOperationException("Project sync state does not match presence of snapshot.");
         }
 
-        // Only read normalization (MiniLcmApiStringNormalizationWrapper) is applied here, NOT write normalization
-        // (MiniLcmWriteApiNormalizationWrapper). The sync process operates on data already persisted in both
-        // systems; normalizing on the way out would corrupt or mismatch persisted values. Write normalization
-        // is applied at user-facing entry points (MiniLcmJsInvokable, MiniLcmApiHubBase, MiniLcmRoutes).
-        crdtApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(crdtApi));
-        fwdataApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(fwdataApi));
+        // Write normalisation is not applied here: data is already normalised on both sides
+        // (FwData internally by LibLCM; CRDT at the user-facing entry points before persistence).
+        crdtApi = validationWrapperFactory.Create(crdtApi);
+        fwdataApi = validationWrapperFactory.Create(fwdataApi);
 
         if (dryRun)
         {
