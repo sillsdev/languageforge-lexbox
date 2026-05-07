@@ -26,6 +26,9 @@ artifacts/
 project-cache.json
 localResourcesCache/
 
+# Kiro AI-generated specs (not part of repo source)
+.kiro/
+
 #Verify
 *.received.*
 backend/FwLite/FwLiteShared/wwwroot/viewer
@@ -38,3 +41,6 @@ failedSyncs/
 .idea
 
 *.lscache
+
+# AI session artifacts (ephemeral planning/review documents)
+history/

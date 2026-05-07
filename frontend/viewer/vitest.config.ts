@@ -1,4 +1,5 @@
-import {defineConfig} from 'vitest/config';
+import {configDefaults, defineConfig} from 'vitest/config';
+
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {playwright} from '@vitest/browser-playwright';
@@ -10,8 +11,13 @@ const dirname =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
 const browserTestPattern = '**/*.browser.{test,spec}.?(c|m)[jt]s?(x)';
-const e2eTestPattern = './tests/**';
-const defaultExcludeList = ['**/node_modules/**', '**/dist/**', '**/cypress/**', '**/.{idea,git,cache,output,temp}/**', '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*'];
+const integrationTestPattern = './tests/integration/**/*.{test,spec}.?(c|m)[jt]s?(x)';
+const e2eTestPatterns = ['./tests/**'];
+
+const sharedAlias = [
+  {find: '$lib', replacement: '/src/lib'},
+  {find: '$project', replacement: '/src/project'},
+];
 
 export default defineConfig({
   test: {
@@ -24,15 +30,14 @@ export default defineConfig({
           name: 'unit',
           // $effect.root requires a dom.
           // We can add a node environment test project later if needed.
-          environment:'jsdom',
-          exclude: [browserTestPattern, e2eTestPattern, ...defaultExcludeList],
+          environment: 'jsdom',
+          exclude: [
+            browserTestPattern,
+            ...e2eTestPatterns,
+            ...configDefaults.exclude,
+          ],
         },
-        resolve: {
-          alias: [
-            {find: '$lib', replacement: '/src/lib'},
-            {find: '$project', replacement: '/src/project'},
-          ]
-        },
+        resolve: {alias: sharedAlias},
       },
       {
         plugins: [
@@ -50,13 +55,17 @@ export default defineConfig({
             ],
           },
           include: [browserTestPattern],
+          exclude: [...e2eTestPatterns, ...configDefaults.exclude],
         },
-        resolve: {
-          alias: [
-            {find: '$lib', replacement: '/src/lib'},
-            {find: '$project', replacement: '/src/project'},
-          ]
+        resolve: {alias: sharedAlias},
+      },
+      {
+        test: {
+          name: 'integration',
+          environment: 'node',
+          include: [integrationTestPattern],
         },
+        resolve: {alias: sharedAlias},
       },
       {
         plugins: [
@@ -80,13 +89,8 @@ export default defineConfig({
           },
           setupFiles: ['./.storybook/vitest.setup.ts'],
         },
-        resolve: {
-          alias: [
-            {find: '$lib', replacement: '/src/lib'},
-            {find: '$project', replacement: '/src/project'},
-          ]
-        },
-      }
+        resolve: {alias: sharedAlias},
+      },
     ],
   },
 });

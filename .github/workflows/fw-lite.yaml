@@ -22,6 +22,9 @@ on:
       - develop
       - main
       - feat/sync-morph-types #just for now ensure PRs to this branch have checks run
+
+permissions:
+  contents: read
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
 jobs:
@@ -107,12 +110,20 @@ jobs:
             exit 1
           fi
           rm -f src/locales/en.po.old
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
       - name: Set up Playwright dependencies
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend
         run: pnpm exec playwright install --with-deps
       - name: Run snapshot tests
         working-directory: frontend/viewer
-        run: task playwright-test-standalone
+        run: task test:snapshot-standalone
+
       - name: Build viewer
         working-directory: frontend/viewer
         run: pnpm run build
@@ -130,6 +141,9 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
 
   frontend-component-unit-tests:
+    permissions:
+      contents: read
+      checks: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -147,7 +161,14 @@ jobs:
         run: |
           pnpm install
         # vitest is configured to use playwright for stories and other browser-based tests
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
       - name: Set up Playwright dependencies
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend/viewer
         run: pnpm exec playwright install --with-deps
       - name: vitest
@@ -371,6 +392,8 @@ jobs:
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
   create-release:
+    permissions:
+      contents: write
     if: ${{ github.ref_name == 'main' }}
     environment:
       name: production
@@ -424,3 +447,127 @@ jobs:
         run: |
           sleep 10
           curl -X POST https://lexbox.org/api/fwlite-release/new-release
+
+
+  e2e-test:
+    name: E2E Tests
+    # Only depends on frontend (for viewer JS) — does its own linux publish to fast-lane
+    # CI feedback (no waiting on the long Windows build-and-test job).
+    needs: [frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite-viewer-js
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Publish FwLiteWeb (linux-x64)
+        working-directory: backend/FwLite/FwLiteWeb
+        run: dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true
+
+      - name: set execute permissions
+        shell: bash
+        run: chmod +x backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64/FwLiteWeb
+
+      - name: Install Task
+        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          package_json_file: 'frontend/package.json'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: Prepare frontend
+        working-directory: frontend
+        run: |
+          pnpm install
+      - name: Test fw lite launcher
+        working-directory: frontend/viewer
+        env:
+          FW_LITE_BINARY_PATH: ${{ github.workspace }}/backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64/FwLiteWeb
+        run: task e2e-test-helper-unit-tests
+
+      - uses: ./.github/actions/setup-k8s
+        with:
+          lexbox-api-tag: develop
+          ingress-controller-port: '6579' # http; kept for the action's own curl-verify step
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # MSAL refuses any non-https authority, so we also expose ingress-nginx's
+      # HTTPS port (snake-oil cert; FwLite trusts it via --environment Development,
+      # playwright via ignoreHTTPSErrors).
+      - name: Forward ingress HTTPS port
+        shell: bash
+        run: |
+          kubectl port-forward service/ingress-nginx-controller 6580:443 -n languagedepot >/tmp/https-port-forward.log 2>&1 &
+          # Wait for the port-forward to actually be listening
+          for i in $(seq 1 30); do
+            if curl -sk https://localhost:6580 >/dev/null 2>&1; then
+              echo "✅ HTTPS port-forward ready on :6580"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "❌ HTTPS port-forward did not become ready"
+          cat /tmp/https-port-forward.log
+          exit 1
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+      - name: Set up Playwright dependencies
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: frontend/viewer
+        run: pnpm exec playwright install --with-deps
+
+      - name: Run E2E tests
+        working-directory: frontend/viewer
+        env:
+          FW_LITE_BINARY_PATH: ${{ github.workspace }}/backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64/FwLiteWeb
+          TEST_SERVER_PROTOCOL: https
+          TEST_SERVER_PORT: 6580
+        run: task test:e2e
+
+      - name: Upload Playwright test results and traces (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-e2e-test-results
+          if-no-files-found: ignore
+          path: |
+            frontend/viewer/tests/e2e/test-results/
+
+      - name: Capture k8s pod logs (on failure)
+        if: failure()
+        shell: bash
+        run: |
+          mkdir -p k8s-logs
+          for app in lexbox ui hg db fw-headless; do
+            kubectl describe pods -l "app=${app}" -n languagedepot > k8s-logs/describe-${app}.txt 2>&1 || true
+            kubectl logs -l "app=${app}" -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-${app}.txt 2>&1 || true
+          done
+          kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-ingress.txt 2>&1 || true
+
+      - name: Upload k8s logs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-e2e-k8s-logs
+          if-no-files-found: ignore
+          path: k8s-logs/*.txt
