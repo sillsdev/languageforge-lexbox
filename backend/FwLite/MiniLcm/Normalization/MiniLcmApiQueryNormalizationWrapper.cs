@@ -4,17 +4,17 @@ using MiniLcm.Wrappers;
 
 namespace MiniLcm.Normalization;
 
-public class MiniLcmApiStringNormalizationWrapperFactory() : IMiniLcmWrapperFactory
+public class MiniLcmApiQueryNormalizationWrapperFactory() : IMiniLcmWrapperFactory
 {
     public IMiniLcmApi Create(IMiniLcmApi api, IProjectIdentifier _unused) => Create(api);
 
     public IMiniLcmApi Create(IMiniLcmApi api)
     {
-        return new MiniLcmApiStringNormalizationWrapper(api);
+        return new MiniLcmApiQueryNormalizationWrapper(api);
     }
 }
 
-public partial class MiniLcmApiStringNormalizationWrapper(
+public partial class MiniLcmApiQueryNormalizationWrapper(
     IMiniLcmApi api) : IMiniLcmApi
 {
     public const NormalizationForm Form = NormalizationForm.FormD;

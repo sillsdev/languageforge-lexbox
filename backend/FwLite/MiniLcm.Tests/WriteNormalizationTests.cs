@@ -11,7 +11,7 @@ namespace MiniLcm.Tests;
 #pragma warning disable IDE0022 // Use block body for method
 
 /// <summary>
-/// Tests for the MiniLcmWriteApiNormalizationWrapper.
+/// Tests for the MiniLcmApiWriteNormalizationWrapper.
 /// These tests verify that all user-entered text is normalized to NFD on write operations.
 /// </summary>
 public class WriteNormalizationTests
@@ -22,7 +22,7 @@ public class WriteNormalizationTests
     public WriteNormalizationTests()
     {
         _mockApi = Mock.Of<IMiniLcmApi>();
-        var factory = new MiniLcmWriteApiNormalizationWrapperFactory();
+        var factory = new MiniLcmApiWriteNormalizationWrapperFactory();
         _normalizingApi = factory.Create(_mockApi);
     }
 

@@ -18,8 +18,8 @@ namespace MiniLcm.Wrappers;
 /// original is never mutated and the inner API always receives a clean copy.
 /// </summary>
 public class MiniLcmApiUserFacingWrappers(
-    MiniLcmApiStringNormalizationWrapperFactory readNormalization,
-    MiniLcmWriteApiNormalizationWrapperFactory writeNormalization,
+    MiniLcmApiQueryNormalizationWrapperFactory readNormalization,
+    MiniLcmApiWriteNormalizationWrapperFactory writeNormalization,
     MiniLcmApiValidationWrapperFactory validation)
 {
     /// <param name="innerWrappers">

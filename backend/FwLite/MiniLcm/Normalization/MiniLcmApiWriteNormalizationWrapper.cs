@@ -7,7 +7,7 @@ using MiniLcm.Wrappers;
 
 namespace MiniLcm.Normalization;
 
-public class MiniLcmWriteApiNormalizationWrapperFactory : IMiniLcmWrapperFactory
+public class MiniLcmApiWriteNormalizationWrapperFactory : IMiniLcmWrapperFactory
 {
     public IMiniLcmApi Create(IMiniLcmApi api, IProjectIdentifier _unused)
     {
@@ -17,7 +17,7 @@ public class MiniLcmWriteApiNormalizationWrapperFactory : IMiniLcmWrapperFactory
 
     public IMiniLcmApi Create(IMiniLcmApi api)
     {
-        return new MiniLcmWriteApiNormalizationWrapper(api);
+        return new MiniLcmApiWriteNormalizationWrapper(api);
     }
 }
 
@@ -31,7 +31,7 @@ public class MiniLcmWriteApiNormalizationWrapperFactory : IMiniLcmWrapperFactory
 ///   JsonElement values are only normalized when they are simple strings; complex JSON values are left as-is
 ///   to avoid guessing the target type.
 /// </summary>
-public partial class MiniLcmWriteApiNormalizationWrapper(IMiniLcmApi api) : IMiniLcmApi
+public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMiniLcmApi
 {
     private readonly IMiniLcmApi _api = api;
 
