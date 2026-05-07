@@ -9,9 +9,10 @@ namespace MiniLcm.Wrappers;
 ///
 /// Write normalisation is applied uniformly to both CRDT and FwData rather than
 /// conditionally. The invariant "always normalise at the user-facing boundary" is simpler
-/// to reason about than backend-specific rules. For FwData, LibLCM normalises internally
-/// anyway, so the wrapper is effectively a no-op; FwData is desktop-only, making the
-/// redundant pass inconsequential.
+/// to reason about than backend-specific rules. The wrapper creates new instances of every
+/// normalised object, so the caller's original is never mutated and the inner API always
+/// receives a clean copy. For FwData, LibLCM normalises internally anyway, so the wrapper
+/// is effectively a no-op; FwData is desktop-only, making the redundant pass inconsequential.
 /// </summary>
 public class MiniLcmApiUserFacingWrappers(
     MiniLcmApiStringNormalizationWrapperFactory readNormalization,
