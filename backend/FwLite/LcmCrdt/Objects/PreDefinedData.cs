@@ -67,8 +67,8 @@ public static class PreDefinedData
                             new ViewField { FieldId = "sentence" },
                             new ViewField { FieldId = "translations" },
                         ],
-                        Vernacular = [new ViewWritingSystem { WsId = "en" }, new ViewWritingSystem { WsId = "en-Zxxx-x-audio" }],
-                        Analysis = [new ViewWritingSystem { WsId = "en" }, new ViewWritingSystem { WsId = "fr" }]
+                        Vernacular = [new ViewWritingSystem { WsId = "de" }, new ViewWritingSystem { WsId = "de-Zxxx-x-audio" }],
+                        Analysis = [new ViewWritingSystem { WsId = "en" }, new ViewWritingSystem { WsId = "en-Zxxx-x-audio" }]
                     })
             ],
             new Guid("b2c3d4e5-f6a7-8901-bcde-f12345678901"));

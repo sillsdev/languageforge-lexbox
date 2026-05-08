@@ -257,31 +257,31 @@ public partial class CrdtProjectsService(
         {
             Id = Guid.NewGuid(),
             Type = WritingSystemType.Vernacular,
-            WsId = "en",
-            Name = "English",
-            Abbreviation = "en",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
-
-        await lexboxApi.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Vernacular,
-            WsId = "en-Zxxx-x-audio",
-            Name = "English (A)",
-            Abbreviation = "Eng 🔊",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
-
-        await lexboxApi.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Vernacular,
             WsId = "de",
             Name = "German",
             Abbreviation = "de",
+            Font = "Arial",
+            Exemplars = WritingSystem.LatinExemplars
+        });
+
+        await lexboxApi.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "de-Zxxx-x-audio",
+            Name = "German (A)",
+            Abbreviation = "Deu 🔊",
+            Font = "Arial",
+            Exemplars = WritingSystem.LatinExemplars
+        });
+
+        await lexboxApi.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "de-fonipa",
+            Name = "German (IPA)",
+            Abbreviation = "de IPA",
             Font = "Arial",
             Exemplars = WritingSystem.LatinExemplars
         });
@@ -306,18 +306,28 @@ public partial class CrdtProjectsService(
             Font = "Arial",
             Exemplars = WritingSystem.LatinExemplars
         });
+        await lexboxApi.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Analysis,
+            WsId = "en-Zxxx-x-audio",
+            Name = "English (A)",
+            Abbreviation = "Eng 🔊",
+            Font = "Arial",
+            Exemplars = WritingSystem.LatinExemplars
+        });
 
         await lexboxApi.CreateEntry(new()
         {
             Id = Guid.NewGuid(),
-            LexemeForm = { ["en"] = "Apple" },
-            CitationForm = { ["en"] = "Apple" },
+            LexemeForm = { ["de"] = "Apfel" },
+            CitationForm = { ["de"] = "Apfel" },
             LiteralMeaning = { ["en"] = new RichString("Fruit") },
             Senses =
             [
                 new()
                 {
-                    Gloss = { ["en"] = "Fruit" },
+                    Gloss = { ["en"] = "Apple" },
                     Definition =
                     {
                         ["en"] =
@@ -325,7 +335,7 @@ public partial class CrdtProjectsService(
                                 "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh")
                     },
                     SemanticDomains = [],
-                    ExampleSentences = [new() { Sentence = { ["en"] = new RichString("We ate an apple") } }]
+                    ExampleSentences = [new() { Sentence = { ["de"] = new RichString("Wir haben einen Apfel gegessen") } }]
                 }
             ]
         });
@@ -333,18 +343,18 @@ public partial class CrdtProjectsService(
         await lexboxApi.CreateEntry(new()
         {
             Id = Guid.NewGuid(),
-            LexemeForm = { ["en"] = "Banana" },
-            CitationForm = { ["en"] = "Banana" },
+            LexemeForm = { ["de"] = "Banane" },
+            CitationForm = { ["de"] = "Banane" },
             LiteralMeaning = { ["en"] = new RichString("Fruit") },
             Senses =
             [
                 new()
                 {
-                    Gloss = { ["en"] = "Fruit" },
+                    Gloss = { ["en"] = "Banana" },
                     Definition = { ["en"] = new RichString("long curved fruit with yellow skin and soft sweet flesh") },
                     SemanticDomains = [],
                     ExampleSentences =
-                        [new() { Sentence = { ["en"] = new RichString("The monkey peeled a banana") } }]
+                        [new() { Sentence = { ["de"] = new RichString("Der Affe hat eine Banane geschält") } }]
                 }
             ]
         });
@@ -352,21 +362,21 @@ public partial class CrdtProjectsService(
         await lexboxApi.CreateEntry(new()
         {
             Id = Guid.NewGuid(),
-            LexemeForm = { ["en"] = "Orange" },
-            CitationForm = { ["en"] = "Orange" },
+            LexemeForm = { ["de"] = "Orange" },
+            CitationForm = { ["de"] = "Orange" },
             LiteralMeaning = { ["en"] = new RichString("Fruit") },
             Senses =
             [
                 new()
                 {
-                    Gloss = { ["en"] = "Fruit" },
+                    Gloss = { ["en"] = "Orange" },
                     Definition =
                     {
                         ["en"] = new RichString("round citrus fruit with orange skin and juicy segments inside")
                     },
                     SemanticDomains = [],
                     ExampleSentences =
-                        [new() { Sentence = { ["en"] = new RichString("I squeezed the orange for juice") } }]
+                        [new() { Sentence = { ["de"] = new RichString("Ich habe die Orange für Saft ausgepresst") } }]
                 }
             ]
         });
@@ -374,14 +384,14 @@ public partial class CrdtProjectsService(
         await lexboxApi.CreateEntry(new()
         {
             Id = Guid.NewGuid(),
-            LexemeForm = { ["en"] = "Grape" },
-            CitationForm = { ["en"] = "Grape" },
+            LexemeForm = { ["de"] = "Traube" },
+            CitationForm = { ["de"] = "Traube" },
             LiteralMeaning = { ["en"] = new RichString("Fruit") },
             Senses =
             [
                 new()
                 {
-                    Gloss = { ["en"] = "Fruit" },
+                    Gloss = { ["en"] = "Grape" },
                     Definition =
                     {
                         ["en"] =
@@ -389,7 +399,7 @@ public partial class CrdtProjectsService(
                     },
                     SemanticDomains = [],
                     ExampleSentences =
-                        [new() { Sentence = { ["en"] = new RichString("The vineyard was full of ripe grapes") } }]
+                        [new() { Sentence = { ["de"] = new RichString("Der Weinberg war voller reifer Trauben") } }]
                 }
             ]
         });
