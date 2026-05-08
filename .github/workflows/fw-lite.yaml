@@ -25,6 +25,13 @@ on:
 
 permissions:
   contents: read
+
+# Cancel earlier in-progress runs for the same ref when a new commit lands —
+# keeps the e2e/Windows lanes from piling up while iterating on a PR.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
 jobs:

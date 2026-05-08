@@ -9,7 +9,8 @@ export class ProjectPage {
     await expect(this.page.locator('.animate-pulse')).toHaveCount(0);
     await expect(this.page.getByRole('textbox', {name: 'Filter'})).toBeVisible();
     await expect(this.page.getByRole('button', {name: 'Headword'})).toBeVisible();
-    expect(await this.entryRows().count()).toBeGreaterThan(5);
+    // Entries hydrate after the table shell renders, so poll instead of one-shotting.
+    await expect.poll(() => this.entryRows().count()).toBeGreaterThan(5);
   }
 
   entryRows() {

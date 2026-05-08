@@ -24,6 +24,8 @@ test.describe('FW Lite Integration Tests', () => {
 
   test.afterEach(async ({page}) => {
     try {
+      // Tests may end on a project page; logout/delete operate from the home page.
+      await page.goto(fwLiteLauncher.getBaseUrl());
       await logoutFromServer(page, lexboxServer);
       await deleteProject(page, testData.projectCode);
     } finally {
