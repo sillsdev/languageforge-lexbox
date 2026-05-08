@@ -36,7 +36,7 @@ let testId: string;
  * Test suite setup and teardown
  */
 test.describe('FW Lite Integration Tests', () => {
-  test.beforeAll(async () => {
+  test.beforeAll(() => {
     console.log('Setting up FW Lite Integration Test Suite');
 
     // Validate test configuration
@@ -100,7 +100,7 @@ test.describe('FW Lite Integration Tests', () => {
     }
   });
 
-  test.afterAll(async () => {
+  test.afterAll(() => {
     console.log('Cleaning up test suite');
 
     // Clean up test data

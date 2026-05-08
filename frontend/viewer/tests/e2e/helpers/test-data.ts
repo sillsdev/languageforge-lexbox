@@ -196,11 +196,11 @@ export function cleanupTestData(projectCode: string, testIds: string[]): void {
  * @param projectCode - Project code to clean up data from
  * @returns Promise that resolves when cleanup is complete
  */
-export async function cleanupAllTestData(projectCode: string): Promise<void> {
+export function cleanupAllTestData(projectCode: string): void {
   const allActiveIds = Array.from(activeTestIds);
   if (allActiveIds.length > 0) {
     console.log(`Cleaning up all active test data (${allActiveIds.length} entries) for session: ${TEST_SESSION_ID}`);
-    await cleanupTestData(projectCode, allActiveIds);
+    cleanupTestData(projectCode, allActiveIds);
   } else {
     console.log('No active test data to clean up');
   }

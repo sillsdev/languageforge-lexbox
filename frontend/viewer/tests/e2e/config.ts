@@ -45,48 +45,6 @@ export const TEST_PROJECTS: Record<string, TestProject> = {
 };
 
 /**
- * Test data constants
- */
-export const TEST_CONSTANTS = {
-  // Unique identifier prefix for test entries to avoid conflicts
-  TEST_ENTRY_PREFIX: 'e2e-test',
-
-  // Default test entry data
-  DEFAULT_TEST_ENTRY: {
-    lexeme: 'test-word',
-    definition: 'A word created during E2E testing',
-    partOfSpeech: 'noun',
-  },
-
-  // Retry configuration for flaky operations
-  RETRY_CONFIG: {
-    projectDownload: { attempts: 3, delay: 5000 },
-    entryCreation: { attempts: 2, delay: 2000 },
-    dataSync: { attempts: 3, delay: 3000 },
-  },
-
-  // UI selectors (to be updated based on actual FW Lite UI)
-  SELECTORS: {
-    projectList: '[data-testid="project-list"]',
-    downloadButton: '[data-testid="download-project"]',
-    newEntryButton: '[data-testid="new-entry"]',
-    entryForm: '[data-testid="entry-form"]',
-    saveButton: '[data-testid="save-entry"]',
-    searchInput: '[data-testid="search-entries"]',
-    deleteProjectButton: '[data-testid="delete-project"]',
-  },
-} as const;
-
-/**
- * Generate unique test identifier
- */
-export function generateTestId(): string {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 8);
-  return `${TEST_CONSTANTS.TEST_ENTRY_PREFIX}-${timestamp}-${random}`;
-}
-
-/**
  * Get test configuration with environment variable overrides
  */
 export function getTestConfig(): E2ETestConfig {

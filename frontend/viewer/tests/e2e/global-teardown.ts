@@ -8,7 +8,7 @@
 import { getTestConfig } from './config';
 import { cleanupAllTestData, getActiveTestIds } from './helpers/test-data';
 
-async function globalTeardown() {
+function globalTeardown() {
   console.log('🧹 Starting FW Lite E2E Test Suite Global Teardown');
 
   const config = getTestConfig();
@@ -20,7 +20,7 @@ async function globalTeardown() {
 
     if (activeIds.length > 0) {
       console.log(`   Found ${activeIds.length} active test entries to clean up`);
-      await cleanupAllTestData(config.testData.projectCode);
+      cleanupAllTestData(config.testData.projectCode);
       console.log('✅ Test data cleanup completed');
     } else {
       console.log('   No active test data found to clean up');

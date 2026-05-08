@@ -7,6 +7,7 @@
 
 import { spawn, type ChildProcess } from 'node:child_process';
 import { access, constants } from 'node:fs/promises';
+import { createServer, type AddressInfo } from 'node:net';
 import { platform } from 'node:os';
 import type { FwLiteManager, LaunchConfig } from '../types';
 
@@ -110,30 +111,29 @@ export class FwLiteLauncher implements FwLiteManager {
     try {
       await access(binaryPath, constants.F_OK | constants.X_OK);
     } catch (error) {
-      throw new Error(`FW Lite binary not found or not executable: ${binaryPath}. Error: ${error}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`FW Lite binary not found or not executable: ${binaryPath}. Error: ${message}`);
     }
   }
 
   /**
    * Find an available port starting from the given port
    */
-  private async findAvailablePort(startPort: number): Promise<number> {
-    const net = await import('node:net');
-
+  private findAvailablePort(startPort: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      const server = net.createServer();
+      const server = createServer();
 
       server.listen(startPort, () => {
-        const port = (server.address() as any)?.port;
+        const port = (server.address() as AddressInfo).port;
         server.close(() => {
           resolve(port);
         });
       });
 
-      server.on('error', (err: any) => {
+      server.on('error', (err: NodeJS.ErrnoException) => {
         if (err.code === 'EADDRINUSE') {
           // Port is in use, try next one
-          this.findAvailablePort(startPort + 1).then(resolve).catch(reject);
+          this.findAvailablePort(startPort + 1).then(resolve).catch((reason: unknown) => reject(reason instanceof Error ? reason : new Error(String(reason))));
         } else {
           reject(err);
         }
@@ -177,21 +177,17 @@ export class FwLiteLauncher implements FwLiteManager {
       });
 
       // Capture stdout/stderr for debugging
-      if (this.process.stdout) {
-        this.process.stdout.on('data', (data) => {
-          const output = data.toString();
-          // Look for startup indicators
-          if (output.includes('Now listening on:') || output.includes('Application started')) {
-            resolve();
-          }
-        });
-      }
+      this.process.stdout?.on('data', (data: Buffer) => {
+        const output = data.toString();
+        // Look for startup indicators
+        if (output.includes('Now listening on:') || output.includes('Application started')) {
+          resolve();
+        }
+      });
 
-      if (this.process.stderr) {
-        this.process.stderr.on('data', (data) => {
-          console.error('FW Lite stderr:', data.toString());
-        });
-      }
+      this.process.stderr?.on('data', (data: Buffer) => {
+        console.error('FW Lite stderr:', data.toString());
+      });
 
       // Fallback timeout for process startup
       setTimeout(() => {
@@ -214,7 +210,7 @@ export class FwLiteLauncher implements FwLiteManager {
           this.isHealthy = true;
           return;
         }
-      } catch (error) {
+      } catch {
         // Health check failed, continue waiting
       }
 
@@ -236,7 +232,7 @@ export class FwLiteLauncher implements FwLiteManager {
       });
 
       return response.ok;
-    } catch (error) {
+    } catch {
       // If /health doesn't exist, try the root endpoint
       try {
         const response = await fetch(this.baseUrl, {
@@ -246,7 +242,7 @@ export class FwLiteLauncher implements FwLiteManager {
 
         // Accept any response that isn't a connection error
         return response.status < 500;
-      } catch (rootError) {
+      } catch {
         return false;
       }
     }
