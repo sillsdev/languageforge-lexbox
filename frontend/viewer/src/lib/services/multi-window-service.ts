@@ -39,9 +39,9 @@ export class MultiWindowService implements IMultiWindowService {
     // Reading from the context here (rather than at construction) ensures projectType is initialized.
     const projectContext = this._projectContext;
     if (!projectContext) throw new Error('openEntryInNewWindow requires a project context');
-    const {projectCode, projectType, inParatext} = projectContext;
+    const {projectCode, projectType} = projectContext;
     const projectSegment = projectType === 'fwdata' ? `fwdata/${projectCode}` : `project/${projectCode}`;
-    const browsePath = `${inParatext ? '/paratext' : ''}/${projectSegment}/browse`;
+    const browsePath = `/${projectSegment}/browse`;
 
     const {hash} = new URL(location.href);
     await this.openNewWindow(`${browsePath}?${entryBrowseParams(entryId)}${hash}`, SM_VIEW_MAX_WIDTH);
