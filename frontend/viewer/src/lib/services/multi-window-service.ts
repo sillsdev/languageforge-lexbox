@@ -11,7 +11,7 @@ const SM_VIEW_MAX_WIDTH = MOBILE_BREAKPOINT - 10;
 export class MultiWindowService implements IMultiWindowService {
 
   constructor(
-    private readonly _projectContext: ProjectContext | undefined,
+    private readonly _projectContext: ProjectContext,
     private readonly _multiWindowService?: IMultiWindowService,
   ) {
   }
@@ -37,14 +37,12 @@ export class MultiWindowService implements IMultiWindowService {
 
   async openEntryInNewWindow(entryId: string) {
     // Reading from the context here (rather than at construction) ensures projectType is initialized.
-    const projectContext = this._projectContext;
-    if (!projectContext) throw new Error('openEntryInNewWindow requires a project context');
-    const {projectCode, projectType} = projectContext;
+    const {projectCode, projectType} = this._projectContext;
     const projectSegment = projectType === 'fwdata' ? `fwdata/${projectCode}` : `project/${projectCode}`;
     const browsePath = `/${projectSegment}/browse`;
 
-    const {hash} = new URL(location.href);
-    await this.openNewWindow(`${browsePath}?${entryBrowseParams(entryId)}${hash}`, SM_VIEW_MAX_WIDTH);
+    const url = new URL(location.href);
+    await this.openNewWindow(`${browsePath}?${entryBrowseParams(entryId)}${url.hash}`, SM_VIEW_MAX_WIDTH);
   }
 }
 
