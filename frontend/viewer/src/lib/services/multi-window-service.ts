@@ -36,7 +36,6 @@ export class MultiWindowService implements IMultiWindowService {
   }
 
   async openEntryInNewWindow(entryId: string) {
-    // Reading from the context here (rather than at construction) ensures projectType is initialized.
     const {projectCode, projectType} = this._projectContext;
     const projectSegment = projectType === 'fwdata' ? `fwdata/${projectCode}` : `project/${projectCode}`;
     const browsePath = `/${projectSegment}/browse`;
