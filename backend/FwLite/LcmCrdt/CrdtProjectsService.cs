@@ -257,17 +257,6 @@ public partial class CrdtProjectsService(
         {
             Id = Guid.NewGuid(),
             Type = WritingSystemType.Vernacular,
-            WsId = "de",
-            Name = "German",
-            Abbreviation = "de",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
-
-        await lexboxApi.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Vernacular,
             WsId = "en",
             Name = "English",
             Abbreviation = "en",
@@ -282,6 +271,17 @@ public partial class CrdtProjectsService(
             WsId = "en-Zxxx-x-audio",
             Name = "English (A)",
             Abbreviation = "Eng 🔊",
+            Font = "Arial",
+            Exemplars = WritingSystem.LatinExemplars
+        });
+
+        await lexboxApi.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "de",
+            Name = "German",
+            Abbreviation = "de",
             Font = "Arial",
             Exemplars = WritingSystem.LatinExemplars
         });
@@ -303,16 +303,6 @@ public partial class CrdtProjectsService(
             WsId = "fr",
             Name = "French",
             Abbreviation = "fr",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
-        await lexboxApi.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Analysis,
-            WsId = "en-Zxxx-x-audio",
-            Name = "English (A)",
-            Abbreviation = "Eng 🔊",
             Font = "Arial",
             Exemplars = WritingSystem.LatinExemplars
         });
