@@ -3,17 +3,13 @@ import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwL
 import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
 import {MOBILE_BREAKPOINT} from '../../css-breakpoints';
 import {entryBrowseParams} from '$lib/utils/search-params';
-import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 
 /* -10, because the window is likely wider than the viewport and we want the breakpoint to work */
 const SM_VIEW_MAX_WIDTH = MOBILE_BREAKPOINT - 10;
 
 export class MultiWindowService implements IMultiWindowService {
 
-  constructor(
-    private readonly _projectContext: ProjectContext,
-    private readonly _multiWindowService?: IMultiWindowService,
-  ) {
+  constructor(private readonly _multiWindowService?: IMultiWindowService) {
   }
 
   async openNewWindow(url?: string, width?: number): Promise<void> {
@@ -36,19 +32,17 @@ export class MultiWindowService implements IMultiWindowService {
   }
 
   async openEntryInNewWindow(entryId: string) {
-    const {projectCode, projectType} = this._projectContext;
-    const projectSegment = projectType === 'fwdata' ? `fwdata/${projectCode}` : `project/${projectCode}`;
-    const browsePath = `/${projectSegment}/browse`;
-
     const url = new URL(location.href);
+    const [projectTypePath, projectCode] = url.pathname.split('/').filter(Boolean);
+    const browsePath = `/${projectTypePath}/${projectCode}/browse`;
+
     await this.openNewWindow(`${browsePath}?${entryBrowseParams(entryId)}${url.hash}`, SM_VIEW_MAX_WIDTH);
   }
 }
 
 export function useMultiWindowService(): MultiWindowService | undefined {
-  const projectContext = useProjectContext();
   const multiWindowService = window.lexbox.ServiceProvider.tryGetService(DotnetService.MultiWindowService);
-  if (multiWindowService) return new MultiWindowService(projectContext, multiWindowService);
+  if (multiWindowService) return new MultiWindowService(multiWindowService);
 
   const fwLiteConfig = window.lexbox.ServiceProvider.tryGetService(DotnetService.FwLiteConfig);
   const platform = fwLiteConfig?.os;
@@ -58,5 +52,5 @@ export function useMultiWindowService(): MultiWindowService | undefined {
     return undefined;
   }
 
-  return new MultiWindowService(projectContext);
+  return new MultiWindowService();
 }
