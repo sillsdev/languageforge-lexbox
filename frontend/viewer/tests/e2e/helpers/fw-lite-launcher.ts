@@ -1,250 +1,136 @@
+import {spawn, type ChildProcess} from 'node:child_process';
+import {access, constants} from 'node:fs/promises';
+import {createServer, type AddressInfo} from 'node:net';
+import {platform} from 'node:os';
+import type {LaunchConfig} from '../types';
+
+const SHUTDOWN_TIMEOUT_MS = 10_000;
+const HEALTH_CHECK_INTERVAL_MS = 1_000;
+const HEALTH_CHECK_REQUEST_TIMEOUT_MS = 5_000;
+
 /**
- * FW Lite Application Launcher
- *
- * Manages the FW Lite application lifecycle during tests.
- * Handles launching, health checking, and shutting down the FW Lite application.
+ * Spawns and manages the FwLiteWeb binary for an e2e test. Each test owns its
+ * own launcher (and process) so user-data directories don't bleed between tests.
  */
-
-import { spawn, type ChildProcess } from 'node:child_process';
-import { access, constants } from 'node:fs/promises';
-import { createServer, type AddressInfo } from 'node:net';
-import { platform } from 'node:os';
-import type { FwLiteManager, LaunchConfig } from '../types';
-
-export class FwLiteLauncher implements FwLiteManager {
+export class FwLiteLauncher {
   private process: ChildProcess | null = null;
   private baseUrl = '';
-  private port = 0;
   private isHealthy = false;
 
-  /**
-   * Launch the FW Lite application
-   */
   async launch(config: LaunchConfig): Promise<void> {
-    if (this.process) {
-      throw new Error('FW Lite is already running. Call shutdown() first.');
-    }
+    if (this.process) throw new Error('FW Lite is already running. Call shutdown() first.');
 
-    // Validate binary exists and is executable
-    await this.validateBinary(config.binaryPath);
+    await assertExecutable(config.binaryPath);
 
-    // Find available port
-    this.port = config.port || await this.findAvailablePort(5000);
-    this.baseUrl = `http://localhost:${this.port}`;
+    const port = config.port ?? await findAvailablePort(5000);
+    this.baseUrl = `http://localhost:${port}`;
 
-    // Launch the application
-    await this.launchProcess(config);
-
-    // Wait for application to be ready
-    await this.waitForHealthy(config.timeout || 30000);
+    await this.spawnProcess(config);
+    await this.waitForHealthy(config.timeout ?? 30_000);
   }
 
-  /**
-   * Shutdown the FW Lite application
-   */
   async shutdown(): Promise<void> {
-    if (!this.process) {
-      return;
-    }
-
+    if (!this.process) return;
     this.isHealthy = false;
 
-    // Try graceful shutdown first
     if (platform() === 'win32') {
-      //windows sucks https://stackoverflow.com/a/41976985/1620542
+      // Windows can't SIGTERM a child process; FwLiteWeb listens for "shutdown" on stdin.
       this.process.stdin?.write('shutdown\n');
       this.process.stdin?.end();
     } else {
       this.process.kill('SIGTERM');
     }
 
-    // Wait for graceful shutdown
-    const shutdownPromise = new Promise<void>((resolve) => {
-      if (!this.process) {
-        resolve();
-        return;
-      }
+    const exited = new Promise<void>(resolve => this.process!.on('exit', () => resolve()));
+    const timeout = new Promise<void>(resolve => setTimeout(() => {
+      if (this.process && !this.process.killed) this.process.kill('SIGKILL');
+      resolve();
+    }, SHUTDOWN_TIMEOUT_MS));
 
-      this.process.on('exit', () => {
-        resolve();
-      });
-    });
-
-    // Force kill after timeout
-    const timeoutPromise = new Promise<void>((resolve) => {
-      setTimeout(() => {
-        if (this.process && !this.process.killed) {
-          this.process.kill('SIGKILL');
-        }
-        resolve();
-      }, 10000); // 10 second timeout
-    });
-
-    await Promise.race([shutdownPromise, timeoutPromise]);
-
+    await Promise.race([exited, timeout]);
     this.process = null;
     this.baseUrl = '';
-    this.port = 0;
   }
 
-  /**
-   * Check if the application is running
-   */
   isRunning(): boolean {
     return this.process !== null && !this.process.killed && this.isHealthy;
   }
 
-  /**
-   * Get the base URL of the running application
-   */
   getBaseUrl(): string {
-    if (!this.isRunning()) {
-      throw new Error('FW Lite is not running');
-    }
+    if (!this.isRunning()) throw new Error('FW Lite is not running');
     return this.baseUrl;
   }
 
-  /**
-   * Validate that the binary exists and is executable
-   */
-  private async validateBinary(binaryPath: string): Promise<void> {
-    try {
-      await access(binaryPath, constants.F_OK | constants.X_OK);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`FW Lite binary not found or not executable: ${binaryPath}. Error: ${message}`);
-    }
-  }
+  private spawnProcess(config: LaunchConfig): Promise<void> {
+    const args = [
+      '--urls', this.baseUrl,
+      '--Auth:LexboxServers:0:Authority', config.serverUrl,
+      '--Auth:LexboxServers:0:DisplayName', 'e2e test server',
+      '--FwLiteWeb:OpenBrowser', 'false',
+      // Required so OAuth accepts the kind cluster's self-signed cert.
+      '--environment', 'Development',
+      // Override the dev default so we serve the published viewer assets, not vite-served ones.
+      '--FwLite:UseDevAssets', 'false',
+    ];
+    if (config.logFile) args.push('--FwLiteWeb:LogFileName', config.logFile);
 
-  /**
-   * Find an available port starting from the given port
-   */
-  private findAvailablePort(startPort: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      const server = createServer();
+      this.process = spawn(config.binaryPath, args, {stdio: ['pipe', 'pipe', 'pipe']});
 
-      server.listen(startPort, () => {
-        const port = (server.address() as AddressInfo).port;
-        server.close(() => {
-          resolve(port);
-        });
-      });
-
-      server.on('error', (err: NodeJS.ErrnoException) => {
-        if (err.code === 'EADDRINUSE') {
-          // Port is in use, try next one
-          this.findAvailablePort(startPort + 1).then(resolve).catch((reason: unknown) => reject(reason instanceof Error ? reason : new Error(String(reason))));
-        } else {
-          reject(err);
-        }
-      });
-    });
-  }
-
-  /**
-   * Launch the FW Lite process
-   */
-  private async launchProcess(config: LaunchConfig): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const args = [
-        '--urls', this.baseUrl,
-        '--Auth:LexboxServers:0:Authority', config.serverUrl,
-        '--Auth:LexboxServers:0:DisplayName', 'e2e test server',
-        '--FwLiteWeb:OpenBrowser', 'false',
-        '--environment', 'Development',//required to allow oauth to accept self signed certs
-        '--FwLite:UseDevAssets', 'false',//in dev env we'd use dev assets normally
-      ];
-      if (config.logFile) {
-        args.push('--FwLiteWeb:LogFileName', config.logFile);
-      }
-
-      this.process = spawn(config.binaryPath, args, {
-        stdio: ['pipe', 'pipe', 'pipe'],
-        detached: false,
-      });
-
-      // Handle process events
-      this.process.on('error', (error) => {
-        reject(new Error(`Failed to start FW Lite: ${error.message}`));
-      });
-
+      this.process.on('error', error => reject(new Error(`Failed to start FW Lite: ${error.message}`)));
       this.process.on('exit', (code, signal) => {
-        if (code !== 0 && code !== null) {
-          reject(new Error(`FW Lite exited with code ${code}`));
-        } else if (signal) {
-          reject(new Error(`FW Lite was killed with signal ${signal}`));
-        }
+        if (code !== 0 && code !== null) reject(new Error(`FW Lite exited with code ${code}`));
+        else if (signal) reject(new Error(`FW Lite was killed with signal ${signal}`));
       });
-
-      // Capture stdout/stderr for debugging
       this.process.stdout?.on('data', (data: Buffer) => {
         const output = data.toString();
-        // Look for startup indicators
-        if (output.includes('Now listening on:') || output.includes('Application started')) {
-          resolve();
-        }
+        if (output.includes('Now listening on:') || output.includes('Application started')) resolve();
       });
-
-      this.process.stderr?.on('data', (data: Buffer) => {
-        console.error('FW Lite stderr:', data.toString());
-      });
-
-      // Fallback timeout for process startup
-      setTimeout(() => {
-        resolve();
-      }, 5000);
+      this.process.stderr?.on('data', (data: Buffer) => console.error('FW Lite stderr:', data.toString()));
     });
   }
 
-  /**
-   * Wait for the application to be healthy and responsive
-   */
   private async waitForHealthy(timeout: number): Promise<void> {
-    const startTime = Date.now();
-    const checkInterval = 1000; // Check every second
-
-    while (Date.now() - startTime < timeout) {
-      try {
-        const isHealthy = await this.performHealthCheck();
-        if (isHealthy) {
-          this.isHealthy = true;
-          return;
-        }
-      } catch {
-        // Health check failed, continue waiting
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      if (await this.healthCheck()) {
+        this.isHealthy = true;
+        return;
       }
-
-      await new Promise(resolve => setTimeout(resolve, checkInterval));
+      await new Promise(r => setTimeout(r, HEALTH_CHECK_INTERVAL_MS));
     }
-
     throw new Error(`FW Lite failed to become healthy within ${timeout}ms`);
   }
 
-  /**
-   * Perform a health check on the running application
-   */
-  private async performHealthCheck(): Promise<boolean> {
+  private async healthCheck(): Promise<boolean> {
     try {
-      // Try to fetch a basic endpoint to verify the app is responding
-      const response = await fetch(`${this.baseUrl}/health`, {
-        method: 'GET',
-        signal: AbortSignal.timeout(5000), // 5 second timeout
-      });
-
+      const response = await fetch(`${this.baseUrl}/health`, {signal: AbortSignal.timeout(HEALTH_CHECK_REQUEST_TIMEOUT_MS)});
       return response.ok;
     } catch {
-      // If /health doesn't exist, try the root endpoint
-      try {
-        const response = await fetch(this.baseUrl, {
-          method: 'GET',
-          signal: AbortSignal.timeout(5000),
-        });
-
-        // Accept any response that isn't a connection error
-        return response.status < 500;
-      } catch {
-        return false;
-      }
+      return false;
     }
   }
+}
+
+async function assertExecutable(binaryPath: string): Promise<void> {
+  try {
+    await access(binaryPath, constants.F_OK | constants.X_OK);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`FW Lite binary not found or not executable: ${binaryPath}. Error: ${message}`);
+  }
+}
+
+function findAvailablePort(startPort: number): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const server = createServer();
+    server.listen(startPort, () => {
+      const {port} = server.address() as AddressInfo;
+      server.close(() => resolve(port));
+    });
+    server.on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code === 'EADDRINUSE') findAvailablePort(startPort + 1).then(resolve, reject);
+      else reject(err);
+    });
+  });
 }

@@ -1,90 +1,31 @@
-/**
- * Playwright Configuration for FW Lite E2E Tests
- *
- * This configuration is specifically for E2E integration tests that require
- * FW Lite application management and extended timeouts.
- */
-
-import { defineConfig, devices } from '@playwright/test';
+import {defineConfig, devices} from '@playwright/test';
 
 export default defineConfig({
   testDir: '.',
   testMatch: '**/*.test.ts',
-
-  // E2E tests need more time due to application startup and complex workflows
-  timeout: 300000, // 5 minutes per test
-
-  expect: {
-    timeout: 30000, // 30 seconds for assertions
-  },
-
-  // Sequential execution to avoid resource conflicts
+  // E2E tests boot a real FwLiteWeb process and walk a multi-step flow per test.
+  timeout: 5 * 60_000,
+  expect: {timeout: 30_000},
   fullyParallel: false,
   workers: 1,
-
-  // Retry failed tests once in CI
   retries: process.env.CI ? 1 : 0,
-
-  // Fail fast on CI if test.only is left in code
   forbidOnly: !!process.env.CI,
-
-  // Output configuration
   outputDir: 'test-results',
-
-  // Reporter configuration
-  // (HTML output folder must NOT be inside outputDir — playwright errors otherwise.)
+  // outputFolder must NOT be inside outputDir; playwright errors otherwise.
   reporter: process.env.CI
-    ? [
-        ['github'],
-        ['list'],
-        ['junit', { outputFile: 'test-results/e2e-results.xml' }],
-        ['html', { outputFolder: 'e2e-html-report', open: 'never' }]
-      ]
-    : [
-        ['list'],
-        ['html', { outputFolder: 'e2e-html-report', open: 'never' }]
-      ],
-
+    ? [['github'], ['list'], ['junit', {outputFile: 'test-results/e2e-results.xml'}], ['html', {outputFolder: 'e2e-html-report', open: 'never'}]]
+    : [['list'], ['html', {outputFolder: 'e2e-html-report', open: 'never'}]],
   use: {
-    // No base URL since we'll be connecting to dynamically launched FW Lite
-    baseURL: undefined,
-
-    // Extended timeouts for E2E operations
-    actionTimeout: 30000, // 30 seconds for actions
-    navigationTimeout: 60000, // 60 seconds for navigation
-
-    // Always capture traces and screenshots for debugging
+    actionTimeout: 30_000,
+    navigationTimeout: 60_000,
     trace: 'on',
     screenshot: 'on',
     video: 'retain-on-failure',
-
-    // Browser context settings
-    viewport: { width: 1280, height: 720 },
-    ignoreHTTPSErrors: true, // For self-signed certificates in test environments
-
-    // Storage state for test isolation
-    storageState: {
-      cookies: [],
-      origins: []
-    }
+    viewport: {width: 1280, height: 720},
+    // Kind cluster ingress uses a snake-oil cert.
+    ignoreHTTPSErrors: true,
   },
-
-  // Browser projects
   projects: [
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        // Use a specific user agent to identify E2E tests
-        userAgent: 'Playwright E2E Tests - Chrome'
-      },
-    },
-
-    // Only run on Chrome for E2E tests to reduce complexity and execution time
-    // Additional browsers can be added later if needed
+    {name: 'chromium', use: devices['Desktop Chrome']},
   ],
-
-  // Global setup and teardown
-  globalSetup: './global-setup',
-  globalTeardown: './global-teardown',
 });
