@@ -3,13 +3,17 @@ import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwL
 import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
 import {MOBILE_BREAKPOINT} from '../../css-breakpoints';
 import {entryBrowseParams} from '$lib/utils/search-params';
+import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 
 /* -10, because the window is likely wider than the viewport and we want the breakpoint to work */
 const SM_VIEW_MAX_WIDTH = MOBILE_BREAKPOINT - 10;
 
 export class MultiWindowService implements IMultiWindowService {
 
-  constructor(private readonly _multiWindowService?: IMultiWindowService) {
+  constructor(
+    private readonly _projectContext: ProjectContext | undefined,
+    private readonly _multiWindowService?: IMultiWindowService,
+  ) {
   }
 
   async openNewWindow(url?: string, width?: number): Promise<void> {
@@ -32,17 +36,22 @@ export class MultiWindowService implements IMultiWindowService {
   }
 
   async openEntryInNewWindow(entryId: string) {
-    const url = new URL(location.href);
-    const [_, projectCode] = url.pathname.split('/').filter(Boolean);
-    const browsePath = `/project/${projectCode}/browse`;
+    // Reading from the context here (rather than at construction) ensures projectType is initialized.
+    const projectContext = this._projectContext;
+    if (!projectContext) throw new Error('openEntryInNewWindow requires a project context');
+    const {projectCode, projectType, inParatext} = projectContext;
+    const projectSegment = projectType === 'fwdata' ? `fwdata/${projectCode}` : `project/${projectCode}`;
+    const browsePath = `${inParatext ? '/paratext' : ''}/${projectSegment}/browse`;
 
-    await this.openNewWindow(`${browsePath}?${entryBrowseParams(entryId)}${url.hash}`, SM_VIEW_MAX_WIDTH);
+    const {hash} = new URL(location.href);
+    await this.openNewWindow(`${browsePath}?${entryBrowseParams(entryId)}${hash}`, SM_VIEW_MAX_WIDTH);
   }
 }
 
 export function useMultiWindowService(): MultiWindowService | undefined {
+  const projectContext = useProjectContext();
   const multiWindowService = window.lexbox.ServiceProvider.tryGetService(DotnetService.MultiWindowService);
-  if (multiWindowService) return new MultiWindowService(multiWindowService);
+  if (multiWindowService) return new MultiWindowService(projectContext, multiWindowService);
 
   const fwLiteConfig = window.lexbox.ServiceProvider.tryGetService(DotnetService.FwLiteConfig);
   const platform = fwLiteConfig?.os;
@@ -52,5 +61,5 @@ export function useMultiWindowService(): MultiWindowService | undefined {
     return undefined;
   }
 
-  return new MultiWindowService();
+  return new MultiWindowService(projectContext);
 }
