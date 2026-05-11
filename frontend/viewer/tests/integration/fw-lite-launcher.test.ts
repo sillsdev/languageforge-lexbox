@@ -1,12 +1,11 @@
 import {existsSync} from 'node:fs';
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 import {FwLiteLauncher} from '../e2e/helpers/fw-lite-launcher';
-import {testConfig} from '../e2e/config';
+import {fwLiteBinaryPath} from '../e2e/config';
 
 // Hard-fail if the binary is missing. Running this suite at all means you've opted in
 // (via `pnpm test:integration` or the e2e CI job). The default `pnpm test` excludes
 // the integration project so unrelated workflows aren't burdened with building the binary.
-const fwLiteBinaryPath = testConfig.fwLite.binaryPath;
 if (!existsSync(fwLiteBinaryPath)) {
   throw new Error(
     `FW Lite binary not found at ${fwLiteBinaryPath}. ` +

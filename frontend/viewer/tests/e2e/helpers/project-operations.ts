@@ -1,8 +1,8 @@
 import {type Page} from '@playwright/test';
-import type {E2ETestConfig} from '../types';
-import {HomePage} from './home-page';
+import type {Server} from '../config';
+import {HomePage} from '../../pages/home.page';
 
-export async function logoutFromServer(page: Page, server: E2ETestConfig['lexboxServer']): Promise<void> {
+export async function logoutFromServer(page: Page, server: Server): Promise<void> {
   await new HomePage(page).ensureLoggedOut(server);
 }
 
@@ -31,7 +31,7 @@ const SEEDED_PROJECT_IDS: Record<string, string> = {
  */
 export async function ensureProjectCrdtReady(
   page: Page,
-  server: E2ETestConfig['lexboxServer'],
+  server: Server,
   projectCode: string,
 ): Promise<void> {
   const projectId = SEEDED_PROJECT_IDS[projectCode];

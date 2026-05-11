@@ -42,21 +42,21 @@ tasks:
   test-unit:
     cmd: pnpm test --project unit
 
-  test:snapshot:
-    desc: 'runs snapshot tests against already running server'
-    cmd: pnpm run test:snapshots {{.CLI_ARGS}}
-  test:snapshot-standalone:
+  test:ui:
+    desc: 'runs UI tests against already running server'
+    cmd: pnpm run test:ui {{.CLI_ARGS}}
+  test:ui-standalone:
     aliases: [pts]
-    desc: 'runs snapshot tests and runs dev automatically, run ui mode by calling with -- --ui or use --update-snapshots'
+    desc: 'runs UI tests and runs dev automatically; --ui for playwright UI mode, --update-snapshots to refresh visual baselines'
     env:
       AUTO_START_SERVER: true
-    cmd: pnpm run test:snapshots {{.CLI_ARGS}}
+    cmd: pnpm run test:ui {{.CLI_ARGS}}
   generate-marketing-screenshots:
     desc: 'they should be in the screenshots folder'
     env:
       AUTO_START_SERVER: true
       MARKETING_SCREENSHOTS: true
-    cmd: pnpm run test:snapshots {{.CLI_ARGS}}
+    cmd: pnpm run test:ui snapshots {{.CLI_ARGS}}
 
   test:e2e-setup:
     deps: [build]

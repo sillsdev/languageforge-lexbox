@@ -2,7 +2,14 @@ import {spawn, type ChildProcess} from 'node:child_process';
 import {access, constants} from 'node:fs/promises';
 import {createServer, type AddressInfo} from 'node:net';
 import {platform} from 'node:os';
-import type {LaunchConfig} from '../types';
+
+interface LaunchConfig {
+  binaryPath: string;
+  serverUrl: string;
+  port?: number;
+  timeout?: number;
+  logFile?: string;
+}
 
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 const HEALTH_CHECK_INTERVAL_MS = 1_000;

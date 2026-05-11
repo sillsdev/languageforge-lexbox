@@ -1,8 +1,6 @@
 import {expect, type Page} from '@playwright/test';
-import type {E2ETestConfig} from '../types';
-import {LoginPage} from '../../../../tests/pages/loginPage';
-
-type Server = E2ETestConfig['lexboxServer'];
+import type {Server} from '../e2e/config';
+import {LoginPage} from '../../../tests/pages/loginPage';
 
 // FwLite uses Uri.Authority (host[:port]) as the server.id, so the rendered
 // element id always includes the port. Use an attribute selector — `#host:port`
@@ -39,8 +37,10 @@ export class HomePage {
     return this.serverSection(server).getByRole('row');
   }
 
-  localProjects() {
-    return this.page.locator('#local-projects');
+  // Only downloaded (local) projects render as anchors to `/project/{code}`;
+  // server-side projects appear as rows inside their server section.
+  localProjectLink(projectCode: string) {
+    return this.page.locator(`a[href="/project/${projectCode}"]`);
   }
 
   async ensureLoggedIn(server: Server, username: string, password: string) {
@@ -89,10 +89,10 @@ export class HomePage {
     await progressIndicator.waitFor({state: 'visible', timeout: 30_000});
     await progressIndicator.waitFor({state: 'detached', timeout: 60_000});
 
-    await expect(this.localProjects().getByText(projectCode)).toBeVisible();
+    await expect(this.localProjectLink(projectCode)).toBeVisible();
   }
 
   async openLocalProject(projectCode: string) {
-    await this.localProjects().getByText(projectCode).click();
+    await this.localProjectLink(projectCode).click();
   }
 }

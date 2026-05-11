@@ -23,15 +23,6 @@ on:
       - main
       - feat/sync-morph-types #just for now ensure PRs to this branch have checks run
 
-permissions:
-  contents: read
-
-# Cancel earlier in-progress runs for the same ref when a new commit lands —
-# keeps the e2e/Windows lanes from piling up while iterating on a PR.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
 jobs:
@@ -127,9 +118,9 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend
         run: pnpm exec playwright install --with-deps
-      - name: Run snapshot tests
+      - name: Run UI tests
         working-directory: frontend/viewer
-        run: task test:snapshot-standalone
+        run: task test:ui-standalone
 
       - name: Build viewer
         working-directory: frontend/viewer
@@ -148,9 +139,6 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
 
   frontend-component-unit-tests:
-    permissions:
-      contents: read
-      checks: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -399,8 +387,6 @@ jobs:
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
   create-release:
-    permissions:
-      contents: write
     if: ${{ github.ref_name == 'main' }}
     environment:
       name: production
