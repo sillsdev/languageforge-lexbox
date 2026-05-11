@@ -32,11 +32,10 @@ export class MultiWindowService implements IMultiWindowService {
   }
 
   async openEntryInNewWindow(entryId: string) {
-    const url = new URL(location.href);
-    const [_, projectCode] = url.pathname.split('/').filter(Boolean);
-    const browsePath = `/project/${projectCode}/browse`;
+    const [projectTypePath, projectCode] = location.pathname.split('/').filter(Boolean);
+    const browsePath = `/${projectTypePath}/${projectCode}/browse`;
 
-    await this.openNewWindow(`${browsePath}?${entryBrowseParams(entryId)}${url.hash}`, SM_VIEW_MAX_WIDTH);
+    await this.openNewWindow(`${browsePath}?${entryBrowseParams(entryId)}`, SM_VIEW_MAX_WIDTH);
   }
 }
 
