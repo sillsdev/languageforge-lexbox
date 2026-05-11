@@ -5,9 +5,7 @@ const vitePort = '5173';
 const dotnetPort = '5137';
 const autoStartServer = process.env.AUTO_START_SERVER ? Boolean(process.env.AUTO_START_SERVER) : false;
 const serverPort = process.env.SERVER_PORT ?? (autoStartServer ? vitePort : dotnetPort);
-const allReporters: ReporterDescription[] = [
-  ['list'],
-];
+const sharedReporters: ReporterDescription[] = [['list']];
 const localReporters: ReporterDescription[] = [['html', { outputFolder: 'html-test-results', open: 'never' }]];
 const ciReporters: ReporterDescription[] = [['github'], ['junit', {outputFile: 'test-results/results.xml'}], [
   '@argos-ci/playwright/reporter',
@@ -30,9 +28,8 @@ export default defineConfig({
   outputDir: 'test-results',
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter:[
-    ...allReporters,
-    ...(process.env.CI ? [] : localReporters),
-    ...(process.env.CI ? ciReporters : [])
+    ...sharedReporters,
+    ...(process.env.CI ? ciReporters : localReporters),
   ],
     // process.env.CI
     // ? [['github'], ['list'], ['junit', {outputFile: 'test-results/results.xml'}]]
@@ -53,11 +50,6 @@ export default defineConfig({
               name: 'isPlaywright',
               value: 'true',
             },
-            {
-              name: 'shadcnMode',
-              value: 'true'
-
-            }
           ],
         },
       ],
