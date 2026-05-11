@@ -24,7 +24,7 @@ jobs:
           submodules: true
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
       - uses: ./.github/actions/setup-k8s
         with:
           lexbox-api-tag: ${{ inputs.lexbox-api-tag }}

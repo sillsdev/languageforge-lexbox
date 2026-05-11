@@ -9,7 +9,7 @@ This is a monorepo containing:
 
 ### Tech Stack
 
-- **Backend**: .NET 9, C#, Entity Framework Core, GraphQL (Hot Chocolate)
+- **Backend**: .NET 10, C#, Entity Framework Core, GraphQL (Hot Chocolate)
 - **Frontend**: SvelteKit, TypeScript
 - **Database**: PostgreSQL
 - **Infrastructure**: Docker, Kubernetes, Skaffold, Tilt

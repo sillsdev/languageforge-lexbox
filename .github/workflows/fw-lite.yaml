@@ -39,7 +39,9 @@ jobs:
           submodules: true
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
+      - name: Setup Maui
+        run: dotnet workload install maui
       - name: Install Task
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
         with:
@@ -177,7 +179,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Dotnet build
         working-directory: backend/FwLite/FwLiteWeb
@@ -214,7 +216,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Publish Linux
         working-directory: backend/FwLite/FwLiteWeb
@@ -260,7 +262,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Setup Maui
         run: dotnet workload install maui
@@ -279,7 +281,7 @@ jobs:
           KEYSTORE_PASS: ${{ secrets.FW_LITE_KEYSTORE_PASS }}
           KEYSTORE_ALIAS: ${{ vars.FW_LITE_KEYSTORE_UPLOAD_KEY_ALIAS }}
         run: |
-          dotnet publish -f net9.0-android -p:BuildApple=false --artifacts-path ../artifacts \
+          dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
@@ -295,8 +297,8 @@ jobs:
         with:
           name: fw-lite-android
           if-no-files-found: error
-#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net9.0-android/org.sil.fwlitemaui-signed.apk
-          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net9.0-android/*
+#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/org.sil.fwlitemaui-signed.apk
+          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/*
 
   publish-win:
     name: Publish FW Lite app for Windows
@@ -314,7 +316,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Setup Maui
         run: dotnet workload install maui
@@ -322,14 +324,14 @@ jobs:
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet publish -f net9.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/sign/portable
           cp -r ../artifacts/publish/FwLiteMaui/* ../artifacts/sign/portable/
 
       - name: Publish Windows MAUI msix app
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet publish -f net9.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/msix
           cp ../artifacts/bin/FwLiteMaui/*/AppPackages/*/*.msix ../artifacts/msix/
 

@@ -95,7 +95,7 @@
     <PackageVersion Include="Quartz.Serialization.SystemTextJson" Version="3.13.0" />
     <PackageVersion Include="Refit" Version="8.0.0" />
     <PackageVersion Include="Refit.HttpClientFactory" Version="8.0.0" />
-    <PackageVersion Include="Reinforced.Typings" Version="1.6.5" />
+    <PackageVersion Include="Reinforced.Typings" Version="1.6.7" />
     <PackageVersion Include="Scalar.AspNetCore" Version="1.2.22" />
     <PackageVersion Include="SIL.Chorus.ChorusMerge" Version="6.0.0-beta0064" />
     <PackageVersion Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0064" />
@@ -117,7 +117,7 @@
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.2.0" />
-    <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
+    <PackageVersion Include="System.Linq.Async" Version="7.0.1" />
     <PackageVersion Include="System.Reactive" Version="6.0.1" />
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="9.0.7" />
     <PackageVersion Include="System.Text.Encodings.Web" Version="9.0.6" />

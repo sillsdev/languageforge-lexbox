@@ -63,7 +63,7 @@ public class IsLanguageForgeProjectDataLoader : BatchDataLoader<string, bool>, I
 #pragma warning disable MALinq2001
                 .Where(projectCode => list.Contains(projectCode)))
 #pragma warning restore MALinq2001
-            .ToHashSetAsync(token);
+            .ToHashSetAsync(cancellationToken: token);
         return list.ToDictionary(pc => pc, pc => actualProjects.Contains(pc));
     }
 

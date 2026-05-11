@@ -27,7 +27,7 @@ task fw-lite-web   # from repo root
 dotnet test FwLiteOnly.slnf
 
 # Build MAUI app (Windows)
-dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net9.0-windows10.0.19041.0
+dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0.19041.0
 ```
 
 ## Generated Types (TypeScript)
