@@ -95,7 +95,7 @@
     <PackageVersion Include="Quartz.Serialization.SystemTextJson" Version="3.13.0" />
     <PackageVersion Include="Refit" Version="8.0.0" />
     <PackageVersion Include="Refit.HttpClientFactory" Version="8.0.0" />
-    <PackageVersion Include="Reinforced.Typings" Version="1.6.5" />
+    <PackageVersion Include="Reinforced.Typings" Version="1.6.7" />
     <PackageVersion Include="Scalar.AspNetCore" Version="1.2.22" />
     <PackageVersion Include="SIL.Chorus.ChorusMerge" Version="6.0.0-beta0064" />
     <PackageVersion Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0064" />
