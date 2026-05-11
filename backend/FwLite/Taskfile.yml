@@ -48,7 +48,7 @@ tasks:
   maui-windows:
     desc: Run Maui Windows, requires vite dev server to be running, use task fw-lite-win in root
     dir: ./FwLiteMaui
-    cmd: dotnet run -f net9.0-windows10.0.19041.0
+    cmd: dotnet run -f net10.0-windows10.0.19041.0
 
   publish-maui-windows:
     deps: [ publish-maui-windows-msix, publish-maui-windows-portable]
@@ -56,12 +56,12 @@ tasks:
   publish-maui-windows-portable:
     dir: ./FwLiteMaui
     cmds:
-      - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:BuildAndroid=false
+      - dotnet publish -f net10.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:BuildAndroid=false
 
   publish-maui-windows-msix:
     dir: ./FwLiteMaui
     cmds:
-      - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:BuildAndroid=false
+      - dotnet publish -f net10.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:BuildAndroid=false
 
   run-maui-android:
     dir: ./FwLiteMaui
@@ -70,12 +70,12 @@ tasks:
   build-maui-android:
     deps: [ ui:build-viewer ]
     dir: ./FwLiteMaui
-    cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True {{.CLI_ARGS}} # "-p:AndroidSdkDirectory=D:\tools\android"
+    cmd: dotnet build -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True {{.CLI_ARGS}} # "-p:AndroidSdkDirectory=D:\tools\android"
 
   install-maui-android:
     desc: Retry install + run without rebuilding (for when you miss the permission prompt) - uses existing build artifacts
     dir: ./FwLiteMaui
-    cmd: dotnet build -f net9.0-android -t:Install,Run --no-restore --no-dependencies
+    cmd: dotnet build -f net10.0-android -t:Install,Run --no-restore --no-dependencies
 
   build-mini-lcm-sdk:
     desc: Builds the sdk, a zip with the FwLiteWeb server with a project and config to run locally
@@ -122,7 +122,7 @@ tasks:
   test-verified:
     desc: Run only tests that generate verified snapshot files
     # always produces exit status 1, because the framework isn't valid for all test projects
-    cmd: dotnet test ../../FwLiteOnly.slnf --filter "Category=Verified" --framework net9.0 --logger "console;verbosity=minimal"
+    cmd: dotnet test ../../FwLiteOnly.slnf --filter "Category=Verified" --framework net10.0 --logger "console;verbosity=minimal"
   reset-verified:
     desc: Reset all verified snapshot files to their state on origin/develop
     cmds:
