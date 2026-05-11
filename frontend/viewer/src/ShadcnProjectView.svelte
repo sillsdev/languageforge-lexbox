@@ -10,6 +10,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
+  import {onMount} from 'svelte';
 
   const {
     onloaded,
