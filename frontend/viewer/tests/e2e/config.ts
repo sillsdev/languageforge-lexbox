@@ -4,7 +4,7 @@ export interface Server {
   port: number;
 }
 
-// Kind cluster in CI serves HTTP on 6579; in CI we override to https/6580
+// Kind cluster in CI serves HTTP on 6579; CI overrides to https/6580
 // (the ingress port-forward). MSAL refuses non-https authorities.
 export const lexboxServer: Server = {
   hostname: process.env.TEST_SERVER_HOSTNAME || 'localhost',
@@ -13,7 +13,10 @@ export const lexboxServer: Server = {
 };
 
 export const fwLiteBinaryPath = process.env.FW_LITE_BINARY_PATH || './dist/fw-lite-server/FwLiteWeb.exe';
-
 export const projectCode = process.env.TEST_PROJECT_CODE || 'sena-3';
 export const testUser = process.env.TEST_USER || 'manager';
 export const testPassword = process.env.TEST_DEFAULT_PASSWORD || 'pass';
+
+export function serverUrl(s: Server): string {
+  return `${s.protocol}://${s.hostname}:${s.port}`;
+}

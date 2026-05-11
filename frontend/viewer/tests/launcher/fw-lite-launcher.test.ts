@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
-
-import {FwLiteLauncher} from '../e2e/helpers/fw-lite-launcher';
 import {existsSync} from 'node:fs';
+
+import {FwLiteLauncher, type LaunchConfig} from '../e2e/helpers/fw-lite-launcher';
 import {fwLiteBinaryPath} from '../e2e/config';
 
 // Hard-fail if the binary is missing. Running this suite at all means you've opted in
@@ -13,6 +13,17 @@ if (!existsSync(fwLiteBinaryPath)) {
     `Build it (e.g. \`task -d frontend/viewer test:build-launcher\`) ` +
     `or set FW_LITE_BINARY_PATH to a built binary.`
   );
+}
+
+const DUMMY_SERVER_URL = 'http://localhost:5137';
+
+function launchConfig(overrides: Partial<LaunchConfig> = {}): LaunchConfig {
+  return {
+    binaryPath: fwLiteBinaryPath,
+    serverUrl: DUMMY_SERVER_URL,
+    timeout: 30_000,
+    ...overrides,
+  };
 }
 
 describe('FwLiteLauncher', () => {
@@ -30,20 +41,14 @@ describe('FwLiteLauncher', () => {
   });
 
   it('rejects when the binary does not exist', async () => {
-    await expect(launcher.launch({
+    await expect(launcher.launch(launchConfig({
       binaryPath: '/nonexistent/path/to/fw-lite',
-      serverUrl: 'http://localhost:5137',
       timeout: 1000,
-    })).rejects.toThrow('FW Lite binary not found or not executable');
+    }))).rejects.toThrow('FW Lite binary not found or not executable');
   });
 
   it('launches and shuts down the real binary', async () => {
-    await launcher.launch({
-      binaryPath: fwLiteBinaryPath,
-      serverUrl: 'http://localhost:5137',
-      port: 5555,
-      timeout: 30_000,
-    });
+    await launcher.launch(launchConfig({port: 5555}));
     expect(launcher.isRunning()).toBe(true);
     expect(launcher.getBaseUrl()).toBe('http://localhost:5555');
 
@@ -55,16 +60,8 @@ describe('FwLiteLauncher', () => {
   }, 60_000);
 
   it('rejects a second launch while already running', async () => {
-    await launcher.launch({
-      binaryPath: fwLiteBinaryPath,
-      serverUrl: 'http://localhost:5137',
-      port: 5556,
-      timeout: 30_000,
-    });
-    await expect(launcher.launch({
-      binaryPath: fwLiteBinaryPath,
-      serverUrl: 'http://localhost:5137',
-      port: 5557,
-    })).rejects.toThrow('FW Lite is already running');
+    await launcher.launch(launchConfig({port: 5556}));
+    await expect(launcher.launch(launchConfig({port: 5557})))
+      .rejects.toThrow('FW Lite is already running');
   }, 60_000);
 });

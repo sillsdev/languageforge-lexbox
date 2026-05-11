@@ -3,7 +3,7 @@ import {access, constants} from 'node:fs/promises';
 import {createServer, type AddressInfo} from 'node:net';
 import {platform} from 'node:os';
 
-interface LaunchConfig {
+export interface LaunchConfig {
   binaryPath: string;
   serverUrl: string;
   port?: number;
@@ -11,9 +11,11 @@ interface LaunchConfig {
   logFile?: string;
 }
 
+const DEFAULT_LAUNCH_TIMEOUT_MS = 30_000;
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 const HEALTH_CHECK_INTERVAL_MS = 1_000;
 const HEALTH_CHECK_REQUEST_TIMEOUT_MS = 5_000;
+const READY_STDOUT_MARKERS = ['Now listening on:', 'Application started'];
 
 /**
  * Spawns and manages the FwLiteWeb binary for an e2e test. Each test owns its
@@ -33,28 +35,28 @@ export class FwLiteLauncher {
     this.baseUrl = `http://localhost:${port}`;
 
     await this.spawnProcess(config);
-    await this.waitForHealthy(config.timeout ?? 30_000);
+    await this.waitForHealthy(config.timeout ?? DEFAULT_LAUNCH_TIMEOUT_MS);
   }
 
   async shutdown(): Promise<void> {
     if (!this.process) return;
     this.isHealthy = false;
+    const proc = this.process;
 
     if (platform() === 'win32') {
-      // Windows can't SIGTERM a child process; FwLiteWeb listens for "shutdown" on stdin.
-      this.process.stdin?.write('shutdown\n');
-      this.process.stdin?.end();
+      // Windows can't SIGTERM a child; FwLiteWeb listens for "shutdown" on stdin.
+      proc.stdin?.write('shutdown\n');
+      proc.stdin?.end();
     } else {
-      this.process.kill('SIGTERM');
+      proc.kill('SIGTERM');
     }
 
-    const exited = new Promise<void>(resolve => this.process!.on('exit', () => resolve()));
-    const timeout = new Promise<void>(resolve => setTimeout(() => {
-      if (this.process && !this.process.killed) this.process.kill('SIGKILL');
-      resolve();
-    }, SHUTDOWN_TIMEOUT_MS));
+    const exited = new Promise<void>(resolve => proc.once('exit', () => resolve()));
+    const timedOut = delay(SHUTDOWN_TIMEOUT_MS).then(() => {
+      if (!proc.killed) proc.kill('SIGKILL');
+    });
+    await Promise.race([exited, timedOut]);
 
-    await Promise.race([exited, timeout]);
     this.process = null;
     this.baseUrl = '';
   }
@@ -76,24 +78,24 @@ export class FwLiteLauncher {
       '--FwLiteWeb:OpenBrowser', 'false',
       // Required so OAuth accepts the kind cluster's self-signed cert.
       '--environment', 'Development',
-      // Override the dev default so we serve the published viewer assets, not vite-served ones.
+      // Serve the published viewer assets, not vite-served ones.
       '--FwLite:UseDevAssets', 'false',
     ];
     if (config.logFile) args.push('--FwLiteWeb:LogFileName', config.logFile);
 
     return new Promise((resolve, reject) => {
-      this.process = spawn(config.binaryPath, args, {stdio: ['pipe', 'pipe', 'pipe']});
+      const proc = spawn(config.binaryPath, args, {stdio: ['pipe', 'pipe', 'pipe']});
+      this.process = proc;
 
-      this.process.on('error', error => reject(new Error(`Failed to start FW Lite: ${error.message}`)));
-      this.process.on('exit', (code, signal) => {
-        if (code !== 0 && code !== null) reject(new Error(`FW Lite exited with code ${code}`));
-        else if (signal) reject(new Error(`FW Lite was killed with signal ${signal}`));
-      });
-      this.process.stdout?.on('data', (data: Buffer) => {
+      proc.on('error', error => reject(new Error(`Failed to start FW Lite: ${error.message}`)));
+      // Always reject on exit; if startup already resolved, this is a no-op on the settled promise.
+      proc.on('exit', (code, signal) =>
+        reject(new Error(`FW Lite exited before becoming ready (code=${code}, signal=${signal})`)));
+      proc.stdout?.on('data', (data: Buffer) => {
         const output = data.toString();
-        if (output.includes('Now listening on:') || output.includes('Application started')) resolve();
+        if (READY_STDOUT_MARKERS.some(marker => output.includes(marker))) resolve();
       });
-      this.process.stderr?.on('data', (data: Buffer) => console.error('FW Lite stderr:', data.toString()));
+      proc.stderr?.on('data', (data: Buffer) => console.error('FW Lite stderr:', data.toString()));
     });
   }
 
@@ -104,14 +106,16 @@ export class FwLiteLauncher {
         this.isHealthy = true;
         return;
       }
-      await new Promise(r => setTimeout(r, HEALTH_CHECK_INTERVAL_MS));
+      await delay(HEALTH_CHECK_INTERVAL_MS);
     }
     throw new Error(`FW Lite failed to become healthy within ${timeout}ms`);
   }
 
   private async healthCheck(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl}/health`, {signal: AbortSignal.timeout(HEALTH_CHECK_REQUEST_TIMEOUT_MS)});
+      const response = await fetch(`${this.baseUrl}/health`, {
+        signal: AbortSignal.timeout(HEALTH_CHECK_REQUEST_TIMEOUT_MS),
+      });
       return response.ok;
     } catch {
       return false;
@@ -140,4 +144,8 @@ function findAvailablePort(startPort: number): Promise<number> {
       else reject(err);
     });
   });
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }

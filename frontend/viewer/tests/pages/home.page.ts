@@ -1,16 +1,12 @@
 import {expect, type Page} from '@playwright/test';
-import type {Server} from '../e2e/config';
+import {serverUrl, type Server} from '../e2e/config';
 import {LoginPage} from '../../../tests/pages/loginPage';
 
 // FwLite uses Uri.Authority (host[:port]) as the server.id, so the rendered
 // element id always includes the port. Use an attribute selector — `#host:port`
 // would parse `:port` as a CSS pseudo-class.
-function serverElementSelector(server: Server) {
-  return `[id="${server.hostname}:${server.port}"]`;
-}
-
-function serverLoginUrlPrefix(server: Server) {
-  return `${server.protocol}://${server.hostname}:${server.port}/login`;
+function serverElementSelector(s: Server): string {
+  return `[id="${s.hostname}:${s.port}"]`;
 }
 
 export class HomePage {
@@ -48,16 +44,15 @@ export class HomePage {
     if (await this.userIndicator(server).isVisible()) return;
 
     await this.loginButton(server).click();
-    await expect(this.page).toHaveURL(url => url.href.startsWith(serverLoginUrlPrefix(server)));
+    await expect(this.page).toHaveURL(url => url.href.startsWith(`${serverUrl(server)}/login`));
 
     const loginPage = new LoginPage(this.page);
     await loginPage.waitFor();
     await loginPage.fillForm(username, password);
     await loginPage.submit();
 
-    // First time a user authorizes a client, lexbox's OpenIddict shows a consent
-    // prompt. Fresh kind cluster in CI = always first time. Auto-approved auth
-    // (e.g. local dev with prior consent) skips this step.
+    // First-time consent prompt (OpenIddict). Fresh kind cluster in CI = always shown;
+    // re-runs with prior consent skip it.
     await this.page.getByRole('button', {name: /^Authorize\s/i})
       .click({timeout: 15_000})
       .catch(() => { /* no consent prompt — already authorized */ });
@@ -75,9 +70,7 @@ export class HomePage {
   }
 
   async downloadProject(server: Server, projectCode: string) {
-    // FwLite caches the per-server projects list (LexboxProjectService uses
-    // IMemoryCache). Page reload doesn't clear it — only the per-server
-    // "Refresh Projects" button does (it passes force=true).
+    // Refresh the list to ensure any newly-available project appears
     const refreshBtn = this.serverSection(server).getByRole('button', {name: 'Refresh Projects'});
     if (await refreshBtn.isVisible().catch(() => false)) await refreshBtn.click();
 
