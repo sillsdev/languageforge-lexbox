@@ -485,7 +485,7 @@ jobs:
         run: pnpm install
       - name: Test FwLite launcher
         working-directory: frontend/viewer
-        run: task e2e-test-helper-unit-tests
+        run: task test:launcher
 
       - uses: ./.github/actions/setup-k8s
         with:

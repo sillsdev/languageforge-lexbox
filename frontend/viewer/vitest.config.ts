@@ -11,7 +11,7 @@ const dirname =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
 const browserTestPattern = '**/*.browser.{test,spec}.?(c|m)[jt]s?(x)';
-const integrationTestPattern = './tests/integration/**/*.{test,spec}.?(c|m)[jt]s?(x)';
+const launcherTestPattern = './tests/launcher/**/*.{test,spec}.?(c|m)[jt]s?(x)';
 const e2eTestPatterns = ['./tests/**'];
 
 const sharedAlias = [
@@ -61,9 +61,9 @@ export default defineConfig({
       },
       {
         test: {
-          name: 'integration',
+          name: 'launcher',
           environment: 'node',
-          include: [integrationTestPattern],
+          include: [launcherTestPattern],
         },
         resolve: {alias: sharedAlias},
       },

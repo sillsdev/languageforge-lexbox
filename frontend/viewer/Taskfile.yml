@@ -58,12 +58,13 @@ tasks:
       MARKETING_SCREENSHOTS: true
     cmd: pnpm run test:ui snapshots {{.CLI_ARGS}}
 
-  test:e2e-setup:
+  test:e2e:
+    cmd: pnpm run test:e2e {{.CLI_ARGS}}
+  test:launcher:
+    desc: 'tests the fw lite launcher class against a real subprocess; FW_LITE_BINARY_PATH must point to a built binary'
+    cmd: pnpm test:launcher --run
+  test:build-launcher:
+    desc: 'publishes a self-contained FwLiteWeb binary into ./dist/fw-lite-server; prerequisite for test:e2e and test:launcher'
     deps: [build]
     cmds:
       - dotnet publish ../../backend/FwLite/FwLiteWeb/FwLiteWeb.csproj --configuration Release --self-contained --output ./dist/fw-lite-server
-  test:e2e:
-    cmd: pnpm run test:e2e {{.CLI_ARGS}}
-  e2e-test-helper-unit-tests:
-    desc: 'tests the fw lite launcher; FW_LITE_BINARY_PATH must point to a built binary'
-    cmd: pnpm test:integration --run
