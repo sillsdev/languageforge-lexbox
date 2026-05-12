@@ -28,7 +28,7 @@ public static class FwIntegrationRoutes
             {
                 if (context.Project is null) return Results.BadRequest("No project is set in the context");
                 await hubContext.Clients.Group(context.Project.Name).OnProjectClosed(CloseReason.Locked);
-                factory.CloseProject(context.Project);
+                await factory.CloseProjectAsync(context.Project);
                 var link = FwLink.ToEntry(id, context.Project.Name);
                 return Results.Text(link, "text/plain");
             });
