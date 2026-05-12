@@ -26,12 +26,11 @@ public class MiniLcmApiWriteNormalizationWrapperFactory : IMiniLcmWrapperFactory
 ///
 /// Design notes:
 /// - Read operations are forwarded automatically via BeaKona.AutoInterface.
-/// - Write operations are manually implemented here (compile-time enforced by IMiniLcmApi).
-/// - Scope mirrors liblcm: TsString-equivalents (MultiString, RichString, RichMultiString) are normalized
-///   on every write, matching liblcm's generated property setters which call TsStringUtils.NormalizeNfd.
-/// - Plain-string properties that liblcm does not NFD-normalize are passed through unchanged. This currently
-///   covers WritingSystem.{Name, Abbreviation, Font, Exemplars} (LDML-managed) and
-///   MorphType.{Prefix, Postfix} (punctuation markers).
+/// - Write operations need to be manually implemented so nothing is missed (compile-time enforced by IMiniLcmApi).
+/// - Should mirror what LibLcm/FieldWorks normalizes, which seems to be EVERYTHING in the "standard editor" UI
+///   (so entry fields, but also list fields e.g. Semantic Domains, Morph Types, etc. - not only multi-strings)
+/// - Properties that liblcm/FieldWorks does not NFD-normalize are passed through unchanged.
+///   Currently only WritingSystem properties.
 /// - JsonPatch overloads normalize string-ish values best-effort (string, RichString, MultiString, RichMultiString).
 ///   JsonElement values are only normalized when they are simple strings; complex JSON values are left as-is
 ///   to avoid guessing the target type.
@@ -46,14 +45,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     [BeaKona.AutoInterface]
     private IMiniLcmReadApi ReadApi => _api;
 
-    // ********** IMiniLcmWriteApi Manual Implementations **********
-    // All write methods are implemented manually to ensure NFD normalization
-    // and guarantee compile-time coverage of all write operations.
-
     #region WritingSystem
 
-    // WritingSystem fields (Name, Abbreviation, Font, Exemplars) are plain strings; in liblcm they are
-    // LDML-managed by WritingSystemManager rather than stored as TsString, so they aren't NFD-normalized.
+    // Intentionally NOT normalized, because FieldWorks/LibLcm doesn't seem to either
     public Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {
         return _api.CreateWritingSystem(writingSystem, between);
@@ -222,7 +216,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
-        return _api.UpdateMorphType(id, NormalizePatch(update, MorphTypePlainStringPaths));
+        return _api.UpdateMorphType(id, NormalizePatch(update));
     }
 
 
@@ -230,9 +224,6 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     {
         return await _api.UpdateMorphType(before, NormalizeMorphType(after), api);
     }
-
-    // Prefix/Postfix are punctuation markers (e.g. "-", "="), not user-entered linguistic text.
-    private static readonly HashSet<string> MorphTypePlainStringPaths = ["/Prefix", "/Postfix"];
 
     private static MorphType NormalizeMorphType(MorphType mtd)
     {
@@ -243,8 +234,8 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
             Name = StringNormalizer.Normalize(mtd.Name),
             Abbreviation = StringNormalizer.Normalize(mtd.Abbreviation),
             Description = StringNormalizer.Normalize(mtd.Description),
-            Prefix = mtd.Prefix,
-            Postfix = mtd.Postfix,
+            Prefix = StringNormalizer.Normalize(mtd.Prefix),
+            Postfix = StringNormalizer.Normalize(mtd.Postfix),
             SecondaryOrder = mtd.SecondaryOrder,
             DeletedAt = mtd.DeletedAt
         };
@@ -532,15 +523,14 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #region Patch Normalization
 
-    private static UpdateObjectInput<T> NormalizePatch<T>(UpdateObjectInput<T> update, HashSet<string>? skipPaths = null) where T : class
+    private static UpdateObjectInput<T> NormalizePatch<T>(UpdateObjectInput<T> update) where T : class
     {
         if (update.Patch.Operations.Count == 0) return update;
 
         var normalizedPatch = new SystemTextJsonPatch.JsonPatchDocument<T>();
         foreach (var op in update.Patch.Operations)
         {
-            var skip = skipPaths is not null && op.Path is not null && skipPaths.Contains(op.Path);
-            var normalizedValue = skip ? op.Value : NormalizePatchValue(op.Value);
+            var normalizedValue = NormalizePatchValue(op.Value);
             var normalizedOp = new SystemTextJsonPatch.Operations.Operation<T>
             {
                 Op = op.Op,

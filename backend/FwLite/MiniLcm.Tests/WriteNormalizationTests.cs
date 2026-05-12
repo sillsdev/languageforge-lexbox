@@ -264,7 +264,7 @@ public class WriteNormalizationTests
     #region MorphType Tests
 
     [Fact]
-    public async Task UpdateMorphType_BeforeAfter_NormalizesMultiStringsToNfd_AndPassesTokensThrough()
+    public async Task UpdateMorphType_BeforeAfter_NormalizesToNfd()
     {
         var before = NfcTestData.CreateNfcMorphType();
         var after = NfcTestData.CreateNfcMorphType();
@@ -279,12 +279,10 @@ public class WriteNormalizationTests
 
         captured.Should().NotBeNull();
         AssertAllNfd(captured);
-        captured.Prefix.Should().Be(NfcTestData.Nfc);
-        captured.Postfix.Should().Be(NfcTestData.Nfc);
     }
 
     [Fact]
-    public async Task UpdateMorphType_JsonPatch_NormalizesMultiString_AndPassesTokensThrough()
+    public async Task UpdateMorphType_JsonPatch_NormalizesToNfd()
     {
         var update = new UpdateObjectInput<MorphType>()
             .Set(m => m.Name, NfcTestData.CreateNfcMultiString())
@@ -302,8 +300,8 @@ public class WriteNormalizationTests
         captured.Should().NotBeNull();
         var byPath = captured.Patch.Operations.ToDictionary(o => o.Path!, o => o.Value);
         AssertAllNfd(byPath["/Name"].Should().BeOfType<MultiString>().Subject);
-        byPath["/Prefix"].Should().Be(NfcTestData.Nfc);
-        byPath["/Postfix"].Should().Be(NfcTestData.Nfc);
+        byPath["/Prefix"].Should().Be(NfcTestData.Nfd);
+        byPath["/Postfix"].Should().Be(NfcTestData.Nfd);
     }
 
     #endregion
