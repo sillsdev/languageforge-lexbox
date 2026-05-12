@@ -8,12 +8,6 @@ using static MiniLcm.Tests.Helpers.NormalizationAssert;
 
 namespace MiniLcm.Tests;
 
-/// <summary>
-/// Tests for the MiniLcmApiWriteNormalizationWrapper.
-/// These tests verify that all user-entered text is normalized to NFD on write operations.
-/// Each test captures the value passed to the underlying API and asserts via
-/// <see cref="NormalizationAssert"/>, which reports the failing property path on mismatch.
-/// </summary>
 public class WriteNormalizationTests
 {
     private readonly IMiniLcmApi _mockApi;
@@ -680,16 +674,11 @@ public class WriteNormalizationTests
 }
 
 
-/// <summary>
-/// Tests for NormalizationAssert and the NfcTestData factories that feed it.
-/// </summary>
 public class NormalizationAssertTests
 {
     [Fact]
     public void AllNfcFactories_ProduceNfcData()
     {
-        // Single belt-and-braces test that every factory returns NFC data, replacing the
-        // per-test AssertNfc(input) preconditions that used to be sprinkled across WriteNormalizationTests.
         AssertAllNfc(NfcTestData.CreateNfcWritingSystem());
         AssertAllNfc(NfcTestData.CreateNfcPartOfSpeech());
         AssertAllNfc(NfcTestData.CreateNfcPublication());

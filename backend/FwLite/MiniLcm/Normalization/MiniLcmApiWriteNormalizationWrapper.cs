@@ -80,7 +80,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     #region PartOfSpeech
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
-    {;
+    {
         return await _api.CreatePartOfSpeech(NormalizePartOfSpeech(partOfSpeech));
     }
 
@@ -177,7 +177,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         {
             Id = sd.Id,
             Name = StringNormalizer.Normalize(sd.Name),
-            Code = sd.Code, // Code is metadata, not user text
+            Code = StringNormalizer.Normalize(sd.Code), // yes, LibLcm normalizes this too
             DeletedAt = sd.DeletedAt,
             Predefined = sd.Predefined
         };
@@ -483,6 +483,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #region Bulk Import
 
+    // Normalizing the bulk import methods may seem unintuitive:
+    // We currently only use them for importing from LibLcm, which should NOT be normalized.
+    // However, we don't use this normalization wrapper in that context and ít's likely that we'll
+    // start importing from other sources (Paratext 9, The Combine, Language Forge) in which case we DO want to normalize on import.
+
     public Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
     {
         return _api.BulkImportSemanticDomains(NormalizeStream(semanticDomains, NormalizeSemanticDomain));
@@ -568,7 +573,6 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
             RichString richString => StringNormalizer.Normalize(richString),
             MultiString multiString => StringNormalizer.Normalize(multiString),
             RichMultiString richMultiString => StringNormalizer.Normalize(richMultiString),
-            string[] strings => StringNormalizer.Normalize(strings),
             JsonElement jsonElement => NormalizeJsonElement(jsonElement),
             _ => value
         };

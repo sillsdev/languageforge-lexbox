@@ -1,20 +1,13 @@
 namespace MiniLcm.Tests.Helpers;
 
-/// <summary>
-/// Provides test data with NFC-normalized strings for all entity types.
-/// Each Create method returns an object with ALL normalizable properties populated with NFC strings.
-/// </summary>
 public static class NfcTestData
 {
-    /// <summary>
-    /// NFC string: "naïve" with U+00EF LATIN SMALL LETTER I WITH DIAERESIS (composed form)
-    /// </summary>
-    public const string Nfc = "na\u00efve";
+    // U+00EF LATIN SMALL LETTER I WITH DIAERESIS (composed)
+    public const string Nfc = "naïve";
+    // U+0069 LATIN SMALL LETTER I + U+0308 COMBINING DIAERESIS (decomposed)
+    public const string Nfd = "naïve";
 
-    /// <summary>
-    /// NFD string: "naïve" with U+0069 LATIN SMALL LETTER I + U+0308 COMBINING DIAERESIS (decomposed form)
-    /// </summary>
-    public const string Nfd = "na\u0069\u0308ve";
+    // D: ï C: ï
 
     public static MultiString CreateNfcMultiString()
     {
@@ -75,7 +68,7 @@ public static class NfcTestData
         return new()
         {
             Id = Guid.NewGuid(),
-            Code = "1.1.1", // Code is NOT normalized (metadata)
+            Code = Nfc,
             Name = CreateNfcMultiString()
         };
     }
