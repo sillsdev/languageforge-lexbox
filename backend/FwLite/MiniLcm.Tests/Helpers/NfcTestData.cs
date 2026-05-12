@@ -82,16 +82,17 @@ public static class NfcTestData
         };
     }
 
-    public static MorphTypeData CreateNfcMorphTypeData()
+    public static MorphType CreateNfcMorphType()
     {
         return new()
         {
             Id = Guid.NewGuid(),
+            Kind = MorphTypeKind.Stem,
             Name = CreateNfcMultiString(),
             Abbreviation = CreateNfcMultiString(),
             Description = CreateNfcRichMultiString(),
-            LeadingToken = Nfc,
-            TrailingToken = Nfc
+            Prefix = Nfc,
+            Postfix = Nfc
         };
     }
 

@@ -261,71 +261,49 @@ public class WriteNormalizationTests
 
     #endregion
 
-    #region MorphTypeData Tests
-
-    // MorphTypeData's MultiString/RichMultiString fields (Name, Abbreviation, Description) are normalized
-    // to NFD (matching liblcm); LeadingToken/TrailingToken are punctuation markers and pass through unchanged.
+    #region MorphType Tests
 
     [Fact]
-    public async Task CreateMorphTypeData_NormalizesMultiStringsToNfd_AndPassesTokensThrough()
+    public async Task UpdateMorphType_BeforeAfter_NormalizesMultiStringsToNfd_AndPassesTokensThrough()
     {
-        var mtd = NfcTestData.CreateNfcMorphTypeData();
+        var before = NfcTestData.CreateNfcMorphType();
+        var after = NfcTestData.CreateNfcMorphType();
 
-        MorphTypeData? captured = null;
+        MorphType? captured = null;
         Mock.Get(_mockApi)
-            .Setup(api => api.CreateMorphTypeData(It.IsAny<MorphTypeData>()))
-            .Callback<MorphTypeData>(m => captured = m)
-            .ReturnsAsync(mtd);
-
-        await _normalizingApi.CreateMorphTypeData(mtd);
-
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
-        captured.LeadingToken.Should().Be(NfcTestData.Nfc);
-        captured.TrailingToken.Should().Be(NfcTestData.Nfc);
-    }
-
-    [Fact]
-    public async Task UpdateMorphTypeData_BeforeAfter_NormalizesMultiStringsToNfd_AndPassesTokensThrough()
-    {
-        var before = NfcTestData.CreateNfcMorphTypeData();
-        var after = NfcTestData.CreateNfcMorphTypeData();
-
-        MorphTypeData? captured = null;
-        Mock.Get(_mockApi)
-            .Setup(api => api.UpdateMorphTypeData(It.IsAny<MorphTypeData>(), It.IsAny<MorphTypeData>(), It.IsAny<IMiniLcmApi>()))
-            .Callback<MorphTypeData, MorphTypeData, IMiniLcmApi?>((_, a, _) => captured = a)
+            .Setup(api => api.UpdateMorphType(It.IsAny<MorphType>(), It.IsAny<MorphType>(), It.IsAny<IMiniLcmApi>()))
+            .Callback<MorphType, MorphType, IMiniLcmApi?>((_, a, _) => captured = a)
             .ReturnsAsync(after);
 
-        await _normalizingApi.UpdateMorphTypeData(before, after);
+        await _normalizingApi.UpdateMorphType(before, after);
 
         captured.Should().NotBeNull();
         AssertAllNfd(captured);
-        captured.LeadingToken.Should().Be(NfcTestData.Nfc);
-        captured.TrailingToken.Should().Be(NfcTestData.Nfc);
+        captured.Prefix.Should().Be(NfcTestData.Nfc);
+        captured.Postfix.Should().Be(NfcTestData.Nfc);
     }
 
     [Fact]
-    public async Task UpdateMorphTypeData_JsonPatch_NormalizesMultiString_AndPassesTokensThrough()
+    public async Task UpdateMorphType_JsonPatch_NormalizesMultiString_AndPassesTokensThrough()
     {
-        var update = new UpdateObjectInput<MorphTypeData>()
+        var update = new UpdateObjectInput<MorphType>()
             .Set(m => m.Name, NfcTestData.CreateNfcMultiString())
-            .Set(m => m.LeadingToken, NfcTestData.Nfc)
-            .Set(m => m.TrailingToken, NfcTestData.Nfc);
+            .Set(m => m.Prefix, NfcTestData.Nfc)
+            .Set(m => m.Postfix, NfcTestData.Nfc);
 
-        UpdateObjectInput<MorphTypeData>? captured = null;
+        UpdateObjectInput<MorphType>? captured = null;
         Mock.Get(_mockApi)
-            .Setup(api => api.UpdateMorphTypeData(It.IsAny<Guid>(), It.IsAny<UpdateObjectInput<MorphTypeData>>()))
-            .Callback<Guid, UpdateObjectInput<MorphTypeData>>((_, patch) => captured = patch)
-            .ReturnsAsync(NfcTestData.CreateNfcMorphTypeData());
+            .Setup(api => api.UpdateMorphType(It.IsAny<Guid>(), It.IsAny<UpdateObjectInput<MorphType>>()))
+            .Callback<Guid, UpdateObjectInput<MorphType>>((_, patch) => captured = patch)
+            .ReturnsAsync(NfcTestData.CreateNfcMorphType());
 
-        await _normalizingApi.UpdateMorphTypeData(Guid.NewGuid(), update);
+        await _normalizingApi.UpdateMorphType(Guid.NewGuid(), update);
 
         captured.Should().NotBeNull();
         var byPath = captured.Patch.Operations.ToDictionary(o => o.Path!, o => o.Value);
         AssertAllNfd(byPath["/Name"].Should().BeOfType<MultiString>().Subject);
-        byPath["/LeadingToken"].Should().Be(NfcTestData.Nfc);
-        byPath["/TrailingToken"].Should().Be(NfcTestData.Nfc);
+        byPath["/Prefix"].Should().Be(NfcTestData.Nfc);
+        byPath["/Postfix"].Should().Be(NfcTestData.Nfc);
     }
 
     #endregion
@@ -684,7 +662,7 @@ public class NormalizationAssertTests
         AssertAllNfc(NfcTestData.CreateNfcPublication());
         AssertAllNfc(NfcTestData.CreateNfcSemanticDomain());
         AssertAllNfc(NfcTestData.CreateNfcComplexFormType());
-        AssertAllNfc(NfcTestData.CreateNfcMorphTypeData());
+        AssertAllNfc(NfcTestData.CreateNfcMorphType());
         AssertAllNfc(NfcTestData.CreateNfcTranslation());
         AssertAllNfc(NfcTestData.CreateNfcExampleSentence());
         AssertAllNfc(NfcTestData.CreateNfcExampleSentenceWithTranslations());

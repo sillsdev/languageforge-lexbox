@@ -11,7 +11,7 @@ public static class NormalizationAssert
 {
     private static readonly Dictionary<Type, HashSet<string>> SkippedProperties = new()
     {
-        // WritingSystem fields are generally LDML-managed
+        // WritingSystem fields are generally LDML-managed and seem to not be normalized by FieldWorks
         [typeof(WritingSystem)] =
         [
             nameof(WritingSystem.WsId),
@@ -19,12 +19,6 @@ public static class NormalizationAssert
             nameof(WritingSystem.Abbreviation),
             nameof(WritingSystem.Font),
             nameof(WritingSystem.Exemplars),
-        ],
-        // MorphTypeData leading/trailing tokens are punctuation markers
-        [typeof(MorphTypeData)] =
-        [
-            nameof(MorphTypeData.LeadingToken),
-            nameof(MorphTypeData.TrailingToken),
         ],
     };
 

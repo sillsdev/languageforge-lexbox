@@ -31,7 +31,7 @@ public class MiniLcmApiWriteNormalizationWrapperFactory : IMiniLcmWrapperFactory
 ///   on every write, matching liblcm's generated property setters which call TsStringUtils.NormalizeNfd.
 /// - Plain-string properties that liblcm does not NFD-normalize are passed through unchanged. This currently
 ///   covers WritingSystem.{Name, Abbreviation, Font, Exemplars} (LDML-managed) and
-///   MorphTypeData.{LeadingToken, TrailingToken} (punctuation markers).
+///   MorphType.{Prefix, Postfix} (punctuation markers).
 /// - JsonPatch overloads normalize string-ish values best-effort (string, RichString, MultiString, RichMultiString).
 ///   JsonElement values are only normalized when they are simple strings; complex JSON values are left as-is
 ///   to avoid guessing the target type.
@@ -220,41 +220,31 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #region MorphType
 
-    public async Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphType)
+    public Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
-        return await _api.CreateMorphTypeData(NormalizeMorphTypeData(morphType));
-    }
-
-    public Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
-    {
-        return _api.UpdateMorphTypeData(id, NormalizePatch(update, MorphTypeDataPlainStringPaths));
+        return _api.UpdateMorphType(id, NormalizePatch(update, MorphTypePlainStringPaths));
     }
 
 
-    public async Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
+    public async Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateMorphTypeData(before, NormalizeMorphTypeData(after), api);
+        return await _api.UpdateMorphType(before, NormalizeMorphType(after), api);
     }
 
-    public Task DeleteMorphTypeData(Guid id)
-    {
-        return _api.DeleteMorphTypeData(id);
-    }
+    // Prefix/Postfix are punctuation markers (e.g. "-", "="), not user-entered linguistic text.
+    private static readonly HashSet<string> MorphTypePlainStringPaths = ["/Prefix", "/Postfix"];
 
-    // LeadingToken/TrailingToken are punctuation markers (e.g. "-", "="), not user-entered linguistic text.
-    private static readonly HashSet<string> MorphTypeDataPlainStringPaths = ["/LeadingToken", "/TrailingToken"];
-
-    private static MorphTypeData NormalizeMorphTypeData(MorphTypeData mtd)
+    private static MorphType NormalizeMorphType(MorphType mtd)
     {
-        return new MorphTypeData
+        return new MorphType
         {
             Id = mtd.Id,
-            MorphType = mtd.MorphType,
+            Kind = mtd.Kind,
             Name = StringNormalizer.Normalize(mtd.Name),
             Abbreviation = StringNormalizer.Normalize(mtd.Abbreviation),
             Description = StringNormalizer.Normalize(mtd.Description),
-            LeadingToken = mtd.LeadingToken,
-            TrailingToken = mtd.TrailingToken,
+            Prefix = mtd.Prefix,
+            Postfix = mtd.Postfix,
             SecondaryOrder = mtd.SecondaryOrder,
             DeletedAt = mtd.DeletedAt
         };
@@ -591,4 +581,5 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     {
         // No resources to dispose
     }
+
 }
