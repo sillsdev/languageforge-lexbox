@@ -19,30 +19,31 @@
   const appLauncher = useAppLauncherService();
   const projectContext = useProjectContext();
 
-  async function openInFlex() {
-    let opened = false;
-    if (appLauncher) {
-      opened = await appLauncher.openInFieldWorks(entry.id, projectContext.projectName);
-    } else {
-      // a 302 redirect to the protocol handler works, but sends the user to the home page 🤷
-      const fieldWorksUrlResponse = await fetch(`/api/fw/${projectContext.projectName}/link/entry/${entry.id}`);
-      if (fieldWorksUrlResponse.ok) {
-        opened = true;
-        window.location.href = await fieldWorksUrlResponse.text();
+  function openInFlex() {
+    async function triggerOpenInFlex() {
+      let opened = false;
+      if (appLauncher) {
+        opened = await appLauncher.openInFieldWorks(entry.id, projectContext.projectName);
+      } else {
+        // a 302 redirect to the protocol handler works, but sends the user to the home page 🤷
+        const fieldWorksUrlResponse = await fetch(`/api/fw/${projectContext.projectName}/link/entry/${entry.id}`);
+        if (fieldWorksUrlResponse.ok) {
+          opened = true;
+          window.location.href = await fieldWorksUrlResponse.text();
+        }
       }
+      if (!opened) throw new Error('Unable to open in FieldWorks');
     }
-    if (opened) {
-      AppNotification.displayAction(
-        $t`This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen.`,
-        {
-          label: $t`Reopen`,
-          callback: () => window.location.reload(),
-        },
-        'warning',
-      );
-    } else {
-      AppNotification.display($t`Unable to open in FieldWorks`, 'error');
-    }
+
+    AppNotification.promise(triggerOpenInFlex(), {
+      loading: $t`Opening in FieldWorks…`,
+      success: $t`This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen.`,
+      error: $t`Unable to open in FieldWorks`,
+      action: {
+        label: $t`Reopen`,
+        onClick: () => window.location.reload(),
+      },
+    });
   }
 
   const mergedProps = $derived(
