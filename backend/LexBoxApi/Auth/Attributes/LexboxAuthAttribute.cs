@@ -30,6 +30,6 @@ public abstract class LexboxAuthAttribute : DescriptorAttribute, IAuthorizeData
         IDescriptor descriptor,
         ICustomAttributeProvider? element)
     {
-        ApplyAttribute(context, descriptor, element, new AuthorizeAttribute(Policy));
+        if (element is not null) ApplyAttribute(context, descriptor, element, new AuthorizeAttribute(Policy));
     }
 }
