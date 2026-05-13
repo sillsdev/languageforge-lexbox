@@ -1,13 +1,13 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using MiniLcm;
 using MiniLcm.Filtering;
 using MiniLcm.Models;
 using MiniLcm.Project;
 using MiniLcm.Validators;
+using System.Text.Json.Nodes;
 
 namespace FwLiteWeb.Routes;
 
@@ -33,7 +33,7 @@ public static class MiniLcmRoutes
         var api = app.MapGroup(prefix + "/{projectType}/{projectCode}")
             .WithOpenApi(operation =>
             {
-                operation.Parameters.Add(new()
+                operation.Parameters?.Add(new()
                 {
                     Name = "projectType",
                     In = ParameterLocation.Path,
@@ -42,13 +42,13 @@ public static class MiniLcmRoutes
                     {
                         Enum =
                         [
-                            new OpenApiString(ProjectDataFormat.FwData.ToString()),
-                            new OpenApiString(ProjectDataFormat.Harmony.ToString())
+                            JsonValue.Create(ProjectDataFormat.FwData.ToString()),
+                            JsonValue.Create(ProjectDataFormat.Harmony.ToString())
                         ],
                         Type = "string"
                     },
                 });
-                operation.Parameters.Add(new()
+                operation.Parameters?.Add(new()
                 {
                     Name = "projectCode",
                     In = ParameterLocation.Path,

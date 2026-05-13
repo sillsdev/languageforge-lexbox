@@ -1,6 +1,6 @@
 using LcmCrdt;
 using FwLiteWeb.Hubs;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace FwLiteWeb.Routes;
 
