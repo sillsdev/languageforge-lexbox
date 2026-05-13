@@ -51,7 +51,7 @@ public class EmailService(
         var email = new MimeMessage();
         await foreach (var admin in admins)
         {
-            email.Bcc.Add(new MailboxAddress(admin.Name, admin.Email));
+            if (admin.Email is not null) email.Bcc.Add(new MailboxAddress(admin.Name, admin.Email));
         }
         var emailTemplate = new NewAdminEmail(
             "Admin",
