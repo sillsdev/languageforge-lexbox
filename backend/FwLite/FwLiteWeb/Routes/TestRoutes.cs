@@ -15,7 +15,7 @@ public static class TestRoutes
     {
         var group = app.MapGroup("/api/test/{project}").WithOpenApi(operation =>
         {
-            operation.Parameters.Add(new OpenApiParameter()
+            operation.Parameters?.Add(new OpenApiParameter()
             {
                 Name = CrdtMiniLcmApiHub.ProjectRouteKey,
                 In = ParameterLocation.Path,

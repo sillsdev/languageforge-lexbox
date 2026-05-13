@@ -14,7 +14,7 @@ public static class FwIntegrationRoutes
         var group = app.MapGroup($"/api/fw/{{{FwDataMiniLcmHub.ProjectRouteKey}}}").WithOpenApi(
             operation =>
             {
-                operation.Parameters.Add(new OpenApiParameter()
+                operation.Parameters?.Add(new OpenApiParameter()
                 {
                     Name = FwDataMiniLcmHub.ProjectRouteKey, In = ParameterLocation.Path, Required = true
                 });

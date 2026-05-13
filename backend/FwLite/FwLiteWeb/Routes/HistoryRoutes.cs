@@ -18,7 +18,7 @@ public static class HistoryRoutes
     {
         var group = app.MapGroup("/api/history/{project}").WithOpenApi(operation =>
         {
-            operation.Parameters.Add(new OpenApiParameter()
+            operation.Parameters?.Add(new OpenApiParameter()
             {
                 Name = CrdtMiniLcmApiHub.ProjectRouteKey, In = ParameterLocation.Path, Required = true
             });
