@@ -139,7 +139,7 @@ public static class LcmCrdtKernel
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
                 optionsBuilder.AddMappingSchema(mappingSchema);
-                optionsBuilder.AddCustomOptions(options => options.UseSQLiteMicrosoft());
+                optionsBuilder.AddCustomOptions(options => options.UseSQLite());
 
                 // Register read-relevant interceptors for LinqToDB
                 var sqliteFunctionInterceptor = new CustomSqliteFunctionInterceptor();
@@ -263,7 +263,7 @@ public static class LcmCrdtKernel
                         list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => JsonSerializer.Deserialize<ViewField[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<ViewField>());
 
-                var writingSystemArrayConverter = new ValueConverter<ViewWritingSystem[]?, string?>(
+                var writingSystemArrayConverter = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<ViewWritingSystem[]?, string?>(
                     list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                     json => json == null ? null : JsonSerializer.Deserialize<ViewWritingSystem[]>(json, (JsonSerializerOptions?)null));
                 builder.Property(v => v.Vernacular)

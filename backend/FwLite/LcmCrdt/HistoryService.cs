@@ -7,6 +7,7 @@ using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using MiniLcm.Exceptions;
+using LinqToDB.Async;
 
 namespace LcmCrdt;
 
