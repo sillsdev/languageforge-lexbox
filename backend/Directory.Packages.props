@@ -11,7 +11,7 @@
     <PackageVersion Include="BeaKona.AutoInterfaceGenerator" Version="1.0.46" />
     <PackageVersion Include="coverlet.collector" Version="10.0.0" />
     <PackageVersion Include="CrystalQuartz.AspNetCore" Version="7.3.0" />
-    <PackageVersion Include="DataAnnotatedModelValidations" Version="11.0.0" />
+    <PackageVersion Include="DataAnnotatedModelValidations" Version="10.0.0" />
     <PackageVersion Include="FluentAssertions" Version="8.9.0" />
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.4" />
