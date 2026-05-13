@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-04-08 07:59\n"
+"PO-Revision-Date: 2026-05-13 10:12\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -1370,6 +1370,10 @@ msgstr "새 창에서 열기"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "로그 파일 열기"
+
+#: src/lib/components/OpenInFieldWorksButton.svelte
+msgid "Opening in FieldWorks…"
+msgstr ""
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
