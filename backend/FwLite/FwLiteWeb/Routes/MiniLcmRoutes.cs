@@ -33,7 +33,7 @@ public static class MiniLcmRoutes
         var api = app.MapGroup(prefix + "/{projectType}/{projectCode}")
             .WithOpenApi(operation =>
             {
-                operation.Parameters?.Add(new()
+                operation.Parameters?.Add(new OpenApiParameter()
                 {
                     Name = "projectType",
                     In = ParameterLocation.Path,
@@ -45,10 +45,10 @@ public static class MiniLcmRoutes
                             JsonValue.Create(ProjectDataFormat.FwData.ToString()),
                             JsonValue.Create(ProjectDataFormat.Harmony.ToString())
                         ],
-                        Type = "string"
+                        Type = JsonSchemaType.String
                     },
                 });
-                operation.Parameters?.Add(new()
+                operation.Parameters?.Add(new OpenApiParameter()
                 {
                     Name = "projectCode",
                     In = ParameterLocation.Path,

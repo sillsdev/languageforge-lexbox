@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using tusdotnet;
 using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 
