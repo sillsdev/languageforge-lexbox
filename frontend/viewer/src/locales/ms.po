@@ -1371,6 +1371,10 @@ msgstr "Buka dalam Tetingkap baharu"
 msgid "Open Log file"
 msgstr "Buka fail Log"
 
+#: src/lib/components/OpenInFieldWorksButton.svelte
+msgid "Opening in FieldWorks…"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
@@ -1871,7 +1875,6 @@ msgstr "Togol disemat"
 msgid "Translation"
 msgstr "Terjemahan"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Terjemahan {0}"

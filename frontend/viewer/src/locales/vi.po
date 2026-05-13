@@ -1371,6 +1371,10 @@ msgstr "Mở trong cửa sổ mới"
 msgid "Open Log file"
 msgstr "Mở tệp nhật ký"
 
+#: src/lib/components/OpenInFieldWorksButton.svelte
+msgid "Opening in FieldWorks…"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
@@ -1871,7 +1875,6 @@ msgstr "Chuyển trạng thái ghim"
 msgid "Translation"
 msgstr "Bản dịch"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Bản dịch {0}"

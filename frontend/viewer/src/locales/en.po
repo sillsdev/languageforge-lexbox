@@ -1366,6 +1366,10 @@ msgstr "Open in new Window"
 msgid "Open Log file"
 msgstr "Open Log file"
 
+#: src/lib/components/OpenInFieldWorksButton.svelte
+msgid "Opening in FieldWorks…"
+msgstr "Opening in FieldWorks…"
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
