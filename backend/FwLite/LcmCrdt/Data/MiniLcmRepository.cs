@@ -4,6 +4,7 @@ using LcmCrdt.Changes.Entries;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.Utils;
 using LinqToDB;
+using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

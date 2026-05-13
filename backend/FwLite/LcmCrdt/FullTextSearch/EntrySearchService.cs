@@ -1,6 +1,7 @@
 using System.Text;
 using LcmCrdt.Data;
 using LinqToDB;
+using LinqToDB.Async;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.SQLite;
 using LinqToDB.EntityFrameworkCore;
