@@ -1371,6 +1371,10 @@ msgstr "Fungua kwenye Dirisha Jipya"
 msgid "Open Log file"
 msgstr "Fungua faili la logi"
 
+#: src/lib/components/OpenInFieldWorksButton.svelte
+msgid "Opening in FieldWorks…"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
@@ -1871,7 +1875,6 @@ msgstr "Geuza iliyobandikwa"
 msgid "Translation"
 msgstr "Tafsiri"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Tafsiri {0}"

@@ -1371,6 +1371,10 @@ msgstr "Abrir en una ventana nueva"
 msgid "Open Log file"
 msgstr "Abrir archivo Log"
 
+#: src/lib/components/OpenInFieldWorksButton.svelte
+msgid "Opening in FieldWorks…"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
@@ -1871,7 +1875,6 @@ msgstr "Alternar fijado"
 msgid "Translation"
 msgstr "Traducción"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Traducción {0}"

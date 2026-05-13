@@ -1371,6 +1371,10 @@ msgstr "새 창에서 열기"
 msgid "Open Log file"
 msgstr "로그 파일 열기"
 
+#: src/lib/components/OpenInFieldWorksButton.svelte
+msgid "Opening in FieldWorks…"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
@@ -1871,7 +1875,6 @@ msgstr "고정 토글"
 msgid "Translation"
 msgstr "번역"
 
-#. Language-specific translation field
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "번역 {0}"

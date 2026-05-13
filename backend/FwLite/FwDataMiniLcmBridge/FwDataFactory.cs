@@ -112,7 +112,7 @@ public class FwDataFactory(
         }
     }
 
-    public void CloseProject(FwDataProject project)
+    public async Task CloseProjectAsync(FwDataProject project)
     {
         // if we are shutting down, don't do anything because we want project dispose to be called as part of the shutdown process.
         if (_shuttingDown) return;
@@ -120,12 +120,15 @@ public class FwDataFactory(
         var cacheKey = CacheKey(project);
         var lcmCache = cache.Get<LcmCache>(cacheKey);
         if (lcmCache is null) return;
+        // Dispose cache immediately so file locks are released before we return.
+        // The caller assumes the project is ready to be opened somewhere else (e.g. in FieldWorks)
+        if (!lcmCache.IsDisposed) await Task.Run(lcmCache.Dispose);
         cache.Remove(cacheKey);
     }
 
-    public IDisposable DeferClose(FwDataProject project)
+    public IAsyncDisposable DeferCloseAsync(FwDataProject project)
     {
-        return Defer.Action(() => CloseProject(project));
+        return Defer.Async(() => CloseProjectAsync(project));
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
