@@ -1,5 +1,6 @@
 using LexCore.ServiceInterfaces;
 using LfClassicData;
+using LfClassicData.Entities;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Polly;
@@ -58,12 +59,11 @@ public class IsLanguageForgeProjectDataLoader : BatchDataLoader<string, bool>, I
         IReadOnlyList<string> list,
         CancellationToken token)
     {
-        var actualProjects = await MongoExtensions.ToAsyncEnumerable(loader._systemDbContext.Projects.AsQueryable()
-                .Select(p => p.ProjectCode)
-#pragma warning disable MALinq2001
-                .Where(projectCode => list.Contains(projectCode)))
-#pragma warning restore MALinq2001
-            .ToHashSetAsync(cancellationToken: token);
+        var actualProjects = (await loader._systemDbContext.Projects
+                .Find(Builders<LfProject>.Filter.In(p => p.ProjectCode, list))
+                .Project(p => p.ProjectCode)
+                .ToListAsync(cancellationToken: token)
+            ).ToHashSet();
         return list.ToDictionary(pc => pc, pc => actualProjects.Contains(pc));
     }
 
