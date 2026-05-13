@@ -28,7 +28,7 @@ public abstract class LexboxAuthAttribute : DescriptorAttribute, IAuthorizeData
 
     protected override void TryConfigure(IDescriptorContext context,
         IDescriptor descriptor,
-        ICustomAttributeProvider element)
+        ICustomAttributeProvider? element)
     {
         ApplyAttribute(context, descriptor, element, new AuthorizeAttribute(Policy));
     }
