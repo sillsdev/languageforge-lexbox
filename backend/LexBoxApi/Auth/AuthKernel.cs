@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using OpenIddict.Core;
 using OpenIddict.Server;
 using OpenIddict.Server.AspNetCore;
@@ -242,16 +242,11 @@ public static class AuthKernel
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer"
                 });
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
             {
                 {
-                    new OpenApiSecurityScheme
-                    {
-                        Name = "Bearer",
-                        In = ParameterLocation.Header,
-                        Reference = new OpenApiReference { Id = "Bearer", Type = ReferenceType.SecurityScheme }
-                    },
-                    new List<string>()
+                    new OpenApiSecuritySchemeReference("Bearer"),
+                    []
                 }
             });
         });

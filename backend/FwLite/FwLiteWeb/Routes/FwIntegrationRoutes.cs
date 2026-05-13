@@ -3,7 +3,7 @@ using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteWeb.Hubs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace FwLiteWeb.Routes;
 

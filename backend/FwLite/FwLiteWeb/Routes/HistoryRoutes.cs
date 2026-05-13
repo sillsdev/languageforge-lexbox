@@ -7,7 +7,7 @@ using SIL.Harmony.Entities;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using FwLiteWeb.Hubs;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using MiniLcm.Models;
 
 namespace FwLiteWeb.Routes;

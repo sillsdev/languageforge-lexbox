@@ -3,7 +3,7 @@ using FwLiteShared.Events;
 using LcmCrdt;
 using FwLiteWeb.Hubs;
 using FwLiteWeb.Services;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using MiniLcm;
 using MiniLcm.Models;
 
