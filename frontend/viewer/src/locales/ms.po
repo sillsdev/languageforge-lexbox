@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-13 10:12\n"
+"PO-Revision-Date: 2026-05-14 10:19\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -1373,7 +1373,7 @@ msgstr "Buka fail Log"
 
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Opening in FieldWorks…"
-msgstr ""
+msgstr "Membuka dalam FieldWorks…"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
