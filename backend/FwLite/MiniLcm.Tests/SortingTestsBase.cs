@@ -143,7 +143,7 @@ public abstract class SortingTestsBase : MiniLcmTestBase
         var lastLongestContainsMatches = CreateSortedEntrySet("ccaaaa");
 
         var entryId = Guid.NewGuid();
-        Entry nonHeadwordMatch = new() { Id = entryId, Senses = [new() { EntryId = entryId, Gloss = { ["en"] = "aaaa" } }] };
+        Entry nonHeadwordMatch = new() { Id = entryId, Senses = [new() { Id = Guid.NewGuid(), EntryId = entryId, Gloss = { ["en"] = "aaaa" } }] };
 
         Entry[] expected = [
             .. exactMatches,
@@ -201,7 +201,7 @@ public abstract class SortingTestsBase : MiniLcmTestBase
         var lastLongestContainsMatches = CreateSortedEntrySet("ccaaaa");
 
         var entryId = Guid.NewGuid();
-        Entry nonHeadwordMatch = new() { Id = entryId, Senses = [new() { EntryId = entryId, Gloss = { ["en"] = "aaaa" } }] };
+        Entry nonHeadwordMatch = new() { Id = entryId, Senses = [new() { Id = Guid.NewGuid(), EntryId = entryId, Gloss = { ["en"] = "aaaa" } }] };
 
         Entry[] expected = [
             .. exactMatches,
