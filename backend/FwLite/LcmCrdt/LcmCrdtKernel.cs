@@ -130,6 +130,13 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
+                    //Tells linq2db to rewrite Sense.SemanticDomains / Entry.PublishIn as Json.Query(...)
+                    //in queries. Gridify can then parse the projection lambdas in EntryFilterMapProvider
+                    //using bare property access, and linq2db expands to json_each() at translation time.
+                    //Json.QueryInternal has a working client-side body (not throw) so v6's eager-load
+                    //preamble — which may invoke the rewrite client-side — doesn't blow up.
+                    .Entity<Sense>().Property(s => s.SemanticDomains).HasAttribute(new ExpressionMethodAttribute(SenseSemanticDomainsExpression()))
+                    .Entity<Entry>().Property(e => e.PublishIn).HasAttribute(new ExpressionMethodAttribute(EntryPublishInExpression()))
                     .Entity<RichString>().Member(r => r.GetPlainText()).IsExpression(r => Json.GetPlainText(r))
                     .Entity<Guid>().Member(g => g.ToString()).IsExpression(g => Json.ToString(g))
                     .Build();
@@ -158,6 +165,18 @@ public static class LcmCrdtKernel
             builder.AddInterceptors(updateSearchTableInterceptor);
     }
 
+    private static Expression<Func<Sense, IList<SemanticDomain>>> SenseSemanticDomainsExpression()
+    {
+        //using Sql.Property, otherwise if we used `s.SemanticDomains` again it would be recursively rewritten.
+        //ToList() lets v6's eager-load preamble assign the result back into the IList<SemanticDomain> property —
+        //the property type and expression return type have to match or v6 fails the cast at materialization.
+        return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains))).ToList();
+    }
+
+    private static Expression<Func<Entry, IList<Publication>>> EntryPublishInExpression()
+    {
+        return e => Json.Query(Sql.Property<IList<Publication>>(e, nameof(Entry.PublishIn))).ToList();
+    }
 
     public static void ConfigureCrdt(CrdtConfig config)
     {

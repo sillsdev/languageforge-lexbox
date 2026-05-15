@@ -5,12 +5,13 @@ namespace LcmCrdt;
 
 public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
 {
-    //bare property here so Gridify's null-check filter compiles to a column-level IS NULL;
-    //the SelectMany-based code filter needs Json.Query to invoke json_each.
     public override Expression<Func<Entry, object?>> EntrySensesSemanticDomains => e => e.Senses.Select(s => s.SemanticDomains);
     public override Expression<Func<Entry, object?>> EntrySensesSemanticDomainsCode =>
-        e => e.Senses.SelectMany(s => Json.Query(s.SemanticDomains)).Select(sd => Json.Value(sd, sd => sd.Code));
+        //linq2db rewrites `s.SemanticDomains` to a json_each query at query-translation time
+        //(see LcmCrdtKernel's ExpressionMethodAttribute registration).
+        e => e.Senses.SelectMany(s => s.SemanticDomains).Select(sd => Json.Value(sd, sd => sd.Code));
     public override Func<string, object>? EntrySensesSemanticDomainsConverter =>
+        //linq2db treats Sense.SemanticDomains as a table, if we use "null" then it'll write the query we want
         EntryFilter.NormalizeEmptyToNull<SemanticDomain>;
     public override Expression<Func<Entry, object?>> EntrySensesExampleSentences => e => e.Senses.Select(s => s.ExampleSentences);
     public override Expression<Func<Entry, string, object>> EntrySensesExampleSentencesSentence =>
@@ -31,6 +32,6 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
     public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToEmptyList<ComplexFormType>;
     public override Expression<Func<Entry, object?>> EntryPublishIn => e => e.PublishIn;
     public override Expression<Func<Entry, object?>> EntryPublishInId =>
-        e => Json.Query(e.PublishIn).Select(p => Json.Value(p, p => p.Id.ToString()));
+        e => e.PublishIn.Select(p => Json.Value(p, p => p.Id.ToString()));
     public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToNull<Publication>;
 }

@@ -197,16 +197,22 @@ public static class Json
 
     //these 2 methods tell linq2db to treat the given property as a table where each row looks like a JsonEach
     //however we don't really care about any other columns and probably want to just use the value, that's what the QueryExpression does above
+    //Linq2Db v6's eager-load preamble may apply the [ExpressionMethod]-driven rewrite client-side after
+    //materialization, so the bodies have to actually work — not throw — when invoked over a real list.
     [Sql.TableFunction("json_each", argIndices: [0])]
     private static IQueryable<JsonEach<T>> QueryInternal<T>(this IEnumerable<T> value)
     {
-        throw new NotImplementedException("only supported server side");
+        return value is null
+            ? Enumerable.Empty<JsonEach<T>>().AsQueryable()
+            : value.Select((v, i) => new JsonEach<T>(v, i.ToString(), "", i, "", "")).AsQueryable();
     }
 
     [Sql.TableFunction("json_each", argIndices: [0])]
     private static IQueryable<JsonEach<string>> QueryInternal(this MultiString value)
     {
-        throw new NotImplementedException("only supported server side");
+        return value is null
+            ? Enumerable.Empty<JsonEach<string>>().AsQueryable()
+            : value.Values.Select((kv, i) => new JsonEach<string>(kv.Value, kv.Key.Code, "", i, "", "")).AsQueryable();
     }
 
     [Sql.Expression("(select group_concat(s.value->>'Text', '') from json_each({0}->>'Spans') as s)", PreferServerSide = true)]
