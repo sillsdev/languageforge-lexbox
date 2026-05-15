@@ -197,8 +197,10 @@ public static class Json
 
     //these 2 methods tell linq2db to treat the given property as a table where each row looks like a JsonEach
     //however we don't really care about any other columns and probably want to just use the value, that's what the QueryExpression does above
-    //Linq2Db v6's eager-load preamble may apply the [ExpressionMethod]-driven rewrite client-side after
+    //Linq2Db v6's eager-load preamble applies the [ExpressionMethod]-driven rewrite client-side after
     //materialization, so the bodies have to actually work — not throw — when invoked over a real list.
+    //TODO when upstream fixes the v6 regression: restore `throw new NotImplementedException(...)` in both
+    //bodies. See LINQ2DB-V6-NOTES.md (sibling of this file).
     [Sql.TableFunction("json_each", argIndices: [0])]
     private static IQueryable<JsonEach<T>> QueryInternal<T>(this IEnumerable<T> value)
     {

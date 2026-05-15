@@ -165,11 +165,13 @@ public static class LcmCrdtKernel
             builder.AddInterceptors(updateSearchTableInterceptor);
     }
 
+    //TODO when upstream fixes the v6 regression: drop .ToList() from both expressions below and revert
+    //the return type to IQueryable<...>. See LINQ2DB-V6-NOTES.md for context — the ToList() is what
+    //blocks SQL translation of `.Any(...) == null` filter forms but keeps eager-load materialization
+    //working in v6.
     private static Expression<Func<Sense, IList<SemanticDomain>>> SenseSemanticDomainsExpression()
     {
-        //using Sql.Property, otherwise if we used `s.SemanticDomains` again it would be recursively rewritten.
-        //ToList() lets v6's eager-load preamble assign the result back into the IList<SemanticDomain> property —
-        //the property type and expression return type have to match or v6 fails the cast at materialization.
+        //using Sql.Property, otherwise if we used `s.SemanticDomains` again it would be recursively rewritten
         return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains))).ToList();
     }
 
