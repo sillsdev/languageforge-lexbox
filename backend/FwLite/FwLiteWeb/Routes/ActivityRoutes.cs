@@ -8,7 +8,7 @@ public static class ActivityRoutes
 {
     public static IEndpointConventionBuilder MapActivities(this WebApplication app)
     {
-        var group = app.MapGroup("/api/activity/{project}").WithOpenApi(operation =>
+        var group = app.MapGroup("/api/activity/{project}").AddOpenApiOperationTransformer((operation, _, _) =>
         {
             operation.Parameters?.Add(new OpenApiParameter()
             {
@@ -16,7 +16,7 @@ public static class ActivityRoutes
                 In = ParameterLocation.Path,
                 Required = true
             });
-            return operation;
+            return Task.CompletedTask;
         });
         group.MapGet("/", (HistoryService historyService, int skip, int take) => historyService.ProjectActivity(skip, take));
         return group;

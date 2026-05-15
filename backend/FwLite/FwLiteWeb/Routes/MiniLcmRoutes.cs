@@ -31,7 +31,7 @@ public static class MiniLcmRoutes
     public static IEndpointConventionBuilder MapMiniLcmRoutes(this IEndpointRouteBuilder app, [StringSyntax("route")] string prefix)
     {
         var api = app.MapGroup(prefix + "/{projectType}/{projectCode}")
-            .WithOpenApi(operation =>
+            .AddOpenApiOperationTransformer((operation, _, _) =>
             {
                 operation.Parameters?.Add(new OpenApiParameter()
                 {
@@ -54,7 +54,7 @@ public static class MiniLcmRoutes
                     In = ParameterLocation.Path,
                     Required = true
                 });
-                return operation;
+                return Task.CompletedTask;
             })
             .AddEndpointFilter(async (context, next) =>
             {

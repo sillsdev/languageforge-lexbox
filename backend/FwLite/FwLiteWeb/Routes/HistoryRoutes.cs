@@ -16,13 +16,13 @@ public static class HistoryRoutes
 {
     public static IEndpointConventionBuilder MapHistoryRoutes(this WebApplication app)
     {
-        var group = app.MapGroup("/api/history/{project}").WithOpenApi(operation =>
+        var group = app.MapGroup("/api/history/{project}").AddOpenApiOperationTransformer((operation, _, _) =>
         {
             operation.Parameters?.Add(new OpenApiParameter()
             {
                 Name = CrdtMiniLcmApiHub.ProjectRouteKey, In = ParameterLocation.Path, Required = true
             });
-            return operation;
+            return Task.CompletedTask;
         });
         group.MapGet("/snapshot/{snapshotId:guid}",
             async (Guid snapshotId, HistoryService historyService) => await historyService.GetSnapshot(snapshotId));
