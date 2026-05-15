@@ -5,12 +5,22 @@ namespace LcmCrdt.Objects;
 
 public static class PreDefinedData
 {
+    // Complex form type GUIDs — referenced by callers seeding entries.
+    public static readonly Guid CompoundComplexFormTypeId = new("c36f55ed-d1ea-4069-90b3-3f35ff696273");
+    public static readonly Guid UnspecifiedComplexFormTypeId = new("eeb78fce-6009-4932-aaa6-85faeb180c69");
+
+    // Part-of-speech GUIDs — canonical, from GOLDEtic.xml in liblcm.
+    public static readonly Guid NounPartOfSpeechId = new("a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5");
+    public static readonly Guid VerbPartOfSpeechId = new("86ff66f6-0774-407a-a0dc-3eeaf873daf7");
+    public static readonly Guid AdjectivePartOfSpeechId = new("30d07580-5052-4d91-bc24-469b8b2d7df9");
+    public static readonly Guid AdverbPartOfSpeechId = new("46e4fe08-ffa0-4c8b-bf98-2c56f38904d9");
+
     internal static async Task AddPredefinedComplexFormTypes(DataModel dataModel, Guid clientId)
     {
         await dataModel.AddChanges(clientId,
             [
-                new CreateComplexFormType(new Guid("c36f55ed-d1ea-4069-90b3-3f35ff696273"), new MultiString() { { "en", "Compound" } } ),
-                new CreateComplexFormType(new Guid("eeb78fce-6009-4932-aaa6-85faeb180c69"), new MultiString() { { "en", "Unspecified" } })
+                new CreateComplexFormType(CompoundComplexFormTypeId, new MultiString() { { "en", "Compound" } } ),
+                new CreateComplexFormType(UnspecifiedComplexFormTypeId, new MultiString() { { "en", "Unspecified" } })
             ],
             new Guid("dc60d2a9-0cc2-48ed-803c-a238a14b6eae"));
     }
@@ -36,9 +46,10 @@ public static class PreDefinedData
         //todo load from xml instead of hardcoding
         await dataModel.AddChanges(clientId,
             [
-                new CreatePartOfSpeechChange(new Guid("46e4fe08-ffa0-4c8b-bf98-2c56f38904d9"),
-                    new MultiString() { { "en", "Adverb" } },
-                    true)
+                new CreatePartOfSpeechChange(NounPartOfSpeechId, new MultiString() { { "en", "Noun" } }, true),
+                new CreatePartOfSpeechChange(VerbPartOfSpeechId, new MultiString() { { "en", "Verb" } }, true),
+                new CreatePartOfSpeechChange(AdjectivePartOfSpeechId, new MultiString() { { "en", "Adjective" } }, true),
+                new CreatePartOfSpeechChange(AdverbPartOfSpeechId, new MultiString() { { "en", "Adverb" } }, true),
             ],
             new Guid("023faebb-711b-4d2f-b34f-a15621fc66bb"));
     }
@@ -67,8 +78,8 @@ public static class PreDefinedData
                             new ViewField { FieldId = "sentence" },
                             new ViewField { FieldId = "translations" },
                         ],
-                        Vernacular = [new ViewWritingSystem { WsId = "de" }],
-                        Analysis = [new ViewWritingSystem { WsId = "en" }, new ViewWritingSystem { WsId = "en-Zxxx-x-audio" }]
+                        Vernacular = [new ViewWritingSystem { WsId = "de" }, new ViewWritingSystem { WsId = "de-Zxxx-x-audio" }],
+                        Analysis = [new ViewWritingSystem { WsId = "en" }]
                     })
             ],
             new Guid("b2c3d4e5-f6a7-8901-bcde-f12345678901"));
