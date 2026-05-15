@@ -95,7 +95,7 @@ public class CrdtCommitServiceTests
             context,
             """
             INSERT INTO "CrdtCommits"
-                ("Id", "ClientId", "DateTime", "Counter", "ProjectId", "Metadata", "ChangeEntities")
+                ("Id", "ClientId", "HybridDateTime_DateTime", "HybridDateTime_Counter", "ProjectId", "Metadata", "ChangeEntities")
             VALUES (@id, @clientId, @dt, 0, @projectId, '{}'::jsonb, @payload::jsonb)
             """,
             new LinqToDB.Data.DataParameter("id", commitId, LinqToDB.DataType.Guid),
