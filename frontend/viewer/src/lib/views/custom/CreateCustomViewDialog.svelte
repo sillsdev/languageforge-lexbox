@@ -24,7 +24,7 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.Content class="max-w-5xl">
+  <Dialog.Content class="max-w-5xl" interactOutsideBehavior="ignore" escapeKeydownBehavior="ignore">
     <Dialog.Header>
       <Dialog.Title>{$t`Create Custom View`}</Dialog.Title>
     </Dialog.Header>
