@@ -531,7 +531,7 @@ so we can get this fixed!",
       "notify_success": "You have successfully added a project purpose."
     },
     "get_project": {
-      "instructions_header": "To {isEmpty, select, true {set up} other {get}} this project with {appName} {mode, select, manual {manually} other {}}",
+      "instructions_header": "To {isEmpty, select, true { set up } other { get } } this project with {type, select, FL_EX { FieldWorks } WE_SAY { WeSay } other { (e.g.) FieldWorks } } {mode, select, manual { manually} other { }}",
       "instructions_flex": "1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
 1. In the \"Receive project\" dialog box, click \"Internet\"\n\
 1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" ({login}) and \"Password\" for Lexbox and click \"Log in\"\n\
