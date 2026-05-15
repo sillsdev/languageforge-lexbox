@@ -29,6 +29,9 @@ public class MiniLcmApiWriteNormalizationWrapperFactory : IMiniLcmWrapperFactory
 /// - Write operations need to be manually implemented so nothing is missed (compile-time enforced by IMiniLcmApi).
 /// - Should mirror what LibLcm/FieldWorks normalizes, which seems to be EVERYTHING in the "standard editor" UI
 ///   (so entry fields, but also list fields e.g. Semantic Domains, Morph Types, etc. - not only multi-strings)
+/// - For update methods that take both "before" and "after" objects, BOTH are normalized to ensure that any string comparisons done by the API are normalized.
+///   This prevents potential diff-noise caused by "before" being bad-data even though we expect it to always already be normalized (because we presumably served it).
+///   Non-normalized data that is already persisted (before this wrapper was introduced) will be normalized by LibLcm. That's not something we want to fix here.
 /// - Properties that liblcm/FieldWorks does not NFD-normalize are passed through unchanged.
 ///   Currently only WritingSystem properties.
 /// - JsonPatch overloads normalize string-ish values best-effort (string, RichString, MultiString, RichMultiString).
@@ -86,7 +89,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdatePartOfSpeech(before, NormalizePartOfSpeech(after), api);
+        return await _api.UpdatePartOfSpeech(NormalizePartOfSpeech(before), NormalizePartOfSpeech(after), api);
     }
 
     public Task DeletePartOfSpeech(Guid id)
@@ -122,7 +125,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdatePublication(before, NormalizePublication(after), api);
+        return await _api.UpdatePublication(NormalizePublication(before), NormalizePublication(after), api);
     }
 
     public Task DeletePublication(Guid id)
@@ -157,7 +160,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateSemanticDomain(before, NormalizeSemanticDomain(after), api);
+        return await _api.UpdateSemanticDomain(NormalizeSemanticDomain(before), NormalizeSemanticDomain(after), api);
     }
 
     public Task DeleteSemanticDomain(Guid id)
@@ -194,7 +197,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateComplexFormType(before, NormalizeComplexFormType(after), api);
+        return await _api.UpdateComplexFormType(NormalizeComplexFormType(before), NormalizeComplexFormType(after), api);
     }
 
     public Task DeleteComplexFormType(Guid id)
@@ -222,22 +225,22 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateMorphType(before, NormalizeMorphType(after), api);
+        return await _api.UpdateMorphType(NormalizeMorphType(before), NormalizeMorphType(after), api);
     }
 
-    private static MorphType NormalizeMorphType(MorphType mtd)
+    private static MorphType NormalizeMorphType(MorphType mt)
     {
         return new MorphType
         {
-            Id = mtd.Id,
-            Kind = mtd.Kind,
-            Name = StringNormalizer.Normalize(mtd.Name),
-            Abbreviation = StringNormalizer.Normalize(mtd.Abbreviation),
-            Description = StringNormalizer.Normalize(mtd.Description),
-            Prefix = StringNormalizer.Normalize(mtd.Prefix),
-            Postfix = StringNormalizer.Normalize(mtd.Postfix),
-            SecondaryOrder = mtd.SecondaryOrder,
-            DeletedAt = mtd.DeletedAt
+            Id = mt.Id,
+            Kind = mt.Kind,
+            Name = StringNormalizer.Normalize(mt.Name),
+            Abbreviation = StringNormalizer.Normalize(mt.Abbreviation),
+            Description = StringNormalizer.Normalize(mt.Description),
+            Prefix = StringNormalizer.Normalize(mt.Prefix),
+            Postfix = StringNormalizer.Normalize(mt.Postfix),
+            SecondaryOrder = mt.SecondaryOrder,
+            DeletedAt = mt.DeletedAt
         };
     }
 
@@ -258,7 +261,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateEntry(before, NormalizeEntry(after), api);
+        return await _api.UpdateEntry(NormalizeEntry(before), NormalizeEntry(after), api);
     }
 
     public Task DeleteEntry(Guid id)
@@ -346,7 +349,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateSense(entryId, before, NormalizeSense(after), api);
+        return await _api.UpdateSense(entryId, NormalizeSense(before), NormalizeSense(after), api);
     }
 
     public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position)
@@ -408,7 +411,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId, Guid senseId, ExampleSentence before, ExampleSentence after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdateExampleSentence(entryId, senseId, before, NormalizeExampleSentence(after), api);
+        return await _api.UpdateExampleSentence(entryId, senseId, NormalizeExampleSentence(before), NormalizeExampleSentence(after), api);
     }
 
     public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)

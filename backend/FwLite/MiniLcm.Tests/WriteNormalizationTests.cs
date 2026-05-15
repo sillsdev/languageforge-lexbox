@@ -89,21 +89,22 @@ public class WriteNormalizationTests
     }
 
     [Fact]
-    public async Task UpdatePartOfSpeech_BeforeAfter_NormalizesToNfd()
+    public async Task UpdatePartOfSpeech_BeforeAfter_NormalizesBothToNfd()
     {
         var before = NfcTestData.CreateNfcPartOfSpeech();
         var after = NfcTestData.CreateNfcPartOfSpeech();
 
-        PartOfSpeech? captured = null;
+        PartOfSpeech? capturedBefore = null;
+        PartOfSpeech? capturedAfter = null;
         Mock.Get(_mockApi)
             .Setup(api => api.UpdatePartOfSpeech(It.IsAny<PartOfSpeech>(), It.IsAny<PartOfSpeech>(), It.IsAny<IMiniLcmApi>()))
-            .Callback<PartOfSpeech, PartOfSpeech, IMiniLcmApi?>((_, a, _) => captured = a)
+            .Callback<PartOfSpeech, PartOfSpeech, IMiniLcmApi?>((b, a, _) => { capturedBefore = b; capturedAfter = a; })
             .ReturnsAsync(after);
 
         await _normalizingApi.UpdatePartOfSpeech(before, after);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertAllNfd(capturedBefore);
+        AssertAllNfd(capturedAfter);
     }
 
     #endregion
@@ -128,21 +129,22 @@ public class WriteNormalizationTests
     }
 
     [Fact]
-    public async Task UpdatePublication_BeforeAfter_NormalizesToNfd()
+    public async Task UpdatePublication_BeforeAfter_NormalizesBothToNfd()
     {
         var before = NfcTestData.CreateNfcPublication();
         var after = NfcTestData.CreateNfcPublication();
 
-        Publication? captured = null;
+        Publication? capturedBefore = null;
+        Publication? capturedAfter = null;
         Mock.Get(_mockApi)
             .Setup(api => api.UpdatePublication(It.IsAny<Publication>(), It.IsAny<Publication>(), It.IsAny<IMiniLcmApi>()))
-            .Callback<Publication, Publication, IMiniLcmApi?>((_, a, _) => captured = a)
+            .Callback<Publication, Publication, IMiniLcmApi?>((b, a, _) => { capturedBefore = b; capturedAfter = a; })
             .ReturnsAsync(after);
 
         await _normalizingApi.UpdatePublication(before, after);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertAllNfd(capturedBefore);
+        AssertAllNfd(capturedAfter);
     }
 
     #endregion
@@ -167,21 +169,22 @@ public class WriteNormalizationTests
     }
 
     [Fact]
-    public async Task UpdateSemanticDomain_BeforeAfter_NormalizesToNfd()
+    public async Task UpdateSemanticDomain_BeforeAfter_NormalizesBothToNfd()
     {
         var before = NfcTestData.CreateNfcSemanticDomain();
         var after = NfcTestData.CreateNfcSemanticDomain();
 
-        SemanticDomain? captured = null;
+        SemanticDomain? capturedBefore = null;
+        SemanticDomain? capturedAfter = null;
         Mock.Get(_mockApi)
             .Setup(api => api.UpdateSemanticDomain(It.IsAny<SemanticDomain>(), It.IsAny<SemanticDomain>(), It.IsAny<IMiniLcmApi>()))
-            .Callback<SemanticDomain, SemanticDomain, IMiniLcmApi?>((_, a, _) => captured = a)
+            .Callback<SemanticDomain, SemanticDomain, IMiniLcmApi?>((b, a, _) => { capturedBefore = b; capturedAfter = a; })
             .ReturnsAsync(after);
 
         await _normalizingApi.UpdateSemanticDomain(before, after);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertAllNfd(capturedBefore);
+        AssertAllNfd(capturedAfter);
     }
 
     [Fact]
@@ -242,21 +245,22 @@ public class WriteNormalizationTests
     }
 
     [Fact]
-    public async Task UpdateComplexFormType_BeforeAfter_NormalizesToNfd()
+    public async Task UpdateComplexFormType_BeforeAfter_NormalizesBothToNfd()
     {
         var before = NfcTestData.CreateNfcComplexFormType();
         var after = NfcTestData.CreateNfcComplexFormType();
 
-        ComplexFormType? captured = null;
+        ComplexFormType? capturedBefore = null;
+        ComplexFormType? capturedAfter = null;
         Mock.Get(_mockApi)
             .Setup(api => api.UpdateComplexFormType(It.IsAny<ComplexFormType>(), It.IsAny<ComplexFormType>(), It.IsAny<IMiniLcmApi>()))
-            .Callback<ComplexFormType, ComplexFormType, IMiniLcmApi?>((_, a, _) => captured = a)
+            .Callback<ComplexFormType, ComplexFormType, IMiniLcmApi?>((b, a, _) => { capturedBefore = b; capturedAfter = a; })
             .ReturnsAsync(after);
 
         await _normalizingApi.UpdateComplexFormType(before, after);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertAllNfd(capturedBefore);
+        AssertAllNfd(capturedAfter);
     }
 
     #endregion
@@ -264,21 +268,22 @@ public class WriteNormalizationTests
     #region MorphType Tests
 
     [Fact]
-    public async Task UpdateMorphType_BeforeAfter_NormalizesToNfd()
+    public async Task UpdateMorphType_BeforeAfter_NormalizesBothToNfd()
     {
         var before = NfcTestData.CreateNfcMorphType();
         var after = NfcTestData.CreateNfcMorphType();
 
-        MorphType? captured = null;
+        MorphType? capturedBefore = null;
+        MorphType? capturedAfter = null;
         Mock.Get(_mockApi)
             .Setup(api => api.UpdateMorphType(It.IsAny<MorphType>(), It.IsAny<MorphType>(), It.IsAny<IMiniLcmApi>()))
-            .Callback<MorphType, MorphType, IMiniLcmApi?>((_, a, _) => captured = a)
+            .Callback<MorphType, MorphType, IMiniLcmApi?>((b, a, _) => { capturedBefore = b; capturedAfter = a; })
             .ReturnsAsync(after);
 
         await _normalizingApi.UpdateMorphType(before, after);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertAllNfd(capturedBefore);
+        AssertAllNfd(capturedAfter);
     }
 
     [Fact]
@@ -326,21 +331,22 @@ public class WriteNormalizationTests
     }
 
     [Fact]
-    public async Task UpdateEntry_BeforeAfter_NormalizesToNfd()
+    public async Task UpdateEntry_BeforeAfter_NormalizesBothToNfd()
     {
         var before = NfcTestData.CreateNfcEntry();
         var after = NfcTestData.CreateNfcEntry();
 
-        Entry? captured = null;
+        Entry? capturedBefore = null;
+        Entry? capturedAfter = null;
         Mock.Get(_mockApi)
             .Setup(api => api.UpdateEntry(It.IsAny<Entry>(), It.IsAny<Entry>(), It.IsAny<IMiniLcmApi>()))
-            .Callback<Entry, Entry, IMiniLcmApi?>((_, a, _) => captured = a)
+            .Callback<Entry, Entry, IMiniLcmApi?>((b, a, _) => { capturedBefore = b; capturedAfter = a; })
             .ReturnsAsync(after);
 
         await _normalizingApi.UpdateEntry(before, after);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertAllNfd(capturedBefore);
+        AssertAllNfd(capturedAfter);
     }
 
     [Fact]
@@ -526,22 +532,23 @@ public class WriteNormalizationTests
     }
 
     [Fact]
-    public async Task UpdateSense_BeforeAfter_NormalizesToNfd()
+    public async Task UpdateSense_BeforeAfter_NormalizesBothToNfd()
     {
         var entryId = Guid.NewGuid();
         var before = NfcTestData.CreateNfcSense();
         var after = NfcTestData.CreateNfcSense();
 
-        Sense? captured = null;
+        Sense? capturedBefore = null;
+        Sense? capturedAfter = null;
         Mock.Get(_mockApi)
             .Setup(api => api.UpdateSense(It.IsAny<Guid>(), It.IsAny<Sense>(), It.IsAny<Sense>(), It.IsAny<IMiniLcmApi>()))
-            .Callback<Guid, Sense, Sense, IMiniLcmApi?>((_, _, a, _) => captured = a)
+            .Callback<Guid, Sense, Sense, IMiniLcmApi?>((_, b, a, _) => { capturedBefore = b; capturedAfter = a; })
             .ReturnsAsync(after);
 
         await _normalizingApi.UpdateSense(entryId, before, after);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertAllNfd(capturedBefore);
+        AssertAllNfd(capturedAfter);
     }
 
     [Fact]
@@ -584,26 +591,27 @@ public class WriteNormalizationTests
     }
 
     [Fact]
-    public async Task UpdateExampleSentence_BeforeAfter_NormalizesToNfd()
+    public async Task UpdateExampleSentence_BeforeAfter_NormalizesBothToNfd()
     {
         var entryId = Guid.NewGuid();
         var senseId = Guid.NewGuid();
         var before = NfcTestData.CreateNfcExampleSentence();
         var after = NfcTestData.CreateNfcExampleSentence();
 
-        ExampleSentence? captured = null;
+        ExampleSentence? capturedBefore = null;
+        ExampleSentence? capturedAfter = null;
         Mock.Get(_mockApi)
             .Setup(api => api.UpdateExampleSentence(
                 It.IsAny<Guid>(), It.IsAny<Guid>(),
                 It.IsAny<ExampleSentence>(), It.IsAny<ExampleSentence>(),
                 It.IsAny<IMiniLcmApi>()))
-            .Callback<Guid, Guid, ExampleSentence, ExampleSentence, IMiniLcmApi?>((_, _, _, a, _) => captured = a)
+            .Callback<Guid, Guid, ExampleSentence, ExampleSentence, IMiniLcmApi?>((_, _, b, a, _) => { capturedBefore = b; capturedAfter = a; })
             .ReturnsAsync(after);
 
         await _normalizingApi.UpdateExampleSentence(entryId, senseId, before, after);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertAllNfd(capturedBefore);
+        AssertAllNfd(capturedAfter);
     }
 
     [Fact]

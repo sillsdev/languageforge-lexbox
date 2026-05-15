@@ -22,12 +22,12 @@ public static class NormalizationAssert
         ],
     };
 
-    public static void AssertAllNfc(object obj)
+    public static void AssertAllNfc(object? obj)
     {
         Assert(obj, NormalizationForm.FormC);
     }
 
-    public static void AssertAllNfd(object obj)
+    public static void AssertAllNfd(object? obj)
     {
         Assert(obj, NormalizationForm.FormD);
     }
@@ -37,8 +37,9 @@ public static class NormalizationAssert
         return FindIssues(obj, NormalizationForm.FormD).Count == 0;
     }
 
-    private static void Assert(object obj, NormalizationForm form)
+    private static void Assert(object? obj, NormalizationForm form)
     {
+        if (obj is null) throw new Xunit.Sdk.XunitException("Expected object to be non-null but was null");
         var issues = FindIssues(obj, form);
         if (issues.Count == 0) return;
         var name = FormName(form);
