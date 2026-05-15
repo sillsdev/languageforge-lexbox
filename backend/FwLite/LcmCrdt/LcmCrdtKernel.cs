@@ -130,9 +130,6 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
-                    //tells linq2db to rewrite Sense.SemanticDomains, into Json.Query(Sense.SemanticDomains)
-                    .Entity<Sense>().Property(s => s.SemanticDomains).HasAttribute(new ExpressionMethodAttribute(SenseSemanticDomainsExpression()))
-                    .Entity<Entry>().Property(e => e.PublishIn).HasAttribute(new ExpressionMethodAttribute(EntryPublishInExpression()))
                     .Entity<RichString>().Member(r => r.GetPlainText()).IsExpression(r => Json.GetPlainText(r))
                     .Entity<Guid>().Member(g => g.ToString()).IsExpression(g => Json.ToString(g))
                     .Build();
@@ -159,18 +156,6 @@ public static class LcmCrdtKernel
         var updateSearchTableInterceptor = provider.GetService<UpdateEntrySearchTableInterceptor>();
         if (updateSearchTableInterceptor is not null)
             builder.AddInterceptors(updateSearchTableInterceptor);
-    }
-
-    private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainsExpression()
-    {
-        //using Sql.Property, otherwise if we used `s.SemanticDomains` again it would be recursively rewritten
-        return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains)));
-    }
-
-    private static Expression<Func<Entry, IQueryable<Publication>>> EntryPublishInExpression()
-    {
-        //using Sql.Property, otherwise if we used `e.PublishIn` again it would be recursively rewritten
-        return e => Json.Query(Sql.Property<IList<Publication>>(e, nameof(Entry.PublishIn)));
     }
 
 
