@@ -99,7 +99,9 @@ public class CrdtCommitServiceTests
                 Counter = 0
             },
             ProjectId = projectId,
-            Metadata = new CommitMetadata(),
+            //Linq2Db v6 + EFCore 10 can't translate `new CommitMetadata()` (empty record + value converter)
+            //inside an InsertAsync projection lambda — wrap it as raw SQL like ChangeEntities below.
+            Metadata = LinqToDB.Sql.Expr<CommitMetadata>("'{}'::jsonb"),
             ChangeEntities = LinqToDB.Sql.Expr<List<ChangeEntity<ServerJsonChange>>>(inlineSql)
         });
         var commits = await _lexBoxDbContext.CrdtCommits(projectId).ToArrayAsync();
