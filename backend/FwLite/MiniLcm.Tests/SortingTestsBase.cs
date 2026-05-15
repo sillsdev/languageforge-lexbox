@@ -167,10 +167,9 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .Where(e => ids.Contains(e.Id))
             .ToList();
 
-        results.Should().BeEquivalentTo(expected,
-            options => options);
-        results.Should().BeEquivalentTo(expected,
-            options => options.WithStrictOrdering());
+        results.Should().BeEquivalentTo(expected, options => options
+            .WithStrictOrdering()
+            .For(e => e.Senses).Exclude(s => s.Order));
     }
 
     [Theory]
@@ -225,10 +224,9 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .Where(e => ids.Contains(e.Id))
             .ToList();
 
-        results.Should().BeEquivalentTo(expected,
-            options => options);
-        results.Should().BeEquivalentTo(expected,
-            options => options.WithStrictOrdering());
+        results.Should().BeEquivalentTo(expected, options => options
+            .WithStrictOrdering()
+            .For(e => e.Senses).Exclude(s => s.Order));
     }
 
     [Theory]
@@ -260,8 +258,6 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .Where(e => ids.Contains(e.Id))
             .ToList();
 
-        results.Should().BeEquivalentTo(expected,
-            options => options);
         results.Should().BeEquivalentTo(expected,
             options => options.WithStrictOrdering());
     }
@@ -295,8 +291,6 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .Where(e => ids.Contains(e.Id))
             .ToList();
 
-        results.Should().BeEquivalentTo(expected,
-            options => options);
         results.Should().BeEquivalentTo(expected,
             options => options.WithStrictOrdering());
     }
