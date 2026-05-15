@@ -13,7 +13,7 @@ public static class TestRoutes
 {
     public static IEndpointConventionBuilder MapTest(this WebApplication app)
     {
-        var group = app.MapGroup("/api/test/{project}").WithOpenApi(operation =>
+        var group = app.MapGroup("/api/test/{project}").AddOpenApiOperationTransformer((operation, _, _) =>
         {
             operation.Parameters?.Add(new OpenApiParameter()
             {
@@ -21,7 +21,7 @@ public static class TestRoutes
                 In = ParameterLocation.Path,
                 Required = true
             });
-            return operation;
+            return Task.CompletedTask;
         });
         group.MapGet("/entries",
             (IMiniLcmApi api) =>

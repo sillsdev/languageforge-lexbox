@@ -11,14 +11,14 @@ public static class FwIntegrationRoutes
 {
     public static IEndpointConventionBuilder MapFwIntegrationRoutes(this WebApplication app)
     {
-        var group = app.MapGroup($"/api/fw/{{{FwDataMiniLcmHub.ProjectRouteKey}}}").WithOpenApi(
-            operation =>
+        var group = app.MapGroup($"/api/fw/{{{FwDataMiniLcmHub.ProjectRouteKey}}}").AddOpenApiOperationTransformer(
+            (operation, _, _) =>
             {
                 operation.Parameters?.Add(new OpenApiParameter()
                 {
                     Name = FwDataMiniLcmHub.ProjectRouteKey, In = ParameterLocation.Path, Required = true
                 });
-                return operation;
+                return Task.CompletedTask;
             });
         group.MapGet("/link/entry/{id}",
             async ([FromServices] FwDataProjectContext context,
