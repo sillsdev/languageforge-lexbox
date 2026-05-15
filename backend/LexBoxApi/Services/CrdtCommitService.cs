@@ -16,26 +16,18 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         await using var transaction = await dbContext.Database.BeginTransactionAsync(token);
         var linqToDbContext = dbContext.CreateLinqToDBContext();
         await using var tmpTable = await linqToDbContext.CreateTempTableAsync<ServerCommit>($"tmp_crdt_commit_import_{projectId}__{Guid.NewGuid()}", cancellationToken: token);
-        await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific, MaxBatchSize = 10}, commits, token);
+        //Stamp ProjectId while streaming so the merge below can be a plain column-to-column copy.
+        //A projection lambda here would let linq2db v6 wrap our Sql.Expr<...>::jsonb cast in the
+        //EF value-converter (JsonSerializer.Serialize) and fail SQL translation.
+        var stampedCommits = commits.Select(c => { c.ProjectId = projectId; return c; });
+        await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific, MaxBatchSize = 10}, stampedCommits, token);
 
         var commitsTable = linqToDbContext.GetTable<ServerCommit>();
         await commitsTable
             .Merge()
             .Using(tmpTable)
             .OnTargetKey()
-            .InsertWhenNotMatched(commit => new ServerCommit(commit.Id)
-            {
-                Id = commit.Id,
-                ClientId = commit.ClientId,
-                HybridDateTime = new HybridDateTime(commit.HybridDateTime.DateTime, commit.HybridDateTime.Counter)
-                {
-                    DateTime = commit.HybridDateTime.DateTime, Counter = commit.HybridDateTime.Counter
-                },
-                ProjectId = projectId,
-                Metadata = commit.Metadata,
-                //without this sql cast the value will be treated as text and fail to insert into the jsonb column
-                ChangeEntities = Sql.Expr<List<ChangeEntity<ServerJsonChange>>>($"{commit.ChangeEntities}::jsonb")
-            })
+            .InsertWhenNotMatched()
             .MergeAsync(token);
 
         await transaction.CommitAsync(token);
