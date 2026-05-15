@@ -36,7 +36,7 @@
     <div class="collapse collapse-arrow">
       <input type="checkbox" />
       <h3 class="collapse-title my-0 px-0 pb-0">
-        {$t('project_page.get_project.instructions_header', { type: project.type, mode: 'manual', isEmpty: 'false' })}...
+        {$t('project_page.get_project.instructions_header', { appName: 'FieldWorks', mode: 'manual', isEmpty: 'false' })}...
       </h3>
       <div class="collapse-content p-0">
         <div class="divider mt-0"></div>

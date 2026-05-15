@@ -375,7 +375,7 @@
                   <div class="prose">
                     <h3>
                       {$t('project_page.get_project.instructions_header', {
-                        type: project.type,
+                        appName: project.type === ProjectType.FlEx ? 'FieldWorks' : project.type === ProjectType.WeSay ? 'WeSay' : '(e.g.) FieldWorks',
                         mode: 'normal',
                         isEmpty: isEmpty.toString(),
                       })}
