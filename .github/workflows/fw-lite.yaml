@@ -68,7 +68,10 @@ jobs:
         run: task fw-lite:has-pending-model-changes -- --no-build
 
       - name: Dotnet test
-        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build -p:BuildAndroid=false
+        # --blame-hang-timeout 5m → dump the hanging test if any single test runs longer than 5 min
+        # --blame-hang-dump-type full → capture a process dump so we can post-mortem the deadlock
+        # console verbosity normal → emit per-test pass lines so we can see which test is slow
+        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --logger "console;verbosity=normal" --no-build -p:BuildAndroid=false --blame-hang-timeout 5m --blame-hang-dump-type full
 
   frontend:
     runs-on: ubuntu-latest
