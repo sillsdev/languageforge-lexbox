@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace MiniLcm.Models;
 
 [JsonConverter(typeof(RichMultiStringConverter))]
-public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary) : IDictionary, IEnumerable<KeyValuePair<WritingSystemId, RichString>>
+public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary) : IDictionary, IDictionary<WritingSystemId, RichString>
 {
     protected readonly IDictionary<WritingSystemId, RichString> dictionary = dictionary;
 
@@ -68,6 +68,11 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
     public bool Contains(KeyValuePair<WritingSystemId, RichString> item)
     {
         return dictionary.Contains(item);
+    }
+
+    public void CopyTo(KeyValuePair<WritingSystemId, RichString>[] array, int arrayIndex)
+    {
+        dictionary.CopyTo(array, arrayIndex);
     }
 
     public bool Remove(KeyValuePair<WritingSystemId, RichString> item)
