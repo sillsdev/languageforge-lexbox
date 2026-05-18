@@ -1,3 +1,10 @@
+# local-dev bundles its own nginx-ingress controller (see ingress-deployment.yaml),
+# so we revert the base ingress to nginx for local development.
+- op: replace
+  path: /spec/ingressClassName
+  value: nginx
+- op: remove
+  path: /metadata/annotations/traefik.ingress.kubernetes.io~1router.tls
 - op: add
 #  ~1 gets replaced with a / in the path
   path: /metadata/annotations/nginx.ingress.kubernetes.io~1ssl-redirect
@@ -5,3 +12,9 @@
 - op: add
   path: /metadata/annotations/cert-manager.io~1cluster-issuer
   value: selfsigned-issuer
+- op: add
+  path: /metadata/annotations/nginx.ingress.kubernetes.io~1proxy-buffer-size
+  value: "16k"
+- op: add
+  path: /metadata/annotations/nginx.ingress.kubernetes.io~1proxy-body-size
+  value: "0"

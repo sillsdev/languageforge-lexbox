@@ -1,3 +1,17 @@
+# Production has not yet migrated to traefik. Until it does, revert the
+# ingressClassName and annotations back to nginx. Remove these ops in the
+# prod traefik-migration PR.
+- op: replace
+  path: /spec/ingressClassName
+  value: nginx
+- op: remove
+  path: /metadata/annotations/traefik.ingress.kubernetes.io~1router.tls
+- op: add
+  path: /metadata/annotations/nginx.ingress.kubernetes.io~1proxy-buffer-size
+  value: "16k"
+- op: add
+  path: /metadata/annotations/nginx.ingress.kubernetes.io~1proxy-body-size
+  value: "0"
 - op: replace
   path: /spec/rules/0/host
   value: languagedepot.org
