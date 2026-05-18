@@ -27,7 +27,11 @@ env:
 jobs:
   build-and-test:
     name: Build FW Lite and run tests
-    timeout-minutes: 40
+    # Bumped 40 -> 60: on .NET 10 the LcmCrdt.Tests step takes substantially
+    # longer than on .NET 9 (some tests that used to fast-fail now run to
+    # completion). Re-investigate when we understand the slowdown; for now
+    # 60 covers Windows-CI variance.
+    timeout-minutes: 60
     runs-on: windows-latest
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
