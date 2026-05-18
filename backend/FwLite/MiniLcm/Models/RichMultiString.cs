@@ -104,6 +104,14 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
         get => dictionary.TryGetValue(key, out var value) ? value : new RichString([]);
         set
         {
+            // SystemTextJsonPatch's DictionaryTypedPropertyProxy casts to IDictionary<TKey, TValue?>
+            // and may pass null (e.g. when an empty-string RichString deserialized to null). Treat
+            // that as a remove, mirroring the explicit IDictionary.this[object] setter below.
+            if (value is null)
+            {
+                dictionary.Remove(key);
+                return;
+            }
             value.EnsureWs(key);
             dictionary[key] = value;
         }
