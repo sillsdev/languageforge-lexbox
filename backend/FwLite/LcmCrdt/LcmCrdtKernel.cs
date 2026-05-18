@@ -130,13 +130,12 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
-                    //Tells linq2db to rewrite Sense.SemanticDomains / Entry.PublishIn as Json.Query(...)
-                    //in queries. Gridify can then parse the projection lambdas in EntryFilterMapProvider
-                    //using bare property access, and linq2db expands to json_each() at translation time.
-                    //Json.QueryInternal has a working client-side body (not throw) so v6's eager-load
-                    //preamble — which may invoke the rewrite client-side — doesn't blow up.
-                    .Entity<Sense>().Property(s => s.SemanticDomains).HasAttribute(new ExpressionMethodAttribute(SenseSemanticDomainsExpression()))
-                    .Entity<Entry>().Property(e => e.PublishIn).HasAttribute(new ExpressionMethodAttribute(EntryPublishInExpression()))
+                    //Lower the shadow properties to json_each form. The rewrite lives on these
+                    //unmapped accessors instead of on the underlying IList<T> columns because v6's
+                    //materializer expands [ExpressionMethod] on mapped properties regardless of
+                    //IsColumn=false (see LINQ2DB-V6-NOTES.md).
+                    .Entity<Sense>().Property(s => s.SemanticDomainRows).IsExpression(SenseSemanticDomainRowsExpression(), isColumn: false)
+                    .Entity<Entry>().Property(e => e.PublishInRows).IsExpression(EntryPublishInRowsExpression(), isColumn: false)
                     .Entity<RichString>().Member(r => r.GetPlainText()).IsExpression(r => Json.GetPlainText(r))
                     .Entity<Guid>().Member(g => g.ToString()).IsExpression(g => Json.ToString(g))
                     .Build();
@@ -165,20 +164,13 @@ public static class LcmCrdtKernel
             builder.AddInterceptors(updateSearchTableInterceptor);
     }
 
-    //TODO when upstream fixes the v6 regression: drop .ToList() from both expressions below and revert
-    //the return type to IQueryable<...>. See LINQ2DB-V6-NOTES.md for context — the ToList() is what
-    //blocks SQL translation of `.Any(...) == null` filter forms but keeps eager-load materialization
-    //working in v6.
-    private static Expression<Func<Sense, IList<SemanticDomain>>> SenseSemanticDomainsExpression()
-    {
-        //using Sql.Property, otherwise if we used `s.SemanticDomains` again it would be recursively rewritten
-        return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains))).ToList();
-    }
+    //Sql.Property (not bare s.SemanticDomains) so the substitution doesn't recurse if the
+    //underlying column ever picks up an [ExpressionMethod] of its own.
+    private static Expression<Func<Sense, IEnumerable<SemanticDomain>>> SenseSemanticDomainRowsExpression()
+        => s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains)));
 
-    private static Expression<Func<Entry, IList<Publication>>> EntryPublishInExpression()
-    {
-        return e => Json.Query(Sql.Property<IList<Publication>>(e, nameof(Entry.PublishIn))).ToList();
-    }
+    private static Expression<Func<Entry, IEnumerable<Publication>>> EntryPublishInRowsExpression()
+        => e => Json.Query(Sql.Property<IList<Publication>>(e, nameof(Entry.PublishIn)));
 
     public static void ConfigureCrdt(CrdtConfig config)
     {

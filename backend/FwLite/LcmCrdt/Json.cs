@@ -52,10 +52,7 @@ public static class Json
 
             if (returnType != typeof(string) && returnType != typeof(RichString))//bypass rich string so it can be used with .GetPlainText()
             {
-                // MakeTryConvert was removed in Linq2Db 6, don't know why.
-                // valueExpression = PseudoFunctions.MakeTryConvert(new SqlDataType(new DbDataType(returnType)),
-                //     new SqlDataType(new DbDataType(typeof(string), DataType.Text)),
-                //     valueExpression);
+                //v6 dropped PseudoFunctions.MakeTryConvert; build the SqlFunction directly instead.
                 valueExpression = new SqlFunction(
                     new DbDataType(returnType),
                     PseudoFunctions.TRY_CONVERT,
@@ -94,6 +91,11 @@ public static class Json
                         else if (mce.Method.Name == nameof(ToString) && (mce.Arguments.Count == 0 || mce.Object is null))
                         {
                             pathBody = mce.Object ?? mce.Arguments[0];
+                        }
+                        else if (mce.Method.DeclaringType == typeof(Sql) && mce.Method.Name == "Alias")
+                        {
+                            //v6 wraps [ExpressionMethod] substitutions in Sql.Alias(real, "<name>"); peel it.
+                            pathBody = mce.Arguments[0];
                         }
                         else
                         {
@@ -197,24 +199,16 @@ public static class Json
 
     //these 2 methods tell linq2db to treat the given property as a table where each row looks like a JsonEach
     //however we don't really care about any other columns and probably want to just use the value, that's what the QueryExpression does above
-    //Linq2Db v6's eager-load preamble applies the [ExpressionMethod]-driven rewrite client-side after
-    //materialization, so the bodies have to actually work — not throw — when invoked over a real list.
-    //TODO when upstream fixes the v6 regression: restore `throw new NotImplementedException(...)` in both
-    //bodies. See LINQ2DB-V6-NOTES.md (sibling of this file).
     [Sql.TableFunction("json_each", argIndices: [0])]
     private static IQueryable<JsonEach<T>> QueryInternal<T>(this IEnumerable<T> value)
     {
-        return value is null
-            ? Enumerable.Empty<JsonEach<T>>().AsQueryable()
-            : value.Select((v, i) => new JsonEach<T>(v, i.ToString(), "", i, "", "")).AsQueryable();
+        throw new NotImplementedException("only supported server side");
     }
 
     [Sql.TableFunction("json_each", argIndices: [0])]
     private static IQueryable<JsonEach<string>> QueryInternal(this MultiString value)
     {
-        return value is null
-            ? Enumerable.Empty<JsonEach<string>>().AsQueryable()
-            : value.Values.Select((kv, i) => new JsonEach<string>(kv.Value, kv.Key.Code, "", i, "", "")).AsQueryable();
+        throw new NotImplementedException("only supported server side");
     }
 
     [Sql.Expression("(select group_concat(s.value->>'Text', '') from json_each({0}->>'Spans') as s)", PreferServerSide = true)]

@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+
 namespace MiniLcm.Models;
 
 public record Entry : IObjectWithId<Entry>
@@ -28,6 +31,11 @@ public record Entry : IObjectWithId<Entry>
     public virtual List<ComplexFormType> ComplexFormTypes { get; set; } = [];
 
     public virtual List<Publication> PublishIn { get; set; } = [];
+
+    //Server-side query rewrite target — LcmCrdt lowers this to json_each(PublishIn) at query time.
+    //Don't read from client code; use PublishIn. See LINQ2DB-V6-NOTES.md.
+    [NotMapped, JsonIgnore]
+    public IEnumerable<Publication> PublishInRows => PublishIn;
 
     public const string UnknownHeadword = "(Unknown)";
 
