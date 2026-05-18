@@ -73,6 +73,14 @@ jobs:
         # console verbosity normal → emit per-test pass lines so we can see which test is slow
         run: dotnet test FwLiteOnly.slnf --logger GitHubActions --logger "console;verbosity=normal" --no-build -p:BuildAndroid=false --blame-hang-timeout 5m --blame-hang-dump-type full
 
+      - name: Upload test hang dumps
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-hang-dumps
+          path: backend/FwLite/**/TestResults/**/*.dmp
+          if-no-files-found: ignore
+
   frontend:
     runs-on: ubuntu-latest
     steps:
