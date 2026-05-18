@@ -16,7 +16,7 @@ namespace LcmCrdt.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
 
             modelBuilder.Entity("LcmCrdt.FullTextSearch.EntrySearchRecord", b =>
                 {
@@ -89,7 +89,7 @@ namespace LcmCrdt.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectData", (string)null);
+                    b.ToTable("ProjectData");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.ComplexFormComponent", b =>
@@ -164,7 +164,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("ComplexFormType", (string)null);
+                    b.ToTable("ComplexFormType");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.CustomView", b =>
@@ -209,7 +209,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("CustomView", (string)null);
+                    b.ToTable("CustomView");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.Entry", b =>
@@ -256,7 +256,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("Entry", (string)null);
+                    b.ToTable("Entry");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.ExampleSentence", b =>
@@ -295,7 +295,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("ExampleSentence", (string)null);
+                    b.ToTable("ExampleSentence");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.MorphType", b =>
@@ -342,7 +342,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("MorphType", (string)null);
+                    b.ToTable("MorphType");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.PartOfSpeech", b =>
@@ -369,7 +369,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("PartOfSpeech", (string)null);
+                    b.ToTable("PartOfSpeech");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.Publication", b =>
@@ -393,7 +393,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("Publication", (string)null);
+                    b.ToTable("Publication");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.SemanticDomain", b =>
@@ -424,7 +424,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("SemanticDomain", (string)null);
+                    b.ToTable("SemanticDomain");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.Sense", b =>
@@ -469,7 +469,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("Sense", (string)null);
+                    b.ToTable("Sense");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.WritingSystem", b =>
@@ -518,7 +518,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("WsId", "Type")
                         .IsUnique();
 
-                    b.ToTable("WritingSystem", (string)null);
+                    b.ToTable("WritingSystem");
                 });
 
             modelBuilder.Entity("SIL.Harmony.Commit", b =>
@@ -542,7 +542,7 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "HybridDateTime", "SIL.Harmony.Commit.HybridDateTime#HybridDateTime", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("HybridDateTime", "SIL.Harmony.Commit.HybridDateTime#HybridDateTime", b1 =>
                         {
                             b1.IsRequired();
 
@@ -631,7 +631,7 @@ namespace LcmCrdt.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LocalResource", (string)null);
+                    b.ToTable("LocalResource");
                 });
 
             modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource", b =>
@@ -654,7 +654,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("RemoteResource", (string)null);
+                    b.ToTable("RemoteResource");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.ComplexFormComponent", b =>

@@ -38,14 +38,9 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
 
     void IDictionary.Add(object key, object? value)
     {
-        //SystemTextJsonPatch v5 hands us the raw JsonElement; deserialize so PocoAdapter callers work.
-        var valStr = value switch
-        {
-            RichString rs => rs,
-            JsonElement je => je.Deserialize<RichString>()
-                              ?? throw new ArgumentException("unable to deserialize JsonElement to RichString", nameof(value)),
-            _ => throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to RichString", nameof(value))
-        };
+        var valStr = value as RichString ??
+                     throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to RichString",
+                         nameof(value));
         Add(WritingSystemId.FromUnknown(key), valStr);
     }
 

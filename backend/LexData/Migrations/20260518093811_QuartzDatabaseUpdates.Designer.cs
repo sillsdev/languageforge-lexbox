@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LexData.Migrations
 {
     [DbContext(typeof(LexBoxDbContext))]
-    [Migration("20260514035126_QuartzDatabaseUpdates")]
+    [Migration("20260518093811_QuartzDatabaseUpdates")]
     partial class QuartzDatabaseUpdates
     {
         /// <inheritdoc />
@@ -22,7 +22,7 @@ namespace LexData.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False")
-                .HasAnnotation("ProductVersion", "10.0.7")
+                .HasAnnotation("ProductVersion", "9.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -1086,7 +1086,7 @@ namespace LexData.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "HybridDateTime", "SIL.Harmony.Core.ServerCommit.HybridDateTime#HybridDateTime", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("HybridDateTime", "SIL.Harmony.Core.ServerCommit.HybridDateTime#HybridDateTime", b1 =>
                         {
                             b1.IsRequired();
 
@@ -1179,7 +1179,8 @@ namespace LexData.Migrations
 
                     b.OwnsOne("LexCore.Entities.ProjectWritingSystems", "WritingSystems", b1 =>
                         {
-                            b1.Property<Guid>("FlexProjectMetadataProjectId");
+                            b1.Property<Guid>("FlexProjectMetadataProjectId")
+                                .HasColumnType("uuid");
 
                             b1.HasKey("FlexProjectMetadataProjectId");
 
@@ -1194,17 +1195,22 @@ namespace LexData.Migrations
 
                             b1.OwnsMany("LexCore.Entities.FLExWsId", "AnalysisWss", b2 =>
                                 {
-                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId");
+                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
+                                        .HasColumnType("uuid");
 
                                     b2.Property<int>("__synthesizedOrdinal")
-                                        .ValueGeneratedOnAdd();
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
 
-                                    b2.Property<bool>("IsActive");
+                                    b2.Property<bool>("IsActive")
+                                        .HasColumnType("boolean");
 
-                                    b2.Property<bool>("IsDefault");
+                                    b2.Property<bool>("IsDefault")
+                                        .HasColumnType("boolean");
 
                                     b2.Property<string>("Tag")
-                                        .IsRequired();
+                                        .IsRequired()
+                                        .HasColumnType("text");
 
                                     b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "__synthesizedOrdinal");
 
@@ -1216,17 +1222,22 @@ namespace LexData.Migrations
 
                             b1.OwnsMany("LexCore.Entities.FLExWsId", "VernacularWss", b2 =>
                                 {
-                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId");
+                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
+                                        .HasColumnType("uuid");
 
                                     b2.Property<int>("__synthesizedOrdinal")
-                                        .ValueGeneratedOnAdd();
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
 
-                                    b2.Property<bool>("IsActive");
+                                    b2.Property<bool>("IsActive")
+                                        .HasColumnType("boolean");
 
-                                    b2.Property<bool>("IsDefault");
+                                    b2.Property<bool>("IsDefault")
+                                        .HasColumnType("boolean");
 
                                     b2.Property<string>("Tag")
-                                        .IsRequired();
+                                        .IsRequired()
+                                        .HasColumnType("text");
 
                                     b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "__synthesizedOrdinal");
 

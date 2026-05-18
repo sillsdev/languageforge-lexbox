@@ -1,7 +1,7 @@
 using LexData.Configuration;
 using LinqToDB;
-using LinqToDB.EntityFrameworkCore;
 using LinqToDB.AspNet.Logging;
+using LinqToDB.EntityFrameworkCore;
 using LinqToDB.Mapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

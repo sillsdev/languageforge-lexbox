@@ -45,6 +45,7 @@ builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalO
         {
             //never emit traces for sqlite as there's way too much noise and it'll crash servers and overrun honeycomb
             c.Filter = (provider, command) => provider is not "Microsoft.EntityFrameworkCore.Sqlite";
+            c.SetDbStatementForText = true;
         })
         .AddSource(FwHeadlessActivitySource.ActivitySourceName,
             FwLiteProjectSyncActivitySource.ActivitySourceName,
