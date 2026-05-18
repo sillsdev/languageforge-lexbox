@@ -11,9 +11,10 @@
     delayMs?: Duration | number;
     size?: 'btn-sm';
     outline?: boolean;
+    join?: boolean;
   }
 
-  const { textToCopy, delayMs = Duration.Default, size, outline = true }: Props = $props();
+  const { textToCopy, delayMs = Duration.Default, size, outline = true, join = false }: Props = $props();
 
   async function copyToClipboard(): Promise<void> {
     copyingToClipboard = true;
@@ -31,6 +32,7 @@
       fake
       icon="i-mdi-check"
       {size}
+      {join}
       variant={outline ? undefined : 'btn-ghost'}
       class={outline ? 'btn-success' : 'text-success'}
     />
@@ -40,6 +42,7 @@
     loading={copyingToClipboard}
     icon="i-mdi-content-copy"
     {size}
+    {join}
     variant={outline ? undefined : 'btn-ghost'}
     onclick={copyToClipboard}
   />
