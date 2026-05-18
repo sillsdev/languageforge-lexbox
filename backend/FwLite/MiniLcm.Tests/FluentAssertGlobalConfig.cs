@@ -1,5 +1,3 @@
-using FluentAssertions;
-using FluentAssertions.Equivalency;
 using FluentAssertions.Extensibility;
 using MiniLcm.Tests;
 
@@ -11,7 +9,7 @@ public static class FluentAssertGlobalConfig
 {
     public static void Initialize()
     {
-        AssertionConfiguration.Current.Equivalency.Modify(options => options
+        AssertionOptions.AssertEquivalencyUsing(options => options
             //by default, assertion will use the overriden equality function
             //however that will result in very poor error messages, so we override it
             .ComparingByMembers<RichString>()

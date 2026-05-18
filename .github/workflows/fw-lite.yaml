@@ -27,11 +27,7 @@ env:
 jobs:
   build-and-test:
     name: Build FW Lite and run tests
-    # Bumped 40 -> 60: on .NET 10 the LcmCrdt.Tests step takes substantially
-    # longer than on .NET 9 (some tests that used to fast-fail now run to
-    # completion). Re-investigate when we understand the slowdown; for now
-    # 60 covers Windows-CI variance.
-    timeout-minutes: 60
+    timeout-minutes: 40
     runs-on: windows-latest
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
@@ -68,18 +64,7 @@ jobs:
         run: task fw-lite:has-pending-model-changes -- --no-build
 
       - name: Dotnet test
-        # --blame-hang-timeout 15m → dump if any single test runs longer than 15 min
-        # --blame-hang-dump-type full → capture a process dump so we can post-mortem the deadlock
-        # console verbosity normal → emit per-test pass lines so we can see which test is slow
-        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --logger "console;verbosity=normal" --no-build -p:BuildAndroid=false --blame-hang-timeout 15m --blame-hang-dump-type full
-
-      - name: Upload test hang dumps
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-hang-dumps
-          path: backend/FwLite/**/TestResults/**/*.dmp
-          if-no-files-found: ignore
+        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build -p:BuildAndroid=false
 
   frontend:
     runs-on: ubuntu-latest
