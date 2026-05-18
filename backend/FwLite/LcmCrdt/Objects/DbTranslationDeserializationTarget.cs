@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using LinqToDB.Internal.Common;
+using LinqToDB.Common;
 
 namespace LcmCrdt.Objects;
 

@@ -12,9 +12,9 @@ using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LcmCrdt.RemoteSync;
 using LinqToDB;
+using LinqToDB.AspNet.Logging;
 using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
-using LinqToDB.Extensions.Logging;
 using LinqToDB.Mapping;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -130,11 +130,7 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
-                    //Tells linq2db to rewrite Sense.SemanticDomains / Entry.PublishIn as Json.Query(...)
-                    //in queries. Gridify can then parse the projection lambdas in EntryFilterMapProvider
-                    //using bare property access, and linq2db expands to json_each() at translation time.
-                    //Json.QueryInternal has a working client-side body (not throw) so v6's eager-load
-                    //preamble — which may invoke the rewrite client-side — doesn't blow up.
+                    //tells linq2db to rewrite Sense.SemanticDomains, into Json.Query(Sense.SemanticDomains)
                     .Entity<Sense>().Property(s => s.SemanticDomains).HasAttribute(new ExpressionMethodAttribute(SenseSemanticDomainsExpression()))
                     .Entity<Entry>().Property(e => e.PublishIn).HasAttribute(new ExpressionMethodAttribute(EntryPublishInExpression()))
                     .Entity<RichString>().Member(r => r.GetPlainText()).IsExpression(r => Json.GetPlainText(r))
@@ -143,7 +139,7 @@ public static class LcmCrdtKernel
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
                 optionsBuilder.AddMappingSchema(mappingSchema);
-                optionsBuilder.AddCustomOptions(options => options.UseSQLite());
+                optionsBuilder.AddCustomOptions(options => options.UseSQLiteMicrosoft());
 
                 // Register read-relevant interceptors for LinqToDB
                 var sqliteFunctionInterceptor = new CustomSqliteFunctionInterceptor();
@@ -165,20 +161,18 @@ public static class LcmCrdtKernel
             builder.AddInterceptors(updateSearchTableInterceptor);
     }
 
-    //TODO when upstream fixes the v6 regression: drop .ToList() from both expressions below and revert
-    //the return type to IQueryable<...>. See LINQ2DB-V6-NOTES.md for context — the ToList() is what
-    //blocks SQL translation of `.Any(...) == null` filter forms but keeps eager-load materialization
-    //working in v6.
-    private static Expression<Func<Sense, IList<SemanticDomain>>> SenseSemanticDomainsExpression()
+    private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainsExpression()
     {
         //using Sql.Property, otherwise if we used `s.SemanticDomains` again it would be recursively rewritten
-        return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains))).ToList();
+        return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains)));
     }
 
-    private static Expression<Func<Entry, IList<Publication>>> EntryPublishInExpression()
+    private static Expression<Func<Entry, IQueryable<Publication>>> EntryPublishInExpression()
     {
-        return e => Json.Query(Sql.Property<IList<Publication>>(e, nameof(Entry.PublishIn))).ToList();
+        //using Sql.Property, otherwise if we used `e.PublishIn` again it would be recursively rewritten
+        return e => Json.Query(Sql.Property<IList<Publication>>(e, nameof(Entry.PublishIn)));
     }
+
 
     public static void ConfigureCrdt(CrdtConfig config)
     {
@@ -269,7 +263,7 @@ public static class LcmCrdtKernel
                         list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => JsonSerializer.Deserialize<ViewField[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<ViewField>());
 
-                var writingSystemArrayConverter = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<ViewWritingSystem[]?, string?>(
+                var writingSystemArrayConverter = new ValueConverter<ViewWritingSystem[]?, string?>(
                     list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                     json => json == null ? null : JsonSerializer.Deserialize<ViewWritingSystem[]>(json, (JsonSerializerOptions?)null));
                 builder.Property(v => v.Vernacular)

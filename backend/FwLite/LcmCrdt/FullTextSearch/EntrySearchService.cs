@@ -1,7 +1,6 @@
 using System.Text;
 using LcmCrdt.Data;
 using LinqToDB;
-using LinqToDB.Async;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.SQLite;
 using LinqToDB.EntityFrameworkCore;
@@ -224,12 +223,16 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     private static async Task InsertOrUpdateEntrySearchRecord(EntrySearchRecord record, ITable<EntrySearchRecord> table)
     {
-        // Can't use table.InsertOrUpdateAsync here because EntrySearchRecord is a virtual table,
-        // and SQLite doesn't support UPSERT statements on virtual tables. Instead, we have to
-        // use the same DELETE+INSERT approach that Linq2DB 5 used to use (Linq2DB 6 changed this
-        // to a proper UPSERT, which is the correct approach most of the time... except here)
-        await table.DeleteAsync(e => e.Id == record.Id);
-        await table.InsertAsync(() => new EntrySearchRecord()
+        await table.InsertOrUpdateAsync(() => new EntrySearchRecord()
+        {
+            Id = record.Id,
+            Headword = record.Headword,
+            LexemeForm = record.LexemeForm,
+            CitationForm = record.CitationForm,
+            Definition = record.Definition,
+            Gloss = record.Gloss,
+        },
+        exiting => new EntrySearchRecord()
         {
             Id = record.Id,
             Headword = record.Headword,
@@ -267,7 +270,6 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         foreach (var entrySearchRecord in searchRecords)
         {
             //can't use bulk copy here because that creates duplicate rows
-            //TODO: Replace this with a bulk delete followed by a bulk copy, it should be faster - 2026-05 RM
             await InsertOrUpdateEntrySearchRecord(entrySearchRecord, entrySearchRecordsTable);
         }
 

@@ -9,7 +9,7 @@
     <PackageReference Include="Gridify.EntityFramework" />
     <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="linq2db.EntityFrameworkCore" />
-    <PackageReference Include="linq2db.Extensions" />
+    <PackageReference Include="linq2db.AspNet" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

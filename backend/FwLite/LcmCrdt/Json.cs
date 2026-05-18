@@ -3,8 +3,7 @@ using System.Reflection;
 using System.Text.Json.Serialization.Metadata;
 using LcmCrdt.Changes;
 using LinqToDB;
-using LinqToDB.Internal.Common;
-using LinqToDB.Internal.SqlQuery;
+using LinqToDB.Common;
 using LinqToDB.Mapping;
 using LinqToDB.SqlQuery;
 using SIL.Harmony;
@@ -15,7 +14,7 @@ public static class Json
 {
     sealed class JsonValuePathBuilder : Sql.IExtensionCallBuilder
     {
-        public void Build(Sql.ISqlExtensionBuilder builder)
+        public void Build(Sql.ISqExtensionBuilder builder)
         {
             var propExpression = builder.GetExpression(0);
 
@@ -43,7 +42,7 @@ public static class Json
 
             parameters.Insert(0, propExpression);
 
-            var valueExpression = (ISqlExpression)new SqlExpression(new DbDataType(typeof(string)),
+            var valueExpression = (ISqlExpression)new SqlExpression(typeof(string),
                 expressionStr,
                 Precedence.Primary,
                 parameters.ToArray());
@@ -52,15 +51,7 @@ public static class Json
 
             if (returnType != typeof(string) && returnType != typeof(RichString))//bypass rich string so it can be used with .GetPlainText()
             {
-                // MakeTryConvert was removed in Linq2Db 6, don't know why.
-                // valueExpression = PseudoFunctions.MakeTryConvert(new SqlDataType(new DbDataType(returnType)),
-                //     new SqlDataType(new DbDataType(typeof(string), DataType.Text)),
-                //     valueExpression);
-                valueExpression = new SqlFunction(
-                    new DbDataType(returnType),
-                    PseudoFunctions.TRY_CONVERT,
-                    canBeNull: true,
-                    new SqlDataType(new DbDataType(returnType)),
+                valueExpression = PseudoFunctions.MakeTryConvert(new SqlDataType(new DbDataType(returnType)),
                     new SqlDataType(new DbDataType(typeof(string), DataType.Text)),
                     valueExpression);
             }
@@ -70,7 +61,7 @@ public static class Json
 
         private static void BuildParameterPath(Expression? pathBody,
             List<ISqlExpression> parameters,
-            Sql.ISqlExtensionBuilder builder)
+            Sql.ISqExtensionBuilder builder)
         {
             while (pathBody is MemberExpression or MethodCallExpression or UnaryExpression)
             {
@@ -197,24 +188,16 @@ public static class Json
 
     //these 2 methods tell linq2db to treat the given property as a table where each row looks like a JsonEach
     //however we don't really care about any other columns and probably want to just use the value, that's what the QueryExpression does above
-    //Linq2Db v6's eager-load preamble applies the [ExpressionMethod]-driven rewrite client-side after
-    //materialization, so the bodies have to actually work — not throw — when invoked over a real list.
-    //TODO when upstream fixes the v6 regression: restore `throw new NotImplementedException(...)` in both
-    //bodies. See LINQ2DB-V6-NOTES.md (sibling of this file).
     [Sql.TableFunction("json_each", argIndices: [0])]
     private static IQueryable<JsonEach<T>> QueryInternal<T>(this IEnumerable<T> value)
     {
-        return value is null
-            ? Enumerable.Empty<JsonEach<T>>().AsQueryable()
-            : value.Select((v, i) => new JsonEach<T>(v, i.ToString(), "", i, "", "")).AsQueryable();
+        throw new NotImplementedException("only supported server side");
     }
 
     [Sql.TableFunction("json_each", argIndices: [0])]
     private static IQueryable<JsonEach<string>> QueryInternal(this MultiString value)
     {
-        return value is null
-            ? Enumerable.Empty<JsonEach<string>>().AsQueryable()
-            : value.Values.Select((kv, i) => new JsonEach<string>(kv.Value, kv.Key.Code, "", i, "", "")).AsQueryable();
+        throw new NotImplementedException("only supported server side");
     }
 
     [Sql.Expression("(select group_concat(s.value->>'Text', '') from json_each({0}->>'Spans') as s)", PreferServerSide = true)]
