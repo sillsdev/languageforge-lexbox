@@ -1,5 +1,7 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using MiniLcm.Attributes;
 
 namespace MiniLcm.Models;
 
@@ -33,8 +35,10 @@ public record Entry : IObjectWithId<Entry>
     public virtual List<Publication> PublishIn { get; set; } = [];
 
     //Server-side query rewrite target — LcmCrdt lowers this to json_each(PublishIn) at query time.
-    //Don't read from client code; use PublishIn. See LINQ2DB-V6-NOTES.md.
-    [NotMapped, JsonIgnore]
+    //Public only because the LcmCrdt filter map provider lives in a different assembly; treat as
+    //internal. Hidden from IntelliSense, JSON, EF column mapping, and FA equivalency.
+    //See LINQ2DB-V6-NOTES.md.
+    [MiniLcmInternal, NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)]
     public IEnumerable<Publication> PublishInRows => PublishIn;
 
     public const string UnknownHeadword = "(Unknown)";
