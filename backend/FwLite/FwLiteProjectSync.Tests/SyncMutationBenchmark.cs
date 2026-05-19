@@ -24,7 +24,7 @@ namespace FwLiteProjectSync.Tests;
 public class SyncMutationBenchmark(Sena3Fixture fixture, ITestOutputHelper output)
 {
     [Fact]
-    public void Sync_AfterMutations_Sena3()
+    public async Task Sync_AfterMutations_Sena3()
     {
         MutationSyncBench.Fixture = fixture;
 #if DEBUG
@@ -36,7 +36,7 @@ public class SyncMutationBenchmark(Sena3Fixture fixture, ITestOutputHelper outpu
         {
             bench.Profile = profile;
             bench.IterationSetup();
-            try { _ = bench.SyncAfterMutations(); }
+            try { _ = await bench.SyncAfterMutations(); }
             finally { bench.IterationCleanup(); }
         }
 #else
@@ -119,9 +119,9 @@ public class MutationSyncBench
     }
 
     [Benchmark]
-    public SyncResult SyncAfterMutations()
+    public async Task<SyncResult> SyncAfterMutations()
     {
-        return _syncService.Sync(_project.CrdtApi, _project.FwDataApi, _projectSnapshot).Result;
+        return await _syncService.Sync(_project.CrdtApi, _project.FwDataApi, _projectSnapshot);
     }
 
     [IterationCleanup]

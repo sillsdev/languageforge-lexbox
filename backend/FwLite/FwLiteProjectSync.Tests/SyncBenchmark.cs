@@ -21,7 +21,7 @@ namespace FwLiteProjectSync.Tests;
 public class SyncBenchmark(Sena3Fixture fixture, ITestOutputHelper output)
 {
     [Fact]
-    public void First_Sync_Sena3()
+    public async Task First_Sync_Sena3()
     {
         FirstSyncBench.Fixture = fixture;
 #if DEBUG
@@ -30,7 +30,7 @@ public class SyncBenchmark(Sena3Fixture fixture, ITestOutputHelper output)
         output.WriteLine("Debug build: running once for coverage; threshold enforced in Release only.");
         var bench = new FirstSyncBench();
         bench.IterationSetup();
-        try { _ = bench.SyncFromEmpty(); }
+        try { _ = await bench.SyncFromEmpty(); }
         finally { bench.IterationCleanup(); }
 #else
         using var scope = new AssertionScope();
@@ -47,7 +47,8 @@ public class SyncBenchmark(Sena3Fixture fixture, ITestOutputHelper output)
     }
 }
 
-// BenchmarkDotNet has no async support. .Result is intentional and will not deadlock.
+// BenchmarkDotNet doesn't support async [IterationSetup]/[IterationCleanup] signatures,
+// so GetAwaiter().GetResult() below is intentional.
 #pragma warning disable VSTHRD002
 
 public class FirstSyncBench
@@ -77,9 +78,9 @@ public class FirstSyncBench
     }
 
     [Benchmark]
-    public SyncResult SyncFromEmpty()
+    public async Task<SyncResult> SyncFromEmpty()
     {
-        return _syncService.Sync(_project.CrdtApi, _project.FwDataApi, _projectSnapshot).Result;
+        return await _syncService.Sync(_project.CrdtApi, _project.FwDataApi, _projectSnapshot);
     }
 
     [IterationCleanup]
