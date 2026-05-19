@@ -108,15 +108,13 @@ public class CurrentProjectService(
                 await using var dbContext = await DbContextFactory.CreateDbContextAsync();
                 await dbContext.Database.MigrateAsync();
 
-                // Seed morph-types if missing (for existing projects created before morph-type support).
+                // Seed morph-types for projects created before morph-type support.
+                // AddChanges is idempotent on the seed commit-id (Harmony short-circuits in-lock),
+                // so we call it unconditionally rather than racing a pre-check against concurrent seeders.
                 // Must happen BEFORE FTS regeneration so headwords include morph-type tokens.
-                // (querying Commits instead of MorphTypes, because the commit may not be projected yet)
-                if (!await dbContext.Set<Commit>().AsNoTracking().AnyAsync(c => c.Id == PreDefinedData.MorphTypesSeedCommitId))
-                {
-                    var dataModel = services.GetRequiredService<DataModel>();
-                    var projectData = await dbContext.ProjectData.AsNoTracking().FirstAsync();
-                    await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData.ClientId);
-                }
+                var dataModel = services.GetRequiredService<DataModel>();
+                var projectData = await dbContext.ProjectData.AsNoTracking().FirstAsync();
+                await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData.ClientId);
 
                 if (EntrySearchServiceFactory is not null)
                 {
