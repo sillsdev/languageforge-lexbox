@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm.Models;
 using MiniLcm.Normalization;
+using MiniLcm.Wrappers;
 
 namespace MiniLcm.Validators;
 
@@ -91,7 +92,9 @@ public static class MiniLcmValidatorsExtensions
         services.AddTransient<IValidator<Publication>, PublicationValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<MorphType>>, MorphTypeUpdateValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<WritingSystem>>, WritingSystemUpdateValidator>();
-        services.AddTransient<MiniLcmApiStringNormalizationWrapperFactory>();
+        services.AddTransient<MiniLcmApiQueryNormalizationWrapperFactory>();
+        services.AddTransient<MiniLcmApiWriteNormalizationWrapperFactory>();
+        services.AddTransient<MiniLcmApiUserFacingWrappers>();
         return services;
     }
 }
