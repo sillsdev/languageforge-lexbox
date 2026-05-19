@@ -333,7 +333,9 @@ jobs:
         run: |
           dotnet publish -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/msix
-          cp ../artifacts/bin/FwLiteMaui/*/AppPackages/*/*.msix ../artifacts/msix/
+          # MAUI 10's MSIX packaging targets ignore --artifacts-path and write AppPackages
+          # relative to the project directory, so source from there.
+          cp AppPackages/*/*.msix ../artifacts/msix/
 
       - name: Bundle MSIX
         working-directory: backend/FwLite/artifacts/msix
