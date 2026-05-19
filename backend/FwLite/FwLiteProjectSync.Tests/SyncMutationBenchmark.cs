@@ -69,21 +69,21 @@ public class MutationSyncBench
 {
     public static readonly IReadOnlyDictionary<string, double> ThresholdSecondsByProfile = new Dictionary<string, double>
     {
-        // CI baseline (no index):      mean 52.40s, StdDev 1.51s (low variance) => 61s (~5σ above mean)
-        // CI with commits order index: mean 50.49s, StdDev 0.87s (low variance) => 61s (~12σ above mean — kept generous, run-to-run drift can be ~3s here)
-        ["component-heavy"] = 61.0,
-        // CI baseline (no index):      mean 87.02s, StdDev 3.85s (medium variance) => 97s (~3σ above mean)
-        // CI with commits order index: mean 87.92s, StdDev 1.42s (low variance)    => 97s (~6σ above mean — kept generous, run-to-run drift can be ~2s here)
-        ["delete-heavy"] = 97.0,
-        // CI baseline (no index):      mean 32.99s, StdDev 0.77s (low variance) => 38s (~7σ above mean)
-        // CI with commits order index: mean 32.95s, StdDev 1.08s (low variance) => 38s (~5σ above mean)
-        ["mixed-realistic"] = 38.0,
-        // CI baseline (no index):      mean 4.52s, StdDev 0.08s (low variance) => 5s (generous margin since it's already pretty fast and we want to avoid false positives from noise)
-        // CI with commits order index: mean 3.53s, StdDev 0.10s (low variance) => 5s (pretty fast, so meh — same margin works)
-        ["patch-heavy"] = 5.0,
+        // CI baseline (no index):      mean 52.40s, StdDev 1.51s (med variance) => 60s (~15%)
+        // CI with commits order index: mean 50.49s, StdDev 0.87s (low variance) => 55s (~10%)
+        ["component-heavy"] = 55.0,
+        // CI baseline (no index):      mean 87.02s, StdDev 3.85s (hi variance)  => 100s (~15%)
+        // CI with commits order index: mean 87.92s, StdDev 1.42s (med variance) => 100s (~15%)
+        ["delete-heavy"] = 100.0,
+        // CI baseline (no index):      mean 32.99s, StdDev 0.77s (low variance) => 36s (~10%)
+        // CI with commits order index: mean 32.95s, StdDev 1.08s (low variance) => 36s (~10%)
+        ["mixed-realistic"] = 36.0,
+        // CI baseline (no index):      mean 4.52s, StdDev 0.08s (low variance) => 5s (~10%)
+        // CI with commits order index: mean 3.53s, StdDev 0.10s (low variance) => 4s (~10%)
+        ["patch-heavy"] = 4.0,
         // CI baseline (no index):      mean 0.69s, StdDev 0.08s (low variance)  => 2s (super fast, so meh)
-        // CI with commits order index: mean 0.57s, StdDev 0.05s (low variance)  => 2s (super fast, so meh)
-        ["reorder-heavy"] = 2.0,
+        // CI with commits order index: mean 0.57s, StdDev 0.05s (low variance)  => 1.5s (super fast, so meh)
+        ["reorder-heavy"] = 1.5,
     };
 
     public static IEnumerable<string> Profiles => ThresholdSecondsByProfile.Keys;
