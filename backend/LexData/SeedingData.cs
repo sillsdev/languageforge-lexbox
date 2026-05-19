@@ -252,7 +252,7 @@ public class SeedingData(
     public async Task SeedOAuth(CancellationToken token = default)
     {
         var dbApps = await applicationManager.ListAsync(cancellationToken: token)
-            .ToDictionaryAwaitAsync(async app => await applicationManager.GetClientIdAsync(app, token) ?? throw new InvalidOperationException("ClientId is null"), token);
+            .ToDictionaryAsync(async (object app, CancellationToken ct) => await applicationManager.GetClientIdAsync(app, ct) ?? throw new InvalidOperationException("ClientId is null"), cancellationToken: token);
         var seedApps = OAuthApps;
         foreach (var clientId in dbApps.Keys.Union(seedApps.Keys))
         {

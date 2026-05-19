@@ -22,8 +22,8 @@ public class DbError
     {
         return exception switch
         {
-            { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "IX_Projects_Code" } => new DbError($"{exception.TableName.Humanize().Singularize(false)} already exists", DbErrorCode.DuplicateProjectCode),
-            { SqlState: PostgresErrorCodes.UniqueViolation } => new DbError($"{exception.TableName.Humanize().Singularize(false)} already exists", DbErrorCode.Duplicate),
+            { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "IX_Projects_Code" } => new DbError($"{exception.TableName?.Humanize().Singularize(false)} already exists", DbErrorCode.DuplicateProjectCode),
+            { SqlState: PostgresErrorCodes.UniqueViolation } => new DbError($"{exception.TableName?.Humanize().Singularize(false)} already exists", DbErrorCode.Duplicate),
             _ => new DbError(exception.Message)
         };
     }

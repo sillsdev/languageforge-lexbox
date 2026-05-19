@@ -10,7 +10,7 @@ public class AuthService(LexboxProjectService lexboxProjectService, OAuthClientF
     [JSInvokable]
     public async Task<ServerStatus[]> Servers()
     {
-        return await lexboxProjectService.Servers().ToAsyncEnumerable().SelectAwait(async s =>
+        return await lexboxProjectService.Servers().ToAsyncEnumerable().Select(async (LexboxServer s, CancellationToken _) =>
         {
             var currentName = await clientFactory.GetClient(s).GetCurrentName();
             return new ServerStatus(s.DisplayName,
