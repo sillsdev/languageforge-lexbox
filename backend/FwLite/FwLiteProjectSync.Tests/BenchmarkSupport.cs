@@ -13,8 +13,9 @@ namespace FwLiteProjectSync.Tests;
 internal static class BenchmarkSupport
 {
     /// <summary>
-    /// Standard config for sync benchmarks: in-process toolchain, cold iterations, and a logger
-    /// that pipes the BDN summary table into xUnit's test output.
+    /// Standard config for sync benchmarks: in-process toolchain, one warmup + four measurement
+    /// iterations (Monitoring strategy), and a logger that pipes the BDN summary table into
+    /// xUnit's test output.
     /// </summary>
     /// <remarks>
     /// The in-process toolchain is what lets a benchmark class read a static field set by its
@@ -25,14 +26,20 @@ internal static class BenchmarkSupport
     /// for multi-iteration sync benchmarks (e.g. delete-heavy alone is ~80s/iter and full-import
     /// setup adds ~50s/iter, so 5 iterations need ~11 min). 30 min covers the worst case with
     /// headroom.
+    ///
+    /// Monitoring + WarmupCount=1 means iteration 1 absorbs JIT + EF model build + first-touch
+    /// file cache and is discarded; iterations 2-5 are measured. ColdStart would skip warmup
+    /// entirely; for these slow ops the JIT/model-build noise in iteration 1 is large enough
+    /// that one discarded warmup tightens StdDev meaningfully without changing total CI time.
     /// </remarks>
     public static IConfig ConfigFor(ITestOutputHelper output)
     {
         var toolchain = new InProcessNoEmitToolchain(TimeSpan.FromMinutes(30), logOutput: false);
         return ManualConfig.CreateEmpty()
             .AddJob(Job.Default
-                .WithStrategy(RunStrategy.ColdStart)
-                .WithIterationCount(5)
+                .WithStrategy(RunStrategy.Monitoring)
+                .WithWarmupCount(1)
+                .WithIterationCount(4)
                 .WithToolchain(toolchain))
             .AddExporter(JsonExporter.FullCompressed)
             .AddColumnProvider(DefaultColumnProviders.Instance)
