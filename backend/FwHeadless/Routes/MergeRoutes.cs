@@ -18,7 +18,7 @@ public static class MergeRoutes
 {
     public static IEndpointConventionBuilder MapMergeRoutes(this WebApplication app)
     {
-        var group = app.MapGroup("/api/merge").WithOpenApi();
+        var group = app.MapGroup("/api/merge");
 
         group.MapPost("/execute", ExecuteMergeRequest);
         group.MapPost("/sync-harmony", SyncHarmonyProject);

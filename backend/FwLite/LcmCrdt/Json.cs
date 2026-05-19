@@ -3,7 +3,8 @@ using System.Reflection;
 using System.Text.Json.Serialization.Metadata;
 using LcmCrdt.Changes;
 using LinqToDB;
-using LinqToDB.Common;
+using LinqToDB.Internal.Common;
+using LinqToDB.Internal.SqlQuery;
 using LinqToDB.Mapping;
 using LinqToDB.SqlQuery;
 using SIL.Harmony;
@@ -14,7 +15,7 @@ public static class Json
 {
     sealed class JsonValuePathBuilder : Sql.IExtensionCallBuilder
     {
-        public void Build(Sql.ISqExtensionBuilder builder)
+        public void Build(Sql.ISqlExtensionBuilder builder)
         {
             var propExpression = builder.GetExpression(0);
 
@@ -42,7 +43,7 @@ public static class Json
 
             parameters.Insert(0, propExpression);
 
-            var valueExpression = (ISqlExpression)new SqlExpression(typeof(string),
+            var valueExpression = (ISqlExpression)new SqlExpression(new DbDataType(typeof(string)),
                 expressionStr,
                 Precedence.Primary,
                 parameters.ToArray());
@@ -51,7 +52,12 @@ public static class Json
 
             if (returnType != typeof(string) && returnType != typeof(RichString))//bypass rich string so it can be used with .GetPlainText()
             {
-                valueExpression = PseudoFunctions.MakeTryConvert(new SqlDataType(new DbDataType(returnType)),
+                //v6 dropped PseudoFunctions.MakeTryConvert; build the SqlFunction directly instead.
+                valueExpression = new SqlFunction(
+                    new DbDataType(returnType),
+                    PseudoFunctions.TRY_CONVERT,
+                    canBeNull: true,
+                    new SqlDataType(new DbDataType(returnType)),
                     new SqlDataType(new DbDataType(typeof(string), DataType.Text)),
                     valueExpression);
             }
@@ -61,7 +67,7 @@ public static class Json
 
         private static void BuildParameterPath(Expression? pathBody,
             List<ISqlExpression> parameters,
-            Sql.ISqExtensionBuilder builder)
+            Sql.ISqlExtensionBuilder builder)
         {
             while (pathBody is MemberExpression or MethodCallExpression or UnaryExpression)
             {
@@ -85,6 +91,11 @@ public static class Json
                         else if (mce.Method.Name == nameof(ToString) && (mce.Arguments.Count == 0 || mce.Object is null))
                         {
                             pathBody = mce.Object ?? mce.Arguments[0];
+                        }
+                        else if (mce.Method.DeclaringType == typeof(Sql) && mce.Method.Name == "Alias")
+                        {
+                            //v6 wraps [ExpressionMethod] substitutions in Sql.Alias(real, "<name>"); peel it.
+                            pathBody = mce.Arguments[0];
                         }
                         else
                         {

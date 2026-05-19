@@ -270,7 +270,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         var entryId = Guid.NewGuid();
         var componentHeadwordsToIds = before.Split(',').Concat(after.Split(',')).Distinct()
             .ToDictionary(i => i, _ => Guid.NewGuid());
-        var componentHeadwordsToEntryIds = componentHeadwordsToIds.Keys.ToAsyncEnumerable().SelectAwait(async @char =>
+        var componentHeadwordsToEntryIds = componentHeadwordsToIds.Keys.ToAsyncEnumerable().Select(async (string @char, CancellationToken _) =>
         {
             var componentEntry = await Api.CreateEntry(new()
             {

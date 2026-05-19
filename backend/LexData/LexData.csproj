@@ -2,8 +2,8 @@
   <ItemGroup>
     <PackageReference Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" />
     <PackageReference Include="Humanizer.Core" />
-    <PackageReference Include="linq2db.AspNet" />
     <PackageReference Include="linq2db.EntityFrameworkCore" />
+    <PackageReference Include="linq2db.Extensions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
