@@ -12,7 +12,10 @@
     <PackageVersion Include="coverlet.collector" Version="10.0.0" />
     <PackageVersion Include="CrystalQuartz.AspNetCore" Version="7.3.0" />
     <PackageVersion Include="DataAnnotatedModelValidations" Version="10.0.0" />
-    <PackageVersion Include="FluentAssertions" Version="8.10.0" />
+    <!-- Pinned: FluentAssertions 8.x has a serious BeEquivalentTo perf regression
+         that pushes FwLite CI past its 60-minute timeout. 7.0.0-alpha.5 is the
+         last known-good build for our suite. -->
+    <PackageVersion Include="FluentAssertions" Version="7.0.0-alpha.5" />
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.4" />
     <PackageVersion Include="Gridify" Version="2.19.1" />
