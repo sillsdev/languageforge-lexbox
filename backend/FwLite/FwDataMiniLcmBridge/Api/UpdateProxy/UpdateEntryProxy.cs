@@ -86,7 +86,11 @@ public record UpdateEntryProxy : Entry
     public override int HomographNumber
     {
         get => _lcmEntry.HomographNumber;
-        set => _lcmEntry.HomographNumber = value;
+        set
+        {
+            _lcmEntry.HomographNumber = value;
+            _lexboxLcmApi.EntriesRepository.CorrectHomographNumbers(_lcmEntry);
+        }
     }
 }
 

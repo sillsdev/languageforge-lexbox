@@ -990,10 +990,8 @@ public class FwDataMiniLcmApi(
                     UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
                     UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);
                     UpdateLcmMultiString(lexEntry.Comment, entry.Note);
-                    // For now, we ALWAYS defer to LibLCM's auto-handling (triggered by setting LexemeForm/CitationForm)
-                    // This ensures that FwData/LibLCM will correct broken homograph numbering caused by the incomplete CRDT implementation.
-                    // if (entry.HomographNumber != 0)
-                    //     lexEntry.HomographNumber = entry.HomographNumber;
+                    lexEntry.HomographNumber = entry.HomographNumber;
+                    EntriesRepository.CorrectHomographNumbers(lexEntry);
 
                     foreach (var sense in entry.Senses)
                     {
