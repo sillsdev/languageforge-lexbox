@@ -61,11 +61,10 @@ public class IsLanguageForgeProjectDataLoader : BatchDataLoader<string, bool>, I
         IReadOnlyList<string> list,
         CancellationToken token)
     {
-        var actualProjects = (await loader._systemDbContext.Projects
+        var actualProjects = await MongoExtensions.ToAsyncEnumerable(loader._systemDbContext.Projects
                 .Find(Builders<LfProject>.Filter.In(p => p.ProjectCode, list))
-                .Project(p => p.ProjectCode)
-                .ToListAsync(cancellationToken: token)
-            ).ToHashSet();
+                .Project(p => p.ProjectCode))
+                .ToHashSetAsync(cancellationToken: token);
         return list.ToDictionary(pc => pc, pc => actualProjects.Contains(pc));
     }
 
