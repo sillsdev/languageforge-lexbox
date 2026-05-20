@@ -46,6 +46,7 @@ export function defaultEntry(): IEntry {
     components: [],
     publishIn: [],
     morphType: MorphTypeKind.Stem,
+    homographNumber: 0,
   };
 }
 

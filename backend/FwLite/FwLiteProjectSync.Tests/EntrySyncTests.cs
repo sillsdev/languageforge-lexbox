@@ -228,6 +228,9 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
             {
                 // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)
                 options = options.Excluding(e => e.MorphType);
+                // FwData re-renumbers via ILexEntryRepository.CorrectHomographNumbers, so a randomly
+                // generated HomographNumber won't survive round-trip.
+                options = options.Excluding(e => e.HomographNumber);
             }
             return options;
         });

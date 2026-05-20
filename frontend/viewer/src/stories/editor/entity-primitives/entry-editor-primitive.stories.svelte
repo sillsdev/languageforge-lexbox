@@ -42,7 +42,8 @@
     components: [],
     publishIn: [],
     senses: [],
-    morphType: MorphTypeKind.Stem
+    morphType: MorphTypeKind.Stem,
+    homographNumber: 0,
   });
 
   const { Story } = defineMeta({
