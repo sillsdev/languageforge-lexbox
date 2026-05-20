@@ -36,6 +36,10 @@ public partial class MainPage
             ? (e.WebView.WebChromeClient ?? new Android.Webkit.WebChromeClient())
             : new Android.Webkit.WebChromeClient();
         e.WebView.SetWebChromeClient(new PermissionManagingBlazorWebChromeClient(baseClient, activity));
+
+        // Push real system-bar insets into the WebView as CSS custom properties so
+        // edge-to-edge layouts (Android 15+) don't render under the status bar / gesture nav.
+        AndroidEdgeToEdgeInsets.Install(e.WebView);
     }
 
     private partial void BlazorWebViewOnUrlLoading(object? sender, UrlLoadingEventArgs e)
