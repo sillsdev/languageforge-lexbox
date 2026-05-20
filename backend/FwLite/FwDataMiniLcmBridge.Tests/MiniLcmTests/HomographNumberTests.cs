@@ -52,6 +52,21 @@ public class HomographNumberTests(ProjectLoaderFixture fixture) : MiniLcmTestBas
     }
 
     [Fact]
+    public async Task CreateEntry_HomographNumberZero_IsRenumberedAlongsideTheCluster()
+    {
+        const string form = "createZeroHnTest";
+
+        // A lone entry with HN=0 has no homographs and keeps 0.
+        var a = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = form }, HomographNumber = 0 });
+        (await Api.GetEntry(a.Id))!.HomographNumber.Should().Be(0);
+
+        // Adding a matching entry with HN=0 triggers renumbering: both get sequential slots.
+        var b = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = form }, HomographNumber = 0 });
+        (await Api.GetEntry(a.Id))!.HomographNumber.Should().Be(1);
+        (await Api.GetEntry(b.Id))!.HomographNumber.Should().Be(2);
+    }
+
+    [Fact]
     public async Task UpdateEntry_HomographNumberOutOfRange_IsClampedBackIntoRange()
     {
         const string form = "updateOutOfRangeHnTest";
@@ -66,6 +81,23 @@ public class HomographNumberTests(ProjectLoaderFixture fixture) : MiniLcmTestBas
         (await Api.GetEntry(a.Id))!.HomographNumber.Should().Be(1);
         (await Api.GetEntry(b.Id))!.HomographNumber.Should().Be(2);
         (await Api.GetEntry(c.Id))!.HomographNumber.Should().Be(3, "out-of-range update is clamped back into range");
+    }
+
+    [Fact]
+    public async Task UpdateEntry_HomographNumberZero_BackfillsIntoTheGap()
+    {
+        const string form = "updateZeroHnTest";
+        var a = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = form } });
+        var b = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = form } });
+        var c = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = form } });
+        // baseline: A=1, B=2, C=3
+
+        // Setting C's HN to 0 leaves a gap at 3; renumber fills C back in.
+        await Api.UpdateEntry(c, c with { HomographNumber = 0 });
+
+        (await Api.GetEntry(a.Id))!.HomographNumber.Should().Be(1);
+        (await Api.GetEntry(b.Id))!.HomographNumber.Should().Be(2);
+        (await Api.GetEntry(c.Id))!.HomographNumber.Should().Be(3, "HN=0 is backfilled into the gap it left behind");
     }
 
     [Fact]
