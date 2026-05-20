@@ -51,7 +51,8 @@ public static class ProjectTemplate
             .Replace(VernacularAbbrPlaceholder, AbbreviationFor(vernacularWs))
             .Replace(MorphTypesSeedCommitPlaceholder, FormatGuid(PreDefinedData.MorphTypesSeedCommitId(projectId)));
 
-        await using var conn = new SqliteConnection($"Data Source={targetSqlitePath}");
+        var connString = new SqliteConnectionStringBuilder { DataSource = targetSqlitePath }.ConnectionString;
+        await using var conn = new SqliteConnection(connString);
         await conn.OpenAsync();
         await using var cmd = conn.CreateCommand();
         // writable_schema=RESET makes FTS5 (and any other) virtual tables usable immediately.
