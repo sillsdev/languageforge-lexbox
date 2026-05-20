@@ -23,12 +23,14 @@
   import * as Alert from '$lib/components/ui/alert';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {useProjectStorage} from '$lib/storage/project-storage.svelte';
 
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
   const features = useFeatures();
   const viewService = useViewService();
+  const projectStorage = useProjectStorage();
   const {
     entryId,
     onClose,
@@ -89,6 +91,17 @@
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
   let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
+  let dictionaryPreviewReady = $state(false);
+  $effect(() => {
+    if (!dictionaryPreviewReady && !projectStorage.dictionaryPreview.loading) {
+      const stored = projectStorage.dictionaryPreview.current;
+      if (stored === 'show' || stored === 'hide' || stored === 'sticky') dictionaryPreview = stored;
+      dictionaryPreviewReady = true;
+    }
+  });
+  $effect(() => {
+    if (dictionaryPreviewReady) void projectStorage.dictionaryPreview.set(dictionaryPreview);
+  });
   const sticky = $derived.by(() => dictionaryPreview === 'sticky');
 
   let readonly = $state(false);

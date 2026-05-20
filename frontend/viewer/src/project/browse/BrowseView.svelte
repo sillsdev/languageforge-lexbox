@@ -19,10 +19,12 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import type {EntryListViewMode} from './EntryListViewOptions.svelte';
   import EntryListViewOptions from './EntryListViewOptions.svelte';
+  import {useProjectStorage} from '$lib/storage/project-storage.svelte';
 
   const projectContext = useProjectContext();
   const viewService = useViewService();
   const dialogsService = useDialogsService();
+  const projectStorage = useProjectStorage();
 
   // DESKTOP: the entry is a sibling of the list (it's a split view). We can switch between selected entries.
   // So, selectedEntryId itself drives navigation.
@@ -38,6 +40,17 @@
   let partOfSpeech = $state<IPartOfSpeech>();
   let sort = $state<SortConfig>();
   let entryMode: EntryListViewMode = $state('simple');
+  let entryModeReady = $state(false);
+  $effect(() => {
+    if (!entryModeReady && !projectStorage.entryListViewMode.loading) {
+      const stored = projectStorage.entryListViewMode.current;
+      if (stored === 'preview' || stored === 'simple') entryMode = stored;
+      entryModeReady = true;
+    }
+  });
+  $effect(() => {
+    if (entryModeReady) void projectStorage.entryListViewMode.set(entryMode);
+  });
 
   async function newEntry() {
     const entry = await dialogsService.createNewEntry(undefined, {
