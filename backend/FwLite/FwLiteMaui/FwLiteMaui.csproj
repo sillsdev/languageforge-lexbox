@@ -40,12 +40,6 @@
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</TargetPlatformMinVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
   </PropertyGroup>
-  <!-- Side-by-side "Dev" flavor: set -p:FwLiteFlavor=Dev to install alongside the prod app
-       (different package name + label so both can coexist on a device). -->
-  <PropertyGroup Condition="'$(FwLiteFlavor)' == 'Dev'">
-    <ApplicationId>org.sil.FwLiteMaui.dev</ApplicationId>
-    <ApplicationTitle>FieldWorks Lite Dev</ApplicationTitle>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
     <WindowsPackageType>None</WindowsPackageType>
     <PublishReadyToRun>false</PublishReadyToRun>
@@ -60,6 +54,15 @@
   <PropertyGroup>
     <TargetPlatform>$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)'))</TargetPlatform>
   </PropertyGroup>
+  <!-- Exclude the build-time tool's sources from FwLiteMaui's own compile. It's a
+       standalone Microsoft.NET.Sdk Exe project, not part of this project's code. -->
+  <ItemGroup>
+    <Compile Remove="build\**" />
+    <Content Remove="build\**" />
+    <None Remove="build\**" />
+    <EmbeddedResource Remove="build\**" />
+    <MauiAsset Remove="build\**" />
+  </ItemGroup>
   <ItemGroup>
     <!-- App Icon -->
     <!-- background color is required for mac per: https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-8.0&tabs=windows#recolor-the-background -->
@@ -100,4 +103,120 @@
     -->
     <PackageReference Include="Mono.Unix" ExcludeAssets="all" />
   </ItemGroup>
+  <!--
+    Android workaround for linq2db.EntityFrameworkCore 10.3.x.
+
+    SqlTransparentExpression's static ctor does a GetConstructor lookup for
+    (ExceptExpression, RelationalTypeMapping) which doesn't exist on the type
+    (the only declared ctor takes (ConstantExpression, RelationalTypeMapping?)).
+    The lookup returns null and the cctor throws InvalidOperationException.
+    Reproducible on plain net10.0 via RuntimeHelpers.RunClassConstructor — this
+    is a linq2db bug, not a missing-metadata-from-trimming issue. See
+    backend/FwLite/LcmCrdt.Tests/SqlTransparentExpressionCctorRepro.cs and
+    backend/FwLite/LcmCrdt/LINQ2DB-V6-NOTES.md (Cctor patcher section).
+
+    Upstream issue: TODO INSERT UPSTREAM ISSUE URL HERE
+
+    On desktop the class is beforefieldinit and its static fields are only read
+    from Quote(), which our CRDT workload never calls, so the bug is silent.
+    Android surfaces it the first time a CRDT save runs.
+
+    An earlier attempt used ILLink.Substitutions.xml to stub the .cctor, but
+    Debug Android builds skip the linker entirely (PublishTrimmed=false), so
+    the substitution never applied. Even in Release publish, the substitution
+    site differs from where the dll ends up staged for packaging, so a
+    single-target hook is fragile.
+
+    Instead, we Cecil-patch the assembly at build time, unconditionally,
+    via the small tool under build/Linq2DbCctorPatcher.
+
+    Where the dll lives depends on configuration:
+      - Debug   (PublishTrimmed=false): staged into $(MonoAndroidIntermediateAssemblyDir)<abi>\
+                by _LinkAssembliesNoShrink, then bundled for fast-deploy.
+      - Release (PublishTrimmed=true) : output by ILLink into <rid>\linked\ and copied to
+                <rid>\linked\shrunk\ by _RemoveRegisterAttribute. _CollectAssembliesToCompress
+                then consumes the shrunk copies for the assembly store.
+    We must patch BOTH locations (and any other staged copies under $(IntermediateOutputPath)).
+    The target runs BeforeTargets on the consumers (_CollectAssembliesToCompress and
+    _BuildApkFastDev) so it fires regardless of trimmed/untrimmed and AAB/APK flows.
+
+    KILL-SWITCH:
+      - The version-pin check below fails the build the moment somebody bumps
+        the package outside the verified-broken range. When that happens, either
+        widen the range (after re-verifying the bug still exists in the new
+        version) or delete this whole block + the build/Linq2DbCctorPatcher
+        project + unskip SqlTransparentExpressionCctorRepro.cs.
+  -->
+
+  <!-- Version pin: hard-error if linq2db.EntityFrameworkCore is outside the patched range.
+       We don't want this patcher silently chugging along on a version we never tested,
+       nor do we want to carry it past an upstream fix. Range is the closed interval
+       [10.3.0, 10.3.999]; anything 10.4.x or 11.x is rejected.
+
+       Source of truth is backend/Directory.Packages.props (central package management),
+       which we read directly: PackageReference items have no Version metadata under CPM,
+       and ResolvedPackageReference is only populated after restore. Reading the props
+       file is the most robust signal that works pre- and post-restore. -->
+  <Target Name="_VerifyLinq2DbEfCoreVersionPin"
+          Condition="'$(TargetPlatform)' == 'android'"
+          BeforeTargets="_BuildLinq2DbCctorPatcher">
+    <PropertyGroup>
+      <!-- Pull "X.Y.Z" from a line like: <PackageVersion Include="linq2db.EntityFrameworkCore" Version="10.3.0" /> -->
+      <_Linq2DbEfCoreEffectiveVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)..\..\Directory.Packages.props')), 'linq2db\.EntityFrameworkCore[^&gt;]*Version=&quot;([^&quot;]+)&quot;').Groups[1].Value)</_Linq2DbEfCoreEffectiveVersion>
+    </PropertyGroup>
+    <Error Condition="'$(_Linq2DbEfCoreEffectiveVersion)' == ''"
+           Text="Could not determine resolved version of linq2db.EntityFrameworkCore from backend/Directory.Packages.props. The cctor-patcher version pin can't verify itself. Investigate before proceeding." />
+    <!-- Patched range: 10.3.x only. Anything else fails the build. -->
+    <Error Condition="'$(_Linq2DbEfCoreEffectiveVersion)' != '' And !$([System.Text.RegularExpressions.Regex]::IsMatch('$(_Linq2DbEfCoreEffectiveVersion)', '^10\.3\.[0-9]+(-.*)?$'))"
+           Text="linq2db.EntityFrameworkCore is at $(_Linq2DbEfCoreEffectiveVersion); the cctor patcher in build/Linq2DbCctorPatcher only verifies the 10.3.x IL shape. Re-verify the SqlTransparentExpression cctor bug still exists in $(_Linq2DbEfCoreEffectiveVersion) (unskip the repro test in LcmCrdt.Tests/SqlTransparentExpressionCctorRepro.cs and run it against the new version), then either: (a) widen this pin if still broken, or (b) DELETE build/Linq2DbCctorPatcher and the _BuildLinq2DbCctorPatcher / _PatchLinq2DbSqlTransparentExpressionCctor / _VerifyLinq2DbEfCoreVersionPin / _CollectLinq2DbStagedAssemblies targets if fixed. Upstream issue: TODO INSERT UPSTREAM ISSUE URL HERE. See backend/FwLite/LcmCrdt/LINQ2DB-V6-NOTES.md (Cctor patcher section)." />
+  </Target>
+  <Target Name="_BuildLinq2DbCctorPatcher"
+          Condition="'$(TargetPlatform)' == 'android'"
+          DependsOnTargets="_VerifyLinq2DbEfCoreVersionPin"
+          BeforeTargets="_LinkAssembliesNoShrink;_AfterILLinkAdditionalSteps;_RemoveRegisterAttribute">
+    <!-- Build the patcher tool as a side-channel net10.0 project. We use <MSBuild> rather
+         than a <ProjectReference> so the patcher's TargetFramework/RuntimeIdentifier isn't
+         entangled with FwLiteMaui's android-arm64 graph. RemoveProperties strips inherited
+         RID/TF so the inner build resolves cleanly as plain net10.0. -->
+    <MSBuild Projects="$(MSBuildThisFileDirectory)build\Linq2DbCctorPatcher\Linq2DbCctorPatcher.csproj"
+             Targets="Restore;Build"
+             Properties="Configuration=$(Configuration)"
+             RemoveProperties="TargetFramework;TargetFrameworks;RuntimeIdentifier;RuntimeIdentifiers;TargetPlatform;TargetPlatformIdentifier;TargetPlatformVersion;UseMaui;SingleProject;SelfContained;PublishReadyToRun;PublishSingleFile" />
+  </Target>
+  <!-- Glob staged dlls before the patch target's Inputs/Outputs check evaluates.
+       Lives in a separate target so the ItemGroup is materialized by the time
+       _PatchLinq2Db...'s batching examines @(_Linq2DbStagedAssemblies). -->
+  <Target Name="_CollectLinq2DbStagedAssemblies"
+          Condition="'$(TargetPlatform)' == 'android'">
+    <ItemGroup>
+      <!-- Glob every staged copy under obj\<Config>\<TF>\: Debug ships them via
+           android\assets\<abi>\, Release publishes through <rid>\linked\ (and linked\shrunk\). -->
+      <_Linq2DbStagedAssemblies Include="$(IntermediateOutputPath)**\linq2db.EntityFrameworkCore.dll" />
+    </ItemGroup>
+  </Target>
+  <!--
+    Incremental patching: per-dll sentinel files at <dll>.cctor-patched.
+    Inputs are the staged dlls; Outputs are %()-batched sentinels so MSBuild
+    skips already-patched files on subsequent builds. The patcher itself also
+    short-circuits via the same sentinel — if dotnet restore re-extracts the
+    package, the dll's mtime moves forward past the sentinel's and patching
+    re-runs. Belt-and-braces against any case where MSBuild's incremental
+    check disagrees with the file-system reality.
+  -->
+  <Target Name="_PatchLinq2DbSqlTransparentExpressionCctor"
+          Condition="'$(TargetPlatform)' == 'android'"
+          DependsOnTargets="_BuildLinq2DbCctorPatcher;_CollectLinq2DbStagedAssemblies"
+          AfterTargets="_LinkAssembliesNoShrink;_AfterILLinkAdditionalSteps;_RemoveRegisterAttribute"
+          BeforeTargets="_CollectAssembliesToCompress;_BuildApkFastDev"
+          Inputs="@(_Linq2DbStagedAssemblies)"
+          Outputs="@(_Linq2DbStagedAssemblies->'%(FullPath).cctor-patched')">
+    <PropertyGroup>
+      <_Linq2DbPatcherDll>$(MSBuildThisFileDirectory)build\Linq2DbCctorPatcher\bin\$(Configuration)\net10.0\Linq2DbCctorPatcher.dll</_Linq2DbPatcherDll>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(_Linq2DbPatcherDll)')"
+           Text="Linq2DbCctorPatcher.dll not found at $(_Linq2DbPatcherDll). _BuildLinq2DbCctorPatcher should have produced it." />
+    <Message Importance="high" Text="Linq2db cctor patcher: @(_Linq2DbStagedAssemblies->Count()) staged linq2db.EntityFrameworkCore.dll copies under $(IntermediateOutputPath)" />
+    <Exec Command="dotnet &quot;$(_Linq2DbPatcherDll)&quot; &quot;%(_Linq2DbStagedAssemblies.FullPath)&quot;"
+          Condition="'@(_Linq2DbStagedAssemblies)' != ''" />
+  </Target>
 </Project>
