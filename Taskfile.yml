@@ -123,7 +123,17 @@ tasks:
     aliases: [android]
     deps: [fw-lite:run-maui-android]
 
+  fw-lite-android-dev:
+    aliases: [android-dev]
+    desc: Build & run the "Dev" flavor on Android (installs alongside the prod app)
+    deps: [fw-lite:run-maui-android-dev]
+
   fw-lite-android-install:
     aliases: [android-install]
     desc: Install without building
     deps: [fw-lite:install-maui-android]
+
+  fw-lite-android-install-dev:
+    aliases: [android-install-dev]
+    desc: Install the "Dev" flavor without building
+    deps: [fw-lite:install-maui-android-dev]
