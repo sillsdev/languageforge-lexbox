@@ -1,12 +1,9 @@
 namespace MiniLcm.Tests;
 
+// Both FwData and CRDT handle basic homograph incrementing
+// and promoting 0's to 1's when a second homograph is added
 public abstract class HomographNumberTestsBase : MiniLcmTestBase
 {
-    // Both implementations should agree on how HN=0 (or unspecified) is handled when entries
-    // share a headword: a lone entry keeps 0, a second matching entry produces a 1/2 pair, and
-    // subsequent matches pick up where the cluster's max leaves off. Non-zero requests, and
-    // updates that introduce duplicates or out-of-range values, are impl-specific and covered
-    // in the concrete classes.
     [Fact]
     public async Task CreateEntry_HomographNumberZero_IsAutoAssignedAsHomographsAppear()
     {

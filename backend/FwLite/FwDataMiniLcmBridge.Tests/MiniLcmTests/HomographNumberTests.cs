@@ -3,10 +3,8 @@ using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge.Tests.MiniLcmTests;
 
-// FwData-specific behaviors: an out-of-range or duplicate request gets renumbered into a
-// valid sequence, and an update to HN=0 backfills the entry into the gap it would leave.
-// The shared HN=0 auto-assignment scenario (lone stays at 0; subsequent matches climb)
-// lives in HomographNumberTestsBase.
+// FwData always treats HN=0 as "auto-assign"
+// and auto-corrects anything problematic (duplicates, out-of-range)
 [Collection(ProjectLoaderFixture.Name)]
 public class HomographNumberTests(ProjectLoaderFixture fixture) : HomographNumberTestsBase
 {

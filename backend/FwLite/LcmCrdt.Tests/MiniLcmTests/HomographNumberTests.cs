@@ -1,9 +1,9 @@
 namespace LcmCrdt.Tests.MiniLcmTests;
 
-// CRDT homograph numbering is best-effort: any explicit non-zero value is taken as-is on
-// both create and update, even if it leaves the cluster in a bad shape. FwData is the
-// authority on numbering, so a sync round-trip is what eventually heals broken numbers on
-// the CRDT side. The shared HN=0 auto-assignment scenario lives in HomographNumberTestsBase.
+// CRDT homograph numbering is best-effort.
+// Any explicit/non-zero value is taken as-is,
+// so we respect numbers synced in from FwData. FwData is the authority.
+// "Broken" numbers are corrected after 2 syncs.
 public class HomographNumberTests : HomographNumberTestsBase
 {
     private readonly MiniLcmApiFixture _fixture = new();
