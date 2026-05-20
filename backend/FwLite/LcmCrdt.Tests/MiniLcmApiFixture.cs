@@ -77,7 +77,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
             projectData);
         await currentProjectService.RefreshProjectData();
         // CreateProject would also seed morph types — so we need to do it manually here
-        await PreDefinedData.AddPredefinedMorphTypes(_services.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
+        await PreDefinedData.AddPredefinedMorphTypes(_services.ServiceProvider.GetRequiredService<DataModel>(), projectData);
         if (_seedWs)
         {
             await Api.CreateWritingSystem(new WritingSystem()

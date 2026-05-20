@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Refit" />
     <PackageReference Include="Refit.HttpClientFactory" />
+    <PackageReference Include="UUIDNext" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsOsPlatform('linux'))">
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
