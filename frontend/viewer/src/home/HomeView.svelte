@@ -181,7 +181,8 @@
                     onclick={() => refreshProjects()}/>
           </div>
           <div>
-            {#each projects.filter((p) => p.crdt) as project (project)}
+            <!-- "?? project" seems to be needed sometimes. Probably just on dev machines. -->
+            {#each projects.filter((p) => p.crdt) as project (project.id ?? project)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
               <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>

@@ -13,7 +13,7 @@
 
 
 <TooltipProvider delayDuration={300}>
-  <div class="app">
+  <div class="app min-h-dvh">
     <Router>
       <AppRoutes />
     </Router>

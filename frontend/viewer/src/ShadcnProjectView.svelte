@@ -60,7 +60,9 @@
 </script>
 <svelte:window on:message={onMessage}/>
 <DialogsProvider/>
-<div class="h-screen flex PortalTarget overflow-hidden shadcn-root" {...rest}>
+<!-- h-content-screen = safe viewport minus the IME so the entries list shrinks
+     above the keyboard on Android. Chrome surfaces inside use h-safe-screen. -->
+<div class="h-content-screen flex PortalTarget overflow-hidden shadcn-root" {...rest}>
   <Sidebar.Provider bind:open>
     <ProjectSidebar/>
     <Sidebar.Inset class="flex-1 relative">

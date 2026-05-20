@@ -24,11 +24,25 @@ data-[expanded="true"]:h-max! prevents big toasts from being smaller than they s
 My fix results in another bug that I'm ignoring for now: sonner still thinks big toasts are small, so they can cover others toasts.
 I.e. If there's small, big, small, then sonner thinks the big one is small and puts the last small one behind it (but only sometimes 😅)
 -->
+<!--
+  offset / mobileOffset are passed as objects so we only override the sides we
+  need (keeping the library's defaults for top/left). svelte-sonner applies these
+  as inline `style:--offset-bottom=...` on the `<ol>` element, which beats any
+  external CSS-var override (inline-style precedence). bottom / right add the
+  wide-area inset so the toaster clears Android's gesture-nav bar and any
+  landscape side nav. Top is left default; --safe-area-inset-top is 0 under
+  edge-to-edge anyway and the IME isn't relevant here.
+-->
 <Sonner
   theme={mode.current}
   closeButton
   class={cn('toaster group', className)}
   style="--normal-bg: var(--color-popover); --normal-text: var(--color-popover-foreground); --normal-border: var(--color-border);"
+  offset={{bottom: 'calc(24px + var(--wide-area-inset-bottom))', right: 'calc(24px + var(--wide-area-inset-right))'}}
+  mobileOffset={{
+    bottom: 'calc(16px + var(--wide-area-inset-bottom))',
+    right: 'calc(16px + var(--wide-area-inset-right))',
+  }}
   richColors
   toastOptions={{
     classes: {
