@@ -20,6 +20,7 @@ export interface IEntry extends IObjectWithId
 	citationForm: IMultiString;
 	literalMeaning: IRichMultiString;
 	morphType: MorphTypeKind;
+	homographNumber: number;
 	senses: ISense[];
 	note: IRichMultiString;
 	components: IComplexFormComponent[];

@@ -57,7 +57,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
                     .OrderBy(mt => mt.Kind == MorphTypeKind.Stem ? 1 : 0) // stem is the fallback, so it should come last
                     .Select(mt => mt.SecondaryOrder).FirstOrDefault()
                 : int.MaxValue)
-            // .ThenBy(t => t.Entry.HomographNumber)
+            .ThenBy(t => t.Entry.HomographNumber)
             .ThenBy(t => t.Entry.Id);
 
         return ordered.Select(t => t.Entry);

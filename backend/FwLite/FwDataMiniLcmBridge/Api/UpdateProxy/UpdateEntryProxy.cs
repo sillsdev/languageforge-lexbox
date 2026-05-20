@@ -82,6 +82,16 @@ public record UpdateEntryProxy : Entry
         get => new UpdateRichMultiStringProxy(_lcmEntry.Comment, _lexboxLcmApi);
         set => throw new NotImplementedException();
     }
+
+    public override int HomographNumber
+    {
+        get => _lcmEntry.HomographNumber;
+        set
+        {
+            _lcmEntry.HomographNumber = value;
+            _lexboxLcmApi.EntriesRepository.CorrectHomographNumbers(_lcmEntry);
+        }
+    }
 }
 
 public class UpdateMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi lexboxLcmApi) : MultiString

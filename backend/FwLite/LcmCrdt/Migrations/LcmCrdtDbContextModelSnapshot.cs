@@ -229,6 +229,9 @@ namespace LcmCrdt.Migrations
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("HomographNumber")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("LexemeForm")
                         .IsRequired()
                         .HasColumnType("jsonb");

@@ -80,6 +80,7 @@ export class EntryApiHelper {
         complexForms: [],
         complexFormTypes: [],
         publishIn: [],
+        homographNumber: 0,
       };
       const created = await api.createEntry(newEntry);
       return {id: created.id, headword: newHeadword};
@@ -101,6 +102,7 @@ export class EntryApiHelper {
         complexForms: [],
         complexFormTypes: [],
         publishIn: [],
+        homographNumber: 0,
       };
       const created = await api.createEntry(newEntry);
       return {id: created.id, headword: hw};
