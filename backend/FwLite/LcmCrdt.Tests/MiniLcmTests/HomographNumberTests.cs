@@ -1,9 +1,9 @@
 namespace LcmCrdt.Tests.MiniLcmTests;
 
-// CRDT's homograph handling: an explicit non-zero HomographNumber is taken as-is on both
-// create and update. When none is supplied, CreateEntry assigns one based on the entries
-// that share the headword — the tests below pin down the observable progression.
-public class HomographNumberTests : MiniLcmTestBase
+// CRDT-only behaviors. The HN=0 auto-assignment scenario lives in HomographNumberTestsBase
+// since both implementations converge there; what remains here is the CRDT-specific
+// contract that an explicit non-zero value is taken as-is on both create and update.
+public class HomographNumberTests : HomographNumberTestsBase
 {
     private readonly MiniLcmApiFixture _fixture = new();
 
@@ -24,23 +24,6 @@ public class HomographNumberTests : MiniLcmTestBase
     {
         var entry = await Api.CreateEntry(new() { LexemeForm = { { "en", "explicit" } }, HomographNumber = 5 });
         entry.HomographNumber.Should().Be(5);
-    }
-
-    [Fact]
-    public async Task CreateEntry_NoHomographNumberSpecified_NumbersAreAssignedAsHomographsAppear()
-    {
-        // A lone entry has no homographs and stays at 0.
-        var a = await Api.CreateEntry(new() { LexemeForm = { { "en", "hgr" } } });
-        (await Api.GetEntry(a.Id))!.HomographNumber.Should().Be(0);
-
-        // Adding a second matching entry promotes the original to 1; the newcomer becomes 2.
-        var b = await Api.CreateEntry(new() { LexemeForm = { { "en", "hgr" } } });
-        (await Api.GetEntry(a.Id))!.HomographNumber.Should().Be(1);
-        (await Api.GetEntry(b.Id))!.HomographNumber.Should().Be(2);
-
-        // Subsequent entries pick up where the current max leaves off.
-        var c = await Api.CreateEntry(new() { LexemeForm = { { "en", "hgr" } } });
-        (await Api.GetEntry(c.Id))!.HomographNumber.Should().Be(3);
     }
 
     [Fact]

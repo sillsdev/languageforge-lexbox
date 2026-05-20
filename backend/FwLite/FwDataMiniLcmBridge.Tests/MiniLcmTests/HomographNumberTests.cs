@@ -3,11 +3,12 @@ using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge.Tests.MiniLcmTests;
 
-// FwData corrects HomographNumber on every write. The tests below pin down the observable
-// behavior — honoring an explicit value is best effort; an out-of-range or duplicate
-// request gets renumbered into a valid sequence.
+// FwData-specific behaviors: an out-of-range or duplicate request gets renumbered into a
+// valid sequence, and an update to HN=0 backfills the entry into the gap it would leave.
+// The shared HN=0 auto-assignment scenario (lone stays at 0; subsequent matches climb)
+// lives in HomographNumberTestsBase.
 [Collection(ProjectLoaderFixture.Name)]
-public class HomographNumberTests(ProjectLoaderFixture fixture) : MiniLcmTestBase
+public class HomographNumberTests(ProjectLoaderFixture fixture) : HomographNumberTestsBase
 {
     protected override Task<IMiniLcmApi> NewApi()
     {
@@ -49,21 +50,6 @@ public class HomographNumberTests(ProjectLoaderFixture fixture) : MiniLcmTestBas
         (await Api.GetEntry(b.Id))!.HomographNumber.Should().Be(2, "older HN=2 keeps its slot");
         (await Api.GetEntry(d.Id))!.HomographNumber.Should().Be(3, "duplicate slots in after the senior holder");
         (await Api.GetEntry(c.Id))!.HomographNumber.Should().Be(4, "C is shoved up to keep the sequence valid");
-    }
-
-    [Fact]
-    public async Task CreateEntry_HomographNumberZero_IsRenumberedAlongsideTheCluster()
-    {
-        const string form = "createZeroHnTest";
-
-        // A lone entry with HN=0 has no homographs and keeps 0.
-        var a = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = form }, HomographNumber = 0 });
-        (await Api.GetEntry(a.Id))!.HomographNumber.Should().Be(0);
-
-        // Adding a matching entry with HN=0 triggers renumbering: both get sequential slots.
-        var b = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = form }, HomographNumber = 0 });
-        (await Api.GetEntry(a.Id))!.HomographNumber.Should().Be(1);
-        (await Api.GetEntry(b.Id))!.HomographNumber.Should().Be(2);
     }
 
     [Fact]
