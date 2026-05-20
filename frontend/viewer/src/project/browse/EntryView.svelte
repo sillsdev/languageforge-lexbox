@@ -24,6 +24,7 @@
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
+  import {untrack} from 'svelte';
 
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();
@@ -91,16 +92,21 @@
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
   let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
-  let dictionaryPreviewReady = $state(false);
+  let dictionaryPreviewLoaded = false;
   $effect(() => {
-    if (!dictionaryPreviewReady && !projectStorage.dictionaryPreview.loading) {
-      const stored = projectStorage.dictionaryPreview.current;
-      if (stored === 'show' || stored === 'hide' || stored === 'sticky') dictionaryPreview = stored;
-      dictionaryPreviewReady = true;
+    if (untrack(() => !projectStorage.dictionaryPreview.loading)) {
+      untrack(() => {
+        const stored = projectStorage.dictionaryPreview.current;
+        if (stored === 'show' || stored === 'hide' || stored === 'sticky') dictionaryPreview = stored;
+      });
+      dictionaryPreviewLoaded = true;
+      return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    projectStorage.dictionaryPreview.loading;
   });
   $effect(() => {
-    if (dictionaryPreviewReady) void projectStorage.dictionaryPreview.set(dictionaryPreview);
+    if (dictionaryPreviewLoaded) void projectStorage.dictionaryPreview.set(dictionaryPreview);
   });
   const sticky = $derived.by(() => dictionaryPreview === 'sticky');
 

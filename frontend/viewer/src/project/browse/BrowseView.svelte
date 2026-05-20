@@ -20,6 +20,7 @@
   import type {EntryListViewMode} from './EntryListViewOptions.svelte';
   import EntryListViewOptions from './EntryListViewOptions.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
+  import {untrack} from 'svelte';
 
   const projectContext = useProjectContext();
   const viewService = useViewService();
@@ -40,16 +41,21 @@
   let partOfSpeech = $state<IPartOfSpeech>();
   let sort = $state<SortConfig>();
   let entryMode: EntryListViewMode = $state('simple');
-  let entryModeReady = $state(false);
+  let entryModeLoaded = false;
   $effect(() => {
-    if (!entryModeReady && !projectStorage.entryListViewMode.loading) {
-      const stored = projectStorage.entryListViewMode.current;
-      if (stored === 'preview' || stored === 'simple') entryMode = stored;
-      entryModeReady = true;
+    if (untrack(() => !projectStorage.entryListViewMode.loading)) {
+      untrack(() => {
+        const stored = projectStorage.entryListViewMode.current;
+        if (stored === 'preview' || stored === 'simple') entryMode = stored;
+      });
+      entryModeLoaded = true;
+      return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    projectStorage.entryListViewMode.loading;
   });
   $effect(() => {
-    if (entryModeReady) void projectStorage.entryListViewMode.set(entryMode);
+    if (entryModeLoaded) void projectStorage.entryListViewMode.set(entryMode);
   });
 
   async function newEntry() {
