@@ -169,9 +169,9 @@ public partial class CrdtProjectsService(
             // Morph types are predefined system data that must always exist — seed them
             // unconditionally so they're available before AfterCreate (e.g. import) runs.
             var dataModel = serviceScope.ServiceProvider.GetRequiredService<DataModel>();
-            await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
+            await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData.ClientId);
             if (request.SeedNewProjectData)
-                await SeedSystemData(dataModel, projectData);
+                await SeedSystemData(dataModel, projectData.ClientId);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
         }
         catch (Exception e)
@@ -243,13 +243,13 @@ public partial class CrdtProjectsService(
         await db.SaveChangesAsync();
     }
 
-    internal static async Task SeedSystemData(DataModel dataModel, ProjectData projectData)
+    internal static async Task SeedSystemData(DataModel dataModel, Guid clientId)
     {
         // Note: AddPredefinedMorphTypes is seeded unconditionally in CreateProject, not here.
-        await PreDefinedData.AddPredefinedComplexFormTypes(dataModel, projectData);
-        await PreDefinedData.AddPredefinedPartsOfSpeech(dataModel, projectData);
-        await PreDefinedData.AddPredefinedSemanticDomains(dataModel, projectData);
-        await PreDefinedData.AddPredefinedCustomViews(dataModel, projectData);
+        await PreDefinedData.AddPredefinedComplexFormTypes(dataModel, clientId);
+        await PreDefinedData.AddPredefinedPartsOfSpeech(dataModel, clientId);
+        await PreDefinedData.AddPredefinedSemanticDomains(dataModel, clientId);
+        await PreDefinedData.AddPredefinedCustomViews(dataModel, clientId);
     }
 
     [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]
