@@ -40,6 +40,12 @@
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</TargetPlatformMinVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
   </PropertyGroup>
+  <!-- Side-by-side "Dev" flavor: set -p:FwLiteFlavor=Dev to install alongside the prod app
+       (different package name + label so both can coexist on a device). -->
+  <PropertyGroup Condition="'$(FwLiteFlavor)' == 'Dev'">
+    <ApplicationId>org.sil.FwLiteMaui.dev</ApplicationId>
+    <ApplicationTitle>FieldWorks Lite Dev</ApplicationTitle>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
     <WindowsPackageType>None</WindowsPackageType>
     <PublishReadyToRun>false</PublishReadyToRun>

@@ -65,17 +65,41 @@ tasks:
 
   run-maui-android:
     dir: ./FwLiteMaui
-    cmd: task build-maui-android -- "-t:InstallAndroidDependencies;Run"
+    cmd: task build-maui-android FLAVOR={{.FLAVOR}} -- "-t:InstallAndroidDependencies;Run {{.EXTRA_ARGS}}"
+
+  run-maui-android-dev:
+    desc: Build & run the "Dev" flavor (installs alongside the prod app)
+    cmds:
+      - task: run-maui-android
+        vars: { FLAVOR: 'Dev' }
+
+  run-maui-android-emulator-dev:
+    desc: Build & run the "Dev" flavor on a running x86_64 emulator (installs alongside the prod app; targets `adb -e`)
+    cmds:
+      - task: run-maui-android
+        vars: { FLAVOR: 'Dev', EXTRA_ARGS: '-p:RuntimeIdentifiers=android-x64 -p:RuntimeIdentifier=android-x64 -p:AdbTarget=-e' }
 
   build-maui-android:
     deps: [ ui:build-viewer ]
     dir: ./FwLiteMaui
-    cmd: dotnet build -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True {{.CLI_ARGS}} # "-p:AndroidSdkDirectory=D:\tools\android"
+    cmd: dotnet build -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.CLI_ARGS}} # "-p:AndroidSdkDirectory=D:\tools\android"
 
   install-maui-android:
     desc: Retry install + run without rebuilding (for when you miss the permission prompt) - uses existing build artifacts
     dir: ./FwLiteMaui
-    cmd: dotnet build -f net10.0-android -t:Install,Run --no-restore --no-dependencies
+    cmd: dotnet build -f net10.0-android -t:Install,Run --no-restore --no-dependencies -p:FwLiteFlavor={{.FLAVOR}} {{.EXTRA_ARGS}}
+
+  install-maui-android-dev:
+    desc: Retry install + run for the "Dev" flavor without rebuilding
+    cmds:
+      - task: install-maui-android
+        vars: { FLAVOR: 'Dev' }
+
+  install-maui-android-emulator-dev:
+    desc: Retry install + run for the "Dev" flavor on a running x86_64 emulator without rebuilding (targets `adb -e`)
+    cmds:
+      - task: install-maui-android
+        vars: { FLAVOR: 'Dev', EXTRA_ARGS: '-p:RuntimeIdentifiers=android-x64 -p:RuntimeIdentifier=android-x64 -p:AdbTarget=-e' }
 
   build-mini-lcm-sdk:
     desc: Builds the sdk, a zip with the FwLiteWeb server with a project and config to run locally
