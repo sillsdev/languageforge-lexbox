@@ -6,7 +6,6 @@ namespace LcmCrdt.Objects;
 
 public static class PreDefinedData
 {
-    // Complex form type GUIDs — referenced by callers seeding entries.
     public static readonly Guid CompoundComplexFormTypeId = new("c36f55ed-d1ea-4069-90b3-3f35ff696273");
     public static readonly Guid UnspecifiedComplexFormTypeId = new("eeb78fce-6009-4932-aaa6-85faeb180c69");
 

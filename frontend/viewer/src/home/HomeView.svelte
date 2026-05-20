@@ -48,11 +48,11 @@
 
   let customExampleProjectName = $state('');
 
-  let createProjectLoading = $state(false);
+  let createDemoProjectLoading = $state(false);
 
-  async function createExampleProject() {
+  async function createDemoProject() {
     try {
-      createProjectLoading = true;
+      createDemoProjectLoading = true;
       let projectName = exampleProjectName;
       if ($isDev) {
         if (customExampleProjectName) {
@@ -61,10 +61,27 @@
           projectName += `-dev-${dateTimeProjectSuffix()}`;
         }
       }
-      await projectsService.createProject(projectName);
+      await projectsService.createDemoProject(projectName);
       await refreshProjects();
     } finally {
-      createProjectLoading = false;
+      createDemoProjectLoading = false;
+    }
+  }
+
+  let customNewProjectName = $state('');
+  let customNewProjectCode = $state('');
+  let customNewProjectVernacular = $state('en');
+  let createNewProjectLoading = $state(false);
+
+  async function createNewProject() {
+    try {
+      createNewProjectLoading = true;
+      const projectName = customNewProjectName || `blank-dev-${dateTimeProjectSuffix()}`;
+      const projectCode = customNewProjectCode || projectName;
+      await projectsService.createProject(projectName, projectCode, customNewProjectVernacular);
+      await refreshProjects();
+    } finally {
+      createNewProjectLoading = false;
     }
   }
 
@@ -224,7 +241,7 @@
               </Anchor>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ListItem onclick={() => createExampleProject()} loading={createProjectLoading}>
+              <ListItem onclick={() => createDemoProject()} loading={createDemoProjectLoading}>
                 <span>{$t`Create Example Project`}</span>
                 {#snippet actions()}
                   <div class="flex flex-nowrap items-center gap-2">
@@ -242,6 +259,33 @@
 
               </ListItem>
             {/if}
+            <DevContent>
+              <ListItem onclick={() => createNewProject()} loading={createNewProjectLoading}>
+                <span>{$t`Create Blank Project`}</span>
+                {#snippet actions()}
+                  <div class="flex flex-nowrap items-center gap-2">
+                    <Input
+                      bind:value={customNewProjectName}
+                      placeholder={$t`Project name...`}
+                      onclick={(e) => e.stopPropagation()}
+                      autocapitalize="on"
+                    />
+                    <Input
+                      bind:value={customNewProjectCode}
+                      placeholder={$t`Project code (defaults to name)`}
+                      onclick={(e) => e.stopPropagation()}
+                    />
+                    <Input
+                      bind:value={customNewProjectVernacular}
+                      placeholder={$t`Vernacular WS (e.g. en, fr)`}
+                      onclick={(e) => e.stopPropagation()}
+                      class="w-32"
+                    />
+                    <Icon icon="i-mdi-book-outline" class="p-2"/>
+                  </div>
+                {/snippet}
+              </ListItem>
+            </DevContent>
           </div>
         </div>
         <ServersList localProjects={projects} {refreshProjects}/>

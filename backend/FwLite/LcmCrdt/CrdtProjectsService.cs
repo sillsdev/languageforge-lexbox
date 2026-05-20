@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using LcmCrdt.MediaServer;
 using SIL.Harmony;
@@ -123,11 +124,92 @@ public partial class CrdtProjectsService(
         Guid? FwProjectId = null,
         string? AuthenticatedUser = null,
         string? AuthenticatedUserId = null,
-        UserProjectRole? Role = null);
+        UserProjectRole? Role = null,
+        WritingSystemId? VernacularWs = null);
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
         return await CreateProject(new(name, name, AfterCreate: ExampleProjectData.Seed, SeedNewProjectData: true, Role: UserProjectRole.Manager));
+    }
+
+    /// <summary>Creates a CRDT project from the shipped SQL template — system data only, no user entries.</summary>
+    public virtual async Task<CrdtProject> CreateProjectFromTemplate(CreateProjectRequest request)
+    {
+        using var activity = LcmCrdtActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_id", request.Id);
+        if (!ProjectCode().IsMatch(request.Code))
+        {
+            var nameIsInvalid = $"Project code '{request.Code}' is invalid";
+            activity?.SetStatus(ActivityStatusCode.Error, nameIsInvalid);
+            throw new InvalidOperationException(nameIsInvalid);
+        }
+        if (request.VernacularWs is null)
+            throw new ArgumentException("VernacularWs is required for template-based creation.", nameof(request));
+
+        var code = Path.GetFileName(request.Code);
+        var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{code}.sqlite");
+        if (File.Exists(sqliteFile))
+        {
+            var alreadyExists = $"Project already exists at '{sqliteFile}'";
+            activity?.SetStatus(ActivityStatusCode.Error, alreadyExists);
+            throw new InvalidOperationException(alreadyExists);
+        }
+
+        var crdtProject = new CrdtProject(code, sqliteFile);
+        var projectData = new ProjectData(request.Name,
+            code,
+            request.Id ?? Guid.NewGuid(),
+            ProjectData.GetOriginDomain(request.Domain),
+            Guid.NewGuid(),
+            request.FwProjectId,
+            request.AuthenticatedUser,
+            request.AuthenticatedUserId,
+            request.Role ?? UserProjectRole.Editor);
+
+        await using var serviceScope = provider.CreateAsyncScope();
+        var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
+        currentProjectService.SetupProjectContextForNewDb(crdtProject);
+        try
+        {
+            await ProjectTemplate.ApplyAsync(ProjectTemplate.LoadEmbedded(), sqliteFile, projectData.Id, request.VernacularWs.Value);
+            await OverwriteProjectDataRow(serviceScope.ServiceProvider, projectData);
+            await currentProjectService.RefreshProjectData();
+            // Force Harmony to recompute every commit's Hash now that we've substituted
+            // seed-commit-Ids and hydrated Guid_N tokens — the persisted Hashes were computed
+            // against the template-source's Ids and would fail validation on first sync.
+            var dataModel = serviceScope.ServiceProvider.GetRequiredService<DataModel>();
+            var jsonOptions = serviceScope.ServiceProvider.GetRequiredService<JsonSerializerOptions>();
+            await ProjectTemplate.ForceHashChainRebuild(dataModel, jsonOptions, projectData.Id, projectData.ClientId);
+            await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to create project {Project} from template, deleting database", crdtProject.Name);
+            activity?.AddException(e);
+            EnsureDeleteProject(sqliteFile);
+            throw;
+        }
+
+        return crdtProject;
+    }
+
+    // Overwrite the template's placeholder ProjectData row with the caller's identity.
+    private static async Task OverwriteProjectDataRow(IServiceProvider services, ProjectData data)
+    {
+        await using var dbContext = await services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+        var rows = await dbContext.ProjectData.ExecuteUpdateAsync(calls => calls
+            .SetProperty(p => p.Id, data.Id)
+            .SetProperty(p => p.Name, data.Name)
+            .SetProperty(p => p.Code, data.Code)
+            .SetProperty(p => p.OriginDomain, data.OriginDomain)
+            .SetProperty(p => p.ClientId, data.ClientId)
+            .SetProperty(p => p.FwProjectId, data.FwProjectId)
+            .SetProperty(p => p.LastUserName, data.LastUserName)
+            .SetProperty(p => p.LastUserId, data.LastUserId)
+            .SetProperty(p => p.Role, data.Role));
+        if (rows != 1)
+            throw new InvalidOperationException(
+                $"Expected to update exactly one ProjectData row after applying template, but updated {rows}.");
     }
 
     public virtual async Task<CrdtProject> CreateProject(CreateProjectRequest request)

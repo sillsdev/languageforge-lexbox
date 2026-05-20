@@ -26,17 +26,25 @@ public static class ProjectRoutes
             });
         group.MapGet("/localProjects",
             (CombinedProjectsService combinedProjectsService) => combinedProjectsService.LocalProjects());
+        // Name is free-form; code identifies the project on disk and must match ProjectCode().
         group.MapPost("/project",
+            async (CrdtProjectsService projectService, string name, string code, string vernacularWs) =>
+            {
+                if (string.IsNullOrWhiteSpace(name)) return Results.BadRequest("Project name is required");
+                if (ValidateProjectCode(projectService, code) is { } codeError) return codeError;
+                if (string.IsNullOrWhiteSpace(vernacularWs))
+                    return Results.BadRequest("Vernacular writing system is required");
+                await projectService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager, VernacularWs: vernacularWs));
+                return Results.Ok();
+            });
+        // Example/demo project — seeds canonical PreDefinedData (parts of speech, complex form
+        // types, semantic domains, custom views) plus a handful of demo entries. Dev use.
+        group.MapPost("/project/demo",
             async (CrdtProjectsService projectService, string name) =>
             {
-                if (string.IsNullOrWhiteSpace(name))
-                    return Results.BadRequest("Project name is required");
-                if (projectService.ProjectExists(name))
-                    return Results.BadRequest("Project already exists");
-                if (!CrdtProjectsService.ProjectCode().IsMatch(name))
-                    return Results.BadRequest("Only letters, numbers, '-' and '_' are allowed");
+                if (ValidateProjectCode(projectService, name) is { } error) return error;
                 await projectService.CreateExampleProject(name);
-                return TypedResults.Ok();
+                return Results.Ok();
             });
         group.MapPost($"/upload/crdt/{{serverAuthority}}/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}",
             async (SyncService syncService,
@@ -71,5 +79,14 @@ public static class ProjectRoutes
                 };
             });
         return group;
+    }
+
+    private static IResult? ValidateProjectCode(CrdtProjectsService projectService, string code)
+    {
+        if (string.IsNullOrWhiteSpace(code)) return Results.BadRequest("Project code is required");
+        if (projectService.ProjectExists(code)) return Results.BadRequest("Project already exists");
+        if (!CrdtProjectsService.ProjectCode().IsMatch(code))
+            return Results.BadRequest("Only letters, numbers, '-' and '_' are allowed");
+        return null;
     }
 }
