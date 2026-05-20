@@ -38,10 +38,9 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
 
     void IDictionary.Add(object key, object? value)
     {
-        var valStr = value as RichString ??
-                     throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to RichString",
-                         nameof(value));
-        Add(WritingSystemId.FromUnknown(key), valStr);
+        var richString = value as RichString ??
+                         throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to RichString", nameof(value));
+        Add(WritingSystemId.FromUnknown(key), richString);
     }
 
     public void Add(WritingSystemId key, RichString value)
@@ -70,14 +69,14 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
         return dictionary.Contains(item);
     }
 
-    public void CopyTo(KeyValuePair<WritingSystemId, RichString>[] array, int arrayIndex)
-    {
-        dictionary.CopyTo(array, arrayIndex);
-    }
-
     public bool Remove(KeyValuePair<WritingSystemId, RichString> item)
     {
         return dictionary.Remove(item);
+    }
+
+    public void CopyTo(KeyValuePair<WritingSystemId, RichString>[] array, int arrayIndex)
+    {
+        dictionary.CopyTo(array, arrayIndex);
     }
 
     public int Count => dictionary.Count;
@@ -104,12 +103,11 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
         get => dictionary.TryGetValue(key, out var value) ? value : new RichString([]);
         set
         {
-            // SystemTextJsonPatch's DictionaryTypedPropertyProxy casts to IDictionary<TKey, TValue?>
-            // and may pass null (e.g. when an empty-string RichString deserialized to null). Treat
-            // that as a remove, mirroring the explicit IDictionary.this[object] setter below.
+            // value will be null if an empty string was deserialized as a RichString (e.g. from a JsonPatch operation
+            // routed through DictionaryTypedPropertyProxy). Mirror the IDictionary.this[object] setter and remove the key.
             if (value is null)
             {
-                dictionary.Remove(key);
+                Remove(key);
                 return;
             }
             value.EnsureWs(key);
