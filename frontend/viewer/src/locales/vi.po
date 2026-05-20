@@ -432,6 +432,10 @@ msgstr "Đã sao chép vào khay nhớ tạm"
 msgid "Copy version"
 msgstr "Sao chép phiên bản"
 
+#: src/home/HomeView.svelte
+msgid "Create Blank Project"
+msgstr ""
+
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
@@ -1459,7 +1463,12 @@ msgstr "Dự án {0} không tìm thấy trên {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Dự án {0} trên {1} chưa được thiết lập cho FieldWorks Lite"
 
+#: src/home/HomeView.svelte
+msgid "Project code (defaults to name)"
+msgstr ""
+
 #. Placeholder for project search
+#: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
 msgid "Project name..."
 msgstr "Tên dự án..."
@@ -2011,6 +2020,10 @@ msgstr "Sử dụng các thành phần như"
 #. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "Vernacular WS (e.g. en, fr)"
 msgstr ""
 
 #. Button label

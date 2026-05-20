@@ -49,6 +49,51 @@ public class OpenProjectTests
     }
 
     [Fact]
+    public async Task CreateProjectFromTemplateAppliesRequestedIdentity()
+    {
+        var code = $"blank-from-template-{Guid.NewGuid():N}";
+        var sqliteFile = $"{code}.sqlite";
+        if (File.Exists(sqliteFile)) File.Delete(sqliteFile);
+        var builder = Host.CreateEmptyApplicationBuilder(null);
+        builder.Services.AddTestLcmCrdtClient();
+        using var host = builder.Build();
+        var asyncScope = host.Services.CreateAsyncScope();
+        var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
+
+        var crdtProject = await crdtProjectsService.CreateProjectFromTemplate(new(
+            Name: "Blank From Template",
+            Code: code,
+            Path: "",
+            Role: UserProjectRole.Manager,
+            VernacularWs: "fr"));
+
+        var miniLcmApi = (CrdtMiniLcmApi)await asyncScope.ServiceProvider.OpenCrdtProject(crdtProject);
+        miniLcmApi.ProjectData.Name.Should().Be("Blank From Template");
+        miniLcmApi.ProjectData.Code.Should().Be(code);
+        miniLcmApi.ProjectData.Role.Should().Be(UserProjectRole.Manager);
+        miniLcmApi.ProjectData.ClientId.Should().NotBe(Guid.Empty);
+
+        var morphTypes = await miniLcmApi.GetMorphTypes().ToArrayAsync();
+        morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count);
+
+        var writingSystems = await miniLcmApi.GetWritingSystems();
+        writingSystems.Analysis.Should().ContainSingle().Which.WsId.Should().Be((WritingSystemId)"en");
+        writingSystems.Vernacular.Should().ContainSingle().Which.WsId.Should().Be((WritingSystemId)"fr");
+
+        // Adding a commit on top of the template forces the chain to extend — and on next open
+        // the chain is implicitly validated. If ForceHashChainRebuild left a stale Hash, this
+        // step (or the surrounding test's verification of the entry) would surface it.
+        var entry = await miniLcmApi.CreateEntry(new Entry
+        {
+            LexemeForm = { { "fr", "post-template" } },
+        });
+        (await miniLcmApi.GetEntry(entry.Id)).Should().NotBeNull();
+
+        await using var dbContext = await asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+        await dbContext.Database.EnsureDeletedAsync();
+    }
+
+    [Fact]
     public async Task OpeningAProjectWorks()
     {
         var sqliteConnectionString = "opening-a-project-works.sqlite";

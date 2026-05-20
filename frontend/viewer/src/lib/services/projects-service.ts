@@ -26,19 +26,23 @@ export class ProjectService implements ICombinedProjectsService {
   deleteProject(_code: string): Promise<void> {
       throw new Error('Method not implemented.');
   }
-  async createProject(newProjectName: string): Promise<void> {
+  // Applies the shipped SQL template — canonical morph types only, no demo data.
+  async createProject(name: string, code: string, vernacularWs: string): Promise<void> {
+    if (!name) throw new Error('Project name is required');
+    if (!code) throw new Error('Project code is required');
+    if (!vernacularWs) throw new Error('Vernacular writing system is required');
+    await this.postOk(`/api/project?name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}&vernacularWs=${encodeURIComponent(vernacularWs)}`);
+  }
 
-    if (!newProjectName) {
-      throw new Error('Project name is required');
-    }
-    const response = await fetch(`/api/project?name=${newProjectName}`, {
-      method: 'POST',
-    });
+  // Example/demo project — seeds canonical PreDefinedData and demo entries. Dev use.
+  async createDemoProject(name: string): Promise<void> {
+    if (!name) throw new Error('Project name is required');
+    await this.postOk(`/api/project/demo?name=${encodeURIComponent(name)}`);
+  }
 
-    if (!response.ok) {
-      throw new Error(await response.text());
-    }
-    return;
+  private async postOk(url: string): Promise<void> {
+    const response = await fetch(url, {method: 'POST'});
+    if (!response.ok) throw new Error(await response.text());
   }
 
   async importFwDataProject(name: string): Promise<boolean> {
