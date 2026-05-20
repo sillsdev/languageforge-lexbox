@@ -32,6 +32,158 @@
   @apply bg-background text-foreground;
 }
 
+/*
+  Reserve space for system insets (status bar, gesture nav) when the WebView
+  renders edge-to-edge - required since Android 15+ (SDK 35+) enforces this by
+  default. Pairs with `viewport-fit=cover` in the MAUI BlazorWebView host page.
+  Harmless on desktop where every term resolves to 0.
+
+  The --android-safe-* / --android-wide-* / --android-ime-bottom custom properties
+  are written by the MAUI Android host (see AndroidEdgeToEdgeInsets.cs) from real
+  WindowInsetsCompat values -- we don't trust CSS env(safe-area-inset-*) inside the
+  Android System WebView because it has been observed to report 0 even with
+  viewport-fit=cover. iOS WKWebView populates env() reliably so we fall back to it
+  there, and finally to 0 on desktop.
+
+  --safe-area-inset-*: "chrome" inset (SystemBars + DisplayCutout only). For general
+    page chrome -- status bar / nav bar / notch clearance. What `.app` pads with.
+  --wide-area-inset-*: "wide" inset (chrome unioned with MandatorySystemGestures and
+    TappableElement on Android). Use only for FLOATING elements (FABs, toasters)
+    that need clearance from the gesture-nav tappable region, which can be wider
+    than the visual handle in SystemBars. On iOS / desktop the env() fallback is
+    the same as --safe-area-inset-* -- the distinction only matters on Android.
+
+  --safe-viewport-height: system-bar-only safe height. Use for chrome surfaces
+    (sidebars, drawers, dialogs) that should stay put when the keyboard opens.
+  --content-viewport-height: safe height minus IME. Use for scrollable content
+    areas that should shrink to remain visible above the soft keyboard.
+*/
+:root {
+  --safe-area-inset-top: var(--android-safe-top, env(safe-area-inset-top, 0px));
+  --safe-area-inset-right: var(--android-safe-right, env(safe-area-inset-right, 0px));
+  --safe-area-inset-bottom: var(--android-safe-bottom, env(safe-area-inset-bottom, 0px));
+  --safe-area-inset-left: var(--android-safe-left, env(safe-area-inset-left, 0px));
+  --wide-area-inset-top: var(--android-wide-top, env(safe-area-inset-top, 0px));
+  --wide-area-inset-right: var(--android-wide-right, env(safe-area-inset-right, 0px));
+  --wide-area-inset-bottom: var(--android-wide-bottom, env(safe-area-inset-bottom, 0px));
+  --wide-area-inset-left: var(--android-wide-left, env(safe-area-inset-left, 0px));
+  --ime-inset-bottom: var(--android-ime-bottom, 0px);
+  --safe-viewport-height: calc(100dvh - var(--safe-area-inset-top) - var(--safe-area-inset-bottom));
+  --content-viewport-height: calc(100dvh - var(--safe-area-inset-top) - var(--ime-inset-bottom));
+}
+
+/*
+  Padding goes on `.app` (not `body`) because some descendants are sized to the
+  visual viewport and would otherwise render under the status bar / gesture nav,
+  ignoring any padding on `body`. The height clamp is applied via `min-h-dvh` on
+  the `.app` element; padding stays here so it doesn't have to repeat on every
+  direction-utility.
+
+  Note: no padding-bottom. We deliberately let scroll content extend behind the
+  gesture nav / FAB so the entries list visually continues into the floating
+  chrome region. Floating elements (FAB, sonner) pay their own bottom inset.
+*/
+.app {
+  padding: var(--safe-area-inset-top) var(--safe-area-inset-right) 0 var(--safe-area-inset-left);
+}
+
+/*
+  Status-bar band: a themed strip behind the OS status bar on Android edge-to-edge.
+  Mirrors AppBar's background composite (primary @ 0.4 alpha over --background) so the
+  band visually continues the AppBar through the status-bar region and re-themes
+  automatically when the user toggles light/dark/accent in-app. Height collapses to 0
+  on iOS / desktop where --safe-area-inset-top resolves to 0.
+
+  z-index 100 puts the band above everything in-app, including modal overlays
+  (z-50). This is intentional: the band is OS-chrome-tier — its job is to keep
+  the status bar icons legible regardless of what's open underneath. Modals
+  darken in-app content; the status bar area stays bright.
+
+  Hidden on project view (see the `:has([data-variant=inset])` rule below):
+  there, `.app`'s bg-sidebar already covers the safe-top region in a single
+  continuous color, so the band would just paint a different-shaded strip on
+  top of it.
+*/
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--safe-area-inset-top);
+  background:
+    linear-gradient(oklch(from var(--primary) l c h / 0.4)),
+    var(--background);
+  z-index: 100;
+  pointer-events: none;
+}
+
+/*
+  Project-view background: when the layout contains an inset-variant sidebar,
+  paint `.app` AND `body` with bg-sidebar so the cutout / nav region and any
+  area exposed when the IME shrinks `.app` (the strip alongside the keyboard
+  in landscape, for instance) stay visually continuous with the sidebar
+  instead of leaking through to bg-background. The themed status-bar band
+  (body::before) still paints on top in the safe-top region.
+*/
+.app:has([data-variant=inset]),
+body:has([data-variant=inset]) {
+  background-color: var(--sidebar);
+}
+
+/*
+  svelte-sonner offset / mobileOffset are configured as inline styles via the
+  <Toaster> props (see lib/components/ui/sonner/sonner.svelte). External CSS-var
+  overrides here would lose to the library's own inline `style:--offset-*=...`
+  declarations on the <ol>, so we have to drive the values through the props.
+*/
+
+/* Safe-area utilities. Apply at call sites instead of overriding slot selectors. */
+@utility min-h-safe-screen { min-height: var(--safe-viewport-height); }
+@utility h-safe-screen { height: var(--safe-viewport-height); }
+@utility max-h-safe-screen { max-height: var(--safe-viewport-height); }
+@utility min-h-content-screen { min-height: var(--content-viewport-height); }
+@utility h-content-screen { height: var(--content-viewport-height); }
+/* Vaul drawer baseline is max-h-[90dvh]; this preserves the breathing room. */
+@utility max-h-90-safe { max-height: calc(var(--safe-viewport-height) * 0.9); }
+@utility pt-safe { padding-top: var(--safe-area-inset-top); }
+@utility pr-safe { padding-right: var(--safe-area-inset-right); }
+@utility pb-safe { padding-bottom: var(--safe-area-inset-bottom); }
+@utility pl-safe { padding-left: var(--safe-area-inset-left); }
+@utility px-safe {
+  padding-left: var(--safe-area-inset-left);
+  padding-right: var(--safe-area-inset-right);
+}
+@utility py-safe {
+  padding-top: var(--safe-area-inset-top);
+  padding-bottom: var(--safe-area-inset-bottom);
+}
+@utility pb-ime { padding-bottom: var(--ime-inset-bottom); }
+
+/*
+  Wide-inset utilities. Mirror pb-safe / pr-safe but pull from --wide-area-inset-*
+  so floating elements (FAB, sonner offset calc) clear the gesture-nav tappable
+  region on Android. Identical to safe variants on iOS / desktop.
+*/
+@utility pb-wide { padding-bottom: var(--wide-area-inset-bottom); }
+@utility pr-wide { padding-right: var(--wide-area-inset-right); }
+
+/*
+  "Extra" wide insets: the difference between wide and chrome. Use on floating
+  elements that already sit inside `.app` (which adds chrome padding) but need to
+  clear the full wide-inset region. `max(0px, ...)` because the wide vars fall
+  back via env() on iOS where it can theoretically resolve unequal to safe.
+*/
+@utility pb-wide-extra { padding-bottom: max(0px, calc(var(--wide-area-inset-bottom) - var(--safe-area-inset-bottom))); }
+@utility pr-wide-extra { padding-right: max(0px, calc(var(--wide-area-inset-right) - var(--safe-area-inset-right))); }
+
+/*
+  Re-center a fixed element within the safe rect instead of the full viewport.
+  Use with `translate-x-[-50%] translate-y-[-50%]` (which still mean "shift by
+  half of self"); only the 50% anchor is biased by the inset asymmetry. When
+  insets are symmetric or zero, this collapses to plain `top: 50%; left: 50%`.
+*/
+@utility top-safe-center { top: calc(50% + (var(--safe-area-inset-top) - var(--safe-area-inset-bottom)) / 2); }
+@utility left-safe-center { left: calc(50% + (var(--safe-area-inset-left) - var(--safe-area-inset-right)) / 2); }
+
 @layer base {
   /* shadcn generated styles */
   * {
