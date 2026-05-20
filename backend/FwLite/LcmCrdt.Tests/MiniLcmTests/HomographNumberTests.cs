@@ -2,8 +2,7 @@ namespace LcmCrdt.Tests.MiniLcmTests;
 
 // CRDT's homograph handling: an explicit non-zero HomographNumber is taken as-is on both
 // create and update. When none is supplied, CreateEntry assigns one based on the entries
-// that share the headword — see CreateEntry_NoHomographNumberSpecified_... below for the
-// observable progression.
+// that share the headword — the tests below pin down the observable progression.
 public class HomographNumberTests : MiniLcmTestBase
 {
     private readonly MiniLcmApiFixture _fixture = new();

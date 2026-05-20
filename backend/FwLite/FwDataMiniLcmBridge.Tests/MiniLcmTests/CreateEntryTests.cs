@@ -28,5 +28,4 @@ public class CreateEntryTests(ProjectLoaderFixture fixture) : CreateEntryTestsBa
         lexEntry.PrimaryMorphType.Guid.Should().Be(MoMorphTypeTags.kguidMorphStem);
         lexEntry.PrimaryMorphType.Name.UiString.Should().Be("stem");
     }
-
 }

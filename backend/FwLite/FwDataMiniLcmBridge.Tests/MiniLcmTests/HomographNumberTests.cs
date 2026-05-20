@@ -26,8 +26,8 @@ public class HomographNumberTests(ProjectLoaderFixture fixture) : MiniLcmTestBas
         // Request HN=10 with only 2 existing homographs — should be corrected to current-max + 1 = 3.
         var c = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = form }, HomographNumber = 10 });
 
-        (await Api.GetEntry(a.Id))!.HomographNumber.Should().Be(1, "existing homographs keep their numbers");
-        (await Api.GetEntry(b.Id))!.HomographNumber.Should().Be(2, "existing homographs keep their numbers");
+        (await Api.GetEntry(a.Id))!.HomographNumber.Should().Be(1);
+        (await Api.GetEntry(b.Id))!.HomographNumber.Should().Be(2);
         (await Api.GetEntry(c.Id))!.HomographNumber.Should().Be(3, "out-of-range HN is clamped to max + 1");
     }
 
