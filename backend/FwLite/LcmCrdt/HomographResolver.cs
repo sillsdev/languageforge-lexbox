@@ -33,6 +33,7 @@ internal static class HomographResolver
         var matchingEntries = await (
             from e in repo.Entries
             // a simple "==" comparison matches LibLCM
+            // https://github.com/sillsdev/liblcm/blob/1659ac748c77c554f558215c111c4ca73f86d355/src/SIL.LCModel/Infrastructure/Impl/RepositoryAdditions.cs#L1292
             where e.Id != entry.Id && e.Headword(wsId) == newHeadword
             let eSo = morphTypes.Where(m => m.Kind == e.MorphType)
                 .Select(m => (int?)m.SecondaryOrder).FirstOrDefault()
