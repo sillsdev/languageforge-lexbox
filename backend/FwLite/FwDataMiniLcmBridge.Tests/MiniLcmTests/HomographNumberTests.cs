@@ -3,11 +3,9 @@ using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge.Tests.MiniLcmTests;
 
-// FwData routes every HomographNumber write through ILexEntryRepository.CorrectHomographNumbers,
-// which guarantees a valid 1..N sequence over each set of homographs. Honoring the requested
-// HN is best-effort: when a duplicate is detected the algorithm renumbers by
-// (HomographNumber, DateCreated, Guid), so older entries keep their slot. The update-side
-// tests below mutate the newest entry to keep the renumbered outcome easy to follow.
+// FwData corrects HomographNumber on every write. The tests below pin down the observable
+// behavior — honoring an explicit value is best effort; an out-of-range or duplicate
+// request gets renumbered into a valid sequence.
 [Collection(ProjectLoaderFixture.Name)]
 public class HomographNumberTests(ProjectLoaderFixture fixture) : MiniLcmTestBase
 {
@@ -79,8 +77,7 @@ public class HomographNumberTests(ProjectLoaderFixture fixture) : MiniLcmTestBas
         var c = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = form } });
         // baseline: A=1, B=2, C=3
 
-        // Update C (newest) to duplicate A's HN=1. Renumber by (HN, DateCreated, Guid)
-        // keeps A in its slot and slots C in immediately after, shoving B up.
+        // Update C (newest) to duplicate A's HN=1.
         await Api.UpdateEntry(c, c with { HomographNumber = 1 });
 
         (await Api.GetEntry(a.Id))!.HomographNumber.Should().Be(1, "older HN=1 keeps its slot");
