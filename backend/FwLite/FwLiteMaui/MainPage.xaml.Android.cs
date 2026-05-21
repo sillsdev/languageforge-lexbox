@@ -36,6 +36,13 @@ public partial class MainPage
             ? (e.WebView.WebChromeClient ?? new Android.Webkit.WebChromeClient())
             : new Android.Webkit.WebChromeClient();
         e.WebView.SetWebChromeClient(new PermissionManagingBlazorWebChromeClient(baseClient, activity));
+
+        // Edge-to-edge handling is delegated to MAUI 10's built-in SafeAreaEdges
+        // support on ContentPage (see MainPage.xaml: SafeAreaEdges="Container").
+        // MAUI 10 unconditionally calls WindowCompat.SetDecorFitsSystemWindows(false)
+        // in MauiAppCompatActivity.OnCreate, then pads the ContentViewGroup so the
+        // BlazorWebView lives inside the system-bar safe area. No manual JS-injected
+        // CSS variables needed.
     }
 
     private partial void BlazorWebViewOnUrlLoading(object? sender, UrlLoadingEventArgs e)
