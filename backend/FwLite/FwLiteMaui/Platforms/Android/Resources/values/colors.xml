@@ -3,4 +3,11 @@
     <color name="colorPrimary">#D6E6FF</color>
     <color name="colorPrimaryDark">#152747</color>
     <color name="colorAccent">#152747</color>
+    <!--
+        Shown through the status / nav bar gutters when AndroidSafeAreaPadding pads the
+        content view into the safe area. Light variant; values-night/colors.xml overrides.
+        Mid-tone derived from the app's MAUI PageBackgroundColor (#152747) tinted toward
+        colorPrimary so dark status-bar icons remain legible.
+    -->
+    <color name="statusBarBackground">#D6E6FF</color>
 </resources>

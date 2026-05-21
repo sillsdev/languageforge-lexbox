@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Dark-theme override for the status / nav bar band. Matches the MAUI app's dark
+        PageBackgroundColor so the band visually continues the app surface. Light status-bar
+        icons are configured in AndroidSafeAreaPadding when UiMode reports night.
+    -->
+    <color name="statusBarBackground">#152747</color>
+</resources>
