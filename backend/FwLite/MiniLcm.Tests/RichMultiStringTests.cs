@@ -307,9 +307,8 @@ public class RichMultiStringTests
         ms["fr"].Should().BeEquivalentTo(new RichString("test", "fr"));
     }
 
-    //the original repro for "System.ArgumentException: unable to convert value String to RichString":
-    //a JsonPatchDocument<Entry> patches /Note/en with a raw string value. This routes through
-    //PocoAdapter.TryAdd -> DictionaryPropertyProxy, which used to hand RichMultiString.IDictionary.Add a raw string.
+    //same as above but patching via the parent Entry, so the patch goes through PocoAdapter /
+    //DictionaryPropertyProxy and hits RichMultiString's IDictionary.Add instead of the typed Add.
     [Fact]
     public void JsonPatchCanAddRichMultiStringPropertyOnEntityWhenValueIsString()
     {

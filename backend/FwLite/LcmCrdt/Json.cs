@@ -52,7 +52,6 @@ public static class Json
 
             if (returnType != typeof(string) && returnType != typeof(RichString))//bypass rich string so it can be used with .GetPlainText()
             {
-                //v6 dropped PseudoFunctions.MakeTryConvert; build the SqlFunction directly instead.
                 valueExpression = new SqlFunction(
                     new DbDataType(returnType),
                     PseudoFunctions.TRY_CONVERT,
@@ -94,8 +93,9 @@ public static class Json
                         }
                         else if (mce.Method.DeclaringType == typeof(Sql) && mce.Method.Name == "Alias")
                         {
-                            //v6 wraps [ExpressionMethod] substitutions in Sql.Alias(real, "<name>") for
-                            //output-column aliasing; peel it so the path walker sees the underlying expr.
+                            //linq2db 6.x's ExposeExpressionVisitor wraps every [ExpressionMethod] substitution in
+                            //Sql.Alias(real, attr.Alias ?? member.Name) as a column-alias hint; peel it so the path
+                            //walker sees the underlying expression. linq2db 5 did not have this wrap.
                             pathBody = mce.Arguments[0];
                         }
                         else

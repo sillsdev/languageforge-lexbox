@@ -267,7 +267,6 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         foreach (var entrySearchRecord in searchRecords)
         {
             //can't use bulk copy here because that creates duplicate rows
-            //TODO: Replace this with a bulk delete followed by a bulk copy, it should be faster - 2026-05 RM
             await InsertOrUpdateEntrySearchRecord(entrySearchRecord, entrySearchRecordsTable);
         }
 

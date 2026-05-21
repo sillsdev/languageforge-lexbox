@@ -69,14 +69,14 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
         return dictionary.Contains(item);
     }
 
-    public bool Remove(KeyValuePair<WritingSystemId, RichString> item)
-    {
-        return dictionary.Remove(item);
-    }
-
     public void CopyTo(KeyValuePair<WritingSystemId, RichString>[] array, int arrayIndex)
     {
         dictionary.CopyTo(array, arrayIndex);
+    }
+
+    public bool Remove(KeyValuePair<WritingSystemId, RichString> item)
+    {
+        return dictionary.Remove(item);
     }
 
     public int Count => dictionary.Count;
