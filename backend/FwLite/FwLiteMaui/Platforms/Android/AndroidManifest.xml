@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 <!--    the app icon is kinda magic here, see https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-9.0&tabs=android-->
+	<!-- Pin targetSdkVersion to 35 (Android 15) so windowOptOutEdgeToEdgeEnforcement keeps
+	     working on Android 16 devices: the attribute is disabled when the app *targets* 36.
+	     compileSdk still follows the net10.0-android TFM (currently 36). Play Store still
+	     accepts targetSdk >= 35 as of 2026-05; stopgap until we embrace edge-to-edge. -->
+	<uses-sdk android:targetSdkVersion="35" />
 	<application android:allowBackup="true" android:icon="@mipmap/logo_background" android:roundIcon="@mipmap/logo_background_round" android:supportsRtl="true"></application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
