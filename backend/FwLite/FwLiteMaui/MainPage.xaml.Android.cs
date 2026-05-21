@@ -36,11 +36,6 @@ public partial class MainPage
             ? (e.WebView.WebChromeClient ?? new Android.Webkit.WebChromeClient())
             : new Android.Webkit.WebChromeClient();
         e.WebView.SetWebChromeClient(new PermissionManagingBlazorWebChromeClient(baseClient, activity));
-
-        // Edge-to-edge handling: MAUI 10 unconditionally opts the activity into
-        // edge-to-edge on Android, and MainPage's SafeAreaEdges="Container" pads
-        // the BlazorWebView inside the system-bar safe area. MainActivity paints
-        // the surrounding gutter with the brand color (colorPrimaryDark).
     }
 
     private partial void BlazorWebViewOnUrlLoading(object? sender, UrlLoadingEventArgs e)

@@ -25,15 +25,9 @@ public class MainActivity : MauiAppCompatActivity
     public override void OnConfigurationChanged(Configuration newConfig)
     {
         base.OnConfigurationChanged(newConfig);
-        // MAUI re-decides system-bar icon appearance on config changes, so
-        // re-pin it after the base call.
         ApplyBrandedSystemBars();
     }
 
-    // Paints the system-bar gutter left around the BlazorWebView (by
-    // MainPage's SafeAreaEdges="Container") with the brand color and pins
-    // the icons to light so they stay readable regardless of system theme
-    // or in-app theme overrides.
     private void ApplyBrandedSystemBars()
     {
         if (Window is null) return;
