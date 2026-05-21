@@ -111,11 +111,11 @@ public class CurrentProjectService(
                 // Seed morph-types if missing (for existing projects created before morph-type support).
                 // Must happen BEFORE FTS regeneration so headwords include morph-type tokens.
                 // (querying Commits instead of MorphTypes, because the commit may not be projected yet)
-                var projectData = await dbContext.ProjectData.AsNoTracking().FirstAsync();
-                if (!await dbContext.Set<Commit>().AsNoTracking().AnyAsync(c => c.Id == PreDefinedData.MorphTypesSeedCommitId(projectData.Id)))
+                if (!await dbContext.Set<Commit>().AsNoTracking().AnyAsync(c => c.Id == PreDefinedData.MorphTypesSeedCommitId))
                 {
                     var dataModel = services.GetRequiredService<DataModel>();
-                    await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
+                    var projectData = await dbContext.ProjectData.AsNoTracking().FirstAsync();
+                    await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData.ClientId);
                 }
 
                 if (EntrySearchServiceFactory is not null)
