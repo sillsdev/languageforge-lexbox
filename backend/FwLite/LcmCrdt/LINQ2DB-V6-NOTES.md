@@ -305,4 +305,4 @@ Desktop is silent: the class is `beforefieldinit`, only `Quote()` reads the affe
 3. If they pass → delete `backend/FwLite/FwLiteMaui/build/Linq2DbCctorPatcher/` and the four targets in `FwLiteMaui.csproj` (`_VerifyLinq2DbEfCoreVersionPin`, `_BuildLinq2DbCctorPatcher`, `_CollectLinq2DbStagedAssemblies`, `_PatchLinq2DbSqlTransparentExpressionCctor`). Leave the now-passing repro tests as a permanent regression guard.
 4. If they still fail → widen the version pin regex in `_VerifyLinq2DbEfCoreVersionPin`, re-`[Skip]` the tests with an updated reason.
 
-**Upstream issue:** TODO INSERT UPSTREAM ISSUE URL HERE (search both `_VerifyLinq2DbEfCoreVersionPin` in `FwLiteMaui.csproj` and `Program.cs` in the patcher project — keep the URL in lockstep).
+**Upstream fix:** <https://github.com/linq2db/linq2db/pull/5546> (approved, not yet released). The URL is repeated in `_VerifyLinq2DbEfCoreVersionPin` in `FwLiteMaui.csproj` and in the patcher `Program.cs` — keep the three in lockstep.

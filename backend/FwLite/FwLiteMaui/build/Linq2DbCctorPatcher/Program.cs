@@ -21,10 +21,7 @@
 // Also removes Quote() so any unexpected caller fails loudly with
 // NotImplementedException instead of NRE'ing on the (now-null) _ctor field.
 //
-// SCOPE: only FwLiteMaui targets net10.0-android today, so this patcher lives
-// alongside it. If another csproj ever targets net10.0-android and references
-// linq2db.EntityFrameworkCore, lift this into a shared backend/build/ tools
-// directory and reference it from each consumer's targets.
+// Upstream fix: https://github.com/linq2db/linq2db/pull/5546 (approved, not yet released).
 //
 // KILL-SWITCH: when upstream ships a fixed version (see the version pin
 // in FwLiteMaui.csproj — search for _Linq2DbEfCorePatchedVersion), delete this
@@ -96,30 +93,17 @@ using (var asm = AssemblyDefinition.ReadAssembly(dllPath, new ReaderParameters {
     if (quote is null || !quote.HasBody)
         return Fail("SqlTransparentExpression.Quote() not found (or has no body).");
 
-    {
-        var il = cctor.Body.GetILProcessor();
-        cctor.Body.Instructions.Clear();
-        cctor.Body.ExceptionHandlers.Clear();
-        cctor.Body.Variables.Clear();
-        il.Append(Instruction.Create(OpCodes.Ret));
-        Console.WriteLine("Stubbed SqlTransparentExpression .cctor to no-op ret");
-    }
+    ReplaceBodyWith(cctor, Instruction.Create(OpCodes.Ret));
+    Console.WriteLine("Stubbed SqlTransparentExpression .cctor to no-op ret");
 
-    {
-        // Replace Quote() with `throw new NotImplementedException();` so anything that
-        // somehow reaches it fails loud rather than NRE'ing on the now-null _ctor field.
-        var nieCtor = asm.MainModule.ImportReference(
-            new MethodReference(".ctor", asm.MainModule.TypeSystem.Void,
-                asm.MainModule.ImportReference(typeof(NotImplementedException)))
-            { HasThis = true });
-        var il = quote.Body.GetILProcessor();
-        quote.Body.Instructions.Clear();
-        quote.Body.ExceptionHandlers.Clear();
-        quote.Body.Variables.Clear();
-        il.Append(Instruction.Create(OpCodes.Newobj, nieCtor));
-        il.Append(Instruction.Create(OpCodes.Throw));
-        Console.WriteLine("Replaced SqlTransparentExpression.Quote() with throw NotImplementedException");
-    }
+    // Replace Quote() with `throw new NotImplementedException();` so anything that
+    // somehow reaches it fails loud rather than NRE'ing on the now-null _ctor field.
+    var nieCtor = asm.MainModule.ImportReference(
+        typeof(NotImplementedException).GetConstructor(Type.EmptyTypes)!);
+    ReplaceBodyWith(quote,
+        Instruction.Create(OpCodes.Newobj, nieCtor),
+        Instruction.Create(OpCodes.Throw));
+    Console.WriteLine("Replaced SqlTransparentExpression.Quote() with throw NotImplementedException");
 
     asm.Write();
 }
@@ -127,3 +111,12 @@ using (var asm = AssemblyDefinition.ReadAssembly(dllPath, new ReaderParameters {
 File.WriteAllText(markerPath, DateTime.UtcNow.ToString("O"));
 Console.WriteLine($"Patched {dllPath}");
 return 0;
+
+static void ReplaceBodyWith(MethodDefinition method, params Instruction[] instructions)
+{
+    method.Body.Instructions.Clear();
+    method.Body.ExceptionHandlers.Clear();
+    method.Body.Variables.Clear();
+    var il = method.Body.GetILProcessor();
+    foreach (var ins in instructions) il.Append(ins);
+}
