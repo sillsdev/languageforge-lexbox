@@ -24,14 +24,15 @@
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
-  import {untrack} from 'svelte';
+
+  type DictionaryPreviewMode = 'show' | 'hide' | 'sticky';
 
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
   const features = useFeatures();
   const viewService = useViewService();
-  const projectStorage = useProjectStorage();
+  const dictionaryPreviewStorage = useProjectStorage().dictionaryPreview;
   const {
     entryId,
     onClose,
@@ -91,24 +92,16 @@
   let entry = $derived(entryResource.current ?? undefined);
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
-  let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
-  let dictionaryPreviewLoaded = false;
-  $effect(() => {
-    if (untrack(() => !projectStorage.dictionaryPreview.loading)) {
-      untrack(() => {
-        const stored = projectStorage.dictionaryPreview.current;
-        if (stored === 'show' || stored === 'hide' || stored === 'sticky') dictionaryPreview = stored;
-      });
-      dictionaryPreviewLoaded = true;
-      return;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    projectStorage.dictionaryPreview.loading;
-  });
-  $effect(() => {
-    if (dictionaryPreviewLoaded) void projectStorage.dictionaryPreview.set(dictionaryPreview);
-  });
-  const sticky = $derived.by(() => dictionaryPreview === 'sticky');
+  const dictionaryPreview: DictionaryPreviewMode = $derived(
+    isDictionaryPreviewMode(dictionaryPreviewStorage.current) ? dictionaryPreviewStorage.current : 'show'
+  );
+  function setDictionaryPreview(value: DictionaryPreviewMode): void {
+    void dictionaryPreviewStorage.set(value);
+  }
+  function isDictionaryPreviewMode(value: string): value is DictionaryPreviewMode {
+    return value === 'show' || value === 'hide' || value === 'sticky';
+  }
+  const sticky = $derived(dictionaryPreview === 'sticky');
 
   let readonly = $state(false);
   let deleted = $state(false);
@@ -126,7 +119,7 @@
   <div class="md:pb-4">
     <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
       {#snippet actions()}
-        <Toggle bind:pressed={() => sticky, (value) => dictionaryPreview = value ? 'sticky' : 'show'}
+        <Toggle bind:pressed={() => sticky, (value) => setDictionaryPreview(value ? 'sticky' : 'show')}
           aria-label={$t`Toggle pinned`} class="aspect-square" size="sm">
           <Icon icon="i-mdi-pin-outline" class="size-5" />
         </Toggle>
@@ -144,7 +137,7 @@
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
         <div class="flex">
-          <ViewPicker bind:dictionaryPreview bind:readonly />
+          <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, setDictionaryPreview} bind:readonly />
           <EntryMenu {entry} />
         </div>
       </div>
