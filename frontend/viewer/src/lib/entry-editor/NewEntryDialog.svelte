@@ -13,7 +13,7 @@
   import {useSaveHandler} from '../services/save-event-service.svelte';
   import {useLexboxApi} from '../services/service-provider';
   import {defaultEntry, defaultSense} from '../utils';
-  import OverrideFields from '$lib/views/OverrideFields.svelte';
+  import RootFields from '$lib/views/RootFields.svelte';
   import {useWritingSystemService} from '$project/data';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
@@ -160,13 +160,7 @@
       <Dialog.DialogTitle>{pt($t`New Entry`, $t`New Word`, viewService.currentView)}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     <div>
-      <OverrideFields shownFields={[
-        'lexemeForm', 'citationForm',
-        'gloss', 'definition', 'partOfSpeechId',
-        /* only show semantic domains and publications if the "template" set it */
-        ...(entryTemplate?.publishIn?.length ? ['publishIn'] as const : []),
-        ...(senseTemplate?.semanticDomains?.length ? ['semanticDomains'] as const : [])
-        ]}>
+      <RootFields>
         <Editor.Root bind:this={editor}>
           <Editor.Grid>
             <EntryEditorPrimitive bind:entry autofocus modalMode
@@ -187,7 +181,7 @@
             {/if}
           </Editor.Grid>
         </Editor.Root>
-      </OverrideFields>
+      </RootFields>
     </div>
     {#if errors.length}
       <div class="text-end space-y-2">

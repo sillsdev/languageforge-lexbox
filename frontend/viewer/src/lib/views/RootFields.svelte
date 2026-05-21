@@ -8,8 +8,15 @@
   const overrideService = initViewService({persist: false});
 
   $effect.pre(() => {
-    // use the root view of what is potentially a custom-view
-    overrideService.overrideView(viewService.rootView);
+    const rootView = viewService.rootView;
+    const currentView = viewService.currentView;
+    // show all root fields, but keep the current view's writing-system selection
+    overrideService.overrideView({
+      ...currentView,
+      entryFields: rootView.entryFields,
+      senseFields: rootView.senseFields,
+      exampleFields: rootView.exampleFields,
+    });
   });
 </script>
 
