@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Models;
+using SIL.WritingSystems;
 
 namespace FwLiteWeb.Routes;
 
@@ -34,6 +35,8 @@ public static class ProjectRoutes
                 if (ValidateProjectCode(projectService, code) is { } codeError) return codeError;
                 if (string.IsNullOrWhiteSpace(vernacularWs))
                     return Results.BadRequest("Vernacular writing system is required");
+                if (!IetfLanguageTag.IsValid(vernacularWs))
+                    return Results.BadRequest($"'{vernacularWs}' is not a valid IETF language tag");
                 await projectService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager, VernacularWs: vernacularWs));
                 return Results.Ok();
             });

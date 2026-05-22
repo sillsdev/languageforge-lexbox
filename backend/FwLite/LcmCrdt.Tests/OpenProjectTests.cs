@@ -1,6 +1,8 @@
+using LcmCrdt.Objects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SIL.Harmony;
 using static LcmCrdt.CrdtProjectsService;
 
 namespace LcmCrdt.Tests;
@@ -90,6 +92,33 @@ public class OpenProjectTests
         (await miniLcmApi.GetEntry(entry.Id)).Should().NotBeNull();
 
         await using var dbContext = await asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+        await dbContext.Database.EnsureDeletedAsync();
+    }
+
+    [Fact]
+    public async Task CreateProjectFromTemplate_SubstitutesMorphTypesSeedCommitId()
+    {
+        var code = $"morph-seed-template-{Guid.NewGuid():N}";
+        var sqliteFile = $"{code}.sqlite";
+        if (File.Exists(sqliteFile)) File.Delete(sqliteFile);
+        var builder = Host.CreateEmptyApplicationBuilder(null);
+        builder.Services.AddTestLcmCrdtClient();
+        using var host = builder.Build();
+        var asyncScope = host.Services.CreateAsyncScope();
+        var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
+
+        var crdtProject = await crdtProjectsService.CreateProjectFromTemplate(new(
+            Name: "morph-seed-template",
+            Code: code,
+            Path: "",
+            Role: UserProjectRole.Manager,
+            VernacularWs: "en"));
+        await asyncScope.ServiceProvider.OpenCrdtProject(crdtProject);
+
+        var expectedSeedId = PreDefinedData.MorphTypesSeedCommitId(crdtProject.Data!.Id);
+        await using var dbContext = await asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+        var seedCommitCount = await dbContext.Set<Commit>().AsNoTracking().CountAsync(c => c.Id == expectedSeedId);
+        seedCommitCount.Should().Be(1, "the template's seed-commit placeholder must resolve to the project-scoped id that the re-seed gate in CurrentProjectService checks");
         await dbContext.Database.EnsureDeletedAsync();
     }
 

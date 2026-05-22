@@ -165,6 +165,7 @@ public partial class CrdtProjectsService(
             request.AuthenticatedUser,
             request.AuthenticatedUserId,
             request.Role ?? UserProjectRole.Editor);
+        crdtProject.Data = projectData;
 
         await using var serviceScope = provider.CreateAsyncScope();
         var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
