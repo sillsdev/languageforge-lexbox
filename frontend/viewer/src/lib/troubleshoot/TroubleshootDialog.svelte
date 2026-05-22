@@ -10,6 +10,7 @@
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
   import {resource} from 'runed';
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
+  import {isDev} from '$lib/layout/DevContent.svelte';
 
   const openQueryParam = new QueryParamStateBool({
     key: 'troubleshootDialogOpen',
@@ -63,7 +64,7 @@
         <span class="font-semibold">{config.os}</span>
       </p>
     </div>
-    {#if service}
+    {#if service && (canOpenDataDirectory || $isDev)}
       <div class="w-full">
         <Label>{$t`Data Directory`}</Label>
         <InputShell class="ps-2 pe-1">
