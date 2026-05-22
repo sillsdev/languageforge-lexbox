@@ -115,7 +115,6 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
       - name: Set up Playwright dependencies
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend
         run: pnpm exec playwright install --with-deps
       - name: Run UI tests
@@ -163,7 +162,6 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
       - name: Set up Playwright dependencies
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend/viewer
         run: pnpm exec playwright install --with-deps
       - name: vitest
@@ -519,7 +517,6 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
       - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend/viewer
         run: pnpm exec playwright install --with-deps
 
