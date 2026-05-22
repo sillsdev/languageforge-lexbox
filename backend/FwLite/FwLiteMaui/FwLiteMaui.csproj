@@ -139,12 +139,16 @@
       <_Linq2DbStagedAssemblies Include="$(IntermediateOutputPath)**\linq2db.EntityFrameworkCore.dll" />
     </ItemGroup>
   </Target>
-  <!-- Incremental: per-dll <dll>.cctor-patched sentinels gate re-runs. -->
+  <!-- Incremental: per-dll <dll>.cctor-patched sentinels gate re-runs.
+       _AndroidAotCompilation must stay in BeforeTargets: in Release the AOT step compiles
+       IL to native .so files, and Android's runtime prefers the AOT'd native code over IL.
+       If the patcher runs after AOT, the patched dll in the AAB is shadowed by AOT'd
+       unpatched native code and the bug still ships. -->
   <Target Name="_PatchLinq2DbSqlTransparentExpressionCctor"
           Condition="'$(TargetPlatform)' == 'android'"
           DependsOnTargets="_BuildLinq2DbCctorPatcher;_CollectLinq2DbStagedAssemblies"
           AfterTargets="_LinkAssembliesNoShrink;_AfterILLinkAdditionalSteps;_RemoveRegisterAttribute"
-          BeforeTargets="_CollectAssembliesToCompress;_BuildApkFastDev"
+          BeforeTargets="_CollectAssembliesToCompress;_BuildApkFastDev;_AndroidAotCompilation"
           Inputs="@(_Linq2DbStagedAssemblies)"
           Outputs="@(_Linq2DbStagedAssemblies->'%(FullPath).cctor-patched')">
     <PropertyGroup>
