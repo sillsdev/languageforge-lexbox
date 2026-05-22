@@ -80,7 +80,7 @@
           {#if !lastLocalSyncDate}
             <span>{$t`Never`}</span>
           {:else}
-            <FormatRelativeDate date={lastLocalSyncDate} showActualDate live={15000} />
+            <FormatRelativeDate date={lastLocalSyncDate} showActualDate live />
           {/if}
         </T>
       </span>
