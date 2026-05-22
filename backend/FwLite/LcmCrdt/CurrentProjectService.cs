@@ -115,7 +115,9 @@ public class CurrentProjectService(
                 // support, or freshly-downloaded projects that haven't synced yet). Must happen
                 // BEFORE FTS regeneration so headwords include morph-type tokens. Querying
                 // ChangeEntities (not projected MorphType rows) because the commit may not be
-                // projected yet on a freshly-migrated DB.
+                // projected yet on a freshly-migrated DB — and because we don't want to rely on
+                // constant commit-Ids, which is overly messy when creating a project from our
+                // SQL template.
                 var projectData = await dbContext.ProjectData.AsNoTracking().FirstOrDefaultAsync();
                 var canonicalIds = CanonicalMorphTypes.All.Values.Select(m => m.Id).ToHashSet();
                 if (projectData is not null

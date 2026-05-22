@@ -91,7 +91,7 @@ public static class ProjectTemplate
     {
         IetfLanguageTag.TryGetParts(wsId.Code, out var subtag, out _, out _, out var variants);
         if (variants?.Contains(WellKnownSubtags.IpaVariant, StringComparison.OrdinalIgnoreCase) == true)
-            return "ipa";
+            return "ipa"; // same as FieldWorks
         return Capitalize(subtag ?? wsId.Code);
     }
 
