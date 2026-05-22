@@ -28,8 +28,20 @@
       <Output TaskParameter="ConsoleOutput" PropertyName="_GitShortSha" />
       <Output TaskParameter="ExitCode" PropertyName="_GitShortShaExitCode" />
     </Exec>
+    <Exec Command="git status --porcelain"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="true"
+          IgnoreStandardErrorWarningFormat="true"
+          StandardOutputImportance="Low"
+          StandardErrorImportance="Low"
+          WorkingDirectory="$(MSBuildThisFileDirectory)"
+          Condition="'$(_GitShortShaExitCode)' == '0'">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitStatus" />
+      <Output TaskParameter="ExitCode" PropertyName="_GitStatusExitCode" />
+    </Exec>
     <PropertyGroup Condition="'$(_GitShortShaExitCode)' == '0' And '$(_GitShortSha)' != ''">
       <InformationalVersion>dev-$(_GitShortSha)</InformationalVersion>
+      <InformationalVersion Condition="'$(_GitStatusExitCode)' == '0' And '$(_GitStatus)' != ''">dev-$(_GitShortSha)-dirty</InformationalVersion>
     </PropertyGroup>
   </Target>
 </Project>
