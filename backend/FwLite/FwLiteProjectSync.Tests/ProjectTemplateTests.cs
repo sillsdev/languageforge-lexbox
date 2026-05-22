@@ -1,13 +1,10 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
-using LcmCrdt.Objects;
 using LcmCrdt.Project;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MiniLcm;
@@ -57,13 +54,11 @@ public class ProjectTemplateTests : IAsyncLifetime
         var fwDataProject = CreateFwDataProject();
         var crdtProject = (CrdtProject)await Services.GetRequiredService<MiniLcmImport>().Import(fwDataProject);
 
-        var sourceProjectId = await ReadSourceProjectId(crdtProject.DbPath);
         var templateSql = await SqliteDump.Dump(crdtProject.DbPath);
-        var withSeedPlaceholders = ReplaceSeedCommitIdsWithPlaceholders(templateSql, sourceProjectId);
 
         var preserve = TemplateGuidScrubbing.CollectCanonicalGuids(crdtProject.DbPath);
         var scrubbed = TemplateGuidScrubbing
-            .TokenizeGuidsExcept(withSeedPlaceholders, preserve)
+            .TokenizeGuidsExcept(templateSql, preserve)
             // Replace Name-field first, then WsId — order matters because they share the "qaa"
             // string in the source. The Name-prefixed regex catches both JSON and SQL columns.
             .Replace($"\"Name\":\"{PlaceholderWsId}\"", $"\"Name\":\"{ProjectTemplate.VernacularNamePlaceholder}\"")
@@ -78,10 +73,6 @@ public class ProjectTemplateTests : IAsyncLifetime
     [Fact]
     public async Task ApplyTemplate()
     {
-        // Exercise the full production path (template apply + ProjectData overwrite + rehash
-        // trigger) — calling ApplyAsync alone leaves the template-source's ProjectData.Id in
-        // the DB, then MigrateDb queries for MorphTypesSeedCommitId(templateSourceId) which
-        // we already rewrote to MorphTypesSeedCommitId(appliedId) and double-seeds.
         var crdtProjectsService = Services.GetRequiredService<CrdtProjectsService>();
         var crdtProject = await crdtProjectsService.CreateProjectFromTemplate(new(
             Name: "applied-from-template",
@@ -94,27 +85,6 @@ public class ProjectTemplateTests : IAsyncLifetime
 
         await Verify(JsonSerializer.Serialize(snapshot, new JsonSerializerOptions { WriteIndented = true }))
             .ScrubInlineGuids();
-    }
-
-    private static async Task<Guid> ReadSourceProjectId(string dbPath)
-    {
-        await using var conn = new SqliteConnection($"Data Source={dbPath}");
-        await conn.OpenAsync();
-        await using var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT Id FROM ProjectData LIMIT 1";
-        var idStr = (string)(await cmd.ExecuteScalarAsync())!;
-        return Guid.Parse(idStr);
-    }
-
-    // Morph-types is the only PreDefinedData seed in the template (others gate on
-    // SeedNewProjectData=true; Import passes false). Its commit-Id is project-scoped to the
-    // template-source — rewrite to a placeholder so ApplyAsync can substitute the new
-    // project's derivation. Without this, applied projects would carry the template-source's
-    // UUIDv5 and CurrentProjectService's re-seed check wouldn't recognise the seed.
-    private static string ReplaceSeedCommitIdsWithPlaceholders(string sql, Guid sourceProjectId)
-    {
-        var morphSeedId = PreDefinedData.MorphTypesSeedCommitId(sourceProjectId).ToString();
-        return Regex.Replace(sql, Regex.Escape(morphSeedId), ProjectTemplate.MorphTypesSeedCommitPlaceholder, RegexOptions.IgnoreCase);
     }
 
     private FwDataProject CreateFwDataProject()

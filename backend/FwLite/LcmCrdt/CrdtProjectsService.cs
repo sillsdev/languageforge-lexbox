@@ -172,7 +172,7 @@ public partial class CrdtProjectsService(
         currentProjectService.SetupProjectContextForNewDb(crdtProject);
         try
         {
-            await ProjectTemplate.ApplyAsync(ProjectTemplate.LoadEmbedded(), sqliteFile, projectData.Id, request.VernacularWs.Value);
+            await ProjectTemplate.ApplyAsync(ProjectTemplate.LoadEmbedded(), sqliteFile, request.VernacularWs.Value);
             await OverwriteProjectDataRow(serviceScope.ServiceProvider, projectData);
             await currentProjectService.RefreshProjectData();
             // Force Harmony to recompute every commit's Hash now that we've substituted

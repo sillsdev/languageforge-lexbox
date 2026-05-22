@@ -20,12 +20,6 @@ public static class ProjectTemplate
     internal const string VernacularNamePlaceholder = "{{vernacular-name}}";
     internal const string VernacularAbbrPlaceholder = "{{vernacular-abbr}}";
 
-    // Morph-types is the only PreDefinedData seed in the template — the others gate on
-    // SeedNewProjectData=true which the template-source's import path passes false. The
-    // placeholder must be substituted with the per-project derivation so CurrentProjectService's
-    // re-seed check finds it and skips.
-    internal const string MorphTypesSeedCommitPlaceholder = "{{seed-commit-morph-types}}";
-
     private const string EmbeddedResourceName = "LcmCrdt.Templates.template.sql";
     private static readonly Lazy<string> EmbeddedTemplate = new(LoadEmbeddedCore);
 
@@ -42,14 +36,13 @@ public static class ProjectTemplate
         return reader.ReadToEnd();
     }
 
-    public static async Task ApplyAsync(string templateSql, string targetSqlitePath, Guid projectId, WritingSystemId vernacularWs)
+    public static async Task ApplyAsync(string templateSql, string targetSqlitePath, WritingSystemId vernacularWs)
     {
         try { File.Delete(targetSqlitePath); } catch (FileNotFoundException) { }
         var resolvedSql = HydrateGuids(templateSql)
             .Replace(VernacularWsPlaceholder, vernacularWs.Code)
             .Replace(VernacularNamePlaceholder, vernacularWs.Code)
-            .Replace(VernacularAbbrPlaceholder, AbbreviationFor(vernacularWs))
-            .Replace(MorphTypesSeedCommitPlaceholder, FormatGuid(PreDefinedData.MorphTypesSeedCommitId(projectId)));
+            .Replace(VernacularAbbrPlaceholder, AbbreviationFor(vernacularWs));
 
         var connString = new SqliteConnectionStringBuilder { DataSource = targetSqlitePath }.ConnectionString;
         await using var conn = new SqliteConnection(connString);
@@ -94,16 +87,12 @@ public static class ProjectTemplate
         await ((ISyncable)dataModel).AddRangeFromSync([rebuildCommit]);
     }
 
-    private static string FormatGuid(Guid g) => g.ToString().ToUpperInvariant();
-
     internal static string AbbreviationFor(WritingSystemId wsId)
     {
         IetfLanguageTag.TryGetParts(wsId.Code, out var subtag, out _, out _, out var variants);
-        var baseAbbr = Capitalize(subtag ?? wsId.Code);
-        if (wsId.IsAudio) return baseAbbr + "-Au";
         if (variants?.Contains(WellKnownSubtags.IpaVariant, StringComparison.OrdinalIgnoreCase) == true)
-            return baseAbbr + "-Ipa";
-        return baseAbbr;
+            return "ipa";
+        return Capitalize(subtag ?? wsId.Code);
     }
 
     private static string Capitalize(string s) =>

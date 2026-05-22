@@ -30,9 +30,6 @@ public static class PreDefinedData
     public static Guid CustomViewsSeedCommitId(Guid projectId) =>
         Uuid.NewNameBased(projectId, "custom-views-seed");
 
-    public static Guid MorphTypesSeedCommitId(Guid projectId) =>
-        Uuid.NewNameBased(projectId, "morph-types-seed");
-
     internal static async Task AddPredefinedComplexFormTypes(DataModel dataModel, ProjectData projectData)
     {
         await dataModel.AddChanges(projectData.ClientId,
@@ -106,7 +103,6 @@ public static class PreDefinedData
     internal static async Task AddPredefinedMorphTypes(DataModel dataModel, ProjectData projectData)
     {
         await dataModel.AddChanges(projectData.ClientId,
-            [.. CanonicalMorphTypes.All.Values.Select(mt => new CreateMorphTypeChange(mt))],
-            MorphTypesSeedCommitId(projectData.Id));
+            [.. CanonicalMorphTypes.All.Values.Select(mt => new CreateMorphTypeChange(mt))]);
     }
 }
