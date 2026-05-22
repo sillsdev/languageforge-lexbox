@@ -30,6 +30,7 @@
         }
       },
       "MorphType": "Stem",
+      "HomographNumber": 0,
       "Senses": [
         {
           "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
@@ -184,6 +185,7 @@
         }
       },
       "MorphType": "Stem",
+      "HomographNumber": 0,
       "Senses": [
         {
           "Id": "241d95a7-6d90-411b-8569-5648cc40b42b",
@@ -266,6 +268,7 @@
         }
       },
       "MorphType": "Stem",
+      "HomographNumber": 0,
       "Senses": [
         {
           "Id": "1b423127-deb2-468d-8100-e1f1bff20826",
@@ -336,6 +339,7 @@
         }
       },
       "MorphType": "Stem",
+      "HomographNumber": 0,
       "Senses": [
         {
           "Id": "c77d7553-209d-45be-a83e-d07e69808873",

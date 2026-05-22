@@ -202,7 +202,8 @@ export const _entries: IEntry[] = [
         'exampleSentences': []
       }
     ], 'note': {},
-    complexForms: [], complexFormTypes: [], components: [], publishIn: []
+    complexForms: [], complexFormTypes: [], components: [], publishIn: [],
+    homographNumber: 0,
   },
   {
     'id': '34779c06-5a73-4fe9-8325-b110b23f9294',
@@ -265,7 +266,8 @@ export const _entries: IEntry[] = [
     complexForms: [],
     complexFormTypes: [],
     components: [],
-    publishIn: []
+    publishIn: [],
+    homographNumber: 0,
   },
 ];
 
@@ -308,6 +310,7 @@ export const allWsEntry: IEntry = {
   }],
   note: {},
   complexForms: [], complexFormTypes: [], components: [], publishIn: [],
+  homographNumber: 0,
 };
 
 // Sena 3 for thorough testing
