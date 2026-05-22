@@ -21,8 +21,8 @@
     <Button {...props} size="icon" variant="ghost" icon="i-mdi-layers" />
   {/snippet}
   <div class="space-y-2 md:space-y-4">
+    <h3 class="font-normal max-md:mb-1">{$t`Dictionary Preview`}</h3>
     <RadioGroup.Root bind:value={dictionaryPreview}>
-      <h3 class="font-normal max-md:mb-1">{$t`Dictionary Preview`}</h3>
       <RadioGroup.Item value="show" label={$t`Show`} />
       <RadioGroup.Item value="hide" label={$t`Hide`}/>
       <RadioGroup.Item value="sticky" label={$t`Pinned`}/>

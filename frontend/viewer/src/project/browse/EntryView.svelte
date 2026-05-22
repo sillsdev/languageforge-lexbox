@@ -168,7 +168,7 @@
           {@render preview(entry)}
         </div>
       {/if}
-      <div class="max-md:p-2 md:pb-2 md:px-2">
+      <div class={cn('max-md:p-2 md:pb-2 md:px-2', dictionaryPreview !== 'show' && 'md:pt-1')}>
         {#key entry.id}
           <EntryEditor
             bind:this={editor}
