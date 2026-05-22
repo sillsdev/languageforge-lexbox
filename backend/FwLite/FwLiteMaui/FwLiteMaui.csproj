@@ -122,15 +122,19 @@
     <Error Condition="'$(_Linq2DbEfCoreEffectiveVersion)' != '' And !$([System.Text.RegularExpressions.Regex]::IsMatch('$(_Linq2DbEfCoreEffectiveVersion)', '^10\.[34]\.[0-9]+(-.*)?$'))"
            Text="linq2db.EntityFrameworkCore is $(_Linq2DbEfCoreEffectiveVersion) but the cctor patcher only covers 10.3.x / 10.4.x. See backend/FwLite/LcmCrdt/LINQ2DB-V6-NOTES.md (Cctor patcher section) for the kill-switch / pin-widening checklist." />
   </Target>
+  <!-- Build the patcher tool BEFORE the Android SDK dispatches per-RID inner builds.
+       _ResolveAssemblies is the outer-build target that fans out into parallel per-RID
+       MSBuild invocations; if we built the patcher inside any of those inner builds,
+       4 parallel `dotnet build` processes would race on the same obj/bin. By running
+       once at the outer level, every inner build sees the patcher dll already in place.
+       The Inputs/Outputs guard makes the target a no-op on incremental rebuilds. -->
   <Target Name="_BuildLinq2DbCctorPatcher"
-          Condition="'$(TargetPlatform)' == 'android'"
+          Condition="'$(TargetPlatformIdentifier)' == 'android'"
           DependsOnTargets="_VerifyLinq2DbEfCoreVersionPin"
-          BeforeTargets="_LinkAssembliesNoShrink;_AfterILLinkAdditionalSteps;_RemoveRegisterAttribute">
-    <!-- <MSBuild> (not <ProjectReference>) so the tool's TF/RID isn't entangled with FwLiteMaui's android-arm64 graph. -->
-    <MSBuild Projects="$(MSBuildThisFileDirectory)build\Linq2DbCctorPatcher\Linq2DbCctorPatcher.csproj"
-             Targets="Restore;Build"
-             Properties="Configuration=$(Configuration)"
-             RemoveProperties="TargetFramework;TargetFrameworks;RuntimeIdentifier;RuntimeIdentifiers;TargetPlatform;TargetPlatformIdentifier;TargetPlatformVersion;UseMaui;SingleProject;SelfContained;PublishReadyToRun;PublishSingleFile" />
+          BeforeTargets="_ResolveAssemblies;_LinkAssembliesNoShrink;_AfterILLinkAdditionalSteps;_RemoveRegisterAttribute"
+          Inputs="build\Linq2DbCctorPatcher\Program.cs;build\Linq2DbCctorPatcher\Linq2DbCctorPatcher.csproj"
+          Outputs="build\Linq2DbCctorPatcher\bin\$(Configuration)\net10.0\Linq2DbCctorPatcher.dll">
+    <Exec Command="dotnet build &quot;$(MSBuildThisFileDirectory)build\Linq2DbCctorPatcher\Linq2DbCctorPatcher.csproj&quot; --configuration $(Configuration) --nologo" />
   </Target>
   <!-- Separate target so the ItemGroup is materialized by the time _PatchLinq2Db...'s Inputs/Outputs batching reads it. -->
   <Target Name="_CollectLinq2DbStagedAssemblies"

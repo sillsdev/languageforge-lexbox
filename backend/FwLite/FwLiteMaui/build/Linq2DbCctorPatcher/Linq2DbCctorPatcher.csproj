@@ -6,6 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <!-- This tool is invoked from MSBuild targets in FwLiteMaui.csproj; nothing else references it. -->
     <IsPackable>false</IsPackable>
+    <!-- No native apphost: invoked via `dotnet patcher.dll`. Also avoids a parallel-build
+         race on apphost.exe when multiple RID inner builds trigger the patcher concurrently. -->
+    <UseAppHost>false</UseAppHost>
     <!-- Don't let this opt into shared central package management; we just pin Mono.Cecil locally. -->
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
