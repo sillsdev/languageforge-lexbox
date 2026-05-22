@@ -128,7 +128,7 @@
 <div class="h-full flex flex-col relative">
   {#if entry}
     <header>
-      <div class="max-md:p-2 md:mb-4 flex justify-between">
+      <div class={cn('max-md:p-2 flex justify-between', dictionaryPreview === 'show' ? 'md:mb-4' : 'md:mb-3')}>
         {#if showClose && onClose}
           <XButton onclick={onClose} size="icon" />
         {/if}
