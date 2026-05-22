@@ -19,10 +19,12 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import type {EntryListViewMode} from './EntryListViewOptions.svelte';
   import EntryListViewOptions from './EntryListViewOptions.svelte';
+  import {useProjectStorage} from '$lib/storage/project-storage.svelte';
 
   const projectContext = useProjectContext();
   const viewService = useViewService();
   const dialogsService = useDialogsService();
+  const entryListViewMode = useProjectStorage().entryListViewMode;
 
   // DESKTOP: the entry is a sibling of the list (it's a split view). We can switch between selected entries.
   // So, selectedEntryId itself drives navigation.
@@ -37,7 +39,7 @@
   let semanticDomain = $state<ISemanticDomain>();
   let partOfSpeech = $state<IPartOfSpeech>();
   let sort = $state<SortConfig>();
-  let entryMode: EntryListViewMode = $state('simple');
+  const entryMode: EntryListViewMode = $derived(entryListViewMode.current === 'preview' ? 'preview' : 'simple');
 
   async function newEntry() {
     const entry = await dialogsService.createNewEntry(undefined, {
@@ -85,7 +87,7 @@
             <div class="my-2 flex items-center justify-between">
               <SortMenu bind:value={sort}
                 autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
-              <EntryListViewOptions bind:entryMode />
+              <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />
             </div>
           </div>
           <EntriesList bind:this={entriesList}
