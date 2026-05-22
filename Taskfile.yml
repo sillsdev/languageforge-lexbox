@@ -147,3 +147,8 @@ tasks:
     aliases: [android-install-emulator-dev]
     desc: Install the "Dev" flavor on a running x86_64 emulator without building
     deps: [fw-lite:install-maui-android-emulator-dev]
+
+  fw-lite-android-release-dev:
+    aliases: [android-release-dev]
+    desc: Build a Release "Dev" APK and adb-install it on the connected USB device
+    deps: [fw-lite:install-maui-android-release-dev]
