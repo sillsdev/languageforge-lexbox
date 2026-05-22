@@ -94,6 +94,54 @@ public class OpenProjectTests
     }
 
     [Fact]
+    public async Task TemplatedProject_SyncsCleanlyToBlankPeer()
+    {
+        var sourceCode = $"sync-src-{Guid.NewGuid():N}";
+        var targetCode = $"sync-dst-{Guid.NewGuid():N}";
+        foreach (var c in new[] { sourceCode, targetCode })
+            if (File.Exists($"{c}.sqlite")) File.Delete($"{c}.sqlite");
+
+        var builder = Host.CreateEmptyApplicationBuilder(null);
+        builder.Services.AddTestLcmCrdtClient();
+        using var host = builder.Build();
+        var sourceScope = host.Services.CreateAsyncScope();
+        var targetScope = host.Services.CreateAsyncScope();
+
+        var sourceProject = await sourceScope.ServiceProvider.GetRequiredService<CrdtProjectsService>()
+            .CreateProjectFromTemplate(new(
+                Name: "Sync Source",
+                Code: sourceCode,
+                Path: "",
+                Role: UserProjectRole.Manager,
+                VernacularWs: "fr"));
+        var targetProject = await targetScope.ServiceProvider.GetRequiredService<CrdtProjectsService>()
+            .CreateProject(new(
+                Name: "Sync Target",
+                Code: targetCode,
+                Path: "",
+                SeedNewProjectData: false));
+
+        var sourceApi = (CrdtMiniLcmApi)await sourceScope.ServiceProvider.OpenCrdtProject(sourceProject);
+        var targetApi = (CrdtMiniLcmApi)await targetScope.ServiceProvider.OpenCrdtProject(targetProject);
+
+        // Exercises the full Harmony sync protocol against the templated project's
+        // post-ForceHashChainRebuild chain. If the rebuild left any stale hashes, AddRangeFromSync's
+        // hash validation would throw here.
+        await targetScope.ServiceProvider.GetRequiredService<DataModel>()
+            .SyncWith(sourceScope.ServiceProvider.GetRequiredService<DataModel>());
+
+        var morphTypes = await targetApi.GetMorphTypes().ToArrayAsync();
+        morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count);
+        var writingSystems = await targetApi.GetWritingSystems();
+        writingSystems.Vernacular.Should().ContainSingle().Which.WsId.Should().Be((WritingSystemId)"fr");
+
+        await using (var db = await sourceScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync())
+            await db.Database.EnsureDeletedAsync();
+        await using (var db = await targetScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync())
+            await db.Database.EnsureDeletedAsync();
+    }
+
+    [Fact]
     public async Task OpeningAProjectWorks()
     {
         var sqliteConnectionString = "opening-a-project-works.sqlite";
