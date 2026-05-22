@@ -36,8 +36,6 @@ public record Entry : IObjectWithId<Entry>
 
     //Server-side query rewrite target — LcmCrdt rewrites this to Json.Query(PublishIn) so
     //filter projections (e.g. PublishInRows.Select(...).Any(...)) translate to json_each() SQL.
-    //Public only because LcmCrdt's filter map provider lives in a different assembly; treat as
-    //internal — don't read it from client code, use PublishIn.
     [MiniLcmInternal, NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)]
     public IEnumerable<Publication> PublishInRows => PublishIn;
 

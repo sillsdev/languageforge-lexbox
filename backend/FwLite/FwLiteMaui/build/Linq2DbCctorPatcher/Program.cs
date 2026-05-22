@@ -1,32 +1,6 @@
-// Stubs the broken static constructor on
-// LinqToDB.EntityFrameworkCore.EFCoreMetadataReader+SqlTransparentExpression
-// inside linq2db.EntityFrameworkCore 10.3.x / 10.4.x.
-//
-// The shipped .cctor does a GetConstructor lookup for (ExceptExpression,
-// RelationalTypeMapping), which doesn't exist on the type — the only declared
-// ctor takes (ConstantExpression, RelationalTypeMapping?). The lookup returns
-// null and the .cctor throws InvalidOperationException. Reproducible on plain
-// net10.0 with RuntimeHelpers.RunClassConstructor.
-//
-// Desktop CRDT never accesses the affected static fields (only Quote() does),
-// so it's silent. Android (and any environment that eagerly initializes the
-// type) hits TypeInitializationException on the first CRDT save.
-//
-// We can't fix this via ILLink.Substitutions.xml on Android Debug because
-// PublishTrimmed is false and the linker pass is skipped. And in Release
-// publish the staged dll location differs from the ILLink target site, so a
-// single substitution hook is fragile. So we Cecil-patch unconditionally at
-// build time, on every linq2db.EntityFrameworkCore.dll under the obj tree.
-//
-// Also removes Quote() so any unexpected caller fails loudly with
-// NotImplementedException instead of NRE'ing on the (now-null) _ctor field.
-//
-// Upstream fix: https://github.com/linq2db/linq2db/pull/5546 (approved, not yet released).
-//
-// KILL-SWITCH: when upstream ships a fixed version (see the version pin
-// in FwLiteMaui.csproj — search for _Linq2DbEfCorePatchedVersion), delete this
-// project and the two _BuildLinq2DbCctorPatcher / _PatchLinq2Db... targets,
-// and unskip backend/FwLite/LcmCrdt.Tests/SqlTransparentExpressionCctorRepro.cs.
+// Cecil-patches the broken cctor on LinqToDB.EntityFrameworkCore.EFCoreMetadataReader+SqlTransparentExpression
+// (and replaces Quote() with a loud throw). See backend/FwLite/LcmCrdt/LINQ2DB-V6-NOTES.md (Cctor patcher section)
+// for the background, kill-switch checklist, and upstream PR link.
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 

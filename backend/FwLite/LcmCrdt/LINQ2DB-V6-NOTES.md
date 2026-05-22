@@ -300,9 +300,9 @@ Desktop is silent: the class is `beforefieldinit`, only `Quote()` reads the affe
 
 **Kill-switch (delete the patcher entirely when):**
 
-1. `_VerifyLinq2DbEfCoreVersionPin` in `FwLiteMaui.csproj` fails because the version moved outside `10.3.x`.
-2. Unskip the tests in `LcmCrdt.Tests/SqlTransparentExpressionCctorRepro.cs` and run them against the new version.
-3. If they pass → delete `backend/FwLite/FwLiteMaui/build/Linq2DbCctorPatcher/` and the four targets in `FwLiteMaui.csproj` (`_VerifyLinq2DbEfCoreVersionPin`, `_BuildLinq2DbCctorPatcher`, `_CollectLinq2DbStagedAssemblies`, `_PatchLinq2DbSqlTransparentExpressionCctor`). Leave the now-passing repro tests as a permanent regression guard.
-4. If they still fail → widen the version pin regex in `_VerifyLinq2DbEfCoreVersionPin`, re-`[Skip]` the tests with an updated reason.
+1. `_VerifyLinq2DbEfCoreVersionPin` in `FwLiteMaui.csproj` fails because the version moved outside `10.3.x` / `10.4.x`.
+2. Manually verify the bug — `RuntimeHelpers.RunClassConstructor` on `LinqToDB.EntityFrameworkCore.EFCoreMetadataReader+SqlTransparentExpression` from a net10.0 test process loading the new dll.
+3. If the cctor no longer throws → delete `backend/FwLite/FwLiteMaui/build/Linq2DbCctorPatcher/` and the four targets in `FwLiteMaui.csproj` (`_VerifyLinq2DbEfCoreVersionPin`, `_BuildLinq2DbCctorPatcher`, `_CollectLinq2DbStagedAssemblies`, `_PatchLinq2DbSqlTransparentExpressionCctor`).
+4. If it still throws → widen the version pin regex in `_VerifyLinq2DbEfCoreVersionPin`.
 
-**Upstream fix:** <https://github.com/linq2db/linq2db/pull/5546> (approved, not yet released). The URL is repeated in `_VerifyLinq2DbEfCoreVersionPin` in `FwLiteMaui.csproj` and in the patcher `Program.cs` — keep the three in lockstep.
+**Upstream fix:** <https://github.com/linq2db/linq2db/pull/5546> (open, targets linq2db 6.4.0 — not yet released).
