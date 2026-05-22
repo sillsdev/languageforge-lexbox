@@ -95,9 +95,6 @@
   const dictionaryPreview: DictionaryPreviewMode = $derived(
     isDictionaryPreviewMode(dictionaryPreviewStorage.current) ? dictionaryPreviewStorage.current : 'show'
   );
-  function setDictionaryPreview(value: DictionaryPreviewMode): void {
-    void dictionaryPreviewStorage.set(value);
-  }
   function isDictionaryPreviewMode(value: string): value is DictionaryPreviewMode {
     return value === 'show' || value === 'hide' || value === 'sticky';
   }
@@ -119,7 +116,7 @@
   <div class="md:pb-4">
     <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
       {#snippet actions()}
-        <Toggle bind:pressed={() => sticky, (value) => setDictionaryPreview(value ? 'sticky' : 'show')}
+        <Toggle bind:pressed={() => sticky, (value) => void dictionaryPreviewStorage.set(value ? 'sticky' : 'show')}
           aria-label={$t`Toggle pinned`} class="aspect-square" size="sm">
           <Icon icon="i-mdi-pin-outline" class="size-5" />
         </Toggle>
@@ -137,7 +134,7 @@
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
         <div class="flex">
-          <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, setDictionaryPreview} bind:readonly />
+          <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} bind:readonly />
           <EntryMenu {entry} />
         </div>
       </div>
