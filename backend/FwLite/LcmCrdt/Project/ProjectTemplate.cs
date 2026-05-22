@@ -89,6 +89,7 @@ public static class ProjectTemplate
 
     internal static string AbbreviationFor(WritingSystemId wsId)
     {
+        // not special-casing audio - like FieldWorks
         IetfLanguageTag.TryGetParts(wsId.Code, out var subtag, out _, out _, out var variants);
         if (variants?.Contains(WellKnownSubtags.IpaVariant, StringComparison.OrdinalIgnoreCase) == true)
             return "ipa"; // same as FieldWorks
