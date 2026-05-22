@@ -60,14 +60,13 @@
   <PropertyGroup>
     <TargetPlatform>$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)'))</TargetPlatform>
   </PropertyGroup>
-  <!-- Exclude the build-time tool's sources from FwLiteMaui's own compile. It's a
-       standalone Microsoft.NET.Sdk Exe project, not part of this project's code. -->
+  <!-- Linq2DbCctorPatcher (under build\) is its own net10.0 Exe project; keep it off this compile. -->
   <ItemGroup>
-    <Compile Remove="build\**" />
-    <Content Remove="build\**" />
-    <None Remove="build\**" />
-    <EmbeddedResource Remove="build\**" />
-    <MauiAsset Remove="build\**" />
+    <Compile Remove="build\Linq2DbCctorPatcher\**" />
+    <Content Remove="build\Linq2DbCctorPatcher\**" />
+    <None Remove="build\Linq2DbCctorPatcher\**" />
+    <EmbeddedResource Remove="build\Linq2DbCctorPatcher\**" />
+    <MauiAsset Remove="build\Linq2DbCctorPatcher\**" />
   </ItemGroup>
   <ItemGroup>
     <!-- App Icon -->

@@ -47,13 +47,11 @@ public static class EntryQueryHelpers
 
     private static Expression<Func<Entry, string?, string?, string, bool>> SearchHeadwords()
     {
-        //Use Sql.Expr to spell the cross-scope path access explicitly: linq2db v6
-        //emits `[kv].*` instead of `[kv].[key]` if we route this through Json.Value.
         return (e, leading, trailing, query) =>
             Json.QueryValues(e.CitationForm).Any(
                 v => SqlHelpers.ContainsIgnoreCaseAccents(v, query)) ||
             Json.QueryEntries(e.LexemeForm).Any(kv =>
-                string.IsNullOrEmpty((Sql.Expr<string?>($"{e.CitationForm}->>{kv.Key}") ?? "").Trim()) &&
+                string.IsNullOrEmpty((Json.At(e.CitationForm, kv.Key) ?? "").Trim()) &&
                 SqlHelpers.ContainsIgnoreCaseAccents((leading ?? "") + (kv.Value ?? "").Trim() + (trailing ?? ""), query));
     }
 

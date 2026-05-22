@@ -224,6 +224,11 @@ public static class Json
         return guid?.ToString() ?? "";
     }
 
+    //Json.Value's path walker can't handle a key captured from an outer json_each row; use At for that.
+    [Sql.Expression("{0}->>{1}", ServerSideOnly = true)]
+    public static string? At(MultiString container, string key) =>
+        throw new NotImplementedException("server-side only");
+
     //maps to a row from json_each
     internal record JsonEach<T>(
         [property: Column("value")] T Value,
