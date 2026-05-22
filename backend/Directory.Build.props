@@ -15,4 +15,21 @@
     <Nullable>enable</Nullable>
     <WarningsAsErrors>Nullable</WarningsAsErrors>
   </PropertyGroup>
+  <Target Name="AppendGitShaToDevInformationalVersion"
+          BeforeTargets="GetAssemblyVersion;GenerateAssemblyInfo;CoreCompile"
+          Condition="'$(InformationalVersion)' == 'dev'">
+    <Exec Command="git rev-parse --short=8 HEAD"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="true"
+          IgnoreStandardErrorWarningFormat="true"
+          StandardOutputImportance="Low"
+          StandardErrorImportance="Low"
+          WorkingDirectory="$(MSBuildThisFileDirectory)">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitShortSha" />
+      <Output TaskParameter="ExitCode" PropertyName="_GitShortShaExitCode" />
+    </Exec>
+    <PropertyGroup Condition="'$(_GitShortShaExitCode)' == '0' And '$(_GitShortSha)' != ''">
+      <InformationalVersion>dev-$(_GitShortSha)</InformationalVersion>
+    </PropertyGroup>
+  </Target>
 </Project>
