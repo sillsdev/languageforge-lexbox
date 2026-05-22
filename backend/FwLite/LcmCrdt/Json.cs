@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Text.Json.Serialization.Metadata;
 using LcmCrdt.Changes;
 using LinqToDB;
-using LinqToDB.Internal.Common;
 using LinqToDB.Internal.SqlQuery;
 using LinqToDB.Mapping;
 using LinqToDB.SqlQuery;
@@ -256,7 +255,7 @@ public static class Json
                 var exampleSentence = (ExampleSentence)obj;
                 if (exampleSentence.Translations.Any()) throw new InvalidOperationException("Cannot set translations when they already exist.");
                 var richString = (RichMultiString?)value;
-                if (richString.IsNullOrEmpty()) return;
+                if (richString is null or { Count: 0 }) return;
 #pragma warning disable CS0618 // Type or member is obsolete
                 exampleSentence.Translations = [Translation.FromMultiString(richString)];
 #pragma warning restore CS0618 // Type or member is obsolete
