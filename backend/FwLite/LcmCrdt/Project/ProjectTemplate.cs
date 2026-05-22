@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -99,36 +98,16 @@ public static class ProjectTemplate
 
     internal static string AbbreviationFor(WritingSystemId wsId)
     {
-        if (wsId.IsAudio) return "Au";
         IetfLanguageTag.TryGetParts(wsId.Code, out var subtag, out _, out _, out var variants);
-        var parts = variants?.Split('-') ?? [];
-        var baseAbbr = PrivateUseAbbreviation(subtag, parts) ?? AbbreviateLanguageSubtag(subtag ?? wsId.Code);
-        var hasIpa = Array.Exists(parts, v => v.Equals(WellKnownSubtags.IpaVariant, StringComparison.OrdinalIgnoreCase));
-        return hasIpa ? baseAbbr + "-Ipa" : baseAbbr;
+        var baseAbbr = Capitalize(subtag ?? wsId.Code);
+        if (wsId.IsAudio) return baseAbbr + "-Au";
+        if (variants?.Contains(WellKnownSubtags.IpaVariant, StringComparison.OrdinalIgnoreCase) == true)
+            return baseAbbr + "-Ipa";
+        return baseAbbr;
     }
 
-    private static string? PrivateUseAbbreviation(string? subtag, string[] variantParts)
-    {
-        if (!string.Equals(subtag, WellKnownSubtags.UnlistedLanguage, StringComparison.OrdinalIgnoreCase)) return null;
-        var xIdx = Array.FindIndex(variantParts, p => p.Equals("x", StringComparison.OrdinalIgnoreCase));
-        if (xIdx < 0 || xIdx + 1 >= variantParts.Length) return null;
-        var token = variantParts[xIdx + 1];
-        if (token.Length == 0 || token.Equals(WellKnownSubtags.AudioPrivateUse, StringComparison.OrdinalIgnoreCase)) return null;
-        return char.ToUpperInvariant(token[0]) + token[1..].ToLowerInvariant();
-    }
-
-    private static string AbbreviateLanguageSubtag(string subtag)
-    {
-        try
-        {
-            var iso = CultureInfo.GetCultureInfo(subtag).ThreeLetterISOLanguageName;
-            if (iso.Length > 0 && !iso.StartsWith("xx", StringComparison.OrdinalIgnoreCase))
-                return char.ToUpperInvariant(iso[0]) + iso[1..];
-        }
-        catch (CultureNotFoundException) { }
-        var trimmed = subtag.Length >= 3 ? subtag[..3] : subtag;
-        return trimmed.Length == 0 ? "Wsi" : char.ToUpperInvariant(trimmed[0]) + trimmed[1..].ToLowerInvariant();
-    }
+    private static string Capitalize(string s) =>
+        s.Length == 0 ? s : char.ToUpperInvariant(s[0]) + s[1..].ToLowerInvariant();
 
     private static string HydrateGuids(string templateSql)
     {

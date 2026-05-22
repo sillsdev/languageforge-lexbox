@@ -6,13 +6,11 @@ namespace LcmCrdt.Tests.Project;
 public class ProjectTemplateAbbreviationTests
 {
     [Theory]
-    [InlineData("en", "Eng")]
-    [InlineData("en-US", "Eng")]
-    [InlineData("fr", "Fra")]
-    [InlineData("qaa-x-foo", "Foo")]
-    [InlineData("qaa-Zxxx-x-audio", "Au")]
-    [InlineData("fr-Latn-fonipa", "Fra-Ipa")]
-    [InlineData("xyz", "Xyz")]
+    [InlineData("en", "En")]
+    [InlineData("en-US", "En")]
+    [InlineData("fr", "Fr")]
+    [InlineData("qaa-Zxxx-x-audio", "Qaa-Au")]
+    [InlineData("fr-Latn-fonipa", "Fr-Ipa")]
     public void AbbreviationFor_ProducesReasonableAbbreviation(string wsId, string expected)
     {
         ProjectTemplate.AbbreviationFor(new WritingSystemId(wsId)).Should().Be(expected);
