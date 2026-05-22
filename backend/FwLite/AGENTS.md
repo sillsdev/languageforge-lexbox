@@ -30,6 +30,10 @@ dotnet test FwLiteOnly.slnf
 dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0.19041.0
 ```
 
+## Testing on Android (agents)
+
+No emulator running? Start one yourself — don't ask. `emulator -list-avds` (try `$ANDROID_HOME/emulator/`, `$LOCALAPPDATA/Android/Sdk/emulator/`, etc.) → pick an `fwlite_*` image → launch in background with `-no-snapshot-load -no-boot-anim` → wait until `adb -e get-state` is `device` and `sys.boot_completed` is `1` → `task android-emulator-dev`. Physical device fallback: `task android-dev`. Drive UI with `adb -e shell input tap/swipe` + `adb -e exec-out screencap -p > path.png`.
+
 ## Generated Types (TypeScript)
 
 The frontend viewer uses TypeScript types and API interfaces generated from .NET using **Reinforced.Typings**. These are automatically updated when you build the **FwLiteShared** project (or any project that depends on it like `FwLiteMaui` or `FwLiteWeb`).

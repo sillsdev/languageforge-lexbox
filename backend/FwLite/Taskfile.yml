@@ -65,7 +65,11 @@ tasks:
 
   run-maui-android:
     dir: ./FwLiteMaui
-    cmd: task build-maui-android FLAVOR={{.FLAVOR}} -- "-t:InstallAndroidDependencies;Run {{.EXTRA_ARGS}}"
+    cmds:
+      - task: build-maui-android
+        vars:
+          FLAVOR: '{{.FLAVOR}}'
+          EXTRA_ARGS: '-t:Run {{.EXTRA_ARGS}}'
 
   run-maui-android-dev:
     desc: Build & run the "Dev" flavor (installs alongside the prod app)
@@ -82,7 +86,8 @@ tasks:
   build-maui-android:
     deps: [ ui:build-viewer ]
     dir: ./FwLiteMaui
-    cmd: dotnet build -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.CLI_ARGS}} # "-p:AndroidSdkDirectory=D:\tools\android"
+    # EXTRA_ARGS goes through a Task var so multi-token values stay separate; CLI_ARGS gets re-quoted into a single shell arg.
+    cmd: dotnet build -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.EXTRA_ARGS}} {{.CLI_ARGS}}
 
   install-maui-android:
     desc: Retry install + run without rebuilding (for when you miss the permission prompt) - uses existing build artifacts
