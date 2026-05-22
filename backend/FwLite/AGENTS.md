@@ -240,6 +240,15 @@ if (entity?.DeletedAt is not null) return;
 
 ---
 
+## 🚨 Harmony Projected Tables (`LcmCrdtDbContext`)
+
+`LcmCrdtDbContext` DbSets (`Entries`, `Senses`, etc.) are Harmony's **projected snapshot tables**. They contain only the latest, **un-deleted** state.
+
+- ❌ **Do NOT** add `DeletedAt is null` filters when querying these DbSets — soft-deleted rows are never present. The `DeletedAt` column exists on the entity types (it's used inside Change classes during change application — see above), but the projection drops deleted rows entirely, so filtering on it is dead code that misleads readers.
+- ✅ If you need deleted history, query the change/commit tables directly (see `HistoryService.cs`, `SnapshotAtCommitService.cs`).
+
+---
+
 ## Important Files Quick Reference
 
 | File | Purpose | Risk Level |
