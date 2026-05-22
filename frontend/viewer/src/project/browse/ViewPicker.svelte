@@ -7,7 +7,6 @@
   import ManageCustomViewsButton from '$lib/views/custom/ManageCustomViewsButton.svelte';
   import Markdown from 'svelte-exmarkdown';
   import {t} from 'svelte-i18n-lingui';
-  import {Label} from '$lib/components/ui/label';
   import {isCustomView} from '$lib/views/view-data';
   import {ViewBase} from '$lib/dotnet-types';
 
@@ -50,15 +49,12 @@
 
 <RadioGroup.Root bind:value={getCurrentView, setCurrentView}>
   {#each viewService.views as view (view.id)}
-    <Label class="flex items-center gap-4 md:gap-2 max-md:py-3 cursor-pointer">
-      <RadioGroup.Item value={view.id} />
-      <span>
-        {view.name}
-        {#if isCustomView(view)}
-          <span class="text-muted-foreground">({view.base === ViewBase.FieldWorks ? 'Classic' : 'Lite'})</span>
-        {/if}
-      </span>
-    </Label>
+    <RadioGroup.Item value={view.id}>
+      {view.name}
+      {#if isCustomView(view)}
+        <span class="text-muted-foreground">({view.base === ViewBase.FieldWorks ? 'Classic' : 'Lite'})</span>
+      {/if}
+    </RadioGroup.Item>
   {/each}
 </RadioGroup.Root>
 

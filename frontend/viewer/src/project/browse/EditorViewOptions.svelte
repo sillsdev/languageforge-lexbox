@@ -23,9 +23,9 @@
   <div class="space-y-2 md:space-y-4">
     <h3 class="font-normal max-md:mb-1">{$t`Dictionary Preview`}</h3>
     <RadioGroup.Root bind:value={dictionaryPreview}>
-      <RadioGroup.Item value="show" label={$t`Show`} />
-      <RadioGroup.Item value="hide" label={$t`Hide`}/>
-      <RadioGroup.Item value="sticky" label={$t`Pinned`}/>
+      <RadioGroup.Item value="show">{$t`Show`}</RadioGroup.Item>
+      <RadioGroup.Item value="hide">{$t`Hide`}</RadioGroup.Item>
+      <RadioGroup.Item value="sticky">{$t`Pinned`}</RadioGroup.Item>
     </RadioGroup.Root>
     <ViewPicker onClose={() => open = false} />
     <DevContent>

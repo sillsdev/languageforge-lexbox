@@ -2,16 +2,12 @@
   import {RadioGroup as RadioGroupPrimitive} from 'bits-ui';
   import {Icon} from '../icon';
   import Label from '../label/label.svelte';
-  import {cn, type WithoutChildrenOrChild} from '$lib/utils.js';
+  import {cn, type WithoutChild} from '$lib/utils.js';
 
-  type Props = {
-    label?: string;
-  } & WithoutChildrenOrChild<RadioGroupPrimitive.ItemProps>;
-
-  let {ref = $bindable(null), class: className, label, ...restProps}: Props = $props();
+  let {ref = $bindable(null), class: className, children, ...restProps}: WithoutChild<RadioGroupPrimitive.ItemProps> = $props();
 </script>
 
-{#snippet control()}
+<Label class={cn('flex items-center gap-4 md:gap-2 max-md:py-3', restProps.disabled || 'cursor-pointer')}>
   <RadioGroupPrimitive.Item
     bind:ref
     data-slot="radio-group-item"
@@ -29,13 +25,5 @@
       </div>
     {/snippet}
   </RadioGroupPrimitive.Item>
-{/snippet}
-
-{#if label}
-  <Label class={cn('flex items-center gap-4 md:gap-2 max-md:py-3', restProps.disabled || 'cursor-pointer')}>
-    {@render control()}
-    <span>{label}</span>
-  </Label>
-{:else}
-  {@render control()}
-{/if}
+  {@render children?.()}
+</Label>
