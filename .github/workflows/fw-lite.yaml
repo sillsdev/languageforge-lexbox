@@ -114,10 +114,14 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-      - name: Set up Playwright dependencies
+      - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend
         run: pnpm exec playwright install --with-deps
+      - name: Install Playwright system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: frontend
+        run: pnpm exec playwright install-deps
       - name: Run UI tests
         working-directory: frontend/viewer
         run: task test:ui-standalone
@@ -162,10 +166,14 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-      - name: Set up Playwright dependencies
+      - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend/viewer
         run: pnpm exec playwright install --with-deps
+      - name: Install Playwright system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: frontend/viewer
+        run: pnpm exec playwright install-deps
       - name: vitest
         working-directory: frontend/viewer
         run: pnpm run test --retry=2 --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
@@ -522,6 +530,10 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend/viewer
         run: pnpm exec playwright install --with-deps
+      - name: Install Playwright system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: frontend/viewer
+        run: pnpm exec playwright install-deps
 
       - name: Run E2E tests
         working-directory: frontend/viewer
