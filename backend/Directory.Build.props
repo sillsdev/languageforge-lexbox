@@ -15,6 +15,7 @@
     <Nullable>enable</Nullable>
     <WarningsAsErrors>Nullable</WarningsAsErrors>
   </PropertyGroup>
+  <!-- Dev only: Add hash and if dirty to InformationalVersion. -->
   <Target Name="AppendGitShaToDevInformationalVersion"
           BeforeTargets="GetAssemblyVersion;GenerateAssemblyInfo;CoreCompile"
           Condition="'$(InformationalVersion)' == 'dev'">
