@@ -109,7 +109,7 @@
     <PackageReference Include="Mono.Unix" ExcludeAssets="all" />
   </ItemGroup>
   <!-- Android workaround for linq2db.EntityFrameworkCore's broken SqlTransparentExpression
-       cctor. See backend/FwLite/LcmCrdt/LINQ2DB-V6-NOTES.md (Cctor patcher section) for the
+       cctor. See https://github.com/sillsdev/languageforge-lexbox/issues/2291 for the
        full story, including the kill-switch checklist for when upstream PR #5546 ships. -->
   <Target Name="_VerifyLinq2DbEfCoreVersionPin"
           Condition="'$(TargetPlatform)' == 'android'"
@@ -120,7 +120,7 @@
     <Error Condition="'$(_Linq2DbEfCoreEffectiveVersion)' == ''"
            Text="Could not read linq2db.EntityFrameworkCore version from backend/Directory.Packages.props." />
     <Error Condition="'$(_Linq2DbEfCoreEffectiveVersion)' != '' And !$([System.Text.RegularExpressions.Regex]::IsMatch('$(_Linq2DbEfCoreEffectiveVersion)', '^10\.[34]\.[0-9]+(-.*)?$'))"
-           Text="linq2db.EntityFrameworkCore is $(_Linq2DbEfCoreEffectiveVersion) but the cctor patcher only covers 10.3.x / 10.4.x. See backend/FwLite/LcmCrdt/LINQ2DB-V6-NOTES.md (Cctor patcher section) for the kill-switch / pin-widening checklist." />
+           Text="linq2db.EntityFrameworkCore is $(_Linq2DbEfCoreEffectiveVersion) but the cctor patcher only covers 10.3.x / 10.4.x. See https://github.com/sillsdev/languageforge-lexbox/issues/2291 for the kill-switch / pin-widening checklist." />
   </Target>
   <!-- Build the patcher tool BEFORE the Android SDK dispatches per-RID inner builds.
        _ResolveAssemblies is the outer-build target that fans out into parallel per-RID

@@ -1,5 +1,5 @@
 // Cecil-patches the broken cctor on LinqToDB.EntityFrameworkCore.EFCoreMetadataReader+SqlTransparentExpression
-// (and replaces Quote() with a loud throw). See backend/FwLite/LcmCrdt/LINQ2DB-V6-NOTES.md (Cctor patcher section)
+// (and replaces Quote() with a loud throw). See https://github.com/sillsdev/languageforge-lexbox/issues/2291
 // for the background, kill-switch checklist, and upstream PR link.
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -35,7 +35,7 @@ static int Fail(string message)
     Console.Error.WriteLine("Linq2DbCctorPatcher: " + message);
     Console.Error.WriteLine(
         "linq2db.EntityFrameworkCore structure changed; patcher needs review. " +
-        "See backend/FwLite/LcmCrdt/LINQ2DB-V6-NOTES.md (Cctor patcher section).");
+        "See https://github.com/sillsdev/languageforge-lexbox/issues/2291.");
     return 3;
 }
 
