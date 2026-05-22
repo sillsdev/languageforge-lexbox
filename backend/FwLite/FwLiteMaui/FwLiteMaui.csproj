@@ -166,9 +166,9 @@
     </PropertyGroup>
     <Error Condition="'$(_Linq2DbEfCoreEffectiveVersion)' == ''"
            Text="Could not determine resolved version of linq2db.EntityFrameworkCore from backend/Directory.Packages.props. The cctor-patcher version pin can't verify itself. Investigate before proceeding." />
-    <!-- Patched range: 10.3.x only. Anything else fails the build. -->
-    <Error Condition="'$(_Linq2DbEfCoreEffectiveVersion)' != '' And !$([System.Text.RegularExpressions.Regex]::IsMatch('$(_Linq2DbEfCoreEffectiveVersion)', '^10\.3\.[0-9]+(-.*)?$'))"
-           Text="linq2db.EntityFrameworkCore is at $(_Linq2DbEfCoreEffectiveVersion); the cctor patcher in build/Linq2DbCctorPatcher only verifies the 10.3.x IL shape. Re-verify the SqlTransparentExpression cctor bug still exists in $(_Linq2DbEfCoreEffectiveVersion) (unskip the repro test in LcmCrdt.Tests/SqlTransparentExpressionCctorRepro.cs and run it against the new version), then either: (a) widen this pin if still broken, or (b) DELETE build/Linq2DbCctorPatcher and the _BuildLinq2DbCctorPatcher / _PatchLinq2DbSqlTransparentExpressionCctor / _VerifyLinq2DbEfCoreVersionPin / _CollectLinq2DbStagedAssemblies targets if fixed. Upstream fix: https://github.com/linq2db/linq2db/pull/5546. See backend/FwLite/LcmCrdt/LINQ2DB-V6-NOTES.md (Cctor patcher section)." />
+    <!-- Patched range: 10.3.x and 10.4.x. Anything else fails the build. -->
+    <Error Condition="'$(_Linq2DbEfCoreEffectiveVersion)' != '' And !$([System.Text.RegularExpressions.Regex]::IsMatch('$(_Linq2DbEfCoreEffectiveVersion)', '^10\.[34]\.[0-9]+(-.*)?$'))"
+           Text="linq2db.EntityFrameworkCore is at $(_Linq2DbEfCoreEffectiveVersion); the cctor patcher in build/Linq2DbCctorPatcher only verifies the 10.3.x / 10.4.x IL shape. Re-verify the SqlTransparentExpression cctor bug still exists in $(_Linq2DbEfCoreEffectiveVersion) (unskip the repro test in LcmCrdt.Tests/SqlTransparentExpressionCctorRepro.cs and run it against the new version), then either: (a) widen this pin if still broken, or (b) DELETE build/Linq2DbCctorPatcher and the _BuildLinq2DbCctorPatcher / _PatchLinq2DbSqlTransparentExpressionCctor / _VerifyLinq2DbEfCoreVersionPin / _CollectLinq2DbStagedAssemblies targets if fixed. Upstream fix: https://github.com/linq2db/linq2db/pull/5546. See backend/FwLite/LcmCrdt/LINQ2DB-V6-NOTES.md (Cctor patcher section)." />
   </Target>
   <Target Name="_BuildLinq2DbCctorPatcher"
           Condition="'$(TargetPlatform)' == 'android'"

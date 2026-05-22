@@ -1,6 +1,6 @@
 // Stubs the broken static constructor on
 // LinqToDB.EntityFrameworkCore.EFCoreMetadataReader+SqlTransparentExpression
-// inside linq2db.EntityFrameworkCore 10.3.x.
+// inside linq2db.EntityFrameworkCore 10.3.x / 10.4.x.
 //
 // The shipped .cctor does a GetConstructor lookup for (ExceptExpression,
 // RelationalTypeMapping), which doesn't exist on the type — the only declared
