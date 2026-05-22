@@ -75,6 +75,8 @@
     // Refetching went through the resource fetcher, which calls editor?.commit() -> blurs the
     // active element. When that fires in response to our own save (triggered by Tab), it
     // steals focus from the field Tab just moved to.
+    // The event entry IS the latest server state at publication time (the .NET notify wrapper
+    // re-reads via GetEntry after each write; sync events likewise GetEntry before publishing).
     setEntry(e);
   });
 
