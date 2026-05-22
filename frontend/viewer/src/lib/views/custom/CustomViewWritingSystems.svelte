@@ -63,8 +63,8 @@
     {/if}
   </div>
   <RadioGroup.Root value={isAllMode ? 'all' : 'custom'} onValueChange={handleModeChange}>
-    <RadioGroup.Item value="all">{$t`All`}</RadioGroup.Item>
-    <RadioGroup.Item value="custom">{$t`Custom`}</RadioGroup.Item>
+    <RadioGroup.Option value="all">{$t`All`}</RadioGroup.Option>
+    <RadioGroup.Option value="custom">{$t`Custom`}</RadioGroup.Option>
   </RadioGroup.Root>
 
   <Checkbox.Group class="md:mt-4 ms-2">
