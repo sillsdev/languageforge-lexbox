@@ -9,6 +9,7 @@
   import {CopyButton} from '$lib/components/ui/button';
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
   import {resource} from 'runed';
+  import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 
   const openQueryParam = new QueryParamStateBool({
     key: 'troubleshootDialogOpen',
@@ -25,6 +26,8 @@
   const config = useFwLiteConfig();
   let projectCode = $state<string>();
   let canShare = resource(() => service, async (s) => await s?.getCanShare());
+  // Mobile platforms keep app data in private storage that no file manager can open.
+  const canOpenDataDirectory = $derived(config.os !== FwLitePlatform.Android && config.os !== FwLitePlatform.iOS);
 
   async function tryOpenDataDirectory() {
     if (!await service?.tryOpenDataDirectory()) {
@@ -67,8 +70,10 @@
           {#await service?.getDataDirectory() then value}
             {value}
           {/await}
-          <Button variant="ghost" icon="i-mdi-folder-search" size="icon-xs" title={$t`Open Data Directory`}
-                  onclick={() => tryOpenDataDirectory()}/>
+          {#if canOpenDataDirectory}
+            <Button variant="ghost" icon="i-mdi-folder-search" size="icon-xs" title={$t`Open Data Directory`}
+                    onclick={() => tryOpenDataDirectory()}/>
+          {/if}
         </InputShell>
       </div>
     {/if}

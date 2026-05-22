@@ -197,7 +197,7 @@
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
+          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectCode)}>
             <Icon icon="i-mdi-help-circle" />
             <span>{$t`Troubleshoot`}</span>
           </Sidebar.MenuButton>
