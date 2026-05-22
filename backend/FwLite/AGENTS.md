@@ -32,7 +32,7 @@ dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0.19041.
 
 ## Testing on Android (agents)
 
-If you need to verify a change on Android and no emulator is running, **start one yourself** — don't ask. List AVDs with `emulator -list-avds` (try `$ANDROID_HOME/emulator/emulator`, `$LOCALAPPDATA/Android/Sdk/emulator/emulator.exe`, or whatever the local SDK path is). Pick an `fwlite_*` image if one exists, start it in the background with `-no-snapshot-load -no-boot-anim`, wait for `adb -e get-state` to return `device` AND `adb -e shell getprop sys.boot_completed` to return `1`, then `task android-emulator-dev`. A connected physical device is a fine fallback (use `task android-dev`). Drive the UI with `adb -e shell input tap/swipe` and read screencaps with `adb -e exec-out screencap -p > path.png`.
+No emulator running? Start one yourself — don't ask. `emulator -list-avds` (try `$ANDROID_HOME/emulator/`, `$LOCALAPPDATA/Android/Sdk/emulator/`, etc.) → pick an `fwlite_*` image → launch in background with `-no-snapshot-load -no-boot-anim` → wait until `adb -e get-state` is `device` and `sys.boot_completed` is `1` → `task android-emulator-dev`. Physical device fallback: `task android-dev`. Drive UI with `adb -e shell input tap/swipe` + `adb -e exec-out screencap -p > path.png`.
 
 ## Generated Types (TypeScript)
 
