@@ -1,7 +1,9 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Content.Res;
 using Android.OS;
+using AndroidX.Core.View;
 using FwLiteShared.Auth;
 using Microsoft.Identity.Client;
 
@@ -16,9 +18,24 @@ public class MainActivity : MauiAppCompatActivity
 {
     protected override void OnCreate(Bundle? savedInstanceState)
     {
-        //custom style, declared in Android/Resources/values/styles.xml, values-v35 is used based on the android version
-        Theme?.ApplyStyle(Resource.Style.OptOutEdgeToEdgeEnforcement, force: false);
         base.OnCreate(savedInstanceState);
+        ApplyBrandedSystemBars();
+    }
+
+    public override void OnConfigurationChanged(Configuration newConfig)
+    {
+        base.OnConfigurationChanged(newConfig);
+        ApplyBrandedSystemBars();
+    }
+
+    private void ApplyBrandedSystemBars()
+    {
+        if (Window is null) return;
+        Window.SetBackgroundDrawableResource(Resource.Color.colorPrimaryDark);
+        var controller = WindowCompat.GetInsetsController(Window, Window.DecorView);
+        if (controller is null) return;
+        controller.AppearanceLightStatusBars = false;
+        controller.AppearanceLightNavigationBars = false;
     }
 
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
