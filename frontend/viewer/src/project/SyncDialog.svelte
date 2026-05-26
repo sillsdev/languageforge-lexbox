@@ -37,13 +37,6 @@
 
   watch(() => openQueryParam.current, (newValue) => {
     if (newValue) void onOpen();
-    else setTimeout(onClose, 500); // don't clear contents until close animation is done
-  });
-
-  // Background syncs (e.g. triggered by another client pushing changes) won't update the dialog's state
-  // unless we listen for them. Refresh whenever a successful sync happens while the dialog is open.
-  projectEventBus.onSync(e => {
-    if (openQueryParam.current && e.status === SyncStatus.Success) void refreshStatus();
   });
 
   export function open(): void {
@@ -51,6 +44,13 @@
   }
 
   let pendingRefresh: Promise<unknown> | undefined;
+
+  // Catch background syncs (e.g. another client pushing changes) that onOpen alone wouldn't see.
+  // Must follow pendingRefresh — onSync invokes the callback synchronously with a cached event.
+  projectEventBus.onSync(e => {
+    if (openQueryParam.current && e.status === SyncStatus.Success) void refreshStatus();
+  });
+
   function refreshStatus() {
     pendingRefresh ??= Promise.all([
       service.getLocalStatus().then(s => localStatus = s),
@@ -65,12 +65,6 @@
       refreshStatus(),
       service.getCurrentServer().then(s => server = s),
     ]);
-  }
-
-  function onClose(): void {
-    localStatus = undefined;
-    remoteStatus = undefined;
-    latestSyncedCommitDate = undefined;
   }
 
   async function syncLexboxToFlex() {
