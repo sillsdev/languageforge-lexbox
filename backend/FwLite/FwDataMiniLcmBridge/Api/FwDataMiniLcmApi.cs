@@ -33,7 +33,18 @@ public class FwDataMiniLcmApi(
 {
     private FwDataBridgeConfig Config => config.Value;
     public const string AudioVisualFolder = "AudioVisual";
-    public LcmCache Cache => cacheLazy.Value;
+    public LcmCache Cache
+    {
+        get
+        {
+            var cache = cacheLazy.Value;
+            // Guard against use-after-dispose (e.g. "Open in FieldWorks" closed the cache mid-request).
+            if (cache.IsDisposed)
+                throw new ObjectDisposedException(nameof(LcmCache),
+                    $"FwData project '{Project.FileName}' was closed during this request (likely opened in FieldWorks or evicted from cache).");
+            return cache;
+        }
+    }
     public FwDataProject Project { get; } = project;
     public Guid ProjectId => Cache.LangProject.Guid;
 
@@ -66,7 +77,7 @@ public class FwDataMiniLcmApi(
 
     public void Save()
     {
-        if (Cache.IsDisposed) return;
+        if (cacheLazy.Value.IsDisposed) return;
         logger.LogInformation("Saving FW data file {Name}", Cache.ProjectId.Name);
         Cache.ActionHandlerAccessor.Commit();
     }

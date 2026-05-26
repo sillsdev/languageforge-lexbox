@@ -138,6 +138,7 @@
     const index = await entryLoader.getOrLoadEntryIndex(entryId);
     if (entryId !== selectedEntryId) return false;
     if (index < 0) return false;
+    if (!vList) return false; // may have unmounted during the await
 
     const visibleStart = vList.getScrollOffset();
     const visibleSize = vList.getViewportSize();
