@@ -113,7 +113,7 @@
 </script>
 
 {#snippet preview(entry: IEntry)}
-  <div class="md:pb-4">
+  <div class="md:pb-3">
     <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
       {#snippet actions()}
         <Toggle bind:pressed={() => sticky, (value) => void dictionaryPreviewStorage.set(value ? 'sticky' : 'show')}
@@ -168,7 +168,7 @@
           {@render preview(entry)}
         </div>
       {/if}
-      <div class="max-md:p-2 md:pb-2 md:px-2">
+      <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
         {#key entry.id}
           <EntryEditor
             bind:this={editor}

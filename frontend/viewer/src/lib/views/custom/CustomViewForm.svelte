@@ -92,8 +92,8 @@
     <div class="flex flex-col gap-2">
       <div class="text-sm font-medium">{$t`Based on`}</div>
       <RadioGroup.Root bind:value={value.base}>
-        <RadioGroup.Item value={ViewBase.FwLite} label={FW_LITE_VIEW.name} />
-        <RadioGroup.Item value={ViewBase.FieldWorks} label={FW_CLASSIC_VIEW.name} />
+        <RadioGroup.Option value={ViewBase.FwLite}>{FW_LITE_VIEW.name}</RadioGroup.Option>
+        <RadioGroup.Option value={ViewBase.FieldWorks}>{FW_CLASSIC_VIEW.name}</RadioGroup.Option>
       </RadioGroup.Root>
     </div>
 
