@@ -92,7 +92,7 @@ public static class FwLiteMauiKernel
             {
                 config.Os = FwLitePlatform.Other;
             }
-            // MAUI doesn't support appsettings.{Environment}.json — gate dev-only settings in code instead.
+            // MAUI doesn't support appsettings.json — gate dev-only settings in code instead.
             // See https://github.com/dotnet/maui/issues/4408
             if (env.IsDevelopment())
             {
