@@ -70,9 +70,9 @@
   }
 
   eventBus.onEntryUpdated((e) => {
-    if (e.id === entryId) {
-      void entryResource.refetch();
-    }
+    if (e.id !== entryId) return;
+    // The event payload is the latest server state
+    setEntry(e);
   });
 
   eventBus.onEntryDeleted(id => {
