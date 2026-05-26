@@ -113,14 +113,16 @@
 </script>
 
 {#snippet preview(entry: IEntry)}
-  <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
-    {#snippet actions()}
-      <Toggle bind:pressed={() => sticky, (value) => void dictionaryPreviewStorage.set(value ? 'sticky' : 'show')}
-        aria-label={$t`Toggle pinned`} class="aspect-square" size="sm">
-        <Icon icon="i-mdi-pin-outline" class="size-5" />
-      </Toggle>
-    {/snippet}
-  </DictionaryEntry>
+  <div class="md:pb-3">
+    <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
+      {#snippet actions()}
+        <Toggle bind:pressed={() => sticky, (value) => void dictionaryPreviewStorage.set(value ? 'sticky' : 'show')}
+          aria-label={$t`Toggle pinned`} class="aspect-square" size="sm">
+          <Icon icon="i-mdi-pin-outline" class="size-5" />
+        </Toggle>
+      {/snippet}
+    </DictionaryEntry>
+  </div>
 {/snippet}
 
 <div class="h-full flex flex-col relative">
@@ -155,18 +157,18 @@
         </div>
       {/if}
       {#if dictionaryPreview === 'sticky'}
-        <div class="md:px-2 md:pb-3">
+        <div class="md:px-2">
           {@render preview(entry)}
         </div>
       {/if}
     </header>
     <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('grow md:pr-2')}>
       {#if dictionaryPreview === 'show'}
-        <div class="md:pl-2 md:pb-4">
+        <div class="md:pl-2">
           {@render preview(entry)}
         </div>
       {/if}
-      <div class={cn('max-md:p-2 md:pb-2 md:px-2', dictionaryPreview !== 'show' && 'md:pt-1')}>
+      <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
         {#key entry.id}
           <EntryEditor
             bind:this={editor}
