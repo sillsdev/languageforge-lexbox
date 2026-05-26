@@ -1,10 +1,15 @@
 <script lang="ts">
-  import {RadioGroup as RadioGroupPrimitive} from 'bits-ui';
+  import {type RadioGroup as RadioGroupPrimitive} from 'bits-ui';
   import Label from '../label/label.svelte';
   import Item from './radio-group-item.svelte';
-  import {cn} from '$lib/utils.js';
+  import {cn, type WithoutChildrenOrChild} from '$lib/utils.js';
+  import {type Snippet} from 'svelte';
 
-  let {ref = $bindable(null), class: className, children, ...restProps}: RadioGroupPrimitive.ItemProps = $props();
+  type Props = WithoutChildrenOrChild<RadioGroupPrimitive.ItemProps> & {
+    children?: Snippet;
+  };
+
+  let {ref = $bindable(null), class: className, children, ...restProps}: Props = $props();
 </script>
 
 <Label class={cn('flex items-center gap-4 md:gap-2 max-md:py-3', restProps.disabled || 'cursor-pointer')}>
