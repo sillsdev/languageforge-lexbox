@@ -231,6 +231,12 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return JSON.parse(JSON.stringify(this._entries)) as IEntry[];
   }
 
+  // Real API events cross a JSON boundary, so subscribers always receive a fresh object.
+  // Clone here to give the demo API the same contract and avoid leaking _entries references.
+  private notifyEntryUpdated(entry: IEntry) {
+    this.#projectEventBus.notifyEntryUpdated(JSON.parse(JSON.stringify(entry)) as IEntry);
+  }
+
   async getEntries(options: IQueryOptions | undefined): Promise<IEntry[]> {
     await delay(300);
     return this.queryEntries(undefined, options);
@@ -323,13 +329,13 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   createEntry(entry: IEntry): Promise<IEntry> {
     this._entries.push(entry);
-    this.#projectEventBus.notifyEntryUpdated(entry);
+    this.notifyEntryUpdated(entry);
     return Promise.resolve(entry);
   }
 
   updateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
     this._entries.splice(this._entries.findIndex(e => e.id === after.id), 1, after);
-    this.#projectEventBus.notifyEntryUpdated(after);
+    this.notifyEntryUpdated(after);
     return Promise.resolve(after);
   }
 
@@ -337,7 +343,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const entry = this._entries.find(e => e.id === entryGuid);
     if (!entry) throw new Error(`Entry ${entryGuid} not found`);
     entry.senses.push(sense);
-    this.#projectEventBus.notifyEntryUpdated(entry);
+    this.notifyEntryUpdated(entry);
     return Promise.resolve(sense);
   }
 
@@ -347,7 +353,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const sense = entry.senses.find(s => s.id === senseGuid);
     if (!sense) throw new Error(`Sense ${senseGuid} not found`);
     sense.exampleSentences.push(exampleSentence);
-    this.#projectEventBus.notifyEntryUpdated(entry);
+    this.notifyEntryUpdated(entry);
     return Promise.resolve(exampleSentence);
   }
 
@@ -363,7 +369,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   deleteSense(entryGuid: string, senseGuid: string): Promise<void> {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     entry.senses.splice(entry.senses.findIndex(s => s.id === senseGuid), 1);
-    this.#projectEventBus.notifyEntryUpdated(entry);
+    this.notifyEntryUpdated(entry);
     return Promise.resolve();
   }
 
@@ -371,7 +377,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     const sense = entry.senses.find(s => s.id === senseGuid)!;
     sense.exampleSentences.splice(sense.exampleSentences.findIndex(es => es.id === exampleSentenceGuid), 1);
-    this.#projectEventBus.notifyEntryUpdated(entry);
+    this.notifyEntryUpdated(entry);
     return Promise.resolve();
   }
 
@@ -480,7 +486,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const index = entry.senses.findIndex(s => s.id == _before.id);
     if (index == -1) throw new Error(`Sense ${_before.id} not found`);
     entry.senses.splice(index, 1, _after);
-    this.#projectEventBus.notifyEntryUpdated(entry);
+    this.notifyEntryUpdated(entry);
     return Promise.resolve(_after);
   }
 
@@ -500,7 +506,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const index = sense.exampleSentences.findIndex(es => es.id == _before.id);
     if (index == -1) throw new Error(`ExampleSentence ${_before.id} not found`);
     sense.exampleSentences.splice(index, 1, _after);
-    this.#projectEventBus.notifyEntryUpdated(entry);
+    this.notifyEntryUpdated(entry);
     return Promise.resolve(_after);
   }
 
