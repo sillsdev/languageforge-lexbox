@@ -16,6 +16,7 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import SyncStatusPrimitive from './sync/SyncStatusPrimitive.svelte';
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
+  import {useProjectEventBus} from '$lib/services/event-bus';
 
   const {
     syncStatus = SyncStatus.Success
@@ -24,6 +25,7 @@
   const projectContext = useProjectContext();
   const service = useSyncStatusService();
   const features = useFeatures();
+  const projectEventBus = useProjectEventBus();
   let remoteStatus = $state<IProjectSyncStatus>();
   let localStatus = $state<IPendingCommits>();
   let server = $derived(projectContext.server);
@@ -38,15 +40,27 @@
     else setTimeout(onClose, 500); // don't clear contents until close animation is done
   });
 
+  // Background syncs (e.g. triggered by another client pushing changes) won't update the dialog's state
+  // unless we listen for them. Refresh whenever a successful sync happens while the dialog is open.
+  projectEventBus.onSync(e => {
+    if (openQueryParam.current && e.status === SyncStatus.Success) void refreshStatus();
+  });
+
   export function open(): void {
     openQueryParam.current = true;
   }
 
-  async function onOpen(): Promise<void> {
-    await Promise.all([
+  function refreshStatus(): Promise<unknown> {
+    return Promise.all([
       service.getLocalStatus().then(s => localStatus = s),
       service.getStatus().then(s => remoteStatus = s),
       service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
+    ]);
+  }
+
+  async function onOpen(): Promise<void> {
+    await Promise.all([
+      refreshStatus(),
       service.getCurrentServer().then(s => server = s),
     ]);
   }
@@ -107,11 +121,7 @@
       localStatus.remote = 0;
       localStatus.local = 0;
     }
-    await Promise.all([
-      service.getLocalStatus().then(s => localStatus = s),
-      service.getStatus().then(s => remoteStatus = s),
-      service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
-    ]);
+    await refreshStatus();
   }
 
   function onLoginStatusChange(status: 'logged-in' | 'logged-out') {
