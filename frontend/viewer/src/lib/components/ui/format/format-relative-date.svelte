@@ -36,6 +36,8 @@
   const now = new SvelteDate();
   let intervalId: ReturnType<typeof setInterval> | undefined;
 
+  // "now" represents when we first saw the current "date"
+  // so if "date" changes, "now" should be refreshed
   watch(
     () => date,
     () => now.setTime(Date.now()),
