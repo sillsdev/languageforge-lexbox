@@ -20,8 +20,10 @@ public class LocalMediaAdapter(IMemoryCache memoryCache) : IMediaAdapter
             entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(10);
+                // Distinct(): EnumerateFiles can repeat a path if a file is renamed mid-enumeration (cloud-sync providers do this).
                 return Directory
                     .EnumerateFiles(cache.LangProject.LinkedFilesRootDir, "*", SearchOption.AllDirectories)
+                    .Distinct()
                     .ToDictionary(file => PathToUri(file).FileId, file => file);
             }) ?? throw new Exception("Failed to get paths");
     }
