@@ -90,6 +90,10 @@ public static class FwLiteMauiKernel
             {
                 config.Os = FwLitePlatform.Other;
             }
+            if (env.IsDevelopment())
+            {
+                config.UpdateCheckCondition = UpdateCheckCondition.Never;
+            }
         });
 
 
