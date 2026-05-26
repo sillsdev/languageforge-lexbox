@@ -217,28 +217,25 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   }];
 
   getCustomViews(): Promise<ICustomView[]> {
-    return Promise.resolve(JSON.parse(JSON.stringify(this._customViews)) as ICustomView[]);
+    return Promise.resolve(this.clone(this._customViews));
   }
 
   getCustomView(id: string): Promise<ICustomView | null> {
     const found = this._customViews.find(v => v.id === id) ?? null;
-    return Promise.resolve(found ? (JSON.parse(JSON.stringify(found)) as ICustomView) : null);
+    return Promise.resolve(found ? this.clone(found) : null);
   }
 
   private _entries = entries;
 
-  private _Entries(): IEntry[] {
-    return JSON.parse(JSON.stringify(this._entries)) as IEntry[];
-  }
-
-  // Real API mutations cross a JSON boundary in both directions, so neither the caller's input
-  // nor the API's response is aliased to server state. Clone on the way into _entries and on the
-  // way back out so the demo API gives consumers the same isolation guarantees.
   private clone<T>(value: T): T {
     return JSON.parse(JSON.stringify(value)) as T;
   }
 
-  private notifyEntryUpdated(entry: IEntry) {
+  private _Entries(): IEntry[] {
+    return this.clone(this._entries);
+  }
+
+  private emitEntryUpdated(entry: IEntry) {
     this.#projectEventBus.notifyEntryUpdated(this.clone(entry));
   }
 
@@ -329,20 +326,22 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const entry = this._entries.find(e => e.id === guid);
     await delay(300);
     if (!entry) throw new Error(`Entry ${guid} not found`);
-    return JSON.parse(JSON.stringify(entry)) as IEntry;
+    return this.clone(entry);
   }
 
   createEntry(entry: IEntry): Promise<IEntry> {
     const stored = this.clone(entry);
     this._entries.push(stored);
-    this.notifyEntryUpdated(stored);
+    this.emitEntryUpdated(stored);
     return Promise.resolve(this.clone(stored));
   }
 
   updateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
+    const index = this._entries.findIndex(e => e.id === after.id);
+    if (index === -1) throw new Error(`Entry ${after.id} not found`);
     const stored = this.clone(after);
-    this._entries.splice(this._entries.findIndex(e => e.id === stored.id), 1, stored);
-    this.notifyEntryUpdated(stored);
+    this._entries.splice(index, 1, stored);
+    this.emitEntryUpdated(stored);
     return Promise.resolve(this.clone(stored));
   }
 
@@ -351,7 +350,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     if (!entry) throw new Error(`Entry ${entryGuid} not found`);
     const stored = this.clone(sense);
     entry.senses.push(stored);
-    this.notifyEntryUpdated(entry);
+    this.emitEntryUpdated(entry);
     return Promise.resolve(this.clone(stored));
   }
 
@@ -362,7 +361,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     if (!sense) throw new Error(`Sense ${senseGuid} not found`);
     const stored = this.clone(exampleSentence);
     sense.exampleSentences.push(stored);
-    this.notifyEntryUpdated(entry);
+    this.emitEntryUpdated(entry);
     return Promise.resolve(this.clone(stored));
   }
 
@@ -378,7 +377,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   deleteSense(entryGuid: string, senseGuid: string): Promise<void> {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     entry.senses.splice(entry.senses.findIndex(s => s.id === senseGuid), 1);
-    this.notifyEntryUpdated(entry);
+    this.emitEntryUpdated(entry);
     return Promise.resolve();
   }
 
@@ -386,7 +385,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     const sense = entry.senses.find(s => s.id === senseGuid)!;
     sense.exampleSentences.splice(sense.exampleSentences.findIndex(es => es.id === exampleSentenceGuid), 1);
-    this.notifyEntryUpdated(entry);
+    this.emitEntryUpdated(entry);
     return Promise.resolve();
   }
 
@@ -455,17 +454,17 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   }
 
   createCustomView(customView: ICustomView): Promise<ICustomView> {
-    const created = JSON.parse(JSON.stringify(customView)) as ICustomView
-    this._customViews = [...this._customViews, created];
-    return Promise.resolve(created);
+    const stored = this.clone(customView);
+    this._customViews = [...this._customViews, stored];
+    return Promise.resolve(this.clone(stored));
   }
 
   updateCustomView(_customView: ICustomView): Promise<ICustomView> {
     const index = this._customViews.findIndex(v => v.id === _customView.id);
     if (index === -1) throw new Error(`Custom view ${_customView.id} not found`);
-    const updated = JSON.parse(JSON.stringify(_customView)) as ICustomView;
-    this._customViews = this._customViews.map((v, i) => i === index ? updated : v);
-    return Promise.resolve(updated);
+    const stored = this.clone(_customView);
+    this._customViews = this._customViews.map((v, i) => i === index ? stored : v);
+    return Promise.resolve(this.clone(stored));
   }
 
   deleteCustomView(_id: string): Promise<void> {
@@ -496,7 +495,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     if (index == -1) throw new Error(`Sense ${_before.id} not found`);
     const stored = this.clone(_after);
     entry.senses.splice(index, 1, stored);
-    this.notifyEntryUpdated(entry);
+    this.emitEntryUpdated(entry);
     return Promise.resolve(this.clone(stored));
   }
 
@@ -517,7 +516,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     if (index == -1) throw new Error(`ExampleSentence ${_before.id} not found`);
     const stored = this.clone(_after);
     sense.exampleSentences.splice(index, 1, stored);
-    this.notifyEntryUpdated(entry);
+    this.emitEntryUpdated(entry);
     return Promise.resolve(this.clone(stored));
   }
 
