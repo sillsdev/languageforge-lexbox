@@ -38,3 +38,7 @@ failedSyncs/
 .idea
 
 *.lscache
+
+.claude/worktrees/
+.claude/settings.local.json
+.claude/CLAUDE.local.md
