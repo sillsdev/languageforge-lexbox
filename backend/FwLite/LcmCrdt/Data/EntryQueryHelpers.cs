@@ -51,7 +51,7 @@ public static class EntryQueryHelpers
             Json.QueryValues(e.CitationForm).Any(
                 v => SqlHelpers.ContainsIgnoreCaseAccents(v, query)) ||
             Json.QueryEntries(e.LexemeForm).Any(kv =>
-                string.IsNullOrEmpty((Json.Value(e.CitationForm, ms => ms[kv.Key]) ?? "").Trim()) &&
+                string.IsNullOrEmpty((Json.At(e.CitationForm, kv.Key) ?? "").Trim()) &&
                 SqlHelpers.ContainsIgnoreCaseAccents((leading ?? "") + (kv.Value ?? "").Trim() + (trailing ?? ""), query));
     }
 

@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MiniLcm.Attributes;
@@ -18,6 +20,10 @@ public class Sense : IObjectWithId<Sense>, IOrderable
     public virtual PartOfSpeech? PartOfSpeech { get; set; } = null;
     public virtual Guid? PartOfSpeechId { get; set; }
     public virtual IList<SemanticDomain> SemanticDomains { get; set; } = [];
+
+    //Server-side query rewrite target — see Entry.PublishInRows.
+    [MiniLcmInternal, NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)]
+    public IEnumerable<SemanticDomain> SemanticDomainRows => SemanticDomains;
     public virtual List<ExampleSentence> ExampleSentences { get; set; } = [];
 
     public Guid[] GetReferences()

@@ -106,6 +106,21 @@ tasks:
       - task: install-maui-android
         vars: { FLAVOR: 'Dev', EXTRA_ARGS: '-p:RuntimeIdentifiers=android-x64 -p:RuntimeIdentifier=android-x64 -p:AdbTarget=-e' }
 
+  publish-maui-android-release:
+    deps: [ ui:build-viewer ]
+    dir: ./FwLiteMaui
+    # Produces a signed AAB/APK at bin/Release/net10.0-android/<appid>-Signed.{aab,apk}.
+    # No -t:Run — the SDK's Run uses bundletool, which errors out with multiple devices/emulators.
+    cmd: dotnet build -f net10.0-android -c Release -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.CLI_ARGS}}
+
+  install-maui-android-release-dev:
+    desc: Build a Release "Dev" APK and adb-install it on the connected USB device (uses `adb -d`)
+    dir: ./FwLiteMaui
+    cmds:
+      - task: publish-maui-android-release
+        vars: { FLAVOR: 'Dev' }
+      - adb -d install -r bin/Release/net10.0-android/org.sil.FwLiteMaui.dev-Signed.apk
+
   build-mini-lcm-sdk:
     desc: Builds the sdk, a zip with the FwLiteWeb server with a project and config to run locally
     dir: ./FwLiteWeb

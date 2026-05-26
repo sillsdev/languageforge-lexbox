@@ -7,12 +7,10 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
 {
     public override Expression<Func<Entry, object?>> EntrySensesSemanticDomains => e => e.Senses.Select(s => s.SemanticDomains);
     public override Expression<Func<Entry, object?>> EntrySensesSemanticDomainsCode =>
-        //ideally we would use Json.Query(s.SemanticDomains) but Gridify doesn't support that, so we have to configure
-        //linq2db to rewrite this to that.
-        e => e.Senses.SelectMany(s => s.SemanticDomains).Select(sd => Json.Value(sd, sd => sd.Code));
+        //SemanticDomainRows is the json_each rewrite target
+        e => e.Senses.SelectMany(s => s.SemanticDomainRows).Select(sd => Json.Value(sd, sd => sd.Code));
     public override Func<string, object>? EntrySensesSemanticDomainsConverter =>
-        //linq2db treats Sense.SemanticDomains as a table, if we use "null" then it'll write the query we want
-        EntryFilter.NormalizeEmptyToNull<SemanticDomain>;
+        EntryFilter.NormalizeEmptyToEmptyList<SemanticDomain>;
     public override Expression<Func<Entry, object?>> EntrySensesExampleSentences => e => e.Senses.Select(s => s.ExampleSentences);
     public override Expression<Func<Entry, string, object>> EntrySensesExampleSentencesSentence =>
         (e, ws) => e.Senses.SelectMany(s => s.ExampleSentences).Select(example => Json.Value(example.Sentence, ms => ms[ws])!.GetPlainText());
@@ -32,6 +30,7 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
     public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToEmptyList<ComplexFormType>;
     public override Expression<Func<Entry, object?>> EntryPublishIn => e => e.PublishIn;
     public override Expression<Func<Entry, object?>> EntryPublishInId =>
-        e => e.PublishIn.Select(p => Json.Value(p, p => p.Id.ToString()));
-    public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToNull<Publication>;
+        //PublishInRows is the json_each rewrite target
+        e => e.PublishInRows.Select(p => Json.Value(p, p => p.Id.ToString()));
+    public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToEmptyList<Publication>;
 }

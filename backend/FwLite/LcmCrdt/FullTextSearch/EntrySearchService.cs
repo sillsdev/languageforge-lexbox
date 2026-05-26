@@ -1,6 +1,7 @@
 using System.Text;
 using LcmCrdt.Data;
 using LinqToDB;
+using LinqToDB.Async;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.SQLite;
 using LinqToDB.EntityFrameworkCore;
@@ -223,16 +224,13 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     private static async Task InsertOrUpdateEntrySearchRecord(EntrySearchRecord record, ITable<EntrySearchRecord> table)
     {
-        await table.InsertOrUpdateAsync(() => new EntrySearchRecord()
-        {
-            Id = record.Id,
-            Headword = record.Headword,
-            LexemeForm = record.LexemeForm,
-            CitationForm = record.CitationForm,
-            Definition = record.Definition,
-            Gloss = record.Gloss,
-        },
-        exiting => new EntrySearchRecord()
+        // EntrySearchRecord is an FTS5 virtual table; SQLite rejects UPSERT (ON CONFLICT) on
+        // virtual tables, so linq2db v6's InsertOrUpdateAsync — which emits ON CONFLICT — fails.
+        // v5 fell back to a two-statement UPDATE+INSERT because the provider opted out of upsert
+        // (https://github.com/linq2db/linq2db/blob/v5.4.1/Source/LinqToDB/Linq/QueryRunner.InsertOrReplace.cs#L251-L298);
+        // for FTS5 a clean DELETE+INSERT is simpler than emulating the UPDATE-first behavior.
+        await table.DeleteAsync(e => e.Id == record.Id);
+        await table.InsertAsync(() => new EntrySearchRecord()
         {
             Id = record.Id,
             Headword = record.Headword,

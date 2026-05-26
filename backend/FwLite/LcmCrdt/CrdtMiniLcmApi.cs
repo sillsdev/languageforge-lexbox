@@ -10,6 +10,7 @@ using LcmCrdt.FullTextSearch;
 using LcmCrdt.MediaServer;
 using LcmCrdt.Objects;
 using LinqToDB;
+using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

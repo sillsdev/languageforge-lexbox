@@ -66,7 +66,6 @@ public class CrdtCommitServiceTests
     {
         var projectId = await _lexBoxDbContext.Projects.Select(p => p.Id).FirstOrDefaultAsync();
         var context = _lexBoxDbContext.CreateLinqToDBContext();
-        var table = LinqToDB.DataExtensions.GetTable<ServerCommit>(context);
         var commitId = Guid.NewGuid();
         var changeEntity = new ChangeEntity<ServerJsonChange>
         {
@@ -87,21 +86,23 @@ public class CrdtCommitServiceTests
         //the old format stored json in json, this is emulating that.
         changeEntityJson["Change"] = changeEntityJson["Change"]?.ToJsonString();
         var jsonPayload = changeEntityJson.ToJsonString();
-        var inlineSql = $"'[{jsonPayload}]'::jsonb";
-        //insert a new server commit, manually specifying the value for ChangeEntities so it will match the old format.
-        await LinqToDB.LinqExtensions.InsertAsync(table, () => new ServerCommit(commitId)
-        {
-            Id = commitId,
-            ClientId = Guid.NewGuid(),
-            HybridDateTime = new HybridDateTime(DateTimeOffset.UtcNow, 0)
-            {
-                DateTime = DateTimeOffset.UtcNow,
-                Counter = 0
-            },
-            ProjectId = projectId,
-            Metadata = new CommitMetadata(),
-            ChangeEntities = LinqToDB.Sql.Expr<List<ChangeEntity<ServerJsonChange>>>(inlineSql)
-        });
+        //Insert a synthetic old-format commit via raw SQL so we can put pre-serialized
+        //JSON in ChangeEntities. Linq2Db v6 unconditionally wraps any column assignment
+        //(including Sql.Expr) in the EF JSON value converter inside an InsertAsync
+        //projection lambda, so we can't use the typed API for this test case.
+        var inlinePayload = $"[{jsonPayload}]";
+        await LinqToDB.Data.DataContextExtensions.ExecuteAsync(
+            context,
+            """
+            INSERT INTO "CrdtCommits"
+                ("Id", "ClientId", "HybridDateTime_DateTime", "HybridDateTime_Counter", "ProjectId", "Metadata", "ChangeEntities")
+            VALUES (@id, @clientId, @dt, 0, @projectId, '{}'::jsonb, @payload::jsonb)
+            """,
+            new LinqToDB.Data.DataParameter("id", commitId, LinqToDB.DataType.Guid),
+            new LinqToDB.Data.DataParameter("clientId", Guid.NewGuid(), LinqToDB.DataType.Guid),
+            new LinqToDB.Data.DataParameter("dt", DateTimeOffset.UtcNow, LinqToDB.DataType.DateTimeOffset),
+            new LinqToDB.Data.DataParameter("projectId", projectId, LinqToDB.DataType.Guid),
+            new LinqToDB.Data.DataParameter("payload", inlinePayload, LinqToDB.DataType.NVarChar));
         var commits = await _lexBoxDbContext.CrdtCommits(projectId).ToArrayAsync();
         var actualCommit = commits.Should().ContainSingle(c => c.Id == commitId).Subject;
         actualCommit.ChangeEntities.Should().BeEquivalentTo([changeEntity],

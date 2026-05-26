@@ -1,3 +1,8 @@
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using MiniLcm.Attributes;
+
 namespace MiniLcm.Models;
 
 public record Entry : IObjectWithId<Entry>
@@ -29,6 +34,11 @@ public record Entry : IObjectWithId<Entry>
     public virtual List<ComplexFormType> ComplexFormTypes { get; set; } = [];
 
     public virtual List<Publication> PublishIn { get; set; } = [];
+
+    //Server-side query rewrite target — LcmCrdt rewrites this to Json.Query(PublishIn) so
+    //filter projections (e.g. PublishInRows.Select(...).Any(...)) translate to json_each() SQL.
+    [MiniLcmInternal, NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)]
+    public IEnumerable<Publication> PublishInRows => PublishIn;
 
     public const string UnknownHeadword = "(Unknown)";
 
