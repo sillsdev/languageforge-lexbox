@@ -113,22 +113,20 @@
 </script>
 
 {#snippet preview(entry: IEntry)}
-  <div class="md:pb-4">
-    <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
-      {#snippet actions()}
-        <Toggle bind:pressed={() => sticky, (value) => void dictionaryPreviewStorage.set(value ? 'sticky' : 'show')}
-          aria-label={$t`Toggle pinned`} class="aspect-square" size="sm">
-          <Icon icon="i-mdi-pin-outline" class="size-5" />
-        </Toggle>
-      {/snippet}
-    </DictionaryEntry>
-  </div>
+  <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
+    {#snippet actions()}
+      <Toggle bind:pressed={() => sticky, (value) => void dictionaryPreviewStorage.set(value ? 'sticky' : 'show')}
+        aria-label={$t`Toggle pinned`} class="aspect-square" size="sm">
+        <Icon icon="i-mdi-pin-outline" class="size-5" />
+      </Toggle>
+    {/snippet}
+  </DictionaryEntry>
 {/snippet}
 
 <div class="h-full flex flex-col relative">
   {#if entry}
     <header>
-      <div class={cn('max-md:p-2 flex justify-between', dictionaryPreview === 'show' ? 'md:mb-4' : 'md:mb-3')}>
+      <div class="max-md:p-2 md:mb-4 flex justify-between">
         {#if showClose && onClose}
           <XButton onclick={onClose} size="icon" />
         {/if}
@@ -157,14 +155,14 @@
         </div>
       {/if}
       {#if dictionaryPreview === 'sticky'}
-        <div class="md:px-2">
+        <div class="md:px-2 md:pb-3">
           {@render preview(entry)}
         </div>
       {/if}
     </header>
     <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('grow md:pr-2')}>
       {#if dictionaryPreview === 'show'}
-        <div class="md:pl-2">
+        <div class="md:pl-2 md:pb-4">
           {@render preview(entry)}
         </div>
       {/if}
