@@ -19,7 +19,9 @@ public static class FwLiteMauiKernel
         ILoggingBuilder logging)
     {
         services.AddTransient<MainPage>();
-        configuration.AddJsonFile("appsettings.json", optional: true);
+        // MAUI has no built-in appsettings.json loading like ASP.NET Core, so this is a no-op today.
+        // See https://github.com/dotnet/maui/issues/4408
+        //configuration.AddJsonFile("appsettings.json", optional: true);
 
         string environment = "Production";
 #if DEBUG
@@ -90,6 +92,8 @@ public static class FwLiteMauiKernel
             {
                 config.Os = FwLitePlatform.Other;
             }
+            // MAUI doesn't support appsettings.{Environment}.json — gate dev-only settings in code instead.
+            // See https://github.com/dotnet/maui/issues/4408
             if (env.IsDevelopment())
             {
                 config.UpdateCheckCondition = UpdateCheckCondition.Never;
