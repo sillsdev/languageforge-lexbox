@@ -231,10 +231,15 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return JSON.parse(JSON.stringify(this._entries)) as IEntry[];
   }
 
-  // Real API events cross a JSON boundary, so subscribers always receive a fresh object.
-  // Clone here to give the demo API the same contract and avoid leaking _entries references.
+  // Real API mutations cross a JSON boundary in both directions, so neither the caller's input
+  // nor the API's response is aliased to server state. Clone on the way into _entries and on the
+  // way back out so the demo API gives consumers the same isolation guarantees.
+  private clone<T>(value: T): T {
+    return JSON.parse(JSON.stringify(value)) as T;
+  }
+
   private notifyEntryUpdated(entry: IEntry) {
-    this.#projectEventBus.notifyEntryUpdated(JSON.parse(JSON.stringify(entry)) as IEntry);
+    this.#projectEventBus.notifyEntryUpdated(this.clone(entry));
   }
 
   async getEntries(options: IQueryOptions | undefined): Promise<IEntry[]> {
@@ -328,23 +333,26 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   }
 
   createEntry(entry: IEntry): Promise<IEntry> {
-    this._entries.push(entry);
-    this.notifyEntryUpdated(entry);
-    return Promise.resolve(entry);
+    const stored = this.clone(entry);
+    this._entries.push(stored);
+    this.notifyEntryUpdated(stored);
+    return Promise.resolve(this.clone(stored));
   }
 
   updateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
-    this._entries.splice(this._entries.findIndex(e => e.id === after.id), 1, after);
-    this.notifyEntryUpdated(after);
-    return Promise.resolve(after);
+    const stored = this.clone(after);
+    this._entries.splice(this._entries.findIndex(e => e.id === stored.id), 1, stored);
+    this.notifyEntryUpdated(stored);
+    return Promise.resolve(this.clone(stored));
   }
 
   createSense(entryGuid: string, sense: ISense): Promise<ISense> {
     const entry = this._entries.find(e => e.id === entryGuid);
     if (!entry) throw new Error(`Entry ${entryGuid} not found`);
-    entry.senses.push(sense);
+    const stored = this.clone(sense);
+    entry.senses.push(stored);
     this.notifyEntryUpdated(entry);
-    return Promise.resolve(sense);
+    return Promise.resolve(this.clone(stored));
   }
 
   createExampleSentence(entryGuid: string, senseGuid: string, exampleSentence: IExampleSentence): Promise<IExampleSentence> {
@@ -352,9 +360,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     if (!entry) throw new Error(`Entry ${entryGuid} not found`);
     const sense = entry.senses.find(s => s.id === senseGuid);
     if (!sense) throw new Error(`Sense ${senseGuid} not found`);
-    sense.exampleSentences.push(exampleSentence);
+    const stored = this.clone(exampleSentence);
+    sense.exampleSentences.push(stored);
     this.notifyEntryUpdated(entry);
-    return Promise.resolve(exampleSentence);
+    return Promise.resolve(this.clone(stored));
   }
 
   deleteEntry(guid: string): Promise<void> {
@@ -485,9 +494,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     if (!entry) throw new Error(`Entry ${_entryId} not found`);
     const index = entry.senses.findIndex(s => s.id == _before.id);
     if (index == -1) throw new Error(`Sense ${_before.id} not found`);
-    entry.senses.splice(index, 1, _after);
+    const stored = this.clone(_after);
+    entry.senses.splice(index, 1, stored);
     this.notifyEntryUpdated(entry);
-    return Promise.resolve(_after);
+    return Promise.resolve(this.clone(stored));
   }
 
   addSemanticDomainToSense(_senseId: string, _semanticDomain: ISemanticDomain): Promise<void> {
@@ -505,9 +515,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     if (!sense) throw new Error(`Sense ${_senseId} not found`);
     const index = sense.exampleSentences.findIndex(es => es.id == _before.id);
     if (index == -1) throw new Error(`ExampleSentence ${_before.id} not found`);
-    sense.exampleSentences.splice(index, 1, _after);
+    const stored = this.clone(_after);
+    sense.exampleSentences.splice(index, 1, stored);
     this.notifyEntryUpdated(entry);
-    return Promise.resolve(_after);
+    return Promise.resolve(this.clone(stored));
   }
 
   getPublications(): Promise<IPublication[]> {
