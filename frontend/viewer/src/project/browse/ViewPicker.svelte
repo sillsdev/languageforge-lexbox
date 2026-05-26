@@ -50,10 +50,12 @@
 <RadioGroup.Root bind:value={getCurrentView, setCurrentView}>
   {#each viewService.views as view (view.id)}
     <RadioGroup.Option value={view.id}>
-      {view.name}
-      {#if isCustomView(view)}
-        <span class="text-muted-foreground">({view.base === ViewBase.FieldWorks ? 'Classic' : 'Lite'})</span>
-      {/if}
+      <span>
+        {view.name}
+        {#if isCustomView(view)}
+          <span class="text-muted-foreground">({view.base === ViewBase.FieldWorks ? 'Classic' : 'Lite'})</span>
+        {/if}
+      </span>
     </RadioGroup.Option>
   {/each}
 </RadioGroup.Root>
