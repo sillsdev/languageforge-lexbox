@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json.Serialization.Metadata;
-using LcmCrdt.Changes;
 using LinqToDB;
 using LinqToDB.Internal.SqlQuery;
 using LinqToDB.Mapping;
@@ -225,8 +224,10 @@ public static class Json
 
     //Json.Value's path walker can't handle a key captured from an outer json_each row; use At for that.
     [Sql.Expression("{0}->>{1}", ServerSideOnly = true)]
-    public static string? At(MultiString container, string key) =>
+    public static string? At(MultiString value, string key)
+    {
         throw new NotImplementedException("server-side only");
+    }
 
     //maps to a row from json_each
     internal record JsonEach<T>(

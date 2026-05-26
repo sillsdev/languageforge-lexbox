@@ -30,6 +30,7 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
     public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToEmptyList<ComplexFormType>;
     public override Expression<Func<Entry, object?>> EntryPublishIn => e => e.PublishIn;
     public override Expression<Func<Entry, object?>> EntryPublishInId =>
+        //PublishInRows is the json_each rewrite target
         e => e.PublishInRows.Select(p => Json.Value(p, p => p.Id.ToString()));
     public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToEmptyList<Publication>;
 }
