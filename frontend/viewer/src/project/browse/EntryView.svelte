@@ -71,8 +71,7 @@
 
   eventBus.onEntryUpdated((e) => {
     if (e.id !== entryId) return;
-    // The event payload is already the latest server state (the publisher does GetEntry first),
-    // so apply it directly rather than refetching (which would blur focus via editor.commit()).
+    // The event payload is the latest server state
     setEntry(e);
   });
 
