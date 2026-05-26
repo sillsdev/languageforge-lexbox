@@ -9,5 +9,5 @@
 
 <Label class={cn('flex items-center gap-4 md:gap-2 max-md:py-3', restProps.disabled || 'cursor-pointer')}>
   <Item bind:ref {...restProps} />
-  {@render children?.()}
+  <span>{@render children?.()}</span>
 </Label>
