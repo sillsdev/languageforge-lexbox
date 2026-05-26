@@ -40,7 +40,9 @@
   // so if "date" changes, "now" should be refreshed
   watch(
     () => date,
-    () => now.setTime(Date.now()),
+    () => {
+      now.setTime(Date.now());
+    },
   );
 
   $effect(() => {
