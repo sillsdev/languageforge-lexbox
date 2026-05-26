@@ -50,12 +50,14 @@
     openQueryParam.current = true;
   }
 
-  function refreshStatus(): Promise<unknown> {
-    return Promise.all([
+  let pendingRefresh: Promise<unknown> | undefined;
+  function refreshStatus() {
+    pendingRefresh ??= Promise.all([
       service.getLocalStatus().then(s => localStatus = s),
       service.getStatus().then(s => remoteStatus = s),
       service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
-    ]);
+    ]).finally(() => pendingRefresh = undefined);
+    return pendingRefresh;
   }
 
   async function onOpen(): Promise<void> {
