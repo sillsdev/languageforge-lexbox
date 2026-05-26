@@ -1,12 +1,9 @@
 import {expect, test} from '@playwright/test';
+
 import {BrowsePage} from './browse-page';
 
 /**
- * When the user types in a field and presses Tab, the save triggered by blur must not
- * steal focus from the field Tab moved to.
- *
- * Previously, the save fired an EntryChanged event which triggered entryResource.refetch().
- * The fetcher's `await editor?.commit()` then blurred whatever Tab had just focused.
+ * When the user types in a field and presses Tab, the save must not mess with the focus.
  */
 test.describe('Tab focus preservation', () => {
 
