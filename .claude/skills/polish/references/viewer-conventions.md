@@ -3,7 +3,7 @@
 Read this in full before filing findings on any `frontend/viewer/**` diff.
 
 Authoritative AGENTS.md: `frontend/viewer/AGENTS.md`. This file encodes the
-review *taste* — the rules @myieye reaches for most often.
+review *taste* — the rules the team reaches for most often.
 
 ## The #1 rule: no `try/catch` around async handlers
 
@@ -15,7 +15,7 @@ Adding `try/catch` or `.catch(console.error)` around an async handler
 **defeats the global handler** for that path. The error is swallowed; the
 user sees nothing.
 
-@myieye has said in review (PR #2215): *"I don't want the catch for
+Stated firmly in review on PR #2215: *"I don't want the catch for
 unexpected errors. Those are handled more elegantly by our generic global
 error handler. Please remember that — I've told you before."*
 
@@ -83,6 +83,29 @@ Grep for `export let` or `^\$:` in newly-touched `.svelte` files → flag as
 Grep for new string literals in JSX/templates → ask: should this be
 internationalized? If user-visible, yes.
 
+### Parser awareness
+
+Lingui extracts strings via static analysis at build time. It only sees
+strings the parser actually traverses — runtime-only string assembly is
+invisible. From PR #1829: structure role/label data so each translatable
+phrase is a literal at extract time, not assembled at runtime.
+
+```typescript
+// bad: parser doesn't see "Manager" / "Editor" as i18n strings
+const role = isManager ? 'Manager' : 'Editor';
+const label = $t`Role: ${role}`;     // role substitutes an untranslated string
+
+// good: structure as data; each label is a literal the parser can extract
+const roles = [
+  { value: 'manager', label: msg`Manager` },
+  { value: 'editor',  label: msg`Editor` },
+];
+```
+
+If a translatable string is constructed (concatenation, conditional, fill
+of an untranslated value), the parser won't extract it — translators
+never see it.
+
 ## Generated .NET types
 
 The viewer consumes types generated from .NET via Reinforced.Typings.
@@ -145,8 +168,8 @@ If the diff touches `backend/FwLite/FwLiteShared/**` or any `.cs` class with
 
 ## Findings tone
 
-- New `try/catch` swallowing async errors → **blocking** with the @myieye
-  quote.
+- New `try/catch` swallowing async errors → **blocking** with the cited
+  rationale (PR #2215).
 - `export let` / `$:` in new code → **important** with the runes table.
 - Misleading function names → **important**.
 - Missing i18n context comments on new strings → **nit** (helpful but

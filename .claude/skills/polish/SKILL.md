@@ -8,9 +8,11 @@ disable-model-invocation: true
 
 # /polish — Pre-merge review of the current branch
 
-Bring this branch to the standard the team loves to review. Encode the taste of
-@myieye and @rmunn, the hazards documented in the layered `AGENTS.md` files,
-and the post-merge regressions we've actually had.
+Bring this branch to the standard the team loves to review. Channel the
+team's collective review voice — especially the CRDT/Harmony ownership
+perspective on lifetime, threading, DI safety, and API stability — the
+hazards documented in the layered `AGENTS.md` files, and the post-merge
+regressions we've actually had.
 
 ## Phase 0 · Ground (cheap, runs eagerly)
 
@@ -239,10 +241,16 @@ Then recommend the right narrow test command. Offer to run it.
 - **Subagent prompts must be self-contained** — they don't see this
   conversation. Include the diff scope, the relevant `AGENTS.md` excerpt or
   reference path, and the finding format.
-- **Reviewer voice to emulate**, in order of weight: @myieye (architecture,
-  frontend idioms, taste — uses ⛏️/🔧/❓/🤔 prefixes) and @rmunn (sync,
-  .NET, naming rigor — both prefer questions over commands when uncertain).
-  See `references/reviewer-glossary.md` for the prefix system.
+- **Channel the team's review voice** (`references/reviewer-glossary.md`):
+  open prescriptive findings with *"let's …"* (collective ownership reads
+  better than *"you should"*); prefer questions to commands when uncertain;
+  cite the source (PR number, `AGENTS.md` section, or existing file as
+  precedent). The heaviest-weight voice is the CRDT/Harmony ownership
+  perspective — lifetime/disposal, DI safety, threading model honesty
+  (`Task.Run` only to escape UI thread), API stability across deployed
+  clients, framework primitive correctness (`IOptions<T>`, cached
+  `JsonSerializerOptions`, proper HTTP status codes), and conditional
+  performance choices.
 
 ## Reference docs (loaded by subagents on demand)
 
