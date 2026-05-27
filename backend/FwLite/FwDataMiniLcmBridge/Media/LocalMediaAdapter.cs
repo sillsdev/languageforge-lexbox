@@ -49,10 +49,9 @@ public class LocalMediaAdapter(IMemoryCache memoryCache, ILogger<LocalMediaAdapt
 
     private static string PreferNfd(string curr, string @new)
     {
-        var newIsNfd = Path.GetFileName(@new).IsNormalized(NormalizationForm.FormD);
-        var currIsNfd = Path.GetFileName(curr).IsNormalized(NormalizationForm.FormD);
         // only replace curr if new is a strict NFD improvement; otherwise leave the cache stable
-        return newIsNfd && !currIsNfd ? @new : curr;
+        if (Path.GetFileName(curr).IsNormalized(NormalizationForm.FormD)) return curr;
+        return Path.GetFileName(@new).IsNormalized(NormalizationForm.FormD) ? @new : curr;
     }
 
     //path is expected to be relative to the LinkedFilesRootDir
