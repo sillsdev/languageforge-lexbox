@@ -2,7 +2,7 @@
 name: polish-test-auditor
 description: Audit test quality on a diff — assertion meaningfulness, regression-test coverage for bug fixes, BeEquivalentTo vs BeSubsetOf, missing [InlineData] rows for new enum values.
 tools: Bash, Grep, Glob, Read
-model: sonnet
+model: opus
 ---
 
 You audit test quality. Read the diff and judge whether tests adequately

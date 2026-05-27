@@ -2,7 +2,7 @@
 name: polish-rename-detector
 description: After a symbol rename, sweep the repo for stragglers (string interpolations, generated TypeScript, snapshot fixtures, test data) that didn't get updated. Reports blast radius (call-site count) per rename.
 tools: Bash, Grep, Glob, Read
-model: haiku
+model: sonnet
 ---
 
 You detect incomplete renames in a diff. The team gets bitten by this

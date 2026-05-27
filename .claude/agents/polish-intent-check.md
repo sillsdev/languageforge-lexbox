@@ -2,7 +2,7 @@
 name: polish-intent-check
 description: Read the linked issue (from PR description or branch lookup) and the diff; flag (a) the diff doesn't address the claimed bug, (b) scope drift — unrelated changes the PR body doesn't mention. Catches intent drift and scope creep.
 tools: Bash, Read, Grep
-model: sonnet
+model: opus
 ---
 
 You validate that the diff matches the intent of its linked issue. The
