@@ -1,31 +1,42 @@
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Caching.Memory;
-using MiniLcm;
-using MiniLcm.Exceptions;
+using Microsoft.Extensions.Logging;
 using MiniLcm.Media;
 using SIL.LCModel;
 using UUIDNext;
 
 namespace FwDataMiniLcmBridge.Media;
 
-public class LocalMediaAdapter(IMemoryCache memoryCache) : IMediaAdapter
+public class LocalMediaAdapter(IMemoryCache memoryCache, ILogger<LocalMediaAdapter> logger) : IMediaAdapter
 {
     //probably don't change this
-    private static readonly Guid LocalMediaNamespace = new Guid("45e563a3-f5a6-4d7a-9722-8d7d4d3adfa2");
+    private static readonly Guid LocalMediaNamespace = new("45e563a3-f5a6-4d7a-9722-8d7d4d3adfa2");
     private const string LocalMediaAuthority = "localhost";
 
     private Dictionary<Guid, string> Paths(LcmCache cache)
     {
-        return memoryCache.GetOrCreate<Dictionary<Guid, string>>("LocalMediaPath|" + cache.ProjectId.ProjectFolder,
+        return memoryCache.GetOrCreate("LocalMediaPath|" + cache.ProjectId.ProjectFolder,
             entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(10);
-                // Distinct(): EnumerateFiles can repeat a path if a file is renamed mid-enumeration (cloud-sync providers do this).
-                return Directory
-                    .EnumerateFiles(cache.LangProject.LinkedFilesRootDir, "*", SearchOption.AllDirectories)
-                    .Distinct()
-                    .ToDictionary(file => PathToUri(file).FileId, file => file);
+                return BuildPathsDictionary(cache.LangProject.LinkedFilesRootDir, logger);
             }) ?? throw new Exception("Failed to get paths");
+    }
+
+    internal static Dictionary<Guid, string> BuildPathsDictionary(string root, ILogger logger)
+    {
+        var paths = new Dictionary<Guid, string>();
+        foreach (var file in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
+        {
+            var fileId = PathToUri(file).FileId;
+            if (!paths.TryAdd(fileId, file))
+            {
+                // duplicates are possible, because UUIDNext.NewNameBased normalises unicode before hashing
+                // FW stores audio refs as NFD so only NFD file names are useable i.e. collisions don't matter
+                logger.LogWarning("Duplicate media FileId {FileId} in {Root}: kept {Existing}, skipped {Skipped}",
+                    fileId, root, paths[fileId], file);
+            }
+        }
+        return paths;
     }
 
     //path is expected to be relative to the LinkedFilesRootDir
