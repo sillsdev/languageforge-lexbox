@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Media;
@@ -28,15 +29,30 @@ public class LocalMediaAdapter(IMemoryCache memoryCache, ILogger<LocalMediaAdapt
         foreach (var file in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
         {
             var fileId = PathToUri(file).FileId;
-            if (!paths.TryAdd(fileId, file))
+            if (paths.TryGetValue(fileId, out var existing))
             {
                 // duplicates are possible, because UUIDNext.NewNameBased normalises unicode before hashing
-                // FW stores audio refs as NFD so only NFD file names are useable i.e. collisions don't matter
-                logger.LogWarning("Duplicate media FileId {FileId} in {Root}: kept {Existing}, skipped {Skipped}",
-                    fileId, root, paths[fileId], file);
+                // keep the NFD path: FW only ever refers to audio via NFD names
+                var kept = PreferNfd(existing, file);
+                var skipped = ReferenceEquals(kept, existing) ? file : existing;
+                paths[fileId] = kept;
+                logger.LogWarning("Duplicate media FileId {FileId} in {Root}: kept {Kept}, skipped {Skipped}",
+                    fileId, root, kept, skipped);
+            }
+            else
+            {
+                paths[fileId] = file;
             }
         }
         return paths;
+    }
+
+    private static string PreferNfd(string a, string b)
+    {
+        var aNfd = Path.GetFileName(a).IsNormalized(NormalizationForm.FormD);
+        var bNfd = Path.GetFileName(b).IsNormalized(NormalizationForm.FormD);
+        if (aNfd != bNfd) return aNfd ? a : b;
+        return StringComparer.Ordinal.Compare(a, b) <= 0 ? a : b;
     }
 
     //path is expected to be relative to the LinkedFilesRootDir

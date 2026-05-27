@@ -133,8 +133,8 @@ public class MediaFileTests : IAsyncLifetime
     [Fact]
     public async Task AudioWsValuesAreStoredAsNfdByLcm()
     {
-        // LocalMediaAdapter.BuildPathsDictionary "squashes" normalized duplicates,
-        // which is OK, beacuse only NFD names are useable i.e. collisions don't matter
+        // LocalMediaAdapter.BuildPathsDictionary prefers NFD when collapsing twins;
+        // this test proves LCM also only ever serves audio refs as NFD, so the two align.
         const string nfc = "süülda.wav";
         const string nfd = "süülda.wav";
         nfc.Should().Be(nfc.Normalize(NormalizationForm.FormC));

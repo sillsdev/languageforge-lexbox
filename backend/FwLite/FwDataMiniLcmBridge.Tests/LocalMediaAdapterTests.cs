@@ -21,10 +21,11 @@ public class LocalMediaAdapterTests : IDisposable
         if (Directory.Exists(_root)) Directory.Delete(_root, recursive: true);
     }
 
-    // Regression: NFC + NFD twins of the same audio used to crash Paths() because
-    // UUIDNext.NewNameBased normalises before hashing -> same FileId for both.
+    // NFC + NFD twins of the same audio collapse to a single entry (UUIDNext.NewNameBased
+    // normalises before hashing -> same FileId). The kept path is the NFD one, since
+    // that's the only form FW addresses audio with.
     [Fact]
-    public void EnumerationOfNfcAndNfdTwinsDoesNotCrash()
+    public void NfcAndNfdTwinsCollapseToNfd()
     {
         const string nfc = "süülda.wav";
         const string nfd = "süülda.wav";
@@ -40,5 +41,6 @@ public class LocalMediaAdapterTests : IDisposable
 
         dict.Should().HaveCount(1);
         File.Exists(dict.Single().Value).Should().BeTrue();
+        dict.Single().Value.Should().EndWith(nfd);
     }
 }
