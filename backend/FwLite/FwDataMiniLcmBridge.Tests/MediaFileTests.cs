@@ -130,6 +130,22 @@ public class MediaFileTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task AudioWsValuesAreStoredAsNfdByLcm()
+    {
+        // Documents the LCM behaviour that LocalMediaAdapter.BuildPathsDictionary relies on
+        // (first-wins on NFC/NFD twins is safe because FW only ever asks for the NFD form).
+        // Escape sequences keep the source file ASCII so editor/normalisation cannot collapse the literals.
+        const string nfc = "süülda.wav";       // precomposed ü
+        const string nfd = "süülda.wav";     // u + combining diaeresis
+        nfc.Should().NotBe(nfd, "test is vacuous if the two literals are equal");
+
+        var entryId = await AddFileDirectly(nfc, contents: "test");
+
+        // Set via LCM with the NFC form; LCM should serve back the NFD form.
+        GetFwAudioValue(entryId).Should().Be(nfd);
+    }
+
+    [Fact]
     public async Task CanOpenAFile()
     {
         var fileName = "CanOpenAFile.txt";
