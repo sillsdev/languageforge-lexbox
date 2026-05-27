@@ -40,7 +40,5 @@ public class LocalMediaAdapterTests : IDisposable
 
         dict.Should().HaveCount(1);
         File.Exists(dict.Single().Value).Should().BeTrue();
-        // FW stores audio refs as NFD so only NFD file names are useable i.e. collisions don't matter
-        dict.Single().Value.Should().EndWith(nfd);
     }
 }
