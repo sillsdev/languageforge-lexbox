@@ -33,44 +33,19 @@ Grep:
 - `?` for optional.
 - Records: nullable annotations on positional parameters work — use them.
 
-## Records vs classes
+## Records, classes, primary constructors
 
-- **Records** for DTOs, value objects, immutable data
-  (e.g. `WritingSystems`, `ProjectSnapshot`, `DryRunSyncResult`).
-- **Classes** for mutable domain entities (e.g. `Entry`, `Sense`).
-- Both can implement `IObjectWithId<T>` for CRDT entities.
-- Records with one-line bodies: prefer positional syntax.
-- Records with complex behavior: brace syntax with explicit properties.
-
-## Primary constructors
-
-```csharp
-public class Service(ILogger<Service> logger, Dependency dep)
-{
-    public async Task DoThing()
-    {
-        logger.LogInformation("…");
-        await dep.Whatever();
-    }
-}
-```
-
-Use for one-line DI. Don't over-use — if the constructor body had real
-logic, keep the explicit ctor.
+- **Records** for DTOs and immutable data; **classes** for mutable
+  domain entities. Positional syntax for one-line records.
+- Primary constructors for one-line DI: `public class Service(ILogger<Service> logger)`.
+  Keep an explicit constructor when the body has real logic.
 
 ## Logging
 
-- Constructor-injected `ILogger<T>`.
-- Structured logging: `logger.LogInformation("Imported {Type} {Id}", "entry", entry.Id)`.
-- Never `Console.WriteLine` in production code (only in tests/local
-  benchmarks).
-- For human-readable durations: `timeSpent.Humanize(2)`.
-
-Grep:
-- `Console\.Write` → flag in `backend/**/*.cs` (excluding test/benchmark
-  projects).
-- String-interpolation in log messages (`$"…"`) → soft flag; structured
-  template is preferred.
+- Inject `ILogger<T>`; use structured templates
+  (`logger.LogInformation("Imported {Type} {Id}", "entry", entry.Id)`).
+- No `Console.WriteLine` in production. Grep `Console\.Write` in
+  `backend/**/*.cs` excluding test/benchmark projects.
 
 ## DI lifetimes
 
@@ -417,25 +392,3 @@ validate it — *"in case of frontend bugs"* (PR #1829). Browser tampering,
 older client versions, and direct API calls all bypass frontend checks.
 Don't skip backend validation just because the UI prevents the bad case.
 
-## Findings tone
-
-- `.Result` / `.Wait()` → **important** (functional bug waiting to
-  happen). **Blocking** in async-heavy paths.
-- Missing `CancellationToken` propagation → **important**.
-- Cancellation flag instead of token → **important**.
-- Missing `using` on disposable that can throw → **blocking** if the
-  resource is a file/stream/connection; **important** otherwise.
-- `IEnumerable<T>` consumed twice → **important**.
-- `JsonSerializerOptions` constructed per call → **important** (perf).
-- Value type registered in DI container → **important**.
-- `Task.Run` without a UI-thread justification → **important**; ask.
-- `200 OK` with error in body → **blocking**.
-- Public API break without versioning plan → **blocking**.
-- Two `SaveChangesAsync` calls in one logical op → **important**.
-- Two `DbContext` instances in one logical op → **important**.
-- Smuggled `!` for null silencing → **important**, ask for justification.
-- Misnamed parameter (e.g. `file` when the value is a regex) → **nit**
-  unless it's a public API.
-- `Console.WriteLine` debug print → **blocking** (auto-removable in Pass A).
-- Test with meaningless assertion → **blocking**.
-- `BeSubsetOf` where set equality intended → **important**.

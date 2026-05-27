@@ -7,38 +7,18 @@ review *taste* — the rules the team reaches for most often.
 
 ## The #1 rule: no `try/catch` around async handlers
 
-The viewer has a **global error handler** that catches rejected promises,
-shows a toast, copies a diagnostic to clipboard, and logs to dotnet. It's
-intentional architecture — surfacing errors uniformly across the app.
+The viewer has a global error handler (toast + clipboard + dotnet log)
+that catches rejected promises uniformly. Adding `try/catch` or
+`.catch(...)` around async defeats it for that path — the error is
+swallowed. Stated firmly on PR #2215: *"those are handled more elegantly
+by our generic global error handler."*
 
-Adding `try/catch` or `.catch(console.error)` around an async handler
-**defeats the global handler** for that path. The error is swallowed; the
-user sees nothing.
+**Exception:** the catch sets specific form-level UI state (not a console
+log). That stays.
 
-Stated firmly in review on PR #2215: *"I don't want the catch for
-unexpected errors. Those are handled more elegantly by our generic global
-error handler. Please remember that — I've told you before."*
-
-### When it IS acceptable
-
-- The catch sets specific UI state on a form — e.g. "show this red error
-  message under this field". Not "log it to console".
-- The catch handles a known recoverable error type and continues a loop.
-
-### How to find these in a diff
-
-Grep patterns:
-- `try {[^}]*await` in `frontend/viewer/**`
-- `\.catch\(` in `frontend/viewer/**`
-- `} catch` adjacent to `await`
-
-For each match: read 10 lines of context. If the catch just logs/toasts
-itself/swallows → **blocking**. If it sets specific form state → ✨ note as
-acceptable and move on.
-
-### The fix
-
-Delete the try/catch. Let the promise reject. The global handler takes it.
+Grep `frontend/viewer/**` for `} catch` adjacent to `await`, and
+`\.catch\(`. Match → blocking unless it sets specific UI state. Fix is
+to delete the catch.
 
 ## Svelte 5 runes — use them, don't mix old patterns
 
@@ -166,15 +146,3 @@ If the diff touches `backend/FwLite/FwLiteShared/**` or any `.cs` class with
 | E2E (full) | `task playwright-test-standalone` | ~3 min |
 | i18n extract | `pnpm --filter viewer run i18n:extract` | ~5 s |
 
-## Findings tone
-
-- New `try/catch` swallowing async errors → **blocking** with the cited
-  rationale (PR #2215).
-- `export let` / `$:` in new code → **important** with the runes table.
-- Misleading function names → **important**.
-- Missing i18n context comments on new strings → **nit** (helpful but
-  rarely blocking).
-- Storybook stories for new components → ✨ **praise** when present;
-  **nit** if absent on a non-trivial new UI.
-- Screenshots in PR body for visual changes → handled by pr-narrative
-  worker, not viewer-watcher.

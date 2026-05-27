@@ -151,16 +151,3 @@ final pre-merge confidence pass.
 - **CRDT sync on UI thread** — moved off in PR #2248. Don't re-block on
   sync from UI code.
 
-## Findings tone
-
-- Sync-correctness issues → **blocking**. Frame as "we lost data here in
-  #NNNN" or "this breaks the documented invariant in `AGENTS.md`".
-- Missing fanout → **blocking** (data loss waiting to happen) or
-  **important** (if a non-data-bearing field).
-- Validation in wrong layer → **important**, with the wrapper-chain
-  diagram quoted.
-- Naming consistency (e.g. forgot to rename a generated TS file) →
-  **important** — has slipped past CI multiple times.
-- Performance hints (DB scan vs. index) → **nit** unless the path is hot.
-- Good defensive coding (per-project cache keys, deleted-ref guards) →
-  **praise**.

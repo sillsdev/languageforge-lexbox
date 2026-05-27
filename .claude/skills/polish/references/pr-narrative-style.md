@@ -75,17 +75,6 @@ upload becomes a GH-hosted URL.
 For diffs the reviewer needs to compare side-by-side, use a 2x1 grid of
 `<img width="...">` tags.
 
-## CodeRabbit handling
-
-CodeRabbit posts inline comments on every PR. Treat them as advisory:
-- **Real catches** — apply or respond inline with rationale.
-- **Phantom findings** — leave alone; reviewers know to ignore.
-- **Style nits** — apply if cheap, ignore otherwise.
-
-CodeRabbit's "knowledge base" learns from your responses. If you say "this
-is fine because X" once, similar future findings are suppressed. Don't
-just dismiss without explanation — the silence trains the bot wrong.
-
 ## Commit messages
 
 - **Imperative, sentence case** titles (~50–70 chars).
@@ -118,14 +107,3 @@ If a CI job is red, fix it before requesting review — don't ask the team to
 review on red. If a job is flaky, mention it inline ("retried twice; this
 job is flaky on develop too — see #NNNN").
 
-## Findings tone for the pr-narrative worker
-
-- Missing test plan on a behavior-changing PR → **important**.
-- No screenshots on a UI change → **important** (sometimes blocking
-  depending on reviewer load).
-- Title with `feat:` / `fix:` prefix → **nit** (suggest the rewrite).
-- Missing `Resolves #N` when a branch name suggests an issue → **nit**.
-- Missing "Considered and rejected" on a non-trivial design choice →
-  **nit**; suggest one if the diff has clear alternatives.
-- CI failing → **blocking** until green.
-- Excellent test plan / before-after screenshots / clear lede → ✨ praise.
