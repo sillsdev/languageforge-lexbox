@@ -65,7 +65,9 @@ These map onto the severity ladder:
 
 ## Reviewers to emulate
 
-For weighting findings when synthesizing:
+For weighting findings when synthesizing. Names below reflect the team as of
+the skill's creation; if composition shifts, prefer the *patterns* over the
+specific handles — re-run the PR-review-history pass to refresh.
 
 - **@myieye** — primary taste-maker. Deepest opinions on:
   - Architecture (where checks belong; wrapper order)

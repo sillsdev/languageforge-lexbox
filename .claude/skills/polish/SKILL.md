@@ -201,7 +201,7 @@ decisions; otherwise plain text.
 **Never** (without explicit user approval):
 - Commit, push, open a PR.
 - Run integration tests (root `AGENTS.md` rule).
-- Touch `harmony` submodule contents.
+- Touch `backend/harmony` submodule contents.
 - Modify `.git/`, `deployment/` PVCs, or any infrastructure state.
 
 ## Phase 5 · Verdict & next-test recommendation
