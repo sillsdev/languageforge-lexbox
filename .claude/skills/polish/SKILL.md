@@ -45,11 +45,17 @@ Spawn all relevant agents **in one message** via `Agent` with the
 
 | Touched | Agent |
 |---|---|
-| `backend/FwLite/**`, `backend/FwHeadless/**` | `polish-fwlite-sentinel` |
+| `backend/harmony/**` (submodule pointer bump or in-place edits) | `polish-harmony-sentinel` |
+| `backend/FwLite/**` | `polish-fwlite-sentinel` |
+| `backend/FwHeadless/**` | `polish-fwheadless-sentinel` |
+| `backend/LexBoxApi/GraphQL/**`, or any `.cs` with `[GraphQLType]`/`[QueryType]`/`[MutationType]`/`[ExtendObjectType]` | `polish-graphql` |
+| `**/*.cs` (general .NET, excluding the GraphQL-specific subset above which goes to `polish-graphql`) | `polish-dotnet-stylist` |
 | `frontend/viewer/**` | `polish-viewer-watcher` |
-| `**/*.cs` | `polish-dotnet-stylist` |
+| `frontend/viewer/**` AND diff adds new `$t` / `msg` strings | `polish-i18n-completeness` |
 | `**/Migrations/**` | `polish-migration-detective` |
 | `**/*.sh`, `**/Dockerfile*` | `polish-bash-discipline` |
+| `.github/workflows/**`, `.github/actions/**` | `polish-ci-workflow` |
+| `deployment/**` | `polish-deployment-infra` |
 
 Severity ladder: 🚫 blocking · ⚠️ important · 💭 nit · ✨ praise. Finding
 format:

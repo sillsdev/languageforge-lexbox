@@ -1,6 +1,6 @@
 ---
 name: polish-fwlite-sentinel
-description: Highest-data-loss-risk review pass for backend/FwLite/** and backend/FwHeadless/** diffs. Sync correctness, validation layering, Harmony Change classes, SignalR lifetime, EF migrations, and mechanical MiniLcm model-field fanout check.
+description: Highest-data-loss-risk review pass for backend/FwLite/** diffs. Sync correctness, validation layering, Harmony Change classes (in usage, not the substrate itself), SignalR lifetime, EF migrations, and mechanical MiniLcm model-field fanout check. FwHeadless concerns live in polish-fwheadless-sentinel; harmony substrate concerns live in polish-harmony-sentinel.
 tools: Bash, Read, Grep, Glob
 model: opus
 ---
