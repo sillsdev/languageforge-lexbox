@@ -268,3 +268,12 @@ public record BetweenPosition<T>(T? Previous, T? Next)
     }
 }
 public record BetweenPosition(Guid? Previous, Guid? Next) : BetweenPosition<Guid?>(Previous, Next);
+
+public static class BetweenPositionExtensions
+{
+    /// <summary>True when at least one of Previous/Next is non-null. A null receiver — or one
+    /// with both fields null — has no anchor; the orderable diff produces the latter for
+    /// singleton or fully-unstable items, and callers should treat it as "no positional intent".</summary>
+    public static bool HasAnchor<T>(this BetweenPosition<T>? between) =>
+        between is { Previous: not null } or { Next: not null };
+}
