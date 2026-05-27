@@ -213,6 +213,14 @@ export class EntryLoaderService {
       const entries = await promise;
       if (gen !== this.#generation) return;
       this.#cache.storeBatches([batch], entries);
+    } catch (e) {
+      // Without this, the rejection is swallowed by Delayed.svelte (per-row component) and the
+      // user sees perpetual skeletons with no toast. Surfacing it on the service triggers the
+      // top-level error UI + toast in EntriesList.
+      if (gen === this.#generation) {
+        this.error = e instanceof Error ? e : new Error(String(e));
+      }
+      throw e;
     } finally {
       this.#cache.clearPendingBatch(batch, promise);
     }
