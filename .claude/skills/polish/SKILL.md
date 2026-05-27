@@ -1,16 +1,15 @@
 ---
 name: polish
-description: Pre-merge polish for the current branch. Walks the diff, dispatches focused subagent reviewers in parallel, aggregates findings by severity, applies unambiguous fixes confidently, asks before changing anything contested. Use before opening a PR, before requesting review, or whenever you want a thorough self-review pass.
+description: Pre-merge polish for the current branch. Dispatches focused subagent reviewers in parallel, aggregates findings by severity, applies unambiguous fixes confidently (scoped strictly to touched files), re-validates after fixes, asks before changing anything contested. Use before opening a PR, before requesting review, or whenever you want a thorough self-review pass.
 when_to_use: User asks to "polish my branch", "get this ready to merge", "self-review", "pre-PR check", "what would the team flag here", or before opening/requesting review on a PR.
-allowed-tools: Bash(git diff:*) Bash(git log:*) Bash(git status:*) Bash(git show:*) Bash(git branch:*) Bash(gh api:*) Bash(dotnet format:*) Bash(grep:*) Bash(rg:*) Read Grep Glob Agent Edit
+allowed-tools: Bash(git diff:*) Bash(git log:*) Bash(git status:*) Bash(git show:*) Bash(git branch:*) Bash(gh api:*) Bash(dotnet format:*) Bash(pnpm:*) Bash(node:*) Read Grep Glob Agent Edit
 disable-model-invocation: true
 ---
 
 # /polish — Pre-merge review of the current branch
 
-Encode the hazards in the layered `AGENTS.md` files and the post-merge
-regressions we've actually had. Open prescriptive findings with *"let's
-…"*, cite the source, prefer questions to commands when uncertain. See
+Open prescriptive findings with *"let's …"*, cite the source, prefer
+questions to commands when uncertain. See
 `references/reviewer-glossary.md` for voice. Defer formatting and lint
 diagnostics to the tools themselves rather than re-reviewing here.
 
@@ -22,93 +21,130 @@ diagnostics to the tools themselves rather than re-reviewing here.
 !`git diff origin/develop...HEAD --stat 2>/dev/null | tail -40 || git diff --stat HEAD`
 
 If the diff is empty or trivial, say so and stop. Otherwise identify the
-touched top-level areas (drives Phase 1) and try to find the linked
-issue (branch name, existing PR, `Resolves #N` in commit messages).
+touched top-level areas (drives dispatch) and the linked issue (branch
+name, existing PR, `Resolves #N` in commits).
 
-## Phase 1 · Read only the AGENTS.md that apply
+## Phase 1 · Dispatch parallel reviewers
 
-Root `AGENTS.md` always. Then only the per-area files for touched paths.
-
-| Touched | Also read |
-| --- | --- |
-| `backend/FwLite/**` | `backend/FwLite/AGENTS.md` |
-| `backend/FwHeadless/**` | `backend/FwHeadless/AGENTS.md` |
-| `backend/LexBoxApi/**` or `backend/LexData/**` | `backend/LexBoxApi/AGENTS.md`, `backend/AGENTS.md` |
-| `frontend/viewer/**` | `frontend/viewer/AGENTS.md`, `I18N_CONTEXT_GUIDE.md` if i18n changes |
-| `frontend/**` (not viewer) | `frontend/AGENTS.md` |
-| `.github/workflows/**` or `deployment/**` | `.github/AGENTS.md` |
-| `platform.bible-extension/**` | `platform.bible-extension/AGENTS.md` |
-
-## Phase 2 · Dispatch parallel reviewers
-
-Spawn the workers below in one message via `Agent` with
-`subagent_type=Explore`. Each receives the diff scope, its reference
-doc(s), and the finding format. Workers are self-contained.
+Spawn all relevant agents **in one message** via `Agent` with the
+`subagent_type` listed. Each agent is self-contained — its system prompt
++ your invocation prompt is all it gets. Keep invocation prompts under
+~150 words; include the diff scope and the finding format.
 
 **Always on:**
-- **diff-hygiene** — debug prints, commented-out code, scratch files,
-  accidental config, secrets, lonely `TODO`/`FIXME`, unused imports.
-- **rename-detector** — for each apparent rename, grep the whole repo
-  (especially `frontend/viewer/src/lib/dotnet-types/generated-types/`
-  and `FwLiteProjectSync.Tests/Snapshots/`) for stragglers (PR #2202).
-- **test-auditor** — reads `references/dotnet-style.md` §Tests.
-- **pr-narrative** — reads `references/pr-narrative-style.md`.
 
-**Conditional (only if the path block is touched):**
-- **fwlite-sentinel** (`backend/FwLite/**`, `backend/FwHeadless/**`) — reads `references/fwlite-sync-checklist.md`. Highest-data-loss surface.
-- **viewer-watcher** (`frontend/viewer/**`) — reads `references/viewer-conventions.md`.
-- **dotnet-stylist** (`**/*.cs`) — reads `references/dotnet-style.md`. Also runs `dotnet format LexBoxOnly.slnf --verify-no-changes` (or `FwLiteOnly.slnf`).
-- **migration-detective** (`**/Migrations/**`) — `ON CONFLICT IGNORE` needs `Sql()` + parallel `CreateIndex` (PR #2192); reversible `Down()`; named GUIDs for seeds (PR #2278).
-- **bash-discipline** (`**/*.sh`, `**/Dockerfile*`) — `dirname "$(readlink -f "$0")"` not `$CWD`; chmod in Dockerfile (PR #2245); `[[ ]]` over `[ ]`; `set -e` not `set -o pipefail` with grep; `grep -c` ≠ match count.
+| Agent | Purpose |
+|---|---|
+| `polish-diff-hygiene` | Debug prints, scratch files, secrets, lonely TODOs. |
+| `polish-rename-detector` | Stale generated TS / snapshot fixtures after renames; blast-radius reporting. |
+| `polish-test-auditor` | Assertion quality, regression-test coverage, BeSubsetOf vs BeEquivalentTo. |
+| `polish-pr-narrative` | Title/body audit; drafts if no PR exists. |
+| `polish-intent-check` | Linked-issue vs diff — addresses claim? scope drift? |
 
-**Finding format:**
+**Conditional (only if path block is touched):**
+
+| Touched | Agent |
+|---|---|
+| `backend/FwLite/**`, `backend/FwHeadless/**` | `polish-fwlite-sentinel` |
+| `frontend/viewer/**` | `polish-viewer-watcher` |
+| `**/*.cs` | `polish-dotnet-stylist` |
+| `**/Migrations/**` | `polish-migration-detective` |
+| `**/*.sh`, `**/Dockerfile*` | `polish-bash-discipline` |
+
+Severity ladder: 🚫 blocking · ⚠️ important · 💭 nit · ✨ praise. Finding
+format:
 
 ```
 🚫 blocking · path/file.cs:142
   Concise why-it-matters with a citation (AGENTS.md §, PR #).
 ```
 
-Severities: 🚫 blocking · ⚠️ important · 💭 nit · ✨ praise. Detailed
-severity-to-pattern mapping lives in the per-area reference docs.
+## Phase 2 · Aggregate & rank
 
-## Phase 3 · Aggregate, rank, present
-
-Merge findings, dedupe, sort by severity. Header:
+Merge findings, dedupe, sort. Report header:
 
 ```
 ## /polish report
 
 **Touched:** backend/FwLite, frontend/viewer
-**PR:** #2300 (or "not yet opened")
+**PR / Issue:** #2300 / Resolves #2150
 **Findings:** 2 blocking · 3 important · 4 nit · 2 praise
 **Verdict:** 🟡 One pass away
 ```
 
-## Phase 4 · Apply, ask, never push
+Then the table grouped by severity.
 
-**Apply directly** anything unambiguous — debug prints, unused imports,
-formatting, a `try/catch` in `frontend/viewer/**` that just logs, a
-`DeletedAt is null` filter on a projected DbSet, `.Result`/`.Wait()` in
-async-reachable code, missed renames in generated TS/snapshots,
-`BeSubsetOf` where set-equality is clearly intended. Briefly list what
-changed.
+## Phase 3 · Apply (strictly scoped)
 
-**Ask** on anything where a reasonable reviewer might disagree —
-architecture moves, new tests beyond a one-liner, comment additions,
-public API renames, edits to an already-open PR body, anything touching
-`FwLiteProjectSync/CrdtFwdataProjectSyncService.cs` or
-`MiniLcm/SyncHelpers/`.
+**Apply directly** anything unambiguous and AGENTS.md-backed:
 
-**Without explicit user approval, don't:** commit, push, open a PR, run
+- Remove debug prints, unused imports, commented-out code blocks.
+- Remove a `try/catch` in `frontend/viewer/**` that just logs / swallows.
+- Remove a `DeletedAt is null` filter on a projected DbSet.
+- Replace `.Result` / `.Wait()` with `await` in async-reachable paths.
+- Fix missed renames in generated TS / snapshot fixtures (rebuild rather
+  than hand-edit when possible).
+- Replace `BeSubsetOf` with `BeEquivalentTo` where set-equality is
+  clearly intended.
+
+**Formatter runs are strictly scoped to touched files**, never the whole
+solution / filter. Skip entirely if the diff touched `.editorconfig` or
+prettier config (changing config + running format is the unrelated-
+changes anti-pattern).
+
+`.cs`:
+
+```bash
+dotnet format whitespace --verify-no-changes --include <touched .cs files>
+# if non-zero:
+dotnet format whitespace --include <touched .cs files>
+```
+
+Viewer / frontend:
+
+```bash
+pnpm --filter viewer exec prettier --check <touched files>
+# if non-zero:
+pnpm --filter viewer exec prettier --write <touched files>
+```
+
+**Ask** on anything a reasonable reviewer might disagree about:
+- Architecture moves.
+- New tests beyond a one-liner.
+- Comment additions.
+- Public API renames.
+- Edits to an already-open PR body.
+- Anything in `FwLiteProjectSync/CrdtFwdataProjectSyncService.cs` or
+  `MiniLcm/SyncHelpers/`.
+
+**Don't, without explicit user approval:** commit, push, open a PR, run
 integration tests (root `AGENTS.md`), touch `backend/harmony` submodule,
 modify deployment state.
+
+## Phase 4 · Re-validate after fixes (loop, hard cap 2)
+
+After applying fixes in Phase 3, run a narrow re-validation:
+
+- Only the agents whose domain you touched in fixes.
+- Only the *files* you modified.
+- Hard cap: 2 cycles. If cycle 2 finds new findings, surface them but
+  **don't auto-fix** — that's how feedback loops happen.
+
+Common regressions to look for:
+- Removed a `try/catch` → exposed a different error path. Re-run
+  `polish-viewer-watcher`.
+- Completed a rename → new straggler now visible. Re-run
+  `polish-rename-detector` on touched files.
+- Applied dotnet format → a comment moved off the line it referenced.
+  Re-run touched-file `polish-diff-hygiene`.
+
+Phase 4 surfaces nothing → proceed to verdict.
 
 ## Phase 5 · Verdict & next test
 
 - 🟢 **Ready to request review** — no blocking, no important remain.
-- 🟡 **One pass away** — important findings or open questions. List
-  concrete next steps.
-- 🔴 **Substantive work remaining** — blocking findings; show first.
+- 🟡 **One pass away** — important findings or open questions.
+- 🔴 **Substantive work remaining** — blocking findings.
 
 Recommend the right narrow test command; offer to run it.
 
@@ -120,10 +156,6 @@ Recommend the right narrow test command; offer to run it.
 | lexbox frontend | `cd frontend && pnpm run check && pnpm run test:unit` |
 | LexBox API | `dotnet test LexBoxOnly.slnf --filter "Category!=Integration&Category!=FlakyIntegration"` |
 | LexBox API + GraphQL schema | also `task api:generate-gql-schema` |
-| viewer + .NET types | `dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj` to regenerate TS types |
+| viewer + .NET types | `dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj` |
 
 Don't suggest integration tests unless the user asks.
-
-Subagent prompts must be self-contained (they don't see this
-conversation) — include the diff scope, the reference doc path, and the
-finding format.
