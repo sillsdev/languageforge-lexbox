@@ -313,10 +313,12 @@ public class CrdtMiniLcmApi(
             return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
         }
 
-        // Without this guard, the same CFC revisited in one sync (via SyncComplexForms
-        // then SyncComplexFormComponents with a no-anchor between) gets bumped to
-        // Order = max + 1 by MoveComplexFormComponent → PickOrder.
-        if (between.HasAnchor())
+        // BetweenPosition(null, null) carries no positional intent — it's what the
+        // orderable diff hands in for a lone or unanchored item. Treat it as a no-op
+        // here; otherwise MoveComplexFormComponent walks PickOrder and bumps Order
+        // to max+1 every time the same CFC is revisited (e.g. via SyncComplexForms
+        // and SyncComplexFormComponents in one sync). Matches FwDataMiniLcmApi.
+        if (between is { Previous: not null } or { Next: not null })
         {
             await MoveComplexFormComponent(existing, between);
         }
