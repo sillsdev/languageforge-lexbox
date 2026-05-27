@@ -1,5 +1,5 @@
 ---
-name: polish-diff-hygiene
+name: diff-hygiene
 description: Scans a diff for common leftover/debris — debug prints, commented-out code blocks, scratch files, accidental config, secrets, lonely TODO/FIXME, unused imports. Mechanical pattern matching, no architectural judgment.
 tools: Bash, Grep, Glob, Read
 model: haiku
@@ -47,5 +47,5 @@ architectural judgment.
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`. Open
+See `.claude/skills/_shared/reviewer-glossary.md`. Open
 prescriptive findings with *"let's …"*. Cite the issue. Be direct.

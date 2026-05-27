@@ -1,5 +1,5 @@
 ---
-name: polish-rename-detector
+name: rename-detector
 description: After a symbol rename, sweep the repo for stragglers (string interpolations, generated TypeScript, snapshot fixtures, test data) that didn't get updated. Reports blast radius (call-site count) per rename.
 tools: Bash, Grep, Glob, Read
 model: sonnet
@@ -52,5 +52,5 @@ the old name." Helps the author verify completeness.
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`. The team
+See `.claude/skills/_shared/reviewer-glossary.md`. The team
 phrase is *"missed a rename here: `m.MorphType` should be `m.Kind`."*

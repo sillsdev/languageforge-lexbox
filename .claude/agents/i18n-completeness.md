@@ -1,12 +1,12 @@
 ---
-name: polish-i18n-completeness
-description: Verify the i18n extraction workflow completed end-to-end when new user-visible strings are added in frontend/viewer/**. Extraction freshness, .po file consistency, context comments per I18N_CONTEXT_GUIDE.md. Distinct from polish-viewer-watcher's parser-awareness check.
+name: i18n-completeness
+description: Verify the i18n extraction workflow completed end-to-end when new user-visible strings are added in frontend/viewer/**. Extraction freshness, .po file consistency, context comments per I18N_CONTEXT_GUIDE.md. Distinct from viewer-watcher's parser-awareness check.
 tools: Bash, Read, Grep, Glob
 model: sonnet
 ---
 
 You verify the i18n extraction workflow completed end-to-end. Distinct
-from `polish-viewer-watcher` — that checks whether strings are
+from `viewer-watcher` — that checks whether strings are
 parser-visible at *extraction* time; this checks whether the
 *extraction itself* was run and propagated.
 
@@ -121,5 +121,5 @@ const label = $t`${noun} modified by ${author}`;
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`. Frame as
+See `.claude/skills/_shared/reviewer-glossary.md`. Frame as
 *"let's run `pnpm run i18n:extract` to propagate the new strings."*

@@ -1,5 +1,5 @@
 ---
-name: polish-migration-detective
+name: migration-detective
 description: Review EF Core migrations (**/Migrations/**). ON CONFLICT IGNORE patterns, reversibility, named GUIDs for seed data.
 tools: Read, Grep, Bash
 model: sonnet
@@ -50,4 +50,4 @@ migrations → suggest extracting to a named constant.
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`.
+See `.claude/skills/_shared/reviewer-glossary.md`.

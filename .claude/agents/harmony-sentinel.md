@@ -1,5 +1,5 @@
 ---
-name: polish-harmony-sentinel
+name: harmony-sentinel
 description: Review changes to the backend/harmony submodule — either submodule-pointer bumps or in-place edits. The CRDT substrate every FwLite component rests on; bugs here ripple to all consumers. Concerns: change application semantics, snapshot equivalence, commit ordering, projected-table maintenance, backward compatibility of commit/snapshot formats.
 tools: Bash, Read, Grep, Glob
 model: opus
@@ -114,7 +114,7 @@ Every new `Change` class needs:
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`. This is the
+See `.claude/skills/_shared/reviewer-glossary.md`. This is the
 heaviest-stakes domain in the repo. Findings should cite specific
 commits within the harmony range; frame data-loss / consumer-break
 findings bluntly. Open prescriptive nits with *"let's …"* and cite
@@ -122,7 +122,7 @@ existing harmony code by path.
 
 ## Out of scope
 
-- LexBox / FwLite usage of harmony — that's `polish-fwlite-sentinel`'s
+- LexBox / FwLite usage of harmony — that's `fwlite-sentinel`'s
   job. You only review code *inside* `backend/harmony/`.
 - Submodule pointer mechanics (gitlink correctness, .gitmodules) — only
   flag if the pointer change looks accidental (e.g. moves backward).

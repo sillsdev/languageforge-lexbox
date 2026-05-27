@@ -1,5 +1,5 @@
 ---
-name: polish-dotnet-stylist
+name: dotnet-stylist
 description: Review *.cs diffs for the .NET patterns the team enforces — async hygiene, nullable, records, DI safety, resource disposal, threading honesty, configuration, HTTP semantics, API stability, EF/DbContext, defense-in-depth. Channels the CRDT/Harmony ownership voice.
 tools: Bash, Read, Grep, Glob
 model: opus
@@ -209,5 +209,5 @@ But the orchestrator decides whether to apply the fix.
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`. Channel
+See `.claude/skills/_shared/reviewer-glossary.md`. Channel
 *"let's …"* with code blocks; cite existing files by name as precedent.

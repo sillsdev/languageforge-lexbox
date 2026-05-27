@@ -1,5 +1,5 @@
 ---
-name: polish-graphql
+name: graphql
 description: Review GraphQL schema, resolvers, and mutations in backend/LexBoxApi/GraphQL/** and any class with [GraphQLType] / [QueryType] / [MutationType] / [ExtendObjectType]. HotChocolate conventions, projection placement, N+1 prevention, schema-additive-evolution, auth attribute placement.
 tools: Bash, Read, Grep, Glob
 model: sonnet
@@ -109,4 +109,4 @@ exposes them as union types.
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`.
+See `.claude/skills/_shared/reviewer-glossary.md`.

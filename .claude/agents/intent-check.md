@@ -1,5 +1,5 @@
 ---
-name: polish-intent-check
+name: intent-check
 description: Read the linked issue (from PR description or branch lookup) and the diff; flag (a) the diff doesn't address the claimed bug, (b) scope drift — unrelated changes the PR body doesn't mention. Catches intent drift and scope creep.
 tools: Bash, Read, Grep
 model: opus
@@ -76,6 +76,6 @@ cover.
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`. Frame as
+See `.claude/skills/_shared/reviewer-glossary.md`. Frame as
 questions — the author has more context. Don't assume the diff is wrong;
 surface the mismatch and let them clarify.

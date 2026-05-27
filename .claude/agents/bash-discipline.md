@@ -1,5 +1,5 @@
 ---
-name: polish-bash-discipline
+name: bash-discipline
 description: Review *.sh and Dockerfile changes. Path resolution, exec bits, `set -e` vs `pipefail`, `grep -c` gotchas.
 tools: Read, Grep, Bash
 model: haiku
@@ -40,4 +40,4 @@ when `**/*.sh` or `**/Dockerfile*` is touched.
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`. Direct.
+See `.claude/skills/_shared/reviewer-glossary.md`. Direct.

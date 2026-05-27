@@ -1,5 +1,5 @@
 ---
-name: polish-pr-narrative
+name: pr-narrative
 description: Audit (or draft) the PR title and body — imperative sentence-case title <70ch, lede → bullets → test plan → screenshots → issue link → "considered and rejected" when relevant.
 tools: Bash, Read, Grep
 model: sonnet
@@ -90,4 +90,4 @@ on develop too — see #NNNN").
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`.
+See `.claude/skills/_shared/reviewer-glossary.md`.

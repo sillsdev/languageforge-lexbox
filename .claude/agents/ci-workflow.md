@@ -1,5 +1,5 @@
 ---
-name: polish-ci-workflow
+name: ci-workflow
 description: Review .github/workflows/** and .github/actions/** changes. Action pinning, cache-key correctness, secret handling, matrix coverage, permission scope, trigger correctness, concurrency cancellation.
 tools: Bash, Read, Grep, Glob
 model: sonnet
@@ -119,4 +119,4 @@ changes go in their own PR.
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`.
+See `.claude/skills/_shared/reviewer-glossary.md`.

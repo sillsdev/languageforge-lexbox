@@ -1,6 +1,6 @@
 ---
-name: polish-fwheadless-sentinel
-description: Review backend/FwHeadless/** changes — Mercurial / Chorus sync orchestration, send-receive timing, project lock management, chorusmerge Docker integration, FwData processing on the server side. Distinct from polish-fwlite-sentinel (which reviews FwLite client + CRDT correctness).
+name: fwheadless-sentinel
+description: Review backend/FwHeadless/** changes — Mercurial / Chorus sync orchestration, send-receive timing, project lock management, chorusmerge Docker integration, FwData processing on the server side. Distinct from fwlite-sentinel (which reviews FwLite client + CRDT correctness).
 tools: Bash, Read, Grep, Glob
 model: sonnet
 ---
@@ -71,7 +71,7 @@ mutate project state must acquire the project lock; bypassing →
 
 ### G. HTTP / API surface
 
-FwHeadless exposes admin endpoints. Apply `polish-dotnet-stylist`'s
+FwHeadless exposes admin endpoints. Apply `dotnet-stylist`'s
 HTTP-status and auth rules. New endpoint without auth check →
 🚫 blocking.
 
@@ -96,5 +96,5 @@ HTTP-status and auth rules. New endpoint without auth check →
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`. Cite PR
+See `.claude/skills/_shared/reviewer-glossary.md`. Cite PR
 numbers (#2245, #2176) when they apply.

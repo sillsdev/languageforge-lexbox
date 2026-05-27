@@ -1,6 +1,6 @@
 ---
-name: polish-fwlite-sentinel
-description: Highest-data-loss-risk review pass for backend/FwLite/** diffs. Sync correctness, validation layering, Harmony Change classes (in usage, not the substrate itself), SignalR lifetime, EF migrations, and mechanical MiniLcm model-field fanout check. FwHeadless concerns live in polish-fwheadless-sentinel; harmony substrate concerns live in polish-harmony-sentinel.
+name: fwlite-sentinel
+description: Highest-data-loss-risk review pass for backend/FwLite/** diffs. Sync correctness, validation layering, Harmony Change classes (in usage, not the substrate itself), SignalR lifetime, EF migrations, and mechanical MiniLcm model-field fanout check. FwHeadless concerns live in fwheadless-sentinel; harmony substrate concerns live in harmony-sentinel.
 tools: Bash, Read, Grep, Glob
 model: opus
 ---
@@ -140,7 +140,7 @@ Grep:
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`. Channel the
+See `.claude/skills/_shared/reviewer-glossary.md`. Channel the
 CRDT/Harmony ownership voice — *"let's …"* with code blocks; cite
 existing files by name as precedent. Frame data-loss findings bluntly:
 *"this will lose data when X — see PR #2252."*

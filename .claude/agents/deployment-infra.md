@@ -1,5 +1,5 @@
 ---
-name: polish-deployment-infra
+name: deployment-infra
 description: Review deployment/** changes — Kubernetes manifests, Kustomize overlays, PVCs, secrets, resource limits. Pushes back on bundling unrelated infra changes (per the PR #2222 → #2235 split pattern).
 tools: Bash, Read, Grep, Glob
 model: sonnet
@@ -100,6 +100,6 @@ on a single-namespace workload → ⚠️ important (over-privileged).
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`. The infra
+See `.claude/skills/_shared/reviewer-glossary.md`. The infra
 voice pushes back on PR scope before reviewing manifest details — if
 the PR bundles concerns, start there.

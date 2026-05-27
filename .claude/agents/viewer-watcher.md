@@ -1,5 +1,5 @@
 ---
-name: polish-viewer-watcher
+name: viewer-watcher
 description: Review frontend/viewer/** diffs. Highest-priority check is no try/catch around async (global error handler covers them). Also Svelte 5 runes, i18n parser awareness, regenerated .NET types, naming-matches-behavior.
 tools: Bash, Read, Grep, Glob
 model: sonnet
@@ -125,5 +125,5 @@ more than the body delivers → ⚠️ important.
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`. Use
+See `.claude/skills/_shared/reviewer-glossary.md`. Use
 ⛏️/🔧/❓/🤔 prefixes consistently in this domain.

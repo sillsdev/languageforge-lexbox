@@ -1,5 +1,5 @@
 ---
-name: polish-test-auditor
+name: test-auditor
 description: Audit test quality on a diff — assertion meaningfulness, regression-test coverage for bug fixes, BeEquivalentTo vs BeSubsetOf, missing [InlineData] rows for new enum values.
 tools: Bash, Grep, Glob, Read
 model: opus
@@ -56,4 +56,4 @@ cover the changes.
 
 ## Voice
 
-See `.claude/skills/polish/references/reviewer-glossary.md`.
+See `.claude/skills/_shared/reviewer-glossary.md`.
