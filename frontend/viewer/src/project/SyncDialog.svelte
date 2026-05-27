@@ -44,19 +44,31 @@
   }
 
   let pendingRefresh: Promise<unknown> | undefined;
+  let rerunAfterPending = false;
 
   // Catch background syncs (e.g. another client pushing changes) that onOpen alone wouldn't see.
+  // forceFresh: an in-flight refresh started before the sync may return pre-sync data, so queue a follow-up.
   // Must follow pendingRefresh — onSync invokes the callback synchronously with a cached event.
   projectEventBus.onSync(e => {
-    if (openQueryParam.current && e.status === SyncStatus.Success) void refreshStatus();
+    if (openQueryParam.current && e.status === SyncStatus.Success) void refreshStatus({forceFresh: true});
   });
 
-  function refreshStatus() {
-    pendingRefresh ??= Promise.all([
+  function refreshStatus(opts?: {forceFresh?: boolean}) {
+    if (pendingRefresh) {
+      if (opts?.forceFresh) rerunAfterPending = true;
+      return pendingRefresh;
+    }
+    pendingRefresh = Promise.all([
       service.getLocalStatus().then(s => localStatus = s),
       service.getStatus().then(s => remoteStatus = s),
       service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
-    ]).finally(() => pendingRefresh = undefined);
+    ]).finally(() => {
+      pendingRefresh = undefined;
+      if (rerunAfterPending) {
+        rerunAfterPending = false;
+        void refreshStatus();
+      }
+    });
     return pendingRefresh;
   }
 
