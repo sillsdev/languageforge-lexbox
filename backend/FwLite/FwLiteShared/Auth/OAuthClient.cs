@@ -17,8 +17,8 @@ namespace FwLiteShared.Auth;
 /// </summary>
 public class OAuthClient
 {
-    //all 3 scopes are required to work around this bug https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/5094
-    //more can be added in needed but this is the minimum set
+    //profile, openid and offline_access are all required to work around https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/5094;
+    //sendandreceive is the API permission scope for our backend.
     public static IReadOnlyCollection<string> DefaultScopes { get; } = ["profile", "openid", "offline_access", "sendandreceive" ];
     public const string AuthHttpClientName = "LexboxHttpClient";
     public string? RedirectUrl { get; }
