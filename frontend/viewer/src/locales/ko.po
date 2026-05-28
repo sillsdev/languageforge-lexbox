@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-14 10:19\n"
+"PO-Revision-Date: 2026-05-28 12:59\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -2162,3 +2162,4 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
+
