@@ -96,6 +96,22 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateComplexFormComponent_BetweenWithNoAnchors_DoesNotReorderExisting()
+    {
+        // Sync can revisit the same CFC with (null, null) — once via SyncComplexForms,
+        // again via SyncComplexFormComponents. The second call must not reorder.
+        var first = await Api.CreateComplexFormComponent(
+            ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        var second = await Api.CreateComplexFormComponent(
+            ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry),
+            new BetweenPosition<ComplexFormComponent>(null, null));
+
+        second.Order.Should().Be(first.Order);
+        var entry = await Api.GetEntry(_complexFormEntryId);
+        entry!.Components.Should().ContainSingle().Which.Order.Should().Be(first.Order);
+    }
+
+    [Fact]
     public async Task CreateComplexFormComponent_UsingTheSameComponentWithSenseDoesNothing()
     {
         var component1 = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry, _componentSenseId1));

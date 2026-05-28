@@ -313,7 +313,9 @@ public class CrdtMiniLcmApi(
             return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
         }
 
-        if (between is not null)
+        // The orderable diff sends (null, null) for singletons; skip the move so
+        // revisits in one sync don't bump Order via PickOrder.
+        if (between is { Previous: not null } or { Next: not null })
         {
             await MoveComplexFormComponent(existing, between);
         }
