@@ -168,33 +168,46 @@ public class OAuthClient
                 .WithForceRefresh(forceRefresh)
                 .ExecuteAsync();
         }
-        catch (MsalUiRequiredException)
-        {
-            _logger.LogWarning("Ui required, logging out");
-            await _application.RemoveAsync(account);
-            _authResult = null;
-        }
-        catch (MsalClientException e) when (e.ErrorCode == "multiple_matching_tokens_detected")
-        {
-            _logger.LogWarning(e, "Multiple matching tokens detected, logging out");
-            await _application.RemoveAsync(account);
-            _authResult = null;
-        }
-        catch (MsalServiceException e) when (e.InnerException is HttpRequestException)
-        {
-            _logger.LogWarning(e, "Failed to acquire token silently");
-            await _application
-                .RemoveAsync(account); //todo might not be the best way to handle this, maybe it's a transient error?
-            _authResult = null;
-        }
         catch (Exception e)
         {
-            _logger.LogError(e, "Failed to acquire token silently");
-            await _application.RemoveAsync(account);
-            _authResult = null;
+            switch (ClassifySilentAuthFailure(e))
+            {
+                case SilentAuthFailureOutcome.Rethrow:
+                    throw;
+                case SilentAuthFailureOutcome.RemoveAccount:
+                    _logger.LogWarning(e, "Silent token acquisition failed with a non-recoverable error, logging out");
+                    await RemoveAccountAsync(account);
+                    break;
+                case SilentAuthFailureOutcome.KeepCachedCredentials:
+                    _logger.LogWarning(e, "Silent token acquisition failed with a transient or unknown error; keeping cached credentials");
+                    break;
+            }
         }
 
         return _authResult;
+    }
+
+    internal enum SilentAuthFailureOutcome
+    {
+        KeepCachedCredentials,
+        RemoveAccount,
+        Rethrow,
+    }
+
+    //KeepCachedCredentials is the default so a transient network error doesn't wipe the refresh token.
+    internal static SilentAuthFailureOutcome ClassifySilentAuthFailure(Exception e) => e switch
+    {
+        MsalUiRequiredException => SilentAuthFailureOutcome.RemoveAccount,
+        MsalClientException { ErrorCode: "multiple_matching_tokens_detected" } => SilentAuthFailureOutcome.RemoveAccount,
+        OperationCanceledException => SilentAuthFailureOutcome.Rethrow,
+        _ => SilentAuthFailureOutcome.KeepCachedCredentials,
+    };
+
+    private async Task RemoveAccountAsync(IAccount account)
+    {
+        await _application.RemoveAsync(account);
+        _authResult = null;
+        _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
     }
 
     public async Task<string?> GetCurrentName()
