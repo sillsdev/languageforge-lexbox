@@ -783,7 +783,7 @@ msgstr "Bidang"
 #. Shows checkboxes to select which dictionary fields are visible (grouped by entry, sense, example).
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Fields"
-msgstr "Ladang"
+msgstr "Medan"
 
 #. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1442,7 +1442,7 @@ msgstr "Pratonton"
 #. Shown in the change preview area where no preview is available for the selected change
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
-msgstr "Praperintian tidak tersedia"
+msgstr "Pratonton tidak tersedia"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -1483,7 +1483,7 @@ msgstr "Terbitkan Kemasukan dalam"
 #. Field label: selects which publications a word appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
-msgstr "Terbitkan Word dalam"
+msgstr "Terbitkan Perkataan dalam"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2061,7 +2061,7 @@ msgstr "Perkataan sahaja"
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/views/custom/validation.ts
 msgid "Word or Display as is required"
-msgstr "Perkataan atau paparan mengikut keperluan"
+msgstr "Perkataan atau Papar Sebagai diperlukan"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Entry or sense:"

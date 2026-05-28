@@ -1199,7 +1199,7 @@ msgstr "Baru"
 #. Button label in the manage custom views dialog; opens the create form.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "New Custom View"
-msgstr "Tampilan Kustom Baru"
+msgstr "Tampilan Khusus Baru"
 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "New data"
@@ -1483,7 +1483,7 @@ msgstr "Publikasikan Entri di"
 #. Field label: selects which publications a word appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
-msgstr "Menerbitkan Word di"
+msgstr "Menerbitkan Kata di"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)

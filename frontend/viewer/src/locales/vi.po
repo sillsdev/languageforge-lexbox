@@ -23,7 +23,7 @@ msgstr ""
 #. {0} = number of changes (e.g., 1, 5, 10)
 #: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
-msgstr "– ({0} các thay đổi)"
+msgstr "– ({0} thay đổi)"
 
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
@@ -1174,7 +1174,7 @@ msgstr "Di chuyển"
 #. Placeholder text in the name input of the custom view form.
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "My custom view..."
-msgstr "Giao diện tùy chỉnh của tôi..."
+msgstr "Chế độ xem tùy chỉnh của tôi..."
 
 #. Field label for the custom view name input.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -1483,7 +1483,7 @@ msgstr "Đăng bài viết trong"
 #. Field label: selects which publications a word appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
-msgstr "Xuất bản Word dưới dạng"
+msgstr "Xuất bản Từ trong"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -1592,7 +1592,7 @@ msgstr "Chọn nhiệm vụ mới để thực hiện"
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
-msgstr "Chọn ít nhất một hệ thống viết bài phân tích"
+msgstr "Chọn ít nhất một hệ thống chữ viết phân tích"
 
 #. Validation error when no vernacular writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
@@ -2061,7 +2061,7 @@ msgstr "Chỉ từ"
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/views/custom/validation.ts
 msgid "Word or Display as is required"
-msgstr "Hiển thị hoặc hiển thị theo yêu cầu."
+msgstr "Từ hoặc Hiển thị như là bắt buộc."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Entry or sense:"

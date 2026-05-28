@@ -1483,7 +1483,7 @@ msgstr "Publier l'entrée dans"
 #. Field label: selects which publications a word appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
-msgstr "Publier mot dans"
+msgstr "Publier le mot dans"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)

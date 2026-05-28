@@ -1483,7 +1483,7 @@ msgstr "에 항목 게시"
 #. Field label: selects which publications a word appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
-msgstr "Word를 다음 위치에 게시"
+msgstr "단어를 다음 위치에 게시"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2061,7 +2061,7 @@ msgstr "단어 전용"
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/views/custom/validation.ts
 msgid "Word or Display as is required"
-msgstr "단어 또는 필요에 따라 표시"
+msgstr "단어 또는 표시 이름은 필수 입력 사항입니다."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Entry or sense:"

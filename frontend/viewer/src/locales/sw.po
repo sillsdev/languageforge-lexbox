@@ -41,7 +41,7 @@ msgstr "{0} (FieldWorks Lite)"
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
-msgstr "{0} (Kazi za Uwanja)"
+msgstr "{0} (FieldWorks)"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -51,7 +51,7 @@ msgstr "{0} iliyopita"
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
-msgstr "{0} Mama/Baba"
+msgstr "{0} MB"
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -216,7 +216,7 @@ msgstr "Aina yoyote ya kielezeshi"
 #. Publication = dictionary/publication type for distributing entries
 #: src/project/browse/filter/PublicationSelect.svelte
 msgid "Any publication"
-msgstr "Kila uchapishaji"
+msgstr "Uchapishaji wowote"
 
 #. Filter dropdown option
 #. Clears semantic domain filter
@@ -1034,7 +1034,7 @@ msgstr "Urefu:"
 #. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Lexbox"
-msgstr "Sanduku la maneno"
+msgstr "Lexbox"
 
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -1476,7 +1476,7 @@ msgstr "Uchapishaji"
 #. Field label: selects which publications an entry appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Entry in"
-msgstr "Chapisha Kuingia katika"
+msgstr "Chapisha Ingizo katika"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Publish Entry in"
@@ -2011,7 +2011,7 @@ msgstr "Inatumia sehemu kama"
 #. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
-msgstr "Kiswahili"
+msgstr "Lugha ya kienyeji"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte

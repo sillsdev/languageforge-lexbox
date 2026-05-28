@@ -1050,7 +1050,7 @@ msgstr "Forma del lexema"
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/views/custom/validation.ts
 msgid "Lexeme form or Citation form is required"
-msgstr "Formulario de Lexema o Citación es requerido"
+msgstr "Se requiere la forma de lexema o la forma de citación"
 
 #: src/lib/components/ThemePicker.svelte
 msgid "Light"
@@ -2061,7 +2061,7 @@ msgstr "Sólo palabras"
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/views/custom/validation.ts
 msgid "Word or Display as is required"
-msgstr "Palabra o visualización según sea necesario"
+msgstr "Se requiere Palabra o Mostrar como"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Entry or sense:"
