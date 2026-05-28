@@ -56,19 +56,18 @@
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
-  let undebouncedSearch: string | undefined = $derived($allFilters[searchKey]);
-
-  const watcher = $derived.by(() => {
-    if (debounce === false) {
-      return () => undebouncedSearch;
-    } else {
-      const debounceTime: number = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
-      const debouncer = new Debounced(() => undebouncedSearch, debounceTime);
-      return () => debouncer.current;
-    }
-  })
-
-  watch(() => watcher(), (value) => {
+  // $state (not $derived): a $derived re-runs on every store change and clobbers in-flight
+  // keystrokes when the debounced write round-trips through the URL store (#2224).
+  let undebouncedSearch: string | undefined = $state($allFilters[searchKey]);
+  let watcher: () => string | undefined;
+  if (debounce === false) {
+    watcher = () => undebouncedSearch;
+  } else {
+    const debounceTime: number = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
+    const debouncer = new Debounced(() => undebouncedSearch, debounceTime);
+    watcher = () => debouncer.current;
+  }
+  watch(watcher, (value) => {
     if ($allFilters[searchKey] === value) return;
     $allFilters[searchKey] = value as Filters[typeof searchKey];
   });
