@@ -16,6 +16,12 @@ public static class OrderPicker
         }
 
         var items = await siblings.ToListAsync();
+        return PickOrder(items, between);
+    }
+
+    public static double PickOrder<T>(List<T> items, BetweenPosition? between = null)
+        where T : class, IOrderableNoId, IObjectWithId//this is weird, but WritingSystems should not be IOrderable, because that won't work with FW data, but they have Ids when working with CRDTs
+    {
         var previousId = between?.Previous;
         var nextId = between?.Next;
         var previous = previousId is not null ? items.Find(item => item.Id == previousId) : null;

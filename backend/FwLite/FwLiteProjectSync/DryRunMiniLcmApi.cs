@@ -292,6 +292,46 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+
+    public Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreatePicture), $"Create picture {picture.Caption} between {position?.Previous} and {position?.Next}"));
+        return Task.FromResult(picture);
+    }
+
+    public async Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Guid pictureId,
+        UpdateObjectInput<Picture> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePicture),
+            $"Update picture {pictureId}, changes: {update.Summarize()}"));
+        var picture = await _api.GetPicture(entryId, senseId, pictureId);
+        return picture ?? throw new NullReferenceException($"unable to find picture with id {pictureId}");
+    }
+
+    public Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Picture before,
+        Picture after,
+        IMiniLcmApi? api)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePicture), $"Update picture {after.Id}"));
+        return Task.FromResult(after);
+    }
+
+    public Task MovePicture(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(MovePicture), $"Move picture {exampleId} between {between.Previous} and {between.Next}"));
+        return Task.CompletedTask;
+    }
+
+    public Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeletePicture), $"Delete picture {pictureId}"));
+        return Task.CompletedTask;
+    }
+
     public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
         var complexFormName = ComplexFormName(complexFormComponent);

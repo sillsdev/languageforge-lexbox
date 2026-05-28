@@ -300,6 +300,7 @@ public static class LcmCrdtKernel
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()
             .Add<JsonPatchChange<WritingSystem>>()
+            .Add<JsonPatchChange<Picture>>()
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
             .Add<JsonPatchChange<ComplexFormType>>()
@@ -308,6 +309,7 @@ public static class LcmCrdtKernel
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
             .Add<DeleteChange<WritingSystem>>()
+            .Add<DeleteChange<Picture>>()
             .Add<DeleteChange<PartOfSpeech>>()
             .Add<DeleteChange<SemanticDomain>>()
             .Add<DeleteChange<ComplexFormType>>()
@@ -331,6 +333,7 @@ public static class LcmCrdtKernel
             .Add<UpdateTranslationChange>()
             .Add<SetFirstTranslationIdChange>()
 
+            .Add<CreatePictureChange>()
             .Add<CreatePartOfSpeechChange>()
             .Add<CreateSemanticDomainChange>()
             .Add<CreateWritingSystemChange>()
@@ -350,6 +353,7 @@ public static class LcmCrdtKernel
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()
+            .Add<Changes.SetOrderChange<Picture>>()
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;

@@ -111,6 +111,30 @@ public interface IMiniLcmWriteApi
     Task UpdateTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId, UpdateObjectInput<Translation> update);
     #endregion
 
+    #region Picture
+    /// <summary>
+    /// Creates the provided picture and adds it to the specified sense
+    /// </summary>
+    /// <param name="entryId">The ID of the sense's parent entry</param>
+    /// <param name="senseId">The ID of picture's parent sense</param>
+    /// <param name="picture">The picture to create</param>
+    /// <param name="position">Where the picture should be inserted in the sense's list of pictures. If null it will be appended to the end of the list.</param>
+    /// <returns></returns>
+    Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null);
+    Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Guid pictureId,
+        UpdateObjectInput<Picture> update);
+    Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Picture before,
+        Picture after,
+        IMiniLcmApi? api = null);
+    Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position);
+
+    Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId);
+    #endregion
+
     #region CustomView
     Task<CustomView> CreateCustomView(CustomView customView)
     {

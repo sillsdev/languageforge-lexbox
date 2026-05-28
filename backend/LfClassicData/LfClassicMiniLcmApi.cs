@@ -349,6 +349,17 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         };
     }
 
+    private static MiniLcm.Models.Picture ToPicture(Guid senseId, Entities.Picture picture)
+    {
+        return new MiniLcm.Models.Picture
+        {
+            Id = picture.Guid,
+            // SenseId = senseId,
+            Caption = ToRichMultiString(picture.Caption),
+            // TODO: MediaUri
+        };
+    }
+
     private static MultiString ToMultiString(Dictionary<string, LexValue>? multiTextValue)
     {
         var ms = new MultiString();
@@ -433,6 +444,17 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         var exampleSentence = sense.Examples?.FirstOrDefault(e => e?.Guid == id);
         if (exampleSentence is null) return null;
         return ToExampleSentence(sense.Guid, exampleSentence);
+    }
+
+    public async Task<MiniLcm.Models.Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
+    {
+        var entry = await Entries.Find(e => e.Guid == entryId).FirstOrDefaultAsync();
+        if (entry is null) return null;
+        var sense = entry.Senses?.FirstOrDefault(s => s?.Guid == senseId);
+        if (sense is null) return null;
+        var picture = sense.Pictures?.FirstOrDefault(e => e?.Guid == id);
+        if (picture is null) return null;
+        return ToPicture(sense.Guid, picture);
     }
 
     public Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)

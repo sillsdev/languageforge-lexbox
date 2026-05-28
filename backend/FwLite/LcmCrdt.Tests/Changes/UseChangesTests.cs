@@ -174,6 +174,10 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var removeTranslationChange = new RemoveTranslationChange(exampleSentence.Id, translation.Id);
         yield return new ChangeWithDependencies(removeTranslationChange, [createTranslationChange]);
 
+        var picture = new Picture { Id = Guid.NewGuid(), Caption = { { "en", new RichString("test pic") } } };
+        var createPictureChange = new CreatePictureChange(picture, sense.Id);
+        yield return new ChangeWithDependencies(createPictureChange, [createSenseChange]);
+
         var semanticDomain = new SemanticDomain { Id = Guid.NewGuid(), Name = { { "en", "test sd" } } };
         var createSemanticDomainChange = new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, "1.1.1");
         yield return new ChangeWithDependencies(createSemanticDomainChange);
@@ -239,6 +243,9 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
 
         var setExampleSentenceOrderChange = new LcmCrdt.Changes.SetOrderChange<ExampleSentence>(exampleSentence.Id, 10);
         yield return new ChangeWithDependencies(setExampleSentenceOrderChange, [createExampleSentenceChange]);
+
+        var setPictureOrderChange = new LcmCrdt.Changes.SetOrderChange<Picture>(picture.Id, 10);
+        yield return new ChangeWithDependencies(setPictureOrderChange, [createPictureChange]);
 
         var setComplexFormComponentOrderChange = new LcmCrdt.Changes.SetOrderChange<ComplexFormComponent>(complexFormComponent.Id, 10);
         yield return new ChangeWithDependencies(setComplexFormComponentOrderChange, [createComplexFormComponentChange]);

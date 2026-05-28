@@ -52,9 +52,11 @@ public class FwDataMiniLcmApi(
     internal ILexEntryRepository EntriesRepository => Cache.ServiceLocator.GetInstance<ILexEntryRepository>();
     internal IRepository<ILexSense> SenseRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexSense>>();
     private IRepository<ILexExampleSentence> ExampleSentenceRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexExampleSentence>>();
+    private IRepository<ICmPicture> PictureRepository => Cache.ServiceLocator.GetInstance<IRepository<ICmPicture>>();
     private ILexEntryFactory LexEntryFactory => Cache.ServiceLocator.GetInstance<ILexEntryFactory>();
     private ILexSenseFactory LexSenseFactory => Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
     private ILexExampleSentenceFactory LexExampleSentenceFactory => Cache.ServiceLocator.GetInstance<ILexExampleSentenceFactory>();
+    private ICmPictureFactory LcmPictureFactory => Cache.ServiceLocator.GetInstance<ICmPictureFactory>();
     private IMoMorphTypeRepository MorphTypeRepository => Cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>();
     private IPartOfSpeechRepository PartOfSpeechRepository => Cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>();
     private ILexEntryTypeRepository LexEntryTypeRepository => Cache.ServiceLocator.GetInstance<ILexEntryTypeRepository>();
@@ -801,6 +803,17 @@ public class FwDataMiniLcmApi(
                 Id = t.Guid,
                 Text = t.Translation is null ? [] : FromLcmMultiString(t.Translation),
             }).ToList()
+        };
+    }
+
+    private Picture FromLcmPicture(Guid senseGuid, ICmPicture picture)
+    {
+        return new Picture
+        {
+            Id = picture.Guid,
+            Caption = FromLcmMultiString(picture.Caption),
+            // SenseId = senseGuid,
+            // TODO: MediaUri
         };
     }
 
@@ -1754,6 +1767,141 @@ public class FwDataMiniLcmApi(
             throw new InvalidOperationException("Example sentence does not belong to sense, it belongs to a " +
                                                 lexExampleSentence.Owner.ClassName);
         }
+    }
+
+    private static void ValidateOwnership(ICmPicture lcmPicture, Guid entryId, Guid senseId)
+    {
+        if (lcmPicture.Owner is ILexSense sense)
+        {
+            if (sense.Guid != senseId) throw new InvalidOperationException("Picture does not belong to sense");
+            if (sense.Entry.Guid != entryId)
+                throw new InvalidOperationException("Picture does not belong to entry");
+        }
+        else
+        {
+            throw new InvalidOperationException("Picture does not belong to sense, it belongs to a " +
+                                                lcmPicture.Owner.ClassName);
+        }
+    }
+
+    internal void InsertPicture(ILexSense lexSense, ICmPicture lcmPicture, BetweenPosition? between = null)
+    {
+        var previousPictureId = between?.Previous;
+        var nextPictureId = between?.Next;
+
+        var previousPicture = previousPictureId.HasValue ? lexSense.PicturesOS.FirstOrDefault(s => s.Guid == previousPictureId) : null;
+        if (previousPicture is not null)
+        {
+            var insertI = lexSense.PicturesOS.IndexOf(previousPicture) + 1;
+            // ILcmOwningSequence treats an insert as a move if the item is already in it
+            lexSense.PicturesOS.Insert(insertI, lcmPicture);
+            return;
+        }
+
+        var nextPicture = nextPictureId.HasValue ? lexSense.PicturesOS.FirstOrDefault(s => s.Guid == nextPictureId) : null;
+        if (nextPicture is not null)
+        {
+            var insertI = lexSense.PicturesOS.IndexOf(nextPicture);
+            // ILcmOwningSequence treats an insert as a move if the item is already in it
+            lexSense.PicturesOS.Insert(insertI, lcmPicture);
+            return;
+        }
+
+        lexSense.PicturesOS.Add(lcmPicture);
+    }
+
+    public Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
+    {
+        PictureRepository.TryGetObject(id, out var lcmPicture);
+        return Task.FromResult(lcmPicture is null ? null : FromLcmPicture(senseId, lcmPicture));
+    }
+
+    internal void CreatePicture(ILexSense lexSense, Picture picture, BetweenPosition? between = null)
+    {
+        if (picture.Id == default) picture.Id = Guid.NewGuid();
+        var lcmPicture = LcmPictureFactory.Create(picture.Id);
+        UpdateLcmMultiString(lcmPicture.Caption, picture.Caption);
+        // TODO: MediaUri
+        InsertPicture(lexSense, lcmPicture, between);
+    }
+
+    public Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? between = null)
+    {
+        if (picture.Id == default) picture.Id = Guid.NewGuid();
+        if (!SenseRepository.TryGetObject(senseId, out var lexSense))
+            throw new InvalidOperationException("Sense not found");
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create picture",
+            "Remove picture",
+            Cache.ServiceLocator.ActionHandler,
+            () => CreatePicture(lexSense, picture, between));
+        return Task.FromResult(
+            FromLcmPicture(senseId, PictureRepository.GetObject(picture.Id)));
+    }
+
+    public Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Guid pictureId,
+        UpdateObjectInput<Picture> update)
+    {
+        var lcmPicture = PictureRepository.GetObject(pictureId);
+        ValidateOwnership(lcmPicture, entryId, senseId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update picture",
+            "Revert picture",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdatePictureProxy(lcmPicture, this);
+                update.Apply(updateProxy);
+            });
+        return Task.FromResult(FromLcmPicture(senseId, lcmPicture));
+    }
+
+    public async Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Picture before,
+        Picture after,
+        IMiniLcmApi? api = null)
+    {
+        await Cache.DoUsingNewOrCurrentUOW("Update picture",
+            "Revert picture",
+            async () =>
+            {
+                await PictureSync.Sync(entryId, senseId, before, after, api ?? this);
+            });
+        return await GetPicture(entryId, senseId, after.Id) ?? throw new NullReferenceException("unable to find picture with id " + after.Id);
+    }
+
+    public Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between)
+    {
+        if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
+            throw new InvalidOperationException("Entry not found");
+        if (!SenseRepository.TryGetObject(senseId, out var lexSense))
+            throw new InvalidOperationException("Sense not found");
+        if (!PictureRepository.TryGetObject(pictureId, out var lcmPicture))
+            throw new InvalidOperationException("Picture not found");
+
+        // TODO: Do we need ValidateOwnership for pictures?
+        ValidateOwnership(lcmPicture, entryId, senseId);
+
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move picture",
+            "Move picture back",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                InsertPicture(lexSense, lcmPicture, between);
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
+    {
+        var lcmPicture = PictureRepository.GetObject(pictureId);
+        ValidateOwnership(lcmPicture, entryId, senseId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete picture",
+            "Revert delete",
+            Cache.ServiceLocator.ActionHandler,
+            () => lcmPicture.Delete());
+        return Task.CompletedTask;
     }
 
     public Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
