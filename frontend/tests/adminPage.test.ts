@@ -33,10 +33,14 @@ test.describe('user filter typing', () => {
     const text = 'abcdefghij';
     const delays = [1, 1, 5, 5, 10, 10, 40, 40, 100, 100];
     await input.evaluate(async (el: HTMLInputElement, { text, delays }) => {
-      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      // Reactive frameworks (Svelte/React) intercept assignments to `el.value`; calling the
+      // prototype setter bypasses that interception so the input event fires reliably.
+      function setValue(v: string): void {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(el, v);
+      }
       el.focus();
       for (let i = 0; i < text.length; i++) {
-        setter.call(el, el.value + text[i]);
+        setValue(el.value + text[i]);
         el.dispatchEvent(new InputEvent('input', { bubbles: true, data: text[i], inputType: 'insertText' }));
         if (i < text.length - 1) await new Promise(r => setTimeout(r, delays[i]));
       }

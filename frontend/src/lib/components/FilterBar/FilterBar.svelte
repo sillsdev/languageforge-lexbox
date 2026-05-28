@@ -17,6 +17,7 @@
   import {pick} from '$lib/util/object';
   import t from '$lib/i18n';
   import type {Writable} from 'svelte/store';
+  import {untrack} from 'svelte';
   import Dropdown from '../Dropdown.svelte';
   import {Previous, Debounced, watch} from 'runed';
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/util/time';
@@ -56,18 +57,17 @@
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
-  // $state (not $derived): a $derived re-runs on every store change and clobbers in-flight
-  // keystrokes when the debounced write round-trips through the URL store (#2224).
-  let undebouncedSearch: string | undefined = $state($allFilters[searchKey]);
-  let watcher: () => string | undefined;
-  if (debounce === false) {
-    watcher = () => undebouncedSearch;
-  } else {
-    const debounceTime: number = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
+  // $state, not $derived: a $derived would re-run on every store change and clobber in-flight
+  // keystrokes when the debounced write round-trips back through the URL store (#2224).
+  // untrack captures the initial value without subscribing to searchKey for re-reads.
+  let undebouncedSearch: string | undefined = $state(untrack(() => $allFilters[searchKey]));
+  const watcher: () => string | undefined = $derived.by(() => {
+    if (debounce === false) return () => undebouncedSearch;
+    const debounceTime = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
     const debouncer = new Debounced(() => undebouncedSearch, debounceTime);
-    watcher = () => debouncer.current;
-  }
-  watch(watcher, (value) => {
+    return () => debouncer.current;
+  });
+  watch(() => watcher(), (value) => {
     if ($allFilters[searchKey] === value) return;
     $allFilters[searchKey] = value as Filters[typeof searchKey];
   });
