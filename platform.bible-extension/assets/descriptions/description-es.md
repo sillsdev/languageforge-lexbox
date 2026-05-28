@@ -1,1 +1,1 @@
-Manage the lexicon for your project's target/vernacular language.
+Administra el léxico para el idioma de destino/vernáculo de tu proyecto.
