@@ -9,27 +9,20 @@ tasks:
     cmd: crowdin {{.CLI_ARGS}} -b develop
 
   pull:
+    desc: Pull translations from Crowdin (does not modify the working tree directly; use the /crowdin-merge skill for the full inbound flow)
     cmd: task crowdin -- pull
-
-  dryrun:
-    desc: Dry run push sources and push translations for a single language (defaulting to Swahili)
-    vars:
-      LOCALE: '{{.LOCALE | default "sw"}}'
-    cmds:
-      - task crowdin -- push sources --dryrun
-      - task crowdin -- push translations -l {{.LOCALE}} --dryrun
 
   i18n:
     dir: ../frontend/viewer
     cmds:
       - task i18n
 
-  push-sources:
-    desc: Push English source strings to Crowdin
-    cmd: task crowdin -- push sources
-
-  push-translations-non-mt:
-    desc: Push translations for non-MT languages (ms, sw)
-    cmds:
-      - task crowdin -- push translations -l ms
-      - task crowdin -- push translations -l sw
+# NOTE: `crowdin push sources` is not wrapped as a named task because it is
+# only needed after context-comment additions to en.po — not part of the daily
+# flow. Crowdin's GitHub integration is export-only (translation push to GitHub);
+# it does NOT pull sources from GitHub. To get new `#.` translator context into
+# Crowdin's DB, run `task crowdin -- push sources`. Verified safe: no MT auto-
+# rerun, no string deletion, just metadata updates.
+#
+# The /crowdin-merge skill calls `task crowdin -- push translations -l <locale>`
+# for any locale it has filled or corrected.

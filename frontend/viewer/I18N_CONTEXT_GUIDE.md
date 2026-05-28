@@ -246,5 +246,4 @@ git diff src/locales/en.po | grep "^+msgid"
 
 ---
 
-**Last updated:** December 2025  
-**For questions:** Check `.github/copilot-instructions.md` or ask in #dev
+**See also:** This guide is the canonical reference used by the `i18n-context-writer` subagent (`.claude/agents/i18n-context-writer.md`) invoked by the `/crowdin-merge` skill.
