@@ -32,6 +32,9 @@ public class OAuthClient
     private readonly IPublicClientApplication _application;
     private bool _cacheConfigured;
     private readonly SemaphoreSlim _cacheConfiguredSemaphore = new(1, 1);
+    //serializes GetAuth so concurrent callers don't both redeem the same refresh token — rolling-RT replay
+    //detection on the server would otherwise revoke the whole chain and force a real logout.
+    private readonly SemaphoreSlim _authSemaphore = new(1, 1);
     AuthenticationResult? _authResult;
 
     public OAuthClient(LoggerAdapter loggerAdapter,
@@ -158,33 +161,47 @@ public class OAuthClient
             return _authResult;
         }
 
-        await ConfigureCache();
-        var accounts = await _application.GetAccountsAsync();
-        var account = accounts.FirstOrDefault();
-        if (account is null) return null;
+        await _authSemaphore.WaitAsync();
         try
         {
-            _authResult = await _application.AcquireTokenSilent(DefaultScopes, account)
-                .WithForceRefresh(forceRefresh)
-                .ExecuteAsync();
-        }
-        catch (Exception e)
-        {
-            switch (ClassifySilentAuthFailure(e))
+            //re-check inside the lock: another caller may have refreshed while we waited
+            if (DateTimeOffset.UtcNow.AddMinutes(5) < _authResult?.ExpiresOn && !forceRefresh)
             {
-                case SilentAuthFailureOutcome.Rethrow:
-                    throw;
-                case SilentAuthFailureOutcome.RemoveAccount:
-                    _logger.LogWarning(e, "Silent token acquisition failed with a non-recoverable error, logging out");
-                    await RemoveAccountAsync(account);
-                    break;
-                case SilentAuthFailureOutcome.KeepCachedCredentials:
-                    _logger.LogWarning(e, "Silent token acquisition failed with a transient or unknown error; keeping cached credentials");
-                    break;
+                return _authResult;
             }
-        }
 
-        return _authResult;
+            await ConfigureCache();
+            var accounts = await _application.GetAccountsAsync();
+            var account = accounts.FirstOrDefault();
+            if (account is null) return null;
+            try
+            {
+                _authResult = await _application.AcquireTokenSilent(DefaultScopes, account)
+                    .WithForceRefresh(forceRefresh)
+                    .ExecuteAsync();
+            }
+            catch (Exception e)
+            {
+                switch (ClassifySilentAuthFailure(e))
+                {
+                    case SilentAuthFailureOutcome.Rethrow:
+                        throw;
+                    case SilentAuthFailureOutcome.RemoveAccount:
+                        _logger.LogWarning(e, "Silent token acquisition failed with a non-recoverable error, logging out");
+                        await RemoveAccountAsync(account);
+                        break;
+                    case SilentAuthFailureOutcome.KeepCachedCredentials:
+                        _logger.LogWarning(e, "Silent token acquisition failed with a transient or unknown error; keeping cached credentials");
+                        break;
+                }
+            }
+
+            return _authResult;
+        }
+        finally
+        {
+            _authSemaphore.Release();
+        }
     }
 
     internal enum SilentAuthFailureOutcome
