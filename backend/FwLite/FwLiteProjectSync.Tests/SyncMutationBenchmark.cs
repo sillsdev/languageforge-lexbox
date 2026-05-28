@@ -28,8 +28,7 @@ public class SyncMutationBenchmark(Sena3Fixture fixture, ITestOutputHelper outpu
     {
         MutationSyncBench.Fixture = fixture;
 #if DEBUG
-        // Debug timings are unreliable (no JIT optimizations + BDN harness flags Debug builds).
-        // Run each profile once for code-path coverage; thresholds enforced in Release only (CI benchmark job).
+        // Debug timings are unreliable (no JIT optimizations); thresholds enforced in Release only.
         output.WriteLine("Debug build: running each profile once for coverage; thresholds enforced in Release only.");
         var bench = new MutationSyncBench();
         foreach (var profile in MutationSyncBench.ThresholdSecondsByProfile.Keys)

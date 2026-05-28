@@ -5,9 +5,8 @@ using Xunit.Abstractions;
 namespace FwLiteProjectSync.Tests;
 
 /// <summary>
-/// Bridges BenchmarkDotNet's line-buffered logger calls to xUnit's <see cref="ITestOutputHelper"/>.
-/// BDN writes one line via several <see cref="Write"/> calls followed by <see cref="WriteLine()"/>;
-/// we accumulate fragments in <see cref="_line"/> and flush on each line break.
+/// Bridges BenchmarkDotNet's line-buffered logger to xUnit's <see cref="ITestOutputHelper"/>.
+/// BDN emits one line via several <c>Write</c> calls followed by <c>WriteLine</c>; we buffer and flush.
 /// </summary>
 internal sealed class XUnitBenchmarkLogger(ITestOutputHelper output) : ILogger
 {

@@ -25,8 +25,7 @@ public class SyncBenchmark(Sena3Fixture fixture, ITestOutputHelper output)
     {
         FirstSyncBench.Fixture = fixture;
 #if DEBUG
-        // Debug timings are unreliable (no JIT optimizations + BDN harness flags Debug builds).
-        // Run once for code-path coverage; thresholds enforced in Release only (CI benchmark job).
+        // Debug timings are unreliable (no JIT optimizations); thresholds enforced in Release only.
         output.WriteLine("Debug build: running once for coverage; threshold enforced in Release only.");
         var bench = new FirstSyncBench();
         bench.IterationSetup();
