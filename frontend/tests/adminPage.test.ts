@@ -11,14 +11,8 @@ test('can navigate to project page', async ({ page }) => {
   await adminPage.openProject('Sena 3', 'sena-3');
 });
 
-// Time to wait past FilterBar's 200ms round-trip ignore window so external store writes
-// are no longer treated as our own debounced echo. See FilterBar.svelte (#2224).
-const ROUND_TRIP_SETTLE_MS = 500;
-
-// Regression test for #2224. The original bug: keystrokes arriving while the debounced write
-// is round-tripping through the URL store got clobbered. A per-keystroke delay around the
-// debounce window (~25–50ms with CDP overhead) reliably reproduces; verified by reverting
-// FilterBar.svelte to the pre-fix shape and watching this fail 5/5.
+// Regression test for #2224: keystrokes arriving while the debounced URL write was
+// round-tripping got clobbered. A ~25ms per-keystroke delay reliably reproduces.
 test.describe('user filter typing', () => {
   test.use({ ignoreHTTPSErrors: true });
 
@@ -38,8 +32,7 @@ test.describe('user filter typing', () => {
 });
 
 // Covers the other half of the #2224 fix: external writes to the URL-backed filter store
-// (e.g. onUserCreated, filterProjectsByUser) must sync into the input. Without the
-// time-gated $effect in FilterBar.svelte, the input stays stuck on whatever was last typed.
+// (e.g. onUserCreated, filterProjectsByUser) must still sync into the input.
 test.describe('user filter external sync', () => {
   test.use({ ignoreHTTPSErrors: true });
 
@@ -55,12 +48,11 @@ test.describe('user filter external sync', () => {
     const adminPage = await new AdminDashboardPage(page).waitFor();
 
     await adminPage.userFilterBarInput.fill('typed');
-    // Let the debounced write round-trip past the ignore window so the next change is
-    // treated as external, not as our own echo.
-    await page.waitForTimeout(ROUND_TRIP_SETTLE_MS);
+    // Let the debounced write settle so the next store change isn't mistaken for our own echo.
+    await page.waitForURL((url) => url.searchParams.get('userSearch') === 'typed');
 
-    // Simulate the in-component URL writes done by onUserCreated / filterProjectsByUser,
-    // which mutate the sveltekit-search-params store without remounting FilterBar.
+    // pushState+popstate mimics in-component URL writes (onUserCreated, filterProjectsByUser)
+    // that mutate the sveltekit-search-params store without remounting FilterBar.
     await page.evaluate(() => {
       history.pushState({}, '', '/admin?userSearch=external');
       dispatchEvent(new PopStateEvent('popstate'));

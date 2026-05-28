@@ -57,28 +57,32 @@
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
-  // $state, not $derived: a $derived would re-run on every store change and clobber in-flight
-  // keystrokes when the debounced write round-trips back through the URL store (#2224).
-  // The URL round-trip emits transient values (e.g. the default) before settling on the value
-  // we wrote, so we ignore all store changes for a short window after writing. Programmatic
-  // external writes happen well outside this window and propagate via the $effect below.
+  // The input — not the store — owns this value; we only adopt store changes when no write
+  // of ours is in flight (see $effect below). Prevents keystroke loss from URL round-trip
+  // races in #2224.
   let undebouncedSearch: string | undefined = $state(untrack(() => $allFilters[searchKey]));
-  let ignoreStoreUntil = 0;
-  const ROUND_TRIP_SETTLE_MS = 200;
+  // Object wrapper so `null` (no pending write) is distinct from a pending write of undefined.
+  let pendingEcho: { value: string | undefined } | null = null;
   const watcher: () => string | undefined = $derived.by(() => {
     if (debounce === false) return () => undebouncedSearch;
     const debounceTime = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
-    const debouncer = new Debounced(() => undebouncedSearch, debounceTime);
+    // untrack: Debounced's constructor calls the getter once, which would otherwise make
+    // this derived depend on undebouncedSearch and rebuild a fresh Debounced — with #current
+    // set to the latest value — on every keystroke, defeating debouncing entirely.
+    const debouncer = untrack(() => new Debounced(() => undebouncedSearch, debounceTime));
     return () => debouncer.current;
   });
   watch(() => watcher(), (value) => {
     if ($allFilters[searchKey] === value) return;
-    ignoreStoreUntil = Date.now() + ROUND_TRIP_SETTLE_MS;
+    pendingEcho = { value };
     $allFilters[searchKey] = value as Filters[typeof searchKey];
   });
   $effect(() => {
     const fromStore = $allFilters[searchKey];
-    if (Date.now() < ignoreStoreUntil) return;
+    if (pendingEcho) {
+      if (fromStore === pendingEcho.value) pendingEcho = null;
+      return;
+    }
     untrack(() => {
       if (fromStore !== undebouncedSearch) {
         undebouncedSearch = fromStore as string | undefined;
