@@ -53,9 +53,10 @@ public class SyncBenchmark(Sena3Fixture fixture, ITestOutputHelper output)
 
 public class FirstSyncBench
 {
-    // CI baseline (no index):      mean 52.34s, StdDev 0.27s (low variance) => 57s (~10%)
-    // CI with commits order index: mean 44.35s, StdDev 1.10s (med variance) => 51s (~15%)
-    public const double ThresholdSeconds = 51.0;
+    // Bound catches large regressions, not tight perf budgets — CI variance is too high for that.
+    // baseline:   ~52.3s
+    // with index: ~44.4s (real ~15% gain; can drift to ~53s under hosted-runner variance)
+    public const double ThresholdSeconds = 65.0;
 
     internal static Sena3Fixture Fixture = null!;
 

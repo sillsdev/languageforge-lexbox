@@ -67,23 +67,24 @@ public class SyncMutationBenchmark(Sena3Fixture fixture, ITestOutputHelper outpu
 
 public class MutationSyncBench
 {
+    // Bounds catch large regressions, not tight perf budgets — CI variance is too high for that.
     public static readonly IReadOnlyDictionary<string, double> ThresholdSecondsByProfile = new Dictionary<string, double>
     {
-        // CI baseline (no index):      mean 52.40s, StdDev 1.51s (med variance) => 60s (~15%)
-        // CI with commits order index: mean 50.49s, StdDev 0.87s (low variance) => 55s (~10%)
-        ["component-heavy"] = 55.0,
-        // CI baseline (no index):      mean 87.02s, StdDev 3.85s (hi variance)  => 100s (~15%)
-        // CI with commits order index: mean 87.92s, StdDev 1.42s (med variance) => 100s (~15%)
-        ["delete-heavy"] = 100.0,
-        // CI baseline (no index):      mean 32.99s, StdDev 0.77s (low variance) => 36s (~10%)
-        // CI with commits order index: mean 32.95s, StdDev 1.08s (low variance) => 36s (~10%)
-        ["mixed-realistic"] = 36.0,
-        // CI baseline (no index):      mean 4.52s, StdDev 0.08s (low variance) => 5s (~10%)
-        // CI with commits order index: mean 3.53s, StdDev 0.10s (low variance) => 4s (~10%)
-        ["patch-heavy"] = 4.0,
-        // CI baseline (no index):      mean 0.69s, StdDev 0.08s (low variance)  => 2s (super fast, so meh)
-        // CI with commits order index: mean 0.57s, StdDev 0.05s (low variance)  => 1.5s (super fast, so meh)
-        ["reorder-heavy"] = 1.5,
+        // baseline:   ~52.4s
+        // with index: ~50.5s (within noise)
+        ["component-heavy"] = 65.0,
+        // baseline:   ~87.0s
+        // with index: ~87.9s (no change; high variance)
+        ["delete-heavy"] = 110.0,
+        // baseline:   ~33.0s
+        // with index: ~33.0s (no change)
+        ["mixed-realistic"] = 45.0,
+        // baseline:   ~4.52s
+        // with index: ~3.53s (real ~20% gain; can drift to ~4.3s under variance)
+        ["patch-heavy"] = 6.0,
+        // baseline:   ~0.69s
+        // with index: ~0.57s (sub-second; bound is just a sanity check)
+        ["reorder-heavy"] = 2.0,
     };
 
     public static IEnumerable<string> Profiles => ThresholdSecondsByProfile.Keys;
