@@ -98,12 +98,8 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CreateComplexFormComponent_BetweenWithNoAnchors_DoesNotReorderExisting()
     {
-        // The orderable diff in EntrySync hands BetweenPosition(null, null) to Add when
-        // no stable neighbours exist (e.g. a singleton component). The same CFC can be
-        // reached twice in one sync — once via SyncComplexForms on the component-side
-        // entry (no between) and once via SyncComplexFormComponents on the complex-form
-        // entry (between with both neighbours null). The second call must be a no-op,
-        // not a spurious reorder that bumps Order from 1 → 2.
+        // Sync can revisit the same CFC with (null, null) — once via SyncComplexForms,
+        // again via SyncComplexFormComponents. The second call must not reorder.
         var first = await Api.CreateComplexFormComponent(
             ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
         var second = await Api.CreateComplexFormComponent(

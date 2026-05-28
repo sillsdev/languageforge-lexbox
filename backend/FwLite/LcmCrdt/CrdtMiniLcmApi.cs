@@ -313,11 +313,8 @@ public class CrdtMiniLcmApi(
             return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
         }
 
-        // BetweenPosition(null, null) carries no positional intent — it's what the
-        // orderable diff hands in for a lone or unanchored item. Treat it as a no-op
-        // here; otherwise MoveComplexFormComponent walks PickOrder and bumps Order
-        // to max+1 every time the same CFC is revisited (e.g. via SyncComplexForms
-        // and SyncComplexFormComponents in one sync). Matches FwDataMiniLcmApi.
+        // The orderable diff sends (null, null) for singletons; skip the move so
+        // revisits in one sync don't bump Order via PickOrder.
         if (between is { Previous: not null } or { Next: not null })
         {
             await MoveComplexFormComponent(existing, between);
