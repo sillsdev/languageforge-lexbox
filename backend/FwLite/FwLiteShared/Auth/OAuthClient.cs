@@ -78,6 +78,24 @@ public class OAuthClient
         _application = builder.Build();
     }
 
+    //test seam — skips persistent cache wiring; only GetAuth/Logout are safe to exercise via this ctor.
+    internal OAuthClient(IPublicClientApplication application,
+        LexboxServer lexboxServer,
+        ILogger<OAuthClient> logger,
+        GlobalEventBus globalEventBus)
+    {
+        _application = application;
+        _lexboxServer = lexboxServer;
+        _logger = logger;
+        _globalEventBus = globalEventBus;
+        _cacheConfigured = true;
+
+        _httpMessageHandlerFactory = null!;
+        _options = null!;
+        _oAuthService = null!;
+        _lexboxProjectService = null!;
+    }
+
     public static readonly KeyValuePair<string, string> LinuxKeyRingAttr1 = new("Version", "1");
     public static readonly KeyValuePair<string, string> LinuxKeyRingAttr2 = new("ProductGroup", "Lexbox");
 
@@ -154,7 +172,7 @@ public class OAuthClient
         _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
     }
 
-    private async ValueTask<AuthenticationResult?> GetAuth(bool forceRefresh = false)
+    internal async ValueTask<AuthenticationResult?> GetAuth(bool forceRefresh = false)
     {
         if (DateTimeOffset.UtcNow.AddMinutes(5) < _authResult?.ExpiresOn && !forceRefresh)
         {
@@ -176,9 +194,7 @@ public class OAuthClient
             if (account is null) return null;
             try
             {
-                _authResult = await _application.AcquireTokenSilent(DefaultScopes, account)
-                    .WithForceRefresh(forceRefresh)
-                    .ExecuteAsync();
+                _authResult = await AcquireTokenSilentAsync(account, forceRefresh);
             }
             catch (Exception e)
             {
@@ -202,6 +218,14 @@ public class OAuthClient
         {
             _authSemaphore.Release();
         }
+    }
+
+    //test seam — overridable so tests can stub the result without faking MSAL's builder chain.
+    internal virtual Task<AuthenticationResult> AcquireTokenSilentAsync(IAccount account, bool forceRefresh)
+    {
+        return _application.AcquireTokenSilent(DefaultScopes, account)
+            .WithForceRefresh(forceRefresh)
+            .ExecuteAsync();
     }
 
     internal enum SilentAuthFailureOutcome
