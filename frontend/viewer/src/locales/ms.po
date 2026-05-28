@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-28 10:55\n"
+"PO-Revision-Date: 2026-05-28 12:59\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -2162,3 +2162,4 @@ msgstr "Anda tidak mempunyai kebenaran untuk memuat turun projek {0} daripada {1
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah pun memuat turun projek {0}"
+
