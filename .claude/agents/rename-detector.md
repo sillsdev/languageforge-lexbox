@@ -34,6 +34,8 @@ the old name." Helps the author verify completeness.
 - Exact match of the old name in a file genuinely about something else
   (different namespace, unrelated `Foo`).
 - The old name in CHANGELOG, release notes, or commit history.
+- Signature or behavior changes that aren't renames — that's
+  `ripple-detector`'s job.
 
 ## Severity
 

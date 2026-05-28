@@ -13,6 +13,7 @@ Dispatch via `Agent` with `subagent_type=<name>` (the value in the
 |---|---|
 | `diff-hygiene` | Debug prints, scratch files, secrets, lonely TODOs. |
 | `rename-detector` | Stragglers after symbol renames; blast-radius count. |
+| `ripple-detector` | Signature changes, behavior shifts with stable signatures, payload contract drift, deleted symbols with surviving references. |
 | `test-auditor` | Assertion quality, regression coverage, BeSubsetOf vs BeEquivalentTo. |
 | `pr-narrative` | Title/body audit; drafts when no PR exists. |
 | `intent-check` | Linked issue vs work — addresses the claim? scope drift? |
