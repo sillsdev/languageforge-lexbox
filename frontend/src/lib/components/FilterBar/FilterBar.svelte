@@ -59,8 +59,12 @@
   }: Props = $props();
   // $state, not $derived: a $derived would re-run on every store change and clobber in-flight
   // keystrokes when the debounced write round-trips back through the URL store (#2224).
-  // untrack captures the initial value without subscribing to searchKey for re-reads.
+  // The URL round-trip emits transient values (e.g. the default) before settling on the value
+  // we wrote, so we ignore all store changes for a short window after writing. Programmatic
+  // external writes happen well outside this window and propagate via the $effect below.
   let undebouncedSearch: string | undefined = $state(untrack(() => $allFilters[searchKey]));
+  let ignoreStoreUntil = 0;
+  const ROUND_TRIP_SETTLE_MS = 200;
   const watcher: () => string | undefined = $derived.by(() => {
     if (debounce === false) return () => undebouncedSearch;
     const debounceTime = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
@@ -69,7 +73,17 @@
   });
   watch(() => watcher(), (value) => {
     if ($allFilters[searchKey] === value) return;
+    ignoreStoreUntil = Date.now() + ROUND_TRIP_SETTLE_MS;
     $allFilters[searchKey] = value as Filters[typeof searchKey];
+  });
+  $effect(() => {
+    const fromStore = $allFilters[searchKey];
+    if (Date.now() < ignoreStoreUntil) return;
+    untrack(() => {
+      if (fromStore !== undebouncedSearch) {
+        undebouncedSearch = fromStore as string | undefined;
+      }
+    });
   });
 
   function onClearFiltersClick(): void {
