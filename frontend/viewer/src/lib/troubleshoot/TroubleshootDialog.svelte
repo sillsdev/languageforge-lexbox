@@ -65,7 +65,7 @@
       </p>
     </div>
     {#if service && (canOpenDataDirectory || $isDev)}
-      <div class="w-full">
+      <div class="w-full flex flex-col gap-1.5">
         <Label>{$t`Data Directory`}</Label>
         <InputShell class="ps-2 pe-1">
           {#await service?.getDataDirectory() then value}
