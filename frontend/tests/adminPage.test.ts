@@ -60,4 +60,29 @@ test.describe('user filter external sync', () => {
 
     await expect(adminPage.userFilterBarInput).toHaveValue('external');
   });
+
+  // Targets the project filter (no `debounce` prop). Before the onClearFiltersClick fix,
+  // clicking ✕ wrote `undefined` to the URL-backed store, which normalized to '' and
+  // trapped pendingEcho — silently blocking any later external write to the same key.
+  test('external write after clearing the filter still reaches the input', async ({ page }) => {
+    await LoginPage.loginAsAdmin(page);
+    const adminPage = await new AdminDashboardPage(page).waitFor();
+
+    await adminPage.projectFilterBarInput.fill('typed');
+    await page.waitForURL((url) => url.searchParams.get('projectSearch') === 'typed');
+
+    const projectFilterBar = page.locator('.filter-bar').nth(0);
+    await projectFilterBar.getByRole('button', { name: '✕' }).click();
+    await expect(adminPage.projectFilterBarInput).toHaveValue('');
+    // Wait for the X-click's goto to finish too — otherwise pushState below races
+    // with the in-flight navigation removing projectSearch from the URL.
+    await page.waitForURL((url) => !url.searchParams.has('projectSearch'));
+
+    await page.evaluate(() => {
+      history.pushState({}, '', '/admin?projectSearch=external');
+      dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    await expect(adminPage.projectFilterBarInput).toHaveValue('external');
+  });
 });

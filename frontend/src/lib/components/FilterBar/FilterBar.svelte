@@ -91,13 +91,15 @@
   });
 
   function onClearFiltersClick(): void {
-    if (!searchInput) return;
-    searchInput.clear();
+    // Reset the input to the store's default rather than calling searchInput.clear() —
+    // that writes undefined, which the URL-backed store normalizes to '' and would leave
+    // pendingEcho permanently unmatched (silently blocking later external store writes).
+    undebouncedSearch = filterDefaults[searchKey] as string | undefined;
     $allFilters = {
       ...$allFilters,
       ...filterDefaults,
     };
-    searchInput.focus();
+    searchInput?.focus();
   }
 
   function resetFilter(key: string): void {
