@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-14 10:19\n"
+"PO-Revision-Date: 2026-05-28 10:55\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -23,7 +23,7 @@ msgstr ""
 #. {0} = number of changes (e.g., 1, 5, 10)
 #: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
-msgstr "– ({0} thay đổi)"
+msgstr "– ({0} các thay đổi)"
 
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
@@ -36,12 +36,12 @@ msgstr "{0}"
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
-msgstr ""
+msgstr "{0} (FieldWorks Lite)"
 
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
-msgstr ""
+msgstr "{0} (FieldWorks)"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -51,7 +51,7 @@ msgstr "{0} trước"
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
-msgstr ""
+msgstr "{0} MB"
 
 #. Display name for server
 #: src/home/Server.svelte
