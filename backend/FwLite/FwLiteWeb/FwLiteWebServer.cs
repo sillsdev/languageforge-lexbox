@@ -43,6 +43,10 @@ public static class FwLiteWebServer
                 ..config.LexboxServers,
                 new(new("https://lexbox.org"), "Lexbox")
             ]);
+        //pin the MSAL cache to the binary directory, not the current working directory — Path.GetFullPath
+        //in the AuthConfig default would otherwise depend on CWD at config-instantiation time.
+        builder.Services.PostConfigure<AuthConfig>(config =>
+            config.CacheFileName = Path.Combine(AppContext.BaseDirectory, "msal.json"));
         builder.Services.Configure<FwLiteConfig>(config =>
         {
             config.AppVersion = VersionHelper.DisplayVersion(typeof(FwLiteWebServer).Assembly);
