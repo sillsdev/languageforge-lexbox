@@ -12,6 +12,7 @@
   import type {IProjectModel} from '$lib/dotnet-types';
   import ProjectTitle from '../home/ProjectTitle.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
+  import {mergeProps} from 'bits-ui';
 
   let { onSelect } = $props<{
     onSelect: (project: IProjectModel) => void;
@@ -77,9 +78,8 @@
         variant="ghost"
         role="combobox"
         aria-expanded={open}
-        class="w-full justify-between overflow-hidden gap-0 paratext:!opacity-100 h-12 md:h-10"
         disabled={projectContext.inParatext}
-        {...props}
+        {...mergeProps(props, {class: 'flex-auto justify-between overflow-hidden gap-0 paratext:opacity-100! h-12 md:h-10'})}
       >
         <div class="flex items-center gap-2 overflow-hidden">
           {@render projectIcon(isCrdt)}
@@ -108,10 +108,12 @@
         {:else}
           <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
           {#each projectsResource.current ?? [] as project (project)}
+            {@const isCurrentProject = project.crdt === isCrdt &&
+              (isCrdt ? project.name === projectName : project.code === projectName)}
             <Command.Item
-              value={project.name + project.crdt}
+              value={`${project.name}-${project.code}-${project.crdt}`}
               onSelect={() => handleSelect(project)}
-              class={cn('cursor-pointer', (project.name === projectName || project.code === projectName) && project.crdt === isCrdt && 'bg-secondary')}
+              class={cn('cursor-pointer', isCurrentProject && 'bg-secondary')}
             >
               {@render projectIcon(project.crdt)}
               <ProjectTitle {project} />

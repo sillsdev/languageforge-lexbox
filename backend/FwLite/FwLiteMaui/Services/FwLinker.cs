@@ -8,11 +8,11 @@ namespace FwLiteMaui.Services;
 
 public class FwLinker(FwDataFactory fwDataFactory, FieldWorksProjectList projectList) : IFwLinker
 {
-    public string? GetLinkToEntry(Guid entryId, string projectName)
+    public async Task<string?> GetLinkToEntryAsync(Guid entryId, string projectName)
     {
         var project = projectList.GetProject(projectName);
         if (project is null) return null;
-        fwDataFactory.CloseProject(project);
+        await fwDataFactory.CloseProjectAsync(project);
         return FwLink.ToEntry(entryId, projectName);
     }
 }

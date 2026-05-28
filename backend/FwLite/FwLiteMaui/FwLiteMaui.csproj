@@ -2,9 +2,9 @@
   <PropertyGroup>
     <!--        override the target framework set in Directory.Build.props, we will use what is defined in TargetFrameworks below instead-->
     <TargetFramework />
-    <TargetFrameworks Condition=" '$(BuildAndroid)' != 'false' ">$(TargetFrameworks);net9.0-android;</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx')) And '$(BuildApple)' != 'false'">$(TargetFrameworks);net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(BuildAndroid)' != 'false' ">$(TargetFrameworks);net10.0-android;</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx')) And '$(BuildApple)' != 'false'">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
     <!-- Note for MacCatalyst:
 		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
@@ -40,6 +40,12 @@
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</TargetPlatformMinVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
   </PropertyGroup>
+  <!-- Side-by-side "Dev" flavor: set -p:FwLiteFlavor=Dev to install alongside the prod app
+       (different package name + label so both can coexist on a device). -->
+  <PropertyGroup Condition="'$(FwLiteFlavor)' == 'Dev'">
+    <ApplicationId>org.sil.FwLiteMaui.dev</ApplicationId>
+    <ApplicationTitle>FieldWorks Lite Dev</ApplicationTitle>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
     <WindowsPackageType>None</WindowsPackageType>
     <PublishReadyToRun>false</PublishReadyToRun>
@@ -54,6 +60,14 @@
   <PropertyGroup>
     <TargetPlatform>$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)'))</TargetPlatform>
   </PropertyGroup>
+  <!-- Linq2DbCctorPatcher (under build\) is its own net10.0 Exe project; keep it off this compile. -->
+  <ItemGroup>
+    <Compile Remove="build\Linq2DbCctorPatcher\**" />
+    <Content Remove="build\Linq2DbCctorPatcher\**" />
+    <None Remove="build\Linq2DbCctorPatcher\**" />
+    <EmbeddedResource Remove="build\Linq2DbCctorPatcher\**" />
+    <MauiAsset Remove="build\Linq2DbCctorPatcher\**" />
+  </ItemGroup>
   <ItemGroup>
     <!-- App Icon -->
     <!-- background color is required for mac per: https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-8.0&tabs=windows#recolor-the-background -->
@@ -94,4 +108,60 @@
     -->
     <PackageReference Include="Mono.Unix" ExcludeAssets="all" />
   </ItemGroup>
+  <!-- Android workaround for linq2db.EntityFrameworkCore's broken SqlTransparentExpression
+       cctor. See https://github.com/sillsdev/languageforge-lexbox/issues/2291 for the
+       full story, including the kill-switch checklist for when upstream PR #5546 ships. -->
+  <Target Name="_VerifyLinq2DbEfCoreVersionPin"
+          Condition="'$(TargetPlatform)' == 'android'"
+          BeforeTargets="_BuildLinq2DbCctorPatcher">
+    <PropertyGroup>
+      <_Linq2DbEfCoreEffectiveVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)..\..\Directory.Packages.props')), 'linq2db\.EntityFrameworkCore[^&gt;]*Version=&quot;([^&quot;]+)&quot;').Groups[1].Value)</_Linq2DbEfCoreEffectiveVersion>
+    </PropertyGroup>
+    <Error Condition="'$(_Linq2DbEfCoreEffectiveVersion)' == ''"
+           Text="Could not read linq2db.EntityFrameworkCore version from backend/Directory.Packages.props." />
+    <Error Condition="'$(_Linq2DbEfCoreEffectiveVersion)' != '' And !$([System.Text.RegularExpressions.Regex]::IsMatch('$(_Linq2DbEfCoreEffectiveVersion)', '^10\.[34]\.[0-9]+(-.*)?$'))"
+           Text="linq2db.EntityFrameworkCore is $(_Linq2DbEfCoreEffectiveVersion) but the cctor patcher only covers 10.3.x / 10.4.x. See https://github.com/sillsdev/languageforge-lexbox/issues/2291 for the kill-switch / pin-widening checklist." />
+  </Target>
+  <!-- Build the patcher tool BEFORE the Android SDK dispatches per-RID inner builds.
+       _ResolveAssemblies is the outer-build target that fans out into parallel per-RID
+       MSBuild invocations; if we built the patcher inside any of those inner builds,
+       4 parallel `dotnet build` processes would race on the same obj/bin. By running
+       once at the outer level, every inner build sees the patcher dll already in place.
+       The Inputs/Outputs guard makes the target a no-op on incremental rebuilds. -->
+  <Target Name="_BuildLinq2DbCctorPatcher"
+          Condition="'$(TargetPlatformIdentifier)' == 'android'"
+          DependsOnTargets="_VerifyLinq2DbEfCoreVersionPin"
+          BeforeTargets="_ResolveAssemblies;_LinkAssembliesNoShrink;_AfterILLinkAdditionalSteps;_RemoveRegisterAttribute"
+          Inputs="build\Linq2DbCctorPatcher\Program.cs;build\Linq2DbCctorPatcher\Linq2DbCctorPatcher.csproj"
+          Outputs="build\Linq2DbCctorPatcher\bin\$(Configuration)\net10.0\Linq2DbCctorPatcher.dll">
+    <Exec Command="dotnet build &quot;$(MSBuildThisFileDirectory)build\Linq2DbCctorPatcher\Linq2DbCctorPatcher.csproj&quot; --configuration $(Configuration) --nologo" />
+  </Target>
+  <!-- Separate target so the ItemGroup is materialized by the time _PatchLinq2Db...'s Inputs/Outputs batching reads it. -->
+  <Target Name="_CollectLinq2DbStagedAssemblies"
+          Condition="'$(TargetPlatform)' == 'android'">
+    <ItemGroup>
+      <_Linq2DbStagedAssemblies Include="$(IntermediateOutputPath)**\linq2db.EntityFrameworkCore.dll" />
+    </ItemGroup>
+  </Target>
+  <!-- Incremental: per-dll <dll>.cctor-patched sentinels gate re-runs.
+       _AndroidAotCompilation must stay in BeforeTargets: in Release the AOT step compiles
+       IL to native .so files, and Android's runtime prefers the AOT'd native code over IL.
+       If the patcher runs after AOT, the patched dll in the AAB is shadowed by AOT'd
+       unpatched native code and the bug still ships. -->
+  <Target Name="_PatchLinq2DbSqlTransparentExpressionCctor"
+          Condition="'$(TargetPlatform)' == 'android'"
+          DependsOnTargets="_BuildLinq2DbCctorPatcher;_CollectLinq2DbStagedAssemblies"
+          AfterTargets="_LinkAssembliesNoShrink;_AfterILLinkAdditionalSteps;_RemoveRegisterAttribute"
+          BeforeTargets="_CollectAssembliesToCompress;_BuildApkFastDev;_AndroidAotCompilation"
+          Inputs="@(_Linq2DbStagedAssemblies)"
+          Outputs="@(_Linq2DbStagedAssemblies->'%(FullPath).cctor-patched')">
+    <PropertyGroup>
+      <_Linq2DbPatcherDll>$(MSBuildThisFileDirectory)build\Linq2DbCctorPatcher\bin\$(Configuration)\net10.0\Linq2DbCctorPatcher.dll</_Linq2DbPatcherDll>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(_Linq2DbPatcherDll)')"
+           Text="Linq2DbCctorPatcher.dll not found at $(_Linq2DbPatcherDll). _BuildLinq2DbCctorPatcher should have produced it." />
+    <Message Importance="high" Text="Linq2db cctor patcher: @(_Linq2DbStagedAssemblies->Count()) staged linq2db.EntityFrameworkCore.dll copies under $(IntermediateOutputPath)" />
+    <Exec Command="dotnet &quot;$(_Linq2DbPatcherDll)&quot; &quot;%(_Linq2DbStagedAssemblies.FullPath)&quot;"
+          Condition="'@(_Linq2DbStagedAssemblies)' != ''" />
+  </Target>
 </Project>

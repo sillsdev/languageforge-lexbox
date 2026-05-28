@@ -50,7 +50,8 @@ public static class FwLiteWebServer
         });
         builder.Logging.AddDebug();
         builder.Services.AddRazorComponents().AddInteractiveServerComponents(circuitOptions => circuitOptions.DetailedErrors = true);
-        if (builder.Configuration.GetValue<string>("FwLiteWeb:LogFileName") is { Length: > 0 } logFileName)
+        if (builder.Configuration.GetValue("FwLiteWeb:EnableFileLogging", true) &&
+            builder.Configuration.GetValue<string>("FwLiteWeb:LogFileName") is { Length: > 0 } logFileName)
         {
             builder.Logging.AddFile(logFileName,
                 fileLoggerOptions =>

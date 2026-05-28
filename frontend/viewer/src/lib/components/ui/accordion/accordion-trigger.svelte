@@ -1,6 +1,6 @@
 <script lang="ts">
-  import {Accordion as AccordionPrimitive, type WithoutChild} from 'bits-ui';
-  import {cn} from '$lib/utils.js';
+  import {Accordion as AccordionPrimitive} from 'bits-ui';
+  import {cn, type WithoutChild} from '$lib/utils.js';
   import {Icon} from '../icon';
 
   let {
@@ -16,14 +16,18 @@
 
 <AccordionPrimitive.Header {level} class="flex">
   <AccordionPrimitive.Trigger
+    data-slot="accordion-trigger"
     bind:ref
     class={cn(
-      'flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>.i-mdi-chevron-down]:rotate-180',
+      'focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-start text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>.i-mdi-chevron-down]:rotate-180',
       className,
     )}
     {...restProps}
   >
     {@render children?.()}
-    <Icon icon="i-mdi-chevron-down" class="size-4 shrink-0 transition-transform duration-200" />
+    <Icon
+      icon="i-mdi-chevron-down"
+      class="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200"
+    />
   </AccordionPrimitive.Trigger>
 </AccordionPrimitive.Header>

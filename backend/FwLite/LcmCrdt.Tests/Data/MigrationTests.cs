@@ -22,6 +22,7 @@ public class MigrationTests : IAsyncLifetime
     internal static void Init()
     {
         VerifySystemJson.Initialize();
+        VerifierSettings.OmitContentFromException();
     }
 
     public Task InitializeAsync()
@@ -54,6 +55,7 @@ public class MigrationTests : IAsyncLifetime
     [Theory]
     [InlineData(RegressionTestHelper.RegressionVersion.v1)]
     [InlineData(RegressionTestHelper.RegressionVersion.v2)]
+    [Trait("Category", "Verified")]
     public async Task VerifyAfterMigrationFromScriptedDb(RegressionTestHelper.RegressionVersion regressionVersion)
     {
         await _helper.InitializeAsync(regressionVersion);
@@ -105,6 +107,7 @@ public class MigrationTests : IAsyncLifetime
     [Theory]
     [InlineData(RegressionTestHelper.RegressionVersion.v1)]
     [InlineData(RegressionTestHelper.RegressionVersion.v2)]
+    [Trait("Category", "Verified")]
     public async Task VerifyRegeneratedSnapshotsAfterMigrationFromScriptedDb(RegressionTestHelper.RegressionVersion regressionVersion)
     {
         await _helper.InitializeAsync(regressionVersion);
@@ -157,6 +160,9 @@ public class MigrationTests : IAsyncLifetime
                 .ToArrayAsync(),
             await api.GetComplexFormTypes()
                 .OrderBy(c => c.Id)
+                .ToArrayAsync(),
+            await api.GetMorphTypes()
+                .OrderBy(m => m.Id)
                 .ToArrayAsync(),
             await api.GetWritingSystems());
     }

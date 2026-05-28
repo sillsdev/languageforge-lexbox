@@ -27,8 +27,12 @@ task fw-lite-web   # from repo root
 dotnet test FwLiteOnly.slnf
 
 # Build MAUI app (Windows)
-dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net9.0-windows10.0.19041.0
+dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0.19041.0
 ```
+
+## Testing on Android (agents)
+
+No emulator running? Start one yourself — don't ask. `emulator -list-avds` (try `$ANDROID_HOME/emulator/`, `$LOCALAPPDATA/Android/Sdk/emulator/`, etc.) → pick an `fwlite_*` image → launch in background with `-no-snapshot-load -no-boot-anim` → wait until `adb -e get-state` is `device` and `sys.boot_completed` is `1` → `task android-emulator-dev`. Physical device fallback: `task android-dev`. Drive UI with `adb -e shell input tap/swipe` + `adb -e exec-out screencap -p > path.png`.
 
 ## Generated Types (TypeScript)
 
@@ -237,6 +241,15 @@ Changes may reference deleted objects (due to sync timing). Always check:
 ```csharp
 if (entity?.DeletedAt is not null) return;
 ```
+
+---
+
+## 🚨 Harmony Projected Tables (`LcmCrdtDbContext`)
+
+`LcmCrdtDbContext` DbSets (`Entries`, `Senses`, etc.) are Harmony's **projected snapshot tables**. They contain only the latest, **un-deleted** state.
+
+- ❌ **Do NOT** add `DeletedAt is null` filters when querying these DbSets — soft-deleted rows are never present. The `DeletedAt` column exists on the entity types (it's used inside Change classes during change application — see above), but the projection drops deleted rows entirely, so filtering on it is dead code that misleads readers.
+- ✅ If you need deleted history, query the change/commit tables directly (see `HistoryService.cs`, `SnapshotAtCommitService.cs`).
 
 ---
 

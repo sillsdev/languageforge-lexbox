@@ -1,20 +1,19 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-
-import {Tooltip as TooltipPrimitive} from 'bits-ui';
 import Content from './tooltip-content.svelte';
-
-const Root = TooltipPrimitive.Root;
-const Trigger = TooltipPrimitive.Trigger;
-const Provider = TooltipPrimitive.Provider;
+import Portal from './tooltip-portal.svelte';
+import Provider from './tooltip-provider.svelte';
+import Root from './tooltip.svelte';
+import Trigger from './tooltip-trigger.svelte';
 
 export {
+  Root,
   Content,
   Provider,
-  Root,
+  Portal,
+  Trigger,
   //
   Root as Tooltip,
   Content as TooltipContent,
   Provider as TooltipProvider,
+  Portal as TooltipPortal,
   Trigger as TooltipTrigger,
-  Trigger,
 };

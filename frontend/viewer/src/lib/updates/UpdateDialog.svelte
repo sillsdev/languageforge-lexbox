@@ -33,6 +33,7 @@
   });
 
   async function installUpdate(update: IAvailableUpdate) {
+    installProgress = undefined;
     installPromise = updateService.applyUpdate(update);
     try {
       const updateResult = await installPromise;
@@ -48,50 +49,48 @@
   const appVersion = config.appVersion;
 </script>
 
-{#if open}
-  <ResponsiveDialog bind:open title={$t`Updates`}>
-    <div class="flex flex-col gap-4">
-      <div>
+<ResponsiveDialog bind:open title={$t`Updates`}>
+  <div class="flex flex-col gap-4">
+    <div>
+      <p class="flex items-baseline gap-1">
+        {$t`FieldWorks Lite version`}:
+        <span class="font-semibold">{appVersion}</span>
+      </p>
+      <DevContent>
         <p class="flex items-baseline gap-1">
-          {$t`Application version`}:
-          <span class="font-semibold">{appVersion}</span>
+          {$t`Platform`}:
+          <span class="font-semibold">{config.os}</span>
         </p>
-        <DevContent>
-          <p class="flex items-baseline gap-1">
-            {$t`Platform`}:
-            <span class="font-semibold">{config.os}</span>
-          </p>
-        </DevContent>
-      </div>
-
-      <UpdateDialogContent
-        {checkPromise}
-        {installPromise}
-        {installUpdate}
-        {installProgress} />
-
-      <div class="flex justify-center gap-3">
-        <Anchor
-          variant="text"
-          class="text-sm"
-          href={downloadPageUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {$t`Download page`}
-          <Icon icon="i-mdi-open-in-new" class="size-4" />
-        </Anchor>
-        <Anchor
-          variant="text"
-          class="text-sm"
-          href={releaseNotesUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {$t`Release notes`}
-          <Icon icon="i-mdi-open-in-new" class="size-4" />
-        </Anchor>
-      </div>
+      </DevContent>
     </div>
-  </ResponsiveDialog>
-{/if}
+
+    <UpdateDialogContent
+      {checkPromise}
+      {installPromise}
+      {installUpdate}
+      {installProgress} />
+
+    <div class="flex justify-center gap-3">
+      <Anchor
+        variant="text"
+        class="text-sm"
+        href={downloadPageUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {$t`Download page`}
+        <Icon icon="i-mdi-open-in-new" class="size-4" />
+      </Anchor>
+      <Anchor
+        variant="text"
+        class="text-sm"
+        href={releaseNotesUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {$t`Release notes`}
+        <Icon icon="i-mdi-open-in-new" class="size-4" />
+      </Anchor>
+    </div>
+  </div>
+</ResponsiveDialog>

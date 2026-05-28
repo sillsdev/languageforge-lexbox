@@ -10,6 +10,7 @@ using LcmCrdt.FullTextSearch;
 using LcmCrdt.MediaServer;
 using LcmCrdt.Objects;
 using LinqToDB;
+using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -299,20 +300,22 @@ public class CrdtMiniLcmApi(
     public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        // tests in seperate PR:
-        // 1: call create with the same ID should throw.
-        // 2: change a propertyId => should result in a new ID (in Crdt test not base).
-        // 3: "normal" create also changes provided ID.
         var existing = await repo.FindComplexFormComponent(complexFormComponent);
         if (existing is null)
         {
-            // todo test between items missing IDs (i.e. from LibLCM)
             var betweenIds = between is null ? null : await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
+            // Always generate a new entity ID — the caller's ID is never used.
+            // This aligns with FwData (which ignores the ID entirely) and prevents
+            // Harmony duplicate-ID pitfalls during sync (see EntrySync.ComplexFormsDiffApi.Add).
+            complexFormComponent.Id = Guid.NewGuid();
             var addEntryComponentChange = await repo.CreateComplexFormComponentChange(complexFormComponent, betweenIds);
             await AddChange(addEntryComponentChange);
             return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
         }
-        else if (between is not null)
+
+        // The orderable diff sends (null, null) for singletons; skip the move so
+        // revisits in one sync don't bump Order via PickOrder.
+        if (between is { Previous: not null } or { Next: not null })
         {
             await MoveComplexFormComponent(existing, between);
         }
@@ -349,34 +352,37 @@ public class CrdtMiniLcmApi(
         await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
     }
 
-    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    public async IAsyncEnumerable<MorphType> GetMorphTypes()
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var morphType in repo.MorphTypes.AsAsyncEnumerable())
+        {
+            yield return morphType;
+        }
     }
 
-    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    public async Task<MorphType?> GetMorphType(Guid id)
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Id == id);
     }
 
-    public Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphTypeData)
+    public async Task<MorphType?> GetMorphType(MorphTypeKind kind)
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Kind == kind);
     }
 
-    public Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
+    public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
-        throw new NotImplementedException();
+        await AddChange(new JsonPatchChange<MorphType>(id, update.Patch));
+        return await GetMorphType(id) ?? throw NotFoundException.ForType<MorphType>(id);
     }
 
-    public Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
+    public async Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteMorphTypeData(Guid id)
-    {
-        throw new NotImplementedException();
+        await MorphTypeSync.Sync(before, after, api ?? this);
+        return await GetMorphType(after.Id) ?? throw NotFoundException.ForType<MorphType>(after.Id);
     }
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
@@ -490,8 +496,29 @@ public class CrdtMiniLcmApi(
     {
         options ??= CreateEntryOptions.Everything;
         await using var repo = await repoFactory.CreateRepoAsync();
+
+        // This is our primitive logic for now:
+        // If 0, we assume the caller did not specify a number, so we're responsible
+        // for keeping homograph numbers accurate.
+        // That's it.
+        // There are other scenarios that we're NOT handling correctly for now:
+        // Deletes, headword changes, non 0's for inserted entries coming from fwdata etc.
+        // These will be automatically corrected after 2 fw-headless syncs.
+        IChange? homographPromotionChange = null;
+        if (entry.HomographNumber == 0)
+        {
+            var resolution = await HomographResolver.ResolveForNewEntry(entry, repo);
+            entry.HomographNumber = resolution.NewEntryNumber;
+            if (resolution.Promotion is { } promotion)
+            {
+                var patchDoc = new SystemTextJsonPatch.JsonPatchDocument<Entry>();
+                patchDoc.Replace(e => e.HomographNumber, promotion.NewNumber);
+                homographPromotionChange = patchDoc.ToChanges(promotion.EntryId).Single();
+            }
+        }
         await AddChanges([
             new CreateEntryChange(entry),
+            ..homographPromotionChange is null ? [] : new[] { homographPromotionChange },
             ..await entry.Senses.ToAsyncEnumerable()
                 .SelectMany((s, i) =>
                 {
@@ -633,10 +660,24 @@ public class CrdtMiniLcmApi(
         }
     }
 
+    public async Task<Sense?> GetSense(Guid senseId)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetSense(senseId);
+    }
+
     public async Task<Sense?> GetSense(Guid entryId, Guid senseId)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetSense(entryId, senseId);
+        var sense = await repo.GetSense(senseId);
+        if (sense is null) return null;
+        VerifySenseBelongsToEntry(entryId, sense);
+        return sense;
+    }
+
+    private void VerifySenseBelongsToEntry(Guid entryId, Sense sense)
+    {
+        if (sense.EntryId != entryId) throw new NotFoundException($"Sense {sense.Id} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.EntryId}", nameof(Sense));
     }
 
     public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
@@ -647,7 +688,9 @@ public class CrdtMiniLcmApi(
 
         sense.Order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
         await AddChanges(await CreateSenseChanges(entryId, sense, repo.SemanticDomains).ToArrayAsync());
-        return await repo.GetSense(entryId, sense.Id) ?? throw NotFoundException.ForType<Sense>(sense.Id);
+        var createdSense = await repo.GetSense(sense.Id) ?? throw NotFoundException.ForType<Sense>(sense.Id);
+        VerifySenseBelongsToEntry(entryId, createdSense);
+        return createdSense;
     }
 
     public async Task<Sense> UpdateSense(Guid entryId,
@@ -655,22 +698,35 @@ public class CrdtMiniLcmApi(
         UpdateObjectInput<Sense> update)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var sense = await repo.GetSense(entryId, senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        var sense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        VerifySenseBelongsToEntry(entryId, sense);
         await AddChanges(update.Patch.ToChanges(sense.Id));
-        return await repo.GetSense(entryId, senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        var updatedSense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        VerifySenseBelongsToEntry(entryId, updatedSense);
+        return updatedSense;
     }
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
         await SenseSync.Sync(entryId, before, after, api ?? this);
-        return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
+        var sense = await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
+        VerifySenseBelongsToEntry(entryId, sense);
+        return sense;
     }
 
     public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
-        await AddChange(new Changes.SetOrderChange<Sense>(senseId, order));
+        var currentEntryId = await repo.Senses.Where(s => s.Id == senseId).Select(s => s.EntryId).FirstOrDefaultAsync();
+        if (currentEntryId != default && currentEntryId != entryId)
+        {
+            await AddChange(new MoveSenseToEntryChange(senseId, entryId, order));
+        }
+        else
+        {
+            await AddChange(new Changes.SetOrderChange<Sense>(senseId, order));
+        }
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)
@@ -803,6 +859,54 @@ public class CrdtMiniLcmApi(
             logger.LogError(e, "Failed to save file {Filename}", metadata.Filename);
             return new UploadFileResponse(e.Message);
         }
+    }
+
+    public async IAsyncEnumerable<CustomView> GetCustomViews()
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var customView in repo.CustomViews.AsAsyncEnumerable())
+        {
+            yield return customView;
+        }
+    }
+
+    public async Task<CustomView?> GetCustomView(Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetCustomView(id);
+    }
+
+    public async Task<CustomView> CreateCustomView(CustomView customView)
+    {
+        AssertManagerRoleForCustomViewWrite();
+        if (customView.Id == Guid.Empty) customView.Id = Guid.NewGuid();
+        await AddChange(new CreateCustomViewChange(customView.Id, customView));
+        return await GetCustomView(customView.Id) ?? throw NotFoundException.ForType<CustomView>(customView.Id);
+    }
+
+    public async Task<CustomView> UpdateCustomView(CustomView customView)
+    {
+        AssertManagerRoleForCustomViewWrite();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var id = customView.Id;
+        var _ = await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
+        await AddChange(new EditCustomViewChange(id, customView));
+        return await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
+    }
+
+    public async Task DeleteCustomView(Guid id)
+    {
+        AssertManagerRoleForCustomViewWrite();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        _ = await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
+        await AddChange(new DeleteChange<CustomView>(id));
+    }
+
+    private void AssertManagerRoleForCustomViewWrite()
+    {
+        if (ProjectData.Role == UserProjectRole.Manager) return;
+        throw new UnauthorizedAccessException(
+            $"Only managers can manage custom views.");
     }
 
     public void Dispose()

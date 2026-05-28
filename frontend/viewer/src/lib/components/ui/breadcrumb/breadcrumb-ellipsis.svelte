@@ -1,6 +1,5 @@
 <script lang="ts">
-  import {cn} from '$lib/utils.js';
-  import type {WithElementRef, WithoutChildren} from 'bits-ui';
+  import {cn, type WithElementRef, type WithoutChildren} from '$lib/utils.js';
   import type {HTMLAttributes} from 'svelte/elements';
   import {Icon} from '../icon';
 
@@ -13,6 +12,7 @@
 
 <span
   bind:this={ref}
+  data-slot="breadcrumb-ellipsis"
   role="presentation"
   aria-hidden="true"
   class={cn('flex size-9 items-center justify-center', className)}

@@ -9,8 +9,9 @@
   import {useDialogsService} from '$lib/services/dialogs-service';
   import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
   import {QueryParamState, QueryParamStateBool} from '$lib/utils/url.svelte';
+  import {BrowseParam} from '$lib/utils/search-params';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import IfOnce from '$lib/components/if-once/if-once.svelte';
   import {SortField, type IPartOfSpeech, type IPublication, type ISemanticDomain} from '$lib/dotnet-types';
   import SortMenu from './sort/SortMenu.svelte';
@@ -18,17 +19,19 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import type {EntryListViewMode} from './EntryListViewOptions.svelte';
   import EntryListViewOptions from './EntryListViewOptions.svelte';
+  import {useProjectStorage} from '$lib/storage/project-storage.svelte';
 
   const projectContext = useProjectContext();
-  const currentView = useCurrentView();
+  const viewService = useViewService();
   const dialogsService = useDialogsService();
+  const entryListViewMode = useProjectStorage().entryListViewMode;
 
   // DESKTOP: the entry is a sibling of the list (it's a split view). We can switch between selected entries.
   // So, selectedEntryId itself drives navigation.
   // MOBILE: an entry is a child of the list (it's hierarchical). We always go back to the list before opening a different entry.
   // So, entryOpen drives navigation.
-  const selectedEntryId = new QueryParamState({key: 'entryId', allowBack: !IsMobile.value, replaceOnDefaultValue: !IsMobile.value});
-  const entryOpen = new QueryParamStateBool({key: 'entryOpen', allowBack: IsMobile.value, replaceOnDefaultValue: IsMobile.value}, false);
+  const selectedEntryId = new QueryParamState({key: BrowseParam.EntryId, allowBack: !IsMobile.value, replaceOnDefaultValue: !IsMobile.value});
+  const entryOpen = new QueryParamStateBool({key: BrowseParam.EntryOpen, allowBack: IsMobile.value, replaceOnDefaultValue: IsMobile.value}, false);
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
   let gridifyFilter = $state<string>();
@@ -36,7 +39,7 @@
   let semanticDomain = $state<ISemanticDomain>();
   let partOfSpeech = $state<IPartOfSpeech>();
   let sort = $state<SortConfig>();
-  let entryMode: EntryListViewMode = $state('simple');
+  const entryMode: EntryListViewMode = $derived(entryListViewMode.current === 'preview' ? 'preview' : 'simple');
 
   async function newEntry() {
     const entry = await dialogsService.createNewEntry(undefined, {
@@ -68,7 +71,7 @@
   {/snippet}
 </SidebarPrimaryAction>
 <div class="flex flex-col h-full">
-  <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
+  <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 overflow-visible!">
     <IfOnce show={!IsMobile.value || !selectedEntryId.current || !entryOpen.current}>
       <ResizablePane
         bind:this={leftPane}
@@ -84,7 +87,7 @@
             <div class="my-2 flex items-center justify-between">
               <SortMenu bind:value={sort}
                 autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
-              <EntryListViewOptions bind:entryMode />
+              <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />
             </div>
           </div>
           <EntriesList bind:this={entriesList}
@@ -112,7 +115,7 @@
         defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
           {#if !selectedEntryId.current}
             <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
-              <p>{$t`Select ${pt($t`an entry`, $t`a word`, $currentView)} to view details`}</p>
+              <p>{$t`Select ${pt($t`an entry`, $t`a word`, viewService.currentView)} to view details`}</p>
             </div>
           {:else if projectContext.maybeApi}
             <div class="md:p-4 md:pl-4 h-full">

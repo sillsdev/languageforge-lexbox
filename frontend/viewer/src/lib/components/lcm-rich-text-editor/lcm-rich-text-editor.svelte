@@ -77,7 +77,10 @@
         editor.updateState(newState);
       },
       attributes: {
-        class: inputVariants({class: 'min-h-10 h-auto pb-1.5'}),
+        class: inputVariants({
+          class: 'min-h-10 h-auto pb-1.5',
+          visibleFocus: 'on',
+        }),
         // todo: the distribution of props between the editor and the elementRef is not good
         // there should probably be a wrapper component that provides the elementRef to this one
         ...(id ? {id} : {}),
@@ -227,13 +230,21 @@
             return true;
           },
           'Shift-Enter': (state, dispatch) => {
+            // If the field becomes empty, Siht+Enter results in a RangeError (seen in Chrome)
+            // And there's no reason to add a new line to an empty field
+            if (!state.doc.textContent) return true;
             if (dispatch) dispatch(state.tr.insertText(newLine));
             return true;
           },
           // eslint-disable-next-line @typescript-eslint/naming-convention
           Backspace: (state) => {
             // If the field is empty, backspace results in an error (on older devices at least)
-            return state.doc.content.size === 0;
+            return !state.doc.textContent;
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          Delete: (state) => {
+            // If the field becomes empty, delete results in a RangeError (seen in Chrome)
+            return !state.doc.textContent;
           },
         }),
         keymap(baseKeymap),
@@ -346,7 +357,7 @@
   <div bind:this={elementRef} class={className} {...rest}></div>
 {/if}
 
-<style lang="postcss" global>
+<style global>
   .ProseMirror {
     display: block !important; /*prevent display from being overridden by .flex in the inputVariant class */
     align-content: center;

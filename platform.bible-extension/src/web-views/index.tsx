@@ -1,19 +1,15 @@
 import type { IWebViewProvider, SavedWebViewDefinition, WebViewDefinition } from '@papi/core';
-import type {
-  BrowseWebViewOptions,
-  DictionaryWebViewOptions,
-  ProjectWebViewOptions,
-} from 'fw-lite-extension';
+import type { BrowseWebViewOptions, LexiconWebViewOptions, ProjectWebViewOptions } from 'lexicon';
 import mainCssStyles from '../styles.css?inline';
 import tailwindCssStyles from '../tailwind.css?inline';
 import { WebViewType } from '../types/enums';
-import fwAddWordWindow from './add-word.web-view?inline';
-import fwDictionarySelectWindow from './dictionary-select.web-view?inline';
-import fwFindRelatedWordsWindow from './find-related-words.web-view?inline';
-import fwFindWordWindow from './find-word.web-view?inline';
-import fwMainWindow from './main.web-view?inline';
+import addWordWindow from './add-word.web-view?inline';
+import selectLexiconWindow from './select-lexicon.web-view?inline';
+import findRelatedWordsWindow from './find-related-words.web-view?inline';
+import findWordWindow from './find-word.web-view?inline';
+import mainWindow from './main.web-view?inline';
 
-const iconUrl = 'papi-extension://fw-lite-extension/assets/logo-dark.png';
+const iconUrl = 'papi-extension://lexicon/assets/logo-dark.png';
 
 /* eslint-disable @typescript-eslint/require-await */
 
@@ -30,10 +26,10 @@ export const mainWebViewProvider: IWebViewProvider = {
       ...savedWebView,
       ...options,
       allowedFrameSources: ['http://localhost:*'],
-      content: fwMainWindow,
+      content: mainWindow,
       iconUrl,
       styles: mainCssStyles,
-      title: '%fwLiteExtension_webViewTitle_browseDictionary%',
+      title: '%lexicon_webViewTitle_browseLexicon%',
     };
   },
 };
@@ -41,7 +37,7 @@ export const mainWebViewProvider: IWebViewProvider = {
 export const addWordWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: DictionaryWebViewOptions,
+    options: LexiconWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.AddWord))
       throw new Error(
@@ -50,30 +46,30 @@ export const addWordWebViewProvider: IWebViewProvider = {
     return {
       ...savedWebView,
       ...options,
-      content: fwAddWordWindow,
+      content: addWordWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_webViewTitle_addWord%',
+      title: '%lexicon_webViewTitle_addWord%',
     };
   },
 };
 
-export const dictionarySelectWebViewProvider: IWebViewProvider = {
+export const selectLexiconWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
     options: ProjectWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
-    if (savedWebView.webViewType !== String(WebViewType.DictionarySelect))
+    if (savedWebView.webViewType !== String(WebViewType.SelectLexicon))
       throw new Error(
-        `${WebViewType.DictionarySelect} provider received request to provide a ${savedWebView.webViewType} WebView`,
+        `${WebViewType.SelectLexicon} provider received request to provide a ${savedWebView.webViewType} WebView`,
       );
     return {
       ...savedWebView,
       ...options,
-      content: fwDictionarySelectWindow,
+      content: selectLexiconWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_webViewTitle_selectDictionary%',
+      title: '%lexicon_webViewTitle_selectLexicon%',
     };
   },
 };
@@ -81,7 +77,7 @@ export const dictionarySelectWebViewProvider: IWebViewProvider = {
 export const findWordWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: DictionaryWebViewOptions,
+    options: LexiconWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.FindWord))
       throw new Error(
@@ -90,10 +86,10 @@ export const findWordWebViewProvider: IWebViewProvider = {
     return {
       ...savedWebView,
       ...options,
-      content: fwFindWordWindow,
+      content: findWordWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_webViewTitle_findWord%',
+      title: '%lexicon_webViewTitle_findWord%',
     };
   },
 };
@@ -101,7 +97,7 @@ export const findWordWebViewProvider: IWebViewProvider = {
 export const findRelatedWordsWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: DictionaryWebViewOptions,
+    options: LexiconWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.FindRelatedWords))
       throw new Error(
@@ -110,10 +106,10 @@ export const findRelatedWordsWebViewProvider: IWebViewProvider = {
     return {
       ...savedWebView,
       ...options,
-      content: fwFindRelatedWordsWindow,
+      content: findRelatedWordsWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%fwLiteExtension_webViewTitle_findRelatedWords%',
+      title: '%lexicon_webViewTitle_findRelatedWords%',
     };
   },
 };

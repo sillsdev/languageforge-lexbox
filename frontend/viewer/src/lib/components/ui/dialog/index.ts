@@ -1,17 +1,13 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-
+import Close from './dialog-close.svelte';
 import Content from './dialog-content.svelte';
 import Description from './dialog-description.svelte';
-import {Dialog as DialogPrimitive} from 'bits-ui';
 import Footer from './dialog-footer.svelte';
 import Header from './dialog-header.svelte';
 import Overlay from './dialog-overlay.svelte';
-import Root from './dialog-root.svelte';
+import Portal from './dialog-portal.svelte';
+import Root from './dialog.svelte';
 import Title from './dialog-title.svelte';
-
-const Trigger = DialogPrimitive.Trigger;
-const Close = DialogPrimitive.Close;
-const Portal = DialogPrimitive.Portal;
+import Trigger from './dialog-trigger.svelte';
 
 export {
   Close,

@@ -1,9 +1,8 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json.Serialization.Metadata;
-using LcmCrdt.Changes;
 using LinqToDB;
-using LinqToDB.Common;
+using LinqToDB.Internal.SqlQuery;
 using LinqToDB.Mapping;
 using LinqToDB.SqlQuery;
 using SIL.Harmony;
@@ -14,7 +13,7 @@ public static class Json
 {
     sealed class JsonValuePathBuilder : Sql.IExtensionCallBuilder
     {
-        public void Build(Sql.ISqExtensionBuilder builder)
+        public void Build(Sql.ISqlExtensionBuilder builder)
         {
             var propExpression = builder.GetExpression(0);
 
@@ -42,7 +41,7 @@ public static class Json
 
             parameters.Insert(0, propExpression);
 
-            var valueExpression = (ISqlExpression)new SqlExpression(typeof(string),
+            var valueExpression = (ISqlExpression)new SqlExpression(new DbDataType(typeof(string)),
                 expressionStr,
                 Precedence.Primary,
                 parameters.ToArray());
@@ -51,7 +50,11 @@ public static class Json
 
             if (returnType != typeof(string) && returnType != typeof(RichString))//bypass rich string so it can be used with .GetPlainText()
             {
-                valueExpression = PseudoFunctions.MakeTryConvert(new SqlDataType(new DbDataType(returnType)),
+                valueExpression = new SqlFunction(
+                    new DbDataType(returnType),
+                    PseudoFunctions.TRY_CONVERT,
+                    canBeNull: true,
+                    new SqlDataType(new DbDataType(returnType)),
                     new SqlDataType(new DbDataType(typeof(string), DataType.Text)),
                     valueExpression);
             }
@@ -61,7 +64,7 @@ public static class Json
 
         private static void BuildParameterPath(Expression? pathBody,
             List<ISqlExpression> parameters,
-            Sql.ISqExtensionBuilder builder)
+            Sql.ISqlExtensionBuilder builder)
         {
             while (pathBody is MemberExpression or MethodCallExpression or UnaryExpression)
             {
@@ -85,6 +88,13 @@ public static class Json
                         else if (mce.Method.Name == nameof(ToString) && (mce.Arguments.Count == 0 || mce.Object is null))
                         {
                             pathBody = mce.Object ?? mce.Arguments[0];
+                        }
+                        else if (mce.Method.DeclaringType == typeof(Sql) && mce.Method.Name == "Alias")
+                        {
+                            //linq2db 6.x's ExposeExpressionVisitor wraps every [ExpressionMethod] substitution in
+                            //Sql.Alias(real, attr.Alias ?? member.Name) as a column-alias hint; peel it so the path
+                            //walker sees the underlying expression. linq2db 5 did not have this wrap.
+                            pathBody = mce.Arguments[0];
                         }
                         else
                         {
@@ -164,6 +174,15 @@ public static class Json
         return (values) => values.QueryInternal().Select(v => v.Value);
     }
 
+    [ExpressionMethod(nameof(QueryEntriesExpressionMultiString))]
+    internal static IQueryable<JsonEach<string>> QueryEntries(MultiString values)
+    {
+        return values.Values.Select(kv => new JsonEach<string>(kv.Value, kv.Key.Code, "", 0, "", "")).AsQueryable();
+    }
+
+    private static Expression<Func<MultiString, IQueryable<JsonEach<string>>>> QueryEntriesExpressionMultiString() =>
+        (values) => values.QueryInternal();
+
     //indicates that linq2db should rewrite Sense.SemanticDomains.Query(d => d.Code)
     //into code in QueryExpression: Sense.SemanticDomains.QueryInternal().Select(v => Sql.Value(v.Value, d => d.Code))
     [ExpressionMethod(nameof(QuerySelectExpression))]
@@ -203,8 +222,15 @@ public static class Json
         return guid?.ToString() ?? "";
     }
 
+    //Json.Value's path walker can't handle a key captured from an outer json_each row; use At for that.
+    [Sql.Expression("{0}->>{1}", ServerSideOnly = true)]
+    public static string? At(MultiString value, string key)
+    {
+        throw new NotImplementedException("server-side only");
+    }
+
     //maps to a row from json_each
-    private record JsonEach<T>(
+    internal record JsonEach<T>(
         [property: Column("value")] T Value,
         [property: Column("key")] string Key,
         [property: Column("type")] string Type,
@@ -230,7 +256,7 @@ public static class Json
                 var exampleSentence = (ExampleSentence)obj;
                 if (exampleSentence.Translations.Any()) throw new InvalidOperationException("Cannot set translations when they already exist.");
                 var richString = (RichMultiString?)value;
-                if (richString.IsNullOrEmpty()) return;
+                if (richString is null or { Count: 0 }) return;
 #pragma warning disable CS0618 // Type or member is obsolete
                 exampleSentence.Translations = [Translation.FromMultiString(richString)];
 #pragma warning restore CS0618 // Type or member is obsolete

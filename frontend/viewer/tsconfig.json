@@ -27,7 +27,6 @@
     "src/**/*.ts",
     "src/**/*.js",
     "src/**/*.svelte",
-    "src/web-component.ts",
     "tests/**/*.ts",
     "tests/**/*.js",
     "tests/**/*.svelte",

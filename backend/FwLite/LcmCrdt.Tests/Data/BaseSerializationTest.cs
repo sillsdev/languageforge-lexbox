@@ -51,6 +51,19 @@ public abstract class BaseSerializationTest
                     exampleSentenceChange.Translation = null;
 #pragma warning restore CS0618
                 }
+            }, true),
+            new SimpleOverride<MorphType>(context =>
+            {
+                if (context.Instance is MorphType morphType)
+                {
+                    // Only canonical morph types are supported, so align the generated Id (and Kind) with a canonical one.
+                    if (!CanonicalMorphTypes.All.TryGetValue(morphType.Kind, out var canonical))
+                    {
+                        canonical = CanonicalMorphTypes.All.Values.OrderBy(_ => Random.Shared.Next()).First();
+                        morphType.Kind = canonical.Kind;
+                    }
+                    morphType.Id = canonical.Id;
+                }
             }, true)
         );
         return config;

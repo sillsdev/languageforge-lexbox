@@ -9,7 +9,6 @@
     <PackageReference Include="Gridify" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="SIL.WritingSystems" />
-    <PackageReference Include="System.Text.Json" />
     <PackageReference Include="SystemTextJson.JsonDiffPatch" />
     <PackageReference Include="SystemTextJsonPatch" />
     <PackageReference Include="System.Linq.Async" />

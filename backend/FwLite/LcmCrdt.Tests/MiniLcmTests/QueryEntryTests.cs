@@ -53,6 +53,12 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         var searchString = "tes";
         var expectedResultCount = entries.Count(e => e.LexemeForm["en"].ContainsDiacriticMatch(searchString));
 
+        //warmup: the first SearchEntries call after a project opens pays a fixed ~500ms cost
+        //for linq2db query-compilation, JIT, SQLite page-cache loading, etc.
+        //(and is about 100x slower than subsequent calls 😅)
+        var warmupResults = await Api.SearchEntries(searchString).ToArrayAsync();
+        warmupResults.Should().HaveCount(expectedResultCount);
+
         var testIterations = 10;
         var startTimestamp = Stopwatch.GetTimestamp();
         for (int i = 0; i < testIterations; i++)
@@ -69,7 +75,8 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
             $"Total query time: {queryTime.TotalMilliseconds}ms, time per entry: {timePerEntry.TotalMicroseconds}microseconds");
         //Kevin H:  1   -- on my machine I got 0.2, so this is a safe margin
         //Tim H:    1.3 -- bumped, because on CI we got 1 and then 1.1 (new gha Windows runner)
-        timePerEntry.TotalMicroseconds.Should().BeLessThan(1.3);
+        //Tim H:    0.5 -- tightened after adding warmup. Warm-state local is 0.05-0.23 µs/entry
+        timePerEntry.TotalMicroseconds.Should().BeLessThan(0.5);
     }
 
     public override async Task DisposeAsync()

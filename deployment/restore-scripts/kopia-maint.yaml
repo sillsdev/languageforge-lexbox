@@ -60,9 +60,9 @@ spec:
       - key: kopia.config
         path: repository.config
       secretName: backups
-  - emptyDir:
-      sizeLimit: 1Gi
-    name: pg-dump
+  - name: pg-dump
+    emptyDir:
+      sizeLimit: 2Gi
   - name: hg-repos
     persistentVolumeClaim:
       claimName: hg-repos

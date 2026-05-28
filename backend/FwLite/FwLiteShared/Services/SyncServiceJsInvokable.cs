@@ -80,7 +80,7 @@ public class SyncServiceJsInvokable(SyncService syncService, SyncRepository sync
     [JSInvokable]
     public Task<SyncResults> ExecuteSync(bool skipNotifications)
     {
-        return syncService.ExecuteSync(skipNotifications);
+        return Task.Run(async () => await syncService.ExecuteSync(skipNotifications));
     }
 
     [JSInvokable]

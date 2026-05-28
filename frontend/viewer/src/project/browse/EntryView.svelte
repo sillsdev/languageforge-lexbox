@@ -22,13 +22,17 @@
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
   import * as Alert from '$lib/components/ui/alert';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
+  import {useProjectStorage} from '$lib/storage/project-storage.svelte';
+
+  type DictionaryPreviewMode = 'show' | 'hide' | 'sticky';
 
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
   const features = useFeatures();
-  const currentView = useCurrentView();
+  const viewService = useViewService();
+  const dictionaryPreviewStorage = useProjectStorage().dictionaryPreview;
   const {
     entryId,
     onClose,
@@ -39,9 +43,18 @@
     showClose?: boolean;
   } = $props();
 
+  // Reactive firewall:
+  // When we delete the current entry, the resource gets retriggered with the same/deleted entryId
+  // (due to parent updates/reactivity) and then getEntry returns undefined, so we lose the entry.
+  // We want to keep the deleted entry in the view, so the user can optionally restore it.
+  const dedupedEntryId = $derived(entryId);
+
+  let editor = $state<EntryEditor>();
+
   const entryResource = resource(
-    () => entryId,
+    () => dedupedEntryId,
     async (id) => {
+      await editor?.commit();
       const entry = await miniLcmApi.getEntry(id);
       return setEntry(entry);
     },
@@ -57,9 +70,9 @@
   }
 
   eventBus.onEntryUpdated((e) => {
-    if (e.id === entryId) {
-      void entryResource.refetch();
-    }
+    if (e.id !== entryId) return;
+    // The event payload is the latest server state
+    setEntry(e);
   });
 
   eventBus.onEntryDeleted(id => {
@@ -76,11 +89,16 @@
 
   let latestPersistedSnapshot = $state<ReadonlyDeep<IEntry>>();
   const entryPersistence = new EntryPersistence(() => latestPersistedSnapshot);
-  const entry = $derived(entryResource.current ?? undefined);
+  let entry = $derived(entryResource.current ?? undefined);
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
-  let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
-  const sticky = $derived.by(() => dictionaryPreview === 'sticky');
+  const dictionaryPreview: DictionaryPreviewMode = $derived(
+    isDictionaryPreviewMode(dictionaryPreviewStorage.current) ? dictionaryPreviewStorage.current : 'show'
+  );
+  function isDictionaryPreviewMode(value: string): value is DictionaryPreviewMode {
+    return value === 'show' || value === 'hide' || value === 'sticky';
+  }
+  const sticky = $derived(dictionaryPreview === 'sticky');
 
   let readonly = $state(false);
   let deleted = $state(false);
@@ -95,11 +113,11 @@
 </script>
 
 {#snippet preview(entry: IEntry)}
-  <div class="md:pb-4">
+  <div class="md:pb-3">
     <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
       {#snippet actions()}
-        <Toggle bind:pressed={() => sticky, (value) => dictionaryPreview = value ? 'sticky' : 'show'}
-          aria-label={$t`Toggle pinned`} class="aspect-square" size="xs">
+        <Toggle bind:pressed={() => sticky, (value) => void dictionaryPreviewStorage.set(value ? 'sticky' : 'show')}
+          aria-label={$t`Toggle pinned`} class="aspect-square" size="sm">
           <Icon icon="i-mdi-pin-outline" class="size-5" />
         </Toggle>
       {/snippet}
@@ -116,12 +134,12 @@
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
         <div class="flex">
-          <ViewPicker bind:dictionaryPreview bind:readonly />
+          <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} bind:readonly />
           <EntryMenu {entry} />
         </div>
       </div>
       {#if deleted}
-        {@const entity = pt($t`entry`, $t`word`, $currentView)}
+        {@const entity = pt($t`entry`, $t`word`, viewService.currentView)}
         <div class="mb-2 px-2">
           <Alert.Root variant="destructive">
             <Alert.Description class="flex justify-between items-center">
@@ -150,8 +168,15 @@
           {@render preview(entry)}
         </div>
       {/if}
-      <div class="max-md:p-2 md:px-2">
-        <EntryEditor bind:ref={editorRef} {entry} readonly={readonly || !features.write || deleted} {...entryPersistence.entryEditorProps} />
+      <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
+        {#key entry.id}
+          <EntryEditor
+            bind:this={editor}
+            bind:ref={editorRef}
+            bind:entry
+            readonly={readonly || !features.write || deleted}
+            {...entryPersistence.entryEditorProps} />
+        {/key}
       </div>
     </ScrollArea>
   {/if}

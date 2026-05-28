@@ -54,24 +54,28 @@ public class DataModelSnapshotTests : IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Verified")]
     public async Task VerifyDbModel()
     {
         await Verify(_crdtDbContext.Model.ToDebugString(MetadataDebugStringOptions.LongDefault));
     }
 
     [Fact]
+    [Trait("Category", "Verified")]
     public async Task VerifyChangeModels()
     {
         await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IChange)).PolymorphismOptions);
     }
 
     [Fact]
+    [Trait("Category", "Verified")]
     public async Task VerifyIObjectBaseModels()
     {
         await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IObjectBase)).PolymorphismOptions);
     }
 
     [Fact]
+    [Trait("Category", "Verified")]
     public async Task VerifyIObjectWithIdModels()
     {
         await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions);

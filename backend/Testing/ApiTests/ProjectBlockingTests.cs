@@ -30,9 +30,11 @@ public class SyncedProjectFixture : IAsyncLifetime
         await FwHeadlessTestHelpers.AwaitSyncFinished(_httpClient, ProjectId);
     }
 
-    public Task DisposeAsync()
+    public async Task DisposeAsync()
     {
-        return Task.CompletedTask;
+        var auth = new SendReceiveAuth("admin", TestingEnvironmentVariables.DefaultPassword);
+        await JwtHelper.ExecuteLogin(auth, true, _httpClient);
+        await _httpClient.DeleteAsync($"api/project/{ProjectId}");
     }
 
 }

@@ -22,7 +22,7 @@
 
 {#if !IsMobile.value}
   <Dialog.Root bind:open {...rest}>
-    <Dialog.Trigger child={trigger} />
+    {#if trigger}<Dialog.Trigger child={trigger} />{/if}
     <Dialog.Content {...contentProps} class={cn('min-h-auto', contentProps?.class)}>
       <Dialog.Header>
         <Dialog.Title>{title}</Dialog.Title>
@@ -32,8 +32,8 @@
   </Dialog.Root>
 {:else}
   <Drawer.Root bind:open {...rest}>
-    <Drawer.Trigger child={trigger} />
-    <Drawer.Content {...contentProps}>
+    {#if trigger}<Drawer.Trigger child={trigger} />{/if}
+    <Drawer.Content {...contentProps} class={cn(contentProps?.class, 'max-w-none')}>
       <Drawer.Close class={buttonVariants({variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10'})}>
         <Icon icon="i-mdi-close" />
       </Drawer.Close>

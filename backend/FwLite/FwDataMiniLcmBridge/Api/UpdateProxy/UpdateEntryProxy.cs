@@ -41,7 +41,7 @@ public record UpdateEntryProxy : Entry
         set => throw new NotImplementedException();
     }
 
-    public override MorphType MorphType
+    public override MorphTypeKind MorphType
     {
         get => throw new NotImplementedException();
         set => Console.WriteLine("setting MorphType not implemented"); // Not throwing, for now
@@ -81,6 +81,16 @@ public record UpdateEntryProxy : Entry
     {
         get => new UpdateRichMultiStringProxy(_lcmEntry.Comment, _lexboxLcmApi);
         set => throw new NotImplementedException();
+    }
+
+    public override int HomographNumber
+    {
+        get => _lcmEntry.HomographNumber;
+        set
+        {
+            _lcmEntry.HomographNumber = value;
+            _lexboxLcmApi.EntriesRepository.CorrectHomographNumbers(_lcmEntry);
+        }
     }
 }
 

@@ -76,8 +76,7 @@
         <ProjectDropdown
           onSelect={handleProjectSelect}
         />
-        <div class="flex-1" ></div>
-        <ThemePicker />
+        <ThemePicker variant="ghost" />
       </div>
       <div class="mx-auto">
         {@render primaryAction.snippet?.(sidebar?.isOpen())}
@@ -198,7 +197,7 @@
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
+          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectCode)}>
             <Icon icon="i-mdi-help-circle" />
             <span>{$t`Troubleshoot`}</span>
           </Sidebar.MenuButton>
@@ -211,7 +210,7 @@
   </Sidebar.Content>
   <Sidebar.Footer>
       <div class="text-xs text-muted-foreground py-2 m-auto">
-        <div>{$t`Version ${config.appVersion}`}</div>
+        <div>FieldWorks Lite {config.appVersion}</div>
         <div {@attach devModeToggle}>{$t`Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸`}</div>
       </div>
   </Sidebar.Footer>

@@ -138,7 +138,7 @@
         <Button href="/swagger" variant="ghost" size="icon" icon="i-mdi-api" target="_blank" title="Swagger"/>
       </DevContent>
       <LocalizationPicker/>
-      <ThemePicker buttonProps={{variant: 'outline'}}/>
+      <ThemePicker />
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
@@ -162,7 +162,7 @@
     {/snippet}
 </AppBar>
 <div class="mx-auto md:w-full md:py-4 max-w-2xl">
-  <div class="flex-grow hidden md:block"></div>
+  <div class="grow hidden md:block"></div>
   <div class="project-list">
     {#await projectsPromise}
       <p>{$t`loading...`}</p>
@@ -171,7 +171,7 @@
         <div>
           <div class="flex flex-row items-end">
             <p class="sub-title">{$t`Local`}</p>
-            <div class="flex-grow"></div>
+            <div class="grow"></div>
 
             <Button icon="i-mdi-refresh"
                     title={$t`Refresh Projects`}
@@ -181,7 +181,7 @@
                     onclick={() => refreshProjects()}/>
           </div>
           <div>
-            {#each projects.filter((p) => p.crdt) as project (project.id ?? project)}
+            {#each projects.filter((p) => p.crdt) as project (project)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
               <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
@@ -249,7 +249,9 @@
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
             <div>
-              {#each projects.filter((p) => p.fwdata) as project (project.name)}
+              <!-- project.name (and maybe code as well) can have duplicates
+              if there are 2 fwdata projects whose names are the name and code of a crdt project -->
+              {#each projects.filter((p) => p.fwdata) as project (project)}
                 <Anchor href={`/fwdata/${project.code}`}>
                   <ProjectListItem {project}>
                     {#snippet icon()}
@@ -281,10 +283,11 @@
     {/await}
   </div>
 
-  <div class="md:flex-grow-[2]"></div>
+  <div class="md:grow-2"></div>
 </div>
 
 <style lang="postcss">
+  @reference "#app.css";
   .project-list {
     display: flex;
     flex-direction: column;

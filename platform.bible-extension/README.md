@@ -1,6 +1,6 @@
-# fw-lite-extension
+# lexicon
 
-FieldWorks Lite packaged as an extension for Platform.Bible.
+The Platform.Bible extension for managing the lexicon for your project's target/vernacular language.
 
 <!--
 
@@ -94,7 +94,7 @@ The general file structure is as follows:
   - `src/components/` contains stand-alone (i.e., WebView- and service-independent) components
   - `src/main.ts` is the main entry file for the extension
   - `src/services/` contains services to be used with `networkObjects.set()` in `src/main.ts`
-  - `src/types/fw-lite-extension.d.ts` is this extension's types file that defines how other extensions can use this extension through the `papi`. It is copied into the build folder
+  - `src/types/lexicon.d.ts` is this extension's types file that defines how other extensions can use this extension through the `papi`. It is copied into the build folder
   - `src/utils/` contains utility classes and functions
   - `src/web-views/` contains WebView components to be used with `registerWebViewProvider()` in `src/main.ts`
     - `*.web-view.tsx` files will be treated as React WebViews
@@ -124,13 +124,13 @@ In order to interact with `paranext-core`, you must clone `paranext-core` in the
 
 ## To run
 
-First, you must build FieldWorks Lite using the task defined in this folder:
+First, you must build FieldWorks Lite (FW Lite) using the task defined in this folder:
 
 ```bash
-task build-fw-lite-web
+task build-fw-lite
 ```
 
-This is a normal production build, so changes to FwLite files will not be rebuilt automatically. If you want to do FwLite development, look at [README.md](../backend/FwLite/README.md)
+This is a normal production build, so changes to FW Lite files will not be rebuilt automatically. If you want to do FW Lite development, look at [README.md](../backend/FwLite/README.md)
 
 ### Running Platform.Bible with this extension
 
@@ -151,6 +151,40 @@ To watch extension files (in `src`) for changes:
 To build the extension once:
 
 `npm run build`
+
+### Using this extension with another development extension
+
+This extension has a network service that can be used by other extensions. Here's how to make it available for active development of another extension:
+
+1. In `platform.bible-extension/`: run `task build-fw-lite`, then `npm run package`, then `npm run core:copy-package`.
+
+2. In `.eslintrc.js`, in the `'import/no-unresolved'` rule, add `'lexicon'` to the `ignore` array:
+
+```diff
+-'import/no-unresolved': ['error', { ignore: ['@papi'] }],
++'import/no-unresolved': ['error', { ignore: ['@papi', 'lexicon'] }],
+```
+
+3. Example uses of this network service are found in [add-word.web-view.tsx](src/web-views/add-word.web-view.tsx) and [find-word.web-view.tsx](src/web-views/find-word.web-view.tsx). Note the following key elements:
+
+- With types `NetworkObject` imported from `'@papi/core'` and `IEntryService` imported from `'lexicon'`:
+
+```ts
+const [lexiconService, setLexiconService] = useState<NetworkObject<IEntryService> | undefined>();
+```
+
+- With `networkObjects` imported from `'@papi/frontend'`, get the network service via
+
+```ts
+useEffect(() => {
+  networkObjects.get<IEntryService>('lexicon.entryService').then(setLexiconService);
+}, []);
+```
+
+- The current PT project id (which the example WebViews get via their props).
+- Call any method defined in [entry-service.ts](src/services/entry-service.ts)
+  - To use `lexiconService.addEntry`, also import types `IEntry` and `PartialEntry` from `'lexicon'`.
+  - To use `lexiconService.getEntries`, also import types `IEntryQuery` and `PartialEntry` from `'lexicon'`.
 
 <!--
 ## To package for distribution

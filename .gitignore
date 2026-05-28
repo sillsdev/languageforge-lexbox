@@ -37,5 +37,9 @@ failedSyncs/
 # just ignore everything rider related
 .idea
 
-# AI session artifacts (ephemeral planning/review documents)
-history/
+*.lscache
+
+.claude/worktrees/
+.claude/settings.local.json
+.claude/CLAUDE.local.md
+screenshots/

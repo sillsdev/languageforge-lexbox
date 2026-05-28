@@ -3,12 +3,15 @@
   import { expect, fn, userEvent, within } from 'storybook/test';
   import EntityEditorPrimitiveDecorator from './EntityEditorPrimitiveDecorator.svelte';
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
-  import {type IEntry, MorphType} from '$lib/dotnet-types';
+  import {type IEntry, MorphTypeKind} from '$lib/dotnet-types';
   import {fwliteStoryParameters} from '../../fwl-parameters';
   import {tick} from 'svelte';
 
   let entry: IEntry = $state({
     id: '36b8f84d-df4e-4d49-b662-bcde71a8764f',
+    headword: {
+      'seh': 'Citation form',
+    },
     lexemeForm: {
       'seh': 'Lexeme form',
     },
@@ -39,7 +42,8 @@
     components: [],
     publishIn: [],
     senses: [],
-    morphType: MorphType.Stem
+    morphType: MorphTypeKind.Stem,
+    homographNumber: 0,
   });
 
   const { Story } = defineMeta({
@@ -65,7 +69,7 @@
   name="In editor"
   decorators={[
     /* @ts-expect-error Bug in Storybook https://github.com/storybookjs/storybook/issues/29951 */
-    () => EntityEditorPrimitiveDecorator,
+    () => ({['Component']: EntityEditorPrimitiveDecorator}),
   ]}
   play={async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);

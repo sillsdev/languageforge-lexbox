@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Sync;
@@ -212,15 +213,59 @@ public class LexboxProjectService : IDisposable
         cache.Remove(CacheKey(server));
     }
 
+    private static readonly ConditionalWeakTable<HubConnection, HashSet<Guid>> _reconnectProjects = new();
+
     public async Task ListenForProjectChanges(ProjectData projectData, CancellationToken stoppingToken)
     {
         if (!options.Value.TryGetServer(projectData, out var server)) return;
         var lexboxConnection = await StartLexboxProjectChangeListener(server, stoppingToken);
         if (lexboxConnection is null) return;
-        await lexboxConnection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
+        var subscribedProjects = _reconnectProjects.GetValue(lexboxConnection, static conn =>
+        {
+            var projects = new HashSet<Guid>();
+            conn.Reconnected += async _ =>
+            {
+                Guid[] projectIds;
+                lock (projects)
+                {
+                    projectIds = [.. projects];
+                }
+                foreach (var projectId in projectIds)
+                {
+                    try
+                    {
+                        await conn.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId);
+                    }
+                    catch (Exception)
+                    {
+                        // Ensure one project's failing to reconnect doesn't block others from reconnecting
+                    }
+                }
+            };
+            return projects;
+        });
+        lock (subscribedProjects)
+        {
+            subscribedProjects.Add(projectData.Id);
+        }
+        await lexboxConnection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectData.Id, stoppingToken);
     }
 
     private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
+    private class InfiniteRetryPolicy : IRetryPolicy
+    {
+        public TimeSpan? NextRetryDelay(RetryContext retryContext)
+        {
+            return retryContext.PreviousRetryCount switch
+            {
+                0 => TimeSpan.Zero,
+                1 => TimeSpan.FromSeconds(2),
+                2 => TimeSpan.FromSeconds(10),
+                3 => TimeSpan.FromSeconds(30),
+                _ => TimeSpan.FromSeconds(60),
+            };
+        }
+    }
 
     public async Task<HubConnection?> StartLexboxProjectChangeListener(LexboxServer server,
         CancellationToken stoppingToken)
@@ -241,7 +286,7 @@ public class LexboxProjectService : IDisposable
         connection = new HubConnectionBuilder()
             //todo bridge logging to the aspnet logger
             .ConfigureLogging(logging => logging.AddConsole())
-            .WithAutomaticReconnect()
+            .WithAutomaticReconnect(new InfiniteRetryPolicy())
             .WithUrl($"{server.Authority}api/hub/crdt/project-changes",
                 connectionOptions =>
                 {
@@ -256,7 +301,7 @@ public class LexboxProjectService : IDisposable
             .Build();
 
         //it would be cleaner to pass the callback in to this method however it's not supposed to be generic, it should always trigger a sync
-        connection.On(nameof(IProjectChangeListener.OnProjectUpdated),
+        connection.On(nameof(IProjectChangeHubClient.OnProjectUpdated),
             (Guid projectId, Guid? clientId) =>
             {
                 logger.LogInformation("Received project update for {ProjectId}, triggering sync", projectId);
@@ -274,7 +319,9 @@ public class LexboxProjectService : IDisposable
                 cache.Remove(HubConnectionCacheKey(server));
                 await connection.DisposeAsync();
             };
-            cache.CreateEntry(HubConnectionCacheKey(server)).SetValue(connection).RegisterPostEvictionCallback(
+            // ICacheEntry value returned from CreateEntry must be disposed in order to be committed to the cache,
+            // so do not remove the "using var __" below that appears to be doing nothing.
+            using var __ = cache.CreateEntry(HubConnectionCacheKey(server)).SetValue(connection).RegisterPostEvictionCallback(
                 static (key, value, reason, state) =>
                 {
                     if (value is HubConnection con)

@@ -17,6 +17,7 @@ public static class MiniLcmExtensions
             await api.GetPublications().ToArrayAsync(),
             await api.GetSemanticDomains().ToArrayAsync(),
             await api.GetComplexFormTypes().ToArrayAsync(),
+            await api.GetMorphTypes().ToArrayAsync(),
             await api.GetWritingSystems());
     }
 }

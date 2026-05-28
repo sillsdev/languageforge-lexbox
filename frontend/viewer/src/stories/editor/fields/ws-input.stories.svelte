@@ -28,7 +28,7 @@
   name="In editor"
   decorators={[
     /* @ts-expect-error Bug in Storybook https://github.com/storybookjs/storybook/issues/29951 */
-    () => FieldDecorator,
+    () => ({['Component']: FieldDecorator}),
   ]}
   play={async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);

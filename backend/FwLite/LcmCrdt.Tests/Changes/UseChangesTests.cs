@@ -195,8 +195,18 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var createComplexFormComponentChange = new AddEntryComponentChange(complexFormComponent);
         yield return new ChangeWithDependencies(createComplexFormComponentChange, [createComplexFormEntryChange, createEntryChange, createSenseChange]);
 
+        var morphType = CanonicalMorphTypes.All[MorphTypeKind.Root].Copy();
+        var createMorphTypeChange = new CreateMorphTypeChange(morphType);
+        yield return new ChangeWithDependencies(createMorphTypeChange);
+
         var setPartOfSpeechChange = new SetPartOfSpeechChange(sense.Id, partOfSpeech.Id);
         yield return new ChangeWithDependencies(setPartOfSpeechChange, [createSenseChange, createPartOfSpeechChange]);
+
+        var senseEntryMoveTarget = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "sense move target" } } };
+        var createSenseEntryMoveTargetChange = new CreateEntryChange(senseEntryMoveTarget);
+        yield return new ChangeWithDependencies(createSenseEntryMoveTargetChange);
+        var setSenseEntryChange = new MoveSenseToEntryChange(sense.Id, senseEntryMoveTarget.Id, 1);
+        yield return new ChangeWithDependencies(setSenseEntryChange, [createSenseChange, createSenseEntryMoveTargetChange]);
 
         var addSemanticDomainChange = new AddSemanticDomainChange(semanticDomain, sense.Id);
         yield return new ChangeWithDependencies(addSemanticDomainChange, [createSenseChange, createSemanticDomainChange]);
@@ -259,5 +269,35 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         yield return new ChangeWithDependencies(
             new RemoteResourceUploadedChange(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
             [createRemoteResourcePendingUploadChange]);
+
+        var customView = new CustomView
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test View",
+            Base = ViewBase.FwLite,
+            EntryFields = [new ViewField { FieldId = "lexemeForm" }],
+            SenseFields = [],
+            ExampleFields = [new ViewField { FieldId = "sentence" }],
+            Vernacular = null,
+            Analysis = [new ViewWritingSystem { WsId = "en" }],
+        };
+        var createCustomViewChange = new CreateCustomViewChange(
+            customView.Id,
+            customView
+        );
+        yield return new ChangeWithDependencies(createCustomViewChange);
+        var editCustomViewChange = new EditCustomViewChange(
+            customView.Id,
+            customView with
+            {
+                Name = "Updated View",
+                Base = ViewBase.FieldWorks,
+                EntryFields = [new ViewField { FieldId = "citationForm" }],
+                SenseFields = [new ViewField { FieldId = "definition" }],
+                ExampleFields = [],
+                Vernacular = [new ViewWritingSystem { WsId = "fr" }],
+                Analysis = null
+            });
+        yield return new ChangeWithDependencies(editCustomViewChange, [createCustomViewChange]);
     }
 }

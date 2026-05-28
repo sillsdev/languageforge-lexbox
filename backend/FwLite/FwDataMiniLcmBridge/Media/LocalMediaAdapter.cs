@@ -1,29 +1,57 @@
-using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Microsoft.Extensions.Caching.Memory;
-using MiniLcm;
-using MiniLcm.Exceptions;
+using Microsoft.Extensions.Logging;
 using MiniLcm.Media;
 using SIL.LCModel;
 using UUIDNext;
 
 namespace FwDataMiniLcmBridge.Media;
 
-public class LocalMediaAdapter(IMemoryCache memoryCache) : IMediaAdapter
+public class LocalMediaAdapter(IMemoryCache memoryCache, ILogger<LocalMediaAdapter> logger) : IMediaAdapter
 {
     //probably don't change this
-    private static readonly Guid LocalMediaNamespace = new Guid("45e563a3-f5a6-4d7a-9722-8d7d4d3adfa2");
+    private static readonly Guid LocalMediaNamespace = new("45e563a3-f5a6-4d7a-9722-8d7d4d3adfa2");
     private const string LocalMediaAuthority = "localhost";
 
     private Dictionary<Guid, string> Paths(LcmCache cache)
     {
-        return memoryCache.GetOrCreate<Dictionary<Guid, string>>("LocalMediaPath|" + cache.ProjectId.ProjectFolder,
+        return memoryCache.GetOrCreate("LocalMediaPath|" + cache.ProjectId.ProjectFolder,
             entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(10);
-                return Directory
-                    .EnumerateFiles(cache.LangProject.LinkedFilesRootDir, "*", SearchOption.AllDirectories)
-                    .ToDictionary(file => PathToUri(file).FileId, file => file);
+                return BuildPathsDictionary(cache.LangProject.LinkedFilesRootDir, logger);
             }) ?? throw new Exception("Failed to get paths");
+    }
+
+    internal static Dictionary<Guid, string> BuildPathsDictionary(string root, ILogger logger)
+    {
+        var paths = new Dictionary<Guid, string>();
+        foreach (var file in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
+        {
+            var fileId = PathToUri(file).FileId;
+            if (paths.TryGetValue(fileId, out var existing))
+            {
+                // duplicates are possible, because UUIDNext.NewNameBased normalises unicode before hashing
+                // keep the NFD path: FW only ever refers to audio via NFD names
+                var kept = PreferNfd(existing, file);
+                var skipped = ReferenceEquals(kept, existing) ? file : existing;
+                paths[fileId] = kept;
+                logger.LogWarning("Duplicate media FileId {FileId} in {Root}: kept {Kept}, skipped {Skipped}",
+                    fileId, root, kept, skipped);
+            }
+            else
+            {
+                paths[fileId] = file;
+            }
+        }
+        return paths;
+    }
+
+    private static string PreferNfd(string curr, string @new)
+    {
+        // only replace curr if new is a strict NFD improvement; otherwise leave the cache stable
+        if (Path.GetFileName(curr).IsNormalized(NormalizationForm.FormD)) return curr;
+        return Path.GetFileName(@new).IsNormalized(NormalizationForm.FormD) ? @new : curr;
     }
 
     //path is expected to be relative to the LinkedFilesRootDir

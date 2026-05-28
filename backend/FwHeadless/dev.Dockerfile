@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 EXPOSE 80
 EXPOSE 443
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \

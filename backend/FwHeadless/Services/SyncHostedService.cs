@@ -176,10 +176,15 @@ public class SyncWorker(
             activity?.SetStatus(ActivityStatusCode.Error, "Send/Receive failed before CRDT sync");
             return new SyncJobResult(SyncJobStatusEnum.SendReceiveFailed, e.Message);
         }
+        catch (InvalidFwDataProjectException e)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, e.Message);
+            return new SyncJobResult(SyncJobStatusEnum.ProjectIncompatible, e.Message);
+        }
         //always do this as existing projects need to run this even if they didn't S&R due to no pending changes
         await mediaFileService.SyncMediaFiles(fwdataApi.Cache);
 
-        using var deferCloseFwData = fwDataFactory.DeferClose(fwDataProject);
+        await using var deferCloseFwData = fwDataFactory.DeferCloseAsync(fwDataProject);
         var crdtProject = await SetupCrdtProject(crdtFile,
             projectLookupService,
             projectId,
@@ -222,6 +227,11 @@ public class SyncWorker(
         else
         {
             var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
+            // HTTP 500 errors should be retried once before checking for success
+            if (srResult2.InternalServerError)
+            {
+                srResult2 = await srService.SendReceive(fwDataProject, projectCode);
+            }
             if (!srResult2.Success)
             {
                 if (srResult2.RollbackDetected)
@@ -270,7 +280,7 @@ public class SyncWorker(
     {
         if (File.Exists(fwDataProject.FilePath))
         {
-            var pendingHgCommits = await srService.PendingCommitCount(fwDataProject, projectCode);
+            var pendingHgCommits = await srService.PendingCommitCountBothWays(fwDataProject, projectCode);
             if (pendingHgCommits == 0)
             {
                 logger.LogInformation("No Send/Receive needed before CRDT sync as there are no pending commits");
@@ -292,15 +302,45 @@ public class SyncWorker(
         }
         else
         {
-            var srResult = await srService.Clone(fwDataProject, projectCode);
-            if (!srResult.Success)
+            try
             {
-                logger.LogError("Clone before CRDT sync failed: {Output}", srResult.Output);
-                throw new SendReceiveException("Clone before CRDT sync failed", srResult);
-            }
-            else
-            {
+                var srResult = await srService.Clone(fwDataProject, projectCode);
+                if (!srResult.Success)
+                {
+                    logger.LogError("Clone before CRDT sync failed: {Output}", srResult.Output);
+                    throw new SendReceiveException("Clone before CRDT sync failed", srResult);
+                }
+
                 logger.LogInformation("Clone result before CRDT sync: {Output}", srResult.Output);
+
+                if (!File.Exists(fwDataProject.FilePath))
+                {
+                    var message = $"FieldWorks project file '{fwDataProject.FilePath}' was not found after Clone. " +
+                                  "This likely means that the LexBox repository does not contain a FieldWorks project (e.g. it may be a WeSay project).";
+                    logger.LogError(message);
+                    throw new InvalidFwDataProjectException(message, fwDataProject.FilePath);
+                }
+            }
+            catch
+            {
+                try
+                {
+                    if (Directory.Exists(fwDataProject.ProjectFolder))
+                    {
+                        logger.LogInformation("Cleaning up FW data folder after failed clone: {FwDataFolder}", fwDataProject.ProjectFolder);
+                        Directory.Delete(fwDataProject.ProjectFolder, true);
+                        logger.LogInformation("Removed FW data folder");
+                        // fwDataProject.ProjectsPath is actually "{code}-{id}" i.e. the parent folder of this SINGLE project.
+                        // will throw if not empty (e.g. crdt db or snapshot backup), which is good. It's an interesting edge case.
+                        Directory.Delete(fwDataProject.ProjectsPath);
+                        logger.LogInformation("Removed empty project folder: {ProjectFolder}", fwDataProject.ProjectsPath);
+                    }
+                }
+                catch (Exception cleanupEx)
+                {
+                    logger.LogWarning(cleanupEx, "Failed to clean up project after failed clone");
+                }
+                throw;
             }
         }
 

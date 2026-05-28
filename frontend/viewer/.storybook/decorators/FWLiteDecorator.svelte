@@ -17,7 +17,7 @@
 <script lang="ts">
   import { ResizablePaneGroup, ResizablePane, ResizableHandle } from '$lib/components/ui/resizable';
   import ThemePicker from '$lib/components/ThemePicker.svelte';
-  import {initView} from '$lib/views/view-service';
+  import {initViewService} from '$lib/views/view-service.svelte';
   import {ModeWatcher} from 'mode-watcher';
   import {Context} from 'runed';
   import { type Snippet } from 'svelte';
@@ -25,6 +25,7 @@
   import {InMemoryDemoApi} from '$project/demo/in-memory-demo-api';
   import {setupServiceProvider} from '$lib/services/service-provider';
   import {setupDotnetServiceProvider} from '$lib/services/service-provider-dotnet';
+  import {setupBrowserAppServices} from '$lib/services/browser-app-services';
   import {XButton} from '$lib/components/ui/button';
   import {extract} from 'runed';
   import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
@@ -37,8 +38,9 @@
 
   setupServiceProvider();
   setupDotnetServiceProvider();
+  setupBrowserAppServices();
   InMemoryDemoApi.setup();
-  initView();
+  initViewService();
   const storyContext = useSvelteStoryContext();
   setupGlobalErrorHandlers();
   initRootLocation(readable());
@@ -59,14 +61,14 @@
 </script>
 
 <TooltipProvider delayDuration={300}>
-  <ResizablePaneGroup direction="horizontal" class="!overflow-visible">
-    <ResizablePane class="!overflow-visible" defaultSize={resizable ? defaultSize : 100} onResize={(size) => defaultSize = size}>
+  <ResizablePaneGroup direction="horizontal" class="overflow-visible!">
+    <ResizablePane class="overflow-visible!" defaultSize={resizable ? defaultSize : 100} onResize={(size) => defaultSize = size}>
       {@render children()}
     </ResizablePane>
     {#if resizable}
       <!-- looks cool 🤷 https://github.com/huntabyte/shadcn-svelte/blob/bcbe10a4f65d244a19fb98ffb6a71d929d9603bc/sites/docs/src/lib/components/docs/block-preview.svelte#L65 -->
       <ResizableHandle
-        class="after:bg-border relative w-3 bg-transparent p-0 after:absolute after:right-0 after:top-1/2 after:h-8 after:w-[6px] after:-translate-y-1/2 after:translate-x-[-1px] after:rounded-full after:transition-all after:hover:h-10"
+        class="after:bg-border relative w-3 bg-transparent p-0 after:absolute after:right-0 after:top-1/2 after:h-8 after:w-[6px] after:-translate-y-1/2 after:-translate-x-px after:rounded-full after:transition-all after:hover:h-10"
       />
       <ResizablePane class="px-2">
         {#if showValue === true || value && showValue !== false}
@@ -76,7 +78,7 @@
               JSON.stringify(value, null, 2)?.replaceAll(lineSeparator, '\n') ?? 'undefined'}
               </pre>
             {/if}
-            <XButton class="[&:not(:hover)]:opacity-30 fixed top-4 right-4" icon="i-mdi-eye" onclick={() => hideValue = !hideValue} />
+            <XButton class="not-[&:hover]:opacity-30 fixed top-4 right-4" icon="i-mdi-eye" onclick={() => hideValue = !hideValue} />
           </div>
         {/if}
       </ResizablePane>

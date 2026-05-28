@@ -1,12 +1,12 @@
 import { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { DictionaryLanguages, PartialEntry } from 'fw-lite-extension';
+import type { LexiconLanguages, PartialEntry } from 'lexicon';
 import { Button, Input, Label } from 'platform-bible-react';
 import { type ReactElement, useCallback, useEffect, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 /** Props for the AddNewEntry component */
-interface AddNewEntryProps extends DictionaryLanguages {
+interface AddNewEntryProps extends LexiconLanguages {
   addEntry: (entry: PartialEntry) => Promise<void>;
   headword?: string;
   onCancel?: () => void;
@@ -55,14 +55,12 @@ export default function AddNewEntry({
 
   return (
     <div className="tw-flex tw-flex-col tw-items-start">
-      <h3 className="tw-font-semibold tw-mb-2">
-        {localizedStrings['%fwLiteExtension_addWord_title%']}
-      </h3>
+      <h3 className="tw-font-semibold tw-mb-2">{localizedStrings['%lexicon_addWord_title%']}</h3>
 
       <div className="tw-flex tw-flex-col tw-gap-1">
         <div>
           <Label htmlFor="newEntryHeadword">
-            {localizedStrings['%fwLiteExtension_entryDisplay_headword%']} ({vernacularLanguage}):
+            {localizedStrings['%lexicon_entryDisplay_headword%']} ({vernacularLanguage}):
           </Label>
           <Input
             id="newEntryHeadword"
@@ -73,14 +71,14 @@ export default function AddNewEntry({
 
         <div>
           <Label htmlFor="newEntryGloss">
-            {localizedStrings['%fwLiteExtension_entryDisplay_gloss%']} ({analysisLanguage}):
+            {localizedStrings['%lexicon_entryDisplay_gloss%']} ({analysisLanguage}):
           </Label>
           <Input id="newEntryGloss" onChange={(e) => setGloss(e.target.value)} value={gloss} />
         </div>
 
         <div>
           <Label htmlFor="newEntryDefinition">
-            {localizedStrings['%fwLiteExtension_entryDisplay_definition%']} ({analysisLanguage}):
+            {localizedStrings['%lexicon_entryDisplay_definition%']} ({analysisLanguage}):
           </Label>
           <Input
             id="newEntryDefinition"
@@ -91,11 +89,9 @@ export default function AddNewEntry({
 
         <div className="tw-flex tw-gap-1 tw-mt-2">
           <Button disabled={!ready} onClick={() => onSubmit()}>
-            {localizedStrings['%fwLiteExtension_addWord_buttonSubmit%']}
+            {localizedStrings['%lexicon_addWord_buttonSubmit%']}
           </Button>
-          <Button onClick={clearEntry}>
-            {localizedStrings['%fwLiteExtension_button_cancel%']}
-          </Button>
+          <Button onClick={clearEntry}>{localizedStrings['%lexicon_button_cancel%']}</Button>
         </div>
       </div>
     </div>

@@ -1,12 +1,19 @@
+using FwLiteShared.Services;
+
 namespace FwLiteMaui;
 
 public partial class App : Application
 {
     private readonly MainPage _mainPage;
 
-    public App(MainPage mainPage)
+    public App(MainPage mainPage, IPreferencesService preferences)
     {
         _mainPage = mainPage;
+        var lastUrl = preferences.Get(nameof(PreferenceKey.AppLastUrl));
+        if (lastUrl?.StartsWith('/') == true)
+        {
+            mainPage.StartPath = lastUrl;
+        }
         InitializeComponent();
     }
 

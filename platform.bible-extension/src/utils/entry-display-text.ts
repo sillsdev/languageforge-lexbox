@@ -1,4 +1,4 @@
-import type { IEntry, IPartOfSpeech, ISemanticDomain, ISense } from 'fw-lite-extension';
+import type { IEntry, IPartOfSpeech, ISemanticDomain, ISense } from 'lexicon';
 
 export function domainText(domain: ISemanticDomain, lang = 'en'): string {
   return `${domain.code}: ${domain.name[lang] || domain.name.en}`;

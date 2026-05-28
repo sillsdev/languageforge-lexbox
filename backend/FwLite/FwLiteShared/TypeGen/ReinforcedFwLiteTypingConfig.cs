@@ -87,7 +87,9 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(Translation),
 
                 typeof(MediaFile),
-                typeof(LcmFileMetadata)
+                typeof(LcmFileMetadata),
+                typeof(ViewField),
+                typeof(ViewWritingSystem),
             ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(exportBuilder =>
         {
@@ -136,6 +138,7 @@ public static class ReinforcedFwLiteTypingConfig
     {
 
         builder.ExportAsEnum<DotnetService>().UseString();
+        builder.ExportAsEnum<PreferenceKey>().UseString();
         builder.ExportAsEnum<FwLitePlatform>().UseString();
         builder.ExportAsEnum<UpdateResult>().UseString();
         builder.ExportAsEnum<ProjectSyncStatusEnum>().UseString();
@@ -143,10 +146,11 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<ProjectDataFormat>();
         builder.ExportAsEnum<UserProjectRole>().UseString();
         builder.ExportAsEnum<ProjectRole>().UseString();
-        builder.ExportAsEnum<MorphType>().UseString();
+        builder.ExportAsEnum<MorphTypeKind>().UseString();
         builder.ExportAsEnum<SyncStatus>().UseString();
         builder.ExportAsEnum<DownloadProjectByCodeResult>().UseString();
         builder.ExportAsEnum<SyncJobStatusEnum>().UseString();
+        builder.ExportAsEnum<ViewBase>().UseString();
         var serviceTypes = Enum.GetValues<DotnetService>()
             //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below
             .Where(s => s is not (DotnetService.MiniLcmApi or DotnetService.FwLiteConfig or DotnetService.TroubleshootingService))
@@ -258,6 +262,8 @@ public static class ReinforcedFwLiteTypingConfig
     {
         protected override void ExportCore(StreamWriter tw, ExportedFile file)
         {
+            // Force LF line endings so generated files don't flip to CRLF on Windows
+            tw.NewLine = "\n";
             tw.WriteLine("/* eslint-disable */");
             base.ExportCore(tw, file);
             tw.WriteLine("/* eslint-enable */");

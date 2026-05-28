@@ -1,0 +1,149 @@
+/* this import is removed by vite-plugin-webfont-dl, and the styles are inlined in webfonts.css */
+@import 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap';
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './theme.css';
+@config '../tailwind.config.ts';
+@custom-variant dark (&:is(.dark *));
+@custom-variant pointer (@media (hover: hover));
+@custom-variant paratext (&:is([data-paratext="true"] *));
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@utility animate-shimmer {
+  animation: shimmer 2s linear infinite;
+  background-image: linear-gradient(90deg, oklch(from var(--muted-foreground) l c h / 0.2) 20%, oklch(from var(--foreground) l c h / 0.3) 50%, oklch(from var(--muted-foreground) l c h / 0.2) 65%);
+  background-size: 200% 100%;
+  background-repeat: repeat;
+}
+
+:host {
+  flex-grow: 1;
+}
+
+:host, :root, html, body, .app, .project-view {
+  @apply block min-h-full;
+  height: max(auto, 100%);
+  scroll-behavior: smooth;
+  interpolate-size: allow-keywords;
+  @apply bg-background text-foreground;
+}
+
+@layer base {
+  /* shadcn generated styles */
+  * {
+    @apply border-border outline-ring/50;
+    /* EDIT: Fixes dark mode gets "outline-style: none" which results in white (browser bug?) */
+    @apply focus-visible:outline-solid;
+  }
+  .app {
+    @apply bg-background text-foreground;
+  }
+
+  /*
+  https://tailwindcss.com/docs/upgrade-guide#buttons-use-the-default-cursor
+  This is better for our target audience - more visual clues.
+  */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  .loading-text {
+    @apply animate-shimmer rounded-md select-none pointer-events-none;
+    /* Hide everything inside (both text and content) */
+    @apply text-transparent;
+    * { @apply opacity-0; }
+  }
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+[id^=entry] {
+  scroll-margin-top: 1rem;
+}
+
+[id^=entry], [id^=sense], .editor-sub-grid:has(> [id^=sense]) {
+  scroll-margin-bottom: 4rem;
+}
+
+[id^=example], .editor-sub-grid:has(> [id^=example]) {
+  /* under the sticky sense header */
+  scroll-margin-top: 3.5rem;
+  scroll-margin-bottom: 3.5rem;
+}
+
+.x-ellipsis {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Ensures dangling letters are not clipped (e.g. "g") */
+  line-height: 1.3em;
+}
+
+@custom-variant data-open {
+	&:where([data-state="open"]), &:where([data-open]:not([data-open="false"])) {
+		@slot;
+  }
+}
+
+@custom-variant data-closed {
+	&:where([data-state="closed"]), &:where([data-closed]:not([data-closed="false"])) {
+		@slot;
+  }
+}
+
+@custom-variant data-checked {
+	&:where([data-state="checked"]), &:where([data-checked]:not([data-checked="false"])) {
+		@slot;
+  }
+}
+
+@custom-variant data-unchecked {
+	&:where([data-state="unchecked"]), &:where([data-unchecked]:not([data-unchecked="false"])) {
+		@slot;
+  }
+}
+
+@custom-variant data-selected {
+	&:where([data-selected]) {
+		@slot;
+  }
+}
+
+@custom-variant data-disabled {
+	&:where([data-disabled="true"]), &:where([data-disabled]:not([data-disabled="false"])) {
+		@slot;
+  }
+}
+
+@custom-variant data-active {
+	&:where([data-state="active"]), &:where([data-active]:not([data-active="false"])) {
+		@slot;
+  }
+}
+
+@custom-variant data-horizontal {
+	&:where([data-orientation="horizontal"]) {
+		@slot;
+  }
+}
+
+@custom-variant data-vertical {
+	&:where([data-orientation="vertical"]) {
+		@slot;
+  }
+}
+
+@utility no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+  }
+}

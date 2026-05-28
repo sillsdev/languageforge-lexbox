@@ -295,6 +295,42 @@ public class RichMultiStringTests
         ms["fr"].Should().BeEquivalentTo(new RichString("test", "fr"));
     }
 
+    //emulates older commits in the sync stream where a RichMultiString value was serialized as a plain string
+    [Fact]
+    public void JsonPatchCanAddRichMultiStringWhenValueIsString()
+    {
+        var ms = new RichMultiString() { { "en", new RichString("existing", "en") } };
+        var patch = new JsonPatchDocument<RichMultiString>();
+        patch.Operations.Add(new Operation<RichMultiString>("add", "/fr", null, "test"));
+        patch.ApplyTo(ms);
+        ms.Should().ContainKey("fr");
+        ms["fr"].Should().BeEquivalentTo(new RichString("test", "fr"));
+    }
+
+    //same as above but patching via the parent Entry, so the patch goes through PocoAdapter /
+    //DictionaryPropertyProxy and hits RichMultiString's IDictionary.Add instead of the typed Add.
+    [Fact]
+    public void JsonPatchCanAddRichMultiStringPropertyOnEntityWhenValueIsString()
+    {
+        var entry = new Entry();
+        var patch = new JsonPatchDocument<Entry>();
+        patch.Operations.Add(new Operation<Entry>("add", "/Note/en", null, "test"));
+        patch.ApplyTo(entry);
+        entry.Note.Should().ContainKey("en");
+        entry.Note["en"].Should().BeEquivalentTo(new RichString("test", "en"));
+    }
+
+    [Fact]
+    public void JsonPatchCanAddRichMultiStringPropertyOnEntityWithRichStringValue()
+    {
+        var entry = new Entry();
+        var patch = new JsonPatchDocument<Entry>();
+        patch.Add(e => e.Note["en"], new RichString("test", "en"));
+        patch.ApplyTo(entry);
+        entry.Note.Should().ContainKey("en");
+        entry.Note["en"].Should().BeEquivalentTo(new RichString("test", "en"));
+    }
+
     [Fact]
     public void RichSpanEquality_TrueWhenMatching()
     {

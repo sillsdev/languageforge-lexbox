@@ -6,6 +6,7 @@
   import Icon from '../icon/icon.svelte';
   import * as Popover from '../popover';
   import type {SmallestUnit} from './format-duration';
+  import {watch} from 'runed';
 
   type Props = HTMLAttributes<HTMLTimeElement> & {
     date: Date | string | undefined | null;
@@ -34,6 +35,15 @@
 
   const now = new SvelteDate();
   let intervalId: ReturnType<typeof setInterval> | undefined;
+
+  // "now" represents when we first saw the current "date"
+  // so if "date" changes, "now" should be refreshed
+  watch(
+    () => date,
+    () => {
+      now.setTime(Date.now());
+    },
+  );
 
   $effect(() => {
     if (live) {

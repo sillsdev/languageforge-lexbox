@@ -4,7 +4,8 @@
   import {t} from 'svelte-i18n-lingui';
   import {useProjectStats, useWritingSystemService} from '$project/data';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {ViewBase} from '$lib/dotnet-types';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {formatNumber} from '$lib/components/ui/format';
   import ViewT from '$lib/views/ViewT.svelte';
   import {Input} from '$lib/components/ui/input';
@@ -17,14 +18,14 @@
   import PublicationSelect from './filter/PublicationSelect.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
   import type {ISemanticDomain, IPartOfSpeech, IPublication} from '$lib/dotnet-types';
-  import {MorphType} from '$lib/dotnet-types';
+  import {MorphTypeKind} from '$lib/dotnet-types';
   import {Switch} from '$lib/components/ui/switch';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {Button} from '$lib/components/ui/button';
 
   const stats = useProjectStats();
-  const currentView = useCurrentView();
+  const viewService = useViewService();
   const wsService = useWritingSystemService();
 
   let {
@@ -50,10 +51,10 @@
   let userFilterActive = $state(false);
 
   const LITE_MORPHEME_TYPES = new Set([
-    MorphType.Root, MorphType.BoundRoot,
-    MorphType.Stem, MorphType.BoundStem,
-    MorphType.Particle,
-    MorphType.Phrase, MorphType.DiscontiguousPhrase,
+    MorphTypeKind.Root, MorphTypeKind.BoundRoot,
+    MorphTypeKind.Stem, MorphTypeKind.BoundStem,
+    MorphTypeKind.Particle,
+    MorphTypeKind.Phrase, MorphTypeKind.DiscontiguousPhrase,
   ]);
 
   $effect(() => {
@@ -99,7 +100,7 @@
     // all user selected filters should be before this line!
     userFilterActive = newFilter.length > 0;
 
-    if ($currentView.type === 'fw-lite') {
+    if (viewService.currentView.base === ViewBase.FwLite) {
       const morphTypeFilters = Array.from(LITE_MORPHEME_TYPES).map(mt => `MorphType=${mt}`);
       newFilter.push('(' + morphTypeFilters.join('|') + ')');
     }
@@ -118,13 +119,13 @@
 
 {#snippet placeholder()}
   {#if stats.current?.totalEntryCount !== undefined}
-    <ViewT view={$currentView} classic={$t`Filter # entries`} lite={$t`Filter # words`}>
+    <ViewT view={viewService.currentView} classic={$t`Filter # entries`} lite={$t`Filter # words`}>
       <span class="font-bold">
         {formatNumber(stats.current.totalEntryCount)}
       </span>
     </ViewT>
   {:else}
-    {pt($t`Filter entries`, $t`Filter words`, $currentView)}
+    {pt($t`Filter entries`, $t`Filter words`, viewService.currentView)}
   {/if}
 {/snippet}
 
@@ -142,7 +143,7 @@
       >
         {#snippet trigger({ props })}
           <Button {...props} variant="ghost"
-            size={IsMobile.value ? 'sm-icon' : 'xs-icon'}
+            size={IsMobile.value ? 'icon-sm' : 'icon-xs'}
             icon={userFilterActive ? 'i-mdi-filter' : 'i-mdi-filter-outline'}
             aria-label={$t`Toggle filters`} />
         {/snippet}
@@ -177,7 +178,7 @@
             />
           </div>
           <div class="flex flex-col">
-            <Label class="p-2">{pt($t`Grammatical info.`, $t`Part of speech`, $currentView)}</Label>
+            <Label class="p-2">{pt($t`Grammatical info.`, $t`Part of speech`, viewService.currentView)}</Label>
             <PartOfSpeechSelect bind:value={partOfSpeech} />
           </div>
           <div class="flex flex-col">

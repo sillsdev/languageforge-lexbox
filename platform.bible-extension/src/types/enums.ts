@@ -1,14 +1,14 @@
 export enum WebViewType {
-  AddWord = 'fw-lite-add-word.react',
-  DictionarySelect = 'fw-lite-dictionary-select.react',
-  FindRelatedWords = 'fw-lite-find-related-words.react',
-  FindWord = 'fw-lite-find-word.react',
-  Main = 'fw-lite-extension.react',
+  AddWord = 'lexicon-add-word.react',
+  SelectLexicon = 'lexicon-select-lexicon.react',
+  FindRelatedWords = 'lexicon-find-related-words.react',
+  FindWord = 'lexicon-find-word.react',
+  Main = 'lexicon.react',
 }
 
 export enum ProjectSettingKey {
-  FwAnalysisLanguage = 'fw-lite-extension.fwAnalysisLanguage',
-  FwDictionaryCode = 'fw-lite-extension.fwDictionaryCode',
+  AnalysisLanguage = 'lexicon.analysisLanguage',
+  LexiconCode = 'lexicon.lexiconCode',
   ProjectLanguage = 'platform.language',
   ProjectLanguageTag = 'platform.languageTag',
   ProjectName = 'platform.name',

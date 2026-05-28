@@ -38,6 +38,7 @@ public class ResumableTests : IAsyncLifetime
             }).ToList();
         var expectedPartsOfSpeech = Enumerable.Range(1, 10)
             .Select(i => new PartOfSpeech { Id = Guid.NewGuid(), Name = { ["en"] = $"pos{i}" } }).ToList();
+        var expectedMorphTypes = CanonicalMorphTypes.All.Values;
 
         var mockFrom = new Mock<IMiniLcmApi>();
         IMiniLcmApi mockTo = new UnreliableApi(
@@ -80,6 +81,8 @@ public class ResumableTests : IAsyncLifetime
                 Id = Guid.NewGuid(),
                 Name = new(){ ["en"] = "Test Complex Form Type" }
             }]));
+        mockFrom.Setup(f => f.GetMorphTypes())
+            .Returns(MockAsyncEnumerable(expectedMorphTypes));
         mockFrom.Setup(f => f.GetSemanticDomains())
             .Returns(MockAsyncEnumerable([new SemanticDomain()
             {
@@ -95,7 +98,7 @@ public class ResumableTests : IAsyncLifetime
         );
 
         // Act: retry until all are imported
-        var maxTries = 20;
+        var maxTries = 30;
         for (var attempt = 0; attempt < maxTries; attempt++)
         {
             try
@@ -111,10 +114,13 @@ public class ResumableTests : IAsyncLifetime
 
         var createdEntries = await mockTo.GetAllEntries().ToArrayAsync();
         var createdPartsOfSpeech = await mockTo.GetPartsOfSpeech().ToArrayAsync();
+        var createdMorphTypes = await mockTo.GetMorphTypes().ToArrayAsync();
 
         // Assert
         createdPartsOfSpeech.Select(pos => pos.Name["en"]).Should().BeEquivalentTo(expectedPartsOfSpeech.Select(p => p.Name["en"]));
         createdEntries.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(expectedEntries.Select(e => e.LexemeForm["en"]));
+        createdMorphTypes.Select(e => e.Name["en"]).Should().BeEquivalentTo(expectedMorphTypes.Select(e => e.Name["en"]));
+        createdMorphTypes.Select(e => e.Kind).Should().BeEquivalentTo(expectedMorphTypes.Select(e => e.Kind));
     }
 
 

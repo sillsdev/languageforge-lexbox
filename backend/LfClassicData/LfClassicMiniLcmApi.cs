@@ -25,14 +25,19 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return Task.FromResult<ComplexFormType?>(null);
     }
 
-    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    public IAsyncEnumerable<MorphType> GetMorphTypes()
     {
-        return AsyncEnumerable.Empty<MorphTypeData>();
+        return AsyncEnumerable.Empty<MorphType>();
     }
 
-    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    public Task<MorphType?> GetMorphType(Guid id)
     {
-        return Task.FromResult<MorphTypeData?>(null);
+        return Task.FromResult<MorphType?>(null);
+    }
+
+    public Task<MorphType?> GetMorphType(MorphTypeKind kind)
+    {
+        return Task.FromResult<MorphType?>(null);
     }
 
     private Dictionary<Guid, PartOfSpeech>? _partsOfSpeechCacheByGuid = null;
@@ -211,7 +216,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                 .Ascending(entry => entry.MorphologyType)
                 .Ascending(entry => entry.Guid))
             .Skip(options.Offset)
-            .Limit(options.Count)
+            .Limit(options.Count == QueryOptions.QueryAll ? 0 : options.Count)
             .Project(entry => entry as Entities.Entry);
 
         await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
@@ -412,6 +417,11 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         var sense = entry.Senses?.FirstOrDefault(s => s?.Guid == id);
         if (sense is null) return null;
         return await ToSense(entryId, sense);
+    }
+
+    public Task<Sense?> GetSense(Guid id)
+    {
+        throw new NotSupportedException("Getting a sense by ID without the entry ID is not supported in LfClassicMiniLcmApi");
     }
 
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)

@@ -1,4 +1,3 @@
-import '../src/app.postcss';
 import * as previewAnnotations from './preview';
 
 import {afterAll, afterEach, beforeAll} from 'vitest';
@@ -28,8 +27,37 @@ const ignoredErrorPatterns: (RegExp | string)[] = [
   // Example: /ResizeObserver loop limit exceeded/,
 ];
 
+function matchesIgnoredPattern(message: string): boolean {
+  return ignoredErrorPatterns.some((pattern) =>
+    typeof pattern === 'string' ? message.includes(pattern) : pattern.test(message),
+  );
+}
+
+function isDemoStoryError(value: unknown): boolean {
+  if (value instanceof DemoStoryError) return true;
+  const PromiseRejectionEventCtor = globalThis.PromiseRejectionEvent;
+  if (PromiseRejectionEventCtor && value instanceof PromiseRejectionEventCtor) {
+    return value.reason instanceof DemoStoryError;
+  }
+  const ErrorEventCtor = globalThis.ErrorEvent;
+  if (ErrorEventCtor && value instanceof ErrorEventCtor) {
+    return value.error instanceof DemoStoryError;
+  }
+  return false;
+}
+
+function stringifyErrorArg(arg: unknown): string {
+  if (typeof arg === 'string') return arg;
+  if (arg instanceof Error) return arg.stack ?? arg.message;
+  try {
+    return JSON.stringify(arg, null, 2);
+  } catch {
+    return String(arg);
+  }
+}
+
 beforeAll(() => {
-  console.warn = (...args: any[]) => {
+  console.warn = (...args: unknown[]) => {
     const isIgnoredWarning = args.some(arg => typeof arg === 'string' && ignoredWarnings.some(ignored => arg.includes(ignored)));
     if (isIgnoredWarning) {
       const outOfOurControl = args.some(arg => typeof arg === 'string' && arg.includes('node_modules'));
@@ -41,10 +69,9 @@ beforeAll(() => {
 
 // [vibe-coded]: fail tests on error logs and unhandled errors
 beforeAll(() => {
-  console.error = (...args: any[]) => {
-    const msg = args.map(a => (typeof a === 'string' ? a : JSON.stringify(a, null, 2))).join(' ');
-    const isIgnored = args.some(arg => arg instanceof DemoStoryError)
-      || ignoredErrorPatterns.some(p => typeof p === 'string' ? msg.includes(p) : p.test(msg));
+  console.error = (...args: unknown[]) => {
+    const msg = args.map(stringifyErrorArg).join(' ');
+    const isIgnored = args.some(isDemoStoryError) || matchesIgnoredPattern(msg);
     if (!isIgnored) collectedErrors.push(`[error-log] ${msg}`);
     originalError(...args);
   };
@@ -53,16 +80,22 @@ beforeAll(() => {
   if (typeof window !== 'undefined') {
     window.addEventListener('error', (e) => {
       const msg = e.error?.stack || e.message || String(e);
-      const isIgnored = e.error instanceof DemoStoryError
-        || ignoredErrorPatterns.some(p => typeof p === 'string' ? msg.includes(p) : p.test(msg));
-      if (!isIgnored) collectedErrors.push(`[error] ${msg}`);
+      const isIgnored = isDemoStoryError(e.error) || matchesIgnoredPattern(msg);
+      if (isIgnored) {
+        e.preventDefault();
+        return;
+      }
+      collectedErrors.push(`[error] ${msg}`);
     });
     window.addEventListener('unhandledrejection', (e) => {
       const reason = e.reason;
       const msg = typeof reason === 'string' ? reason : (reason?.stack || JSON.stringify(reason));
-      const isIgnored = reason instanceof DemoStoryError
-        || ignoredErrorPatterns.some(p => typeof p === 'string' ? msg.includes(p) : p.test(msg));
-      if (!isIgnored) collectedErrors.push(`[unhandledrejection] ${msg}`);
+      const isIgnored = isDemoStoryError(reason) || matchesIgnoredPattern(msg);
+      if (isIgnored) {
+        e.preventDefault();
+        return;
+      }
+      collectedErrors.push(`[unhandledrejection] ${msg}`);
     });
   }
 });

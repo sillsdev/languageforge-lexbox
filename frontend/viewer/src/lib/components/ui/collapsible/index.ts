@@ -1,10 +1,6 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-
-import {Collapsible as CollapsiblePrimitive} from 'bits-ui';
 import Content from './collapsible-content.svelte';
-
-const Root = CollapsiblePrimitive.Root;
-const Trigger = CollapsiblePrimitive.Trigger;
+import Root from './collapsible.svelte';
+import Trigger from './collapsible-trigger.svelte';
 
 export {
   Root,

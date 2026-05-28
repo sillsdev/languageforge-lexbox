@@ -1,4 +1,4 @@
-import {MorphType, type IEntry, type IExampleSentence, type ISense, type ITranslation, type IWritingSystem, type WritingSystemType} from '$lib/dotnet-types';
+import {MorphTypeKind, type IEntry, type IExampleSentence, type ISense, type ITranslation, type IWritingSystem, type WritingSystemType} from '$lib/dotnet-types';
 import {get, writable, type Readable} from 'svelte/store';
 import {type ClassValue, clsx} from 'clsx';
 import {twMerge} from 'tailwind-merge';
@@ -6,6 +6,13 @@ import {twMerge} from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type WithoutChild<T> = T extends { child?: any } ? Omit<T, 'child'> : T;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type WithoutChildren<T> = T extends { children?: any } ? Omit<T, 'children'> : T;
+export type WithoutChildrenOrChild<T> = WithoutChildren<WithoutChild<T>>;
+export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & { ref?: U | null };
 
 export function randomId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -38,7 +45,8 @@ export function defaultEntry(): IEntry {
     complexFormTypes: [],
     components: [],
     publishIn: [],
-    morphType: MorphType.Stem,
+    morphType: MorphTypeKind.Stem,
+    homographNumber: 0,
   };
 }
 

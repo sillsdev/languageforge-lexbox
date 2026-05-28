@@ -73,4 +73,18 @@ public class UpdateDiffTests
         before.Should().BeEquivalentTo(after, options => options
             .Excluding(x => x.Id));
     }
+
+    [Fact]
+    public void MorphTypeDiffShouldUpdateAllFields()
+    {
+        var before = new MorphType { Kind = MorphTypeKind.Stem };
+        var after = AutoFaker.Generate<MorphType>();
+        after.Kind = before.Kind; // Kind is immutable per MorphTypeUpdateValidator
+        var morphTypeDiffToUpdate = MorphTypeSync.MorphTypeDiffToUpdate(before, after);
+        ArgumentNullException.ThrowIfNull(morphTypeDiffToUpdate);
+        morphTypeDiffToUpdate.Apply(before);
+        before.Should().BeEquivalentTo(after, options => options
+            .Excluding(x => x.Id)
+            .Excluding(x => x.DeletedAt));
+    }
 }

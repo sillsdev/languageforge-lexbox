@@ -4,13 +4,13 @@
   import MultiSelect from '$lib/components/field-editors/multi-select.svelte';
   import Select from '$lib/components/field-editors/select.svelte';
   import LcmRichTextEditor from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
-  import { ResizablePaneGroup, ResizablePane, ResizableHandle } from '$lib/components/ui/resizable';
-  import { Switch } from '$lib/components/ui/switch';
-  import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+  import {ResizablePaneGroup, ResizablePane, ResizableHandle} from '$lib/components/ui/resizable';
+  import {Switch} from '$lib/components/ui/switch';
+  import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {writingSystems} from '$project/demo/demo-entry-data';
   import {type IMultiString} from '$lib/dotnet-types';
   import {type IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
-  import { fieldData } from '$lib/entry-editor/field-data';
+  import {entityConfig} from '$lib/views/entity-config';
   import ViewPicker from '../../project/browse/EditorViewOptions.svelte';
   import WsInput from '$lib/components/field-editors/ws-input.svelte';
   import {vt} from '$lib/views/view-text';
@@ -78,14 +78,14 @@
 
 <!-- eslint-disable svelte/no-useless-mustaches - This is a sandbox, we don't need translations -->
 <ResizablePaneGroup direction="horizontal">
-  <ResizablePane class="!overflow-visible" defaultSize={75}>
+  <ResizablePane class="overflow-visible!" defaultSize={75}>
     <Editor.Root class="my-4 border px-4 py-8 relative z-0">
       <div class="absolute top-4 right-4">
         <ViewPicker />
       </div>
       <!-- See sizes here: https://github.com/tailwindlabs/tailwindcss-container-queries?tab=readme-ov-file#configuration -->
-      <div class="breakpoint-marker w-[32rem] text-orange-600">@lg</div>
-      <div class="breakpoint-marker w-[48rem] text-green-600">@3xl</div>
+      <div class="breakpoint-marker w-lg text-orange-600">@lg</div>
+      <div class="breakpoint-marker w-3xl text-green-600">@3xl</div>
       <Editor.Grid>
         <Editor.Field.Root>
           <Editor.Field.Title name="Readonly editor" />
@@ -131,7 +131,7 @@
         <Editor.Field.Root>
           <Editor.Field.Title
             name="Semantic domains"
-            helpId={fieldData.semanticDomains.helpId}
+            helpId={entityConfig.sense.semanticDomains.helpId}
           />
           <Editor.Field.Body>
             <MultiSelect
@@ -151,7 +151,7 @@
         <Editor.Field.Root>
           <Editor.Field.Title
             name="Note"
-            helpId={fieldData.note.helpId}
+            helpId={entityConfig.entry.note.helpId}
           />
           <Editor.Field.Body>
             <LcmRichTextEditor bind:value={entry.note} normalWs="en" readonly={editorReadonly} onchange={() => onChange('note')} />
@@ -160,7 +160,7 @@
         <Editor.Field.Root>
           <Editor.Field.Title
             name={{lite: 'Part of speech', classic: 'Grammatical info'}}
-            helpId={fieldData.partOfSpeechId.helpId}
+            helpId={entityConfig.sense.partOfSpeechId.helpId}
           />
           <Editor.Field.Body>
             <Select
@@ -181,7 +181,7 @@
   </ResizablePane>
   <!-- looks cool 🤷 https://github.com/huntabyte/shadcn-svelte/blob/bcbe10a4f65d244a19fb98ffb6a71d929d9603bc/sites/docs/src/lib/components/docs/block-preview.svelte#L65 -->
   <ResizableHandle
-    class="after:bg-border relative w-3 bg-transparent p-0 after:absolute after:right-0 after:top-1/2 after:h-8 after:w-[6px] after:-translate-y-1/2 after:translate-x-[-1px] after:rounded-full after:transition-all after:hover:h-10"
+    class="after:bg-border relative w-3 bg-transparent p-0 after:absolute after:right-0 after:top-1/2 after:h-8 after:w-[6px] after:-translate-y-1/2 after:-translate-x-px after:rounded-full after:transition-all after:hover:h-10"
   />
   <ResizablePane>
     <pre class="overflow-x-auto text-sm text-muted-foreground bg-background relative">{JSON.stringify(entry, null, 2)}</pre>
@@ -189,6 +189,7 @@
 </ResizablePaneGroup>
 
 <style lang="postcss">
+  @reference "#app.css";
   .breakpoint-marker {
     @apply absolute h-full top-0 border-r-current border-r -z-10 text-right pr-2;
   }

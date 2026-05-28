@@ -1,3 +1,9 @@
+<script module lang="ts">
+  import {msg} from 'svelte-i18n-lingui';
+
+  export const themes = [msg`green`, msg`blue`, msg`rose`, msg`orange`, msg`violet`, msg`stone`];
+</script>
+
 <script lang="ts">
   import {Button, type ButtonProps, XButton} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
@@ -5,28 +11,28 @@
   import * as Popover from '$lib/components/ui/popover';
   import {cn} from '$lib/utils';
   import {mode, resetMode, setMode, setTheme, theme, userPrefersMode} from 'mode-watcher';
-  import {t, msg} from 'svelte-i18n-lingui';
-  import {mergeProps} from 'bits-ui';
+  import {t} from 'svelte-i18n-lingui';
 
-  const themes = [msg`green`, msg`blue`, msg`rose`, msg`orange`, msg`violet`, msg`stone`];
   let {
-    buttonProps = {},
+    variant,
   }: {
-    buttonProps?: Partial<ButtonProps>;
+    variant?: ButtonProps['variant'] & ('default' | 'ghost');
   } = $props();
+
+  const triggerClass = $derived(variant === 'ghost' ? 'text-primary' : undefined);
 </script>
 
 <Popover.Root>
   <Popover.Trigger>
     {#snippet child({props})}
-      <Button variant="ghost" size="icon" {...mergeProps(props, buttonProps)}>
+      <Button {variant} size="icon" {...props}>
         <Icon
           icon="i-mdi-white-balance-sunny"
-          class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-primary"
+          class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 {triggerClass}"
         />
         <Icon
           icon="i-mdi-weather-night"
-          class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary"
+          class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 {triggerClass}"
         />
         <span class="sr-only">{$t`Choose theme`}</span>
       </Button>

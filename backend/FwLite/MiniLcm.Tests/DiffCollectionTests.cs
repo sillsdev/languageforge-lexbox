@@ -169,22 +169,17 @@ public class DiffCollectionTests
         return (changeCount, diffApi.DiffOperations, diffApi.Replacements);
     }
 
-    private static BetweenPosition Between(TestOrderable? previous, TestOrderable? next)
+    private static BetweenPosition<TestOrderable> Between(TestOrderable? previous, TestOrderable? next)
     {
-        return Between(previous?.Id, next?.Id);
+        return new BetweenPosition<TestOrderable>(previous, next);
     }
 
-    private static BetweenPosition Between(Guid? previous = null, Guid? next = null)
-    {
-        return new BetweenPosition(previous, next);
-    }
-
-    private static CollectionDiffOperation Move(TestOrderable value, BetweenPosition between)
+    private static CollectionDiffOperation Move(TestOrderable value, BetweenPosition<TestOrderable> between)
     {
         return new CollectionDiffOperation(value, PositionDiffKind.Move, between);
     }
 
-    private static CollectionDiffOperation Add(TestOrderable value, BetweenPosition between)
+    private static CollectionDiffOperation Add(TestOrderable value, BetweenPosition<TestOrderable> between)
     {
         return new CollectionDiffOperation(value, PositionDiffKind.Add, between);
     }

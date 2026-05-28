@@ -15,12 +15,12 @@ type BackToListButtonProps = {
 };
 
 /**
- * A button that appears above the detailed view of a dictionary entry.
+ * A button that appears above the detailed view of an entry.
  *
  * If the user is viewing the detailed view in a drawer, this button is a drawer close button.
  * Otherwise, it is a regular button.
  *
- * Clicking the button will return the user to the list view of all dictionary entries.
+ * Clicking the button will return the user to the list view of all entries.
  */
 export default function BackToListButton({
   handleBackToListButton,
@@ -32,7 +32,7 @@ export default function BackToListButton({
   const button = (
     <Button className="tw-flex tw-items-center" onClick={handleBackToListButton} variant="link">
       <ArrowLeft className="tw-mr-1 tw-h-4 tw-w-4" />
-      {localizedStrings['%fwLiteExtension_dictionary_backToList%']}
+      {localizedStrings['%lexicon_entryList_backToList%']}
     </Button>
   );
 

@@ -116,14 +116,14 @@
   />
 <div>
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
-    <div class="sub-title !my-0">
+    <div class="sub-title my-0!">
       {#if server}
         {$t`${server.displayName} Server`}
       {:else}
         <div class="h-2 w-28 bg-secondary/50 rounded-full animate-pulse"></div>
       {/if}
     </div>
-    <div class="flex-grow"></div>
+    <div class="grow"></div>
     {#if status?.loggedIn}
       <Button icon="i-mdi-refresh"
               title={$t`Refresh Projects`}

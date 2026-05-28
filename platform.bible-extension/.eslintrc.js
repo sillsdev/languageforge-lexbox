@@ -137,7 +137,7 @@ module.exports = {
       },
     },
     {
-      files: ['./lib/*', './webpack/*'],
+      files: ['./lib/*', './scripts/*', './webpack/*'],
       rules: {
         // These files are scripts not running in Platform.Bible, so they can't use the logger
         'no-console': 'off',

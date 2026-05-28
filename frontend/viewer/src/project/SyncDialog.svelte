@@ -122,7 +122,7 @@
 </script>
 
 <ResponsiveDialog bind:open={openQueryParam.current} disableBackHandler title={$t`Sync Changes`}
-  contentProps={{ class: 'sm:min-w-[35rem] grid-rows-[auto_1fr] items-center' }}>
+  contentProps={{ class: 'sm:min-w-140 grid-rows-[auto_1fr] items-center' }}>
   <SyncStatusPrimitive
     {syncStatus}
     {remoteStatus}

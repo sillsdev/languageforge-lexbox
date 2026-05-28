@@ -22,6 +22,16 @@ public class FwHeadlessConfig
     public long MaxUploadFileSizeBytes => MaxUploadFileSizeKb * 1024;
     public string FdoDataModelVersion { get; init; } = "7000072";
 
+    /// <summary>
+    /// Project directory structure in FwHeadless: (Note that FwDataProject.ProjectsPath is the root of a SINGLE project)
+    /// {ProjectStorageRoot}/
+    ///   └── {projectCode}-{projectId}/          ← GetProjectFolder() / FwDataProject.ProjectsPath
+    ///       ├── fw/                             ← FwDataProject.ProjectFolder
+    ///       │   ├── fw.fwdata                   ← FwDataProject.FilePath
+    ///       │   └── ...other FW data files
+    ///       ├── crdt.sqlite                     ← FwHeadlessConfig.GetCrdtFile()
+    ///       └── {FwDataSubFolder}_snapshot.json
+    /// </summary>
     public string GetProjectFolder(string projectCode, Guid projectId)
     {
         //don't change projectId format, everything will break

@@ -73,7 +73,7 @@ jobs:
           submodules: true
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
       - uses: MatteoH2O1999/setup-python@429b7dee8a48c31eb72ce0b420ea938ff51c2f11 # v3.2.1
         id: python
         if: ${{ inputs.runs-on != 'windows-latest' && !env.act && inputs.hg-version == '3' }}

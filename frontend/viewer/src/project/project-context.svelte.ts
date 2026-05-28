@@ -6,10 +6,10 @@ import type {
 import type {
   ISyncServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-import {resource, type ResourceOptions, type ResourceReturn} from 'runed';
-import {SvelteMap} from 'svelte/reactivity';
+import {resource, type ResourceReturn} from 'runed';
+import {DetachedResource} from './detached-resource';
+import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
-import {randomId} from '$lib/utils';
 
 const projectContextKey = 'current-project';
 
@@ -45,7 +45,7 @@ export class ProjectContext {
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
   #paratext = $state(false);
-  #queuedResources: Record<string, (api: IMiniLcmJsInvokable) => void> = {};
+  #detachedResources = new SvelteSet<DetachedResource<unknown>>();
   #features = resource(() => this.#api, (api) => {
     if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
     return api.supportedFeatures();
@@ -117,9 +117,9 @@ export class ProjectContext {
     this.#projectData = args.projectData;
     this.#paratext = args.paratext ?? false;
 
-    Object.values<(api: IMiniLcmJsInvokable) => void>(this.#queuedResources)
-      .forEach(factory => factory(args.api));
-    this.#queuedResources = {};
+    for (const res of this.#detachedResources) {
+      res.onApiChange(args.api);
+    }
   }
 
   public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): ResourceReturn<T, unknown, true> {
@@ -133,29 +133,14 @@ export class ProjectContext {
     return res;
   }
 
-  public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: ApiResourceOptions<T>): ResourceReturn<T, unknown, true> {
-    const resourceId = randomId();
-
-    const res = resource<IMiniLcmJsInvokable | undefined>(() => this.#api,
-      ((api) => {
-        if (!api) return Promise.resolve(initialValue);
-        delete this.#queuedResources[resourceId];
-        return factory(api);
-      }), {initialValue, ...options});
-
-
-    // If the api is not yet defined, a couple things could go wrong:
-    // 1) Throttling could throttle/swallow the refetch when the api becomes defined
-    // 2) The component that triggered the load could get destroyed before the load is complete, which would cancel the load/resource-$effect.
-    // (the fact that the loading is scoped to the component lifecycle is a non-trivial architecture problem)
-    //
-    // both cases can prevent the resource from ever being initialized.
-    // So, we queue it up to be explicitly initialized when the api is set up.
-    if (!this.#api) {
-      this.#queuedResources[resourceId] = (api) => {
-        void factory(api).then(res.mutate);
-      };
-    }
+  /**
+   * Creates a `resource` whose lifecycle is manged by the project context.
+   * Note: we aren't using resource from runed, because it's based on $effect,
+   * which ties the resource lifecycle to the calling component, rather than the project.
+   */
+  public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: { eager?: boolean }): ResourceReturn<T, unknown, true> {
+    const res = new DetachedResource(initialValue, factory, () => this.#api, options);
+    this.#detachedResources.add(res as DetachedResource<unknown>);
     return res;
   }
 
@@ -169,8 +154,7 @@ export class ProjectContext {
   }
 }
 
-type ApiResourceOptions<T> = Partial<Omit<ResourceOptions<T>, 'initialValue'>>;
-
-type GetOrAddAsyncOptions<T> = ApiResourceOptions<T> & {
+type GetOrAddAsyncOptions<T> = {
+  eager?: boolean;
   onAdd?: (resource: ResourceReturn<T>) => void;
 }

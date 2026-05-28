@@ -123,7 +123,32 @@ tasks:
     aliases: [android]
     deps: [fw-lite:run-maui-android]
 
+  fw-lite-android-dev:
+    aliases: [android-dev]
+    desc: Build & run the "Dev" flavor on Android (installs alongside the prod app)
+    deps: [fw-lite:run-maui-android-dev]
+
+  fw-lite-android-emulator-dev:
+    aliases: [android-emulator-dev]
+    desc: Build & run the "Dev" flavor on a running x86_64 emulator (installs alongside the prod app)
+    deps: [fw-lite:run-maui-android-emulator-dev]
+
   fw-lite-android-install:
     aliases: [android-install]
     desc: Install without building
     deps: [fw-lite:install-maui-android]
+
+  fw-lite-android-install-dev:
+    aliases: [android-install-dev]
+    desc: Install the "Dev" flavor without building
+    deps: [fw-lite:install-maui-android-dev]
+
+  fw-lite-android-install-emulator-dev:
+    aliases: [android-install-emulator-dev]
+    desc: Install the "Dev" flavor on a running x86_64 emulator without building
+    deps: [fw-lite:install-maui-android-emulator-dev]
+
+  fw-lite-android-release-dev:
+    aliases: [android-release-dev]
+    desc: Build a Release "Dev" APK and adb-install it on the connected USB device
+    deps: [fw-lite:install-maui-android-release-dev]

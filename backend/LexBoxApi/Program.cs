@@ -21,9 +21,8 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using tusdotnet;
-using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 
 if (MigrationKernel.IsMigrationRequest(args))
 {
@@ -140,7 +139,7 @@ builder.Services.AddOptions<ForwardedHeadersOptions>()
 
         foreach (var knownNetwork in configuration.GetSection("ForwardedHeadersOptions:KnownNetworks").GetChildren())
         {
-            options.KnownNetworks.Add(IPNetwork.Parse(knownNetwork.Value!));
+            options.KnownIPNetworks.Add(IPNetwork.Parse(knownNetwork.Value!));
         }
     });
 
@@ -186,7 +185,7 @@ app.MapGraphQLHttp("/api/graphql");
 
 app.MapQuartzUI("/api/quartz").RequireAuthorization(new AdminRequiredAttribute());
 app.MapControllers();
-app.MapLfClassicApi().WithOpenApi().WithGroupName(LexBoxKernel.OpenApiPublicDocumentName)
+app.MapLfClassicApi().WithGroupName(LexBoxKernel.OpenApiPublicDocumentName)
     .RequireAuthorization(policyBuilder => policyBuilder.RequireAuthenticatedUser().AddRequirements(new UserHasAccessToProjectRequirement()));
 app.MapTus("/api/tus-test",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))

@@ -11,6 +11,7 @@ using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexCore.Utils;
 using LexSyncReverseProxy;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Path = System.IO.Path;
 
@@ -417,7 +418,7 @@ public partial class HgService : IHgService, IHostedService
         return response;
     }
 
-    public Task<HttpContent> InvalidateDirCache(ProjectCode code, CancellationToken token = default)
+    public Task<HttpContent?> InvalidateDirCache(ProjectCode code, CancellationToken token = default)
     {
         var repoPath = Path.Join(PrefixRepoFilePath(code));
         if (Directory.Exists(repoPath))
@@ -433,8 +434,8 @@ public partial class HgService : IHgService, IHostedService
             }
             catch (Exception) { }
         }
-        var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", token);
-        return result;
+        // It's okay if the project doesn't exist, because it might have been deleted just now
+        return MaybeExecuteHgCommandServerCommand(code, "invalidatedircache", [HttpStatusCode.NotFound], token);
     }
 
     public static DateTimeOffset? ConvertHgDate(string? dateStr)
@@ -522,6 +523,19 @@ public partial class HgService : IHgService, IHostedService
         return int.TryParse(str, out int result) ? result : null;
     }
 
+    public async Task<int?> CountProjectMatches(ProjectCode code, string includeFileRegex, string matchCountRegex, string? excludeFileRegex = null, CancellationToken token = default)
+    {
+        var command = "regexcount";
+        Dictionary<string, string?> queryParams = new() { { "includeFileRegex", includeFileRegex }, { "matchCountRegex", matchCountRegex } };
+        if (excludeFileRegex is not null)
+        {
+            queryParams.Add("excludeFileRegex", excludeFileRegex);
+        }
+        var content = await ExecuteHgCommandServerCommand(code, command, token, queryParams);
+        var str = await content.ReadAsStringAsync();
+        return int.TryParse(str, out int result) ? result : null;
+    }
+
     public async Task<string> HgCommandHealth()
     {
         var content = await ExecuteHgCommandServerCommand("health", "healthz", default);
@@ -536,23 +550,31 @@ public partial class HgService : IHgService, IHostedService
         return new ZipArchive(await content.ReadAsStreamAsync(token), ZipArchiveMode.Read);
     }
 
-    private async Task<HttpContent> ExecuteHgCommandServerCommand(ProjectCode code, string command, CancellationToken token)
+    private async Task<HttpContent> ExecuteHgCommandServerCommand(ProjectCode code, string command, CancellationToken token, IDictionary<string, string?>? queryParams = null)
     {
-        var httpClient = _hgClient.Value;
-        var baseUri = _options.Value.HgCommandServer;
-        var response = await httpClient.GetAsync($"{baseUri}{code}/{command}", HttpCompletionOption.ResponseHeadersRead, token);
+        var response = await ExecuteHgCommandServerCommandImpl(code, command, token, queryParams);
         response.EnsureSuccessStatusCode();
         return response.Content;
     }
 
-    private async Task<HttpContent?> MaybeExecuteHgCommandServerCommand(ProjectCode code, string command, IEnumerable<HttpStatusCode> okErrors, CancellationToken token)
+    private async Task<HttpContent?> MaybeExecuteHgCommandServerCommand(ProjectCode code, string command, IEnumerable<HttpStatusCode> okErrors, CancellationToken token, IDictionary<string, string?>? queryParams = null)
     {
-        var httpClient = _hgClient.Value;
-        var baseUri = _options.Value.HgCommandServer;
-        var response = await httpClient.GetAsync($"{baseUri}{code}/{command}", HttpCompletionOption.ResponseHeadersRead, token);
+        var response = await ExecuteHgCommandServerCommandImpl(code, command, token, queryParams);
         if (okErrors.Contains(response.StatusCode)) return null;
         response.EnsureSuccessStatusCode();
         return response.Content;
+    }
+
+    private Task<HttpResponseMessage> ExecuteHgCommandServerCommandImpl(ProjectCode code, string command, CancellationToken token, IDictionary<string, string?>? queryParams = null)
+    {
+        var httpClient = _hgClient.Value;
+        var baseUri = _options.Value.HgCommandServer;
+        var uri = $"{baseUri}{code}/{command}";
+        if (queryParams is not null)
+        {
+            uri = QueryHelpers.AddQueryString(uri, queryParams);
+        }
+        return httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
     }
 
     public async Task<ProjectType> DetermineProjectType(ProjectCode projectCode)

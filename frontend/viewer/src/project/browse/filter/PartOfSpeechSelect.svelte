@@ -4,19 +4,19 @@
   import {Select} from '$lib/components/field-editors';
   import { t } from 'svelte-i18n-lingui';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
 
   let {value = $bindable()}: { value?: IPartOfSpeech } = $props();
 
   const partsOfSpeech = usePartsOfSpeech();
   const writingSystemService = useWritingSystemService();
-  const currentView = useCurrentView();
+  const viewService = useViewService();
 </script>
 
 <Select
   bind:value
   options={partsOfSpeech.current}
   labelSelector={(pos) => writingSystemService.pickBestAlternative(pos.name, 'analysis')}
-  placeholder={pt($t`Any grammatical info.`, $t`Any part of speech`, $currentView)}
+  placeholder={pt($t`Any grammatical info.`, $t`Any part of speech`, viewService.currentView)}
   clearable
   idSelector="id" />

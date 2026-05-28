@@ -20,12 +20,13 @@
 
 <script lang="ts">
   import {t} from 'svelte-i18n-lingui';
-  import { badgeVariants } from '$lib/components/ui/badge';
+  import {badgeVariants} from '$lib/components/ui/badge';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import {cn} from '$lib/utils';
   import {watch, type Getter} from 'runed';
   import {Icon} from '$lib/components/ui/icon';
   import {sortOptions, type SortConfig} from './options';
+  import {Button, buttonVariants} from '$lib/components/ui/button';
 
   type Props = {
     value?: SortConfig;
@@ -47,12 +48,13 @@
 </script>
 
 <ResponsiveMenu.Root>
-  <ResponsiveMenu.Trigger class={badgeVariants({ variant: 'secondary' })}>
+  <ResponsiveMenu.Trigger class={cn(buttonVariants({variant: 'secondary', size: 'xs'}), badgeVariants({ variant: 'secondary' }), 'border-none h-7')}>
     {#snippet child({props})}
-      <button {...props}>
-        <Icon icon={sortIcons[sortField]?.[direction] ?? 'i-mdi-arrow-down'} class="size-4 mr-1" />
+      <Button {...props}
+        icon={sortIcons[sortField]?.[direction] ?? 'i-mdi-arrow-down'}
+        iconProps={{ class: 'size-4' }}>
         {$t(sortLabels[sortField])}
-      </button>
+      </Button>
     {/snippet}
   </ResponsiveMenu.Trigger>
   <ResponsiveMenu.Content align="start">

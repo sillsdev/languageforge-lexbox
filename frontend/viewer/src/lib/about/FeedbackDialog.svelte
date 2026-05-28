@@ -9,7 +9,7 @@
   const config = useFwLiteConfig();
 
   const appVersion = config.appVersion;
-  const mailtoUrl = `mailto:lexbox_support@groups.sil.org?subject=${encodeURIComponent('FW Lite Feedback')}&body=${encodeURIComponent(`App Version: ${appVersion} on ${config.os.toString()}`)}`;
+  const mailtoUrl = `mailto:lexbox_support@groups.sil.org?subject=${encodeURIComponent('FW Lite Feedback')}&body=${encodeURIComponent(`FieldWorks Lite ${appVersion} on ${config.os.toString()}`)}`;
 </script>
 
 <ResponsiveDialog bind:open title={$t`Feedback & Support`}>

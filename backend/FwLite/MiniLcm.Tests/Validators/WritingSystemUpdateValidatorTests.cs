@@ -40,6 +40,6 @@ public class WritingSystemUpdateValidatorTests
     public void Fails_WhenThereAreNoChanges()
     {
         var update = NewUpdate();
-        _validator.TestValidate(update).ShouldHaveAnyValidationError();
+        _validator.TestValidate(update).ShouldHaveValidationErrors();
     }
 }

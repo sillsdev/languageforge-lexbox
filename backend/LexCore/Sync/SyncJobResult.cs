@@ -38,6 +38,7 @@ public enum SyncJobStatusEnum
     TimedOutAwaitingSyncStatus,
     UnableToAuthenticate,
     UnableToSync,
+    ProjectIncompatible,
     CrdtSyncFailed,
     SendReceiveFailed,
     SyncBlocked,

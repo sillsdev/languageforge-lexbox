@@ -106,6 +106,16 @@ describe('EntryLoaderService', () => {
 
       expect(api.getEntries).toHaveBeenCalledTimes(1);
     });
+
+    it('surfaces batch-load failures on service.error so consumers can show a toast', async () => {
+      const entries = makeEntries(3);
+      const {api, service} = await createService(entries);
+      const failure = new Error('boom');
+      api.getEntries.mockRejectedValueOnce(failure);
+
+      await expect(service.getOrLoadEntryByIndex(2 * BATCH_SIZE)).rejects.toBe(failure);
+      expect(service.error).toBe(failure);
+    });
   });
 
   describe('quiet reset', () => {

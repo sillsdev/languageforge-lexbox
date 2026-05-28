@@ -6,6 +6,7 @@ export * from './IMiniLcmFeatures';
 export * from './IMiniLcmJsInvokable';
 export * from './IMultiWindowService';
 export * from './IPreferencesService';
+export * from './PreferenceKey';
 export * from './IProjectScope';
 export * from './IProjectServicesProvider';
 export * from './IReadFileResponseJs';

@@ -5,14 +5,15 @@
   import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import {Button} from '$lib/components/ui/button';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {useViewService} from '$lib/views/view-service.svelte';
+  import RootFields from '$lib/views/RootFields.svelte';
   import {pt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
   import {AppNotification} from '$lib/notifications/notifications';
 
   const api = useMiniLcmApi();
-  const currentView = useCurrentView();
-  let entryLabel = $derived(pt($t`Entry`, $t`Word`, $currentView));
+  const viewService = useViewService();
+  let entryLabel = $derived(pt($t`Entry`, $t`Word`, viewService.currentView));
   let {
     entryId,
     open = $bindable(false),
@@ -33,9 +34,12 @@
   const entryPersistence = new EntryPersistence(() => entry);
   let updating = $state(false);
 
+  let editor = $state<EntryEditor>();
+
   async function updateEntry() {
     if (!entry) return;
     updating = true;
+    await editor?.commit();
     await entryPersistence.updateEntry(entry).finally(() => updating = false);
     open = false;
   }
@@ -48,7 +52,13 @@
     {#if entryResource.loading}
       Loading...
     {:else if entry}
-      <EntryEditor autofocus modalMode {entry} canAddSense={false} canAddExample={false}/>
+      <!--
+      RootFields, so that the user is not limited to the fields of a potentially selected custom-view.
+      Custom-views should perhaps be scoped to the browse-view. I'm not sure.
+      -->
+      <RootFields>
+        <EntryEditor bind:this={editor} autofocus modalMode bind:entry canAddSense={false} canAddExample={false}/>
+      </RootFields>
     {/if}
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>

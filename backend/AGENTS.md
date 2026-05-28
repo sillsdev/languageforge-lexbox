@@ -1,6 +1,6 @@
 # Backend
 
-.NET 9 backend for LexBox and FwLite applications.
+.NET 10 backend for LexBox and FwLite applications.
 
 ## Build & Test
 
@@ -13,7 +13,7 @@ dotnet test
 
 # Build specific project
 dotnet build LexBoxApi/LexBoxApi.csproj
-dotnet build FwLite/FwLiteMaui/FwLiteMaui.csproj --framework net9.0-windows10.0.19041.0
+dotnet build FwLite/FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0.19041.0
 ```
 
 ## Project Structure
@@ -33,7 +33,7 @@ dotnet build FwLite/FwLiteMaui/FwLiteMaui.csproj --framework net9.0-windows10.0.
 
 - **Nullable**: Enabled globally, `Nullable` warnings are errors
 - **Implicit usings**: Enabled
-- **Target framework**: net9.0 (unless platform-specific)
+- **Target framework**: net10.0 (unless platform-specific)
 - **Async**: Use `async/await`, not `.Result` or `.Wait()`
 - **Records**: Prefer for DTOs and immutable data
 

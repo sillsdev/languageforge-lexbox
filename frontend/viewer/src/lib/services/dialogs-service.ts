@@ -25,6 +25,11 @@ export class DialogsService {
     this.#invokeNewEntryDialog = dialog;
   }
 
+  #invokeManageCustomViews: undefined | (() => void);
+  set invokeManageCustomViews(dialog: (() => void) | undefined) {
+    this.#invokeManageCustomViews = dialog;
+  }
+
   async createNewEntry(headword?: string, newEntry?: EntryTemplate, newSense?: SenseTemplate): Promise<IEntry | undefined> {
     if (!this.#invokeNewEntryDialog) throw new Error('No new entry dialog');
     const partialEntry: Partial<IEntry> = {};
@@ -40,5 +45,10 @@ export class DialogsService {
   async promptDelete(subject: string, subjectDescription?: string, options?: DeleteDialogOptions): Promise<boolean> {
     if (!this.#invokeDeleteDialog) throw new Error('No delete dialog');
     return this.#invokeDeleteDialog(subject, subjectDescription, options);
+  }
+
+  openManageCustomViews(): void {
+    if (!this.#invokeManageCustomViews) throw new Error('No manage custom views dialog');
+    this.#invokeManageCustomViews();
   }
 }

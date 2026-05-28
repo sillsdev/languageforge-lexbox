@@ -36,7 +36,7 @@
     children: Snippet<[state: DelayedState<T>]>;
   }
 
-  let { load, getCached, delay = 150, children }: Props<T> = $props();
+  let {load, getCached, delay = 150, children}: Props<T> = $props();
 
   let state = $state<DelayedState<T>>({
     loading: true,
@@ -54,7 +54,7 @@
       if (getCached) {
         const cached = getCached();
         if (cached !== undefined) {
-          state = { loading: false, current: cached, error: undefined };
+          state = {loading: false, current: cached, error: undefined};
           return;
         }
       }
@@ -67,7 +67,7 @@
   );
 
   function reset() {
-    state = { loading: true, current: undefined, error: undefined };
+    state = {loading: true, current: undefined, error: undefined};
   }
 
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -85,12 +85,12 @@
       if (currentRun !== runId) {
         return;
       }
-      state = { loading: false, current: result, error: undefined };
+      state = {loading: false, current: result, error: undefined};
     } catch (error) {
       if (currentRun !== runId) {
         return;
       }
-      state = { loading: false, current: undefined, error };
+      state = {loading: false, current: undefined, error};
     }
   }
 

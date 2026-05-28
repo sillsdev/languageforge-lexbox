@@ -1,9 +1,9 @@
 <script module lang="ts">
-  import { writingSystems } from '$project/demo/demo-entry-data';
-  import { defineMeta } from '@storybook/addon-svelte-csf';
-  import { expect, fn, userEvent, within } from 'storybook/test';
+  import {writingSystems} from '$project/demo/demo-entry-data';
+  import {defineMeta} from '@storybook/addon-svelte-csf';
+  import {expect, fn, userEvent, within} from 'storybook/test';
   import MultiStringFieldDecorator from './MultiStringFieldDecorator.svelte';
-  import { MultiWsInput } from '$lib/components/field-editors';
+  import {MultiWsInput} from '$lib/components/field-editors';
   import {tick} from 'svelte';
 
   const value = $state({
@@ -30,7 +30,7 @@
   name="In editor"
   decorators={[
     /* @ts-expect-error Bug in Storybook https://github.com/storybookjs/storybook/issues/29951 */
-    () => MultiStringFieldDecorator,
+    () => ({['Component']: MultiStringFieldDecorator}),
   ]}
   play={async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);

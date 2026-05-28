@@ -4,6 +4,7 @@ using LcmCrdt.Changes.Entries;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.Utils;
 using LinqToDB;
+using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,6 +66,7 @@ public class MiniLcmRepository(
     public IQueryable<Entry> Entries => dbContext.Entries.ToLinqToDB();
     public IQueryable<ComplexFormComponent> ComplexFormComponents => dbContext.ComplexFormComponents;
     public IQueryable<ComplexFormType> ComplexFormTypes => dbContext.ComplexFormTypes;
+    public IQueryable<MorphType> MorphTypes => dbContext.MorphTypes;
     public IQueryable<Sense> Senses => dbContext.Senses;
     public IQueryable<ExampleSentence> ExampleSentences => dbContext.ExampleSentences;
     public IQueryable<WritingSystem> WritingSystems => dbContext.WritingSystems;
@@ -72,6 +74,7 @@ public class MiniLcmRepository(
     public IQueryable<SemanticDomain> SemanticDomains => dbContext.SemanticDomains;
     public IQueryable<PartOfSpeech> PartsOfSpeech => dbContext.PartsOfSpeech;
     public IQueryable<Publication> Publications => dbContext.Publications;
+    public IQueryable<CustomView> CustomViews => dbContext.CustomViews;
 
 
     private WritingSystem? _defaultVernacularWs;
@@ -199,20 +202,24 @@ public class MiniLcmRepository(
         {
             if (SearchService is not null && SearchService.ValidSearchTerm(query))
             {
+                var morphTypes = await dbContext.MorphTypes.ToArrayAsyncEF();
                 if (sortOptions is not null && sortOptions.Field == SortField.SearchRelevance)
                 {
                     //ranking must be done at the same time as part of the full-text search, so we can't use normal sorting
                     sortingHandled = true;
-                    queryable = SearchService.FilterAndRank(queryable, query, sortOptions.WritingSystem);
+                    queryable = SearchService.FilterAndRank(queryable, query, sortOptions.WritingSystem, morphTypes);
                 }
                 else
                 {
-                    queryable = SearchService.Filter(queryable, query);
+                    var filterWs = sortOptions?.WritingSystem
+                        ?? (await GetWritingSystem(default, WritingSystemType.Vernacular))?.WsId
+                        ?? default;
+                    queryable = SearchService.Filter(queryable, query, filterWs, morphTypes);
                 }
             }
             else
             {
-                queryable = queryable.Where(Filtering.SearchFilter(query));
+                queryable = Filtering.SearchFilter(queryable, dbContext.GetTable<MorphType>(), query);
             }
         }
 
@@ -224,12 +231,10 @@ public class MiniLcmRepository(
         if (options.Order.WritingSystem == default)
             throw new ArgumentException("Sorting writing system must be specified", nameof(options));
 
-        var wsId = options.Order.WritingSystem;
-        IQueryable<Entry> result = options.Order.Field switch
+        var result = options.Order.Field switch
         {
-            SortField.SearchRelevance => queryable.ApplyRoughBestMatchOrder(options.Order, query),
-            SortField.Headword =>
-                options.ApplyOrder(queryable, e => e.Headword(wsId).CollateUnicode(wsId)).ThenBy(e => e.Id),
+            SortField.SearchRelevance => queryable.ApplyRoughBestMatchOrder(dbContext.GetTable<MorphType>(), options.Order, query),
+            SortField.Headword => queryable.ApplyHeadwordOrder(dbContext.GetTable<MorphType>(), options.Order),
             _ => throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field)
         };
         return new ValueTask<IQueryable<Entry>>(result);
@@ -255,7 +260,7 @@ public class MiniLcmRepository(
         return entry;
     }
 
-    public async Task<Sense?> GetSense(Guid entryId, Guid senseId)
+    public async Task<Sense?> GetSense(Guid senseId)
     {
         var sense = await AsyncExtensions.SingleOrDefaultAsync(Senses.LoadWith(s => s.PartOfSpeech)
                 .AsQueryable(), e => e.Id == senseId);
@@ -295,5 +300,12 @@ public class MiniLcmRepository(
         var publication = await AsyncExtensions.SingleOrDefaultAsync(Publications
                 .AsQueryable(), p => p.Id == publicationId);
         return publication;
+    }
+
+    public async Task<CustomView?> GetCustomView(Guid customViewId)
+    {
+        var customView = await AsyncExtensions.SingleOrDefaultAsync(CustomViews
+            .AsQueryable(), cv => cv.Id == customViewId);
+        return customView;
     }
 }

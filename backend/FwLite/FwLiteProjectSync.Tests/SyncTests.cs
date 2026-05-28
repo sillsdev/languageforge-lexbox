@@ -106,6 +106,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                     .WithoutStrictOrderingFor(x => x.Publications)
                     .WithoutStrictOrderingFor(x => x.SemanticDomains)
                     .WithoutStrictOrderingFor(x => x.ComplexFormTypes)
+                    .WithoutStrictOrderingFor(x => x.MorphTypes)
                     //when excluding properties consider https://github.com/sillsdev/languageforge-lexbox/issues/1912
                     .Using<double>(Exclude)
                     .When(info => info.RuntimeType == typeof(double) && info.Path.EndsWith(".Order") && excludeOrderTypes.Contains(info.ParentType))
@@ -455,6 +456,57 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Integration")]
+    public async Task MorphTypesSyncFwToCrdtAtProjectImport()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var fwdataMorphTypes = await fwdataApi.GetMorphTypes().ToArrayAsync();
+        var crdtMorphTypes = await crdtApi.GetMorphTypes().ToArrayAsync();
+        crdtMorphTypes.Length.Should().Be(fwdataMorphTypes.Length);
+        crdtMorphTypes.Should().BeEquivalentTo(fwdataMorphTypes);
+        // Should be one of each kind
+        var allKinds = Enum.GetValues<MorphTypeKind>().Where(kind => kind != MorphTypeKind.Unknown);
+        crdtMorphTypes.Select(mt => mt.Kind).Should().BeEquivalentTo(allKinds, config => config.WithoutStrictOrdering());
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task MorphTypeUpdatesSyncBothWays()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+        var fwdataStem = await fwdataApi.GetMorphType(MorphTypeKind.Stem);
+        fwdataStem.Should().NotBeNull();
+        var crdtStem = await crdtApi.GetMorphType(MorphTypeKind.Stem);
+        crdtStem.Should().NotBeNull();
+
+        var newName = "new name for test";
+        var newAbbr = "new abbr fr tst";
+        var editedfwdataStem = SyncTestHelpers.UpdateMorphType(fwdataStem, newAbbreviation: newAbbr);
+        var editedCrdtStem = SyncTestHelpers.UpdateMorphType(crdtStem, newName: newName);
+        await fwdataApi.UpdateMorphType(fwdataStem, editedfwdataStem);
+        await crdtApi.UpdateMorphType(crdtStem, editedCrdtStem);
+        var syncResult = await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+        syncResult.CrdtChanges.Should().Be(1);
+        syncResult.FwdataChanges.Should().Be(1);
+
+        var fwdataStemAfterSync = await fwdataApi.GetMorphType(MorphTypeKind.Stem);
+        var crdtStemAfterSync = await crdtApi.GetMorphType(MorphTypeKind.Stem);
+        fwdataStemAfterSync.Should().NotBeNull();
+        crdtStemAfterSync.Should().NotBeNull();
+        crdtStemAfterSync.Should().BeEquivalentTo(fwdataStemAfterSync);
+
+        crdtStemAfterSync.Name["en"].Should().Be(newName);
+        crdtStemAfterSync.Abbreviation["en"].Should().Be(newAbbr);
+        fwdataStemAfterSync.Name["en"].Should().Be(newName);
+        fwdataStemAfterSync.Abbreviation["en"].Should().Be(newAbbr);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
     public async Task UpdatingAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -580,5 +632,59 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await _fixture.SyncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi, projectSnapshot);
 
         _fixture.FwDataApi.GetComplexFormTypes().ToBlockingEnumerable().Should().ContainEquivalentOf(complexFormEntry);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task HomographNumbers_CorrectedByFwDataAfterTwoSyncs()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+
+        // Import and establish sync baseline
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        // Create two entries in CRDT with the same headword. Auto-assignment gives them (1, 2).
+        var entry1 = await crdtApi.CreateEntry(new Entry
+        {
+            LexemeForm = { { "en", "homographtest" } },
+        });
+        var entry2 = await crdtApi.CreateEntry(new Entry
+        {
+            LexemeForm = { { "en", "homographtest" } },
+        });
+        entry1 = await crdtApi.GetEntry(entry1.Id) ?? throw new NullReferenceException();
+        entry1.HomographNumber.Should().Be(1);
+        entry2.HomographNumber.Should().Be(2);
+
+        // Delete entry1 in CRDT
+        await crdtApi.DeleteEntry(entry1.Id);
+
+        // After deleting, entry2 should still have HomographNumber 2 in CRDT
+        // (we don't recalculate on delete in CRDT — that's intentional for now)
+        var entry2AfterDelete = await crdtApi.GetEntry(entry2.Id) ?? throw new NullReferenceException();
+        // If this assertion fails, it means CRDT now adjusts homograph numbers on delete.
+        // In that case, remove this test and add a test verifying CRDT handles it correctly.
+        entry2AfterDelete.HomographNumber.Should().Be(2,
+            "CRDT does not yet recalculate homograph numbers on delete — that's LibLCM's job");
+
+        // First sync: Syncs the entry with the broken homograph number to fwdata.
+        // LibLCM's CorrectHomographNumbers should update entry2 from 2→0 (since it's now the only entry with that headword).
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+        projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        // After first sync, entry2 should still have HomographNumber 2 in CRDT
+        // (just a sanity check)
+        var entry2AfterFirstSync = await crdtApi.GetEntry(entry2.Id) ?? throw new NullReferenceException();
+        entry2AfterFirstSync.HomographNumber.Should().Be(2,
+            "A single sync is not enough to fix homograph numbers in CRDT");
+
+        // Second sync: FwData's corrected HomographNumber (0) should sync back to CRDT
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        var entry2Final = await crdtApi.GetEntry(entry2.Id) ?? throw new NullReferenceException();
+        entry2Final.HomographNumber.Should().Be(0,
+            "after 2 syncs, LibLCM should have corrected HomographNumber to 0 (sole entry with this headword)");
     }
 }

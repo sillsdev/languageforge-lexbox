@@ -45,10 +45,8 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region MorphType
-    Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphType);
-    Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update);
-    Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null);
-    Task DeleteMorphTypeData(Guid id);
+    Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update);
+    Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null);
     #endregion
 
     #region Entry
@@ -110,6 +108,21 @@ public interface IMiniLcmWriteApi
     Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation);
     Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId);
     Task UpdateTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId, UpdateObjectInput<Translation> update);
+    #endregion
+
+    #region CustomView
+    Task<CustomView> CreateCustomView(CustomView customView)
+    {
+        throw new NotSupportedException("Custom views are only supported by CRDT projects");
+    }
+    Task<CustomView> UpdateCustomView(CustomView customView)
+    {
+        throw new NotSupportedException("Custom views are only supported by CRDT projects");
+    }
+    Task DeleteCustomView(Guid id)
+    {
+        throw new NotSupportedException("Custom views are only supported by CRDT projects");
+    }
     #endregion
 
 

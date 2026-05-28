@@ -127,7 +127,7 @@ public partial class CrdtProjectsService(
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
-        return await CreateProject(new(name, name, AfterCreate: SampleProjectData, SeedNewProjectData: true));
+        return await CreateProject(new(name, name, AfterCreate: ExampleProjectData.Seed, SeedNewProjectData: true, Role: UserProjectRole.Manager));
     }
 
     public virtual async Task<CrdtProject> CreateProject(CreateProjectRequest request)
@@ -166,8 +166,12 @@ public partial class CrdtProjectsService(
             crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
+            // Morph types are predefined system data that must always exist — seed them
+            // unconditionally so they're available before AfterCreate (e.g. import) runs.
+            var dataModel = serviceScope.ServiceProvider.GetRequiredService<DataModel>();
+            await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
             if (request.SeedNewProjectData)
-                await SeedSystemData(serviceScope.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
+                await SeedSystemData(dataModel, projectData);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
         }
         catch (Exception e)
@@ -239,168 +243,15 @@ public partial class CrdtProjectsService(
         await db.SaveChangesAsync();
     }
 
-    internal static async Task SeedSystemData(DataModel dataModel, Guid clientId)
+    internal static async Task SeedSystemData(DataModel dataModel, ProjectData projectData)
     {
-        await PreDefinedData.PredefinedComplexFormTypes(dataModel, clientId);
-        await PreDefinedData.PredefinedPartsOfSpeech(dataModel, clientId);
-        await PreDefinedData.PredefinedSemanticDomains(dataModel, clientId);
+        // Note: AddPredefinedMorphTypes is seeded unconditionally in CreateProject, not here.
+        await PreDefinedData.AddPredefinedComplexFormTypes(dataModel, projectData);
+        await PreDefinedData.AddPredefinedPartsOfSpeech(dataModel, projectData);
+        await PreDefinedData.AddPredefinedSemanticDomains(dataModel, projectData);
+        await PreDefinedData.AddPredefinedCustomViews(dataModel, projectData);
     }
 
     [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]
     public static partial Regex ProjectCode();
-
-    public static async Task SampleProjectData(IServiceProvider provider, CrdtProject project)
-    {
-        var lexboxApi = provider.GetRequiredService<IMiniLcmApi>();
-        await lexboxApi.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Vernacular,
-            WsId = "de",
-            Name = "German",
-            Abbreviation = "de",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
-
-        await lexboxApi.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Vernacular,
-            WsId = "en",
-            Name = "English",
-            Abbreviation = "en",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
-
-        await lexboxApi.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Vernacular,
-            WsId = "en-Zxxx-x-audio",
-            Name = "English (A)",
-            Abbreviation = "Eng 🔊",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
-
-        await lexboxApi.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Analysis,
-            WsId = "en",
-            Name = "English",
-            Abbreviation = "en",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
-        await lexboxApi.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Analysis,
-            WsId = "fr",
-            Name = "French",
-            Abbreviation = "fr",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
-        await lexboxApi.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Analysis,
-            WsId = "en-Zxxx-x-audio",
-            Name = "English (A)",
-            Abbreviation = "Eng 🔊",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
-
-        await lexboxApi.CreateEntry(new()
-        {
-            Id = Guid.NewGuid(),
-            LexemeForm = { ["en"] = "Apple" },
-            CitationForm = { ["en"] = "Apple" },
-            LiteralMeaning = { ["en"] = new RichString("Fruit") },
-            Senses =
-            [
-                new()
-                {
-                    Gloss = { ["en"] = "Fruit" },
-                    Definition =
-                    {
-                        ["en"] =
-                            new RichString(
-                                "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh")
-                    },
-                    SemanticDomains = [],
-                    ExampleSentences = [new() { Sentence = { ["en"] = new RichString("We ate an apple") } }]
-                }
-            ]
-        });
-
-        await lexboxApi.CreateEntry(new()
-        {
-            Id = Guid.NewGuid(),
-            LexemeForm = { ["en"] = "Banana" },
-            CitationForm = { ["en"] = "Banana" },
-            LiteralMeaning = { ["en"] = new RichString("Fruit") },
-            Senses =
-            [
-                new()
-                {
-                    Gloss = { ["en"] = "Fruit" },
-                    Definition = { ["en"] = new RichString("long curved fruit with yellow skin and soft sweet flesh") },
-                    SemanticDomains = [],
-                    ExampleSentences =
-                        [new() { Sentence = { ["en"] = new RichString("The monkey peeled a banana") } }]
-                }
-            ]
-        });
-
-        await lexboxApi.CreateEntry(new()
-        {
-            Id = Guid.NewGuid(),
-            LexemeForm = { ["en"] = "Orange" },
-            CitationForm = { ["en"] = "Orange" },
-            LiteralMeaning = { ["en"] = new RichString("Fruit") },
-            Senses =
-            [
-                new()
-                {
-                    Gloss = { ["en"] = "Fruit" },
-                    Definition =
-                    {
-                        ["en"] = new RichString("round citrus fruit with orange skin and juicy segments inside")
-                    },
-                    SemanticDomains = [],
-                    ExampleSentences =
-                        [new() { Sentence = { ["en"] = new RichString("I squeezed the orange for juice") } }]
-                }
-            ]
-        });
-
-        await lexboxApi.CreateEntry(new()
-        {
-            Id = Guid.NewGuid(),
-            LexemeForm = { ["en"] = "Grape" },
-            CitationForm = { ["en"] = "Grape" },
-            LiteralMeaning = { ["en"] = new RichString("Fruit") },
-            Senses =
-            [
-                new()
-                {
-                    Gloss = { ["en"] = "Fruit" },
-                    Definition =
-                    {
-                        ["en"] =
-                            new RichString("small round or oval fruit growing in clusters, used for wine or eating")
-                    },
-                    SemanticDomains = [],
-                    ExampleSentences =
-                        [new() { Sentence = { ["en"] = new RichString("The vineyard was full of ripe grapes") } }]
-                }
-            ]
-        });
-    }
 }

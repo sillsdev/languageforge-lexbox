@@ -12,9 +12,9 @@ using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LcmCrdt.RemoteSync;
 using LinqToDB;
-using LinqToDB.AspNet.Logging;
 using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
+using LinqToDB.Extensions.Logging;
 using LinqToDB.Mapping;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +31,7 @@ using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Text.Json.Serialization.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LcmCrdt;
 
@@ -90,10 +91,11 @@ public static class LcmCrdtKernel
         return services;
     }
 
+    // DynamicDependency prevents the trimmer from removing ClearAllPools (used by LinqToDB via reflection)
+    // without actually calling it — ClearAllPools() clears ALL pools globally and breaks parallel tests.
+    [System.Diagnostics.CodeAnalysis.DynamicDependency(nameof(SqliteConnection.ClearAllPools), typeof(SqliteConnection))]
     private static void AvoidTrimming()
     {
-        //this is only here so that the compiler doesn't trim this method as Linq2Db uses it via reflection
-        SqliteConnection.ClearAllPools();
     }
 
     public static void ConfigureDbOptions(IServiceProvider provider, DbContextOptionsBuilder builder)
@@ -104,6 +106,21 @@ public static class LcmCrdtKernel
         builder.EnableSensitiveDataLogging();
 #endif
         builder.EnableDetailedErrors();
+        if (OperatingSystem.IsAndroid())
+        {
+            // Sometimes Android can throw a pending model changes warning, even though no changes are
+            // detected on Windows/Desktop. Something to do with how it's compiled/what gets lost/trimmed when compiling.
+            // When that happens it can be challenging to figure out what the reason is, but it can also be critical.
+            // One strategy is to uncomment the lines below, so that the warning is reduced to a log
+            // instead of a throw, so that the app will at least run.
+            // Then exercise every aspect of the new model and look for root-cause exceptions.
+            // E.g. property nullability might get lost/mishandeled.
+
+            // Using a compiled model is potentially the correct long-term path to more explicitly prevent discrepencies like this. 🤷
+
+            // builder.ConfigureWarnings(w =>
+            //     w.Log(RelationalEventId.PendingModelChangesWarning));
+        }
         builder.UseSqlite($"Data Source={projectContext.Project.DbPath}")
             .UseLinqToDbCrdt(provider)
             .UseLinqToDB(optionsBuilder =>
@@ -113,16 +130,18 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
-                    //tells linq2db to rewrite Sense.SemanticDomains, into Json.Query(Sense.SemanticDomains)
-                    .Entity<Sense>().Property(s => s.SemanticDomains).HasAttribute(new ExpressionMethodAttribute(SenseSemanticDomainsExpression()))
-                    .Entity<Entry>().Property(e => e.PublishIn).HasAttribute(new ExpressionMethodAttribute(EntryPublishInExpression()))
+                    //tells linq2db to rewrite Sense.SemanticDomainRows / Entry.PublishInRows into
+                    //Json.Query(<underlying column>). The rewrite lives on the *Rows shadow accessors
+                    //rather than the real IList<T> columns; see Entry.PublishInRows for why.
+                    .Entity<Sense>().Property(s => s.SemanticDomainRows).IsExpression(SenseSemanticDomainRowsExpression(), isColumn: false)
+                    .Entity<Entry>().Property(e => e.PublishInRows).IsExpression(EntryPublishInRowsExpression(), isColumn: false)
                     .Entity<RichString>().Member(r => r.GetPlainText()).IsExpression(r => Json.GetPlainText(r))
                     .Entity<Guid>().Member(g => g.ToString()).IsExpression(g => Json.ToString(g))
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
                 optionsBuilder.AddMappingSchema(mappingSchema);
-                optionsBuilder.AddCustomOptions(options => options.UseSQLiteMicrosoft());
+                optionsBuilder.AddCustomOptions(options => options.UseSQLite());
 
                 // Register read-relevant interceptors for LinqToDB
                 var sqliteFunctionInterceptor = new CustomSqliteFunctionInterceptor();
@@ -144,18 +163,15 @@ public static class LcmCrdtKernel
             builder.AddInterceptors(updateSearchTableInterceptor);
     }
 
-    private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainsExpression()
+    private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainRowsExpression()
     {
-        //using Sql.Property, otherwise if we used `s.SemanticDomains` again it would be recursively rewritten
-        return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains)));
+        return s => Json.Query(s.SemanticDomains);
     }
 
-    private static Expression<Func<Entry, IQueryable<Publication>>> EntryPublishInExpression()
+    private static Expression<Func<Entry, IQueryable<Publication>>> EntryPublishInRowsExpression()
     {
-        //using Sql.Property, otherwise if we used `e.PublishIn` again it would be recursively rewritten
-        return e => Json.Query(Sql.Property<IList<Publication>>(e, nameof(Entry.PublishIn)));
+        return e => Json.Query(e.PublishIn);
     }
-
 
     public static void ConfigureCrdt(CrdtConfig config)
     {
@@ -228,6 +244,37 @@ public static class LcmCrdtKernel
             .Add<Publication>()
             .Add<SemanticDomain>()
             .Add<ComplexFormType>()
+            .Add<CustomView>(builder =>
+            {
+                builder.Property(v => v.EntryFields)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<ViewField[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<ViewField>());
+                builder.Property(v => v.SenseFields)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<ViewField[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<ViewField>());
+                builder.Property(v => v.ExampleFields)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<ViewField[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<ViewField>());
+
+                var writingSystemArrayConverter = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<ViewWritingSystem[]?, string?>(
+                    list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                    json => json == null ? null : JsonSerializer.Deserialize<ViewWritingSystem[]>(json, (JsonSerializerOptions?)null));
+                builder.Property(v => v.Vernacular)
+                    .IsRequired(false) // required on Android
+                    .HasColumnType("jsonb")
+                    .HasConversion(writingSystemArrayConverter);
+                builder.Property(v => v.Analysis)
+                    .IsRequired(false) // required on Android
+                    .HasColumnType("jsonb")
+                    .HasConversion(writingSystemArrayConverter);
+            })
+            .Add<MorphType>()
             .Add<ComplexFormComponent>(builder =>
             {
                 const string componentSenseId = "ComponentSenseId";
@@ -256,6 +303,7 @@ public static class LcmCrdtKernel
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
             .Add<JsonPatchChange<ComplexFormType>>()
+            .Add<JsonPatchChange<MorphType>>()
             .Add<JsonPatchChange<Publication>>()
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
@@ -266,6 +314,7 @@ public static class LcmCrdtKernel
             .Add<DeleteChange<ComplexFormComponent>>()
             .Add<DeleteChange<Publication>>()
             .Add<SetPartOfSpeechChange>()
+            .Add<MoveSenseToEntryChange>()
             .Add<AddSemanticDomainChange>()
             .Add<RemoveSemanticDomainChange>()
             .Add<ReplaceSemanticDomainChange>()
@@ -294,6 +343,10 @@ public static class LcmCrdtKernel
             .Add<ReplacePublicationChange>()
             .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
+            .Add<CreateCustomViewChange>()
+            .Add<EditCustomViewChange>()
+            .Add<DeleteChange<CustomView>>()
+            .Add<CreateMorphTypeChange>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()

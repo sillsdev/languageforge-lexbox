@@ -26,11 +26,11 @@ public class AppLauncher(IFwLinker? fwLinker = null) : IAppLauncher
     }
 
     [JSInvokable]
-    public Task<bool> OpenInFieldWorks(Guid entryId, string projectName)
+    public async Task<bool> OpenInFieldWorks(Guid entryId, string projectName)
     {
         if (fwLinker is null) throw new InvalidOperationException("FwLinker is not available.");
-        var link = fwLinker.GetLinkToEntry(entryId, projectName);
-        if (link is null) return Task.FromResult(false);
-        return _launcher.TryOpenAsync(link);
+        var link = await fwLinker.GetLinkToEntryAsync(entryId, projectName);
+        if (link is null) return false;
+        return await _launcher.TryOpenAsync(link);
     }
 }

@@ -48,7 +48,7 @@ tasks:
   maui-windows:
     desc: Run Maui Windows, requires vite dev server to be running, use task fw-lite-win in root
     dir: ./FwLiteMaui
-    cmd: dotnet run -f net9.0-windows10.0.19041.0
+    cmd: dotnet run -f net10.0-windows10.0.19041.0
 
   publish-maui-windows:
     deps: [ publish-maui-windows-msix, publish-maui-windows-portable]
@@ -56,26 +56,70 @@ tasks:
   publish-maui-windows-portable:
     dir: ./FwLiteMaui
     cmds:
-      - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:BuildAndroid=false
+      - dotnet publish -f net10.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:BuildAndroid=false
 
   publish-maui-windows-msix:
     dir: ./FwLiteMaui
     cmds:
-      - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:BuildAndroid=false
+      - dotnet publish -f net10.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:BuildAndroid=false
 
   run-maui-android:
     dir: ./FwLiteMaui
-    cmd: task build-maui-android -- "-t:InstallAndroidDependencies;Run"
+    cmds:
+      - task: build-maui-android
+        vars:
+          FLAVOR: '{{.FLAVOR}}'
+          EXTRA_ARGS: '-t:Run {{.EXTRA_ARGS}}'
+
+  run-maui-android-dev:
+    desc: Build & run the "Dev" flavor (installs alongside the prod app)
+    cmds:
+      - task: run-maui-android
+        vars: { FLAVOR: 'Dev' }
+
+  run-maui-android-emulator-dev:
+    desc: Build & run the "Dev" flavor on a running x86_64 emulator (installs alongside the prod app; targets `adb -e`)
+    cmds:
+      - task: run-maui-android
+        vars: { FLAVOR: 'Dev', EXTRA_ARGS: '-p:RuntimeIdentifiers=android-x64 -p:RuntimeIdentifier=android-x64 -p:AdbTarget=-e' }
 
   build-maui-android:
     deps: [ ui:build-viewer ]
     dir: ./FwLiteMaui
-    cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True {{.CLI_ARGS}} # "-p:AndroidSdkDirectory=D:\tools\android"
+    # EXTRA_ARGS goes through a Task var so multi-token values stay separate; CLI_ARGS gets re-quoted into a single shell arg.
+    cmd: dotnet build -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.EXTRA_ARGS}} {{.CLI_ARGS}}
 
   install-maui-android:
     desc: Retry install + run without rebuilding (for when you miss the permission prompt) - uses existing build artifacts
     dir: ./FwLiteMaui
-    cmd: dotnet build -f net9.0-android -t:Install,Run --no-restore --no-dependencies
+    cmd: dotnet build -f net10.0-android -t:Install,Run --no-restore --no-dependencies -p:FwLiteFlavor={{.FLAVOR}} {{.EXTRA_ARGS}}
+
+  install-maui-android-dev:
+    desc: Retry install + run for the "Dev" flavor without rebuilding
+    cmds:
+      - task: install-maui-android
+        vars: { FLAVOR: 'Dev' }
+
+  install-maui-android-emulator-dev:
+    desc: Retry install + run for the "Dev" flavor on a running x86_64 emulator without rebuilding (targets `adb -e`)
+    cmds:
+      - task: install-maui-android
+        vars: { FLAVOR: 'Dev', EXTRA_ARGS: '-p:RuntimeIdentifiers=android-x64 -p:RuntimeIdentifier=android-x64 -p:AdbTarget=-e' }
+
+  publish-maui-android-release:
+    deps: [ ui:build-viewer ]
+    dir: ./FwLiteMaui
+    # Produces a signed AAB/APK at bin/Release/net10.0-android/<appid>-Signed.{aab,apk}.
+    # No -t:Run — the SDK's Run uses bundletool, which errors out with multiple devices/emulators.
+    cmd: dotnet build -f net10.0-android -c Release -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.CLI_ARGS}}
+
+  install-maui-android-release-dev:
+    desc: Build a Release "Dev" APK and adb-install it on the connected USB device (uses `adb -d`)
+    dir: ./FwLiteMaui
+    cmds:
+      - task: publish-maui-android-release
+        vars: { FLAVOR: 'Dev' }
+      - adb -d install -r bin/Release/net10.0-android/org.sil.FwLiteMaui.dev-Signed.apk
 
   build-mini-lcm-sdk:
     desc: Builds the sdk, a zip with the FwLiteWeb server with a project and config to run locally
@@ -119,3 +163,17 @@ tasks:
     cmd: dotnet test ../../FwLiteOnly.slnf --filter Category!=Slow
   test-full:
     cmd: dotnet test ../../FwLiteOnly.slnf
+  test-verified:
+    desc: Run only tests that generate verified snapshot files
+    # always produces exit status 1, because the framework isn't valid for all test projects
+    cmd: dotnet test ../../FwLiteOnly.slnf --filter "Category=Verified" --framework net10.0 --logger "console;verbosity=minimal"
+  reset-verified:
+    desc: Reset all verified snapshot files to their state on origin/develop
+    cmds:
+      - git fetch origin develop
+      - git checkout origin/develop -- ":(glob)**/*.verified.*"
+  reverify:
+    desc: Reset verified snapshots to origin/develop, then re-run verified tests to regenerate them
+    cmds:
+      - task: reset-verified
+      - task: test-verified

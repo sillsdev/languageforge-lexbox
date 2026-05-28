@@ -10,8 +10,6 @@ export class StompGuard<T> {
   ) {
     this._value = parentGetter();
     watch(parentGetter, (newParentValue) => {
-      if (newParentValue === this._value) return; // we probably updated the parent
-
       if (this._dirty) {
         // ignore and revert parent changes
         parentSetter(this._value);

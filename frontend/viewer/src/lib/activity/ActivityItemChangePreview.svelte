@@ -12,7 +12,8 @@
   import {useMultiWindowService} from '$lib/services/multi-window-service';
   import {Button} from '$lib/components/ui/button';
   import {pt} from '$lib/views/view-text';
-  import {useCurrentView} from '$lib/views/view-service';
+  import {entryBrowseParams} from '$lib/utils/search-params';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {Icon} from '$lib/components/ui/icon';
   import {cn} from '$lib/utils';
   import {Link} from 'svelte-routing';
@@ -26,7 +27,7 @@
   const { activity, context }: Props = $props();
 
   const multiWindowService = useMultiWindowService();
-  const currentView = useCurrentView();
+  const viewService = useViewService();
 
   const affectedEntry = $derived(context.affectedEntries.length === 1 ? context.affectedEntries[0] : undefined);
 
@@ -78,9 +79,9 @@
         {/if}
         <DropdownMenu.Item class="cursor-pointer" onclick={e => e.preventDefault()}>
           {#snippet child({props})}
-            <Link {...props} to="./browse?entryId={entry.id}">
+            <Link {...props} to="./browse?{entryBrowseParams(entry.id)}">
               <Icon icon="i-mdi-link" />
-              {$t`Go to ${pt($t`Entry`, $t`Word`, $currentView)}`}
+              {$t`Go to ${pt($t`Entry`, $t`Word`, viewService.currentView)}`}
             </Link>
           {/snippet}
         </DropdownMenu.Item>

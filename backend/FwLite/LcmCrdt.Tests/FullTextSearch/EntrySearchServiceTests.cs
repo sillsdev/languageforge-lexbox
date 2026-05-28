@@ -1,19 +1,17 @@
-using Bogus;
 using LcmCrdt.FullTextSearch;
 using Microsoft.EntityFrameworkCore;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
-using Soenneker.Utils.AutoBogus.Config;
 
 namespace LcmCrdt.Tests.FullTextSearch;
 
 public class EntrySearchServiceTests : IAsyncLifetime
 {
-    private MiniLcmApiFixture fixture = new MiniLcmApiFixture();
+    private readonly MiniLcmApiFixture fixture = new();
 
     private static readonly AutoFaker Faker = new(AutoFakerDefault.Config);
 
-    private Entry _entry = Faker.Generate<Entry>();
+    private readonly Entry _entry = Faker.Generate<Entry>();
     private EntrySearchService _service = null!;
     private LcmCrdtDbContext _context = null!;
 
@@ -81,6 +79,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Verified")]
     public async Task SearchTableIsUpdatedAutomaticallyOnInsert()
     {
         var id = Guid.NewGuid();
@@ -117,6 +116,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Verified")]
     public async Task SearchTableIsUpdatedAutomaticallyOnUpdate()
     {
         var id = Guid.NewGuid();
@@ -249,23 +249,32 @@ public class EntrySearchServiceTests : IAsyncLifetime
         var gloss = Guid.NewGuid();
         var definition = Guid.NewGuid();
         //only en is used for the headword
-        await _service.UpdateEntrySearchTable(new Entry() { Id = headword, LexemeForm = { { "en", word } } });
-        //using fr ensures that this value doesn't show up in the headword
-        await _service.UpdateEntrySearchTable(new Entry() { Id = citationForm, CitationForm = { { "fr", word } } });
-        await _service.UpdateEntrySearchTable(new Entry() { Id = lexemeForm, LexemeForm = { { "fr", word } } });
-        await _service.UpdateEntrySearchTable(new Entry() { Id = definition, Senses = { new Sense() { Definition = { { "en", new RichString(word, "en") } } } } });
-        await _service.UpdateEntrySearchTable(new Entry() { Id = gloss, Senses = { new Sense() { Gloss = { { "en", word } } } } });
+        await fixture.Api.CreateEntry(new Entry() { Id = headword, LexemeForm = { { "en", word } } });
+        //equivalent to headword
+        await fixture.Api.CreateEntry(new Entry() { Id = citationForm, CitationForm = { { "en", word } } });
+        //using citation form ensures the matching lexeme-form isn't in the headword
+        await fixture.Api.CreateEntry(new Entry() { Id = lexemeForm, LexemeForm = { { "en", word } }, CitationForm = { { "en", "❌" } } });
+        await fixture.Api.CreateEntry(new Entry() { Id = definition, Senses = { new Sense() { Definition = { { "en", new RichString(word, "en") } } } } });
+        await fixture.Api.CreateEntry(new Entry() { Id = gloss, Senses = { new Sense() { Gloss = { { "en", word } } } } });
 
-        var result = await _service.Search(word).ToArrayAsync();
-        result.Select(e => Named(e.Id)).Should()
-            .Equal(["headword", "citation", "lexemeform", "gloss", "definition"]);
+        // Raw FTS rank search and sort
+        var rawFtsResult = await _service.Search(word).ToArrayAsync();
+        rawFtsResult.Select(e => Named(e.Id)).Should()
+            .Equal(["headword", "headword", "lexemeform", "gloss", "definition"]);
+
+        // The "real" search and sort method used by FW-Lite
+        // Note: definition matches are not included by FilterAndRank
+        var rankedResult = await fixture.Api.SearchEntries(word,
+            new(new(SortField.SearchRelevance))).ToArrayAsync();
+        rankedResult.Select(e => Named(e.Id)).Should()
+            .Equal(["headword", "headword", "lexemeform", "gloss"]);
 
         string Named(Guid id)
         {
             return id switch
             {
                 _ when id == headword => "headword",
-                _ when id == citationForm => "citation",
+                _ when id == citationForm => "headword", // always used as headword
                 _ when id == lexemeForm => "lexemeform",
                 _ when id == gloss => "gloss",
                 _ when id == definition => "definition",

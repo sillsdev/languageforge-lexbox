@@ -8,7 +8,9 @@ import {
   type IExampleSentence,
   type IFilterQueryOptions,
   type IIndexQueryOptions,
+  type IMiniLcmFeatures,
   type IMiniLcmJsInvokable,
+  type IMorphType,
   type IPartOfSpeech,
   type IProjectModel,
   type IPublication,
@@ -18,9 +20,12 @@ import {
   type IServerProjects,
   type IWritingSystem,
   type IWritingSystems,
-  type WritingSystemType
+  type WritingSystemType,
+  type ICustomView,
+  ViewBase,
+  MorphTypeKind,
 } from '$lib/dotnet-types';
-import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
+import {entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
@@ -37,6 +42,8 @@ import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShare
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
+import {initProjectStorage} from '$lib/storage';
+import {MorphTypesService} from '$project/data/morph-types.svelte';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -45,17 +52,6 @@ function pickWs(ws: string, defaultWs: string): string {
 const complexFormTypes = entries
   .flatMap(entry => entry.complexFormTypes)
   .filter((value, index, all) => all.findIndex(v2 => v2.id === value.id) === index);
-
-function filterEntries(entries: IEntry[], query: string): IEntry[] {
-  return entries.filter(entry =>
-    [
-      ...Object.values(entry.lexemeForm ?? {}),
-      ...Object.values(entry.citationForm ?? {}),
-      ...entry.senses.flatMap(sense => [
-        ...Object.values(sense.gloss ?? {}),
-      ]),
-    ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
-}
 
 export const mockFwLiteConfig: IFwLiteConfig = {
   appVersion: 'dev',
@@ -90,11 +86,20 @@ const mockJsEventListener: IJsEventListener = {
 };
 
 export class InMemoryDemoApi implements IMiniLcmJsInvokable {
+  #morphTypesService: MorphTypesService;
   #writingSystemService: WritingSystemService;
   #projectEventBus: ProjectEventBus;
   constructor(projectContext: ProjectContext, eventBus: EventBus) {
-    this.#writingSystemService = new WritingSystemService(projectContext);
+    this.#morphTypesService = new MorphTypesService(projectContext);
+    this.#writingSystemService = new WritingSystemService(projectContext, this.#morphTypesService);
     this.#projectEventBus = new ProjectEventBus(projectContext, eventBus);
+
+    // Trigger activating/loading lazy resources.
+    // The fact that we need this "hack" might seem like lazy resources themselves are problematic,
+    // but a MiniLCM API is supposed to be across a solid boundary and not indirectly relying on itself!
+    // We're just doing it here for convenience and it's biting us a tad.
+    void this.#morphTypesService.refetch();
+    this.#writingSystemService.allWritingSystems();
   }
 
   public static setup(): InMemoryDemoApi {
@@ -102,6 +107,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const eventBus = useEventBus();
     const inMemoryLexboxApi = new InMemoryDemoApi(projectContext, eventBus);
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
+    initProjectStorage(projectContext.projectCode);
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
@@ -154,6 +160,17 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     );
   }
 
+  getMorphTypes(): Promise<IMorphType[]> {
+    return Promise.resolve(
+      morphTypes
+      // [
+      //     {id: 'd7f713e8-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Stem},
+      //     {id: 'd7f713db-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Prefix, postfix='-'},
+      //     {id: 'd7f713dd-e8cf-11d3-9764-00c04f186933', kind: MorphTypeKind.Suffix, prefix='-'},
+      // ]
+    );
+  }
+
   getPartsOfSpeech(): Promise<IPartOfSpeech[]> {
     return Promise.resolve(
       partsOfSpeech
@@ -174,10 +191,39 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   supportedFeatures() {
     return Promise.resolve({
       write: true,
-    });
+      audio: true,
+      customViews: true,
+    } satisfies IMiniLcmFeatures);
   }
 
   readonly projectName = projectName;
+
+  private _customViews: ICustomView[] = [{
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    name: 'Portuguese and audio',
+    base: ViewBase.FwLite,
+    entryFields: [
+      {fieldId: 'lexemeForm'},
+    ],
+    senseFields: [
+      {fieldId: 'gloss'},
+    ],
+    exampleFields: [
+      {fieldId: 'sentence'},
+      {fieldId: 'translations'},
+    ],
+    analysis: [{wsId: 'pt'}],
+    vernacular: [{wsId: 'seh-Zxxx-x-audio'}],
+  }];
+
+  getCustomViews(): Promise<ICustomView[]> {
+    return Promise.resolve(JSON.parse(JSON.stringify(this._customViews)) as ICustomView[]);
+  }
+
+  getCustomView(id: string): Promise<ICustomView | null> {
+    const found = this._customViews.find(v => v.id === id) ?? null;
+    return Promise.resolve(found ? (JSON.parse(JSON.stringify(found)) as ICustomView) : null);
+  }
 
   private _entries = entries;
 
@@ -216,27 +262,44 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return entries.slice(options.offset, options.offset + options.count);
   }
 
+  private filterEntries(entries: IEntry[], query: string): IEntry[] {
+    return entries.filter(entry =>
+      [
+        ...this.#writingSystemService.vernacular.map(ws => this.#writingSystemService.headword(entry, ws.wsId)),
+        ...Object.values(entry.lexemeForm ?? {}),
+        ...entry.senses.flatMap(sense => [
+          ...Object.values(sense.gloss ?? {}),
+        ]),
+      ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
+  }
+
   private getFilteredSortedEntries(query?: string, options?: Omit<IQueryOptions, 'count' | 'offset'>): IEntry[] {
     const entries = this.getFilteredEntries(query, options);
-
-    if (!options) return entries;
     const defaultWs = writingSystems.vernacular[0].wsId;
-    const sortWs = pickWs(options.order.writingSystem, defaultWs);
+    const sortWs = pickWs(options?.order?.writingSystem ?? defaultWs, defaultWs);
+    const ascending = options?.order?.ascending ?? true;
+    const stem = morphTypes.find(m => m.kind === MorphTypeKind.Stem)!;
     return entries
       .sort((e1, e2) => {
-        const v1 = this.#writingSystemService.headword(e1, sortWs);
-        const v2 = this.#writingSystemService.headword(e2, sortWs);
+        // morph-tokens should not be included when sorting
+        const v1 = e1.citationForm[sortWs] || e1.lexemeForm[sortWs];
+        const v2 = e2.citationForm[sortWs] || e2.lexemeForm[sortWs];
         if (!v2) return -1;
         if (!v1) return 1;
         let compare = v1.localeCompare(v2, sortWs);
-        if (compare == 0) compare = e1.id.localeCompare(e2.id);
-        return options.order.ascending ? compare : -compare;
+        if (compare === 0) {
+          const m1 = (morphTypes.find(m => m.kind === e1.morphType) ?? stem);
+          const m2 = (morphTypes.find(m => m.kind === e2.morphType) ?? stem);
+          compare = m1.secondaryOrder - m2.secondaryOrder;
+        }
+        if (compare === 0) compare = e1.id.localeCompare(e2.id);
+        return ascending ? compare : -compare;
       });
   }
 
   private getFilteredEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
     let entries = this._Entries();
-    if (query) entries = filterEntries(entries, query);
+    if (query) entries = this.filterEntries(entries, query);
     if (!options) return entries;
 
     const defaultWs = writingSystems.vernacular[0].wsId;
@@ -374,6 +437,25 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   deleteComplexFormType(_id: string): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  createCustomView(customView: ICustomView): Promise<ICustomView> {
+    const created = JSON.parse(JSON.stringify(customView)) as ICustomView
+    this._customViews = [...this._customViews, created];
+    return Promise.resolve(created);
+  }
+
+  updateCustomView(_customView: ICustomView): Promise<ICustomView> {
+    const index = this._customViews.findIndex(v => v.id === _customView.id);
+    if (index === -1) throw new Error(`Custom view ${_customView.id} not found`);
+    const updated = JSON.parse(JSON.stringify(_customView)) as ICustomView;
+    this._customViews = this._customViews.map((v, i) => i === index ? updated : v);
+    return Promise.resolve(updated);
+  }
+
+  deleteCustomView(_id: string): Promise<void> {
+    this._customViews = this._customViews.filter(v => v.id !== _id);
+    return Promise.resolve();
   }
 
   createComplexFormComponent(_complexFormComponent: IComplexFormComponent): Promise<IComplexFormComponent> {

@@ -3,7 +3,7 @@ using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteWeb.Hubs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace FwLiteWeb.Routes;
 
@@ -11,14 +11,14 @@ public static class FwIntegrationRoutes
 {
     public static IEndpointConventionBuilder MapFwIntegrationRoutes(this WebApplication app)
     {
-        var group = app.MapGroup($"/api/fw/{{{FwDataMiniLcmHub.ProjectRouteKey}}}").WithOpenApi(
-            operation =>
+        var group = app.MapGroup($"/api/fw/{{{FwDataMiniLcmHub.ProjectRouteKey}}}").AddOpenApiOperationTransformer(
+            (operation, _, _) =>
             {
-                operation.Parameters.Add(new OpenApiParameter()
+                operation.Parameters?.Add(new OpenApiParameter()
                 {
                     Name = FwDataMiniLcmHub.ProjectRouteKey, In = ParameterLocation.Path, Required = true
                 });
-                return operation;
+                return Task.CompletedTask;
             });
         group.MapGet("/link/entry/{id}",
             async ([FromServices] FwDataProjectContext context,
@@ -28,7 +28,7 @@ public static class FwIntegrationRoutes
             {
                 if (context.Project is null) return Results.BadRequest("No project is set in the context");
                 await hubContext.Clients.Group(context.Project.Name).OnProjectClosed(CloseReason.Locked);
-                factory.CloseProject(context.Project);
+                await factory.CloseProjectAsync(context.Project);
                 var link = FwLink.ToEntry(id, context.Project.Name);
                 return Results.Text(link, "text/plain");
             });

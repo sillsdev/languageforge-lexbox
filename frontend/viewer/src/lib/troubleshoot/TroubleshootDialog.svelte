@@ -8,6 +8,9 @@
   import Label from '$lib/components/ui/label/label.svelte';
   import {CopyButton} from '$lib/components/ui/button';
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
+  import {resource} from 'runed';
+  import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
+  import {isDev} from '$lib/layout/DevContent.svelte';
 
   const openQueryParam = new QueryParamStateBool({
     key: 'troubleshootDialogOpen',
@@ -23,6 +26,9 @@
   const service = useTroubleshootingService();
   const config = useFwLiteConfig();
   let projectCode = $state<string>();
+  let canShare = resource(() => service, async (s) => await s?.getCanShare());
+  // Mobile platforms keep app data in private storage that no file manager can open.
+  const canOpenDataDirectory = $derived(config.os !== FwLitePlatform.Android && config.os !== FwLitePlatform.iOS);
 
   async function tryOpenDataDirectory() {
     if (!await service?.tryOpenDataDirectory()) {
@@ -41,16 +47,16 @@
   <div class="flex flex-col gap-4 items-start">
     <div>
       <p class="flex items-baseline gap-1">
-        {$t`Application version`}:
+        {$t`FieldWorks Lite version`}:
         <span class="font-semibold border-b">
           {config.appVersion}
         </span>
         <CopyButton
           variant="ghost"
-          size="xs-icon"
+          size="icon-xs"
           iconProps={{class: 'size-4'}}
           title={$t`Copy version`}
-          text={`${config.appVersion} on ${config.os}`}
+          text={`FieldWorks Lite ${config.appVersion} on ${config.os}`}
         />
       </p>
       <p class="flex items-baseline gap-1">
@@ -58,19 +64,21 @@
         <span class="font-semibold">{config.os}</span>
       </p>
     </div>
-    {#if service}
+    {#if service && (canOpenDataDirectory || $isDev)}
       <div class="w-full">
         <Label>{$t`Data Directory`}</Label>
         <InputShell class="ps-2 pe-1">
           {#await service?.getDataDirectory() then value}
             {value}
           {/await}
-          <Button variant="ghost" icon="i-mdi-folder-search" size="xs-icon" title={$t`Open Data Directory`}
-                  onclick={() => tryOpenDataDirectory()}/>
+          {#if canOpenDataDirectory}
+            <Button variant="ghost" icon="i-mdi-folder-search" size="icon-xs" title={$t`Open Data Directory`}
+                    onclick={() => tryOpenDataDirectory()}/>
+          {/if}
         </InputShell>
       </div>
     {/if}
-    {#if projectCode}
+    {#if projectCode && canShare.current}
       <div class="flex gap-2">
         <Button variant="outline" onclick={() => shareProject()}>
           <i class="i-mdi-file-export"></i>
@@ -84,10 +92,12 @@
           <i class="i-mdi-file-eye"></i>
           {$t`Open Log file`}
         </Button>
-        <Button variant="outline" onclick={() => service?.shareLogFile()}>
-          <i class="i-mdi-file-export"></i>
-          {$t`Share Log file`}
-        </Button>
+        {#if canShare.current}
+          <Button variant="outline" onclick={() => service?.shareLogFile()}>
+            <i class="i-mdi-file-export"></i>
+            {$t`Share Log file`}
+          </Button>
+        {/if}
       </div>
     {/if}
   </div>
