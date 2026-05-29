@@ -33,12 +33,8 @@
   }
 
   const { projects, draftProjects, queryParams }: Props = $props();
-  // The queryParams prop is a stable wrapper around a runed useSearchParams proxy
-  // (reactivity lives inside the proxy's $state cache, not in queryParams identity),
-  // so destructuring once is intentional — wrapping in $derived would re-introduce a
-  // staleness layer between the proxy and downstream $derived consumers.
-  // svelte-ignore state_referenced_locally
-  const { queryParamValues: filters, defaultQueryParamValues: filterDefaults } = queryParams;
+  const filters = $derived(queryParams.queryParamValues);
+  const filterDefaults = $derived(queryParams.defaultQueryParamValues);
 
   const { notifyWarning } = useNotifications();
 

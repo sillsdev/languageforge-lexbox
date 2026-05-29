@@ -61,20 +61,11 @@ export function getSearchParams<T extends Record<string, unknown>>(
     defaults[key] = config[key].default as T[typeof key];
   }
 
-  // runed's createSearchParamsSchema normalises `undefined` defaults to `null` on
-  // reads (use-search-params.svelte.js:1016-1017). Our consumer code uses
-  // `X | undefined` types and checks like `confidential === undefined`, so we
-  // re-wrap reads to convert `null` back to `undefined`. Writes pass through
-  // unchanged (proxy.set goes straight to runed's setter).
-  const normalised = new Proxy(params, {
-    get(target, prop, receiver) {
-      const value = Reflect.get(target, prop, receiver);
-      return value === null ? undefined : value;
-    },
-  });
-
   return {
-    queryParamValues: normalised as unknown as T,
+    // Note for consumers: runed's `createSearchParamsSchema` normalises
+    // `undefined` defaults to `null` on reads. Treat null/undefined as
+    // equivalent "unset" — `value == null` instead of `=== undefined`.
+    queryParamValues: params as unknown as T,
     defaultQueryParamValues: defaults as T,
   };
 }

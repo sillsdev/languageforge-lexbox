@@ -18,6 +18,7 @@
   import t from '$lib/i18n';
   import Dropdown from '../Dropdown.svelte';
   import {Previous} from 'runed';
+  import {untrack} from 'svelte';
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/util/time';
   import {debouncedFilter} from '$lib/util/debouncedFilter.svelte';
 
@@ -69,9 +70,10 @@
   // the last keystroke, and external writes to the upstream store flow back
   // into the input. See debouncedFilter.svelte.ts for the echo-suppression
   // mechanics that keep in-flight typing from being clobbered by the round-trip.
-  // Svelte warns about non-closure prop reads here; that's OK — `filters` /
-  // `searchKey` / `debounceMs` are stable for the lifetime of this instance.
-  const search = debouncedFilter(filters, searchKey, debounceMs);
+  //
+  // `untrack` here just tells Svelte we intentionally bind these props once
+  // at setup — they're stable for the lifetime of the component instance.
+  const search = untrack(() => debouncedFilter(filters, searchKey, debounceMs));
 
   function onClearFiltersClick(): void {
     for (const key of Object.keys(filterDefaults)) {
@@ -89,7 +91,11 @@
     // Iterate from defaults (plain object) — runed's proxy doesn't expose schema keys via for…in.
     for (const key of Object.keys(defaultValues)) {
       const value = (values as Record<string, unknown>)[key];
-      if (value !== (defaultValues as Record<string, unknown>)[key]) {
+      const fromDefault = (defaultValues as Record<string, unknown>)[key];
+      // Treat null and undefined as the same "unset" — runed stores unset URL
+      // params as null while our defaults object has undefined.
+      if (value == null && fromDefault == null) continue;
+      if (value !== fromDefault) {
         filters.push({ key, value, clear: () => resetFilter(key) } as Filter<Filters>);
       }
     }

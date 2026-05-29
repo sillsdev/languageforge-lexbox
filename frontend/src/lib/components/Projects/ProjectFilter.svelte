@@ -32,7 +32,8 @@
         (!projectFilters.projectType || p.type === projectFilters.projectType) &&
         (!projectFilters.hideDraftProjects || !p.isDraft) &&
         (!projectFilters.emptyProjects || p.isDraft || !p.lastCommit) &&
-        (projectFilters.confidential === undefined ||
+        // == null catches both undefined and null (runed stores unset URL params as null).
+        (projectFilters.confidential == null ||
           projectFilters.confidential === p.isConfidential?.toString() ||
           (projectFilters.confidential === 'unset' && (p.isConfidential ?? undefined) === undefined)),
     );
