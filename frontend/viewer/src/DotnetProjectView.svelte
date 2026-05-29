@@ -1,6 +1,6 @@
 <script lang="ts">
   import ProjectView from './ProjectView.svelte';
-  import {onDestroy, onMount} from 'svelte';
+  import {onDestroy, onMount, untrack} from 'svelte';
   import {DotnetService} from '$lib/dotnet-types';
   import {useProjectServicesProvider} from '$lib/services/service-provider';
   import {wrapInProxy} from '$lib/services/service-provider-dotnet';
@@ -22,8 +22,7 @@
     paratext?: boolean;
   } = $props();
   const projectContext = initProjectContext();
-  // svelte-ignore state_referenced_locally
-  const code = _code;
+  const code = untrack(() => _code);
   projectContext.projectCode = code;
 
   initProjectStorage(code);

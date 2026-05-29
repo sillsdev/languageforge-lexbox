@@ -9,6 +9,7 @@
 
 <script lang="ts">
   import * as Select from '$lib/components/ui/select';
+  import {untrack} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
   import {pt, tvt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
@@ -26,8 +27,7 @@
   type LabeledSelectedField = SelectedField & { label: string };
 
   const labeledValue = $derived(fields.find(f => f.id === value?.id) ?? fields[0]);
-  // svelte-ignore state_referenced_locally
-  value ??= labeledValue;
+  value ??= untrack(() => labeledValue);
 </script>
 
 <Select.Root type="single" bind:value={() => (value ?? fields[0]).id, (newId) => value = fields.find(f => f.id === newId) ?? fields[0]}>
