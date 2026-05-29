@@ -41,9 +41,15 @@ export function debouncedFilter<T extends Record<string, unknown>, K extends key
   const flushed = new Debounced(() => local, debounceMs);
   $effect(() => {
     const value = flushed.current;
-    if (filters[key] === value) return;
-    pendingEcho = value;
-    filters[key] = value;
+    // Read+write `filters[key]` untracked: this effect should only re-fire when
+    // the *debounced* local value settles. If we read filters[key] reactively
+    // and an external write happens (e.g. the user clicks the clear-X button)
+    // we'd re-fire here with the still-stale `flushed.current` and clobber it.
+    untrack(() => {
+      if (filters[key] === value) return;
+      pendingEcho = value;
+      filters[key] = value;
+    });
   });
 
   // Sync upstream changes back into local, except when echoing our own write.
