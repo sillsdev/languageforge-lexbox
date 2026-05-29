@@ -1,4 +1,5 @@
 using FwLiteShared.Projects;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -43,5 +44,27 @@ public class LexboxProjectServiceTests
 
         _cache.TryGetValue(CacheKey, out _).Should().BeFalse();
         stopCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task EvictAndStopIfCached_WithNoCachedEntry_IsNoOp()
+    {
+        var act = () => LexboxProjectService.EvictAndStopIfCached(CacheKey, _cache, NullLogger.Instance);
+
+        await act.Should().NotThrowAsync();
+        _cache.TryGetValue(CacheKey, out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task EvictAndStopIfCached_WithCachedConnection_RemovesFromCache()
+    {
+        // Build an un-started HubConnection. StopAsync on an un-started connection is a no-op and
+        // doesn't reach the network, so this stays a true unit test.
+        var connection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
+        _cache.Set(CacheKey, connection);
+
+        await LexboxProjectService.EvictAndStopIfCached(CacheKey, _cache, NullLogger.Instance);
+
+        _cache.TryGetValue(CacheKey, out _).Should().BeFalse();
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using FwLiteShared.Auth;
@@ -26,6 +27,9 @@ public class LexboxProjectService : IDisposable
     private readonly IMemoryCache cache;
     private readonly GlobalEventBus globalEventBus;
     private readonly IDisposable onAuthChangedSubscription;
+    // Stable record of projects we've been asked to listen for, by project id. Survives connection
+    // lifetimes (unlike _reconnectProjects) so we can resubscribe after a hub-connection rebuild.
+    private readonly ConcurrentDictionary<Guid, ProjectData> _trackedProjects = new();
 
     public LexboxProjectService(
         OAuthClientFactory clientFactory,
@@ -43,10 +47,42 @@ public class LexboxProjectService : IDisposable
         this.options = options;
         this.cache = cache;
         this.globalEventBus = globalEventBus;
-        onAuthChangedSubscription = globalEventBus.OnAuthenticationChanged.Subscribe((@event) =>
+        onAuthChangedSubscription = globalEventBus.OnAuthenticationChanged.Subscribe(@event =>
         {
             InvalidateProjectsCache(@event.Server);
+            _ = OnAuthenticationChangedAsync(@event.Server);
         });
+    }
+
+    private async Task OnAuthenticationChangedAsync(LexboxServer server)
+    {
+        try
+        {
+            // Tear down any cached hub connection — it may be holding stale auth, or belong to a
+            // previously-signed-in identity. The next ListenForProjectChanges call will rebuild it
+            // with the current token (or no-op if the user is now logged out).
+            await EvictAndStopIfCached(HubConnectionCacheKey(server), cache, logger);
+
+            // Try to (re)start listeners for tracked projects on this server. If auth is gone (logout),
+            // StartLexboxProjectChangeListener returns null and we no-op. If auth is valid (login),
+            // we get a fresh listener without waiting for the user to manually sync or reopen.
+            foreach (var project in _trackedProjects.Values)
+            {
+                if (project.ServerId != server.Id) continue;
+                try
+                {
+                    await ListenForProjectChanges(project, CancellationToken.None);
+                }
+                catch (Exception e)
+                {
+                    logger.LogWarning(e, "Failed to (re)start project change listener for {ProjectName} after auth change", project.Name);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to handle authentication change for {Server}", server.Authority);
+        }
     }
 
     public void Dispose()
@@ -227,6 +263,9 @@ public class LexboxProjectService : IDisposable
 
     public async Task ListenForProjectChanges(ProjectData projectData, CancellationToken stoppingToken)
     {
+        // Record intent to listen before any early-returns. Used to recover after auth changes and
+        // by tests to assert that subscriptions aren't lost during reconnect windows.
+        _trackedProjects[projectData.Id] = projectData;
         if (!options.Value.TryGetServer(projectData, out var server)) return;
         var lexboxConnection = await StartLexboxProjectChangeListener(server, stoppingToken);
         if (lexboxConnection is null) return;
@@ -291,6 +330,21 @@ public class LexboxProjectService : IDisposable
     }
 
     private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
+
+    // Internal for unit tests.
+    internal static async Task EvictAndStopIfCached(string cacheKey, IMemoryCache cache, ILogger logger)
+    {
+        if (!cache.TryGetValue(cacheKey, out HubConnection? connection) || connection is null) return;
+        cache.Remove(cacheKey);
+        try
+        {
+            await connection.StopAsync();
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to stop SignalR connection after auth change");
+        }
+    }
 
     // Internal for unit tests. SignalR retries reconnects forever; this is what breaks the loop when auth is gone.
     internal static async Task HandleReconnecting(
