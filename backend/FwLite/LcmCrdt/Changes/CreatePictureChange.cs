@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using MiniLcm.Media;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
@@ -13,9 +14,9 @@ public class CreatePictureChange: CreateChange<Picture>, ISelfNamedType<CreatePi
     {
         picture.Id = EntityId;
         // SenseId = senseId;
-        // TODO: MediaUri
         Order = picture.Order;
         Caption = picture.Caption;
+        MediaUri = picture.MediaUri;
     }
 
     [JsonConstructor]
@@ -28,7 +29,7 @@ public class CreatePictureChange: CreateChange<Picture>, ISelfNamedType<CreatePi
     // public Guid SenseId { get; init; }
     public double Order { get; set; }
     public RichMultiString? Caption { get; set; }
-    // TODO: MediaUri
+    public MediaUri MediaUri { get; set; }
 
     public override async ValueTask<Picture> NewEntity(Commit commit, IChangeContext context)
     {
@@ -37,7 +38,7 @@ public class CreatePictureChange: CreateChange<Picture>, ISelfNamedType<CreatePi
             Id = EntityId,
             Order = Order,
             Caption = Caption ?? new(),
-            // TODO: MediaUri
+            MediaUri = MediaUri,
             DeletedAt = null, // await context.IsObjectDeleted(SenseId) ? commit.DateTime : (DateTime?)null
         };
     }

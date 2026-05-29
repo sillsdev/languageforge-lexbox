@@ -33,6 +33,7 @@ public class FwDataMiniLcmApi(
 {
     private FwDataBridgeConfig Config => config.Value;
     public const string AudioVisualFolder = "AudioVisual";
+    public const string PicturesFolder = "Pictures";
     public LcmCache Cache
     {
         get
@@ -806,6 +807,20 @@ public class FwDataMiniLcmApi(
         };
     }
 
+    internal MediaUri MediaUriFromLcmPicture(ICmPicture picture)
+    {
+        var mediaFilePath = picture.PictureFileRA?.AbsoluteInternalPath;
+        // TODO: Check whether AbsoluteInternalPath is correctly getting it from the Pictures folder
+        // Otherwise we might need to get InternalPath rather than Absolute and then do something like
+        // var fullPath = Path.Join(Cache.LangProject.LinkedFilesRootDir, PicturesFolder, mediaFilePath);
+        // mediaUri = mediaAdapter.MediaUriFromPath(fullPath, Cache);
+        if (!string.IsNullOrEmpty(mediaFilePath))
+        {
+            return mediaAdapter.MediaUriFromPath(mediaFilePath, Cache);
+        }
+        return MediaUri.NotFound;
+    }
+
     private Picture FromLcmPicture(Guid senseGuid, ICmPicture picture)
     {
         return new Picture
@@ -813,7 +828,7 @@ public class FwDataMiniLcmApi(
             Id = picture.Guid,
             Caption = FromLcmMultiString(picture.Caption),
             // SenseId = senseGuid,
-            // TODO: MediaUri
+            MediaUri = MediaUriFromLcmPicture(picture),
         };
     }
 
@@ -1821,8 +1836,17 @@ public class FwDataMiniLcmApi(
         if (picture.Id == default) picture.Id = Guid.NewGuid();
         var lcmPicture = LcmPictureFactory.Create(picture.Id);
         UpdateLcmMultiString(lcmPicture.Caption, picture.Caption);
-        // TODO: MediaUri
+        SetLcmPictureFile(lcmPicture, picture.MediaUri);
         InsertPicture(lexSense, lcmPicture, between);
+    }
+
+    internal void SetLcmPictureFile(ICmPicture lcmPicture, MediaUri mediaUri)
+    {
+        if (mediaUri == MediaUri.NotFound) return;
+        var fullPath = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
+        if (fullPath is null) return;
+        // Passing 0 as writing system to UpdatePicture means "don't update caption, only file"
+        lcmPicture.UpdatePicture(fullPath, null, CmFolderTags.LocalPictures, 0);
     }
 
     public Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? between = null)
@@ -1954,7 +1978,7 @@ public class FwDataMiniLcmApi(
         {
             { } s when s.StartsWith("audio/") => AudioVisualFolder,
             { } s when s.StartsWith("video/") => AudioVisualFolder,
-            { } s when s.StartsWith("image/") => "Pictures",
+            { } s when s.StartsWith("image/") => PicturesFolder,
             _ => "Others"
         };
     }

@@ -37,7 +37,11 @@ public static class PictureSync
             nameof(Picture.Caption),
             beforePicture.Caption,
             afterPicture.Caption));
-        // TODO: MediaUri
+        // TODO: Determine if MediaUri.ToString() is correct here
+        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<Picture>(
+            nameof(Picture.MediaUri),
+            beforePicture.MediaUri.ToString(),
+            afterPicture.MediaUri.ToString()));
 
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Picture>(patchDocument);

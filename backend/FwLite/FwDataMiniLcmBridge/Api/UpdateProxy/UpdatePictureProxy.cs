@@ -1,3 +1,4 @@
+using MiniLcm.Media;
 using MiniLcm.Models;
 using SIL.LCModel;
 
@@ -17,5 +18,9 @@ public class UpdatePictureProxy(ICmPicture picture, FwDataMiniLcmApi lexboxLcmAp
         set => throw new NotImplementedException();
     }
 
-    // TODO: MediaUri
+    public override MediaUri MediaUri
+    {
+        get => lexboxLcmApi.MediaUriFromLcmPicture(picture);
+        set => lexboxLcmApi.SetLcmPictureFile(picture, value);
+    }
 }

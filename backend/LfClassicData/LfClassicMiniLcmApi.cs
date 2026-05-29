@@ -3,6 +3,7 @@ using LfClassicData.Entities;
 using LfClassicData.Entities.MongoUtils;
 using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -356,7 +357,8 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             Id = picture.Guid,
             // SenseId = senseId,
             Caption = ToRichMultiString(picture.Caption),
-            // TODO: MediaUri
+            // TODO: Create a LfClassicMediaAdapter that can create MediaUris for LF URLs, then use that rather than returning NotFound
+            MediaUri = MediaUri.NotFound,
         };
     }
 
