@@ -98,9 +98,25 @@ public class SyncService(
         logger.LogInformation("Synced project {ProjectName} with server", project.Name);
         UpdateSyncStatus(SyncStatus.Success);
         await syncRepository.UpdateSyncDate(syncDate);
+        // Best-effort: if the push listener failed to start at project-open (e.g. user was offline), this
+        // restarts it now that we know auth + network are healthy. If it's already running, the cache
+        // short-circuits and this is effectively a no-op.
+        _ = TryEnsureProjectChangeListener(project);
         //need to await this, otherwise the database connection will be closed before the notifications are sent
         if (!skipNotifications) await SendNotifications(syncResults);
         return syncResults;
+    }
+
+    private async Task TryEnsureProjectChangeListener(ProjectData project)
+    {
+        try
+        {
+            await lexboxProjectService.ListenForProjectChanges(project, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to (re)start project change listener after sync");
+        }
     }
 
     public async Task<ProjectSyncStatus> GetSyncStatus()
