@@ -18,6 +18,8 @@
   import t from '$lib/i18n';
   import Dropdown from '../Dropdown.svelte';
   import {Previous} from 'runed';
+  import {DEFAULT_DEBOUNCE_TIME} from '$lib/util/time';
+  import {debouncedFilter} from '$lib/util/debouncedFilter.svelte';
 
   type DumbFilters = $$Generic<Record<string, unknown>>;
   type Filters = DumbFilters & Record<typeof searchKey, string>;
@@ -27,9 +29,6 @@
   interface Props {
     searchKey: keyof ConditionalPick<DumbFilters, string>;
     autofocus?: true;
-    // The store is a runed `useSearchParams` proxy (see `getSearchParams`). Reads come
-    // from runed's internal $state-backed cache, writes are debounced into the URL —
-    // so binding directly here is safe under rapid typing.
     filters: Filters;
     filterDefaults: Filters;
     onFiltersChanged?: OnFiltersChanged;
@@ -39,6 +38,14 @@
      */
     filterKeys?: Readonly<(keyof Filters)[]>;
     loading?: boolean;
+    /**
+     * ms between the last keystroke and the URL/store write. Defaults to
+     * `DEFAULT_DEBOUNCE_TIME`. Set to `0` to write through immediately
+     * (appropriate for pure client-side filters that don't trigger server
+     * fetches; for server-filtered inputs like the user-list search, keep
+     * the default so we don't hammer load() per character).
+     */
+    debounceMs?: number;
     activeFilterSlot?: Snippet<[{ activeFilters: Readonly<Filter<Filters>[]> }]>;
     filterSlot?: Snippet;
   }
@@ -52,9 +59,19 @@
     hasActiveFilter = $bindable(false),
     filterKeys,
     loading = false,
+    debounceMs = DEFAULT_DEBOUNCE_TIME,
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
+
+  // Two-way binding for the search input: typing updates `search.value`
+  // immediately, the upstream `filters[searchKey]` updates `debounceMs` after
+  // the last keystroke, and external writes to the upstream store flow back
+  // into the input. See debouncedFilter.svelte.ts for the echo-suppression
+  // mechanics that keep in-flight typing from being clobbered by the round-trip.
+  // Svelte warns about non-closure prop reads here; that's OK — `filters` /
+  // `searchKey` / `debounceMs` are stable for the lifetime of this instance.
+  const search = debouncedFilter(filters, searchKey, debounceMs);
 
   function onClearFiltersClick(): void {
     for (const key of Object.keys(filterDefaults)) {
@@ -96,7 +113,7 @@
   {@render activeFilterSlot?.({ activeFilters })}
   <div class="flex grow">
     <PlainInput
-      bind:value={() => filters[searchKey] as string, (v) => (filters[searchKey] = (v ?? '') as Filters[typeof searchKey])}
+      bind:value={search.value}
       bind:this={searchInput}
       placeholder={$t('filter.placeholder')}
       style="seach-input border-none h-8 px-1 focus:outline-none min-w-[120px] flex-grow"
@@ -108,7 +125,8 @@
           <Loader loading />
         </div>
       {/if}
-      {#if !!filters[searchKey] || activeFilters.find((f) => f.key !== searchKey)}
+      <!-- show the X if the input has unflushed typed text, or any non-search filter is active -->
+      {#if !!search.value || activeFilters.find((f) => f.key !== searchKey)}
         <button class="btn btn-square btn-sm join-item" onclick={onClearFiltersClick}>
           <span class="text-lg">✕</span>
         </button>

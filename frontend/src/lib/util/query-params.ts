@@ -2,7 +2,6 @@ import type {StandardEnum, StringifyValues} from '$lib/type.utils';
 import {createSearchParamsSchema, type SearchParamsOptions, useSearchParams} from 'runed/kit';
 
 import type {ConditionalPick} from 'type-fest';
-import {DEFAULT_DEBOUNCE_TIME} from './time';
 import type {PrimitiveRecord} from './types';
 
 // `runed`'s createSearchParamsSchema input shape — kept here so call sites don't need to
@@ -48,8 +47,10 @@ export function getSearchParams<T extends Record<string, unknown>>(
 ): QueryParams<T> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const schema = createSearchParamsSchema(config as any);
+  // No runed-level debounce: URL writes are immediate. Per-input debouncing
+  // (e.g. for a search input that drives server-side filtering) lives in
+  // FilterBar/debouncedFilter, where it's explicit at the call site.
   const params = useSearchParams(schema, {
-    debounce: DEFAULT_DEBOUNCE_TIME,
     pushHistory: false,
     noScroll: true,
     ...options,
@@ -60,8 +61,20 @@ export function getSearchParams<T extends Record<string, unknown>>(
     defaults[key] = config[key].default as T[typeof key];
   }
 
+  // runed's createSearchParamsSchema normalises `undefined` defaults to `null` on
+  // reads (use-search-params.svelte.js:1016-1017). Our consumer code uses
+  // `X | undefined` types and checks like `confidential === undefined`, so we
+  // re-wrap reads to convert `null` back to `undefined`. Writes pass through
+  // unchanged (proxy.set goes straight to runed's setter).
+  const normalised = new Proxy(params, {
+    get(target, prop, receiver) {
+      const value = Reflect.get(target, prop, receiver);
+      return value === null ? undefined : value;
+    },
+  });
+
   return {
-    queryParamValues: params as unknown as T,
+    queryParamValues: normalised as unknown as T,
     defaultQueryParamValues: defaults as T,
   };
 }
