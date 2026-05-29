@@ -52,7 +52,7 @@ test.describe('user filter external sync', () => {
     await page.waitForURL((url) => url.searchParams.get('userSearch') === 'typed');
 
     // pushState+popstate mimics in-component URL writes (onUserCreated, filterProjectsByUser)
-    // that mutate the sveltekit-search-params store without remounting FilterBar.
+    // that mutate the URL-backed filter store without remounting FilterBar.
     await page.evaluate(() => {
       history.pushState({}, '', '/admin?userSearch=external');
       dispatchEvent(new PopStateEvent('popstate'));
