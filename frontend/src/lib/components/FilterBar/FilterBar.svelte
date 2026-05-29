@@ -119,7 +119,7 @@
   {@render activeFilterSlot?.({ activeFilters })}
   <div class="flex grow">
     <PlainInput
-      bind:value={search.value}
+      bind:value={() => search.value, (v) => (search.value = v ?? '')}
       bind:this={searchInput}
       placeholder={$t('filter.placeholder')}
       style="seach-input border-none h-8 px-1 focus:outline-none min-w-[120px] flex-grow"
