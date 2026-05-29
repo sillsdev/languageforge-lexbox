@@ -1,8 +1,33 @@
 using System.Collections;
 using System.Reflection;
 using System.Text;
+using FluentAssertions.Equivalency;
 
 namespace MiniLcm.Tests.Helpers;
+
+public static class NormalizationEquivalency
+{
+    /// <summary>
+    /// Configure BeEquivalentTo so strings compare equal modulo NFC/NFD normalization,
+    /// catching non-string fields the wrapper drops (HomographNumber, Order, etc.)
+    /// that the form-only check ignores.
+    /// </summary>
+    public static EquivalencyOptions<T> NormalizedStrings<T>(this EquivalencyOptions<T> options)
+    {
+        return options
+            .Using<string>(ctx =>
+            {
+                if (ctx.Subject is null || ctx.Expectation is null)
+                {
+                    ctx.Subject.Should().Be(ctx.Expectation);
+                    return;
+                }
+                ctx.Subject.Normalize(NormalizationForm.FormD)
+                    .Should().Be(ctx.Expectation.Normalize(NormalizationForm.FormD));
+            })
+            .WhenTypeIs<string>();
+    }
+}
 
 /// <summary>
 /// For verifying that every string-bearing property of an object is normalized (NFC or NFD).
@@ -22,22 +47,35 @@ public static class NormalizationAssert
         ],
     };
 
-    public static void AssertAllNfc(object? obj, bool requireNonTrivial = false)
+    public static void AssertAllDecomposed(object? obj)
     {
-        Assert(obj, NormalizationForm.FormC, requireNonTrivial);
+        Assert(obj, NormalizationForm.FormD, requireNonTrivial: false);
     }
 
-    public static void AssertAllNfd(object? obj, bool requireNonTrivial = false)
+    /// <summary>
+    /// Strict NFC plus a non-triviality check: every string must differ from its NFD form.
+    /// Catches ASCII-only test data, which is byte-identical in NFC and NFD and would
+    /// silently bypass the normalizer.
+    /// </summary>
+    public static void AssertAllDecomposable(object? obj)
     {
-        Assert(obj, NormalizationForm.FormD, requireNonTrivial);
+        Assert(obj, NormalizationForm.FormC, requireNonTrivial: true);
     }
 
-    public static bool IsAllNfd(object obj)
+    /// <summary>
+    /// For verifying the output of the write-normalization wrapper:
+    /// asserts every string is NFD AND that no non-string field was dropped or mutated
+    /// (BeEquivalentTo on the input, with NFC≡NFD string equivalence).
+    /// Catches the field-drop regression class that pure string-form checks ignore.
+    /// </summary>
+    public static void AssertNormalized<T>(T? captured, T input) where T : class
     {
-        return FindIssues(obj, NormalizationForm.FormD, requireNonTrivial: false).Count == 0;
+        captured.Should().NotBeNull();
+        AssertAllDecomposed(captured);
+        captured.Should().BeEquivalentTo(input, opts => opts.NormalizedStrings());
     }
 
-    private static void Assert(object? obj, NormalizationForm form, bool requireNonTrivial)
+private static void Assert(object? obj, NormalizationForm form, bool requireNonTrivial)
     {
         if (obj is null) throw new Xunit.Sdk.XunitException("Expected object to be non-null but was null");
         var issues = FindIssues(obj, form, requireNonTrivial);
@@ -129,10 +167,6 @@ public static class NormalizationAssert
             issues.Add($"{path}: expected {name} but \"{value}\" is not {name}-normalized");
             return;
         }
-        // Non-trivial check: the string must differ from its conversion to the OTHER form.
-        // If they're equal, the string is byte-identical in both NFC and NFD (e.g., pure ASCII),
-        // so it doesn't actually exercise normalization. This catches dead test coverage where
-        // a field gets ASCII content and silently bypasses the normalizer.
         if (requireNonTrivial)
         {
             var otherForm = form == NormalizationForm.FormC ? NormalizationForm.FormD : NormalizationForm.FormC;

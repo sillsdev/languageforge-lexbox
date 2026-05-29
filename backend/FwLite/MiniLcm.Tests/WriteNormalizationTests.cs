@@ -84,8 +84,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreatePartOfSpeech(pos);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, pos);
     }
 
     [Fact]
@@ -103,8 +102,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdatePartOfSpeech(before, after);
 
-        AssertAllNfd(capturedBefore);
-        AssertAllNfd(capturedAfter);
+        AssertNormalized(capturedBefore, before);
+        AssertNormalized(capturedAfter, after);
     }
 
     #endregion
@@ -124,8 +123,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreatePublication(pub);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, pub);
     }
 
     [Fact]
@@ -143,8 +141,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdatePublication(before, after);
 
-        AssertAllNfd(capturedBefore);
-        AssertAllNfd(capturedAfter);
+        AssertNormalized(capturedBefore, before);
+        AssertNormalized(capturedAfter, after);
     }
 
     #endregion
@@ -164,8 +162,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateSemanticDomain(sd);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, sd);
     }
 
     [Fact]
@@ -183,8 +180,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateSemanticDomain(before, after);
 
-        AssertAllNfd(capturedBefore);
-        AssertAllNfd(capturedAfter);
+        AssertNormalized(capturedBefore, before);
+        AssertNormalized(capturedAfter, after);
     }
 
     [Fact]
@@ -200,8 +197,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.AddSemanticDomainToSense(Guid.NewGuid(), sd);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, sd);
     }
 
     [Fact]
@@ -219,8 +215,9 @@ public class WriteNormalizationTests
 
         await _normalizingApi.BulkImportSemanticDomains(domains.ToAsyncEnumerable());
 
-        captured.Should().HaveCount(2);
-        AssertAllNfd(captured);
+        captured.Should().HaveCount(domains.Length);
+        AssertAllDecomposed(captured);
+        captured.Should().BeEquivalentTo(domains, opts => opts.NormalizedStrings().WithStrictOrdering());
     }
 
     #endregion
@@ -240,8 +237,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateComplexFormType(cft);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, cft);
     }
 
     [Fact]
@@ -259,8 +255,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateComplexFormType(before, after);
 
-        AssertAllNfd(capturedBefore);
-        AssertAllNfd(capturedAfter);
+        AssertNormalized(capturedBefore, before);
+        AssertNormalized(capturedAfter, after);
     }
 
     #endregion
@@ -282,8 +278,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateMorphType(before, after);
 
-        AssertAllNfd(capturedBefore);
-        AssertAllNfd(capturedAfter);
+        AssertNormalized(capturedBefore, before);
+        AssertNormalized(capturedAfter, after);
     }
 
     [Fact]
@@ -304,7 +300,7 @@ public class WriteNormalizationTests
 
         captured.Should().NotBeNull();
         var byPath = captured.Patch.Operations.ToDictionary(o => o.Path!, o => o.Value);
-        AssertAllNfd(byPath["/Name"].Should().BeOfType<MultiString>().Subject);
+        AssertAllDecomposed(byPath["/Name"].Should().BeOfType<MultiString>().Subject);
         byPath["/Prefix"].Should().Be(NfcTestData.Nfd);
         byPath["/Postfix"].Should().Be(NfcTestData.Nfd);
     }
@@ -326,8 +322,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateEntry(entry);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, entry);
     }
 
     [Fact]
@@ -345,8 +340,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateEntry(before, after);
 
-        AssertAllNfd(capturedBefore);
-        AssertAllNfd(capturedAfter);
+        AssertNormalized(capturedBefore, before);
+        AssertNormalized(capturedAfter, after);
     }
 
     [Fact]
@@ -362,8 +357,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateEntry(entry);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, entry);
     }
 
     [Fact]
@@ -379,8 +373,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateEntry(entry);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, entry);
     }
 
     [Fact]
@@ -398,8 +391,9 @@ public class WriteNormalizationTests
 
         await _normalizingApi.BulkCreateEntries(entries.ToAsyncEnumerable());
 
-        captured.Should().HaveCount(2);
-        AssertAllNfd(captured);
+        captured.Should().HaveCount(entries.Length);
+        AssertAllDecomposed(captured);
+        captured.Should().BeEquivalentTo(entries, opts => opts.NormalizedStrings().WithStrictOrdering());
     }
 
     #endregion
@@ -425,7 +419,7 @@ public class WriteNormalizationTests
 
         captured.Should().NotBeNull();
         captured.Should().NotBeSameAs(update); // rebuilt because Entry path normalizes
-        AssertAllPatchValuesNfd(captured);
+        AssertAllPatchValuesDecomposed(captured);
     }
 
     [Fact]
@@ -475,16 +469,16 @@ public class WriteNormalizationTests
     }
 
     /// <summary>
-    /// Asserts every non-null operation value in the patch is NFD. Delegates to
-    /// <see cref="AssertAllNfd"/>, which already understands string,
+    /// Asserts every non-null operation value in the patch is decomposed. Delegates to
+    /// <see cref="AssertAllDecomposed"/>, which already understands string,
     /// string[], MultiString, RichString, and RichMultiString — so failures report a property path.
     /// </summary>
-    private static void AssertAllPatchValuesNfd<T>(UpdateObjectInput<T> update) where T : class
+    private static void AssertAllPatchValuesDecomposed<T>(UpdateObjectInput<T> update) where T : class
     {
         update.Patch.Operations.Should().NotBeEmpty();
         foreach (var op in update.Patch.Operations)
         {
-            if (op.Value is not null) AssertAllNfd(op.Value);
+            if (op.Value is not null) AssertAllDecomposed(op.Value);
         }
     }
 
@@ -506,8 +500,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateComplexFormComponent(cfc);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, cfc);
     }
 
     #endregion
@@ -527,8 +520,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateSense(Guid.NewGuid(), sense);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, sense);
     }
 
     [Fact]
@@ -547,8 +539,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateSense(entryId, before, after);
 
-        AssertAllNfd(capturedBefore);
-        AssertAllNfd(capturedAfter);
+        AssertNormalized(capturedBefore, before);
+        AssertNormalized(capturedAfter, after);
     }
 
     [Fact]
@@ -564,8 +556,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateSense(Guid.NewGuid(), sense);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, sense);
     }
 
     #endregion
@@ -586,8 +577,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateExampleSentence(Guid.NewGuid(), Guid.NewGuid(), example);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, example);
     }
 
     [Fact]
@@ -610,8 +600,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateExampleSentence(entryId, senseId, before, after);
 
-        AssertAllNfd(capturedBefore);
-        AssertAllNfd(capturedAfter);
+        AssertNormalized(capturedBefore, before);
+        AssertNormalized(capturedAfter, after);
     }
 
     [Fact]
@@ -628,8 +618,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateExampleSentence(Guid.NewGuid(), Guid.NewGuid(), example);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, example);
     }
 
     #endregion
@@ -650,8 +639,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.AddTranslation(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), translation);
 
-        captured.Should().NotBeNull();
-        AssertAllNfd(captured);
+        AssertNormalized(captured, translation);
     }
 
     #endregion
@@ -661,52 +649,27 @@ public class WriteNormalizationTests
 public class NormalizationAssertTests
 {
     [Fact]
-    public void AllNfcFactories_ProduceNonTriviallyNfcData()
+    public void AllNfcFactories_ProduceDecomposableData()
     {
-        // requireNonTrivial: every string must differ from its NFD form. Catches ASCII-only test data,
-        // which would silently bypass the normalizer (ASCII is byte-identical in NFC and NFD).
-        AssertAllNfc(NfcTestData.CreateNfcWritingSystem(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcPartOfSpeech(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcPublication(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcSemanticDomain(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcComplexFormType(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcMorphType(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcTranslation(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcExampleSentence(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcExampleSentenceWithTranslations(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcSense(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcSenseWithExamples(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcComplexFormComponent(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcEntry(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcEntryWithSenses(), requireNonTrivial: true);
-        AssertAllNfc(NfcTestData.CreateNfcEntryWithComponents(), requireNonTrivial: true);
+        AssertAllDecomposable(NfcTestData.CreateNfcWritingSystem());
+        AssertAllDecomposable(NfcTestData.CreateNfcPartOfSpeech());
+        AssertAllDecomposable(NfcTestData.CreateNfcPublication());
+        AssertAllDecomposable(NfcTestData.CreateNfcSemanticDomain());
+        AssertAllDecomposable(NfcTestData.CreateNfcComplexFormType());
+        AssertAllDecomposable(NfcTestData.CreateNfcMorphType());
+        AssertAllDecomposable(NfcTestData.CreateNfcTranslation());
+        AssertAllDecomposable(NfcTestData.CreateNfcExampleSentence());
+        AssertAllDecomposable(NfcTestData.CreateNfcExampleSentenceWithTranslations());
+        AssertAllDecomposable(NfcTestData.CreateNfcSense());
+        AssertAllDecomposable(NfcTestData.CreateNfcSenseWithExamples());
+        AssertAllDecomposable(NfcTestData.CreateNfcComplexFormComponent());
+        AssertAllDecomposable(NfcTestData.CreateNfcEntry());
+        AssertAllDecomposable(NfcTestData.CreateNfcEntryWithSenses());
+        AssertAllDecomposable(NfcTestData.CreateNfcEntryWithComponents());
     }
 
     [Fact]
-    public void AssertAllNfc_WithNfcData_DoesNotThrow()
-    {
-        AssertAllNfc(NfcTestData.CreateNfcEntry());
-    }
-
-    [Fact]
-    public void AssertAllNfc_WithNfdData_Throws()
-    {
-        var entry = new Entry
-        {
-            Id = Guid.NewGuid(),
-            LexemeForm = new MultiString { Values = { { "en", NfcTestData.Nfd } } }, // NFD should fail
-            CitationForm = new MultiString { Values = { { "en", NfcTestData.Nfc } } },
-            LiteralMeaning = new RichMultiString { { "en", new RichString(NfcTestData.Nfc) } },
-            Note = new RichMultiString { { "en", new RichString(NfcTestData.Nfc) } }
-        };
-
-        var act = () => AssertAllNfc(entry);
-
-        act.Should().Throw<Xunit.Sdk.XunitException>().WithMessage("*NFC*");
-    }
-
-    [Fact]
-    public void AssertAllNfd_WithNfdData_DoesNotThrow()
+    public void AssertAllDecomposed_WithDecomposedData_DoesNotThrow()
     {
         var entry = new Entry
         {
@@ -717,19 +680,19 @@ public class NormalizationAssertTests
             Note = new RichMultiString { { "en", new RichString(NfcTestData.Nfd) } }
         };
 
-        AssertAllNfd(entry);
+        AssertAllDecomposed(entry);
     }
 
     [Fact]
-    public void AssertAllNfd_WithNfcData_Throws()
+    public void AssertAllDecomposed_WithComposedData_Throws()
     {
-        var act = () => AssertAllNfd(NfcTestData.CreateNfcEntry());
+        var act = () => AssertAllDecomposed(NfcTestData.CreateNfcEntry());
 
         act.Should().Throw<Xunit.Sdk.XunitException>().WithMessage("*NFD*");
     }
 
     [Fact]
-    public void AssertAllNfc_WithEmptyMultiString_Throws()
+    public void AssertAllDecomposable_WithEmptyMultiString_Throws()
     {
         var entry = new Entry
         {
@@ -738,13 +701,13 @@ public class NormalizationAssertTests
             CitationForm = NfcTestData.CreateNfcMultiString()
         };
 
-        var act = () => AssertAllNfc(entry);
+        var act = () => AssertAllDecomposable(entry);
 
         act.Should().Throw<Xunit.Sdk.XunitException>().WithMessage("*no values*");
     }
 
     [Fact]
-    public void AssertAllNfc_WithNestedNfdData_Throws()
+    public void AssertAllDecomposable_WithNestedNfdData_Throws()
     {
         var entry = new Entry
         {
@@ -764,22 +727,26 @@ public class NormalizationAssertTests
             ]
         };
 
-        var act = () => AssertAllNfc(entry);
+        var act = () => AssertAllDecomposable(entry);
 
         act.Should().Throw<Xunit.Sdk.XunitException>().WithMessage("*Senses*Gloss*");
     }
 
     [Fact]
-    public void IsAllNfd_WithNfdData_ReturnsTrue()
+    public void AssertAllDecomposable_WithAsciiData_Throws()
     {
-        var multiString = new MultiString { Values = { { "en", NfcTestData.Nfd } } };
+        var entry = new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = new MultiString { Values = { { "en", "naive" } } }, // ASCII -> trivially NFC
+            CitationForm = NfcTestData.CreateNfcMultiString(),
+            LiteralMeaning = NfcTestData.CreateNfcRichMultiString(),
+            Note = NfcTestData.CreateNfcRichMultiString()
+        };
 
-        IsAllNfd(multiString).Should().BeTrue();
+        var act = () => AssertAllDecomposable(entry);
+
+        act.Should().Throw<Xunit.Sdk.XunitException>().WithMessage("*trivially*");
     }
 
-    [Fact]
-    public void IsAllNfd_WithNfcData_ReturnsFalse()
-    {
-        IsAllNfd(NfcTestData.CreateNfcMultiString()).Should().BeFalse();
-    }
 }
