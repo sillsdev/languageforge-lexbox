@@ -1,73 +1,64 @@
-import type {StandardEnum, StringifyValues} from '$lib/type.utils';
-import {createSearchParamsSchema, type SearchParamsOptions, useSearchParams} from 'runed/kit';
+import type { StandardEnum, StringifyValues } from '$lib/type.utils';
+import { queryParameters, ssp } from 'sveltekit-search-params';
 
-import type {ConditionalPick} from 'type-fest';
-import {DEFAULT_DEBOUNCE_TIME} from './time';
-import type {PrimitiveRecord} from './types';
+import type { ConditionalPick } from 'type-fest';
+import type { EncodeAndDecodeOptions } from 'sveltekit-search-params/sveltekit-search-params';
+import type { PrimitiveRecord } from './types';
+import type { Writable } from 'svelte/store';
 
-// `runed`'s createSearchParamsSchema input shape — kept here so call sites don't need to
-// know about runed. `queryParam.X(default)` helpers below return entries that conform.
-// The phantom `T` carries the value type (`UserType`, etc.) through to the returned proxy
-// via `getSearchParams<T>`, even though runed's runtime only sees 'string'/'boolean'/'number'.
-type ParamSpec<T> = (
-  | {type: 'string'; default?: string | undefined}
-  | {type: 'number'; default?: number | undefined}
-  | {type: 'boolean'; default?: boolean | undefined}
-) & {phantomT?: T};
+// Require default values
+type QueryParamOptions<T> = Required<EncodeAndDecodeOptions<T>>;
+type QueryParamConfig<T> = { [Key in keyof T]: QueryParamOptions<T[Key]> };
+export type QueryParams<T> = { queryParamValues: Writable<T>, defaultQueryParamValues: T };
 
-type ParamConfig<T> = {[K in keyof T]: ParamSpec<T[K]>};
-
-export type QueryParams<T> = {
-  queryParamValues: T;
-  defaultQueryParamValues: T;
-};
-
-export const queryParam = {
-  string: <T extends string | undefined>(defaultValue: T) =>
-    ({type: 'string', default: defaultValue}) as ParamSpec<T>,
-  boolean: <T extends boolean | undefined>(defaultValue: T) =>
-    ({type: 'boolean', default: defaultValue}) as ParamSpec<T>,
-  number: <T extends number | undefined>(defaultValue: T) =>
-    ({type: 'number', default: defaultValue}) as ParamSpec<T>,
-};
-
-/**
- * Build a URL-backed reactive params object via runed's `useSearchParams`.
- *
- * Returns the runed proxy (synchronous local-cache reads, debounced URL writes) plus a
- * separate plain-object snapshot of the defaults — components use the latter to decide
- * which filters count as "active".
- *
- * Call sites mutate the proxy directly: `queryParamValues.userSearch = 'abc'`. The proxy
- * is reactive ($state-backed under the hood), so `bind:value={queryParamValues.X}` and
- * `$derived(queryParamValues.X)` both work.
- */
-export function getSearchParams<T extends Record<string, unknown>>(
-  config: ParamConfig<T>,
-  options?: SearchParamsOptions,
-): QueryParams<T> {
+// A more type-smart version of ssp that requires defaults to be provided
+export const queryParam = ssp as {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const schema = createSearchParamsSchema(config as any);
-  const params = useSearchParams(schema, {
-    debounce: DEFAULT_DEBOUNCE_TIME,
-    pushHistory: false,
-    noScroll: true,
-    ...options,
-  });
+  [Property in keyof typeof ssp]: (typeof ssp)[Property] extends (defaultValue: any) => EncodeAndDecodeOptions<infer P>
+  ? <V extends P | undefined>(defaultValue: V) => QueryParamOptions<
+    NonNullable<V> extends never // default is undefined, that's obviously too specific to be the parameter type, so we hang onto P
+    ? P | V : V>
+  : (typeof ssp)[Property] extends typeof ssp.array
+  ? typeof ssp.array // special case we can worry about if we ever need it
+  : never;
+}
 
-  const defaults: Partial<T> = {};
-  for (const key in config) {
-    defaults[key] = config[key].default as T[typeof key];
+export function getSearchParams<T extends Record<string, unknown>>(options: QueryParamConfig<T>) : QueryParams<T> {
+  // pull the defaults out before we delete them
+  const defaultValues = getDefaults(options);
+  for (const key in options) {
+    const { encode, decode, defaultValue } = options[key];
+    // Teach the encoder to exclude defaults from the URL
+    options[key].encode = (value) => value === defaultValue ? undefined : encode.call(options[key], value);
+    // Teach the decoder to return defaults
+    options[key].decode = (urlValue) => {
+      const value = decode.call(options[key], urlValue);
+      return value === null ? defaultValue : value;
+    };
+    // get rid of defaults, so the sveltekit-search-params lib gives us an object right away
+    delete (options[key] as EncodeAndDecodeOptions<T[typeof key]>).defaultValue;
   }
 
+  const queryParams = queryParameters<QueryParamConfig<T>>(options, { pushHistory: false });
+
   return {
-    queryParamValues: params as unknown as T,
-    defaultQueryParamValues: defaults as T,
-  };
+    queryParamValues: queryParams as Writable<T>,
+    defaultQueryParamValues: defaultValues,
+  }
 }
 
 export function getSearchParamValues<T extends Record<string, unknown>>(): StringifyValues<T> {
   return Object.fromEntries(new URLSearchParams(location.search).entries()) as StringifyValues<T>;
+}
+
+function getDefaults<T extends Record<string, unknown>>(
+  options: QueryParamConfig<T>): T {
+  const defaultValues: Partial<T> = {};
+  for (const key in options) {
+    const option = options[key];
+    defaultValues[key] = option.defaultValue;
+  }
+  return defaultValues as T;
 }
 
 /**

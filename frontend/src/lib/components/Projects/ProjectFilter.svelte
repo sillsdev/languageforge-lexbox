@@ -41,6 +41,7 @@
 
 <script lang="ts">
   import {FormField, ProjectTypeSelect} from '$lib/forms';
+  import type {Writable} from 'svelte/store';
   import {ProjectTypeIcon} from '../ProjectType';
   import ActiveFilter from '../FilterBar/ActiveFilter.svelte';
   import FilterBar, {type OnFiltersChanged} from '../FilterBar/FilterBar.svelte';
@@ -54,7 +55,7 @@
 
   type Filters = Partial<ProjectFilters> & Pick<ProjectFilters, 'projectSearch'>;
   interface Props {
-    filters: Filters;
+    filters: Writable<Filters>;
     filterDefaults: Filters;
     onFiltersChanged?: OnFiltersChanged;
     hasActiveFilter?: boolean;
@@ -64,7 +65,7 @@
   }
 
   let {
-    filters = $bindable(),
+    filters,
     filterDefaults,
     onFiltersChanged,
     hasActiveFilter = $bindable(false),
@@ -144,11 +145,11 @@
     <h2 class="card-title">{$t('project.filter.title')}</h2>
     {#if filterEnabled('memberSearch')}
       <FormField label={$t('project.filter.project_member')}>
-        {#if filters.memberSearch}
+        {#if $filters.memberSearch}
           <div class="join">
-            <input class="input input-bordered join-item flex-grow" readonly value={filters.memberSearch} />
+            <input class="input input-bordered join-item flex-grow" readonly value={$filters.memberSearch} />
             <div class="join-item isolate">
-              <IconButton icon="i-mdi-close" onclick={() => (filters.memberSearch = undefined)} />
+              <IconButton icon="i-mdi-close" onclick={() => ($filters.memberSearch = undefined)} />
             </div>
           </div>
         {:else}
@@ -171,12 +172,12 @@
     {/if}
     {#if filterEnabled('projectType')}
       <div class="form-control">
-        <ProjectTypeSelect bind:value={filters.projectType} undefinedOptionLabel={$t('common.any')} includeUnknown />
+        <ProjectTypeSelect bind:value={$filters.projectType} undefinedOptionLabel={$t('common.any')} includeUnknown />
       </div>
     {/if}
     {#if filterEnabled('confidential')}
       <div class="form-control">
-        <ProjectConfidentialityFilterSelect bind:value={filters.confidential} />
+        <ProjectConfidentialityFilterSelect bind:value={$filters.confidential} />
       </div>
     {/if}
     {#if filterEnabled('showDeletedProjects')}
@@ -186,7 +187,7 @@
             {$t('project.filter.show_deleted')}
             <TrashIcon color="text-error" />
           </span>
-          <input bind:checked={filters.showDeletedProjects} type="checkbox" class="toggle toggle-error" />
+          <input bind:checked={$filters.showDeletedProjects} type="checkbox" class="toggle toggle-error" />
         </label>
       </div>
     {/if}
@@ -200,7 +201,7 @@
             </span>
             <Icon icon="i-mdi-script" color="text-warning" />
           </span>
-          <input bind:checked={filters.hideDraftProjects} type="checkbox" class="toggle toggle-warning" />
+          <input bind:checked={$filters.hideDraftProjects} type="checkbox" class="toggle toggle-warning" />
         </label>
       </div>
     {/if}
@@ -211,7 +212,7 @@
             {$t('project.filter.show_empty')}
             <Icon icon="i-mdi-file-hidden" />
           </span>
-          <input bind:checked={filters.emptyProjects} type="checkbox" class="toggle toggle-warning" />
+          <input bind:checked={$filters.emptyProjects} type="checkbox" class="toggle toggle-warning" />
         </label>
       </div>
     {/if}

@@ -9,6 +9,7 @@
 </script>
 
 <script lang="ts">
+  import type { Writable } from 'svelte/store';
   import FilterBar, { type OnFiltersChanged } from '$lib/components/FilterBar/FilterBar.svelte';
   import ActiveFilter from '$lib/components/FilterBar/ActiveFilter.svelte';
   import { Icon } from '$lib/icons';
@@ -17,7 +18,7 @@
 
   type Filters = Partial<UserFilters> & Pick<UserFilters, 'userSearch'>;
   interface Props {
-    filters: Filters;
+    filters: Writable<Filters>;
     filterDefaults: Filters;
     onFiltersChanged?: OnFiltersChanged;
     hasActiveFilter?: boolean;
@@ -27,7 +28,7 @@
   }
 
   let {
-    filters = $bindable(),
+    filters,
     filterDefaults,
     onFiltersChanged,
     hasActiveFilter = $bindable(false),
@@ -42,6 +43,7 @@
 </script>
 
 <FilterBar
+  debounce
   {onFiltersChanged}
   searchKey="userSearch"
   {autofocus}
@@ -81,7 +83,7 @@
       <h2 class="card-title">{$t('admin_dashboard.user_filter.title')}</h2>
       {#if filterEnabled('userType')}
         <div class="form-control">
-          <UserTypeSelect bind:value={filters.userType} undefinedOptionLabel={$t('common.any')}/>
+          <UserTypeSelect bind:value={$filters.userType} undefinedOptionLabel={$t('common.any')}/>
         </div>
       {/if}
       {#if filterEnabled('usersICreated')}
@@ -91,7 +93,7 @@
               {$t('admin_dashboard.user_filter.guest_users_i_added')}
               <Icon icon="i-mdi-account-plus-outline" color="text-warning" />
             </span>
-            <input bind:checked={filters.usersICreated} type="checkbox" class="toggle toggle-warning" />
+            <input bind:checked={$filters.usersICreated} type="checkbox" class="toggle toggle-warning" />
           </label>
         </div>
       {/if}

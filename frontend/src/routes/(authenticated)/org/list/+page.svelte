@@ -64,7 +64,7 @@
     ]);
   }
 
-  let filteredOrgs = $derived($orgs ? filterOrgs($orgs, queryParamValues.search) : []);
+  let filteredOrgs = $derived($orgs ? filterOrgs($orgs, $queryParamValues.search) : []);
   let displayOrgs = $derived(sortOrgs(filteredOrgs, sortColumn, sortDir));
   let filtering = $derived(filteredOrgs.length !== $orgs.length);
 

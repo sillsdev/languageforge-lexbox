@@ -16,8 +16,11 @@
   import {PlainInput} from '$lib/forms';
   import {pick} from '$lib/util/object';
   import t from '$lib/i18n';
+  import type {Writable} from 'svelte/store';
+  import {untrack} from 'svelte';
   import Dropdown from '../Dropdown.svelte';
-  import {Previous} from 'runed';
+  import {Previous, Debounced, watch} from 'runed';
+  import {DEFAULT_DEBOUNCE_TIME} from '$lib/util/time';
 
   type DumbFilters = $$Generic<Record<string, unknown>>;
   type Filters = DumbFilters & Record<typeof searchKey, string>;
@@ -27,10 +30,7 @@
   interface Props {
     searchKey: keyof ConditionalPick<DumbFilters, string>;
     autofocus?: true;
-    // The store is a runed `useSearchParams` proxy (see `getSearchParams`). Reads come
-    // from runed's internal $state-backed cache, writes are debounced into the URL —
-    // so binding directly here is safe under rapid typing.
-    filters: Filters;
+    filters: Writable<Filters>;
     filterDefaults: Filters;
     onFiltersChanged?: OnFiltersChanged;
     hasActiveFilter?: boolean;
@@ -39,6 +39,7 @@
      */
     filterKeys?: Readonly<(keyof Filters)[]>;
     loading?: boolean;
+    debounce?: number | boolean;
     activeFilterSlot?: Snippet<[{ activeFilters: Readonly<Filter<Filters>[]> }]>;
     filterSlot?: Snippet;
   }
@@ -46,39 +47,80 @@
   let {
     searchKey,
     autofocus,
-    filters,
+    filters: allFilters,
     filterDefaults: allFilterDefaults,
     onFiltersChanged,
     hasActiveFilter = $bindable(false),
     filterKeys,
     loading = false,
+    debounce = false,
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
+  // The input — not the store — owns this value; we only adopt store changes when no write
+  // of ours is in flight (see $effect below). Prevents keystroke loss from URL round-trip
+  // races in #2224.
+  let undebouncedSearch: string | undefined = $state(untrack(() => $allFilters[searchKey]));
+  // Object wrapper so `null` (no pending write) is distinct from a pending write of undefined.
+  let pendingEcho: { value: string | undefined } | null = null;
+  const watcher: () => string | undefined = $derived.by(() => {
+    if (debounce === false) return () => undebouncedSearch;
+    const debounceTime = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
+    // untrack: Debounced's constructor calls the getter once, which would otherwise make
+    // this derived depend on undebouncedSearch and rebuild a fresh Debounced — with #current
+    // set to the latest value — on every keystroke, defeating debouncing entirely.
+    const debouncer = untrack(() => new Debounced(() => undebouncedSearch, debounceTime));
+    return () => debouncer.current;
+  });
+  watch(() => watcher(), (value) => {
+    if ($allFilters[searchKey] === value) return;
+    pendingEcho = { value };
+    $allFilters[searchKey] = value as Filters[typeof searchKey];
+  });
+  $effect(() => {
+    const fromStore = $allFilters[searchKey];
+    if (pendingEcho) {
+      if (fromStore === pendingEcho.value) pendingEcho = null;
+      return;
+    }
+    untrack(() => {
+      if (fromStore !== undebouncedSearch) {
+        undebouncedSearch = fromStore as string | undefined;
+      }
+    });
+  });
 
   function onClearFiltersClick(): void {
-    for (const key of Object.keys(filterDefaults)) {
-      (filters as Record<string, unknown>)[key] = (filterDefaults as Record<string, unknown>)[key];
-    }
+    // Reset the input to the store's default rather than calling searchInput.clear() —
+    // that writes undefined, which the URL-backed store normalizes to '' and would leave
+    // pendingEcho permanently unmatched (silently blocking later external store writes).
+    undebouncedSearch = filterDefaults[searchKey] as string | undefined;
+    $allFilters = {
+      ...$allFilters,
+      ...filterDefaults,
+    };
     searchInput?.focus();
   }
 
   function resetFilter(key: string): void {
-    (filters as Record<string, unknown>)[key] = (filterDefaults as Record<string, unknown>)[key];
+    $allFilters = {
+      ...$allFilters,
+      [key]: filterDefaults[key],
+    };
   }
 
   function pickActiveFilters(values: Filters, defaultValues: Filters): Readonly<Filter<Filters>[]> {
     const filters: Filter<Filters>[] = [];
-    // Iterate from defaults (plain object) — runed's proxy doesn't expose schema keys via for…in.
-    for (const key of Object.keys(defaultValues)) {
-      const value = (values as Record<string, unknown>)[key];
-      if (value !== (defaultValues as Record<string, unknown>)[key]) {
+    for (const key in values) {
+      const value = values[key];
+      if (value !== defaultValues[key]) {
         filters.push({ key, value, clear: () => resetFilter(key) } as Filter<Filters>);
       }
     }
     return Object.freeze(filters);
   }
 
+  let filters = $derived(Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters));
   let filterDefaults = $derived(Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults));
   let activeFilters: Readonly<Filter<Filters>[]> = $derived(pickActiveFilters(filters, filterDefaults));
   let prevActiveFilters = new Previous(() => activeFilters, []);
@@ -96,7 +138,7 @@
   {@render activeFilterSlot?.({ activeFilters })}
   <div class="flex grow">
     <PlainInput
-      bind:value={() => filters[searchKey] as string, (v) => (filters[searchKey] = (v ?? '') as Filters[typeof searchKey])}
+      bind:value={undebouncedSearch}
       bind:this={searchInput}
       placeholder={$t('filter.placeholder')}
       style="seach-input border-none h-8 px-1 focus:outline-none min-w-[120px] flex-grow"
@@ -108,7 +150,8 @@
           <Loader loading />
         </div>
       {/if}
-      {#if !!filters[searchKey] || activeFilters.find((f) => f.key !== searchKey)}
+      <!-- The user sees the "undebounced" search value, so the X button should consider that (and not the debounced value) -->
+      {#if !!undebouncedSearch || activeFilters.find((f) => f.key !== searchKey)}
         <button class="btn btn-square btn-sm join-item" onclick={onClearFiltersClick}>
           <span class="text-lg">✕</span>
         </button>

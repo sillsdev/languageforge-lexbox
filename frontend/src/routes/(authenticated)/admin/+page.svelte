@@ -53,7 +53,7 @@
   const userFilterKeys = ['userSearch', 'usersICreated', 'userType'] as const satisfies Readonly<(keyof UserFilters)[]>;
 
   const { queryParamValues, defaultQueryParamValues } = queryParams;
-  let tab = $derived(queryParamValues.tab);
+  let tab = $derived($queryParamValues.tab);
 
   const loadingUsers = derivedStore(navigating, (nav) => {
     if (!nav?.to?.route.id?.endsWith('/admin')) return false;
@@ -61,7 +61,7 @@
     return (
       fromUrl &&
       userFilterKeys.some(
-        (key) => (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== queryParamValues[key],
+        (key) => (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== $queryParamValues[key],
       )
     );
   });
@@ -79,11 +79,11 @@
   let shownUsers = $derived(lastLoadUsedActiveFilter ? users : users.slice(0, 10));
 
   function filterProjectsByUser(user: User): void {
-    queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
+    $queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
     // Clear other filters that might hide the user's projects
-    queryParamValues.projectSearch = '';
-    queryParamValues.projectType = undefined;
-    queryParamValues.tab = 'projects';
+    $queryParamValues.projectSearch = '';
+    $queryParamValues.projectType = undefined;
+    $queryParamValues.tab = 'projects';
   }
 
   let userModal: UserModal | undefined = $state();
@@ -121,7 +121,7 @@
 
   function onUserCreated(user: LexAuthUser): void {
     notifySuccess($t('admin_dashboard.notifications.user_created', { name: user.name }), Duration.Long);
-    queryParamValues.userSearch = user.emailOrUsername;
+    $queryParamValues.userSearch = user.emailOrUsername;
   }
 </script>
 
@@ -136,7 +136,7 @@
     </div>
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
-      <AdminTabs activeTab="users" onClickTab={(tab) => (queryParamValues.tab = tab)}>
+      <AdminTabs activeTab="users" onClickTab={(tab) => ($queryParamValues.tab = tab)}>
         <div class="flex gap-4 justify-between grow">
           <div class="flex gap-4 items-center">
             {$t('admin_dashboard.user_table_title')}
