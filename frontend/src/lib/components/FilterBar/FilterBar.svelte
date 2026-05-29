@@ -70,20 +70,17 @@
   // the last keystroke, and external writes to the upstream store flow back
   // into the input. See debouncedFilter.svelte.ts for the echo-suppression
   // mechanics that keep in-flight typing from being clobbered by the round-trip.
-  //
-  // `untrack` here just tells Svelte we intentionally bind these props once
-  // at setup — they're stable for the lifetime of the component instance.
+  // `untrack` here is the documented way to silence `state_referenced_locally`
+  // for prop reads that are intentionally one-time setup arguments.
   const search = untrack(() => debouncedFilter(filters, searchKey, debounceMs));
-
-  function onClearFiltersClick(): void {
-    for (const key of Object.keys(filterDefaults)) {
-      (filters as Record<string, unknown>)[key] = (filterDefaults as Record<string, unknown>)[key];
-    }
-    searchInput?.focus();
-  }
 
   function resetFilter(key: string): void {
     (filters as Record<string, unknown>)[key] = (filterDefaults as Record<string, unknown>)[key];
+  }
+
+  function onClearFiltersClick(): void {
+    Object.keys(filterDefaults).forEach(resetFilter);
+    searchInput?.focus();
   }
 
   function pickActiveFilters(values: Filters, defaultValues: Filters): Readonly<Filter<Filters>[]> {
@@ -99,10 +96,10 @@
         filters.push({ key, value, clear: () => resetFilter(key) } as Filter<Filters>);
       }
     }
-    return Object.freeze(filters);
+    return filters;
   }
 
-  let filterDefaults = $derived(Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults));
+  let filterDefaults = $derived(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults);
   let activeFilters: Readonly<Filter<Filters>[]> = $derived(pickActiveFilters(filters, filterDefaults));
   let prevActiveFilters = new Previous(() => activeFilters, []);
   $effect(() => {
@@ -132,7 +129,7 @@
         </div>
       {/if}
       <!-- show the X if the input has unflushed typed text, or any non-search filter is active -->
-      {#if !!search.value || activeFilters.find((f) => f.key !== searchKey)}
+      {#if search.value || activeFilters.some((f) => f.key !== searchKey)}
         <button class="btn btn-square btn-sm join-item" onclick={onClearFiltersClick}>
           <span class="text-lg">✕</span>
         </button>

@@ -45,12 +45,12 @@ export function getSearchParams<T extends Record<string, unknown>>(
   config: ParamConfig<T>,
   options?: SearchParamsOptions,
 ): QueryParams<T> {
+  // `as any`: ParamSpec carries a phantom `T` for typing only; runed wants its exact
+  // SchemaTypeConfig discriminated union, which doesn't accept the wider phantom-bearing shape.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const schema = createSearchParamsSchema(config as any);
-  // No runed-level debounce: URL writes are immediate. Per-input debouncing
-  // (e.g. for a search input that drives server-side filtering) lives in
-  // FilterBar/debouncedFilter, where it's explicit at the call site.
   const params = useSearchParams(schema, {
+    // debounce: 0 — per-input debouncing is explicit at the call site (see FilterBar/debouncedFilter)
     pushHistory: false,
     noScroll: true,
     ...options,
@@ -61,10 +61,14 @@ export function getSearchParams<T extends Record<string, unknown>>(
     defaults[key] = config[key].default as T[typeof key];
   }
 
+  // `as unknown as T` deliberately hides runed's proxy methods (set/reset/cleanup/update)
+  // so consumers don't accidentally treat them as URL params. Reads/writes of T's keys
+  // still flow through the proxy via property access.
+  //
+  // Heads-up for consumers: runed's `createSearchParamsSchema` normalises `undefined`
+  // defaults to `null` on reads. Treat null/undefined as equivalent "unset" —
+  // `value == null` instead of `=== undefined`.
   return {
-    // Note for consumers: runed's `createSearchParamsSchema` normalises
-    // `undefined` defaults to `null` on reads. Treat null/undefined as
-    // equivalent "unset" — `value == null` instead of `=== undefined`.
     queryParamValues: params as unknown as T,
     defaultQueryParamValues: defaults as T,
   };
