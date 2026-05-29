@@ -442,7 +442,11 @@ public class LexboxProjectService : IDisposable
 
             connection.Closed += async (exception) =>
             {
-                cache.Remove(HubConnectionCacheKey(server));
+                // Concurrent ListenForProjectChanges callers can build parallel HubConnections and only
+                // one wins the cache slot. Don't blindly remove the cache entry on Closed — only do so
+                // if WE are the cached connection, otherwise we'd evict the live replacement.
+                if (cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? cached) && ReferenceEquals(cached, connection))
+                    cache.Remove(HubConnectionCacheKey(server));
                 await connection.DisposeAsync();
             };
             // ICacheEntry value returned from CreateEntry must be disposed in order to be committed to the cache,
