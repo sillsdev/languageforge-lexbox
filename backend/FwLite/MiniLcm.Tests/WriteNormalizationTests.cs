@@ -661,23 +661,25 @@ public class WriteNormalizationTests
 public class NormalizationAssertTests
 {
     [Fact]
-    public void AllNfcFactories_ProduceNfcData()
+    public void AllNfcFactories_ProduceNonTriviallyNfcData()
     {
-        AssertAllNfc(NfcTestData.CreateNfcWritingSystem());
-        AssertAllNfc(NfcTestData.CreateNfcPartOfSpeech());
-        AssertAllNfc(NfcTestData.CreateNfcPublication());
-        AssertAllNfc(NfcTestData.CreateNfcSemanticDomain());
-        AssertAllNfc(NfcTestData.CreateNfcComplexFormType());
-        AssertAllNfc(NfcTestData.CreateNfcMorphType());
-        AssertAllNfc(NfcTestData.CreateNfcTranslation());
-        AssertAllNfc(NfcTestData.CreateNfcExampleSentence());
-        AssertAllNfc(NfcTestData.CreateNfcExampleSentenceWithTranslations());
-        AssertAllNfc(NfcTestData.CreateNfcSense());
-        AssertAllNfc(NfcTestData.CreateNfcSenseWithExamples());
-        AssertAllNfc(NfcTestData.CreateNfcComplexFormComponent());
-        AssertAllNfc(NfcTestData.CreateNfcEntry());
-        AssertAllNfc(NfcTestData.CreateNfcEntryWithSenses());
-        AssertAllNfc(NfcTestData.CreateNfcEntryWithComponents());
+        // requireNonTrivial: every string must differ from its NFD form. Catches ASCII-only test data,
+        // which would silently bypass the normalizer (ASCII is byte-identical in NFC and NFD).
+        AssertAllNfc(NfcTestData.CreateNfcWritingSystem(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcPartOfSpeech(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcPublication(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcSemanticDomain(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcComplexFormType(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcMorphType(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcTranslation(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcExampleSentence(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcExampleSentenceWithTranslations(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcSense(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcSenseWithExamples(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcComplexFormComponent(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcEntry(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcEntryWithSenses(), requireNonTrivial: true);
+        AssertAllNfc(NfcTestData.CreateNfcEntryWithComponents(), requireNonTrivial: true);
     }
 
     [Fact]
