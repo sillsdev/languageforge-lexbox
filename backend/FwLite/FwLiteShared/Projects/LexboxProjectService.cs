@@ -230,25 +230,8 @@ public class LexboxProjectService : IDisposable
         if (!options.Value.TryGetServer(projectData, out var server)) return;
         var lexboxConnection = await StartLexboxProjectChangeListener(server, stoppingToken);
         if (lexboxConnection is null) return;
-        // If the connection isn't active yet, avoid SendAsync which throws in Reconnecting/Disconnected.
-        if (lexboxConnection.State == HubConnectionState.Reconnecting)
-        {
-            // Reconnected handler will resubscribe when the connection comes back.
-            return;
-        }
-        if (lexboxConnection.State == HubConnectionState.Disconnected)
-        {
-            // Connection can be Disconnected after auth-loss StopAsync or a failed StartAsync; try to recover here.
-            try
-            {
-                await lexboxConnection.StartAsync(stoppingToken);
-            }
-            catch (Exception e)
-            {
-                logger.LogWarning(e, "Failed to restart Lexbox listener");
-                return;
-            }
-        }
+        // Register the project for resubscription before any early-return on connection state,
+        // otherwise the Reconnected handler won't know to resubscribe it when the connection comes back.
         var subscribedProjects = _reconnectProjects.GetValue(lexboxConnection, static conn =>
         {
             var projects = new HashSet<Guid>();
@@ -277,6 +260,25 @@ public class LexboxProjectService : IDisposable
         {
             subscribedProjects.Add(projectData.Id);
         }
+        // If the connection isn't active yet, avoid SendAsync which throws in Reconnecting/Disconnected.
+        if (lexboxConnection.State == HubConnectionState.Reconnecting)
+        {
+            // Reconnected handler will resubscribe when the connection comes back.
+            return;
+        }
+        if (lexboxConnection.State == HubConnectionState.Disconnected)
+        {
+            // Connection can be Disconnected after auth-loss StopAsync or a failed StartAsync; try to recover here.
+            try
+            {
+                await lexboxConnection.StartAsync(stoppingToken);
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to restart Lexbox listener");
+                return;
+            }
+        }
         try
         {
             await lexboxConnection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectData.Id, stoppingToken);
@@ -289,6 +291,35 @@ public class LexboxProjectService : IDisposable
     }
 
     private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
+
+    // Internal for unit tests. SignalR retries reconnects forever; this is what breaks the loop when auth is gone.
+    internal static async Task HandleReconnecting(
+        string cacheKey,
+        IMemoryCache cache,
+        ILogger logger,
+        Func<Task> stopConnection,
+        string? currentToken,
+        Exception? exception)
+    {
+        if (exception is not null)
+            logger.LogWarning(exception, "SignalR connection reconnecting");
+        else
+            logger.LogInformation("SignalR connection reconnecting");
+
+        if (currentToken is not null) return;
+
+        cache.Remove(cacheKey);
+        logger.LogWarning(exception, "SignalR reconnect failed due to missing auth token");
+        try
+        {
+            await stopConnection();
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to stop SignalR connection after auth loss");
+        }
+    }
+
     private class InfiniteRetryPolicy : IRetryPolicy
     {
         public TimeSpan? NextRetryDelay(RetryContext retryContext)
@@ -346,26 +377,11 @@ public class LexboxProjectService : IDisposable
 
         try
         {
+            var cacheKey = HubConnectionCacheKey(server);
             connection.Reconnecting += async exception =>
             {
-                // Reconnecting can loop forever with infinite retry; log and bail if auth is missing.
-                if (exception is not null)
-                    logger.LogWarning(exception, "SignalR connection reconnecting");
-                else
-                    logger.LogInformation("SignalR connection reconnecting");
-
-                if (await clientFactory.GetClient(server).GetCurrentToken() is not null) return;
-
-                cache.Remove(HubConnectionCacheKey(server));
-                logger.LogWarning(exception, "SignalR reconnect failed due to missing auth token");
-                try
-                {
-                    await connection.StopAsync();
-                }
-                catch (Exception e)
-                {
-                    logger.LogWarning(e, "Failed to stop SignalR connection after auth loss");
-                }
+                var currentToken = await clientFactory.GetClient(server).GetCurrentToken();
+                await HandleReconnecting(cacheKey, cache, logger, () => connection.StopAsync(), currentToken, exception);
             };
             // TODO: If StartAsync fails due to transient network, consider retrying on next sync/on-demand
             await connection.StartAsync(stoppingToken);
