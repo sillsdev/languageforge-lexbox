@@ -42,7 +42,7 @@
     })),
     ...$projects.map((p) => ({ ...p, isDraft: false as const })),
   ]);
-  const filteredProjects: ProjectItemWithDraftStatus[] = $derived(filterProjects(allProjects, $filters));
+  const filteredProjects: ProjectItemWithDraftStatus[] = $derived(filterProjects(allProjects, filters));
   const shownProjects = $derived(limitResults ? limit(filteredProjects) : filteredProjects);
 
   let defaultMode: ViewMode = $derived(allProjects.length < 10 ? 'grid' : 'table');
