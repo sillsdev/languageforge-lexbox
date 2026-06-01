@@ -25,6 +25,7 @@
     "lint:styles": "stylelint **/*.{css,scss} --allow-empty-input",
     "lint-fix": "npm run lint-fix:scripts && npm run lint:styles -- --fix",
     "lint-fix:scripts": "npm run format && npm run lint:scripts",
+    "template:sync": "node ./scripts/sync-template-updates.cjs",
     "core:start": "npm --prefix ../../paranext-core start",
     "core:stop": "npm --prefix ../../paranext-core stop",
     "core:copy-package": "node ./scripts/copy-package-to-core.cjs",
