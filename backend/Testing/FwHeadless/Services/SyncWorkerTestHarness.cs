@@ -252,7 +252,6 @@ internal sealed class SyncWorkerTestHarness : IDisposable
             MockBehavior.Strict,
             null!,
             NullLogger<CrdtFwdataProjectSyncService>.Instance,
-            null!,
             null!);
 
         syncService
