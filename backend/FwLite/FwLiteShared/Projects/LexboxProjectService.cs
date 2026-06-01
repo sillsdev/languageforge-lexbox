@@ -66,22 +66,35 @@ public class LexboxProjectService : IDisposable
             // Try to (re)start listeners for tracked projects on this server. If auth is gone (logout),
             // StartLexboxProjectChangeListener returns null and we no-op. If auth is valid (login),
             // we get a fresh listener without waiting for the user to manually sync or reopen.
-            foreach (var project in _trackedProjects.Values)
-            {
-                if (project.ServerId != server.Id) continue;
-                try
-                {
-                    await ListenForProjectChanges(project, CancellationToken.None);
-                }
-                catch (Exception e)
-                {
-                    logger.LogWarning(e, "Failed to (re)start project change listener for {ProjectName} after auth change", project.Name);
-                }
-            }
+            bool ForThisServer(ProjectData p) => p.ServerId == server.Id;
+            logger.LogInformation("Auth changed for {Server}, re-establishing push listeners for {Count} tracked project(s)",
+                server.Authority, _trackedProjects.Values.Count(ForThisServer));
+            await EnsureListenersForTrackedProjects(ForThisServer);
         }
         catch (Exception e)
         {
             logger.LogWarning(e, "Failed to handle authentication change for {Server}", server.Authority);
+        }
+    }
+
+    // Re-establish push listeners for every tracked project (idempotent — a healthy cached connection
+    // short-circuits and a logged-out server no-ops on the token check). Used by connectivity-regained
+    // recovery so a listener that failed to start while offline comes back without a manual sync or edit.
+    public Task EnsureListenersForTrackedProjects() => EnsureListenersForTrackedProjects(null);
+
+    private async Task EnsureListenersForTrackedProjects(Func<ProjectData, bool>? filter)
+    {
+        foreach (var project in _trackedProjects.Values)
+        {
+            if (filter is not null && !filter(project)) continue;
+            try
+            {
+                await ListenForProjectChanges(project, CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to (re)start project change listener for {ProjectName}", project.Name);
+            }
         }
     }
 
@@ -263,15 +276,58 @@ public class LexboxProjectService : IDisposable
 
     public async Task ListenForProjectChanges(ProjectData projectData, CancellationToken stoppingToken)
     {
-        // Record intent to listen before any early-returns. Used to recover after auth changes and
-        // by tests to assert that subscriptions aren't lost during reconnect windows.
+        // Record intent to listen before any early-returns, so auth-change recovery can resubscribe
+        // this project even if the steps below bail out (no server, connection not yet active, etc.).
         _trackedProjects[projectData.Id] = projectData;
         if (!options.Value.TryGetServer(projectData, out var server)) return;
         var lexboxConnection = await StartLexboxProjectChangeListener(server, stoppingToken);
         if (lexboxConnection is null) return;
-        // Register the project for resubscription before any early-return on connection state,
-        // otherwise the Reconnected handler won't know to resubscribe it when the connection comes back.
-        var subscribedProjects = _reconnectProjects.GetValue(lexboxConnection, static conn =>
+        // Register for resubscription before any early-return on connection state, otherwise the
+        // Reconnected handler won't know to resubscribe it when the connection comes back.
+        RegisterForResubscribe(lexboxConnection, projectData.Id);
+        // If the connection isn't active yet, avoid SendAsync which throws in Reconnecting/Disconnected.
+        if (lexboxConnection.State == HubConnectionState.Reconnecting)
+        {
+            // Reconnected handler will resubscribe when the connection comes back.
+            return;
+        }
+        if (lexboxConnection.State == HubConnectionState.Disconnected)
+        {
+            // Defensive: a cached connection is normally Connected. If we find a Disconnected one, try to
+            // revive it; on failure evict it so the next call rebuilds rather than handing back a dead one.
+            try
+            {
+                await lexboxConnection.StartAsync(stoppingToken);
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to restart Lexbox listener");
+                await EvictAndStopIfCached(HubConnectionCacheKey(server), cache, logger);
+                return;
+            }
+        }
+        try
+        {
+            await lexboxConnection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectData.Id, stoppingToken);
+        }
+        catch (Exception e)
+        {
+            // The connection can drop or be disposed between the state check and SendAsync (throwing
+            // InvalidOperationException or ObjectDisposedException). Don't let that fail the caller (e.g.
+            // project-open); the Reconnected handler resubscribes once the connection recovers.
+            logger.LogWarning(e, "SignalR connection not active while subscribing to project changes");
+        }
+    }
+
+    private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
+
+    // Internal for unit tests. Records the project in the per-connection resubscribe set (creating the set
+    // and wiring the Reconnected handler on first use). Registration is unconditional — it does not depend
+    // on connection state — so callers can register before early-returning when the connection isn't active,
+    // and the Reconnected handler will still resubscribe the project once the connection recovers.
+    internal static HashSet<Guid> RegisterForResubscribe(HubConnection connection, Guid projectId)
+    {
+        var subscribedProjects = _reconnectProjects.GetValue(connection, static conn =>
         {
             var projects = new HashSet<Guid>();
             conn.Reconnected += async _ =>
@@ -297,39 +353,10 @@ public class LexboxProjectService : IDisposable
         });
         lock (subscribedProjects)
         {
-            subscribedProjects.Add(projectData.Id);
+            subscribedProjects.Add(projectId);
         }
-        // If the connection isn't active yet, avoid SendAsync which throws in Reconnecting/Disconnected.
-        if (lexboxConnection.State == HubConnectionState.Reconnecting)
-        {
-            // Reconnected handler will resubscribe when the connection comes back.
-            return;
-        }
-        if (lexboxConnection.State == HubConnectionState.Disconnected)
-        {
-            // Connection can be Disconnected after auth-loss StopAsync or a failed StartAsync; try to recover here.
-            try
-            {
-                await lexboxConnection.StartAsync(stoppingToken);
-            }
-            catch (Exception e)
-            {
-                logger.LogWarning(e, "Failed to restart Lexbox listener");
-                return;
-            }
-        }
-        try
-        {
-            await lexboxConnection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectData.Id, stoppingToken);
-        }
-        catch (InvalidOperationException e)
-        {
-            // Can happen if the connection dropped between the state check and SendAsync.
-            logger.LogWarning(e, "SignalR connection not active while subscribing to project changes");
-        }
+        return subscribedProjects;
     }
-
-    private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
 
     // Internal for unit tests.
     internal static async Task EvictAndStopIfCached(string cacheKey, IMemoryCache cache, ILogger logger)
@@ -346,13 +373,16 @@ public class LexboxProjectService : IDisposable
         }
     }
 
-    // Internal for unit tests. SignalR retries reconnects forever; this is what breaks the loop when auth is gone.
+    // Internal for unit tests. SignalR's InfiniteRetryPolicy retries forever; this breaks the loop when the
+    // user is logged out. We treat "no token" as "logged out" — distinguishing a transient token failure
+    // from a real logout is OAuthClient's job (see its failure classifier), not ours. Once the user signs
+    // back in, OnAuthenticationChangedAsync rebuilds the listener.
     internal static async Task HandleReconnecting(
         string cacheKey,
         IMemoryCache cache,
         ILogger logger,
         Func<Task> stopConnection,
-        string? currentToken,
+        bool hasValidToken,
         Exception? exception)
     {
         if (exception is not null)
@@ -360,10 +390,10 @@ public class LexboxProjectService : IDisposable
         else
             logger.LogInformation("SignalR connection reconnecting");
 
-        if (currentToken is not null) return;
+        if (hasValidToken) return;
 
         cache.Remove(cacheKey);
-        logger.LogWarning(exception, "SignalR reconnect failed due to missing auth token");
+        logger.LogWarning("SignalR reconnect aborted: no auth token (logged out); stopping connection");
         try
         {
             await stopConnection();
@@ -392,6 +422,9 @@ public class LexboxProjectService : IDisposable
     public async Task<HubConnection?> StartLexboxProjectChangeListener(LexboxServer server,
         CancellationToken stoppingToken)
     {
+        // A null token means logged out for this server (OAuthClient's failure classifier owns the
+        // transient-vs-logout decision — not us). Drop any stale cached connection and stand down;
+        // sign-in fires AuthenticationChangedEvent and OnAuthenticationChangedAsync rebuilds the listener.
         if (await clientFactory.GetClient(server).GetCurrentToken() is null)
         {
             cache.Remove(HubConnectionCacheKey(server));
@@ -434,8 +467,8 @@ public class LexboxProjectService : IDisposable
             var cacheKey = HubConnectionCacheKey(server);
             connection.Reconnecting += async exception =>
             {
-                var currentToken = await clientFactory.GetClient(server).GetCurrentToken();
-                await HandleReconnecting(cacheKey, cache, logger, () => connection.StopAsync(), currentToken, exception);
+                var hasValidToken = await clientFactory.GetClient(server).GetCurrentToken() is not null;
+                await HandleReconnecting(cacheKey, cache, logger, () => connection.StopAsync(), hasValidToken, exception);
             };
             // TODO: If StartAsync fails due to transient network, consider retrying on next sync/on-demand
             await connection.StartAsync(stoppingToken);
@@ -462,7 +495,10 @@ public class LexboxProjectService : IDisposable
         }
         catch (Exception e)
         {
-            cache.Remove(HubConnectionCacheKey(server));
+            // Nothing is cached yet (CreateEntry runs after StartAsync) and the Closed handler that would
+            // dispose this connection isn't wired on the failure path — dispose here so a failed StartAsync
+            // (e.g. offline at project-open, retried on the next sync) doesn't leak the connection.
+            await connection.DisposeAsync();
             logger.LogWarning(e, "Failed to start Lexbox listener");
             return null;
         }

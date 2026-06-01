@@ -45,3 +45,6 @@ failedSyncs/
 .claude/scheduled_tasks.lock
 .claude/agent-memory-local/
 screenshots/
+
+# Local-only manual SignalR acceptance-test cookbook (see header of the file)
+signalr-acceptance-tests.md
