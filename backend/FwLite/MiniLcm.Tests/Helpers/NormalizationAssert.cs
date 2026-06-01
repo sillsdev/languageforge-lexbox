@@ -49,7 +49,7 @@ public static class NormalizationAssert
 
     public static void AssertAllDecomposed(object? obj)
     {
-        Assert(obj, "NFD", CheckNfd);
+        Assert(obj, Nfd);
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ public static class NormalizationAssert
     /// </summary>
     public static void AssertAllDecomposable(object? obj)
     {
-        Assert(obj, "decomposable NFC", CheckDecomposableNfc);
+        Assert(obj, DecomposableNfc);
     }
 
     /// <summary>
@@ -75,25 +75,25 @@ public static class NormalizationAssert
         captured.Should().BeEquivalentTo(input, opts => opts.NormalizedStrings());
     }
 
-    private static void Assert(object? obj, string description, Action<string, string, List<string>> check)
+    private static void Assert(object? obj, StringCheck check)
     {
         if (obj is null) throw new Xunit.Sdk.XunitException("Expected object to be non-null but was null");
         var issues = FindIssues(obj, check);
         if (issues.Count == 0) return;
         throw new Xunit.Sdk.XunitException(
-            $"Expected all normalizable properties to contain {description} strings, but found issues:\n" +
+            $"Expected all normalizable properties to contain {check.Label} strings, but found issues:\n" +
             string.Join("\n", issues.Select(i => "  - " + i))
         );
     }
 
-    private static List<string> FindIssues(object obj, Action<string, string, List<string>> check)
+    private static List<string> FindIssues(object obj, StringCheck check)
     {
         var issues = new List<string>();
         Visit(obj, "", check, issues);
         return issues;
     }
 
-    private static void Visit(object? obj, string path, Action<string, string, List<string>> check, List<string> issues)
+    private static void Visit(object? obj, string path, StringCheck check, List<string> issues)
     {
         switch (obj)
         {
@@ -125,7 +125,7 @@ public static class NormalizationAssert
         VisitModelProperties(obj, path, check, issues);
     }
 
-    private static void VisitModelProperties(object obj, string path, Action<string, string, List<string>> check, List<string> issues)
+    private static void VisitModelProperties(object obj, string path, StringCheck check, List<string> issues)
     {
         var type = obj.GetType();
         if (type.Namespace?.StartsWith("MiniLcm.Models", StringComparison.Ordinal) != true)
@@ -153,32 +153,32 @@ public static class NormalizationAssert
                underlying == typeof(DateTimeOffset) || underlying == typeof(decimal);
     }
 
-    private static void CheckString(string? value, string path, Action<string, string, List<string>> check, List<string> issues)
+    private static void CheckString(string? value, string path, StringCheck check, List<string> issues)
     {
         if (string.IsNullOrEmpty(value))
         {
             issues.Add($"{path}: string is null or empty (must have a value for testing)");
             return;
         }
-        check(value, path, issues);
+        var issue = check.Validate(value);
+        if (issue != null) issues.Add($"{path}: {issue}");
     }
 
-    // Per-form leaf checks. AssertAllDecomposed verifies wrapper OUTPUT is NFD; AssertAllDecomposable verifies
-    // INPUT test data is NFC AND actually decomposes — content byte-identical in NFC and NFD (e.g. ASCII) would silently no-op the normalizer.
-    private static void CheckNfd(string value, string path, List<string> issues)
-    {
-        if (!value.IsNormalized(NormalizationForm.FormD))
-            issues.Add($"{path}: expected NFD but \"{value}\" is not NFD-normalized");
-    }
+    // A check pairs the failure-header label with a validator that returns an issue for one string
+    // (or null if it is fine), so a caller can't mismatch label and logic.
+    private sealed record StringCheck(string Label, Func<string, string?> Validate);
 
-    private static void CheckDecomposableNfc(string value, string path, List<string> issues)
-    {
-        if (!value.IsNormalized(NormalizationForm.FormC))
-        {
-            issues.Add($"{path}: expected NFC but \"{value}\" is not NFC-normalized");
-            return;
-        }
-        if (value == value.Normalize(NormalizationForm.FormD))
-            issues.Add($"{path}: \"{value}\" is trivially NFC (identical to its NFD form); use content that actually exercises normalization");
-    }
+    // AssertAllDecomposed verifies wrapper OUTPUT is NFD; AssertAllDecomposable verifies INPUT test data is
+    // NFC AND actually decomposes — content byte-identical in NFC and NFD (e.g. ASCII) would silently no-op the normalizer.
+    private static readonly StringCheck Nfd = new("NFD", value =>
+        value.IsNormalized(NormalizationForm.FormD)
+            ? null
+            : $"expected NFD but \"{value}\" is not NFD-normalized");
+
+    private static readonly StringCheck DecomposableNfc = new("decomposable NFC", value =>
+        !value.IsNormalized(NormalizationForm.FormC)
+            ? $"expected NFC but \"{value}\" is not NFC-normalized"
+            : value == value.Normalize(NormalizationForm.FormD)
+                ? $"\"{value}\" is trivially NFC (identical to its NFD form); use content that actually exercises normalization"
+                : null);
 }
