@@ -23,21 +23,21 @@ jobs:
     runs-on: ubuntu-latest
 
     # postgres db is for automated tests
-    # services:
-    #   postgres:
-    #     image: postgres:15-alpine
-    #     env:
-    #       POSTGRES_PASSWORD: 972b722e63f549938d07bd8c4ee5086c
-    #       POSTGRES_DB: lexbox-tests
-    #     # Set health checks to wait until postgres has started
-    #     options: >-
-    #       --health-cmd pg_isready
-    #       --health-interval 10s
-    #       --health-timeout 5s
-    #       --health-retries 5
-    #     ports:
-    #       # Maps tcp port 5432 on service container to the host
-    #       - 5433:5432
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: 972b722e63f549938d07bd8c4ee5086c
+          POSTGRES_DB: lexbox-tests
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5433:5432
 
     env:
       # https://docs.docker.com/develop/develop-images/build_enhancements/
