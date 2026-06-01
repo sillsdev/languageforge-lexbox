@@ -1,4 +1,4 @@
-import {getContext, setContext} from 'svelte';
+import {getContext, setContext, untrack} from 'svelte';
 import type {ILexboxServer, IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
@@ -36,6 +36,16 @@ export function useProjectContext() {
 }
 export class ProjectContext {
   #stateCache = new SvelteMap<symbol, unknown>();
+  // Roots own the deriveds/states of cached services. Without these, a
+  // `$derived.by` class field would be owned by whatever effect root was
+  // active when the service was first constructed — typically the first
+  // component to call `useService()`. When that component unmounts (e.g.
+  // virtualized list rows scrolling out), the derived gets frozen and
+  // every future reader of the cached service sees stale values. Owning
+  // the deriveds on a context-scoped root sidesteps that lifecycle leak.
+  // (See sveltejs/svelte v5.55.3 "freeze deriveds once their containing
+  // effects are destroyed" for the trigger.)
+  #rootCleanups: Array<() => void> = [];
   #api: IMiniLcmJsInvokable | undefined = $state(undefined);
   #projectName: string | undefined = $state(undefined);
   #projectCode: string | undefined = $state(undefined);
@@ -127,10 +137,11 @@ export class ProjectContext {
       return this.#stateCache.get(key) as ResourceReturn<T, unknown, true>;
     }
 
-    const res = this.apiResource(initialValue, factory, options);
-    this.#stateCache.set(key, res);
-    options?.onAdd?.(res);
-    return res;
+    return this.#ownAndCache(key, () => {
+      const res = this.apiResource(initialValue, factory, options);
+      options?.onAdd?.(res);
+      return res;
+    });
   }
 
   /**
@@ -144,13 +155,44 @@ export class ProjectContext {
     return res;
   }
 
-  public getOrAdd<T>(key: symbol, factory: () => T) {
+  public getOrAdd<T>(key: symbol, factory: () => T): T {
     if (this.#stateCache.has(key)) {
       return this.#stateCache.get(key) as T;
     }
-    const result = factory();
+    return this.#ownAndCache(key, factory);
+  }
+
+  /**
+   * Run `factory` inside an `$effect.root` so any `$state` / `$derived` it
+   * touches is owned by this project context, not by the caller's transient
+   * effect root. Without this wrapper, a cached service whose class fields
+   * use `$derived.by` would silently freeze the moment its creating
+   * component unmounted. See `#rootCleanups` for the full explanation.
+   *
+   * `untrack` defends against the rare case where this is called from
+   * inside an active derivation (e.g. a `$derived` calling `useService()`):
+   * we don't want the caller to inadvertently track this context's caches.
+   */
+  #ownAndCache<T>(key: symbol, factory: () => T): T {
+    let result!: T;
+    const cleanup = $effect.root(() => {
+      result = untrack(factory);
+    });
+    this.#rootCleanups.push(cleanup);
     this.#stateCache.set(key, result);
     return result;
+  }
+
+  /**
+   * Tear down all cached service roots. Call this when the project context
+   * is being discarded (e.g. project switch) so deriveds don't leak.
+   */
+  public destroy(): void {
+    for (const cleanup of this.#rootCleanups) cleanup();
+    this.#rootCleanups = [];
+    this.#stateCache.clear();
+    // DetachedResource has no explicit dispose; just drop our references.
+    this.#detachedResources.clear();
   }
 }
 
