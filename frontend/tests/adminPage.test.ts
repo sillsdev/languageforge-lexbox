@@ -11,8 +11,9 @@ test('can navigate to project page', async ({ page }) => {
   await adminPage.openProject('Sena 3', 'sena-3');
 });
 
-// Regression test for #2224: keystrokes arriving while the debounced URL write was
-// round-tripping got clobbered. A ~25ms per-keystroke delay reliably reproduces.
+// Regression test for #2224: characters typed in quick succession used to get dropped when a
+// URL round-trip reset the input mid-typing. Asserts the invariant — every typed character
+// survives — rather than a specific internal mechanism; the per-keystroke delay paces the typing.
 test.describe('user filter typing', () => {
   test.use({ ignoreHTTPSErrors: true });
 
@@ -31,8 +32,8 @@ test.describe('user filter typing', () => {
   });
 });
 
-// Covers the other half of the #2224 fix: external writes to the URL-backed filter store
-// (e.g. onUserCreated, filterProjectsByUser) must still sync into the input.
+// Covers the other half of the #2224 fix: external changes to the URL-backed filter store
+// (deep links, browser back/forward) must still sync into the input.
 test.describe('user filter external sync', () => {
   test.use({ ignoreHTTPSErrors: true });
 
@@ -51,8 +52,11 @@ test.describe('user filter external sync', () => {
     // Let the debounced write settle so the next store change isn't mistaken for our own echo.
     await page.waitForURL((url) => url.searchParams.get('userSearch') === 'typed');
 
-    // pushState+popstate mimics in-component URL writes (onUserCreated, filterProjectsByUser)
-    // that mutate the URL-backed filter store without remounting FilterBar.
+    // Simulate an external URL change (deep link / browser back-forward): pushState changes
+    // location.href and SvelteKit's popstate handler propagates it to the $app/state `page`,
+    // which runed's useSearchParams observes and syncs into the input. NB this is a different
+    // path from the in-component writes (onUserCreated, filterProjectsByUser), which mutate the
+    // runed proxy directly — this covers the URL-driven side, not those handlers themselves.
     await page.evaluate(() => {
       history.pushState({}, '', '/admin?userSearch=external');
       dispatchEvent(new PopStateEvent('popstate'));

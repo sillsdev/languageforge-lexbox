@@ -42,6 +42,7 @@
 </script>
 
 <FilterBar
+  debounce
   {onFiltersChanged}
   searchKey="userSearch"
   {autofocus}

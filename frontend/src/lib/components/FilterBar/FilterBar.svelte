@@ -40,13 +40,13 @@
     filterKeys?: Readonly<(keyof Filters)[]>;
     loading?: boolean;
     /**
-     * ms between the last keystroke and the URL/store write. Defaults to
-     * `DEFAULT_DEBOUNCE_TIME`. Set to `0` to write through immediately
-     * (appropriate for pure client-side filters that don't trigger server
-     * fetches; for server-filtered inputs like the user-list search, keep
-     * the default so we don't hammer load() per character).
+     * Debounce the URL/store write after the last keystroke. `false` (default) writes
+     * through immediately — correct for pure client-side filters that don't trigger a
+     * server fetch. `true` uses `DEFAULT_DEBOUNCE_TIME`; a number sets the ms explicitly.
+     * Only debounce server-filtered inputs (e.g. the user-list search) so we don't
+     * hammer load() per character.
      */
-    debounceMs?: number;
+    debounce?: number | boolean;
     activeFilterSlot?: Snippet<[{ activeFilters: Readonly<Filter<Filters>[]> }]>;
     filterSlot?: Snippet;
   }
@@ -60,19 +60,23 @@
     hasActiveFilter = $bindable(false),
     filterKeys,
     loading = false,
-    debounceMs = DEFAULT_DEBOUNCE_TIME,
+    debounce = false,
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
 
   // Two-way binding for the search input: typing updates `search.value`
-  // immediately, the upstream `filters[searchKey]` updates `debounceMs` after
-  // the last keystroke, and external writes to the upstream store flow back
-  // into the input. See debouncedFilter.svelte.ts for the echo-suppression
-  // mechanics that keep in-flight typing from being clobbered by the round-trip.
-  // `untrack` here is the documented way to silence `state_referenced_locally`
-  // for prop reads that are intentionally one-time setup arguments.
-  const search = untrack(() => debouncedFilter(filters, searchKey, debounceMs));
+  // immediately, the upstream `filters[searchKey]` updates after the debounce
+  // interval (0 by default — immediate), and external writes to the upstream
+  // store flow back into the input. See debouncedFilter.svelte.ts for the
+  // echo-suppression mechanics that keep in-flight typing from being clobbered
+  // by the round-trip. `untrack` here is the documented way to silence
+  // `state_referenced_locally` for prop reads that are intentionally one-time
+  // setup arguments.
+  const search = untrack(() => {
+    const debounceMs = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce === false ? 0 : debounce;
+    return debouncedFilter(filters, searchKey, debounceMs);
+  });
 
   function resetFilter(key: string): void {
     (filters as Record<string, unknown>)[key] = (filterDefaults as Record<string, unknown>)[key];
