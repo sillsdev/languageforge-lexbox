@@ -49,7 +49,7 @@ public static class NormalizationAssert
 
     public static void AssertAllDecomposed(object? obj)
     {
-        Assert(obj, NormalizationForm.FormD, requireNonTrivial: false);
+        Assert(obj, "NFD", CheckNfd);
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ public static class NormalizationAssert
     /// </summary>
     public static void AssertAllDecomposable(object? obj)
     {
-        Assert(obj, NormalizationForm.FormC, requireNonTrivial: true);
+        Assert(obj, "decomposable NFC", CheckDecomposableNfc);
     }
 
     /// <summary>
@@ -75,58 +75,57 @@ public static class NormalizationAssert
         captured.Should().BeEquivalentTo(input, opts => opts.NormalizedStrings());
     }
 
-private static void Assert(object? obj, NormalizationForm form, bool requireNonTrivial)
+    private static void Assert(object? obj, string description, Action<string, string, List<string>> check)
     {
         if (obj is null) throw new Xunit.Sdk.XunitException("Expected object to be non-null but was null");
-        var issues = FindIssues(obj, form, requireNonTrivial);
+        var issues = FindIssues(obj, check);
         if (issues.Count == 0) return;
-        var name = FormName(form);
         throw new Xunit.Sdk.XunitException(
-            $"Expected all normalizable properties to contain {name} strings, but found issues:\n" +
+            $"Expected all normalizable properties to contain {description} strings, but found issues:\n" +
             string.Join("\n", issues.Select(i => "  - " + i))
         );
     }
 
-    private static List<string> FindIssues(object obj, NormalizationForm form, bool requireNonTrivial)
+    private static List<string> FindIssues(object obj, Action<string, string, List<string>> check)
     {
         var issues = new List<string>();
-        Visit(obj, "", form, requireNonTrivial, issues);
+        Visit(obj, "", check, issues);
         return issues;
     }
 
-    private static void Visit(object? obj, string path, NormalizationForm form, bool requireNonTrivial, List<string> issues)
+    private static void Visit(object? obj, string path, Action<string, string, List<string>> check, List<string> issues)
     {
         switch (obj)
         {
             case null:
                 return;
             case string s:
-                CheckString(s, path, form, requireNonTrivial, issues);
+                CheckString(s, path, check, issues);
                 return;
             case MultiString ms:
                 if (ms.Values.Count == 0) issues.Add($"{path}: MultiString has no values (must have at least one for testing)");
-                foreach (var (key, value) in ms.Values) CheckString(value, $"{path}.Values[{key}]", form, requireNonTrivial, issues);
+                foreach (var (key, value) in ms.Values) CheckString(value, $"{path}.Values[{key}]", check, issues);
                 return;
             case RichString rs:
                 if (rs.Spans.Count == 0) issues.Add($"{path}: RichString has no spans (must have at least one for testing)");
-                for (var i = 0; i < rs.Spans.Count; i++) CheckString(rs.Spans[i].Text, $"{path}.Spans[{i}].Text", form, requireNonTrivial, issues);
+                for (var i = 0; i < rs.Spans.Count; i++) CheckString(rs.Spans[i].Text, $"{path}.Spans[{i}].Text", check, issues);
                 return;
             case RichMultiString rms:
                 if (rms.Count == 0) issues.Add($"{path}: RichMultiString has no values (must have at least one for testing)");
-                foreach (var (key, value) in rms) Visit(value, $"{path}[{key}]", form, requireNonTrivial, issues);
+                foreach (var (key, value) in rms) Visit(value, $"{path}[{key}]", check, issues);
                 return;
             case IEnumerable seq:
                 var i2 = 0;
-                foreach (var item in seq) Visit(item, $"{path}[{i2++}]", form, requireNonTrivial, issues);
+                foreach (var item in seq) Visit(item, $"{path}[{i2++}]", check, issues);
                 return;
             default:
                 break;
         }
 
-        VisitModelProperties(obj, path, form, requireNonTrivial, issues);
+        VisitModelProperties(obj, path, check, issues);
     }
 
-    private static void VisitModelProperties(object obj, string path, NormalizationForm form, bool requireNonTrivial, List<string> issues)
+    private static void VisitModelProperties(object obj, string path, Action<string, string, List<string>> check, List<string> issues)
     {
         var type = obj.GetType();
         if (type.Namespace?.StartsWith("MiniLcm.Models", StringComparison.Ordinal) != true)
@@ -142,7 +141,7 @@ private static void Assert(object? obj, NormalizationForm form, bool requireNonT
             if (value is null) continue;
 
             var propPath = string.IsNullOrEmpty(path) ? prop.Name : $"{path}.{prop.Name}";
-            Visit(value, propPath, form, requireNonTrivial, issues);
+            Visit(value, propPath, check, issues);
         }
     }
 
@@ -154,33 +153,32 @@ private static void Assert(object? obj, NormalizationForm form, bool requireNonT
                underlying == typeof(DateTimeOffset) || underlying == typeof(decimal);
     }
 
-    private static void CheckString(string? value, string path, NormalizationForm form, bool requireNonTrivial, List<string> issues)
+    private static void CheckString(string? value, string path, Action<string, string, List<string>> check, List<string> issues)
     {
         if (string.IsNullOrEmpty(value))
         {
             issues.Add($"{path}: string is null or empty (must have a value for testing)");
             return;
         }
-        if (!value.IsNormalized(form))
-        {
-            var name = FormName(form);
-            issues.Add($"{path}: expected {name} but \"{value}\" is not {name}-normalized");
-            return;
-        }
-        if (requireNonTrivial)
-        {
-            var otherForm = form == NormalizationForm.FormC ? NormalizationForm.FormD : NormalizationForm.FormC;
-            if (value == value.Normalize(otherForm))
-            {
-                var name = FormName(form);
-                var otherName = FormName(otherForm);
-                issues.Add($"{path}: \"{value}\" is trivially {name} (identical to its {otherName} form); use content that actually exercises normalization");
-            }
-        }
+        check(value, path, issues);
     }
 
-    private static string FormName(NormalizationForm form)
+    // Per-form leaf checks. AssertAllDecomposed verifies wrapper OUTPUT is NFD; AssertAllDecomposable verifies
+    // INPUT test data is NFC AND actually decomposes (rejecting ASCII that would silently no-op the normalizer).
+    private static void CheckNfd(string value, string path, List<string> issues)
     {
-        return form == NormalizationForm.FormC ? "NFC" : "NFD";
+        if (!value.IsNormalized(NormalizationForm.FormD))
+            issues.Add($"{path}: expected NFD but \"{value}\" is not NFD-normalized");
+    }
+
+    private static void CheckDecomposableNfc(string value, string path, List<string> issues)
+    {
+        if (!value.IsNormalized(NormalizationForm.FormC))
+        {
+            issues.Add($"{path}: expected NFC but \"{value}\" is not NFC-normalized");
+            return;
+        }
+        if (value == value.Normalize(NormalizationForm.FormD))
+            issues.Add($"{path}: \"{value}\" is trivially NFC (identical to its NFD form); use content that actually exercises normalization");
     }
 }

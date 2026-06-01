@@ -651,7 +651,8 @@ public class NormalizationAssertTests
     [Fact]
     public void AllNfcFactories_ProduceDecomposableData()
     {
-        AssertAllDecomposable(NfcTestData.CreateNfcWritingSystem());
+        // WritingSystem is intentionally omitted: its string fields are not normalized
+        // (see NormalizationAssert.SkippedProperties), so AssertAllDecomposable would assert nothing.
         AssertAllDecomposable(NfcTestData.CreateNfcPartOfSpeech());
         AssertAllDecomposable(NfcTestData.CreateNfcPublication());
         AssertAllDecomposable(NfcTestData.CreateNfcSemanticDomain());
@@ -697,13 +698,17 @@ public class NormalizationAssertTests
         var entry = new Entry
         {
             Id = Guid.NewGuid(),
-            LexemeForm = [], // Empty - should fail
-            CitationForm = NfcTestData.CreateNfcMultiString()
+            LexemeForm = [], // Empty MultiString — the only expected issue
+            CitationForm = NfcTestData.CreateNfcMultiString(),
+            LiteralMeaning = NfcTestData.CreateNfcRichMultiString(),
+            Note = NfcTestData.CreateNfcRichMultiString()
         };
 
         var act = () => AssertAllDecomposable(entry);
 
-        act.Should().Throw<Xunit.Sdk.XunitException>().WithMessage("*no values*");
+        // Scope to LexemeForm so this exercises the empty-MultiString check specifically;
+        // an empty RichMultiString would also report "no values".
+        act.Should().Throw<Xunit.Sdk.XunitException>().WithMessage("*LexemeForm*no values*");
     }
 
     [Fact]
