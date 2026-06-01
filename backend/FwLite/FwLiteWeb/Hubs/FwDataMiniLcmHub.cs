@@ -1,10 +1,7 @@
 using FwDataMiniLcmBridge;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Options;
 using MiniLcm;
-using MiniLcm.Validators;
+using MiniLcm.Wrappers;
 using SIL.LCModel;
-using SystemTextJsonPatch;
 
 namespace FwLiteWeb.Hubs;
 
@@ -13,8 +10,9 @@ public class FwDataMiniLcmHub(
     IMiniLcmApi miniLcmApi,
     FwDataFactory fwDataFactory,
     FwDataProjectContext context,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory
-) : MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory)
+    MiniLcmApiUserFacingWrappers userFacingWrappers
+)
+: MiniLcmApiHubBase(miniLcmApi, userFacingWrappers, context.Project ?? throw new InvalidOperationException("No project is set in the context."))
 {
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()

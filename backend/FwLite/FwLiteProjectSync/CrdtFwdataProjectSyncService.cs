@@ -4,7 +4,6 @@ using LcmCrdt;
 using LexCore.Sync;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
-using MiniLcm.Normalization;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
 
@@ -12,8 +11,7 @@ namespace FwLiteProjectSync;
 
 public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
     ILogger<CrdtFwdataProjectSyncService> logger,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
-    MiniLcmApiStringNormalizationWrapperFactory normalizationWrapperFactory)
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory)
 {
     public record DryRunSyncResult(
         int CrdtChanges,
@@ -63,8 +61,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             throw new InvalidOperationException("Project sync state does not match presence of snapshot.");
         }
 
-        crdtApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(crdtApi));
-        fwdataApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(fwdataApi));
+        // No write normalization: Data is already normalised on both sides.
+        // No query normalization: The sync doesn't do any querying.
+        crdtApi = validationWrapperFactory.Create(crdtApi);
+        fwdataApi = validationWrapperFactory.Create(fwdataApi);
 
         if (dryRun)
         {

@@ -81,7 +81,10 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
 
         var before = entry.Copy();
         var exampleSentence = entry.Senses[0].ExampleSentences[0];
-        exampleSentence.Translations = [new() { Text = { { "en", new RichString("updated") } } }];
+        exampleSentence.Translations =
+        [
+            new() { Id = Guid.NewGuid(), Text = { { "en", new RichString("updated") } } }
+        ];
 
         // Act
         var updatedEntry = await Api.UpdateEntry(before, entry);

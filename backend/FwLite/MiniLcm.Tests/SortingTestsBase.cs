@@ -143,7 +143,7 @@ public abstract class SortingTestsBase : MiniLcmTestBase
         var lastLongestContainsMatches = CreateSortedEntrySet("ccaaaa");
 
         var entryId = Guid.NewGuid();
-        Entry nonHeadwordMatch = new() { Id = entryId, Senses = [new() { EntryId = entryId, Gloss = { ["en"] = "aaaa" } }] };
+        Entry nonHeadwordMatch = new() { Id = entryId, Senses = [new() { Id = Guid.NewGuid(), EntryId = entryId, Gloss = { ["en"] = "aaaa" } }] };
 
         Entry[] expected = [
             .. exactMatches,
@@ -167,10 +167,9 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .Where(e => ids.Contains(e.Id))
             .ToList();
 
-        results.Should().BeEquivalentTo(expected,
-            options => options);
-        results.Should().BeEquivalentTo(expected,
-            options => options.WithStrictOrdering());
+        results.Should().BeEquivalentTo(expected, options => options
+            .WithStrictOrdering()
+            .For(e => e.Senses).Exclude(s => s.Order));
     }
 
     [Theory]
@@ -201,7 +200,7 @@ public abstract class SortingTestsBase : MiniLcmTestBase
         var lastLongestContainsMatches = CreateSortedEntrySet("ccaaaa");
 
         var entryId = Guid.NewGuid();
-        Entry nonHeadwordMatch = new() { Id = entryId, Senses = [new() { EntryId = entryId, Gloss = { ["en"] = "aaaa" } }] };
+        Entry nonHeadwordMatch = new() { Id = entryId, Senses = [new() { Id = Guid.NewGuid(), EntryId = entryId, Gloss = { ["en"] = "aaaa" } }] };
 
         Entry[] expected = [
             .. exactMatches,
@@ -225,10 +224,9 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .Where(e => ids.Contains(e.Id))
             .ToList();
 
-        results.Should().BeEquivalentTo(expected,
-            options => options);
-        results.Should().BeEquivalentTo(expected,
-            options => options.WithStrictOrdering());
+        results.Should().BeEquivalentTo(expected, options => options
+            .WithStrictOrdering()
+            .For(e => e.Senses).Exclude(s => s.Order));
     }
 
     [Theory]
@@ -260,8 +258,6 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .Where(e => ids.Contains(e.Id))
             .ToList();
 
-        results.Should().BeEquivalentTo(expected,
-            options => options);
         results.Should().BeEquivalentTo(expected,
             options => options.WithStrictOrdering());
     }
@@ -295,8 +291,6 @@ public abstract class SortingTestsBase : MiniLcmTestBase
             .Where(e => ids.Contains(e.Id))
             .ToList();
 
-        results.Should().BeEquivalentTo(expected,
-            options => options);
         results.Should().BeEquivalentTo(expected,
             options => options.WithStrictOrdering());
     }

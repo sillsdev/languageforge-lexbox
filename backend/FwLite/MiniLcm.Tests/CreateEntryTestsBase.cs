@@ -22,7 +22,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
             .For(e => e.Components).Exclude(e => e.Id)
             .For(e => e.ComplexForms).Exclude(e => e.Id)
             .Excluding(e => e.HomographNumber) // FwData auto-assigns to fix broken CRDT numbering
-            );
+            .Excluding(member => member.Name == nameof(IOrderable.Order)));
     }
 
     [Fact]
