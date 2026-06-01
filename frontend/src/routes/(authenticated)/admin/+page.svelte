@@ -61,7 +61,7 @@
     return (
       fromUrl &&
       userFilterKeys.some(
-        (key) => (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== queryParamValues[key],
+        (key) => (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== queryParamValues[key]?.toString(),
       )
     );
   });
