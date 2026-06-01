@@ -30,14 +30,14 @@ export default function BackToListButton({
   if (!handleBackToListButton) return undefined;
 
   const button = (
-    <Button className="tw-flex tw-items-center" onClick={handleBackToListButton} variant="link">
-      <ArrowLeft className="tw-mr-1 tw-h-4 tw-w-4" />
+    <Button className="tw:flex tw:items-center" onClick={handleBackToListButton} variant="link">
+      <ArrowLeft className="tw:mr-1 tw:h-4 tw:w-4" />
       {localizedStrings['%lexicon_entryList_backToList%']}
     </Button>
   );
 
   return (
-    <div className="tw-mb-4 tw-flex tw-items-center tw-justify-between">
+    <div className="tw:mb-4 tw:flex tw:items-center tw:justify-between">
       {isDrawer ? <DrawerClose asChild>{button}</DrawerClose> : button}
     </div>
   );

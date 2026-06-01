@@ -23,7 +23,7 @@ export default function AddNewEntryButton({
   const [adding, setAdding] = useState(false);
 
   return adding ? (
-    <div className="tw-border tw-rounded-lg tw-shadow-sm tw-p-4">
+    <div className="tw:border tw:rounded-lg tw:shadow-sm tw:p-4">
       <AddNewEntry
         addEntry={addEntry}
         analysisLanguage={analysisLanguage}

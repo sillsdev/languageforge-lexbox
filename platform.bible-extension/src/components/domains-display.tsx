@@ -32,10 +32,10 @@ export default function DomainsDisplay({
   }, [domains]);
 
   return sortedDomains.length ? (
-    <div className="tw-mt-2 tw-flex tw-flex-wrap tw-gap-2">
+    <div className="tw:mt-2 tw:flex tw:flex-wrap tw:gap-2">
       {sortedDomains.map((domain) => (
         <button
-          className="tw-rounded tw-bg-accent tw-px-2 tw-py-0.5 tw-text-xs tw-accent-foreground tw-flex tw-items-center tw-gap-1"
+          className="tw:rounded tw:bg-accent tw:px-2 tw:py-0.5 tw:text-xs tw:accent-foreground tw:flex tw:items-center tw:gap-1"
           disabled={!onClickDomain}
           key={domain.code}
           onClick={(e) => {
@@ -46,7 +46,7 @@ export default function DomainsDisplay({
           }}
           type="button"
         >
-          <Network className="tw-inline tw-mr-1 tw-h-3 tw-w-3" />
+          <Network className="tw:inline tw:mr-1 tw:h-3 tw:w-3" />
           <span>{domainText(domain, analysisLanguage)}</span>
         </button>
       ))}
