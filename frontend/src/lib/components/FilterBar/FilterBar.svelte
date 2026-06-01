@@ -39,13 +39,6 @@
      */
     filterKeys?: Readonly<(keyof Filters)[]>;
     loading?: boolean;
-    /**
-     * Debounce the URL/store write after the last keystroke. `false` (default) writes
-     * through immediately — correct for pure client-side filters that don't trigger a
-     * server fetch. `true` uses `DEFAULT_DEBOUNCE_TIME`; a number sets the ms explicitly.
-     * Only debounce server-filtered inputs (e.g. the user-list search) so we don't
-     * hammer load() per character.
-     */
     debounce?: number | boolean;
     activeFilterSlot?: Snippet<[{ activeFilters: Readonly<Filter<Filters>[]> }]>;
     filterSlot?: Snippet;
