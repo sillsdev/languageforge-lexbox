@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       #https://github.com/actions/labeler uses .github/labeler.yml for config
-      - uses: actions/labeler@v5
+      - uses: actions/labeler@f27b608878404679385c85cfa523b85ccb86e213 # v6.1.0

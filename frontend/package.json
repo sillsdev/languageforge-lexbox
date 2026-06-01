@@ -41,7 +41,7 @@
     "@playwright/test": "catalog:",
     "@stylistic/eslint-plugin": "catalog:",
     "@sveltejs/adapter-node": "^5.4.0",
-    "@sveltejs/kit": "2.49.0",
+    "@sveltejs/kit": "2.60.1",
     "@sveltejs/vite-plugin-svelte": "catalog:",
     "@tailwindcss/typography": "^0.5.19",
     "@types/mjml": "^4.7.4",
@@ -84,14 +84,14 @@
   "dependencies": {
     "@floating-ui/dom": "^1.7.4",
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.67.2",
+    "@opentelemetry/auto-instrumentations-node": "^0.75.0",
     "@opentelemetry/auto-instrumentations-web": "^0.54.0",
     "@opentelemetry/context-zone": "^2.2.0",
     "@opentelemetry/core": "^2.2.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.208.0",
     "@opentelemetry/instrumentation": "^0.208.0",
     "@opentelemetry/resources": "^2.2.0",
-    "@opentelemetry/sdk-node": "^0.208.0",
+    "@opentelemetry/sdk-node": "^0.217.0",
     "@opentelemetry/sdk-trace-web": "^2.2.0",
     "@opentelemetry/semantic-conventions": "^1.38.0",
     "@tailwindcss/container-queries": "^0.1.1",
@@ -101,7 +101,7 @@
     "css-tree": "^3.1.0",
     "e2e-mailbox": "1.1.5",
     "estree-walker": "^3.0.3",
-    "js-cookie": "^3.0.5",
+    "js-cookie": "^3.0.7",
     "just-order-by": "^1.0.0",
     "mjml": "^4.17.1",
     "runed": "catalog:",
@@ -110,5 +110,12 @@
     "svelte-intl-precompile": "^0.12.3",
     "sveltekit-search-params": "^3.0.0",
     "tus-js-client": "^4.3.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "cookie": "^0.7.0",
+      "minimatch@9": "^9.0.7",
+      "immutable@3": "^3.8.3"
+    }
   }
 }
