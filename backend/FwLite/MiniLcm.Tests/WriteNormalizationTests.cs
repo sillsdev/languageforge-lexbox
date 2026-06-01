@@ -84,7 +84,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreatePartOfSpeech(pos);
 
-        AssertNormalized(captured, pos);
+        AssertNormalizedToNfd(captured, pos);
     }
 
     [Fact]
@@ -102,8 +102,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdatePartOfSpeech(before, after);
 
-        AssertNormalized(capturedBefore, before);
-        AssertNormalized(capturedAfter, after);
+        AssertNormalizedToNfd(capturedBefore, before);
+        AssertNormalizedToNfd(capturedAfter, after);
     }
 
     #endregion
@@ -123,7 +123,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreatePublication(pub);
 
-        AssertNormalized(captured, pub);
+        AssertNormalizedToNfd(captured, pub);
     }
 
     [Fact]
@@ -141,8 +141,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdatePublication(before, after);
 
-        AssertNormalized(capturedBefore, before);
-        AssertNormalized(capturedAfter, after);
+        AssertNormalizedToNfd(capturedBefore, before);
+        AssertNormalizedToNfd(capturedAfter, after);
     }
 
     #endregion
@@ -162,7 +162,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateSemanticDomain(sd);
 
-        AssertNormalized(captured, sd);
+        AssertNormalizedToNfd(captured, sd);
     }
 
     [Fact]
@@ -180,8 +180,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateSemanticDomain(before, after);
 
-        AssertNormalized(capturedBefore, before);
-        AssertNormalized(capturedAfter, after);
+        AssertNormalizedToNfd(capturedBefore, before);
+        AssertNormalizedToNfd(capturedAfter, after);
     }
 
     [Fact]
@@ -197,7 +197,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.AddSemanticDomainToSense(Guid.NewGuid(), sd);
 
-        AssertNormalized(captured, sd);
+        AssertNormalizedToNfd(captured, sd);
     }
 
     [Fact]
@@ -237,7 +237,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateComplexFormType(cft);
 
-        AssertNormalized(captured, cft);
+        AssertNormalizedToNfd(captured, cft);
     }
 
     [Fact]
@@ -255,8 +255,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateComplexFormType(before, after);
 
-        AssertNormalized(capturedBefore, before);
-        AssertNormalized(capturedAfter, after);
+        AssertNormalizedToNfd(capturedBefore, before);
+        AssertNormalizedToNfd(capturedAfter, after);
     }
 
     #endregion
@@ -278,8 +278,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateMorphType(before, after);
 
-        AssertNormalized(capturedBefore, before);
-        AssertNormalized(capturedAfter, after);
+        AssertNormalizedToNfd(capturedBefore, before);
+        AssertNormalizedToNfd(capturedAfter, after);
     }
 
     [Fact]
@@ -322,7 +322,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateEntry(entry);
 
-        AssertNormalized(captured, entry);
+        AssertNormalizedToNfd(captured, entry);
     }
 
     [Fact]
@@ -340,8 +340,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateEntry(before, after);
 
-        AssertNormalized(capturedBefore, before);
-        AssertNormalized(capturedAfter, after);
+        AssertNormalizedToNfd(capturedBefore, before);
+        AssertNormalizedToNfd(capturedAfter, after);
     }
 
     [Fact]
@@ -357,7 +357,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateEntry(entry);
 
-        AssertNormalized(captured, entry);
+        AssertNormalizedToNfd(captured, entry);
     }
 
     [Fact]
@@ -373,7 +373,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateEntry(entry);
 
-        AssertNormalized(captured, entry);
+        AssertNormalizedToNfd(captured, entry);
     }
 
     [Fact]
@@ -500,7 +500,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateComplexFormComponent(cfc);
 
-        AssertNormalized(captured, cfc);
+        AssertNormalizedToNfd(captured, cfc);
     }
 
     #endregion
@@ -520,7 +520,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateSense(Guid.NewGuid(), sense);
 
-        AssertNormalized(captured, sense);
+        AssertNormalizedToNfd(captured, sense);
     }
 
     [Fact]
@@ -539,8 +539,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateSense(entryId, before, after);
 
-        AssertNormalized(capturedBefore, before);
-        AssertNormalized(capturedAfter, after);
+        AssertNormalizedToNfd(capturedBefore, before);
+        AssertNormalizedToNfd(capturedAfter, after);
     }
 
     [Fact]
@@ -556,7 +556,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateSense(Guid.NewGuid(), sense);
 
-        AssertNormalized(captured, sense);
+        AssertNormalizedToNfd(captured, sense);
     }
 
     #endregion
@@ -577,7 +577,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateExampleSentence(Guid.NewGuid(), Guid.NewGuid(), example);
 
-        AssertNormalized(captured, example);
+        AssertNormalizedToNfd(captured, example);
     }
 
     [Fact]
@@ -600,8 +600,8 @@ public class WriteNormalizationTests
 
         await _normalizingApi.UpdateExampleSentence(entryId, senseId, before, after);
 
-        AssertNormalized(capturedBefore, before);
-        AssertNormalized(capturedAfter, after);
+        AssertNormalizedToNfd(capturedBefore, before);
+        AssertNormalizedToNfd(capturedAfter, after);
     }
 
     [Fact]
@@ -618,7 +618,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.CreateExampleSentence(Guid.NewGuid(), Guid.NewGuid(), example);
 
-        AssertNormalized(captured, example);
+        AssertNormalizedToNfd(captured, example);
     }
 
     #endregion
@@ -639,7 +639,7 @@ public class WriteNormalizationTests
 
         await _normalizingApi.AddTranslation(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), translation);
 
-        AssertNormalized(captured, translation);
+        AssertNormalizedToNfd(captured, translation);
     }
 
     #endregion

@@ -54,7 +54,7 @@ public static class NormalizationAssert
 
     /// <summary>
     /// Strict NFC plus a non-triviality check: every string must differ from its NFD form.
-    /// Catches ASCII-only test data, which is byte-identical in NFC and NFD and would
+    /// Catches test data, which is byte-identical in NFC and NFD (e.g. ASCII) and would
     /// silently bypass the normalizer.
     /// </summary>
     public static void AssertAllDecomposable(object? obj)
@@ -68,7 +68,7 @@ public static class NormalizationAssert
     /// (BeEquivalentTo on the input, with NFC≡NFD string equivalence).
     /// Catches the field-drop regression class that pure string-form checks ignore.
     /// </summary>
-    public static void AssertNormalized<T>(T? captured, T input) where T : class
+    public static void AssertNormalizedToNfd<T>(T? captured, T input) where T : class
     {
         captured.Should().NotBeNull();
         AssertAllDecomposed(captured);
@@ -164,7 +164,7 @@ public static class NormalizationAssert
     }
 
     // Per-form leaf checks. AssertAllDecomposed verifies wrapper OUTPUT is NFD; AssertAllDecomposable verifies
-    // INPUT test data is NFC AND actually decomposes (rejecting ASCII that would silently no-op the normalizer).
+    // INPUT test data is NFC AND actually decomposes — content byte-identical in NFC and NFD (e.g. ASCII) would silently no-op the normalizer.
     private static void CheckNfd(string value, string path, List<string> issues)
     {
         if (!value.IsNormalized(NormalizationForm.FormD))
