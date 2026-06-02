@@ -18,30 +18,30 @@ export class MorphTypesService {
 
   #morphTypesResource: ResourceReturn<IMorphType[], unknown, true>;
 
-  current: IMorphType[] = $derived.by(() => {
+  get current(): IMorphType[] {
     return this.#morphTypesResource.current;
-  });
+  }
 
   async refetch() {
     await this.#morphTypesResource.refetch();
     return this.current;
   }
 
-  prefixes = $derived.by(() => {
+  get prefixes(): Partial<{[kind in MorphTypeKind]: string|undefined}> {
     const result: Partial<{[kind in MorphTypeKind]: string|undefined}> = {};
     this.current.forEach(morphType => {
       result[morphType.kind] = morphType.prefix;
     });
     return result;
-  });
+  }
 
-  suffixes = $derived.by(() => {
+  get suffixes(): Partial<{[kind in MorphTypeKind]: string|undefined}> {
     const result: Partial<{[kind in MorphTypeKind]: string|undefined}> = {};
     this.current.forEach(morphType => {
       result[morphType.kind] = morphType.postfix;
     });
     return result;
-  });
+  }
 
   getPrefix(kind: MorphTypeKind): string|undefined {
     return this.prefixes[kind];
