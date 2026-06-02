@@ -5,24 +5,10 @@ import type {WrappedHarnessControls} from './detached-api-resource-test-types';
 import WrappedResourceHarness from './WrappedResourceHarness.svelte';
 
 /**
- * Reproduces the "wrapper service" pattern used by PartOfSpeechService and
- * the other cached data services: a class instance owns a DetachedResource
- * and exposes a `$derived.by` view of it; UI consumers read that derived
- * view from inside their OWN `$derived` callback. The instance is cached
- * per-projectContext via `getOrAdd`, so multiple component lifecycles can
- * see the same instance.
- *
- * Live regression (commit a179ecfc3): PartOfSpeechService.current stayed
- * `[]` even after the resource fetch resolved, so DictionaryEntry's PoS
- * labels never rendered. Cause: Svelte 5.55.3 "freeze deriveds once their
- * containing effects are destroyed" — the class-field `$derived.by` was
- * owned by whichever effect root happened to be active when the service
- * was first constructed (typically a transient component like a
- * virtualized EntryRow). When that component unmounted, the derived
- * froze for every other reader of the cached service.
- *
- * Fix: `getOrAdd` runs the factory inside a context-owned `$effect.root`,
- * so the derived's owning root lives as long as the project context.
+ * Regression cover for the cached-service staleness fixed in ProjectContext#ownAndCache
+ * (live symptom: PartOfSpeechService.current stuck at `[]`, so PoS labels never
+ * rendered). See that method for why context-owned reactive state is needed; the
+ * cases below exercise the happy path plus the two unmount orderings that triggered it.
  */
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -65,10 +51,7 @@ describe('Wrapper service over apiResource', () => {
   });
 
   it('REGRESSION: cached wrapper stays reactive after its creator unmounts', async () => {
-    // The canonical bug: a transient component creates the cached service,
-    // the service's $derived.by gets owned by that component's effect root,
-    // then the component unmounts before the fetch resolves. With the bug,
-    // the derived freezes at [] for everyone else.
+    // Pins the ordering: the creator unmounts *before* the fetch resolves.
     const pending = deferred<string[]>();
     const fetchData = vi.fn(() => pending.promise);
     const {app, controls} = mountHarness(fetchData, 'beta');
@@ -91,9 +74,7 @@ describe('Wrapper service over apiResource', () => {
   });
 
   it('REGRESSION: cached wrapper reacts to api swaps after its creator unmounts', async () => {
-    // Real-world trigger for the same freeze: project switch re-runs the
-    // resource fetch on a long-lived cached service whose creator (e.g. a
-    // virtualized row) is no longer mounted.
+    // Real-world trigger: a project switch re-runs the fetch after the creating row is gone.
     const fetchData = vi.fn()
       .mockResolvedValueOnce(['first'])
       .mockResolvedValueOnce(['second']);

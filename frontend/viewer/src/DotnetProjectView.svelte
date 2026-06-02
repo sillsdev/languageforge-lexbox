@@ -75,8 +75,7 @@
     if (serviceLoaded) {
       cleanup();
     }
-    // Tear down the $effect.root instances owning cached services; they aren't
-    // tied to the component tree, so without this they'd leak across project switches.
+    // Context-owned $effect.roots aren't tied to the component tree, so they need an explicit teardown.
     projectContext.destroy();
   });
 

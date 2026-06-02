@@ -36,15 +36,7 @@ export function useProjectContext() {
 }
 export class ProjectContext {
   #stateCache = new SvelteMap<symbol, unknown>();
-  // Roots own the deriveds/states of cached services. Without these, a
-  // `$derived.by` class field would be owned by whatever effect root was
-  // active when the service was first constructed — typically the first
-  // component to call `useService()`. When that component unmounts (e.g.
-  // virtualized list rows scrolling out), the derived gets frozen and
-  // every future reader of the cached service sees stale values. Owning
-  // the deriveds on a context-scoped root sidesteps that lifecycle leak.
-  // (See sveltejs/svelte v5.55.3 "freeze deriveds once their containing
-  // effects are destroyed" for the trigger.)
+  // Cleanups for the per-service $effect.root instances; see #ownAndCache.
   #rootCleanups: Array<() => void> = [];
   #api: IMiniLcmJsInvokable | undefined = $state(undefined);
   #projectName: string | undefined = $state(undefined);
@@ -163,15 +155,13 @@ export class ProjectContext {
   }
 
   /**
-   * Run `factory` inside an `$effect.root` so any `$state` / `$derived` it
-   * touches is owned by this project context, not by the caller's transient
-   * effect root. Without this wrapper, a cached service whose class fields
-   * use `$derived.by` would silently freeze the moment its creating
-   * component unmounted. See `#rootCleanups` for the full explanation.
-   *
-   * `untrack` defends against the rare case where this is called from
-   * inside an active derivation (e.g. a `$derived` calling `useService()`):
-   * we don't want the caller to inadvertently track this context's caches.
+   * Runs `factory` inside an `$effect.root` so a cached service's `$derived`/
+   * `$state` is owned by the long-lived project context, not by whichever
+   * component first asked for the service. Without this, a `$derived` owned by a
+   * short-lived component (e.g. a virtualized row) stops updating for later
+   * readers once that component unmounts — see the regression tests in
+   * detached-resource/. `untrack` keeps a caller that's mid-derivation from
+   * subscribing to our caches.
    */
   #ownAndCache<T>(key: symbol, factory: () => T): T {
     let result!: T;

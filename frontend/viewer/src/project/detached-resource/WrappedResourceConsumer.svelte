@@ -1,7 +1,6 @@
 <script lang="ts" module>
-  // Shared cache symbol so all consumers across mounts in the same
-  // projectContext share the same WrapperService instance — mirroring how
-  // PartOfSpeechService is cached in `getOrAdd`.
+  // Shared so all consumers in a projectContext get the same cached WrapperService
+  // (mirrors how PartOfSpeechService is cached via getOrAdd).
   export const WRAPPER_SYMBOL = Symbol.for('test:wrapper-service');
 </script>
 
@@ -20,8 +19,7 @@
     return new WrapperService(resource);
   });
 
-  // Mirror DictionaryEntry: read wrapper.transformed inside a $derived,
-  // then look up an entry by key (the exact shape that broke live).
+  // Mirrors DictionaryEntry: read wrapper.transformed in a $derived, then look up by key.
   const found = $derived(wrapper.transformed.find((item) => item.value === props.lookupKey));
 </script>
 
