@@ -140,6 +140,7 @@ public class FwDataFactory(
     public Task StopAsync(CancellationToken cancellationToken)
     {
         _shuttingDown = true;
-        return Task.Run(Dispose, cancellationToken);
+        Dispose();
+        return Task.CompletedTask;
     }
 }
