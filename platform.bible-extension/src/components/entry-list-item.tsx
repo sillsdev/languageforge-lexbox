@@ -47,7 +47,7 @@ export default function EntryListItem({
         id={entry.id}
         onClick={onClick}
         className={cn(
-          'flex flex-col p-2 outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 focus:ring-offset-background',
+          'tw:flex tw:flex-col tw:p-2 tw:outline-none tw:focus:ring-2 tw:focus:ring-ring tw:focus:ring-offset-1 tw:focus:ring-offset-background',
           {
             'tw:bg-muted': isSelected,
             'tw:hover:bg-muted': !isSelected,
