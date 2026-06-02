@@ -19,10 +19,10 @@ const monorepoRoot = path.resolve(extensionRoot, '..');
 const RESET = '\x1b[0m';
 const BOLD = '\x1b[1m';
 const DIM = '\x1b[2m';
-const CYAN = '\x1b[36m';
 const GREEN = '\x1b[32m';
 const YELLOW = '\x1b[33m';
 const RED = '\x1b[31m';
+const ORANGE = '\x1b[38;5;208m';
 
 function c(code, text) {
   return `${code}${text}${RESET}`;
@@ -61,56 +61,73 @@ function ask(rl, question) {
 }
 
 // ---------------------------------------------------------------------------
-// Build file pairs
+// Build file pairs — enumerate via git ls-files (respects .gitignore)
 // ---------------------------------------------------------------------------
 
+/**
+ * Top-level directories to skip. Everything gitignored is already excluded by `git ls-files`; this
+ * list only covers extension-specific content that isn't gitignored.
+ */
+const IGNORED_DIRS = new Set([
+  '.github', // CI workflow is added explicitly below
+  'lib', // used for template CI, but deleted from this extension
+  'src', // extension-specific source
+]);
+
+/** File basenames to skip — extension-specific, not gitignored. */
+const IGNORED_FILES = new Set(['LICENSE', 'CLAUDE.md', 'AGENTS.md', 'package-lock.json']);
+
+/**
+ * Files modified in the extension that still need template updates reviewed. [t] is blocked so
+ * changes are never applied without a review pass; [b] is available to apply-then-defer. Keys are
+ * forward-slash paths as output by `git ls-files`.
+ */
+const REVIEW_REQUIRED_NOTE = 'Apply via [b]oth then review — extension has custom modifications';
+// prettier-ignore
+const REVIEW_REQUIRED_FILES = new Set([
+  '.eslintignore',
+  '.eslintrc.js',
+  '.gitignore',
+  '.prettierignore',
+  '.stylelintignore',
+  'manifest.json',
+  'package.json',
+  'README.md',
+  'tsconfig.json',
+  'tsconfig.lint.json',
+]);
+
+/** Top-level directories where all files are surfaced but overwrite is blocked. */
+const MANUAL_DIRS = {
+  assets: { note: 'Adapt changes manually — contributions are extension-specific' },
+  contributions: { note: 'Adapt changes manually — contributions are extension-specific' },
+};
+
 function buildPairs() {
-  const staticRels = [
-    'tsconfig.json',
-    'tsconfig.lint.json',
-    'postcss.config.ts',
-    'tailwind.config.ts',
-    '.eslintrc.js',
-    '.eslintignore',
-    '.stylelintrc.js',
-    '.stylelintignore',
-    '.prettierrc.js',
-    '.prettierignore',
-    '.editorconfig',
-    '.gitattributes',
-    'cspell.json',
-    'webpack.config.ts',
-  ];
+  // git ls-files lists every tracked file, automatically honouring .gitignore
+  const templateFiles = execSync('git ls-files', { cwd: templateDir, encoding: 'utf8' })
+    .trim()
+    .split('\n')
+    .filter(Boolean);
 
-  const pairs = staticRels.map((rel) => ({
-    label: rel,
-    templateFile: path.join(templateDir, rel),
-    extensionFile: path.join(extensionRoot, rel),
-    canOverwrite: true,
-  }));
-
-  pairs.push({
-    label: 'package.json',
-    templateFile: path.join(templateDir, 'package.json'),
-    extensionFile: path.join(extensionRoot, 'package.json'),
-    note: 'Review scripts & devDeps only — restoring name/version/description/dependencies will be needed after overwrite',
-    canOverwrite: true,
-  });
-
-  // Dynamic webpack entries
-  const webpackTemplateDir = path.join(templateDir, 'webpack');
-  if (fs.existsSync(webpackTemplateDir)) {
-    fs.readdirSync(webpackTemplateDir).forEach((filename) => {
-      pairs.push({
-        label: `webpack/${filename}`,
-        templateFile: path.join(webpackTemplateDir, filename),
-        extensionFile: path.join(extensionRoot, 'webpack', filename),
-        canOverwrite: true,
-      });
+  const pairs = templateFiles
+    .filter(
+      (rel) => !IGNORED_DIRS.has(rel.split('/')[0]) && !IGNORED_FILES.has(rel.split('/').pop()),
+    )
+    .map((rel) => {
+      const reviewRequired = REVIEW_REQUIRED_FILES.has(rel);
+      const manualDir = MANUAL_DIRS[rel.split('/')[0]];
+      return {
+        label: rel,
+        templateFile: path.join(templateDir, rel),
+        extensionFile: path.join(extensionRoot, rel),
+        note: reviewRequired ? REVIEW_REQUIRED_NOTE : manualDir?.note,
+        canOverwrite: !reviewRequired && !manualDir,
+        deferRequired: reviewRequired,
+      };
     });
-  }
 
-  // CI workflow — canOverwrite: false, filenames differ, content has monorepo-specific structure
+  // CI workflow: explicitly added because the filename differs on each side
   pairs.push({
     label: 'CI workflow (lint.yml → platform.bible-extension.yaml)',
     templateFile: path.join(templateDir, '.github', 'workflows', 'lint.yml'),
@@ -127,7 +144,9 @@ function buildPairs() {
 // ---------------------------------------------------------------------------
 
 async function promptChoice(rl, pair) {
-  const { templateFile, extensionFile, label, note, canOverwrite } = pair;
+  const { templateFile, extensionFile, label, note, canOverwrite, deferRequired } = pair;
+  const canApplyDirect = canOverwrite;
+  const canApplyWithDefer = canOverwrite || deferRequired;
 
   if (!fs.existsSync(templateFile)) return 'missing';
 
@@ -147,21 +166,29 @@ async function promptChoice(rl, pair) {
     showDiff(templateFile, extensionFile);
   }
 
-  const templateOptions = canOverwrite
-    ? `${c(GREEN, '[t]emplate')}  `
+  const templateOptions = canApplyDirect
+    ? `${c(RED, '[t]emplate')}  `
     : `${c(DIM, '[t]emplate (blocked)')}  `;
 
-  const bothOption = canOverwrite
-    ? `${c(CYAN, '[b]oth')} (template+defer)  `
+  const bothOption = canApplyWithDefer
+    ? `${c(ORANGE, '[b]oth')} (template+defer)  `
     : `${c(DIM, '[b]oth (blocked)')}  `;
 
-  const prompt = `\n  ${c(DIM, '[e]xtension')}  ${templateOptions}${c(YELLOW, '[d]efer')} (for review after manual editing)  ${bothOption}> `;
+  const prompt = `\n  ${c(GREEN, '[e]xtension')}  ${templateOptions}${c(YELLOW, '[d]efer')} (for review after manual editing)  ${bothOption}> `;
 
   let choice = '';
   while (!['e', 't', 'b', 'd'].includes(choice)) {
     // eslint-disable-next-line no-await-in-loop
     choice = await ask(rl, prompt);
-    if ((choice === 't' || choice === 'b') && !canOverwrite) {
+    if (choice === 't' && !canApplyDirect) {
+      console.log(
+        c(
+          RED,
+          '  Blocked — use [b]oth to apply and defer for review, or [d]efer to edit manually.',
+        ),
+      );
+      choice = '';
+    } else if (choice === 'b' && !canApplyWithDefer) {
       console.log(c(RED, '  Blocked — adapt manually, then [d]efer or [e]xtension.'));
       choice = '';
     }
