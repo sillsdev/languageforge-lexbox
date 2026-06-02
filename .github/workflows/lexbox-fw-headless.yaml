@@ -23,21 +23,21 @@ jobs:
     runs-on: ubuntu-latest
 
     # postgres db is for automated tests
-    # services:
-    #   postgres:
-    #     image: postgres:15-alpine
-    #     env:
-    #       POSTGRES_PASSWORD: 972b722e63f549938d07bd8c4ee5086c
-    #       POSTGRES_DB: lexbox-tests
-    #     # Set health checks to wait until postgres has started
-    #     options: >-
-    #       --health-cmd pg_isready
-    #       --health-interval 10s
-    #       --health-timeout 5s
-    #       --health-retries 5
-    #     ports:
-    #       # Maps tcp port 5432 on service container to the host
-    #       - 5433:5432
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: 972b722e63f549938d07bd8c4ee5086c
+          POSTGRES_DB: lexbox-tests
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5433:5432
 
     env:
       # https://docs.docker.com/develop/develop-images/build_enhancements/
@@ -52,21 +52,20 @@ jobs:
           dotnet-version: '10.x'
       - name: Dotnet build
         run: dotnet build backend/FwHeadless/FwHeadless.csproj
-      # TODO: Write FwHeadless unit tests, probably based on existing sync tests
-      # - name: Unit tests
-      #   run: dotnet test backend/FwHeadless/FwHeadless.csproj --logger:"xunit;LogFileName={assembly}.results.xml" --results-directory ./test-results --filter "Category!=Integration&Category!=FlakyIntegration" --blame-hang-timeout 10m
-      # - name: Publish unit test results
-      #   uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
-      #   if: always()
-      #   with:
-      #     check_name: C# Unit Tests
-      #     files: ./test-results/*.xml
-      # - name: Upload test results
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: dotnet-unit-test-results
-      #     path: ./test-results
+      - name: Unit tests
+        run: dotnet test backend/Testing/Testing.csproj --logger:"xunit;LogFileName={assembly}.results.xml" --results-directory ./test-results --filter "Category!=Integration&Category!=FlakyIntegration&FullyQualifiedName~FwHeadless" --blame-hang-timeout 10m
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
+        if: always()
+        with:
+          check_name: C# FwHeadless Unit Tests
+          files: ./test-results/*.xml
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-fw-headless-unit-test-results
+          path: ./test-results
 
       - name: Docker meta
         id: meta
