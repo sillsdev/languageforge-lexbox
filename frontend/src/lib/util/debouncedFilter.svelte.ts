@@ -6,10 +6,10 @@ import {untrack} from 'svelte';
  * URL-backed filter store, without clobbering in-flight typing when the store
  * echoes the write back.
  *
- * Use it like this:
+ * Use it like this — coerce nullish input so the value stays a string:
  * ```svelte
  * const search = debouncedFilter(filters, 'userSearch', 400);
- * <input bind:value={search.value} />
+ * <input bind:value={() => search.value, (v) => (search.value = v ?? '')} />
  * ```
  *
  * Behaviour:
