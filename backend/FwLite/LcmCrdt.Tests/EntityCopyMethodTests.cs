@@ -23,7 +23,9 @@ public class EntityCopyMethodTests
 
     private static MethodInfo? CopyMethod(Type type)
     {
-        return type.GetMethod("Copy", BindingFlags.Public | BindingFlags.Instance, binder: null, Type.EmptyTypes, modifiers: null);
+        // DeclaredOnly: the type must define its own Copy(), not merely inherit one, so private
+        // RichString subclasses (e.g. the JSON-converter helper) aren't pulled in as spurious cases.
+        return type.GetMethod("Copy", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly, binder: null, Type.EmptyTypes, modifiers: null);
     }
 
     private void AssertDeepCopy(object copy, object original)
