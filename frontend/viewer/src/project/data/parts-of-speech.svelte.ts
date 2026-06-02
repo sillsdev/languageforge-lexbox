@@ -21,15 +21,12 @@ export class PartOfSpeechService {
 
   #posResource: ResourceReturn<IPartOfSpeech[], unknown, true>;
 
-  // Plain getter, not a `$derived.by` (mirrors WritingSystemService): a cached
-  // service's derived can read back stale once its observers unmount, which
-  // dropped PoS labels from the dictionary preview.
-  get current(): LabeledPartOfSpeech[] {
+  current: LabeledPartOfSpeech[] = $derived.by(() => {
     return this.#posResource.current.map(pos => ({
       ...pos,
       label: this.getLabel(pos),
     })).sort((a, b) => a.label.localeCompare(b.label));
-  }
+  });
 
   async refetch() {
     await this.#posResource.refetch();

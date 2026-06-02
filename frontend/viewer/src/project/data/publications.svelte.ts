@@ -21,12 +21,12 @@ export class PublicationService {
 
   #publicationsResource: ResourceReturn<IPublication[], unknown, true>;
 
-  get current(): LabeledPublication[] {
+  current: LabeledPublication[] = $derived.by(() => {
     return this.#publicationsResource.current.map(pub => ({
       ...pub,
       label: this.getLabel(pub),
     })).sort((a, b) => a.label.localeCompare(b.label));
-  }
+  });
 
   async refetch() {
     await this.#publicationsResource.refetch();
