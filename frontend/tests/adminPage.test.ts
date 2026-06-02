@@ -30,6 +30,17 @@ test.describe('user filter typing', () => {
 
     await expect(input, 'input must contain every character typed').toHaveValue(text);
   });
+
+  test('clearing the debounced user filter mid-typing clears the input', async ({ page }) => {
+    await LoginPage.loginAsAdmin(page);
+    const adminPage = await new AdminDashboardPage(page).waitFor();
+
+    await adminPage.userFilterBarInput.fill('abc');
+    // no wait — the ✕ must clear within the debounce window (a wait would test the already-covered flushed path)
+    await page.locator('.filter-bar').nth(1).getByRole('button', { name: '✕' }).click();
+
+    await expect(adminPage.userFilterBarInput).toHaveValue('');
+  });
 });
 
 // Covers the other half of the #2224 fix: external changes to the URL-backed filter store
