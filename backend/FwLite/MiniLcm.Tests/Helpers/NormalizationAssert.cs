@@ -168,8 +168,6 @@ public static class NormalizationAssert
     // (or null if it is fine), so a caller can't mismatch label and logic.
     private sealed record StringCheck(string Label, Func<string, string?> Validate);
 
-    // AssertAllDecomposed verifies wrapper OUTPUT is NFD; AssertAllDecomposable verifies INPUT test data is
-    // NFC AND actually decomposes — content byte-identical in NFC and NFD (e.g. ASCII) would silently no-op the normalizer.
     private static readonly StringCheck Nfd = new("NFD", value =>
         value.IsNormalized(NormalizationForm.FormD)
             ? null
