@@ -34,6 +34,9 @@ public class MiniLcmApiWriteNormalizationWrapperFactory : IMiniLcmWrapperFactory
 ///   Non-normalized data that is already persisted (before this wrapper was introduced) will be normalized by LibLcm. That's not something we want to fix here.
 /// - Properties that liblcm/FieldWorks does not NFD-normalize are passed through unchanged.
 ///   Currently only WritingSystem properties.
+/// - Each normalizer starts from the model's own Copy() (or `with` for records) and overwrites only the
+///   text-bearing fields, so non-text fields — including any added later — are preserved automatically rather
+///   than re-listed here. Copy() completeness is enforced by LcmCrdt.Tests.EntityCopyMethodTests.
 /// - JsonPatch overloads normalize string-ish values best-effort (string, RichString, MultiString, RichMultiString).
 ///   JsonElement values are only normalized when they are simple strings; complex JSON values are left as-is
 ///   to avoid guessing the target type.
@@ -99,13 +102,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     private static PartOfSpeech NormalizePartOfSpeech(PartOfSpeech pos)
     {
-        return new PartOfSpeech
-        {
-            Id = pos.Id,
-            Name = StringNormalizer.Normalize(pos.Name),
-            DeletedAt = pos.DeletedAt,
-            Predefined = pos.Predefined
-        };
+        var copy = pos.Copy();
+        copy.Name = StringNormalizer.Normalize(pos.Name);
+        return copy;
     }
 
     #endregion
@@ -135,12 +134,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     private static Publication NormalizePublication(Publication pub)
     {
-        return new Publication
-        {
-            Id = pub.Id,
-            Name = StringNormalizer.Normalize(pub.Name),
-            DeletedAt = pub.DeletedAt
-        };
+        var copy = pub.Copy();
+        copy.Name = StringNormalizer.Normalize(pub.Name);
+        return copy;
     }
 
     #endregion
@@ -170,14 +166,10 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     private static SemanticDomain NormalizeSemanticDomain(SemanticDomain sd)
     {
-        return new SemanticDomain
-        {
-            Id = sd.Id,
-            Name = StringNormalizer.Normalize(sd.Name),
-            Code = StringNormalizer.Normalize(sd.Code), // yes, LibLcm normalizes this too
-            DeletedAt = sd.DeletedAt,
-            Predefined = sd.Predefined
-        };
+        var copy = sd.Copy();
+        copy.Name = StringNormalizer.Normalize(sd.Name);
+        copy.Code = StringNormalizer.Normalize(sd.Code); // yes, LibLcm normalizes this too
+        return copy;
     }
 
     #endregion
@@ -230,18 +222,13 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     private static MorphType NormalizeMorphType(MorphType mt)
     {
-        return new MorphType
-        {
-            Id = mt.Id,
-            Kind = mt.Kind,
-            Name = StringNormalizer.Normalize(mt.Name),
-            Abbreviation = StringNormalizer.Normalize(mt.Abbreviation),
-            Description = StringNormalizer.Normalize(mt.Description),
-            Prefix = StringNormalizer.Normalize(mt.Prefix),
-            Postfix = StringNormalizer.Normalize(mt.Postfix),
-            SecondaryOrder = mt.SecondaryOrder,
-            DeletedAt = mt.DeletedAt
-        };
+        var copy = mt.Copy();
+        copy.Name = StringNormalizer.Normalize(mt.Name);
+        copy.Abbreviation = StringNormalizer.Normalize(mt.Abbreviation);
+        copy.Description = StringNormalizer.Normalize(mt.Description);
+        copy.Prefix = StringNormalizer.Normalize(mt.Prefix);
+        copy.Postfix = StringNormalizer.Normalize(mt.Postfix);
+        return copy;
     }
 
     #endregion
@@ -374,19 +361,13 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     private static Sense NormalizeSense(Sense sense)
     {
-        return new Sense
-        {
-            Id = sense.Id,
-            Order = sense.Order,
-            DeletedAt = sense.DeletedAt,
-            EntryId = sense.EntryId,
-            Definition = StringNormalizer.Normalize(sense.Definition),
-            Gloss = StringNormalizer.Normalize(sense.Gloss),
-            PartOfSpeech = sense.PartOfSpeech is not null ? NormalizePartOfSpeech(sense.PartOfSpeech) : null,
-            PartOfSpeechId = sense.PartOfSpeechId,
-            SemanticDomains = [.. sense.SemanticDomains.Select(NormalizeSemanticDomain)],
-            ExampleSentences = [.. sense.ExampleSentences.Select(NormalizeExampleSentence)]
-        };
+        var copy = sense.Copy();
+        copy.Definition = StringNormalizer.Normalize(sense.Definition);
+        copy.Gloss = StringNormalizer.Normalize(sense.Gloss);
+        copy.PartOfSpeech = sense.PartOfSpeech is not null ? NormalizePartOfSpeech(sense.PartOfSpeech) : null;
+        copy.SemanticDomains = [.. sense.SemanticDomains.Select(NormalizeSemanticDomain)];
+        copy.ExampleSentences = [.. sense.ExampleSentences.Select(NormalizeExampleSentence)];
+        return copy;
     }
 
     #endregion
@@ -437,25 +418,18 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     private static ExampleSentence NormalizeExampleSentence(ExampleSentence example)
     {
-        return new ExampleSentence
-        {
-            Id = example.Id,
-            Order = example.Order,
-            DeletedAt = example.DeletedAt,
-            SenseId = example.SenseId,
-            Sentence = StringNormalizer.Normalize(example.Sentence),
-            Translations = [.. example.Translations.Select(NormalizeTranslation)],
-            Reference = StringNormalizer.Normalize(example.Reference)
-        };
+        var copy = example.Copy();
+        copy.Sentence = StringNormalizer.Normalize(example.Sentence);
+        copy.Translations = [.. example.Translations.Select(NormalizeTranslation)];
+        copy.Reference = StringNormalizer.Normalize(example.Reference);
+        return copy;
     }
 
     private static Translation NormalizeTranslation(Translation translation)
     {
-        return new Translation
-        {
-            Id = translation.Id,
-            Text = StringNormalizer.Normalize(translation.Text)
-        };
+        var copy = translation.Copy();
+        copy.Text = StringNormalizer.Normalize(translation.Text);
+        return copy;
     }
 
     #endregion

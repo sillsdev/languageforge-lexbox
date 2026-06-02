@@ -50,7 +50,8 @@ public static class NfcTestData
         return new()
         {
             Id = Guid.NewGuid(),
-            Name = CreateNfcMultiString()
+            Name = CreateNfcMultiString(),
+            Predefined = true,
         };
     }
 
@@ -69,7 +70,8 @@ public static class NfcTestData
         {
             Id = Guid.NewGuid(),
             Code = Nfc,
-            Name = CreateNfcMultiString()
+            Name = CreateNfcMultiString(),
+            Predefined = true,
         };
     }
 
@@ -105,11 +107,17 @@ public static class NfcTestData
         };
     }
 
+    // Non-string scalars below are deliberately populated with non-default values so that
+    // identity-preservation assertions (e.g. BeEquivalentTo on the wrapper's output) actually
+    // exercise those fields. A default-valued field can't catch a normalizer that drops it.
+
     public static ExampleSentence CreateNfcExampleSentence()
     {
         return new()
         {
             Id = Guid.NewGuid(),
+            Order = 2.5,
+            SenseId = Guid.NewGuid(),
             Sentence = CreateNfcRichMultiString(),
             Reference = CreateNfcRichString()
         };
@@ -120,6 +128,8 @@ public static class NfcTestData
         return new()
         {
             Id = Guid.NewGuid(),
+            Order = 2.5,
+            SenseId = Guid.NewGuid(),
             Sentence = CreateNfcRichMultiString(),
             Reference = CreateNfcRichString(),
             Translations = [CreateNfcTranslation(), CreateNfcTranslation()]
@@ -131,6 +141,9 @@ public static class NfcTestData
         return new()
         {
             Id = Guid.NewGuid(),
+            Order = 1.5,
+            EntryId = Guid.NewGuid(),
+            PartOfSpeechId = Guid.NewGuid(),
             Gloss = CreateNfcMultiString(),
             Definition = CreateNfcRichMultiString()
         };
@@ -138,13 +151,17 @@ public static class NfcTestData
 
     public static Sense CreateNfcSenseWithExamples()
     {
+        var pos = CreateNfcPartOfSpeech();
         return new()
         {
             Id = Guid.NewGuid(),
+            Order = 1.5,
+            EntryId = Guid.NewGuid(),
             Gloss = CreateNfcMultiString(),
             Definition = CreateNfcRichMultiString(),
             SemanticDomains = [CreateNfcSemanticDomain()],
-            PartOfSpeech = CreateNfcPartOfSpeech(),
+            PartOfSpeech = pos,
+            PartOfSpeechId = pos.Id,
             ExampleSentences = [CreateNfcExampleSentenceWithTranslations()]
         };
     }
@@ -154,8 +171,10 @@ public static class NfcTestData
         return new()
         {
             Id = Guid.NewGuid(),
+            Order = 1.5,
             ComplexFormEntryId = Guid.NewGuid(),
             ComponentEntryId = Guid.NewGuid(),
+            ComponentSenseId = Guid.NewGuid(),
             ComplexFormHeadword = Nfc,
             ComponentHeadword = Nfc
         };
@@ -166,6 +185,8 @@ public static class NfcTestData
         return new()
         {
             Id = Guid.NewGuid(),
+            HomographNumber = 3,
+            MorphType = MorphTypeKind.Root,
             LexemeForm = CreateNfcMultiString(),
             CitationForm = CreateNfcMultiString(),
             LiteralMeaning = CreateNfcRichMultiString(),
@@ -178,6 +199,8 @@ public static class NfcTestData
         return new()
         {
             Id = Guid.NewGuid(),
+            HomographNumber = 3,
+            MorphType = MorphTypeKind.Root,
             LexemeForm = CreateNfcMultiString(),
             CitationForm = CreateNfcMultiString(),
             LiteralMeaning = CreateNfcRichMultiString(),
@@ -191,6 +214,8 @@ public static class NfcTestData
         return new()
         {
             Id = Guid.NewGuid(),
+            HomographNumber = 3,
+            MorphType = MorphTypeKind.Root,
             LexemeForm = CreateNfcMultiString(),
             CitationForm = CreateNfcMultiString(),
             LiteralMeaning = CreateNfcRichMultiString(),
