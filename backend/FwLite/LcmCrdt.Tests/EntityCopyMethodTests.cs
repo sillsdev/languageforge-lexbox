@@ -1,7 +1,7 @@
+using System.Reflection;
 using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 using MiniLcm.Tests.AutoFakerHelpers;
-using SIL.Harmony.Resource;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
 
@@ -11,13 +11,19 @@ public class EntityCopyMethodTests
 {
     private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.Config);
 
+    // Discover types from the Copy() contract itself rather than the CRDT registration, so an
+    // owned type like Translation (which isn't a CRDT root) — or any model added later — can't slip
+    // through by being absent from a hand-maintained list.
     public static IEnumerable<object[]> GetEntityTypes()
     {
-        var crdtConfig = new CrdtConfig();
-        LcmCrdtKernel.ConfigureCrdt(crdtConfig);
-        return crdtConfig.ObjectTypes
-            .Except([typeof(RemoteResource)])//exclude remote resource as it's a harmony defined type, not miniLcm
+        return typeof(IObjectWithId).Assembly.GetTypes()
+            .Where(t => t is { IsClass: true, IsAbstract: false } && CopyMethod(t) is not null)
             .Select(t => new object[] { t });
+    }
+
+    private static MethodInfo? CopyMethod(Type type)
+    {
+        return type.GetMethod("Copy", BindingFlags.Public | BindingFlags.Instance, binder: null, Type.EmptyTypes, modifiers: null);
     }
 
     private void AssertDeepCopy(object copy, object original)
@@ -48,9 +54,8 @@ public class EntityCopyMethodTests
     [MemberData(nameof(GetEntityTypes))]
     public void EntityCopyMethodShouldCopyAllFields(Type type)
     {
-        type.IsAssignableTo(typeof(IObjectWithId)).Should().BeTrue();
-        var entity = (IObjectWithId) AutoFaker.Generate(type);
-        var copy = entity.Copy();
+        var entity = AutoFaker.Generate(type)!;
+        var copy = CopyMethod(type)!.Invoke(entity, null)!;
         AssertDeepCopy(copy, entity);
     }
 
