@@ -109,7 +109,8 @@ public class SyncService(
     {
         try
         {
-            await lexboxProjectService.ListenForProjectChanges(project, cancellationToken);
+            // The sync just proved this server reachable, which licenses kicking a mid-backoff reconnect.
+            await lexboxProjectService.ListenForProjectChanges(project, cancellationToken, kickReconnecting: true);
         }
         catch (Exception e)
         {

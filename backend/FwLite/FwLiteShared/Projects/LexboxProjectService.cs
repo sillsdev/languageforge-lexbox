@@ -91,9 +91,9 @@ public class LexboxProjectService : IDisposable
     // (post-sync, project-open) subscribe only the requesting project when they rebuild a connection, leaving
     // sibling projects unsubscribed until this pass heals them. Used by connectivity-regained and periodic
     // recovery so a listener that failed to start while offline comes back without a manual sync or edit.
-    public Task EnsureListenersForTrackedProjects() => EnsureListenersForTrackedProjects(null);
+    public Task EnsureListenersForTrackedProjects(bool kickReconnecting = false) => EnsureListenersForTrackedProjects(null, kickReconnecting);
 
-    private async Task EnsureListenersForTrackedProjects(Func<ProjectData, bool>? filter)
+    private async Task EnsureListenersForTrackedProjects(Func<ProjectData, bool>? filter, bool kickReconnecting = false)
     {
         // Snapshot connected servers BEFORE the loop, not per project: when a server is down, its first project
         // opens the connection and the rest must still subscribe on it within this same pass.
@@ -109,7 +109,7 @@ public class LexboxProjectService : IDisposable
             }
             try
             {
-                await ListenForProjectChanges(project, CancellationToken.None);
+                await ListenForProjectChanges(project, CancellationToken.None, kickReconnecting);
             }
             catch (Exception e)
             {
@@ -315,12 +315,13 @@ public class LexboxProjectService : IDisposable
     private SemaphoreSlim ConnectionGate(LexboxServer server) =>
         _connectionGates.GetOrAdd(HubConnectionCacheKey(server), static _ => new SemaphoreSlim(1, 1));
 
-    public async Task ListenForProjectChanges(ProjectData projectData, CancellationToken stoppingToken)
+    public async Task ListenForProjectChanges(ProjectData projectData, CancellationToken stoppingToken, bool kickReconnecting = false)
     {
         // Record intent to listen before any early-returns, so auth-change recovery can resubscribe
         // this project even if the steps below bail out (no server, connection not yet active, etc.).
         _trackedProjects[projectData.Id] = projectData;
         if (!options.Value.TryGetServer(projectData, out var server)) return;
+        if (kickReconnecting) await KickIfReconnecting(server);
         var lexboxConnection = await StartLexboxProjectChangeListener(server, stoppingToken);
         if (lexboxConnection is null) return;
         // Register for resubscription before any early-return on connection state, otherwise the
@@ -373,6 +374,20 @@ public class LexboxProjectService : IDisposable
     }
 
     private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
+
+    // Only for callers with strong evidence the network just returned (connectivity regained, app resume, a
+    // successful sync to this server): SignalR has no retry-now API, so stop-and-rebuild is the only way to
+    // skip a committed backoff delay. Never kick without such evidence — a wrong kick trades the automatic
+    // retry loop for the much slower recovery backstops.
+    private async Task KickIfReconnecting(LexboxServer server)
+    {
+        if (cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? connection)
+            && connection is { State: HubConnectionState.Reconnecting })
+        {
+            logger.LogInformation("Network recovery signal: interrupting mid-backoff reconnect to {Server}", server.Authority);
+            await EvictAndStopIfCached(HubConnectionCacheKey(server), cache, logger, connection);
+        }
+    }
 
     // Internal for unit tests. Records the project in the per-connection resubscribe set (creating the set
     // and wiring the Reconnected handler on first use). Registration is unconditional — it does not depend

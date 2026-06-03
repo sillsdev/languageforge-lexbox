@@ -43,7 +43,7 @@ public sealed class ConnectivitySyncTrigger(
     {
         try
         {
-            await lexboxProjectService.EnsureListenersForTrackedProjects();
+            await lexboxProjectService.EnsureListenersForTrackedProjects(kickReconnecting: true);
         }
         catch (Exception e)
         {

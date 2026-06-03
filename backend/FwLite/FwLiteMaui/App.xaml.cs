@@ -37,7 +37,7 @@ public partial class App : Application
     {
         try
         {
-            await _lexboxProjectService.EnsureListenersForTrackedProjects();
+            await _lexboxProjectService.EnsureListenersForTrackedProjects(kickReconnecting: true);
         }
         catch (Exception e)
         {
