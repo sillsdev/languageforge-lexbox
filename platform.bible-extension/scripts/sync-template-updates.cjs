@@ -43,7 +43,7 @@ function showDiff(templateFile, extensionFile) {
   if (!fs.existsSync(extensionFile)) {
     const tempFile = path.join(os.tmpdir(), `sync-template-empty-${process.pid}`);
     fs.writeFileSync(tempFile, '');
-    spawnSync('git', ['diff', '--no-index', '--color', '--', tempFile, templateFile], {
+    spawnSync('git', ['diff', '--no-index', '--color', '--', templateFile, tempFile], {
       stdio: 'inherit',
     });
     fs.unlinkSync(tempFile);
