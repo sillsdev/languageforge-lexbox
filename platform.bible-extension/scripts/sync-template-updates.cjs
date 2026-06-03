@@ -24,6 +24,7 @@ const YELLOW = '\x1b[33m';
 const RED = '\x1b[31m';
 const ORANGE = '\x1b[38;5;208m';
 
+/** Wrap text in an ANSI colour/style code and reset. */
 function c(code, text) {
   return `${code}${text}${RESET}`;
 }
@@ -37,6 +38,7 @@ function isBinary(buf) {
   return buf.slice(0, 8192).includes(0);
 }
 
+/** Print a coloured git diff between the template file and the extension file. */
 function showDiff(templateFile, extensionFile) {
   if (!fs.existsSync(extensionFile)) {
     const tempFile = path.join(os.tmpdir(), `sync-template-empty-${process.pid}`);
@@ -52,6 +54,7 @@ function showDiff(templateFile, extensionFile) {
   }
 }
 
+/** Prompt the user and resolve with the trimmed, lowercased response. */
 function ask(rl, question) {
   return new Promise((resolve) => {
     rl.question(question, (ans) => {
@@ -104,6 +107,13 @@ const MANUAL_DIRS = {
   contributions: { note: 'Adapt changes manually — contributions are extension-specific' },
 };
 
+/** Create the destination directory if needed, then overwrite the extension file with the template. */
+function copyFromTemplate(pair) {
+  fs.mkdirSync(path.dirname(pair.extensionFile), { recursive: true });
+  fs.copyFileSync(pair.templateFile, pair.extensionFile);
+}
+
+/** Enumerate template files via git ls-files and return a pair object for each. */
 function buildPairs() {
   // git ls-files lists every tracked file, automatically honouring .gitignore
   const templateFiles = execSync('git ls-files', { cwd: templateDir, encoding: 'utf8' })
@@ -144,6 +154,7 @@ function buildPairs() {
 // Per-pair prompt
 // ---------------------------------------------------------------------------
 
+/** Show the diff for a pair and prompt the user to choose how to handle it. */
 async function promptChoice(rl, pair) {
   const { templateFile, extensionFile, label, note, canOverwrite, deferRequired } = pair;
   const canApplyDirect = canOverwrite;
@@ -201,6 +212,7 @@ async function promptChoice(rl, pair) {
 // Main
 // ---------------------------------------------------------------------------
 
+/** Entry point: pull the template, walk all pairs interactively, and print a summary. */
 async function main() {
   if (!fs.existsSync(templateDir)) {
     throw new Error(`Template directory not found: ${templateDir}`);
@@ -251,11 +263,11 @@ async function main() {
       } else if (choice === 'e') {
         countExtension += 1;
       } else if (choice === 't') {
-        fs.copyFileSync(pair.templateFile, pair.extensionFile);
+        copyFromTemplate(pair);
         console.log(c(GREEN, '  Applied template'));
         countTemplate += 1;
       } else if (choice === 'b') {
-        fs.copyFileSync(pair.templateFile, pair.extensionFile);
+        copyFromTemplate(pair);
         console.log(c(GREEN, '  Applied template + deferred'));
         countTemplate += 1;
         deferred.push(pair);
