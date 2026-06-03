@@ -12,7 +12,7 @@ Lightweight FieldWorks application for dictionary editing with CRDT-based sync.
 **Before making changes:**
 1. Read the relevant section below thoroughly
 2. Understand the sync flow end-to-end
-3. Run the full test suite: `dotnet test FwLiteOnly.slnf`
+3. Identify which tests cover the affected area (run a targeted selection when the work is done — see the root `AGENTS.md` Testing section)
 4. Test with real FwData projects, not just unit tests
 
 ---
@@ -23,7 +23,7 @@ Lightweight FieldWorks application for dictionary editing with CRDT-based sync.
 # Run FwLite Web (typical workflow)
 task fw-lite-web   # from repo root
 
-# Run tests (ALWAYS run before committing)
+# Run all FwLite tests (slow — prefer targeted runs, see root AGENTS.md Testing section)
 dotnet test FwLiteOnly.slnf
 
 # Build MAUI app (Windows)
@@ -269,15 +269,9 @@ if (entity?.DeletedAt is not null) return;
 
 ## Testing Strategy
 
-### Before ANY commit:
+### When the work is finished:
 
-```bash
-# Run all FwLite tests
-dotnet test FwLiteOnly.slnf
-
-# If touching sync code, also run:
-dotnet test FwLiteProjectSync.Tests
-```
+Run a targeted selection of the tests covering what you changed (root `AGENTS.md` → Testing). For 🔴 critical sync changes that usually includes the relevant `FwLiteProjectSync.Tests` scenarios. `dotnet test FwLiteOnly.slnf` runs everything but is slow — reserve it for when broad signal is genuinely needed.
 
 ### Test Categories
 
