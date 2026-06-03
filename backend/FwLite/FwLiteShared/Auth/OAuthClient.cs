@@ -179,6 +179,8 @@ public class OAuthClient
         {
             _authSemaphore.Release();
         }
+        //publish outside the lock: Subject.OnNext dispatches synchronously, so a subscriber that
+        //re-enters a GetAuth/Logout path would self-deadlock on the non-reentrant _authSemaphore.
         _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
     }
 
@@ -202,6 +204,8 @@ public class OAuthClient
             return _authResult;
         }
 
+        var accountRemoved = false;
+        AuthenticationResult? result;
         await _authSemaphore.WaitAsync();
         try
         {
@@ -226,6 +230,7 @@ public class OAuthClient
                     case SilentAuthFailureOutcome.RemoveAccount:
                         _logger.LogWarning(e, "Silent token acquisition failed with a non-recoverable error, logging out");
                         await RemoveAccountAsync(account);
+                        accountRemoved = true;
                         break;
                     case SilentAuthFailureOutcome.KeepCachedCredentials:
                         _logger.LogWarning(e, "Silent token acquisition failed with a transient or unknown error; keeping cached credentials");
@@ -241,12 +246,17 @@ public class OAuthClient
                 }
             }
 
-            return _authResult;
+            //capture under the lock: after release a concurrent GetAuth could repopulate _authResult.
+            result = _authResult;
         }
         finally
         {
             _authSemaphore.Release();
         }
+
+        //publish outside the lock, as Logout does (see the rationale there).
+        if (accountRemoved) _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
+        return result;
     }
 
     //test seam — overridable so tests can stub the result without faking MSAL's builder chain.
@@ -273,11 +283,11 @@ public class OAuthClient
         _ => SilentAuthFailureOutcome.KeepCachedCredentials,
     };
 
+    //caller is responsible for publishing AuthenticationChangedEvent after releasing _authSemaphore (see Logout).
     private async Task RemoveAccountAsync(IAccount account)
     {
         await _application.RemoveAsync(account);
         _authResult = null;
-        _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
     }
 
     public async Task<string?> GetCurrentName()

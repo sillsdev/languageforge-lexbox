@@ -58,6 +58,27 @@ public class OAuthClientSilentRefreshTests
         events.Should().ContainSingle().Which.Server.Should().Be(Server);
     }
 
+    // The AuthenticationChangedEvent must be published after _authSemaphore is released: Subject.OnNext
+    // dispatches synchronously, so a subscriber that re-enters a semaphore-taking auth method (here
+    // GetCurrentToken -> GetAuth) would self-deadlock on the non-reentrant semaphore if we published
+    // while still holding it. Re-entering synchronously and completing proves the lock is free.
+    [Fact]
+    public async Task RemoveAccount_PublishesEventAfterLockReleased()
+    {
+        var (client, _, eventBus, events) = BuildClient((_, _) =>
+            throw new MsalUiRequiredException("invalid_grant", "refresh token expired"));
+
+        bool? reentrantTokenWasNull = null;
+        eventBus.OnAuthenticationChanged.Subscribe(_ =>
+            reentrantTokenWasNull = client.GetCurrentToken().AsTask().GetAwaiter().GetResult() is null);
+
+        await client.GetAuth();
+
+        events.Should().ContainSingle("the event still fires exactly once");
+        reentrantTokenWasNull.Should().Be(true,
+            "the subscriber re-entered GetAuth synchronously without deadlocking, proving the publish happens after the lock is released");
+    }
+
     [Fact]
     public async Task Cancellation_KeepsCachedAccount()
     {
