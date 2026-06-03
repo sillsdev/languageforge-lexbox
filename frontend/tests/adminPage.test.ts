@@ -11,9 +11,8 @@ test('can navigate to project page', async ({ page }) => {
   await adminPage.openProject('Sena 3', 'sena-3');
 });
 
-// Regression test for #2224: characters typed in quick succession used to get dropped when a
-// URL round-trip reset the input mid-typing. Asserts the invariant — every typed character
-// survives — rather than a specific internal mechanism; the per-keystroke delay paces the typing.
+// Regression tests for #2224: characters typed in quick succession used to get dropped when a
+// URL round-trip reset the input mid-typing.
 test.describe('user filter typing', () => {
   test.use({ ignoreHTTPSErrors: true });
 
@@ -63,11 +62,8 @@ test.describe('user filter external sync', () => {
     // Let the debounced write settle so the next store change isn't mistaken for our own echo.
     await page.waitForURL((url) => url.searchParams.get('userSearch') === 'typed');
 
-    // Simulate an external URL change (deep link / browser back-forward): pushState changes
-    // location.href and SvelteKit's popstate handler propagates it to the $app/state `page`,
-    // which runed's useSearchParams observes and syncs into the input. NB this is a different
-    // path from the in-component writes (onUserCreated, filterProjectsByUser), which mutate the
-    // runed proxy directly — this covers the URL-driven side, not those handlers themselves.
+    // Simulate an external URL change (deep link / browser back-forward): pushState + popstate
+    // propagate through SvelteKit's $app/state `page`, which runed's useSearchParams observes.
     await page.evaluate(() => {
       history.pushState({}, '', '/admin?userSearch=external');
       dispatchEvent(new PopStateEvent('popstate'));
@@ -76,9 +72,8 @@ test.describe('user filter external sync', () => {
     await expect(adminPage.userFilterBarInput).toHaveValue('external');
   });
 
-  // Targets the project filter (no `debounce` prop). Before the onClearFiltersClick fix,
-  // clicking ✕ wrote `undefined` to the URL-backed store, which normalized to '' and
-  // trapped pendingEcho — silently blocking any later external write to the same key.
+  // Defends against ✕-clear trapping debouncedFilter's pendingEcho, which silently blocked
+  // later external writes to the same key (uses the project filter: no `debounce` prop).
   test('external write after clearing the filter still reaches the input', async ({ page }) => {
     await LoginPage.loginAsAdmin(page);
     const adminPage = await new AdminDashboardPage(page).waitFor();

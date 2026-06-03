@@ -4,30 +4,18 @@ import {untrack} from 'svelte';
 /**
  * Two-way bindable wrapper that debounces writes from a typed input into a
  * URL-backed filter store, without clobbering in-flight typing when the store
- * echoes the write back.
+ * echoes the write back: `search.value` updates per keystroke, `filters[key]`
+ * after `debounceMs` of idle typing, and external writes to `filters[key]`
+ * (deep links, back button, programmatic) sync back into the input. The echo
+ * of our own debounced flush — which round-trips through SvelteKit navigation
+ * and would otherwise clobber newer typing — is recognised via `pendingEcho`
+ * and skipped.
  *
  * Use it like this — coerce nullish input so the value stays a string:
  * ```svelte
  * const search = debouncedFilter(filters, 'userSearch', 400);
  * <input bind:value={() => search.value, (v) => (search.value = v ?? '')} />
  * ```
- *
- * Behaviour:
- * - Every keystroke updates `search.value` immediately — the input never lags.
- * - The upstream `filters[key]` only updates after `debounceMs` of idle typing,
- *   which is what keeps server-filtered queries (like `userSearch`) from
- *   firing per character.
- * - External writes to `filters[key]` (e.g. `onUserCreated` setting
- *   `filters.userSearch = newEmail`, or a deep link, or the back button) flow
- *   back into the input — *unless* the write is the echo of our own debounced
- *   flush, in which case we ignore it.
- *
- * The echo-suppression is the subtle bit. When we write `filters.userSearch =
- * 'abc'`, the URL-backed store roundtrips through SvelteKit navigation; the
- * value comes back to us via the reactive read of `filters[key]` and would
- * normally clobber whatever the user has typed in the meantime. We track the
- * value of our last debounced write in `pendingEcho`, and skip the external-
- * sync effect until that exact value echoes back through.
  */
 export function debouncedFilter<T extends Record<string, unknown>, K extends keyof T>(
   filters: T,
