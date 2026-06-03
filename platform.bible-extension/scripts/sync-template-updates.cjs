@@ -95,6 +95,7 @@ const REVIEW_REQUIRED_FILES = new Set([
   'README.md',
   'tsconfig.json',
   'tsconfig.lint.json',
+  'webpack/webpack.config.main.ts',
 ]);
 
 /** Top-level directories where all files are surfaced but overwrite is blocked. */
