@@ -50,6 +50,19 @@ The CI/CD setup is:
 
 ---
 
+## Known Flaky CI Failures (re-run before debugging)
+
+The `GHA integration tests / dotnet` check (`integration-test-gha.yaml`) fails in two known ways that are NOT regressions. Re-run first (`gh run rerun <runId> --failed`) — especially on frontend-only or dependency-only PRs, which can't affect the lexbox-api / hg / fw-headless containers it exercises:
+
+1. **cert-manager readiness timeout** — `setup-k8s` waits `--timeout=90s` for cert-manager pods; on a cold kind cluster they don't always make it → deploy aborts fast (~3 min) and the status step logs "No resources found in languagedepot namespace". Environmental — tends to hit all branches in the same window.
+2. **MediaFileTests large-upload stream error** — `Testing.FwHeadless.MediaFileTests.UploadReplacementFile_TooLarge_ThrowsError` intermittently throws `HttpRequestException: Error while copying content to a stream` (transient connection drop streaming the large file) instead of the expected validation error. Shows as Failed: 1 / Passed: ~146 after the full ~14 min run.
+
+Also expected, not a failure: on frontend-only PRs the backend image-publish workflows (`lexbox-fw-headless`, `lexbox-hgweb`) don't trigger (path filters), so `setup-k8s` gets `manifest unknown` pulling those images at the PR version and falls back to the `develop` tag via `continue-on-error`. Those log lines are noise.
+
+Separately: a PR whose merge state is CONFLICTING silently *skips* the build/test checks rather than failing them — if expected checks are missing, reconcile with develop first.
+
+---
+
 ## Workflow Dependencies
 
 ```mermaid

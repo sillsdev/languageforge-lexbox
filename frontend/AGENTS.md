@@ -60,7 +60,7 @@ pnpm run -r lint
 
 - Playwright for E2E tests
 - Test files in `tests/`
-- Run with `pnpm test`
+- Run with `pnpm test` — requires the full local lexbox stack (`task up`). Agents: don't run these locally, rely on CI (root `AGENTS.md` → Testing). The cheap, agent-runnable Playwright suite is the *viewer's* (`viewer/AGENTS.md`), not this one.
 
 ## Important Files
 
