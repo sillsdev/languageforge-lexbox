@@ -74,11 +74,16 @@ function ask(rl, question) {
 const IGNORED_DIRS = new Set([
   '.github', // CI workflow is added explicitly below
   'lib', // used for template CI, but deleted from this extension
-  'src', // extension-specific source
 ]);
 
 /** File basenames to skip — extension-specific, not gitignored. */
 const IGNORED_FILES = new Set(['LICENSE', 'CLAUDE.md', 'AGENTS.md', 'package-lock.json']);
+
+/** Exact relative paths (forward-slash) to skip. */
+const IGNORED_PATHS = new Set(['src/main.ts']);
+
+/** Relative path prefixes to skip — matches any file under these paths. */
+const IGNORED_PATH_PREFIXES = ['src/types/'];
 
 /**
  * Files modified in the extension that still need template updates reviewed. [t] is blocked so
@@ -123,7 +128,11 @@ function buildPairs() {
 
   const pairs = templateFiles
     .filter(
-      (rel) => !IGNORED_DIRS.has(rel.split('/')[0]) && !IGNORED_FILES.has(rel.split('/').pop()),
+      (rel) =>
+        !IGNORED_DIRS.has(rel.split('/')[0]) &&
+        !IGNORED_FILES.has(rel.split('/').pop()) &&
+        !IGNORED_PATHS.has(rel) &&
+        !IGNORED_PATH_PREFIXES.some((prefix) => rel.startsWith(prefix)),
     )
     .map((rel) => {
       const reviewRequired = REVIEW_REQUIRED_FILES.has(rel);
