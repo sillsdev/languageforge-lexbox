@@ -16,10 +16,6 @@ const targets = process.argv.slice(2);
 const locales = targets.length ? targets : ['es', 'fr', 'id', 'ko', 'ms', 'sw', 'vi'];
 const tmp = os.tmpdir();
 
-function escapePo(s) {
-  return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
-}
-
 function escapeForRegex(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -49,12 +45,18 @@ for (const locale of locales) {
       failed.push({msgid: fix.msgid, reason: 'no suggested value'});
       continue;
     }
-    const msgidEsc = escapePo(fix.msgid);
-    const suggestedEsc = escapePo(fix.suggested);
+    // msgid and suggested arrive in PO-escaped form (verbatim from parsePo via the verdict
+    // JSON), so use them as-is — re-escaping here would double-escape `\"` `\\` `\n`.
+    // Refuse a suggested value that isn't valid single-line PO content (raw control char or
+    // unescaped quote) — writing it verbatim would corrupt the .po file.
+    if (/[\n\r\t]/.test(fix.suggested) || /(^|[^\\])(\\\\)*"/.test(fix.suggested)) {
+      failed.push({msgid: fix.msgid, reason: 'suggested is not PO-escaped (raw control char or unescaped quote) — needs manual edit'});
+      continue;
+    }
     // Refuse to touch multi-line msgstrs — the regex below would silently drop continuation
     // lines. Detected by: msgid line followed by `msgstr "..."` followed by a `"..."` line.
     const multiLinePattern = new RegExp(
-      '^msgid "' + escapeForRegex(msgidEsc) + '"\\nmsgstr ".*"\\n"',
+      '^msgid "' + escapeForRegex(fix.msgid) + '"\\nmsgstr ".*"\\n"',
       'm'
     );
     if (multiLinePattern.test(content)) {
@@ -63,13 +65,13 @@ for (const locale of locales) {
     }
     // Single-line msgstr — safe to regex-replace.
     const pattern = new RegExp(
-      '^msgid "' + escapeForRegex(msgidEsc) + '"\\n(msgstr ")(.*)(")$',
+      '^msgid "' + escapeForRegex(fix.msgid) + '"\\n(msgstr ")(.*)(")$',
       'm'
     );
     const before = content;
     content = content.replace(pattern, (_full, prefix, _old, suffix) => {
       applied++;
-      return `msgid "${msgidEsc}"\n${prefix}${suggestedEsc}${suffix}`;
+      return `msgid "${fix.msgid}"\n${prefix}${fix.suggested}${suffix}`;
     });
     if (content === before) {
       failed.push({msgid: fix.msgid, reason: 'msgid not found'});

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Pre-flight audit. Compares each non-MT locale on `develop` vs `origin/l10n_develop`
+// Pre-flight audit. Compares each target locale on `develop` vs `origin/l10n_develop`
 // to detect translations that would be silently lost if we merge the Crowdin PR as-is.
 //
 // Exits 1 if data loss is detected (msgid still present in source but msgstr
 // would go non-empty → empty). Run before merge-crowdin.ps1 does anything destructive.
 //
 // Usage: node audit-po.mjs [<locale> ...]
-//        defaults to ms sw (the non-MT locales per crowdin/README.md)
+//        defaults to all 7 target locales
 
 import fs from 'fs';
 import path from 'path';
@@ -14,7 +14,7 @@ import os from 'os';
 import {execSync} from 'child_process';
 
 const locales = process.argv.slice(2);
-const targetLocales = locales.length ? locales : ['ms', 'sw'];
+const targetLocales = locales.length ? locales : ['es', 'fr', 'id', 'ko', 'ms', 'sw', 'vi'];
 
 function parsePo(content) {
   const lines = content.split('\n');
