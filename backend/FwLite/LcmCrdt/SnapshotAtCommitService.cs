@@ -96,7 +96,7 @@ public class SnapshotAtCommitService(
         {
             commitsToDelete = commitsToDelete.ToLinqToDB().Where(c =>
             // JSON Sqlite gotcha: null != "FieldWorks" == false (apparently)
-            (Json.Value(c.Metadata, m => m.AuthorName) ?? "") != "FieldWorks");
+            (Json.Value(c.Metadata, m => m.AuthorName) ?? "") != HistoryService.FieldWorksAuthorName);
         }
         var count = await commitsToDelete.CountAsyncLinqToDB();
         context.Set<Commit>().RemoveRange(commitsToDelete);

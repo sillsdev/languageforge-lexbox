@@ -8,12 +8,13 @@
   import {VList} from 'virtua/svelte';
   import {FormatRelativeDate} from '$lib/components/ui/format';
   import ActivityItem from './ActivityItem.svelte';
-  import AuthorFilter, {
+  import AuthorFilter from './AuthorFilter.svelte';
+  import {
     type AuthorFilterValue,
     serializeAuthorFilter,
     deserializeAuthorFilter,
     authorFilterToActivityFilter,
-  } from './AuthorFilter.svelte';
+  } from './author-filter';
   import {QueryParamState} from '$lib/utils/url.svelte';
   import type {IProjectActivity} from '$lib/dotnet-types';
 
