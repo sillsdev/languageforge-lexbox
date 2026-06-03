@@ -28,6 +28,7 @@ if ($status) {
 
 # Pre-flight: Fetch and find PR
 git fetch origin l10n_develop develop 2>&1 | Out-Null
+if ($LASTEXITCODE -ne 0) { Fail "git fetch failed — audit/merge would run against stale refs. Check network and remote." }
 $pr = gh pr list --head l10n_develop --json number,state,headRefName,baseRefName --limit 1 | ConvertFrom-Json
 if (-not $pr -or $pr.Count -eq 0) {
     Fail "No open PR found with head l10n_develop. Has Crowdin synced yet?"
@@ -43,6 +44,7 @@ if ($LASTEXITCODE -ne 0) { Fail "Audit detected data loss. Aborting." }
 #    local can be diverged from origin even though we never deliberately commit to it).
 Write-Host "`n[2/6] Checking out l10n_develop..." -ForegroundColor Cyan
 git checkout l10n_develop 2>&1 | Out-Null
+if ($LASTEXITCODE -ne 0) { Fail "git checkout l10n_develop failed — everything below would run on the wrong branch." }
 
 # Check for divergence: are there local-only commits on l10n_develop?
 $localOnly = git log l10n_develop "^origin/l10n_develop" --oneline
@@ -71,8 +73,11 @@ if ($localOnly) {
 # 3. Merge origin/develop; resolve conflicts with --ours
 Write-Host "`n[3/6] Merging origin/develop..." -ForegroundColor Cyan
 # Use --no-commit so we can resolve conflicts before committing
-git merge --no-commit --no-ff origin/develop 2>&1 | Out-Null
-# Merge may exit non-zero on conflicts — that's expected. Continue and resolve.
+$mergeOutput = git merge --no-commit --no-ff origin/develop 2>&1
+# Non-zero exit with conflicts is expected — but if no merge actually started (no MERGE_HEAD),
+# the conflict-resolution path below would notice nothing and the script would commit garbage.
+git rev-parse -q --verify MERGE_HEAD *> $null
+if ($LASTEXITCODE -ne 0) { Fail "git merge did not start a merge:`n$($mergeOutput | Out-String)" }
 
 # Resolve conflicts: prefer Crowdin's side (--ours when merging develop into l10n_develop)
 $conflictPatterns = @(

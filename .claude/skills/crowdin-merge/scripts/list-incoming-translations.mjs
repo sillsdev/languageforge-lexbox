@@ -41,7 +41,7 @@ function parsePo(content) {
 }
 
 function readRef(ref, file) {
-  return execSync(`git show ${ref}:${file}`, {encoding: 'utf8'});
+  return execSync(`git show ${ref}:${file}`, {encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe']});
 }
 
 const result = {};
@@ -49,9 +49,16 @@ for (const locale of locales) {
   const file = `frontend/viewer/src/locales/${locale}.po`;
   let dev, l10n;
   try {
-    dev = parsePo(readRef('origin/develop', file));
     l10n = parsePo(readRef('HEAD', file));
-  } catch (e) { continue; }
+  } catch (e) {
+    console.error(`warn: skipping ${locale} — cannot read ${file} from HEAD`);
+    continue;
+  }
+  try {
+    dev = parsePo(readRef('origin/develop', file));
+  } catch (e) {
+    dev = new Map(); // locale absent on develop (newly added) — every translation is incoming
+  }
 
   const incoming = [];
   for (const [msgid, l10nMs] of l10n.entries()) {
