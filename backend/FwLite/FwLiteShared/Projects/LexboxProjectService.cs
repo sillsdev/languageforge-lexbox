@@ -301,6 +301,11 @@ public class LexboxProjectService : IDisposable
     }
 
     private static readonly ConditionalWeakTable<HubConnection, HashSet<Guid>> _reconnectProjects = new();
+    // One gate per server; bounded by the configured server count, so entries are never removed.
+    private readonly ConcurrentDictionary<string, SemaphoreSlim> _connectionGates = new();
+
+    private SemaphoreSlim ConnectionGate(LexboxServer server) =>
+        _connectionGates.GetOrAdd(HubConnectionCacheKey(server), static _ => new SemaphoreSlim(1, 1));
 
     public async Task ListenForProjectChanges(ProjectData projectData, CancellationToken stoppingToken)
     {
@@ -323,15 +328,24 @@ public class LexboxProjectService : IDisposable
         {
             // Defensive: a cached connection is normally Connected. If we find a Disconnected one, try to
             // revive it; on failure evict it so the next call rebuilds rather than handing back a dead one.
+            var gate = ConnectionGate(server);
+            await gate.WaitAsync(stoppingToken);
             try
             {
-                await lexboxConnection.StartAsync(stoppingToken);
+                // Re-check under the gate: a concurrent caller may have revived it, and a second StartAsync
+                // would throw and wrongly evict the freshly revived connection.
+                if (lexboxConnection.State == HubConnectionState.Disconnected)
+                    await lexboxConnection.StartAsync(stoppingToken);
             }
             catch (Exception e)
             {
                 logger.LogWarning(e, "Failed to restart Lexbox listener");
                 await EvictAndStopIfCached(HubConnectionCacheKey(server), cache, logger, lexboxConnection);
                 return;
+            }
+            finally
+            {
+                gate.Release();
             }
             // Covers the current project (registered above) and any siblings on this connection.
             await ResubscribeRegisteredProjects(lexboxConnection);
@@ -489,7 +503,27 @@ public class LexboxProjectService : IDisposable
             return connection;
         }
 
-        connection = new HubConnectionBuilder()
+        // Serialize creation per server: concurrent callers would otherwise each build a connection, and the
+        // cache's last-writer-wins replacement disposes the loser mid-use and discards its resubscribe set.
+        var gate = ConnectionGate(server);
+        await gate.WaitAsync(stoppingToken);
+        try
+        {
+            if (cache.TryGetValue(HubConnectionCacheKey(server), out connection) && connection is not null)
+            {
+                return connection;
+            }
+            return await BuildAndStartConnection(server, stoppingToken);
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    private async Task<HubConnection?> BuildAndStartConnection(LexboxServer server, CancellationToken stoppingToken)
+    {
+        var connection = new HubConnectionBuilder()
             //todo bridge logging to the aspnet logger
             .ConfigureLogging(logging => logging.AddConsole())
             .WithAutomaticReconnect(new InfiniteRetryPolicy())
@@ -528,9 +562,9 @@ public class LexboxProjectService : IDisposable
             // intentionally AFTER StartAsync (see catch comment)
             connection.Closed += async (exception) =>
             {
-                // Concurrent ListenForProjectChanges callers can build parallel HubConnections and only
-                // one wins the cache slot. Don't blindly remove the cache entry on Closed — only do so
-                // if WE are the cached connection, otherwise we'd evict the live replacement.
+                // A stopped connection may have been replaced in the cache before this handler runs. Don't
+                // blindly remove the cache entry on Closed — only do so if WE are the cached connection,
+                // otherwise we'd evict the live replacement.
                 if (cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? cached) && ReferenceEquals(cached, connection))
                     cache.Remove(HubConnectionCacheKey(server));
                 await connection.DisposeAsync();
