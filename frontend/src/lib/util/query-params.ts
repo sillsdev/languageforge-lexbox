@@ -4,10 +4,8 @@ import {createSearchParamsSchema, type SearchParamsOptions, useSearchParams} fro
 import type {ConditionalPick} from 'type-fest';
 import type {PrimitiveRecord} from './types';
 
-// `runed`'s createSearchParamsSchema input shape — kept here so call sites don't need to
-// know about runed. `queryParam.X(default)` helpers below return entries that conform.
-// The phantom `T` carries the value type (`UserType`, etc.) through to the returned proxy
-// via `getSearchParams<T>`, even though runed's runtime only sees 'string'/'boolean'/'number'.
+// The phantom `T` only carries the value type (`UserType`, etc.) through to
+// `getSearchParams<T>`; runed's runtime just sees 'string'/'boolean'/'number'.
 type ParamSpec<T> = (
   | {type: 'string'; default?: string | undefined}
   | {type: 'number'; default?: number | undefined}
@@ -31,15 +29,10 @@ export const queryParam = {
 };
 
 /**
- * Build a URL-backed reactive params object via runed's `useSearchParams`.
- *
- * Returns a thin adapter over the runed proxy (synchronous local-cache reads, URL writes)
- * plus a separate plain-object snapshot of the defaults — components use the latter to
- * decide which filters count as "active".
- *
- * Call sites mutate the params object directly: `queryParamValues.userSearch = 'abc'`.
- * Reads are reactive ($state-backed under the hood), so `bind:value={queryParamValues.X}`
- * and `$derived(queryParamValues.X)` both work, and unset params are always `undefined`.
+ * Build a URL-backed reactive params object (via runed's `useSearchParams`) plus a
+ * plain-object snapshot of the defaults. Mutate it directly
+ * (`queryParamValues.userSearch = 'abc'`); reads are $state-backed, so `bind:value`
+ * and `$derived` both work. Unset params are always `undefined`.
  */
 export function getSearchParams<T extends Record<string, unknown>>(
   config: ParamConfig<T>,
@@ -56,10 +49,8 @@ export function getSearchParams<T extends Record<string, unknown>>(
   });
 
   // runed is asymmetric about unset params: reads return `null`, but only a write of
-  // `undefined` unsets one (a written `null` gets stringified to "null"). These accessors
-  // adapt both directions to `undefined` so consumers — and their `X | undefined` types —
-  // never see the asymmetry. Defining only schema keys also hides runed's proxy methods
-  // (set/reset/cleanup/update) and makes the keys enumerable, which the proxy's aren't.
+  // `undefined` unsets one (a written `null` gets stringified to "null"). Adapt both
+  // directions to `undefined` so consumers and their `X | undefined` types never see that.
   const raw = params as Record<string, unknown>;
   const queryParamValues = {} as T;
   const defaults: Partial<T> = {};
