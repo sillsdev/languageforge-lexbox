@@ -58,14 +58,7 @@
     filterSlot,
   }: Props = $props();
 
-  // Two-way binding for the search input: typing updates `search.value`
-  // immediately, the upstream `filters[searchKey]` updates after the debounce
-  // interval (0 by default — immediate), and external writes to the upstream
-  // store flow back into the input. See debouncedFilter.svelte.ts for the
-  // echo-suppression mechanics that keep in-flight typing from being clobbered
-  // by the round-trip. `untrack` here is the documented way to silence
-  // `state_referenced_locally` for prop reads that are intentionally one-time
-  // setup arguments.
+  // `untrack`: these props are intentionally read once at setup (silences state_referenced_locally)
   const search = untrack(() => {
     const debounceMs = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce === false ? 0 : debounce;
     return debouncedFilter(filters, searchKey, debounceMs);
@@ -82,14 +75,9 @@
 
   function pickActiveFilters(values: Filters, defaultValues: Filters): Readonly<Filter<Filters>[]> {
     const filters: Filter<Filters>[] = [];
-    // Iterate from defaults (plain object) — runed's proxy doesn't expose schema keys via for…in.
     for (const key of Object.keys(defaultValues)) {
       const value = (values as Record<string, unknown>)[key];
-      const fromDefault = (defaultValues as Record<string, unknown>)[key];
-      // Treat null and undefined as the same "unset" — runed stores unset URL
-      // params as null while our defaults object has undefined.
-      if (value == null && fromDefault == null) continue;
-      if (value !== fromDefault) {
+      if (value !== (defaultValues as Record<string, unknown>)[key]) {
         filters.push({ key, value, clear: () => resetFilter(key) } as Filter<Filters>);
       }
     }

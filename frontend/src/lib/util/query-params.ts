@@ -33,13 +33,13 @@ export const queryParam = {
 /**
  * Build a URL-backed reactive params object via runed's `useSearchParams`.
  *
- * Returns the runed proxy (synchronous local-cache reads, debounced URL writes) plus a
- * separate plain-object snapshot of the defaults — components use the latter to decide
- * which filters count as "active".
+ * Returns a thin adapter over the runed proxy (synchronous local-cache reads, URL writes)
+ * plus a separate plain-object snapshot of the defaults — components use the latter to
+ * decide which filters count as "active".
  *
- * Call sites mutate the proxy directly: `queryParamValues.userSearch = 'abc'`. The proxy
- * is reactive ($state-backed under the hood), so `bind:value={queryParamValues.X}` and
- * `$derived(queryParamValues.X)` both work.
+ * Call sites mutate the params object directly: `queryParamValues.userSearch = 'abc'`.
+ * Reads are reactive ($state-backed under the hood), so `bind:value={queryParamValues.X}`
+ * and `$derived(queryParamValues.X)` both work, and unset params are always `undefined`.
  */
 export function getSearchParams<T extends Record<string, unknown>>(
   config: ParamConfig<T>,
@@ -50,26 +50,30 @@ export function getSearchParams<T extends Record<string, unknown>>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const schema = createSearchParamsSchema(config as any);
   const params = useSearchParams(schema, {
-    // debounce: 0 — per-input debouncing is explicit at the call site (see FilterBar/debouncedFilter)
     pushHistory: false,
     noScroll: true,
     ...options,
   });
 
+  // runed is asymmetric about unset params: reads return `null`, but only a write of
+  // `undefined` unsets one (a written `null` gets stringified to "null"). These accessors
+  // adapt both directions to `undefined` so consumers — and their `X | undefined` types —
+  // never see the asymmetry. Defining only schema keys also hides runed's proxy methods
+  // (set/reset/cleanup/update) and makes the keys enumerable, which the proxy's aren't.
+  const raw = params as Record<string, unknown>;
+  const queryParamValues = {} as T;
   const defaults: Partial<T> = {};
   for (const key in config) {
     defaults[key] = config[key].default as T[typeof key];
+    Object.defineProperty(queryParamValues, key, {
+      enumerable: true,
+      get: () => raw[key] ?? undefined,
+      set: (value) => (raw[key] = value ?? undefined),
+    });
   }
 
-  // `as unknown as T` deliberately hides runed's proxy methods (set/reset/cleanup/update)
-  // so consumers don't accidentally treat them as URL params. Reads/writes of T's keys
-  // still flow through the proxy via property access.
-  //
-  // Heads-up for consumers: runed's `createSearchParamsSchema` normalises `undefined`
-  // defaults to `null` on reads. Treat null/undefined as equivalent "unset" —
-  // `value == null` instead of `=== undefined`.
   return {
-    queryParamValues: params as unknown as T,
+    queryParamValues,
     defaultQueryParamValues: defaults as T,
   };
 }
