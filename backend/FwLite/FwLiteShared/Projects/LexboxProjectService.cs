@@ -77,16 +77,21 @@ public class LexboxProjectService : IDisposable
         }
     }
 
-    // Re-establish push listeners for every tracked project (idempotent — a healthy cached connection
-    // short-circuits and a logged-out server no-ops on the token check). Used by connectivity-regained
-    // recovery so a listener that failed to start while offline comes back without a manual sync or edit.
+    // Re-establish push listeners for every tracked project whose server isn't already connected (a server with
+    // a live connection is skipped, so a periodic call is a true no-op once connected; a logged-out server
+    // no-ops on the token check). Used by connectivity-regained and periodic recovery so a listener that failed
+    // to start while offline comes back without a manual sync or edit.
     public Task EnsureListenersForTrackedProjects() => EnsureListenersForTrackedProjects(null);
 
     private async Task EnsureListenersForTrackedProjects(Func<ProjectData, bool>? filter)
     {
+        // Snapshot connected servers BEFORE the loop, not per project: when a server is down, its first project
+        // opens the connection and the rest must still subscribe on it within this same pass.
+        var connectedServers = ConnectedServerIds();
         foreach (var project in _trackedProjects.Values)
         {
             if (filter is not null && !filter(project)) continue;
+            if (project.ServerId is { } serverId && connectedServers.Contains(serverId)) continue;
             try
             {
                 await ListenForProjectChanges(project, CancellationToken.None);
@@ -96,6 +101,22 @@ public class LexboxProjectService : IDisposable
                 logger.LogWarning(e, "Failed to (re)start project change listener for {ProjectName}", project.Name);
             }
         }
+    }
+
+    private HashSet<string> ConnectedServerIds()
+    {
+        var connected = new HashSet<string>();
+        foreach (var project in _trackedProjects.Values)
+        {
+            if (project.ServerId is not string serverId) continue;
+            if (options.Value.TryGetServer(project, out var server)
+                && cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? connection)
+                && connection is { State: HubConnectionState.Connected })
+            {
+                connected.Add(serverId);
+            }
+        }
+        return connected;
     }
 
     public void Dispose()
@@ -327,7 +348,7 @@ public class LexboxProjectService : IDisposable
     // and the Reconnected handler will still resubscribe the project once the connection recovers.
     internal static HashSet<Guid> RegisterForResubscribe(HubConnection connection, Guid projectId)
     {
-        var subscribedProjects = _reconnectProjects.GetValue(connection, static conn =>
+        var subscribedProjects = _reconnectProjects.GetOrAdd(connection, static conn =>
         {
             var projects = new HashSet<Guid>();
             conn.Reconnected += async _ =>
@@ -369,7 +390,7 @@ public class LexboxProjectService : IDisposable
         }
         catch (Exception e)
         {
-            logger.LogWarning(e, "Failed to stop SignalR connection after auth change");
+            logger.LogWarning(e, "Failed to stop evicted SignalR connection");
         }
     }
 
@@ -472,7 +493,7 @@ public class LexboxProjectService : IDisposable
             };
             // TODO: If StartAsync fails due to transient network, consider retrying on next sync/on-demand
             await connection.StartAsync(stoppingToken);
-
+            // intentionally AFTER StartAsync (see catch comment)
             connection.Closed += async (exception) =>
             {
                 // Concurrent ListenForProjectChanges callers can build parallel HubConnections and only

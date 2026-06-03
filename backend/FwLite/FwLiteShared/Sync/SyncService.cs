@@ -7,8 +7,6 @@ using LcmCrdt;
 using LcmCrdt.Data;
 using LcmCrdt.MediaServer;
 using LcmCrdt.RemoteSync;
-using LcmCrdt.Utils;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm;
@@ -107,11 +105,11 @@ public class SyncService(
         return syncResults;
     }
 
-    private async Task TryEnsureProjectChangeListener(ProjectData project)
+    private async Task TryEnsureProjectChangeListener(ProjectData project, CancellationToken cancellationToken = default)
     {
         try
         {
-            await lexboxProjectService.ListenForProjectChanges(project, CancellationToken.None);
+            await lexboxProjectService.ListenForProjectChanges(project, cancellationToken);
         }
         catch (Exception e)
         {
