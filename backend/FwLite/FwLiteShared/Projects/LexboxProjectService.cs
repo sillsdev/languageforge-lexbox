@@ -77,21 +77,28 @@ public class LexboxProjectService : IDisposable
         }
     }
 
-    // Re-establish push listeners for every tracked project whose server isn't already connected (a server with
-    // a live connection is skipped, so a periodic call is a true no-op once connected; a logged-out server
-    // no-ops on the token check). Used by connectivity-regained and periodic recovery so a listener that failed
-    // to start while offline comes back without a manual sync or edit.
+    // Re-establish push listeners for every tracked project (a project is skipped only when its server has a
+    // live connection AND the project is registered on it, so a periodic call is a true no-op once subscribed;
+    // a logged-out server no-ops on the token check). The per-project check matters: single-project paths
+    // (post-sync, project-open) subscribe only the requesting project when they rebuild a connection, leaving
+    // sibling projects unsubscribed until this pass heals them. Used by connectivity-regained and periodic
+    // recovery so a listener that failed to start while offline comes back without a manual sync or edit.
     public Task EnsureListenersForTrackedProjects() => EnsureListenersForTrackedProjects(null);
 
     private async Task EnsureListenersForTrackedProjects(Func<ProjectData, bool>? filter)
     {
         // Snapshot connected servers BEFORE the loop, not per project: when a server is down, its first project
         // opens the connection and the rest must still subscribe on it within this same pass.
-        var connectedServers = ConnectedServerIds();
+        var connectedServers = ConnectedServerConnections();
         foreach (var project in _trackedProjects.Values)
         {
             if (filter is not null && !filter(project)) continue;
-            if (project.ServerId is { } serverId && connectedServers.Contains(serverId)) continue;
+            if (project.ServerId is { } serverId
+                && connectedServers.TryGetValue(serverId, out var connection)
+                && IsRegisteredForResubscribe(connection, project.Id))
+            {
+                continue;
+            }
             try
             {
                 await ListenForProjectChanges(project, CancellationToken.None);
@@ -103,17 +110,17 @@ public class LexboxProjectService : IDisposable
         }
     }
 
-    private HashSet<string> ConnectedServerIds()
+    private Dictionary<string, HubConnection> ConnectedServerConnections()
     {
-        var connected = new HashSet<string>();
+        var connected = new Dictionary<string, HubConnection>();
         foreach (var project in _trackedProjects.Values)
         {
-            if (project.ServerId is not string serverId) continue;
+            if (project.ServerId is not string serverId || connected.ContainsKey(serverId)) continue;
             if (options.Value.TryGetServer(project, out var server)
                 && cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? connection)
                 && connection is { State: HubConnectionState.Connected })
             {
-                connected.Add(serverId);
+                connected.Add(serverId, connection);
             }
         }
         return connected;
@@ -326,6 +333,9 @@ public class LexboxProjectService : IDisposable
                 await EvictAndStopIfCached(HubConnectionCacheKey(server), cache, logger);
                 return;
             }
+            // Covers the current project (registered above) and any siblings on this connection.
+            await ResubscribeRegisteredProjects(lexboxConnection);
+            return;
         }
         try
         {
@@ -350,33 +360,47 @@ public class LexboxProjectService : IDisposable
     {
         var subscribedProjects = _reconnectProjects.GetOrAdd(connection, static conn =>
         {
-            var projects = new HashSet<Guid>();
-            conn.Reconnected += async _ =>
-            {
-                Guid[] projectIds;
-                lock (projects)
-                {
-                    projectIds = [.. projects];
-                }
-                foreach (var projectId in projectIds)
-                {
-                    try
-                    {
-                        await conn.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId);
-                    }
-                    catch (Exception)
-                    {
-                        // Ensure one project's failing to reconnect doesn't block others from reconnecting
-                    }
-                }
-            };
-            return projects;
+            conn.Reconnected += async _ => await ResubscribeRegisteredProjects(conn);
+            return new HashSet<Guid>();
         });
         lock (subscribedProjects)
         {
             subscribedProjects.Add(projectId);
         }
         return subscribedProjects;
+    }
+
+    // Internal for unit tests. Used by the Reconnected handler and after a manual revive — a manual
+    // StartAsync does not raise Reconnected, so the revive path must resubscribe explicitly.
+    internal static async Task ResubscribeRegisteredProjects(HubConnection connection)
+    {
+        if (!_reconnectProjects.TryGetValue(connection, out var projects)) return;
+        Guid[] projectIds;
+        lock (projects)
+        {
+            projectIds = [.. projects];
+        }
+        foreach (var projectId in projectIds)
+        {
+            try
+            {
+                await connection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId);
+            }
+            catch (Exception)
+            {
+                // Ensure one project's failing to resubscribe doesn't block others
+            }
+        }
+    }
+
+    // Internal for unit tests.
+    internal static bool IsRegisteredForResubscribe(HubConnection connection, Guid projectId)
+    {
+        if (!_reconnectProjects.TryGetValue(connection, out var projects)) return false;
+        lock (projects)
+        {
+            return projects.Contains(projectId);
+        }
     }
 
     // Internal for unit tests.

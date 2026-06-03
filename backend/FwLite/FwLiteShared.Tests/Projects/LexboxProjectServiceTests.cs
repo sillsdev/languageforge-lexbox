@@ -94,4 +94,49 @@ public class LexboxProjectServiceTests
         subscribed.Should().Contain(first);
         subscribed.Should().Contain(second);
     }
+
+    [Fact]
+    public async Task IsRegisteredForResubscribe_ReflectsRegistration()
+    {
+        await using var connection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
+        var registered = Guid.NewGuid();
+        var unregistered = Guid.NewGuid();
+
+        LexboxProjectService.RegisterForResubscribe(connection, registered);
+
+        LexboxProjectService.IsRegisteredForResubscribe(connection, registered).Should().BeTrue();
+        LexboxProjectService.IsRegisteredForResubscribe(connection, unregistered).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task IsRegisteredForResubscribe_WithUnknownConnection_IsFalse()
+    {
+        await using var connection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
+
+        LexboxProjectService.IsRegisteredForResubscribe(connection, Guid.NewGuid()).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ResubscribeRegisteredProjects_WithNoRegistrations_IsNoOp()
+    {
+        await using var connection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
+
+        var act = () => LexboxProjectService.ResubscribeRegisteredProjects(connection);
+
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task ResubscribeRegisteredProjects_SwallowsPerProjectSendFailures()
+    {
+        // SendAsync on an un-started connection throws for every project; none of those failures may escape,
+        // since the revive path calls this where a throw would fail the caller (e.g. project-open).
+        await using var connection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
+        LexboxProjectService.RegisterForResubscribe(connection, Guid.NewGuid());
+        LexboxProjectService.RegisterForResubscribe(connection, Guid.NewGuid());
+
+        var act = () => LexboxProjectService.ResubscribeRegisteredProjects(connection);
+
+        await act.Should().NotThrowAsync();
+    }
 }
