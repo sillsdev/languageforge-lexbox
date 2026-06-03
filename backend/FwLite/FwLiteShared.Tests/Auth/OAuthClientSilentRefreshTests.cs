@@ -58,14 +58,14 @@ public class OAuthClientSilentRefreshTests
     }
 
     [Fact]
-    public async Task Cancellation_DoesNotRemoveAccount()
+    public async Task Cancellation_KeepsCachedAccount()
     {
         var (client, appMock, _, events) = BuildClient((_, _) =>
             throw new OperationCanceledException());
 
-        var act = async () => await client.GetAuth();
+        var result = await client.GetAuth();
 
-        await act.Should().ThrowAsync<OperationCanceledException>();
+        result.Should().BeNull();
         (await appMock.Object.GetAccountsAsync()).Should().HaveCount(1);
         appMock.Verify(a => a.RemoveAsync(It.IsAny<IAccount>()), Times.Never);
         events.Should().BeEmpty();

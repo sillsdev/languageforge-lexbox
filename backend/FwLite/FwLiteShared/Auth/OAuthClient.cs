@@ -200,8 +200,6 @@ public class OAuthClient
             {
                 switch (ClassifySilentAuthFailure(e))
                 {
-                    case SilentAuthFailureOutcome.Rethrow:
-                        throw;
                     case SilentAuthFailureOutcome.RemoveAccount:
                         _logger.LogWarning(e, "Silent token acquisition failed with a non-recoverable error, logging out");
                         await RemoveAccountAsync(account);
@@ -232,15 +230,15 @@ public class OAuthClient
     {
         KeepCachedCredentials,
         RemoveAccount,
-        Rethrow,
     }
 
     //KeepCachedCredentials is the default so a transient network error doesn't wipe the refresh token.
+    //GetAuth takes no CancellationToken, so any OperationCanceledException is MSAL-internal (an HttpClient
+    //timeout surfacing as TaskCanceledException on a flaky network) and is therefore transient.
     internal static SilentAuthFailureOutcome ClassifySilentAuthFailure(Exception e) => e switch
     {
         MsalUiRequiredException => SilentAuthFailureOutcome.RemoveAccount,
         MsalClientException { ErrorCode: "multiple_matching_tokens_detected" } => SilentAuthFailureOutcome.RemoveAccount,
-        OperationCanceledException => SilentAuthFailureOutcome.Rethrow,
         _ => SilentAuthFailureOutcome.KeepCachedCredentials,
     };
 

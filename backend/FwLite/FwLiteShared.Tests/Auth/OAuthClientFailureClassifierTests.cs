@@ -66,21 +66,21 @@ public class OAuthClientFailureClassifierTests
     }
 
     [Fact]
-    public void TaskCanceledException_FromTimeout_Rethrows()
+    public void TaskCanceledException_FromTimeout_KeepsCache()
     {
         // TaskCanceledException derives from OperationCanceledException - HttpClient's default 100s timeout
-        // surfaces as one of these. Previously this fell into catch(Exception) and wiped the account.
+        // surfaces as one of these. GetAuth passes no CancellationToken, so this is a transient network timeout.
         var outcome = OAuthClient.ClassifySilentAuthFailure(new TaskCanceledException("http timeout"));
 
-        outcome.Should().Be(OAuthClient.SilentAuthFailureOutcome.Rethrow);
+        outcome.Should().Be(OAuthClient.SilentAuthFailureOutcome.KeepCachedCredentials);
     }
 
     [Fact]
-    public void OperationCanceledException_Rethrows()
+    public void OperationCanceledException_KeepsCache()
     {
         var outcome = OAuthClient.ClassifySilentAuthFailure(new OperationCanceledException());
 
-        outcome.Should().Be(OAuthClient.SilentAuthFailureOutcome.Rethrow);
+        outcome.Should().Be(OAuthClient.SilentAuthFailureOutcome.KeepCachedCredentials);
     }
 
     [Fact]
