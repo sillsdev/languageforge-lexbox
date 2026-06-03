@@ -78,7 +78,7 @@ public record Entry : IObjectWithId<Entry>
             [
                 ..ComplexFormTypes.Select(cft => cft.Copy())
             ],
-            PublishIn = [ ..PublishIn.Select(p => (Publication)p.Copy())]
+            PublishIn = [ ..PublishIn.Select(p => p.Copy())]
         };
     }
 

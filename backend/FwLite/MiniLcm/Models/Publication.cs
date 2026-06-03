@@ -1,6 +1,6 @@
 namespace MiniLcm.Models;
 
-public class Publication : IPossibility
+public class Publication : IPossibility, IObjectWithId<Publication>
 {
     public required Guid Id { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
@@ -14,7 +14,7 @@ public class Publication : IPossibility
         return;
     }
 
-    public IObjectWithId Copy()
+    public Publication Copy()
     {
         return new Publication()
         {
