@@ -89,8 +89,9 @@ public class LexboxProjectService : IDisposable
     // live connection AND the project is registered on it, so a periodic call is a true no-op once subscribed;
     // a logged-out server no-ops on the token check). The per-project check matters: single-project paths
     // (post-sync, project-open) subscribe only the requesting project when they rebuild a connection, leaving
-    // sibling projects unsubscribed until this pass heals them. Used by connectivity-regained and periodic
-    // recovery so a listener that failed to start while offline comes back without a manual sync or edit.
+    // sibling projects unsubscribed until this pass heals them. Used by connectivity-regained, app-resume
+    // and periodic recovery so a listener that failed to start while offline comes back without a manual
+    // sync or edit.
     public Task EnsureListenersForTrackedProjects(bool kickReconnecting = false) => EnsureListenersForTrackedProjects(null, kickReconnecting);
 
     private async Task EnsureListenersForTrackedProjects(Func<ProjectData, bool>? filter, bool kickReconnecting = false)
@@ -458,10 +459,10 @@ public class LexboxProjectService : IDisposable
         }
     }
 
-    // Internal for unit tests. SignalR's InfiniteRetryPolicy retries forever; this breaks the loop when the
-    // user is logged out. We treat "no token" as "logged out" — distinguishing a transient token failure
-    // from a real logout is OAuthClient's job (see its failure classifier), not ours. Once the user signs
-    // back in, OnAuthenticationChangedAsync rebuilds the listener.
+    // Internal for unit tests. The retry policy never gives up; this breaks the loop when the user is
+    // logged out. We treat "no token" as "logged out" — distinguishing a transient token failure from a
+    // real logout is OAuthClient's job (see its failure classifier), not ours. Once the user signs back
+    // in, OnAuthenticationChangedAsync rebuilds the listener.
     internal static async Task HandleReconnecting(
         string cacheKey,
         IMemoryCache cache,
@@ -574,7 +575,16 @@ public class LexboxProjectService : IDisposable
             (Guid projectId, Guid? clientId) =>
             {
                 logger.LogInformation("Received project update for {ProjectId}, triggering sync", projectId);
-                backgroundSyncService.TriggerSync(projectId, clientId);
+                try
+                {
+                    backgroundSyncService.TriggerSync(projectId, clientId);
+                }
+                catch (Exception e)
+                {
+                    // TriggerSync throws if the background sync service isn't running (e.g. during shutdown);
+                    // don't let that bubble into SignalR's dispatcher.
+                    logger.LogWarning(e, "Failed to trigger sync for {ProjectId}", projectId);
+                }
                 return Task.CompletedTask;
             });
 
@@ -586,7 +596,6 @@ public class LexboxProjectService : IDisposable
                 var hasValidToken = await clientFactory.GetClient(server).GetCurrentToken() is not null;
                 await HandleReconnecting(cacheKey, cache, logger, connection, () => connection.StopAsync(), hasValidToken, exception);
             };
-            // TODO: If StartAsync fails due to transient network, consider retrying on next sync/on-demand
             await connection.StartAsync(stoppingToken);
             // intentionally AFTER StartAsync (see catch comment)
             connection.Closed += async (exception) =>
