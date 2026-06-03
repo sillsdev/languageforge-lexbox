@@ -1,6 +1,7 @@
 export * from './ICrdtProject'
 export * from './IHistoryLineItem'
 export * from './IProjectActivity'
+export * from './IProjectActivityFilter'
 export * from './IProjectData'
 export * from './UserProjectRole'
 export * from './IChangeContext'

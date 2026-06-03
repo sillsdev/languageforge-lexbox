@@ -18,7 +18,19 @@ public static class ActivityRoutes
             });
             return Task.CompletedTask;
         });
-        group.MapGet("/", (HistoryService historyService, int skip, int take) => historyService.ProjectActivity(skip, take));
+        group.MapGet("/", (
+            HistoryService historyService,
+            int skip,
+            int take,
+            string? authorName,
+            bool authorMissing,
+            bool excludeFieldWorks) =>
+        {
+            var hasFilter = authorName is not null || authorMissing || excludeFieldWorks;
+            var filter = hasFilter ? new ProjectActivityFilter(authorName, authorMissing, excludeFieldWorks) : null;
+            return historyService.ProjectActivity(skip, take, filter);
+        });
+        group.MapGet("/authors", (HistoryService historyService) => historyService.GetAuthors());
         return group;
     }
 }

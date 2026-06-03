@@ -174,6 +174,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
+            typeof(ProjectActivityFilter),
             typeof(ChangeContext),
             typeof(ChangeEntity<IChange>),
             typeof(IChange),

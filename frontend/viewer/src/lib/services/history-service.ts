@@ -1,9 +1,19 @@
-import type {IEntry, IExampleSentence, IHistoryLineItem, IProjectActivity, ISense} from '$lib/dotnet-types';
+import type {IEntry, IExampleSentence, IHistoryLineItem, IProjectActivity, IProjectActivityFilter, ISense} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {isEntry, isExample, isSense} from '$lib/utils';
+
+function authorFilterQuery(filter?: IProjectActivityFilter): string {
+  if (!filter) return '';
+  const params = new URLSearchParams();
+  if (filter.authorName !== undefined) params.set('authorName', filter.authorName);
+  if (filter.authorMissing) params.set('authorMissing', 'true');
+  if (filter.excludeFieldWorks) params.set('excludeFieldWorks', 'true');
+  const query = params.toString();
+  return query ? `&${query}` : '';
+}
 
 export function useHistoryService() {
   const projectContext = useProjectContext()
@@ -62,9 +72,14 @@ export class HistoryService {
     throw new Error('Unable to determine type of object ' + JSON.stringify(data));
   }
 
-  async activity(projectCode: string, skip: number, take: number): Promise<IProjectActivity[]> {
-    return await (this.historyApi?.projectActivity(skip, take)
-        ?? fetch(`/api/activity/${projectCode}?skip=${skip}&take=${take}`).then(res => res.json())) as IProjectActivity[];
+  async activity(projectCode: string, skip: number, take: number, filter?: IProjectActivityFilter): Promise<IProjectActivity[]> {
+    return await (this.historyApi?.projectActivity(skip, take, filter)
+        ?? fetch(`/api/activity/${projectCode}?skip=${skip}&take=${take}${authorFilterQuery(filter)}`).then(res => res.json())) as IProjectActivity[];
+  }
+
+  async authors(projectCode: string): Promise<(string | undefined)[]> {
+    return await (this.historyApi?.authors()
+        ?? fetch(`/api/activity/${projectCode}/authors`).then(res => res.json())) as (string | undefined)[];
   }
 
   loadChangeContext(commitId: string, changeIndex: number) {

@@ -20,6 +20,17 @@ public record ProjectActivity(
     public string ChangeName => HistoryService.ChangesNameHelper(Changes);
 }
 
+/// <summary>
+/// Filters applied when reading project activity. All properties are optional; when none are set the result is unfiltered.
+/// </summary>
+/// <param name="AuthorName">If set, only commits whose author name matches exactly are returned.</param>
+/// <param name="AuthorMissing">If true, only commits without an author name are returned.</param>
+/// <param name="ExcludeFieldWorks">If true, commits authored by the special <see cref="HistoryService.FieldWorksAuthorName"/> are excluded.</param>
+public record ProjectActivityFilter(
+    string? AuthorName = null,
+    bool AuthorMissing = false,
+    bool ExcludeFieldWorks = false);
+
 public record ChangeContext(
     Guid CommitId,
     int ChangeIndex,
@@ -67,12 +78,25 @@ public record HistoryLineItem(
 
 public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory, IMiniLcmApi miniLcmApi)
 {
-    public async IAsyncEnumerable<ProjectActivity> ProjectActivity(int skip = 0, int take = 100)
+    /// <summary>
+    /// Author name used for commits created by FieldWorks (via FwHeadless). See LcmCrdtConfig.DefaultAuthorForCommits.
+    /// </summary>
+    public const string FieldWorksAuthorName = "FieldWorks";
+
+    public async IAsyncEnumerable<ProjectActivity> ProjectActivity(int skip = 0, int take = 100, ProjectActivityFilter? filter = null)
     {
         await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
         var changeEntities = dbContext.Set<ChangeEntity<IChange>>();
+        // Filter by author up front. Json.Value is a LinqToDB-only SQL extension, so when there's a
+        // filter we drop into LinqToDB before joining; see the same pattern in
+        // SnapshotAtCommitService.DeleteCommitsAfter.
+        IQueryable<Commit> commits = dbContext.Commits.DefaultOrderDescending();
+        if (filter is not null)
+        {
+            commits = ApplyAuthorFilter(commits.ToLinqToDB(), filter);
+        }
         var query =
-            from commit in dbContext.Commits.DefaultOrderDescending()
+            from commit in commits
             join changeEntity in changeEntities
                 on commit.Id equals changeEntity.CommitId into changes
             join snapshot in dbContext.Snapshots
@@ -85,6 +109,40 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         {
             yield return projectActivity;
         }
+    }
+
+    /// <summary>
+    /// Returns the distinct set of author names recorded in commit metadata for the current project.
+    /// Includes a null/empty entry if any commits are missing an author name.
+    /// </summary>
+    public async Task<List<string?>> GetAuthors()
+    {
+        await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
+        return await dbContext.Commits
+            .ToLinqToDB()
+            .Select(c => Json.Value(c.Metadata, m => m.AuthorName))
+            .Distinct()
+            .ToListAsync();
+    }
+
+    private static IQueryable<Commit> ApplyAuthorFilter(IQueryable<Commit> commits, ProjectActivityFilter filter)
+    {
+        // JSON Sqlite gotcha: `(json_extract(...) ?? "") OP value` so null comparisons work.
+        // See SnapshotAtCommitService.DeleteCommitsAfter for the same pattern.
+        if (filter.AuthorMissing)
+        {
+            commits = commits.Where(c => (Json.Value(c.Metadata, m => m.AuthorName) ?? "") == "");
+        }
+        else if (filter.AuthorName is not null)
+        {
+            var name = filter.AuthorName;
+            commits = commits.Where(c => Json.Value(c.Metadata, m => m.AuthorName) == name);
+        }
+        if (filter.ExcludeFieldWorks)
+        {
+            commits = commits.Where(c => (Json.Value(c.Metadata, m => m.AuthorName) ?? "") != FieldWorksAuthorName);
+        }
+        return commits;
     }
 
     public async Task<ObjectSnapshot?> GetSnapshot(Guid snapshotId)
