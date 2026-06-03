@@ -22,7 +22,7 @@ catalog:
   playwright: ^1.60.0
   postcss: ^8.5.10
   runed: ^0.37.0
-  svelte: ^5.45.2
+  svelte: ^5.55.7
   svelte-check: ^4.4.4
   svelte-eslint-parser: ^1.5.1
   svelte-exmarkdown: ^5.0.2

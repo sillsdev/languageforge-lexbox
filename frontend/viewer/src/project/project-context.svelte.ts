@@ -1,4 +1,4 @@
-import {getContext, setContext} from 'svelte';
+import {getContext, onDestroy, setContext, untrack} from 'svelte';
 import type {ILexboxServer, IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
@@ -29,6 +29,7 @@ interface ProjectContextSetup {
 export function initProjectContext(args?: ProjectContextSetup) {
   const context = new ProjectContext(args);
   setContext(projectContextKey, context);
+  onDestroy(() => context.destroy());
   return context;
 }
 export function useProjectContext() {
@@ -36,6 +37,8 @@ export function useProjectContext() {
 }
 export class ProjectContext {
   #stateCache = new SvelteMap<symbol, unknown>();
+  // Cleanups for the per-service $effect.root instances; see #ownAndCache.
+  #rootCleanups: Array<() => void> = [];
   #api: IMiniLcmJsInvokable | undefined = $state(undefined);
   #projectName: string | undefined = $state(undefined);
   #projectCode: string | undefined = $state(undefined);
@@ -127,10 +130,11 @@ export class ProjectContext {
       return this.#stateCache.get(key) as ResourceReturn<T, unknown, true>;
     }
 
-    const res = this.apiResource(initialValue, factory, options);
-    this.#stateCache.set(key, res);
-    options?.onAdd?.(res);
-    return res;
+    return this.#ownAndCache(key, () => {
+      const res = this.apiResource(initialValue, factory, options);
+      options?.onAdd?.(res);
+      return res;
+    });
   }
 
   /**
@@ -144,13 +148,42 @@ export class ProjectContext {
     return res;
   }
 
-  public getOrAdd<T>(key: symbol, factory: () => T) {
+  public getOrAdd<T>(key: symbol, factory: () => T): T {
     if (this.#stateCache.has(key)) {
       return this.#stateCache.get(key) as T;
     }
-    const result = factory();
+    return this.#ownAndCache(key, factory);
+  }
+
+  /**
+   * Runs `factory` inside an `$effect.root` so a cached service's `$derived`/
+   * `$state` is owned by the long-lived project context, not by whichever
+   * component first asked for the service. Without this, a `$derived` owned by a
+   * short-lived component (e.g. a virtualized row) stops updating for later
+   * readers once that component unmounts — see the regression tests in
+   * detached-resource/. `untrack` keeps a caller that's mid-derivation from
+   * subscribing to our caches.
+   */
+  #ownAndCache<T>(key: symbol, factory: () => T): T {
+    let result!: T;
+    const cleanup = $effect.root(() => {
+      result = untrack(factory);
+    });
+    this.#rootCleanups.push(cleanup);
     this.#stateCache.set(key, result);
     return result;
+  }
+
+  /**
+   * Tear down all cached service roots so deriveds don't leak. initProjectContext
+   * registers this on the initializing component's onDestroy.
+   */
+  public destroy(): void {
+    for (const cleanup of this.#rootCleanups) cleanup();
+    this.#rootCleanups = [];
+    this.#stateCache.clear();
+    // DetachedResource has no explicit dispose; just drop our references.
+    this.#detachedResources.clear();
   }
 }
 
