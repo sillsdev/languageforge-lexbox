@@ -43,10 +43,32 @@ public static class FwLiteWebServer
                 ..config.LexboxServers,
                 new(new("https://lexbox.org"), "Lexbox")
             ]);
-        //pin the MSAL cache to the binary directory, not the current working directory — Path.GetFullPath
-        //in the AuthConfig default would otherwise depend on CWD at config-instantiation time.
         builder.Services.PostConfigure<AuthConfig>(config =>
-            config.CacheFileName = Path.Combine(AppContext.BaseDirectory, "msal.json"));
+        {
+            //stable per-user cache location. A binary-relative path is orphaned under Platform.Bible, which
+            //extracts each extension version to a versioned cache dir, so every update would log the user out.
+            var cacheDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "SIL",
+                "FwLiteWeb");
+            Directory.CreateDirectory(cacheDir);
+            var cacheFile = Path.Combine(cacheDir, "msal.json");
+
+            var legacyCacheFile = Path.Combine(AppContext.BaseDirectory, "msal.json");
+            if (!File.Exists(cacheFile) && File.Exists(legacyCacheFile))
+            {
+                try
+                {
+                    File.Copy(legacyCacheFile, cacheFile);
+                }
+                catch
+                {
+                    //a failed migration just means one re-login; never break startup over it.
+                }
+            }
+
+            config.CacheFileName = cacheFile;
+        });
         builder.Services.Configure<FwLiteConfig>(config =>
         {
             config.AppVersion = VersionHelper.DisplayVersion(typeof(FwLiteWebServer).Assembly);
