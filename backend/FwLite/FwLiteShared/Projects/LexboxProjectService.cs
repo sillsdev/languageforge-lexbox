@@ -9,6 +9,7 @@ using LexCore.Entities;
 using LexCore.Sync;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,6 +22,7 @@ public class LexboxProjectService : IDisposable
 {
     private readonly OAuthClientFactory clientFactory;
     private readonly ILogger<LexboxProjectService> logger;
+    private readonly ILoggerFactory loggerFactory;
     private readonly IHttpMessageHandlerFactory httpMessageHandlerFactory;
     private readonly BackgroundSyncService backgroundSyncService;
     private readonly IOptions<AuthConfig> options;
@@ -34,6 +36,7 @@ public class LexboxProjectService : IDisposable
     public LexboxProjectService(
         OAuthClientFactory clientFactory,
         ILogger<LexboxProjectService> logger,
+        ILoggerFactory loggerFactory,
         IHttpMessageHandlerFactory httpMessageHandlerFactory,
         BackgroundSyncService backgroundSyncService,
         IOptions<AuthConfig> options,
@@ -42,6 +45,7 @@ public class LexboxProjectService : IDisposable
     {
         this.clientFactory = clientFactory;
         this.logger = logger;
+        this.loggerFactory = loggerFactory;
         this.httpMessageHandlerFactory = httpMessageHandlerFactory;
         this.backgroundSyncService = backgroundSyncService;
         this.options = options;
@@ -524,8 +528,10 @@ public class LexboxProjectService : IDisposable
     private async Task<HubConnection?> BuildAndStartConnection(LexboxServer server, CancellationToken stoppingToken)
     {
         var connection = new HubConnectionBuilder()
-            //todo bridge logging to the aspnet logger
-            .ConfigureLogging(logging => logging.AddConsole())
+            // Hand the builder's internal DI the app's logger factory so HubConnection's own logs (reconnect
+            // attempts, close reasons) land in the app log instead of a console-only factory. An externally
+            // supplied instance is not disposed with the connection's service provider.
+            .ConfigureLogging(logging => logging.Services.AddSingleton(loggerFactory))
             .WithAutomaticReconnect(new InfiniteRetryPolicy())
             .WithUrl($"{server.Authority}api/hub/crdt/project-changes",
                 connectionOptions =>
