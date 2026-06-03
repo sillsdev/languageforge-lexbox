@@ -1,4 +1,4 @@
-import {getContext, setContext, untrack} from 'svelte';
+import {getContext, onDestroy, setContext, untrack} from 'svelte';
 import type {ILexboxServer, IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
@@ -29,6 +29,7 @@ interface ProjectContextSetup {
 export function initProjectContext(args?: ProjectContextSetup) {
   const context = new ProjectContext(args);
   setContext(projectContextKey, context);
+  onDestroy(() => context.destroy());
   return context;
 }
 export function useProjectContext() {
@@ -174,8 +175,8 @@ export class ProjectContext {
   }
 
   /**
-   * Tear down all cached service roots. Call this when the project context
-   * is being discarded (e.g. project switch) so deriveds don't leak.
+   * Tear down all cached service roots so deriveds don't leak. initProjectContext
+   * registers this on the initializing component's onDestroy.
    */
   public destroy(): void {
     for (const cleanup of this.#rootCleanups) cleanup();

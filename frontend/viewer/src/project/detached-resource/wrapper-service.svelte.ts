@@ -1,22 +1,30 @@
 import type {ResourceReturn} from 'runed';
+import {useProjectContext} from '../project-context.svelte';
+
+const symbol = Symbol.for('test:wrapper-service');
+
+export function useWrapperService(fetchData: () => Promise<string[]>): WrapperService {
+  const projectContext = useProjectContext();
+  return projectContext.getOrAdd(symbol, () => {
+    const resource = projectContext.apiResource([], () => fetchData());
+    return new WrapperService(resource);
+  });
+}
 
 /**
  * Mirrors the PartOfSpeechService pattern: a cached class instance owning a
  * DetachedResource and exposing a `$derived.by` view that consumers read from
  * their own `$derived`. This is the shape that went stale under the bug fixed in
  * ProjectContext#ownAndCache.
- *
- * Kept in a plain `.svelte.ts` (not the harness's `<script module>`) to dodge an
- * ESLint "unsafe member access" on a class re-exported from a `.svelte` file.
  */
 export class WrapperService {
-  readonly resource: ResourceReturn<string[], unknown, true>;
+  #resource: ResourceReturn<string[], unknown, true>;
 
   constructor(resource: ResourceReturn<string[], unknown, true>) {
-    this.resource = resource;
+    this.#resource = resource;
   }
 
-  transformed: Array<{value: string; upper: string}> = $derived.by(() => {
-    return this.resource.current.map(value => ({value, upper: value.toUpperCase()}));
+  transformed: Array<{value: string; derived: string}> = $derived.by(() => {
+    return this.#resource.current.map(value => ({value, derived: `${value}-derived`}));
   });
 }

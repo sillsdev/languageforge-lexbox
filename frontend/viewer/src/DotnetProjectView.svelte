@@ -75,8 +75,6 @@
     if (serviceLoaded) {
       cleanup();
     }
-    // Context-owned $effect.roots aren't tied to the component tree, so they need an explicit teardown.
-    projectContext.destroy();
   });
 
   function cleanup() {

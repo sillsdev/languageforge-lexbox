@@ -43,7 +43,7 @@ describe('Wrapper service over apiResource', () => {
     controls.showConsumer();
     await vi.waitFor(() => {
       expect(consumerText('first-consumer', 'consumer-count')).toBe('3');
-      expect(consumerText('first-consumer', 'consumer-found')).toBe('BETA');
+      expect(consumerText('first-consumer', 'consumer-found')).toBe('beta-derived');
     });
     expect(fetchData).toHaveBeenCalledTimes(1);
 
@@ -67,7 +67,7 @@ describe('Wrapper service over apiResource', () => {
     controls.showSecondConsumer();
     await vi.waitFor(() => {
       expect(consumerText('second-consumer', 'consumer-count')).toBe('3');
-      expect(consumerText('second-consumer', 'consumer-found')).toBe('BETA');
+      expect(consumerText('second-consumer', 'consumer-found')).toBe('beta-derived');
     });
 
     await unmount(app);
@@ -81,8 +81,10 @@ describe('Wrapper service over apiResource', () => {
     const {app, controls} = mountHarness(fetchData, 'second');
 
     controls.showConsumer();
+    // 'second' isn't in the pre-swap data, so finding it below proves the swap propagated.
     await vi.waitFor(() => {
       expect(consumerText('first-consumer', 'consumer-count')).toBe('1');
+      expect(consumerText('first-consumer', 'consumer-found')).toBe('NONE');
     });
     controls.destroyConsumer();
 
@@ -91,7 +93,7 @@ describe('Wrapper service over apiResource', () => {
     controls.showSecondConsumer();
     await vi.waitFor(() => {
       expect(consumerText('second-consumer', 'consumer-count')).toBe('1');
-      expect(consumerText('second-consumer', 'consumer-found')).toBe('SECOND');
+      expect(consumerText('second-consumer', 'consumer-found')).toBe('second-derived');
     });
 
     await unmount(app);

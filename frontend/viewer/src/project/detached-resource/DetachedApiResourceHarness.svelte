@@ -1,6 +1,6 @@
 <script lang="ts">
   import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
-  import {onDestroy, untrack} from 'svelte';
+  import {untrack} from 'svelte';
   import type {ResourceReturn} from 'runed';
   import type {HarnessControls} from './detached-api-resource-test-types';
   import {initProjectContext} from '../project-context.svelte';
@@ -47,8 +47,6 @@
   };
 
   untrack(() => props.onReady(controls));
-
-  onDestroy(() => projectContext.destroy());
 </script>
 
 {#if consumer}
