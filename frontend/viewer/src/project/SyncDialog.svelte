@@ -16,6 +16,7 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import SyncStatusPrimitive from './sync/SyncStatusPrimitive.svelte';
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
+  import {useProjectEventBus} from '$lib/services/event-bus';
 
   const {
     syncStatus = SyncStatus.Success
@@ -24,6 +25,7 @@
   const projectContext = useProjectContext();
   const service = useSyncStatusService();
   const features = useFeatures();
+  const projectEventBus = useProjectEventBus();
   let remoteStatus = $state<IProjectSyncStatus>();
   let localStatus = $state<IPendingCommits>();
   let server = $derived(projectContext.server);
@@ -35,26 +37,46 @@
 
   watch(() => openQueryParam.current, (newValue) => {
     if (newValue) void onOpen();
-    else setTimeout(onClose, 500); // don't clear contents until close animation is done
   });
 
   export function open(): void {
     openQueryParam.current = true;
   }
 
-  async function onOpen(): Promise<void> {
-    await Promise.all([
+  let pendingRefresh: Promise<unknown> | undefined;
+  let rerunAfterPending = false;
+
+  // Catch background syncs (e.g. another client pushing changes) that onOpen alone wouldn't see.
+  // forceFresh: an in-flight refresh started before the sync may return pre-sync data, so queue a follow-up.
+  // Must follow pendingRefresh — onSync invokes the callback synchronously with a cached event.
+  projectEventBus.onSync(e => {
+    if (openQueryParam.current && e.status === SyncStatus.Success) void refreshStatus({forceFresh: true});
+  });
+
+  function refreshStatus(opts?: {forceFresh?: boolean}) {
+    if (pendingRefresh) {
+      if (opts?.forceFresh) rerunAfterPending = true;
+      return pendingRefresh;
+    }
+    pendingRefresh = Promise.all([
       service.getLocalStatus().then(s => localStatus = s),
       service.getStatus().then(s => remoteStatus = s),
       service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
-      service.getCurrentServer().then(s => server = s),
-    ]);
+    ]).finally(() => {
+      pendingRefresh = undefined;
+      if (rerunAfterPending) {
+        rerunAfterPending = false;
+        void refreshStatus();
+      }
+    });
+    return pendingRefresh;
   }
 
-  function onClose(): void {
-    localStatus = undefined;
-    remoteStatus = undefined;
-    latestSyncedCommitDate = undefined;
+  async function onOpen(): Promise<void> {
+    await Promise.all([
+      refreshStatus(),
+      service.getCurrentServer().then(s => server = s),
+    ]);
   }
 
   async function syncLexboxToFlex() {
@@ -107,11 +129,7 @@
       localStatus.remote = 0;
       localStatus.local = 0;
     }
-    await Promise.all([
-      service.getLocalStatus().then(s => localStatus = s),
-      service.getStatus().then(s => remoteStatus = s),
-      service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
-    ]);
+    await refreshStatus();
   }
 
   function onLoginStatusChange(status: 'logged-in' | 'logged-out') {

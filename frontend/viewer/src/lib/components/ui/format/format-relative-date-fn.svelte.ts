@@ -22,11 +22,14 @@ export function formatRelativeDate(
 
   const targetDate = typeof value === 'string' ? new SvelteDate(value) : value;
   const diffMs = targetDate.getTime() - config.now.getTime();
-  const isPast = diffMs < 0;
+  const isPast = diffMs <= 0;
   const absDiffMs = Math.abs(diffMs);
 
-  const duration = formatDuration({milliseconds: absDiffMs}, config.smallestUnit, options, config.maxUnits);
-  if (!duration) return config.defaultValue;
+  const unit = config.smallestUnit ?? 'seconds';
+  // DurationFormat omits zero fields, so diffs < smallestUnit format as "". Force-display a zero.
+  const duration =
+    formatDuration({milliseconds: absDiffMs}, config.smallestUnit, options, config.maxUnits) ||
+    formatDuration({[unit]: 0}, unit, {...options, [`${unit}Display`]: 'always'});
 
   return isPast ? gt`${duration} ago` : gt`in ${duration}`;
 }
