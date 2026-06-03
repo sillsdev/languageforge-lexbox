@@ -35,8 +35,14 @@ spec:
             name: Authentication__Jwt__Secret
           - name: LfClassicConfig__ConnectionString
             value: mongodb://host.docker.internal:27017
+          # Trust the local cluster's pod network so X-Forwarded-Proto from the
+          # ingress-nginx controller is honored — otherwise lexbox sees the request
+          # as HTTP and emits HTTP URLs in /.well-known/openid-configuration, which
+          # breaks the FwLite OAuth flow. The pod CIDR differs between Docker
+          # Desktop on Windows/Mac (10.1.0.0/16), Docker Desktop on Linux, and the
+          # kind cluster used in CI, so trust them all in non-prod environments.
           - name: ForwardedHeadersOptions__KnownNetworks__0
-            value: "10.1.0.0/16"
+            value: "0.0.0.0/0"
           - name: CloudFlare__TurnstileKey
             value: "1x0000000000000000000000000000000AA"
             valueFrom:
