@@ -96,8 +96,10 @@
     <PackageVersion Include="Polly.Extensions" Version="8.6.6" />
     <PackageVersion Include="Quartz.AspNetCore" Version="3.18.1" />
     <PackageVersion Include="Quartz.Serialization.SystemTextJson" Version="3.18.1" />
-    <PackageVersion Include="Refit" Version="10.1.6" />
-    <PackageVersion Include="Refit.HttpClientFactory" Version="10.1.6" />
+    <!-- Pinned to 10.0.1: 10.1.6's author signature is revoked, failing restore (NU3012) on Linux.
+         Re-bump once https://github.com/reactiveui/refit/issues/2114 is resolved. -->
+    <PackageVersion Include="Refit" Version="10.0.1" />
+    <PackageVersion Include="Refit.HttpClientFactory" Version="10.0.1" />
     <PackageVersion Include="Reinforced.Typings" Version="1.6.7" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.14.11" />
     <PackageVersion Include="SIL.Chorus.ChorusMerge" Version="6.0.0-beta0064" />
