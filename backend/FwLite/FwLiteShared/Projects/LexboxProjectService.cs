@@ -330,7 +330,7 @@ public class LexboxProjectService : IDisposable
             catch (Exception e)
             {
                 logger.LogWarning(e, "Failed to restart Lexbox listener");
-                await EvictAndStopIfCached(HubConnectionCacheKey(server), cache, logger);
+                await EvictAndStopIfCached(HubConnectionCacheKey(server), cache, logger, lexboxConnection);
                 return;
             }
             // Covers the current project (registered above) and any siblings on this connection.
@@ -403,10 +403,13 @@ public class LexboxProjectService : IDisposable
         }
     }
 
-    // Internal for unit tests.
-    internal static async Task EvictAndStopIfCached(string cacheKey, IMemoryCache cache, ILogger logger)
+    // Internal for unit tests. When expectedConnection is given, evicts only if the cached instance is that
+    // connection — callers holding a specific dead connection must not evict a live replacement that was
+    // cached after they last looked.
+    internal static async Task EvictAndStopIfCached(string cacheKey, IMemoryCache cache, ILogger logger, object? expectedConnection = null)
     {
         if (!cache.TryGetValue(cacheKey, out HubConnection? connection) || connection is null) return;
+        if (expectedConnection is not null && !ReferenceEquals(connection, expectedConnection)) return;
         cache.Remove(cacheKey);
         try
         {
@@ -426,6 +429,7 @@ public class LexboxProjectService : IDisposable
         string cacheKey,
         IMemoryCache cache,
         ILogger logger,
+        object connection,
         Func<Task> stopConnection,
         bool hasValidToken,
         Exception? exception)
@@ -437,7 +441,11 @@ public class LexboxProjectService : IDisposable
 
         if (hasValidToken) return;
 
-        cache.Remove(cacheKey);
+        // Same guard as the Closed handler: a replacement connection may have been cached since this one
+        // started reconnecting; only evict the entry if it is still ours. Stopping ourselves is right
+        // regardless — we are the connection that has no token.
+        if (cache.TryGetValue(cacheKey, out object? cached) && ReferenceEquals(cached, connection))
+            cache.Remove(cacheKey);
         logger.LogWarning("SignalR reconnect aborted: no auth token (logged out); stopping connection");
         try
         {
@@ -513,7 +521,7 @@ public class LexboxProjectService : IDisposable
             connection.Reconnecting += async exception =>
             {
                 var hasValidToken = await clientFactory.GetClient(server).GetCurrentToken() is not null;
-                await HandleReconnecting(cacheKey, cache, logger, () => connection.StopAsync(), hasValidToken, exception);
+                await HandleReconnecting(cacheKey, cache, logger, connection, () => connection.StopAsync(), hasValidToken, exception);
             };
             // TODO: If StartAsync fails due to transient network, consider retrying on next sync/on-demand
             await connection.StartAsync(stoppingToken);

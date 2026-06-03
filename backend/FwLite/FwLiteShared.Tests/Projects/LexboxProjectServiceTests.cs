@@ -13,13 +13,15 @@ public class LexboxProjectServiceTests
     [Fact]
     public async Task HandleReconnecting_WithValidToken_KeepsCacheAndDoesNotStop()
     {
-        _cache.Set(CacheKey, "cached-connection");
+        var connection = new object();
+        _cache.Set(CacheKey, connection);
         var stopCalled = false;
 
         await LexboxProjectService.HandleReconnecting(
             CacheKey,
             _cache,
             NullLogger.Instance,
+            connection,
             () => { stopCalled = true; return Task.CompletedTask; },
             hasValidToken: true,
             exception: null);
@@ -31,18 +33,43 @@ public class LexboxProjectServiceTests
     [Fact]
     public async Task HandleReconnecting_WithNoToken_EvictsCacheAndStopsConnection()
     {
-        _cache.Set(CacheKey, "cached-connection");
+        var connection = new object();
+        _cache.Set(CacheKey, connection);
         var stopCalled = false;
 
         await LexboxProjectService.HandleReconnecting(
             CacheKey,
             _cache,
             NullLogger.Instance,
+            connection,
             () => { stopCalled = true; return Task.CompletedTask; },
             hasValidToken: false,
             exception: null);
 
         _cache.TryGetValue(CacheKey, out _).Should().BeFalse();
+        stopCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HandleReconnecting_WithNoToken_DoesNotEvictAReplacementConnection()
+    {
+        // A replacement can be cached between this connection entering Reconnecting and the handler running;
+        // evicting it would orphan a live connection. The handler must still stop ITSELF (it has no token).
+        var replacement = new object();
+        _cache.Set(CacheKey, replacement);
+        var stopCalled = false;
+
+        await LexboxProjectService.HandleReconnecting(
+            CacheKey,
+            _cache,
+            NullLogger.Instance,
+            connection: new object(),
+            () => { stopCalled = true; return Task.CompletedTask; },
+            hasValidToken: false,
+            exception: null);
+
+        _cache.TryGetValue(CacheKey, out object? cached).Should().BeTrue();
+        cached.Should().BeSameAs(replacement);
         stopCalled.Should().BeTrue();
     }
 
@@ -64,6 +91,30 @@ public class LexboxProjectServiceTests
         _cache.Set(CacheKey, connection);
 
         await LexboxProjectService.EvictAndStopIfCached(CacheKey, _cache, NullLogger.Instance);
+
+        _cache.TryGetValue(CacheKey, out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task EvictAndStopIfCached_WithMismatchedExpectedConnection_LeavesCacheAlone()
+    {
+        await using var cached = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
+        await using var stale = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
+        _cache.Set(CacheKey, cached);
+
+        await LexboxProjectService.EvictAndStopIfCached(CacheKey, _cache, NullLogger.Instance, expectedConnection: stale);
+
+        _cache.TryGetValue(CacheKey, out HubConnection? remaining).Should().BeTrue();
+        remaining.Should().BeSameAs(cached);
+    }
+
+    [Fact]
+    public async Task EvictAndStopIfCached_WithMatchingExpectedConnection_Evicts()
+    {
+        await using var connection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
+        _cache.Set(CacheKey, connection);
+
+        await LexboxProjectService.EvictAndStopIfCached(CacheKey, _cache, NullLogger.Instance, expectedConnection: connection);
 
         _cache.TryGetValue(CacheKey, out _).Should().BeFalse();
     }
