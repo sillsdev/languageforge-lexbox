@@ -72,6 +72,8 @@ if ($localOnly) {
 
 # 3. Merge origin/develop; resolve conflicts with --ours
 Write-Host "`n[3/6] Merging origin/develop..." -ForegroundColor Cyan
+git merge-base --is-ancestor origin/develop HEAD *> $null
+if ($LASTEXITCODE -eq 0) { Fail "Nothing to merge — l10n_develop already contains origin/develop. Re-run after Crowdin or develop has new commits." }
 # Use --no-commit so we can resolve conflicts before committing
 $mergeOutput = git merge --no-commit --no-ff origin/develop 2>&1
 # Non-zero exit with conflicts is expected — but if no merge actually started (no MERGE_HEAD),
