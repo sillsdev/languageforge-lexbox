@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
+using FwLiteShared.Services;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using LexCore.Entities;
@@ -28,6 +29,7 @@ public class LexboxProjectService : IDisposable
     private readonly IOptions<AuthConfig> options;
     private readonly IMemoryCache cache;
     private readonly GlobalEventBus globalEventBus;
+    private readonly INetworkStatus networkStatus;
     private readonly IDisposable onAuthChangedSubscription;
     // Stable record of projects we've been asked to listen for, by project id. Survives connection
     // lifetimes (unlike _reconnectProjects) so we can resubscribe after a hub-connection rebuild.
@@ -41,7 +43,8 @@ public class LexboxProjectService : IDisposable
         BackgroundSyncService backgroundSyncService,
         IOptions<AuthConfig> options,
         IMemoryCache cache,
-        GlobalEventBus globalEventBus)
+        GlobalEventBus globalEventBus,
+        INetworkStatus networkStatus)
     {
         this.clientFactory = clientFactory;
         this.logger = logger;
@@ -51,6 +54,7 @@ public class LexboxProjectService : IDisposable
         this.options = options;
         this.cache = cache;
         this.globalEventBus = globalEventBus;
+        this.networkStatus = networkStatus;
         onAuthChangedSubscription = globalEventBus.OnAuthenticationChanged.Subscribe(@event =>
         {
             InvalidateProjectsCache(@event.Server);
@@ -475,7 +479,12 @@ public class LexboxProjectService : IDisposable
         }
     }
 
-    private class InfiniteRetryPolicy : IRetryPolicy
+    // Must never return null — that ends SignalR's retry loop for good (the deliberate stop on logout is
+    // HandleReconnecting's job). SignalR consults the policy once per attempt and a returned delay cannot be
+    // interrupted except by StopAsync, so the delay is the worst-case recovery latency: keep it short while
+    // the device reports online (the problem is server-side and could end any moment) and long while offline
+    // (every attempt is a pointless local failure; connectivity/resume triggers handle the transition back).
+    internal class AdaptiveRetryPolicy(INetworkStatus networkStatus) : IRetryPolicy
     {
         public TimeSpan? NextRetryDelay(RetryContext retryContext)
         {
@@ -483,9 +492,8 @@ public class LexboxProjectService : IDisposable
             {
                 0 => TimeSpan.Zero,
                 1 => TimeSpan.FromSeconds(2),
-                2 => TimeSpan.FromSeconds(10),
-                3 => TimeSpan.FromSeconds(30),
-                _ => TimeSpan.FromSeconds(60),
+                _ when !networkStatus.IsOnline => TimeSpan.FromSeconds(60),
+                _ => TimeSpan.FromSeconds(10),
             };
         }
     }
@@ -532,7 +540,7 @@ public class LexboxProjectService : IDisposable
             // attempts, close reasons) land in the app log instead of a console-only factory. An externally
             // supplied instance is not disposed with the connection's service provider.
             .ConfigureLogging(logging => logging.Services.AddSingleton(loggerFactory))
-            .WithAutomaticReconnect(new InfiniteRetryPolicy())
+            .WithAutomaticReconnect(new AdaptiveRetryPolicy(networkStatus))
             .WithUrl($"{server.Authority}api/hub/crdt/project-changes",
                 connectionOptions =>
                 {
