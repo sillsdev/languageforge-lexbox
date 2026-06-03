@@ -162,12 +162,22 @@ public class OAuthClient
 
     public async Task Logout()
     {
-        _authResult = null;
-        await ConfigureCache();
-        var accounts = await _application.GetAccountsAsync();
-        foreach (var account in accounts)
+        //take the same lock as GetAuth: otherwise an in-flight AcquireTokenSilent could complete after we
+        //clear state and re-populate _authResult, leaving the user silently logged back in.
+        await _authSemaphore.WaitAsync();
+        try
         {
-            await _application.RemoveAsync(account);
+            _authResult = null;
+            await ConfigureCache();
+            var accounts = await _application.GetAccountsAsync();
+            foreach (var account in accounts)
+            {
+                await _application.RemoveAsync(account);
+            }
+        }
+        finally
+        {
+            _authSemaphore.Release();
         }
         _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
     }
@@ -219,6 +229,10 @@ public class OAuthClient
                         break;
                     case SilentAuthFailureOutcome.KeepCachedCredentials:
                         _logger.LogWarning(e, "Silent token acquisition failed with a transient or unknown error; keeping cached credentials");
+                        //drop the in-memory access token (it's expired — that's why we're refreshing) so callers
+                        //don't send a stale bearer and 401. The refresh token stays in the MSAL cache, so the next
+                        //GetAuth retries silently once the transient condition clears.
+                        _authResult = null;
                         break;
                 }
             }
