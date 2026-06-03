@@ -94,6 +94,31 @@ public class OAuthClientSilentRefreshTests
         events.Should().BeEmpty();
     }
 
+    // In the pre-expiry refresh window (still valid, <5 min left) a transient failure must return the
+    // retained token: discarding it would spuriously report logged-out (e.g. stopping the SignalR listener).
+    [Fact]
+    public async Task TransientFailure_BeforeExpiry_KeepsValidToken()
+    {
+        var calls = 0;
+        var (client, appMock, _, events) = BuildClient((account, _) =>
+        {
+            calls++;
+            if (calls == 1) return Task.FromResult(NearExpiryResult(account));
+            throw new MsalServiceException("service_error", "upstream returned 502");
+        });
+
+        (await client.GetAuth()).Should().NotBeNull("the first acquisition succeeds");
+        var beforeExpiry = await client.GetAuth(forceRefresh: true);
+
+        beforeExpiry.Should().NotBeNull("a still-valid token must survive a transient refresh failure");
+        beforeExpiry!.AccessToken.Should().Be("near-expiry-token");
+        (await appMock.Object.GetAccountsAsync()).Should().HaveCount(1);
+        events.Should().BeEmpty();
+
+        (await client.GetAuth()).Should().NotBeNull();
+        calls.Should().Be(3, "a retained near-expiry token must not satisfy the freshness fast-path — refresh keeps retrying until it succeeds or the token expires");
+    }
+
     // Logout must take the same lock as GetAuth: an acquisition already in flight when logout starts
     // must not be able to repopulate _authResult and silently sign the user back in.
     [Fact]
@@ -120,6 +145,19 @@ public class OAuthClientSilentRefreshTests
         (await appMock.Object.GetAccountsAsync()).Should().BeEmpty();
         (await client.GetCurrentToken()).Should().BeNull("logout must win the race, not the in-flight acquire");
     }
+
+    private static AuthenticationResult NearExpiryResult(IAccount account) => new(
+        accessToken: "near-expiry-token",
+        isExtendedLifeTimeToken: false,
+        uniqueId: account.HomeAccountId.ObjectId,
+        expiresOn: DateTimeOffset.UtcNow.AddMinutes(2),
+        extendedExpiresOn: DateTimeOffset.UtcNow.AddMinutes(2),
+        tenantId: "tid",
+        account: account,
+        idToken: null,
+        scopes: OAuthClient.DefaultScopes,
+        correlationId: Guid.NewGuid(),
+        tokenType: "Bearer");
 
     private static AuthenticationResult ExpiredResult(IAccount account) => new(
         accessToken: "expired-token",

@@ -229,10 +229,14 @@ public class OAuthClient
                         break;
                     case SilentAuthFailureOutcome.KeepCachedCredentials:
                         _logger.LogWarning(e, "Silent token acquisition failed with a transient or unknown error; keeping cached credentials");
-                        //drop the in-memory access token (it's expired — that's why we're refreshing) so callers
-                        //don't send a stale bearer and 401. The refresh token stays in the MSAL cache, so the next
-                        //GetAuth retries silently once the transient condition clears.
-                        _authResult = null;
+                        // Only drop the in-memory access token if it has actually expired. Keeping a still-valid
+                        // token across a transient blip avoids spuriously taking SignalR offline in the 5-minute
+                        // pre-expiry refresh window. The refresh token in the MSAL cache is preserved either way,
+                        // so the next GetAuth still retries silently once the transient condition clears.
+                        if (_authResult is { } r && r.ExpiresOn <= DateTimeOffset.UtcNow)
+                        {
+                            _authResult = null;
+                        }
                         break;
                 }
             }
