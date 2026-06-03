@@ -251,6 +251,7 @@ async function main() {
   let countSame = 0;
   let countTemplate = 0;
   let countExtension = 0;
+  const countedPairs = new Set();
 
   let queue = [...allPairs];
   let deferred = [];
@@ -265,20 +266,35 @@ async function main() {
 
       if (choice === 'missing') {
         console.log(c(DIM, `  (missing in template — skipping)  ${pair.label}`));
-        countExtension += 1;
+        if (!countedPairs.has(pair.extensionFile)) {
+          countedPairs.add(pair.extensionFile);
+          countExtension += 1;
+        }
       } else if (choice === 'same') {
         console.log(`  ${c(DIM, 'same')}    ${pair.label}`);
-        countSame += 1;
+        if (!countedPairs.has(pair.extensionFile)) {
+          countedPairs.add(pair.extensionFile);
+          countSame += 1;
+        }
       } else if (choice === 'e') {
-        countExtension += 1;
+        if (!countedPairs.has(pair.extensionFile)) {
+          countedPairs.add(pair.extensionFile);
+          countExtension += 1;
+        }
       } else if (choice === 't') {
         copyFromTemplate(pair);
         console.log(c(GREEN, '  Applied template'));
-        countTemplate += 1;
+        if (!countedPairs.has(pair.extensionFile)) {
+          countedPairs.add(pair.extensionFile);
+          countTemplate += 1;
+        }
       } else if (choice === 'b') {
         copyFromTemplate(pair);
         console.log(c(GREEN, '  Applied template + deferred'));
-        countTemplate += 1;
+        if (!countedPairs.has(pair.extensionFile)) {
+          countedPairs.add(pair.extensionFile);
+          countTemplate += 1;
+        }
         deferred.push(pair);
       } else {
         console.log(c(YELLOW, '  Deferred'));
