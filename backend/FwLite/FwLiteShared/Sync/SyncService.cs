@@ -66,11 +66,13 @@ public class SyncService(
         var httpClient = await oAuthClient.CreateHttpClient();
         if (httpClient is null)
         {
+            var signedIn = await oAuthClient.IsSignedIn();
             logger.LogWarning(
-                "Unable to create http client to sync project {ProjectName}, user is not authenticated to {OriginDomain}",
+                "Unable to create http client to sync project {ProjectName}, {Reason} for {OriginDomain}",
                 project.Name,
+                signedIn ? "offline" : "user is not authenticated",
                 project.OriginDomain);
-            UpdateSyncStatus(SyncStatus.NotLoggedIn);
+            UpdateSyncStatus(signedIn ? SyncStatus.Offline : SyncStatus.NotLoggedIn);
             return new SyncResults([], [], false);
         }
         var currentUser = await oAuthClient.GetCurrentUser();

@@ -172,6 +172,19 @@ public class OAuthClient
         _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
     }
 
+    /// <summary>
+    /// Whether an account is present in the local MSAL cache. Purely a local read — never touches
+    /// the network — so callers can distinguish "not logged in" from "offline" without triggering a
+    /// token acquisition. Account presence implies signed-in: Logout and RemoveAccountAsync are the
+    /// only paths that remove an account.
+    /// </summary>
+    public async ValueTask<bool> IsSignedIn()
+    {
+        await ConfigureCache();
+        var accounts = await _application.GetAccountsAsync();
+        return accounts.Any();
+    }
+
     internal async ValueTask<AuthenticationResult?> GetAuth(bool forceRefresh = false)
     {
         if (DateTimeOffset.UtcNow.AddMinutes(5) < _authResult?.ExpiresOn && !forceRefresh)
