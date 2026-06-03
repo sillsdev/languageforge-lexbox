@@ -43,14 +43,19 @@ public static class FwLiteWebServer
                 ..config.LexboxServers,
                 new(new("https://lexbox.org"), "Lexbox")
             ]);
+        var configuredCacheFile = builder.Configuration["Auth:CacheFileName"];
         builder.Services.PostConfigure<AuthConfig>(config =>
         {
+            //honour an explicitly configured cache path; only supply our default location otherwise.
+            if (!string.IsNullOrEmpty(configuredCacheFile)) return;
+
             //stable per-user cache location. A binary-relative path is orphaned under Platform.Bible, which
             //extracts each extension version to a versioned cache dir, so every update would log the user out.
-            var cacheDir = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "SIL",
-                "FwLiteWeb");
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            //GetFolderPath can return "" on a headless/container host with no HOME; fall back to the binary
+            //dir so the path stays fully qualified (BuildCacheProperties rejects relative paths).
+            var baseDir = string.IsNullOrEmpty(localAppData) ? AppContext.BaseDirectory : localAppData;
+            var cacheDir = Path.Combine(baseDir, "SIL", "FwLiteWeb");
             Directory.CreateDirectory(cacheDir);
             var cacheFile = Path.Combine(cacheDir, "msal.json");
 
