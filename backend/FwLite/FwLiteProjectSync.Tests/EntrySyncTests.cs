@@ -311,18 +311,21 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         // We expect the final result to be equivalent to this "raw"/untouched, requested state.
         var expected = after.Copy();
 
+        // Don't auto-add the main publication when staging data: the sync path under test (EntrySync) never
+        // does, and a round-tripped main wouldn't exist on the other API, breaking the subsequent create.
+        var noAutoMain = new CreateEntryOptions(AutoAddMainPublication: false);
         if (roundTripApi is not null)
         {
             // round-tripping ensures we're dealing with realistic data
             // (e.g. in fwdata ComplexFormComponents do not have an Id)
-            before = await roundTripApi.CreateEntry(before);
+            before = await roundTripApi.CreateEntry(before, noAutoMain);
             await roundTripApi.DeleteEntry(before.Id);
-            after = await roundTripApi.CreateEntry(after);
+            after = await roundTripApi.CreateEntry(after, noAutoMain);
             await roundTripApi.DeleteEntry(after.Id);
         }
 
         // before should not be round-tripped here. That's handled above.
-        await Api.CreateEntry(before);
+        await Api.CreateEntry(before, noAutoMain);
 
         // act
         await EntrySync.SyncFull(before, after, Api);
