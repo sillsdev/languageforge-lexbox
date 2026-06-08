@@ -1875,6 +1875,10 @@ msgstr "반면 *FieldWorks Classic* 뷰는 *[FieldWorks Language Explorer](https
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "*FieldWorks Lite* 뷰는 언어 전문가가 아닌 사용자를 위해 설계되었으며 다음과 같은 점에서 *FieldWorks Classic* 뷰와 다릅니다:"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The main publication is always included."
+msgstr ""
+
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
