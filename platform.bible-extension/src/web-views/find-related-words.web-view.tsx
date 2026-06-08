@@ -141,9 +141,9 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
   return (
     <EntryListWrapper
       elementHeader={
-        <div className="tw-flex tw-flex-col tw-gap-2">
-          <div className="tw-flex tw-gap-2">
-            <div className="tw-max-w-128">
+        <div className="tw:flex tw:flex-col tw:gap-2">
+          <div className="tw:flex tw:gap-2">
+            <div className="tw:max-w-lg">
               <SearchBar
                 onSearch={onSearch}
                 placeholder={localizedStrings['%lexicon_findRelatedWord_textField%']}
@@ -164,14 +164,14 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
           </div>
 
           {matchingEntries && !selectedDomain && (
-            <h3 className="tw-font-semibold tw-m-2">
+            <h3 className="tw:font-semibold tw:m-2">
               {localizedStrings['%lexicon_findRelatedWord_selectInstruction%']}
             </h3>
           )}
 
           {selectedDomain && (
-            <h3 className="tw-flex tw-font-semibold tw-gap-1 tw-items-center tw-m-2">
-              <Network className="tw-inline tw-mr-1 tw-h-4 tw-w-4" />
+            <h3 className="tw:flex tw:font-semibold tw:gap-1 tw:items-center tw:m-2">
+              <Network className="tw:inline tw:mr-1 tw:h-4 tw:w-4" />
               {domainText(selectedDomain, analysisLanguage)}
             </h3>
           )}
@@ -187,7 +187,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
             vernacularLanguage={vernacularLanguage ?? ''}
           />
         ) : !relatedEntries?.length ? (
-          <div className="tw-flex tw-justify-center tw-m-4 ">
+          <div className="tw:flex tw:justify-center tw:m-4">
             <Label>{localizedStrings['%lexicon_findRelatedWord_noResultsInDomain%']}</Label>
           </div>
         ) : (

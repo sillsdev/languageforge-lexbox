@@ -54,10 +54,10 @@ export default function AddNewEntry({
   }
 
   return (
-    <div className="tw-flex tw-flex-col tw-items-start">
-      <h3 className="tw-font-semibold tw-mb-2">{localizedStrings['%lexicon_addWord_title%']}</h3>
+    <div className="tw:flex tw:flex-col tw:items-start">
+      <h3 className="tw:font-semibold tw:mb-2">{localizedStrings['%lexicon_addWord_title%']}</h3>
 
-      <div className="tw-flex tw-flex-col tw-gap-1">
+      <div className="tw:flex tw:flex-col tw:gap-1">
         <div>
           <Label htmlFor="newEntryHeadword">
             {localizedStrings['%lexicon_entryDisplay_headword%']} ({vernacularLanguage}):
@@ -87,7 +87,7 @@ export default function AddNewEntry({
           />
         </div>
 
-        <div className="tw-flex tw-gap-1 tw-mt-2">
+        <div className="tw:flex tw:gap-1 tw:mt-2">
           <Button disabled={!ready} onClick={() => onSubmit()}>
             {localizedStrings['%lexicon_addWord_buttonSubmit%']}
           </Button>

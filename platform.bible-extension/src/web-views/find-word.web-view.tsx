@@ -94,8 +94,8 @@ globalThis.webViewComponent = function LexiconFindWord({
   return (
     <EntryListWrapper
       elementHeader={
-        <div className="tw-flex tw-gap-2">
-          <div className="tw-max-w-72">
+        <div className="tw:flex tw:gap-2">
+          <div className="tw:max-w-72">
             <SearchBar
               onSearch={onSearch}
               placeholder={localizedStrings['%lexicon_findWord_textField%']}

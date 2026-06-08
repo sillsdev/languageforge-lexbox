@@ -56,7 +56,7 @@ globalThis.webViewComponent = function LexiconAddWord({
   );
 
   return (
-    <div className="tw-p-4">
+    <div className="tw:p-4">
       <AddNewEntry
         addEntry={addEntry}
         analysisLanguage={analysisLanguage ?? ''}

@@ -39,7 +39,7 @@ export default function LexiconComboBox({
 
   if (settingSaving) {
     return (
-      <h3 className="tw-font-semibold tw-m-2">
+      <h3 className="tw:font-semibold tw:m-2">
         {localizedStrings['%lexicon_selectLexicon_saving%']} {selectedLexiconCode} ...
       </h3>
     );
@@ -47,14 +47,14 @@ export default function LexiconComboBox({
 
   if (settingSaved) {
     return (
-      <h3 className="tw-font-semibold tw-m-2">
+      <h3 className="tw:font-semibold tw:m-2">
         {localizedStrings['%lexicon_selectLexicon_saved%']}
       </h3>
     );
   }
 
   return (
-    <div className="tw-flex tw-flex-col tw-gap-2 tw-p-4">
+    <div className="tw:flex tw:flex-col tw:gap-2 tw:p-4">
       <ComboBox
         buttonPlaceholder={
           /* eslint-disable no-nested-ternary */
@@ -75,7 +75,7 @@ export default function LexiconComboBox({
       />
 
       {!!selectedLexiconCode && (
-        <div className="tw-flex tw-gap-2 tw-items-center">
+        <div className="tw:flex tw:gap-2 tw:items-center">
           <Button onClick={() => saveSetting(selectedLexiconCode)} type="button">
             {localizedStrings['%lexicon_selectLexicon_confirm%']}
           </Button>

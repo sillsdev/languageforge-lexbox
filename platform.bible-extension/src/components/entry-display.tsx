@@ -65,45 +65,45 @@ export default function EntryDisplay({
         localizedStrings={localizedStrings}
         handleBackToListButton={handleBackToListButton}
       />
-      <div className="tw-mb-4">
-        <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2">
-          <span className="tw-flex tw-flex-row tw-items-baseline tw-gap-2">
-            <TitleComponent className="tw-text-2xl tw-font-bold">
+      <div className="tw:mb-4">
+        <div className="tw:flex tw:items-baseline tw:justify-between tw:gap-2">
+          <span className="tw:flex tw:flex-row tw:items-baseline tw:gap-2">
+            <TitleComponent className="tw:text-2xl tw:font-bold">
               {entryHeadwordText(entry, vernacularLanguage)}
             </TitleComponent>
-            <DescriptionComponent className="tw-text-lg tw-text-muted-foreground">
+            <DescriptionComponent className="tw:text-lg tw:text-muted-foreground">
               {entryGlossText(entry, analysisLanguage)}
             </DescriptionComponent>
           </span>
         </div>
       </div>
 
-      <Separator className="tw-my-3" />
+      <Separator className="tw:my-3" />
 
-      <div className="tw-mb-4">
-        <h3 className="tw-mb-1 tw-font-semibold">
+      <div className="tw:mb-4">
+        <h3 className="tw:mb-1 tw:font-semibold">
           {localizedStrings['%lexicon_entryDisplay_senses%']}
         </h3>
 
-        <div className="tw-flex tw-flex-col tw-gap-3">
+        <div className="tw:flex tw:flex-col tw:gap-3">
           {entry.senses.filter(Boolean).map((sense, senseIndex) => (
             <div
               key={sense.id}
-              className="tw-flex tw-w-full tw-h-fit tw-flex-col tw-items-start tw-border tw-rounded-lg tw-shadow-sm tw-p-4 tw-transition-colors"
+              className="tw:flex tw:w-full tw:h-fit tw:flex-col tw:items-start tw:border tw:rounded-lg tw:shadow-sm tw:p-4 tw:transition-colors"
             >
-              <div className="tw-flex tw-items-baseline tw-gap-2">
-                <span className="tw-font-bold tw-text-accent-foreground">{senseIndex + 1}</span>
-                <span className="tw-text-base">{senseGlossText(sense, analysisLanguage)}</span>
+              <div className="tw:flex tw:items-baseline tw:gap-2">
+                <span className="tw:font-bold tw:text-accent-foreground">{senseIndex + 1}</span>
+                <span className="tw:text-base">{senseGlossText(sense, analysisLanguage)}</span>
               </div>
 
               {Object.values(sense.definition).some(Boolean) && (
-                <div className="tw-mt-1 tw-max-w-lg tw-text-start tw-text-sm tw-text-muted-foreground">
+                <div className="tw:mt-1 tw:max-w-lg tw:text-start tw:text-sm tw:text-muted-foreground">
                   <span>{senseDefinitionText(sense, analysisLanguage)}</span>
                 </div>
               )}
 
               {sense.partOfSpeech?.id && (
-                <div className="tw-mt-1 tw-max-w-lg tw-text-start tw-text-sm tw-text-muted-foreground">
+                <div className="tw:mt-1 tw:max-w-lg tw:text-start tw:text-sm tw:text-muted-foreground">
                   <span>{`${localizedStrings['%lexicon_entryDisplay_partOfSpeech%']}: ${partOfSpeechText(sense.partOfSpeech, analysisLanguage)}`}</span>
                 </div>
               )}
@@ -122,7 +122,7 @@ export default function EntryDisplay({
         <Button
           variant="secondary"
           size="icon"
-          className="tw-fixed tw-bottom-4 tw-right-4 tw-z-20"
+          className="tw:fixed tw:bottom-4 tw:right-4 tw:z-20"
           onClick={onClickScrollToTop}
         >
           <ChevronUpIcon />
