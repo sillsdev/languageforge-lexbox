@@ -14,11 +14,14 @@ public static class PublicationSync
             afterPublications,
             new PublicationsDiffApi(api));
 
-        // Sync the IsMain flag: if "after" has a main but "before" does not, set it
+        // Sync the IsMain flag: if "after" has a main but "before" does not, promote it.
+        // A main that's new to this collection was already created with IsMain set (PublicationsDiffApi.Add),
+        // so only promote one that already existed but wasn't yet the main — otherwise we'd redundantly update
+        // a publication that doesn't exist yet (e.g. it throws during a dry-run sync).
         var beforeMain = beforePublications.FirstOrDefault(p => p.IsMain);
         var afterMain = afterPublications.FirstOrDefault(p => p.IsMain);
 
-        if (afterMain is not null && beforeMain is null)
+        if (afterMain is not null && beforeMain is null && beforePublications.Any(p => p.Id == afterMain.Id))
         {
             await api.UpdatePublication(afterMain.Id,
                 new UpdateObjectInput<Publication>().Set(p => p.IsMain, true));
