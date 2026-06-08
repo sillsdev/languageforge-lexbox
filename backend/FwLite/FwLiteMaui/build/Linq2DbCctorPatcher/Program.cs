@@ -49,37 +49,26 @@ using (var asm = AssemblyDefinition.ReadAssembly(dllPath, new ReaderParameters {
     if (nested is null)
         return Fail("SqlTransparentExpression nested type not found inside EFCoreMetadataReader.");
 
-    // The _ctor field is what makes Quote() dangerous, so its continued existence
-    // is the real invariant — guard it directly rather than inferring it from the cctor.
-    if (!nested.Fields.Any(f => f.Name == "_ctor"))
-        return Fail("SqlTransparentExpression no longer declares the _ctor field; IL shape changed.");
-
     var cctor = nested.Methods.FirstOrDefault(m => m.IsConstructor && m.IsStatic);
     if (cctor is null || !cctor.HasBody)
         return Fail("SqlTransparentExpression .cctor not found (or has no body).");
 
-    // The cctor must be in one of two recognised shapes:
-    //  - the original reflection-based init, which assigns _ctor via stsfld (we neutralise it below), or
-    //  - an effective no-op (just `ret`), which the size-optimising trimmer produces by dropping the
-    //    now-unused field init — and which is also what our own stub leaves behind on a re-run.
-    // Any other shape (real instructions but no stsfld _ctor) is an unrecognised restructure: fail loud.
+    // Sanity-check the cctor shape: at least one stsfld targeting the _ctor field.
+    // If upstream renames _ctor or restructures the field init, we want to know.
     var storesCtorField = cctor.Body.Instructions.Any(ins =>
         ins.OpCode == OpCodes.Stsfld
         && ins.Operand is FieldReference fr
         && fr.Name == "_ctor"
         && fr.DeclaringType.FullName == nested.FullName);
-    var isNoOp = cctor.Body.Instructions.All(ins => ins.OpCode == OpCodes.Nop || ins.OpCode == OpCodes.Ret);
-    if (!storesCtorField && !isNoOp)
-        return Fail("SqlTransparentExpression .cctor has an unrecognised shape (no stsfld for _ctor and not a no-op); IL shape changed.");
+    if (!storesCtorField)
+        return Fail("SqlTransparentExpression .cctor no longer contains a stsfld for the _ctor field; IL shape changed.");
 
     var quote = nested.Methods.FirstOrDefault(m => m.Name == "Quote" && m.Parameters.Count == 0);
     if (quote is null || !quote.HasBody)
         return Fail("SqlTransparentExpression.Quote() not found (or has no body).");
 
     ReplaceBodyWith(cctor, Instruction.Create(OpCodes.Ret));
-    Console.WriteLine(storesCtorField
-        ? "Stubbed SqlTransparentExpression .cctor to no-op ret"
-        : "SqlTransparentExpression .cctor already a no-op (trimmer-neutralised); ensured ret");
+    Console.WriteLine("Stubbed SqlTransparentExpression .cctor to no-op ret");
 
     // Replace Quote() with `throw new NotImplementedException();` so anything that
     // somehow reaches it fails loud rather than NRE'ing on the now-null _ctor field.

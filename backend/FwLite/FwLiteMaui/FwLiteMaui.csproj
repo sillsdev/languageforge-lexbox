@@ -12,11 +12,9 @@
 		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
 		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
     <!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
-    <!-- CoreCLR (the .NET 10 default Android runtime) only ships 64-bit packs, so the default build is 64-bit.
-         Setting UseMonoRuntime=true builds the 32-bit armeabi-v7a bundle (the legacy runtime still ships an
-         android-arm pack). Keep the RID list HERE rather than passing -p:RuntimeIdentifiers on the command line:
-         a global -p: value breaks the SDK's per-RID fan-out (the ';' is read as a property separator -> MSB1006,
-         and dependency projects don't get the singular RuntimeIdentifier -> MSB3030 missing per-RID output). -->
+    <!-- CoreCLR (the .NET 10 default Android runtime) is 64-bit only; UseMonoRuntime=true builds the 32-bit
+         armeabi-v7a bundle. Keep RIDs here, not on the command line — a global -p:RuntimeIdentifiers breaks
+         the SDK's per-RID fan-out (dependency projects don't get the singular RID). -->
     <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android' And '$(UseMonoRuntime)' != 'true'">android-arm64;android-x64</RuntimeIdentifiers>
     <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android' And '$(UseMonoRuntime)' == 'true'">android-arm</RuntimeIdentifiers>
     <OutputType>Exe</OutputType>

@@ -251,20 +251,15 @@ jobs:
     needs: [ build-and-test, frontend ]
     timeout-minutes: 30
     runs-on: macos-latest
-    # Two bundles, one Play listing. .NET 10 defaults Android to CoreCLR, which ships
-    # 64-bit only; armeabi-v7a (32-bit) devices need the legacy Mono runtime. They can't
-    # be combined into one AAB (a bundle boots a single runtime), so we build both and
-    # upload both to the same Play release. The versionCode bands the runtime preference
-    # above the build number: a 64-bit device's abilist also includes armeabi-v7a, so it
-    # matches BOTH bundles — the higher-coded CoreCLR band guarantees it never resolves to
-    # Mono. 32-bit-only devices match only Mono. See create-release for the upload side.
+    # Two bundles for one Play listing: CoreCLR (64-bit) + Mono (armeabi-v7a) — they can't share an AAB
+    # (a bundle boots a single runtime). 64-bit devices' abilist also includes armeabi-v7a, so they match
+    # BOTH bundles; the versionCode bands CoreCLR above Mono so they resolve to CoreCLR and only 32-bit-only
+    # devices get Mono. See create-release for the upload side.
     strategy:
       fail-fast: false
       matrix:
         include:
-          # RIDs are NOT passed here — the csproj selects them from UseMonoRuntime (coreclr =>
-          # android-arm64;android-x64, mono => android-arm). Passing -p:RuntimeIdentifiers on the
-          # command line makes it global and breaks the per-RID fan-out (MSB1006 / MSB3030).
+          # RIDs come from the csproj, keyed on UseMonoRuntime (see FwLiteMaui.csproj).
           - variant: coreclr
             runtimeArgs: ''
             versionOffset: 100000000

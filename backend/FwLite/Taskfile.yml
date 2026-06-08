@@ -122,9 +122,8 @@ tasks:
       - adb -d install -r bin/Release/net10.0-android/org.sil.FwLiteMaui.dev-Signed.apk
 
   install-maui-android-release-arm32:
-    # Production CoreCLR builds are 64-bit only; this builds & runs the separate Mono/armeabi-v7a
-    # bundle for testing the 32-bit app on real hardware. -t:Run drives the full
-    # build -> install -> launch graph and targets the connected USB device (AdbTarget=-d).
+    # Production builds are 64-bit (CoreCLR); this builds & runs the Mono/armeabi-v7a bundle to test
+    # the 32-bit app on a connected USB device.
     desc: Build, install & run a Release Mono arm32 (armeabi-v7a) "Dev" APK on the connected USB device
     dir: ./FwLiteMaui
     deps: [ ui:build-viewer ]
