@@ -232,6 +232,10 @@ msgstr "N'importe quel domaine sémantique"
 msgid "Any Ws"
 msgstr "Tous les Systèmes d'Ecriture"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Architecture"
+msgstr ""
+
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"

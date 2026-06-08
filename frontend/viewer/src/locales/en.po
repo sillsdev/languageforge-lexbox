@@ -227,6 +227,10 @@ msgstr "Any semantic domain"
 msgid "Any Ws"
 msgstr "Any Ws"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Architecture"
+msgstr "Architecture"
+
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
