@@ -59,7 +59,9 @@ export function getSearchParams<T extends Record<string, unknown>>(
     Object.defineProperty(queryParamValues, key, {
       enumerable: true,
       get: () => raw[key] ?? undefined,
-      set: (value) => (raw[key] = value ?? undefined),
+      set: (value: unknown) => {
+        raw[key] = value ?? undefined;
+      },
     });
   }
 
