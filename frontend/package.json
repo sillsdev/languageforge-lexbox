@@ -103,7 +103,7 @@
     "estree-walker": "^3.0.3",
     "js-cookie": "^3.0.7",
     "just-order-by": "^1.0.0",
-    "mjml": "^4.17.1",
+    "mjml": "^5.0.0",
     "runed": "catalog:",
     "set-cookie-parser": "^2.7.2",
     "svelte-exmarkdown": "catalog:",
