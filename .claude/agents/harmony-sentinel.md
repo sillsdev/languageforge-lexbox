@@ -45,8 +45,9 @@ absent at this submodule SHA:
 > ⚠️ important — `backend/harmony/AGENTS.md` not present at this SHA.
 > Falling back to a reduced check: serialization-shape changes
 > (`[JsonConstructor]`, property renames in `Change<T>` subclasses),
-> public API of `IChangeContext` / `IRepository`, projected-table
-> generators. Recommend bumping the submodule to a SHA that includes
+> public API of `IChangeContext` / `DataModel.QueryLatest<T>`,
+> projected-table generators. Recommend bumping the submodule to a SHA
+> that includes
 > AGENTS.md so the full review can run.
 
 ## Standard review
