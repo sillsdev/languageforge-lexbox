@@ -13,9 +13,12 @@
 		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
     <!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
     <!-- CoreCLR (the .NET 10 default Android runtime) only ships 64-bit packs, so the default build is 64-bit.
-         The 32-bit armeabi-v7a bundle is built separately with -p:UseMonoRuntime=true -p:RuntimeIdentifiers=android-arm
-         (see the publish-android matrix in .github/workflows/fw-lite.yaml and the install-maui-android-release-arm32 task). -->
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">android-arm64;android-x64</RuntimeIdentifiers>
+         Setting UseMonoRuntime=true builds the 32-bit armeabi-v7a bundle (the legacy runtime still ships an
+         android-arm pack). Keep the RID list HERE rather than passing -p:RuntimeIdentifiers on the command line:
+         a global -p: value breaks the SDK's per-RID fan-out (the ';' is read as a property separator -> MSB1006,
+         and dependency projects don't get the singular RuntimeIdentifier -> MSB3030 missing per-RID output). -->
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android' And '$(UseMonoRuntime)' != 'true'">android-arm64;android-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android' And '$(UseMonoRuntime)' == 'true'">android-arm</RuntimeIdentifiers>
     <OutputType>Exe</OutputType>
     <RootNamespace>FwLiteMaui</RootNamespace>
     <UseMaui>true</UseMaui>

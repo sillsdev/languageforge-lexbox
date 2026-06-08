@@ -262,12 +262,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # RIDs are NOT passed here — the csproj selects them from UseMonoRuntime (coreclr =>
+          # android-arm64;android-x64, mono => android-arm). Passing -p:RuntimeIdentifiers on the
+          # command line makes it global and breaks the per-RID fan-out (MSB1006 / MSB3030).
           - variant: coreclr
-            rids: 'android-arm64;android-x64'
             runtimeArgs: ''
             versionOffset: 100000000
           - variant: mono
-            rids: 'android-arm'
             runtimeArgs: '-p:UseMonoRuntime=true'
             versionOffset: 0
     steps:
@@ -304,8 +305,7 @@ jobs:
           KEYSTORE_PASS: ${{ secrets.FW_LITE_KEYSTORE_PASS }}
           KEYSTORE_ALIAS: ${{ vars.FW_LITE_KEYSTORE_UPLOAD_KEY_ALIAS }}
         run: |
-          dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
-            -p:RuntimeIdentifiers='${{ matrix.rids }}' ${{ matrix.runtimeArgs }} \
+          dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts ${{ matrix.runtimeArgs }} \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ steps.versionCode.outputs.CODE }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \

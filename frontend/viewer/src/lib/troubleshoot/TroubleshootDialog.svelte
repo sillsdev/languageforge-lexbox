@@ -55,6 +55,7 @@
         <CopyButton
           variant="ghost"
           size="icon-xs"
+          class="-my-2 self-center"
           iconProps={{class: 'size-4'}}
           title={$t`Copy version`}
           text={`FieldWorks Lite ${config.appVersion} on ${config.os}${architecture.current ? ` (${architecture.current})` : ''}`}
