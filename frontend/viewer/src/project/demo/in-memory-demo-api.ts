@@ -506,8 +506,8 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   getPublications(): Promise<IPublication[]> {
     return Promise.resolve([
-      {id: '1', name: {en: 'Main Dictionary'}, deletedAt: undefined},
-      {id: '2', name: {en: 'School Dictionary'}, deletedAt: undefined},
+      {id: '1', name: {en: 'Main Dictionary'}, isMain: true, deletedAt: undefined},
+      {id: '2', name: {en: 'School Dictionary'}, isMain: false, deletedAt: undefined},
     ]);
   }
 

@@ -1,17 +1,19 @@
 import {describe, expect, it} from 'vitest';
+import type {IPublication} from '$lib/dotnet-types';
 import {resolveMainPublication} from './publications.svelte';
 
-describe('resolveMainPublication', () => {
-  it('returns publication with isMain=true', () => {
-    const main = {id: 'a', name: {}, isMain: true} as any;
-    const notMain = {id: 'b', name: {}, isMain: false} as any;
-    const noFlag = {id: 'c', name: {}} as any;
+function publication(id: string, isMain: boolean): IPublication {
+  return {id, name: {}, isMain};
+}
 
-    expect(resolveMainPublication([notMain, main, noFlag])?.id).toBe('a');
+describe('resolveMainPublication', () => {
+  it('returns the publication with isMain=true', () => {
+    const main = publication('a', true);
+
+    expect(resolveMainPublication([publication('b', false), main, publication('c', false)])?.id).toBe('a');
   });
 
   it('returns undefined when no publication is main', () => {
-    const notMain = {id: 'a', name: {}, isMain: false} as any;
-    expect(resolveMainPublication([notMain])).toBeUndefined();
+    expect(resolveMainPublication([publication('a', false)])).toBeUndefined();
   });
 });
