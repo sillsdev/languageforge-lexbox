@@ -122,14 +122,13 @@ tasks:
       - adb -d install -r bin/Release/net10.0-android/org.sil.FwLiteMaui.dev-Signed.apk
 
   install-maui-android-release-arm32:
-    # Production CoreCLR builds are 64-bit only; this builds the separate Mono/armeabi-v7a bundle
-    # for testing the 32-bit app on real hardware. Output lands under the android-arm RID subfolder.
-    desc: Build a Release Mono arm32 (armeabi-v7a) "Dev" APK and adb-install it on the connected USB device
+    # Production CoreCLR builds are 64-bit only; this builds & runs the separate Mono/armeabi-v7a
+    # bundle for testing the 32-bit app on real hardware. -t:Run drives the full
+    # build -> install -> launch graph and targets the connected USB device (AdbTarget=-d).
+    desc: Build, install & run a Release Mono arm32 (armeabi-v7a) "Dev" APK on the connected USB device
     dir: ./FwLiteMaui
     deps: [ ui:build-viewer ]
-    cmds:
-      - dotnet build -f net10.0-android -c Release -t:SignAndroidPackage -p:FwLiteFlavor=Dev -p:UseMonoRuntime=true -p:RuntimeIdentifiers=android-arm -p:RuntimeIdentifier=android-arm -p:AndroidPackageFormat=apk
-      - adb -d install -r bin/Release/net10.0-android/android-arm/org.sil.FwLiteMaui.dev-Signed.apk
+    cmd: dotnet build -f net10.0-android -c Release -t:Run -p:FwLiteFlavor=Dev -p:UseMonoRuntime=true -p:RuntimeIdentifiers=android-arm -p:RuntimeIdentifier=android-arm -p:AndroidPackageFormat=apk -p:AdbTarget=-d
 
   build-mini-lcm-sdk:
     desc: Builds the sdk, a zip with the FwLiteWeb server with a project and config to run locally

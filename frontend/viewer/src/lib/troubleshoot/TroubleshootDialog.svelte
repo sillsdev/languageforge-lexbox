@@ -46,7 +46,7 @@
 
 <ResponsiveDialog bind:open={openQueryParam.current} title={$t`Troubleshoot`} disableBackHandler>
   <div class="flex flex-col gap-4 items-start">
-    <div>
+    <div class="flex flex-col gap-1">
       <p class="flex items-baseline gap-1">
         {$t`FieldWorks Lite version`}:
         <span class="font-semibold border-b">
