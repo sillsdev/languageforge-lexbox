@@ -347,6 +347,8 @@ public class FwDataMiniLcmApi(
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
+        if (pub.IsMain && FindMainPublication() is not null)
+            throw new InvalidOperationException("Cannot create a second main publication. A main publication already exists.");
         if (pub.Id == default) pub.Id = Guid.NewGuid();
         ICmPossibility? lcmPublication = null;
         NonUndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW(Cache.ServiceLocator.ActionHandler, () =>
@@ -369,6 +371,18 @@ public class FwDataMiniLcmApi(
         };
 
         return possibility;
+    }
+
+    // The Main Dictionary is the publication FieldWorks protects from deletion (IsProtected). LibLCM treats anything
+    // other than exactly one protected publication as an error; we mirror that for >1 but tolerate 0 so a project
+    // without a Main Dictionary can still create entries (it just won't auto-add one).
+    private ICmPossibility? FindMainPublication()
+    {
+        var protectedPublications = Publications.PossibilitiesOS.Where(pub => pub.IsProtected).ToArray();
+        if (protectedPublications.Length > 1)
+            throw new InvalidOperationException(
+                $"Expected at most one protected (main) publication but found {protectedPublications.Length}.");
+        return protectedPublications.FirstOrDefault();
     }
 
     public Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
@@ -997,10 +1011,7 @@ public class FwDataMiniLcmApi(
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
         if (options.AutoAddMainPublication)
         {
-            var mainPublication = Publications.PossibilitiesOS
-                .Where(pub => pub.IsProtected)
-                .OrderBy(pub => pub.Guid)
-                .FirstOrDefault();
+            var mainPublication = FindMainPublication();
             if (mainPublication is not null && entry.PublishIn.All(pub => pub.Id != mainPublication.Guid))
             {
                 entry.PublishIn.Add(FromLcmPossibility(mainPublication));

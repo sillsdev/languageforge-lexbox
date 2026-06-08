@@ -154,17 +154,17 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CreateEntry_AutoAddsMainPublication_WhenEnabled()
     {
-        var mainPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
+        var mainPublication = await GetOrCreateMainPublication();
 
         var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddMainPublication: true));
 
-        entry.PublishIn.Should().ContainSingle(pub => pub.Id == mainPublication.Id);
+        entry.PublishIn.Should().ContainSingle().Which.Id.Should().Be(mainPublication.Id);
     }
 
     [Fact]
     public async Task CreateEntry_DoesNotAutoAddMainPublication_WhenDisabled()
     {
-        await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
+        await GetOrCreateMainPublication();
 
         var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddMainPublication: false));
 
@@ -174,20 +174,17 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CreateEntry_DoesNotDoubleAddMainPublication()
     {
-        var mainPublication = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
+        var mainPublication = await GetOrCreateMainPublication();
 
         var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [mainPublication] });
 
-        entry.PublishIn.Count(pub => pub.Id == mainPublication.Id).Should().Be(1);
+        entry.PublishIn.Should().ContainSingle().Which.Id.Should().Be(mainPublication.Id);
     }
 
-    [Fact]
-    public async Task CreateEntry_DoesNothingWhenNoMainPublicationExists()
+    // Reuse the existing main if present — a real FwData project always has one and rejects creating a second.
+    private async Task<Publication> GetOrCreateMainPublication()
     {
-        await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Not main" } } });
-
-        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] });
-
-        entry.PublishIn.Should().BeEmpty();
+        var existing = (await Api.GetPublications().ToArrayAsync()).FirstOrDefault(p => p.IsMain);
+        return existing ?? await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
     }
 }

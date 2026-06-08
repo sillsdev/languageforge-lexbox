@@ -203,12 +203,14 @@ public class CrdtMiniLcmApi(
         var pub = await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
 
         var nonIsMainPatch = new JsonPatchDocument<Publication>();
-        var setIsMain = false;
+        bool? setIsMainTo = null;
         foreach (var operation in update.Patch.Operations)
         {
             if (string.Equals(operation.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase))
             {
-                setIsMain = true;
+                if (operation.Value is not bool isMain)
+                    throw new InvalidOperationException($"Unsupported value for the IsMain patch: '{operation.Value}'. Expected a boolean.");
+                setIsMainTo = isMain;
                 continue;
             }
 
@@ -216,11 +218,10 @@ public class CrdtMiniLcmApi(
         }
 
         var changes = nonIsMainPatch.ToChanges(pub.Id).ToList();
-        if (setIsMain)
+        if (setIsMainTo is false && pub.IsMain)
+            throw new InvalidOperationException("Cannot turn off the IsMain flag on a publication; the main publication is fixed.");
+        if (setIsMainTo is true && !pub.IsMain)
         {
-            if (pub.IsMain)
-                throw new InvalidOperationException("Cannot turn off the IsMain flag on a publication.");
-
             var existingMain = await repo.GetMainPublication();
             if (existingMain is not null)
                 throw new InvalidOperationException("Cannot set IsMain on this publication. Another publication is already the main publication.");

@@ -162,6 +162,13 @@
   </span>
 {/snippet}
 
+{#snippet publishInNote()}
+  <div class="flex flex-col">
+    {#if publishInIsFromTemplate}{@render fromActiveFilter()}{/if}
+    {#if publicationService.mainPublication}{@render mainPublicationIncluded()}{/if}
+  </div>
+{/snippet}
+
 <Dialog.Root bind:open={open}>
   <Dialog.DialogContent onkeydown={handleKeydown} class="sm:min-h-[min(calc(100%-16px),30rem)] max-md:px-2">
     <Dialog.DialogHeader>
@@ -178,7 +185,7 @@
         <Editor.Root bind:this={editor}>
           <Editor.Grid>
             <EntryEditorPrimitive bind:entry autofocus modalMode
-              publishInDescription={publishInIsFromTemplate ? fromActiveFilter : (publicationService.mainPublication ? mainPublicationIncluded : undefined)} />
+              publishInDescription={(publishInIsFromTemplate || publicationService.mainPublication) ? publishInNote : undefined} />
             {#if sense}
               <Editor.SubGrid>
                 <ObjectHeader type="sense">

@@ -48,11 +48,7 @@ public static class PublicationSync
             beforePublication.Name,
             afterPublication.Name));
 
-        if (beforePublication.IsMain != afterPublication.IsMain)
-        {
-            patchDocument.Replace(p => p.IsMain, afterPublication.IsMain);
-        }
-
+        // IsMain is intentionally not diffed here: it transitions only 0->1, handled once in the collection-level Sync.
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Publication>(patchDocument);
     }
