@@ -23,6 +23,9 @@ public class MauiTroubleshootingService(
     public Task<bool> GetCanShare() => Task.FromResult(true);
 
     [JSInvokable]
+    public Task<string> GetProcessArchitecture() => Task.FromResult(RuntimeInfoHelper.ProcessArchitecture());
+
+    [JSInvokable]
     public async Task<bool> TryOpenDataDirectory()
     {
         try

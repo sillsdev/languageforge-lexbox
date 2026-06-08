@@ -152,3 +152,8 @@ tasks:
     aliases: [android-release-dev]
     desc: Build a Release "Dev" APK and adb-install it on the connected USB device
     deps: [fw-lite:install-maui-android-release-dev]
+
+  fw-lite-android-release-arm32:
+    aliases: [android-release-arm32]
+    desc: Build & install a Release Mono arm32 (armeabi-v7a) APK on the connected USB device
+    deps: [fw-lite:install-maui-android-release-arm32]

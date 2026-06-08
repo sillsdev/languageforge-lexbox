@@ -27,6 +27,7 @@
   const config = useFwLiteConfig();
   let projectCode = $state<string>();
   let canShare = resource(() => service, async (s) => await s?.getCanShare());
+  let architecture = resource(() => service, async (s) => await s?.getProcessArchitecture());
   // Mobile platforms keep app data in private storage that no file manager can open.
   const canOpenDataDirectory = $derived(config.os !== FwLitePlatform.Android && config.os !== FwLitePlatform.iOS);
 
@@ -56,13 +57,19 @@
           size="icon-xs"
           iconProps={{class: 'size-4'}}
           title={$t`Copy version`}
-          text={`FieldWorks Lite ${config.appVersion} on ${config.os}`}
+          text={`FieldWorks Lite ${config.appVersion} on ${config.os}${architecture.current ? ` (${architecture.current})` : ''}`}
         />
       </p>
       <p class="flex items-baseline gap-1">
         {$t`Platform`}:
         <span class="font-semibold">{config.os}</span>
       </p>
+      {#if architecture.current}
+        <p class="flex items-baseline gap-1">
+          {$t`Architecture`}:
+          <span class="font-semibold">{architecture.current}</span>
+        </p>
+      {/if}
     </div>
     {#if service && (canOpenDataDirectory || $isDev)}
       <div class="w-full flex flex-col gap-1.5">

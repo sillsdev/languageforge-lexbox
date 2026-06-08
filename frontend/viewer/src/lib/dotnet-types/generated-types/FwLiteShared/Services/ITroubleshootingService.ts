@@ -6,6 +6,7 @@
 export interface ITroubleshootingService
 {
 	getCanShare() : Promise<boolean>;
+	getProcessArchitecture() : Promise<string>;
 	tryOpenDataDirectory() : Promise<boolean>;
 	getDataDirectory() : Promise<string>;
 	openLogFile() : Promise<void>;

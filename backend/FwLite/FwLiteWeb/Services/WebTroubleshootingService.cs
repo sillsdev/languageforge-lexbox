@@ -14,6 +14,9 @@ public class WebTroubleshootingService(
     public Task<bool> GetCanShare() => Task.FromResult(false);
 
     [JSInvokable]
+    public Task<string> GetProcessArchitecture() => Task.FromResult(RuntimeInfoHelper.ProcessArchitecture());
+
+    [JSInvokable]
     public Task<string> GetDataDirectory()
     {
         return Task.FromResult(crdtConfig.Value.ProjectPath);

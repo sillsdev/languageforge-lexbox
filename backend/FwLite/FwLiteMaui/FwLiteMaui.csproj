@@ -12,7 +12,10 @@
 		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
 		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
     <!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">android-arm;android-arm64;android-x86;android-x64</RuntimeIdentifiers>
+    <!-- CoreCLR (the .NET 10 default Android runtime) only ships 64-bit packs, so the default build is 64-bit.
+         The 32-bit armeabi-v7a bundle is built separately with -p:UseMonoRuntime=true -p:RuntimeIdentifiers=android-arm
+         (see the publish-android matrix in .github/workflows/fw-lite.yaml and the install-maui-android-release-arm32 task). -->
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">android-arm64;android-x64</RuntimeIdentifiers>
     <OutputType>Exe</OutputType>
     <RootNamespace>FwLiteMaui</RootNamespace>
     <UseMaui>true</UseMaui>

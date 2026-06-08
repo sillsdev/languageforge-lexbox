@@ -247,10 +247,29 @@ jobs:
           path: backend/FwLite/artifacts/publish/FwLiteWeb/*
 
   publish-android:
-    name: Publish FW Lite app for Android
+    name: Publish FW Lite app for Android (${{ matrix.variant }})
     needs: [ build-and-test, frontend ]
     timeout-minutes: 30
     runs-on: macos-latest
+    # Two bundles, one Play listing. .NET 10 defaults Android to CoreCLR, which ships
+    # 64-bit only; armeabi-v7a (32-bit) devices need the legacy Mono runtime. They can't
+    # be combined into one AAB (a bundle boots a single runtime), so we build both and
+    # upload both to the same Play release. The versionCode bands the runtime preference
+    # above the build number: a 64-bit device's abilist also includes armeabi-v7a, so it
+    # matches BOTH bundles — the higher-coded CoreCLR band guarantees it never resolves to
+    # Mono. 32-bit-only devices match only Mono. See create-release for the upload side.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: coreclr
+            rids: 'android-arm64;android-x64'
+            runtimeArgs: ''
+            versionOffset: 100000000
+          - variant: mono
+            rids: 'android-arm'
+            runtimeArgs: '-p:UseMonoRuntime=true'
+            versionOffset: 0
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -266,6 +285,10 @@ jobs:
 
       - name: Setup Maui
         run: dotnet workload install maui
+      - name: Compute Android version code
+        id: versionCode
+        shell: bash
+        run: echo "CODE=$(( ${{ matrix.versionOffset }} + ${{ github.run_number }} ))" >> ${GITHUB_OUTPUT}
       - name: Decode Android Keystore
         id: decodeKeystore
         env:
@@ -282,8 +305,9 @@ jobs:
           KEYSTORE_ALIAS: ${{ vars.FW_LITE_KEYSTORE_UPLOAD_KEY_ALIAS }}
         run: |
           dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
+            -p:RuntimeIdentifiers='${{ matrix.rids }}' ${{ matrix.runtimeArgs }} \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:ApplicationVersion=${{ steps.versionCode.outputs.CODE }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
             -p:AndroidKeyStore=true \
             -p:AndroidSigningKeyStore=${KEYSTORE_PATH} \
@@ -295,10 +319,11 @@ jobs:
       - name: Upload FWLite App artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: fw-lite-android
+          name: fw-lite-android-${{ matrix.variant }}
           if-no-files-found: error
-#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/org.sil.fwlitemaui-signed.apk
-          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/*
+          # Single-RID (mono) publishes to release_net10.0-android_android-arm; multi-RID
+          # (coreclr) to release_net10.0-android. The trailing * tolerates both.
+          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android*/*
 
   publish-win:
     name: Publish FW Lite app for Windows
@@ -399,17 +424,29 @@ jobs:
           path: fw-lite-web-linux
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
-          name: fw-lite-android
-          path: fw-lite-android
+          name: fw-lite-android-coreclr
+          path: fw-lite-android-coreclr
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: fw-lite-android-mono
+          path: fw-lite-android-mono
 
       - name: Zip artifacts
         run: |
           zip -r fw-lite-portable.zip fw-lite-portable
           chmod +x fw-lite-web-linux/*/FwLiteWeb fw-lite-web-linux/*/*.sh
           zip -r fw-lite-web-linux.zip fw-lite-web-linux
-      - name: Rename Installer
+      - name: Rename Installer and stage Android bundles
         run: |
           mv fw-lite-msix/FwLiteMaui.msixbundle fw-lite-msix/FieldWorksLiteInstaller.msixbundle
+          # Both variants share the org.sil.FwLiteMaui basename, so rename per arch before
+          # attaching (release asset names must be unique). Upload BOTH .aab to one Play release.
+          mkdir -p fw-lite-android
+          for v in coreclr mono; do
+            case $v in coreclr) arch=64bit ;; mono) arch=arm32 ;; esac
+            cp fw-lite-android-$v/*.aab fw-lite-android/FieldWorksLite-$arch.aab
+            cp fw-lite-android-$v/*.apk fw-lite-android/FieldWorksLite-$arch.apk 2>/dev/null || true
+          done
 
       - name: Create Release
         uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda #v2.2.1
