@@ -111,3 +111,16 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
         actualPub.Should().BeEquivalentTo(afterPub);
     }
 }
+
+
+    [Fact]
+    public void GetDefaultPublicationId_UsesLatestDefaultedAt()
+    {
+        var first = new Publication { Id = Guid.NewGuid(), DefaultedAt = DateTimeOffset.UnixEpoch };
+        var second = new Publication { Id = Guid.NewGuid(), DefaultedAt = DateTimeOffset.UnixEpoch.AddMinutes(1) };
+        var noDefault = new Publication { Id = Guid.NewGuid(), DefaultedAt = null };
+
+        var defaultId = PublicationSync.GetDefaultPublicationId([first, second, noDefault]);
+
+        defaultId.Should().Be(second.Id);
+    }

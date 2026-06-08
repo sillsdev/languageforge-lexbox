@@ -18,11 +18,13 @@
   import type {SortConfig} from './sort/options';
   import {useProjectContext} from '$project/project-context.svelte';
   import type {EntryListViewMode} from './EntryListViewOptions.svelte';
+  import {usePublications} from '$project/data/publications.svelte';
   import EntryListViewOptions from './EntryListViewOptions.svelte';
 
   const projectContext = useProjectContext();
   const currentView = useCurrentView();
   const dialogsService = useDialogsService();
+  const publicationService = usePublications();
 
   // DESKTOP: the entry is a sibling of the list (it's a split view). We can switch between selected entries.
   // So, selectedEntryId itself drives navigation.
@@ -41,7 +43,7 @@
 
   async function newEntry() {
     const entry = await dialogsService.createNewEntry(undefined, {
-      publishIn: publication ? [publication] : [],
+      publishIn: publication?.id === publicationService.defaultPublication?.id ? [] : (publication ? [publication] : []),
     }, {
       semanticDomains: semanticDomain ? [semanticDomain] : undefined,
       partOfSpeech,

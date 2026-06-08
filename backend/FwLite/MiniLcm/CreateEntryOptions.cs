@@ -4,7 +4,8 @@ public record CreateEntryOptions(
     /// <summary>
     /// Can be excluded for the purpose of deferring referencing entities that might not exist yet.
     /// </summary>
-    bool IncludeComplexFormsAndComponents = true
+    bool IncludeComplexFormsAndComponents = true,
+    bool AutoAddDefaultPublication = true
 )
 {
     public static readonly CreateEntryOptions Everything = new();

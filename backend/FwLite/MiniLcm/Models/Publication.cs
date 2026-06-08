@@ -20,8 +20,10 @@ public class Publication : IPossibility
         {
             Id = Id,
             DeletedAt = DeletedAt,
+            DefaultedAt = DefaultedAt,
             Name = Name.Copy()
         };
     }
+    public DateTimeOffset? DefaultedAt { get; set; }
     public virtual MultiString Name { get; set; } = new();
 }

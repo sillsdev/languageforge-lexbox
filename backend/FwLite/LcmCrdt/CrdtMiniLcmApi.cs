@@ -18,6 +18,7 @@ using MiniLcm.SyncHelpers;
 using SIL.Harmony.Core;
 using MiniLcm.Culture;
 using MiniLcm.Media;
+using SystemTextJsonPatch;
 
 namespace LcmCrdt;
 
@@ -176,7 +177,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
-        await AddChange(new CreatePublicationChange(pub.Id, pub.Name));
+        await AddChange(new CreatePublicationChange(pub.Id, pub.Name, pub.DefaultedAt is not null));
         return await GetPublication(pub.Id) ?? throw NotFoundException.ForType<Publication>(pub.Id);
 
     }
@@ -185,7 +186,30 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var pub = await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
-        await AddChanges(update.Patch.ToChanges(pub.Id));
+
+        var nonDefaultedAtPatch = new JsonPatchDocument<Publication>();
+        var setDefaultPublication = false;
+        foreach (var operation in update.Patch.Operations)
+        {
+            if (string.Equals(operation.Path, $"/{nameof(Publication.DefaultedAt)}", StringComparison.OrdinalIgnoreCase))
+            {
+                setDefaultPublication = true;
+                continue;
+            }
+
+            nonDefaultedAtPatch.Operations.Add(operation);
+        }
+
+        var changes = nonDefaultedAtPatch.ToChanges(pub.Id).ToList();
+        if (setDefaultPublication)
+        {
+            changes.Add(new SetDefaultPublicationChange(pub.Id));
+        }
+
+        if (changes.Count > 0)
+        {
+            await AddChanges(changes);
+        }
         return await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>($"{id} (invalid patching to a new id?)");
     }
 
@@ -490,6 +514,14 @@ public class CrdtMiniLcmApi(
     {
         options ??= CreateEntryOptions.Everything;
         await using var repo = await repoFactory.CreateRepoAsync();
+        if (options.AutoAddDefaultPublication)
+        {
+            var defaultPublication = await repo.GetDefaultPublication();
+            if (defaultPublication is not null && entry.PublishIn.All(pub => pub.Id != defaultPublication.Id))
+            {
+                entry.PublishIn.Add(defaultPublication);
+            }
+        }
         await AddChanges([
             new CreateEntryChange(entry),
             ..await entry.Senses.ToAsyncEnumerable()

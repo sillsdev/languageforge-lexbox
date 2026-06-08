@@ -17,6 +17,14 @@ public class UpdatePublicationProxy : Publication
         _lexboxLcmApi = lexboxLcmApi;
     }
 
+
+    public override DateTimeOffset? DefaultedAt
+    {
+        // Use the same FW baseline as FromLcmPossibility; commit time is assigned on CRDT side.
+        get => _lcmPublication.IsProtected ? DateTimeOffset.UnixEpoch : null;
+        set { }
+    }
+
     public override MultiString Name
     {
         get => new UpdateMultiStringProxy(_lcmPublication.Name, _lexboxLcmApi);

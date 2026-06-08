@@ -9,10 +9,22 @@ public static class PublicationSync
         Publication[] afterPublications,
         IMiniLcmApi api)
     {
-        return await DiffCollection.Diff(
+        var changes = await DiffCollection.Diff(
             beforePublications,
             afterPublications,
             new PublicationsDiffApi(api));
+
+        var beforeDefaultId = GetDefaultPublicationId(beforePublications);
+        var afterDefaultId = GetDefaultPublicationId(afterPublications);
+
+        if (beforeDefaultId != afterDefaultId && beforeDefaultId is not null)
+        {
+            await api.UpdatePublication(beforeDefaultId.Value,
+                new UpdateObjectInput<Publication>().Set(p => p.DefaultedAt, DateTimeOffset.UtcNow));
+            changes++;
+        }
+
+        return changes;
     }
 
     public static async Task<int> Sync(
@@ -35,8 +47,23 @@ public static class PublicationSync
             beforePublication.Name,
             afterPublication.Name));
 
+        if (beforePublication.DefaultedAt != afterPublication.DefaultedAt)
+        {
+            patchDocument.Replace(p => p.DefaultedAt, afterPublication.DefaultedAt);
+        }
+
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Publication>(patchDocument);
+    }
+
+    public static Guid? GetDefaultPublicationId(IEnumerable<Publication> publications)
+    {
+        return publications
+            .Where(pub => pub.DefaultedAt is not null)
+            .OrderByDescending(pub => pub.DefaultedAt)
+            .ThenBy(pub => pub.Id)
+            .Select(pub => (Guid?)pub.Id)
+            .FirstOrDefault();
     }
 
     private class PublicationsDiffApi(IMiniLcmApi api) : ObjectWithIdCollectionDiffApi<Publication>

@@ -10,6 +10,7 @@ export interface IPublication extends IObjectWithId
 {
 	id: string;
 	deletedAt?: string;
+	defaultedAt?: string | null;
 	name: IMultiString;
 }
 /* eslint-enable */
