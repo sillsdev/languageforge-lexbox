@@ -333,5 +333,88 @@
       },
       "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
     }
+  },
+  {
+    "Input": {
+      "$type": "AddPublicationChange",
+      "Publication": {
+        "Id": "84597629-7d00-a415-9ac1-2865b7efa9bf",
+        "DeletedAt": null,
+        "Name": {
+          "dgw": "Money Market Account",
+          "yrn": "parse"
+        }
+      },
+      "EntityId": "4dcbedc5-c4f1-54fd-f0b0-ede17a5af7e7"
+    },
+    "Output": {
+      "$type": "AddPublicationChange",
+      "Publication": {
+        "Id": "84597629-7d00-a415-9ac1-2865b7efa9bf",
+        "DeletedAt": null,
+        "IsMain": false,
+        "Name": {
+          "dgw": "Money Market Account",
+          "yrn": "parse"
+        }
+      },
+      "EntityId": "4dcbedc5-c4f1-54fd-f0b0-ede17a5af7e7"
+    }
+  },
+  {
+    "Input": {
+      "$type": "ReplacePublicationChange",
+      "NewPublication": {
+        "Id": "09c00842-481a-516f-f9fc-e6732c9ada73",
+        "DeletedAt": null,
+        "Name": {
+          "iap": "whiteboard",
+          "jiy": "Trafficway",
+          "enu": "Kip",
+          "dtm": "optimize"
+        }
+      },
+      "OldPublicationId": "e0fca592-c089-8850-8026-0c34610352fa",
+      "EntityId": "727546c3-8a97-c721-4a9a-5205cc029c77"
+    },
+    "Output": {
+      "$type": "ReplacePublicationChange",
+      "NewPublication": {
+        "Id": "09c00842-481a-516f-f9fc-e6732c9ada73",
+        "DeletedAt": null,
+        "IsMain": false,
+        "Name": {
+          "iap": "whiteboard",
+          "jiy": "Trafficway",
+          "enu": "Kip",
+          "dtm": "optimize"
+        }
+      },
+      "OldPublicationId": "e0fca592-c089-8850-8026-0c34610352fa",
+      "EntityId": "727546c3-8a97-c721-4a9a-5205cc029c77"
+    }
+  },
+  {
+    "Input": {
+      "$type": "CreatePublicationChange",
+      "Name": {
+        "mdy": "Small Soft Shoes",
+        "knc": "real-time",
+        "tre": "capacitor",
+        "xnu": "Multi-channelled"
+      },
+      "EntityId": "a024fdbe-52a4-6447-aae3-50fd8b815f10"
+    },
+    "Output": {
+      "$type": "CreatePublicationChange",
+      "Name": {
+        "mdy": "Small Soft Shoes",
+        "knc": "real-time",
+        "tre": "capacitor",
+        "xnu": "Multi-channelled"
+      },
+      "IsMain": false,
+      "EntityId": "a024fdbe-52a4-6447-aae3-50fd8b815f10"
+    }
   }
 ]
