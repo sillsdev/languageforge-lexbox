@@ -14,6 +14,7 @@ namespace LcmCrdt.Tests;
 public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 {
     private readonly bool _seedWs = true;
+    private readonly Guid? _projectId;
     private AsyncServiceScope _services;
     private LcmCrdtDbContext? _crdtDbContext;
     public CrdtMiniLcmApi Api => (CrdtMiniLcmApi)_services.ServiceProvider.GetRequiredService<IMiniLcmApi>();
@@ -31,22 +32,23 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     {
     }
 
-    public static MiniLcmApiFixture Create(bool seedWs = true)
+    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null)
     {
-        return new MiniLcmApiFixture(seedWs);
+        return new MiniLcmApiFixture(seedWs, projectId);
     }
 
-    private MiniLcmApiFixture(bool seedWs = true)
+    private MiniLcmApiFixture(bool seedWs = true, Guid? projectId = null)
     {
         _seedWs = seedWs;
+        _projectId = projectId;
     }
 
     public async Task InitializeAsync()
     {
-        await InitializeAsync("sena-3");
+        await InitializeAsync("sena-3", _projectId);
     }
 
-    public async Task InitializeAsync(string projectName)
+    public async Task InitializeAsync(string projectName, Guid? projectId = null)
     {
         var db = $"file:{Guid.NewGuid():N}?mode=memory&cache=shared";
         if (Debugger.IsAttached)
@@ -72,7 +74,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
         _crdtDbContext = await _services.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await _crdtDbContext.Database.OpenConnectionAsync();
         //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
-        var projectData = new ProjectData("Sena 3", projectName, Guid.NewGuid(), null, Guid.NewGuid());
+        var projectData = new ProjectData("Sena 3", projectName, projectId ?? Guid.NewGuid(), null, Guid.NewGuid());
         await CrdtProjectsService.InitProjectDb(_crdtDbContext,
             projectData);
         await currentProjectService.RefreshProjectData();
