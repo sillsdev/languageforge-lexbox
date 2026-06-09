@@ -8,7 +8,7 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
 
-public class CreateMorphTypeChange : Change<MorphType>, ISelfNamedType<CreateMorphTypeChange>
+public class CreateMorphTypeChange : CreateChange<MorphType>, ISelfNamedType<CreateMorphTypeChange>
 {
     [SetsRequiredMembers]
     public CreateMorphTypeChange(MorphType morphType) : base(morphType.Id)
@@ -57,11 +57,5 @@ public class CreateMorphTypeChange : Change<MorphType>, ISelfNamedType<CreateMor
             Kind = Kind,
             DeletedAt = alreadyExists ? commit.DateTime : null
         };
-    }
-
-    public override ValueTask ApplyChange(MorphType entity, IChangeContext context)
-    {
-        //don't do anything here, CreateMorphTypeChange is used in a migration, and a change to create the same morph type may happen multiple times
-        return ValueTask.CompletedTask;
     }
 }
