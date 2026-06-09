@@ -552,6 +552,13 @@ public class FwDataMiniLcmApi(
             });
     }
 
+    public Task<MorphType> CreateMorphType(MorphType morphType)
+    {
+        // Morph types are a fixed inventory in FieldWorks (see MoMorphTypeTags), seeded with every project.
+        // MiniLcm only ever needs to read or update them, never add new ones, so creation isn't supported here.
+        throw new NotSupportedException("Morph types cannot be created in FieldWorks data; they are a predefined inventory.");
+    }
+
     public IAsyncEnumerable<MorphType> GetMorphTypes()
     {
         return

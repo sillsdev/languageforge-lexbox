@@ -14,6 +14,7 @@ namespace LcmCrdt.Tests;
 public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 {
     private readonly bool _seedWs = true;
+    private readonly bool _seedMorphTypes = true;
     private readonly Guid? _projectId;
     private AsyncServiceScope _services;
     private LcmCrdtDbContext? _crdtDbContext;
@@ -32,15 +33,16 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     {
     }
 
-    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null)
+    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null, bool seedMorphTypes = true)
     {
-        return new MiniLcmApiFixture(seedWs, projectId);
+        return new MiniLcmApiFixture(seedWs, projectId, seedMorphTypes);
     }
 
-    private MiniLcmApiFixture(bool seedWs = true, Guid? projectId = null)
+    private MiniLcmApiFixture(bool seedWs = true, Guid? projectId = null, bool seedMorphTypes = true)
     {
         _seedWs = seedWs;
         _projectId = projectId;
+        _seedMorphTypes = seedMorphTypes;
     }
 
     public async Task InitializeAsync()
@@ -78,6 +80,13 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
         await CrdtProjectsService.InitProjectDb(_crdtDbContext,
             projectData);
         await currentProjectService.RefreshProjectData();
+        // CreateProject seeds morph types via SeedNewProjectData/migration; this fixture bypasses
+        // CreateProject (see comment above), so seed them directly for tests that depend on them
+        // (sorting, homograph numbers, morph-token search).
+        if (_seedMorphTypes)
+        {
+            await PreDefinedData.AddPredefinedMorphTypes(DataModel, projectData, false);
+        }
         if (_seedWs)
         {
             await Api.CreateWritingSystem(new WritingSystem()

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace LcmCrdt.Tests.Data;
 
-public class RegressionTestHelper(string dbName): IAsyncLifetime
+public class RegressionTestHelper(string dbName): IAsyncDisposable
 {
     private IHost _host = null!;
     private AsyncServiceScope _asyncScope;
@@ -57,7 +57,7 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
         await InitDbFromScripts(version);
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await _asyncScope.DisposeAsync();
         if (_host is IAsyncDisposable asyncDisposable) await asyncDisposable.DisposeAsync();

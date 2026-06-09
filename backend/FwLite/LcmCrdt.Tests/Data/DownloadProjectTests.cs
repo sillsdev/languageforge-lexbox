@@ -9,7 +9,8 @@ public class DownloadProjectTests : IAsyncLifetime
 {
     private readonly RegressionTestHelper _helper = new("DownloadProject");
     private static readonly Guid _projectId = new("B467051E-A492-4E5B-9C17-858D7797292C");//internal project Id of v2 project
-    private readonly MiniLcmApiFixture _apiFixture = MiniLcmApiFixture.Create(false, _projectId);
+    // Download starts from an empty local project, so don't seed morph types — they should arrive via sync.
+    private readonly MiniLcmApiFixture _apiFixture = MiniLcmApiFixture.Create(false, _projectId, seedMorphTypes: false);
 
     public async Task InitializeAsync()
     {

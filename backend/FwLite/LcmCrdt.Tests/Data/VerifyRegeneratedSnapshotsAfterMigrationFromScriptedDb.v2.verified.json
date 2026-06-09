@@ -415,16 +415,30 @@
   },
   {
     "Id": "Guid_35",
-    "TypeName": "PartOfSpeech",
+    "TypeName": "MorphType",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
-        "$type": "PartOfSpeech",
+        "$type": "MorphType",
         "Id": "Guid_36",
+        "Kind": "DiscontiguousPhrase",
         "Name": {
-          "en": "Adverb"
+          "en": "discontiguous phrase"
         },
-        "Predefined": true
+        "Abbreviation": {
+          "en": "dis phr"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A discontiguous phrase has discontiguous constituents which (a) are separated from each other by one or more intervening constituents, and (b) are considered either (i) syntactically contiguous and unitary, or (ii) realizing the same, single meaning. An example is French ne...pas.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "SecondaryOrder": 0
       },
       "Id": "Guid_36"
     },
@@ -436,160 +450,872 @@
   },
   {
     "Id": "Guid_38",
-    "TypeName": "SemanticDomain",
+    "TypeName": "MorphType",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
-        "$type": "SemanticDomain",
+        "$type": "MorphType",
         "Id": "Guid_39",
+        "Kind": "InfixingInterfix",
         "Name": {
-          "en": "Person"
+          "en": "infixing interfix"
         },
-        "Code": "2",
-        "Predefined": true
+        "Abbreviation": {
+          "en": "ifxnfx"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "An infixing interfix is an infix that can occur between two roots or stems.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Prefix": "-",
+        "Postfix": "-",
+        "SecondaryOrder": 0
       },
       "Id": "Guid_39"
     },
     "References": [],
     "EntityId": "Guid_39",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_40",
+    "CommitId": "Guid_37",
     "IsRoot": true
   },
   {
-    "Id": "Guid_41",
+    "Id": "Guid_40",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_41",
+        "Kind": "SuffixingInterfix",
+        "Name": {
+          "en": "suffixing interfix"
+        },
+        "Abbreviation": {
+          "en": "sfxnfx"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A suffixing interfix is a suffix that can occur between two roots or stems.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Prefix": "-",
+        "SecondaryOrder": 0
+      },
+      "Id": "Guid_41"
+    },
+    "References": [],
+    "EntityId": "Guid_41",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_42",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_43",
+        "Kind": "Particle",
+        "Name": {
+          "en": "particle"
+        },
+        "Abbreviation": {
+          "en": "part"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A particle is a word that does not belong to one of the main classes of words, is invariable in form, and typically has grammatical or pragmatic meaning.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "SecondaryOrder": 0
+      },
+      "Id": "Guid_43"
+    },
+    "References": [],
+    "EntityId": "Guid_43",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_44",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_45",
+        "Kind": "Phrase",
+        "Name": {
+          "en": "phrase"
+        },
+        "Abbreviation": {
+          "en": "phr"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A phrase is a syntactic structure that consists of more than one word but lacks the subject-predicate organization of a clause.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "SecondaryOrder": 0
+      },
+      "Id": "Guid_45"
+    },
+    "References": [],
+    "EntityId": "Guid_45",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_46",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_47",
+        "Kind": "PrefixingInterfix",
+        "Name": {
+          "en": "prefixing interfix"
+        },
+        "Abbreviation": {
+          "en": "pfxnfx"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A prefixing interfix is a prefix that can occur between two roots or stems.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Postfix": "-",
+        "SecondaryOrder": 0
+      },
+      "Id": "Guid_47"
+    },
+    "References": [],
+    "EntityId": "Guid_47",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_48",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_49",
+        "Kind": "Clitic",
+        "Name": {
+          "en": "clitic"
+        },
+        "Abbreviation": {
+          "en": "clit"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A clitic is a morpheme that has syntactic characteristics of a word, but shows evidence of being phonologically bound to another word. Orthographically, it stands alone.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "SecondaryOrder": 0
+      },
+      "Id": "Guid_49"
+    },
+    "References": [],
+    "EntityId": "Guid_49",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_50",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_51",
+        "Kind": "Infix",
+        "Name": {
+          "en": "infix"
+        },
+        "Abbreviation": {
+          "en": "ifx"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "An infix is an affix that is inserted within a root or stem.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Prefix": "-",
+        "Postfix": "-",
+        "SecondaryOrder": 40
+      },
+      "Id": "Guid_51"
+    },
+    "References": [],
+    "EntityId": "Guid_51",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_52",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_53",
+        "Kind": "Prefix",
+        "Name": {
+          "en": "prefix"
+        },
+        "Abbreviation": {
+          "en": "pfx"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A prefix is an affix that is joined before a root or stem.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Postfix": "-",
+        "SecondaryOrder": 20
+      },
+      "Id": "Guid_53"
+    },
+    "References": [],
+    "EntityId": "Guid_53",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_54",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_55",
+        "Kind": "Simulfix",
+        "Name": {
+          "en": "simulfix"
+        },
+        "Abbreviation": {
+          "en": "smfx"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A simulfix is a change or replacement of vowels or consonants (usually vowels) which changes the meaning of a word. (Note: the parser does not currently handle simulfixes.)",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Prefix": "=",
+        "Postfix": "=",
+        "SecondaryOrder": 60
+      },
+      "Id": "Guid_55"
+    },
+    "References": [],
+    "EntityId": "Guid_55",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_56",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_57",
+        "Kind": "Suffix",
+        "Name": {
+          "en": "suffix"
+        },
+        "Abbreviation": {
+          "en": "sfx"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A suffix is an affix that is attached to the end of a root or stem.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Prefix": "-",
+        "SecondaryOrder": 70
+      },
+      "Id": "Guid_57"
+    },
+    "References": [],
+    "EntityId": "Guid_57",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_58",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_59",
+        "Kind": "Suprafix",
+        "Name": {
+          "en": "suprafix"
+        },
+        "Abbreviation": {
+          "en": "spfx"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A suprafix is a kind of affix in which a suprasegmental is superimposed on one or more syllables of the root or stem, signalling a particular morphosyntactic operation. (Note: the parser does not currently handle suprafixes.)",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Prefix": "~",
+        "Postfix": "~",
+        "SecondaryOrder": 50
+      },
+      "Id": "Guid_59"
+    },
+    "References": [],
+    "EntityId": "Guid_59",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_60",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_61",
+        "Kind": "Circumfix",
+        "Name": {
+          "en": "circumfix"
+        },
+        "Abbreviation": {
+          "en": "cfx"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A circumfix is an affix made up of two separate parts which surround and attach to a root or stem.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "SecondaryOrder": 0
+      },
+      "Id": "Guid_61"
+    },
+    "References": [],
+    "EntityId": "Guid_61",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_62",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_63",
+        "Kind": "Enclitic",
+        "Name": {
+          "en": "enclitic"
+        },
+        "Abbreviation": {
+          "en": "enclit"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "An enclitic is a clitic that is phonologically joined at the end of a preceding word to form a single unit. Orthographically, it may attach to the preceding word.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Prefix": "=",
+        "SecondaryOrder": 80
+      },
+      "Id": "Guid_63"
+    },
+    "References": [],
+    "EntityId": "Guid_63",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_64",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_65",
+        "Kind": "Proclitic",
+        "Name": {
+          "en": "proclitic"
+        },
+        "Abbreviation": {
+          "en": "proclit"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A proclitic is a clitic that precedes the word to which it is phonologically joined. Orthographically, it may attach to the following word.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Postfix": "=",
+        "SecondaryOrder": 30
+      },
+      "Id": "Guid_65"
+    },
+    "References": [],
+    "EntityId": "Guid_65",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_66",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_67",
+        "Kind": "BoundRoot",
+        "Name": {
+          "en": "bound root"
+        },
+        "Abbreviation": {
+          "en": "bd root"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A bound root is a root which cannot occur as a separate word apart from any other morpheme.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Prefix": "*",
+        "SecondaryOrder": 10
+      },
+      "Id": "Guid_67"
+    },
+    "References": [],
+    "EntityId": "Guid_67",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_68",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_69",
+        "Kind": "Root",
+        "Name": {
+          "en": "root"
+        },
+        "Abbreviation": {
+          "en": "ubd root"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A root is the portion of a word that (i) is common to a set of derived or inflected forms, if any, when all affixes are removed, (ii) is not further analyzable into meaningful elements, being morphologically simple, and, (iii) carries the principal portion of meaning of the words in which it functions.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "SecondaryOrder": 0
+      },
+      "Id": "Guid_69"
+    },
+    "References": [],
+    "EntityId": "Guid_69",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_70",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_71",
+        "Kind": "BoundStem",
+        "Name": {
+          "en": "bound stem"
+        },
+        "Abbreviation": {
+          "en": "bd stem"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "A bound stem is a stem which cannot occur as a separate word apart from any other morpheme.",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "Prefix": "*",
+        "SecondaryOrder": 10
+      },
+      "Id": "Guid_71"
+    },
+    "References": [],
+    "EntityId": "Guid_71",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_72",
+    "TypeName": "MorphType",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "MorphType",
+        "Id": "Guid_73",
+        "Kind": "Stem",
+        "Name": {
+          "en": "stem"
+        },
+        "Abbreviation": {
+          "en": "ubd stem"
+        },
+        "Description": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "\"A stem is the root or roots of a word, together with any derivational affixes, to which inflectional affixes are added.\" (LinguaLinks Library). A stem \"may consist solely of a single root morpheme (i.e. a 'simple' stem as in ",
+                "Ws": "en"
+              },
+              {
+                "Text": "man",
+                "Ws": "en",
+                "NamedStyle": "Emphasized Text"
+              },
+              {
+                "Text": "), or of two root morphemes (e.g. a 'compound' stem, as in ",
+                "Ws": "en"
+              },
+              {
+                "Text": "blackbird",
+                "Ws": "en",
+                "NamedStyle": "Emphasized Text"
+              },
+              {
+                "Text": "), or of a root morpheme plus a derivational affix (i.e. a 'complex' stem, as in ",
+                "Ws": "en"
+              },
+              {
+                "Text": "manly",
+                "Ws": "en",
+                "NamedStyle": "Emphasized Text"
+              },
+              {
+                "Text": ", ",
+                "Ws": "en"
+              },
+              {
+                "Text": "unmanly",
+                "Ws": "en",
+                "NamedStyle": "Emphasized Text"
+              },
+              {
+                "Text": ", ",
+                "Ws": "en"
+              },
+              {
+                "Text": "manliness",
+                "Ws": "en",
+                "NamedStyle": "Emphasized Text"
+              },
+              {
+                "Text": "). All have in common the notion that it is to the stem that inflectional affixes are attached.\" (Crystal, 1997:362)",
+                "Ws": "en"
+              }
+            ]
+          }
+        },
+        "SecondaryOrder": 0
+      },
+      "Id": "Guid_73"
+    },
+    "References": [],
+    "EntityId": "Guid_73",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_37",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_74",
+    "TypeName": "PartOfSpeech",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "PartOfSpeech",
+        "Id": "Guid_75",
+        "Name": {
+          "en": "Adverb"
+        },
+        "Predefined": true
+      },
+      "Id": "Guid_75"
+    },
+    "References": [],
+    "EntityId": "Guid_75",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_76",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_77",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "SemanticDomain",
-        "Id": "Guid_42",
+        "Id": "Guid_78",
+        "Name": {
+          "en": "Person"
+        },
+        "Code": "2",
+        "Predefined": true
+      },
+      "Id": "Guid_78"
+    },
+    "References": [],
+    "EntityId": "Guid_78",
+    "EntityIsDeleted": false,
+    "CommitId": "Guid_79",
+    "IsRoot": true
+  },
+  {
+    "Id": "Guid_80",
+    "TypeName": "SemanticDomain",
+    "Entity": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "SemanticDomain",
+        "Id": "Guid_81",
         "Name": {
           "en": "Body"
         },
         "Code": "2.1",
         "Predefined": false
       },
-      "Id": "Guid_42"
+      "Id": "Guid_81"
     },
     "References": [],
-    "EntityId": "Guid_42",
+    "EntityId": "Guid_81",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_40",
+    "CommitId": "Guid_79",
     "IsRoot": true
   },
   {
-    "Id": "Guid_43",
+    "Id": "Guid_82",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "SemanticDomain",
-        "Id": "Guid_44",
+        "Id": "Guid_83",
         "Name": {
           "en": "Head"
         },
         "Code": "2.1.1",
         "Predefined": false
       },
-      "Id": "Guid_44"
+      "Id": "Guid_83"
     },
     "References": [],
-    "EntityId": "Guid_44",
+    "EntityId": "Guid_83",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_40",
+    "CommitId": "Guid_79",
     "IsRoot": true
   },
   {
-    "Id": "Guid_45",
+    "Id": "Guid_84",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "SemanticDomain",
-        "Id": "Guid_46",
+        "Id": "Guid_85",
         "Name": {
           "en": "Eye"
         },
         "Code": "2.1.1.1",
         "Predefined": false
       },
-      "Id": "Guid_46"
+      "Id": "Guid_85"
     },
     "References": [],
-    "EntityId": "Guid_46",
+    "EntityId": "Guid_85",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_40",
+    "CommitId": "Guid_79",
     "IsRoot": true
   },
   {
-    "Id": "Guid_47",
+    "Id": "Guid_86",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "SemanticDomain",
-        "Id": "Guid_48",
+        "Id": "Guid_87",
         "Name": {
           "en": "Universe, Creation"
         },
         "Code": "1",
         "Predefined": true
       },
-      "Id": "Guid_48"
+      "Id": "Guid_87"
     },
     "References": [],
-    "EntityId": "Guid_48",
+    "EntityId": "Guid_87",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_40",
+    "CommitId": "Guid_79",
     "IsRoot": true
   },
   {
-    "Id": "Guid_49",
+    "Id": "Guid_88",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "SemanticDomain",
-        "Id": "Guid_50",
+        "Id": "Guid_89",
         "Name": {
           "en": "Sky"
         },
         "Code": "1.1",
         "Predefined": true
       },
-      "Id": "Guid_50"
+      "Id": "Guid_89"
     },
     "References": [],
-    "EntityId": "Guid_50",
+    "EntityId": "Guid_89",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_40",
+    "CommitId": "Guid_79",
     "IsRoot": true
   },
   {
-    "Id": "Guid_51",
+    "Id": "Guid_90",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "SemanticDomain",
-        "Id": "Guid_52",
+        "Id": "Guid_91",
         "Name": {
           "en": "World"
         },
         "Code": "1.2",
         "Predefined": true
       },
-      "Id": "Guid_52"
+      "Id": "Guid_91"
     },
     "References": [],
-    "EntityId": "Guid_52",
+    "EntityId": "Guid_91",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_40",
+    "CommitId": "Guid_79",
     "IsRoot": true
   },
   {
-    "Id": "Guid_53",
+    "Id": "Guid_92",
     "TypeName": "Sense",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -625,7 +1351,7 @@
     "IsRoot": true
   },
   {
-    "Id": "Guid_54",
+    "Id": "Guid_93",
     "TypeName": "Sense",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -661,7 +1387,7 @@
     "IsRoot": true
   },
   {
-    "Id": "Guid_55",
+    "Id": "Guid_94",
     "TypeName": "Sense",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -693,16 +1419,16 @@
           "fr": "fr"
         },
         "PartOfSpeech": {
-          "Id": "Guid_36",
+          "Id": "Guid_75",
           "Name": {
             "en": "Adverb"
           },
           "Predefined": true
         },
-        "PartOfSpeechId": "Guid_36",
+        "PartOfSpeechId": "Guid_75",
         "SemanticDomains": [
           {
-            "Id": "Guid_48",
+            "Id": "Guid_87",
             "Name": {
               "en": "Universe, Creation"
             },
@@ -716,16 +1442,16 @@
     },
     "References": [
       "Guid_4",
-      "Guid_36",
-      "Guid_48"
+      "Guid_75",
+      "Guid_87"
     ],
     "EntityId": "Guid_24",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_56",
+    "CommitId": "Guid_95",
     "IsRoot": false
   },
   {
-    "Id": "Guid_57",
+    "Id": "Guid_96",
     "TypeName": "Sense",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -761,14 +1487,14 @@
     "IsRoot": true
   },
   {
-    "Id": "Guid_58",
+    "Id": "Guid_97",
     "TypeName": "WritingSystem",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "Guid_59",
-        "MaybeId": "Guid_59",
+        "Id": "Guid_98",
+        "MaybeId": "Guid_98",
         "WsId": "en",
         "IsAudio": false,
         "Name": "English",
@@ -805,23 +1531,23 @@
         ],
         "Order": 1
       },
-      "Id": "Guid_59"
+      "Id": "Guid_98"
     },
     "References": [],
-    "EntityId": "Guid_59",
+    "EntityId": "Guid_98",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_60",
+    "CommitId": "Guid_99",
     "IsRoot": true
   },
   {
-    "Id": "Guid_61",
+    "Id": "Guid_100",
     "TypeName": "WritingSystem",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "Guid_62",
-        "MaybeId": "Guid_62",
+        "Id": "Guid_101",
+        "MaybeId": "Guid_101",
         "WsId": "de",
         "IsAudio": false,
         "Name": "German",
@@ -858,23 +1584,23 @@
         ],
         "Order": 1
       },
-      "Id": "Guid_62"
+      "Id": "Guid_101"
     },
     "References": [],
-    "EntityId": "Guid_62",
+    "EntityId": "Guid_101",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_63",
+    "CommitId": "Guid_102",
     "IsRoot": true
   },
   {
-    "Id": "Guid_64",
+    "Id": "Guid_103",
     "TypeName": "WritingSystem",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "Guid_65",
-        "MaybeId": "Guid_65",
+        "Id": "Guid_104",
+        "MaybeId": "Guid_104",
         "WsId": "en-Zxxx-x-audio",
         "IsAudio": true,
         "Name": "English (A)",
@@ -911,23 +1637,23 @@
         ],
         "Order": 3
       },
-      "Id": "Guid_65"
+      "Id": "Guid_104"
     },
     "References": [],
-    "EntityId": "Guid_65",
+    "EntityId": "Guid_104",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_66",
+    "CommitId": "Guid_105",
     "IsRoot": true
   },
   {
-    "Id": "Guid_67",
+    "Id": "Guid_106",
     "TypeName": "WritingSystem",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "Guid_68",
-        "MaybeId": "Guid_68",
+        "Id": "Guid_107",
+        "MaybeId": "Guid_107",
         "WsId": "en",
         "IsAudio": false,
         "Name": "English",
@@ -964,23 +1690,23 @@
         ],
         "Order": 2
       },
-      "Id": "Guid_68"
+      "Id": "Guid_107"
     },
     "References": [],
-    "EntityId": "Guid_68",
+    "EntityId": "Guid_107",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_69",
+    "CommitId": "Guid_108",
     "IsRoot": true
   },
   {
-    "Id": "Guid_70",
+    "Id": "Guid_109",
     "TypeName": "WritingSystem",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "Guid_71",
-        "MaybeId": "Guid_71",
+        "Id": "Guid_110",
+        "MaybeId": "Guid_110",
         "WsId": "en-Zxxx-x-audio",
         "IsAudio": true,
         "Name": "English (A)",
@@ -1017,23 +1743,23 @@
         ],
         "Order": 3
       },
-      "Id": "Guid_71"
+      "Id": "Guid_110"
     },
     "References": [],
-    "EntityId": "Guid_71",
+    "EntityId": "Guid_110",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_72",
+    "CommitId": "Guid_111",
     "IsRoot": true
   },
   {
-    "Id": "Guid_73",
+    "Id": "Guid_112",
     "TypeName": "WritingSystem",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "Guid_74",
-        "MaybeId": "Guid_74",
+        "Id": "Guid_113",
+        "MaybeId": "Guid_113",
         "WsId": "fr",
         "IsAudio": false,
         "Name": "French",
@@ -1070,12 +1796,12 @@
         ],
         "Order": 2
       },
-      "Id": "Guid_74"
+      "Id": "Guid_113"
     },
     "References": [],
-    "EntityId": "Guid_74",
+    "EntityId": "Guid_113",
     "EntityIsDeleted": false,
-    "CommitId": "Guid_75",
+    "CommitId": "Guid_114",
     "IsRoot": true
   }
 ]

@@ -43,12 +43,12 @@ public class FullImportTests : IAsyncLifetime
     }
 
     /// <summary>
-    /// Regression: Import creates a CRDT project with SeedNewProjectData: false.
-    /// Morph types must be seeded unconditionally so MorphTypeSync.Sync doesn't throw
-    /// when it encounters FwData morph types as "new".
+    /// Regression: Import creates a CRDT project with SeedNewProjectData: false, so morph types
+    /// are not pre-seeded. MorphTypeSync must create the source project's morph types during the
+    /// import instead of throwing when it encounters them as "new".
     /// </summary>
     [Fact]
-    public async Task Import_FullPath_SeedsMorphTypesBeforeImport()
+    public async Task Import_FullPath_CreatesMorphTypesDuringImport()
     {
         // Arrange: create an FwData project with one entry
         var projectName = "import-morph-types-" + Guid.NewGuid().ToString("N")[..8];
@@ -72,7 +72,7 @@ public class FullImportTests : IAsyncLifetime
         var crdtApi = await Services.OpenCrdtProject((CrdtProject)crdtProject);
 
         var morphTypes = await crdtApi.GetMorphTypes().ToArrayAsync();
-        morphTypes.Should().NotBeEmpty("morph types should be seeded during project creation");
+        morphTypes.Should().NotBeEmpty("import should have created the source project's morph types");
 
         var entries = await crdtApi.GetEntries().ToArrayAsync();
         entries.Should().ContainSingle(e => e.LexemeForm["en"] == "test");

@@ -71,7 +71,8 @@ public class MiniLcmImport(
             logger.LogInformation("Imported complex form type {Id}", complexFormType.Id);
         }
 
-        // Morph types are created automatically for CRDT projects, so we update them instead of creating them
+        // Sync morph types from the source: MorphTypeSync creates any canonical morph types the
+        // target doesn't already have and updates the rest (the target isn't pre-seeded on import).
         var importFromMorphTypes = await importFrom.GetMorphTypes().ToArrayAsync();
         var existingMorphTypes = await importTo.GetMorphTypes().ToArrayAsync();
         await MorphTypeSync.Sync(existingMorphTypes, importFromMorphTypes, importTo);
