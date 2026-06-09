@@ -10,19 +10,17 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
 {
     private IHost _host = null!;
     private AsyncServiceScope _asyncScope;
+    // Unique per instance: CurrentProjectService keeps a static MigrationTasks cache keyed by DbPath,
+    // so two tests sharing a base dbName would skip migrations on the second one.
+    private readonly string _uniqueDbName = $"{dbName}-{Guid.NewGuid():N}";
+    private string DbPath => $"{_uniqueDbName}.sqlite";
     public IServiceProvider Services => _asyncScope.ServiceProvider;
 
     private async Task InitDbFromScripts(RegressionVersion version)
     {
         var initialSqlFile = GetFilePath($"Scripts/{version}.sql");
         var projectsService = _asyncScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
-        var crdtProject = new CrdtProject(dbName, $"{dbName}.sqlite");
-        if (File.Exists(crdtProject.DbPath))
-        {
-            using var clearConn = new SqliteConnection($"Data Source={crdtProject.DbPath}");
-            SqliteConnection.ClearPool(clearConn);
-            File.Delete(crdtProject.DbPath);
-        }
+        var crdtProject = new CrdtProject(_uniqueDbName, DbPath);
         projectsService.SetupProjectContextForNewDb(crdtProject);
         await using var lcmCrdtDbContext = await _asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         var sql = await File.ReadAllTextAsync(initialSqlFile);
@@ -64,6 +62,11 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
         else
         {
             _host.Dispose();
+        }
+        if (File.Exists(DbPath))
+        {
+            SqliteConnection.ClearPool(new SqliteConnection($"Data Source={DbPath}"));
+            try { File.Delete(DbPath); } catch { /* best-effort cleanup */ }
         }
     }
 

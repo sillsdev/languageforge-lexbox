@@ -167,13 +167,12 @@ public partial class CrdtProjectsService(
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
             var dataModel = serviceScope.ServiceProvider.GetRequiredService<DataModel>();
+            // Seed morph types before AfterCreate: an import callback runs MorphTypeSync.Sync,
+            // which throws InvalidOperationException if the local CRDT has no morph types to diff against.
+            await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData, false);
             if (request.SeedNewProjectData)
                 await SeedSystemData(dataModel, projectData);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
-            // Ensure "data migrations" are executed on project creation (e.g. seeding morph types)
-            // These should happen AFTER the initial download, so they can be run conditionally based on
-            // the current state of the project.
-            await currentProjectService.SetupProjectContext(crdtProject);
         }
         catch (Exception e)
         {
@@ -246,7 +245,7 @@ public partial class CrdtProjectsService(
 
     internal static async Task SeedSystemData(DataModel dataModel, ProjectData projectData)
     {
-        await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData, false);
+        // Note: morph types are seeded unconditionally in CreateProject, not here.
         await PreDefinedData.AddPredefinedComplexFormTypes(dataModel, projectData);
         await PreDefinedData.AddPredefinedPartsOfSpeech(dataModel, projectData);
         await PreDefinedData.AddPredefinedSemanticDomains(dataModel, projectData);
