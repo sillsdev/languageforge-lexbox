@@ -5,6 +5,7 @@ using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteProjectSync;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
+using SIL.Harmony;
 using SIL.LCModel;
 
 namespace LcmDebugger;
@@ -44,6 +45,15 @@ public static class Utils
         {
             Console.WriteLine(entry.Headword());
         }
+    }
+
+    public static async Task<CrdtMiniLcmApi> NewProjectFromSyncable(this IServiceProvider services, ISyncable syncable, Guid? projectId = null)
+    {
+        var crdtProjectsService = services.GetRequiredService<CrdtProjectsService>();
+        var crdtProject = await crdtProjectsService.CreateProject(new CrdtProjectsService.CreateProjectRequest("test-project", $"test-{Guid.NewGuid().ToString().Split('-')[0]}", projectId));
+        var crdtMiniLcmApi = (CrdtMiniLcmApi)await crdtProjectsService.OpenProject(crdtProject, services);
+        await services.GetRequiredService<DataModel>().SyncWith(syncable);
+        return crdtMiniLcmApi;
     }
 
     public static async Task<FwHeadlessProject> OpenDownloadedProject(this IServiceProvider services, string relativePath, bool openCopy = false, string? downloadsRoot = null)
