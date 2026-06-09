@@ -38,9 +38,8 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
         //need to close the connection, otherwise the collations won't get created, they would normally be created on open or save, so we're closing so they get created when EF opens the connection.
         await dbConnection.CloseAsync();
 
-        await lcmCrdtDbContext.Database.MigrateAsync();
-
-        await projectsService.RefreshProjectData();
+        //setup again to trigger migrations
+        await projectsService.SetupProjectContext(crdtProject);
     }
 
     public Task InitializeAsync()
