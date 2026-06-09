@@ -170,6 +170,10 @@ public partial class CrdtProjectsService(
             if (request.SeedNewProjectData)
                 await SeedSystemData(dataModel, projectData);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
+            // Ensure "data migrations" are executed on project creation (e.g. seeding morph types)
+            // These should happen AFTER the initial download, so they can be run conditionally based on
+            // the current state of the project.
+            await currentProjectService.SetupProjectContext(crdtProject);
         }
         catch (Exception e)
         {
