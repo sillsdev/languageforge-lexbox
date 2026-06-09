@@ -104,10 +104,10 @@ public static class PreDefinedData
             CustomViewsSeedCommitId(projectData.Id));
     }
 
-    internal static async Task AddPredefinedMorphTypes(DataModel dataModel, ProjectData projectData)
+    internal static async Task AddPredefinedMorphTypes(DataModel dataModel, ProjectData projectData, bool isMigration)
     {
         await dataModel.AddChanges(projectData.ClientId,
             [.. CanonicalMorphTypes.All.Values.Select(mt => new CreateMorphTypeChange(mt))],
-            MorphTypesSeedCommitId(projectData.Id));
+            isMigration ? Guid.NewGuid() : MorphTypesSeedCommitId(projectData.Id));
     }
 }
