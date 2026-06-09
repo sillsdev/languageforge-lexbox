@@ -112,7 +112,10 @@ public class CurrentProjectService(
                 // Must happen BEFORE FTS regeneration so headwords include morph-type tokens.
                 var dataModel = services.GetRequiredService<DataModel>();
                 var projectData = await dbContext.ProjectData.AsNoTracking().FirstAsync();
-                await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
+                if (!await dbContext.MorphTypes.AnyAsync())
+                {
+                    await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData, true);
+                }
 
                 if (EntrySearchServiceFactory is not null)
                 {
