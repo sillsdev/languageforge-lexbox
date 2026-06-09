@@ -166,10 +166,7 @@ public partial class CrdtProjectsService(
             crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
-            // Morph types are predefined system data that must always exist — seed them
-            // unconditionally so they're available before AfterCreate (e.g. import) runs.
             var dataModel = serviceScope.ServiceProvider.GetRequiredService<DataModel>();
-            await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
             if (request.SeedNewProjectData)
                 await SeedSystemData(dataModel, projectData);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
@@ -245,7 +242,7 @@ public partial class CrdtProjectsService(
 
     internal static async Task SeedSystemData(DataModel dataModel, ProjectData projectData)
     {
-        // Note: AddPredefinedMorphTypes is seeded unconditionally in CreateProject, not here.
+        await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
         await PreDefinedData.AddPredefinedComplexFormTypes(dataModel, projectData);
         await PreDefinedData.AddPredefinedPartsOfSpeech(dataModel, projectData);
         await PreDefinedData.AddPredefinedSemanticDomains(dataModel, projectData);
