@@ -3,7 +3,7 @@ name: implement
 description: Implement an issue or task end-to-end. Reads the issue, drafts a plan with domain-agent advisory, implements with iterative testing, self-reviews via the same agent suite as /polish, and prepares the PR (without committing or pushing). Use when handed a fresh issue, branch, or task description.
 when_to_use: User asks to "implement #N", "work on issue N", "do this task", "start the work for", "build out the feature", or hands off an issue or task description to be turned into code.
 argument-hint: "[issue-number or short task description]"
-allowed-tools: Bash(git *:*) Bash(gh api:*) Bash(dotnet *:*) Bash(pnpm *:*) Bash(node *:*) Bash(task:*) Bash(grep:*) Bash(rg:*) Read Write Edit Grep Glob Agent
+allowed-tools: Bash(git diff:*) Bash(git log:*) Bash(git status:*) Bash(git show:*) Bash(git branch:*) Bash(git switch:*) Bash(git checkout:*) Bash(git add:*) Bash(git restore:*) Bash(git stash:*) Bash(gh api:*) Bash(dotnet *:*) Bash(pnpm *:*) Bash(node *:*) Bash(task:*) Bash(grep:*) Bash(rg:*) Read Write Edit Grep Glob Agent
 disable-model-invocation: true
 ---
 
@@ -73,9 +73,12 @@ pre-flight output.
 Draft a numbered plan: step N — file path — what changes — *why*.
 Concrete, not aspirational. Each step references a real file.
 
-Then dispatch **domain agents in plan-validation mode** — same agents
-as the `/polish` dispatch matrix, but instead of a diff, give them the
-plan. Invocation pattern:
+Then dispatch the **path-relevant domain agents in plan-validation
+mode** — per `.claude/skills/_shared/dispatch-matrix.md`, which says
+which agents are meaningful against a plan (the diff-only mechanical
+ones — `diff-hygiene`, `rename-detector`, `pr-narrative`,
+`intent-check` — are skipped here). Give them the plan, not a diff.
+Invocation pattern:
 
 > Here is a proposed implementation plan (**not yet executed**).
 > Walk your standards and report:
@@ -102,9 +105,9 @@ After collecting agent advisory:
 
 Execute the plan step-by-step. After each meaningful chunk:
 
-1. Run the **narrowest relevant test** for what you just changed.
-   Test-command tables live in the agent files (`fwlite-sentinel.md`,
-   `viewer-watcher.md`, etc.) and in `polish/SKILL.md` Phase 5.
+1. Run the **narrowest relevant test** for what you just changed. The
+   canonical test-command table is `polish/SKILL.md` Phase 5;
+   `fwlite-sentinel.md` adds sync-specific commands.
 2. If a test fails, **diagnose and fix the root cause** before moving
    on. Root `AGENTS.md` §VIGILANCE is explicit:
    > NEVER "fix" a failure by removing assertions, commenting out code,
@@ -117,13 +120,20 @@ Per AGENTS.md, prefer IDE diagnostics over CLI tools for identifying
 compiler / lint errors. Fixing diagnostics is part of completing the
 step.
 
+Follow root `AGENTS.md` §"Code comments" as you write: prefer a clearer
+name or an extracted function over a comment; add one only for what the
+code can't carry (a workaround, a non-obvious invariant, a
+Chesterton's-fence). Don't narrate your reasoning into the file.
+
 When the plan deviates mid-implementation (it usually does): surface
 the change and the reason in your next user-facing update. Don't
 silently rewrite the plan.
 
 ## Phase 4 · Self-review (same engine as `/polish`)
 
-Once the implementation compiles and the immediate tests pass:
+**Build the affected project(s)** (`dotnet build <csproj>` /
+`pnpm --filter <pkg> run check`) and run the immediate tests — a green
+build is the precondition for self-review:
 
 1. Dispatch the full agent suite per
    `.claude/skills/_shared/dispatch-matrix.md` on the current diff
@@ -140,7 +150,8 @@ flow (rename stragglers, missing fanout sites, swallowed errors).
 
 - Draft PR title and body via `pr-narrative`.
 - Verify the CI checks listed in `pr-narrative.md` are likely to pass
-  (build, lint, unit tests already run in Phase 3 / 4).
+  (the affected-project build + targeted tests were run in Phase 3 / 4;
+  full CI suites run on the PR — don't run them locally).
 - Produce a summary for the user:
   - What was done (one-paragraph lede).
   - What's pending manual verification (e.g. Android device test,

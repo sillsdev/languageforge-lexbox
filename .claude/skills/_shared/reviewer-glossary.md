@@ -55,16 +55,17 @@ patterns; the specific rules live in the references each voice maps to.
    safety, threading honesty, API stability, framework primitive
    correctness, conditional performance, true cancellation, atomic
    operations, DbContext re-use, behavior-on-records-without-leaking-
-   state, defense-in-depth. Full list with examples in
-   `references/dotnet-style.md`.
+   state, defense-in-depth. Full checklist in
+   `.claude/agents/dotnet-stylist.md`.
 2. **Sync correctness** — async/nullable rigor, naming consistency
    (catches partial renames in test data, generated TS, snapshots),
    two-pass sync invariant, bash hygiene, edge-case depth. Full
-   inventory in `references/fwlite-sync-checklist.md`.
+   checklist in `.claude/agents/fwlite-sentinel.md` (shell rules in
+   `.claude/agents/bash-discipline.md`).
 3. **Architecture / frontend taste** — Svelte runes, no try/catch in
    viewer, naming matches behavior, validation in the wrapper layer,
-   self-documenting parameter names. Full list in
-   `references/viewer-conventions.md`. Uses the ⛏️/🔧/❓/🤔 prefixes.
+   self-documenting parameter names. Full checklist in
+   `.claude/agents/viewer-watcher.md`. Uses the ⛏️/🔧/❓/🤔 prefixes.
 4. **Deployment / infra** — `deployment/`, workflows, Dockerfile. Pushes
    back on bundling unrelated infra into one PR (PR #2222 → split #2235).
 5. **CRDT-correctness probe** — recurring question on any new

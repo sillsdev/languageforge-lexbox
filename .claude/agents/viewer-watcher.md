@@ -27,7 +27,8 @@ delete the catch.
 
 ## Svelte 5 runes
 
-`frontend/viewer/AGENTS.md` §Svelte 5 has the baseline. Review:
+Review against this table — `frontend/viewer/AGENTS.md` has no runes
+section, so this table is the baseline:
 
 | Use (new code) | Don't |
 |---|---|
@@ -71,8 +72,9 @@ ESLint enforces: don't import from `svelte-intl-precompile`; use
 ## Generated .NET types
 
 `frontend/viewer/AGENTS.md` §"Generated .NET Types" has the workflow.
-If the diff touches `backend/FwLite/FwLiteShared/**` or any C# class
-with `[TsInterface]`, check whether regenerated TS files in
+If the diff touches `backend/FwLite/FwLiteShared/**` or a type exported
+by Reinforced.Typings (`FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs`,
+via `ExportAsInterface<T>()`), check whether regenerated TS files in
 `frontend/viewer/src/lib/dotnet-types/generated-types/` are in the diff.
 Missing → 🚫 blocking (stale TS).
 

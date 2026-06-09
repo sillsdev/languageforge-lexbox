@@ -14,8 +14,9 @@ Read `backend/FwLite/AGENTS.md` in full before reviewing. The
 authoritative rules — cite them, don't restate:
 
 - Two-pass sync ordering, `fwdataApi.Save()`, `ProjectSnapshot`
-  regeneration from CRDT → §"CRITICAL FILE:
-  CrdtFwdataProjectSyncService.cs" / Landmines 1–4.
+  regeneration from CRDT → §"Key File:
+  FwLiteProjectSync/CrdtFwdataProjectSyncService.cs" + §"Landmines 🚨"
+  (under §"🔴 CRITICAL AREA: FwData ↔ CRDT Sync").
 - `DeletedAt is null` filters on projected DbSets → §"Harmony Projected
   Tables".
 - MiniLcm model-field fanout → §"Adding Features to MiniLcm Model".
@@ -31,7 +32,8 @@ Report violations against those sections rather than re-explaining them.
 Wrapper chain: **Client → Write Normalization → Validation → Read
 Normalization → Core API**.
 
-- Add new validation in `MiniLcm/Validation/` (or the existing wrapper).
+- Add new validation in `MiniLcm/Validators/` (or the existing
+  `MiniLcmApiValidationWrapper`).
 - **Don't** add validation in the API class itself (`CrdtMiniLcmApi`,
   `FwDataMiniLcmApi`).
 - **Don't** add validation in sync helpers (`MiniLcm/SyncHelpers/`) —
@@ -105,17 +107,17 @@ Grep:
 
 ### D. EF Core migrations (FwLite-specific)
 
-- `migrationBuilder.CreateTable()` can't express `ON CONFLICT IGNORE`.
-  Hand-write via `migrationBuilder.Sql()` + paired `CreateIndex` to keep
-  the model snapshot consistent (PR #2192).
-- Named GUIDs for predefined-data seed commits (PR #2278).
-- `Down()` actually undoes `Up()`, not a stub.
+FwLite migrations are also reviewed by `migration-detective` (dispatched
+on `**/Migrations/**`), which owns the `ON CONFLICT IGNORE` → `Sql()`,
+reversible `Down()`, and named-seed-GUID rules. Don't restate them — flag
+only what it can't know (e.g. a projected-table migration that must stay
+in step with `LcmCrdtKernel` CRDT config).
 
 ### E. Known landmines (cite when relevant)
 
-- **Legacy snapshots missing morph-type support** —
-  `CrdtFwdataProjectSyncService` lines ~83–90 patches this. Don't
-  remove.
+- **Legacy snapshots missing morph-type support** — a back-fill in
+  `CrdtFwdataProjectSyncService` handles this; don't remove it (find it
+  by the morph-type back-fill, not a line number — ranges rot).
 - **Race condition opening entry in FW** (PR #2265) — new entry-open
   paths need the same thread guard.
 - **Losing senses that are moved** (PR #2252) — sync iterating senses

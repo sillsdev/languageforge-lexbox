@@ -8,7 +8,9 @@ off-limits, and how to re-validate after fixes.
 
 Anything unambiguous and `AGENTS.md`-backed:
 
-- Remove debug prints, unused imports, commented-out code blocks.
+- Remove debug prints (tracing `Console.WriteLine` / `console.log`),
+  unused imports, commented-out code blocks. NOT console output in CLI
+  entry points / `Program.cs` / tooling — ask there.
 - Remove a `try/catch` in `frontend/viewer/**` that just logs / swallows
   (see `viewer-watcher`, PR #2215).
 - Remove a `DeletedAt is null` filter on a projected DbSet (PR #2286).
@@ -37,9 +39,9 @@ dotnet format whitespace --include <touched .cs files>
 Viewer / frontend:
 
 ```bash
-pnpm --filter viewer exec prettier --check <touched files>
+cd frontend && pnpm --filter viewer exec prettier --check <touched files>
 # if non-zero:
-pnpm --filter viewer exec prettier --write <touched files>
+cd frontend && pnpm --filter viewer exec prettier --write <touched files>
 ```
 
 ## Ask before applying

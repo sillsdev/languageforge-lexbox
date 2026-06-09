@@ -5,7 +5,7 @@ subagents to spawn against a diff (or a plan, for implement's plan-
 validation phase).
 
 Dispatch via `Agent` with `subagent_type=<name>` (the value in the
-"Agent" column — no `polish-` prefix, no `.md`).
+"Agent" column, without the `.md` extension).
 
 ## Always on
 
@@ -25,8 +25,9 @@ Dispatch via `Agent` with `subagent_type=<name>` (the value in the
 | `backend/harmony/**` (submodule pointer bump or in-place edits) | `harmony-sentinel` |
 | `backend/FwLite/**` | `fwlite-sentinel` |
 | `backend/FwHeadless/**` | `fwheadless-sentinel` |
-| `backend/LexBoxApi/GraphQL/**` or any `.cs` with `[GraphQLType]` / `[QueryType]` / `[MutationType]` / `[ExtendObjectType]` | `graphql` |
-| `**/*.cs` (general .NET, excluding the GraphQL-specific subset above) | `dotnet-stylist` |
+| `backend/LexBoxApi/GraphQL/**` or any `.cs` with `[GraphQLType]` / `[QueryType]` / `[MutationType]` / `[ObjectType]` | `graphql` (additive — `dotnet-stylist` still runs on these too) |
+| `frontend/src/**` (main LexBox SvelteKit app, not `frontend/viewer/`) | `lexbox-frontend` |
+| `**/*.cs` (general .NET) | `dotnet-stylist` |
 | `frontend/viewer/**` | `viewer-watcher` |
 | `frontend/viewer/**` AND new `$t` / `msg` strings | `i18n-completeness` |
 | `**/Migrations/**` | `migration-detective` |
@@ -44,6 +45,13 @@ Each agent receives via your invocation prompt:
    plan, not yet executed; report missing steps and sequencing risks"*.
 3. Severity ladder reminder: 🚫 blocking · ⚠️ important · 💭 nit · ✨ praise.
 4. Finding format: `<emoji> <severity> · path:line\n  why-it-matters with citation`.
+
+In **plan-validation** mode (item 2 above) an agent walks its
+standards/checklist against the plan text and skips diff-only steps
+(grep-the-diff, fanout-table greps). Dispatch only agents whose
+checklist is meaningful against a plan; the mechanical / narrative
+always-on agents (`diff-hygiene`, `rename-detector`, `pr-narrative`,
+`intent-check`) are diff-only — don't dispatch them in plan mode.
 
 Agents are self-contained — they don't see your conversation. Keep
 invocation prompts under ~150 words.

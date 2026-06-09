@@ -91,8 +91,8 @@ exposes them as union types.
   `[UseSorting]` come *after*.
 - `IQueryable<.*>\s+\w+\([^)]*\)\s*=>\s*db\..*\.ToListAsync` →
   projection bypass.
-- `Task<\s*(void|bool)\s*>\s+\w+Async\(` in `GraphQL/Mutations/**` →
-  mutation not returning entity.
+- `Task<\s*(void|bool)\s*>\s+\w+\(` in `backend/LexBoxApi/GraphQL/*Mutations.cs`
+  (e.g. `OrgMutations`, `ProjectMutations`) → mutation not returning entity.
 - `\bFirstOrDefault\b.*parent\.` in extension method → N+1 candidate.
 - `\[UsePaging\][^]]*MaxPageSize\s*=\s*1000` → unbounded-ish; ask.
 

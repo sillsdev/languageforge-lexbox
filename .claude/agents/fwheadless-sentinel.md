@@ -22,10 +22,9 @@ Read `backend/FwHeadless/AGENTS.md` in full. Authoritative for:
 
 ### A. `chorusmerge` Docker integration (PR #2245)
 
-- Script copied via csproj `<None>` → exec bit isn't preserved. Need
-  explicit `RUN chmod +x /app/chorusmerge` in the Dockerfile.
-- Path resolution inside the script: `dirname "$(readlink -f "$0")"`,
-  not `$CWD` / `$PWD`.
+- Dockerfile exec-bit (copied-via-csproj-`<None>` loses `+x`) and script
+  path-resolution are `bash-discipline`'s rules (dispatched on
+  `**/Dockerfile*` / `**/*.sh`) — defer to it; don't restate.
 - Don't bake LexBox-specific config paths into the image; pass via
   env / mount.
 

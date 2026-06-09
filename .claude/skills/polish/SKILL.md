@@ -2,7 +2,7 @@
 name: polish
 description: Pre-merge review of the current branch. Dispatches focused subagent reviewers in parallel, aggregates findings by severity, applies unambiguous fixes confidently (strictly scoped to touched files), re-validates after fixes, asks before changing anything contested. Use before opening a PR, before requesting review, or whenever you want a thorough self-review pass.
 when_to_use: User asks to "polish my branch", "get this ready to merge", "self-review", "pre-PR check", "what would the team flag here", or before opening/requesting review on a PR.
-allowed-tools: Bash(git diff:*) Bash(git log:*) Bash(git status:*) Bash(git show:*) Bash(git branch:*) Bash(gh api:*) Bash(dotnet format:*) Bash(pnpm:*) Bash(node:*) Read Grep Glob Agent Edit
+allowed-tools: Bash(git diff:*) Bash(git log:*) Bash(git status:*) Bash(git show:*) Bash(git branch:*) Bash(gh api:*) Bash(dotnet format:*) Bash(dotnet build:*) Bash(dotnet test:*) Bash(task:*) Bash(pnpm:*) Bash(node:*) Read Grep Glob Agent Edit
 disable-model-invocation: true
 ---
 
@@ -64,9 +64,9 @@ Recommend the right narrow test command; offer to run it.
 | --- | --- |
 | FwLite sync (`MiniLcm/SyncHelpers/**`, `FwLiteProjectSync/**`) | `dotnet test backend/FwLite/FwLiteProjectSync.Tests --filter Sena3` (~2 min) |
 | FwLite (other) | `task fw-lite:test-quick` |
-| viewer | `pnpm --filter viewer run check && pnpm --filter viewer run test:unit` |
+| viewer | `cd frontend && pnpm --filter viewer run check && pnpm --filter viewer run test:unit` |
 | lexbox frontend | `cd frontend && pnpm run check && pnpm run test:unit` |
-| LexBox API | `dotnet test LexBoxOnly.slnf --filter "Category!=Integration&Category!=FlakyIntegration"` |
+| LexBox API | `dotnet test LexBoxOnly.slnf --filter "Category!=Integration&Category!=FlakyIntegration&Category!=RequiresDb"` |
 | LexBox API + GraphQL schema | also `task api:generate-gql-schema` |
 | viewer + .NET types | `dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj` |
 

@@ -167,10 +167,11 @@ API calls bypass frontend.
 - `\.Result\b` / `\.Wait\(\)` / `GetAwaiter\(\)\.GetResult\(\)` → flag
   in async-reachable paths (🚫 blocking) or sync-only (⚠️ important).
 - `async void` → flag unless event handler.
-- `Console\.Write` in `backend/**/*.cs` excluding tests/benchmarks →
-  🚫 blocking, auto-removable.
-- `BeSubsetOf` → check whether `BeEquivalentTo` was meant (PR #2219).
-- `Should\(\)\.BeTrue\(\)` followed by a literal → 🚫 blocking.
+- `Console\.Write` in `backend/**/*.cs` excluding tests/benchmarks and
+  CLI/console entry points (`Program.cs`, `*.Cli`, tooling) → 🚫
+  blocking, auto-removable; in a CLI/tool context, ask first.
+- Test-assertion quality (`BeSubsetOf` vs `BeEquivalentTo`, meaningless
+  asserts) is `test-auditor`'s domain — don't duplicate it.
 - `Task\.Run\(` outside `[JSInvokable]` paths → ask why.
 - `IConfiguration\.GetValue` / `IConfiguration\[` in business logic →
   suggest `IOptions<T>`.
@@ -204,8 +205,8 @@ But the orchestrator decides whether to apply the fix.
 - Public API break without versioning → 🚫 blocking.
 - Two `SaveChangesAsync` per logical op → ⚠️ important.
 - Two `DbContext` per logical op → ⚠️ important.
-- `Console.WriteLine` → 🚫 blocking, auto-removable.
-- Meaningless assertion → 🚫 blocking.
+- `Console.WriteLine` (outside CLI/tool entry points) → 🚫 blocking,
+  auto-removable.
 
 ## Voice
 

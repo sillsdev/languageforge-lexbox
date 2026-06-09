@@ -29,13 +29,13 @@ workflow.
 
 For each new `$t\`...\`` or `msg\`...\`` introduced by the diff:
 
-1. Look in `frontend/viewer/src/locales/en/messages.po` (or the source
+1. Look in `frontend/viewer/src/locales/en.po` (or the source
    locale's `.po`) for the new msgid.
 2. If absent → ⚠️ important: *"new strings added but
    `pnpm run i18n:extract` doesn't appear to have been run. Let's
    regenerate the `.po` files."*
 
-Grep `frontend/viewer/src/locales/en/messages.po` for each new string's
+Grep `frontend/viewer/src/locales/en.po` for each new string's
 msgid form.
 
 ### B. Context comments
@@ -61,9 +61,9 @@ Or in `msg\`...\`` calls via the `context` option.
 
 When extraction runs, it adds the new msgid to all `.po` files (as
 untranslated). Spot-check:
-- `src/locales/en/messages.po` has the string with `msgstr ""` (source
+- `src/locales/en.po` has the string with `msgstr ""` (source
   locale) or with the source text.
-- Other locales (`src/locales/<lang>/messages.po`) have the msgid with
+- Other locales (`src/locales/<lang>.po`) have the msgid with
   empty `msgstr ""` (the translator's job).
 
 Missing msgid in non-source locales → 💭 nit (Lingui usually syncs them
@@ -106,8 +106,8 @@ const label = $t`${noun} modified by ${author}`;
 
 - Diff hunks adding `\$t\`` or `\bmsg\`` patterns → enumerate new
   strings.
-- `src/locales/en/messages.po` — check each new msgid is present.
-- `src/locales/*/messages.po` — spot-check other locales were extracted
+- `src/locales/en.po` — check each new msgid is present.
+- `src/locales/*.po` — spot-check other locales were extracted
   too.
 - `// i18n:` comment density vs new-string density.
 
