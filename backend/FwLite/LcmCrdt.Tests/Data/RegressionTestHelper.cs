@@ -54,7 +54,7 @@ public class RegressionTestHelper(string projectName) : IAsyncLifetime
 
         // Data migrations are already on their way out. It doesn't really make sense for all tests to run them,
         // which would change a bunch of verified project snapshots.
-        // When data migrations are removed, we should run this code unconditionally
+        // When data migrations are removed (#2350), we should run this code unconditionally
         // at the end of InitDbFromScripts (instead of the current db-migration and refresh-project-data approach)
         // Because that's closer to the prod code.
         if (withDataMigrations)

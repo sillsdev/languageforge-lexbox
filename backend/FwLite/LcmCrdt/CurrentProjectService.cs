@@ -112,6 +112,7 @@ public class CurrentProjectService(
                 // Must happen BEFORE FTS regeneration so headwords include morph-type tokens.
                 var dataModel = services.GetRequiredService<DataModel>();
                 var projectData = await dbContext.ProjectData.AsNoTracking().FirstAsync();
+                // Remove in #2350
                 if (!await dbContext.MorphTypes.AnyAsync())
                 {
                     await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);

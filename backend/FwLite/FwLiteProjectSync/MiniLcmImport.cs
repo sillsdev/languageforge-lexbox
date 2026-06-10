@@ -72,6 +72,7 @@ public class MiniLcmImport(
         }
 
         // Morph types are created automatically for CRDT projects, so we update them instead of creating them
+        // Optimize this to a simple foreach like above in #2350
         var importFromMorphTypes = await importFrom.GetMorphTypes().ToArrayAsync();
         var existingMorphTypes = await importTo.GetMorphTypes().ToArrayAsync();
         await MorphTypeSync.Sync(existingMorphTypes, importFromMorphTypes, importTo);
