@@ -31,9 +31,6 @@ public class MiniLcmImport(
                 FwProjectId: fwDataApi.ProjectId,
                 AfterCreate: async (provider, _) =>
                 {
-                    var currentProjectService = provider.GetRequiredService<CurrentProjectService>();
-                    // force-trigger "data migrations"
-                    await currentProjectService.SetupProjectContext(currentProjectService.Project);
                     var crdtApi = provider.GetRequiredService<IMiniLcmApi>();
                     await ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
                 }));

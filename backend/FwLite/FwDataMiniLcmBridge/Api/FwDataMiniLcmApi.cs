@@ -592,6 +592,11 @@ public class FwDataMiniLcmApi(
         };
     }
 
+    public Task<MorphType> CreateMorphType(MorphType morphType)
+    {
+        throw new NotSupportedException("Morph types cannot be created in fwdata; they are predefined");
+    }
+
     public Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
         var lcmMorphType = MorphTypeRepository.GetObject(id);

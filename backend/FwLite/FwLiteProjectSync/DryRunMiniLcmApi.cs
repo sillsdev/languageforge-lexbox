@@ -126,6 +126,12 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task<MorphType> CreateMorphType(MorphType morphType)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateMorphType), $"Create morph type {morphType.Kind} ({morphType.Id})"));
+        return Task.FromResult(morphType);
+    }
+
     public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateMorphType), $"Update morph type {id}"));
