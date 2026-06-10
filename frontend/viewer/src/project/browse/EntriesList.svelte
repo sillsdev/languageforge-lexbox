@@ -217,9 +217,9 @@
             getKey={(index: number) => `${entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}-${index}`}
             bufferSize={450}>
         {#snippet children(index: number)}
-          <!--the last item is a button to create a new entry based on the search query-->
-          {#if index !== entryLoader?.totalCount}
-            {#key entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
+          {#key entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
+            <!--the last item is a button to create a new entry based on the search query-->
+            {#if index !== entryLoader?.totalCount}
               <Delayed
                 getCached={() => entryLoader?.getCachedEntryByIndex(index)}
                 load={() => entryLoader?.getOrLoadEntryByIndex(index)}
@@ -242,14 +242,12 @@
                   {/if}
                 {/snippet}
               </Delayed>
-            {/key}
-          {:else}
-            {#if search && entryLoader?.totalCount !== 0}
-              <Button icon="i-mdi-plus" onclick={() => handleNewEntry(search)}>
-                {pt($t`Create new entry ${search}`, $t`Create new word ${search}`, viewService.currentView)}
-              </Button>
+            {:else if search && entryLoader?.totalCount !== 0}
+                <Button icon="i-mdi-plus" onclick={() => handleNewEntry(search)}>
+                  {pt($t`Create new entry ${search}`, $t`Create new word ${search}`, viewService.currentView)}
+                </Button>
             {/if}
-          {/if}
+          {/key}
         {/snippet}
       </VList>
     </div>
