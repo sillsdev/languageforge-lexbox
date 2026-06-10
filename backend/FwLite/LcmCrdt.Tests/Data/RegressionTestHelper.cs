@@ -33,8 +33,9 @@ public class RegressionTestHelper(string projectName) : IAsyncLifetime
         //need to close the connection, otherwise the collations won't get created, they would normally be created on open or save, so we're closing so they get created when EF opens the connection.
         await dbConnection.CloseAsync();
 
-        //setup again to trigger migrations
-        await projectsService.SetupProjectContext(_crdtProject);
+        await lcmCrdtDbContext.Database.MigrateAsync();
+
+        await projectsService.RefreshProjectData();
     }
 
     public Task InitializeAsync()
@@ -42,7 +43,7 @@ public class RegressionTestHelper(string projectName) : IAsyncLifetime
         return InitializeAsync(RegressionVersion.v2);
     }
 
-    public async Task InitializeAsync(RegressionVersion version)
+    public async Task InitializeAsync(RegressionVersion version, bool withDataMigrations = false)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
         builder.Services.AddTestLcmCrdtClient();
@@ -50,6 +51,16 @@ public class RegressionTestHelper(string projectName) : IAsyncLifetime
         var services = _host.Services;
         _asyncScope = services.CreateAsyncScope();
         await InitDbFromScripts(version);
+
+        // Data migrations are already on their way out. It doesn't really make sense for all tests to run them,
+        // which would change a bunch of verified project snapshots.
+        // When data migrations are removed, we should run this code unconditionally
+        // at the end of InitDbFromScripts (instead of the current db-migration and refresh-project-data approach)
+        // Because that's closer to the prod code.
+        if (withDataMigrations)
+        {
+            await Services.GetRequiredService<CurrentProjectService>().SetupProjectContext(_crdtProject);
+        }
     }
 
     public async Task DisposeAsync()

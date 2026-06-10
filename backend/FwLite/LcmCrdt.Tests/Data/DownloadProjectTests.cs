@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using SIL.Harmony.Core;
 
 namespace LcmCrdt.Tests.Data;
@@ -13,7 +12,7 @@ public class DownloadProjectTests : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        await _helper.InitializeAsync(RegressionTestHelper.RegressionVersion.v2);
+        await _helper.InitializeAsync(RegressionTestHelper.RegressionVersion.v2, withDataMigrations: true);
         //add a change after migration which creates MorphTypes
         await _helper.Services.GetRequiredService<IMiniLcmApi>().CreateEntry(new Entry()
         {
