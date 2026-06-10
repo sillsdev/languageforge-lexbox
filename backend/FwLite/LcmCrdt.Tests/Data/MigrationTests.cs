@@ -10,8 +10,9 @@ using SIL.Harmony.Db;
 namespace LcmCrdt.Tests.Data;
 
 [Collection("MigrationTests")]
-public class MigrationTests
+public class MigrationTests : IAsyncLifetime
 {
+    private readonly RegressionTestHelper _helper = new("MigrationTest");
     private static readonly JsonSerializerOptions IndentedHarmonyJsonOptions = new(TestJsonOptions.Harmony())
     {
         WriteIndented = true
@@ -24,12 +25,21 @@ public class MigrationTests
         VerifierSettings.OmitContentFromException();
     }
 
+    public Task InitializeAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    public async Task DisposeAsync()
+    {
+        await _helper.DisposeAsync();
+    }
+
     [Theory]
     [InlineData(RegressionTestHelper.RegressionVersion.v1)]
     [InlineData(RegressionTestHelper.RegressionVersion.v2)]
     public async Task GetEntries_WorksAfterMigrationFromScriptedDb(RegressionTestHelper.RegressionVersion regressionVersion)
     {
-        await using RegressionTestHelper _helper = new($"{nameof(GetEntries_WorksAfterMigrationFromScriptedDb)}-{regressionVersion}");
         await _helper.InitializeAsync(regressionVersion);
         var api = _helper.Services.GetRequiredService<IMiniLcmApi>();
         var hasEntries = false;
@@ -48,7 +58,6 @@ public class MigrationTests
     [Trait("Category", "Verified")]
     public async Task VerifyAfterMigrationFromScriptedDb(RegressionTestHelper.RegressionVersion regressionVersion)
     {
-        await using RegressionTestHelper _helper = new($"{nameof(VerifyAfterMigrationFromScriptedDb)}-{regressionVersion}");
         await _helper.InitializeAsync(regressionVersion);
         var api = _helper.Services.GetRequiredService<IMiniLcmApi>();
         var crdtConfig = _helper.Services.GetRequiredService<IOptions<CrdtConfig>>().Value;
@@ -101,7 +110,6 @@ public class MigrationTests
     [Trait("Category", "Verified")]
     public async Task VerifyRegeneratedSnapshotsAfterMigrationFromScriptedDb(RegressionTestHelper.RegressionVersion regressionVersion)
     {
-        await using RegressionTestHelper _helper = new($"{nameof(VerifyRegeneratedSnapshotsAfterMigrationFromScriptedDb)}-{regressionVersion}");
         await _helper.InitializeAsync(regressionVersion);
         var api = _helper.Services.GetRequiredService<IMiniLcmApi>();
         var crdtConfig = _helper.Services.GetRequiredService<IOptions<CrdtConfig>>().Value;

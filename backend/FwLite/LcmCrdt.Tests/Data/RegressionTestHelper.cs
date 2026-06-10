@@ -6,24 +6,19 @@ using Microsoft.Extensions.Hosting;
 
 namespace LcmCrdt.Tests.Data;
 
-public class RegressionTestHelper(string dbName): IAsyncDisposable
+public class RegressionTestHelper(string projectName) : IAsyncLifetime
 {
     private IHost _host = null!;
     private AsyncServiceScope _asyncScope;
+    //unique db path per instance, so CurrentProjectService doesn't think a db has already run migrations
+    private readonly CrdtProject _crdtProject = new(projectName, $"{projectName}-{Guid.NewGuid():N}.sqlite");
     public IServiceProvider Services => _asyncScope.ServiceProvider;
 
     private async Task InitDbFromScripts(RegressionVersion version)
     {
         var initialSqlFile = GetFilePath($"Scripts/{version}.sql");
         var projectsService = _asyncScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
-        var crdtProject = new CrdtProject(dbName, $"{dbName}.sqlite");
-        if (File.Exists(crdtProject.DbPath))
-        {
-            using var clearConn = new SqliteConnection($"Data Source={crdtProject.DbPath}");
-            SqliteConnection.ClearPool(clearConn);
-            File.Delete(crdtProject.DbPath);
-        }
-        projectsService.SetupProjectContextForNewDb(crdtProject);
+        projectsService.SetupProjectContextForNewDb(_crdtProject);
         await using var lcmCrdtDbContext = await _asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         var sql = await File.ReadAllTextAsync(initialSqlFile);
         var dbConnection = lcmCrdtDbContext.Database.GetDbConnection();
@@ -39,7 +34,7 @@ public class RegressionTestHelper(string dbName): IAsyncDisposable
         await dbConnection.CloseAsync();
 
         //setup again to trigger migrations
-        await projectsService.SetupProjectContext(crdtProject);
+        await projectsService.SetupProjectContext(_crdtProject);
     }
 
     public Task InitializeAsync()
@@ -57,13 +52,20 @@ public class RegressionTestHelper(string dbName): IAsyncDisposable
         await InitDbFromScripts(version);
     }
 
-    public async ValueTask DisposeAsync()
+    public async Task DisposeAsync()
     {
         await _asyncScope.DisposeAsync();
         if (_host is IAsyncDisposable asyncDisposable) await asyncDisposable.DisposeAsync();
         else
         {
             _host.Dispose();
+        }
+
+        if (File.Exists(_crdtProject.DbPath))
+        {
+            using var connection = new SqliteConnection($"Data Source={_crdtProject.DbPath}");
+            SqliteConnection.ClearPool(connection);
+            File.Delete(_crdtProject.DbPath);
         }
     }
 
