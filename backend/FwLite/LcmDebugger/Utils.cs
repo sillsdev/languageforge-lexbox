@@ -52,7 +52,9 @@ public static class Utils
         var crdtProjectsService = services.GetRequiredService<CrdtProjectsService>();
         var crdtProject = await crdtProjectsService.CreateProject(new CrdtProjectsService.CreateProjectRequest("test-project", $"test-{Guid.NewGuid().ToString().Split('-')[0]}", projectId));
         var crdtMiniLcmApi = (CrdtMiniLcmApi)await crdtProjectsService.OpenProject(crdtProject, services);
-        await services.GetRequiredService<DataModel>().SyncWith(syncable);
+        var syncResult = await services.GetRequiredService<DataModel>().SyncWith(syncable);
+        if (!syncResult.IsSynced)
+            throw new InvalidOperationException("New project sync failed.");
         return crdtMiniLcmApi;
     }
 

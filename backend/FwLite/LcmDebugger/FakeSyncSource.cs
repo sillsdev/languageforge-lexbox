@@ -50,7 +50,8 @@ public class FakeSyncSource(Commit[] commits, SyncState? currentSyncState = null
             };
         }
 
-        var changes = JsonSerializer.Deserialize<ChangesResult<Commit>>(File.OpenRead(path), options);
+        using var file = File.OpenRead(path);
+        var changes = JsonSerializer.Deserialize<ChangesResult<Commit>>(file, options);
         ArgumentNullException.ThrowIfNull(changes);
         ArgumentNullException.ThrowIfNull(changes.MissingFromClient);
         ArgumentNullException.ThrowIfNull(changes.ServerSyncState);
