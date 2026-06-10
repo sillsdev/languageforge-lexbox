@@ -19,6 +19,8 @@
   import Delayed from '$lib/components/Delayed.svelte';
   import {EntryLoaderService} from '$lib/services/entry-loader-service.svelte';
   import {onDestroy, untrack} from 'svelte';
+  import {useViewService} from '$lib/views/view-service.svelte';
+  import { pt } from '$lib/views/view-text';
 
   let {
     search = '',
@@ -49,6 +51,7 @@
   const miniLcmApi = $derived(projectContext.maybeApi);
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
+  const viewService = useViewService();
 
   // The closures maybe need to be created OUTSIDE untrack so they maintain reactivity
   const deps = {
@@ -104,12 +107,12 @@
   // to avoid a "white phase" between initial load and list initialization.
   const indexArray = $derived(
     entryLoader?.totalCount !== undefined
-      ? Array.from({ length: entryLoader.totalCount }, (_, i) => i)
+      ? Array.from({ length: entryLoader.totalCount + 1 }, (_, i) => i)
       : Array.from({ length: skeletonRowCount }, (_, i) => i)
   );
 
-  async function handleNewEntry() {
-    const entry = await dialogsService.createNewEntry(undefined, {
+  async function handleNewEntry(headword: string | undefined = undefined) {
+    const entry = await dialogsService.createNewEntry(headword, {
       publishIn: publication ? [publication] : [],
     }, {
       semanticDomains: semanticDomain ? [semanticDomain] : [],
@@ -184,7 +187,7 @@
     />
   </DevContent>
   {#if !disableNewEntry}
-    <PrimaryNewEntryButton onclick={handleNewEntry} shortForm />
+    <PrimaryNewEntryButton onclick={() => handleNewEntry()} shortForm />
   {/if}
 </FabContainer>
 
@@ -197,8 +200,14 @@
   {:else}
     <div class="h-full">
       {#if entryLoader?.totalCount === 0}
-        <div class="flex items-center justify-center h-full text-muted-foreground">
-          <p>{$t`No entries found`}</p>
+        <div class="flex flex-col items-center justify-center h-full text-muted-foreground gap-2">
+          <p>{pt($t`No entries found`, $t`No words found`, viewService.currentView)}</p>
+
+          {#if search}
+            <Button icon="i-mdi-plus" class="" onclick={() => handleNewEntry(search)}>
+              {pt($t`Create new entry ${search}`, $t`Create new word ${search}`, viewService.currentView)}
+            </Button>
+          {/if}
         </div>
       {/if}
 
@@ -208,30 +217,39 @@
             getKey={(index: number) => `${entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}-${index}`}
             bufferSize={450}>
         {#snippet children(index: number)}
-          {#key entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
-            <Delayed
-              getCached={() => entryLoader?.getCachedEntryByIndex(index)}
-              load={() => entryLoader?.getOrLoadEntryByIndex(index)}
-              delay={250}
-            >
-              {#snippet children(state)}
-                {#if state.loading || !state.current}
-                  <!-- we want the initial loading state and the first loading entries
-                  to share the same skeletons, so there's no flicker -->
-                  <EntryRow class="mb-2" skeleton={true} />
-                {:else}
-                  {@const entry = state.current}
-                  <EntryMenu {entry} contextMenu>
-                    <EntryRow {entry}
-                              class="mb-2"
-                              selected={selectedEntryId === entry.id}
-                              onclick={() => onSelectEntry(entry)}
-                              {previewDictionary}/>
-                  </EntryMenu>
-                {/if}
-              {/snippet}
-            </Delayed>
-          {/key}
+          <!--the last item is a button to create a new entry based on the search query-->
+          {#if index !== entryLoader?.totalCount}
+            {#key entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
+              <Delayed
+                getCached={() => entryLoader?.getCachedEntryByIndex(index)}
+                load={() => entryLoader?.getOrLoadEntryByIndex(index)}
+                delay={250}
+              >
+                {#snippet children(state)}
+                  {#if state.loading || !state.current}
+                    <!-- we want the initial loading state and the first loading entries
+                    to share the same skeletons, so there's no flicker -->
+                    <EntryRow class="mb-2" skeleton={true}/>
+                  {:else}
+                    {@const entry = state.current}
+                    <EntryMenu {entry} contextMenu>
+                      <EntryRow {entry}
+                                class="mb-2"
+                                selected={selectedEntryId === entry.id}
+                                onclick={() => onSelectEntry(entry)}
+                                {previewDictionary}/>
+                    </EntryMenu>
+                  {/if}
+                {/snippet}
+              </Delayed>
+            {/key}
+          {:else}
+            {#if search && entryLoader?.totalCount !== 0}
+              <Button icon="i-mdi-plus" onclick={() => handleNewEntry(search)}>
+                {pt($t`Create new entry ${search}`, $t`Create new word ${search}`, viewService.currentView)}
+              </Button>
+            {/if}
+          {/if}
         {/snippet}
       </VList>
     </div>
