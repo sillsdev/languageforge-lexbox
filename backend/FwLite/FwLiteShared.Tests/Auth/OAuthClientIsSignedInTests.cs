@@ -7,8 +7,7 @@ using Moq;
 namespace FwLiteShared.Tests.Auth;
 
 // IsSignedIn must be a purely local cache read: it answers "is there an account" without ever
-// acquiring a token, so callers can tell "offline" apart from "not logged in". MockBehavior.Strict
-// asserts that nothing beyond GetAccountsAsync is touched.
+// acquiring a token, so callers can tell "offline" apart from "not logged in".
 public class OAuthClientIsSignedInTests
 {
     private static readonly LexboxServer Server = new(new Uri("https://example.test/"), "Test");

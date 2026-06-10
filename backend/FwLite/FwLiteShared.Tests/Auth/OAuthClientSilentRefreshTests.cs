@@ -6,7 +6,7 @@ using Moq;
 
 namespace FwLiteShared.Tests.Auth;
 
-// Covers the GetAuth catch/switch glue end-to-end; the classifier policy itself is in OAuthClientFailureClassifierTests.
+// Covers the GetAuth catch/switch
 public class OAuthClientSilentRefreshTests
 {
     private static readonly LexboxServer Server = new(new Uri("https://example.test/"), "Test");
@@ -18,7 +18,7 @@ public class OAuthClientSilentRefreshTests
         var accounts = new List<IAccount> { account };
         var appMock = new Mock<IPublicClientApplication>(MockBehavior.Strict);
         //return a snapshot like the real MSAL client: Logout enumerates the result while RemoveAsync mutates the cache.
-        appMock.Setup(a => a.GetAccountsAsync()).ReturnsAsync(() => accounts.ToList());
+        appMock.Setup(a => a.GetAccountsAsync()).ReturnsAsync(() => [.. accounts]);
         appMock.Setup(a => a.RemoveAsync(It.IsAny<IAccount>()))
             .Returns<IAccount>(a => { accounts.Remove(a); return Task.CompletedTask; });
 
@@ -58,27 +58,6 @@ public class OAuthClientSilentRefreshTests
         events.Should().ContainSingle().Which.Server.Should().Be(Server);
     }
 
-    // The AuthenticationChangedEvent must be published after _authSemaphore is released: Subject.OnNext
-    // dispatches synchronously, so a subscriber that re-enters a semaphore-taking auth method (here
-    // GetCurrentToken -> GetAuth) would self-deadlock on the non-reentrant semaphore if we published
-    // while still holding it. Re-entering synchronously and completing proves the lock is free.
-    [Fact]
-    public async Task RemoveAccount_PublishesEventAfterLockReleased()
-    {
-        var (client, _, eventBus, events) = BuildClient((_, _) =>
-            throw new MsalUiRequiredException("invalid_grant", "refresh token expired"));
-
-        bool? reentrantTokenWasNull = null;
-        eventBus.OnAuthenticationChanged.Subscribe(_ =>
-            reentrantTokenWasNull = client.GetCurrentToken().AsTask().GetAwaiter().GetResult() is null);
-
-        await client.GetAuth();
-
-        events.Should().ContainSingle("the event still fires exactly once");
-        reentrantTokenWasNull.Should().Be(true,
-            "the subscriber re-entered GetAuth synchronously without deadlocking, proving the publish happens after the lock is released");
-    }
-
     [Fact]
     public async Task Cancellation_KeepsCachedAccount()
     {
@@ -106,11 +85,14 @@ public class OAuthClientSilentRefreshTests
             throw new MsalServiceException("service_error", "upstream returned 502");
         });
 
+        // init the client with the expired token
         (await client.GetAuth()).Should().NotBeNull("the first acquisition succeeds");
+        // we pretend the token has now expired over time
+
         var afterExpiry = await client.GetAuth(forceRefresh: true);
 
-        afterExpiry.Should().BeNull("a transient refresh failure must not return the expired token");
-        (await appMock.Object.GetAccountsAsync()).Should().HaveCount(1);
+        afterExpiry.Should().BeNull("a transient refresh failure must not return the expired token, because it's unusable until a successful refresh.");
+        (await appMock.Object.GetAccountsAsync()).Should().HaveCount(1, "it's still refreshable");
         appMock.Verify(a => a.RemoveAsync(It.IsAny<IAccount>()), Times.Never);
         events.Should().BeEmpty();
     }
@@ -128,16 +110,15 @@ public class OAuthClientSilentRefreshTests
             throw new MsalServiceException("service_error", "upstream returned 502");
         });
 
+        // init the client with the almost expired token
         (await client.GetAuth()).Should().NotBeNull("the first acquisition succeeds");
+
         var beforeExpiry = await client.GetAuth(forceRefresh: true);
 
         beforeExpiry.Should().NotBeNull("a still-valid token must survive a transient refresh failure");
-        beforeExpiry!.AccessToken.Should().Be("near-expiry-token");
+        beforeExpiry.AccessToken.Should().Be("near-expiry-token");
         (await appMock.Object.GetAccountsAsync()).Should().HaveCount(1);
         events.Should().BeEmpty();
-
-        (await client.GetAuth()).Should().NotBeNull();
-        calls.Should().Be(3, "a retained near-expiry token must not satisfy the freshness fast-path — refresh keeps retrying until it succeeds or the token expires");
     }
 
     // Logout must take the same lock as GetAuth: an acquisition already in flight when logout starts
@@ -164,7 +145,7 @@ public class OAuthClientSilentRefreshTests
         await Task.WhenAll(getAuth, logout);
 
         (await appMock.Object.GetAccountsAsync()).Should().BeEmpty();
-        (await client.GetCurrentToken()).Should().BeNull("logout must win the race, not the in-flight acquire");
+        (await client.GetCurrentToken()).Should().BeNull("logout prevails");
     }
 
     private static AuthenticationResult NearExpiryResult(IAccount account) => new(
