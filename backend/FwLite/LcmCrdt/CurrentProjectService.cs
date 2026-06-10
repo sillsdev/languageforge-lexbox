@@ -114,7 +114,7 @@ public class CurrentProjectService(
                 var projectData = await dbContext.ProjectData.AsNoTracking().FirstAsync();
                 if (!await dbContext.MorphTypes.AnyAsync())
                 {
-                    await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData, true);
+                    await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
                 }
 
                 if (EntrySearchServiceFactory is not null)

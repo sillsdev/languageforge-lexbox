@@ -246,7 +246,7 @@ public partial class CrdtProjectsService(
 
     internal static async Task SeedSystemData(DataModel dataModel, ProjectData projectData)
     {
-        await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData, false);
+        await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
         await PreDefinedData.AddPredefinedComplexFormTypes(dataModel, projectData);
         await PreDefinedData.AddPredefinedPartsOfSpeech(dataModel, projectData);
         await PreDefinedData.AddPredefinedSemanticDomains(dataModel, projectData);
