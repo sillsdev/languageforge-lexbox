@@ -126,8 +126,12 @@ public class LexboxProjectService : IDisposable
 
     public async Task<ProjectSyncStatus> GetLexboxSyncStatus(LexboxServer server, Guid projectId)
     {
-        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
-        if (httpClient is null) return ProjectSyncStatus.Unknown(ProjectSyncStatusErrorCode.NotLoggedIn);
+        var client = clientFactory.GetClient(server);
+        var httpClient = await client.CreateHttpClient();
+        if (httpClient is null)
+            return ProjectSyncStatus.Unknown(await client.IsSignedIn()
+                ? ProjectSyncStatusErrorCode.Offline
+                : ProjectSyncStatusErrorCode.NotLoggedIn);
         try
         {
             var status = await httpClient.GetFromJsonAsync<ProjectSyncStatus>($"api/fw-lite/sync/status/{projectId}");
@@ -157,8 +161,14 @@ public class LexboxProjectService : IDisposable
 
     public async Task<SyncJobResult> AwaitLexboxSyncFinished(LexboxServer server, Guid projectId, int timeoutSeconds = 15 * 60)
     {
-        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
-        if (httpClient is null) return new SyncJobResult(SyncJobStatusEnum.UnableToAuthenticate, "Unable to retrieve sync status when logged out, try again after logging in to lexbox server");
+        var client = clientFactory.GetClient(server);
+        var httpClient = await client.CreateHttpClient();
+        if (httpClient is null)
+        {
+            return await client.IsSignedIn()
+                ? new SyncJobResult(SyncJobStatusEnum.UnableToSync, "Unable to reach the lexbox server, check your internet connection and try again")
+                : new SyncJobResult(SyncJobStatusEnum.UnableToAuthenticate, "Unable to retrieve sync status when logged out, try again after logging in to lexbox server");
+        }
         var giveUpAt = DateTime.UtcNow + TimeSpan.FromSeconds(timeoutSeconds);
         while (giveUpAt > DateTime.UtcNow)
         {
