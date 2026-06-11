@@ -454,6 +454,16 @@ msgstr "Create Entry"
 msgid "Create Example Project"
 msgstr "Create Example Project"
 
+#: src/project/browse/EntriesList.svelte
+#: src/project/browse/EntriesList.svelte
+msgid "Create new entry {0}"
+msgstr "Create new entry {0}"
+
+#: src/project/browse/EntriesList.svelte
+#: src/project/browse/EntriesList.svelte
+msgid "Create new word {0}"
+msgstr "Create new word {0}"
+
 #. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
@@ -1322,6 +1332,7 @@ msgstr "No subject, unable to create a new {0}"
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/project/browse/EntriesList.svelte
 msgid "No words found"
 msgstr "No words found"
 

@@ -459,6 +459,16 @@ msgstr "Membuat Entri"
 msgid "Create Example Project"
 msgstr "Buat Proyek Contoh"
 
+#: src/project/browse/EntriesList.svelte
+#: src/project/browse/EntriesList.svelte
+msgid "Create new entry {0}"
+msgstr ""
+
+#: src/project/browse/EntriesList.svelte
+#: src/project/browse/EntriesList.svelte
+msgid "Create new word {0}"
+msgstr ""
+
 #. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
@@ -1327,6 +1337,7 @@ msgstr "Tidak ada subjek, tidak dapat membuat {0}baru"
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/project/browse/EntriesList.svelte
 msgid "No words found"
 msgstr "Tidak ada kata yang ditemukan"
 

@@ -459,6 +459,16 @@ msgstr "Tạo mục"
 msgid "Create Example Project"
 msgstr "Tạo Dự án ví dụ"
 
+#: src/project/browse/EntriesList.svelte
+#: src/project/browse/EntriesList.svelte
+msgid "Create new entry {0}"
+msgstr ""
+
+#: src/project/browse/EntriesList.svelte
+#: src/project/browse/EntriesList.svelte
+msgid "Create new word {0}"
+msgstr ""
+
 #. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
@@ -1327,6 +1337,7 @@ msgstr "Không có chủ đề, không thể tạo mới {0}"
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/project/browse/EntriesList.svelte
 msgid "No words found"
 msgstr "Không tìm thấy từ nào"
 

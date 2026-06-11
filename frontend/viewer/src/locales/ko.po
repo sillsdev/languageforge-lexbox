@@ -459,6 +459,16 @@ msgstr "항목 만들기"
 msgid "Create Example Project"
 msgstr "예제 프로젝트 만들기"
 
+#: src/project/browse/EntriesList.svelte
+#: src/project/browse/EntriesList.svelte
+msgid "Create new entry {0}"
+msgstr ""
+
+#: src/project/browse/EntriesList.svelte
+#: src/project/browse/EntriesList.svelte
+msgid "Create new word {0}"
+msgstr ""
+
 #. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create View"
@@ -1327,6 +1337,7 @@ msgstr "제목이 없습니다, 새로 만들 수 없습니다 {0}"
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/project/browse/EntriesList.svelte
 msgid "No words found"
 msgstr "단어를 찾을 수 없습니다."
 
