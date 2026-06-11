@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.WebView;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.JSInterop;
 
 namespace FwLiteMaui;
 
@@ -12,23 +13,18 @@ public partial class MainPage : ContentPage
     public MainPage(IPreferencesService preferences)
     {
         InitializeComponent();
+        var lastUrlFromPrefs = preferences.Get(nameof(PreferenceKey.AppLastUrl));
         blazorWebView.BlazorWebViewInitializing += BlazorWebViewInitializing;
         blazorWebView.BlazorWebViewInitialized += BlazorWebViewInitialized;
+        blazorWebView.BlazorWebViewInitialized += (s, e) =>
+        {
+            // Decide initial StartPath here (after Android intent is processed) to avoid cold-start race
+            var initial = App.OverrideStartupUrl ?? lastUrlFromPrefs ?? "/";
+            //only change it if it's still the default, might have been changed already, for example when opening a new window
+            if (blazorWebView.StartPath == "/")
+                blazorWebView.StartPath = initial;
+        };
         blazorWebView.UrlLoading += BlazorWebViewOnUrlLoading;
-
-        var lastUrl = preferences.Get(nameof(PreferenceKey.AppLastUrl));
-        #if ANDROID
-        var intent = Platform.CurrentActivity?.Intent;
-        if (intent is not null && intent.Action == "ACTION_XE_APP_ACTION")
-        {
-            var actionId = intent.GetStringExtra("EXTRA_XE_APP_ACTION_ID");
-            if (actionId is "home") lastUrl = "/home";
-        }
-        #endif
-        if (lastUrl?.StartsWith('/') == true)
-        {
-            StartPath = lastUrl;
-        }
     }
 
     internal string StartPath
@@ -42,10 +38,16 @@ public partial class MainPage : ContentPage
         blazorWebView.StartPath = url;
         _ = blazorWebView.TryDispatchAsync(services =>
         {
-            var navigationManager = services.GetRequiredService<NavigationManager>();
-            navigationManager.NavigateTo(url);
-            //the svelte-routing library doesn't notice the url change via NavigateTo, so just reload the page
-            navigationManager.Refresh();
+            var jsRuntime = services.GetService<IJSRuntime>();
+            if (jsRuntime != null)
+            {
+                var js = $$"""
+                    if (window.lexbox.SvelteNavigate) {
+                        window.lexbox.SvelteNavigate('{{url}}', { replace: true });
+                    }
+                """;
+                _ = jsRuntime.InvokeVoidAsync("eval", js);
+            }
         });
     }
 

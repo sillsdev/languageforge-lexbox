@@ -10,6 +10,8 @@ declare global {
     ServiceProvider: LexboxServiceProvider;
     Search: { openSearch: (search: string) => void };
     IsDotnetHosted?: boolean;
+    // Expose svelte-routing navigate for native hosts (MAUI) and other integrations
+    SvelteNavigate?: (url: string, options?: { replace?: boolean; state?: unknown }) => void;
     /* eslint-enable @typescript-eslint/naming-convention */
   }
 

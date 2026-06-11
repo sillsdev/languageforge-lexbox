@@ -1,13 +1,12 @@
-using FwLiteShared.Services;
-using Microsoft.AspNetCore.Components;
 
 namespace FwLiteMaui;
 
 public partial class App : Application
 {
     private readonly MainPage _mainPage;
+    public static string? OverrideStartupUrl { get; set; }
 
-    public App(MainPage mainPage, IPreferencesService preferences)
+    public App(MainPage mainPage)
     {
         _mainPage = mainPage;
         InitializeComponent();
@@ -16,7 +15,6 @@ public partial class App : Application
     internal void LoadAppUrl(string url)
     {
         _mainPage.LoadAppUrl(url);
-
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

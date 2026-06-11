@@ -21,13 +21,22 @@ public class MainActivity : MauiAppCompatActivity
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
+
+        if (Intent?.Action == Platform.Intent.ActionAppAction)
+        {
+            var actionId = Intent.GetStringExtra("EXTRA_XE_APP_ACTION_ID");
+            if (Shortcuts.TryGetUrl(actionId, out var url))
+            {
+                App.OverrideStartupUrl = url;
+            }
+        }
+
         ApplyBrandedSystemBars();
     }
 
     protected override void OnResume()
     {
         base.OnResume();
-
         Platform.OnResume(this);
     }
 

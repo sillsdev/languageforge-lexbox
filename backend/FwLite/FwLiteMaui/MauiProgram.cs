@@ -53,17 +53,22 @@ public static class MauiProgram
         {
             essentialsBuilder.UseVersionTracking();
 
-            essentialsBuilder.AddAppAction("home", "Home")
-                .OnAppAction(action =>
+            // Register all shortcuts from a single central place
+            foreach (var action in Shortcuts.Declarations)
+            {
+                essentialsBuilder.AddAppAction(action);
+            }
+
+            essentialsBuilder.OnAppAction(action =>
+            {
+                if (Shortcuts.TryGetUrl(action.Id, out var url))
                 {
-                    if (action.Id == "home")
+                    Application.Current!.Dispatcher.Dispatch(() =>
                     {
-                        App.Current!.Dispatcher.Dispatch(() =>
-                        {
-                            ((App?)App.Current)!.LoadAppUrl("/home");
-                        });
-                    }
-                });
+                        ((App?)Application.Current)?.LoadAppUrl(url);
+                    });
+                }
+            });
         });
         builder.Services.AddFwLiteMauiServices(builder.Configuration, builder.Logging);
 
