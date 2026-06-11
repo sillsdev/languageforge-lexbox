@@ -209,14 +209,14 @@
   {/snippet}
   <div class="mt-6">
     <OrgTabs
-      bind:activeTab={$queryParamValues.tab}
+      bind:activeTab={queryParamValues.tab}
       hideSettingsTab={!canSeeSettings}
       memberCount={org.members.length}
       projectCount={org.projects.length}
     />
   </div>
   <div class="py-6 px-2">
-    {#if $queryParamValues.tab === 'projects'}
+    {#if queryParamValues.tab === 'projects'}
       <ProjectTable columns={['name', 'code', 'users', 'type']} projects={org.projects}>
         {#snippet actions({ project })}
           <td class="p-0">
@@ -247,7 +247,7 @@
       >
         {$t('org_page.confirm_remove_project_from_org', { projectName: projectToRemove, orgName: org.name })}
       </DeleteModal>
-    {:else if $queryParamValues.tab === 'members'}
+    {:else if queryParamValues.tab === 'members'}
       <OrgMemberTable
         {org}
         {user}
@@ -256,12 +256,12 @@
         onOpenUserModal={openUserModal}
         onChangeMemberRole={openChangeMemberRoleModal}
       />
-    {:else if $queryParamValues.tab === 'history'}
+    {:else if queryParamValues.tab === 'history'}
       <div class="space-y-2">
         <DetailItem title={$t('org_page.details.created_at')} text={$date(org.createdDate)} />
         <DetailItem title={$t('org_page.details.updated_at')} text={$date(org.updatedDate)} />
       </div>
-    {:else if $queryParamValues.tab === 'settings'}
+    {:else if queryParamValues.tab === 'settings'}
       {#if isMember}
         <div class="flex justify-end">
           <Button outline variant="btn-error" onclick={leaveOrg}>

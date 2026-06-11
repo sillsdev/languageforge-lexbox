@@ -9,6 +9,7 @@
   import {
     ProjectFilter,
     filterProjects,
+    type Confidentiality,
     type ProjectFilters,
     type ProjectItemWithDraftStatus,
   } from '$lib/components/Projects';
@@ -27,11 +28,12 @@
   let projects = $derived(data.projects);
   let draftProjects = $derived(data.draftProjects);
 
-  type Filters = Pick<ProjectFilters, 'projectSearch' | 'projectType'>;
+  type Filters = Pick<ProjectFilters, 'projectSearch' | 'projectType' | 'confidential'>;
 
   const { queryParamValues: filters, defaultQueryParamValues: defaultFilterValues } = getSearchParams<Filters>({
     projectSearch: queryParam.string<string>(''),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
+    confidential: queryParam.string<Confidentiality | undefined>(undefined),
   });
 
   let limitResults = $state(true);
@@ -42,7 +44,7 @@
     })),
     ...$projects.map((p) => ({ ...p, isDraft: false as const })),
   ]);
-  const filteredProjects: ProjectItemWithDraftStatus[] = $derived(filterProjects(allProjects, $filters));
+  const filteredProjects: ProjectItemWithDraftStatus[] = $derived(filterProjects(allProjects, filters));
   const shownProjects = $derived(limitResults ? limit(filteredProjects) : filteredProjects);
 
   let defaultMode: ViewMode = $derived(allProjects.length < 10 ? 'grid' : 'table');

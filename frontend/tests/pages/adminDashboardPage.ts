@@ -6,6 +6,7 @@ import {ProjectPage} from './projectPage';
 
 export class AdminDashboardPage extends AuthenticatedBasePage {
   get projectFilterBarInput(): Locator { return this.page.locator('.filter-bar').nth(0).getByRole('textbox'); }
+  get userFilterBarInput(): Locator { return this.page.locator('.filter-bar').nth(1).getByRole('textbox'); }
 
   constructor(page: Page) {
     super(page, page.locator(`.breadcrumbs :text('Admin Dashboard')`), '/admin');
