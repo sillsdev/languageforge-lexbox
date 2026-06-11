@@ -6,24 +6,19 @@ using Microsoft.Extensions.Hosting;
 
 namespace LcmCrdt.Tests.Data;
 
-public class RegressionTestHelper(string dbName): IAsyncLifetime
+public class RegressionTestHelper(string projectName) : IAsyncLifetime
 {
     private IHost _host = null!;
     private AsyncServiceScope _asyncScope;
+    //unique db path per instance, so CurrentProjectService doesn't think a db has already run migrations
+    private readonly CrdtProject _crdtProject = new(projectName, $"{projectName}-{Guid.NewGuid():N}.sqlite");
     public IServiceProvider Services => _asyncScope.ServiceProvider;
 
     private async Task InitDbFromScripts(RegressionVersion version)
     {
         var initialSqlFile = GetFilePath($"Scripts/{version}.sql");
         var projectsService = _asyncScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
-        var crdtProject = new CrdtProject(dbName, $"{dbName}.sqlite");
-        if (File.Exists(crdtProject.DbPath))
-        {
-            using var clearConn = new SqliteConnection($"Data Source={crdtProject.DbPath}");
-            SqliteConnection.ClearPool(clearConn);
-            File.Delete(crdtProject.DbPath);
-        }
-        projectsService.SetupProjectContextForNewDb(crdtProject);
+        projectsService.SetupProjectContextForNewDb(_crdtProject);
         await using var lcmCrdtDbContext = await _asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         var sql = await File.ReadAllTextAsync(initialSqlFile);
         var dbConnection = lcmCrdtDbContext.Database.GetDbConnection();
@@ -48,7 +43,7 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
         return InitializeAsync(RegressionVersion.v2);
     }
 
-    public async Task InitializeAsync(RegressionVersion version)
+    public async Task InitializeAsync(RegressionVersion version, bool withDataMigrations = false)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
         builder.Services.AddTestLcmCrdtClient();
@@ -56,6 +51,16 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
         var services = _host.Services;
         _asyncScope = services.CreateAsyncScope();
         await InitDbFromScripts(version);
+
+        // Data migrations are already on their way out. It doesn't really make sense for all tests to run them,
+        // which would change a bunch of verified project snapshots.
+        // When data migrations are removed (#2350), we should run this code unconditionally
+        // at the end of InitDbFromScripts (instead of the current db-migration and refresh-project-data approach)
+        // Because that's closer to the prod code.
+        if (withDataMigrations)
+        {
+            await Services.GetRequiredService<CurrentProjectService>().SetupProjectContext(_crdtProject);
+        }
     }
 
     public async Task DisposeAsync()
@@ -65,6 +70,13 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
         else
         {
             _host.Dispose();
+        }
+
+        if (File.Exists(_crdtProject.DbPath))
+        {
+            using var connection = new SqliteConnection($"Data Source={_crdtProject.DbPath}");
+            SqliteConnection.ClearPool(connection);
+            File.Delete(_crdtProject.DbPath);
         }
     }
 

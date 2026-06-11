@@ -209,6 +209,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #region MorphType
 
+    public async Task<MorphType> CreateMorphType(MorphType morphType)
+    {
+        return await _api.CreateMorphType(NormalizeMorphType(morphType));
+    }
+
     public Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
         return _api.UpdateMorphType(id, NormalizePatch(update));

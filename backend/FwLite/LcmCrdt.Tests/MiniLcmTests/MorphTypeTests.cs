@@ -16,4 +16,14 @@ public class MorphTypeTests : MorphTypeTestsBase
         await base.DisposeAsync();
         await _fixture.DisposeAsync();
     }
+
+    // CRDT only, because fwdata does not support creating morph-types
+    [Fact]
+    public async Task CreateMorphType_Works()
+    {
+        var morphType = CanonicalMorphTypes.All.First().Value.Copy();
+        var createdMorphType = await Api.CreateMorphType(morphType);
+        createdMorphType.Should().NotBeNull();
+        createdMorphType.Should().BeEquivalentTo(morphType);
+    }
 }
