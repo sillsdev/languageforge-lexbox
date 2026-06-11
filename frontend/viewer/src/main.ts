@@ -22,7 +22,7 @@ if (!window.lexbox.IsDotnetHosted) {
 useEventBus();
 
 // Wire up globally-accessible helpers for hosts (e.g., MAUI)
-window.lexbox.SvelteNavigate = (url: string, options?: { replace?: boolean }) =>  navigate(url, options);
+window.lexbox.SvelteNavigate = (url: string, options?: { replace?: boolean }) => navigate(url, options);
 
 //don't mount the app until after we've loaded the local
 void setLanguage('default')

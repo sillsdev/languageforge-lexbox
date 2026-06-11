@@ -1,9 +1,6 @@
+using System.Text.Json;
 using FwLiteShared.Services;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebView;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 
 namespace FwLiteMaui;
@@ -23,6 +20,7 @@ public partial class MainPage : ContentPage
             //only change it if it's still the default, might have been changed already, for example when opening a new window
             if (blazorWebView.StartPath == "/")
                 blazorWebView.StartPath = initial;
+            App.OverrideStartupUrl = null;
         };
         blazorWebView.UrlLoading += BlazorWebViewOnUrlLoading;
     }
@@ -43,7 +41,7 @@ public partial class MainPage : ContentPage
             {
                 var js = $$"""
                     if (window.lexbox.SvelteNavigate) {
-                        window.lexbox.SvelteNavigate('{{url}}', { replace: true });
+                        window.lexbox.SvelteNavigate({{JsonSerializer.Serialize(url)}}, { replace: true });
                     }
                 """;
                 _ = jsRuntime.InvokeVoidAsync("eval", js);

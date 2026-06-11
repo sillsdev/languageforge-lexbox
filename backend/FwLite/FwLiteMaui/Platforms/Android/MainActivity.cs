@@ -25,6 +25,7 @@ public class MainActivity : MauiAppCompatActivity
 
         if (Intent?.Action == Platform.Intent.ActionAppAction)
         {
+            //name comes from internal maui code: https://github.com/dotnet/maui/blob/271d2505eb436600bb84002c8941670abb0ae23b/src/Essentials/src/AppActions/AppActions.android.cs#L83
             var actionId = Intent.GetStringExtra("EXTRA_XE_APP_ACTION_ID");
             if (Shortcuts.TryGetUrl(actionId, out var url))
             {

@@ -11,7 +11,7 @@ declare global {
     Search: { openSearch: (search: string) => void };
     IsDotnetHosted?: boolean;
     // Expose svelte-routing navigate for native hosts (MAUI) and other integrations
-    SvelteNavigate?: (url: string, options?: { replace?: boolean; state?: unknown }) => void;
+    SvelteNavigate?: (url: string, options?: { replace?: boolean }) => void;
     /* eslint-enable @typescript-eslint/naming-convention */
   }
 
