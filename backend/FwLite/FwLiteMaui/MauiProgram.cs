@@ -52,6 +52,18 @@ public static class MauiProgram
         builder.ConfigureEssentials(essentialsBuilder =>
         {
             essentialsBuilder.UseVersionTracking();
+
+            essentialsBuilder.AddAppAction("home", "Home")
+                .OnAppAction(action =>
+                {
+                    if (action.Id == "home")
+                    {
+                        App.Current!.Dispatcher.Dispatch(() =>
+                        {
+                            ((App?)App.Current)!.LoadAppUrl("/home");
+                        });
+                    }
+                });
         });
         builder.Services.AddFwLiteMauiServices(builder.Configuration, builder.Logging);
 

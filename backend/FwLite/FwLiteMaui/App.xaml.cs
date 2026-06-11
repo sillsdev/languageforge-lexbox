@@ -1,4 +1,5 @@
 using FwLiteShared.Services;
+using Microsoft.AspNetCore.Components;
 
 namespace FwLiteMaui;
 
@@ -9,12 +10,13 @@ public partial class App : Application
     public App(MainPage mainPage, IPreferencesService preferences)
     {
         _mainPage = mainPage;
-        var lastUrl = preferences.Get(nameof(PreferenceKey.AppLastUrl));
-        if (lastUrl?.StartsWith('/') == true)
-        {
-            mainPage.StartPath = lastUrl;
-        }
         InitializeComponent();
+    }
+
+    internal void LoadAppUrl(string url)
+    {
+        _mainPage.LoadAppUrl(url);
+
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
