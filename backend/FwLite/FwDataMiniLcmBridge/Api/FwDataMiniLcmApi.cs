@@ -1465,6 +1465,11 @@ public class FwDataMiniLcmApi(
         {
             CreateExampleSentence(lexSense, exampleSentence);
         }
+
+        foreach (var picture in sense.Pictures)
+        {
+            CreatePicture(lexSense, picture);
+        }
     }
 
     public Task<Sense?> GetSense(Guid id)

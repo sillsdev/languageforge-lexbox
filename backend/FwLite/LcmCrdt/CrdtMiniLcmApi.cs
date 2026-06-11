@@ -497,6 +497,12 @@ public class CrdtMiniLcmApi(
                 exampleSentence.Order = exampleOrder++;
                 yield return new CreateExampleSentenceChange(exampleSentence, sense.Id);
             }
+            var pictureOrder = 1;
+            foreach (var picture in sense.Pictures)
+            {
+                picture.Order = pictureOrder++;
+                yield return new CreatePictureChange(picture, sense.Id);
+            }
         }
     }
 
@@ -665,6 +671,12 @@ public class CrdtMiniLcmApi(
         {
             exampleSentence.Order = exampleOrder++;
             yield return new CreateExampleSentenceChange(exampleSentence, sense.Id);
+        }
+        var pictureOrder = 1;
+        foreach (var picture in sense.Pictures)
+        {
+            picture.Order = pictureOrder++;
+            yield return new CreatePictureChange(picture, sense.Id);
         }
     }
 
