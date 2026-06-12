@@ -20,6 +20,7 @@
   import type {EntryListViewMode} from './EntryListViewOptions.svelte';
   import EntryListViewOptions from './EntryListViewOptions.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
+  import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
 
   const projectContext = useProjectContext();
   const viewService = useViewService();
@@ -70,7 +71,7 @@
     <PrimaryNewEntryButton active={!IsMobile.value && isOpen} onclick={newEntry}/>
   {/snippet}
 </SidebarPrimaryAction>
-<div class="flex flex-col h-full">
+<ViewErrorBoundary class="flex flex-col h-full" title={$t`Browse view failed`}>
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 overflow-visible!">
     <IfOnce show={!IsMobile.value || !selectedEntryId.current || !entryOpen.current}>
       <ResizablePane
@@ -129,4 +130,4 @@
       </ResizablePane>
     {/if}
   </ResizablePaneGroup>
-</div>
+</ViewErrorBoundary>
