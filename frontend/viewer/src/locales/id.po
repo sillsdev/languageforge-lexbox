@@ -299,6 +299,10 @@ msgstr "biru"
 msgid "Browse"
 msgstr "Jelajahi"
 
+#: src/project/browse/BrowseView.svelte
+msgid "Browse view failed"
+msgstr ""
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -361,6 +365,7 @@ msgid "Close"
 msgstr "Tutup"
 
 #. Menu option to close project
+#: src/lib/layout/ViewErrorBoundary.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
@@ -1736,6 +1741,10 @@ msgstr "Ukuran:"
 msgid "Skip"
 msgstr "Lewati"
 
+#: src/lib/layout/ViewErrorBoundary.svelte
+msgid "Something went wrong"
+msgstr ""
+
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
@@ -1835,6 +1844,10 @@ msgstr "Tugas {0}"
 msgid "Task not found: {0}"
 msgstr "Tugas tidak ditemukan: {0}"
 
+#: src/project/tasks/TasksView.svelte
+msgid "Task view failed"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
@@ -1933,6 +1946,10 @@ msgstr "Terjemahan {0}"
 #: src/project/ProjectSidebar.svelte
 msgid "Troubleshoot"
 msgstr "Memecahkan masalah"
+
+#: src/lib/layout/ViewErrorBoundary.svelte
+msgid "Try again"
+msgstr ""
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
