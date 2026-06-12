@@ -460,16 +460,18 @@ public class LexboxProjectService : IDisposable
     }
 
     // Internal for unit tests. The retry policy never gives up; this breaks the loop when the user is
-    // logged out. We treat "no token" as "logged out" — distinguishing a transient token failure from a
-    // real logout is OAuthClient's job (see its failure classifier), not ours. Once the user signs back
-    // in, OnAuthenticationChangedAsync rebuilds the listener.
+    // logged out. Logged-out is tested by account presence (IsSignedIn), not by whether a token can be
+    // fetched right now: reconnecting happens precisely when the network is flaky, and fetching a token
+    // can require a refresh round-trip that fails transiently — which would be a false logout. Account
+    // presence is a local-only read and only flips on a real logout. Once the user signs back in,
+    // OnAuthenticationChangedAsync rebuilds the listener.
     internal static async Task HandleReconnecting(
         string cacheKey,
         IMemoryCache cache,
         ILogger logger,
         object connection,
         Func<Task> stopConnection,
-        bool hasValidToken,
+        bool isSignedIn,
         Exception? exception)
     {
         if (exception is not null)
@@ -477,14 +479,14 @@ public class LexboxProjectService : IDisposable
         else
             logger.LogInformation("SignalR connection reconnecting");
 
-        if (hasValidToken) return;
+        if (isSignedIn) return;
 
         // Same guard as the Closed handler: a replacement connection may have been cached since this one
         // started reconnecting; only evict the entry if it is still ours. Stopping ourselves is right
-        // regardless — we are the connection that has no token.
+        // regardless — this connection belongs to a signed-out user.
         if (cache.TryGetValue(cacheKey, out object? cached) && ReferenceEquals(cached, connection))
             cache.Remove(cacheKey);
-        logger.LogWarning("SignalR reconnect aborted: no auth token (logged out); stopping connection");
+        logger.LogWarning("SignalR reconnect aborted: user is logged out; stopping connection");
         try
         {
             await stopConnection();
@@ -593,8 +595,8 @@ public class LexboxProjectService : IDisposable
             var cacheKey = HubConnectionCacheKey(server);
             connection.Reconnecting += async exception =>
             {
-                var hasValidToken = await clientFactory.GetClient(server).GetCurrentToken() is not null;
-                await HandleReconnecting(cacheKey, cache, logger, connection, () => connection.StopAsync(), hasValidToken, exception);
+                var isSignedIn = await clientFactory.GetClient(server).IsSignedIn();
+                await HandleReconnecting(cacheKey, cache, logger, connection, () => connection.StopAsync(), isSignedIn, exception);
             };
             await connection.StartAsync(stoppingToken);
             // intentionally AFTER StartAsync (see catch comment)

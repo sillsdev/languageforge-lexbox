@@ -11,7 +11,7 @@ public class LexboxProjectServiceTests
     private readonly MemoryCache _cache = new(new MemoryCacheOptions());
 
     [Fact]
-    public async Task HandleReconnecting_WithValidToken_KeepsCacheAndDoesNotStop()
+    public async Task HandleReconnecting_WhenSignedIn_KeepsCacheAndDoesNotStop()
     {
         var connection = new object();
         _cache.Set(CacheKey, connection);
@@ -23,7 +23,7 @@ public class LexboxProjectServiceTests
             NullLogger.Instance,
             connection,
             () => { stopCalled = true; return Task.CompletedTask; },
-            hasValidToken: true,
+            isSignedIn: true,
             exception: null);
 
         _cache.TryGetValue(CacheKey, out _).Should().BeTrue();
@@ -31,7 +31,7 @@ public class LexboxProjectServiceTests
     }
 
     [Fact]
-    public async Task HandleReconnecting_WithNoToken_EvictsCacheAndStopsConnection()
+    public async Task HandleReconnecting_WhenLoggedOut_EvictsCacheAndStopsConnection()
     {
         var connection = new object();
         _cache.Set(CacheKey, connection);
@@ -43,7 +43,7 @@ public class LexboxProjectServiceTests
             NullLogger.Instance,
             connection,
             () => { stopCalled = true; return Task.CompletedTask; },
-            hasValidToken: false,
+            isSignedIn: false,
             exception: null);
 
         _cache.TryGetValue(CacheKey, out _).Should().BeFalse();
@@ -51,10 +51,10 @@ public class LexboxProjectServiceTests
     }
 
     [Fact]
-    public async Task HandleReconnecting_WithNoToken_DoesNotEvictAReplacementConnection()
+    public async Task HandleReconnecting_WhenLoggedOut_DoesNotEvictAReplacementConnection()
     {
         // A replacement can be cached between this connection entering Reconnecting and the handler running;
-        // evicting it would orphan a live connection. The handler must still stop ITSELF (it has no token).
+        // evicting it would orphan a live connection. The handler must still stop ITSELF (it's logged out).
         var replacement = new object();
         _cache.Set(CacheKey, replacement);
         var stopCalled = false;
@@ -65,7 +65,7 @@ public class LexboxProjectServiceTests
             NullLogger.Instance,
             connection: new object(),
             () => { stopCalled = true; return Task.CompletedTask; },
-            hasValidToken: false,
+            isSignedIn: false,
             exception: null);
 
         _cache.TryGetValue(CacheKey, out object? cached).Should().BeTrue();
