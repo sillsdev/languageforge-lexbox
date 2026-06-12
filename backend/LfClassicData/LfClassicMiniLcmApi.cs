@@ -355,7 +355,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return new MiniLcm.Models.Picture
         {
             Id = picture.Guid,
-            // SenseId = senseId,
+            SenseId = senseId,
             Caption = ToRichMultiString(picture.Caption),
             // TODO: Create a LfClassicMediaAdapter that can create MediaUris for LF URLs, then use that rather than returning NotFound
             MediaUri = MediaUri.NotFound,

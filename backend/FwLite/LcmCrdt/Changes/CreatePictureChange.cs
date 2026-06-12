@@ -13,7 +13,7 @@ public class CreatePictureChange: CreateChange<Picture>, ISelfNamedType<CreatePi
         : base(picture.Id == Guid.Empty ? Guid.NewGuid() : picture.Id)
     {
         picture.Id = EntityId;
-        // SenseId = senseId;
+        SenseId = senseId;
         Order = picture.Order;
         Caption = picture.Caption;
         MediaUri = picture.MediaUri;
@@ -22,11 +22,10 @@ public class CreatePictureChange: CreateChange<Picture>, ISelfNamedType<CreatePi
     [JsonConstructor]
     private CreatePictureChange(Guid entityId, Guid senseId) : base(entityId)
     {
-        // SenseId = senseId;
+        SenseId = senseId;
     }
 
-    // TODO: Do we need this?
-    // public Guid SenseId { get; init; }
+    public Guid SenseId { get; init; }
     public double Order { get; set; }
     public RichMultiString? Caption { get; set; }
     public MediaUri MediaUri { get; set; }
@@ -39,7 +38,7 @@ public class CreatePictureChange: CreateChange<Picture>, ISelfNamedType<CreatePi
             Order = Order,
             Caption = Caption ?? new(),
             MediaUri = MediaUri,
-            DeletedAt = null, // await context.IsObjectDeleted(SenseId) ? commit.DateTime : (DateTime?)null
+            DeletedAt = await context.IsObjectDeleted(SenseId) ? commit.DateTime : (DateTime?)null
         };
     }
 }

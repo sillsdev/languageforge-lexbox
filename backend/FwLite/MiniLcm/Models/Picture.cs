@@ -8,8 +8,7 @@ public class Picture : IObjectWithId<Picture>, IOrderable
 {
     public virtual Guid Id { get; set; } // Will correspond to the CmPicture.Guid property in liblcm
     public double Order { get; set; }
-    // TODO: Do we need a reference to the owning Sense?
-    // public virtual Guid SenseId { get; set; }
+    public virtual Guid SenseId { get; set; }
     public virtual MediaUri MediaUri { get; set; }
     public virtual RichMultiString Caption { get; set; } = [];
 
