@@ -7,6 +7,7 @@
   import {cn} from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import {navigate} from 'svelte-routing';
+  import {onErrorEvent} from '$lib/errors/global-errors';
 
   let {
     children,
@@ -18,14 +19,18 @@
     class?: string;
   } = $props();
 
+  function onError(error: unknown): void {
+    const errorObj = error instanceof Error ? error : new Error(String(error), { cause: error });
+    onErrorEvent(errorObj);
+  }
+
   function errorMessage(error: unknown): string {
     if (error instanceof Error) return error.message;
-    if (typeof error === 'string') return error;
     return String(error);
   }
 </script>
 
-<svelte:boundary>
+<svelte:boundary onerror={onError}>
   <div class={cn('flex flex-col min-h-0', className)}>
     {@render children()}
   </div>
