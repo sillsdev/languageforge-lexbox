@@ -12,8 +12,8 @@
     <PackageReference Include="SIL.Chorus.Mercurial" />
     <PackageReference Include="SIL.Chorus.ChorusMerge" GeneratePathProperty="true" />
   </ItemGroup>
+  <Import Project="$(MSBuildThisFileDirectory)..\Harmony.App.References.props" />
   <ItemGroup>
-    <ProjectReference Include="../harmony/src/SIL.Harmony/SIL.Harmony.csproj" />
     <ProjectReference Include="../FwLite/FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj" />
     <ProjectReference Include="../FwLite/LcmCrdt/LcmCrdt.csproj" />
     <ProjectReference Include="../FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj" />

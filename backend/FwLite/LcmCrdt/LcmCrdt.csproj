@@ -27,9 +27,8 @@
     <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" />
     <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" />
   </ItemGroup>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\Harmony.Linq2db.References.props" />
   <ItemGroup>
-    <ProjectReference Include="..\..\harmony\src\SIL.Harmony\SIL.Harmony.csproj" />
-    <ProjectReference Include="..\..\harmony\src\SIL.Harmony.Linq2db\SIL.Harmony.Linq2db.csproj" />
     <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <UseHarmonySource>true</UseHarmonySource>
+    <!-- Optional: <HarmonySourcePath>C:\dev\harmony</HarmonySourcePath> -->
+  </PropertyGroup>
+</Project>
