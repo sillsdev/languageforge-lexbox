@@ -131,7 +131,11 @@ public class OAuthClientSilentRefreshTests
         var (client, appMock, _, _) = BuildClient(async (account, _) =>
         {
             acquireEntered.TrySetResult();
+#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
+
             await release.Task;
+#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
+
             return ExpiredResult(account);
         });
 
