@@ -785,6 +785,7 @@ public class FwDataMiniLcmApi(
             Definition = FromLcmMultiString(sense.Definition),
             PartOfSpeech = pos is null ? null : FromLcmPartOfSpeech(pos),
             PartOfSpeechId = pos?.Guid,
+            Pictures = [.. sense.PicturesOS.Select(picture => FromLcmPicture(sense.Guid, picture))],
             SemanticDomains = [.. sense.SemanticDomainsRC.Select(FromLcmSemanticDomain)],
             ExampleSentences = [.. sense.ExamplesOS.Select(sentence => FromLexExampleSentence(sense.Guid, sentence))]
         };
