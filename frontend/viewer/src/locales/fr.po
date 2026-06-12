@@ -173,6 +173,12 @@ msgstr "Ajouter une partie de"
 msgid "Add Sense"
 msgstr "Ajouter du sens"
 
+#. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
+#. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
+#: src/project/browse/EntriesList.svelte
+msgid "Add to dictionary"
+msgstr ""
+
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
@@ -458,16 +464,6 @@ msgstr "Créer une entrée"
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Créer un projet exemplaire"
-
-#: src/project/browse/EntriesList.svelte
-#: src/project/browse/EntriesList.svelte
-msgid "Create new entry {0}"
-msgstr ""
-
-#: src/project/browse/EntriesList.svelte
-#: src/project/browse/EntriesList.svelte
-msgid "Create new word {0}"
-msgstr ""
 
 #. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte

@@ -173,6 +173,12 @@ msgstr "의 일부를 추가합니다."
 msgid "Add Sense"
 msgstr "센스 추가"
 
+#. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
+#. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
+#: src/project/browse/EntriesList.svelte
+msgid "Add to dictionary"
+msgstr ""
+
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
@@ -458,16 +464,6 @@ msgstr "항목 만들기"
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "예제 프로젝트 만들기"
-
-#: src/project/browse/EntriesList.svelte
-#: src/project/browse/EntriesList.svelte
-msgid "Create new entry {0}"
-msgstr ""
-
-#: src/project/browse/EntriesList.svelte
-#: src/project/browse/EntriesList.svelte
-msgid "Create new word {0}"
-msgstr ""
 
 #. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
