@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LcmCrdt.Migrations
 {
     [DbContext(typeof(LcmCrdtDbContext))]
-    [Migration("20260611075153_PicturesStoredAsJsonOnSenses")]
-    partial class PicturesStoredAsJsonOnSenses
+    [Migration("20260612053406_AddPicturesTable")]
+    partial class AddPicturesTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -376,6 +376,36 @@ namespace LcmCrdt.Migrations
                         .IsUnique();
 
                     b.ToTable("PartOfSpeech");
+                });
+
+            modelBuilder.Entity("MiniLcm.Models.Picture", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Caption")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MediaUri")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Order")
+                        .HasColumnType("REAL");
+
+                    b.Property<Guid>("SenseId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SenseId");
+
+                    b.ToTable("Picture");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.Publication", b =>
@@ -742,6 +772,15 @@ namespace LcmCrdt.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
+            modelBuilder.Entity("MiniLcm.Models.Picture", b =>
+                {
+                    b.HasOne("MiniLcm.Models.Sense", null)
+                        .WithMany("Pictures")
+                        .HasForeignKey("SenseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MiniLcm.Models.Publication", b =>
                 {
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
@@ -776,41 +815,7 @@ namespace LcmCrdt.Migrations
                         .HasForeignKey("MiniLcm.Models.Sense", "SnapshotId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.OwnsMany("MiniLcm.Models.Picture", "Pictures", b1 =>
-                        {
-                            b1.Property<Guid>("SenseId");
-
-                            b1.Property<int>("__synthesizedOrdinal")
-                                .ValueGeneratedOnAddOrUpdate();
-
-                            b1.Property<string>("Caption")
-                                .IsRequired()
-                                .HasColumnType("jsonb");
-
-                            b1.Property<DateTimeOffset?>("DeletedAt");
-
-                            b1.Property<Guid>("Id");
-
-                            b1.Property<string>("MediaUri")
-                                .IsRequired();
-
-                            b1.Property<double>("Order");
-
-                            b1.HasKey("SenseId", "__synthesizedOrdinal");
-
-                            b1.ToTable("Sense");
-
-                            b1
-                                .ToJson("Pictures")
-                                .HasColumnType("TEXT");
-
-                            b1.WithOwner()
-                                .HasForeignKey("SenseId");
-                        });
-
                     b.Navigation("PartOfSpeech");
-
-                    b.Navigation("Pictures");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.WritingSystem", b =>
@@ -861,6 +866,8 @@ namespace LcmCrdt.Migrations
             modelBuilder.Entity("MiniLcm.Models.Sense", b =>
                 {
                     b.Navigation("ExampleSentences");
+
+                    b.Navigation("Pictures");
                 });
 
             modelBuilder.Entity("SIL.Harmony.Commit", b =>
