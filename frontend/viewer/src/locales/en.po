@@ -294,6 +294,10 @@ msgstr "blue"
 msgid "Browse"
 msgstr "Browse"
 
+#: src/project/browse/BrowseView.svelte
+msgid "Browse view failed"
+msgstr "Browse view failed"
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -356,6 +360,7 @@ msgid "Close"
 msgstr "Close"
 
 #. Menu option to close project
+#: src/lib/layout/ViewErrorBoundary.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Close Dictionary"
@@ -1731,6 +1736,10 @@ msgstr "Size:"
 msgid "Skip"
 msgstr "Skip"
 
+#: src/lib/layout/ViewErrorBoundary.svelte
+msgid "Something went wrong"
+msgstr "Something went wrong"
+
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
@@ -1830,6 +1839,10 @@ msgstr "Task {0}"
 msgid "Task not found: {0}"
 msgstr "Task not found: {0}"
 
+#: src/project/tasks/TasksView.svelte
+msgid "Task view failed"
+msgstr "Task view failed"
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
@@ -1928,6 +1941,10 @@ msgstr "Translation {0}"
 #: src/project/ProjectSidebar.svelte
 msgid "Troubleshoot"
 msgstr "Troubleshoot"
+
+#: src/lib/layout/ViewErrorBoundary.svelte
+msgid "Try again"
+msgstr "Try again"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
