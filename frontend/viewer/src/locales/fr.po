@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-14 10:19\n"
+"PO-Revision-Date: 2026-06-13 08:06\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -299,6 +299,10 @@ msgstr "bleu"
 msgid "Browse"
 msgstr "Parcourir"
 
+#: src/project/browse/BrowseView.svelte
+msgid "Browse view failed"
+msgstr "La vue de la navigation a échoué"
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -361,6 +365,7 @@ msgid "Close"
 msgstr "Fermer"
 
 #. Menu option to close project
+#: src/lib/layout/ViewErrorBoundary.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Fermer le dictionnaire"
@@ -1736,6 +1741,10 @@ msgstr "Taille :"
 msgid "Skip"
 msgstr "Ignorer"
 
+#: src/lib/layout/ViewErrorBoundary.svelte
+msgid "Something went wrong"
+msgstr "Quelque chose s'est mal passé"
+
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
@@ -1835,6 +1844,10 @@ msgstr "Tâche {0}"
 msgid "Task not found: {0}"
 msgstr "Tâche introuvable : {0}"
 
+#: src/project/tasks/TasksView.svelte
+msgid "Task view failed"
+msgstr "La vue des tâches a échoué"
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
@@ -1933,6 +1946,10 @@ msgstr "Traduction {0}"
 #: src/project/ProjectSidebar.svelte
 msgid "Troubleshoot"
 msgstr "Dépannage"
+
+#: src/lib/layout/ViewErrorBoundary.svelte
+msgid "Try again"
+msgstr "Réessayez"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2162,3 +2179,4 @@ msgstr "Vous n'êtes pas autorisé(e) de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
+
