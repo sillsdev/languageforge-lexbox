@@ -392,6 +392,7 @@
     Keys: 
       Id PK
     Annotations: 
+      CustomIndex:CompositeIndexes: [{"paths":["HybridDateTime.DateTime","HybridDateTime.Counter","Id"],"unique":false,"name":"IX_Commits_DateTime_Counter_Id"}]
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 

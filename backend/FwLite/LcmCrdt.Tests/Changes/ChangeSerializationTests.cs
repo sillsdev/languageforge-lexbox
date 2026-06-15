@@ -58,8 +58,6 @@ public class ChangeSerializationTests : BaseSerializationTest
     [MemberData(nameof(Changes))]
     public void CanRoundTripChanges(IChange change)
     {
-        //commit id is not serialized
-        change.CommitId = Guid.Empty;
         var type = change.GetType();
         var json = JsonSerializer.Serialize(change, HarmonyJsonOptions);
         var newChange = JsonSerializer.Deserialize(json, type, HarmonyJsonOptions);

@@ -10,8 +10,10 @@
   import type {TaskSubject} from './subject.svelte';
   import {t} from 'svelte-i18n-lingui';
   import {cn} from '$lib/utils';
+  import {useProjectContext} from '$project/project-context.svelte';
 
   const TASK_SUBJECT_COUNT = 10;
+  const projectContext = useProjectContext();
 
   let {
     taskId,
@@ -61,22 +63,24 @@
                      disableNewEntry
                      onSelectEntry={e => entry = e} selectedEntryId={entry?.id}/>
         <Button onclick={onDone}>{$t`Done`}</Button>
-        <SubjectPopup
-          bind:entry
-          {task}
-          {progress}
-          onNextEntry={async () => {
-            const next = await entriesList?.selectNextEntry();
-            if (!next) onDone();
-          }}
-          onCompletedSubject={subject => {
-            completedSubjects.push(subject);
-            allCompletedSubjects.push(subject);
-            if (completedSubjects.length === TASK_SUBJECT_COUNT) {
-              onDone();
-            }
-          }}
-        />
+        {#if projectContext.maybeApi}
+          <SubjectPopup
+            bind:entry
+            {task}
+            {progress}
+            onNextEntry={async () => {
+              const next = await entriesList?.selectNextEntry();
+              if (!next) onDone();
+            }}
+            onCompletedSubject={subject => {
+              completedSubjects.push(subject);
+              allCompletedSubjects.push(subject);
+              if (completedSubjects.length === TASK_SUBJECT_COUNT) {
+                onDone();
+              }
+            }}
+          />
+        {/if}
       </div>
     {:else}
       <DoneView subjects={completedSubjects}
