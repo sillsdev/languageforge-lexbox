@@ -28,7 +28,6 @@ public class LcmCrdtDbContext(
     public IQueryable<PartOfSpeech> PartsOfSpeech => Set<PartOfSpeech>().AsNoTracking();
     public IQueryable<Publication> Publications => Set<Publication>().AsNoTracking();
     public IQueryable<CustomView> CustomViews => Set<CustomView>().AsNoTracking();
-    public IQueryable<Picture> Pictures => Set<Picture>().AsNoTracking();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,6 +44,9 @@ public class LcmCrdtDbContext(
 
         var morphTypeModel = modelBuilder.Entity<MorphType>();
         morphTypeModel.HasIndex(m => m.Kind).IsUnique();
+
+        var senseModel = modelBuilder.Entity<Sense>();
+        senseModel.Property(s => s.Pictures).HasColumnType("jsonb");
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
@@ -62,6 +64,8 @@ public class LcmCrdtDbContext(
             .HaveConversion<WritingSystemIdConverter>();
         builder.Properties<MiniLcm.Media.MediaUri>()
             .HaveConversion<MediaUriDbConverter>();
+        builder.Properties<List<Picture>>()
+            .HaveConversion<PictureListDbConverter>();
     }
 
     private class MultiStringDbConverter() : ValueConverter<MultiString, string>(
@@ -98,4 +102,8 @@ public class LcmCrdtDbContext(
     private class MediaUriDbConverter() : ValueConverter<MiniLcm.Media.MediaUri, string>(
         mul => JsonSerializer.Serialize(mul, (JsonSerializerOptions?)null),
         json => JsonSerializer.Deserialize<MiniLcm.Media.MediaUri>(json, (JsonSerializerOptions?)null));
+
+    private class PictureListDbConverter() : ValueConverter<List<Picture>, string>(
+        pic => JsonSerializer.Serialize(pic, (JsonSerializerOptions?)null),
+        json => JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new());
 }

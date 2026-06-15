@@ -828,7 +828,6 @@ public class FwDataMiniLcmApi(
         {
             Id = picture.Guid,
             Caption = FromLcmMultiString(picture.Caption),
-            SenseId = senseGuid,
             MediaUri = MediaUriFromLcmPicture(picture),
         };
     }

@@ -501,7 +501,7 @@ public class CrdtMiniLcmApi(
             foreach (var picture in sense.Pictures)
             {
                 picture.Order = pictureOrder++;
-                yield return new CreatePictureChange(picture, sense.Id);
+                yield return new CreateSensePictureChange(picture, sense.Id);
             }
         }
     }
@@ -676,7 +676,7 @@ public class CrdtMiniLcmApi(
         foreach (var picture in sense.Pictures)
         {
             picture.Order = pictureOrder++;
-            yield return new CreatePictureChange(picture, sense.Id);
+            yield return new CreateSensePictureChange(picture, sense.Id);
         }
     }
 
@@ -865,12 +865,8 @@ public class CrdtMiniLcmApi(
         BetweenPosition? between = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var sense = await repo.GetSense(senseId);
-        // TODO: Consider what happens if CreatePicture ends up arriving before its corresponding Sense is created
-        if (sense is null) throw NotFoundException.ForType<Sense>(senseId);
-        picture.Order = OrderPicker.PickOrder(sense.Pictures, between);
-        await AddChange(new CreatePictureChange(picture, senseId));
-        return sense.Pictures.FirstOrDefault(pic => pic.Id == picture.Id) ?? throw NotFoundException.ForType<Picture>(picture.Id);
+        await AddChange(new CreateSensePictureChange(picture, senseId, between));
+        return picture;
     }
 
     public async Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)

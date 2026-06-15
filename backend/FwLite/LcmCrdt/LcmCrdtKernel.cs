@@ -140,6 +140,9 @@ public static class LcmCrdtKernel
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
+                mappingSchema.SetConvertExpression<string?, List<Picture>>(
+                    json => string.IsNullOrEmpty(json) ? new() : JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new List<Picture>()
+                );
                 optionsBuilder.AddMappingSchema(mappingSchema);
                 optionsBuilder.AddCustomOptions(options => options.UseSQLite());
 
@@ -220,6 +223,10 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => JsonSerializer.Deserialize<List<SemanticDomain>>(json, (JsonSerializerOptions?)null) ?? new());
+                builder.Property(s => s.Pictures)
+                    .HasColumnType("jsonb")
+                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new());
             })
             .Add<ExampleSentence>(builder =>
             {
@@ -333,7 +340,7 @@ public static class LcmCrdtKernel
             .Add<UpdateTranslationChange>()
             .Add<SetFirstTranslationIdChange>()
 
-            .Add<CreatePictureChange>()
+            .Add<CreateSensePictureChange>()
             .Add<CreatePartOfSpeechChange>()
             .Add<CreateSemanticDomainChange>()
             .Add<CreateWritingSystemChange>()

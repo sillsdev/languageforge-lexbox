@@ -1,44 +1,48 @@
 using System.Text.Json.Serialization;
 using MiniLcm.Media;
-using SIL.Harmony;
+using MiniLcm.SyncHelpers;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
 
-public class CreatePictureChange: CreateChange<Picture>, ISelfNamedType<CreatePictureChange>
+public class CreateSensePictureChange: EditChange<Sense>, ISelfNamedType<CreateSensePictureChange>
 {
-    public CreatePictureChange(Picture picture, Guid senseId)
-        : base(picture.Id == Guid.Empty ? Guid.NewGuid() : picture.Id)
+    public CreateSensePictureChange(Picture picture, Guid senseId, BetweenPosition? between = null)
+        : base(senseId)
     {
-        picture.Id = EntityId;
-        SenseId = senseId;
+        PictureId = picture.Id == Guid.Empty ? Guid.NewGuid() : picture.Id;
         Order = picture.Order;
         Caption = picture.Caption;
         MediaUri = picture.MediaUri;
+        Between = between;
     }
 
     [JsonConstructor]
-    private CreatePictureChange(Guid entityId, Guid senseId) : base(entityId)
+    private CreateSensePictureChange(Guid entityId) : base(entityId)
     {
-        SenseId = senseId;
     }
 
-    public Guid SenseId { get; init; }
+    public Guid PictureId { get; set; }
     public double Order { get; set; }
     public RichMultiString? Caption { get; set; }
     public MediaUri MediaUri { get; set; }
+    public BetweenPosition? Between { get; set; }
 
-    public override async ValueTask<Picture> NewEntity(Commit commit, IChangeContext context)
+    public override ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
-        return new Picture
+        Order = OrderPicker.PickOrder(entity.Pictures, Between);
+        var pic = new Picture
         {
-            Id = EntityId,
+            Id = PictureId,
             Order = Order,
             Caption = Caption ?? new(),
             MediaUri = MediaUri,
-            DeletedAt = await context.IsObjectDeleted(SenseId) ? commit.DateTime : (DateTime?)null
+            DeletedAt = entity.DeletedAt,
         };
+        entity.Pictures.Add(pic);
+        entity.Pictures.Sort((a, b) => a.Order == b.Order ? a.Id.CompareTo(b.Id) : a.Order.CompareTo(b.Order));
+        return ValueTask.CompletedTask;
     }
 }
