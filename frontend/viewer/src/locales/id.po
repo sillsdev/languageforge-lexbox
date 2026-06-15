@@ -173,6 +173,12 @@ msgstr "Tambahkan bagian dari"
 msgid "Add Sense"
 msgstr "Tambahkan Pengertian"
 
+#. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
+#. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
+#: src/project/browse/EntriesList.svelte
+msgid "Add to dictionary"
+msgstr ""
+
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
@@ -1327,6 +1333,7 @@ msgstr "Tidak ada subjek, tidak dapat membuat {0}baru"
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/project/browse/EntriesList.svelte
 msgid "No words found"
 msgstr "Tidak ada kata yang ditemukan"
 
