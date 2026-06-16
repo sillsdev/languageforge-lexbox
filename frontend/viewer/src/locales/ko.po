@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-06-13 08:06\n"
+"PO-Revision-Date: 2026-06-16 03:05\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -172,6 +172,12 @@ msgstr "의 일부를 추가합니다."
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
 msgstr "센스 추가"
+
+#. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
+#. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
+#: src/project/browse/EntriesList.svelte
+msgid "Add to dictionary"
+msgstr "사전에 추가"
 
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -1327,6 +1333,7 @@ msgstr "제목이 없습니다, 새로 만들 수 없습니다 {0}"
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/project/browse/EntriesList.svelte
 msgid "No words found"
 msgstr "단어를 찾을 수 없습니다."
 
