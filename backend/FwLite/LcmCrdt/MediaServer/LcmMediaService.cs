@@ -172,4 +172,21 @@ public class LcmMediaService(
         await resourceService.UploadPendingResources(currentProjectService.ProjectData.ClientId, this);
         return true;
     }
+
+    public async Task DownloadResources(IEnumerable<Guid> resourceIds)
+    {
+        await Parallel.ForEachAsync(resourceIds, new ParallelOptions()
+        {
+            MaxDegreeOfParallelism = 3
+        }, async (resourceId, cancellationToken) =>
+        {
+            await resourceService.DownloadResource(resourceId, this);
+        });
+    }
+
+    public async Task<LcmFileMetadata> GetFileMetadata(Guid fileId)
+    {
+        var mediaClient = await MediaServerClient();
+        return await mediaClient.GetFileMetadata(fileId);
+    }
 }

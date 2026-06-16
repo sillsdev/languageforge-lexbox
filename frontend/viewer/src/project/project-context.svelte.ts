@@ -10,6 +10,7 @@ import {resource, type ResourceReturn} from 'runed';
 import {DetachedResource} from './detached-resource';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
+import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
 
 const projectContextKey = 'current-project';
 
@@ -19,6 +20,7 @@ interface ProjectContextSetup {
   api: IMiniLcmJsInvokable;
   historyService?: IHistoryServiceJsInvokable;
   syncService?: ISyncServiceJsInvokable;
+  mediaFilesService?: IMediaFilesServiceJsInvokable;
   projectName: string;
   projectCode: string;
   projectType?: 'crdt' | 'fwdata';
@@ -47,6 +49,7 @@ export class ProjectContext {
   #projectData = $state<IProjectData>();
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
+  #mediaFilesService: IMediaFilesServiceJsInvokable | undefined = $state(undefined);
   #paratext = $state(false);
   #detachedResources = new SvelteSet<DetachedResource<unknown>>();
   #features = resource(() => this.#api, (api) => {
@@ -101,6 +104,9 @@ export class ProjectContext {
   public get syncService(): ISyncServiceJsInvokable | undefined {
     return this.#syncService;
   }
+  public get mediaFilesService(): IMediaFilesServiceJsInvokable | undefined {
+    return this.#mediaFilesService;
+  }
   public get inParatext(): boolean {
     return this.#paratext;
   }
@@ -113,6 +119,7 @@ export class ProjectContext {
     this.#api = args.api;
     this.#historyService = args.historyService;
     this.#syncService = args.syncService;
+    this.#mediaFilesService = args.mediaFilesService;
     this.#projectName = args.projectName;
     this.#projectCode = args.projectCode;
     this.#projectType = args.projectType;

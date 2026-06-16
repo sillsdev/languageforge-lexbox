@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  export type View = 'dashboard' | 'browse' | 'tasks' | 'activity';
+  export type View = 'dashboard' | 'browse' | 'tasks' | 'activity' | 'media-manager';
 </script>
 
 <script lang="ts">
@@ -96,6 +96,9 @@
 
           {#if features.history}
             {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
+          {/if}
+          {#if projectContext.mediaFilesService}
+            {@render ViewButton('media-manager', 'i-mdi-image', $t`Media Manager`)}
           {/if}
         </Sidebar.Menu>
       </Sidebar.GroupContent>
