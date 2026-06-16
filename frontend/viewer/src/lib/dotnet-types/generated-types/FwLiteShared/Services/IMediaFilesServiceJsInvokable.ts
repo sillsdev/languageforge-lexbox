@@ -5,6 +5,7 @@
 
 import type {IHarmonyResource} from '../../SIL/Harmony/Resource/IHarmonyResource';
 import type {ILcmFileMetadata} from '../../MiniLcm/Media/ILcmFileMetadata';
+import type {IReadFileResponseJs} from './IReadFileResponseJs';
 
 export interface IMediaFilesServiceJsInvokable
 {
@@ -12,5 +13,6 @@ export interface IMediaFilesServiceJsInvokable
 	downloadResources(resourceIds: string[]) : Promise<void>;
 	uploadPendingResources() : Promise<void>;
 	getFileMetadata(fileId: string) : Promise<ILcmFileMetadata>;
+	getFileStream(fileId: string) : Promise<IReadFileResponseJs>;
 }
 /* eslint-enable */

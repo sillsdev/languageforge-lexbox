@@ -4,4 +4,5 @@ public record LcmFileMetadata(
     string Filename,
     string MimeType,
     string? Author = null,
-    DateTimeOffset? UploadDate = null);
+    DateTimeOffset? UploadDate = null,
+    int? SizeInBytes = null);
