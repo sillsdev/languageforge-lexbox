@@ -173,7 +173,7 @@
     <div class="text-muted-foreground px-2">{$t`No media files found`}</div>
   {:else}
     <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-      <ul class="min-h-0 space-y-2 overflow-y-auto overscroll-contain pb-4 md:pb-0">
+      <ul class="min-h-0 space-y-2 overflow-y-auto overscroll-contain pb-4 px-2 pt-2 md:pb-0">
         {#each mediaFiles.current as file (file.id)}
           {@const status = locationStatus(file)}
           <li>

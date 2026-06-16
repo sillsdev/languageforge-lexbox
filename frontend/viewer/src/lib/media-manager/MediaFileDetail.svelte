@@ -8,6 +8,7 @@
   import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
   import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
   import {AppNotification} from '$lib/notifications/notifications';
+  import AudioInput, {AUDIO_LOADER_HANDLED} from '$lib/components/field-editors/audio-input.svelte';
   import {cn} from '$lib/utils';
   import {resource} from 'runed';
   import {t} from 'svelte-i18n-lingui';
@@ -118,12 +119,33 @@
     };
   }
 
-  const preview = resource(
-    () => [file.id, file.local, mediaFilesService, metadata.current?.mimeType, metadata.current?.filename] as const,
-    async ([fileId, local, service, mimeType, filename]) => {
-      if (!service || !local) return undefined;
+  const isAudioPreview = $derived(
+    file.local && (metadata.current?.mimeType.startsWith('audio/') ?? false),
+  );
 
-      const result = await loadFileBlob(service, fileId, mimeType, filename);
+  async function mediaFileAudioLoader(fileId: string) {
+    if (!mediaFilesService) throw new Error('No media files service');
+    const response = await mediaFilesService.getFileStream(fileId);
+    if (!response.stream) {
+      AppNotification.error(
+        $t`Unable to load audio`,
+        readFileErrorMessage(response.result, response.errorMessage),
+      );
+      return AUDIO_LOADER_HANDLED;
+    }
+    return {
+      stream: await response.stream.stream(),
+      filename: response.fileName ?? metadata.current?.filename ?? fileId,
+    };
+  }
+
+  const preview = resource(
+    () => [file.id, file.local, mediaFilesService, metadata.current] as const,
+    async ([fileId, local, service, meta]) => {
+      if (!service || !local || !meta) return undefined;
+      if (meta.mimeType.startsWith('audio/')) return undefined;
+
+      const result = await loadFileBlob(service, fileId, meta.mimeType, meta.filename);
       if (result.kind === 'error') {
         return {kind: 'error' as const, response: result.response};
       }
@@ -254,7 +276,7 @@
           icon="i-mdi-content-save"
           class="shrink-0"
           loading={savingAs}
-          disabled={savingAs || preview.loading}
+          disabled={savingAs || (!isAudioPreview && preview.loading)}
           onclick={() => void saveAs()}
         >
           {$t`Save as`}
@@ -317,6 +339,12 @@
             {$t`Download`}
           </Button>
         </div>
+      {:else if isAudioPreview}
+        <AudioInput
+          audioId={file.id}
+          readonly
+          loader={mediaFileAudioLoader}
+        />
       {:else if preview.loading}
         <div class="flex items-center gap-2 text-sm text-muted-foreground">
           <Icon icon="i-mdi-loading" class="size-4 animate-spin" />
@@ -334,8 +362,6 @@
             alt={title}
             class="max-h-80 w-full rounded-md border bg-background object-contain"
           />
-        {:else if previewKind === 'audio'}
-          <audio controls src={preview.current.url} class="w-full"></audio>
         {:else if previewKind === 'video'}
           <!-- svelte-ignore a11y_media_has_caption -->
           <video controls src={preview.current.url} class="max-h-80 w-full rounded-md border bg-background"></video>
