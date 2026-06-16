@@ -190,6 +190,20 @@ msgstr "Tambahkan Kata"
 msgid "All"
 msgstr "Semua"
 
+#. Filter option in activity view author dropdown — show commits from every author.
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+msgid "All authors"
+msgstr ""
+
+#. Filter option in activity view change-type dropdown — show all kinds of edits.
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+msgid "All change types"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
 #. Placeholder/suggestion in search field
@@ -755,6 +769,12 @@ msgstr "Gagal menyalin ke papan klip"
 msgid "Failed to download {0}"
 msgstr "Gagal mengunduh {0}"
 
+#. Error message when the activity feed fails to load (toast and empty state).
+#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "Failed to load activity"
+msgstr ""
+
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
 #: src/project/browse/EntriesList.svelte
@@ -982,6 +1002,11 @@ msgstr "Headword"
 msgid "Hide"
 msgstr "Sembunyikan"
 
+#. Toggle in activity view to hide commits imported from FieldWorks (author name "FieldWorks").
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Hide FieldWorks"
+msgstr ""
+
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "History"
@@ -1095,6 +1120,12 @@ msgstr "Mode daftar"
 #: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "Arti harfiah"
+
+#. Accessible label on the activity view loading spinner while filtered commits are fetched.
+#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "Loading activity"
+msgstr ""
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1266,13 +1297,19 @@ msgstr "Entri Baru"
 msgid "New Word"
 msgstr "Kata Baru"
 
+#. Sort option in activity view — most recent commit first.
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Newest first"
+msgstr ""
+
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
 msgstr "Berikutnya"
 
+#. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
-msgid "No activity found"
-msgstr "Tidak ada aktivitas yang ditemukan"
+msgid "No activity matches these filters"
+msgstr ""
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
@@ -1393,6 +1430,11 @@ msgstr "Offline"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Offline, tidak dapat mengunduh"
+
+#. Sort option in activity view — earliest commit first.
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Oldest first"
+msgstr ""
 
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1811,6 +1853,16 @@ msgstr "Sinkronkan perubahan Anda dengan pengguna FieldWorks Lite lainnya"
 msgid "Synced"
 msgstr "Disinkronkan"
 
+#. Sort option in activity view — by upload/download time, newest synced first (unsynced commits last).
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Synced newest"
+msgstr ""
+
+#. Sort option in activity view — by upload/download time, oldest synced first (unsynced commits last).
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Synced oldest"
+msgstr ""
+
 #. Status showing sync source server
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
@@ -1984,7 +2036,11 @@ msgid "Unable to open in FieldWorks"
 msgstr "Tidak dapat dibuka di FieldWorks"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/activity/ActivityView.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Unknown"

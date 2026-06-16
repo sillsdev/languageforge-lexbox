@@ -1,4 +1,15 @@
-import type {IEntry, IExampleSentence, IHistoryLineItem, IProjectActivity, ISense} from '$lib/dotnet-types';
+import {
+  ActivitySort,
+  type IActivityAuthor,
+  type IActivityChangeType,
+  type IActivityQuery,
+  type IChangeContext,
+  type IEntry,
+  type IExampleSentence,
+  type IHistoryLineItem,
+  type IProjectActivity,
+  type ISense,
+} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
@@ -17,14 +28,11 @@ type EntityType = {entity: IEntry, entityName: 'Entry'}
 
 export type HistoryItem = IHistoryLineItem & EntityType;
 
+export type {IActivityQuery, IActivityAuthor, IActivityChangeType};
+
 export class HistoryService {
+
   get historyApi(): IHistoryServiceJsInvokable | undefined {
-    if (import.meta.env.DEV) {
-      //randomly return undefined to test fallback
-      if (Math.random() < 0.5) {
-        return undefined;
-      }
-    }
     return this.projectContext.historyService;
   }
 
@@ -36,8 +44,8 @@ export class HistoryService {
   }
 
   async load(objectId: string) {
-    const data = await (this.historyApi?.getHistory(objectId) ?? fetch(`/api/history/${this.projectContext.projectCode}/${objectId}`)
-      .then(res => res.json())) as HistoryItem[];
+    this.ensureLoaded();
+    const data = await this.historyApi.getHistory(objectId);
     if (!Array.isArray(data)) {
       console.error('Invalid history data', data);
       return [];
@@ -47,9 +55,8 @@ export class HistoryService {
   }
 
   async fetchSnapshot(history: HistoryItem, objectId: string): Promise<HistoryItem> {
-    const data = (await this.historyApi?.getObject(history.commitId, objectId)
-      ?? await fetch(`/api/history/${this.projectContext.projectCode}/snapshot/commit/${history.commitId}?entityId=${objectId}`)
-          .then(res => res.json())) as EntityType['entity'];
+    this.ensureLoaded();
+    const data = (await this.historyApi.getObject(history.commitId, objectId)) as EntityType['entity'];
     if (isEntry(data)) {
       return {...history, entity: data, entityName: 'Entry'};
     }
@@ -62,17 +69,33 @@ export class HistoryService {
     throw new Error('Unable to determine type of object ' + JSON.stringify(data));
   }
 
-  async activity(projectCode: string, skip: number, take: number): Promise<IProjectActivity[]> {
-    return await (this.historyApi?.projectActivity(skip, take)
-        ?? fetch(`/api/activity/${projectCode}?skip=${skip}&take=${take}`).then(res => res.json())) as IProjectActivity[];
-  }
-
-  loadChangeContext(commitId: string, changeIndex: number) {
+  async listActivityAuthors(): Promise<IActivityAuthor[]> {
     this.ensureLoaded();
-    return this.projectContext.historyService!.loadChangeContext(commitId, changeIndex);
+    return await this.historyApi.listActivityAuthors();
   }
 
-  private ensureLoaded() {
+  async listActivityChangeTypes(): Promise<IActivityChangeType[]> {
+    this.ensureLoaded();
+    return await this.historyApi.listActivityChangeTypes();
+  }
+
+  async activity(skip: number, take: number, query?: IActivityQuery): Promise<IProjectActivity[]> {
+    this.ensureLoaded();
+    return await this.historyApi.projectActivity(
+        skip,
+        take, 
+        query?.authorId, 
+        query?.authorName,
+        query?.excludeFieldWorks ?? false,
+        query?.sort ?? ActivitySort.NewestFirst);
+  }
+
+  async loadChangeContext(commitId: string, changeIndex: number): Promise<IChangeContext> {
+    this.ensureLoaded();
+    return this.historyApi.loadChangeContext(commitId, changeIndex);
+  }
+
+  private ensureLoaded(): asserts this is {loaded: true, historyApi: IHistoryServiceJsInvokable} {
     if (!this.loaded) {
       throw new Error('HistoryService not loaded');
     }

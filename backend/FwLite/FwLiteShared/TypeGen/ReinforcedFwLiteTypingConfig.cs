@@ -174,6 +174,9 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
+            typeof(ActivityAuthor),
+            typeof(ActivityChangeType),
+            typeof(ActivityQuery),
             typeof(ChangeContext),
             typeof(ChangeEntity<IChange>),
             typeof(IChange),
@@ -184,6 +187,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(AvailableUpdate),
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
+        builder.ExportAsEnum<ActivitySort>().UseString();
         builder.ExportAsEnum<FwEventType>().UseString();
         builder.ExportAsEnum<LogLevel>().UseString(false);
         var eventJsAttrs = typeof(IFwEvent).GetCustomAttributes<JsonDerivedTypeAttribute>();

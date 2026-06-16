@@ -12,6 +12,7 @@ export interface IProjectActivity
 	timestamp: string;
 	changes: IChangeEntity[];
 	metadata: ICommitMetadata;
+	changeTypes: string[];
 	changeName: string;
 }
 /* eslint-enable */

@@ -14,9 +14,28 @@ public class HistoryServiceJsInvokable(HistoryService historyService)
     }
 
     [JSInvokable]
-    public async ValueTask<ProjectActivity[]> ProjectActivity(int skip, int take)
+    public async ValueTask<ProjectActivity[]> ProjectActivity(
+        int skip,
+        int take,
+        string? authorId = null,
+        string? authorName = null,
+        bool excludeFieldWorks = false,
+        ActivitySort sort = ActivitySort.NewestFirst)
     {
-        return await historyService.ProjectActivity(skip, take).ToArrayAsync();
+        return await historyService.ProjectActivity(skip, take,
+            new ActivityQuery(authorId, authorName, excludeFieldWorks, sort)).ToArrayAsync();
+    }
+
+    [JSInvokable]
+    public Task<ActivityAuthor[]> ListActivityAuthors()
+    {
+        return historyService.ListActivityAuthors();
+    }
+
+    [JSInvokable]
+    public Task<ActivityChangeType[]> ListActivityChangeTypes()
+    {
+        return historyService.ListActivityChangeTypes();
     }
 
     [JSInvokable]

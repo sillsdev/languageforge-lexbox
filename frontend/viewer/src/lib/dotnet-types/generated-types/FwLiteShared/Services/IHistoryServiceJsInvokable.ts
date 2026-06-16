@@ -5,6 +5,9 @@
 
 import type {IObjectWithId} from '../../MiniLcm/Models/IObjectWithId';
 import type {IProjectActivity} from '../../LcmCrdt/IProjectActivity';
+import type {ActivitySort} from '../../LcmCrdt/ActivitySort';
+import type {IActivityAuthor} from '../../LcmCrdt/IActivityAuthor';
+import type {IActivityChangeType} from '../../LcmCrdt/IActivityChangeType';
 import type {IObjectSnapshot} from '../../SIL/Harmony/Db/IObjectSnapshot';
 import type {IHistoryLineItem} from '../../LcmCrdt/IHistoryLineItem';
 import type {IChangeContext} from '../../LcmCrdt/IChangeContext';
@@ -12,7 +15,9 @@ import type {IChangeContext} from '../../LcmCrdt/IChangeContext';
 export interface IHistoryServiceJsInvokable
 {
 	getObject(commitId: string, entityId: string) : Promise<IObjectWithId>;
-	projectActivity(skip: number, take: number) : Promise<IProjectActivity[]>;
+	projectActivity(skip: number, take: number, authorId?: string, authorName?: string, excludeFieldWorks?: boolean, sort?: ActivitySort) : Promise<IProjectActivity[]>;
+	listActivityAuthors() : Promise<IActivityAuthor[]>;
+	listActivityChangeTypes() : Promise<IActivityChangeType[]>;
 	getSnapshot(snapshotId: string) : Promise<IObjectSnapshot>;
 	getHistory(entityId: string) : Promise<IHistoryLineItem[]>;
 	loadChangeContext(commitId: string, changeIndex: number) : Promise<IChangeContext>;
