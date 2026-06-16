@@ -22,6 +22,7 @@ public sealed class PushListenerRecoveryService(
         {
             try
             {
+                logger.LogDebug("Running periodic push listener recovery check");
                 await lexboxProjectService.EnsureListenersForTrackedProjects();
             }
             catch (Exception e)

@@ -18,6 +18,7 @@ public sealed class NetworkChangeSyncTrigger(
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        logger.LogInformation("Watching network availability to re-establish push listeners");
         NetworkChange.NetworkAvailabilityChanged += OnNetworkAvailabilityChanged;
         return Task.CompletedTask;
     }

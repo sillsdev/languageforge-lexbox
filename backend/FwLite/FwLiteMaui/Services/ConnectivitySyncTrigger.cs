@@ -16,6 +16,7 @@ public sealed class ConnectivitySyncTrigger(
     {
         _lastAccess = connectivity.NetworkAccess;
         connectivity.ConnectivityChanged += OnConnectivityChanged;
+        logger.LogInformation("Watching device connectivity to re-establish push listeners (current access: {NetworkAccess})", _lastAccess);
         return Task.CompletedTask;
     }
 

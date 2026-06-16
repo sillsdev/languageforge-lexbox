@@ -37,6 +37,7 @@ public partial class App : Application
     {
         try
         {
+            _logger.LogInformation("App resumed; ensuring push listeners");
             await _lexboxProjectService.EnsureListenersForTrackedProjects(kickReconnecting: true);
         }
         catch (Exception e)
