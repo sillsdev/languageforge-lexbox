@@ -45,7 +45,7 @@ export class HistoryService {
 
   async load(objectId: string) {
     this.ensureLoaded();
-    const data = await this.historyApi.getHistory(objectId);
+    const data = await this.historyApi.getHistory(objectId) as HistoryItem[];
     if (!Array.isArray(data)) {
       console.error('Invalid history data', data);
       return [];
