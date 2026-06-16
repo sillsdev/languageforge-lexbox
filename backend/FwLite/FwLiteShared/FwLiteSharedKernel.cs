@@ -45,10 +45,11 @@ public static class FwLiteSharedKernel
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddSingleton<IHostedService, PushListenerRecoveryService>();
+        services.AddSingleton<IHostedService, AuthChangeListenerTrigger>();
         services.AddSingleton<UpdateChecker>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<UpdateChecker>());
         services.TryAddSingleton<IPlatformUpdateService, CorePlatformUpdateService>();
-        services.TryAddSingleton<INetworkStatus, AlwaysOnlineNetworkStatus>();
+        services.TryAddSingleton<INetworkStatus, NetworkInterfaceNetworkStatus>();
         services.AddSingleton<UpdateService>();
         services.AddSingleton<TestingService>();
         services.AddOptions<FwLiteConfig>().BindConfiguration("FwLite");

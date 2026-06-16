@@ -26,7 +26,7 @@ public partial class App : Application
     protected override Window CreateWindow(IActivationState? activationState)
     {
         var window = CreateWindow(_mainPage);
-        // An OS-frozen app (e.g. Android Doze) can come back with its push listener down and no connectivity
+        // An OS-frozen app (e.g. Android Doze/Standby) can come back with its push listener down and no connectivity
         // transition to recover on; resume is when the user is watching, so recover immediately instead of
         // waiting for the periodic backstop.
         window.Resumed += (_, _) => _ = EnsureListenersAfterResume();

@@ -4,10 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FwLiteMaui.Services;
 
-// When the device regains internet access, a push listener that failed to start while offline (cold start)
-// won't recover on its own — there's no connection for SignalR's automatic reconnect to retry. This nudges
-// LexboxProjectService to (re)establish listeners for tracked projects when connectivity returns. Recovery
-// is idempotent: a healthy cached connection short-circuits and a logged-out server no-ops on the token check.
+// Primary use case: app started offline should start syncing if the device comes online
 public sealed class ConnectivitySyncTrigger(
     IConnectivity connectivity,
     LexboxProjectService lexboxProjectService,

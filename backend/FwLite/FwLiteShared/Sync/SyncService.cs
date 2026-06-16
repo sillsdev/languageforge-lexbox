@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;

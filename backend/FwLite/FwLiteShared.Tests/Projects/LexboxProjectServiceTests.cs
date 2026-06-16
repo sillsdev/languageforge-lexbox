@@ -1,3 +1,4 @@
+using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Caching.Memory;
@@ -9,6 +10,34 @@ public class LexboxProjectServiceTests
 {
     private const string CacheKey = "test-cache-key";
     private readonly MemoryCache _cache = new(new MemoryCacheOptions());
+
+    [Fact]
+    public async Task StartLexboxProjectChangeListener_ReusesCachedConnection_WithoutConsultingAuth()
+    {
+        // Guards the false-logout teardown: an auth check ahead of the cache lookup tore down a healthy,
+        // auto-reconnecting connection whenever GetCurrentToken was transiently null (expired token + flaky
+        // network) while the user was still signed in. Reuse must be independent of auth — encoded here by a
+        // null clientFactory, so any auth access sneaking ahead of the cache lookup throws and fails the test.
+        var server = new LexboxServer(new Uri("https://example.test/"), "Test");
+        var cacheKey = LexboxProjectService.HubConnectionCacheKey(server);
+        await using var connection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
+        _cache.Set(cacheKey, connection);
+        var service = new LexboxProjectService(
+            clientFactory: null!,
+            logger: NullLogger<LexboxProjectService>.Instance,
+            loggerFactory: null!,
+            httpMessageHandlerFactory: null!,
+            backgroundSyncService: null!,
+            options: null!,
+            cache: _cache,
+            networkStatus: null!);
+
+        var result = await service.StartLexboxProjectChangeListener(server, CancellationToken.None);
+
+        result.Should().BeSameAs(connection);
+        _cache.TryGetValue(cacheKey, out HubConnection? cached).Should().BeTrue("the connection must not be evicted");
+        cached.Should().BeSameAs(connection);
+    }
 
     [Fact]
     public async Task HandleReconnecting_WhenSignedIn_KeepsCacheAndDoesNotStop()

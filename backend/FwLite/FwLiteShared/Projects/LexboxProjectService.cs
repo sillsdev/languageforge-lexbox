@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using FwLiteShared.Auth;
-using FwLiteShared.Events;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
 using LcmCrdt;
@@ -19,7 +18,7 @@ using SIL.Harmony.Core;
 
 namespace FwLiteShared.Projects;
 
-public class LexboxProjectService : IDisposable
+public class LexboxProjectService
 {
     private readonly OAuthClientFactory clientFactory;
     private readonly ILogger<LexboxProjectService> logger;
@@ -28,9 +27,7 @@ public class LexboxProjectService : IDisposable
     private readonly BackgroundSyncService backgroundSyncService;
     private readonly IOptions<AuthConfig> options;
     private readonly IMemoryCache cache;
-    private readonly GlobalEventBus globalEventBus;
     private readonly INetworkStatus networkStatus;
-    private readonly IDisposable onAuthChangedSubscription;
     // Stable record of projects we've been asked to listen for, by project id. Survives connection
     // lifetimes (unlike _reconnectProjects) so we can resubscribe after a hub-connection rebuild.
     private readonly ConcurrentDictionary<Guid, ProjectData> _trackedProjects = new();
@@ -43,7 +40,6 @@ public class LexboxProjectService : IDisposable
         BackgroundSyncService backgroundSyncService,
         IOptions<AuthConfig> options,
         IMemoryCache cache,
-        GlobalEventBus globalEventBus,
         INetworkStatus networkStatus)
     {
         this.clientFactory = clientFactory;
@@ -53,19 +49,14 @@ public class LexboxProjectService : IDisposable
         this.backgroundSyncService = backgroundSyncService;
         this.options = options;
         this.cache = cache;
-        this.globalEventBus = globalEventBus;
         this.networkStatus = networkStatus;
-        onAuthChangedSubscription = globalEventBus.OnAuthenticationChanged.Subscribe(@event =>
-        {
-            InvalidateProjectsCache(@event.Server);
-            _ = OnAuthenticationChangedAsync(@event.Server);
-        });
     }
 
-    private async Task OnAuthenticationChangedAsync(LexboxServer server)
+    public async Task HandleAuthChanged(LexboxServer server)
     {
         try
         {
+            InvalidateProjectsCache(server);
             // Tear down any cached hub connection — it may be holding stale auth, or belong to a
             // previously-signed-in identity. The next ListenForProjectChanges call will rebuild it
             // with the current token (or no-op if the user is now logged out).
@@ -133,11 +124,6 @@ public class LexboxProjectService : IDisposable
             }
         }
         return connected;
-    }
-
-    public void Dispose()
-    {
-        onAuthChangedSubscription.Dispose();
     }
 
     public LexboxServer[] Servers()
@@ -374,7 +360,8 @@ public class LexboxProjectService : IDisposable
         }
     }
 
-    private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
+    // Internal for unit tests.
+    internal static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
 
     // Only for callers with strong evidence the network just returned (connectivity regained, app resume, a
     // successful sync to this server): SignalR has no retry-now API, so stop-and-rebuild is the only way to
@@ -464,7 +451,7 @@ public class LexboxProjectService : IDisposable
     // fetched right now: reconnecting happens precisely when the network is flaky, and fetching a token
     // can require a refresh round-trip that fails transiently — which would be a false logout. Account
     // presence is a local-only read and only flips on a real logout. Once the user signs back in,
-    // OnAuthenticationChangedAsync rebuilds the listener.
+    // HandleAuthChanged rebuilds the listener.
     internal static async Task HandleReconnecting(
         string cacheKey,
         IMemoryCache cache,
@@ -519,18 +506,23 @@ public class LexboxProjectService : IDisposable
     public async Task<HubConnection?> StartLexboxProjectChangeListener(LexboxServer server,
         CancellationToken stoppingToken)
     {
-        // A null token means logged out for this server (OAuthClient's failure classifier owns the
-        // transient-vs-logout decision — not us). Drop any stale cached connection and stand down;
-        // sign-in fires AuthenticationChangedEvent and OnAuthenticationChangedAsync rebuilds the listener.
-        if (await clientFactory.GetClient(server).GetCurrentToken() is null)
-        {
-            cache.Remove(HubConnectionCacheKey(server));
-            logger.LogWarning("Unable to create signalR client, user is not authenticated to {OriginDomain}", server.Authority);
-            return null;
-        }
+        // Reuse an existing connection without consulting auth: it may be healthily auto-reconnecting, and a
+        // transient token-refresh failure must not be mistaken for a logout and tear it down — the same
+        // false-logout trap HandleReconnecting avoids. (Removing the cache entry disposes the connection via
+        // the post-eviction callback, killing its retry loop and resubscribe set.)
         if (cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? connection) && connection is not null)
         {
             return connection;
+        }
+
+        // No connection to reuse: build one only if actually signed in. Logged-out is tested by account
+        // presence (IsSignedIn) — a local-only read that flips solely on a real logout — not GetCurrentToken,
+        // which can be null transiently (expired token + flaky network) while the user is still signed in.
+        // Once the user signs back in, HandleAuthChanged rebuilds the listener.
+        if (!await clientFactory.GetClient(server).IsSignedIn())
+        {
+            logger.LogWarning("Unable to create signalR client, user is not authenticated to {OriginDomain}", server.Authority);
+            return null;
         }
 
         // Serialize creation per server: concurrent callers would otherwise each build a connection, and the
