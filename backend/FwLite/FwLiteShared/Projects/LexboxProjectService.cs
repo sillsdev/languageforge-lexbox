@@ -77,7 +77,7 @@ public class LexboxProjectService
     }
 
     // Re-establish push listeners for every tracked project (a project is skipped only when its server has a
-    // live connection AND the project is registered on it, so a periodic call is a true no-op once subscribed;
+    // live connection AND the project is already registered on it, so a periodic call is a true no-op once subscribed;
     // a logged-out server no-ops on the token check). The per-project check matters: single-project paths
     // (post-sync, project-open) subscribe only the requesting project when they rebuild a connection, leaving
     // sibling projects unsubscribed until this pass heals them. Used by connectivity-regained, app-resume
@@ -295,10 +295,8 @@ public class LexboxProjectService
         cache.Remove(CacheKey(server));
     }
 
-    private static readonly ConditionalWeakTable<HubConnection, HashSet<Guid>> _reconnectProjects = new();
-    // One gate per server; bounded by the configured server count, so entries are never removed.
+    private static readonly ConditionalWeakTable<HubConnection, HashSet<Guid>> _reconnectProjects = [];
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _connectionGates = new();
-
     private SemaphoreSlim ConnectionGate(LexboxServer server) =>
         _connectionGates.GetOrAdd(HubConnectionCacheKey(server), static _ => new SemaphoreSlim(1, 1));
 
@@ -345,18 +343,20 @@ public class LexboxProjectService
             }
             // Covers the current project (registered above) and any siblings on this connection.
             await ResubscribeRegisteredProjects(lexboxConnection);
-            return;
         }
-        try
+        else
         {
-            await lexboxConnection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectData.Id, stoppingToken);
-        }
-        catch (Exception e)
-        {
-            // The connection can drop or be disposed between the state check and SendAsync (throwing
-            // InvalidOperationException or ObjectDisposedException). Don't let that fail the caller (e.g.
-            // project-open); the Reconnected handler resubscribes once the connection recovers.
-            logger.LogWarning(e, "SignalR connection not active while subscribing to project changes");
+            try
+            {
+                await lexboxConnection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectData.Id, stoppingToken);
+            }
+            catch (Exception e)
+            {
+                // The connection can drop or be disposed between the state check and SendAsync (throwing
+                // InvalidOperationException or ObjectDisposedException). Don't let that fail the caller (e.g.
+                // project-open); the Reconnected handler resubscribes once the connection recovers.
+                logger.LogWarning(e, "SignalR connection not active while subscribing to project changes");
+            }
         }
     }
 
@@ -386,7 +386,7 @@ public class LexboxProjectService
         var subscribedProjects = _reconnectProjects.GetOrAdd(connection, static conn =>
         {
             conn.Reconnected += async _ => await ResubscribeRegisteredProjects(conn);
-            return new HashSet<Guid>();
+            return [];
         });
         lock (subscribedProjects)
         {
@@ -471,7 +471,7 @@ public class LexboxProjectService
         // Same guard as the Closed handler: a replacement connection may have been cached since this one
         // started reconnecting; only evict the entry if it is still ours. Stopping ourselves is right
         // regardless — this connection belongs to a signed-out user.
-        if (cache.TryGetValue(cacheKey, out object? cached) && ReferenceEquals(cached, connection))
+        if (cache.TryGetValue(cacheKey, out var cached) && ReferenceEquals(cached, connection))
             cache.Remove(cacheKey);
         logger.LogWarning("SignalR reconnect aborted: user is logged out; stopping connection");
         try
@@ -496,7 +496,7 @@ public class LexboxProjectService
             return retryContext.PreviousRetryCount switch
             {
                 0 => TimeSpan.Zero,
-                1 => TimeSpan.FromSeconds(2),
+                1 => TimeSpan.FromSeconds(5),
                 _ when !networkStatus.IsOnline => TimeSpan.FromSeconds(60),
                 _ => TimeSpan.FromSeconds(10),
             };
