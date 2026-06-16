@@ -1,3 +1,4 @@
+using FwLiteShared.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 
@@ -61,11 +62,21 @@ public static class MauiProgram
 
             essentialsBuilder.OnAppAction(action =>
             {
+                var app = (App?)Application.Current;
+                if (app is null) return;
                 if (Shortcuts.TryGetUrl(action.Id, out var url))
                 {
-                    Application.Current!.Dispatcher.Dispatch(() =>
+                    app.Dispatcher.Dispatch(() =>
                     {
-                        ((App?)Application.Current)?.LoadAppUrl(url);
+                        app.LoadAppUrl(url);
+                    });  
+                }
+                else if (action.Id == Shortcuts.ShareLogOut)
+                {
+                    app.Dispatcher.Dispatch(() =>
+                    {
+                        _ = app.ServiceProvider.GetRequiredService<ITroubleshootingService>()
+                            .ShareLogFile();
                     });
                 }
             });

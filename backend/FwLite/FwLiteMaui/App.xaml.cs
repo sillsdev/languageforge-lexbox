@@ -3,11 +3,13 @@ namespace FwLiteMaui;
 
 public partial class App : Application
 {
+    public IServiceProvider ServiceProvider { get; }
     private readonly MainPage _mainPage;
     public static string? OverrideStartupUrl { get; set; }
 
-    public App(MainPage mainPage)
+    public App(MainPage mainPage, IServiceProvider serviceProvider)
     {
+        ServiceProvider = serviceProvider;
         _mainPage = mainPage;
         InitializeComponent();
     }

@@ -6,6 +6,7 @@ public static class Shortcuts
 {
     // Define shortcut IDs here
     public const string Home = "home";
+    public const string ShareLogOut = "share-log-out";
 
     // Map IDs to URL paths
     private static readonly IReadOnlyDictionary<string, string> IdToUrl = new Dictionary<string, string>
@@ -16,7 +17,8 @@ public static class Shortcuts
     // Titles/subtitles shown in the system UI (if supported)
     public static readonly IReadOnlyList<AppAction> Declarations =
     [
-        new(Home, "Home")
+        new(Home, "Home"),
+        new(ShareLogOut, "Share Debug Log"),
     ];
 
     public static bool TryGetUrl(string? id, out string url)
