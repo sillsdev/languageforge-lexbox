@@ -115,11 +115,13 @@ public class SyncService(
             if (!skipNotifications) await SendNotifications(syncResults);
             return syncResults;
         }
-        catch (HttpRequestException e)
+        // Connectivity dropped mid-sync, or the device reports online but the server is unreachable (captive
+        // portal, or a stale-healthy server-health cache). HttpClient signals a connection failure as
+        // HttpRequestException and a request timeout as a (Task)OperationCanceledException; ExecuteSync takes
+        // no cancellation token, so a cancellation here is a timeout, not a caller abort. Read either as
+        // Offline rather than surfacing a raw connection/timeout error to the caller.
+        catch (Exception e) when (e is HttpRequestException or OperationCanceledException)
         {
-            // Connectivity dropped mid-sync, or the device reports online but the server is unreachable
-            // (e.g. captive portal, or a stale-healthy server-health cache). Read this as Offline rather
-            // than surfacing a raw host-resolution error to the caller.
             logger.LogInformation(e, "Lost connection while syncing project {ProjectName}", project.Name);
             UpdateSyncStatus(SyncStatus.Offline);
             return new SyncResults([], [], false);

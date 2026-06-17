@@ -443,6 +443,12 @@ msgstr "Imenakiliwa kwenye ubao wa kunakili"
 msgid "Copy version"
 msgstr "Nakili toleo"
 
+#. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
+#. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
+#: src/project/SyncDialog.svelte
+msgid "Couldn't sync right now — your local changes are safe."
+msgstr ""
+
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
@@ -773,7 +779,6 @@ msgstr "Imeshindwa kufungua URL: {0}"
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
-#: src/project/SyncDialog.svelte
 msgid "Failed to synchronize"
 msgstr "Imeshindwa kuoanisha"
 
@@ -2186,7 +2191,3 @@ msgstr "Huna ruhusa ya kupakua mradi {0} kutoka {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Umeshapakua mradi wa {0}"
-
-#: src/project/SyncDialog.svelte
-msgid "You're offline. Your changes will sync once you're back online."
-msgstr ""
