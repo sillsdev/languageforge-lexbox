@@ -113,17 +113,26 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var existingDbFiles = dbContext.Files.Where(p => p.ProjectId == projectId).AsAsyncEnumerable();
         await foreach (var existingDbFile in existingDbFiles)
         {
-            if (lcmResources.Remove(existingDbFile.Id))
+            if (lcmResources.Remove(existingDbFile.Id, out var lcmResource))
             {
+                //the file was already tracked in harmony, but the metadata is missing, so add it
+                if (lcmResource.Metadata is null)
+                    await lcmMediaService.AddMissingMetadata(lcmResource, ToLcmFileMetadata(existingDbFile));
                 //nothing to do, the file was already tracked in harmony
                 continue;
             }
-            await lcmMediaService.AddExistingRemoteResource(existingDbFile.Id, FilePath(existingDbFile));
+
+            await lcmMediaService.AddExistingRemoteResource(existingDbFile.Id, FilePath(existingDbFile), ToLcmFileMetadata(existingDbFile));
         }
         foreach (var lcmResource in lcmResources.Values)
         {
             await lcmMediaService.DeleteResource(lcmResource.Id);
         }
+    }
+
+    private static LcmFileMetadata ToLcmFileMetadata(MediaFile existingDbFile)
+    {
+        return new LcmFileMetadata(existingDbFile.Filename, existingDbFile.Metadata?.MimeType ?? "application/octet-stream", existingDbFile.Metadata?.Author, existingDbFile.Metadata?.UploadDate, existingDbFile.Metadata?.SizeInBytes);
     }
 
     public async Task SaveMediaFile(MediaFile mediaFile, Stream fileStream)

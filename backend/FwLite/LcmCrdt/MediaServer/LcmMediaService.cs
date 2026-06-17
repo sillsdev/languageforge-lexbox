@@ -29,12 +29,20 @@ public class LcmMediaService(
     /// </summary>
     /// <param name="fileId"></param>
     /// <param name="localPath"></param>
-    public async Task AddExistingRemoteResource(Guid fileId, string localPath)
+    /// <param name="metadata"></param>
+    public async Task AddExistingRemoteResource(Guid fileId, string localPath, LcmFileMetadata metadata)
     {
         await resourceService.AddExistingRemoteResource(localPath,
             currentProjectService.ProjectData.ClientId,
             fileId,
-            fileId.ToString("N"));
+            fileId.ToString("N"),
+            metadata);
+    }
+
+    public async ValueTask AddMissingMetadata(HarmonyResource<LcmFileMetadata> resource, LcmFileMetadata metadata)
+    {
+        if (resource.Metadata is not null) return;
+        await resourceService.SetResourceMetadata(resource.Id, currentProjectService.ProjectData.ClientId, metadata);
     }
 
     public async Task DeleteResource(Guid fileId)
