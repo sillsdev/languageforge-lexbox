@@ -203,7 +203,12 @@ public class LcmMediaService(
 
     public async Task<LcmFileMetadata> GetFileMetadata(Guid fileId)
     {
-        var mediaClient = await MediaServerClient();
-        return await mediaClient.GetFileMetadata(fileId);
+        var resource = await resourceService.GetResource(fileId);
+        if (resource is not { Metadata: not null })
+        {
+            var mediaClient = await MediaServerClient();
+            return await mediaClient.GetFileMetadata(fileId);
+        }
+        return resource.Metadata;
     }
 }
