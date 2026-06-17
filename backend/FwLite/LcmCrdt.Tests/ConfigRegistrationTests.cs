@@ -1,6 +1,7 @@
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
+using MiniLcm.Media;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Resource;
 
@@ -14,7 +15,7 @@ public class ConfigRegistrationTests
     [
         typeof(ReplaceComplexFormTypeChange), //not currently in use
         typeof(JsonPatchChange<ComplexFormComponent>), //not supported
-        typeof(JsonPatchChange<RemoteResource>), //not supported
+        typeof(JsonPatchChange<RemoteResource<LcmFileMetadata>>), //not supported
         typeof(JsonPatchChange<ExampleSentence>), //replaced by JsonPatchExampleSentenceChange
         typeof(JsonPatchChange<CustomView>), //not supported. Use EditCustomViewChange
         typeof(DeleteChange<MorphType>), //MorphTypes cannot be deleted
