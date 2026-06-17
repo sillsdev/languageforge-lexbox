@@ -1,222 +1,222 @@
-﻿{
-  DerivedTypes: [
-    {
-      DerivedType: RemoteResourceUploadedChange,
-      TypeDiscriminator: uploaded:RemoteResource
-    },
-    {
-      DerivedType: CreateRemoteResourceChange,
-      TypeDiscriminator: create:remote-resource
-    },
-    {
-      DerivedType: CreateRemoteResourcePendingUploadChange,
-      TypeDiscriminator: create:pendingUpload
-    },
-    {
-      DerivedType: DeleteChange<RemoteResource>,
-      TypeDiscriminator: delete:RemoteResource
-    },
-    {
-      DerivedType: JsonPatchChange<Entry>,
-      TypeDiscriminator: jsonPatch:Entry
-    },
-    {
-      DerivedType: JsonPatchChange<Sense>,
-      TypeDiscriminator: jsonPatch:Sense
-    },
-    {
-      DerivedType: JsonPatchChange<WritingSystem>,
-      TypeDiscriminator: jsonPatch:WritingSystem
-    },
-    {
-      DerivedType: JsonPatchChange<PartOfSpeech>,
-      TypeDiscriminator: jsonPatch:PartOfSpeech
-    },
-    {
-      DerivedType: JsonPatchChange<SemanticDomain>,
-      TypeDiscriminator: jsonPatch:SemanticDomain
-    },
-    {
-      DerivedType: JsonPatchChange<ComplexFormType>,
-      TypeDiscriminator: jsonPatch:ComplexFormType
-    },
-    {
-      DerivedType: JsonPatchChange<MorphType>,
-      TypeDiscriminator: jsonPatch:MorphType
-    },
-    {
-      DerivedType: JsonPatchChange<Publication>,
-      TypeDiscriminator: jsonPatch:Publication
-    },
-    {
-      DerivedType: DeleteChange<Entry>,
-      TypeDiscriminator: delete:Entry
-    },
-    {
-      DerivedType: DeleteChange<Sense>,
-      TypeDiscriminator: delete:Sense
-    },
-    {
-      DerivedType: DeleteChange<WritingSystem>,
-      TypeDiscriminator: delete:WritingSystem
-    },
-    {
-      DerivedType: DeleteChange<PartOfSpeech>,
-      TypeDiscriminator: delete:PartOfSpeech
-    },
-    {
-      DerivedType: DeleteChange<SemanticDomain>,
-      TypeDiscriminator: delete:SemanticDomain
-    },
-    {
-      DerivedType: DeleteChange<ComplexFormType>,
-      TypeDiscriminator: delete:ComplexFormType
-    },
-    {
-      DerivedType: DeleteChange<ComplexFormComponent>,
-      TypeDiscriminator: delete:ComplexFormComponent
-    },
-    {
-      DerivedType: DeleteChange<Publication>,
-      TypeDiscriminator: delete:Publication
-    },
-    {
-      DerivedType: SetPartOfSpeechChange,
-      TypeDiscriminator: SetPartOfSpeechChange
-    },
-    {
-      DerivedType: MoveSenseToEntryChange,
-      TypeDiscriminator: MoveSenseToEntryChange
-    },
-    {
-      DerivedType: AddSemanticDomainChange,
-      TypeDiscriminator: AddSemanticDomainChange
-    },
-    {
-      DerivedType: RemoveSemanticDomainChange,
-      TypeDiscriminator: RemoveSemanticDomainChange
-    },
-    {
-      DerivedType: ReplaceSemanticDomainChange,
-      TypeDiscriminator: ReplaceSemanticDomainChange
-    },
-    {
-      DerivedType: CreateEntryChange,
-      TypeDiscriminator: CreateEntryChange
-    },
-    {
-      DerivedType: CreateSenseChange,
-      TypeDiscriminator: CreateSenseChange
-    },
-    {
-      DerivedType: CreateExampleSentenceChange,
-      TypeDiscriminator: CreateExampleSentenceChange
-    },
-    {
-      DerivedType: JsonPatchExampleSentenceChange,
-      TypeDiscriminator: jsonPatch:ExampleSentence
-    },
-    {
-      DerivedType: SetOrderChange<ExampleSentence>,
-      TypeDiscriminator: SetOrderChange:ExampleSentence
-    },
-    {
-      DerivedType: DeleteChange<ExampleSentence>,
-      TypeDiscriminator: delete:ExampleSentence
-    },
-    {
-      DerivedType: AddTranslationChange,
-      TypeDiscriminator: AddTranslationChange
-    },
-    {
-      DerivedType: RemoveTranslationChange,
-      TypeDiscriminator: RemoveTranslationChange
-    },
-    {
-      DerivedType: UpdateTranslationChange,
-      TypeDiscriminator: UpdateTranslationChange
-    },
-    {
-      DerivedType: SetFirstTranslationIdChange,
-      TypeDiscriminator: SetFirstTranslationIdChange
-    },
-    {
-      DerivedType: CreatePartOfSpeechChange,
-      TypeDiscriminator: CreatePartOfSpeechChange
-    },
-    {
-      DerivedType: CreateSemanticDomainChange,
-      TypeDiscriminator: CreateSemanticDomainChange
-    },
-    {
-      DerivedType: CreateWritingSystemChange,
-      TypeDiscriminator: CreateWritingSystemChange
-    },
-    {
-      DerivedType: CreatePublicationChange,
-      TypeDiscriminator: CreatePublicationChange
-    },
-    {
-      DerivedType: AddComplexFormTypeChange,
-      TypeDiscriminator: AddComplexFormTypeChange
-    },
-    {
-      DerivedType: AddEntryComponentChange,
-      TypeDiscriminator: AddEntryComponentChange
-    },
-    {
-      DerivedType: RemoveComplexFormTypeChange,
-      TypeDiscriminator: RemoveComplexFormTypeChange
-    },
-    {
-      DerivedType: AddPublicationChange,
-      TypeDiscriminator: AddPublicationChange
-    },
-    {
-      DerivedType: RemovePublicationChange,
-      TypeDiscriminator: RemovePublicationChange
-    },
-    {
-      DerivedType: ReplacePublicationChange,
-      TypeDiscriminator: ReplacePublicationChange
-    },
-    {
-      DerivedType: SetComplexFormComponentChange,
-      TypeDiscriminator: SetComplexFormComponentChange
-    },
-    {
-      DerivedType: CreateComplexFormType,
-      TypeDiscriminator: CreateComplexFormType
-    },
-    {
-      DerivedType: CreateCustomViewChange,
-      TypeDiscriminator: CreateCustomViewChange
-    },
-    {
-      DerivedType: EditCustomViewChange,
-      TypeDiscriminator: EditCustomViewChange
-    },
-    {
-      DerivedType: DeleteChange<CustomView>,
-      TypeDiscriminator: delete:CustomView
-    },
-    {
-      DerivedType: CreateMorphTypeChange,
-      TypeDiscriminator: CreateMorphTypeChange
-    },
-    {
-      DerivedType: SetOrderChange<Sense>,
-      TypeDiscriminator: SetOrderChange:Sense
-    },
-    {
-      DerivedType: SetOrderChange<ComplexFormComponent>,
-      TypeDiscriminator: SetOrderChange:ComplexFormComponent
-    },
-    {
-      DerivedType: SetOrderChange<WritingSystem>,
-      TypeDiscriminator: SetOrderChange:WritingSystem
-    }
-  ],
-  IgnoreUnrecognizedTypeDiscriminators: false,
-  TypeDiscriminatorPropertyName: $type
-}
+﻿[
+  {
+    DerivedType: AddSemanticDomainChange,
+    TypeDiscriminator: AddSemanticDomainChange
+  },
+  {
+    DerivedType: CreateComplexFormType,
+    TypeDiscriminator: CreateComplexFormType
+  },
+  {
+    DerivedType: CreateCustomViewChange,
+    TypeDiscriminator: CreateCustomViewChange
+  },
+  {
+    DerivedType: CreateEntryChange,
+    TypeDiscriminator: CreateEntryChange
+  },
+  {
+    DerivedType: CreateExampleSentenceChange,
+    TypeDiscriminator: CreateExampleSentenceChange
+  },
+  {
+    DerivedType: CreateMorphTypeChange,
+    TypeDiscriminator: CreateMorphTypeChange
+  },
+  {
+    DerivedType: CreatePartOfSpeechChange,
+    TypeDiscriminator: CreatePartOfSpeechChange
+  },
+  {
+    DerivedType: CreatePublicationChange,
+    TypeDiscriminator: CreatePublicationChange
+  },
+  {
+    DerivedType: CreateSemanticDomainChange,
+    TypeDiscriminator: CreateSemanticDomainChange
+  },
+  {
+    DerivedType: CreateSenseChange,
+    TypeDiscriminator: CreateSenseChange
+  },
+  {
+    DerivedType: CreateWritingSystemChange,
+    TypeDiscriminator: CreateWritingSystemChange
+  },
+  {
+    DerivedType: JsonPatchExampleSentenceChange,
+    TypeDiscriminator: jsonPatch:ExampleSentence
+  },
+  {
+    DerivedType: EditCustomViewChange,
+    TypeDiscriminator: EditCustomViewChange
+  },
+  {
+    DerivedType: AddComplexFormTypeChange,
+    TypeDiscriminator: AddComplexFormTypeChange
+  },
+  {
+    DerivedType: AddEntryComponentChange,
+    TypeDiscriminator: AddEntryComponentChange
+  },
+  {
+    DerivedType: AddPublicationChange,
+    TypeDiscriminator: AddPublicationChange
+  },
+  {
+    DerivedType: RemoveComplexFormTypeChange,
+    TypeDiscriminator: RemoveComplexFormTypeChange
+  },
+  {
+    DerivedType: RemovePublicationChange,
+    TypeDiscriminator: RemovePublicationChange
+  },
+  {
+    DerivedType: ReplacePublicationChange,
+    TypeDiscriminator: ReplacePublicationChange
+  },
+  {
+    DerivedType: SetComplexFormComponentChange,
+    TypeDiscriminator: SetComplexFormComponentChange
+  },
+  {
+    DerivedType: AddTranslationChange,
+    TypeDiscriminator: AddTranslationChange
+  },
+  {
+    DerivedType: RemoveTranslationChange,
+    TypeDiscriminator: RemoveTranslationChange
+  },
+  {
+    DerivedType: SetFirstTranslationIdChange,
+    TypeDiscriminator: SetFirstTranslationIdChange
+  },
+  {
+    DerivedType: UpdateTranslationChange,
+    TypeDiscriminator: UpdateTranslationChange
+  },
+  {
+    DerivedType: JsonPatchChange<ComplexFormType>,
+    TypeDiscriminator: jsonPatch:ComplexFormType
+  },
+  {
+    DerivedType: JsonPatchChange<Entry>,
+    TypeDiscriminator: jsonPatch:Entry
+  },
+  {
+    DerivedType: JsonPatchChange<MorphType>,
+    TypeDiscriminator: jsonPatch:MorphType
+  },
+  {
+    DerivedType: JsonPatchChange<PartOfSpeech>,
+    TypeDiscriminator: jsonPatch:PartOfSpeech
+  },
+  {
+    DerivedType: JsonPatchChange<Publication>,
+    TypeDiscriminator: jsonPatch:Publication
+  },
+  {
+    DerivedType: JsonPatchChange<SemanticDomain>,
+    TypeDiscriminator: jsonPatch:SemanticDomain
+  },
+  {
+    DerivedType: JsonPatchChange<Sense>,
+    TypeDiscriminator: jsonPatch:Sense
+  },
+  {
+    DerivedType: JsonPatchChange<WritingSystem>,
+    TypeDiscriminator: jsonPatch:WritingSystem
+  },
+  {
+    DerivedType: MoveSenseToEntryChange,
+    TypeDiscriminator: MoveSenseToEntryChange
+  },
+  {
+    DerivedType: RemoveSemanticDomainChange,
+    TypeDiscriminator: RemoveSemanticDomainChange
+  },
+  {
+    DerivedType: ReplaceSemanticDomainChange,
+    TypeDiscriminator: ReplaceSemanticDomainChange
+  },
+  {
+    DerivedType: SetOrderChange<ComplexFormComponent>,
+    TypeDiscriminator: SetOrderChange:ComplexFormComponent
+  },
+  {
+    DerivedType: SetOrderChange<ExampleSentence>,
+    TypeDiscriminator: SetOrderChange:ExampleSentence
+  },
+  {
+    DerivedType: SetOrderChange<Sense>,
+    TypeDiscriminator: SetOrderChange:Sense
+  },
+  {
+    DerivedType: SetOrderChange<WritingSystem>,
+    TypeDiscriminator: SetOrderChange:WritingSystem
+  },
+  {
+    DerivedType: SetPartOfSpeechChange,
+    TypeDiscriminator: SetPartOfSpeechChange
+  },
+  {
+    DerivedType: DeleteChange<ComplexFormComponent>,
+    TypeDiscriminator: delete:ComplexFormComponent
+  },
+  {
+    DerivedType: DeleteChange<ComplexFormType>,
+    TypeDiscriminator: delete:ComplexFormType
+  },
+  {
+    DerivedType: DeleteChange<CustomView>,
+    TypeDiscriminator: delete:CustomView
+  },
+  {
+    DerivedType: DeleteChange<Entry>,
+    TypeDiscriminator: delete:Entry
+  },
+  {
+    DerivedType: DeleteChange<ExampleSentence>,
+    TypeDiscriminator: delete:ExampleSentence
+  },
+  {
+    DerivedType: DeleteChange<PartOfSpeech>,
+    TypeDiscriminator: delete:PartOfSpeech
+  },
+  {
+    DerivedType: DeleteChange<Publication>,
+    TypeDiscriminator: delete:Publication
+  },
+  {
+    DerivedType: DeleteChange<SemanticDomain>,
+    TypeDiscriminator: delete:SemanticDomain
+  },
+  {
+    DerivedType: DeleteChange<Sense>,
+    TypeDiscriminator: delete:Sense
+  },
+  {
+    DerivedType: DeleteChange<WritingSystem>,
+    TypeDiscriminator: delete:WritingSystem
+  },
+  {
+    DerivedType: CreateRemoteResourceChange<LcmFileMetadata>,
+    TypeDiscriminator: create:remote-resource
+  },
+  {
+    DerivedType: CreateRemoteResourcePendingUploadChange<LcmFileMetadata>,
+    TypeDiscriminator: create:pendingUpload
+  },
+  {
+    DerivedType: DeleteRemoteResourceChange<LcmFileMetadata>,
+    TypeDiscriminator: delete:RemoteResource
+  },
+  {
+    DerivedType: RemoteResourceUploadedChange<LcmFileMetadata>,
+    TypeDiscriminator: uploaded:RemoteResource
+  },
+  {
+    DerivedType: SetRemoteResourceMetadataChange<LcmFileMetadata>,
+    TypeDiscriminator: set:remote-resource-metadata
+  }
+]
