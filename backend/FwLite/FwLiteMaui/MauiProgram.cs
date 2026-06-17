@@ -69,14 +69,22 @@ public static class MauiProgram
                     app.Dispatcher.Dispatch(() =>
                     {
                         app.LoadAppUrl(url);
-                    });  
+                    });
                 }
                 else if (action.Id == Shortcuts.ShareLogOut)
                 {
-                    app.Dispatcher.Dispatch(() =>
+                    _ = app.Dispatcher.DispatchAsync(async () =>
                     {
-                        _ = app.ServiceProvider.GetRequiredService<ITroubleshootingService>()
-                            .ShareLogFile();
+                        try
+                        {
+                            await app.ServiceProvider.GetRequiredService<ITroubleshootingService>()
+                                .ShareLogFile();
+                        }
+                        catch (Exception e)
+                        {
+                            app.ServiceProvider.GetService<ILogger<App>>()?
+                                .LogError(e, "Failed to share log file from app action");
+                        }
                     });
                 }
             });

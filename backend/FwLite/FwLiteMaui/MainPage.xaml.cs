@@ -1,14 +1,17 @@
-using System.Text.Json;
 using FwLiteShared.Services;
 using Microsoft.AspNetCore.Components.WebView;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
 namespace FwLiteMaui;
 
 public partial class MainPage : ContentPage
 {
-    public MainPage(IPreferencesService preferences)
+    private readonly ILogger<MainPage> _logger;
+
+    public MainPage(IPreferencesService preferences, ILogger<MainPage> logger)
     {
+        _logger = logger;
         InitializeComponent();
         var lastUrlFromPrefs = preferences.Get(nameof(PreferenceKey.AppLastUrl));
         blazorWebView.BlazorWebViewInitializing += BlazorWebViewInitializing;
@@ -38,15 +41,20 @@ public partial class MainPage : ContentPage
         {
             var jsRuntime = services.GetService<IJSRuntime>();
             if (jsRuntime != null)
-            {
-                var js = $$"""
-                    if (window.lexbox.SvelteNavigate) {
-                        window.lexbox.SvelteNavigate({{JsonSerializer.Serialize(url)}}, { replace: true });
-                    }
-                """;
-                _ = jsRuntime.InvokeVoidAsync("eval", js);
-            }
+                _ = NavigateAsync(jsRuntime, url);
         });
+    }
+
+    private async Task NavigateAsync(IJSRuntime jsRuntime, string url)
+    {
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("lexbox.SvelteNavigate", url, new { replace = true });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to navigate to {Url} via SvelteNavigate", url);
+        }
     }
 
 #if ANDROID || WINDOWS

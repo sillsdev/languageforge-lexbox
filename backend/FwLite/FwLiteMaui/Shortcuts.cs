@@ -1,14 +1,10 @@
-using System.Collections.ObjectModel;
-
 namespace FwLiteMaui;
 
 public static class Shortcuts
 {
-    // Define shortcut IDs here
     public const string Home = "home";
     public const string ShareLogOut = "share-log-out";
 
-    // Map IDs to URL paths
     private static readonly IReadOnlyDictionary<string, string> IdToUrl = new Dictionary<string, string>
     {
         [Home] = "/",
