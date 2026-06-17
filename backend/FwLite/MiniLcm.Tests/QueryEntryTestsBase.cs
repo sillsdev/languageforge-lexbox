@@ -32,7 +32,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
             Id = appleId,
             LexemeForm = { { "en", Apple } },
             MorphType = MorphTypeKind.Root,
-        }, new CreateEntryOptions(AutoAddMainPublication: false));
+        });
         await Api.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", Peach } },
@@ -44,7 +44,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                     Definition = { { "en", new RichString("Fruit which tapers to a stem, grows from a tree") } }
                 }
             ]
-        }, new CreateEntryOptions(AutoAddMainPublication: false));
+        });
         await Api.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", Banana } },
@@ -76,7 +76,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                     SemanticDomains = [semanticDomain],
                 }
             ]
-        }, new CreateEntryOptions(AutoAddMainPublication: false));
+        });
         await Api.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", Kiwi } },
@@ -98,9 +98,9 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                     ]
                 }
             ]
-        }, new CreateEntryOptions(AutoAddMainPublication: false));
+        });
         // null / missing key - exposes potential NPEs
-        await Api.CreateEntry(new Entry(), new CreateEntryOptions(AutoAddMainPublication: false));
+        await Api.CreateEntry(new Entry());
     }
 
     [Fact]

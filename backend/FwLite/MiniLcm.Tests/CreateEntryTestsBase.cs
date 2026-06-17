@@ -156,7 +156,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     {
         var mainPublication = await GetOrCreateMainPublication();
 
-        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, new CreateEntryOptions(AutoAddMainPublication: true));
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, CreateEntryOptions.WithMainPublication);
 
         entry.PublishIn.Should().ContainSingle().Which.Id.Should().Be(mainPublication.Id);
     }
@@ -176,7 +176,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     {
         var mainPublication = await GetOrCreateMainPublication();
 
-        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [mainPublication] });
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [mainPublication] }, CreateEntryOptions.WithMainPublication);
 
         entry.PublishIn.Should().ContainSingle().Which.Id.Should().Be(mainPublication.Id);
     }

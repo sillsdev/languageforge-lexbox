@@ -176,7 +176,7 @@ public static class MiniLcmRoutes
         public static Task<Entry> PostEntry([FromBody] Entry entry, [FromServices] MiniLcmHolder holder)
         {
             var api = holder.MiniLcmApi;
-            return api.CreateEntry(entry);
+            return api.CreateEntry(entry, CreateEntryOptions.WithMainPublication);
         }
 
         public static Task DeleteEntry(Guid id, [FromServices] MiniLcmHolder holder)

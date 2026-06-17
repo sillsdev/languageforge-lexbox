@@ -167,7 +167,8 @@ public interface IMiniLcmWriteApi
     {
         await foreach (var entry in entries)
         {
-            await this.CreateEntry(entry);
+            // Import preserves the source's publications; never inject the main publication into imported entries.
+            await this.CreateEntry(entry, CreateEntryOptions.AsIs);
         }
     }
 

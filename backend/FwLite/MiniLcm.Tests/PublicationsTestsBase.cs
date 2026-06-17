@@ -59,7 +59,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
         ArgumentNullException.ThrowIfNull(publication);
         ArgumentNullException.ThrowIfNull(publication2);
 
-        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = []}, new CreateEntryOptions(AutoAddMainPublication: false));
+        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = []});
         entry.PublishIn.Should().BeEmpty();
     }
 
@@ -83,7 +83,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
 
         var publication = await Api.GetPublication(_publicationId);
         ArgumentNullException.ThrowIfNull(publication);
-        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = [publication] }, new CreateEntryOptions(AutoAddMainPublication: false));
+        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = [publication] });
 
         await Api.RemovePublication(entry.Id, _publicationId);
 

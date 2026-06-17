@@ -273,7 +273,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<Entry> CreateEntry(Entry entry)
     {
-        var createdEntry = await _wrappedApi.CreateEntry(entry);
+        var createdEntry = await _wrappedApi.CreateEntry(entry, CreateEntryOptions.WithMainPublication);
         OnDataChanged();
         return createdEntry;
     }

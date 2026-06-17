@@ -1,4 +1,5 @@
 using LcmCrdt.Changes;
+using MiniLcm.SyncHelpers;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
 
@@ -63,7 +64,20 @@ public class PublicationsTests : PublicationsTestsBase
     }
 
     [Fact]
-    public async Task CreatePublication_SecondMainConvergesToDeletedDuplicate()
+    public async Task PublicationSync_PromotesExistingPublicationToMain()
+    {
+        var pub = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Pocket" } } });
+        var promoted = new Publication { Id = pub.Id, Name = { { "en", "Pocket" } }, IsMain = true };
+
+        await PublicationSync.Sync([pub], [promoted], Api);
+
+        var updated = await Api.GetPublication(pub.Id);
+        ArgumentNullException.ThrowIfNull(updated);
+        updated.IsMain.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CreatePublication_SecondMainConvergesToNonMain()
     {
         var firstMainId = Guid.NewGuid();
         var secondMainId = Guid.NewGuid();
@@ -73,6 +87,7 @@ public class PublicationsTests : PublicationsTestsBase
 
         var publications = await Api.GetPublications().ToArrayAsync();
         publications.Should().ContainSingle(p => p.IsMain).Which.Id.Should().Be(firstMainId);
-        publications.Should().NotContain(p => p.Id == secondMainId);
+        // The duplicate survives as a regular (non-main) publication rather than being deleted.
+        publications.Should().ContainSingle(p => p.Id == secondMainId).Which.IsMain.Should().BeFalse();
     }
 }

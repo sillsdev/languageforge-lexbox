@@ -1007,7 +1007,7 @@ public class FwDataMiniLcmApi(
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
-        options ??= CreateEntryOptions.Everything;
+        options ??= CreateEntryOptions.AsIs;
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
         if (options.AutoAddMainPublication)
         {

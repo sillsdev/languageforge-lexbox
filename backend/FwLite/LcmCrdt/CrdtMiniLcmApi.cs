@@ -577,7 +577,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
-        options ??= CreateEntryOptions.Everything;
+        options ??= CreateEntryOptions.AsIs;
         await using var repo = await repoFactory.CreateRepoAsync();
 
         // This is our primitive logic for now:

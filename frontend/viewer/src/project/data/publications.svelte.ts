@@ -32,7 +32,6 @@ export class PublicationService {
     })).sort((a, b) => a.label.localeCompare(b.label));
   });
 
-
   mainPublication: IPublication | undefined = $derived.by(() => resolveMainPublication(this.#publicationsResource.current));
 
   async refetch() {

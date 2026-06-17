@@ -185,7 +185,7 @@
         <Editor.Root bind:this={editor}>
           <Editor.Grid>
             <EntryEditorPrimitive bind:entry autofocus modalMode
-              publishInDescription={(publishInIsFromTemplate || publicationService.mainPublication) ? publishInNote : undefined} />
+              publishInDescription={entryTemplate?.publishIn?.length ? publishInNote : undefined} />
             {#if sense}
               <Editor.SubGrid>
                 <ObjectHeader type="sense">

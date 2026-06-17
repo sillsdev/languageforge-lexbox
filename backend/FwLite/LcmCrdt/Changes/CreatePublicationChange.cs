@@ -13,15 +13,14 @@ public class CreatePublicationChange(Guid entityId, MultiString name, bool isMai
 
     public override async ValueTask<Publication> NewEntity(Commit commit, IChangeContext context)
     {
+        // Two replicas can each create a main publication offline. On merge we keep the single-main invariant by
+        // creating the later one as non-main (rather than deleting it — it's still a real publication).
         var mainAlreadyExists = IsMain && await context.GetObjectsOfType<Publication>().AnyAsync(p => p.IsMain);
-        // A merged-in second main would break the single-main invariant; like CreateMorphTypeChange, return a
-        // pre-deleted object so Harmony filters it out before saving — converging to one main without throwing.
         return new Publication
         {
             Id = EntityId,
             Name = Name,
-            IsMain = IsMain,
-            DeletedAt = mainAlreadyExists ? commit.DateTime : null
+            IsMain = IsMain && !mainAlreadyExists,
         };
     }
 }

@@ -71,7 +71,7 @@ public abstract class MiniLcmApiHubBase(
 
     public virtual async Task<Entry> CreateEntry(Entry entry)
     {
-        var newEntry = await _miniLcmApi.CreateEntry(entry);
+        var newEntry = await _miniLcmApi.CreateEntry(entry, CreateEntryOptions.WithMainPublication);
         await NotifyEntryUpdated(newEntry);
         return newEntry;
     }
