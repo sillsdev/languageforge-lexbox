@@ -218,6 +218,7 @@ public class MutationSyncBench
         var applied = 0;
         var attempts = 0;
         var maxAttempts = targetCount * 10;
+        Exception? lastError = null;
         while (applied < targetCount && attempts < maxAttempts)
         {
             attempts++;
@@ -239,16 +240,19 @@ public class MutationSyncBench
                 });
                 applied++;
             }
-            catch
+            catch (Exception e)
             {
-                // Some components are invalid. Just skip and try another.
+                // Some randomly-paired components are invalid; skip and try another. Keep the last
+                // error so a regression that rejects *every* pair is diagnosable rather than silent.
+                lastError = e;
             }
         }
 
         if (applied < targetCount)
         {
             throw new InvalidOperationException(
-                $"Failed to apply {targetCount} complex form links after {attempts} attempts; only applied {applied}");
+                $"Failed to apply {targetCount} complex form links after {attempts} attempts; only applied {applied}",
+                lastError);
         }
     }
 }
