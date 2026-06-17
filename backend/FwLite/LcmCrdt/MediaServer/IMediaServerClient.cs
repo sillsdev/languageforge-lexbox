@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MiniLcm.Media;
 using Refit;
 
@@ -21,4 +22,18 @@ public interface IMediaServerClient
         string? filename = null);
 }
 
-public record MediaUploadFileResponse(Guid Guid);
+public record MediaUploadFileResponse(Guid Guid, FileMetadata? Metadata);
+
+public class FileMetadata
+{
+    public string? Sha256Hash { get; set; }
+    public int? SizeInBytes { get; set; }
+    public string? FileFormat { get; set; }
+    public string? MimeType { get; set; }
+    public string? Author { get; set; }
+    public DateTimeOffset? UploadDate { get; set; }
+
+    // Other optional, not-yet-mapped properties like purpose, transcript, etc., should end up in here
+    [JsonExtensionData] 
+    public IDictionary<string, object> ExtraFields { get; set; } = new Dictionary<string, object>();
+}

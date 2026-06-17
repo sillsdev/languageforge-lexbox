@@ -1,10 +1,8 @@
 using FwHeadless.Models;
 using LexCore.Entities;
 using LexData;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
-using System.Security.Cryptography;
 using Microsoft.Net.Http.Headers;
 using System.Globalization;
 using FwHeadless.Media;
@@ -80,11 +78,11 @@ public static class MediaFileController
 
     public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PutFile(
         Guid fileId,
-        [FromForm] Guid projectId,
-        [FromForm] string? filename,
-        [FromForm] IFormFile file,
-        [FromForm] FileMetadata? metadata,
-        [FromForm] string? linkedFilesSubfolderOverride,
+        Guid projectId,
+        string? filename,
+        IFormFile file,
+        FileMetadata? metadata,
+        string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         MediaFileService mediaFileService,
@@ -94,14 +92,13 @@ public static class MediaFileController
         return result;
     }
 
-    [HttpPost]
     public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PostFile(
-        [FromQuery] Guid projectId,
-        [FromForm] Guid? fileId,
-        [FromForm] string? filename,
-        [FromForm] IFormFile file,
-        [FromForm] FileMetadata? metadata,
-        [FromForm] string? linkedFilesSubfolderOverride,
+        Guid projectId,
+        Guid? fileId,
+        string? filename,
+        IFormFile file,
+        FileMetadata? metadata,
+        string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         MediaFileService mediaFileService,
@@ -154,7 +151,7 @@ public static class MediaFileController
         // Add ETag to the POST results so uploaders could, in theory, save it and use it later in a GET operation
         var entityTag = mediaFile.Metadata!.Sha256Hash;
         httpContext.Response.Headers.ETag = $"\"{entityTag}\"";
-        var responseBody = new PostFileResult(mediaFile.Id);
+        var responseBody = new PostFileResult(mediaFile.Id, mediaFile.Metadata);
         if (newFile)
         {
             var newLocation = $"{Routes.MediaFileRoutes.RootRoute}/{fileId}";
@@ -177,14 +174,6 @@ public static class MediaFileController
         }
 
         return null;
-    }
-
-    private static async Task AddEntityTagMetadata(MediaFile mediaFile, string filePath)
-    {
-        mediaFile.InitializeMetadataIfNeeded(filePath);
-        await using var stream = File.OpenRead(filePath);
-        var hash = await SHA256.HashDataAsync(stream);
-        mediaFile.Metadata.Sha256Hash = Convert.ToHexStringLower(hash);
     }
 
     private static async Task<bool> AddEntityTagMetadataIfNotPresent(MediaFile mediaFile, string filePath)
