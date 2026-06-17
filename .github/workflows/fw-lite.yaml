@@ -72,7 +72,9 @@ jobs:
     # Runs post-merge on develop only — benchmarks are too slow and too variance-prone on shared
     # runners to gate every PR. Revisit once they're fast enough for the PR critical path.
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-    timeout-minutes: 40
+    # The full suite re-imports Sena-3 before every iteration (1 warmup + 4 × 5 profiles), so the
+    # measured syncs plus setup imports plus the Release build run well past the 40 min used elsewhere.
+    timeout-minutes: 90
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -95,7 +97,9 @@ jobs:
         with:
           name: benchmark-results
           path: '**/BenchmarkDotNet.Artifacts/**'
-          if-no-files-found: error
+          # warn, not error: with if: always() a build/crash failure emits no artifacts, and the real
+          # failure is already red elsewhere — a threshold-assertion failure still writes artifacts first.
+          if-no-files-found: warn
 
   frontend:
     runs-on: ubuntu-latest
