@@ -31,6 +31,9 @@ public sealed class ConnectivitySyncTrigger(
         var previous = _lastAccess;
         var current = _lastAccess = e.NetworkAccess;
 
+        logger.LogInformation("Device connectivity changed: {Previous} -> {Current} (profiles: {Profiles})",
+            previous, current, string.Join(", ", e.ConnectionProfiles));
+
         if (!ShouldRecover(previous, current)) return;
 
         logger.LogInformation("Connectivity regained (internet access); ensuring push listeners");
