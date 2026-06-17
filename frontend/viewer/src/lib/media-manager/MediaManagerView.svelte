@@ -82,7 +82,7 @@
       await mediaFiles.refetch();
       AppNotification.display($t`Loaded file`);
     } catch (error) {
-      AppNotification.error($t`Failed to loaded file`, error instanceof Error ? error.message : String(error));
+      AppNotification.error($t`Failed to load file`, error instanceof Error ? error.message : String(error));
     } finally {
       loadingFileIds.delete(fileId);
     }

@@ -612,8 +612,6 @@ msgstr "완료"
 #. Notification action button
 #: src/home/Server.svelte
 #: src/lib/components/audio/audio-editor.svelte
-#: src/lib/media-manager/MediaFileDetail.svelte
-#: src/lib/media-manager/MediaManagerView.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "Download"
 msgstr "다운로드"
@@ -622,14 +620,6 @@ msgstr "다운로드"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download {0}"
 msgstr "다운로드 {0}"
-
-#: src/lib/media-manager/MediaManagerView.svelte
-msgid "Download all"
-msgstr ""
-
-#: src/lib/media-manager/MediaFileDetail.svelte
-msgid "Download it to preview or export."
-msgstr ""
 
 #. Link label to open the updates download page
 #: src/lib/updates/UpdateDialog.svelte
@@ -656,14 +646,6 @@ msgstr "업데이트 다운로드"
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
 msgstr "다운로드 {0}"
-
-#: src/lib/media-manager/MediaManagerView.svelte
-msgid "Downloaded {0} file(s)"
-msgstr ""
-
-#: src/lib/media-manager/MediaManagerView.svelte
-msgid "Downloaded file"
-msgstr ""
 
 #. Progress message
 #: src/home/Server.svelte
@@ -777,19 +759,19 @@ msgstr "클립보드에 복사하지 못했습니다."
 msgid "Failed to download {0}"
 msgstr "다운로드에 실패했습니다 {0}"
 
-#: src/lib/media-manager/MediaManagerView.svelte
-msgid "Failed to download file"
-msgstr ""
-
-#: src/lib/media-manager/MediaManagerView.svelte
-msgid "Failed to download files"
-msgstr ""
-
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
 #: src/project/browse/EntriesList.svelte
 msgid "Failed to load entries"
 msgstr "항목을 로드하지 못했습니다."
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load file"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load files"
+msgstr ""
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load media files"
@@ -1150,6 +1132,27 @@ msgstr "목록 모드"
 #: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "문자 그대로의 의미"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Load"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Load all"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Load it to preview or export."
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loaded {0} file(s)"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loaded file"
+msgstr ""
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
