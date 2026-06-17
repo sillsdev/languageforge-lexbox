@@ -1611,7 +1611,21 @@
     "$type": "RemoteResource",
     "Id": "fce4cb31-93bd-f380-fd73-3fb0d09c0fa5",
     "DeletedAt": "2025-09-17T23:53:03.6147633+02:00",
-    "RemoteId": "end-to-end"
+    "RemoteId": "end-to-end",
+    "Metadata": null
+  },
+  {
+    "$type": "RemoteResource",
+    "Id": "c7b9ae71-c594-7f5f-e28b-f62a6b347dc3",
+    "DeletedAt": "2026-06-16T17:24:01.4577797+07:00",
+    "RemoteId": "Idaho",
+    "Metadata": {
+      "Filename": "hacking",
+      "MimeType": "programming",
+      "Author": "Auto Loan Account",
+      "UploadDate": "2026-06-16T18:13:32.6197982+07:00",
+      "SizeInBytes": -6811753233150785094
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
