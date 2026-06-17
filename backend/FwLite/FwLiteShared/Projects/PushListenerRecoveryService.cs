@@ -4,10 +4,12 @@ using Microsoft.Extensions.Logging;
 namespace FwLiteShared.Projects;
 
 // Recovering a push listener that failed its initial StartAsync (e.g. offline at project-open) is otherwise
-// event-driven: a successful sync, a connectivity change (MAUI only), or an auth change re-runs it. Those can
-// all miss — FwLiteWeb has no connectivity trigger and an idle user may never sync — leaving the listener down
-// indefinitely. This periodic check is the cross-platform backstop. EnsureListenersForTrackedProjects is
-// idempotent: a healthy cached connection short-circuits and a logged-out server no-ops on the token check.
+// event-driven: a successful sync, a connectivity change (MAUI's ConnectivitySyncTrigger or FwLiteWeb's
+// NetworkChangeSyncTrigger), or an auth change re-runs it. Those can all miss — the OS network signal is
+// optimistic (a virtual adapter reads "available", so a real-uplink return may not fire) and an idle user may
+// never sync — leaving the listener down indefinitely. This periodic check is the cross-platform backstop.
+// EnsureListenersForTrackedProjects is idempotent: a healthy cached connection short-circuits and a
+// logged-out server no-ops on the token check.
 public sealed class PushListenerRecoveryService(
     LexboxProjectService lexboxProjectService,
     ILogger<PushListenerRecoveryService> logger) : BackgroundService
