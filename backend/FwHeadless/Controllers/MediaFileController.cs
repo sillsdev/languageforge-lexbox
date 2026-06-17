@@ -7,6 +7,7 @@ using Microsoft.Net.Http.Headers;
 using System.Globalization;
 using FwHeadless.Media;
 using LexCore.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using MimeMapping;
 
 namespace FwHeadless.Controllers;
@@ -78,11 +79,11 @@ public static class MediaFileController
 
     public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PutFile(
         Guid fileId,
-        Guid projectId,
-        string? filename,
-        IFormFile file,
-        FileMetadata? metadata,
-        string? linkedFilesSubfolderOverride,
+        [FromForm] Guid projectId,
+        [FromForm] string? filename,
+        [FromForm] IFormFile file,
+        [FromForm] FileMetadata? metadata,
+        [FromForm] string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         MediaFileService mediaFileService,
@@ -93,12 +94,12 @@ public static class MediaFileController
     }
 
     public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PostFile(
-        Guid projectId,
-        Guid? fileId,
-        string? filename,
-        IFormFile file,
-        FileMetadata? metadata,
-        string? linkedFilesSubfolderOverride,
+        [FromQuery] Guid projectId,
+        [FromForm] Guid? fileId,
+        [FromForm] string? filename,
+        [FromForm] IFormFile file,
+        [FromForm] FileMetadata? metadata,
+        [FromForm] string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         MediaFileService mediaFileService,
