@@ -263,6 +263,10 @@ msgstr "Audio guardado y subido a Lexbox"
 msgid "Audio saved locally"
 msgstr "Audio guardado localmente"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Author"
+msgstr ""
+
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
@@ -608,6 +612,8 @@ msgstr "Hecho"
 #. Notification action button
 #: src/home/Server.svelte
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaManagerView.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "Download"
 msgstr "Descargar"
@@ -616,6 +622,14 @@ msgstr "Descargar"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download {0}"
 msgstr "Descargar {0}"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Download all"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Download it to preview or export."
+msgstr ""
 
 #. Link label to open the updates download page
 #: src/lib/updates/UpdateDialog.svelte
@@ -642,6 +656,14 @@ msgstr "Descargar actualización"
 #: src/home/Server.svelte
 msgid "Downloaded {0}"
 msgstr "Descargado {0}"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Downloaded {0} file(s)"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Downloaded file"
+msgstr ""
 
 #. Progress message
 #: src/home/Server.svelte
@@ -755,11 +777,27 @@ msgstr "Error al copiar al portapapeles"
 msgid "Failed to download {0}"
 msgstr "Error al descargar {0}"
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to download file"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to download files"
+msgstr ""
+
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
 #: src/project/browse/EntriesList.svelte
 msgid "Failed to load entries"
 msgstr "Error al cargar entradas"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load media files"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Failed to load metadata"
+msgstr ""
 
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -771,11 +809,19 @@ msgstr "Error al abrir el directorio de datos, utilice la ruta en el campo de te
 msgid "Failed to open URL: {0}"
 msgstr "Error al abrir la URL: {0}"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Failed to save file"
+msgstr ""
+
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 #: src/project/SyncDialog.svelte
 msgid "Failed to synchronize"
 msgstr "Error de sincronización"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to upload files"
+msgstr ""
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
@@ -838,6 +884,7 @@ msgstr "Nombre del fichero:"
 
 #. Error message when file is missing
 #: src/lib/components/field-editors/audio-input.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 msgid "File not found"
 msgstr "Archivo no encontrado"
 
@@ -851,6 +898,10 @@ msgstr "Guardado de archivos no soportado"
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File too big"
 msgstr "Archivo demasiado grande"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Filename"
+msgstr ""
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1004,6 +1055,10 @@ msgstr "No veo mi proyecto"
 msgid "I understand that this can't be undone"
 msgstr "Entiendo que esto no se puede deshacer"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "ID"
+msgstr ""
+
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -1101,9 +1156,21 @@ msgstr "Significado literal"
 msgid "Loading Dictionaries..."
 msgstr "Cargando diccionarios..."
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Loading metadata..."
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Loading preview..."
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "loading..."
 msgstr "cargando..."
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loading..."
+msgstr ""
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
@@ -1111,8 +1178,15 @@ msgstr "cargando..."
 msgid "Local"
 msgstr "Local"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Local and remote"
+msgstr ""
+
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaManagerView.svelte
 msgid "Local only"
 msgstr "Sólo local"
 
@@ -1176,6 +1250,15 @@ msgstr "Se requiere una actualización manual. Siga las instrucciones proporcion
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Meaning"
 msgstr "Significado"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Media file details"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Media Manager"
+msgstr ""
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1310,6 +1393,10 @@ msgstr "No se han encontrado antecedentes"
 msgid "No items found"
 msgstr "No se han encontrado artículos"
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "No media files found"
+msgstr ""
+
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
@@ -1393,6 +1480,10 @@ msgstr "Fuera de línea"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Desconectado, no se puede descargar"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Offline, unable to open file"
+msgstr ""
 
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1491,6 +1582,7 @@ msgstr "Plataforma"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Vista previa"
@@ -1499,6 +1591,14 @@ msgstr "Vista previa"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr "Vista previa no disponible"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Preview not available for this file type."
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Preview not supported"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -1554,6 +1654,10 @@ msgstr "Referencia"
 msgid "Refine your filter to see more..."
 msgstr "Afine su filtro para ver más..."
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Refresh"
+msgstr ""
+
 #. Button to reload project list
 #: src/home/HomeView.svelte
 #: src/home/Server.svelte
@@ -1564,6 +1668,11 @@ msgstr "Actualizar proyectos"
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
 msgstr "Notas de lanzamiento"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Remote only"
+msgstr ""
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1604,6 +1713,10 @@ msgstr "Revisión"
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
 msgstr "rosa"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Save as"
+msgstr ""
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1737,6 +1850,10 @@ msgstr "Mostrar {0} más..."
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Simple"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Size"
+msgstr ""
 
 #. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
@@ -1910,6 +2027,10 @@ msgstr "Este {0} ha sido eliminado"
 msgid "This date # and this emoji # are snippets"
 msgstr "Esta fecha # y este emoji # son fragmentos"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "This file is only available remotely."
+msgstr ""
+
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
@@ -1958,6 +2079,10 @@ msgstr "Solución de problemas"
 msgid "Try again"
 msgstr ""
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Type"
+msgstr ""
+
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
@@ -1977,6 +2102,18 @@ msgstr "Escriba una frase de ejemplo"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
 msgstr "Tipo:"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to export file"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to load audio"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to open file"
+msgstr ""
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2073,6 +2210,18 @@ msgstr "La actualización no fue permitida por la configuración de permisos."
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
 msgstr "Actualizaciones"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Upload pending"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Uploaded"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Uploaded pending files"
+msgstr ""
 
 #. Field label
 #: src/lib/views/entity-config.ts
