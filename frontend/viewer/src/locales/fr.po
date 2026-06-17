@@ -2186,3 +2186,7 @@ msgstr "Vous n'êtes pas autorisé(e) de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
+
+#: src/project/SyncDialog.svelte
+msgid "You're offline. Your changes will sync once you're back online."
+msgstr ""

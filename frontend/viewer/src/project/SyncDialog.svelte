@@ -124,6 +124,13 @@
       AppNotification.display($t`Failed to synchronize`, 'error');
       return;
     }
+    if (!result.isSynced) {
+      // Offline / server unreachable: the backend has already flipped the sync status to Offline (which
+      // re-renders this dialog), so give gentle feedback instead of optimistically zeroing the counts.
+      AppNotification.display($t`You're offline. Your changes will sync once you're back online.`, {type: 'warning', timeout: 'short'});
+      await refreshStatus();
+      return;
+    }
     // Optimistically update status, then query it
     if (localStatus) {
       localStatus.remote = 0;

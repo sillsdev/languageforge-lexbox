@@ -2186,3 +2186,7 @@ msgstr "Bạn không có quyền tải dự án {0} từ {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Bạn đã tải xuống dự án {0}"
+
+#: src/project/SyncDialog.svelte
+msgid "You're offline. Your changes will sync once you're back online."
+msgstr ""

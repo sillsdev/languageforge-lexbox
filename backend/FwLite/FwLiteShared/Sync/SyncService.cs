@@ -1,6 +1,7 @@
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
+using FwLiteShared.Services;
 using LexCore.Sync;
 using LcmCrdt;
 using LcmCrdt.Data;
@@ -27,6 +28,7 @@ public class SyncService(
     IMiniLcmApi lexboxApi,
     LcmMediaService lcmMediaService,
     IOptions<AuthConfig> authOptions,
+    INetworkStatus networkStatus,
     ILogger<SyncService> logger,
     SyncRepository syncRepository)
 {
@@ -59,6 +61,14 @@ public class SyncService(
             UpdateSyncStatus(SyncStatus.NoServer);
             return new SyncResults([], [], false);
         }
+        if (!networkStatus.IsOnline)
+        {
+            // Trust the device's own network state before attempting anything: the server-health cache can
+            // report "healthy" from an earlier online sync, so without this an offline sync would sail past
+            // ShouldSync and throw a raw connection error from the actual transfer instead of reading Offline.
+            UpdateSyncStatus(SyncStatus.Offline);
+            return new SyncResults([], [], false);
+        }
         var oAuthClient = oAuthClientFactory.GetClient(server);
         var httpClient = await oAuthClient.CreateHttpClient();
         if (httpClient is null)
@@ -72,36 +82,48 @@ public class SyncService(
             UpdateSyncStatus(signedIn ? SyncStatus.Offline : SyncStatus.NotLoggedIn);
             return new SyncResults([], [], false);
         }
-        var currentUser = await oAuthClient.GetCurrentUser();
-        await currentProjectService.UpdateLastUser(currentUser?.Name, currentUser?.Id);
-
-        var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(project, httpClient);
-        if (!await remoteModel.ShouldSync())
+        try
         {
-            logger.LogInformation("Unable to connect to server when syncing project {ProjectName}", project.Name);
+            var currentUser = await oAuthClient.GetCurrentUser();
+            await currentProjectService.UpdateLastUser(currentUser?.Name, currentUser?.Id);
+
+            var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(project, httpClient);
+            if (!await remoteModel.ShouldSync())
+            {
+                logger.LogInformation("Unable to connect to server when syncing project {ProjectName}", project.Name);
+                UpdateSyncStatus(SyncStatus.Offline);
+                return new SyncResults([], [], false);
+            }
+
+            await UploadPendingMedia();
+            var syncDate = DateTimeOffset.UtcNow;//create sync date first to ensure it's consistent and not based on how long it takes to sync
+            var syncResults = await dataModel.SyncWith(remoteModel);
+            if (!syncResults.IsSynced)
+            {
+                logger.LogWarning("Did not sync with server, {ProjectName}", project.Name);
+                UpdateSyncStatus(SyncStatus.UnknownError);
+                return syncResults;
+            }
+            logger.LogInformation("Synced project {ProjectName} with server", project.Name);
+            UpdateSyncStatus(SyncStatus.Success);
+            await syncRepository.UpdateSyncDate(syncDate);
+            // Best-effort: if the push listener failed to start at project-open (e.g. user was offline), this
+            // restarts it now that we know auth + network are healthy. If it's already running, the cache
+            // short-circuits and this is effectively a no-op.
+            _ = TryEnsureProjectChangeListener(project);
+            //need to await this, otherwise the database connection will be closed before the notifications are sent
+            if (!skipNotifications) await SendNotifications(syncResults);
+            return syncResults;
+        }
+        catch (HttpRequestException e)
+        {
+            // Connectivity dropped mid-sync, or the device reports online but the server is unreachable
+            // (e.g. captive portal, or a stale-healthy server-health cache). Read this as Offline rather
+            // than surfacing a raw host-resolution error to the caller.
+            logger.LogInformation(e, "Lost connection while syncing project {ProjectName}", project.Name);
             UpdateSyncStatus(SyncStatus.Offline);
             return new SyncResults([], [], false);
         }
-
-        await UploadPendingMedia();
-        var syncDate = DateTimeOffset.UtcNow;//create sync date first to ensure it's consistent and not based on how long it takes to sync
-        var syncResults = await dataModel.SyncWith(remoteModel);
-        if (!syncResults.IsSynced)
-        {
-            logger.LogWarning("Did not sync with server, {ProjectName}", project.Name);
-            UpdateSyncStatus(SyncStatus.UnknownError);
-            return syncResults;
-        }
-        logger.LogInformation("Synced project {ProjectName} with server", project.Name);
-        UpdateSyncStatus(SyncStatus.Success);
-        await syncRepository.UpdateSyncDate(syncDate);
-        // Best-effort: if the push listener failed to start at project-open (e.g. user was offline), this
-        // restarts it now that we know auth + network are healthy. If it's already running, the cache
-        // short-circuits and this is effectively a no-op.
-        _ = TryEnsureProjectChangeListener(project);
-        //need to await this, otherwise the database connection will be closed before the notifications are sent
-        if (!skipNotifications) await SendNotifications(syncResults);
-        return syncResults;
     }
 
     private async Task TryEnsureProjectChangeListener(ProjectData project, CancellationToken cancellationToken = default)
