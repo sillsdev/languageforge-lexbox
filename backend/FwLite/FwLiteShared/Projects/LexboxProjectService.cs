@@ -425,9 +425,9 @@ public class LexboxProjectService
         return subscribedProjects;
     }
 
-    // Internal for unit tests. Used by the Reconnected handler and after a manual revive — a manual
+    // Used by the Reconnected handler and after a manual revive — a manual
     // StartAsync does not raise Reconnected, so the revive path must resubscribe explicitly.
-    internal static async Task ResubscribeRegisteredProjects(HubConnection connection)
+    private static async Task ResubscribeRegisteredProjects(HubConnection connection)
     {
         if (!_reconnectProjects.TryGetValue(connection, out var projects)) return;
         Guid[] projectIds;
@@ -448,8 +448,7 @@ public class LexboxProjectService
         }
     }
 
-    // Internal for unit tests.
-    internal static bool IsRegisteredForResubscribe(HubConnection connection, Guid projectId)
+    private static bool IsRegisteredForResubscribe(HubConnection connection, Guid projectId)
     {
         if (!_reconnectProjects.TryGetValue(connection, out var projects)) return false;
         lock (projects)

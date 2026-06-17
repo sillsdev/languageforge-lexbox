@@ -266,7 +266,12 @@ public class SyncService(
         await currentProjectService.SetProjectSyncOrigin(server.Authority, lexboxProjectId);
         try
         {
-            await ExecuteSync(true);
+            // ExecuteSync reports an offline/connectivity failure as an unsynced result rather than throwing,
+            // so an unsynced result here means the initial upload never reached the server — fall through to
+            // the rollback below instead of leaving the project bound to a server it never uploaded to.
+            var result = await ExecuteSync(true);
+            if (!result.IsSynced)
+                throw new InvalidOperationException("Initial project upload did not sync with the server");
         }
         catch
         {
