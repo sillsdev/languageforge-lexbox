@@ -72,9 +72,8 @@ jobs:
     # Runs post-merge on develop only — benchmarks are too slow and too variance-prone on shared
     # runners to gate every PR. Revisit once they're fast enough for the PR critical path.
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-    # The full suite re-imports Sena-3 before every iteration (1 warmup + 4 × 5 profiles), so the
-    # measured syncs plus setup imports plus the Release build run well past the 40 min used elsewhere.
-    timeout-minutes: 90
+    # ~30 min typical in CI (worst observed ~34) — 60 leaves headroom for hosted-runner variance.
+    timeout-minutes: 60
     runs-on: windows-latest
     steps:
       - name: Checkout
