@@ -1,5 +1,7 @@
 import {expect, type Page} from '@playwright/test';
 import {serverUrl, type Server} from '../e2e/config';
+// The e2e login flow redirects to the real Lexbox server, which renders the parent
+// LexBox web app's login form — so we reuse that app's page object (frontend/tests/).
 import {LoginPage} from '../../../tests/pages/loginPage';
 
 // FwLite uses Uri.Authority (host[:port]) as the server.id, so the rendered

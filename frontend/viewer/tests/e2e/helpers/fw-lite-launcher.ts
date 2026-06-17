@@ -88,9 +88,13 @@ export class FwLiteLauncher {
       this.process = proc;
 
       proc.on('error', error => reject(new Error(`Failed to start FW Lite: ${error.message}`)));
-      // Always reject on exit; if startup already resolved, this is a no-op on the settled promise.
-      proc.on('exit', (code, signal) =>
-        reject(new Error(`FW Lite exited before becoming ready (code=${code}, signal=${signal})`)));
+      proc.on('exit', (code, signal) => {
+        // Clear state so isRunning() reflects a crash that happens after a successful launch;
+        // the reject is a no-op once the startup promise has already settled.
+        this.isHealthy = false;
+        if (this.process === proc) this.process = null;
+        reject(new Error(`FW Lite exited before becoming ready (code=${code}, signal=${signal})`));
+      });
       proc.stdout?.on('data', (data: Buffer) => {
         const output = data.toString();
         if (READY_STDOUT_MARKERS.some(marker => output.includes(marker))) resolve();

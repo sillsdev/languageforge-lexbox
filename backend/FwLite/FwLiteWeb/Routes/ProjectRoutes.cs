@@ -73,8 +73,9 @@ public static class ProjectRoutes
         group.MapDelete("/crdt/{code}",
             async (CrdtProjectsService projectService, string code) =>
             {
+                if (!projectService.ProjectExists(code)) return Results.NotFound($"Project {code} not found");
                 await projectService.DeleteProject(code);
-                return TypedResults.Ok();
+                return Results.Ok();
             });
         return group;
     }

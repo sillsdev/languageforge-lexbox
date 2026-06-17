@@ -18,7 +18,8 @@ public static class AuthRoutes
             async (AuthService authService, string authority, IOptions<AuthConfig> options, [FromHeader] string referer) =>
             {
                 var returnUrl = new Uri(referer).PathAndQuery;
-                if (returnUrl.StartsWith("/api/auth/login")) {
+                if (returnUrl.StartsWith("/api/auth/login", StringComparison.Ordinal))
+                {
                     returnUrl = "/";
                 }
                 if (options.Value.SystemWebViewLogin)
