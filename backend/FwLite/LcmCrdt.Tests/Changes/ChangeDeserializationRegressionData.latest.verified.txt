@@ -632,11 +632,36 @@
   {
     "$type": "create:remote-resource",
     "RemoteId": "Buckinghamshire",
+    "Metadata": null,
     "EntityId": "188a57e7-7d61-8742-59eb-c0bfbf959737"
   },
   {
+    "$type": "create:remote-resource",
+    "RemoteId": "CSS",
+    "Metadata": {
+      "Filename": "e-enable",
+      "MimeType": "copying",
+      "Author": "website",
+      "UploadDate": "2026-06-16T21:24:55.5941247+07:00",
+      "SizeInBytes": 4141568263519832022
+    },
+    "EntityId": "0cba554e-f8d4-a6cc-ea43-a2a81d5212e3"
+  },
+  {
     "$type": "create:pendingUpload",
+    "Metadata": null,
     "EntityId": "52d7432c-ad4f-430c-8304-925603b3fefa"
+  },
+  {
+    "$type": "create:pendingUpload",
+    "Metadata": {
+      "Filename": "Fundamental",
+      "MimeType": "impactful",
+      "Author": "Bolivia",
+      "UploadDate": "2026-06-17T11:45:20.8253427+07:00",
+      "SizeInBytes": 5905491568126813952
+    },
+    "EntityId": "a4c3d3e4-2cdf-b2c4-bcf7-e6d3aa3172f2"
   },
   {
     "$type": "delete:RemoteResource",
@@ -894,5 +919,16 @@
     "MorphType": "Prefix",
     "HomographNumber": 4,
     "EntityId": "d8005217-eba2-7937-34f9-b76d6543eea6"
+  },
+  {
+    "$type": "set:remote-resource-metadata",
+    "Metadata": {
+      "Filename": "Dynamic",
+      "MimeType": "Technician",
+      "Author": "Checking Account",
+      "UploadDate": "2026-06-17T12:54:00.0315148+07:00",
+      "SizeInBytes": -7233844666964157622
+    },
+    "EntityId": "71c0c643-4ef6-4e3d-c657-919bbcb9ecfa"
   }
 ]
