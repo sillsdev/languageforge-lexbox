@@ -11,15 +11,15 @@ using MiniLcm.Media;
 namespace LcmCrdt.MediaServer;
 
 public class LcmMediaService(
-    ResourceService resourceService,
+    ResourceService<LcmFileMetadata> resourceService,
     CurrentProjectService currentProjectService,
     IOptions<CrdtConfig> options,
     IRefitHttpServiceFactory refitFactory,
     IServerHttpClientProvider httpClientProvider,
     ILogger<LcmMediaService> logger
-) : IRemoteResourceService
+) : IRemoteResourceService<LcmFileMetadata>
 {
-    public async Task<HarmonyResource[]> AllResources()
+    public async Task<HarmonyResource<LcmFileMetadata>[]> AllResources()
     {
         return await resourceService.AllResources();
     }
@@ -87,7 +87,7 @@ public class LcmMediaService(
         return mediaClient;
     }
 
-    async Task<DownloadResult> IRemoteResourceService.DownloadResource(string remoteId, string localResourceCachePath)
+    async Task<DownloadResult> IRemoteResourceService<LcmFileMetadata>.DownloadResource(string remoteId, string localResourceCachePath)
     {
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
@@ -108,19 +108,24 @@ public class LcmMediaService(
         Path.Combine(options.Value.LocalResourceCachePath, currentProjectService.Project.Name);
 
 
-    async Task<UploadResult> IRemoteResourceService.UploadResource(Guid resourceId, string localPath)
+    async Task<UploadResult<LcmFileMetadata>> IRemoteResourceService<LcmFileMetadata>.UploadResource(Guid resourceId, string localPath)
     {
         var mediaClient = await MediaServerClient();
         var fileName = Path.GetFileName(localPath);
-        await mediaClient.UploadFile(
+        var response = await mediaClient.UploadFile(
             new FileInfoPart(new FileInfo(localPath), fileName),
             projectId: currentProjectService.ProjectData.Id,
             fileId: resourceId.ToString("D"),
             filename: fileName);
-        return new UploadResult(resourceId.ToString("N"));
+        var metadata = new LcmFileMetadata(fileName,
+            response.Metadata?.MimeType ?? "application/octet-stream",
+            response.Metadata?.Author,
+            response.Metadata?.UploadDate,
+            response.Metadata?.SizeInBytes);
+        return new UploadResult<LcmFileMetadata>(resourceId.ToString("N"), metadata);
     }
 
-    public async Task<(HarmonyResource resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
+    public async Task<(HarmonyResource<LcmFileMetadata> resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
@@ -130,16 +135,20 @@ public class LcmMediaService(
         await using (var localFile = File.Create(localPath))
         {
             await stream.CopyToAsync(localFile);
+            if (metadata.SizeInBytes is null && localFile.SafeLength() is { } length) metadata = metadata with { SizeInBytes = length };
         }
 
+        if (metadata.SizeInBytes is null) metadata = metadata with { SizeInBytes = new FileInfo(localPath).Length };
+        
         try
         {
-            IRemoteResourceService? remoteResourceService = null;
+            IRemoteResourceService<LcmFileMetadata>? remoteResourceService = null;
             if (await httpClientProvider.ConnectionStatus() == ConnectionStatus.Online) remoteResourceService = this;
             return (await resourceService.AddLocalResource(
                 localPath,
                 currentProjectService.ProjectData.ClientId,
-                resourceService: remoteResourceService
+                resourceService: remoteResourceService,
+                metadata: metadata
             ), newResource: true);
         }
         catch (Exception e)

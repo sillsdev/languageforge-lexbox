@@ -5,7 +5,7 @@ using Refit;
 namespace LcmCrdt.MediaServer;
 
 
-public interface IMediaServerClient
+internal interface IMediaServerClient
 {
     [Get("/api/media/metadata/{fileId}")]
     Task<LcmFileMetadata> GetFileMetadata(Guid fileId);
@@ -22,9 +22,9 @@ public interface IMediaServerClient
         string? filename = null);
 }
 
-public record MediaUploadFileResponse(Guid Guid, FileMetadata? Metadata);
+internal record MediaUploadFileResponse(Guid Guid, FileMetadata? Metadata);
 
-public class FileMetadata
+internal class FileMetadata
 {
     public string? Sha256Hash { get; set; }
     public int? SizeInBytes { get; set; }

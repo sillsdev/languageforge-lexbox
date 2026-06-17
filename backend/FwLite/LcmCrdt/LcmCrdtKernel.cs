@@ -31,7 +31,7 @@ using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Text.Json.Serialization.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using MiniLcm.Media;
 
 namespace LcmCrdt;
 
@@ -62,6 +62,7 @@ public static class LcmCrdtKernel
         services.AddCrdtDataDbFactory<LcmCrdtDbContext>(
             ConfigureCrdt
         );
+        services.AddCrdtRemoteResources<LcmFileMetadata>();
         services.AddOptions<CrdtConfig>().PostConfigure((CrdtConfig crdtConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
         {
             crdtConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
@@ -294,8 +295,6 @@ public static class LcmCrdtKernel
                     component.ComponentEntryId
                 }).IsUnique().HasFilter($"{componentSenseId} IS NULL");
             });
-
-        config.AddRemoteResourceEntity();
 
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()

@@ -3,11 +3,14 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {ILcmFileMetadata} from '../../../MiniLcm/Media/ILcmFileMetadata';
+
 export interface IHarmonyResource
 {
 	id: string;
 	remoteId?: string;
 	localPath?: string;
+	metadata?: ILcmFileMetadata;
 	local: boolean;
 	remote: boolean;
 }

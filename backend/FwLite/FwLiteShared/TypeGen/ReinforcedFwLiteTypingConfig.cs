@@ -183,7 +183,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(ProjectScope),
             typeof(FwLiteRelease),
             typeof(AvailableUpdate),
-            typeof(HarmonyResource),
+            typeof(HarmonyResource<LcmFileMetadata>),
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
         builder.ExportAsEnum<FwEventType>().UseString();

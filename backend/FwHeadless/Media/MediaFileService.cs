@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MiniLcm.Media;
 using SIL.LCModel;
+using FileMetadata = LexCore.Entities.FileMetadata;
 using MediaFile = LexCore.Entities.MediaFile;
 
 namespace FwHeadless.Media;
@@ -45,7 +46,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
                 Metadata = new FileMetadata
                 {
                     MimeType = MimeMapping.MimeUtility.GetMimeMapping(newFwFile),
-                    SizeInBytes = (int)new FileInfo(Path.Join(cache.ProjectId.ProjectFolder, newFwFile)).Length,
+                    SizeInBytes = new FileInfo(Path.Join(cache.ProjectId.ProjectFolder, newFwFile)).Length,
                 }
             };
             dbContext.Files.Add(mediaFile);
@@ -167,7 +168,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         await sendReceiveService.CommitFile(filePath, $"Uploaded file {Path.GetFileName(filePath)}");
 
         mediaFile.InitializeMetadataIfNeeded(filePath);
-        mediaFile.Metadata.SizeInBytes = (int)fileLength;
+        mediaFile.Metadata.SizeInBytes = fileLength;
         mediaFile.Metadata.Sha256Hash = await Sha256OfFile(filePath);
 
         mediaFile.UpdateUpdatedDate();
