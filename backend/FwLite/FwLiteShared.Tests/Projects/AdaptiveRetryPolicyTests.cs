@@ -26,7 +26,7 @@ public class AdaptiveRetryPolicyTests
         var policy = new LexboxProjectService.AdaptiveRetryPolicy(new FakeNetworkStatus(isOnline));
 
         policy.NextRetryDelay(Context(0)).Should().Be(TimeSpan.Zero);
-        policy.NextRetryDelay(Context(1)).Should().Be(TimeSpan.FromSeconds(2));
+        policy.NextRetryDelay(Context(1)).Should().Be(TimeSpan.FromSeconds(5));
     }
 
     [Theory]

@@ -10,14 +10,26 @@ namespace LcmCrdt.RemoteSync;
 public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, IRefitHttpServiceFactory refitFactory, IMemoryCache cache)
 {
     private static readonly TimeSpan HealthyCacheTime = TimeSpan.FromMinutes(30);
+    private static string HealthCacheKey(string authority) => "ServerHealth|" + authority;
     private bool? CachedIsHealthy(string authority)
     {
-        return cache.Get<bool?>("ServerHealth|" + authority);
+        return cache.Get<bool?>(HealthCacheKey(authority));
     }
 
     private void SetCachedIsHealthy(string authority, bool healthy)
     {
-        cache.Set("ServerHealth|" + authority, healthy, DateTimeOffset.UtcNow + HealthyCacheTime);
+        cache.Set(HealthCacheKey(authority), healthy, DateTimeOffset.UtcNow + HealthyCacheTime);
+    }
+
+    /// <summary>
+    /// Drops any cached health verdict so the next <see cref="ShouldSync"/> re-probes the server. A health
+    /// check that failed while offline is cached as unhealthy for <see cref="HealthyCacheTime"/>; call this
+    /// when there's fresh evidence reachability changed (e.g. a push listener just (re)connected) so a sync
+    /// triggered by that recovery isn't suppressed by the stale verdict.
+    /// </summary>
+    public static void InvalidateServerHealth(IMemoryCache cache, string authority)
+    {
+        cache.Remove(HealthCacheKey(authority));
     }
 
 

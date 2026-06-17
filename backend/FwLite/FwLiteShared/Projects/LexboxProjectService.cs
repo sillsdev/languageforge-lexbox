@@ -5,6 +5,7 @@ using FwLiteShared.Auth;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
 using LcmCrdt;
+using LcmCrdt.RemoteSync;
 using LexCore.Entities;
 using LexCore.Sync;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -65,10 +66,9 @@ public class LexboxProjectService
             // Try to (re)start listeners for tracked projects on this server. If auth is gone (logout),
             // StartLexboxProjectChangeListener returns null and we no-op. If auth is valid (login),
             // we get a fresh listener without waiting for the user to manually sync or reopen.
-            bool ForThisServer(ProjectData p) => p.ServerId == server.Id;
             logger.LogInformation("Auth changed for {Server}, re-establishing push listeners for {Count} tracked project(s)",
-                server.Authority, _trackedProjects.Values.Count(ForThisServer));
-            await EnsureListenersForTrackedProjects(ForThisServer);
+                server.Authority, _trackedProjects.Values.Count(p => p.ServerId == server.Id));
+            await EnsureListenersForTrackedProjects(server);
         }
         catch (Exception e)
         {
@@ -85,16 +85,16 @@ public class LexboxProjectService
     // sync or edit.
     public Task EnsureListenersForTrackedProjects(bool kickReconnecting = false) => EnsureListenersForTrackedProjects(null, kickReconnecting);
 
-    private async Task EnsureListenersForTrackedProjects(Func<ProjectData, bool>? filter, bool kickReconnecting = false)
+    private async Task EnsureListenersForTrackedProjects(LexboxServer? server, bool kickReconnecting = false)
     {
         // Snapshot connected servers BEFORE the loop, not per project: when a server is down, its first project
         // opens the connection and the rest must still subscribe on it within this same pass.
         var connectedServers = ConnectedServerConnections();
         foreach (var project in _trackedProjects.Values)
         {
-            if (filter is not null && !filter(project)) continue;
-            if (project.ServerId is { } serverId
-                && connectedServers.TryGetValue(serverId, out var connection)
+            if (project.ServerId is null) continue;
+            if (server is not null && project.ServerId != server.Id) continue;
+            if (connectedServers.TryGetValue(project.ServerId, out var connection)
                 && IsRegisteredForResubscribe(connection, project.Id))
             {
                 continue;
@@ -343,6 +343,8 @@ public class LexboxProjectService
             }
             // Covers the current project (registered above) and any siblings on this connection.
             await ResubscribeRegisteredProjects(lexboxConnection);
+            // The connection just came back up; flush/pull like the other reconnect paths.
+            TriggerSyncForServerProjects(server);
         }
         else
         {
@@ -374,6 +376,34 @@ public class LexboxProjectService
         {
             logger.LogInformation("Network recovery signal: interrupting mid-backoff reconnect to {Server}", server.Authority);
             await EvictAndStopIfCached(HubConnectionCacheKey(server), cache, logger, connection);
+        }
+    }
+
+    // A listener (re)connecting moves no data on its own — the server only pushes OnProjectUpdated for changes
+    // made after (re)subscribe — so changes authored while offline, and remote changes that arrived during the
+    // outage, need an explicit sync once the connection is back. Call ONLY on a real connect transition (fresh
+    // build, SignalR Reconnected, or a revive), never on a cache-hit re-ensure, otherwise it loops with the
+    // post-sync TryEnsureProjectChangeListener.
+    private void TriggerSyncForServerProjects(LexboxServer server)
+    {
+        // A genuine connect transition means SignalR just reached this server, which proves it's reachable.
+        // Both these per-server caches can hold a stale failure from the offline period: the health verdict
+        // (cached unhealthy for 30 min) would make this catch-up sync a silent no-op, and the project list
+        // (cached empty for 5 min) would keep showing nothing. Drop both so they re-fetch now that we're back.
+        CrdtHttpSyncService.InvalidateServerHealth(cache, server.Authority.Authority);
+        InvalidateProjectsCache(server);
+        foreach (var project in _trackedProjects.Values)
+        {
+            if (project.ServerId != server.Id) continue;
+            try
+            {
+                backgroundSyncService.TriggerSync(project.Id);
+            }
+            catch (Exception e)
+            {
+                // TriggerSync throws if the background sync service isn't running yet (e.g. startup/shutdown).
+                logger.LogWarning(e, "Failed to trigger sync after listener (re)connect for {ProjectName}", project.Name);
+            }
         }
     }
 
@@ -440,6 +470,12 @@ public class LexboxProjectService
         {
             await connection.StopAsync();
         }
+        catch (ObjectDisposedException e)
+        {
+            // A HubConnection mid-reconnect has already disposed itself, so stopping one we're evicting
+            // from a kick throws ObjectDisposedException even though the eviction itself succeeded.
+            logger.LogDebug(e, "Evicted SignalR connection was already disposed");
+        }
         catch (Exception e)
         {
             logger.LogWarning(e, "Failed to stop evicted SignalR connection");
@@ -489,17 +525,23 @@ public class LexboxProjectService
     // interrupted except by StopAsync, so the delay is the worst-case recovery latency: keep it short while
     // the device reports online (the problem is server-side and could end any moment) and long while offline
     // (every attempt is a pointless local failure; connectivity/resume triggers handle the transition back).
-    internal class AdaptiveRetryPolicy(INetworkStatus networkStatus) : IRetryPolicy
+    internal class AdaptiveRetryPolicy(INetworkStatus networkStatus, ILogger? logger = null) : IRetryPolicy
     {
         public TimeSpan? NextRetryDelay(RetryContext retryContext)
         {
-            return retryContext.PreviousRetryCount switch
+            var isOnline = networkStatus.IsOnline;
+            var delay = retryContext.PreviousRetryCount switch
             {
                 0 => TimeSpan.Zero,
                 1 => TimeSpan.FromSeconds(5),
-                _ when !networkStatus.IsOnline => TimeSpan.FromSeconds(60),
+                _ when !isOnline => TimeSpan.FromSeconds(60),
                 _ => TimeSpan.FromSeconds(10),
             };
+            // Per-attempt detail for diagnosing reconnect behaviour in the field; the connection-level
+            // reconnecting/recovered/synced events carry the story at Information.
+            logger?.LogDebug("SignalR reconnect attempt #{Attempt}: device reports online={IsOnline}, next retry in {Delay}",
+                retryContext.PreviousRetryCount, isOnline, delay);
+            return delay;
         }
     }
 
@@ -550,7 +592,7 @@ public class LexboxProjectService
             // attempts, close reasons) land in the app log instead of a console-only factory. An externally
             // supplied instance is not disposed with the connection's service provider.
             .ConfigureLogging(logging => logging.Services.AddSingleton(loggerFactory))
-            .WithAutomaticReconnect(new AdaptiveRetryPolicy(networkStatus))
+            .WithAutomaticReconnect(new AdaptiveRetryPolicy(networkStatus, logger))
             .WithUrl($"{server.Authority}api/hub/crdt/project-changes",
                 connectionOptions =>
                 {
@@ -601,6 +643,13 @@ public class LexboxProjectService
                     cache.Remove(HubConnectionCacheKey(server));
                 await connection.DisposeAsync();
             };
+            connection.Reconnected += _ =>
+            {
+                // Auto-reconnected this same connection (no rebuild → the fresh-build sync below didn't run).
+                logger.LogInformation("SignalR reconnected to {Server}; syncing", server.Authority);
+                TriggerSyncForServerProjects(server);
+                return Task.CompletedTask;
+            };
             // ICacheEntry value returned from CreateEntry must be disposed in order to be committed to the cache,
             // so do not remove the "using var __" below that appears to be doing nothing.
             using var __ = cache.CreateEntry(HubConnectionCacheKey(server)).SetValue(connection).RegisterPostEvictionCallback(
@@ -622,6 +671,10 @@ public class LexboxProjectService
             return null;
         }
 
+        // Freshly built+connected (e.g. first listen or a kick-rebuild after the network returned). Flush
+        // offline-authored changes and pull anything missed; the connection is now cached, so the sync's
+        // own re-ensure hits the cache and won't rebuild (no loop).
+        TriggerSyncForServerProjects(server);
         return connection;
     }
 }
