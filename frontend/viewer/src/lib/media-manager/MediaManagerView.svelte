@@ -29,6 +29,9 @@
   type LocationStatus = 'local' | 'remote' | 'both';
 
   function displayName(resource: IHarmonyResource): string {
+    if (resource.metadata) {
+      return resource.metadata.filename;
+    }
     if (resource.localPath) {
       return resource.localPath.split(/[/\\]/).pop() ?? resource.id;
     }
@@ -47,13 +50,13 @@
     both: () => $t`Local and remote`,
   };
 
-  const downloadableCount = $derived(
+  const loadingFileCount = $derived(
     mediaFiles.current.filter((file) => file.remote && !file.local).length,
   );
 
-  let downloading = $state(false);
+  let loadingFiles = $state(false);
   let uploading = $state(false);
-  let downloadingFileIds = new SvelteSet<string>();
+  let loadingFileIds = new SvelteSet<string>();
   let selectedFileId = $state<string | undefined>();
   const selectedFile = $derived(
     selectedFileId ? mediaFiles.current.find((file) => file.id === selectedFileId) : undefined,
@@ -63,31 +66,31 @@
     selectedFileId = file.id;
   }
 
-  async function downloadFileForDetail(fileId: string) {
-    await downloadFile(fileId);
+  async function loadFileForDetail(fileId: string) {
+    await loadFile(fileId);
   }
 
-  async function downloadFile(fileId: string, event?: MouseEvent) {
+  async function loadFile(fileId: string, event?: MouseEvent) {
     event?.stopPropagation();
 
     const service = mediaFilesService;
-    if (!service || downloadingFileIds.has(fileId)) return;
+    if (!service || loadingFileIds.has(fileId)) return;
 
-    downloadingFileIds.add(fileId);
+    loadingFileIds.add(fileId);
     try {
       await service.downloadResources([fileId]);
       await mediaFiles.refetch();
-      AppNotification.display($t`Downloaded file`);
+      AppNotification.display($t`Loaded file`);
     } catch (error) {
-      AppNotification.error($t`Failed to download file`, error instanceof Error ? error.message : String(error));
+      AppNotification.error($t`Failed to loaded file`, error instanceof Error ? error.message : String(error));
     } finally {
-      downloadingFileIds.delete(fileId);
+      loadingFileIds.delete(fileId);
     }
   }
 
-  async function downloadAll() {
+  async function loadAllFiles() {
     const service = mediaFilesService;
-    if (!service || downloading) return;
+    if (!service || loadingFiles) return;
 
     const resourceIds = mediaFiles.current
       .filter((file) => file.remote && !file.local)
@@ -95,15 +98,15 @@
 
     if (resourceIds.length === 0) return;
 
-    downloading = true;
+    loadingFiles = true;
     try {
       await service.downloadResources(resourceIds);
       await mediaFiles.refetch();
-      AppNotification.display($t`Downloaded ${resourceIds.length} file(s)`);
+      AppNotification.display($t`Loaded ${resourceIds.length} file(s)`);
     } catch (error) {
-      AppNotification.error($t`Failed to download files`, error instanceof Error ? error.message : String(error));
+      AppNotification.error($t`Failed to load files`, error instanceof Error ? error.message : String(error));
     } finally {
-      downloading = false;
+      loadingFiles = false;
     }
   }
 
@@ -135,11 +138,11 @@
         variant="outline"
         icon="i-mdi-download"
         class="col-span-1 min-h-10 w-full sm:w-auto"
-        disabled={downloadableCount === 0 || downloading || mediaFiles.loading}
-        loading={downloading}
-        onclick={() => void downloadAll()}
+        disabled={loadingFileCount === 0 || loadingFiles || mediaFiles.loading}
+        loading={loadingFiles}
+        onclick={() => void loadAllFiles()}
       >
-        <span class="truncate">{$t`Download all`}</span>
+        <span class="truncate">{$t`Load all`}</span>
       </Button>
       <Button
         variant="outline"
@@ -194,7 +197,7 @@
               )}
             >
               <div
-                class="flex shrink-0 items-center gap-1 pt-0.5 sm:pt-0"
+                class="flex w-5 shrink-0 flex-col items-center justify-center gap-0.5 pt-0.5 sm:pt-0"
                 title={locationLabels[status]()}
                 aria-label={locationLabels[status]()}
               >
@@ -219,10 +222,10 @@
                   size="icon-sm"
                   icon="i-mdi-download"
                   class="hidden shrink-0 md:inline-flex md:opacity-0 md:transition-opacity md:group-hover:opacity-100 md:group-focus-within:opacity-100"
-                  title={$t`Download`}
-                  loading={downloadingFileIds.has(file.id)}
-                  disabled={downloadingFileIds.has(file.id)}
-                  onclick={(event) => void downloadFile(file.id, event)}
+                  title={$t`Load`}
+                  loading={loadingFileIds.has(file.id)}
+                  disabled={loadingFileIds.has(file.id)}
+                  onclick={(event) => void loadFile(file.id, event)}
                 />
               {/if}
             </div>
@@ -236,8 +239,8 @@
             file={selectedFile}
             {mediaFilesService}
             locationStatus={locationStatus(selectedFile)}
-            downloading={downloadingFileIds.has(selectedFile.id)}
-            onDownload={downloadFileForDetail}
+            loadingFile={loadingFileIds.has(selectedFile.id)}
+            onLoadFile={loadFileForDetail}
             class="h-full"
           />
         </aside>
@@ -258,8 +261,8 @@
             file={selectedFile}
             {mediaFilesService}
             locationStatus={locationStatus(selectedFile)}
-            downloading={downloadingFileIds.has(selectedFile.id)}
-            onDownload={downloadFileForDetail}
+            loadingFile={loadingFileIds.has(selectedFile.id)}
+            onLoadFile={loadFileForDetail}
          />
         {/if}
       </div>

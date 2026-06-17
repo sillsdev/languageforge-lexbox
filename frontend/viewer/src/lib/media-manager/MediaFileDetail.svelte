@@ -19,15 +19,15 @@
     file,
     mediaFilesService,
     locationStatus: status,
-    downloading = false,
-    onDownload,
+    loadingFile = false,
+    onLoadFile: onLoadFile,
     class: className,
   }: {
     file: IHarmonyResource;
     mediaFilesService?: IMediaFilesServiceJsInvokable;
     locationStatus: LocationStatus;
-    downloading?: boolean;
-    onDownload?: (fileId: string) => Promise<void>;
+    loadingFile?: boolean;
+    onLoadFile?: (fileId: string) => Promise<void>;
     class?: string;
   } = $props();
 
@@ -327,16 +327,16 @@
         <div class="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
           <Icon icon="i-mdi-cloud-download-outline" class="mx-auto mb-2 size-8" />
           <p>{$t`This file is only available remotely.`}</p>
-          <p class="mt-1">{$t`Download it to preview or export.`}</p>
+          <p class="mt-1">{$t`Load it to preview or export.`}</p>
           <Button
             variant="outline"
             class="mt-3"
             icon="i-mdi-download"
-            loading={downloading}
-            disabled={downloading || !onDownload}
-            onclick={() => void onDownload?.(file.id)}
+            loading={loadingFile}
+            disabled={loadingFile || !onLoadFile}
+            onclick={() => void onLoadFile?.(file.id)}
           >
-            {$t`Download`}
+            {$t`Load`}
           </Button>
         </div>
       {:else if isAudioPreview}
