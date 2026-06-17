@@ -18,7 +18,7 @@ public static class ProjectRoutes
 {
     public static IEndpointConventionBuilder MapProjectRoutes(this WebApplication app)
     {
-        var group = app.MapGroup("/api").WithOpenApi();
+        var group = app.MapGroup("/api");
         group.MapGet("/remoteProjects",
             async (CombinedProjectsService combinedProjectsService) =>
             {

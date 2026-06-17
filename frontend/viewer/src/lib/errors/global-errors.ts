@@ -10,8 +10,10 @@ type UnifiedErrorEvent = {
   at?: string;
 }
 
-function unifyErrorEvent(event: ErrorEvent | PromiseRejectionEvent): UnifiedErrorEvent {
-  if ('message' in event) {
+function unifyErrorEvent(event: ErrorEvent | PromiseRejectionEvent | Error): UnifiedErrorEvent {
+  if (event instanceof Error) {
+    return { message: event.message, error: event };
+  } else if ('message' in event) {
     return { message: event.message, error: event.error, at: `${event.filename}:${event.lineno}:${event.colno}` };
   } else if (typeof event.reason === 'string') {
     return { message: event.reason, error: null };
@@ -24,6 +26,8 @@ function unifyErrorEvent(event: ErrorEvent | PromiseRejectionEvent): UnifiedErro
 
 function shouldIgnoreError(message: string): boolean {
   if (message.includes('Perhaps the DotNetObjectReference instance was already disposed')) return true;
+  // Blazor WebView completing a JS->.NET call whose JS-side registry was already torn down (e.g. page refresh).
+  if (message.includes('There is no pending async call with ID')) return true;
   // Code (i.e. {expression}) inside a <MenuItem> slot, inside a portal causes this error if the portal is open while the screen is resized 🙃
   // It's worth noting that in Lexbox we've also seen browser extensions trigger this error
   if (message.includes('ResizeObserver loop completed with undelivered notifications')) return true;
@@ -55,7 +59,7 @@ export function setupGlobalErrorHandlers() {
   window.addEventListener('unhandledrejection', onErrorEvent);
 }
 
-function onErrorEvent(event: ErrorEvent | PromiseRejectionEvent) {
+export function onErrorEvent(event: ErrorEvent | PromiseRejectionEvent | Error) {
   const errorEvent = unifyErrorEvent(event);
   if (shouldIgnoreError(errorEvent.message)) return;
   void tryLogErrorToDotNet(errorEvent);

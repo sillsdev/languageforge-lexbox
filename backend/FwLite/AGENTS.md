@@ -12,7 +12,7 @@ Lightweight FieldWorks application for dictionary editing with CRDT-based sync.
 **Before making changes:**
 1. Read the relevant section below thoroughly
 2. Understand the sync flow end-to-end
-3. Run the full test suite: `dotnet test FwLiteOnly.slnf`
+3. Identify which tests cover the affected area (run a targeted selection when the work is done — see the root `AGENTS.md` Testing section)
 4. Test with real FwData projects, not just unit tests
 
 ---
@@ -23,12 +23,16 @@ Lightweight FieldWorks application for dictionary editing with CRDT-based sync.
 # Run FwLite Web (typical workflow)
 task fw-lite-web   # from repo root
 
-# Run tests (ALWAYS run before committing)
+# Run all FwLite tests (slow — prefer targeted runs, see root AGENTS.md Testing section)
 dotnet test FwLiteOnly.slnf
 
 # Build MAUI app (Windows)
-dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net9.0-windows10.0.19041.0
+dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0.19041.0
 ```
+
+## Testing on Android (agents)
+
+No emulator running? Start one yourself — don't ask. `emulator -list-avds` (try `$ANDROID_HOME/emulator/`, `$LOCALAPPDATA/Android/Sdk/emulator/`, etc.) → pick an `fwlite_*` image → launch in background with `-no-snapshot-load -no-boot-anim` → wait until `adb -e get-state` is `device` and `sys.boot_completed` is `1` → `task android-emulator-dev`. Physical device fallback: `task android-dev`. Drive UI with `adb -e shell input tap/swipe` + `adb -e exec-out screencap -p > path.png`.
 
 ## Generated Types (TypeScript)
 
@@ -240,6 +244,15 @@ if (entity?.DeletedAt is not null) return;
 
 ---
 
+## 🚨 Harmony Projected Tables (`LcmCrdtDbContext`)
+
+`LcmCrdtDbContext` DbSets (`Entries`, `Senses`, etc.) are Harmony's **projected snapshot tables**. They contain only the latest, **un-deleted** state.
+
+- ❌ **Do NOT** add `DeletedAt is null` filters when querying these DbSets — soft-deleted rows are never present. The `DeletedAt` column exists on the entity types (it's used inside Change classes during change application — see above), but the projection drops deleted rows entirely, so filtering on it is dead code that misleads readers.
+- ✅ If you need deleted history, query the change/commit tables directly (see `HistoryService.cs`, `SnapshotAtCommitService.cs`).
+
+---
+
 ## Important Files Quick Reference
 
 | File | Purpose | Risk Level |
@@ -256,15 +269,9 @@ if (entity?.DeletedAt is not null) return;
 
 ## Testing Strategy
 
-### Before ANY commit:
+### When the work is finished:
 
-```bash
-# Run all FwLite tests
-dotnet test FwLiteOnly.slnf
-
-# If touching sync code, also run:
-dotnet test FwLiteProjectSync.Tests
-```
+Run a targeted selection of the tests covering what you changed (root `AGENTS.md` → Testing). For 🔴 critical sync changes that usually includes the relevant `FwLiteProjectSync.Tests` scenarios. `dotnet test FwLiteOnly.slnf` runs everything but is slow — reserve it for when broad signal is genuinely needed.
 
 ### Test Categories
 

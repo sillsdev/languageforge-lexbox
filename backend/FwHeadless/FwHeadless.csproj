@@ -11,7 +11,6 @@
     <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" />
     <PackageReference Include="SIL.Chorus.Mercurial" />
     <PackageReference Include="SIL.Chorus.ChorusMerge" GeneratePathProperty="true" />
-    <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../harmony/src/SIL.Harmony/SIL.Harmony.csproj" />

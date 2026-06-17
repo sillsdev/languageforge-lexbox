@@ -12,9 +12,9 @@ using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LcmCrdt.RemoteSync;
 using LinqToDB;
-using LinqToDB.AspNet.Logging;
 using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
+using LinqToDB.Extensions.Logging;
 using LinqToDB.Mapping;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -130,16 +130,18 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
-                    //tells linq2db to rewrite Sense.SemanticDomains, into Json.Query(Sense.SemanticDomains)
-                    .Entity<Sense>().Property(s => s.SemanticDomains).HasAttribute(new ExpressionMethodAttribute(SenseSemanticDomainsExpression()))
-                    .Entity<Entry>().Property(e => e.PublishIn).HasAttribute(new ExpressionMethodAttribute(EntryPublishInExpression()))
+                    //tells linq2db to rewrite Sense.SemanticDomainRows / Entry.PublishInRows into
+                    //Json.Query(<underlying column>). The rewrite lives on the *Rows shadow accessors
+                    //rather than the real IList<T> columns; see Entry.PublishInRows for why.
+                    .Entity<Sense>().Property(s => s.SemanticDomainRows).IsExpression(SenseSemanticDomainRowsExpression(), isColumn: false)
+                    .Entity<Entry>().Property(e => e.PublishInRows).IsExpression(EntryPublishInRowsExpression(), isColumn: false)
                     .Entity<RichString>().Member(r => r.GetPlainText()).IsExpression(r => Json.GetPlainText(r))
                     .Entity<Guid>().Member(g => g.ToString()).IsExpression(g => Json.ToString(g))
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
                 optionsBuilder.AddMappingSchema(mappingSchema);
-                optionsBuilder.AddCustomOptions(options => options.UseSQLiteMicrosoft());
+                optionsBuilder.AddCustomOptions(options => options.UseSQLite());
 
                 // Register read-relevant interceptors for LinqToDB
                 var sqliteFunctionInterceptor = new CustomSqliteFunctionInterceptor();
@@ -161,18 +163,15 @@ public static class LcmCrdtKernel
             builder.AddInterceptors(updateSearchTableInterceptor);
     }
 
-    private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainsExpression()
+    private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainRowsExpression()
     {
-        //using Sql.Property, otherwise if we used `s.SemanticDomains` again it would be recursively rewritten
-        return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains)));
+        return s => Json.Query(s.SemanticDomains);
     }
 
-    private static Expression<Func<Entry, IQueryable<Publication>>> EntryPublishInExpression()
+    private static Expression<Func<Entry, IQueryable<Publication>>> EntryPublishInRowsExpression()
     {
-        //using Sql.Property, otherwise if we used `e.PublishIn` again it would be recursively rewritten
-        return e => Json.Query(Sql.Property<IList<Publication>>(e, nameof(Entry.PublishIn)));
+        return e => Json.Query(e.PublishIn);
     }
-
 
     public static void ConfigureCrdt(CrdtConfig config)
     {
@@ -263,7 +262,7 @@ public static class LcmCrdtKernel
                         list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => JsonSerializer.Deserialize<ViewField[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<ViewField>());
 
-                var writingSystemArrayConverter = new ValueConverter<ViewWritingSystem[]?, string?>(
+                var writingSystemArrayConverter = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<ViewWritingSystem[]?, string?>(
                     list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                     json => json == null ? null : JsonSerializer.Deserialize<ViewWritingSystem[]>(json, (JsonSerializerOptions?)null));
                 builder.Property(v => v.Vernacular)
@@ -275,6 +274,7 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(writingSystemArrayConverter);
             })
+            .Add<MorphType>()
             .Add<ComplexFormComponent>(builder =>
             {
                 const string componentSenseId = "ComponentSenseId";
@@ -303,6 +303,7 @@ public static class LcmCrdtKernel
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
             .Add<JsonPatchChange<ComplexFormType>>()
+            .Add<JsonPatchChange<MorphType>>()
             .Add<JsonPatchChange<Publication>>()
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
@@ -345,6 +346,7 @@ public static class LcmCrdtKernel
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
             .Add<DeleteChange<CustomView>>()
+            .Add<CreateMorphTypeChange>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()

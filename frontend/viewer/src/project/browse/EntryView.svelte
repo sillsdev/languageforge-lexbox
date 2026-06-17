@@ -23,12 +23,16 @@
   import * as Alert from '$lib/components/ui/alert';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {useProjectStorage} from '$lib/storage/project-storage.svelte';
+
+  type DictionaryPreviewMode = 'show' | 'hide' | 'sticky';
 
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
   const features = useFeatures();
   const viewService = useViewService();
+  const dictionaryPreviewStorage = useProjectStorage().dictionaryPreview;
   const {
     entryId,
     onClose,
@@ -66,9 +70,9 @@
   }
 
   eventBus.onEntryUpdated((e) => {
-    if (e.id === entryId) {
-      void entryResource.refetch();
-    }
+    if (e.id !== entryId) return;
+    // The event payload is the latest server state
+    setEntry(e);
   });
 
   eventBus.onEntryDeleted(id => {
@@ -88,8 +92,13 @@
   let entry = $derived(entryResource.current ?? undefined);
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
-  let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
-  const sticky = $derived.by(() => dictionaryPreview === 'sticky');
+  const dictionaryPreview: DictionaryPreviewMode = $derived(
+    isDictionaryPreviewMode(dictionaryPreviewStorage.current) ? dictionaryPreviewStorage.current : 'show'
+  );
+  function isDictionaryPreviewMode(value: string): value is DictionaryPreviewMode {
+    return value === 'show' || value === 'hide' || value === 'sticky';
+  }
+  const sticky = $derived(dictionaryPreview === 'sticky');
 
   let readonly = $state(false);
   let deleted = $state(false);
@@ -104,10 +113,10 @@
 </script>
 
 {#snippet preview(entry: IEntry)}
-  <div class="md:pb-4">
+  <div class="md:pb-3">
     <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
       {#snippet actions()}
-        <Toggle bind:pressed={() => sticky, (value) => dictionaryPreview = value ? 'sticky' : 'show'}
+        <Toggle bind:pressed={() => sticky, (value) => void dictionaryPreviewStorage.set(value ? 'sticky' : 'show')}
           aria-label={$t`Toggle pinned`} class="aspect-square" size="sm">
           <Icon icon="i-mdi-pin-outline" class="size-5" />
         </Toggle>
@@ -125,7 +134,7 @@
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
         <div class="flex">
-          <ViewPicker bind:dictionaryPreview bind:readonly />
+          <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} bind:readonly />
           <EntryMenu {entry} />
         </div>
       </div>
@@ -159,7 +168,7 @@
           {@render preview(entry)}
         </div>
       {/if}
-      <div class="max-md:p-2 md:pb-2 md:px-2">
+      <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
         {#key entry.id}
           <EntryEditor
             bind:this={editor}

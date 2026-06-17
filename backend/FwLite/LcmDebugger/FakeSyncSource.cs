@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using LcmCrdt;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
@@ -39,8 +40,21 @@ public class FakeSyncSource(Commit[] commits, SyncState? currentSyncState = null
 
     public static FakeSyncSource FromJsonFile(string path, JsonSerializerOptions? options = null)
     {
-        var changes = JsonSerializer.Deserialize<ChangesResult<Commit>>(File.OpenRead(path), options);
+        if (options is null)
+        {
+            var config = new CrdtConfig();
+            LcmCrdtKernel.ConfigureCrdt(config);
+            options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+            {
+                TypeInfoResolver = config.MakeLcmCrdtExternalJsonTypeResolver(),
+            };
+        }
+
+        using var file = File.OpenRead(path);
+        var changes = JsonSerializer.Deserialize<ChangesResult<Commit>>(file, options);
         ArgumentNullException.ThrowIfNull(changes);
+        ArgumentNullException.ThrowIfNull(changes.MissingFromClient);
+        ArgumentNullException.ThrowIfNull(changes.ServerSyncState);
         return new FakeSyncSource(changes.MissingFromClient, changes.ServerSyncState);
     }
 

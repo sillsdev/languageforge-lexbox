@@ -61,9 +61,18 @@ internal class PermissionManagingBlazorWebChromeClient : WebChromeClient, IActiv
         _requestPermissionLauncher = _activity.RegisterForActivityResult(new ActivityResultContracts.RequestPermission(), this);
     }
 
+    // When MAUI tears down the BlazorWebView (e.g. user backs out of the app), it disposes
+    // the underlying BlazorWebChromeClient while the WebView itself is still alive briefly --
+    // any callback the WebView fires during that window (a JS console.log, a title update,
+    // a permission cancel, etc.) reaches our wrapper, which then forwards to the disposed
+    // Java peer and throws ObjectDisposedException. The exception is unhandled across the
+    // JNI boundary and crashes the process. We guard each forwarding method by checking
+    // the peer's handle. Related: https://github.com/dotnet/maui/issues/6565
+    private bool BlazorClientAlive => _blazorWebChromeClient.Handle != IntPtr.Zero;
+
     public override void OnCloseWindow(WebView? window)
     {
-        _blazorWebChromeClient.OnCloseWindow(window);
+        if (BlazorClientAlive) _blazorWebChromeClient.OnCloseWindow(window);
         _requestPermissionLauncher.Unregister();
     }
 
@@ -190,42 +199,77 @@ internal class PermissionManagingBlazorWebChromeClient : WebChromeClient, IActiv
 
     #region Unremarkable overrides
     // See: https://github.com/dotnet/maui/issues/6565
+    // All forwarding methods are guarded by BlazorClientAlive; see the field's comment above.
     public override JniPeerMembers JniPeerMembers => _blazorWebChromeClient.JniPeerMembers;
-    public override Bitmap? DefaultVideoPoster => _blazorWebChromeClient.DefaultVideoPoster;
-    public override View? VideoLoadingProgressView => _blazorWebChromeClient.VideoLoadingProgressView;
+    public override Bitmap? DefaultVideoPoster => BlazorClientAlive ? _blazorWebChromeClient.DefaultVideoPoster : null;
+    public override View? VideoLoadingProgressView => BlazorClientAlive ? _blazorWebChromeClient.VideoLoadingProgressView : null;
     public override void GetVisitedHistory(IValueCallback? callback)
-        => _blazorWebChromeClient.GetVisitedHistory(callback);
+    {
+        if (BlazorClientAlive) _blazorWebChromeClient.GetVisitedHistory(callback);
+    }
     public override bool OnConsoleMessage(ConsoleMessage? consoleMessage)
-        => _blazorWebChromeClient.OnConsoleMessage(consoleMessage);
+    {
+        return BlazorClientAlive && _blazorWebChromeClient.OnConsoleMessage(consoleMessage);
+    }
     public override bool OnCreateWindow(WebView? view, bool isDialog, bool isUserGesture, Message? resultMsg)
-        => _blazorWebChromeClient.OnCreateWindow(view, isDialog, isUserGesture, resultMsg);
+    {
+        return BlazorClientAlive && _blazorWebChromeClient.OnCreateWindow(view, isDialog, isUserGesture, resultMsg);
+    }
     public override void OnGeolocationPermissionsHidePrompt()
-        => _blazorWebChromeClient.OnGeolocationPermissionsHidePrompt();
+    {
+        if (BlazorClientAlive) _blazorWebChromeClient.OnGeolocationPermissionsHidePrompt();
+    }
     public override void OnHideCustomView()
-        => _blazorWebChromeClient.OnHideCustomView();
+    {
+        if (BlazorClientAlive) _blazorWebChromeClient.OnHideCustomView();
+    }
     public override bool OnJsAlert(WebView? view, string? url, string? message, JsResult? result)
-        => _blazorWebChromeClient.OnJsAlert(view, url, message, result);
+    {
+        return BlazorClientAlive && _blazorWebChromeClient.OnJsAlert(view, url, message, result);
+    }
     public override bool OnJsBeforeUnload(WebView? view, string? url, string? message, JsResult? result)
-        => _blazorWebChromeClient.OnJsBeforeUnload(view, url, message, result);
+    {
+        return BlazorClientAlive && _blazorWebChromeClient.OnJsBeforeUnload(view, url, message, result);
+    }
     public override bool OnJsConfirm(WebView? view, string? url, string? message, JsResult? result)
-        => _blazorWebChromeClient.OnJsConfirm(view, url, message, result);
+    {
+        return BlazorClientAlive && _blazorWebChromeClient.OnJsConfirm(view, url, message, result);
+    }
     public override bool OnJsPrompt(WebView? view, string? url, string? message, string? defaultValue, JsPromptResult? result)
-        => _blazorWebChromeClient.OnJsPrompt(view, url, message, defaultValue, result);
+    {
+        return BlazorClientAlive && _blazorWebChromeClient.OnJsPrompt(view, url, message, defaultValue, result);
+    }
     public override void OnPermissionRequestCanceled(PermissionRequest? request)
-        => _blazorWebChromeClient.OnPermissionRequestCanceled(request);
+    {
+        if (BlazorClientAlive) _blazorWebChromeClient.OnPermissionRequestCanceled(request);
+    }
     public override void OnProgressChanged(WebView? view, int newProgress)
-        => _blazorWebChromeClient.OnProgressChanged(view, newProgress);
+    {
+        if (BlazorClientAlive) _blazorWebChromeClient.OnProgressChanged(view, newProgress);
+    }
     public override void OnReceivedIcon(WebView? view, Bitmap? icon)
-        => _blazorWebChromeClient.OnReceivedIcon(view, icon);
+    {
+        if (BlazorClientAlive) _blazorWebChromeClient.OnReceivedIcon(view, icon);
+    }
     public override void OnReceivedTitle(WebView? view, string? title)
-        => _blazorWebChromeClient.OnReceivedTitle(view, title);
+    {
+        if (BlazorClientAlive) _blazorWebChromeClient.OnReceivedTitle(view, title);
+    }
     public override void OnReceivedTouchIconUrl(WebView? view, string? url, bool precomposed)
-        => _blazorWebChromeClient.OnReceivedTouchIconUrl(view, url, precomposed);
+    {
+        if (BlazorClientAlive) _blazorWebChromeClient.OnReceivedTouchIconUrl(view, url, precomposed);
+    }
     public override void OnRequestFocus(WebView? view)
-        => _blazorWebChromeClient.OnRequestFocus(view);
+    {
+        if (BlazorClientAlive) _blazorWebChromeClient.OnRequestFocus(view);
+    }
     public override void OnShowCustomView(View? view, ICustomViewCallback? callback)
-        => _blazorWebChromeClient.OnShowCustomView(view, callback);
+    {
+        if (BlazorClientAlive) _blazorWebChromeClient.OnShowCustomView(view, callback);
+    }
     public override bool OnShowFileChooser(WebView? webView, IValueCallback? filePathCallback, FileChooserParams? fileChooserParams)
-        => _blazorWebChromeClient.OnShowFileChooser(webView, filePathCallback, fileChooserParams);
+    {
+        return BlazorClientAlive && _blazorWebChromeClient.OnShowFileChooser(webView, filePathCallback, fileChooserParams);
+    }
     #endregion
 }

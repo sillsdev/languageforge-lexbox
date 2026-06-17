@@ -7,6 +7,7 @@ using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using MiniLcm.Exceptions;
+using LinqToDB.Async;
 
 namespace LcmCrdt;
 
@@ -154,7 +155,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         }
 
         var affectedEntries = await GetAffectedEntryIds(change)
-            .SelectAwait(async entryId => await GetCurrentOrLatestEntry(entryId))
+            .Select(async (Guid entryId, CancellationToken _) => await GetCurrentOrLatestEntry(entryId))
             .ToArrayAsync();
 
         return new ChangeContext(change, snapshot, affectedEntries);

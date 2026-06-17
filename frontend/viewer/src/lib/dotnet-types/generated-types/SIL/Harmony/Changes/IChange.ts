@@ -5,7 +5,6 @@
 
 export interface IChange
 {
-	commitId: string;
 	entityId: string;
 	entityType: unknown;
 }

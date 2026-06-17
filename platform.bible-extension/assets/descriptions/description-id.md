@@ -1,1 +1,1 @@
-Manage the lexicon for your project's target/vernacular language.
+Kelola leksikon untuk bahasa target/bahasa sehari-hari proyek Anda.

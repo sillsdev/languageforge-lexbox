@@ -8,17 +8,18 @@
     label?: string;
   } & WithoutChildrenOrChild<CheckboxPrimitive.RootProps>;
 
-  let {ref = $bindable(null), class: className, label, checked = $bindable(false), indeterminate = $bindable(false), ...restProps}: Props = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    label,
+    checked = $bindable(false),
+    indeterminate = $bindable(false),
+    ...restProps
+  }: Props = $props();
 </script>
 
 {#snippet control()}
-  <Checkbox
-    bind:ref
-    bind:checked
-    bind:indeterminate
-    class={className}
-    {...restProps}
-  />
+  <Checkbox bind:ref bind:checked bind:indeterminate class={className} {...restProps} />
 {/snippet}
 
 {#if label}

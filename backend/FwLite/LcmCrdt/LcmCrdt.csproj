@@ -8,8 +8,8 @@
   <ItemGroup>
     <PackageReference Include="Gridify.EntityFramework" />
     <PackageReference Include="Humanizer.Core" />
-    <PackageReference Include="linq2db.AspNet" />
     <PackageReference Include="linq2db.EntityFrameworkCore" />
+    <PackageReference Include="linq2db.Extensions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Refit" />
     <PackageReference Include="Refit.HttpClientFactory" />
+    <PackageReference Include="UUIDNext" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsOsPlatform('linux'))">
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />

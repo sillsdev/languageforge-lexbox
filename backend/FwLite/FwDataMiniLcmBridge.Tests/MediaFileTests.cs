@@ -1,3 +1,4 @@
+using System.Text;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Media;
 using FwDataMiniLcmBridge.Tests.Fixtures;
@@ -127,6 +128,23 @@ public class MediaFileTests : IAsyncLifetime
         entry.CitationForm[_audioWs].Should().Be(mediaUri.ToString());
         var fwAudioValue = GetFwAudioValue(entry.Id);
         fwAudioValue.Should().Be(fileName);
+    }
+
+    [Fact]
+    public async Task AudioWsValuesAreStoredAsNfdByLcm()
+    {
+        // LocalMediaAdapter.BuildPathsDictionary prefers NFD when collapsing twins;
+        // this test proves LCM also only ever serves audio refs as NFD, so the two align.
+        const string nfc = "süülda.wav";
+        const string nfd = "süülda.wav";
+        nfc.Should().Be(nfc.Normalize(NormalizationForm.FormC));
+        nfd.Should().Be(nfd.Normalize(NormalizationForm.FormD));
+        nfc.Should().NotBe(nfd, "test is vacuous if the two literals are equal");
+
+        var entryId = await AddFileDirectly(nfc, contents: "test");
+
+        // Set via LCM with the NFC form; LCM serves back the NFD form.
+        GetFwAudioValue(entryId).Should().Be(nfd);
     }
 
     [Fact]

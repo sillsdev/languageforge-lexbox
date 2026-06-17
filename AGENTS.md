@@ -9,7 +9,7 @@ This is a monorepo containing:
 
 ### Tech Stack
 
-- **Backend**: .NET 9, C#, Entity Framework Core, GraphQL (Hot Chocolate)
+- **Backend**: .NET 10, C#, Entity Framework Core, GraphQL (Hot Chocolate)
 - **Frontend**: SvelteKit, TypeScript
 - **Database**: PostgreSQL
 - **Infrastructure**: Docker, Kubernetes, Skaffold, Tilt
@@ -52,9 +52,11 @@ Key documentation for this project:
 
 ### Testing
 
-- ❌ **Do NOT run LexBox dotnet INTEGRATION tests** unless the user explicitly asks. They require full test infrastructure (database, services) which usually isn't available.
-- ✅ **FwLite integration tests CAN be run** — e.g. `FwLiteProjectSync.Tests` They're just a bit slow, but run them freely when making critical changes to relevant code.
-- ✅ **DO run unit tests locally** and filter to the tests that are relevant to the changes you are making. Use IDE testing tools over the cli.
+- ✅ **DO run unit tests via the CLI**, filtered to the tests relevant to your changes (e.g. `dotnet test backend/FwLite/FwLiteShared.Tests --filter "FullyQualifiedName~MyTestClass"`). Verify tests you wrote or changed actually pass before handing work back. Never run whole suites just to "see if anything broke".
+- ✅ **FwLite integration tests** (e.g. `FwLiteProjectSync.Tests`) need no infrastructure but are slow. Run a **targeted selection** (specific tests, not necessarily whole classes) when you touched critical sync code **and believe the work is finished** — not on every iteration. Waiting on tests burns time; be deliberate about which runs buy real signal.
+- ✅ **`backend/Testing` contains unit tests too** — only tests marked `Category=Integration|FlakyIntegration|RequiresDb` (and the `Testing.Browser` namespace) need infrastructure. Its unit tests are fine to run: `task test:unit -- <filter>` excludes those categories for you.
+- ✅ **FwLite viewer Playwright tests MAY be run** — they're cheap: `task playwright-test-standalone -- <test-name-filter>` (from `frontend/viewer/`) auto-starts the vite dev server with the in-browser demo project; no lexbox stack, chromium only. Always filter to relevant tests; details in `frontend/viewer/AGENTS.md`.
+- ❌ **Do NOT run tests that need the lexbox stack** unless the user explicitly asks: LexBox integration tests (`Category=Integration`/`FlakyIntegration`, `Testing.Browser`) and the lexbox frontend Playwright suite (`frontend/tests`). The local stack is usually down or torn down between sessions and results aren't trustworthy — rely on CI for these.
 
 ### Questions?
 
@@ -78,7 +80,6 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ If the user asks about "the" PR, but does not explicitly name a PR or branch, assume they mean the PR associated with the current branch.
 - ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)
 - ✅ Prefer IDE diagnostics (compiler/lint errors) over CLI tools for identifying issues. Fixing these diagnostics is part of completing any instruction.
-- ✅ Do NOT run integration tests unless user explicitly requests
 - ✅ When handling a user prompt ALWAYS ask for clarification if there are details to clarify, important decisions that must be made first or the plan sounds unwise
 - ❌ Do NOT git commit or git push without explicit user approval
 

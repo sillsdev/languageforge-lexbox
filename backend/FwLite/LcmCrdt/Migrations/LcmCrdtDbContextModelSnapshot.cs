@@ -16,7 +16,7 @@ namespace LcmCrdt.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.16");
 
             modelBuilder.Entity("LcmCrdt.FullTextSearch.EntrySearchRecord", b =>
                 {
@@ -229,6 +229,9 @@ namespace LcmCrdt.Migrations
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("HomographNumber")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("LexemeForm")
                         .IsRequired()
                         .HasColumnType("jsonb");
@@ -296,6 +299,53 @@ namespace LcmCrdt.Migrations
                         .IsUnique();
 
                     b.ToTable("ExampleSentence");
+                });
+
+            modelBuilder.Entity("MiniLcm.Models.MorphType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Postfix")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Prefix")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SecondaryOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("SnapshotId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Kind")
+                        .IsUnique();
+
+                    b.HasIndex("SnapshotId")
+                        .IsUnique();
+
+                    b.ToTable("MorphType");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.PartOfSpeech", b =>
@@ -670,6 +720,14 @@ namespace LcmCrdt.Migrations
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
                         .WithOne()
                         .HasForeignKey("MiniLcm.Models.ExampleSentence", "SnapshotId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("MiniLcm.Models.MorphType", b =>
+                {
+                    b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
+                        .WithOne()
+                        .HasForeignKey("MiniLcm.Models.MorphType", "SnapshotId")
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 

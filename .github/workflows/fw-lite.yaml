@@ -35,14 +35,16 @@ jobs:
       semver-version: ${{ steps.setVersion.outputs.SEMVER_VERSION }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           submodules: true
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
+      - name: Setup Maui
+        run: dotnet workload install maui
       - name: Install Task
-        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
+        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -69,17 +71,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
         with:
           package_json_file: 'frontend/package.json'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version-file: './frontend/package.json'
           cache: 'pnpm'
           cache-dependency-path: './frontend/pnpm-lock.yaml'
       - name: Install Task
-        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
+        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Prepare frontend
@@ -136,7 +138,7 @@ jobs:
       #   run: pnpm run format:check
 
       - name: Upload viewer artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: fw-lite-viewer-js
           if-no-files-found: error
@@ -146,11 +148,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
         with:
           package_json_file: 'frontend/package.json'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version-file: './frontend/package.json'
           cache: 'pnpm'
@@ -192,16 +194,16 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           submodules: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: fw-lite-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Dotnet build
         working-directory: backend/FwLite/FwLiteWeb
@@ -216,7 +218,7 @@ jobs:
         run: dotnet publish -r osx-arm64 --artifacts-path ../artifacts -p:Version=${{ needs.build-and-test.outputs.semver-version }}
 #todo sign the app
       - name: Upload local web app artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: fw-lite-web-mac
           if-no-files-found: error
@@ -229,16 +231,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           submodules: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: fw-lite-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Publish Linux
         working-directory: backend/FwLite/FwLiteWeb
@@ -262,7 +264,7 @@ jobs:
             fi
 
       - name: Upload FWLite Linux artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: fw-lite-web-linux
           if-no-files-found: error
@@ -275,16 +277,16 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           submodules: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: fw-lite-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Setup Maui
         run: dotnet workload install maui
@@ -303,7 +305,7 @@ jobs:
           KEYSTORE_PASS: ${{ secrets.FW_LITE_KEYSTORE_PASS }}
           KEYSTORE_ALIAS: ${{ vars.FW_LITE_KEYSTORE_UPLOAD_KEY_ALIAS }}
         run: |
-          dotnet publish -f net9.0-android -p:BuildApple=false --artifacts-path ../artifacts \
+          dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
@@ -315,12 +317,12 @@ jobs:
           rm ${KEYSTORE_PATH}
 
       - name: Upload FWLite App artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: fw-lite-android
           if-no-files-found: error
-#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net9.0-android/org.sil.fwlitemaui-signed.apk
-          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net9.0-android/*
+#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/org.sil.fwlitemaui-signed.apk
+          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/*
 
   publish-win:
     name: Publish FW Lite app for Windows
@@ -329,16 +331,16 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           submodules: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: fw-lite-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Setup Maui
         run: dotnet workload install maui
@@ -346,16 +348,19 @@ jobs:
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet publish -f net9.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/sign/portable
           cp -r ../artifacts/publish/FwLiteMaui/* ../artifacts/sign/portable/
 
       - name: Publish Windows MAUI msix app
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet publish -f net9.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          # AppxPackageDir is the MSIX-targets equivalent of --artifacts-path: without it
+          # MAUI 10 writes AppPackages to $(MSBuildProjectDirectory)/AppPackages, ignoring
+          # --artifacts-path. Redirect it under artifacts/ so everything lives in one tree.
+          dotnet publish -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:AppxPackageDir=../artifacts/AppPackages/ -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/msix
-          cp ../artifacts/bin/FwLiteMaui/*/AppPackages/*/*.msix ../artifacts/msix/
+          cp ../artifacts/AppPackages/*/*.msix ../artifacts/msix/
 
       - name: Bundle MSIX
         working-directory: backend/FwLite/artifacts/msix
@@ -381,14 +386,14 @@ jobs:
           description-url: 'https://github.com/sillsdev/languageforge-lexbox'
 
       - name: Upload FWLite Portable
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: fw-lite-portable
           if-no-files-found: error
           path: backend/FwLite/artifacts/sign/portable/*
 
       - name: Upload FWLite MSIX
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: fw-lite-msix
           if-no-files-found: error
@@ -404,19 +409,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: fw-lite-msix
           path: fw-lite-msix
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: fw-lite-portable
           path: fw-lite-portable
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: fw-lite-web-linux
           path: fw-lite-web-linux
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: fw-lite-android
           path: fw-lite-android

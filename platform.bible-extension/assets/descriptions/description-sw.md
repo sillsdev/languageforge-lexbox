@@ -1,1 +1,1 @@
-Manage the lexicon for your project's target/vernacular language.
+Dhibiti kamusi ya lugha lengwa/lugha ya kienyeji ya mradi wako.

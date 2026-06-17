@@ -1,10 +1,12 @@
 using LexCore.ServiceInterfaces;
 using LfClassicData;
+using LfClassicData.Entities;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Fallback;
+using Polly.Registry;
 
 namespace LexBoxApi.GraphQL.CustomTypes;
 
@@ -17,12 +19,13 @@ public class IsLanguageForgeProjectDataLoader : BatchDataLoader<string, bool>, I
     public IsLanguageForgeProjectDataLoader(
         SystemDbContext systemDbContext,
         IBatchScheduler batchScheduler,
-        [Service(ResiliencePolicyName)]
-        ResiliencePipeline<IReadOnlyDictionary<string, bool>> resiliencePipeline,
+        ResiliencePipelineProvider<string> pipelineProvider,
         DataLoaderOptions options)
         : base(batchScheduler, options)
     {
-        _resiliencePipeline = resiliencePipeline;
+        // AddResiliencePipeline<string, T>(...) only registers a ResiliencePipelineProvider<string>;
+        // there's no keyed DI registration for the typed pipeline. Resolve it via the provider.
+        _resiliencePipeline = pipelineProvider.GetPipeline<IReadOnlyDictionary<string, bool>>(ResiliencePolicyName);
         _systemDbContext = systemDbContext;
     }
 
@@ -58,12 +61,10 @@ public class IsLanguageForgeProjectDataLoader : BatchDataLoader<string, bool>, I
         IReadOnlyList<string> list,
         CancellationToken token)
     {
-        var actualProjects = await MongoExtensions.ToAsyncEnumerable(loader._systemDbContext.Projects.AsQueryable()
-                .Select(p => p.ProjectCode)
-#pragma warning disable MALinq2001
-                .Where(projectCode => list.Contains(projectCode)))
-#pragma warning restore MALinq2001
-            .ToHashSetAsync(token);
+        var actualProjects = await MongoExtensions.ToAsyncEnumerable(loader._systemDbContext.Projects
+                .Find(Builders<LfProject>.Filter.In(p => p.ProjectCode, list))
+                .Project(p => p.ProjectCode))
+                .ToHashSetAsync(cancellationToken: token);
         return list.ToDictionary(pc => pc, pc => actualProjects.Contains(pc));
     }
 

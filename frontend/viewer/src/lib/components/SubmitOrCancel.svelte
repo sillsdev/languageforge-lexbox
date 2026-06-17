@@ -2,6 +2,7 @@
   import {Button} from '$lib/components/ui/button';
   import {cn} from '$lib/utils';
   import {watch} from 'runed';
+  import {untrack} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
 
   interface Props {
@@ -22,8 +23,7 @@
     class: className,
   }: Props = $props();
 
-  // svelte-ignore state_referenced_locally
-  let wasSubmittable = $state(canSubmit);
+  let wasSubmittable = $state(untrack(() => canSubmit));
 
   watch(
     () => canSubmit,

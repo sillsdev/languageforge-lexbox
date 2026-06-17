@@ -1,6 +1,7 @@
 export const serverHostname = process.env.TEST_SERVER_HOSTNAME ?? 'localhost';
 export const isDev = process.env.NODE_ENV === 'development' || serverHostname.startsWith('localhost');
-export const httpScheme = isDev ? 'http://' : 'https://';
+// TEST_HTTPS=1 forces https even on localhost (for running against the dev https-proxy on :3050).
+export const httpScheme = (isDev && process.env.TEST_HTTPS !== '1') ? 'http://' : 'https://';
 export const serverBaseUrl = `${httpScheme}${serverHostname}`;
 export const defaultPassword = process.env.TEST_DEFAULT_PASSWORD ?? 'pass';
 export const testOrgId = process.env.TEST_ORG_ID ?? '292c80e6-a815-4cd1-9ea2-34bd01274de6';

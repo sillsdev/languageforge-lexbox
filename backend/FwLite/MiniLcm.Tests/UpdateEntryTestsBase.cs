@@ -169,7 +169,9 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         afterEntry.Senses = afterSenses;
 
         // sanity checks
-        beforeEntry.Senses.Should().BeEquivalentTo(beforeSenses, options => options.WithStrictOrdering());
+        beforeEntry.Senses.Should().BeEquivalentTo(beforeSenses, options => options
+            .WithStrictOrdering()
+            .Excluding(s => s.Order));
         if (!ApiUsesImplicitOrdering)
         {
             beforeEntry.Senses.Select(s => s.Order).Should()
@@ -231,7 +233,9 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         afterSense.ExampleSentences = afterExamples;
 
         // sanity checks
-        beforeSense.ExampleSentences.Should().BeEquivalentTo(beforeExamples, options => options.WithStrictOrdering());
+        beforeSense.ExampleSentences.Should().BeEquivalentTo(beforeExamples, options => options
+            .WithStrictOrdering()
+            .Excluding(s => s.Order));
         if (!ApiUsesImplicitOrdering)
         {
             beforeSense.ExampleSentences.Select(s => s.Order).Should()
@@ -270,7 +274,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         var entryId = Guid.NewGuid();
         var componentHeadwordsToIds = before.Split(',').Concat(after.Split(',')).Distinct()
             .ToDictionary(i => i, _ => Guid.NewGuid());
-        var componentHeadwordsToEntryIds = componentHeadwordsToIds.Keys.ToAsyncEnumerable().SelectAwait(async @char =>
+        var componentHeadwordsToEntryIds = componentHeadwordsToIds.Keys.ToAsyncEnumerable().Select(async (string @char, CancellationToken _) =>
         {
             var componentEntry = await Api.CreateEntry(new()
             {
@@ -309,7 +313,8 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         // sanity checks
         beforeEntry.Components.Should().BeEquivalentTo(beforeComponents, options => options
             .WithStrictOrdering()
-            .Excluding(c => c.Id));
+            .Excluding(c => c.Id)
+            .Excluding(c => c.Order));
         if (!ApiUsesImplicitOrdering)
         {
             beforeEntry.Components.Select(s => s.Order).Should()

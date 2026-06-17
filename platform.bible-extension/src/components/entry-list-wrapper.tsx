@@ -22,18 +22,18 @@ export default function EntryListWrapper({
 
   // Match className from paranext-core/extensions/src/platform-lexical-tools/src/web-views/dictionary.web-view.tsx
   return (
-    <div className="tw-flex tw-flex-col tw-h-[100dvh]">
-      <div className="tw-sticky tw-bg-background tw-top-0 tw-z-10 tw-shrink-0 tw-p-2 tw-border-b tw-h-auto">
+    <div className="tw:flex tw:flex-col tw:h-[100dvh]">
+      <div className="tw:sticky tw:bg-background tw:top-0 tw:z-10 tw:shrink-0 tw:p-2 tw:border-b tw:h-auto">
         {elementHeader}
       </div>
 
       {isLoading && (
-        <div className="tw-flex-1 tw-p-2 tw-space-y-4">
+        <div className="tw:flex-1 tw:p-2 tw:space-y-4">
           <Label>{localizedStrings['%lexicon_entryList_loading%']}</Label>
         </div>
       )}
       {!hasItems && !isLoading && (
-        <div className="tw-m-4 tw-flex tw-justify-center">
+        <div className="tw:m-4 tw:flex tw:justify-center">
           <Label>{localizedStrings['%lexicon_entryList_noResults%']}</Label>
         </div>
       )}

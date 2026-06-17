@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { LoginPage } from './pages/loginPage';
 import { defaultPassword } from './envVars';
 import { AdminDashboardPage } from './pages/adminDashboardPage';
@@ -9,4 +9,90 @@ test('can navigate to project page', async ({ page }) => {
   await loginPage.submit();
   const adminPage = await new AdminDashboardPage(page).waitFor();
   await adminPage.openProject('Sena 3', 'sena-3');
+});
+
+// Regression tests for #2224: characters typed in quick succession used to get dropped when a
+// URL round-trip reset the input mid-typing.
+test.describe('user filter typing', () => {
+  test.use({ ignoreHTTPSErrors: true });
+
+  test('does not lose characters while typing rapidly', async ({ page }) => {
+    await LoginPage.loginAsAdmin(page);
+    const adminPage = await new AdminDashboardPage(page).waitFor();
+
+    const input = adminPage.userFilterBarInput;
+    await input.click();
+
+    const text = 'abcdefghij';
+    const PER_KEYSTROKE_DELAY_MS = 25;
+    await input.pressSequentially(text, { delay: PER_KEYSTROKE_DELAY_MS });
+
+    await expect(input, 'input must contain every character typed').toHaveValue(text);
+  });
+
+  test('clearing the debounced user filter mid-typing clears the input', async ({ page }) => {
+    await LoginPage.loginAsAdmin(page);
+    const adminPage = await new AdminDashboardPage(page).waitFor();
+
+    await adminPage.userFilterBarInput.fill('abc');
+    // no wait — the ✕ must clear within the debounce window (a wait would test the already-covered flushed path)
+    await page.locator('.filter-bar').nth(1).getByRole('button', { name: '✕' }).click();
+
+    await expect(adminPage.userFilterBarInput).toHaveValue('');
+  });
+});
+
+// Covers the other half of the #2224 fix: external changes to the URL-backed filter store
+// (deep links, browser back/forward) must still sync into the input.
+test.describe('user filter external sync', () => {
+  test.use({ ignoreHTTPSErrors: true });
+
+  test('shows userSearch from URL on initial mount', async ({ page }) => {
+    await LoginPage.loginAsAdmin(page);
+    await page.goto('/admin?userSearch=external');
+    const adminPage = await new AdminDashboardPage(page).waitFor();
+    await expect(adminPage.userFilterBarInput).toHaveValue('external');
+  });
+
+  test('syncs into input when store is written after mount', async ({ page }) => {
+    await LoginPage.loginAsAdmin(page);
+    const adminPage = await new AdminDashboardPage(page).waitFor();
+
+    await adminPage.userFilterBarInput.fill('typed');
+    // Let the debounced write settle so the next store change isn't mistaken for our own echo.
+    await page.waitForURL((url) => url.searchParams.get('userSearch') === 'typed');
+
+    // Simulate an external URL change (deep link / browser back-forward): pushState + popstate
+    // propagate through SvelteKit's $app/state `page`, which runed's useSearchParams observes.
+    await page.evaluate(() => {
+      history.pushState({}, '', '/admin?userSearch=external');
+      dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    await expect(adminPage.userFilterBarInput).toHaveValue('external');
+  });
+
+  // Defends against ✕-clear trapping debouncedFilter's pendingEcho, which silently blocked
+  // later external writes to the same key (uses the project filter: no `debounce` prop).
+  test('external write after clearing the filter still reaches the input', async ({ page }) => {
+    await LoginPage.loginAsAdmin(page);
+    const adminPage = await new AdminDashboardPage(page).waitFor();
+
+    await adminPage.projectFilterBarInput.fill('typed');
+    await page.waitForURL((url) => url.searchParams.get('projectSearch') === 'typed');
+
+    const projectFilterBar = page.locator('.filter-bar').nth(0);
+    await projectFilterBar.getByRole('button', { name: '✕' }).click();
+    await expect(adminPage.projectFilterBarInput).toHaveValue('');
+    // Wait for the X-click's goto to finish too — otherwise pushState below races
+    // with the in-flight navigation removing projectSearch from the URL.
+    await page.waitForURL((url) => !url.searchParams.has('projectSearch'));
+
+    await page.evaluate(() => {
+      history.pushState({}, '', '/admin?projectSearch=external');
+      dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    await expect(adminPage.projectFilterBarInput).toHaveValue('external');
+  });
 });

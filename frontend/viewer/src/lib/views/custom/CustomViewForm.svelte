@@ -1,5 +1,6 @@
 <script lang="ts">
   import {watch} from 'runed';
+  import {untrack} from 'svelte';
   import * as RadioGroup from '$lib/components/ui/radio-group';
   import {Button} from '$lib/components/ui/button';
   import {Input} from '$lib/components/ui/input';
@@ -26,10 +27,8 @@
 
   let {value: editingValue, submitLabel, onSubmit, onCancel}: Props = $props();
 
-  // svelte-ignore state_referenced_locally
-  let fieldSelectionDirty = $state(!!editingValue);
-  // svelte-ignore state_referenced_locally
-  const value = $state(editingValue ?? defaultCustomView());
+  let fieldSelectionDirty = $state(untrack(() => !!editingValue));
+  const value = $state(untrack(() => editingValue ?? defaultCustomView()));
 
   function defaultCustomView(base: ViewBase = ViewBase.FwLite): ICustomView {
     const root = base === ViewBase.FieldWorks ? FW_CLASSIC_VIEW : FW_LITE_VIEW;
@@ -92,8 +91,8 @@
     <div class="flex flex-col gap-2">
       <div class="text-sm font-medium">{$t`Based on`}</div>
       <RadioGroup.Root bind:value={value.base}>
-        <RadioGroup.Item value={ViewBase.FwLite} label={FW_LITE_VIEW.name} />
-        <RadioGroup.Item value={ViewBase.FieldWorks} label={FW_CLASSIC_VIEW.name} />
+        <RadioGroup.Option value={ViewBase.FwLite}>{FW_LITE_VIEW.name}</RadioGroup.Option>
+        <RadioGroup.Option value={ViewBase.FieldWorks}>{FW_CLASSIC_VIEW.name}</RadioGroup.Option>
       </RadioGroup.Root>
     </div>
 

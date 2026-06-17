@@ -36,7 +36,7 @@ public static class FileUploadProxy
             Policy = UserCanDownloadMediaFilesPolicy
         };
 
-        var group = app.MapGroup("/api/media").WithOpenApi();
+        var group = app.MapGroup("/api/media");
 
         //media upload/download
         group.Map("/list/{projectId:guid}/{**catch-all}",

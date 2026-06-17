@@ -129,6 +129,24 @@ test.describe('EntriesList', () => {
       await expect(projectPage.entriesList.selectedEntry).toBeVisible({timeout: 10000});
       await expect(projectPage.entriesList.selectedEntry).toContainText(headword);
     });
+
+    test('searching an existing entry after load shows it', async () => {
+      const {headword} = await projectPage.api.getEntryWithEnglishGloss();
+      expect(headword.length).toBeGreaterThan(0);
+
+      await projectPage.entriesList.searchInput.fill(headword);
+      await expect(projectPage.entriesList.skeletons).toHaveCount(0);
+
+      const entryRow = projectPage.entriesList.entryRows
+        .filter({hasText: headword})
+        .filter({hasNotText: 'Add to dictionary'});
+      const createFromSearchRow = projectPage.entriesList.entryRows
+        .filter({hasText: 'Add to dictionary'});
+
+      await expect(projectPage.entriesList.entryRows).toHaveCount(2);
+      await expect(entryRow).toBeVisible();
+      await expect(createFromSearchRow).toBeVisible();
+    });
   });
 
   test.describe('Entry event handling', () => {
@@ -156,12 +174,12 @@ test.describe('EntriesList', () => {
       expect(firstEntryText).toBeTruthy();
 
       // Update first entry by prepending to its headword (so it stays at index 0)
-      const {updatedHeadword} = await projectPage.api.updateEntryHeadwordPrepend(0, '-UPDATED-');
+      const {updatedHeadword} = await projectPage.api.updateEntryHeadwordPrepend(0, '---UPDATED---');
 
       // The first entry in UI should now show the updated text
       await expect(async () => {
         const newFirstEntryText = await projectPage.entriesList.entryRows.first().textContent();
-        expect(newFirstEntryText).toContain('-UPDATED-');
+        expect(newFirstEntryText).toContain('---UPDATED---');
       }).toPass({timeout: 5000});
 
       await expect(projectPage.entriesList.entryWithText(updatedHeadword)).toBeVisible();

@@ -27,4 +27,6 @@ html-test-results
 *storybook.log
 storybook-static
 screenshots/
+__screenshots__/
+eslint_report.json
 **/*-html-report

@@ -7,3 +7,10 @@ export interface HarnessControls {
   destroyConsumer: () => void;
   swapApi: (api: IMiniLcmJsInvokable) => void;
 }
+
+export interface WrappedHarnessControls {
+  showConsumer: () => void;
+  destroyConsumer: () => void;
+  showSecondConsumer: () => void;
+  swapApi: (api: IMiniLcmJsInvokable) => void;
+}

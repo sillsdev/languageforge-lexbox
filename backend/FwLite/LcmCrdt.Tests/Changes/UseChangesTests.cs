@@ -195,6 +195,10 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var createComplexFormComponentChange = new AddEntryComponentChange(complexFormComponent);
         yield return new ChangeWithDependencies(createComplexFormComponentChange, [createComplexFormEntryChange, createEntryChange, createSenseChange]);
 
+        var morphType = CanonicalMorphTypes.All[MorphTypeKind.Root].Copy();
+        var createMorphTypeChange = new CreateMorphTypeChange(morphType);
+        yield return new ChangeWithDependencies(createMorphTypeChange);
+
         var setPartOfSpeechChange = new SetPartOfSpeechChange(sense.Id, partOfSpeech.Id);
         yield return new ChangeWithDependencies(setPartOfSpeechChange, [createSenseChange, createPartOfSpeechChange]);
 

@@ -3,7 +3,7 @@
 ## Development
 
 ### Prerequisites
- * [dotnet sdk](https://dotnet.microsoft.com/en-us/download) currently 9.0 is required
+ * [dotnet sdk](https://dotnet.microsoft.com/en-us/download) currently 10.0 is required
  * [node](https://nodejs.org/en/download/)
  * [Taskfile](https://taskfile.dev/installation/)
     * windows: `winget install Task.Task`
@@ -34,7 +34,7 @@ dotnet test FwLiteOnly.slnf
 
 ### Building for a specific framework
 ```bash
-dotnet build -f net9.0-ios
+dotnet build -f net10.0-ios
 ```
 You can choose which framework to build for with the `-f` flag.
 

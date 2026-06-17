@@ -5,6 +5,7 @@
 
 export enum ProjectSyncStatusErrorCode {
 	NotLoggedIn = "NotLoggedIn",
+	Offline = "Offline",
 	Unknown = "Unknown"
 }
 /* eslint-enable */

@@ -6,6 +6,7 @@
 
 <script lang="ts">
   import type {IEntry, ISense} from '$lib/dotnet-types';
+  import {untrack} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {Button} from '$lib/components/ui/button';
@@ -31,8 +32,7 @@
   let loading = $state(false);
 
   let entry = $state(defaultEntry());
-  // svelte-ignore state_referenced_locally
-  let sense = $state<ISense | undefined>(defaultSense(entry.id));
+  let sense = $state<ISense | undefined>(untrack(() => defaultSense(entry.id)));
 
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();

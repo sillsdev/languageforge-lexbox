@@ -18,13 +18,14 @@
     overrides = {}
   }: Props = $props();
 
-  const parentService = useViewService();
+  const viewService = useViewService();
   const overrideService = initViewService({persist: false});
 
   $effect.pre(() => {
-    const rootView = parentService.rootView;
+    const rootView = viewService.rootView;
+    const currentView = viewService.currentView;
     overrideService.overrideView({
-      ...rootView,
+      ...currentView, // use current view's WS's by default
       entryFields: overrideEntityFields(rootView.entryFields, shownFields, respectOrder),
       senseFields: overrideEntityFields(rootView.senseFields, shownFields, respectOrder),
       exampleFields: overrideEntityFields(rootView.exampleFields, shownFields, respectOrder),

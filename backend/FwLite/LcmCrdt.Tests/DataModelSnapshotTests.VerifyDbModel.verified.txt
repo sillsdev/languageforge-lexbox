@@ -10,7 +10,6 @@
     Keys: 
       Id PK
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -33,7 +32,6 @@
     Keys: 
       Id PK
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -71,7 +69,6 @@
         Annotations: 
           Relational:Filter: ComponentSenseId IS NOT NULL
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -93,7 +90,6 @@
     Indexes: 
       SnapshotId Unique
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -129,7 +125,6 @@
     Indexes: 
       SnapshotId Unique
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -146,13 +141,14 @@
         Annotations: 
           Relational:ColumnType: jsonb
       DeletedAt (DateTimeOffset?)
+      HomographNumber (int) Required
       LexemeForm (MultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
       LiteralMeaning (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
-      MorphType (MorphType) Required
+      MorphType (MorphTypeKind) Required
       Note (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
@@ -171,7 +167,6 @@
     Indexes: 
       SnapshotId Unique
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -203,11 +198,42 @@
       SenseId
       SnapshotId Unique
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
       Relational:TableName: ExampleSentence
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: MorphType
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      Abbreviation (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      DeletedAt (DateTimeOffset?)
+      Description (RichMultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      Kind (MorphTypeKind) Required Index
+      Name (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      Postfix (string)
+      Prefix (string)
+      SecondaryOrder (int) Required
+      SnapshotId (no field, Guid?) Shadow FK Index
+    Keys: 
+      Id PK
+    Foreign keys: 
+      MorphType {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      Kind Unique
+      SnapshotId Unique
+    Annotations: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: MorphType
       Relational:ViewName: 
       Relational:ViewSchema: 
   EntityType: PartOfSpeech
@@ -226,7 +252,6 @@
     Indexes: 
       SnapshotId Unique
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -248,7 +273,6 @@
     Indexes: 
       SnapshotId Unique
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -272,7 +296,6 @@
     Indexes: 
       SnapshotId Unique
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -298,7 +321,7 @@
       SnapshotId (no field, Guid?) Shadow FK Index
     Navigations: 
       ExampleSentences (List<ExampleSentence>) Collection ToDependent ExampleSentence
-      PartOfSpeech (PartOfSpeech) ToPrincipal PartOfSpeech
+      PartOfSpeech (PartOfSpeech) Optional ToPrincipal PartOfSpeech
     Keys: 
       Id PK
     Foreign keys: 
@@ -310,7 +333,6 @@
       PartOfSpeechId
       SnapshotId Unique
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -339,7 +361,6 @@
       SnapshotId Unique
       WsId, Type Unique
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -371,7 +392,7 @@
     Keys: 
       Id PK
     Annotations: 
-      DiscriminatorProperty: 
+      CustomIndex:CompositeIndexes: [{"paths":["HybridDateTime.DateTime","HybridDateTime.Counter","Id"],"unique":false,"name":"IX_Commits_DateTime_Counter_Id"}]
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -391,7 +412,6 @@
     Foreign keys: 
       ChangeEntity<IChange> {'CommitId'} -> Commit {'Id'} Required Cascade ToDependent: ChangeEntities
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -413,7 +433,7 @@
           ElementType: Element type: Guid Required
       TypeName (string) Required
     Navigations: 
-      Commit (Commit) ToPrincipal Commit Inverse: Snapshots
+      Commit (Commit) Required ToPrincipal Commit Inverse: Snapshots
     Keys: 
       Id PK
     Foreign keys: 
@@ -422,7 +442,6 @@
       EntityId
       CommitId, EntityId Unique
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -436,7 +455,6 @@
     Keys: 
       Id PK
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -456,7 +474,6 @@
     Indexes: 
       SnapshotId Unique
     Annotations: 
-      DiscriminatorProperty: 
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -464,4 +481,4 @@
       Relational:ViewName: 
       Relational:ViewSchema: 
 Annotations: 
-  ProductVersion: 9.0.6
+  ProductVersion: 10.0.8

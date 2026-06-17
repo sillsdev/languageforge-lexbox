@@ -54,7 +54,7 @@ jobs:
       ui-version: ${{ steps.get-ui-version.outputs.result }}
     steps:
       - name: Checkout lexbox repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           path: lexbox
       - name: Run kustomize
@@ -62,7 +62,7 @@ jobs:
         run: |
           kubectl kustomize . -o resources.yaml
       - name: Checkout fleet repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           repository: ${{ vars.FLEET_REPO }}
           ssh-key: ${{ secrets.FLEET_REPO_SSH_KEY }}

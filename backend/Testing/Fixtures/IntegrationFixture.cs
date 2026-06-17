@@ -6,6 +6,7 @@ using Squidex.Assets;
 using Testing.ApiTests;
 using Testing.Services;
 using static Testing.Services.Constants;
+using Squidex.Assets.TusClient;
 
 namespace Testing.Fixtures;
 

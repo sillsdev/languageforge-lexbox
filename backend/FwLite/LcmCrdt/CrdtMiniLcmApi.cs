@@ -10,6 +10,7 @@ using LcmCrdt.FullTextSearch;
 using LcmCrdt.MediaServer;
 using LcmCrdt.Objects;
 using LinqToDB;
+using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -312,7 +313,9 @@ public class CrdtMiniLcmApi(
             return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
         }
 
-        if (between is not null)
+        // The orderable diff sends (null, null) for singletons; skip the move so
+        // revisits in one sync don't bump Order via PickOrder.
+        if (between is { Previous: not null } or { Next: not null })
         {
             await MoveComplexFormComponent(existing, between);
         }
@@ -349,34 +352,45 @@ public class CrdtMiniLcmApi(
         await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
     }
 
-    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    public async IAsyncEnumerable<MorphType> GetMorphTypes()
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var morphType in repo.MorphTypes.AsAsyncEnumerable())
+        {
+            yield return morphType;
+        }
     }
 
-    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    public async Task<MorphType?> GetMorphType(Guid id)
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Id == id);
     }
 
-    public Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphTypeData)
+    public async Task<MorphType?> GetMorphType(MorphTypeKind kind)
     {
-        throw new NotImplementedException();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Kind == kind);
     }
 
-    public Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
+    public async Task<MorphType> CreateMorphType(MorphType morphType)
     {
-        throw new NotImplementedException();
+        //I don't like returning a different object than what the user requested, it feels very unexpected, however this is pretty much what happens in the change anyway and that can't be avoided
+        if (await GetMorphType(morphType.Kind) is {} actualMorphType) return actualMorphType;
+        await AddChange(new CreateMorphTypeChange(morphType));
+        return await GetMorphType(morphType.Id) ?? throw NotFoundException.ForType<MorphType>(morphType.Id);
     }
 
-    public Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
+    public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
-        throw new NotImplementedException();
+        await AddChange(new JsonPatchChange<MorphType>(id, update.Patch));
+        return await GetMorphType(id) ?? throw NotFoundException.ForType<MorphType>(id);
     }
 
-    public Task DeleteMorphTypeData(Guid id)
+    public async Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null)
     {
-        throw new NotImplementedException();
+        await MorphTypeSync.Sync(before, after, api ?? this);
+        return await GetMorphType(after.Id) ?? throw NotFoundException.ForType<MorphType>(after.Id);
     }
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
@@ -490,8 +504,29 @@ public class CrdtMiniLcmApi(
     {
         options ??= CreateEntryOptions.Everything;
         await using var repo = await repoFactory.CreateRepoAsync();
+
+        // This is our primitive logic for now:
+        // If 0, we assume the caller did not specify a number, so we're responsible
+        // for keeping homograph numbers accurate.
+        // That's it.
+        // There are other scenarios that we're NOT handling correctly for now:
+        // Deletes, headword changes, non 0's for inserted entries coming from fwdata etc.
+        // These will be automatically corrected after 2 fw-headless syncs.
+        IChange? homographPromotionChange = null;
+        if (entry.HomographNumber == 0)
+        {
+            var resolution = await HomographResolver.ResolveForNewEntry(entry, repo);
+            entry.HomographNumber = resolution.NewEntryNumber;
+            if (resolution.Promotion is { } promotion)
+            {
+                var patchDoc = new SystemTextJsonPatch.JsonPatchDocument<Entry>();
+                patchDoc.Replace(e => e.HomographNumber, promotion.NewNumber);
+                homographPromotionChange = patchDoc.ToChanges(promotion.EntryId).Single();
+            }
+        }
         await AddChanges([
             new CreateEntryChange(entry),
+            ..homographPromotionChange is null ? [] : new[] { homographPromotionChange },
             ..await entry.Senses.ToAsyncEnumerable()
                 .SelectMany((s, i) =>
                 {

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
+  import {untrack} from 'svelte';
   import type {ResourceReturn} from 'runed';
   import type {HarnessControls} from './detached-api-resource-test-types';
   import {initProjectContext} from '../project-context.svelte';
@@ -45,8 +46,7 @@
     },
   };
 
-  // svelte-ignore state_referenced_locally
-  props.onReady(controls);
+  untrack(() => props.onReady(controls));
 </script>
 
 {#if consumer}

@@ -3,6 +3,7 @@
   import {Debounced, watch} from 'runed';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
+  import ListItem from '$lib/components/ListItem.svelte';
   import {cn} from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import DevContent from '$lib/layout/DevContent.svelte';
@@ -19,6 +20,8 @@
   import Delayed from '$lib/components/Delayed.svelte';
   import {EntryLoaderService} from '$lib/services/entry-loader-service.svelte';
   import {onDestroy, untrack} from 'svelte';
+  import {useViewService} from '$lib/views/view-service.svelte';
+  import {pt} from '$lib/views/view-text';
 
   let {
     search = '',
@@ -49,6 +52,7 @@
   const miniLcmApi = $derived(projectContext.maybeApi);
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
+  const viewService = useViewService();
 
   // The closures maybe need to be created OUTSIDE untrack so they maintain reactivity
   const deps = {
@@ -58,6 +62,7 @@
   };
 
   let entryLoader = $derived(!miniLcmApi ? undefined : untrack(() => new EntryLoaderService(miniLcmApi, deps)));
+  const displayedEntryCount = $derived(entryLoader?.totalCount ?? 0);
 
   // Destroy the previous entryLoader when a new one is created
   watch(
@@ -99,17 +104,24 @@
   // Generate a random number of skeleton rows
   const skeletonRowCount = Math.ceil(Math.random() * 3) + 3;
 
-  // Generate index array for virtual list.
-  // We use a small number of skeletons if the total count is not yet known
-  // to avoid a "white phase" between initial load and list initialization.
-  const indexArray = $derived(
-    entryLoader?.totalCount !== undefined
-      ? Array.from({ length: entryLoader.totalCount }, (_, i) => i)
-      : Array.from({ length: skeletonRowCount }, (_, i) => i)
-  );
+  const canCreateFromSearch = $derived(search?.trim() && !disableNewEntry);
+  const showTerminalCreateRow = $derived(canCreateFromSearch && displayedEntryCount > 0);
 
-  async function handleNewEntry() {
-    const entry = await dialogsService.createNewEntry(undefined, {
+  type ListRow = {key: string, index: number, create?: boolean};
+  const rows: ListRow[] = $derived.by(() => {
+    if (entryLoader?.totalCount === undefined) {
+      return Array.from({length: skeletonRowCount}, (_, i) => ({key: `skeleton-${i}`, index: i}));
+    }
+    const generation = entryLoader.generation;
+    const entryRows: ListRow[] = Array.from({length: displayedEntryCount}, (_, i) => ({key: `${generation}-${i}`, index: i}));
+    if (showTerminalCreateRow) {
+      entryRows.push({key: `${generation}-create`, index: displayedEntryCount, create: true});
+    }
+    return entryRows;
+  });
+
+  async function handleNewEntry(headword: string | undefined = undefined) {
+    const entry = await dialogsService.createNewEntry(headword, {
       publishIn: publication ? [publication] : [],
     }, {
       semanticDomains: semanticDomain ? [semanticDomain] : [],
@@ -138,6 +150,7 @@
     const index = await entryLoader.getOrLoadEntryIndex(entryId);
     if (entryId !== selectedEntryId) return false;
     if (index < 0) return false;
+    if (!vList) return false; // may have unmounted during the await
 
     const visibleStart = vList.getScrollOffset();
     const visibleSize = vList.getViewportSize();
@@ -172,6 +185,18 @@
 
 </script>
 
+{#snippet newEntryFromSearchRow(className: string = '')}
+  <ListItem
+    class={cn('bg-transparent shadow-none hover:shadow-none border-2 border-dashed border-muted-foreground/40', className)}
+    onclick={() => handleNewEntry(search)}>
+    {#snippet icon()}
+      <Icon icon="i-mdi-plus-thick" class="size-6 text-primary/60" />
+    {/snippet}
+    <span class="font-medium text-2xl">{search}</span>
+    <span class="text-sm text-muted-foreground">{$t`Add to dictionary`}</span>
+  </ListItem>
+{/snippet}
+
 <FabContainer>
   <DevContent>
     <Button
@@ -183,7 +208,7 @@
     />
   </DevContent>
   {#if !disableNewEntry}
-    <PrimaryNewEntryButton onclick={handleNewEntry} shortForm />
+    <PrimaryNewEntryButton onclick={() => handleNewEntry()} shortForm />
   {/if}
 </FabContainer>
 
@@ -196,28 +221,32 @@
   {:else}
     <div class="h-full">
       {#if entryLoader?.totalCount === 0}
-        <div class="flex items-center justify-center h-full text-muted-foreground">
-          <p>{$t`No entries found`}</p>
+        <div class="flex flex-col items-center justify-center h-full gap-4 px-4">
+          <p class="text-muted-foreground">{pt($t`No entries found`, $t`No words found`, viewService.currentView)}</p>
+
+          {#if canCreateFromSearch}
+            {@render newEntryFromSearchRow('max-w-md')}
+          {/if}
         </div>
       {/if}
 
       <VList bind:this={vList}
-            data={indexArray}
+            data={rows}
             class="h-full p-0.5 md:pr-3 after:h-12 after:block"
-            getKey={(index: number) => `${entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}-${index}`}
+            getKey={(row: ListRow) => row.key}
             bufferSize={450}>
-        {#snippet children(index: number)}
-          {#key entryLoader?.generation ?? EntryLoaderService.DEFAULT_GENERATION}
+        {#snippet children(row: ListRow)}
+          {#if row.create}
+            {@render newEntryFromSearchRow()}
+          {:else}
             <Delayed
-              getCached={() => entryLoader?.getCachedEntryByIndex(index)}
-              load={() => entryLoader?.getOrLoadEntryByIndex(index)}
+              getCached={() => entryLoader?.getCachedEntryByIndex(row.index)}
+              load={() => entryLoader?.getOrLoadEntryByIndex(row.index)}
               delay={250}
             >
               {#snippet children(state)}
                 {#if state.loading || !state.current}
-                  <!-- we want the initial loading state and the first loading entries
-                  to share the same skeletons, so there's no flicker -->
-                  <EntryRow class="mb-2" skeleton={true} />
+                  <EntryRow class="mb-2" skeleton={true}/>
                 {:else}
                   {@const entry = state.current}
                   <EntryMenu {entry} contextMenu>
@@ -230,7 +259,7 @@
                 {/if}
               {/snippet}
             </Delayed>
-          {/key}
+          {/if}
         {/snippet}
       </VList>
     </div>

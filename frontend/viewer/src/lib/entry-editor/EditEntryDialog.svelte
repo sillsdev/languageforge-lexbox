@@ -6,6 +6,7 @@
   import * as Dialog from '$lib/components/ui/dialog';
   import {Button} from '$lib/components/ui/button';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import RootFields from '$lib/views/RootFields.svelte';
   import {pt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
   import {AppNotification} from '$lib/notifications/notifications';
@@ -51,7 +52,13 @@
     {#if entryResource.loading}
       Loading...
     {:else if entry}
-      <EntryEditor bind:this={editor} autofocus modalMode bind:entry canAddSense={false} canAddExample={false}/>
+      <!--
+      RootFields, so that the user is not limited to the fields of a potentially selected custom-view.
+      Custom-views should perhaps be scoped to the browse-view. I'm not sure.
+      -->
+      <RootFields>
+        <EntryEditor bind:this={editor} autofocus modalMode bind:entry canAddSense={false} canAddExample={false}/>
+      </RootFields>
     {/if}
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>

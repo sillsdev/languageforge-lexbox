@@ -184,7 +184,7 @@ public class SyncWorker(
         //always do this as existing projects need to run this even if they didn't S&R due to no pending changes
         await mediaFileService.SyncMediaFiles(fwdataApi.Cache);
 
-        using var deferCloseFwData = fwDataFactory.DeferClose(fwDataProject);
+        await using var deferCloseFwData = fwDataFactory.DeferCloseAsync(fwDataProject);
         var crdtProject = await SetupCrdtProject(crdtFile,
             projectLookupService,
             projectId,

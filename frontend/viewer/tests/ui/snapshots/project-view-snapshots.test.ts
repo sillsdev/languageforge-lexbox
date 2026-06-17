@@ -26,5 +26,6 @@ for (const colorScheme of ['light', 'dark'] as const) {
 async function waitForProjectViewReady(page: Page) {
   await expect(page.locator('.i-mdi-loading')).toHaveCount(0);
   await page.waitForFunction(() => document.fonts.ready);
+  await expect(page.locator('[role="table"]')).toBeVisible({timeout: 10000});
   await expect(page.locator('.animate-pulse')).toHaveCount(0);
 }

@@ -1,7 +1,7 @@
  using FwLiteShared.Projects;
  using SIL.Harmony.Db;
  using FwLiteWeb.Services;
- using Microsoft.OpenApi.Models;
+ using Microsoft.OpenApi;
 using MiniLcm;
 
 namespace FwLiteWeb.Routes;

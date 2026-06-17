@@ -164,6 +164,7 @@
       }
     },
     "MorphType": null,
+    "HomographNumber": 0,
     "EntityId": "46d2a7aa-186e-0820-6ab7-9d9f2c4359fb"
   },
   {
@@ -221,6 +222,7 @@
       }
     },
     "MorphType": "Infix",
+    "HomographNumber": 0,
     "EntityId": "46d2a7aa-186e-0820-6ab7-9d9f2c4359fb"
   },
   {
@@ -754,5 +756,143 @@
     "EntryId": "a71ce732-d089-6171-22f3-e5d571f4cc37",
     "Order": 4.123,
     "EntityId": "48c7b2d6-6c0a-9c43-e3b1-dee1ce0f9633"
+  },
+  {
+    "$type": "jsonPatch:MorphType",
+    "PatchDocument": [],
+    "EntityId": "59a71ac4-b66d-e921-8ec1-92a8380af470"
+  },
+  {
+    "$type": "CreateMorphTypeChange",
+    "Name": {
+      "biq": "Refined Granite Ball"
+    },
+    "Abbreviation": {
+      "wmd": "Licensed"
+    },
+    "Description": {
+      "tsd": {
+        "Spans": [
+          {
+            "Text": "Auto Loan Account",
+            "Ws": "tsd",
+            "Tags": [
+              "d62279ad-96ef-4c18-b9ba-dcc594f80aff"
+            ]
+          },
+          {
+            "Text": "Nepal",
+            "Ws": "tsd",
+            "Tags": [
+              "f93872b5-0ae7-4f2d-af8e-53e5c3bbd661"
+            ]
+          },
+          {
+            "Text": "Kids \u0026 Clothing",
+            "Ws": "tsd",
+            "Tags": [
+              "d2a2221d-636c-4009-afa4-431fe948e0e5"
+            ]
+          },
+          {
+            "Text": "Generic Rubber Car",
+            "Ws": "klx",
+            "Bold": "Off",
+            "FontSize": -840185874,
+            "ForeColor": "#ADFF2F",
+            "Tags": [
+              "59d3d8ed-5346-a56c-ba92-ef12001d82ce"
+            ]
+          }
+        ]
+      },
+      "njj": {
+        "Spans": [
+          {
+            "Text": "Bedfordshire",
+            "Ws": "gll",
+            "Bold": "Off",
+            "FontSize": -330435865,
+            "ForeColor": "#00000000",
+            "Tags": [
+              "cc7a3529-ea83-de35-486c-732573a52f30"
+            ]
+          },
+          {
+            "Text": "Stream",
+            "Ws": "njj",
+            "Tags": [
+              "7eb677be-9726-453d-b2f1-360a939bb0e2"
+            ]
+          },
+          {
+            "Text": "Architect",
+            "Ws": "njj",
+            "Tags": [
+              "6bf673fa-1326-4fd8-9779-2640f24f1f59"
+            ]
+          }
+        ]
+      },
+      "kad": {
+        "Spans": [
+          {
+            "Text": "Avon",
+            "Ws": "mxn",
+            "Bold": "Off",
+            "FontSize": -1669554162,
+            "ForeColor": "#ADFF2F",
+            "Tags": [
+              "9532adc3-7421-a6d9-7987-1ba36f5469c0"
+            ]
+          },
+          {
+            "Text": "Designer",
+            "Ws": "swc",
+            "Bold": "Off",
+            "FontSize": -560075183,
+            "ForeColor": "#A52A2A",
+            "Tags": [
+              "afeadc3f-6fb7-c347-7b5b-864f5df0186b"
+            ]
+          }
+        ]
+      },
+      "bzu": {
+        "Spans": [
+          {
+            "Text": "Personal Loan Account",
+            "Ws": "bzu",
+            "Tags": [
+              "8d062031-7f5a-4759-8e2d-8d3272abe6f3"
+            ]
+          },
+          {
+            "Text": "Regional",
+            "Ws": "bzu",
+            "Tags": [
+              "f60f00d2-fd98-4bc8-932b-8f1f9d0ee796"
+            ]
+          }
+        ]
+      }
+    },
+    "Prefix": "input",
+    "Postfix": "indigo",
+    "SecondaryOrder": -166466953,
+    "Kind": "Enclitic",
+    "EntityId": "60f57218-abe5-182c-2bf1-57ce58b65cbc"
+  },
+  {
+    "$type": "CreateEntryChange",
+    "LexemeForm": {
+      "kvj": "Florida"
+    },
+    "CitationForm": null,
+    "LiteralMeaning": null,
+    "Note": null,
+    "MorphType": "Prefix",
+    "HomographNumber": 4,
+    "EntityId": "d8005217-eba2-7937-34f9-b76d6543eea6"
   }
 ]

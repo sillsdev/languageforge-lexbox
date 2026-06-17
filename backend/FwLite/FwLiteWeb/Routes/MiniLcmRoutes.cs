@@ -1,13 +1,14 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using MiniLcm;
 using MiniLcm.Filtering;
 using MiniLcm.Models;
 using MiniLcm.Project;
 using MiniLcm.Validators;
+using MiniLcm.Wrappers;
+using System.Text.Json.Nodes;
 
 namespace FwLiteWeb.Routes;
 
@@ -31,9 +32,9 @@ public static class MiniLcmRoutes
     public static IEndpointConventionBuilder MapMiniLcmRoutes(this IEndpointRouteBuilder app, [StringSyntax("route")] string prefix)
     {
         var api = app.MapGroup(prefix + "/{projectType}/{projectCode}")
-            .WithOpenApi(operation =>
+            .AddOpenApiOperationTransformer((operation, _, _) =>
             {
-                operation.Parameters.Add(new()
+                operation.Parameters?.Add(new OpenApiParameter()
                 {
                     Name = "projectType",
                     In = ParameterLocation.Path,
@@ -42,19 +43,19 @@ public static class MiniLcmRoutes
                     {
                         Enum =
                         [
-                            new OpenApiString(ProjectDataFormat.FwData.ToString()),
-                            new OpenApiString(ProjectDataFormat.Harmony.ToString())
+                            JsonValue.Create(ProjectDataFormat.FwData.ToString()),
+                            JsonValue.Create(ProjectDataFormat.Harmony.ToString())
                         ],
-                        Type = "string"
+                        Type = JsonSchemaType.String
                     },
                 });
-                operation.Parameters.Add(new()
+                operation.Parameters?.Add(new OpenApiParameter()
                 {
                     Name = "projectCode",
                     In = ParameterLocation.Path,
                     Required = true
                 });
-                return operation;
+                return Task.CompletedTask;
             })
             .AddEndpointFilter(async (context, next) =>
             {
@@ -86,12 +87,11 @@ public static class MiniLcmRoutes
                     return Results.Problem($"Project {projectCode} not found");
                 }
 
-                var validationWrapperFactory = context.HttpContext.RequestServices
-                    .GetRequiredService<MiniLcmApiValidationWrapperFactory>();
+                var services = context.HttpContext.RequestServices;
+                var userFacingWrappers = services.GetRequiredService<MiniLcmApiUserFacingWrappers>();
 
-                miniLcmHolder.MiniLcmApi = validationWrapperFactory.Create(
-                    await projectProvider.OpenProject(project, context.HttpContext.RequestServices)
-                );
+                miniLcmHolder.MiniLcmApi = userFacingWrappers.Apply(
+                    await projectProvider.OpenProject(project, services), project);
                 return await next(context);
             });
 

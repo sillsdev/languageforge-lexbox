@@ -9,6 +9,10 @@ public interface IMiniLcmWrapperFactory
 
 public static class MiniLcmWrapperExtensions
 {
+    /// <summary>
+    /// Wraps <paramref name="api"/> with <paramref name="factories"/> in runtime call order
+    /// (outermost to innermost). The first factory becomes the outermost wrapper.
+    /// </summary>
     public static IMiniLcmApi WrapWith(this IMiniLcmApi api, IEnumerable<IMiniLcmWrapperFactory> factories, IProjectIdentifier project)
     {
         var wrappedApi = api;

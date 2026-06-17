@@ -12,7 +12,7 @@ public static class AuthRoutes
     public record ServerStatus(string DisplayName, bool LoggedIn, string? LoggedInAs, string? Authority);
     public static IEndpointConventionBuilder MapAuthRoutes(this WebApplication app)
     {
-        var group = app.MapGroup("/api/auth").WithOpenApi();
+        var group = app.MapGroup("/api/auth");
         group.MapGet("/servers", (AuthService authService) => authService.Servers());
         group.MapGet("/login/{authority}",
             async (AuthService authService, string authority, IOptions<AuthConfig> options, [FromHeader] string referer) =>

@@ -361,7 +361,7 @@
         </Button>
       {:else if canSyncProject}
         {#if project && project.type === ProjectType.FlEx && !isEmpty}
-          <OpenInFlexModal bind:this={openInFlexModal} {project}/>
+          <OpenInFlexModal bind:this={openInFlexModal} {project} login={user.emailOrUsername}/>
           <OpenInFlexButton projectId={project.id} onclick={openInFlexModal?.open}/>
         {:else}
           <Dropdown>

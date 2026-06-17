@@ -1,3 +1,5 @@
+<!-- Attention template README maintainers: The content in the portion of this README following the Template Info section roughly parallels that of the paranext-multi-extension-template. When editing one, please consider whether similar changes should also be made in the other.-->
+
 # lexicon
 
 The Platform.Bible extension for managing the lexicon for your project's target/vernacular language.
@@ -185,6 +187,57 @@ useEffect(() => {
 - Call any method defined in [entry-service.ts](src/services/entry-service.ts)
   - To use `lexiconService.addEntry`, also import types `IEntry` and `PartialEntry` from `'lexicon'`.
   - To use `lexiconService.getEntries`, also import types `IEntryQuery` and `PartialEntry` from `'lexicon'`.
+
+## Sync template updates into this extension
+
+This extension is based on [`paranext-extension-template`](https://github.com/paranext/paranext-extension-template). Tooling updates (linting, formatting, build config, etc.) can be pulled in interactively using the sync script.
+
+### Prerequisites
+
+Clone `paranext-extension-template` as a sibling of the `languageforge-lexbox` monorepo root:
+
+```bash
+git clone https://github.com/paranext/paranext-extension-template ../paranext-extension-template
+```
+
+### Running the sync
+
+```bash
+npm run template:sync
+```
+
+The script:
+
+1. Runs `git pull --ff-only` in the template repo to get the latest changes.
+2. Lists every tracked template file (respecting `.gitignore`) and shows a `git diff` for each file that differs from this extension.
+3. Prompts you to choose an action for each differing file.
+
+### Prompt options
+
+For each differing file the prompt shows (color-coded to match the diff):
+
+| Key | Color  | Action                                                             |
+| --- | ------ | ------------------------------------------------------------------ |
+| `e` | green  | Keep the **extension** version — no change                         |
+| `t` | red    | Apply the **template** version directly                            |
+| `d` | yellow | **Defer** — skip for now and revisit after the main pass           |
+| `b` | orange | Do **both** — copy the template version, then defer to review/edit |
+
+Files that have extension-specific modifications (`package.json`, `manifest.json`, `README.md`, config files, etc.) have `[t]` blocked, ensuring that if you apply the template version, you have to review them.
+
+Files in `contributions/` and `assets/` are surfaced for reference but block both `[t]` and `[b]` — adapt those manually.
+
+### Deferred files
+
+After the main pass, deferred files are listed and the script pauses so you can edit them. Press Enter to do another pass over only the deferred files. Repeat until all deferred files are resolved.
+
+### Final steps
+
+- Commit changes to your working branch.
+- Review a diff of that branch from `develop` to verify you haven't removed extension-specific updates.
+- Delete `package-lock.json` and `node_modules/`, then run `npm i --no-scripts` to regenerate `package-lock.json`.
+- Run `npm run build` and `npm run lint` and fix any failures. If failures arise from (e.g.) changed lint rules in the template, don't just revert the rule change; either update the code or add a targeted exemption.
+- Commit all, push, and create a pr.
 
 <!--
 ## To package for distribution
