@@ -60,7 +60,7 @@ public static class LcmCrdtKernel
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
         services.AddCrdtDataDbFactory<LcmCrdtDbContext>(
-            ConfigureCrdt
+            config => ConfigureCrdt(config, false)//don't add remote resources because they are added in AddCrdtRemoteResources
         );
         services.AddCrdtRemoteResources<LcmFileMetadata>();
         services.AddOptions<CrdtConfig>().PostConfigure((CrdtConfig crdtConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
@@ -174,7 +174,7 @@ public static class LcmCrdtKernel
         return e => Json.Query(e.PublishIn);
     }
 
-    public static void ConfigureCrdt(CrdtConfig config)
+    public static void ConfigureCrdt(CrdtConfig config, bool addRemoteResourceEntity = true)
     {
         config.EnableProjectedTables = true;
         config.ObjectTypeListBuilder
@@ -356,6 +356,9 @@ public static class LcmCrdtKernel
         config.JsonSerializerOptions.TypeInfoResolver =
             (config.JsonSerializerOptions.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
             .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
+        
+        if (addRemoteResourceEntity)
+            config.AddRemoteResourceEntity<LcmFileMetadata>();
     }
 
     public static IEnumerable<Type> AllChangeTypes()
