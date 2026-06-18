@@ -43,6 +43,12 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.UpdatePublication(id, update);
     }
 
+    public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
+    {
+        await validators.ValidateAndThrow(after);
+        return await _api.UpdatePublication(before, after, api ?? this);
+    }
+
     private async Task<Publication?> GetExistingMain()
     {
         await foreach (var publication in _api.GetPublications())
