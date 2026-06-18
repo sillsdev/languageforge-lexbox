@@ -1010,6 +1010,7 @@ msgstr "헤드워드"
 msgid "Hide"
 msgstr "숨기기"
 
+#: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "History"

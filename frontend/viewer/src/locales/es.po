@@ -1010,6 +1010,7 @@ msgstr "Palabra clave"
 msgid "Hide"
 msgstr "Ocultar"
 
+#: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "History"
