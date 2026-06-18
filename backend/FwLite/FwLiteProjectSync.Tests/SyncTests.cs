@@ -566,9 +566,60 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             ]
         });
 
-        //sync may fail because it will try to create a complex form for an entry which was deleted
+        // Sync tries to create a complex-form component referencing the entry that was deleted in the CRDT.
+        // The IgnoreNotFoundMiniLcmApi wrapper tolerates the resulting NotFound instead of failing the sync.
         await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
 
+        // The CRDT deletion wins: the deleted entry stays gone (and propagates to FwData), while the new
+        // complex form syncs in without the dangling component to the deleted entry.
+        (await crdtApi.GetEntry(_testEntry.Id)).Should().BeNull();
+        (await fwdataApi.GetEntry(_testEntry.Id)).Should().BeNull();
+        var crdtComplexForm = await crdtApi.GetEntry(newEntryId);
+        crdtComplexForm.Should().NotBeNull();
+        crdtComplexForm.Components.Should().BeEmpty();
+        (await fwdataApi.GetEntry(newEntryId)).Should().NotBeNull();
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task EntryEditedInFwDataButDeletedInCrdt_SyncDoesNotThrow()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        // FwData edits the entry (so snapshot != fwdata), CRDT deletes the same entry.
+        await fwdataApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(e => e.CitationForm["en"], "edited"));
+        await crdtApi.DeleteEntry(_testEntry.Id);
+
+        // The snapshot->CRDT diff treats the entry as modified and calls UpdateEntry on the CRDT,
+        // but it was deleted there. The CRDT deletion should win; the sync must not throw.
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        (await crdtApi.GetEntry(_testEntry.Id)).Should().BeNull();
+        (await fwdataApi.GetEntry(_testEntry.Id)).Should().BeNull();
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task SenseAddedInFwDataButEntryDeletedInCrdt_SyncDoesNotThrow()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        // FwData adds a sense (a child create, not an entry-field change), CRDT deletes the entry.
+        await fwdataApi.CreateSense(_testEntry.Id, new Sense { Gloss = { { "en", "fruit" } } });
+        await crdtApi.DeleteEntry(_testEntry.Id);
+
+        // No entry field changed, so UpdateEntry isn't called — instead the new sense drives CreateSense
+        // on the deleted entry, which 404s. The wrapper must tolerate writes beyond just Update*.
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        (await crdtApi.GetEntry(_testEntry.Id)).Should().BeNull();
+        (await fwdataApi.GetEntry(_testEntry.Id)).Should().BeNull();
     }
 
     [Fact]

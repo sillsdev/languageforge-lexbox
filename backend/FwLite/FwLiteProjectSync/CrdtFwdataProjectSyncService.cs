@@ -11,7 +11,8 @@ namespace FwLiteProjectSync;
 
 public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
     ILogger<CrdtFwdataProjectSyncService> logger,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory)
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
+    IgnoreNotFoundMiniLcmApiFactory ignoreNotFoundWrapperFactory)
 {
     public record DryRunSyncResult(
         int CrdtChanges,
@@ -65,6 +66,12 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         // No query normalization: The sync doesn't do any querying.
         crdtApi = validationWrapperFactory.Create(crdtApi);
         fwdataApi = validationWrapperFactory.Create(fwdataApi);
+
+        // An object deleted in the CRDT but still edited/referenced from FwData (since the last sync) makes
+        // the diff try to write to an object that no longer exists in the CRDT. Tolerate the resulting
+        // NotFound; the reverse diff then propagates the deletion to FwData. Scoped to the CRDT side: that's
+        // the direction issue #2361 reported, and the symmetric FwData-deleted case is far rarer.
+        crdtApi = ignoreNotFoundWrapperFactory.Create(crdtApi);
 
         if (dryRun)
         {

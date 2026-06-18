@@ -226,14 +226,7 @@ public static class EntrySync
 
         public override async Task<int> Add(ComplexFormComponent after)
         {
-            try
-            {
-                await api.CreateComplexFormComponent(after);
-            }
-            catch (NotFoundException)
-            {
-                //this can happen if the entry was deleted, so we can just ignore it
-            }
+            await api.CreateComplexFormComponent(after);
             return 1;
         }
 
@@ -265,14 +258,7 @@ public static class EntrySync
 
         public async Task<int> Add(ComplexFormComponent after, BetweenPosition<ComplexFormComponent> between)
         {
-            try
-            {
-                await api.CreateComplexFormComponent(after, between);
-            }
-            catch (NotFoundException)
-            {
-                //this can happen if the entry was deleted, so we can just ignore it
-            }
+            await api.CreateComplexFormComponent(after, between);
             return 1;
         }
 
