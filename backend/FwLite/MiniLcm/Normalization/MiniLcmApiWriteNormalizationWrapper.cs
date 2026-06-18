@@ -457,7 +457,8 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
     {
-        return _api.UpdatePicture(entryId, senseId, pictureId, NormalizePatch(update));
+        // We use a specialized NormalizePicturePatch method that will remove any MediaUri changes from the patch before calling NormalizePatch, then re-add them
+        return _api.UpdatePicture(entryId, senseId, pictureId, NormalizePicturePatch(update));
     }
 
 
@@ -557,6 +558,44 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
             normalizedPatch.Operations.Add(normalizedOp);
         }
         return new UpdateObjectInput<T>(normalizedPatch);
+    }
+
+    // MediaUri path of pictures will NOT be normalized; it should remain exactly as FwData gave it to us
+    private static UpdateObjectInput<T> NormalizePicturePatch<T>(UpdateObjectInput<T> update) where T : class
+    {
+        // If there are no updates, or ONLY MediaUri updates, we can skip normalizing entirely
+        if (update.Patch.Operations.Count == 0) return update;
+        if (update.Patch.Operations.All(op => op.Path == $"/{nameof(Picture.MediaUri)}")) return update;
+        // If there are no MediaUri updates at all, we can call NormalizePatch as-is.
+        if (!update.Patch.Operations.Any(op => op.Path == $"/{nameof(Picture.MediaUri)}")) return NormalizePatch(update);
+
+        // There are MediaUri updates mixed with others; remove the MediaUri updates, normalize, then add them back in
+        var savedOps = new List<SystemTextJsonPatch.Operations.Operation<T>>();
+        var savedIndices = new List<int>();
+        List<SystemTextJsonPatch.Operations.Operation<T>> copyOps = [.. update.Patch.Operations];
+        // Remove in reverse order so indices will remain stable
+        // (e.g., if we're removing 1, 3, 5, remove in order 5, 3, 1)
+        for (var i = update.Patch.Operations.Count - 1; i >= 0; i--)
+        {
+            var op = copyOps[i];
+            if (op.Path == $"/{nameof(Picture.MediaUri)}")
+            {
+                savedOps.Add(op);
+                savedIndices.Add(i);
+                update.Patch.Operations.RemoveAt(i);
+            }
+        }
+
+        var normalizedPatch = NormalizePatch(update);
+        // Add them back in reverse order of the saved operations so that indices are recreated correctly
+        // (e.g., if we removed 1, 3, 5, savedIndices is [5, 3, 1] and we want to put 1 back first, then 3, then 5)
+        for (var j = savedOps.Count - 1; j >= 0; j--)
+        {
+            var op = savedOps[j];
+            var i = savedIndices[j];
+            normalizedPatch.Patch.Operations.Insert(i, op);
+        }
+        return normalizedPatch;
     }
 
     [return: NotNullIfNotNull(nameof(value))]
