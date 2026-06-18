@@ -48,6 +48,14 @@ msgstr "{0} (FieldWorks)"
 msgid "{0} ago"
 msgstr "{0} trước"
 
+#: src/lib/activity/ActivityFilter.svelte
+msgid "{0} authors"
+msgstr ""
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "{0} change types"
+msgstr ""
+
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -1002,11 +1010,6 @@ msgstr "Từ đầu mục"
 msgid "Hide"
 msgstr "Ẩn"
 
-#. Toggle in activity view to hide commits imported from FieldWorks (author name "FieldWorks").
-#: src/lib/activity/ActivityFilter.svelte
-msgid "Hide FieldWorks"
-msgstr ""
-
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "History"
@@ -1316,6 +1319,14 @@ msgstr ""
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "Không có âm thanh"
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "No authors"
+msgstr ""
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "No change types"
+msgstr ""
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1949,6 +1960,7 @@ msgstr "Thời gian bạn đã tải lên hoặc tải xuống các thay đổi 
 
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Những thay đổi này chưa được tải lên. Hãy đảm bảo bạn đang trực tuyến và đã đăng nhập để chia sẻ các thay đổi."
 
