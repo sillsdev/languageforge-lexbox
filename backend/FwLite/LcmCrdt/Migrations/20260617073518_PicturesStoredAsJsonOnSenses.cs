@@ -15,7 +15,7 @@ namespace LcmCrdt.Migrations
                 table: "Sense",
                 type: "jsonb",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: "[]");
         }
 
         /// <inheritdoc />
