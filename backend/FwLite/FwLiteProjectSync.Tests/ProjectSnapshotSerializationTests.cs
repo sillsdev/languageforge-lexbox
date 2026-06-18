@@ -20,16 +20,21 @@ public class ProjectSnapshotSerializationTests
             .GetRequiredService<ProjectSnapshotService>();
     }
 
+    // The mutable round-trip target. Dated snapshots are immutable deserialize-only inputs;
+    // this one tracks the current serialization format and is regenerated when it changes.
+    private const string LatestSnapshotFileName = "sena-3_snapshot.latest.verified.txt";
+
     public static IEnumerable<object[]> GetSena3SnapshotNames()
     {
-        return GetSena3SnapshotPaths()
+        return GetDatedSena3SnapshotPaths()
             .Select(file => new object[] { Path.GetFileName(file) });
     }
 
-    private static IEnumerable<string> GetSena3SnapshotPaths()
+    private static IEnumerable<string> GetDatedSena3SnapshotPaths()
     {
         var snapshotsDir = RelativePath("Snapshots");
-        return Directory.GetFiles(snapshotsDir, "sena-3_snapshot.*.verified.txt");
+        return Directory.GetFiles(snapshotsDir, "sena-3_snapshot.*.verified.txt")
+            .Where(file => Path.GetFileName(file) != LatestSnapshotFileName);
     }
 
     [Theory]
@@ -58,15 +63,13 @@ public class ProjectSnapshotSerializationTests
     public async Task LatestSena3SnapshotRoundTrips()
     {
         // arrange
-        var latestSnapshotPath = GetSena3SnapshotPaths()
-            .OrderDescending()
-            .First();
+        var latestSnapshotPath = RelativePath(Path.Combine("Snapshots", LatestSnapshotFileName));
 
         // act
         var roundTrippedJson = await GetRoundTrippedIndentedSnapshot(latestSnapshotPath);
 
         // assert
-        var verifyName = Path.GetFileName(latestSnapshotPath).Replace(".verified.txt", "");
+        var verifyName = LatestSnapshotFileName.Replace(".verified.txt", "");
         await Verify(roundTrippedJson)
             .UseStrictJson()
             .UseDirectory("Snapshots")
