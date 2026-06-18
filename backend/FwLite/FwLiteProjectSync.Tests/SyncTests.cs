@@ -580,6 +580,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         (await fwdataApi.GetEntry(newEntryId)).Should().NotBeNull();
     }
 
+    // End-to-end proof that a delete-in-CRDT / edit-in-FwData conflict no longer crashes the sync (issue #2361).
+    // The per-write NotFound tolerance is covered more exhaustively, and without a full sync, in
+    // IgnoreNotFoundMiniLcmApiTests.
     [Fact]
     [Trait("Category", "Integration")]
     public async Task EntryEditedInFwDataButDeletedInCrdt_SyncDoesNotThrow()
@@ -593,29 +596,8 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await fwdataApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(e => e.CitationForm["en"], "edited"));
         await crdtApi.DeleteEntry(_testEntry.Id);
 
-        // The snapshot->CRDT diff treats the entry as modified and calls UpdateEntry on the CRDT,
-        // but it was deleted there. The CRDT deletion should win; the sync must not throw.
-        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
-
-        (await crdtApi.GetEntry(_testEntry.Id)).Should().BeNull();
-        (await fwdataApi.GetEntry(_testEntry.Id)).Should().BeNull();
-    }
-
-    [Fact]
-    [Trait("Category", "Integration")]
-    public async Task SenseAddedInFwDataButEntryDeletedInCrdt_SyncDoesNotThrow()
-    {
-        var crdtApi = _fixture.CrdtApi;
-        var fwdataApi = _fixture.FwDataApi;
-        await _syncService.Import(crdtApi, fwdataApi);
-        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
-
-        // FwData adds a sense (a child create, not an entry-field change), CRDT deletes the entry.
-        await fwdataApi.CreateSense(_testEntry.Id, new Sense { Gloss = { { "en", "fruit" } } });
-        await crdtApi.DeleteEntry(_testEntry.Id);
-
-        // No entry field changed, so UpdateEntry isn't called — instead the new sense drives CreateSense
-        // on the deleted entry, which 404s. The wrapper must tolerate writes beyond just Update*.
+        // The snapshot->CRDT diff treats the entry as modified and calls UpdateEntry on the CRDT, but it was
+        // deleted there. The CRDT deletion should win; the sync must not throw, and the deletion propagates.
         await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
 
         (await crdtApi.GetEntry(_testEntry.Id)).Should().BeNull();

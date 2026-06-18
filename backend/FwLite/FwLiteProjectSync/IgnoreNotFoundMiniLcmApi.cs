@@ -10,7 +10,7 @@ namespace FwLiteProjectSync;
 
 public class IgnoreNotFoundMiniLcmApiFactory(ILogger<IgnoreNotFoundMiniLcmApi> logger)
 {
-    public IMiniLcmApi Create(IMiniLcmApi api) => new IgnoreNotFoundMiniLcmApi(api, logger);
+    public IgnoreNotFoundMiniLcmApi Create(IMiniLcmApi api) => new(api, logger);
 }
 
 /// <summary>
@@ -42,6 +42,9 @@ public partial class IgnoreNotFoundMiniLcmApi(IMiniLcmApi api, ILogger logger) :
     [BeaKona.AutoInterface]
     private IMiniLcmReadApi ReadApi => _api;
 
+    /// <summary>How many writes were skipped because their target/reference was already deleted. The sync logs a summary of this.</summary>
+    public int IgnoredWriteCount { get; private set; }
+
     private async Task<T> IgnoreNotFound<T>(Func<Task<T>> operation, [CallerMemberName] string method = "")
     {
         try
@@ -50,6 +53,7 @@ public partial class IgnoreNotFoundMiniLcmApi(IMiniLcmApi api, ILogger logger) :
         }
         catch (NotFoundException e)
         {
+            IgnoredWriteCount++;
             logger.LogInformation(e, "Ignoring {Method} during sync because the object was deleted on this side", method);
             return default!;
         }
@@ -63,6 +67,7 @@ public partial class IgnoreNotFoundMiniLcmApi(IMiniLcmApi api, ILogger logger) :
         }
         catch (NotFoundException e)
         {
+            IgnoredWriteCount++;
             logger.LogInformation(e, "Ignoring {Method} during sync because the object was deleted on this side", method);
         }
     }

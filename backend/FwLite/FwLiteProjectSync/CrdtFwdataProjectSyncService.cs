@@ -69,9 +69,15 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
 
         // An object deleted in the CRDT but still edited/referenced from FwData (since the last sync) makes
         // the diff try to write to an object that no longer exists in the CRDT. Tolerate the resulting
-        // NotFound; the reverse diff then propagates the deletion to FwData. Scoped to the CRDT side: that's
-        // the direction issue #2361 reported, and the symmetric FwData-deleted case is far rarer.
-        crdtApi = ignoreNotFoundWrapperFactory.Create(crdtApi);
+        // NotFound; the reverse diff then propagates the deletion to FwData. Scoped to the CRDT side (that's
+        // the direction issue #2361 reported), and to sync only: a fresh import has no deletion races, so a
+        // NotFound there is a real bug that must surface, not be swallowed.
+        IgnoreNotFoundMiniLcmApi? ignoreNotFound = null;
+        if (projectSnapshot is not null)
+        {
+            ignoreNotFound = ignoreNotFoundWrapperFactory.Create(crdtApi);
+            crdtApi = ignoreNotFound;
+        }
 
         if (dryRun)
         {
@@ -100,6 +106,9 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         var syncResult = projectSnapshot is null
             ? await ImportInternal(crdtApi, fwdataApi, fwdata.EntryCount)
             : await SyncInternal(crdtApi, fwdataApi, projectSnapshot);
+
+        if (ignoreNotFound is { IgnoredWriteCount: > 0 })
+            logger.LogInformation("Sync ignored {Count} write(s) to objects deleted in the CRDT", ignoreNotFound.IgnoredWriteCount);
 
         if (!dryRun)
         {
