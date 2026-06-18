@@ -23,9 +23,10 @@ public class MiniLcmApiValidationWrapperFactory(MiniLcmValidators validators) : 
 /// an IMiniLcmWriteApi method without choosing how it validates is a compile error rather than
 /// a silent unvalidated forward - which is how CreateEntry drifted out of validation (#2362).
 ///
-/// CreateEntry, CreatePublication, CreateMorphType and all JsonPatch-based updates deliberately
-/// pass through unvalidated: sync/import wraps the api in this validator and writes empty
-/// MultiStrings from FLEx that those validators would reject, so validating here breaks import.
+/// Not every write validates. CreateEntry, CreateMorphType and all JsonPatch-based updates pass
+/// through because sync/import wraps the api here and writes empty FLEx MultiStrings the validators
+/// would reject - validating would break import. Publication writes pass through across the board
+/// (a deferred gap), so UpdatePublication is the one before/after update that doesn't validate (#2362).
 /// </summary>
 public partial class MiniLcmApiValidationWrapper(
     IMiniLcmApi api,
@@ -105,7 +106,7 @@ public partial class MiniLcmApiValidationWrapper(
 
     public Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        return _api.UpdatePublication(before, after, api);
+        return _api.UpdatePublication(before, after, api ?? this);
     }
 
     public Task DeletePublication(Guid id)
