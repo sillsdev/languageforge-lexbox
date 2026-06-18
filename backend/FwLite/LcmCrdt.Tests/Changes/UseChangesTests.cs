@@ -244,8 +244,11 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var setExampleSentenceOrderChange = new LcmCrdt.Changes.SetOrderChange<ExampleSentence>(exampleSentence.Id, 10);
         yield return new ChangeWithDependencies(setExampleSentenceOrderChange, [createExampleSentenceChange]);
 
-        var setPictureOrderChange = new LcmCrdt.Changes.SetOrderChange<Picture>(picture.Id, 10);
-        yield return new ChangeWithDependencies(setPictureOrderChange, [createSensePictureChange]);
+        var setPictureOrderChange = new ReorderSensePictureChange(picture.Id, sense.Id, 10);
+        yield return new ChangeWithDependencies(setPictureOrderChange, [createSenseChange, createSensePictureChange]);
+
+        var removePictureChange = new RemoveSensePictureChange(picture.Id, sense.Id);
+        yield return new ChangeWithDependencies(setPictureOrderChange, [createSenseChange, createSensePictureChange, setPictureOrderChange]);
 
         var setComplexFormComponentOrderChange = new LcmCrdt.Changes.SetOrderChange<ComplexFormComponent>(complexFormComponent.Id, 10);
         yield return new ChangeWithDependencies(setComplexFormComponentOrderChange, [createComplexFormComponentChange]);

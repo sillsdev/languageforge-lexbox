@@ -903,12 +903,12 @@ public class CrdtMiniLcmApi(
         var sense = await repo.GetSense(senseId);
         if (sense is null) throw NotFoundException.ForType<Sense>(senseId);
         var order = OrderPicker.PickOrder(sense.Pictures, between);
-        await AddChange(new Changes.SetOrderChange<Picture>(pictureId, order));
+        await AddChange(new ReorderSensePictureChange(pictureId, senseId, order));
     }
 
     public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
     {
-        await AddChange(new DeleteChange<Picture>(pictureId));
+        await AddChange(new RemoveSensePictureChange(pictureId, senseId));
     }
 
     public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)

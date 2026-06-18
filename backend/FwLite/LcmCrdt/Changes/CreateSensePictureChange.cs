@@ -9,8 +9,8 @@ namespace LcmCrdt.Changes;
 
 public class CreateSensePictureChange: EditChange<Sense>, ISelfNamedType<CreateSensePictureChange>
 {
-    public CreateSensePictureChange(Picture picture, Guid senseId, BetweenPosition? between = null)
-        : base(senseId)
+    public CreateSensePictureChange(Picture picture, Guid entityId, BetweenPosition? between = null)
+        : base(entityId)
     {
         PictureId = picture.Id == Guid.Empty ? Guid.NewGuid() : picture.Id;
         Order = picture.Order;

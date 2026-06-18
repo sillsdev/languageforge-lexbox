@@ -316,7 +316,6 @@ public static class LcmCrdtKernel
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
             .Add<DeleteChange<WritingSystem>>()
-            .Add<DeleteChange<Picture>>()
             .Add<DeleteChange<PartOfSpeech>>()
             .Add<DeleteChange<SemanticDomain>>()
             .Add<DeleteChange<ComplexFormType>>()
@@ -341,6 +340,8 @@ public static class LcmCrdtKernel
             .Add<SetFirstTranslationIdChange>()
 
             .Add<CreateSensePictureChange>()
+            .Add<ReorderSensePictureChange>()
+            .Add<RemoveSensePictureChange>()
             .Add<CreatePartOfSpeechChange>()
             .Add<CreateSemanticDomainChange>()
             .Add<CreateWritingSystemChange>()
@@ -360,7 +361,6 @@ public static class LcmCrdtKernel
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             .Add<Changes.SetOrderChange<WritingSystem>>()
-            .Add<Changes.SetOrderChange<Picture>>()
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
