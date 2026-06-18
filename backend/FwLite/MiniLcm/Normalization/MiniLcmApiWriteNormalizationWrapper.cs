@@ -371,6 +371,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         copy.Gloss = StringNormalizer.Normalize(sense.Gloss);
         copy.PartOfSpeech = sense.PartOfSpeech is not null ? NormalizePartOfSpeech(sense.PartOfSpeech) : null;
         copy.SemanticDomains = [.. sense.SemanticDomains.Select(NormalizeSemanticDomain)];
+        copy.Pictures = [.. sense.Pictures.Select(NormalizePicture)];
         copy.ExampleSentences = [.. sense.ExampleSentences.Select(NormalizeExampleSentence)];
         return copy;
     }
