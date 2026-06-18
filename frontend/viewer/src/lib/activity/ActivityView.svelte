@@ -181,6 +181,6 @@
   </div>
 
   {#if selectedRow}
-    <ActivityItem class="sub-grid row-span-2 col-start-2" activity={selectedRow} />
+    <ActivityItem class="sub-grid row-span-2 col-start-2" activity={selectedRow} showHistoryButton />
   {/if}
 </div>

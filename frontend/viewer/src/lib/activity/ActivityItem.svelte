@@ -29,18 +29,23 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
   import * as Popover from '$lib/components/ui/popover';
+  import {Button} from '$lib/components/ui/button';
+  import HistoryView from '$lib/history/HistoryView.svelte';
 
   type Props = HTMLAttributes<HTMLDivElement> & {
     activity: IProjectActivity;
+    showHistoryButton?: boolean;
   }
 
   const {
     activity,
+    showHistoryButton = false,
     class: className,
     ...restProps
   }: Props = $props();
 
   const historyService = useHistoryService();
+  let openHistoryId = $state<string>()
 
   const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(change => {
     return new ChangeWithLazyContext(change, activity, () => historyService.loadChangeContext(activity.commitId, change.index));
@@ -109,9 +114,18 @@
               {:then context}
                 <div class="change">
                   <div class="px-4 pt-2 flex font-semibold">
-                    <span>{context.changeName}</span>
+                    <span class="grow">{context.changeName}</span>
+
+                    {#if showHistoryButton}
+                      <Button icon="i-mdi-history" onclick={() => openHistoryId = context.snapshot?.id}>
+                        {$t`History`}
+                      </Button>
+                      {#if openHistoryId}
+                        <HistoryView bind:open={() => !!openHistoryId, (open) => (open ? undefined : openHistoryId = undefined)} id={openHistoryId} selectedCommitId={activity.commitId}/>
+                      {/if}
+                    {/if}
                   </div>
-                  <Tabs.Root value="preview" class="px-2 mt-2">
+                  <Tabs.Root value="preview" class="px-2 mt-2 grow">
                     <Tabs.List class="w-full">
                       <Tabs.Trigger class="flex-1" value="preview">
                         {$t`Preview`}
