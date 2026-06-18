@@ -129,7 +129,7 @@
 <div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
      style="grid-template-rows: auto minmax(0,100%); grid-template-columns: 1fr 2fr">
 
-  <div class="col-span-2 flex flex-wrap items-center gap-2">
+  <div class="min-w-0 flex flex-wrap items-center gap-2">
     <ActivityFilter bind:filters />
     {#if loading.current}
       <Loading class="size-5 text-muted-foreground" aria-label={$t`Loading activity`} />
