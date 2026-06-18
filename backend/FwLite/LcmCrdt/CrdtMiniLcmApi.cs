@@ -882,7 +882,8 @@ public class CrdtMiniLcmApi(
         UpdateObjectInput<Picture> update)
     {
         var jsonPatch = update.Patch;
-        var patchChange = new JsonPatchChange<Picture>(pictureId, jsonPatch);
+        // TODO: Check whether patch changed Order and remove that part of the patch, turning it into a ReorderSensePictureChange instead
+        var patchChange = new UpdateSensePictureChange(pictureId, senseId, jsonPatch);
         await AddChange(patchChange);
         return await GetPicture(entryId, senseId, pictureId) ?? throw NotFoundException.ForType<Picture>(pictureId);
     }

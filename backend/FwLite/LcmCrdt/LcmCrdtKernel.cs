@@ -307,7 +307,6 @@ public static class LcmCrdtKernel
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()
             .Add<JsonPatchChange<WritingSystem>>()
-            .Add<JsonPatchChange<Picture>>()
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
             .Add<JsonPatchChange<ComplexFormType>>()
@@ -340,6 +339,7 @@ public static class LcmCrdtKernel
             .Add<SetFirstTranslationIdChange>()
 
             .Add<CreateSensePictureChange>()
+            .Add<UpdateSensePictureChange>()
             .Add<ReorderSensePictureChange>()
             .Add<RemoveSensePictureChange>()
             .Add<CreatePartOfSpeechChange>()
