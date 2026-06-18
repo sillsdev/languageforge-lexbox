@@ -93,7 +93,8 @@
   }
 </script>
 
-<div class="flex flex-wrap items-center gap-2">
+<div>
+  <div class="flex items-center gap-2">
   <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 shrink-0" />
   <Select.Root type="multiple" value={authorSelectValue} onValueChange={onAuthorValueChange}>
     <Select.Trigger class="w-44">
@@ -157,8 +158,9 @@
       {/each}
     </Select.Content>
   </Select.Root>
-
-  <ResponsiveMenu.Root>
+  </div>
+  <div class="my-2 flex items-center justify-between">
+    <ResponsiveMenu.Root>
     <ResponsiveMenu.Trigger class={cn(buttonVariants({variant: 'secondary', size: 'xs'}), badgeVariants({variant: 'secondary'}), 'border-none h-7')}>
       {#snippet child({props})}
         <Button {...props} icon={sortIcons[filters.sort]} iconProps={{class: 'size-4'}}>
@@ -177,4 +179,5 @@
       {/each}
     </ResponsiveMenu.Content>
   </ResponsiveMenu.Root>
+  </div>
 </div>
