@@ -6,7 +6,7 @@
 
 <script lang="ts">
   import type {IEntry, ISense} from '$lib/dotnet-types';
-  import {CreateEntryOptions} from '$lib/create-entry-options';
+  import {createEntryOptions} from '$lib/create-entry-options';
   import {untrack} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
   import {useViewService} from '$lib/views/view-service.svelte';
@@ -66,7 +66,7 @@
     loading = true;
     const entrySnapshot = $state.snapshot(entry);
     // Field shown -> the user controls publications, so create as-is; otherwise auto-add the main publication.
-    const options = entryTemplate?.publishIn?.length ? CreateEntryOptions.asIs : CreateEntryOptions.withMainPublication;
+    const options = entryTemplate?.publishIn?.length ? createEntryOptions.asIs : createEntryOptions.withMainPublication;
     await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot, options));
     requester.resolve(entry);
     requester = undefined;
