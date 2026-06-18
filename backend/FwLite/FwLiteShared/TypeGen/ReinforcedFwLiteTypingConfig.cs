@@ -86,6 +86,7 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(RichTextObjectData),
                 typeof(Translation),
 
+                typeof(Picture),
                 typeof(MediaFile),
                 typeof(LcmFileMetadata),
                 typeof(ViewField),
