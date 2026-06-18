@@ -65,7 +65,7 @@ otherwise. One decision at a time.
 
 - Commit, push, open a PR.
 - Run integration tests (root `AGENTS.md`).
-- Touch `backend/harmony` submodule contents.
+- Bump `SIL.Harmony*` package versions without `harmony-sentinel` review.
 - Modify `.git/`, `deployment/` PVCs, or any infrastructure state.
 
 ## Re-validate after fixes (loop, hard cap 2)

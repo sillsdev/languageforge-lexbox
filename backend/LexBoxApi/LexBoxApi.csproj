@@ -52,8 +52,8 @@
     <PackageReference Include="tusdotnet" />
     <PackageReference Include="zxcvbn-core" />
   </ItemGroup>
+  <Import Project="$(MSBuildThisFileDirectory)..\Harmony.Core.References.props" />
   <ItemGroup>
-    <ProjectReference Include="..\harmony\src\SIL.Harmony.Core\SIL.Harmony.Core.csproj" />
     <ProjectReference Include="..\LexCore\LexCore.csproj" />
     <ProjectReference Include="..\LexData\LexData.csproj" />
     <ProjectReference Include="..\LfClassicData\LfClassicData.csproj" />

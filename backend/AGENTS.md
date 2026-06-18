@@ -27,7 +27,12 @@ dotnet build FwLite/FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0
 | `FwHeadless/` | Headless service for hg sync, FwData processing |
 | `Testing/` | Integration and API tests |
 | `Ycs/` | Yjs CRDT implementation in C# |
-| `harmony/` | Git submodule - Harmony sync protocol |
+
+## Harmony (SIL.Harmony)
+
+Harmony is consumed as a **NuGet package** by default (`SIL.Harmony`, `SIL.Harmony.Core`, `SIL.Harmony.Linq2db` — versions pinned in `Directory.Packages.props`).
+
+To build against local Harmony source (e.g. when developing the CRDT substrate), clone [sillsdev/harmony](https://github.com/sillsdev/harmony) as a sibling repo (`../harmony`), copy `Directory.Build.props.user.example` to `Directory.Build.props.user`, and set `UseHarmonySource=true`. Or pass `-p:UseHarmonySource=true` for a one-off build.
 
 ## Code Conventions
 

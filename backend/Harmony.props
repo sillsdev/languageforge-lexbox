@@ -1,0 +1,17 @@
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)Directory.Build.props.user"
+          Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.props.user')" />
+
+  <PropertyGroup>
+    <RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</RepoRoot>
+    <HarmonySourcePath Condition="'$(HarmonySourcePath)' == ''">$([System.IO.Path]::GetFullPath('$(RepoRoot)\..\harmony'))</HarmonySourcePath>
+    <UseHarmonySource Condition="'$(UseHarmonySource)' == ''">false</UseHarmonySource>
+  </PropertyGroup>
+
+  <Target Name="LogHarmonySourceMode"
+          BeforeTargets="Build"
+          Condition="'$(UseHarmonySource)' == 'true'">
+    <Message Importance="normal"
+             Text="Building with Harmony source from $(HarmonySourcePath)" />
+  </Target>
+</Project>

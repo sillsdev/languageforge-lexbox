@@ -9,9 +9,7 @@
       "backend\\LexData\\LexData.csproj",
       "backend\\LfClassicData\\LfClassicData.csproj",
       "backend\\SyncReverseProxy\\SyncReverseProxy.csproj",
-      "backend\\Testing\\Testing.csproj",
-      "backend\\harmony\\src\\SIL.Harmony.Core\\SIL.Harmony.Core.csproj",
-      "backend\\harmony\\src\\SIL.Harmony\\SIL.Harmony.csproj"
+      "backend\\Testing\\Testing.csproj"
     ]
   }
 }
