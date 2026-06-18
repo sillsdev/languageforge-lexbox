@@ -1875,10 +1875,6 @@ msgstr "La vista *FieldWorks Classic*, por otra parte, está diseñada para usua
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "La vista *FieldWorks Lite* está diseñada para las no-listas y difiere de la vista *FieldWorks Classic* de las siguientes maneras:"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "The main publication is always included."
-msgstr ""
-
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."

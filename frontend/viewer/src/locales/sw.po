@@ -1875,10 +1875,6 @@ msgstr "Muonekano wa *FieldWorks Classic*, kwa upande mwingine, umeuundwa kwa wa
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "Muonekano wa *FieldWorks Lite* umeuundwa kwa watu ambao si wafahamu wa lugha na hutofautiana na muonekano wa *FieldWorks Classic* kwa njia zifuatazo:"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "The main publication is always included."
-msgstr ""
-
 #. Explanation note
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
