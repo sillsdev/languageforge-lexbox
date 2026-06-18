@@ -6,9 +6,9 @@ using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
+using MiniLcm.Import;
 using MiniLcm.Models;
 using MiniLcm.Project;
-using MiniLcm.SyncHelpers;
 
 namespace FwLiteProjectSync;
 
@@ -47,59 +47,16 @@ public class MiniLcmImport(
         }
     }
 
-    public async Task ImportProject(IMiniLcmApi importTo, IMiniLcmApi importFrom, int entryCount)
+    public async Task ImportProject(IMiniLcmApi importTo, IMiniLcmReadApi importFrom, int entryCount)
     {
         using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
-        importTo = new ResumableImportApi(importTo);
-        await ImportWritingSystems(importTo, importFrom);
-
-        await foreach (var partOfSpeech in importFrom.GetPartsOfSpeech())
-        {
-            await importTo.CreatePartOfSpeech(partOfSpeech);
-            logger.LogInformation("Imported part of speech {Id}", partOfSpeech.Id);
-        }
-
-        await foreach (var publication in importFrom.GetPublications())
-        {
-            await importTo.CreatePublication(publication);
-            logger.LogInformation("Imported publication {Id}", publication.Id);
-        }
-
-        await foreach (var complexFormType in importFrom.GetComplexFormTypes())
-        {
-            await importTo.CreateComplexFormType(complexFormType);
-            logger.LogInformation("Imported complex form type {Id}", complexFormType.Id);
-        }
-
-        // Morph types are created automatically for CRDT projects, so we update them instead of creating them
-        // Optimize this to a simple foreach like above in #2350
-        var importFromMorphTypes = await importFrom.GetMorphTypes().ToArrayAsync();
-        var existingMorphTypes = await importTo.GetMorphTypes().ToArrayAsync();
-        await MorphTypeSync.Sync(existingMorphTypes, importFromMorphTypes, importTo);
-
-        logger.LogInformation("Importing semantic domains");
-        await importTo.BulkImportSemanticDomains(importFrom.GetSemanticDomains());
         logger.LogInformation("Importing {Count} entries", entryCount);
-        await importTo.BulkCreateEntries(importFrom.GetAllEntries());
-
+        // ResumableImportApi dedupes creates by object Id so a crashed import can be re-run; it wraps the
+        // destination, so every write ProjectImporter makes goes through it.
+        var resumableImportTo = new ResumableImportApi(importTo);
+        await ProjectImporter.ImportData(resumableImportTo, await importFrom.TakeProjectSnapshot());
 
         activity?.SetTag("app.import.entries", entryCount);
         logger.LogInformation("Imported {Count} entries", entryCount);
-    }
-
-    internal async Task ImportWritingSystems(IMiniLcmApi importTo, IMiniLcmApi importFrom)
-    {
-        var writingSystems = await importFrom.GetWritingSystems();
-        foreach (var ws in writingSystems.Analysis)
-        {
-            await importTo.CreateWritingSystem(ws);
-            logger.LogInformation("Imported ws {WsId}", ws.WsId);
-        }
-
-        foreach (var ws in writingSystems.Vernacular)
-        {
-            await importTo.CreateWritingSystem(ws);
-            logger.LogInformation("Imported ws {WsId}", ws.WsId);
-        }
     }
 }

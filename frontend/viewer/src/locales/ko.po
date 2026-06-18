@@ -184,6 +184,10 @@ msgstr ""
 msgid "Add Word"
 msgstr "단어 추가"
 
+#: src/home/HomeView.svelte
+msgid "Add your own entries"
+msgstr ""
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -313,6 +317,7 @@ msgstr ""
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -375,6 +380,16 @@ msgstr "닫기"
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "사전 닫기"
+
+#. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
+#: src/home/CreateProjectDialog.svelte
+msgid "Code"
+msgstr ""
+
+#. Validation error shown when the project Code field (the machine-readable identifier) is empty.
+#: src/home/CreateProjectDialog.svelte
+msgid "Code is required"
+msgstr ""
 
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
@@ -442,6 +457,11 @@ msgstr "클립보드에 복사"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
 msgstr "복사 버전"
+
+#. Confirm button in the create-project dialog footer; creates the new dictionary project.
+#: src/home/CreateProjectDialog.svelte
+msgid "Create"
+msgstr ""
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -652,6 +672,11 @@ msgstr "다운로드 {0}..."
 #: src/home/Server.svelte
 msgid "Downloading..."
 msgstr "다운로드 중..."
+
+#. Placeholder in the Vernacular writing system input. "en" and "fr" are example IETF language tags — keep them untranslated.
+#: src/home/CreateProjectDialog.svelte
+msgid "e.g. en, fr"
+msgstr ""
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -1220,11 +1245,13 @@ msgid "My custom view..."
 msgstr "내 사용자 지정 보기..."
 
 #. Field label for the custom view name input.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "이름"
 
 #. Validation error shown when the custom view name is empty.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "이름은 필수 입력 사항입니다."
@@ -1257,6 +1284,11 @@ msgstr "새로운 데이터"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "새 항목"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/home/HomeView.svelte
+msgid "New Project"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1399,6 +1431,11 @@ msgstr "오프라인 상태, 다운로드할 수 없음"
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "하나의 FieldWorks Classic 커밋은 여러 항목 또는 필드에 대한 변경 사항으로 구성될 수 있습니다. 반면에 커밋은 FieldWorks Lite에 동기화되지 않은 데이터에만 영향을 미칠 수 있습니다."
 
+#. Validation error for the project Code field when it contains characters other than lowercase letters, numbers, or '-'.
+#: src/home/CreateProjectDialog.svelte
+msgid "Only lowercase letters, numbers and '-' are allowed"
+msgstr ""
+
 #. Button to open downloaded project
 #: src/home/Server.svelte
 msgid "Open"
@@ -1514,11 +1551,6 @@ msgstr "프로젝트 {0} {1}에서 찾을 수 없음"
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "{1} 의 프로젝트 {0} 는 아직 FieldWorks Lite용으로 설정되지 않았습니다."
-
-#. Placeholder for project search
-#: src/home/HomeView.svelte
-msgid "Project name..."
-msgstr "프로젝트 이름..."
 
 #. Filter option
 #. Publication type/dictionary for entries
@@ -2001,6 +2033,10 @@ msgstr "알 수 없는 오류"
 msgid "Unknown error {0}"
 msgstr "알 수 없는 오류 {0}"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "Unknown error creating project"
+msgstr ""
+
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Unknown error downloading {0}"
@@ -2084,6 +2120,15 @@ msgstr "구성 요소를 다음과 같이 사용합니다."
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "토착어"
+
+#. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system"
+msgstr ""
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system is required"
+msgstr ""
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte

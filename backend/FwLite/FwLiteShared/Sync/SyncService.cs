@@ -223,20 +223,14 @@ public class SyncService(
         }
     }
 
-    public async Task UploadProject(Guid lexboxProjectId, LexboxServer server)
-    {
-        await currentProjectService.SetProjectSyncOrigin(server.Authority, lexboxProjectId);
-        try
-        {
-            await ExecuteSync(true);
-        }
-        catch
-        {
-            await currentProjectService.SetProjectSyncOrigin(null, null);
-            throw;
-        }
-
-        //todo maybe decouple this
-        lexboxProjectService.InvalidateProjectsCache(server);
-    }
+    /// <summary>
+    /// First-time push of a locally-created project (template-based or otherwise) isn't supported yet:
+    /// the server has no ingest path for a fresh project, and a templated-project chain has commit Ids
+    /// the server has never seen. Until both sides are wired up, we refuse early rather than silently
+    /// corrupt server state. Local-only template application lives in <see cref="LcmCrdt.Project.ProjectTemplate"/>.
+    /// </summary>
+    public Task UploadProject(Guid lexboxProjectId, LexboxServer server) =>
+        throw new NotSupportedException(
+            "First-time upload of a CRDT project from the client to the server is not supported. " +
+            "Templated and other locally-created projects must stay local until end-to-end first-push is implemented.");
 }

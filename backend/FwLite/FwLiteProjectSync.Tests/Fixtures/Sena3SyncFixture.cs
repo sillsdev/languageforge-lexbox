@@ -43,7 +43,7 @@ public class Sena3Fixture : IAsyncLifetime
             .BuildServiceProvider();
         var cleanup = Defer.Action(() => rootServiceProvider.Dispose());
         var services = rootServiceProvider.CreateAsyncScope().ServiceProvider;
-        var projectName = "sena-3_" + Guid.NewGuid().ToString("N");
+        var projectName = "sena-3-" + Guid.NewGuid().ToString("N");
 
         var projectsFolder = services.GetRequiredService<IOptions<FwDataBridgeConfig>>()
             .Value

@@ -16,7 +16,10 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         await using var transaction = await dbContext.Database.BeginTransactionAsync(token);
         var linqToDbContext = dbContext.CreateLinqToDBContext();
         await using var tmpTable = await linqToDbContext.CreateTempTableAsync<ServerCommit>($"tmp_crdt_commit_import_{projectId}__{Guid.NewGuid()}", cancellationToken: token);
-        //Stamp ProjectId while streaming so the merge below can be a plain column-to-column copy.
+        //Stamp ProjectId while streaming so the merge below can be a plain column-to-column copy
+        //AND so OnTargetKey (composite PK (ProjectId, Id)) matches against the right tenant —
+        //client-supplied ProjectId on the wire is untrusted; the URL path's projectId already
+        //cleared permissionService.
         //A projection lambda here would let linq2db v6 wrap our Sql.Expr<...>::jsonb cast in the
         //EF value-converter (JsonSerializer.Serialize) and fail SQL translation.
         var stampedCommits = commits.Select(c => { c.ProjectId = projectId; return c; });

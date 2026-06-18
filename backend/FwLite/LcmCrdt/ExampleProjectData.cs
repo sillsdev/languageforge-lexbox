@@ -5,8 +5,10 @@ namespace LcmCrdt;
 
 internal static class ExampleProjectData
 {
-    // Parts of speech (Noun/Verb/Adjective/Adverb) and complex form types (Compound/Unspecified)
-    // are seeded by PreDefinedData via SeedSystemData, so we reference their canonical IDs directly.
+    // Parts of speech and complex form types ship in the template (CreateProjectFromTemplate).
+    // The Noun PartOfSpeech keeps liblcm's canonical Id (== PreDefinedData.NounPartOfSpeechId), so
+    // we reference that directly; the Compound complex-form-type Id differs from PreDefinedData's, so
+    // CreateBerryComplexForms resolves it by name.
 
     public static async Task Seed(IServiceProvider provider, CrdtProject _)
     {
@@ -18,16 +20,15 @@ internal static class ExampleProjectData
 
     private static async Task CreateWritingSystems(IMiniLcmApi api)
     {
-        await api.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Vernacular,
-            WsId = "de",
-            Name = "German",
-            Abbreviation = "de",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
+        // The template path already provides vernacular "de" and analysis "en"; bring them to the demo's
+        // presentation (friendly name, Arial, Latin exemplars) in place rather than re-create them, which
+        // CreateWritingSystem rejects as duplicates. The remaining three don't exist yet, so create them —
+        // appended after the existing ones, preserving the order users see (de, de-audio, de-ipa / en, fr).
+        await api.UpdateWritingSystem("de", WritingSystemType.Vernacular, new UpdateObjectInput<WritingSystem>()
+            .Set(ws => ws.Name, "German")
+            .Set(ws => ws.Abbreviation, "de")
+            .Set(ws => ws.Font, "Arial")
+            .Set(ws => ws.Exemplars, WritingSystem.LatinExemplars));
         await api.CreateWritingSystem(new()
         {
             Id = Guid.NewGuid(),
@@ -48,16 +49,11 @@ internal static class ExampleProjectData
             Font = "Arial",
             Exemplars = WritingSystem.LatinExemplars
         });
-        await api.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Analysis,
-            WsId = "en",
-            Name = "English",
-            Abbreviation = "en",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
+        await api.UpdateWritingSystem("en", WritingSystemType.Analysis, new UpdateObjectInput<WritingSystem>()
+            .Set(ws => ws.Name, "English")
+            .Set(ws => ws.Abbreviation, "en")
+            .Set(ws => ws.Font, "Arial")
+            .Set(ws => ws.Exemplars, WritingSystem.LatinExemplars));
         await api.CreateWritingSystem(new()
         {
             Id = Guid.NewGuid(),
@@ -229,6 +225,8 @@ internal static class ExampleProjectData
 
     private static async Task CreateBerryComplexForms(IMiniLcmApi api, Entry beere)
     {
+        var compoundType = await api.GetComplexFormTypes().FirstAsync(ct => ct.Name["en"] == "Compound");
+
         var erdbeere = new Entry
         {
             Id = Guid.NewGuid(),
@@ -251,7 +249,7 @@ internal static class ExampleProjectData
         };
         erdbeere.Components = [ComplexFormComponent.FromEntries(erdbeere, beere)];
         await api.CreateEntry(erdbeere);
-        await api.AddComplexFormType(erdbeere.Id, PreDefinedData.CompoundComplexFormTypeId);
+        await api.AddComplexFormType(erdbeere.Id, compoundType.Id);
 
         var heidelbeere = new Entry
         {
@@ -271,6 +269,6 @@ internal static class ExampleProjectData
         };
         heidelbeere.Components = [ComplexFormComponent.FromEntries(heidelbeere, beere)];
         await api.CreateEntry(heidelbeere);
-        await api.AddComplexFormType(heidelbeere.Id, PreDefinedData.CompoundComplexFormTypeId);
+        await api.AddComplexFormType(heidelbeere.Id, compoundType.Id);
     }
 }

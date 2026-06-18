@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Models;
+using SIL.WritingSystems;
 
 namespace FwLiteWeb.Routes;
 
@@ -26,17 +27,29 @@ public static class ProjectRoutes
             });
         group.MapGet("/localProjects",
             (CombinedProjectsService combinedProjectsService) => combinedProjectsService.LocalProjects());
+        // Name is free-form; code identifies the project on disk and must match ProjectCode().
         group.MapPost("/project",
+            async (CrdtProjectsService projectService, string name, string code, string vernacularWs) =>
+            {
+                if (string.IsNullOrWhiteSpace(name)) return Results.BadRequest("Project name is required");
+                if (ValidateProjectCode(projectService, code) is { } codeError) return codeError;
+                if (string.IsNullOrWhiteSpace(vernacularWs))
+                    return Results.BadRequest("Vernacular writing system is required");
+                if (!IetfLanguageTag.IsValid(vernacularWs))
+                    return Results.BadRequest($"'{vernacularWs}' is not a valid IETF language tag");
+                await projectService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager, VernacularWs: vernacularWs));
+                return Results.Ok();
+            });
+        // Example/demo project — built from the template (parts of speech, complex form types,
+        // semantic domains, custom views, morph types) plus a handful of demo entries. Dev use.
+        group.MapPost("/project/demo",
             async (CrdtProjectsService projectService, string name) =>
             {
-                if (string.IsNullOrWhiteSpace(name))
-                    return Results.BadRequest("Project name is required");
-                if (projectService.ProjectExists(name))
-                    return Results.BadRequest("Project already exists");
-                if (!CrdtProjectsService.ProjectCode().IsMatch(name))
-                    return Results.BadRequest("Only letters, numbers, '-' and '_' are allowed");
+                if (string.IsNullOrWhiteSpace(name)) return Results.BadRequest("Project name is required");
+                // Display name keeps its casing; the on-disk code is its lowercased form (see CreateExampleProject).
+                if (ValidateProjectCode(projectService, name.ToLowerInvariant()) is { } error) return error;
                 await projectService.CreateExampleProject(name);
-                return TypedResults.Ok();
+                return Results.Ok();
             });
         group.MapPost($"/upload/crdt/{{serverAuthority}}/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}",
             async (SyncService syncService,
@@ -71,5 +84,14 @@ public static class ProjectRoutes
                 };
             });
         return group;
+    }
+
+    private static IResult? ValidateProjectCode(CrdtProjectsService projectService, string code)
+    {
+        if (string.IsNullOrWhiteSpace(code)) return Results.BadRequest("Project code is required");
+        if (!CrdtProjectsService.ProjectCode().IsMatch(code))
+            return Results.BadRequest("Only lowercase letters, numbers and '-' are allowed");
+        if (projectService.ProjectExists(code)) return Results.BadRequest("Project already exists");
+        return null;
     }
 }

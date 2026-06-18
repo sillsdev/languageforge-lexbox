@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using LcmCrdt.MediaServer;
 using SIL.Harmony;
+using MiniLcm;
+using MiniLcm.Import;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -119,15 +121,60 @@ public partial class CrdtProjectsService(
         Uri? Domain = null,
         Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
         bool SeedNewProjectData = false,
+        // Whether to seed canonical morph-types pre-AfterCreate. Default true: callers that need
+        // morph-types to exist before their AfterCreate runs (e.g. FwData→CRDT import which reads
+        // morph-types as part of the import) get them seeded. Callers whose AfterCreate brings
+        // morph-types in via sync (download path) should set this to false to avoid a redundant
+        // seed commit that the inbound sync will dup.
+        bool SeedMorphTypes = true,
         string? Path = null,
         Guid? FwProjectId = null,
         string? AuthenticatedUser = null,
         string? AuthenticatedUserId = null,
-        UserProjectRole? Role = null);
+        UserProjectRole? Role = null,
+        WritingSystemId? VernacularWs = null);
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
-        return await CreateProject(new(name, name, AfterCreate: ExampleProjectData.Seed, SeedNewProjectData: true, Role: UserProjectRole.Manager));
+        // Code must satisfy the lowercase-only ProjectCode rule; the display name keeps its casing.
+        return await CreateProjectFromTemplate(new(name, name.ToLowerInvariant(), AfterCreate: ExampleProjectData.Seed, Role: UserProjectRole.Manager, VernacularWs: "de"));
+    }
+
+    /// <summary>
+    /// Creates a CRDT project pre-populated from the embedded template snapshot (a blank
+    /// FieldWorks/liblcm project — system data only, no user entries), plus the requested vernacular WS.
+    /// Runs through the normal <see cref="CreateProject"/> path, so identity (ClientId, per-project commit
+    /// Ids) is minted by ordinary Harmony writes during the import — no commit re-identification needed.
+    /// </summary>
+    public virtual async Task<CrdtProject> CreateProjectFromTemplate(CreateProjectRequest request)
+    {
+        if (request.VernacularWs is null)
+            throw new ArgumentException("VernacularWs is required for template-based creation.", nameof(request));
+        // Local-only by design (see SyncService.UploadProject for why) — enforced at the
+        // construction site so the invariant holds where the project is born.
+        if (request.Domain is not null)
+            throw new ArgumentException(
+                "Templated projects can't be associated with a server at creation time — they're local-only.",
+                nameof(request));
+
+        var vernacularWs = request.VernacularWs.Value;
+        var callerAfterCreate = request.AfterCreate;
+        return await CreateProject(request with
+        {
+            SeedNewProjectData = false,
+            // Seed the canonical morph-types first so the import reconciles them in place; mirrors the
+            // FwData import path, where CreateProject also defaults SeedMorphTypes to true.
+            SeedMorphTypes = true,
+            AfterCreate = async (provider, project) =>
+            {
+                var api = provider.GetRequiredService<IMiniLcmApi>();
+                var jsonOptions = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.JsonSerializerOptions;
+                await ProjectImporter.ImportData(api, ProjectTemplate.LoadSnapshot(jsonOptions));
+                // The template ships analysis writing systems only; add the requested vernacular WS now.
+                await api.CreateWritingSystem(ProjectTemplate.DefaultVernacularWritingSystem(vernacularWs));
+                if (callerAfterCreate is not null) await callerAfterCreate(provider, project);
+            }
+        });
     }
 
     public virtual async Task<CrdtProject> CreateProject(CreateProjectRequest request)
@@ -167,6 +214,8 @@ public partial class CrdtProjectsService(
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
             var dataModel = serviceScope.ServiceProvider.GetRequiredService<DataModel>();
+            if (request.SeedMorphTypes)
+                await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
             if (request.SeedNewProjectData)
                 await SeedSystemData(dataModel, projectData);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
@@ -254,6 +303,8 @@ public partial class CrdtProjectsService(
         await PreDefinedData.AddPredefinedCustomViews(dataModel, projectData);
     }
 
-    [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]
+    // Mirrors LexBox's server-side rule (LexCore.Entities.Project.ProjectCodeRegex). LexBox is the
+    // source of truth — keep these in sync so a code valid here is also valid on the server.
+    [GeneratedRegex(@"^[a-z\d][a-z-\d]*$")]
     public static partial Regex ProjectCode();
 }
