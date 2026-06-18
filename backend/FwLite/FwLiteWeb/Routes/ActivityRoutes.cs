@@ -22,11 +22,10 @@ public static class ActivityRoutes
             HistoryService historyService,
             int skip = 0,
             int take = 100,
-            string? authorId = null,
-            string? authorName = null,
-            bool excludeFieldWorks = false,
+            string[]? authorFilterKeys = null,
+            string[]? changeTypeKeys = null,
             ActivitySort sort = ActivitySort.NewestFirst) =>
-            historyService.ProjectActivity(skip, take, new ActivityQuery(authorId, authorName, excludeFieldWorks, sort)));
+            historyService.ProjectActivity(skip, take, new ActivityQuery(authorFilterKeys, changeTypeKeys, sort)));
         group.MapGet("/authors", (HistoryService historyService) => historyService.ListActivityAuthors());
         group.MapGet("/change-types", (HistoryService historyService) => historyService.ListActivityChangeTypes());
         return group;

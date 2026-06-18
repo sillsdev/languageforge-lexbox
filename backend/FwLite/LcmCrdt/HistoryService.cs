@@ -26,10 +26,15 @@ public enum ActivitySort
 }
 
 public record ActivityQuery(
-    string? AuthorId = null,
-    string? AuthorName = null,
-    bool ExcludeFieldWorks = false,
+    string[]? AuthorFilterKeys = null,
+    string[]? ChangeTypeKeys = null,
     ActivitySort Sort = ActivitySort.NewestFirst);
+
+public static class ActivityFilterKeys
+{
+    public const string UnknownAuthor = "__unknown__";
+    public const string AuthorNamePrefix = "name:";
+}
 
 public record ProjectActivity(
     Guid CommitId,
@@ -135,7 +140,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         query ??= new ActivityQuery();
         await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
         var changeEntities = dbContext.Set<ChangeEntity<IChange>>();
-        var commits = ApplyActivityFilters(dbContext.Commits, query);
+        var commits = ApplyActivityFilters(dbContext.Commits, changeEntities, query);
         commits = ApplyActivitySort(commits, query.Sort);
         var queryable =
             from commit in commits.Skip(skip).Take(take)
@@ -151,29 +156,52 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         }
     }
 
-    private static IQueryable<Commit> ApplyActivityFilters(IQueryable<Commit> commits, ActivityQuery query)
+    private static IQueryable<Commit> ApplyActivityFilters(
+        IQueryable<Commit> commits,
+        IQueryable<ChangeEntity<IChange>> changeEntities,
+        ActivityQuery query)
     {
-        if (query.ExcludeFieldWorks)
+        if (query.AuthorFilterKeys is { Length: 0 })
         {
-            commits = commits.ToLinqToDB().Where(c =>
-                (Json.Value(c.Metadata, m => m.AuthorName) ?? "") != "FieldWorks");
+            return commits.ToLinqToDB().Where(_ => false);
         }
 
-        if (query.AuthorId == "")
+        if (query.AuthorFilterKeys is { Length: > 0 })
         {
+            var authorIds = new List<string>();
+            var authorNames = new List<string>();
+            var includeUnknown = false;
+            foreach (var key in query.AuthorFilterKeys)
+            {
+                if (key == ActivityFilterKeys.UnknownAuthor)
+                    includeUnknown = true;
+                else if (key.StartsWith(ActivityFilterKeys.AuthorNamePrefix, StringComparison.Ordinal))
+                    authorNames.Add(key[ActivityFilterKeys.AuthorNamePrefix.Length..]);
+                else
+                    authorIds.Add(key);
+            }
+
             commits = commits.ToLinqToDB().Where(c =>
-                (Json.Value(c.Metadata, m => m.AuthorId) ?? "") == ""
-                && (Json.Value(c.Metadata, m => m.AuthorName) ?? "") == "");
+                (includeUnknown
+                 && (Json.Value(c.Metadata, m => m.AuthorId) ?? "") == ""
+                 && (Json.Value(c.Metadata, m => m.AuthorName) ?? "") == "")
+                || authorIds.Contains(Json.Value(c.Metadata, m => m.AuthorId) ?? "")
+                || authorNames.Contains(Json.Value(c.Metadata, m => m.AuthorName) ?? ""));
         }
-        else if (query.AuthorId is not null)
+
+        if (query.ChangeTypeKeys is { Length: 0 })
         {
-            commits = commits.ToLinqToDB().Where(c =>
-                Json.Value(c.Metadata, m => m.AuthorId) == query.AuthorId);
+            return commits.ToLinqToDB().Where(_ => false);
         }
-        else if (query.AuthorName is not null)
+
+        if (query.ChangeTypeKeys is { Length: > 0 })
         {
+            var changeTypeKeys = query.ChangeTypeKeys;
             commits = commits.ToLinqToDB().Where(c =>
-                Json.Value(c.Metadata, m => m.AuthorName) == query.AuthorName);
+                changeEntities.ToLinqToDB().Any(ce =>
+                    ce.CommitId == c.Id
+                    && changeTypeKeys.Contains(Sql.Expr<string>(
+                        "json_extract({0}, '$.\"$type\"')", ce.Change))));
         }
 
         return commits;

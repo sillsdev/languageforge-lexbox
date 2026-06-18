@@ -56,19 +56,19 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
         await AddEntryCommit(new CommitMetadata { AuthorName = "Bob", AuthorId = "bob-id" });
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(AuthorId: "alice-id")).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(AuthorFilterKeys: ["alice-id"])).ToArrayAsync();
 
         activities.Should().OnlyContain(a => a.Metadata.AuthorId == "alice-id");
         activities.Should().HaveCountGreaterThanOrEqualTo(1);
     }
 
     [Fact]
-    public async Task ProjectActivity_ExcludeFieldWorks_HidesFieldWorksCommits()
+    public async Task ProjectActivity_AuthorFilterKeys_ExcludesUnselectedAuthors()
     {
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
         await AddEntryCommit(new CommitMetadata { AuthorName = "FieldWorks" });
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ExcludeFieldWorks: true)).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(AuthorFilterKeys: ["alice-id"])).ToArrayAsync();
 
         activities.Should().NotContain(a => a.Metadata.AuthorName == "FieldWorks");
         activities.Should().Contain(a => a.Metadata.AuthorName == "Alice");
@@ -110,10 +110,31 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
         await AddEntryCommit(new CommitMetadata { AuthorName = "Bob", AuthorId = "bob-id" });
 
-        var page = await Service.ProjectActivity(0, 1, new ActivityQuery(AuthorId: "alice-id")).ToArrayAsync();
+        var page = await Service.ProjectActivity(0, 1, new ActivityQuery(AuthorFilterKeys: ["alice-id"])).ToArrayAsync();
 
         page.Should().HaveCount(1);
         page[0].Metadata.AuthorId.Should().Be("alice-id");
+    }
+
+    [Fact]
+    public async Task ProjectActivity_FiltersByChangeTypeKeys()
+    {
+        await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: ["CreateEntryChange"])).ToArrayAsync();
+
+        activities.Should().OnlyContain(a => a.ChangeTypes.Contains("CreateEntryChange"));
+        activities.Should().HaveCountGreaterThanOrEqualTo(1);
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeTypeKeys_FiltersMultipleTypes()
+    {
+        await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: ["CreateEntryChange", "MissingType"])).ToArrayAsync();
+
+        activities.Should().OnlyContain(a => a.ChangeTypes.Any(t => t == "CreateEntryChange"));
     }
 
     [Fact]

@@ -2,6 +2,11 @@
   import {Icon} from '../icon';
   import {Select as SelectPrimitive} from 'bits-ui';
   import {cn, type WithoutChild} from '$lib/utils.js';
+  import type {Snippet} from 'svelte';
+
+  type Props = WithoutChild<SelectPrimitive.ItemProps> & {
+    selectedIndicator?: Snippet;
+  };
 
   let {
     ref = $bindable(null),
@@ -9,8 +14,9 @@
     value,
     label,
     children: childrenProp,
+    selectedIndicator,
     ...restProps
-  }: WithoutChild<SelectPrimitive.ItemProps> = $props();
+  }: Props = $props();
 </script>
 
 <SelectPrimitive.Item
@@ -25,7 +31,9 @@
 >
   {#snippet children({selected, highlighted})}
     <span class="absolute inset-e-2 flex size-3.5 items-center justify-center">
-      {#if selected}
+      {#if selectedIndicator}
+        {@render selectedIndicator()}
+      {:else if selected}
         <Icon icon="i-mdi-check" class="size-4" />
       {/if}
     </span>

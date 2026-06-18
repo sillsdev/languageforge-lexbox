@@ -83,10 +83,9 @@ export class HistoryService {
     this.ensureLoaded();
     return await this.historyApi.projectActivity(
         skip,
-        take, 
-        query?.authorId, 
-        query?.authorName,
-        query?.excludeFieldWorks ?? false,
+        take,
+        query?.authorFilterKeys,
+        query?.changeTypeKeys,
         query?.sort ?? ActivitySort.NewestFirst);
   }
 

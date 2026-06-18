@@ -6,16 +6,22 @@
   import {ActivitySort} from '$lib/dotnet-types';
   import * as Select from '$lib/components/ui/select';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
-  import {Switch} from '$lib/components/ui/switch';
   import {Button, buttonVariants} from '$lib/components/ui/button';
+  import {badgeVariants} from '$lib/components/ui/badge';
   import {cn} from '$lib/utils';
+  import {Icon} from '$lib/components/ui/icon';
+  import type {IconClass} from '$lib/icon-class';
   import {
     ALL_AUTHORS,
     ALL_CHANGE_TYPES,
     UNKNOWN_AUTHOR,
+    applyMultiSelectValue,
     authorFilterKey,
     createDefaultActivityFilters,
+    isAllFilterSelection,
+    resolveFilterKeys,
     type ActivityFilters,
+    type MultiFilterSelection,
   } from './utils';
 
   type Props = {
@@ -32,7 +38,7 @@
       if (!loaded) return [];
       const data = await historyService.listActivityAuthors();
       return Array.isArray(data) ? data : [];
-    }, 
+    },
     {initialValue: []},
   );
 
@@ -46,29 +52,71 @@
     {initialValue: []},
   );
 
+  const authorKeys = $derived(authors.current.map(authorFilterKey));
+  const changeTypeKeys = $derived(changeTypes.current.map(ct => ct.key));
+
+  const authorSelectValue = $derived(resolveFilterKeys(filters.authorFilterKeys, authorKeys));
+  const changeTypeSelectValue = $derived(resolveFilterKeys(filters.changeTypeFilterKeys, changeTypeKeys));
+
   const sortLabels = $derived<Record<ActivitySort, string>>({
     [ActivitySort.NewestFirst]: $t`Newest first`,
     [ActivitySort.OldestFirst]: $t`Oldest first`,
     [ActivitySort.SyncedNewestFirst]: $t`Synced newest`,
     [ActivitySort.SyncedOldestFirst]: $t`Synced oldest`,
   });
+
+  const sortIcons: Record<ActivitySort, IconClass> = {
+    [ActivitySort.NewestFirst]: 'i-mdi-sort-clock-descending',
+    [ActivitySort.OldestFirst]: 'i-mdi-sort-clock-ascending',
+    [ActivitySort.SyncedNewestFirst]: 'i-mdi-cloud-arrow-down',
+    [ActivitySort.SyncedOldestFirst]: 'i-mdi-cloud-arrow-up',
+  };
+
+  function authorLabel(key: string): string {
+    if (key === UNKNOWN_AUTHOR) return $t`Unknown`;
+    const author = authors.current.find(a => authorFilterKey(a) === key);
+    return author?.authorName ?? key;
+  }
+
+  function allSelectionIcon(selected: MultiFilterSelection, allKeys: string[]): IconClass | undefined {
+    if (selected === 'all' || isAllFilterSelection(selected, allKeys)) return 'i-mdi-check';
+    if (selected.length === 0) return undefined;
+    return 'i-mdi-minus';
+  }
+
+  function onAuthorValueChange(value: string[]) {
+    filters.authorFilterKeys = applyMultiSelectValue(value, authorKeys, ALL_AUTHORS, filters.authorFilterKeys);
+  }
+
+  function onChangeTypeValueChange(value: string[]) {
+    filters.changeTypeFilterKeys = applyMultiSelectValue(value, changeTypeKeys, ALL_CHANGE_TYPES, filters.changeTypeFilterKeys);
+  }
 </script>
 
 <div class="flex flex-wrap items-center gap-2">
   <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 shrink-0" />
-  <Select.Root type="single" value={filters.authorFilter} onValueChange={v => filters.authorFilter = v}>
+  <Select.Root type="multiple" value={authorSelectValue} onValueChange={onAuthorValueChange}>
     <Select.Trigger class="w-44">
-      {#if filters.authorFilter === ALL_AUTHORS}
+      {#if isAllFilterSelection(filters.authorFilterKeys, authorKeys)}
         {$t`All authors`}
-      {:else if filters.authorFilter === UNKNOWN_AUTHOR}
-        {$t`Unknown`}
+      {:else if filters.authorFilterKeys.length === 0}
+        {$t`No authors`}
+      {:else if filters.authorFilterKeys.length === 1}
+        {authorLabel(filters.authorFilterKeys[0])}
       {:else}
-        {@const author = authors.current.find(a => authorFilterKey(a) === filters.authorFilter)}
-        {author?.authorName ?? filters.authorFilter}
+        {$t`${filters.authorFilterKeys.length} authors`}
       {/if}
     </Select.Trigger>
     <Select.Content>
-      <Select.Item value={ALL_AUTHORS} label={$t`All authors`}>{$t`All authors`}</Select.Item>
+      <Select.Item value={ALL_AUTHORS} label={$t`All authors`}>
+        {#snippet selectedIndicator()}
+          {@const icon = allSelectionIcon(filters.authorFilterKeys, authorKeys)}
+          {#if icon}
+            <Icon {icon} class="size-4" />
+          {/if}
+        {/snippet}
+        {$t`All authors`}
+      </Select.Item>
       {#each authors.current as author (authorFilterKey(author))}
         {@const key = authorFilterKey(author)}
         <Select.Item value={key} label={author.authorName ?? $t`Unknown`}>
@@ -79,16 +127,28 @@
     </Select.Content>
   </Select.Root>
 
-  <Select.Root type="single" value={filters.changeTypeFilter} onValueChange={v => filters.changeTypeFilter = v}>
+  <Select.Root type="multiple" value={changeTypeSelectValue} onValueChange={onChangeTypeValueChange}>
     <Select.Trigger class="w-48">
-      {#if filters.changeTypeFilter === ALL_CHANGE_TYPES}
+      {#if isAllFilterSelection(filters.changeTypeFilterKeys, changeTypeKeys)}
         {$t`All change types`}
+      {:else if filters.changeTypeFilterKeys.length === 0}
+        {$t`No change types`}
+      {:else if filters.changeTypeFilterKeys.length === 1}
+        {changeTypes.current.find(ct => ct.key === filters.changeTypeFilterKeys[0])?.label ?? filters.changeTypeFilterKeys[0]}
       {:else}
-        {changeTypes.current.find(ct => ct.key === filters.changeTypeFilter)?.label ?? filters.changeTypeFilter}
+        {$t`${filters.changeTypeFilterKeys.length} change types`}
       {/if}
     </Select.Trigger>
     <Select.Content>
-      <Select.Item value={ALL_CHANGE_TYPES} label={$t`All change types`}>{$t`All change types`}</Select.Item>
+      <Select.Item value={ALL_CHANGE_TYPES} label={$t`All change types`}>
+        {#snippet selectedIndicator()}
+          {@const icon = allSelectionIcon(filters.changeTypeFilterKeys, changeTypeKeys)}
+          {#if icon}
+            <Icon {icon} class="size-4" />
+          {/if}
+        {/snippet}
+        {$t`All change types`}
+      </Select.Item>
       {#each changeTypes.current as changeType (changeType.key)}
         <Select.Item value={changeType.key} label={changeType.label}>
           {changeType.label}
@@ -98,12 +158,10 @@
     </Select.Content>
   </Select.Root>
 
-  <Switch bind:checked={filters.excludeFieldWorks} label={$t`Hide FieldWorks`} class="shrink-0" />
-
   <ResponsiveMenu.Root>
-    <ResponsiveMenu.Trigger class={cn(buttonVariants({variant: 'secondary', size: 'xs'}), 'h-8')}>
+    <ResponsiveMenu.Trigger class={cn(buttonVariants({variant: 'secondary', size: 'xs'}), badgeVariants({variant: 'secondary'}), 'border-none h-7')}>
       {#snippet child({props})}
-        <Button {...props} size="xs" variant="secondary">
+        <Button {...props} icon={sortIcons[filters.sort]} iconProps={{class: 'size-4'}}>
           {sortLabels[filters.sort]}
         </Button>
       {/snippet}
@@ -113,6 +171,7 @@
         <ResponsiveMenu.Item
           onSelect={() => filters.sort = sortOption}
           class={cn(filters.sort === sortOption && 'bg-muted')}>
+          <Icon icon={sortIcons[sortOption]} />
           {sortLabels[sortOption]}
         </ResponsiveMenu.Item>
       {/each}

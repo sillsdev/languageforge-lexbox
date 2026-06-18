@@ -12,11 +12,10 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import type {IProjectActivity} from '$lib/dotnet-types';
   import {
-    ALL_CHANGE_TYPES,
-    MIN_VISIBLE_FILTERED,
     createDefaultActivityFilters,
     emptyActivityLoad,
-    filterActivityByChangeType,
+    hasActiveServerFilters,
+    MIN_VISIBLE_FILTERED,
     serverQueryKey,
     toServerQuery,
     type ActivityFilters,
@@ -82,7 +81,7 @@
     if (awaitingFreshData) {
       return null;
     }
-    return filterActivityByChangeType(activity.current?.items ?? [], filters.changeTypeFilter);
+    return activity.current?.items ?? [];
   });
 
   let selectedRow = $state<IProjectActivity>();
@@ -100,7 +99,7 @@
   });
 
   $effect(() => {
-    if (filters.changeTypeFilter === ALL_CHANGE_TYPES || activity.loading || visibleActivity === null || !hasMorePages) return;
+    if (!hasActiveServerFilters(filters) || activity.loading || visibleActivity === null || !hasMorePages) return;
     const filtered = visibleActivity.length;
     const loaded = activity.current?.items.length ?? 0;
     if (filtered < MIN_VISIBLE_FILTERED && loaded >= (pageCount - 1) * BATCH_SIZE && loaded > 0) {
@@ -158,8 +157,14 @@
             selected={selectedRow?.commitId === row.commitId}
             class="mb-2">
             <span>{row.changeName}</span>
-            <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between">
-              <span>
+            <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
+              <span class="flex items-center gap-1">
+                {#if !row.metadata.extraMetadata['SyncDate']}
+                  <Icon
+                    icon="i-mdi-cloud-off-outline"
+                    class="size-4 shrink-0 text-muted-foreground"
+                    title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`} />
+                {/if}
                 <FormatRelativeDate date={row.timestamp}
                         actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
               </span>

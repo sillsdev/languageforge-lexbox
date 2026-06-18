@@ -17,13 +17,12 @@ public class HistoryServiceJsInvokable(HistoryService historyService)
     public async ValueTask<ProjectActivity[]> ProjectActivity(
         int skip,
         int take,
-        string? authorId = null,
-        string? authorName = null,
-        bool excludeFieldWorks = false,
+        string[]? authorFilterKeys = null,
+        string[]? changeTypeKeys = null,
         ActivitySort sort = ActivitySort.NewestFirst)
     {
         return await historyService.ProjectActivity(skip, take,
-            new ActivityQuery(authorId, authorName, excludeFieldWorks, sort)).ToArrayAsync();
+            new ActivityQuery(authorFilterKeys, changeTypeKeys, sort)).ToArrayAsync();
     }
 
     [JSInvokable]

@@ -7,9 +7,8 @@ import type {ActivitySort} from './ActivitySort';
 
 export interface IActivityQuery
 {
-	authorId?: string;
-	authorName?: string;
-	excludeFieldWorks: boolean;
+	authorFilterKeys?: string[];
+	changeTypeKeys?: string[];
 	sort: ActivitySort;
 }
 /* eslint-enable */

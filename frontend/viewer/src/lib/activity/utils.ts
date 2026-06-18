@@ -17,26 +17,34 @@ export const emptyActivityLoad: ActivityLoad = {
   queryKey: '',
 };
 
+export type MultiFilterSelection = string[] | 'all';
+
 export type ActivityFilters = {
-  authorFilter: string;
-  changeTypeFilter: string;
-  excludeFieldWorks: boolean;
+  authorFilterKeys: MultiFilterSelection;
+  changeTypeFilterKeys: MultiFilterSelection;
   sort: ActivitySort;
 };
 
 export function createDefaultActivityFilters(): ActivityFilters {
   return {
-    authorFilter: ALL_AUTHORS,
-    changeTypeFilter: ALL_CHANGE_TYPES,
-    excludeFieldWorks: false,
+    authorFilterKeys: 'all',
+    changeTypeFilterKeys: 'all',
     sort: ActivitySort.NewestFirst,
   };
 }
 
+export function isAllFilterSelection(selected: MultiFilterSelection, allKeys: string[]): boolean {
+  return selected === 'all' || (allKeys.length > 0 && selected.length === allKeys.length && allKeys.every(k => selected.includes(k)));
+}
+
+export function resolveFilterKeys(selected: MultiFilterSelection, allKeys: string[]): string[] {
+  return selected === 'all' ? allKeys : selected;
+}
+
 export function toServerQuery(filters: ActivityFilters): IActivityQuery {
   return {
-    ...parseAuthorFilter(filters.authorFilter),
-    excludeFieldWorks: filters.excludeFieldWorks,
+    authorFilterKeys: filters.authorFilterKeys === 'all' ? undefined : filters.authorFilterKeys,
+    changeTypeKeys: filters.changeTypeFilterKeys === 'all' ? undefined : filters.changeTypeFilterKeys,
     sort: filters.sort,
   };
 }
@@ -59,17 +67,21 @@ export function authorFilterKey(author: IActivityAuthor): string {
   return `name:${author.authorName}`;
 }
 
-export function parseAuthorFilter(key: string): Pick<IActivityQuery, 'authorId' | 'authorName'> {
-  if (key === ALL_AUTHORS) return {};
-  if (key === UNKNOWN_AUTHOR) return {authorId: ''};
-  if (key.startsWith('name:')) return {authorName: key.slice(5)};
-  return {authorId: key};
+export function applyMultiSelectValue(
+  value: string[],
+  allKeys: string[],
+  allKey: string,
+  currentSelection: MultiFilterSelection,
+): MultiFilterSelection {
+  if (value.includes(allKey)) {
+    return isAllFilterSelection(currentSelection, allKeys) ? [] : 'all';
+  }
+  if (isAllFilterSelection(value, allKeys)) {
+    return 'all';
+  }
+  return value;
 }
 
-export function filterActivityByChangeType(
-  activities: IProjectActivity[],
-  changeTypeKey: string,
-): IProjectActivity[] {
-  if (changeTypeKey === ALL_CHANGE_TYPES) return activities;
-  return activities.filter(a => a.changeTypes?.includes(changeTypeKey));
+export function hasActiveServerFilters(filters: ActivityFilters): boolean {
+  return filters.authorFilterKeys !== 'all' || filters.changeTypeFilterKeys !== 'all';
 }

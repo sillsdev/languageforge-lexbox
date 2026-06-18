@@ -15,7 +15,7 @@ import type {IChangeContext} from '../../LcmCrdt/IChangeContext';
 export interface IHistoryServiceJsInvokable
 {
 	getObject(commitId: string, entityId: string) : Promise<IObjectWithId>;
-	projectActivity(skip: number, take: number, authorId?: string, authorName?: string, excludeFieldWorks?: boolean, sort?: ActivitySort) : Promise<IProjectActivity[]>;
+	projectActivity(skip: number, take: number, authorFilterKeys?: string[], changeTypeKeys?: string[], sort?: ActivitySort) : Promise<IProjectActivity[]>;
 	listActivityAuthors() : Promise<IActivityAuthor[]>;
 	listActivityChangeTypes() : Promise<IActivityChangeType[]>;
 	getSnapshot(snapshotId: string) : Promise<IObjectSnapshot>;
