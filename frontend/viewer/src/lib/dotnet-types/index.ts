@@ -31,6 +31,7 @@ export * from './generated-types/MiniLcm/Models/IViewField';
 export * from './generated-types/MiniLcm/Models/IViewWritingSystem';
 export * from './generated-types/MiniLcm/Models/ViewBase';
 export * from './generated-types/MiniLcm/ICountQueryOptions';
+export * from './generated-types/MiniLcm/ICreateEntryOptions';
 export * from './generated-types/MiniLcm/IExemplarOptions';
 export * from './generated-types/MiniLcm/IFilterQueryOptions';
 export * from './generated-types/MiniLcm/IQueryOptions';

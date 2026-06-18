@@ -6,6 +6,7 @@
 
 <script lang="ts">
   import type {IEntry, ISense} from '$lib/dotnet-types';
+  import {CreateEntryOptions} from '$lib/create-entry-options';
   import {untrack} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
   import {useViewService} from '$lib/views/view-service.svelte';
@@ -16,7 +17,6 @@
   import {defaultEntry, defaultSense} from '../utils';
   import OverrideFields from '$lib/views/OverrideFields.svelte';
   import {useWritingSystemService} from '$project/data';
-  import {usePublications} from '$project/data/publications.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
@@ -37,7 +37,6 @@
 
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
-  const publicationService = usePublications();
   const dialogsService = useDialogsService();
   dialogsService.invokeNewEntryDialog = openWithValue;
   const lexboxApi = useLexboxApi();
@@ -66,7 +65,9 @@
 
     loading = true;
     const entrySnapshot = $state.snapshot(entry);
-    await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot));
+    // Field shown -> the user controls publications, so create as-is; otherwise auto-add the main publication.
+    const options = entryTemplate?.publishIn?.length ? CreateEntryOptions.asIs : CreateEntryOptions.withMainPublication;
+    await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot, options));
     requester.resolve(entry);
     requester = undefined;
     loading = false;
@@ -156,17 +157,8 @@
   </span>
 {/snippet}
 
-{#snippet mainPublicationIncluded()}
-  <span class="text-sm text-muted-foreground mt-0.5 inline-flex items-center gap-1">
-    {$t`The main publication is always included.`}
-  </span>
-{/snippet}
-
 {#snippet publishInNote()}
-  <div class="flex flex-col">
-    {#if publishInIsFromTemplate}{@render fromActiveFilter()}{/if}
-    {#if publicationService.mainPublication}{@render mainPublicationIncluded()}{/if}
-  </div>
+  {#if publishInIsFromTemplate}{@render fromActiveFilter()}{/if}
 {/snippet}
 
 <Dialog.Root bind:open={open}>

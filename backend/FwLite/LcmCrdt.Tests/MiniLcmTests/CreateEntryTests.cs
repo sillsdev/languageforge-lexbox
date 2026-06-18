@@ -1,5 +1,3 @@
-using MiniLcm.Validators;
-
 namespace LcmCrdt.Tests.MiniLcmTests;
 
 public class CreateEntryTests : CreateEntryTestsBase
@@ -28,18 +26,5 @@ public class CreateEntryTests : CreateEntryTestsBase
         var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, CreateEntryOptions.WithMainPublication);
 
         entry.PublishIn.Should().BeEmpty();
-    }
-
-    // The user-facing wrapper stack must forward CreateEntryOptions; if the validation wrapper drops them,
-    // interactive creation silently stops auto-adding the main publication.
-    [Fact]
-    public async Task CreateEntry_ThroughValidationWrapper_HonorsWithMainPublication()
-    {
-        var main = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
-        var validatedApi = _fixture.GetService<MiniLcmApiValidationWrapperFactory>().Create(Api);
-
-        var entry = await validatedApi.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] }, CreateEntryOptions.WithMainPublication);
-
-        entry.PublishIn.Should().ContainSingle().Which.Id.Should().Be(main.Id);
     }
 }

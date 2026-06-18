@@ -7,6 +7,7 @@
   import type { Snippet } from 'svelte';
   import DevContent from './DevContent.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
+  import {CreateEntryOptions} from '$lib/create-entry-options';
 
   const projectContext = useProjectContext();
   const writingSystems = useWritingSystemService();
@@ -22,7 +23,7 @@
       const entry = defaultEntry();
       const vWsId = writingSystems.defaultVernacular?.wsId;
       if (vWsId) entry.citationForm[vWsId] = `*Test ${Math.random().toString(36).substring(2, 7)}`;
-      await projectContext.api.createEntry(entry);
+      await projectContext.api.createEntry(entry, CreateEntryOptions.withMainPublication);
     }
   }
 </script>

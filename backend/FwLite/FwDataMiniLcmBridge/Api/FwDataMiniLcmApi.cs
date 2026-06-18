@@ -347,8 +347,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
-        if (pub.IsMain && FindMainPublication() is not null)
-            throw new InvalidOperationException("Cannot create a second main publication. A main publication already exists.");
         if (pub.Id == default) pub.Id = Guid.NewGuid();
         ICmPossibility? lcmPublication = null;
         NonUndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW(Cache.ServiceLocator.ActionHandler, () =>

@@ -24,6 +24,32 @@ public partial class MiniLcmApiValidationWrapper(
 
     // ********** Overrides go here **********
 
+    public async Task<Publication> CreatePublication(Publication pub)
+    {
+        await validators.ValidateAndThrow(pub);
+        if (pub.IsMain && await GetExistingMain() is not null)
+            throw new InvalidOperationException("Cannot create a second main publication. A main publication already exists.");
+        return await _api.CreatePublication(pub);
+    }
+
+    public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        await validators.ValidateAndThrow(update);
+        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain)
+            && isMain
+            && await GetExistingMain() is { } main
+            && main.Id != id)
+            throw new InvalidOperationException("Cannot set IsMain on this publication. Another publication is already the main publication.");
+        return await _api.UpdatePublication(id, update);
+    }
+
+    private async Task<Publication?> GetExistingMain()
+    {
+        await foreach (var publication in _api.GetPublications())
+            if (publication.IsMain) return publication;
+        return null;
+    }
+
     public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {
         await validators.ValidateAndThrow(writingSystem);

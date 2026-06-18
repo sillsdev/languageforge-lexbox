@@ -181,13 +181,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
-        if (pub.IsMain)
-        {
-            await using var repo = await repoFactory.CreateRepoAsync();
-            var existingMain = await repo.GetMainPublication();
-            if (existingMain is not null)
-                throw new InvalidOperationException("Cannot create a second main publication. A main publication already exists.");
-        }
         await AddChange(new CreatePublicationChange(pub.Id, pub.Name, pub.IsMain));
         return await GetPublication(pub.Id) ?? throw NotFoundException.ForType<Publication>(pub.Id);
     }
@@ -202,37 +195,17 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var pub = await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
 
-        var nonIsMainPatch = new JsonPatchDocument<Publication>();
-        bool? setIsMainTo = null;
-        foreach (var operation in update.Patch.Operations)
-        {
-            if (string.Equals(operation.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase))
-            {
-                if (operation.Value is not bool isMain)
-                    throw new InvalidOperationException($"Unsupported value for the IsMain patch: '{operation.Value}'. Expected a boolean.");
-                setIsMainTo = isMain;
-                continue;
-            }
+        var patch = new JsonPatchDocument<Publication>();
+        patch.Operations.AddRange(update.Patch.Operations.Where(op =>
+            !string.Equals(op.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase)));
+        var changes = patch.ToChanges(pub.Id).ToList();
 
-            nonIsMainPatch.Operations.Add(operation);
-        }
-
-        var changes = nonIsMainPatch.ToChanges(pub.Id).ToList();
-        if (setIsMainTo is false && pub.IsMain)
-            throw new InvalidOperationException("Cannot turn off the IsMain flag on a publication; the main publication is fixed.");
-        if (setIsMainTo is true && !pub.IsMain)
-        {
-            var existingMain = await repo.GetMainPublication();
-            if (existingMain is not null)
-                throw new InvalidOperationException("Cannot set IsMain on this publication. Another publication is already the main publication.");
-
+        // IsMain is applied via SetMainPublicationChange (which converges), not as a plain field patch.
+        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain) && isMain)
             changes.Add(new SetMainPublicationChange(pub.Id));
-        }
 
         if (changes.Count > 0)
-        {
             await AddChanges(changes);
-        }
         return await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>($"{id} (invalid patching to a new id?)");
     }
 

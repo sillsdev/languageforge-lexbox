@@ -9,7 +9,6 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import {usePublications} from '$project/data/publications.svelte';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import EntryMenu from './EntryMenu.svelte';
   import FabContainer from '$lib/components/fab/fab-container.svelte';
@@ -52,7 +51,6 @@
   const projectContext = useProjectContext();
   const miniLcmApi = $derived(projectContext.maybeApi);
   const dialogsService = useDialogsService();
-  const publicationService = usePublications();
   const projectEventBus = useProjectEventBus();
   const viewService = useViewService();
 
@@ -124,7 +122,7 @@
 
   async function handleNewEntry(headword: string | undefined = undefined) {
     const entry = await dialogsService.createNewEntry(headword, {
-      publishIn: publication?.id === publicationService.mainPublication?.id ? [] : (publication ? [publication] : []),
+      publishIn: publication ? [publication] : [],
     }, {
       semanticDomains: semanticDomain ? [semanticDomain] : [],
       partOfSpeech: partOfSpeech,

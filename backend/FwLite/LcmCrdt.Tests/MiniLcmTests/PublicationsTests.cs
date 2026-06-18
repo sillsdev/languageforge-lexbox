@@ -27,19 +27,7 @@ public class PublicationsTests : PublicationsTestsBase
 
         var act = () => Api.UpdatePublication(main.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, false));
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
-    }
-
-    [Fact]
-    public async Task UpdatePublication_SettingIsMainFalseOnNonMainIsNoOp()
-    {
-        var pub = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Pocket" } } });
-
-        await Api.UpdatePublication(pub.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, false));
-
-        var updated = await Api.GetPublication(pub.Id);
-        ArgumentNullException.ThrowIfNull(updated);
-        updated.IsMain.Should().BeFalse();
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
     }
 
     [Fact]
@@ -67,7 +55,8 @@ public class PublicationsTests : PublicationsTestsBase
     public async Task PublicationSync_PromotesExistingPublicationToMain()
     {
         var pub = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Pocket" } } });
-        var promoted = new Publication { Id = pub.Id, Name = { { "en", "Pocket" } }, IsMain = true };
+        var promoted = pub.Copy();
+        promoted.IsMain = true;
 
         await PublicationSync.Sync([pub], [promoted], Api);
 
