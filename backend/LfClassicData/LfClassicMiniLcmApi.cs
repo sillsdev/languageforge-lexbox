@@ -335,6 +335,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                 .Select(sd => new SemanticDomain { Id = Guid.Empty, Code = sd, Name = new MultiString { { "en", sd } } })
                 .ToList(),
             ExampleSentences = sense.Examples?.OfType<Example>().Select(example => ToExampleSentence(sense.Guid, example)).ToList() ?? [],
+            Pictures = sense.Pictures?.OfType<Entities.Picture>().Select(pic => ToPicture(sense.Guid, pic)).ToList() ?? [],
         };
     }
 
