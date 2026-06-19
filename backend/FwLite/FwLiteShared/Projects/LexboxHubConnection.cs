@@ -21,12 +21,17 @@ public sealed class LexboxHubConnection(
     INetworkStatus networkStatus,
     IMemoryCache cache,
     ILogger logger,
-    HubConnection? initialConnection = null) : IAsyncDisposable
+    ILexboxSignalRConnection? initialConnection = null,
+    ILexboxSignalRConnectionFactory? connectionFactory = null,
+    ILexboxHubConnectionAuth? auth = null) : IAsyncDisposable
 {
     private readonly ConcurrentHashSet<Guid> registeredProjects = [];
+    private readonly ILexboxSignalRConnectionFactory connectionFactory =
+        connectionFactory ?? new SignalRLexboxSignalRConnectionFactory(loggerFactory, httpMessageHandlerFactory, networkStatus, logger);
+    private readonly ILexboxHubConnectionAuth auth = auth ?? new OAuthLexboxHubConnectionAuth(clientFactory);
 
     public LexboxServer Server { get; } = server;
-    private HubConnection? connection = initialConnection;
+    private ILexboxSignalRConnection? connection = initialConnection;
     private SemaphoreSlim connectionLock = new(1, 1);
     [MemberNotNullWhen(true, nameof(connection))]
     public bool IsConnected => connection?.State == HubConnectionState.Connected;
@@ -80,39 +85,20 @@ public sealed class LexboxHubConnection(
         }
     }
 
-    private async Task<HubConnection?> NewConnection(CancellationToken stoppingToken)
+    private async Task<ILexboxSignalRConnection?> NewConnection(CancellationToken stoppingToken)
     {
-        if (!await clientFactory.GetClient(Server).IsSignedIn())
+        if (!await auth.IsSignedIn(Server))
         {
             logger.LogWarning("Unable to create signalR client, user is not authenticated to {OriginDomain}",
                 Server.Authority);
             return null;
         }
-        var hubConnection = new HubConnectionBuilder()
-            // Hand the builder's internal DI the app's logger factory so HubConnection's own logs (reconnect
-            // attempts, close reasons) land in the app log instead of a console-only factory. An externally
-            // supplied instance is not disposed with the connection's service provider.
-            .ConfigureLogging(logging => logging.Services.AddSingleton(loggerFactory))
-            .WithAutomaticReconnect(new AdaptiveRetryPolicy(networkStatus, logger))
-            .WithUrl($"{Server.Authority}api/hub/crdt/project-changes",
-                connectionOptions =>
-                {
-                    connectionOptions.HttpMessageHandlerFactory = handler =>
-                    {
-                        // Use a client that does not validate certs in dev.
-                        return httpMessageHandlerFactory.CreateHandler(OAuthClient.AuthHttpClientName);
-                    };
-                    connectionOptions.AccessTokenProvider =
-                        async () => await clientFactory.GetClient(Server).GetCurrentToken();
-                })
-            .Build();
-
-        hubConnection.On(nameof(IProjectChangeHubClient.OnProjectUpdated),
-            (Guid projectId, Guid? clientId) =>
-            {
-                OnProjectUpdated(projectId, clientId);
-                return Task.CompletedTask;
-            });
+        var hubConnection = connectionFactory.Create(Server, () => auth.GetCurrentToken(Server));
+        hubConnection.OnProjectUpdated((projectId, clientId) =>
+        {
+            OnProjectUpdated(projectId, clientId);
+            return Task.CompletedTask;
+        });
         hubConnection.Reconnecting += exception => OnReconnecting(hubConnection, exception);
         hubConnection.Closed += exception => OnClosed(hubConnection, exception);
         hubConnection.Reconnected += _ => OnReconnected(hubConnection);
@@ -184,7 +170,7 @@ public sealed class LexboxHubConnection(
         connection?.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId, stoppingToken) ?? Task.CompletedTask;
 
 
-    private async Task OnReconnecting(HubConnection hubConnection, Exception? exception)
+    private async Task OnReconnecting(ILexboxSignalRConnection hubConnection, Exception? exception)
     {
         if (!ReferenceEquals(connection, hubConnection)) return;
 
@@ -192,7 +178,7 @@ public sealed class LexboxHubConnection(
             logger.LogWarning(exception, "SignalR connection reconnecting");
         else
             logger.LogInformation("SignalR connection reconnecting");
-        if (await clientFactory.GetClient(Server).IsSignedIn())
+        if (await auth.IsSignedIn(Server))
         {
             return;
         }
@@ -213,7 +199,7 @@ public sealed class LexboxHubConnection(
         }
     }
 
-    private async Task OnReconnected(HubConnection hubConnection)
+    private async Task OnReconnected(ILexboxSignalRConnection hubConnection)
     {
         if (!ReferenceEquals(connection, hubConnection)) return;
 
@@ -222,7 +208,7 @@ public sealed class LexboxHubConnection(
         await OnConnected();
     }
 
-    private async Task OnClosed(HubConnection hubConnection, Exception? exception)
+    private async Task OnClosed(ILexboxSignalRConnection hubConnection, Exception? exception)
     {
         if (!ReferenceEquals(connection, hubConnection))
         {
@@ -313,4 +299,96 @@ public sealed class LexboxHubConnection(
             return delay;
         }
     }
+}
+
+public interface ILexboxHubConnectionAuth
+{
+    ValueTask<bool> IsSignedIn(LexboxServer server);
+    ValueTask<string?> GetCurrentToken(LexboxServer server);
+}
+
+internal sealed class OAuthLexboxHubConnectionAuth(OAuthClientFactory clientFactory) : ILexboxHubConnectionAuth
+{
+    public ValueTask<bool> IsSignedIn(LexboxServer server) => clientFactory.GetClient(server).IsSignedIn();
+
+    public ValueTask<string?> GetCurrentToken(LexboxServer server) => clientFactory.GetClient(server).GetCurrentToken();
+}
+
+public interface ILexboxSignalRConnectionFactory
+{
+    ILexboxSignalRConnection Create(LexboxServer server, Func<ValueTask<string?>> accessTokenProvider);
+}
+
+public interface ILexboxSignalRConnection : IAsyncDisposable
+{
+    HubConnectionState State { get; }
+    Task StartAsync(CancellationToken cancellationToken = default);
+    Task SendAsync(string methodName, Guid projectId, CancellationToken cancellationToken = default);
+    IDisposable OnProjectUpdated(Func<Guid, Guid?, Task> handler);
+    event Func<Exception?, Task>? Reconnecting;
+    event Func<Exception?, Task>? Closed;
+    event Func<string?, Task>? Reconnected;
+}
+
+internal sealed class SignalRLexboxSignalRConnectionFactory(
+    ILoggerFactory loggerFactory,
+    IHttpMessageHandlerFactory httpMessageHandlerFactory,
+    INetworkStatus networkStatus,
+    ILogger logger) : ILexboxSignalRConnectionFactory
+{
+    public ILexboxSignalRConnection Create(LexboxServer server, Func<ValueTask<string?>> accessTokenProvider)
+    {
+        var hubConnection = new HubConnectionBuilder()
+            // Hand the builder's internal DI the app's logger factory so HubConnection's own logs (reconnect
+            // attempts, close reasons) land in the app log instead of a console-only factory. An externally
+            // supplied instance is not disposed with the connection's service provider.
+            .ConfigureLogging(logging => logging.Services.AddSingleton(loggerFactory))
+            .WithAutomaticReconnect(new LexboxHubConnection.AdaptiveRetryPolicy(networkStatus, logger))
+            .WithUrl($"{server.Authority}api/hub/crdt/project-changes",
+                connectionOptions =>
+                {
+                    connectionOptions.HttpMessageHandlerFactory = handler =>
+                    {
+                        // Use a client that does not validate certs in dev.
+                        return httpMessageHandlerFactory.CreateHandler(OAuthClient.AuthHttpClientName);
+                    };
+                    connectionOptions.AccessTokenProvider = async () => await accessTokenProvider();
+                })
+            .Build();
+
+        return new SignalRConnectionAdapter(hubConnection);
+    }
+}
+
+internal sealed class SignalRConnectionAdapter(HubConnection connection) : ILexboxSignalRConnection
+{
+    public HubConnectionState State => connection.State;
+
+    public event Func<Exception?, Task>? Reconnecting
+    {
+        add => connection.Reconnecting += value;
+        remove => connection.Reconnecting -= value;
+    }
+
+    public event Func<Exception?, Task>? Closed
+    {
+        add => connection.Closed += value;
+        remove => connection.Closed -= value;
+    }
+
+    public event Func<string?, Task>? Reconnected
+    {
+        add => connection.Reconnected += value;
+        remove => connection.Reconnected -= value;
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken = default) => connection.StartAsync(cancellationToken);
+
+    public Task SendAsync(string methodName, Guid projectId, CancellationToken cancellationToken = default) =>
+        connection.SendAsync(methodName, projectId, cancellationToken);
+
+    public IDisposable OnProjectUpdated(Func<Guid, Guid?, Task> handler) =>
+        connection.On(nameof(IProjectChangeHubClient.OnProjectUpdated), handler);
+
+    public ValueTask DisposeAsync() => connection.DisposeAsync();
 }
