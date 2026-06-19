@@ -297,7 +297,7 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<ComplexFormType>(id));
     }
 
-    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
+    public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var existing = await repo.FindComplexFormComponent(complexFormComponent);
@@ -306,11 +306,13 @@ public class CrdtMiniLcmApi(
             var betweenIds = between is null ? null : await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
             // Always generate a new entity ID — the caller's ID is never used.
             // This aligns with FwData (which ignores the ID entirely) and prevents
-            // Harmony duplicate-ID pitfalls during sync (see EntrySync.ComplexFormsDiffApi.Add).
+            // Harmony duplicate-ID pitfalls during sync.
             complexFormComponent.Id = Guid.NewGuid();
             var addEntryComponentChange = await repo.CreateComplexFormComponentChange(complexFormComponent, betweenIds);
+            // No re-fetch: if a referenced entry was deleted the component is created already-deleted, which the
+            // sync must tolerate. AddEntryComponentChange itself handles the missing reference.
             await AddChange(addEntryComponentChange);
-            return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
+            return;
         }
 
         // The orderable diff sends (null, null) for singletons; skip the move so
@@ -319,7 +321,13 @@ public class CrdtMiniLcmApi(
         {
             await MoveComplexFormComponent(existing, between);
         }
-        return existing;
+    }
+
+    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
+    {
+        await SubmitCreateComplexFormComponent(complexFormComponent, between);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.FindComplexFormComponent(complexFormComponent) ?? throw NotFoundException.ForType<ComplexFormComponent>(complexFormComponent.ComplexFormEntryId);
     }
 
     public async Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
@@ -629,14 +637,18 @@ public class CrdtMiniLcmApi(
         return !await repo.Entries.AnyAsyncEF(e => e.Id == id);
     }
 
+    public Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
+    {
+        // No existence check: applying the patch to a deleted entry leaves it deleted (delete wins); the sync relies on this.
+        return AddChanges(update.Patch.ToChanges(id));
+    }
+
     public async Task<Entry> UpdateEntry(Guid id,
         UpdateObjectInput<Entry> update)
     {
+        await SubmitUpdateEntry(id, update);
         await using var repo = await repoFactory.CreateRepoAsync();
-        var entry = await repo.GetEntry(id) ?? throw NotFoundException.ForType<Entry>(id);
-        await AddChanges(update.Patch.ToChanges(entry.Id));
-        var updatedEntry = await repo.GetEntry(id) ?? throw NotFoundException.ForType<Entry>(id);
-        return updatedEntry;
+        return await repo.GetEntry(id) ?? throw NotFoundException.ForType<Entry>(id);
     }
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
@@ -688,27 +700,38 @@ public class CrdtMiniLcmApi(
         if (sense.EntryId != entryId) throw new NotFoundException($"Sense {sense.Id} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.EntryId}", nameof(Sense));
     }
 
+    public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
+    {
+        // No PartOfSpeech existence check and no re-fetch: CreateSenseChange already drops a missing/deleted
+        // PartOfSpeech, and a sense created under a deleted entry is born deleted (delete wins); the sync relies on this.
+        await using var repo = await repoFactory.CreateRepoAsync();
+        sense.Order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
+        await AddChanges(await CreateSenseChanges(entryId, sense, repo.SemanticDomains).ToArrayAsync());
+    }
+
     public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
         if (sense.PartOfSpeechId.HasValue && await GetPartOfSpeech(sense.PartOfSpeechId.Value) is null)
             throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
 
-        sense.Order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
-        await AddChanges(await CreateSenseChanges(entryId, sense, repo.SemanticDomains).ToArrayAsync());
+        await SubmitCreateSense(entryId, sense, between);
+        await using var repo = await repoFactory.CreateRepoAsync();
         var createdSense = await repo.GetSense(sense.Id) ?? throw NotFoundException.ForType<Sense>(sense.Id);
         VerifySenseBelongsToEntry(entryId, createdSense);
         return createdSense;
+    }
+
+    public Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
+    {
+        return AddChanges(update.Patch.ToChanges(senseId));
     }
 
     public async Task<Sense> UpdateSense(Guid entryId,
         Guid senseId,
         UpdateObjectInput<Sense> update)
     {
+        await SubmitUpdateSense(entryId, senseId, update);
         await using var repo = await repoFactory.CreateRepoAsync();
-        var sense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
-        VerifySenseBelongsToEntry(entryId, sense);
-        await AddChanges(update.Patch.ToChanges(sense.Id));
         var updatedSense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
         VerifySenseBelongsToEntry(entryId, updatedSense);
         return updatedSense;
@@ -757,7 +780,7 @@ public class CrdtMiniLcmApi(
         await AddChange(new SetPartOfSpeechChange(senseId, partOfSpeechId));
     }
 
-    public async Task<ExampleSentence> CreateExampleSentence(Guid entryId,
+    public async Task SubmitCreateExampleSentence(Guid entryId,
         Guid senseId,
         ExampleSentence exampleSentence,
         BetweenPosition? between = null)
@@ -765,7 +788,15 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         exampleSentence.Order = await OrderPicker.PickOrder(repo.ExampleSentences.Where(s => s.SenseId == senseId), between);
         await AddChange(new CreateExampleSentenceChange(exampleSentence, senseId));
-        return await repo.GetExampleSentence(entryId, senseId, exampleSentence.Id) ?? throw NotFoundException.ForType<ExampleSentence>(exampleSentence.Id);
+    }
+
+    public async Task<ExampleSentence> CreateExampleSentence(Guid entryId,
+        Guid senseId,
+        ExampleSentence exampleSentence,
+        BetweenPosition? between = null)
+    {
+        await SubmitCreateExampleSentence(entryId, senseId, exampleSentence, between);
+        return await GetExampleSentence(entryId, senseId, exampleSentence.Id) ?? throw NotFoundException.ForType<ExampleSentence>(exampleSentence.Id);
     }
 
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
@@ -774,14 +805,20 @@ public class CrdtMiniLcmApi(
         return await repo.GetExampleSentence(entryId, senseId, id);
     }
 
+    public Task SubmitUpdateExampleSentence(Guid entryId,
+        Guid senseId,
+        Guid exampleSentenceId,
+        UpdateObjectInput<ExampleSentence> update)
+    {
+        return AddChange(new JsonPatchExampleSentenceChange(exampleSentenceId, update.Patch));
+    }
+
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         Guid exampleSentenceId,
         UpdateObjectInput<ExampleSentence> update)
     {
-        var jsonPatch = update.Patch;
-        var patchChange = new JsonPatchExampleSentenceChange(exampleSentenceId, jsonPatch);
-        await AddChange(patchChange);
+        await SubmitUpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
         return await GetExampleSentence(entryId, senseId, exampleSentenceId) ?? throw NotFoundException.ForType<ExampleSentence>(exampleSentenceId);
     }
 

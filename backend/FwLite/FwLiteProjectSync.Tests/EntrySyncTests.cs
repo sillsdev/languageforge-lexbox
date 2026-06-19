@@ -18,6 +18,101 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
     {
         return fixture.CrdtApi;
     }
+
+    // Conflict scenarios: an object is deleted in the CRDT but still present (and edited) in the diff inputs
+    // — i.e. another client deleted it while FieldWorks edited it. The CRDT deletion should win: applying the
+    // edit is a no-op, the sync must not throw, and the object stays deleted. (FwData is intentionally NOT
+    // tolerant — its writes still throw if the target is missing — so these live in the CRDT subclass only.)
+
+    [Fact]
+    public async Task SyncFull_EntryEditedButDeletedInCrdt_DoesNotThrow()
+    {
+        var entry = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "victim" } } });
+        await Api.DeleteEntry(entry.Id);
+        var after = entry.Copy();
+        after.CitationForm["en"] = "edited";
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        (await Api.GetEntry(entry.Id)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task SyncFull_SenseAddedToEntryDeletedInCrdt_DoesNotThrow()
+    {
+        var entry = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "victim" } } });
+        await Api.DeleteEntry(entry.Id);
+        var after = entry.Copy();
+        after.Senses.Add(new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "gloss" } } });
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        (await Api.GetEntry(entry.Id)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task SyncFull_SenseEditedButDeletedInCrdt_DoesNotThrow()
+    {
+        var entry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "victim" } },
+            Senses = [new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "gloss" } } }]
+        });
+        await Api.DeleteSense(entry.Id, entry.Senses[0].Id);
+        var after = entry.Copy();
+        after.Senses[0].Gloss["en"] = "edited";
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        var actual = await Api.GetEntry(entry.Id);
+        actual.Should().NotBeNull();
+        actual.Senses.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SyncFull_ExampleSentenceEditedButDeletedInCrdt_DoesNotThrow()
+    {
+        var entry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "victim" } },
+            Senses =
+            [
+                new Sense
+                {
+                    Id = Guid.NewGuid(),
+                    Gloss = { { "en", "gloss" } },
+                    ExampleSentences = [new ExampleSentence { Id = Guid.NewGuid(), Sentence = { { "en", new RichString("sentence") } } }]
+                }
+            ]
+        });
+        var sense = entry.Senses[0];
+        await Api.DeleteExampleSentence(entry.Id, sense.Id, sense.ExampleSentences[0].Id);
+        var after = entry.Copy();
+        after.Senses[0].ExampleSentences[0].Sentence["en"] = new RichString("edited");
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        var actual = await Api.GetEntry(entry.Id);
+        actual.Should().NotBeNull();
+        actual.Senses[0].ExampleSentences.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SyncFull_ComplexFormComponentReferencingEntryDeletedInCrdt_DoesNotThrow()
+    {
+        var component = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "component" } } });
+        var complexForm = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "complexForm" } } });
+        await Api.DeleteEntry(component.Id);
+        var after = complexForm.Copy();
+        after.Components.Add(ComplexFormComponent.FromEntries(complexForm, component));
+
+        await EntrySync.SyncFull(complexForm, after, Api);
+
+        (await Api.GetEntry(component.Id)).Should().BeNull();
+        (await Api.GetEntry(complexForm.Id))!.Components.Should().BeEmpty();
+    }
 }
 
 public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntrySyncTestsBase(fixture)

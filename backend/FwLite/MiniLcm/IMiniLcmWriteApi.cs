@@ -111,6 +111,22 @@ public interface IMiniLcmWriteApi
     Task UpdateTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId, UpdateObjectInput<Translation> update);
     #endregion
 
+    #region Submit (fire-and-forget write variants for sync)
+    // The Update/Create methods above fetch and return the written object, which forces them to assume it
+    // currently exists. During sync an object can be deleted on one side while still referenced by the other,
+    // so the sync uses these result-less variants instead. The CRDT implementation overrides them to just
+    // submit the Harmony change (which leaves a deleted object deleted — delete wins), so they don't throw.
+    // The default implementations call the returning method and discard the result, which is the right
+    // behaviour for everything except the CRDT (FwData still throws if the object is genuinely missing — that
+    // shouldn't happen during sync, and if it does we want to hear about it).
+    Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update) => UpdateEntry(id, update);
+    Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => CreateComplexFormComponent(complexFormComponent, position);
+    Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => CreateSense(entryId, sense, position);
+    Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => UpdateSense(entryId, senseId, update);
+    Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => CreateExampleSentence(entryId, senseId, exampleSentence, position);
+    Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
+    #endregion
+
     #region CustomView
     Task<CustomView> CreateCustomView(CustomView customView)
     {

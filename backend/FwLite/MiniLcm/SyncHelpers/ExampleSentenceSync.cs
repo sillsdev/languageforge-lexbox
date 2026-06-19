@@ -25,7 +25,7 @@ public static class ExampleSentenceSync
     {
         var updateObjectInput = DiffToUpdate(beforeExampleSentence, afterExampleSentence);
         if (updateObjectInput is not null)
-            await api.UpdateExampleSentence(entryId, senseId, beforeExampleSentence.Id, updateObjectInput);
+            await api.SubmitUpdateExampleSentence(entryId, senseId, beforeExampleSentence.Id, updateObjectInput);
         var translationChanges = await DiffCollection.Diff(beforeExampleSentence.Translations,
             afterExampleSentence.Translations,
             new TranslationDiffApi(api, entryId, senseId, beforeExampleSentence.Id));
@@ -97,7 +97,7 @@ public static class ExampleSentenceSync
 
         public async Task<int> Add(ExampleSentence afterExampleSentence, BetweenPosition<ExampleSentence> between)
         {
-            await api.CreateExampleSentence(entryId, senseId, afterExampleSentence, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
+            await api.SubmitCreateExampleSentence(entryId, senseId, afterExampleSentence, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
