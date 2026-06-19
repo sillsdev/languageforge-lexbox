@@ -174,11 +174,11 @@ public static class MiniLcmRoutes
         }
 
         public static Task<Entry> PostEntry([FromBody] Entry entry,
-            [AsParameters] CreateEntryParams options,
+            [AsParameters] CreateEntryOptionsParams paramOptions,
             [FromServices] MiniLcmHolder holder)
         {
             var api = holder.MiniLcmApi;
-            return api.CreateEntry(entry, options.ToOptions());
+            return api.CreateEntry(entry, paramOptions.ToOptions(defaults: CreateEntryOptions.WithMainPublication));
         }
 
         public static Task DeleteEntry(Guid id, [FromServices] MiniLcmHolder holder)
@@ -188,19 +188,16 @@ public static class MiniLcmRoutes
         }
     }
 
-    private class CreateEntryParams
+    private class CreateEntryOptionsParams
     {
         [FromQuery]
         public bool? AutoAddMainPublication { get; set; }
-
         [FromQuery]
         public bool? IncludeComplexFormsAndComponents { get; set; }
 
-        // Unspecified defaults to interactive-creation behaviour (auto-add the main publication), not the
-        // CreateEntryOptions record default, which is the opposite.
-        public CreateEntryOptions ToOptions() => new(
-            IncludeComplexFormsAndComponents: IncludeComplexFormsAndComponents ?? true,
-            AutoAddMainPublication: AutoAddMainPublication ?? true);
+        public CreateEntryOptions ToOptions(CreateEntryOptions defaults) => new(
+            IncludeComplexFormsAndComponents: IncludeComplexFormsAndComponents ?? defaults.IncludeComplexFormsAndComponents,
+            AutoAddMainPublication: AutoAddMainPublication ?? defaults.AutoAddMainPublication);
     }
 
     private class MiniLcmQueryOptions

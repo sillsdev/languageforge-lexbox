@@ -205,183 +205,6 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "Entry",
-      "Id": "15878cc7-89f4-54f6-13d4-d8d8c680131c",
-      "DeletedAt": null,
-      "LexemeForm": {
-        "kgh": "Officer"
-      },
-      "CitationForm": {
-        "dbt": "synergies"
-      },
-      "LiteralMeaning": {
-        "lih": {
-          "Spans": [
-            {
-              "Text": "even-keeled",
-              "Ws": "gkn",
-              "Bold": "Off",
-              "FontSize": 489727059,
-              "ForeColor": "#00FFFF",
-              "Tags": [
-                "cee69150-99df-1a70-72ef-2ecf00037d4f"
-              ]
-            },
-            {
-              "Text": "moratorium",
-              "Ws": "lih",
-              "Tags": [
-                "639ae9bd-94df-4bf7-84be-5083f44c5a62"
-              ]
-            },
-            {
-              "Text": "Oregon",
-              "Ws": "lih",
-              "Tags": [
-                "73476c17-a433-4460-9f36-409c3e1961e7"
-              ]
-            }
-          ]
-        },
-        "gih": {
-          "Spans": [
-            {
-              "Text": "quantify",
-              "Ws": "bdj",
-              "Bold": "Invert",
-              "FontSize": -784674953,
-              "ForeColor": "#A52A2A",
-              "Tags": [
-                "3b5b745c-e272-cc6e-717c-42691dfa348e"
-              ]
-            },
-            {
-              "Text": "Arkansas",
-              "Ws": "ski",
-              "Bold": "On",
-              "FontSize": 1199944568,
-              "ForeColor": "#ADFF2F",
-              "Tags": [
-                "8590d287-0d34-5006-64c4-46d81a358ea1"
-              ]
-            }
-          ]
-        },
-        "apg": {
-          "Spans": [
-            {
-              "Text": "plum",
-              "Ws": "apg",
-              "Tags": [
-                "0f90a4f6-ec99-4a9b-be11-7c3e78bf135e"
-              ]
-            },
-            {
-              "Text": "index",
-              "Ws": "wum",
-              "Bold": "On",
-              "FontSize": 1865621373,
-              "ForeColor": "#A52A2A",
-              "Tags": [
-                "ba8e99fa-ade7-2b97-378a-25f5fef9547c"
-              ]
-            },
-            {
-              "Text": "copy",
-              "Ws": "ahp",
-              "Bold": "Off",
-              "FontSize": -1330004727,
-              "ForeColor": "#0000FF",
-              "Tags": [
-                "a52a9c98-1049-6fb5-a483-f40d9172b530"
-              ]
-            },
-            {
-              "Text": "Iceland",
-              "Ws": "apg",
-              "Tags": [
-                "563a2490-7425-49ca-8858-8fede66228eb"
-              ]
-            }
-          ]
-        }
-      },
-      "MorphType": "Suprafix",
-      "HomographNumber": -916924713,
-      "Senses": [],
-      "Note": {
-        "ceg": {
-          "Spans": [
-            {
-              "Text": "Land",
-              "Ws": "siw",
-              "Bold": "Off",
-              "FontSize": 1882540460,
-              "ForeColor": "#0000FF",
-              "Tags": [
-                "16c48c2b-9ac5-1190-0fb5-cdb42be970ec"
-              ]
-            },
-            {
-              "Text": "Fantastic Steel Salad",
-              "Ws": "bex",
-              "Bold": "Off",
-              "FontSize": -1926338587,
-              "ForeColor": "#0000FF",
-              "Tags": [
-                "1445e23d-22a1-c3e2-405e-0a4bc97c82d2"
-              ]
-            },
-            {
-              "Text": "Cross-group",
-              "Ws": "ceg",
-              "Tags": [
-                "c195e547-0529-4003-8a7d-8b803b98aa23"
-              ]
-            },
-            {
-              "Text": "Chilean Peso",
-              "Ws": "pot",
-              "Bold": "On",
-              "FontSize": 2053191497,
-              "ForeColor": "#0000FF",
-              "Tags": [
-                "b788df26-f863-8a03-c8df-01a544291d20"
-              ]
-            }
-          ]
-        }
-      },
-      "Components": [],
-      "ComplexForms": [],
-      "ComplexFormTypes": [
-        {
-          "Id": "b9c4eca5-dd00-01af-f96f-c3b2b1e6a7d4",
-          "Name": {
-            "ema": "Handcrafted Steel Hat",
-            "uur": "eco-centric",
-            "nir": "Officer"
-          },
-          "DeletedAt": null
-        }
-      ],
-      "PublishIn": [
-        {
-          "Id": "7568a665-dd82-4d24-831f-78e92712b545",
-          "DeletedAt": null,
-          "IsMain": false,
-          "Name": {
-            "mla": "Sierra Leone"
-          }
-        }
-      ]
-    },
-    "Id": "15878cc7-89f4-54f6-13d4-d8d8c680131c",
-    "DeletedAt": null
-  },
-  {
-    "$type": "MiniLcmCrdtAdapter",
-    "Obj": {
-      "$type": "Entry",
       "Id": "82cf7254-3a4f-497a-9e15-7d93fc830356",
       "DeletedAt": null,
       "LexemeForm": {
@@ -602,139 +425,23 @@
       "DeletedAt": null,
       "LexemeForm": {
         "dkk": "Product",
-        "zam": "benchmark",
-        "dva": "invoice",
-        "nln": "Chief"
       },
-      "CitationForm": {
-        "wri": "Inlet"
-      },
-      "LiteralMeaning": {
-        "kvp": {
-          "Spans": [
-            {
-              "Text": "Djibouti Franc",
-              "Ws": "coz",
-              "Bold": "Invert",
-              "FontSize": -406059320,
-              "ForeColor": "#0000FF",
-              "Tags": [
-                "05bdb9eb-d5d6-9005-94e0-fb1a5d3f2b09"
-              ]
-            },
-            {
-              "Text": "Awesome Steel Chair",
-              "Ws": "kvp",
-              "Tags": [
-                "928b475f-dfca-4a81-a324-96503e52969e"
-              ]
-            },
-            {
-              "Text": "Aruban Guilder",
-              "Ws": "kvp",
-              "Tags": [
-                "09ea8c78-80c6-4169-8917-7ea3541d513f"
-              ]
-            }
-          ]
-        },
-        "tnv": {
-          "Spans": [
-            {
-              "Text": "GB",
-              "Ws": "kwo",
-              "Bold": "Invert",
-              "FontSize": 407108596,
-              "ForeColor": "#A52A2A",
-              "Tags": [
-                "649c60d6-f179-2524-9df1-a5aaba48d96c"
-              ]
-            },
-            {
-              "Text": "JSON",
-              "Ws": "skq",
-              "Bold": "Off",
-              "FontSize": -400850593,
-              "ForeColor": "#0000FF",
-              "Tags": [
-                "5cc6dc4e-a432-ed3f-50e9-55a812ae823c"
-              ]
-            },
-            {
-              "Text": "didactic",
-              "Ws": "tnv",
-              "Tags": [
-                "f1ced63f-28c4-4388-9dd0-a1b6ded002ef"
-              ]
-            }
-          ]
-        },
-        "scp": {
-          "Spans": [
-            {
-              "Text": "SAS",
-              "Ws": "lks",
-              "Bold": "On",
-              "FontSize": -1995472180,
-              "ForeColor": "#0000FF",
-              "Tags": [
-                "8c006cec-140d-4513-cdd1-7fd929cc5ea0"
-              ]
-            },
-            {
-              "Text": "Fantastic Wooden Ball",
-              "Ws": "scp",
-              "Tags": [
-                "8e1322f1-a568-49f5-b8e7-03f466a5a26a"
-              ]
-            },
-            {
-              "Text": "Electronics",
-              "Ws": "scp",
-              "Tags": [
-                "b762270d-566e-45e8-9de1-9dd3a44c963e"
-              ]
-            }
-          ]
-        }
-      },
+      "CitationForm": {},
+      "LiteralMeaning": {},
       "MorphType": "Infix",
       "HomographNumber": 1102525176,
       "Senses": [],
-      "Note": {
-        "ojb": {
-          "Spans": [
-            {
-              "Text": "Ergonomic Steel Bike",
-              "Ws": "ojb",
-              "Tags": [
-                "cc16fbbd-c87d-4704-87bb-67952948c520"
-              ]
-            }
-          ]
-        }
-      },
+      "Note": {},
       "Components": [],
       "ComplexForms": [],
-      "ComplexFormTypes": [
-        {
-          "Id": "16c20944-6fa6-655e-231e-feaed1e9bc77",
-          "Name": {
-            "esu": "Utah"
-          },
-          "DeletedAt": null
-        }
-      ],
+      "ComplexFormTypes": [],
       "PublishIn": [
         {
           "Id": "78c00e29-d69e-56ba-77f5-b5be25469c4f",
           "DeletedAt": null,
-          "IsMain": false,
+          "IsMain": true,
           "Name": {
-            "mps": "Small Granite Salad",
-            "oj": "optical",
-            "wab": "Macedonia",
-            "kup": "markets"
+            "mps": "Small Granite Salad"
           }
         }
       ]
@@ -1941,12 +1648,9 @@
       "$type": "Publication",
       "Id": "a3ca5bad-7e34-ab17-b9f0-acbdb69de80f",
       "DeletedAt": null,
-      "IsMain": false,
+      "IsMain": true,
       "Name": {
-        "ywa": "attitude",
-        "ja": "teal",
-        "bmr": "Future",
-        "spq": "Ports"
+        "ywa": "attitude"
       }
     },
     "Id": "a3ca5bad-7e34-ab17-b9f0-acbdb69de80f",

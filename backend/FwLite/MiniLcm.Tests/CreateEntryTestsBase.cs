@@ -180,11 +180,4 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
 
         entry.PublishIn.Should().ContainSingle().Which.Id.Should().Be(mainPublication.Id);
     }
-
-    // Reuse the existing main if present — a real FwData project always has one and rejects creating a second.
-    private async Task<Publication> GetOrCreateMainPublication()
-    {
-        var existing = (await Api.GetPublications().ToArrayAsync()).FirstOrDefault(p => p.IsMain);
-        return existing ?? await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } }, IsMain = true });
-    }
 }

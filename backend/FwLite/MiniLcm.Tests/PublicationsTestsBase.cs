@@ -111,16 +111,10 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
         actualPub.Should().BeEquivalentTo(afterPub);
     }
 
-    /// <summary>Creates the project's single main publication. Overridden per backend (e.g. FwData maps it to a protected publication).</summary>
-    protected virtual async Task<Publication> SeedMainPublication(string name = "Main")
-    {
-        return await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", name } }, IsMain = true });
-    }
-
     [Fact]
     public async Task CreatePublication_CannotCreateSecondMain()
     {
-        await SeedMainPublication();
+        await GetOrCreateMainPublication();
 
         var act = () => Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Second" } }, IsMain = true });
 
@@ -130,7 +124,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
     [Fact]
     public async Task UpdatePublication_CannotPromoteSecondMain()
     {
-        await SeedMainPublication();
+        await GetOrCreateMainPublication();
         var other = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Pocket" } } });
 
         var act = () => Api.UpdatePublication(other.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, true));
@@ -141,7 +135,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
     [Fact]
     public async Task UpdatePublication_CannotTurnOffIsMain()
     {
-        var main = await SeedMainPublication();
+        var main = await GetOrCreateMainPublication();
 
         var act = () => Api.UpdatePublication(main.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, false));
 

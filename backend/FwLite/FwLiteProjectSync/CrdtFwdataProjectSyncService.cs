@@ -4,7 +4,6 @@ using LcmCrdt;
 using LexCore.Sync;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
-using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
 

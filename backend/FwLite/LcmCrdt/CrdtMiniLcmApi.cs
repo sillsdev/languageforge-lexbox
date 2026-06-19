@@ -203,6 +203,7 @@ public class CrdtMiniLcmApi(
             patch.Operations.AddRange(update.Patch.Operations.Where(op =>
                 !string.Equals(op.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase)));
             var changes = patch.ToChanges(pub.Id).ToList();
+            // prior/wrapping validation actually prevents setting IsMain to false via patch, so isMain is always true
             if (isMain) changes.Add(new SetMainPublicationChange(pub.Id));
             if (changes.Count > 0) await AddChanges(changes);
         }

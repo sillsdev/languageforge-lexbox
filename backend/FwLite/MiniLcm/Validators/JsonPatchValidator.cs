@@ -20,10 +20,10 @@ internal static class JsonPatchValidator
         });
     }
 
-    public static IRuleBuilderOptionsConditions<UpdateObjectInput<T>, JsonPatchDocument<T>> DoesNotChangePropertyTo<T>(
+    public static IRuleBuilderOptionsConditions<UpdateObjectInput<T>, JsonPatchDocument<T>> DoesNotChangePropertyTo<T, V>(
         this IRuleBuilder<UpdateObjectInput<T>, JsonPatchDocument<T>> builder,
         string propertyName,
-        object? forbiddenValue,
+        V forbiddenValue,
         string message
     ) where T : class
     {

@@ -52,7 +52,9 @@ public partial class MiniLcmApiValidationWrapper(
     private async Task<Publication?> GetExistingMain()
     {
         await foreach (var publication in _api.GetPublications())
+        {
             if (publication.IsMain) return publication;
+        }
         return null;
     }
 
