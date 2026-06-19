@@ -1794,8 +1794,6 @@ public class FwDataMiniLcmApi(
         if (lcmPicture.Owner is ILexSense sense)
         {
             if (sense.Guid != senseId) throw new InvalidOperationException("Picture does not belong to sense");
-            if (sense.Entry.Guid != entryId)
-                throw new InvalidOperationException("Picture does not belong to entry");
         }
         else
         {
@@ -1833,6 +1831,7 @@ public class FwDataMiniLcmApi(
     public Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
     {
         PictureRepository.TryGetObject(id, out var lcmPicture);
+        ValidateOwnership(lcmPicture, entryId, senseId);
         return Task.FromResult(lcmPicture is null ? null : FromLcmPicture(senseId, lcmPicture));
     }
 
@@ -1909,7 +1908,6 @@ public class FwDataMiniLcmApi(
         if (!PictureRepository.TryGetObject(pictureId, out var lcmPicture))
             throw new InvalidOperationException("Picture not found");
 
-        // TODO: Do we need ValidateOwnership for pictures?
         ValidateOwnership(lcmPicture, entryId, senseId);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move picture",
