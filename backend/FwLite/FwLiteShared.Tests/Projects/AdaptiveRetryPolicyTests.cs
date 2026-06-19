@@ -23,7 +23,7 @@ public class AdaptiveRetryPolicyTests
     [InlineData(false)]
     public void FirstTwoAttemptsAreImmediateRegardlessOfNetwork(bool isOnline)
     {
-        var policy = new LexboxProjectService.AdaptiveRetryPolicy(new FakeNetworkStatus(isOnline));
+        var policy = new LexboxProjectChangeListener.AdaptiveRetryPolicy(new FakeNetworkStatus(isOnline));
 
         policy.NextRetryDelay(Context(0)).Should().Be(TimeSpan.Zero);
         policy.NextRetryDelay(Context(1)).Should().Be(TimeSpan.FromSeconds(5));
@@ -35,7 +35,7 @@ public class AdaptiveRetryPolicyTests
     [InlineData(1000)]
     public void WhileOnline_RetriesQuickly(long previousRetryCount)
     {
-        var policy = new LexboxProjectService.AdaptiveRetryPolicy(new FakeNetworkStatus(isOnline: true));
+        var policy = new LexboxProjectChangeListener.AdaptiveRetryPolicy(new FakeNetworkStatus(isOnline: true));
 
         policy.NextRetryDelay(Context(previousRetryCount)).Should().Be(TimeSpan.FromSeconds(10));
     }
@@ -46,7 +46,7 @@ public class AdaptiveRetryPolicyTests
     [InlineData(1000)]
     public void WhileOffline_BacksOff(long previousRetryCount)
     {
-        var policy = new LexboxProjectService.AdaptiveRetryPolicy(new FakeNetworkStatus(isOnline: false));
+        var policy = new LexboxProjectChangeListener.AdaptiveRetryPolicy(new FakeNetworkStatus(isOnline: false));
 
         policy.NextRetryDelay(Context(previousRetryCount)).Should().Be(TimeSpan.FromSeconds(60));
     }
@@ -56,7 +56,7 @@ public class AdaptiveRetryPolicyTests
     {
         var online = false;
         var status = new ToggleNetworkStatus(() => online);
-        var policy = new LexboxProjectService.AdaptiveRetryPolicy(status);
+        var policy = new LexboxProjectChangeListener.AdaptiveRetryPolicy(status);
 
         policy.NextRetryDelay(Context(5)).Should().Be(TimeSpan.FromSeconds(60));
         online = true;
@@ -77,7 +77,7 @@ public class AdaptiveRetryPolicyTests
     [InlineData(50, false)]
     public void NeverGivesUp(long previousRetryCount, bool isOnline)
     {
-        var policy = new LexboxProjectService.AdaptiveRetryPolicy(new FakeNetworkStatus(isOnline));
+        var policy = new LexboxProjectChangeListener.AdaptiveRetryPolicy(new FakeNetworkStatus(isOnline));
 
         policy.NextRetryDelay(Context(previousRetryCount)).Should().NotBeNull();
     }

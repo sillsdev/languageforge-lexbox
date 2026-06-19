@@ -1,20 +1,12 @@
-using System.Collections.Concurrent;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
 using FwLiteShared.Auth;
-using FwLiteShared.Services;
-using FwLiteShared.Sync;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
 using LexCore.Entities;
 using LexCore.Sync;
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MiniLcm.Push;
 using SIL.Harmony.Core;
 
 namespace FwLiteShared.Projects;
@@ -23,34 +15,22 @@ public class LexboxProjectService
 {
     private readonly OAuthClientFactory clientFactory;
     private readonly ILogger<LexboxProjectService> logger;
-    private readonly ILoggerFactory loggerFactory;
-    private readonly IHttpMessageHandlerFactory httpMessageHandlerFactory;
-    private readonly BackgroundSyncService backgroundSyncService;
     private readonly IOptions<AuthConfig> options;
     private readonly IMemoryCache cache;
-    private readonly INetworkStatus networkStatus;
-    // Stable record of projects we've been asked to listen for, by project id. Survives connection
-    // lifetimes (unlike _reconnectProjects) so we can resubscribe after a hub-connection rebuild.
-    private readonly ConcurrentDictionary<Guid, ProjectData> _trackedProjects = new();
+    private readonly LexboxProjectChangeListener projectChangeListener;
 
     public LexboxProjectService(
         OAuthClientFactory clientFactory,
         ILogger<LexboxProjectService> logger,
-        ILoggerFactory loggerFactory,
-        IHttpMessageHandlerFactory httpMessageHandlerFactory,
-        BackgroundSyncService backgroundSyncService,
         IOptions<AuthConfig> options,
         IMemoryCache cache,
-        INetworkStatus networkStatus)
+        LexboxProjectChangeListener projectChangeListener)
     {
         this.clientFactory = clientFactory;
         this.logger = logger;
-        this.loggerFactory = loggerFactory;
-        this.httpMessageHandlerFactory = httpMessageHandlerFactory;
-        this.backgroundSyncService = backgroundSyncService;
         this.options = options;
         this.cache = cache;
-        this.networkStatus = networkStatus;
+        this.projectChangeListener = projectChangeListener;
     }
 
     public async Task HandleAuthChanged(LexboxServer server)
@@ -58,17 +38,7 @@ public class LexboxProjectService
         try
         {
             InvalidateProjectsCache(server);
-            // Tear down any cached hub connection — it may be holding stale auth, or belong to a
-            // previously-signed-in identity. The next ListenForProjectChanges call will rebuild it
-            // with the current token (or no-op if the user is now logged out).
-            await EvictAndStopIfCached(HubConnectionCacheKey(server), cache, logger);
-
-            // Try to (re)start listeners for tracked projects on this server. If auth is gone (logout),
-            // StartLexboxProjectChangeListener returns null and we no-op. If auth is valid (login),
-            // we get a fresh listener without waiting for the user to manually sync or reopen.
-            logger.LogInformation("Auth changed for {Server}, re-establishing push listeners for {Count} tracked project(s)",
-                server.Authority, _trackedProjects.Values.Count(p => p.ServerId == server.Id));
-            await EnsureListenersForTrackedProjects(server);
+            await projectChangeListener.HandleAuthChanged(server);
         }
         catch (Exception e)
         {
@@ -76,55 +46,8 @@ public class LexboxProjectService
         }
     }
 
-    // Re-establish push listeners for every tracked project (a project is skipped only when its server has a
-    // live connection AND the project is already registered on it, so a periodic call is a true no-op once subscribed;
-    // a logged-out server no-ops on the token check). The per-project check matters: single-project paths
-    // (post-sync, project-open) subscribe only the requesting project when they rebuild a connection, leaving
-    // sibling projects unsubscribed until this pass heals them. Used by connectivity-regained, app-resume
-    // and periodic recovery so a listener that failed to start while offline comes back without a manual
-    // sync or edit.
-    public Task EnsureListenersForTrackedProjects(bool kickReconnecting = false) => EnsureListenersForTrackedProjects(null, kickReconnecting);
-
-    private async Task EnsureListenersForTrackedProjects(LexboxServer? server, bool kickReconnecting = false)
-    {
-        // Snapshot connected servers BEFORE the loop, not per project: when a server is down, its first project
-        // opens the connection and the rest must still subscribe on it within this same pass.
-        var connectedServers = ConnectedServerConnections();
-        foreach (var project in _trackedProjects.Values)
-        {
-            if (project.ServerId is null) continue;
-            if (server is not null && project.ServerId != server.Id) continue;
-            if (connectedServers.TryGetValue(project.ServerId, out var connection)
-                && IsRegisteredForResubscribe(connection, project.Id))
-            {
-                continue;
-            }
-            try
-            {
-                await ListenForProjectChanges(project, CancellationToken.None, kickReconnecting);
-            }
-            catch (Exception e)
-            {
-                logger.LogWarning(e, "Failed to (re)start project change listener for {ProjectName}", project.Name);
-            }
-        }
-    }
-
-    private Dictionary<string, HubConnection> ConnectedServerConnections()
-    {
-        var connected = new Dictionary<string, HubConnection>();
-        foreach (var project in _trackedProjects.Values)
-        {
-            if (project.ServerId is not string serverId || connected.ContainsKey(serverId)) continue;
-            if (options.Value.TryGetServer(project, out var server)
-                && cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? connection)
-                && connection is { State: HubConnectionState.Connected })
-            {
-                connected.Add(serverId, connection);
-            }
-        }
-        return connected;
-    }
+    public Task EnsureListenersForTrackedProjects(bool kickReconnecting = false) =>
+        projectChangeListener.EnsureListenersForTrackedProjects(kickReconnecting);
 
     public LexboxServer[] Servers()
     {
@@ -139,7 +62,7 @@ public class LexboxProjectService
 
     public async Task<ListProjectsResult> GetLexboxProjects(LexboxServer server)
     {
-        return await cache.GetOrCreateAsync(CacheKey(server),
+        return await cache.GetOrCreateAsync(ProjectListCacheKey(server),
             async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
@@ -160,11 +83,6 @@ public class LexboxProjectService
     public async Task<LexboxUser?> GetLexboxUser(LexboxServer server)
     {
         return await clientFactory.GetClient(server).GetCurrentUser();
-    }
-
-    private static string CacheKey(LexboxServer server)
-    {
-        return $"Projects|{server.Authority.Authority}";
     }
 
     public async Task<(DownloadProjectByCodeResult, Guid?)> GetLexboxProjectId(LexboxServer server, string code)
@@ -292,388 +210,11 @@ public class LexboxProjectService
 
     public void InvalidateProjectsCache(LexboxServer server)
     {
-        cache.Remove(CacheKey(server));
+        cache.Remove(ProjectListCacheKey(server));
     }
 
-    private static readonly ConditionalWeakTable<HubConnection, HashSet<Guid>> _reconnectProjects = [];
-    private readonly ConcurrentDictionary<string, SemaphoreSlim> _connectionGates = new();
-    private SemaphoreSlim ConnectionGate(LexboxServer server) =>
-        _connectionGates.GetOrAdd(HubConnectionCacheKey(server), static _ => new SemaphoreSlim(1, 1));
+    public Task ListenForProjectChanges(ProjectData projectData, CancellationToken stoppingToken, bool kickReconnecting = false) =>
+        projectChangeListener.ListenForProjectChanges(projectData, stoppingToken, kickReconnecting);
 
-    public async Task ListenForProjectChanges(ProjectData projectData, CancellationToken stoppingToken, bool kickReconnecting = false)
-    {
-        // Record intent to listen before any early-returns, so auth-change recovery can resubscribe
-        // this project even if the steps below bail out (no server, connection not yet active, etc.).
-        _trackedProjects[projectData.Id] = projectData;
-        if (!options.Value.TryGetServer(projectData, out var server)) return;
-        if (kickReconnecting) await KickIfReconnecting(server);
-        var lexboxConnection = await StartLexboxProjectChangeListener(server, stoppingToken);
-        if (lexboxConnection is null) return;
-        // Register for resubscription before any early-return on connection state, otherwise the
-        // Reconnected handler won't know to resubscribe it when the connection comes back.
-        RegisterForResubscribe(lexboxConnection, projectData.Id);
-        // If the connection isn't active yet, avoid SendAsync which throws in Reconnecting/Disconnected.
-        if (lexboxConnection.State == HubConnectionState.Reconnecting)
-        {
-            // Reconnected handler will resubscribe when the connection comes back.
-            return;
-        }
-        if (lexboxConnection.State == HubConnectionState.Disconnected)
-        {
-            // Defensive: a cached connection is normally Connected. If we find a Disconnected one, try to
-            // revive it; on failure evict it so the next call rebuilds rather than handing back a dead one.
-            var gate = ConnectionGate(server);
-            await gate.WaitAsync(stoppingToken);
-            try
-            {
-                // Re-check under the gate: a concurrent caller may have revived it, and a second StartAsync
-                // would throw and wrongly evict the freshly revived connection.
-                if (lexboxConnection.State == HubConnectionState.Disconnected)
-                    await lexboxConnection.StartAsync(stoppingToken);
-            }
-            catch (Exception e)
-            {
-                logger.LogWarning(e, "Failed to restart Lexbox listener");
-                await EvictAndStopIfCached(HubConnectionCacheKey(server), cache, logger, lexboxConnection);
-                return;
-            }
-            finally
-            {
-                gate.Release();
-            }
-            // Covers the current project (registered above) and any siblings on this connection.
-            await ResubscribeRegisteredProjects(lexboxConnection);
-            // The connection just came back up; flush/pull like the other reconnect paths.
-            TriggerSyncForServerProjects(server);
-        }
-        else
-        {
-            try
-            {
-                await lexboxConnection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectData.Id, stoppingToken);
-            }
-            catch (Exception e)
-            {
-                // The connection can drop or be disposed between the state check and SendAsync (throwing
-                // InvalidOperationException or ObjectDisposedException). Don't let that fail the caller (e.g.
-                // project-open); the Reconnected handler resubscribes once the connection recovers.
-                logger.LogWarning(e, "SignalR connection not active while subscribing to project changes");
-            }
-        }
-    }
-
-    // Internal for unit tests.
-    internal static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
-
-    // Only for callers with strong evidence the network just returned (connectivity regained, app resume, a
-    // successful sync to this server): SignalR has no retry-now API, so stop-and-rebuild is the only way to
-    // skip a committed backoff delay. Never kick without such evidence — a wrong kick trades the automatic
-    // retry loop for the much slower recovery backstops.
-    private async Task KickIfReconnecting(LexboxServer server)
-    {
-        if (cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? connection)
-            && connection is { State: HubConnectionState.Reconnecting })
-        {
-            logger.LogInformation("Network recovery signal: interrupting mid-backoff reconnect to {Server}", server.Authority);
-            await EvictAndStopIfCached(HubConnectionCacheKey(server), cache, logger, connection);
-        }
-    }
-
-    // A listener (re)connecting moves no data on its own — the server only pushes OnProjectUpdated for changes
-    // made after (re)subscribe — so changes authored while offline, and remote changes that arrived during the
-    // outage, need an explicit sync once the connection is back. Call ONLY on a real connect transition (fresh
-    // build, SignalR Reconnected, or a revive), never on a cache-hit re-ensure, otherwise it loops with the
-    // post-sync TryEnsureProjectChangeListener.
-    private void TriggerSyncForServerProjects(LexboxServer server)
-    {
-        // A genuine connect transition means SignalR just reached this server, which proves it's reachable.
-        // Both these per-server caches can hold a stale failure from the offline period: the health verdict
-        // (cached unhealthy for 30 min) would make this catch-up sync a silent no-op, and the project list
-        // (cached empty for 5 min) would keep showing nothing. Drop both so they re-fetch now that we're back.
-        CrdtHttpSyncService.InvalidateServerHealth(cache, server.Authority.Authority);
-        InvalidateProjectsCache(server);
-        foreach (var project in _trackedProjects.Values)
-        {
-            if (project.ServerId != server.Id) continue;
-            try
-            {
-                backgroundSyncService.TriggerSync(project.Id);
-            }
-            catch (Exception e)
-            {
-                // TriggerSync throws if the background sync service isn't running yet (e.g. startup/shutdown).
-                logger.LogWarning(e, "Failed to trigger sync after listener (re)connect for {ProjectName}", project.Name);
-            }
-        }
-    }
-
-    // Internal for unit tests. Records the project in the per-connection resubscribe set (creating the set
-    // and wiring the Reconnected handler on first use). Registration is unconditional — it does not depend
-    // on connection state — so callers can register before early-returning when the connection isn't active,
-    // and the Reconnected handler will still resubscribe the project once the connection recovers.
-    internal static HashSet<Guid> RegisterForResubscribe(HubConnection connection, Guid projectId)
-    {
-        var subscribedProjects = _reconnectProjects.GetOrAdd(connection, static conn =>
-        {
-            conn.Reconnected += async _ => await ResubscribeRegisteredProjects(conn);
-            return [];
-        });
-        lock (subscribedProjects)
-        {
-            subscribedProjects.Add(projectId);
-        }
-        return subscribedProjects;
-    }
-
-    // Used by the Reconnected handler and after a manual revive — a manual
-    // StartAsync does not raise Reconnected, so the revive path must resubscribe explicitly.
-    private static async Task ResubscribeRegisteredProjects(HubConnection connection)
-    {
-        if (!_reconnectProjects.TryGetValue(connection, out var projects)) return;
-        Guid[] projectIds;
-        lock (projects)
-        {
-            projectIds = [.. projects];
-        }
-        foreach (var projectId in projectIds)
-        {
-            try
-            {
-                await connection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId);
-            }
-            catch (Exception)
-            {
-                // Ensure one project's failing to resubscribe doesn't block others
-            }
-        }
-    }
-
-    private static bool IsRegisteredForResubscribe(HubConnection connection, Guid projectId)
-    {
-        if (!_reconnectProjects.TryGetValue(connection, out var projects)) return false;
-        lock (projects)
-        {
-            return projects.Contains(projectId);
-        }
-    }
-
-    // Internal for unit tests. When expectedConnection is given, evicts only if the cached instance is that
-    // connection — callers holding a specific dead connection must not evict a live replacement that was
-    // cached after they last looked.
-    internal static async Task EvictAndStopIfCached(string cacheKey, IMemoryCache cache, ILogger logger, object? expectedConnection = null)
-    {
-        if (!cache.TryGetValue(cacheKey, out HubConnection? connection) || connection is null) return;
-        if (expectedConnection is not null && !ReferenceEquals(connection, expectedConnection)) return;
-        cache.Remove(cacheKey);
-        try
-        {
-            await connection.StopAsync();
-        }
-        catch (ObjectDisposedException e)
-        {
-            // A HubConnection mid-reconnect has already disposed itself, so stopping one we're evicting
-            // from a kick throws ObjectDisposedException even though the eviction itself succeeded.
-            logger.LogDebug(e, "Evicted SignalR connection was already disposed");
-        }
-        catch (Exception e)
-        {
-            logger.LogWarning(e, "Failed to stop evicted SignalR connection");
-        }
-    }
-
-    // Internal for unit tests. The retry policy never gives up; this breaks the loop when the user is
-    // logged out. Logged-out is tested by account presence (IsSignedIn), not by whether a token can be
-    // fetched right now: reconnecting happens precisely when the network is flaky, and fetching a token
-    // can require a refresh round-trip that fails transiently — which would be a false logout. Account
-    // presence is a local-only read and only flips on a real logout. Once the user signs back in,
-    // HandleAuthChanged rebuilds the listener.
-    internal static async Task HandleReconnecting(
-        string cacheKey,
-        IMemoryCache cache,
-        ILogger logger,
-        object connection,
-        Func<Task> stopConnection,
-        bool isSignedIn,
-        Exception? exception)
-    {
-        if (exception is not null)
-            logger.LogWarning(exception, "SignalR connection reconnecting");
-        else
-            logger.LogInformation("SignalR connection reconnecting");
-
-        if (isSignedIn) return;
-
-        // Same guard as the Closed handler: a replacement connection may have been cached since this one
-        // started reconnecting; only evict the entry if it is still ours. Stopping ourselves is right
-        // regardless — this connection belongs to a signed-out user.
-        if (cache.TryGetValue(cacheKey, out var cached) && ReferenceEquals(cached, connection))
-            cache.Remove(cacheKey);
-        logger.LogWarning("SignalR reconnect aborted: user is logged out; stopping connection");
-        try
-        {
-            await stopConnection();
-        }
-        catch (Exception e)
-        {
-            logger.LogWarning(e, "Failed to stop SignalR connection after auth loss");
-        }
-    }
-
-    // Must never return null — that ends SignalR's retry loop for good (the deliberate stop on logout is
-    // HandleReconnecting's job). SignalR consults the policy once per attempt and a returned delay cannot be
-    // interrupted except by StopAsync, so the delay is the worst-case recovery latency: keep it short while
-    // the device reports online (the problem is server-side and could end any moment) and long while offline
-    // (every attempt is a pointless local failure; connectivity/resume triggers handle the transition back).
-    internal class AdaptiveRetryPolicy(INetworkStatus networkStatus, ILogger? logger = null) : IRetryPolicy
-    {
-        public TimeSpan? NextRetryDelay(RetryContext retryContext)
-        {
-            var isOnline = networkStatus.IsOnline;
-            var delay = retryContext.PreviousRetryCount switch
-            {
-                0 => TimeSpan.Zero,
-                1 => TimeSpan.FromSeconds(5),
-                _ when !isOnline => TimeSpan.FromSeconds(60),
-                _ => TimeSpan.FromSeconds(10),
-            };
-            // Per-attempt detail for diagnosing reconnect behaviour in the field; the connection-level
-            // reconnecting/recovered/synced events carry the story at Information.
-            logger?.LogDebug("SignalR reconnect attempt #{Attempt}: device reports online={IsOnline}, next retry in {Delay}",
-                retryContext.PreviousRetryCount, isOnline, delay);
-            return delay;
-        }
-    }
-
-    public async Task<HubConnection?> StartLexboxProjectChangeListener(LexboxServer server,
-        CancellationToken stoppingToken)
-    {
-        // Reuse an existing connection without consulting auth: it may be healthily auto-reconnecting, and a
-        // transient token-refresh failure must not be mistaken for a logout and tear it down — the same
-        // false-logout trap HandleReconnecting avoids. (Removing the cache entry disposes the connection via
-        // the post-eviction callback, killing its retry loop and resubscribe set.)
-        if (cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? connection) && connection is not null)
-        {
-            return connection;
-        }
-
-        // No connection to reuse: build one only if actually signed in. Logged-out is tested by account
-        // presence (IsSignedIn) — a local-only read that flips solely on a real logout — not GetCurrentToken,
-        // which can be null transiently (expired token + flaky network) while the user is still signed in.
-        // Once the user signs back in, HandleAuthChanged rebuilds the listener.
-        if (!await clientFactory.GetClient(server).IsSignedIn())
-        {
-            logger.LogWarning("Unable to create signalR client, user is not authenticated to {OriginDomain}", server.Authority);
-            return null;
-        }
-
-        // Serialize creation per server: concurrent callers would otherwise each build a connection, and the
-        // cache's last-writer-wins replacement disposes the loser mid-use and discards its resubscribe set.
-        var gate = ConnectionGate(server);
-        await gate.WaitAsync(stoppingToken);
-        try
-        {
-            if (cache.TryGetValue(HubConnectionCacheKey(server), out connection) && connection is not null)
-            {
-                return connection;
-            }
-            return await BuildAndStartConnection(server, stoppingToken);
-        }
-        finally
-        {
-            gate.Release();
-        }
-    }
-
-    private async Task<HubConnection?> BuildAndStartConnection(LexboxServer server, CancellationToken stoppingToken)
-    {
-        var connection = new HubConnectionBuilder()
-            // Hand the builder's internal DI the app's logger factory so HubConnection's own logs (reconnect
-            // attempts, close reasons) land in the app log instead of a console-only factory. An externally
-            // supplied instance is not disposed with the connection's service provider.
-            .ConfigureLogging(logging => logging.Services.AddSingleton(loggerFactory))
-            .WithAutomaticReconnect(new AdaptiveRetryPolicy(networkStatus, logger))
-            .WithUrl($"{server.Authority}api/hub/crdt/project-changes",
-                connectionOptions =>
-                {
-                    connectionOptions.HttpMessageHandlerFactory = handler =>
-                    {
-                        //use a client that does not validate certs in dev
-                        return httpMessageHandlerFactory.CreateHandler(OAuthClient.AuthHttpClientName);
-                    };
-                    connectionOptions.AccessTokenProvider =
-                        async () => await clientFactory.GetClient(server).GetCurrentToken();
-                })
-            .Build();
-
-        //it would be cleaner to pass the callback in to this method however it's not supposed to be generic, it should always trigger a sync
-        connection.On(nameof(IProjectChangeHubClient.OnProjectUpdated),
-            (Guid projectId, Guid? clientId) =>
-            {
-                logger.LogInformation("Received project update for {ProjectId}, triggering sync", projectId);
-                try
-                {
-                    backgroundSyncService.TriggerSync(projectId, clientId);
-                }
-                catch (Exception e)
-                {
-                    // TriggerSync throws if the background sync service isn't running (e.g. during shutdown);
-                    // don't let that bubble into SignalR's dispatcher.
-                    logger.LogWarning(e, "Failed to trigger sync for {ProjectId}", projectId);
-                }
-                return Task.CompletedTask;
-            });
-
-        try
-        {
-            var cacheKey = HubConnectionCacheKey(server);
-            connection.Reconnecting += async exception =>
-            {
-                var isSignedIn = await clientFactory.GetClient(server).IsSignedIn();
-                await HandleReconnecting(cacheKey, cache, logger, connection, () => connection.StopAsync(), isSignedIn, exception);
-            };
-            await connection.StartAsync(stoppingToken);
-            // intentionally AFTER StartAsync (see catch comment)
-            connection.Closed += async (exception) =>
-            {
-                // A stopped connection may have been replaced in the cache before this handler runs. Don't
-                // blindly remove the cache entry on Closed — only do so if WE are the cached connection,
-                // otherwise we'd evict the live replacement.
-                if (cache.TryGetValue(HubConnectionCacheKey(server), out HubConnection? cached) && ReferenceEquals(cached, connection))
-                    cache.Remove(HubConnectionCacheKey(server));
-                await connection.DisposeAsync();
-            };
-            connection.Reconnected += _ =>
-            {
-                // Auto-reconnected this same connection (no rebuild → the fresh-build sync below didn't run).
-                logger.LogInformation("SignalR reconnected to {Server}; syncing", server.Authority);
-                TriggerSyncForServerProjects(server);
-                return Task.CompletedTask;
-            };
-            // ICacheEntry value returned from CreateEntry must be disposed in order to be committed to the cache,
-            // so do not remove the "using var __" below that appears to be doing nothing.
-            using var __ = cache.CreateEntry(HubConnectionCacheKey(server)).SetValue(connection).RegisterPostEvictionCallback(
-                static (key, value, reason, state) =>
-                {
-                    if (value is HubConnection con)
-                    {
-                        _ = con.DisposeAsync();
-                    }
-                });
-        }
-        catch (Exception e)
-        {
-            // Nothing is cached yet (CreateEntry runs after StartAsync) and the Closed handler that would
-            // dispose this connection isn't wired on the failure path — dispose here so a failed StartAsync
-            // (e.g. offline at project-open, retried on the next sync) doesn't leak the connection.
-            await connection.DisposeAsync();
-            logger.LogWarning(e, "Failed to start Lexbox listener");
-            return null;
-        }
-
-        // Freshly built+connected (e.g. first listen or a kick-rebuild after the network returned). Flush
-        // offline-authored changes and pull anything missed; the connection is now cached, so the sync's
-        // own re-ensure hits the cache and won't rebuild (no loop).
-        TriggerSyncForServerProjects(server);
-        return connection;
-    }
+    internal static string ProjectListCacheKey(LexboxServer server) => $"Projects|{server.Authority.Authority}";
 }
