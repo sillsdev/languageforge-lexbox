@@ -25,7 +25,7 @@ public class UpdateSensePictureChange : EditChange<Sense>, ISelfNamedType<Update
 
     public override ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
-        var picture = entity.Pictures.FirstOrDefault(p => p.Id == PictureId);
+        var picture = entity.Pictures.FirstOrDefault(p => p.Id == PictureId && p.DeletedAt is null);
         if (picture is null) return ValueTask.CompletedTask;
         Patch.ApplyTo(picture);
         return ValueTask.CompletedTask;
