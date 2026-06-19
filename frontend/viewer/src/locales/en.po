@@ -459,6 +459,11 @@ msgstr "Copy version"
 msgid "Create"
 msgstr "Create"
 
+#. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
+#: src/home/HomeView.svelte
+msgid "Create a new FieldWorks Lite project"
+msgstr "Create a new FieldWorks Lite project"
+
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"

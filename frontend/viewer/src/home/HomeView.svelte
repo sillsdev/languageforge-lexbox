@@ -223,6 +223,7 @@
                 class="mb-2 bg-transparent shadow-none hover:shadow-none border-2 border-dashed border-muted-foreground/40"
                 onclick={() => createProjectDialog?.openDialog()}>
                 <span>{$t`New Project`} ({$t`Local only`})</span>
+                <span class="text-sm text-muted-foreground">{$t`Create a new FieldWorks Lite project`}</span>
               </ListItem>
             </DevContent>
           </div>
