@@ -865,9 +865,9 @@ public class CrdtMiniLcmApi(
         BetweenPosition? between = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        await AddChange(new CreateSensePictureChange(picture, senseId, between));
-        // TODO: Verify that this is correct: will the repo.GetSense(senseId) call really find the picture that was just added? Or should we do `?? picture` below as the safe fallback?
-        return await GetPicture(entryId, senseId, picture.Id) ?? throw NotFoundException.ForType<Picture>(picture.Id);
+        var change = new CreateSensePictureChange(picture, senseId, between);
+        await AddChange(change);
+        return await GetPicture(entryId, senseId, change.PictureId) ?? throw NotFoundException.ForType<Picture>(change.PictureId);
     }
 
     public async Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
