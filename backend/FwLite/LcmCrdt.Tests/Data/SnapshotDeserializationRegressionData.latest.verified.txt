@@ -424,7 +424,7 @@
       "Id": "84bb5f48-b2a9-d0c8-85ee-aec9203830ee",
       "DeletedAt": null,
       "LexemeForm": {
-        "dkk": "Product",
+        "dkk": "Product"
       },
       "CitationForm": {},
       "LiteralMeaning": {},
