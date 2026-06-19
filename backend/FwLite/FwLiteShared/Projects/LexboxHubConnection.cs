@@ -59,9 +59,9 @@ public sealed class LexboxHubConnection(
             }
         }
 
+        await connectionLock.WaitAsync(stoppingToken);
         try
         {
-            await connectionLock.WaitAsync(stoppingToken);
             if (IsConnected) return true;
             await CleanupConnection();
             connection = await NewConnection(stoppingToken);
