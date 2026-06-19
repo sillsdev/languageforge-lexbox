@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LcmCrdt.Migrations
 {
     [DbContext(typeof(LcmCrdtDbContext))]
-    [Migration("20260617073518_PicturesStoredAsJsonOnSenses")]
-    partial class PicturesStoredAsJsonOnSenses
+    [Migration("20260619022528_AddPicturesColumnToSenses")]
+    partial class AddPicturesColumnToSenses
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -461,7 +461,9 @@ namespace LcmCrdt.Migrations
 
                     b.Property<string>("Pictures")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'");
 
                     b.Property<string>("SemanticDomains")
                         .IsRequired()

@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace LcmCrdt.Migrations
 {
     /// <inheritdoc />
-    public partial class PicturesStoredAsJsonOnSenses : Migration
+    public partial class AddPicturesColumnToSenses : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,7 @@ namespace LcmCrdt.Migrations
                 table: "Sense",
                 type: "jsonb",
                 nullable: false,
-                defaultValue: "[]");
+                defaultValueSql: "'[]'");
         }
 
         /// <inheritdoc />

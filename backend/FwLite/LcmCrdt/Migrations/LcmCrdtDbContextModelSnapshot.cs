@@ -458,7 +458,9 @@ namespace LcmCrdt.Migrations
 
                     b.Property<string>("Pictures")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'");
 
                     b.Property<string>("SemanticDomains")
                         .IsRequired()

@@ -46,7 +46,7 @@ public class LcmCrdtDbContext(
         morphTypeModel.HasIndex(m => m.Kind).IsUnique();
 
         var senseModel = modelBuilder.Entity<Sense>();
-        senseModel.Property(s => s.Pictures).HasColumnType("jsonb").HasDefaultValue("[]");
+        senseModel.Property(s => s.Pictures).HasColumnType("jsonb").HasDefaultValueSql("'[]'");
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
