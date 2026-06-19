@@ -28,11 +28,13 @@ export class ProjectService implements ICombinedProjectsService {
   }
   // Dev-only: create a blank project from the bundled template (system data, no demo entries).
   // Creating a CRDT project from scratch isn't a supported user flow yet.
-  async createProject(name: string, code: string, vernacularWs: string): Promise<void> {
+  async createProject(name: string, code: string, vernacularWs: string, analysisWs?: string): Promise<void> {
     if (!name.trim()) throw new Error('Project name is required');
     if (!code.trim()) throw new Error('Project code is required');
     if (!vernacularWs.trim()) throw new Error('Vernacular writing system is required');
-    await this.postOk(`/api/project/create?name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}&vernacularWs=${encodeURIComponent(vernacularWs)}`);
+    let url = `/api/project/create?name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}&vernacularWs=${encodeURIComponent(vernacularWs)}`;
+    if (analysisWs?.trim()) url += `&analysisWs=${encodeURIComponent(analysisWs.trim())}`;
+    await this.postOk(url);
   }
 
   // User-facing "Create Example Project": template system data plus a handful of demo entries.

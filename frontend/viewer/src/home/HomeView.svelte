@@ -222,8 +222,7 @@
                 icon="i-mdi-book-plus-outline"
                 class="mb-2 bg-transparent shadow-none hover:shadow-none border-2 border-dashed border-muted-foreground/40"
                 onclick={() => createProjectDialog?.openDialog()}>
-                <span>{$t`New Project`}</span>
-                <span class="text-sm text-muted-foreground">{$t`Add your own entries`}</span>
+                <span>{$t`New Project`} ({$t`Local only`})</span>
               </ListItem>
             </DevContent>
           </div>

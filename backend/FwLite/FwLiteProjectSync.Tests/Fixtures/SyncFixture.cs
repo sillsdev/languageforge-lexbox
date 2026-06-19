@@ -87,7 +87,9 @@ public class SyncFixture : IAsyncLifetime
         foreach (var c in name.ToLowerInvariant())
             sb.Append(c is (>= 'a' and <= 'z') or (>= '0' and <= '9') or '-' ? c : '-');
         var code = sb.ToString().TrimStart('-');
-        return code.Length == 0 ? $"test-project-{Guid.NewGuid():N}" : code;
+        if (code.Length == 0)
+            throw new ArgumentException($"Project name '{name}' has no usable characters for a project code", nameof(name));
+        return code;
     }
 
     public virtual async Task InitializeAsync()

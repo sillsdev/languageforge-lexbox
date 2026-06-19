@@ -207,11 +207,11 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     }
 
     [JSInvokable]
-    public Task CreateProject(string name, string code, WritingSystemId vernacularWs)
+    public Task CreateProject(string name, string code, WritingSystemId vernacularWs, WritingSystemId? analysisWs = null)
     {
         return Task.Run(async () =>
         {
-            await crdtProjectsService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager, VernacularWs: vernacularWs));
+            await crdtProjectsService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager), vernacularWs, analysisWs);
         });
     }
 

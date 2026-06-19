@@ -92,8 +92,8 @@ public class OpenProjectTests
             Name: "Blank From Template",
             Code: code,
             Path: "",
-            Role: UserProjectRole.Manager,
-            VernacularWs: "fr"));
+            Role: UserProjectRole.Manager),
+            vernacularWs: "fr");
 
         var miniLcmApi = (CrdtMiniLcmApi)await asyncScope.ServiceProvider.OpenCrdtProject(crdtProject);
         miniLcmApi.ProjectData.Name.Should().Be("Blank From Template");

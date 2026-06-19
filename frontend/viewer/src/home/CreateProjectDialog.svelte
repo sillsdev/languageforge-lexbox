@@ -24,6 +24,7 @@
   let code = $state('');
   let codeEdited = $state(false);
   let vernacularWs = $state('');
+  let analysisWs = $state('');
 
   function slugify(value: string): string {
     return value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+/, '');
@@ -49,6 +50,7 @@
     code = '';
     codeEdited = false;
     vernacularWs = '';
+    analysisWs = '';
     loading = false;
     open = true;
   }
@@ -61,7 +63,7 @@
     loading = true;
     error = undefined;
     try {
-      await projectsService.createProject(name.trim(), derivedCode.trim(), vernacularWs.trim());
+      await projectsService.createProject(name.trim(), derivedCode.trim(), vernacularWs.trim(), analysisWs.trim() || undefined);
       await refreshProjects();
       open = false;
     } catch (e) {
@@ -101,6 +103,10 @@
       <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
         {$t`Vernacular writing system`}
         <Input bind:value={vernacularWs} placeholder={$t`e.g. en, fr`} />
+      </Label>
+      <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+        {$t`Analysis writing system`}
+        <Input bind:value={analysisWs} placeholder={$t`e.g. en, fr`} />
       </Label>
       <div class="col-span-2 text-end space-y-2">
         {#each fieldErrors as fieldError (fieldError)}

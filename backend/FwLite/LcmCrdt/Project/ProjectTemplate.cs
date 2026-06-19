@@ -32,18 +32,17 @@ public static class ProjectTemplate
     }
 
     /// <summary>
-    /// The vernacular writing system the template used to ship hydrated. It is now created at runtime
-    /// after the template is applied; this reproduces the historical defaults (Charis SIL font, the
-    /// FieldWorks-style abbreviation, vernacular type) so behaviour is unchanged.
+    /// Builds a writing system for one the template doesn't ship (the per-project vernacular, or a
+    /// non-English analysis WS), using the FieldWorks-style defaults (Charis SIL font, FW abbreviation).
     /// </summary>
-    public static WritingSystem DefaultVernacularWritingSystem(WritingSystemId wsId) => new()
+    public static WritingSystem DefaultWritingSystem(WritingSystemId wsId, WritingSystemType type) => new()
     {
         Id = Guid.NewGuid(),
         WsId = wsId,
         Name = wsId.Code,
         Abbreviation = AbbreviationFor(wsId),
         Font = "Charis SIL",
-        Type = WritingSystemType.Vernacular,
+        Type = type,
     };
 
     internal static string AbbreviationFor(WritingSystemId wsId)

@@ -9,6 +9,32 @@ namespace LcmCrdt.Tests;
 public class MorphTypeSeedingTests
 {
     [Fact]
+    public async Task NewProject_HasAllCanonicalMorphTypes()
+    {
+        var code = "morph-type-seed-test";
+        var sqliteFile = $"{code}.sqlite";
+        if (File.Exists(sqliteFile)) File.Delete(sqliteFile);
+        var builder = Host.CreateEmptyApplicationBuilder(null);
+        builder.Services.AddTestLcmCrdtClient();
+        using var host = builder.Build();
+        await using var scope = host.Services.CreateAsyncScope();
+
+        var crdtProjectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
+        var crdtProject = await crdtProjectsService.CreateProject(new(
+            Name: "MorphTypeSeedTest",
+            Code: code,
+            Path: ""));
+
+        var api = (CrdtMiniLcmApi)await scope.ServiceProvider.OpenCrdtProject(crdtProject);
+        var morphTypes = await api.GetMorphTypes().ToArrayAsync();
+
+        morphTypes.Should().BeEquivalentTo(CanonicalMorphTypes.All.Values);
+
+        await using var dbContext = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+        await dbContext.Database.EnsureDeletedAsync();
+    }
+
+    [Fact]
     public async Task ExistingProjectWithoutMorphTypes_GetsMorphTypesOnOpen()
     {
         var code = "morph-type-seed-existing";
@@ -92,8 +118,8 @@ public class MorphTypeSeedingTests
             Name: "MorphTypeSeedTemplated",
             Code: code,
             Path: "",
-            Role: UserProjectRole.Manager,
-            VernacularWs: "fr"));
+            Role: UserProjectRole.Manager),
+            vernacularWs: "fr");
 
         // Opening triggers MigrateDb; it must skip the seed because the template import already created the morph types.
         var api = (CrdtMiniLcmApi)await scope.ServiceProvider.OpenCrdtProject(crdtProject);

@@ -124,25 +124,26 @@ public partial class CrdtProjectsService(
         Guid? FwProjectId = null,
         string? AuthenticatedUser = null,
         string? AuthenticatedUserId = null,
-        UserProjectRole? Role = null,
-        WritingSystemId? VernacularWs = null);
+        UserProjectRole? Role = null);
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
         // Code must satisfy the lowercase-only ProjectCode rule; the display name keeps its casing.
-        return await CreateProjectFromTemplate(new(name, name.ToLowerInvariant(), AfterCreate: ExampleProjectData.Seed, Role: UserProjectRole.Manager, VernacularWs: "de"));
+        return await CreateProjectFromTemplate(new(name, name.ToLowerInvariant(), AfterCreate: ExampleProjectData.Seed, Role: UserProjectRole.Manager), vernacularWs: "de");
     }
 
     /// <summary>
     /// Creates a CRDT project pre-populated from the embedded template snapshot (a blank
-    /// FieldWorks/liblcm project — system data only, no user entries), plus the requested vernacular WS.
-    /// Runs through the normal <see cref="CreateProject"/> path, so identity (ClientId, per-project commit
-    /// Ids) is minted by ordinary Harmony writes during the import — no commit re-identification needed.
+    /// FieldWorks/liblcm project — system data only, no user entries), plus the requested vernacular WS
+    /// and, if <paramref name="analysisWs"/> is a non-English code, that analysis WS too (the template
+    /// always ships English analysis, like FieldWorks). Runs through the normal <see cref="CreateProject"/>
+    /// path, so identity (ClientId, per-project commit Ids) is minted by ordinary Harmony writes.
     /// </summary>
-    public virtual async Task<CrdtProject> CreateProjectFromTemplate(CreateProjectRequest request)
+    public virtual async Task<CrdtProject> CreateProjectFromTemplate(
+        CreateProjectRequest request,
+        WritingSystemId vernacularWs,
+        WritingSystemId? analysisWs = null)
     {
-        if (request.VernacularWs is null)
-            throw new ArgumentException("VernacularWs is required for template-based creation.", nameof(request));
         // Templated projects are created locally; this path has no way to associate one with a server
         // at creation time, so reject a Domain up front — the invariant holds where the project is born.
         if (request.Domain is not null)
@@ -150,7 +151,6 @@ public partial class CrdtProjectsService(
                 "Templated projects can't be associated with a server at creation time — they're local-only.",
                 nameof(request));
 
-        var vernacularWs = request.VernacularWs.Value;
         var callerAfterCreate = request.AfterCreate;
         return await CreateProject(request with
         {
@@ -158,12 +158,24 @@ public partial class CrdtProjectsService(
             {
                 var api = provider.GetRequiredService<IMiniLcmApi>();
                 var jsonOptions = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.JsonSerializerOptions;
-                await ProjectImporter.ImportData(api, ProjectTemplate.LoadSnapshot(jsonOptions));
-                // The template ships analysis writing systems only; add the requested vernacular WS now.
-                await api.CreateWritingSystem(ProjectTemplate.DefaultVernacularWritingSystem(vernacularWs));
+                var snapshot = ProjectTemplate.LoadSnapshot(jsonOptions);
+                // Add the requested writing systems to the snapshot so they're created with everything else
+                // in dependency order, rather than tacked on after the import.
+                snapshot = snapshot with { WritingSystems = WithRequestedWritingSystems(snapshot.WritingSystems, vernacularWs, analysisWs) };
+                await ProjectImporter.ImportData(api, snapshot);
                 if (callerAfterCreate is not null) await callerAfterCreate(provider, project);
             }
         });
+    }
+
+    private static WritingSystems WithRequestedWritingSystems(WritingSystems template, WritingSystemId vernacularWs, WritingSystemId? analysisWs)
+    {
+        WritingSystem[] vernacular = [.. template.Vernacular, ProjectTemplate.DefaultWritingSystem(vernacularWs, WritingSystemType.Vernacular)];
+        var analysis = template.Analysis;
+        // The template already ships English analysis; only add the requested analysis WS if it's a different one.
+        if (analysisWs is { } aws && !analysis.Any(ws => ws.WsId == aws))
+            analysis = [.. analysis, ProjectTemplate.DefaultWritingSystem(aws, WritingSystemType.Analysis)];
+        return template with { Vernacular = vernacular, Analysis = analysis };
     }
 
     public virtual async Task<CrdtProject> CreateProject(CreateProjectRequest request)

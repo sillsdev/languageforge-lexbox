@@ -31,7 +31,7 @@ public static class ProjectRoutes
         // scratch isn't a supported user flow yet (see HomeView's DevContent gating). Name is free-form;
         // code identifies the project on disk and must match ProjectCode().
         group.MapPost("/project/create",
-            async (CrdtProjectsService projectService, string name, string code, string vernacularWs) =>
+            async (CrdtProjectsService projectService, string name, string code, string vernacularWs, string? analysisWs) =>
             {
                 if (string.IsNullOrWhiteSpace(name)) return Results.BadRequest("Project name is required");
                 if (ValidateProjectCode(projectService, code) is { } codeError) return codeError;
@@ -39,7 +39,13 @@ public static class ProjectRoutes
                     return Results.BadRequest("Vernacular writing system is required");
                 if (!IetfLanguageTag.IsValid(vernacularWs))
                     return Results.BadRequest($"'{vernacularWs}' is not a valid IETF language tag");
-                await projectService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager, VernacularWs: vernacularWs));
+                // analysisWs is optional — English analysis always ships in the template.
+                if (!string.IsNullOrWhiteSpace(analysisWs) && !IetfLanguageTag.IsValid(analysisWs))
+                    return Results.BadRequest($"'{analysisWs}' is not a valid IETF language tag");
+                await projectService.CreateProjectFromTemplate(
+                    new(name, code, Role: UserProjectRole.Manager),
+                    vernacularWs,
+                    string.IsNullOrWhiteSpace(analysisWs) ? null : (WritingSystemId?)analysisWs);
                 return Results.Ok();
             });
         // User-facing "Create Example Project": the template's system data plus a handful of demo entries.

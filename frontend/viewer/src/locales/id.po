@@ -184,10 +184,6 @@ msgstr ""
 msgid "Add Word"
 msgstr "Tambahkan Kata"
 
-#: src/home/HomeView.svelte
-msgid "Add your own entries"
-msgstr ""
-
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -206,6 +202,11 @@ msgstr "sebuah entri"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr "Analisis"
+
+#. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
+#: src/home/CreateProjectDialog.svelte
+msgid "Analysis writing system"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -675,6 +676,7 @@ msgstr "Mengunduh..."
 
 #. Placeholder in the Vernacular writing system input. "en" and "fr" are example IETF language tags — keep them untranslated.
 #: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
 msgid "e.g. en, fr"
 msgstr ""
 
@@ -1137,6 +1139,7 @@ msgid "Local"
 msgstr "Lokal"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
+#: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
 msgid "Local only"
 msgstr "Hanya lokal"

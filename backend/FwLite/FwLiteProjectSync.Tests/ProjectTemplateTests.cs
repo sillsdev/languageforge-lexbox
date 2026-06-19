@@ -87,8 +87,8 @@ public class ProjectTemplateTests : IAsyncLifetime
         var crdtProject = await crdtProjectsService.CreateProjectFromTemplate(new(
             Name: "template-test-project",
             Code: "template-test",
-            Role: UserProjectRole.Manager,
-            VernacularWs: "fr"));
+            Role: UserProjectRole.Manager),
+            vernacularWs: "fr");
 
         var api = await Services.OpenCrdtProject(crdtProject);
         var snapshot = await api.TakeProjectSnapshot();
