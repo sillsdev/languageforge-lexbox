@@ -324,9 +324,8 @@ public class CrdtMiniLcmApi(
             // This aligns with FwData (which ignores the ID entirely) and prevents
             // Harmony duplicate-ID pitfalls during sync.
             complexFormComponent.Id = Guid.NewGuid();
+            // AddEntryComponentChange creates the component already-deleted if a referenced entry is gone.
             var addEntryComponentChange = await repo.CreateComplexFormComponentChange(complexFormComponent, betweenIds);
-            // No re-fetch: if a referenced entry was deleted the component is created already-deleted, which the
-            // sync must tolerate. AddEntryComponentChange itself handles the missing reference.
             await AddChange(addEntryComponentChange);
             return;
         }
@@ -655,7 +654,6 @@ public class CrdtMiniLcmApi(
 
     public Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
-        // No existence check: applying the patch to a deleted entry leaves it deleted (delete wins); the sync relies on this.
         return AddChanges(update.Patch.ToChanges(id));
     }
 
@@ -718,8 +716,7 @@ public class CrdtMiniLcmApi(
 
     public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
-        // No PartOfSpeech existence check and no re-fetch: CreateSenseChange already drops a missing/deleted
-        // PartOfSpeech, and a sense created under a deleted entry is born deleted (delete wins); the sync relies on this.
+        // No PartOfSpeech check here (the returning CreateSense validates instead; CreateSenseChange drops a missing one).
         await using var repo = await repoFactory.CreateRepoAsync();
         sense.Order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
         await AddChanges(await CreateSenseChanges(entryId, sense, repo.SemanticDomains).ToArrayAsync());

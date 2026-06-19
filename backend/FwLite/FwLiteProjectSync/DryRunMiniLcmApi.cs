@@ -361,9 +361,9 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     }
 
     #region Submit (sync's result-less write variants)
-    // Record-only, like the rest of dry-run. Overridden explicitly (rather than inheriting the interface
-    // default, which routes to the returning Update* and re-reads the object) so a dry-run of a project with a
-    // delete-vs-edit conflict previews cleanly instead of throwing on the now-deleted object.
+    // Record-only. Overridden explicitly (not inherited from the interface default, which would route to the
+    // returning Update* and re-read the object) so a dry-run of a conflicted project doesn't throw on the
+    // now-deleted object.
     public Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdateEntry), $"Update entry {id}"));

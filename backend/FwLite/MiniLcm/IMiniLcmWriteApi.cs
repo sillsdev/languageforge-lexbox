@@ -112,23 +112,18 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region Submit (fire-and-forget write variants for sync)
-    // The Update/Create methods above fetch and return the written object, which forces them to assume it
-    // currently exists. During sync an object can be deleted on one side while still referenced by the other,
-    // so the sync uses these result-less variants instead. The CRDT implementation overrides them to just
-    // submit the Harmony change (which leaves a deleted object deleted — delete wins), so they don't throw.
-    // The default implementations call the returning method and discard the result, which is the right
-    // behaviour for everything except the CRDT (FwData still throws if the object is genuinely missing — that
-    // shouldn't happen during sync, and if it does we want to hear about it).
+    // Result-less write variants the sync uses instead of the returning Update/Create methods above. The CRDT
+    // overrides them to submit the change without fetching the result, so applying to an object the other side
+    // deleted leaves it deleted (delete wins) rather than throwing. The defaults forward to the returning
+    // method (correct for FwData, which still surfaces a genuinely-missing object).
     Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update) => UpdateEntry(id, update);
     Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => CreateComplexFormComponent(complexFormComponent, position);
     Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => CreateSense(entryId, sense, position);
     Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => UpdateSense(entryId, senseId, update);
     Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => CreateExampleSentence(entryId, senseId, exampleSentence, position);
     Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
-    // Dependency types (synced before entries). These run outside EntrySync's try/catch, so a deleted-in-CRDT
-    // one that's still edited in FwData would otherwise crash the whole sync the same way (issue #2361).
-    // WritingSystem is omitted (its update needs to resolve the entity id, so it can't be a blind submit, and
-    // deleting a writing system is a deliberate, cascading operation); MorphType is omitted (not deletable).
+    // Dependency types too (they sync before entries, outside EntrySync's try/catch). WritingSystem is omitted
+    // (its update resolves the entity id, so it can't be a blind submit); MorphType is omitted (not deletable).
     Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => UpdatePartOfSpeech(id, update);
     Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update) => UpdatePublication(id, update);
     Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update) => UpdateSemanticDomain(id, update);
