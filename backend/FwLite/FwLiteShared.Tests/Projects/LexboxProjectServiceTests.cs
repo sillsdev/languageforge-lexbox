@@ -9,6 +9,16 @@ namespace FwLiteShared.Tests.Projects;
 public class LexboxHubConnectionTests
 {
     private readonly MemoryCache _cache = new(new MemoryCacheOptions());
+    private readonly LexboxHubConnectionRegistry _registry;
+    private readonly LexboxProjectSubscriptionStarter _subscriptionStarter;
+
+    public LexboxHubConnectionTests()
+    {
+        _registry = new LexboxHubConnectionRegistry(_cache, NullLogger<LexboxHubConnectionRegistry>.Instance);
+        _subscriptionStarter = new LexboxProjectSubscriptionStarter(
+            _registry,
+            NullLogger<LexboxProjectSubscriptionStarter>.Instance);
+    }
 
     [Fact]
     public async Task StartLexboxProjectChangeListener_ReusesCachedConnection_WithoutConsultingAuth()
@@ -20,7 +30,7 @@ public class LexboxHubConnectionTests
         var server = new LexboxServer(new Uri("https://example.test/"), "Test");
         await using var hubConnection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
         await using var connection = TestConnection(server, hubConnection);
-        LexboxHubConnection.Set(_cache, server, connection);
+        _registry.Set(server, connection);
         var listener = new LexboxProjectChangeListener(
             clientFactory: null!,
             logger: NullLogger<LexboxProjectChangeListener>.Instance,
@@ -29,12 +39,14 @@ public class LexboxHubConnectionTests
             backgroundSyncService: null!,
             options: null!,
             cache: _cache,
+            connectionRegistry: _registry,
+            subscriptionStarter: _subscriptionStarter,
             networkStatus: null!);
 
         var result = await listener.StartLexboxProjectChangeListener(server, CancellationToken.None);
 
         result.Should().BeSameAs(connection);
-        LexboxHubConnection.Get(_cache, server).Should().BeSameAs(connection, because: "the connection must not be evicted");
+        _registry.Get(server).Should().BeSameAs(connection, because: "the connection must not be evicted");
     }
 
     [Fact]
@@ -42,7 +54,7 @@ public class LexboxHubConnectionTests
     {
         var server = new LexboxServer(new Uri("https://example.test/"), "Test");
 
-        LexboxHubConnection.Get(_cache, server).Should().BeNull();
+        _registry.Get(server).Should().BeNull();
     }
 
     [Fact]
@@ -51,19 +63,15 @@ public class LexboxHubConnectionTests
         var server = new LexboxServer(new Uri("https://example.test/"), "Test");
         await using var hubConnection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
         await using var connection = TestConnection(server, hubConnection);
-        LexboxHubConnection.Set(_cache, server, connection);
+        _registry.Set(server, connection);
         var stopCalled = false;
 
-        await LexboxHubConnection.HandleReconnecting(
-            server,
-            _cache,
-            NullLogger.Instance,
-            connection,
-            () => { stopCalled = true; return Task.CompletedTask; },
+        await connection.HandleReconnecting(
             isSignedIn: true,
-            exception: null);
+            exception: null,
+            stopConnection: () => { stopCalled = true; return Task.CompletedTask; });
 
-        LexboxHubConnection.Get(_cache, server).Should().BeSameAs(connection);
+        _registry.Get(server).Should().BeSameAs(connection);
         stopCalled.Should().BeFalse();
     }
 
@@ -73,19 +81,15 @@ public class LexboxHubConnectionTests
         var server = new LexboxServer(new Uri("https://example.test/"), "Test");
         await using var hubConnection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
         await using var connection = TestConnection(server, hubConnection);
-        LexboxHubConnection.Set(_cache, server, connection);
+        _registry.Set(server, connection);
         var stopCalled = false;
 
-        await LexboxHubConnection.HandleReconnecting(
-            server,
-            _cache,
-            NullLogger.Instance,
-            connection,
-            () => { stopCalled = true; return Task.CompletedTask; },
+        await connection.HandleReconnecting(
             isSignedIn: false,
-            exception: null);
+            exception: null,
+            stopConnection: () => { stopCalled = true; return Task.CompletedTask; });
 
-        LexboxHubConnection.Get(_cache, server).Should().BeNull();
+        _registry.Get(server).Should().BeNull();
         stopCalled.Should().BeTrue();
     }
 
@@ -99,19 +103,15 @@ public class LexboxHubConnectionTests
         await using var staleHubConnection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
         await using var replacement = TestConnection(server, replacementHubConnection);
         await using var stale = TestConnection(server, staleHubConnection);
-        LexboxHubConnection.Set(_cache, server, replacement);
+        _registry.Set(server, replacement);
         var stopCalled = false;
 
-        await LexboxHubConnection.HandleReconnecting(
-            server,
-            _cache,
-            NullLogger.Instance,
-            connection: stale,
-            () => { stopCalled = true; return Task.CompletedTask; },
+        await stale.HandleReconnecting(
             isSignedIn: false,
-            exception: null);
+            exception: null,
+            stopConnection: () => { stopCalled = true; return Task.CompletedTask; });
 
-        LexboxHubConnection.Get(_cache, server).Should().BeSameAs(replacement);
+        _registry.Get(server).Should().BeSameAs(replacement);
         stopCalled.Should().BeTrue();
     }
 
@@ -119,10 +119,10 @@ public class LexboxHubConnectionTests
     public async Task EvictAndStopIfCached_WithNoCachedEntry_IsNoOp()
     {
         var server = new LexboxServer(new Uri("https://example.test/"), "Test");
-        var act = () => LexboxHubConnection.EvictAndStopIfCached(server, _cache, NullLogger.Instance);
+        var act = () => _registry.EvictAndStopIfCached(server);
 
         await act.Should().NotThrowAsync();
-        LexboxHubConnection.Get(_cache, server).Should().BeNull();
+        _registry.Get(server).Should().BeNull();
     }
 
     [Fact]
@@ -133,11 +133,11 @@ public class LexboxHubConnectionTests
         var server = new LexboxServer(new Uri("https://example.test/"), "Test");
         await using var hubConnection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
         await using var connection = TestConnection(server, hubConnection);
-        LexboxHubConnection.Set(_cache, server, connection);
+        _registry.Set(server, connection);
 
-        await LexboxHubConnection.EvictAndStopIfCached(server, _cache, NullLogger.Instance);
+        await _registry.EvictAndStopIfCached(server);
 
-        LexboxHubConnection.Get(_cache, server).Should().BeNull();
+        _registry.Get(server).Should().BeNull();
     }
 
     [Fact]
@@ -148,11 +148,11 @@ public class LexboxHubConnectionTests
         await using var staleHubConnection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
         await using var cached = TestConnection(server, cachedHubConnection);
         await using var stale = TestConnection(server, staleHubConnection);
-        LexboxHubConnection.Set(_cache, server, cached);
+        _registry.Set(server, cached);
 
-        await LexboxHubConnection.EvictAndStopIfCached(server, _cache, NullLogger.Instance, expectedConnection: stale);
+        await _registry.EvictAndStopIfCached(server, expectedConnection: stale);
 
-        LexboxHubConnection.Get(_cache, server).Should().BeSameAs(cached);
+        _registry.Get(server).Should().BeSameAs(cached);
     }
 
     [Fact]
@@ -161,11 +161,11 @@ public class LexboxHubConnectionTests
         var server = new LexboxServer(new Uri("https://example.test/"), "Test");
         await using var hubConnection = new HubConnectionBuilder().WithUrl("http://localhost/test").Build();
         await using var connection = TestConnection(server, hubConnection);
-        LexboxHubConnection.Set(_cache, server, connection);
+        _registry.Set(server, connection);
 
-        await LexboxHubConnection.EvictAndStopIfCached(server, _cache, NullLogger.Instance, expectedConnection: connection);
+        await _registry.EvictAndStopIfCached(server, expectedConnection: connection);
 
-        LexboxHubConnection.Get(_cache, server).Should().BeNull();
+        _registry.Get(server).Should().BeNull();
     }
 
     [Fact]
@@ -192,7 +192,7 @@ public class LexboxHubConnectionTests
         new(
             server,
             hubConnection,
-            _cache,
+            _registry,
             backgroundSyncService: null!,
             isSignedIn: () => Task.FromResult(true),
             onConnected: _ => { },
