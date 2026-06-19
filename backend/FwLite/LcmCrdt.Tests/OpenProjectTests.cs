@@ -31,9 +31,6 @@ public class OpenProjectTests
         writingSystems.Vernacular.Select(ws => ws.WsId.Code).Should()
             .Equal("de", "de-Zxxx-x-audio", "de-fonipa");
         writingSystems.Analysis.Select(ws => ws.WsId.Code).Should().Equal("en", "fr");
-        // The template-provided "de"/"en" were updated in place to the demo's presentation, not duplicated.
-        writingSystems.Vernacular.Single(ws => ws.WsId == "de").Name.Should().Be("German");
-        writingSystems.Analysis.Single(ws => ws.WsId == "en").Name.Should().Be("English");
 
         var entries = await api.GetEntries().ToArrayAsync();
         entries.Select(e => e.LexemeForm["de"]).Should().BeEquivalentTo(
@@ -64,7 +61,7 @@ public class OpenProjectTests
         var asyncScope = services.CreateAsyncScope();
         var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
         var exception = new Exception("Test exception");
-        var projectRequest = new CreateProjectRequest("CleaningUpAFailedCreateWorks", "cleaning-up-a-failed-create-works", AfterCreate: (_, _) => throw exception, SeedNewProjectData: true);
+        var projectRequest = new CreateProjectRequest("CleaningUpAFailedCreateWorks", "cleaning-up-a-failed-create-works", AfterCreate: (_, _) => throw exception);
 
 
         var act = async () => await crdtProjectsService.CreateProject(projectRequest);
@@ -125,91 +122,6 @@ public class OpenProjectTests
         await dbContext.Database.EnsureDeletedAsync();
     }
 
-    [Fact]
-    public async Task TemplatedProject_SyncsCleanlyToBlankPeer()
-    {
-        var sourceCode = $"sync-src-{Guid.NewGuid():N}";
-        var targetCode = $"sync-dst-{Guid.NewGuid():N}";
-        foreach (var c in new[] { sourceCode, targetCode })
-            if (File.Exists($"{c}.sqlite")) File.Delete($"{c}.sqlite");
-
-        var builder = Host.CreateEmptyApplicationBuilder(null);
-        builder.Services.AddTestLcmCrdtClient();
-        using var host = builder.Build();
-        var sourceScope = host.Services.CreateAsyncScope();
-        var targetScope = host.Services.CreateAsyncScope();
-
-        var sourceProject = await sourceScope.ServiceProvider.GetRequiredService<CrdtProjectsService>()
-            .CreateProjectFromTemplate(new(
-                Name: "Sync Source",
-                Code: sourceCode,
-                Path: "",
-                Role: UserProjectRole.Manager,
-                VernacularWs: "fr"));
-        var targetProject = await targetScope.ServiceProvider.GetRequiredService<CrdtProjectsService>()
-            .CreateProject(new(
-                Name: "Sync Target",
-                Code: targetCode,
-                Path: "",
-                SeedNewProjectData: false));
-
-        var sourceApi = (CrdtMiniLcmApi)await sourceScope.ServiceProvider.OpenCrdtProject(sourceProject);
-        var targetApi = (CrdtMiniLcmApi)await targetScope.ServiceProvider.OpenCrdtProject(targetProject);
-
-        // Exercises the full Harmony sync protocol against the templated project's chain — the import's
-        // commits must form a valid chain that AddRangeFromSync's hash validation accepts.
-        await targetScope.ServiceProvider.GetRequiredService<DataModel>()
-            .SyncWith(sourceScope.ServiceProvider.GetRequiredService<DataModel>());
-
-        var morphTypes = await targetApi.GetMorphTypes().ToArrayAsync();
-        morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count);
-        var writingSystems = await targetApi.GetWritingSystems();
-        writingSystems.Vernacular.Should().ContainSingle().Which.WsId.Should().Be((WritingSystemId)"fr");
-
-        await using (var db = await sourceScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync())
-            await db.Database.EnsureDeletedAsync();
-        await using (var db = await targetScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync())
-            await db.Database.EnsureDeletedAsync();
-    }
-
-    [Fact]
-    public async Task TemplatedProjects_HaveDisjointCommitIds()
-    {
-        // Two projects derived from the same template must not share commit Ids. The template is imported
-        // through the normal MiniLcm write path, so each project mints its own fresh commits — disjoint by
-        // construction. Guards against a regression that reintroduced fixed/derived commit Ids into the
-        // snapshot or importer.
-        var codeA = $"disjoint-a-{Guid.NewGuid():N}";
-        var codeB = $"disjoint-b-{Guid.NewGuid():N}";
-        foreach (var c in new[] { codeA, codeB })
-            if (File.Exists($"{c}.sqlite")) File.Delete($"{c}.sqlite");
-
-        var builder = Host.CreateEmptyApplicationBuilder(null);
-        builder.Services.AddTestLcmCrdtClient();
-        using var host = builder.Build();
-
-        async Task<HashSet<Guid>> CommitIdsFor(string code)
-        {
-            await using var scope = host.Services.CreateAsyncScope();
-            var crdtProjectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
-            var project = await crdtProjectsService.CreateProjectFromTemplate(new(
-                Name: code, Code: code, Path: "",
-                Role: UserProjectRole.Manager, VernacularWs: "fr"));
-            await scope.ServiceProvider.OpenCrdtProject(project);
-            await using var db = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
-            var ids = await db.Set<Commit>().AsNoTracking().Select(c => c.Id).ToHashSetAsync();
-            await db.Database.EnsureDeletedAsync();
-            return ids;
-        }
-
-        var commitsA = await CommitIdsFor(codeA);
-        var commitsB = await CommitIdsFor(codeB);
-
-        commitsA.Should().NotBeEmpty();
-        commitsA.Intersect(commitsB).Should().BeEmpty(
-            "two templated projects must not share any commit Ids (each mints its own during import)");
-    }
-
     [Theory]
     // Conforms to LexBox's server rule (LexCore.Entities.Project.ProjectCodeRegex): lowercase letters,
     // digits and '-', starting alphanumeric. No uppercase, no underscore. Min length 1.
@@ -239,8 +151,7 @@ public class OpenProjectTests
         var crdtProject = await crdtProjectsService.CreateProject(new(
             Name: "OpeningAProjectWorks",
             Code: "opening-a-project-works",
-            Path: "",
-            SeedNewProjectData: true
+            Path: ""
             ));
 
         var miniLcmApi = (CrdtMiniLcmApi)await asyncScope.ServiceProvider.OpenCrdtProject(crdtProject);

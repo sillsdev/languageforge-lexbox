@@ -9,33 +9,6 @@ namespace LcmCrdt.Tests;
 public class MorphTypeSeedingTests
 {
     [Fact]
-    public async Task NewProjectWithSeedData_HasAllCanonicalMorphTypes()
-    {
-        var code = "morph-type-seed-test";
-        var sqliteFile = $"{code}.sqlite";
-        if (File.Exists(sqliteFile)) File.Delete(sqliteFile);
-        var builder = Host.CreateEmptyApplicationBuilder(null);
-        builder.Services.AddTestLcmCrdtClient();
-        using var host = builder.Build();
-        await using var scope = host.Services.CreateAsyncScope();
-
-        var crdtProjectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
-        var crdtProject = await crdtProjectsService.CreateProject(new(
-            Name: "MorphTypeSeedTest",
-            Code: code,
-            Path: "",
-            SeedNewProjectData: true));
-
-        var api = (CrdtMiniLcmApi)await scope.ServiceProvider.OpenCrdtProject(crdtProject);
-        var morphTypes = await api.GetMorphTypes().ToArrayAsync();
-
-        morphTypes.Should().BeEquivalentTo(CanonicalMorphTypes.All.Values);
-
-        await using var dbContext = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
-        await dbContext.Database.EnsureDeletedAsync();
-    }
-
-    [Fact]
     public async Task ExistingProjectWithoutMorphTypes_GetsMorphTypesOnOpen()
     {
         var code = "morph-type-seed-existing";
@@ -51,8 +24,7 @@ public class MorphTypeSeedingTests
         var crdtProject = await crdtProjectsService.CreateProject(new(
             Name: "MorphTypeSeedExisting",
             Code: code,
-            Path: "",
-            SeedNewProjectData: false));
+            Path: ""));
 
         // Opening the project triggers MigrateDb, which seeds morph types if missing
         var api = (CrdtMiniLcmApi)await scope.ServiceProvider.OpenCrdtProject(crdtProject);
@@ -81,8 +53,7 @@ public class MorphTypeSeedingTests
             var crdtProject = await crdtProjectsService.CreateProject(new(
                 Name: "MorphTypeSeedIdempotent",
                 Code: code,
-                Path: "",
-                SeedNewProjectData: true));
+                Path: ""));
             var api = await crdtProjectsService.OpenProject(crdtProject, scope.ServiceProvider);
             var morphTypes = await api.GetMorphTypes().ToArrayAsync();
             morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count,
@@ -124,7 +95,7 @@ public class MorphTypeSeedingTests
             Role: UserProjectRole.Manager,
             VernacularWs: "fr"));
 
-        // Opening triggers MigrateDb, which must skip the seed because the create-time seed already made morph-type commits.
+        // Opening triggers MigrateDb; it must skip the seed because the template import already created the morph types.
         var api = (CrdtMiniLcmApi)await scope.ServiceProvider.OpenCrdtProject(crdtProject);
         var morphTypes = await api.GetMorphTypes().ToArrayAsync();
         morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count);
@@ -137,7 +108,7 @@ public class MorphTypeSeedingTests
              WHERE json_extract(Change, '$."$type"') = {nameof(LcmCrdt.Changes.CreateMorphTypeChange)}
              """).SingleAsync();
         morphTypeCreatingChanges.Should().Be(CanonicalMorphTypes.All.Count,
-            "the create-time seed makes exactly the canonical morph types; MigrateDb must not add a redundant seed on open");
+            "the template import creates exactly the canonical morph types; MigrateDb must not add a redundant seed on open");
 
         await dbContext.Database.EnsureDeletedAsync();
     }

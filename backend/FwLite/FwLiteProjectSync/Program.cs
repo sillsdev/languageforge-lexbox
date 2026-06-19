@@ -62,7 +62,7 @@ public class Program
                 var crdtProject = projectsService.GetProject(crdtProjectCode);
                 if (crdtProject is null)
                 {
-                    crdtProject = await projectsService.CreateProject(new(crdtProjectCode, crdtProjectCode, FwProjectId:fwdataApi.ProjectId, SeedNewProjectData: false));
+                    crdtProject = await projectsService.CreateProject(new(crdtProjectCode, crdtProjectCode, FwProjectId:fwdataApi.ProjectId));
                 }
                 var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
                 var crdtApi = await services.OpenCrdtProject(crdtProject);

@@ -1,34 +1,28 @@
-using LcmCrdt.Objects;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LcmCrdt;
 
 internal static class ExampleProjectData
 {
-    // Parts of speech and complex form types ship in the template (CreateProjectFromTemplate).
-    // The Noun PartOfSpeech keeps liblcm's canonical Id (== PreDefinedData.NounPartOfSpeechId), so
-    // we reference that directly; the Compound complex-form-type Id differs from PreDefinedData's, so
-    // CreateBerryComplexForms resolves it by name.
+    // Parts of speech and complex form types ship in the template (CreateProjectFromTemplate) with
+    // liblcm's canonical Ids. We resolve the ones the demo needs (Noun, Compound) by name rather than
+    // hard-coding those Ids, so this stays correct regardless of what the template assigns.
 
     public static async Task Seed(IServiceProvider provider, CrdtProject _)
     {
         var api = provider.GetRequiredService<IMiniLcmApi>();
         await CreateWritingSystems(api);
-        var beere = await CreateFruitEntries(api);
-        await CreateBerryComplexForms(api, beere);
+        var nounPosId = (await api.GetPartsOfSpeech().FirstOrDefaultAsync(pos => pos.Name["en"] == "Noun")
+            ?? throw new InvalidOperationException("Template is missing the 'Noun' part of speech.")).Id;
+        var beere = await CreateFruitEntries(api, nounPosId);
+        await CreateBerryComplexForms(api, beere, nounPosId);
     }
 
     private static async Task CreateWritingSystems(IMiniLcmApi api)
     {
-        // The template path already provides vernacular "de" and analysis "en"; bring them to the demo's
-        // presentation (friendly name, Arial, Latin exemplars) in place rather than re-create them, which
-        // CreateWritingSystem rejects as duplicates. The remaining three don't exist yet, so create them —
-        // appended after the existing ones, preserving the order users see (de, de-audio, de-ipa / en, fr).
-        await api.UpdateWritingSystem("de", WritingSystemType.Vernacular, new UpdateObjectInput<WritingSystem>()
-            .Set(ws => ws.Name, "German")
-            .Set(ws => ws.Abbreviation, "de")
-            .Set(ws => ws.Font, "Arial")
-            .Set(ws => ws.Exemplars, WritingSystem.LatinExemplars));
+        // The template path already provides vernacular "de" and analysis "en", so we only add the
+        // remaining demo writing systems here. They're appended after the template's, preserving the
+        // order users see (de, de-audio, de-ipa / en, fr).
         await api.CreateWritingSystem(new()
         {
             Id = Guid.NewGuid(),
@@ -49,11 +43,6 @@ internal static class ExampleProjectData
             Font = "Arial",
             Exemplars = WritingSystem.LatinExemplars
         });
-        await api.UpdateWritingSystem("en", WritingSystemType.Analysis, new UpdateObjectInput<WritingSystem>()
-            .Set(ws => ws.Name, "English")
-            .Set(ws => ws.Abbreviation, "en")
-            .Set(ws => ws.Font, "Arial")
-            .Set(ws => ws.Exemplars, WritingSystem.LatinExemplars));
         await api.CreateWritingSystem(new()
         {
             Id = Guid.NewGuid(),
@@ -66,7 +55,7 @@ internal static class ExampleProjectData
         });
     }
 
-    private static async Task<Entry> CreateFruitEntries(IMiniLcmApi api)
+    private static async Task<Entry> CreateFruitEntries(IMiniLcmApi api, Guid nounPosId)
     {
         await api.CreateEntry(new()
         {
@@ -78,7 +67,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Apple", ["fr"] = "Pomme" },
                     Definition =
                     {
@@ -110,7 +99,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Banana", ["fr"] = "Banane" },
                     Definition = { ["en"] = new RichString("long curved fruit with yellow skin and soft sweet flesh") },
                     ExampleSentences =
@@ -138,7 +127,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Orange", ["fr"] = "Orange" },
                     Definition =
                     {
@@ -169,7 +158,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Grape", ["fr"] = "Raisin" },
                     Definition =
                     {
@@ -201,7 +190,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Berry", ["fr"] = "Baie" },
                     Definition =
                     {
@@ -223,9 +212,10 @@ internal static class ExampleProjectData
         });
     }
 
-    private static async Task CreateBerryComplexForms(IMiniLcmApi api, Entry beere)
+    private static async Task CreateBerryComplexForms(IMiniLcmApi api, Entry beere, Guid nounPosId)
     {
-        var compoundType = await api.GetComplexFormTypes().FirstAsync(ct => ct.Name["en"] == "Compound");
+        var compoundType = await api.GetComplexFormTypes().FirstOrDefaultAsync(ct => ct.Name["en"] == "Compound")
+            ?? throw new InvalidOperationException("Template is missing the 'Compound' complex-form type.");
 
         var erdbeere = new Entry
         {
@@ -237,7 +227,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Strawberry", ["fr"] = "Fraise" },
                     Definition =
                     {
@@ -261,7 +251,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Blueberry", ["fr"] = "Myrtille" },
                     Definition = { ["en"] = new RichString("small blue-purple berry that grows on a shrub") }
                 }

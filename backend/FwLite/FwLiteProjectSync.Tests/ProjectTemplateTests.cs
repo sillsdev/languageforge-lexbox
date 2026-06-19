@@ -46,7 +46,7 @@ public class ProjectTemplateTests : IAsyncLifetime
     // template below so the template ships analysis-only (the per-project vernacular is added at runtime).
     private const string PlaceholderWsId = "qaa";
 
-    [Fact(Skip = "Regeneration tool, not a test: rewrites the committed LcmCrdt/Templates/template.json from a " +
+    [Fact(Skip = "Regeneration tool, not a test: rewrites the committed LcmCrdt/Templates/blank-project-template.json from a " +
         "blank FieldWorks project. Runs in-process (liblcm, no external infra); remove this Skip to run it.")]
     public async Task GenerateTemplate()
     {
@@ -58,7 +58,6 @@ public class ProjectTemplateTests : IAsyncLifetime
         var crdtProject = await Services.GetRequiredService<CrdtProjectsService>().CreateProject(new(
             fwDataProject.Name,
             fwDataProject.Name,
-            SeedNewProjectData: false,
             FwProjectId: fwDataApi.ProjectId,
             AfterCreate: async (provider, _) =>
             {
@@ -68,26 +67,28 @@ public class ProjectTemplateTests : IAsyncLifetime
 
         var api = await Services.OpenCrdtProject(crdtProject);
         var snapshot = await api.TakeProjectSnapshot();
-        // Ship analysis WS only — CreateProjectFromTemplate adds the requested vernacular WS at runtime.
+        // Ship analysis WS only (every FW project has at least the "en" analysis WS);
+        // CreateProjectFromTemplate adds the requested vernacular WS at runtime.
         snapshot = snapshot with { WritingSystems = snapshot.WritingSystems with { Vernacular = [] } };
 
         Directory.CreateDirectory(TemplateDirectory);
         await using var file = File.Create(TemplatePath);
-        // Default options (not the CRDT config's) so MiniLcmInternal ordering fields survive the round-trip,
-        // matching ProjectSnapshotService.SaveProjectSnapshot. CreateProjectFromTemplate reads it back with
-        // the CRDT JsonSerializerOptions.
+        // Serialize with default options, not the CRDT config's: those hide [MiniLcmInternal] members
+        // (each writing system's Id and Order), so writing with them would drop those from the committed
+        // template. Keep them so it's a complete record, matching how sync snapshots serialize. Indented
+        // so the committed artifact diffs cleanly.
         await JsonSerializer.SerializeAsync(file, snapshot, new JsonSerializerOptions { WriteIndented = true });
     }
 
     [Fact]
-    public async Task ApplyTemplate()
+    public async Task VerifyCreateFromTemplate()
     {
         var crdtProjectsService = Services.GetRequiredService<CrdtProjectsService>();
         var crdtProject = await crdtProjectsService.CreateProjectFromTemplate(new(
-            Name: "applied-from-template",
-            Code: "applied",
+            Name: "template-test-project",
+            Code: "template-test",
             Role: UserProjectRole.Manager,
-            VernacularWs: "en"));
+            VernacularWs: "fr"));
 
         var api = await Services.OpenCrdtProject(crdtProject);
         var snapshot = await api.TakeProjectSnapshot();
@@ -111,7 +112,7 @@ public class ProjectTemplateTests : IAsyncLifetime
         Path.GetFullPath(Path.Combine(SourceDirectory(), "..", "LcmCrdt", "Templates"));
 
     private static string TemplatePath =>
-        Path.Combine(TemplateDirectory, "template.json");
+        Path.Combine(TemplateDirectory, "blank-project-template.json");
 
     private static string SourceDirectory([CallerFilePath] string path = "") =>
         Path.GetDirectoryName(path)!;

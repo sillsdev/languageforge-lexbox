@@ -87,7 +87,7 @@ public class SyncFixture : IAsyncLifetime
         foreach (var c in name.ToLowerInvariant())
             sb.Append(c is (>= 'a' and <= 'z') or (>= '0' and <= '9') or '-' ? c : '-');
         var code = sb.ToString().TrimStart('-');
-        return code.Length == 0 ? "test-project" : code;
+        return code.Length == 0 ? $"test-project-{Guid.NewGuid():N}" : code;
     }
 
     public virtual async Task InitializeAsync()
@@ -116,7 +116,7 @@ public class SyncFixture : IAsyncLifetime
             _services.ServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
         Directory.CreateDirectory(crdtProjectsFolder);
         var crdtProject = await _services.ServiceProvider.GetRequiredService<CrdtProjectsService>()
-            .CreateProject(new(_projectName, _projectName, FwProjectId: FwDataApi.ProjectId, SeedNewProjectData: false));
+            .CreateProject(new(_projectName, _projectName, FwProjectId: FwDataApi.ProjectId));
         CrdtApi = (CrdtMiniLcmApi)await _services.ServiceProvider.OpenCrdtProject(crdtProject);
     }
 

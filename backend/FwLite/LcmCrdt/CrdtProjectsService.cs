@@ -120,13 +120,6 @@ public partial class CrdtProjectsService(
         Guid? Id = null,
         Uri? Domain = null,
         Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
-        bool SeedNewProjectData = false,
-        // Whether to seed canonical morph-types pre-AfterCreate. Default true: callers that need
-        // morph-types to exist before their AfterCreate runs (e.g. FwData→CRDT import which reads
-        // morph-types as part of the import) get them seeded. Callers whose AfterCreate brings
-        // morph-types in via sync (download path) should set this to false to avoid a redundant
-        // seed commit that the inbound sync will dup.
-        bool SeedMorphTypes = true,
         string? Path = null,
         Guid? FwProjectId = null,
         string? AuthenticatedUser = null,
@@ -150,8 +143,8 @@ public partial class CrdtProjectsService(
     {
         if (request.VernacularWs is null)
             throw new ArgumentException("VernacularWs is required for template-based creation.", nameof(request));
-        // Local-only by design (see SyncService.UploadProject for why) — enforced at the
-        // construction site so the invariant holds where the project is born.
+        // Templated projects are created locally; this path has no way to associate one with a server
+        // at creation time, so reject a Domain up front — the invariant holds where the project is born.
         if (request.Domain is not null)
             throw new ArgumentException(
                 "Templated projects can't be associated with a server at creation time — they're local-only.",
@@ -161,10 +154,6 @@ public partial class CrdtProjectsService(
         var callerAfterCreate = request.AfterCreate;
         return await CreateProject(request with
         {
-            SeedNewProjectData = false,
-            // Seed the canonical morph-types first so the import reconciles them in place; mirrors the
-            // FwData import path, where CreateProject also defaults SeedMorphTypes to true.
-            SeedMorphTypes = true,
             AfterCreate = async (provider, project) =>
             {
                 var api = provider.GetRequiredService<IMiniLcmApi>();
@@ -213,11 +202,6 @@ public partial class CrdtProjectsService(
             crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
-            var dataModel = serviceScope.ServiceProvider.GetRequiredService<DataModel>();
-            if (request.SeedMorphTypes)
-                await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
-            if (request.SeedNewProjectData)
-                await SeedSystemData(dataModel, projectData);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
             // Ensure "data migrations" are executed on project creation (e.g. seeding morph types)
             // These should happen AFTER the initial download, so they can be run conditionally based on
@@ -292,15 +276,6 @@ public partial class CrdtProjectsService(
         await db.Database.MigrateAsync();
         db.ProjectData.Add(data);
         await db.SaveChangesAsync();
-    }
-
-    internal static async Task SeedSystemData(DataModel dataModel, ProjectData projectData)
-    {
-        await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
-        await PreDefinedData.AddPredefinedComplexFormTypes(dataModel, projectData);
-        await PreDefinedData.AddPredefinedPartsOfSpeech(dataModel, projectData);
-        await PreDefinedData.AddPredefinedSemanticDomains(dataModel, projectData);
-        await PreDefinedData.AddPredefinedCustomViews(dataModel, projectData);
     }
 
     // Mirrors LexBox's server-side rule (LexCore.Entities.Project.ProjectCodeRegex). LexBox is the

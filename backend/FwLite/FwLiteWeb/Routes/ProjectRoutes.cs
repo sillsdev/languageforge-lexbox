@@ -27,8 +27,10 @@ public static class ProjectRoutes
             });
         group.MapGet("/localProjects",
             (CombinedProjectsService combinedProjectsService) => combinedProjectsService.LocalProjects());
-        // Name is free-form; code identifies the project on disk and must match ProjectCode().
-        group.MapPost("/project",
+        // Dev-only: create a blank project from the bundled template. Creating a CRDT project from
+        // scratch isn't a supported user flow yet (see HomeView's DevContent gating). Name is free-form;
+        // code identifies the project on disk and must match ProjectCode().
+        group.MapPost("/project/create",
             async (CrdtProjectsService projectService, string name, string code, string vernacularWs) =>
             {
                 if (string.IsNullOrWhiteSpace(name)) return Results.BadRequest("Project name is required");
@@ -40,9 +42,8 @@ public static class ProjectRoutes
                 await projectService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager, VernacularWs: vernacularWs));
                 return Results.Ok();
             });
-        // Example/demo project — built from the template (parts of speech, complex form types,
-        // semantic domains, custom views, morph types) plus a handful of demo entries. Dev use.
-        group.MapPost("/project/demo",
+        // User-facing "Create Example Project": the template's system data plus a handful of demo entries.
+        group.MapPost("/project/create-demo",
             async (CrdtProjectsService projectService, string name) =>
             {
                 if (string.IsNullOrWhiteSpace(name)) return Results.BadRequest("Project name is required");

@@ -15,25 +15,20 @@ namespace LcmCrdt.Project;
 /// </summary>
 public static class ProjectTemplate
 {
-    private const string EmbeddedResourceName = "LcmCrdt.Templates.template.json";
-    private static readonly Lazy<string> EmbeddedTemplate = new(LoadEmbeddedCore);
+    private const string EmbeddedResourceName = "LcmCrdt.Templates.blank-project-template.json";
 
-    // Deserialized fresh per call (only the raw text is cached): the import hands these entities to the
-    // writer, which may mutate or retain them, so a single instance can't be shared across creations.
-    // Project creation is rare, so re-parsing is fine.
-    public static ProjectSnapshot LoadSnapshot(JsonSerializerOptions jsonSerializerOptions) =>
-        JsonSerializer.Deserialize<ProjectSnapshot>(EmbeddedTemplate.Value, jsonSerializerOptions)
-        ?? throw new InvalidOperationException("Project template snapshot deserialized to null.");
-
-    private static string LoadEmbeddedCore()
+    // Read and parsed fresh per call rather than cached: the snapshot is large and project creation is
+    // rare, so there's no point pinning it in memory. The import also hands these entities to the writer,
+    // which may mutate or retain them, so a shared instance couldn't be reused across creations anyway.
+    public static ProjectSnapshot LoadSnapshot(JsonSerializerOptions jsonSerializerOptions)
     {
         var assembly = typeof(ProjectTemplate).Assembly;
         using var stream = assembly.GetManifestResourceStream(EmbeddedResourceName)
             ?? throw new InvalidOperationException(
                 $"Project template resource '{EmbeddedResourceName}' not found. Regenerate it by " +
                 "running FwLiteProjectSync.Tests.ProjectTemplateTests.GenerateTemplate.");
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
+        return JsonSerializer.Deserialize<ProjectSnapshot>(stream, jsonSerializerOptions)
+            ?? throw new InvalidOperationException("Project template snapshot deserialized to null.");
     }
 
     /// <summary>

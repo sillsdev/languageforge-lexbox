@@ -201,9 +201,6 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             {
                 await provider.GetRequiredService<SyncService>().ExecuteSync(true);
             },
-            SeedNewProjectData: false,
-            // Download path: morph-types arrive via ExecuteSync above; see CreateProjectRequest.SeedMorphTypes.
-            SeedMorphTypes: false,
             AuthenticatedUser: currentUser?.Name,
             AuthenticatedUserId: currentUser?.Id,
             Role: ToRole(project.Role))));

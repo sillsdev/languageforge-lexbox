@@ -6,10 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MiniLcm.Models;
 using SIL.Harmony;
-using SIL.Harmony.Changes;
-using SIL.Harmony.Core;
 
 namespace LcmCrdt;
 
@@ -111,17 +108,13 @@ public class CurrentProjectService(
                 await using var dbContext = await DbContextFactory.CreateDbContextAsync();
                 await dbContext.Database.MigrateAsync();
 
-                // Backfill for projects created before morph-types shipped. Must run BEFORE FTS
-                // regeneration so headwords include morph-type tokens. ProjectData can be absent on a
-                // freshly-migrated DB (e.g. FwHeadless mid-create) — nothing to scope the seed
-                // commit-id to, so skip. Detection is commit-based, not projection-based: if any commit
-                // already creates a morph-type (templated projects, synced-down morph-types, or a project
-                // where the user deleted a canonical one) we must NOT re-seed, or we'd resurrect deleted
-                // morph-types and add a redundant commit. Only a project with zero such commits needs it.
-                var projectData = await dbContext.ProjectData.AsNoTracking().FirstOrDefaultAsync();
-                if (projectData is not null && !await HasMorphTypeCreatingCommit(dbContext))
+                // Seed morph-types if missing (for existing projects created before morph-type support).
+                // Must happen BEFORE FTS regeneration so headwords include morph-type tokens.
+                var dataModel = services.GetRequiredService<DataModel>();
+                var projectData = await dbContext.ProjectData.AsNoTracking().FirstAsync();
+                // Remove in #2350
+                if (!await dbContext.MorphTypes.AnyAsync())
                 {
-                    var dataModel = services.GetRequiredService<DataModel>();
                     await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
                 }
 
@@ -138,18 +131,6 @@ public class CurrentProjectService(
             }
         }
 
-    }
-
-    // The Change column stores the change JSON with a "$type" discriminator (CrdtConstants.ChangeDiscriminatorProperty);
-    // EF can't translate a C# type test against it, so probe the discriminator directly — the json_extract idiom the
-    // codebase already uses for Commit metadata (see SyncRepository).
-    private static async Task<bool> HasMorphTypeCreatingCommit(LcmCrdtDbContext dbContext)
-    {
-        return await dbContext.Database.SqlQuery<bool>(
-            $"""
-             SELECT EXISTS(SELECT 1 FROM ChangeEntities
-             WHERE json_extract(Change, '$."$type"') = {nameof(Changes.CreateMorphTypeChange)}) AS Value
-             """).SingleAsync();
     }
 
     public async Task SetProjectSyncOrigin(Uri? domain, Guid? id)

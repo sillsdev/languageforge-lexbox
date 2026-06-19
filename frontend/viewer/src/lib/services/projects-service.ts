@@ -26,18 +26,19 @@ export class ProjectService implements ICombinedProjectsService {
   deleteProject(_code: string): Promise<void> {
       throw new Error('Method not implemented.');
   }
-  // Applies the shipped SQL template — canonical morph types only, no demo data.
+  // Dev-only: create a blank project from the bundled template (system data, no demo entries).
+  // Creating a CRDT project from scratch isn't a supported user flow yet.
   async createProject(name: string, code: string, vernacularWs: string): Promise<void> {
     if (!name.trim()) throw new Error('Project name is required');
     if (!code.trim()) throw new Error('Project code is required');
     if (!vernacularWs.trim()) throw new Error('Vernacular writing system is required');
-    await this.postOk(`/api/project?name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}&vernacularWs=${encodeURIComponent(vernacularWs)}`);
+    await this.postOk(`/api/project/create?name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}&vernacularWs=${encodeURIComponent(vernacularWs)}`);
   }
 
-  // Example/demo project — seeds canonical PreDefinedData and demo entries. Dev use.
+  // User-facing "Create Example Project": template system data plus a handful of demo entries.
   async createDemoProject(name: string): Promise<void> {
     if (!name) throw new Error('Project name is required');
-    await this.postOk(`/api/project/demo?name=${encodeURIComponent(name)}`);
+    await this.postOk(`/api/project/create-demo?name=${encodeURIComponent(name)}`);
   }
 
   private async postOk(url: string): Promise<void> {

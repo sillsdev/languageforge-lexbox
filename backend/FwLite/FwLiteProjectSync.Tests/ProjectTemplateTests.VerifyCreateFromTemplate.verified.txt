@@ -16782,10 +16782,10 @@
       {
         "Id": "Guid_1826",
         "MaybeId": "Guid_1826",
-        "WsId": "en",
+        "WsId": "fr",
         "IsAudio": false,
-        "Name": "en",
-        "Abbreviation": "Eng",
+        "Name": "fr",
+        "Abbreviation": "Fra",
         "Font": "Charis SIL",
         "DeletedAt": null,
         "Type": 0,
