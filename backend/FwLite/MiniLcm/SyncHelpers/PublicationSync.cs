@@ -22,7 +22,7 @@ public static class PublicationSync
     {
         var updateObjectInput = DiffToUpdate(beforePublication, afterPublication);
         if (updateObjectInput is null) return 0;
-        await api.UpdatePublication(beforePublication.Id, updateObjectInput);
+        await api.SubmitUpdatePublication(beforePublication.Id, updateObjectInput);
         return 1;
     }
 

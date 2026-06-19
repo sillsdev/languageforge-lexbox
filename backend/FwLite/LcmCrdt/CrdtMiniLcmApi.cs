@@ -141,11 +141,14 @@ public class CrdtMiniLcmApi(
         return await GetPartOfSpeech(partOfSpeech.Id) ?? throw NotFoundException.ForType<PartOfSpeech>(partOfSpeech.Id);
     }
 
+    public Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        return AddChanges(update.Patch.ToChanges(id));
+    }
+
     public async Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
-        var pos = await GetPartOfSpeech(id) ?? throw NotFoundException.ForType<PartOfSpeech>(id);
-
-        await AddChanges(update.Patch.ToChanges(pos.Id));
+        await SubmitUpdatePartOfSpeech(id, update);
         return await GetPartOfSpeech(id) ?? throw NotFoundException.ForType<PartOfSpeech>(id);
     }
 
@@ -182,11 +185,15 @@ public class CrdtMiniLcmApi(
 
     }
 
+    public Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        return AddChanges(update.Patch.ToChanges(id));
+    }
+
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
+        await SubmitUpdatePublication(id, update);
         await using var repo = await repoFactory.CreateRepoAsync();
-        var pub = await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
-        await AddChanges(update.Patch.ToChanges(pub.Id));
         return await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>($"{id} (invalid patching to a new id?)");
     }
 
@@ -234,10 +241,14 @@ public class CrdtMiniLcmApi(
         return await GetSemanticDomain(semanticDomain.Id) ?? throw NotFoundException.ForType<SemanticDomain>(semanticDomain.Id);
     }
 
+    public Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
+    {
+        return AddChanges(update.Patch.ToChanges(id));
+    }
+
     public async Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        var semDom = await GetSemanticDomain(id) ?? throw NotFoundException.ForType<SemanticDomain>(id);
-        await AddChanges(update.Patch.ToChanges(semDom.Id));
+        await SubmitUpdateSemanticDomain(id, update);
         return await GetSemanticDomain(id) ?? throw NotFoundException.ForType<SemanticDomain>(id);
     }
 
@@ -280,9 +291,14 @@ public class CrdtMiniLcmApi(
         return await repo.ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
     }
 
+    public Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
+    {
+        return AddChange(new JsonPatchChange<ComplexFormType>(id, update.Patch));
+    }
+
     public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
     {
-        await AddChange(new JsonPatchChange<ComplexFormType>(id, update.Patch));
+        await SubmitUpdateComplexFormType(id, update);
         return await GetComplexFormType(id) ?? throw NotFoundException.ForType<ComplexFormType>(id);
     }
 

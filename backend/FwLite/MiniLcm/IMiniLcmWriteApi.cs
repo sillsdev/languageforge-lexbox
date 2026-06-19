@@ -125,6 +125,14 @@ public interface IMiniLcmWriteApi
     Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => UpdateSense(entryId, senseId, update);
     Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => CreateExampleSentence(entryId, senseId, exampleSentence, position);
     Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
+    // Dependency types (synced before entries). These run outside EntrySync's try/catch, so a deleted-in-CRDT
+    // one that's still edited in FwData would otherwise crash the whole sync the same way (issue #2361).
+    // WritingSystem is omitted (its update needs to resolve the entity id, so it can't be a blind submit, and
+    // deleting a writing system is a deliberate, cascading operation); MorphType is omitted (not deletable).
+    Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => UpdatePartOfSpeech(id, update);
+    Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update) => UpdatePublication(id, update);
+    Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update) => UpdateSemanticDomain(id, update);
+    Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update) => UpdateComplexFormType(id, update);
     #endregion
 
     #region CustomView
