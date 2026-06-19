@@ -1,6 +1,11 @@
+using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using FwLiteShared.Auth;
+using FwLiteShared.Services;
 using FwLiteShared.Sync;
+using LcmCrdt.RemoteSync;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Push;
@@ -13,26 +18,83 @@ public sealed class LexboxHubConnection(
     IHttpMessageHandlerFactory httpMessageHandlerFactory,
     OAuthClientFactory clientFactory,
     BackgroundSyncService backgroundSyncService,
-    ILogger logger) : IAsyncDisposable
+    INetworkStatus networkStatus,
+    IMemoryCache cache,
+    ILogger logger,
+    HubConnection? initialConnection = null) : IAsyncDisposable
 {
-    private readonly HashSet<Guid> registeredProjects = [];
+    private readonly ConcurrentHashSet<Guid> registeredProjects = [];
 
     public LexboxServer Server { get; } = server;
-    private HubConnection? connection;
-    public HubConnectionState State => connection?.State ?? HubConnectionState.Disconnected;
-    public bool IsConnected => State == HubConnectionState.Connected;
-    public bool IsReconnecting => State == HubConnectionState.Reconnecting;
-    public bool IsDisconnected => State == HubConnectionState.Disconnected;
+    private HubConnection? connection = initialConnection;
+    private SemaphoreSlim connectionLock = new(1, 1);
+    [MemberNotNullWhen(true, nameof(connection))]
+    public bool IsConnected => connection?.State == HubConnectionState.Connected;
+    [MemberNotNullWhen(true, nameof(connection))]
+    public bool IsReconnecting => connection?.State == HubConnectionState.Reconnecting;
 
-    private async Task NewConnection(CancellationToken stoppingToken)
+    public async ValueTask<bool> EnsureConnected(bool kickReconnecting = false, CancellationToken stoppingToken = default)
     {
-        connection = new HubConnectionBuilder()
+        if (IsConnected) return true;
+        if (kickReconnecting && IsReconnecting)
+        {
+            logger.LogInformation("Network recovery signal: interrupting mid-backoff reconnect to {Server}", Server.Authority);
+            await CleanupConnection();
+        }
+
+        if (IsReconnecting) return false;
+
+        if (connection?.State == HubConnectionState.Disconnected)
+        {
+            try
+            {
+                await connection.StartAsync(stoppingToken);
+                await OnConnected(stoppingToken);
+                return true;
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to restart Lexbox listener");
+                await CleanupConnection();
+            }
+        }
+
+        try
+        {
+            await connectionLock.WaitAsync(stoppingToken);
+            if (IsConnected) return true;
+            await CleanupConnection();
+            connection = await NewConnection(stoppingToken);
+            await OnConnected(stoppingToken);
+            return IsConnected;
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to start Lexbox listener");
+            await CleanupConnection();
+            return false;
+        }
+        finally
+        {
+            connectionLock.Release();
+        }
+    }
+
+    private async Task<HubConnection?> NewConnection(CancellationToken stoppingToken)
+    {
+        if (!await clientFactory.GetClient(Server).IsSignedIn())
+        {
+            logger.LogWarning("Unable to create signalR client, user is not authenticated to {OriginDomain}",
+                Server.Authority);
+            return null;
+        }
+        var hubConnection = new HubConnectionBuilder()
             // Hand the builder's internal DI the app's logger factory so HubConnection's own logs (reconnect
             // attempts, close reasons) land in the app log instead of a console-only factory. An externally
             // supplied instance is not disposed with the connection's service provider.
             .ConfigureLogging(logging => logging.Services.AddSingleton(loggerFactory))
-            .WithAutomaticReconnect(new LexboxProjectChangeListener.AdaptiveRetryPolicy(networkStatus, logger))
-            .WithUrl($"{server.Authority}api/hub/crdt/project-changes",
+            .WithAutomaticReconnect(new AdaptiveRetryPolicy(networkStatus, logger))
+            .WithUrl($"{Server.Authority}api/hub/crdt/project-changes",
                 connectionOptions =>
                 {
                     connectionOptions.HttpMessageHandlerFactory = handler =>
@@ -41,59 +103,149 @@ public sealed class LexboxHubConnection(
                         return httpMessageHandlerFactory.CreateHandler(OAuthClient.AuthHttpClientName);
                     };
                     connectionOptions.AccessTokenProvider =
-                        async () => await clientFactory.GetClient(server).GetCurrentToken();
+                        async () => await clientFactory.GetClient(Server).GetCurrentToken();
                 })
             .Build();
-        
-        connection.On(nameof(IProjectChangeHubClient.OnProjectUpdated),
+
+        hubConnection.On(nameof(IProjectChangeHubClient.OnProjectUpdated),
             (Guid projectId, Guid? clientId) =>
             {
                 OnProjectUpdated(projectId, clientId);
                 return Task.CompletedTask;
             });
-        connection.Reconnecting += OnReconnecting;
-        await connection.StartAsync(stoppingToken);
-        connection.Closed += OnClosed;
-        connection.Reconnected += OnReconnected;
+        hubConnection.Reconnecting += exception => OnReconnecting(hubConnection, exception);
+        hubConnection.Closed += exception => OnClosed(hubConnection, exception);
+        hubConnection.Reconnected += _ => OnReconnected(hubConnection);
 
-        foreach (var project in registeredProjects)
+        try
         {
-            await ListenForProjectChanges(project, stoppingToken);
+            await hubConnection.StartAsync(stoppingToken);
+            return hubConnection;
+        }
+        catch
+        {
+            await hubConnection.DisposeAsync();
+            throw;
         }
     }
 
-    public async ValueTask EnsureConnected(bool kickReconnecting = false, CancellationToken stoppingToken = default)
+    public async ValueTask OnAuthChanged()
     {
-        if (IsConnected) return;
-        if (connection is null)
+        logger.LogInformation("Auth changed for {Server}, re-establishing push listeners for {ProjectCount} tracked project(s)",
+            Server.Authority, registeredProjects.Count);
+        await CleanupConnection();
+        await EnsureConnected();
+    }
+
+    private async ValueTask OnConnected(CancellationToken stoppingToken = default)
+    {
+        await SubscribeRegisteredProjects(stoppingToken);
+        TriggerSyncForServerProjects();
+    }
+
+    //it might make more sense for this method to return an observable, but we'll leave this as is for now
+    public async Task ListenForProjectChanges(Guid projectId, CancellationToken stoppingToken = default, bool kickReconnecting = false)
+    {
+        registeredProjects.Add(projectId);
+        if (!await EnsureConnected(kickReconnecting, stoppingToken)) return;
+        if (!IsConnected) return;
+        try
         {
-            
-        } else if (kickReconnecting && IsReconnecting)
+            await ListenForProjectChangesCore(projectId, stoppingToken);
+        }
+        catch (Exception e)
         {
-            await CleanupConnection();
-        } else if (IsDisconnected)
+            // The connection can drop or be disposed between EnsureConnected and SendAsync. The project is
+            // already registered above, so a later reconnect/revive will resubscribe it.
+            logger.LogWarning(e, "SignalR connection not active while subscribing to project changes");
+        }
+    }
+
+    private async Task SubscribeRegisteredProjects(CancellationToken stoppingToken = default)
+    {
+        if (!IsConnected) return;
+        foreach (var projectId in registeredProjects)
         {
             try
             {
-                await connection.StartAsync(stoppingToken);
-                //todo: resubscribe registered projects
-            } catch (Exception e)
+                await ListenForProjectChangesCore(projectId, stoppingToken);
+            }
+            catch (Exception e)
             {
-                logger.LogWarning(e, "Failed to restart Lexbox listener");
-                await CleanupConnection();
+                // Ensure one project's failing to resubscribe doesn't block others.
+                logger.LogWarning(e, "Failed to resubscribe to project changes for {ProjectId}", projectId);
             }
         }
+    }
 
-        await NewConnection(stoppingToken);
+    // Used by the Reconnected handler and after a manual revive — a manual
+    // StartAsync does not raise Reconnected, so the revive path must resubscribe explicitly.
+    private Task ListenForProjectChangesCore(Guid projectId, CancellationToken stoppingToken = default) =>
+        connection?.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId, stoppingToken) ?? Task.CompletedTask;
+
+
+    private async Task OnReconnecting(HubConnection hubConnection, Exception? exception)
+    {
+        if (!ReferenceEquals(connection, hubConnection)) return;
+
+        if (exception is not null)
+            logger.LogWarning(exception, "SignalR connection reconnecting");
+        else
+            logger.LogInformation("SignalR connection reconnecting");
+        if (await clientFactory.GetClient(Server).IsSignedIn())
+        {
+            return;
+        }
+
+        // The retry policy never gives up; this breaks the loop when the user is logged out. Logged-out is tested
+        // by account presence (IsSignedIn), not by whether a token can be fetched right now: reconnecting happens
+        // precisely when the network is flaky, and fetching a token can require a refresh round-trip that fails
+        // transiently — which would be a false logout. Account presence is a local-only read and only flips on a
+        // real logout. Once the user signs back in, auth-change handling rebuilds the listener.
+        logger.LogWarning("SignalR reconnect aborted: user is logged out; stopping connection");
+        try
+        {
+            await CleanupConnection();
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to stop SignalR connection after auth loss");
+        }
+    }
+
+    private async Task OnReconnected(HubConnection hubConnection)
+    {
+        if (!ReferenceEquals(connection, hubConnection)) return;
+
+        // Auto-reconnected this same connection (no rebuild → the fresh-build sync below didn't run).
+        logger.LogInformation("SignalR reconnected to {Server}; syncing", Server.Authority);
+        await OnConnected();
+    }
+
+    private async Task OnClosed(HubConnection hubConnection, Exception? exception)
+    {
+        if (!ReferenceEquals(connection, hubConnection))
+        {
+            await hubConnection.DisposeAsync();
+            return;
+        }
+        connection = null;
+        await hubConnection.DisposeAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await CleanupConnection();
     }
 
     private async ValueTask CleanupConnection()
     {
-        await (connection?.DisposeAsync() ?? ValueTask.CompletedTask);
+        var oldConnection = connection;
         connection = null;
+        await (oldConnection?.DisposeAsync() ?? ValueTask.CompletedTask);
     }
 
-    public void OnProjectUpdated(Guid projectId, Guid? clientId)
+    private void OnProjectUpdated(Guid projectId, Guid? clientId)
     {
         logger.LogInformation("Received project update for {ProjectId}, triggering sync", projectId);
         try
@@ -108,112 +260,57 @@ public sealed class LexboxHubConnection(
         }
     }
 
-    public async Task ListenForProjectChanges(Guid projectId, CancellationToken stoppingToken = default)
+    // A listener (re)connecting moves no data on its own — the server only pushes OnProjectUpdated for changes
+    // made after (re)subscribe — so changes authored while offline, and remote changes that arrived during the
+    // outage, need an explicit sync once the connection is back. Call ONLY on a real connect transition (fresh
+    // build, SignalR Reconnected, or a revive), never on a cache-hit re-ensure, otherwise it loops with the
+    // post-sync TryEnsureProjectChangeListener.
+    private void TriggerSyncForServerProjects()
     {
-        RegisterForResubscribe(projectId);
-        await connection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId, stoppingToken);
-    }
-
-    public void RegisterForResubscribe(Guid projectId)
-    {
-        lock (registeredProjects)
-        {
-            registeredProjects.Add(projectId);
-        }
-    }
-
-    public bool IsRegisteredForResubscribe(Guid projectId)
-    {
-        lock (registeredProjects)
-        {
-            return registeredProjects.Contains(projectId);
-        }
-    }
-
-    // Used by the Reconnected handler and after a manual revive — a manual
-    // StartAsync does not raise Reconnected, so the revive path must resubscribe explicitly.
-    public async Task ResubscribeRegisteredProjects()
-    {
-        Guid[] projectIds;
-        lock (registeredProjects)
-        {
-            projectIds = [.. registeredProjects];
-        }
-        foreach (var projectId in projectIds)
+        // A genuine connect transition means SignalR just reached this server, which proves it's reachable.
+        // Both these per-server caches can hold a stale failure from the offline period: the health verdict
+        // (cached unhealthy for 30 min) would make this catch-up sync a silent no-op, and the project list
+        // (cached empty for 5 min) would keep showing nothing. Drop both so they re-fetch now that we're back.
+        CrdtHttpSyncService.InvalidateServerHealth(cache, Server.Authority.Authority);
+        cache.Remove(LexboxProjectService.ProjectListCacheKey(Server));
+        foreach (var project in registeredProjects)
         {
             try
             {
-                await connection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId);
+                backgroundSyncService.TriggerSync(project);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // Ensure one project's failing to resubscribe doesn't block others.
+                // TriggerSync throws if the background sync service isn't running yet (e.g. startup/shutdown).
+                logger.LogWarning(e, "Failed to trigger sync after listener (re)connect for {ProjectId}",
+                    project);
             }
         }
     }
 
-    // The retry policy never gives up; this breaks the loop when the user is logged out. Logged-out is tested
-    // by account presence (IsSignedIn), not by whether a token can be fetched right now: reconnecting happens
-    // precisely when the network is flaky, and fetching a token can require a refresh round-trip that fails
-    // transiently — which would be a false logout. Account presence is a local-only read and only flips on a
-    // real logout. Once the user signs back in, auth-change handling rebuilds the listener.
-    internal async Task HandleReconnecting(
-        bool isSignedIn,
-        Exception? exception,
-        Func<Task>? stopConnection = null)
+    // Must never return null — that ends SignalR's retry loop for good (the deliberate stop on logout is
+    // HandleReconnecting's job). SignalR consults the policy once per attempt and a returned delay cannot be
+    // interrupted except by StopAsync, so the delay is the worst-case recovery latency: keep it short while
+    // the device reports online (the problem is server-side and could end any moment) and long while offline
+    // (every attempt is a pointless local failure; connectivity/resume triggers handle the transition back).
+    internal class AdaptiveRetryPolicy(INetworkStatus networkStatus, ILogger? logger = null) : IRetryPolicy
     {
-        if (exception is not null)
-            logger.LogWarning(exception, "SignalR connection reconnecting");
-        else
-            logger.LogInformation("SignalR connection reconnecting");
-
-        if (isSignedIn) return;
-
-        // Same guard as the Closed handler: a replacement connection may have been cached since this one
-        // started reconnecting; only evict the entry if it is still ours. Stopping ourselves is right
-        // regardless — this connection belongs to a signed-out user.
-        registry.RemoveIfCached(Server, this);
-        logger.LogWarning("SignalR reconnect aborted: user is logged out; stopping connection");
-        try
+        public TimeSpan? NextRetryDelay(RetryContext retryContext)
         {
-            await (stopConnection ?? StopAsync)();
-        }
-        catch (Exception e)
-        {
-            logger.LogWarning(e, "Failed to stop SignalR connection after auth loss");
+            var isOnline = networkStatus.IsOnline;
+            var delay = retryContext.PreviousRetryCount switch
+            {
+                0 => TimeSpan.Zero,
+                1 => TimeSpan.FromSeconds(5),
+                _ when !isOnline => TimeSpan.FromSeconds(60),
+                _ => TimeSpan.FromSeconds(10),
+            };
+            // Per-attempt detail for diagnosing reconnect behaviour in the field; the connection-level
+            // reconnecting/recovered/synced events carry the story at Information.
+            logger?.LogDebug(
+                "SignalR reconnect attempt #{Attempt}: device reports online={IsOnline}, next retry in {Delay}",
+                retryContext.PreviousRetryCount, isOnline, delay);
+            return delay;
         }
     }
-
-    public async Task StopAsync()
-    {
-        await connection.StopAsync();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await connection.DisposeAsync();
-    }
-
-    private async Task OnReconnecting(Exception? exception)
-    {
-        await HandleReconnecting(await isSignedIn(), exception);
-    }
-
-    private async Task OnClosed(Exception? exception)
-    {
-        // A stopped connection may have been replaced in the cache before this handler runs. Don't
-        // blindly remove the cache entry on Closed — only do so if WE are the cached connection,
-        // otherwise we'd evict the live replacement.
-        registry.RemoveIfCached(Server, this);
-        await DisposeAsync();
-    }
-
-    private Task OnReconnected(string? connectionId)
-    {
-        // Auto-reconnected this same connection (no rebuild → the fresh-build sync below didn't run).
-        logger.LogInformation("SignalR reconnected to {Server}; syncing", Server.Authority);
-        onConnected(Server);
-        return Task.CompletedTask;
-    }
-
 }

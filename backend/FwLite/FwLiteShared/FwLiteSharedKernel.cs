@@ -31,8 +31,6 @@ public static class FwLiteSharedKernel
         services.AddScoped<SyncService>();
         services.AddScoped<ProjectServicesProvider>();
         services.AddScoped<IServerHttpClientProvider, LexboxOauthServerClientProvider>();
-        services.AddSingleton<LexboxHubConnectionRegistry>();
-        services.AddSingleton<LexboxProjectSubscriptionStarter>();
         services.AddSingleton<LexboxProjectChangeListener>();
         services.AddSingleton<LexboxProjectService>();
         services.AddSingleton<CombinedProjectsService>();
