@@ -195,17 +195,21 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var pub = await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
 
-        var patch = new JsonPatchDocument<Publication>();
-        patch.Operations.AddRange(update.Patch.Operations.Where(op =>
-            !string.Equals(op.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase)));
-        var changes = patch.ToChanges(pub.Id).ToList();
-
-        // IsMain is applied via SetMainPublicationChange (which converges), not as a plain field patch.
-        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain) && isMain)
-            changes.Add(new SetMainPublicationChange(pub.Id));
-
-        if (changes.Count > 0)
-            await AddChanges(changes);
+        // IsMain is applied via SetMainPublicationChange (which converges), not as a plain field patch, so it's
+        // stripped from the patch and translated to that change — but only when an IsMain op is actually present.
+        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain))
+        {
+            var patch = new JsonPatchDocument<Publication>();
+            patch.Operations.AddRange(update.Patch.Operations.Where(op =>
+                !string.Equals(op.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase)));
+            var changes = patch.ToChanges(pub.Id).ToList();
+            if (isMain) changes.Add(new SetMainPublicationChange(pub.Id));
+            if (changes.Count > 0) await AddChanges(changes);
+        }
+        else if (update.Patch.Operations.Count > 0)
+        {
+            await AddChanges(update.Patch.ToChanges(pub.Id));
+        }
         return await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>($"{id} (invalid patching to a new id?)");
     }
 
