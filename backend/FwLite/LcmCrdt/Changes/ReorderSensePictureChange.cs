@@ -12,7 +12,7 @@ public class ReorderSensePictureChange(Guid pictureId, Guid entityId, double ord
 
     public override ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
-        var picture = entity.Pictures.FirstOrDefault(pic => pic.Id == PictureId);
+        var picture = entity.Pictures.FirstOrDefault(pic => pic.Id == PictureId && pic.DeletedAt is null);
         // Not found? Picture may have been deleted by another change, in which case the reodering has become a no-op
         if (picture is null) return ValueTask.CompletedTask;
         picture.Order = Order;
