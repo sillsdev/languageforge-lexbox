@@ -18,12 +18,7 @@ public class CommitEntityConfiguration : IEntityTypeConfiguration<ServerCommit>
     public void Configure(EntityTypeBuilder<ServerCommit> builder)
     {
         builder.ToTable("CrdtCommits");
-        // PK is (ProjectId, Id): Commit.Id alone is not unique across projects (FwLite clients
-        // can mint the same Id for two different projects — e.g. a shared seed-commit pattern
-        // that ignores ProjectId), and the old Id-only PK caused the second arriving copy to be
-        // silently dropped by CrdtCommitService's MERGE ON TARGET KEY. Scoping the key by
-        // ProjectId lets both projects keep their own row.
-        builder.HasKey(c => new { c.ProjectId, c.Id });
+        builder.HasKey(c => c.Id);
         builder.ComplexProperty(c => c.HybridDateTime);
         builder.HasOne<Project>().WithMany()
             .HasPrincipalKey(project => project.Id)

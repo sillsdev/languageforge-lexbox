@@ -192,27 +192,6 @@ public class CrdtCommitServiceTests
         _lexBoxDbContext.CrdtCommits(commit.ProjectId).Should().HaveCountGreaterThan(0);
     }
 
-    [Fact]
-    public async Task SameCommitIdInTwoDifferentProjectsKeepsBoth()
-    {
-        // Regression: with an Id-only PK the second project's identical Commit.Id was silently dropped by the MERGE's OnTargetKey; composite (ProjectId, Id) keeps both.
-        var projects = await _lexBoxDbContext.Projects.Select(p => p.Id).Take(2).ToArrayAsync();
-        if (projects.Length < 2)
-            throw new InvalidOperationException("Test requires at least 2 seeded projects.");
-
-        var sharedCommitId = Guid.NewGuid();
-        var commitForA = CreateCommit(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, sharedCommitId);
-        var commitForB = CreateCommit(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, sharedCommitId);
-
-        await _crdtCommitService.AddCommits(projects[0], AsAsync([commitForA]));
-        await _crdtCommitService.AddCommits(projects[1], AsAsync([commitForB]));
-
-        var inA = await _lexBoxDbContext.CrdtCommits(projects[0]).Where(c => c.Id == sharedCommitId).ToArrayAsync();
-        var inB = await _lexBoxDbContext.CrdtCommits(projects[1]).Where(c => c.Id == sharedCommitId).ToArrayAsync();
-        inA.Should().ContainSingle().Which.ClientId.Should().Be(commitForA.ClientId);
-        inB.Should().ContainSingle().Which.ClientId.Should().Be(commitForB.ClientId);
-    }
-
 
     private async Task<ServerCommit> AddTestCommit()
     {

@@ -1066,10 +1066,8 @@ namespace LexData.Migrations
 
             modelBuilder.Entity("SIL.Harmony.Core.ServerCommit", b =>
                 {
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("ChangeEntities")
@@ -1082,6 +1080,9 @@ namespace LexData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
                     b.ComplexProperty<Dictionary<string, object>>("HybridDateTime", "SIL.Harmony.Core.ServerCommit.HybridDateTime#HybridDateTime", b1 =>
                         {
                             b1.IsRequired();
@@ -1093,7 +1094,9 @@ namespace LexData.Migrations
                                 .HasColumnType("timestamp with time zone");
                         });
 
-                    b.HasKey("ProjectId", "Id");
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("CrdtCommits", (string)null);
                 });
