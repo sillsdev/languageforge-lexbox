@@ -311,8 +311,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         // We expect the final result to be equivalent to this "raw"/untouched, requested state.
         var expected = after.Copy();
 
-        // Don't auto-add the main publication when staging data: the sync path under test (EntrySync) never
-        // does, and a round-tripped main wouldn't exist on the other API, breaking the subsequent create.
+        // Don't auto-add the main publication when staging data: the sync path under test (EntrySync) never does.
         var noAutoMain = new CreateEntryOptions(AutoAddMainPublication: false);
         if (roundTripApi is not null)
         {
