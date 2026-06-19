@@ -13,4 +13,7 @@ public record CreateEntryOptions(
 
     /// <summary>For interactive entry creation: auto-add the project's main publication.</summary>
     public static readonly CreateEntryOptions WithMainPublication = new(AutoAddMainPublication: true);
+
+    /// <summary>Defer complex forms and components to a later sync pass (they may reference entries that don't exist yet).</summary>
+    public static readonly CreateEntryOptions WithoutComplexFormsAndComponents = new(IncludeComplexFormsAndComponents: false);
 }
