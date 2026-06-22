@@ -17,7 +17,7 @@ public sealed class LexboxHubConnection(
     ILoggerFactory loggerFactory,
     IHttpMessageHandlerFactory httpMessageHandlerFactory,
     OAuthClientFactory clientFactory,
-    BackgroundSyncService backgroundSyncService,
+    IBackgroundSyncService backgroundSyncService,
     INetworkStatus networkStatus,
     IMemoryCache cache,
     ILogger logger,

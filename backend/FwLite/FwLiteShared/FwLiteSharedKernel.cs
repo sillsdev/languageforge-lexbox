@@ -44,6 +44,7 @@ public static class FwLiteSharedKernel
         services.AddScoped<FwLiteProvider>();
 
         services.AddSingleton<BackgroundSyncService>();
+        services.AddSingleton<IBackgroundSyncService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddSingleton<IHostedService, PushListenerRecoveryService>();
         services.AddSingleton<IHostedService, AuthChangeListenerTrigger>();

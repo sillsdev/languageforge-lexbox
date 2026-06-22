@@ -14,7 +14,7 @@ namespace FwLiteWeb.Hubs;
 
 public class CrdtMiniLcmApiHub(
     IMiniLcmApi miniLcmApi,
-    BackgroundSyncService backgroundSyncService,
+    IBackgroundSyncService backgroundSyncService,
     SyncService syncService,
     ProjectEventBus projectEventBus,
     CurrentProjectService projectContext,
