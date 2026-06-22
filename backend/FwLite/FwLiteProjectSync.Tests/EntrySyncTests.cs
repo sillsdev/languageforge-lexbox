@@ -19,10 +19,8 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
         return fixture.CrdtApi;
     }
 
-    // Conflict scenarios: an object is deleted in the CRDT but still present (and edited) in the diff inputs
-    // — i.e. another client deleted it while FieldWorks edited it. The CRDT deletion should win: applying the
-    // edit is a no-op, the sync must not throw, and the object stays deleted. (FwData is intentionally NOT
-    // tolerant — its writes still throw if the target is missing — so these live in the CRDT subclass only.)
+    // These delete-win cases live only in the CRDT subclass: the CRDT deletion must win when an object it
+    // deleted is still edited from the other side, whereas FwData intentionally still throws on a missing target.
 
     [Fact]
     public async Task SyncFull_EntryEditedButDeletedInCrdt_DoesNotThrow()
@@ -112,6 +110,33 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
 
         (await Api.GetEntry(component.Id)).Should().BeNull();
         (await Api.GetEntry(complexForm.Id))!.Components.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SyncFull_ComplexFormComponentReorderedButEntryDeletedInCrdt_DoesNotThrow()
+    {
+        var componentA = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "a" } } });
+        var componentB = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "b" } } });
+        var complexForm = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "complexForm" } } };
+        complexForm.Components =
+        [
+            ComplexFormComponent.FromEntries(complexForm, componentA),
+            ComplexFormComponent.FromEntries(complexForm, componentB),
+        ];
+        var before = await Api.CreateEntry(complexForm);
+        await Api.DeleteEntry(before.Id);
+
+        // Id-less components (as FwData produces them) force the move to resolve the now-deleted component — the case that used to throw.
+        var after = before.Copy();
+        after.Components =
+        [
+            new ComplexFormComponent { ComplexFormEntryId = before.Id, ComponentEntryId = componentB.Id, ComponentHeadword = "b" },
+            new ComplexFormComponent { ComplexFormEntryId = before.Id, ComponentEntryId = componentA.Id, ComponentHeadword = "a" },
+        ];
+
+        await EntrySync.SyncFull(before, after, Api);
+
+        (await Api.GetEntry(before.Id)).Should().BeNull();
     }
 }
 

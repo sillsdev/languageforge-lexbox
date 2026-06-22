@@ -226,7 +226,6 @@ public static class EntrySync
 
         public override async Task<int> Add(ComplexFormComponent after)
         {
-            // Submit* tolerates a deleted referenced entry (no NotFound), so no try/catch here.
             await api.SubmitCreateComplexFormComponent(after);
             return 1;
         }
@@ -265,7 +264,7 @@ public static class EntrySync
 
         public async Task<int> Move(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
         {
-            await api.MoveComplexFormComponent(component, between);
+            await api.SubmitMoveComplexFormComponent(component, between);
             return 1;
         }
 

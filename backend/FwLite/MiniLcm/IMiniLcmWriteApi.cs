@@ -118,6 +118,7 @@ public interface IMiniLcmWriteApi
     // method (correct for FwData, which still surfaces a genuinely-missing object).
     Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update) => UpdateEntry(id, update);
     Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => CreateComplexFormComponent(complexFormComponent, position);
+    Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => MoveComplexFormComponent(complexFormComponent, between);
     Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => CreateSense(entryId, sense, position);
     Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => UpdateSense(entryId, senseId, update);
     Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => CreateExampleSentence(entryId, senseId, exampleSentence, position);

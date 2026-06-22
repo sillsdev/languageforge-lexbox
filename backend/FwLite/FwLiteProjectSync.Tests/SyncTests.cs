@@ -566,9 +566,34 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             ]
         });
 
-        //sync may fail because it will try to create a complex form for an entry which was deleted
+        // Regression: creating the complex-form component for the CRDT-deleted _testEntry once used to throw and wedge the sync.
         await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
 
+        (await crdtApi.GetEntry(_testEntry.Id)).Should().BeNull();
+        (await fwdataApi.GetEntry(_testEntry.Id)).Should().BeNull();
+        var crdtComplexForm = await crdtApi.GetEntry(newEntryId);
+        crdtComplexForm.Should().NotBeNull();
+        crdtComplexForm.Components.Should().BeEmpty();
+        (await fwdataApi.GetEntry(newEntryId)).Should().NotBeNull();
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task EntryEditedInFwDataButDeletedInCrdt_SyncDoesNotThrow()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        await fwdataApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(e => e.CitationForm["en"], "edited"));
+        await crdtApi.DeleteEntry(_testEntry.Id);
+
+        // Regression: the fwdata vs snapshot diff calls SubmitUpdateEntry on the CRDT-deleted entry, which used to throw NotFound.
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        (await crdtApi.GetEntry(_testEntry.Id)).Should().BeNull();
+        (await fwdataApi.GetEntry(_testEntry.Id)).Should().BeNull();
     }
 
     [Fact]
