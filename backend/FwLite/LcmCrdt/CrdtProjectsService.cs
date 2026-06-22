@@ -245,6 +245,7 @@ public partial class CrdtProjectsService(
     {
         _ = Task.Run(async () =>
         {
+            var safeSqliteFile = SanitizeForLog(sqliteFile);
             var counter = 0;
             while (File.Exists(sqliteFile) && counter < 10)
             {
@@ -260,16 +261,18 @@ public partial class CrdtProjectsService(
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, "Failed to delete sqlite file {SqliteFile}", sqliteFile);
+                    logger.LogError(exception, "Failed to delete sqlite file {SqliteFile}", safeSqliteFile);
                     return;
                 }
 
                 counter++;
             }
 
-            logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", sqliteFile);
+            logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", safeSqliteFile);
         });
     }
+
+    private static string SanitizeForLog(string value) => value.ReplaceLineEndings(string.Empty);
 
     public async Task DeleteProject(string code)
     {
