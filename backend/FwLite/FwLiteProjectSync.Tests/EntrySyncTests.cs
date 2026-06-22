@@ -6,6 +6,7 @@ using MiniLcm;
 using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Tests;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 
@@ -53,7 +54,10 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
 {
     public Task InitializeAsync()
     {
-        Api = GetApi(_fixture);
+        BaseApi = GetApi(_fixture);
+        // Mirror production sync (CrdtFwdataProjectSyncService): validation only, no normalization,
+        // because the data is already normalized on both sides.
+        Api = TestMiniLcmWrappers.CreateValidationFactory().Create(BaseApi);
         return Task.CompletedTask;
     }
 
@@ -66,6 +70,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
 
     private readonly SyncFixture _fixture = fixture;
     protected IMiniLcmApi Api = null!;
+    protected IMiniLcmApi BaseApi = null!;
 
     private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.MakeConfig(
         ExtraWritingSystemsSyncFixture.VernacularWritingSystems));
@@ -99,12 +104,10 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
     public async Task CanSyncRandomEntries(ApiType? roundTripApiType)
     {
         // arrange
-        var currentApiType = Api switch
+        var currentApiType = BaseApi switch
         {
             FwDataMiniLcmApi => ApiType.FwData,
             CrdtMiniLcmApi => ApiType.Crdt,
-            // This works now, because we're not currently wrapping Api,
-            // but if we ever do, then we want this to throw, so we know we need to detect the api differently.
             _ => throw new InvalidOperationException("Unknown API type")
         };
 

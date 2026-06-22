@@ -84,11 +84,13 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
     [Fact]
     public async Task UpdateEntry_RoundTripsEmptyStrings()
     {
-        var entry = await Api.GetEntry(Entry1Id);
+        // Empty MultiString values are rejected by validation, so this exercises the raw storage layer:
+        // empty values can still reach storage (e.g. via sync) and must round-trip.
+        var entry = await BaseApi.GetEntry(Entry1Id);
         ArgumentNullException.ThrowIfNull(entry);
         var before = entry.Copy();
         entry.CitationForm["en"] = string.Empty;
-        var updatedEntry = await Api.UpdateEntry(before, entry);
+        var updatedEntry = await BaseApi.UpdateEntry(before, entry);
         updatedEntry.CitationForm["en"].Should().Be(string.Empty);
     }
 

@@ -6,12 +6,15 @@ namespace FwLiteMaui;
 
 public partial class App : Application
 {
+    public IServiceProvider ServiceProvider { get; }
     private readonly MainPage _mainPage;
+    public static string? OverrideStartupUrl { get; set; }
     private readonly LexboxProjectService _lexboxProjectService;
     private readonly ILogger<App> _logger;
 
-    public App(MainPage mainPage, IPreferencesService preferences, LexboxProjectService lexboxProjectService, ILogger<App> logger)
+    public App(MainPage mainPage, IPreferencesService preferences, LexboxProjectService lexboxProjectService, ILogger<App> logger, IServiceProvider serviceProvider)
     {
+        ServiceProvider = serviceProvider;
         _mainPage = mainPage;
         _lexboxProjectService = lexboxProjectService;
         _logger = logger;
@@ -21,6 +24,11 @@ public partial class App : Application
             mainPage.StartPath = lastUrl;
         }
         InitializeComponent();
+    }
+
+    internal void LoadAppUrl(string url)
+    {
+        _mainPage.LoadAppUrl(url);
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
