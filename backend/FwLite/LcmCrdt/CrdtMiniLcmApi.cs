@@ -187,14 +187,6 @@ public class CrdtMiniLcmApi(
 
     public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        await AddChanges(update.Patch.ToChanges(id));
-    }
-
-    public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var pub = await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
-
         // IsMain is applied via SetMainPublicationChange (which converges), not as a plain field patch, so it's
         // stripped from the patch and translated to that change — but only when an IsMain op is actually present.
         if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain))
@@ -202,15 +194,21 @@ public class CrdtMiniLcmApi(
             var patch = new JsonPatchDocument<Publication>();
             patch.Operations.AddRange(update.Patch.Operations.Where(op =>
                 !string.Equals(op.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase)));
-            var changes = patch.ToChanges(pub.Id).ToList();
+            var changes = patch.ToChanges(id).ToList();
             // prior/wrapping validation actually prevents setting IsMain to false via patch, so isMain is always true
-            if (isMain) changes.Add(new SetMainPublicationChange(pub.Id));
+            if (isMain) changes.Add(new SetMainPublicationChange(id));
             if (changes.Count > 0) await AddChanges(changes);
         }
         else if (update.Patch.Operations.Count > 0)
         {
-            await AddChanges(update.Patch.ToChanges(pub.Id));
+            await AddChanges(update.Patch.ToChanges(id));
         }
+    }
+
+    public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        await SubmitUpdatePublication(id, update);
+        await using var repo = await repoFactory.CreateRepoAsync();
         return await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>($"{id} (invalid patching to a new id?)");
     }
 
