@@ -51,7 +51,7 @@ public static class EntrySync
         try
         {
             var updateObjectInput = EntryDiffToUpdate(beforeEntry, afterEntry);
-            if (updateObjectInput is not null) await api.UpdateEntry(afterEntry.Id, updateObjectInput);
+            if (updateObjectInput is not null) await api.SubmitUpdateEntry(afterEntry.Id, updateObjectInput);
             var changes = await SensesSync(afterEntry.Id, beforeEntry.Senses, afterEntry.Senses, api, allBeforeSenses, allAfterSenses);
             changes += await Sync(afterEntry.Id, beforeEntry.ComplexFormTypes, afterEntry.ComplexFormTypes, api);
             changes += await SyncPublications(afterEntry.Id, beforeEntry.PublishIn, afterEntry.PublishIn, api);
@@ -226,14 +226,7 @@ public static class EntrySync
 
         public override async Task<int> Add(ComplexFormComponent after)
         {
-            try
-            {
-                await api.CreateComplexFormComponent(after);
-            }
-            catch (NotFoundException)
-            {
-                //this can happen if the entry was deleted, so we can just ignore it
-            }
+            await api.SubmitCreateComplexFormComponent(after);
             return 1;
         }
 
@@ -265,20 +258,13 @@ public static class EntrySync
 
         public async Task<int> Add(ComplexFormComponent after, BetweenPosition<ComplexFormComponent> between)
         {
-            try
-            {
-                await api.CreateComplexFormComponent(after, between);
-            }
-            catch (NotFoundException)
-            {
-                //this can happen if the entry was deleted, so we can just ignore it
-            }
+            await api.SubmitCreateComplexFormComponent(after, between);
             return 1;
         }
 
         public async Task<int> Move(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
         {
-            await api.MoveComplexFormComponent(component, between);
+            await api.SubmitMoveComplexFormComponent(component, between);
             return 1;
         }
 
@@ -321,7 +307,7 @@ public static class EntrySync
                 await api.MoveSense(entryId, sense.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
                 return 1 + await SenseSync.Sync(entryId, existing, sense, api);
             }
-            await api.CreateSense(entryId, sense, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
+            await api.SubmitCreateSense(entryId, sense, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
