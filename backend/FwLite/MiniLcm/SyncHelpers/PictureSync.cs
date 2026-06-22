@@ -42,6 +42,10 @@ public static class PictureSync
             nameof(Picture.MediaUri),
             beforePicture.MediaUri.ToString(),
             afterPicture.MediaUri.ToString()));
+        patchDocument.Operations.AddRange(DoubleDiff.GetDoubleDiff<Picture>(
+            nameof(Picture.Order),
+            beforePicture.Order,
+            afterPicture.Order));
 
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Picture>(patchDocument);
