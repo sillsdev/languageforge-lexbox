@@ -47,6 +47,7 @@ jobs:
           check_name: UI unit Tests
           files: ./frontend/test-results/*.xml
           action_fail_on_inconclusive: true
+          comment_mode: off
 
       - name: Docker meta
         id: meta

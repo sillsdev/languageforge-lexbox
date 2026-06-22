@@ -58,6 +58,7 @@ jobs:
         with:
           check_name: C# FwHeadless Unit Tests
           files: ./test-results/*.xml
+          comment_mode: off
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
