@@ -166,9 +166,7 @@ public sealed class LexboxHubConnection(
 
     // Used by the Reconnected handler and after a manual revive — a manual
     // StartAsync does not raise Reconnected, so the revive path must resubscribe explicitly.
-    private Task ListenForProjectChangesCore(Guid projectId, CancellationToken stoppingToken = default) =>
-        connection?.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId, stoppingToken) ?? Task.CompletedTask;
-
+    private Task ListenForProjectChangesCore(Guid projectId, CancellationToken stoppingToken = default) => connection?.ListenForProjectChanges(projectId, stoppingToken) ?? Task.CompletedTask;
 
     private async Task OnReconnecting(ILexboxSignalRConnection hubConnection, Exception? exception)
     {
@@ -323,7 +321,7 @@ public interface ILexboxSignalRConnection : IAsyncDisposable
 {
     HubConnectionState State { get; }
     Task StartAsync(CancellationToken cancellationToken = default);
-    Task SendAsync(string methodName, Guid projectId, CancellationToken cancellationToken = default);
+    Task ListenForProjectChanges(Guid projectId, CancellationToken cancellationToken = default);
     IDisposable OnProjectUpdated(Func<Guid, Guid?, Task> handler);
     event Func<Exception?, Task>? Reconnecting;
     event Func<Exception?, Task>? Closed;
@@ -384,8 +382,8 @@ internal sealed class SignalRConnectionAdapter(HubConnection connection) : ILexb
 
     public Task StartAsync(CancellationToken cancellationToken = default) => connection.StartAsync(cancellationToken);
 
-    public Task SendAsync(string methodName, Guid projectId, CancellationToken cancellationToken = default) =>
-        connection.SendAsync(methodName, projectId, cancellationToken);
+    public Task ListenForProjectChanges(Guid projectId, CancellationToken cancellationToken = default) =>
+        connection.SendAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId, cancellationToken);
 
     public IDisposable OnProjectUpdated(Func<Guid, Guid?, Task> handler) =>
         connection.On(nameof(IProjectChangeHubClient.OnProjectUpdated), handler);
