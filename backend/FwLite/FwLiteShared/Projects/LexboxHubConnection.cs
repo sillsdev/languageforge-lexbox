@@ -49,6 +49,7 @@ public sealed class LexboxHubConnection(
 
         if (IsReconnecting) return false;
 
+        await connectionLock.WaitAsync(stoppingToken);
         if (connection?.State == HubConnectionState.Disconnected)
         {
             try
@@ -64,12 +65,12 @@ public sealed class LexboxHubConnection(
             }
         }
 
-        await connectionLock.WaitAsync(stoppingToken);
         try
         {
             if (IsConnected) return true;
             await CleanupConnection();
             connection = await NewConnection(stoppingToken);
+            if (connection is null) return false;
             await OnConnected(stoppingToken);
             return IsConnected;
         }
