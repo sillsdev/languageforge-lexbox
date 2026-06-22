@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace FwLiteShared.Projects;
 
-public sealed class LexboxProjectChangeListener(IServiceProvider serviceProvider, IOptions<AuthConfig> options)
+public sealed class LexboxProjectChangeListener(IServiceProvider serviceProvider, IOptions<AuthConfig> options) : IAsyncDisposable
 {
     private readonly ConcurrentDictionary<LexboxServer, LexboxHubConnection> _connections = new();
 
@@ -32,5 +32,14 @@ public sealed class LexboxProjectChangeListener(IServiceProvider serviceProvider
         var connection = _connections.GetOrAdd(server,
             (s) => ActivatorUtilities.CreateInstance<LexboxHubConnection>(serviceProvider, s));
         await connection.ListenForProjectChanges(projectData.Id, stoppingToken, kickReconnecting);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        foreach (var connection in _connections.Values)
+        {
+            await connection.DisposeAsync();
+        }
+        _connections.Clear();
     }
 }
