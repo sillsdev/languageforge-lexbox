@@ -208,12 +208,8 @@ public sealed class LexboxHubConnection(
 
     private async Task OnClosed(ILexboxSignalRConnection hubConnection, Exception? exception)
     {
-        if (!ReferenceEquals(connection, hubConnection))
-        {
-            await hubConnection.DisposeAsync();
-            return;
-        }
-        connection = null;
+        //set to null if it is the same connection
+        Interlocked.CompareExchange(ref connection, null, hubConnection);
         await hubConnection.DisposeAsync();
     }
 
@@ -224,8 +220,7 @@ public sealed class LexboxHubConnection(
 
     private async ValueTask CleanupConnection()
     {
-        var oldConnection = connection;
-        connection = null;
+        var oldConnection = Interlocked.Exchange(ref connection, null);
         await (oldConnection?.DisposeAsync() ?? ValueTask.CompletedTask);
     }
 

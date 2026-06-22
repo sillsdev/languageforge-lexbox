@@ -10,7 +10,7 @@ namespace LcmCrdt.RemoteSync;
 public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, IRefitHttpServiceFactory refitFactory, IMemoryCache cache)
 {
     private static readonly TimeSpan HealthyCacheTime = TimeSpan.FromMinutes(30);
-    private static string HealthCacheKey(string authority) => "ServerHealth|" + authority;
+    public static string HealthCacheKey(string authority) => "ServerHealth|" + authority;
     private bool? CachedIsHealthy(string authority)
     {
         return cache.Get<bool?>(HealthCacheKey(authority));
