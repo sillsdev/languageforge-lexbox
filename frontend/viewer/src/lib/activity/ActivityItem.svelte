@@ -95,6 +95,11 @@
         {/if}
       </span>
     </div>
+    
+    {#if openHistoryId}
+    <!-- this is a dialog so it doesn't matter where it is in the DOM -->
+        <HistoryView bind:open={() => !!openHistoryId, (open) => (open ? undefined : openHistoryId = undefined)} id={openHistoryId} selectedCommitId={activity.commitId}/>
+    {/if}
     {#if changes}
       <div
         class="change-list flex flex-col gap-4 overflow-auto border rounded">
@@ -120,9 +125,6 @@
                       <Button icon="i-mdi-history" onclick={() => openHistoryId = context.snapshot?.id}>
                         {$t`History`}
                       </Button>
-                      {#if openHistoryId}
-                        <HistoryView bind:open={() => !!openHistoryId, (open) => (open ? undefined : openHistoryId = undefined)} id={openHistoryId} selectedCommitId={activity.commitId}/>
-                      {/if}
                     {/if}
                   </div>
                   <Tabs.Root value="preview" class="px-2 mt-2 grow">
