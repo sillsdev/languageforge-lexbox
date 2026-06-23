@@ -28,7 +28,6 @@ public class SyncService(
     IMiniLcmApi lexboxApi,
     LcmMediaService lcmMediaService,
     IOptions<AuthConfig> authOptions,
-    INetworkStatus networkStatus,
     ILogger<SyncService> logger,
     SyncRepository syncRepository)
 {
@@ -61,27 +60,28 @@ public class SyncService(
             UpdateSyncStatus(SyncStatus.NoServer);
             return new SyncResults([], [], false);
         }
-        if (!networkStatus.IsOnline)
+        var oAuthClient = oAuthClientFactory.GetClient(server);
+
+        // CreateHttpClient validates/refreshes auth-state, so it should be called first
+        var httpClient = await oAuthClient.CreateHttpClient();
+
+        // IsSignedIn is more specific than GetAuth (which also returns null if refreshing fails transiently e.g. due to connectivity)
+        // Note we prioritize NotLoggedIn over Offline, because it's more actionable for the user/UI
+        if (!await oAuthClient.IsSignedIn())
         {
-            // Trust the device's own network state before attempting anything: the server-health cache can
-            // report "healthy" from an earlier online sync, so without this an offline sync would sail past
-            // ShouldSync and throw a raw connection error from the actual transfer instead of reading Offline.
+            logger.LogWarning("Unable to sync project {ProjectName}. User is not signed in.", project.Name);
+            UpdateSyncStatus(SyncStatus.NotLoggedIn);
+            return new SyncResults([], [], false);
+        }
+
+        if (httpClient is null)
+        {
+            // We know there's a token, but apparently it's unusable, which means it couldn't be refreshed => assume offline
+            logger.LogWarning("Unable to sync project {ProjectName}. Could not obtain token/http-client.", project.Name);
             UpdateSyncStatus(SyncStatus.Offline);
             return new SyncResults([], [], false);
         }
-        var oAuthClient = oAuthClientFactory.GetClient(server);
-        var httpClient = await oAuthClient.CreateHttpClient();
-        if (httpClient is null)
-        {
-            var signedIn = await oAuthClient.IsSignedIn();
-            logger.LogWarning(
-                "Unable to create http client to sync project {ProjectName}. {Reason} - {OriginDomain}",
-                project.Name,
-                signedIn ? "Offline" : "User is not authenticated",
-                project.OriginDomain);
-            UpdateSyncStatus(signedIn ? SyncStatus.Offline : SyncStatus.NotLoggedIn);
-            return new SyncResults([], [], false);
-        }
+
         try
         {
             var currentUser = await oAuthClient.GetCurrentUser();
