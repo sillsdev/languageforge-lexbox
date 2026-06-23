@@ -32,6 +32,8 @@ public class CreateSensePictureChange: EditChange<Sense>, ISelfNamedType<CreateS
 
     public override ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
+        // Skip creating if this is a duplicate change
+        if (entity.Pictures.Any(pic => pic.Id == PictureId)) return ValueTask.CompletedTask;
         Order = OrderPicker.PickOrder(entity.Pictures, Between);
         var pic = new Picture
         {

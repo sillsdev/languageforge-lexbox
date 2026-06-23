@@ -48,9 +48,14 @@ public static class AutoFakerDefault
                 }, true),
                 new PredicateOverride<MorphTypeKind>(morph =>
                 {
-                    // Unkown values map to null and get replaced with MorphType.Stem so they're not round-tripped
+                    // Unknown values map to null and get replaced with MorphType.Stem so they're not round-tripped
                     return morph is not MorphTypeKind.Unknown;
                 }, true),
+                new SimpleOverride<MiniLcm.Media.MediaUri>(context =>
+                {
+                    // MediaUri values created by AutoFaker should be NotFound so we don't think they point at actual files
+                    context.Instance = MiniLcm.Media.MediaUri.NotFound;
+                }, false),
                 new SimpleGenericOverride(typeof(JsonPatchDocument<>), context =>
                 {
                     context.Instance = Activator.CreateInstance(context.GenerateType.Type!)!;
