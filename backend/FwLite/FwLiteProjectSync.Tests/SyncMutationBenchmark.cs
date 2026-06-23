@@ -67,22 +67,18 @@ public class SyncMutationBenchmark(Sena3Fixture fixture, ITestOutputHelper outpu
 public class MutationSyncBench
 {
     // Bounds catch large regressions, not tight perf budgets — CI variance is too high for that.
+    // Per-profile comments are rough mean sync times from a ubuntu-latest CI run — a baseline for future work.
     public static readonly IReadOnlyDictionary<string, double> ThresholdSecondsByProfile = new Dictionary<string, double>
     {
-        // baseline:   ~52.4s
-        // with index: ~50.5s (within noise)
+        // ~40s
         ["component-heavy"] = 65.0,
-        // baseline:   ~87.0s
-        // with index: ~87.9s (no change; high variance)
+        // ~63s
         ["delete-heavy"] = 110.0,
-        // baseline:   ~33.0s
-        // with index: ~33.0s (no change)
+        // ~25s
         ["mixed-realistic"] = 45.0,
-        // baseline:   ~4.52s
-        // with index: ~3.53s (real ~20% gain; can drift to ~4.3s under variance)
+        // ~4.5s
         ["patch-heavy"] = 6.0,
-        // baseline:   ~0.69s
-        // with index: ~0.57s (sub-second; bound is just a sanity check)
+        // ~0.6s
         ["reorder-heavy"] = 2.0,
     };
 

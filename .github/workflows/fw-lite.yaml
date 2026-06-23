@@ -69,9 +69,8 @@ jobs:
 
   benchmark:
     name: Run FW Lite sync benchmarks
-    # Runs post-merge on develop only — benchmarks are too slow and too variance-prone on shared
-    # runners to gate every PR. Revisit once they're fast enough for the PR critical path.
-    # TEMP: also allow manual workflow_dispatch to capture a Linux CI baseline on this branch; revert to develop-only before merge.
+    # Auto-runs post-merge on develop only — too slow and variance-prone to gate every PR (revisit
+    # if they get fast enough). Also runnable on demand via workflow_dispatch to baseline a branch.
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
     # Benchmarks take tens of minutes; 60 leaves headroom for hosted-runner variance.
     timeout-minutes: 60
