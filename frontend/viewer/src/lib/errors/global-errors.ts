@@ -37,18 +37,32 @@ function shouldIgnoreError(message: string): boolean {
   return false;
 }
 
-/** Matches messages/stack traces of the format:
+/** Splits a .NET error string into its leading message and the rest (stack/inner exceptions), at whichever
+comes first: the first stack frame ("   at ") or the first inner-exception marker (" ---> "). The latter matters
+because .NET prints the whole inner-exception chain before the outer frames, so without it a deeply-wrapped
+error (e.g. MSAL wrapping an Android network failure) dumps the entire cascade into the title.
 System.InvalidOperationException: Everything is broken. Here's some ice cream.
    at FwLiteShared.Services.ProjectServicesProvider.OpenCrdtProject(String projectName)
  */
-const dotnetErrorRegex = /^([\s\S]+?) {3}at /m;
+const dotnetErrorRegex = /^([\s\S]+?)(?: {3}at | ---> )/m;
 
-function processErrorIntoDetails(event: UnifiedErrorEvent): {message: string, detail?: string} {
+export function processErrorIntoDetails(event: UnifiedErrorEvent): {message: string, detail?: string} {
   const message = event.message;
   const match = dotnetErrorRegex.exec(message);
   if (match) return {message: match[1].trim(), detail: message.substring(match[1].length).trim()};
-  else if (event.error instanceof Error) return {message: message, detail: event.error.stack};
+  // A JS Error's stack repeats the message on its first line(s); use the prefix-free error message as the
+  // title and just the frames as the detail, so the message isn't shown in both slots.
+  else if (event.error instanceof Error) return {message: event.error.message || message, detail: stackFrames(event.error)};
   else return {message};
+}
+
+function stackFrames(error: Error): string | undefined {
+  const stack = error.stack;
+  if (!stack) return undefined;
+  // V8 stacks begin with error.toString() ("Error: <message>"); strip it so the detail is frames only.
+  // Other engines (Firefox/Safari) don't prepend it, so the stack is already frame-only — leave it as-is.
+  const header = error.toString();
+  return stack.startsWith(header) ? stack.slice(header.length).trim() : stack;
 }
 
 let setup = false;
