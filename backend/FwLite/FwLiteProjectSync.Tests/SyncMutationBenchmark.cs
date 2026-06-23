@@ -158,14 +158,19 @@ public class MutationSyncBench
         }
     }
 
-    // Disjoint slices so each kind of mutation operates on a different set of entries.
+    // Disjoint slices, one per mutation kind. Reorder only does anything to entries with 2+ senses,
+    // so it gets first pick of those; the remaining entries are split among the other three kinds.
     private static async Task MixedRealistic(IMiniLcmApi api, List<Entry> entries, int totalCount)
     {
         var per = totalCount / 4;
-        await DeleteEntries(api, entries.Take(per));
-        await PatchLexemes(api, entries.Skip(per).Take(per));
-        await ReorderSenses(api, entries.Skip(per * 2).Take(per));
-        await AndCompleteFormComponents(api, [.. entries.Skip(per * 3)], per);
+        var reorderSlice = entries.Where(e => e.Senses.Count >= 2).Take(per).ToList();
+        var reorderIds = reorderSlice.Select(e => e.Id).ToHashSet();
+        var rest = entries.Where(e => !reorderIds.Contains(e.Id)).ToList();
+
+        await DeleteEntries(api, rest.Take(per));
+        await PatchLexemes(api, rest.Skip(per).Take(per));
+        await ReorderSenses(api, reorderSlice);
+        await AndCompleteFormComponents(api, [.. rest.Skip(per * 2)], per);
     }
 
     private static async Task DeleteEntries(IMiniLcmApi api, IEnumerable<Entry> entries)
