@@ -4,7 +4,7 @@ namespace MiniLcm.Models;
 
 // TODO: Determine whether FW allows users to add multiple pictures to a single sense, and whether users can then reorder pictures
 // If so, implement IOrderable
-public class Picture : IObjectWithId<Picture>, IOrderable
+public class Picture : IOrderable
 {
     public virtual Guid Id { get; set; } // Will correspond to the CmPicture.Guid property in liblcm
     public double Order { get; set; }
@@ -12,15 +12,6 @@ public class Picture : IObjectWithId<Picture>, IOrderable
     public virtual RichMultiString Caption { get; set; } = [];
 
     public DateTimeOffset? DeletedAt { get; set; }
-
-    public Guid[] GetReferences()
-    {
-        return [];
-    }
-
-    public void RemoveReference(Guid id, DateTimeOffset time)
-    {
-    }
 
     public Picture Copy()
     {

@@ -829,6 +829,7 @@ public class FwDataMiniLcmApi(
             Id = picture.Guid,
             Caption = FromLcmMultiString(picture.Caption),
             MediaUri = MediaUriFromLcmPicture(picture),
+            Order = picture.IndexInOwner + 1, // Order property in CRDT indexes from 1
         };
     }
 
