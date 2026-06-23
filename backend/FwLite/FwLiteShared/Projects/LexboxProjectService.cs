@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
 using FwLiteShared.Auth;
 using LcmCrdt;
-using LcmCrdt.RemoteSync;
 using LexCore.Entities;
 using LexCore.Sync;
 using Microsoft.Extensions.Caching.Memory;
@@ -45,9 +44,6 @@ public class LexboxProjectService
             logger.LogWarning(e, "Failed to handle authentication change for {Server}", server.Authority);
         }
     }
-
-    public Task EnsureListenersForTrackedProjects(bool kickReconnecting = false) =>
-        projectChangeListener.EnsureListenersForTrackedProjects(kickReconnecting);
 
     public LexboxServer[] Servers()
     {

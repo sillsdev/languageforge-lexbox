@@ -1,7 +1,5 @@
 using System.Net.NetworkInformation;
 using FwLiteShared.Projects;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace FwLiteWeb.Services;
 
@@ -13,7 +11,7 @@ namespace FwLiteWeb.Services;
 // It shares GetIsNetworkAvailable's optimism (a virtual adapter keeps availability true), so it can miss a
 // real-uplink recovery; the periodic backstop still covers those.
 public sealed class NetworkChangeSyncTrigger(
-    LexboxProjectService lexboxProjectService,
+    LexboxProjectChangeListener lexboxProjectChangeListener,
     ILogger<NetworkChangeSyncTrigger> logger) : IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken)
@@ -36,11 +34,11 @@ public sealed class NetworkChangeSyncTrigger(
         _ = EnsureListeners();
     }
 
-    private async Task EnsureListeners()
+    private async Task EnsureListeners(CancellationToken cancellationToken = default)
     {
         try
         {
-            await lexboxProjectService.EnsureListenersForTrackedProjects(kickReconnecting: true);
+            await lexboxProjectChangeListener.EnsureListenersForTrackedProjects(kickReconnecting: true, cancellationToken: cancellationToken);
         }
         catch (Exception e)
         {

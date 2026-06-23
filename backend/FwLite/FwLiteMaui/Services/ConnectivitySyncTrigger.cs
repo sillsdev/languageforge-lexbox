@@ -7,7 +7,7 @@ namespace FwLiteMaui.Services;
 // Primary use case: app started offline should start syncing if the device comes online
 public sealed class ConnectivitySyncTrigger(
     IConnectivity connectivity,
-    LexboxProjectService lexboxProjectService,
+    LexboxProjectChangeListener lexboxProjectChangeListener,
     ILogger<ConnectivitySyncTrigger> logger) : IHostedService
 {
     private NetworkAccess _lastAccess;
@@ -40,11 +40,11 @@ public sealed class ConnectivitySyncTrigger(
         _ = EnsureListeners();
     }
 
-    private async Task EnsureListeners()
+    private async Task EnsureListeners(CancellationToken cancellationToken = default)
     {
         try
         {
-            await lexboxProjectService.EnsureListenersForTrackedProjects(kickReconnecting: true);
+            await lexboxProjectChangeListener.EnsureListenersForTrackedProjects(kickReconnecting: true, cancellationToken);
         }
         catch (Exception e)
         {

@@ -11,7 +11,7 @@ namespace FwLiteShared.Projects;
 // EnsureListenersForTrackedProjects is idempotent: a healthy cached connection short-circuits and a
 // logged-out server no-ops on the token check.
 public sealed class PushListenerRecoveryService(
-    LexboxProjectService lexboxProjectService,
+    LexboxProjectChangeListener lexboxProjectService,
     ILogger<PushListenerRecoveryService> logger) : BackgroundService
 {
     private static readonly TimeSpan CheckInterval = TimeSpan.FromMinutes(5);
@@ -25,7 +25,7 @@ public sealed class PushListenerRecoveryService(
             try
             {
                 logger.LogDebug("Running periodic push listener recovery check");
-                await lexboxProjectService.EnsureListenersForTrackedProjects();
+                await lexboxProjectService.EnsureListenersForTrackedProjects(cancellationToken: stoppingToken);
             }
             catch (Exception e)
             {

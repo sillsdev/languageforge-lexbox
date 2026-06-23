@@ -9,14 +9,14 @@ public partial class App : Application
     public IServiceProvider ServiceProvider { get; }
     private readonly MainPage _mainPage;
     public static string? OverrideStartupUrl { get; set; }
-    private readonly LexboxProjectService _lexboxProjectService;
+    private readonly LexboxProjectChangeListener _lexboxProjectChangeListener;
     private readonly ILogger<App> _logger;
 
-    public App(MainPage mainPage, IPreferencesService preferences, LexboxProjectService lexboxProjectService, ILogger<App> logger, IServiceProvider serviceProvider)
+    public App(MainPage mainPage, IPreferencesService preferences, LexboxProjectChangeListener lexboxProjectChangeListener, ILogger<App> logger, IServiceProvider serviceProvider)
     {
         ServiceProvider = serviceProvider;
         _mainPage = mainPage;
-        _lexboxProjectService = lexboxProjectService;
+        _lexboxProjectChangeListener = lexboxProjectChangeListener;
         _logger = logger;
         var lastUrl = preferences.Get(nameof(PreferenceKey.AppLastUrl));
         if (lastUrl?.StartsWith('/') == true)
@@ -46,7 +46,7 @@ public partial class App : Application
         try
         {
             _logger.LogInformation("App resumed; ensuring push listeners");
-            await _lexboxProjectService.EnsureListenersForTrackedProjects(kickReconnecting: true);
+            await _lexboxProjectChangeListener.EnsureListenersForTrackedProjects(kickReconnecting: true);
         }
         catch (Exception e)
         {
