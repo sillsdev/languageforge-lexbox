@@ -291,10 +291,6 @@ public class OAuthClient
         _ => SilentAuthFailureOutcome.KeepCachedCredentials,
     };
 
-    //Classifies AcquireTokenInteractive failures by exception type, not message/code: MSAL's "oidc_failure"
-    //is an unpublished string literal, whereas the inner HttpRequestException is a reliable offline signal.
-    //A cancel is treated as a cancel regardless of connectivity; offline with a warm OIDC cache also surfaces
-    //here, but the user has already seen the browser fail. null means rethrow (global handler surfaces it).
     internal static LoginResult? ClassifyInteractiveLoginFailure(Exception e) => e switch
     {
         MsalServiceException { InnerException: HttpRequestException } => LoginResult.Offline,
