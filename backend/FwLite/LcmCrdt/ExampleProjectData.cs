@@ -12,6 +12,7 @@ internal static class ExampleProjectData
     {
         var api = provider.GetRequiredService<IMiniLcmApi>();
         await CreateWritingSystems(api);
+        await CreateMainPublication(api);
         var beere = await CreateFruitEntries(api);
         await CreateBerryComplexForms(api, beere);
     }
@@ -67,6 +68,16 @@ internal static class ExampleProjectData
             Abbreviation = "fr",
             Font = "Arial",
             Exemplars = WritingSystem.LatinExemplars
+        });
+    }
+
+    private static async Task CreateMainPublication(IMiniLcmApi api)
+    {
+        await api.CreatePublication(new()
+        {
+            Id = Guid.NewGuid(),
+            Name = new MultiString() { ["en"] = "Main Dictionary" },
+            IsMain = true
         });
     }
 
