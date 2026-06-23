@@ -141,6 +141,22 @@
       TypeDiscriminator: SetFirstTranslationIdChange
     },
     {
+      DerivedType: CreateSensePictureChange,
+      TypeDiscriminator: CreateSensePictureChange
+    },
+    {
+      DerivedType: UpdateSensePictureChange,
+      TypeDiscriminator: UpdateSensePictureChange
+    },
+    {
+      DerivedType: ReorderSensePictureChange,
+      TypeDiscriminator: ReorderSensePictureChange
+    },
+    {
+      DerivedType: RemoveSensePictureChange,
+      TypeDiscriminator: RemoveSensePictureChange
+    },
+    {
       DerivedType: CreatePartOfSpeechChange,
       TypeDiscriminator: CreatePartOfSpeechChange
     },

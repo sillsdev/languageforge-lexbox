@@ -145,6 +145,7 @@
           "Predefined": false
         }
       ],
+      "Pictures": null,
       "EntityId": "fb918ba0-ba5e-7977-312e-3028d1295dd8"
     }
   },

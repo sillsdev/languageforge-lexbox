@@ -613,7 +613,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": "a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5",
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "468b3fd0-3d9e-4cae-9e4f-842dec5fa74d",
       "DeletedAt": null
@@ -672,7 +673,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": null,
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "ac8c3b6f-9487-4949-ab7a-1ed078cadffe",
       "DeletedAt": null
@@ -741,7 +743,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": null,
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "ff2f6647-0ff2-4d67-845b-c43baf851d93",
       "DeletedAt": null

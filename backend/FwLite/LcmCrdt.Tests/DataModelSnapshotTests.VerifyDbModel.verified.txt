@@ -315,6 +315,10 @@
           Relational:ColumnType: jsonb
       Order (double) Required
       PartOfSpeechId (Guid?) FK Index
+      Pictures (List<Picture>) Required ValueGenerated.OnAdd
+        Annotations: 
+          Relational:ColumnType: jsonb
+          Relational:DefaultValueSql: '[]'
       SemanticDomains (IList<SemanticDomain>) Required
         Annotations: 
           Relational:ColumnType: jsonb
