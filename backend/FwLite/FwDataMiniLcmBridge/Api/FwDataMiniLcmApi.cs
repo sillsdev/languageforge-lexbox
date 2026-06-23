@@ -1093,7 +1093,8 @@ public class FwDataMiniLcmApi(
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var lexEntry = EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId);
+                //complex form entry has been deleted, so this component relationship is gone already
+                if (!EntriesRepository.TryGetObject(complexFormComponent.ComplexFormEntryId, out var lexEntry)) return;
                 RemoveComplexFormComponent(lexEntry, complexFormComponent);
             });
         return Task.CompletedTask;

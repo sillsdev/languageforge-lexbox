@@ -168,6 +168,27 @@ public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : Entr
         actual.Should().NotBeNull();
         actual.MorphType.Should().Be(MorphTypeKind.BoundStem);
     }
+
+    [Fact]
+    public async Task SyncFull_RemovingComplexFormWhoseParentWasDeleted_DoesNotThrow()
+    {
+        var component = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "component" } } });
+        var complexForm = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "complexForm" } } };
+        complexForm.Components = [ComplexFormComponent.FromEntries(complexForm, component)];
+        await Api.CreateEntry(complexForm);
+
+        var before = await Api.GetEntry(component.Id);
+        before!.ComplexForms.Should().ContainSingle();
+
+        // Deleting the parent already drops the relationship; the sync then redundantly removes it from the surviving component, which used to throw because the parent was gone.
+        await Api.DeleteEntry(complexForm.Id);
+        var after = before.Copy();
+        after.ComplexForms.Clear();
+
+        await EntrySync.SyncFull(before, after, Api);
+
+        (await Api.GetEntry(component.Id)).Should().NotBeNull();
+    }
 }
 
 public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture) : IClassFixture<ExtraWritingSystemsSyncFixture>, IAsyncLifetime
