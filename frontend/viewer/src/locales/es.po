@@ -2186,3 +2186,8 @@ msgstr "No tiene permiso para descargar el proyecto {0} desde {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Ya has descargado el proyecto {0}"
+
+#. Transient warning toast shown when the user taps Log in while offline
+#: src/lib/auth/LoginButton.svelte
+msgid "You're offline. Connect to the internet to log in."
+msgstr ""
