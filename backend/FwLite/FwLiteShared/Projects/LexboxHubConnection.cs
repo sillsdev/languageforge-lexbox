@@ -9,6 +9,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Push;
+using Nito.AsyncEx;
 
 namespace FwLiteShared.Projects;
 
@@ -49,7 +50,7 @@ public sealed class LexboxHubConnection(
 
         if (IsReconnecting) return false;
 
-        await connectionLock.WaitAsync(stoppingToken);
+        using var release = await connectionLock.LockAsync(stoppingToken);
         if (connection?.State == HubConnectionState.Disconnected)
         {
             try
@@ -79,10 +80,6 @@ public sealed class LexboxHubConnection(
             logger.LogWarning(e, "Failed to start Lexbox listener");
             await CleanupConnection();
             return false;
-        }
-        finally
-        {
-            connectionLock.Release();
         }
     }
 
