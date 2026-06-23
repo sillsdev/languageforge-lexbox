@@ -21,7 +21,7 @@ public sealed class LexboxHubConnection(
     IBackgroundSyncService backgroundSyncService,
     INetworkStatus networkStatus,
     IMemoryCache cache,
-    ILogger logger,
+    ILogger<LexboxHubConnection> logger,
     ILexboxSignalRConnection? initialConnection = null,
     ILexboxSignalRConnectionFactory? connectionFactory = null,
     ILexboxHubConnectionAuth? auth = null) : IAsyncDisposable
