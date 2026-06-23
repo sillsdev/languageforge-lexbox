@@ -452,7 +452,7 @@ public class LexboxHubConnectionTests
             backgroundSyncService ?? new FakeBackgroundSyncService(),
             new FakeNetworkStatus(),
             cache ?? new MemoryCache(new MemoryCacheOptions()),
-            NullLogger.Instance,
+            NullLogger<LexboxHubConnection>.Instance,
             initialConnection,
             factory,
             auth ?? new FakeHubConnectionAuth { SignedIn = true });
