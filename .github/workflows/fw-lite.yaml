@@ -162,6 +162,7 @@ jobs:
           check_name: UI unit Tests
           files: ./frontend/viewer/test-results/*.xml
           action_fail_on_inconclusive: true
+          comment_mode: off
 
   publish-mac:
     name: Publish FW Lite app for Mac

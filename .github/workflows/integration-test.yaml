@@ -119,6 +119,7 @@ jobs:
         with:
           check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
           files: ./test-results/*.trx
+          comment_mode: off
 
 #  playwright-test:
 #    if: ${{ inputs.run-playwright }}
