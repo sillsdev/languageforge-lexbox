@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {processErrorIntoDetails} from './global-errors';
+import {processErrorIntoDetails, unifyErrorEvent} from './global-errors';
 
 describe('processErrorIntoDetails', () => {
   it('splits a .NET error at the first stack frame', () => {
@@ -38,13 +38,43 @@ describe('processErrorIntoDetails', () => {
     expect(detail).toBeUndefined();
   });
 
-  it('does not repeat a JS Error message in both title and detail', () => {
+  it('shows frames-only detail for a JS error, not repeating the title', () => {
     const error = new Error('boom');
 
-    const {message: title, detail} = processErrorIntoDetails({message: 'Uncaught Error: boom', error});
+    const {message: title, detail} = processErrorIntoDetails(unifyErrorEvent(error));
 
-    expect(title).toBe('boom');
+    expect(title).toBe('Error: boom');
     expect(detail).not.toContain('boom');
     expect(detail).toContain('at ');
+  });
+});
+
+describe('unifyErrorEvent', () => {
+  it('uses Error.toString() (type kept, no "Uncaught" prefix) for an ErrorEvent with an error', () => {
+    const error = new TypeError('x is not a function');
+    const event = {message: 'Uncaught TypeError: x is not a function', error, filename: 'f', lineno: 1, colno: 2};
+
+    const unified = unifyErrorEvent(event as unknown as ErrorEvent);
+
+    expect(unified.message).toBe('TypeError: x is not a function');
+    expect(unified.error).toBe(error);
+  });
+
+  it('uses Error.toString() for a rejected Error reason', () => {
+    const error = new TypeError('x is not a function');
+
+    const unified = unifyErrorEvent({reason: error} as unknown as PromiseRejectionEvent);
+
+    expect(unified.message).toBe('TypeError: x is not a function');
+    expect(unified.error).toBe(error);
+  });
+
+  it('falls back to the event message for an ErrorEvent without an error object', () => {
+    const event = {message: 'Script error.', error: null, filename: '', lineno: 0, colno: 0};
+
+    const unified = unifyErrorEvent(event as unknown as ErrorEvent);
+
+    expect(unified.message).toBe('Script error.');
+    expect(unified.error).toBeNull();
   });
 });

@@ -10,15 +10,17 @@ type UnifiedErrorEvent = {
   at?: string;
 }
 
-function unifyErrorEvent(event: ErrorEvent | PromiseRejectionEvent | Error): UnifiedErrorEvent {
+// message is normalized here to a display-ready title so consumers don't each re-derive one. For any Error we
+// use toString() ("TypeError: x", not the bare "x") to keep the type, and drop the browser's "Uncaught" prefix.
+export function unifyErrorEvent(event: ErrorEvent | PromiseRejectionEvent | Error): UnifiedErrorEvent {
   if (event instanceof Error) {
-    return { message: event.message, error: event };
+    return { message: event.toString(), error: event };
   } else if ('message' in event) {
-    return { message: event.message, error: event.error, at: `${event.filename}:${event.lineno}:${event.colno}` };
+    return { message: event.error instanceof Error ? event.error.toString() : event.message, error: event.error, at: `${event.filename}:${event.lineno}:${event.colno}` };
   } else if (typeof event.reason === 'string') {
     return { message: event.reason, error: null };
   } else if (event.reason instanceof Error) {
-    return { message: event.reason.message, error: event.reason };
+    return { message: event.reason.toString(), error: event.reason };
   } else {
     return { message: 'Unknown error', error: event.reason };
   }
@@ -50,19 +52,22 @@ export function processErrorIntoDetails(event: UnifiedErrorEvent): {message: str
   const message = event.message;
   const match = dotnetErrorRegex.exec(message);
   if (match) return {message: match[1].trim(), detail: message.substring(match[1].length).trim()};
-  // A JS Error's stack repeats the message on its first line(s); use the prefix-free error message as the
-  // title and just the frames as the detail, so the message isn't shown in both slots.
-  else if (event.error instanceof Error) return {message: event.error.message || message, detail: stackFrames(event.error)};
+  // stackFrames drops the leading "Error: <message>" header so the message isn't shown in both slots.
+  else if (event.error instanceof Error) return {message, detail: stackFrames(event.error)};
   else return {message};
 }
 
 function stackFrames(error: Error): string | undefined {
   const stack = error.stack;
   if (!stack) return undefined;
-  // V8 stacks begin with error.toString() ("Error: <message>"); strip it so the detail is frames only.
-  // Other engines (Firefox/Safari) don't prepend it, so the stack is already frame-only — leave it as-is.
+
+  // the stack seems to sometimes start with the error message, so we drop it to avoid duplication in the UI
   const header = error.toString();
-  return stack.startsWith(header) ? stack.slice(header.length).trim() : stack;
+  if (stack.startsWith(header)) return stack.slice(header.length).trim();
+  // perhaps redundant, but cheap
+  else if (stack.startsWith(error.message)) return stack.slice(error.message.length).trim();
+
+  return stack;
 }
 
 let setup = false;
