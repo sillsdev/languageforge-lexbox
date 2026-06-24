@@ -12,7 +12,7 @@ namespace FwLiteShared.Services;
 
 public class MiniLcmJsInvokable(
     IMiniLcmApi api,
-    BackgroundSyncService backgroundSyncService,
+    IBackgroundSyncService backgroundSyncService,
     IProjectIdentifier project,
     ILogger<MiniLcmJsInvokable> logger,
     MiniLcmApiNotifyWrapperFactory notificationWrapperFactory,

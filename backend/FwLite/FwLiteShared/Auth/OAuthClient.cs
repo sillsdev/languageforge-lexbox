@@ -178,9 +178,11 @@ public class OAuthClient
     }
 
     /// <summary>
-    /// Whether an account is present in the local MSAL cache. Purely a local read — never touches
-    /// the network — so callers can distinguish "not logged in" from "offline" without triggering a
-    /// token acquisition. Account presence implies signed-in.
+    /// Whether an account is present in the local MSAL cache. Purely a local read — never touches the
+    /// network — so callers can distinguish "not logged in" from "offline" without triggering a token
+    /// acquisition. This is optimistic: an account can still be cached after its refresh token has expired
+    /// or been revoked, so a true result means "was signed in", not "can get a token right now". That gap
+    /// only surfaces when a token is actually acquired (<see cref="GetAuth"/>), which removes the dead account.
     /// </summary>
     public async ValueTask<bool> IsSignedIn()
     {
@@ -189,6 +191,13 @@ public class OAuthClient
         return accounts.Any();
     }
 
+    /// <summary>
+    /// Gets a usable authentication result, silently refreshing when the cached token is missing or near
+    /// expiry. Returns null when none can be produced — in one of two cases the caller may want to tell apart:
+    /// - no usable login. A fresh interactive sign-in is required
+    /// - a silent refresh failed transiently (offline/server-side). It can/will be retried next time.
+    /// A successful refresh, or a still-valid cached token, returns non-null.
+    /// </summary>
     internal async ValueTask<AuthenticationResult?> GetAuth(bool forceRefresh = false)
     {
         if (DateTimeOffset.UtcNow.AddMinutes(5) < _authResult?.ExpiresOn && !forceRefresh)
@@ -318,7 +327,7 @@ public class OAuthClient
     }
 
     /// <summary>
-    /// will return null if no auth token is available
+    /// Returns null when no auth token is available; see <see cref="GetAuth"/> for the cases that produce null.
     /// </summary>
     public async ValueTask<HttpClient?> CreateHttpClient()
     {

@@ -27,6 +27,7 @@ public static class FwLiteWebKernel
         services.AddSingleton<IPreferencesService, JsonFilePreferencesService>();
 
         services.AddSingleton<ITroubleshootingService, WebTroubleshootingService>();
+        services.AddSingleton<IHostedService, NetworkChangeSyncTrigger>();
         services.AddOptions<FwLiteWebConfig>().BindConfiguration("FwLiteWeb");
 
         services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
