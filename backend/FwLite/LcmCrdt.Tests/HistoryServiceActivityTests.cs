@@ -43,11 +43,15 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
     public async Task ListActivityChangeTypes_IncludesCreateEntry()
     {
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
+        await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
+        await AddNewPublicationCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
+        await AddNewPartOfSpeechCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
 
         var changeTypes = await Service.ListActivityChangeTypes();
 
-        changeTypes.Should().Contain(t => t.Key == "CreateEntryChange" && t.CommitCount >= 1);
-        changeTypes.Single(t => t.Key == "CreateEntryChange").Label.Should().Be("Create entry");
+        changeTypes.Should().Contain(t => t.Key == nameof(CreateEntryChange) && t.CommitCount >= 2);
+        changeTypes.Should().Contain(t => t.Key == nameof(CreatePublicationChange) && t.CommitCount >= 1);
+        changeTypes.Should().Contain(t => t.Key == nameof(CreatePartOfSpeechChange) && t.CommitCount >= 1);
     }
 
     [Fact]

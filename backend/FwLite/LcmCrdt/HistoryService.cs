@@ -111,23 +111,19 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
     public async Task<ActivityChangeType[]> ListActivityChangeTypes()
     {
         await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
-        var distinctCommitCounts = new Dictionary<string, HashSet<Guid>>();
-        await foreach (var changeEntity in dbContext.Set<ChangeEntity<IChange>>().ToLinqToDB().AsAsyncEnumerable())
-        {
-            var key = GetChangeTypeKey(changeEntity.Change);
-            if (!distinctCommitCounts.TryGetValue(key, out var commits))
+        var changeCounts = await dbContext.Set<ChangeEntity<IChange>>()
+            .GroupBy(c => new
             {
-                commits = [];
-                distinctCommitCounts[key] = commits;
-            }
-            commits.Add(changeEntity.CommitId);
-        }
+                ChangeTypeKey = Sql.Expr<string>("json_extract({0}, '$.\"$type\"')", c.Change)
+            })
+            .Select(g => new KeyValuePair<string, int>(g.Key.ChangeTypeKey, g.Count()))
+            .ToDictionaryAsyncLinqToDB(p => p.Key, p => p.Value);
 
         var registeredTypes = LcmCrdtKernel.AllChangeTypes()
             .Select(t => new ActivityChangeType(
                 GetChangeTypeKeyFromType(t),
                 ChangeTypeLabel(t),
-                distinctCommitCounts.GetValueOrDefault(GetChangeTypeKeyFromType(t))?.Count ?? 0))
+                changeCounts.GetValueOrDefault(GetChangeTypeKeyFromType(t))))
             .Where(t => t.CommitCount > 0)
             .OrderBy(t => t.Label)
             .ToArray();
