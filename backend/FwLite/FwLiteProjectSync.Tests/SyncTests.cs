@@ -889,14 +889,14 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             MediaUri = MediaUri.NotFound,
             Caption = new RichMultiString { { "en", new RichString("a picture to delete") } },
         };
-        await crdtApi.CreatePicture(_testEntry.Id, sense.Id, picture);
+        await fwdataApi.CreatePicture(_testEntry.Id, sense.Id, picture);
 
         await _syncService.Import(crdtApi, fwdataApi);
         var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
-        // verify picture arrived in FwData after import
-        var fwdataSenseBeforeDelete = await fwdataApi.GetSense(_testEntry.Id, sense.Id);
-        fwdataSenseBeforeDelete!.Pictures.Should().HaveCount(1, "picture should have been imported");
+        // verify picture arrived in CRDT after import
+        var crdtSenseBeforeDelete = await crdtApi.GetSense(_testEntry.Id, sense.Id);
+        crdtSenseBeforeDelete!.Pictures.Should().HaveCount(1, "picture should have been imported");
 
         // Act - delete picture in CRDT
         await crdtApi.DeletePicture(_testEntry.Id, sense.Id, picture.Id);
