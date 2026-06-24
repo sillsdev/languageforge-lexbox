@@ -4,12 +4,13 @@
 //     the code is regenerated.
 
 import type {IServerStatus} from './IServerStatus';
+import type {LoginResult} from './LoginResult';
 import type {ILexboxServer} from './ILexboxServer';
 
 export interface IAuthService
 {
 	servers() : Promise<IServerStatus[]>;
-	signInWebView(server: ILexboxServer) : Promise<void>;
+	signInWebView(server: ILexboxServer) : Promise<LoginResult>;
 	useSystemWebView() : Promise<boolean>;
 	logout(server: ILexboxServer) : Promise<void>;
 }

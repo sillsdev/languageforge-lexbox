@@ -300,6 +300,14 @@ public class OAuthClient
         _ => SilentAuthFailureOutcome.KeepCachedCredentials,
     };
 
+    internal static LoginResult? ClassifyInteractiveLoginFailure(Exception e) => e switch
+    {
+        MsalServiceException { InnerException: HttpRequestException } => LoginResult.Offline,
+        HttpRequestException or OperationCanceledException => LoginResult.Offline,
+        MsalClientException { ErrorCode: MsalError.AuthenticationCanceledError } => LoginResult.Cancelled,
+        _ => null,
+    };
+
     public async Task<string?> GetCurrentName()
     {
         var auth = await GetAuth();

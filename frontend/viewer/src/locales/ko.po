@@ -1127,6 +1127,11 @@ msgstr "로컬 전용"
 msgid "Login"
 msgstr "로그인"
 
+#. Toast shown when the user closes or cancels the login dialog before signing in.
+#: src/lib/auth/LoginButton.svelte
+msgid "Login cancelled."
+msgstr ""
+
 #. Default button label on the login button when not yet authenticated. Clicking opens the login flow for a server.
 #: src/lib/auth/LoginButton.svelte
 #: src/lib/auth/LoginButton.svelte
@@ -1413,6 +1418,11 @@ msgstr "열기"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "오픈 데이터 디렉터리"
+
+#. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
+#: src/lib/auth/LoginButton.svelte
+msgid "Open in browser"
+msgstr ""
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2170,6 +2180,10 @@ msgstr "쓰기 시스템"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "쓰기 시스템"
+
+#: src/lib/auth/LoginButton.svelte
+msgid "You appear to be offline. Can you connect to {0}?"
+msgstr ""
 
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
