@@ -131,6 +131,7 @@ public class MutationSyncBench
     {
         var allEntries = await api.GetAllEntries().ToListAsync();
         var shuffled = AutoFaker.Faker.Random.Shuffle(allEntries).ToList();
+        Console.WriteLine($"[REORDER-COUNT] {shuffled.Count(e => e.Senses.Count >= 2)} of {shuffled.Count} entries have 2+ senses"); // TEMP
 
         switch (profile)
         {
@@ -141,7 +142,9 @@ public class MutationSyncBench
                 await PatchLexemes(api, shuffled.Take(count));
                 break;
             case "reorder-heavy":
-                await ReorderSenses(api, shuffled.Take(count));
+                // Filter to reorderable entries before taking count, else we'd reorder only the
+                // 2+-sense fraction that happens to land in the first `count` shuffled entries.
+                await ReorderSenses(api, Reorderable(shuffled).Take(count));
                 break;
             case "component-heavy":
                 await AndCompleteFormComponents(api, shuffled, count);
@@ -159,7 +162,7 @@ public class MutationSyncBench
     private static async Task MixedRealistic(IMiniLcmApi api, List<Entry> entries, int totalCount)
     {
         var per = totalCount / 4;
-        var reorderSlice = entries.Where(e => e.Senses.Count >= 2).Take(per).ToList();
+        var reorderSlice = Reorderable(entries).Take(per).ToList();
         var reorderIds = reorderSlice.Select(e => e.Id).ToHashSet();
         var rest = entries.Where(e => !reorderIds.Contains(e.Id)).ToList();
 
@@ -199,10 +202,14 @@ public class MutationSyncBench
         }
     }
 
+    // A reorder only changes entries with 2+ senses; callers filter to these before slicing a count.
+    private static IEnumerable<Entry> Reorderable(IEnumerable<Entry> entries) =>
+        entries.Where(e => e.Senses.Count >= 2);
+
     private static async Task ReorderSenses(IMiniLcmApi api, IEnumerable<Entry> entries)
     {
-        // Only entries with 2+ senses can be reordered; move the first sense to the end.
-        foreach (var entry in entries.Where(e => e.Senses.Count >= 2))
+        // Entries are pre-filtered to 2+ senses (see Reorderable); move the first sense to the end.
+        foreach (var entry in entries)
         {
             var first = entry.Senses[0];
             var last = entry.Senses[^1];
