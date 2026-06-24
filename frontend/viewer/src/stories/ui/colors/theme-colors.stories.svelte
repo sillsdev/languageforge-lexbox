@@ -9,7 +9,7 @@
     {label: 'Secondary', bg: 'bg-secondary', fg: 'text-secondary-foreground'},
     {label: 'Accent', bg: 'bg-accent', fg: 'text-accent-foreground'},
     {label: 'Muted', bg: 'bg-muted', fg: 'text-muted-foreground'},
-    {label: 'Destructive', bg: 'bg-destructive', fg: 'text-white'},
+    {label: 'Destructive', bg: 'bg-destructive', fg: 'text-destructive-foreground'},
     {label: 'Card', bg: 'bg-card', fg: 'text-card-foreground'},
     {label: 'Popover', bg: 'bg-popover', fg: 'text-popover-foreground'},
   ];
