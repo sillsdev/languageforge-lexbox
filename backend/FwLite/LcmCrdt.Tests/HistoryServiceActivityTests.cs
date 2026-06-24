@@ -89,18 +89,15 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
     }
 
     [Fact]
-    public async Task ProjectActivity_SyncedSort_PlacesUnsyncedLast()
+    public async Task ProjectActivity_SyncedSort_PlacesUnsyncedFirst()
     {
         var syncedCommit = await AddEntryCommit(new CommitMetadata { AuthorName = "Synced", AuthorId = "synced" }, "synced-entry");
         await SetSyncDate(syncedCommit.Id, new DateTimeOffset(2025, 6, 1, 12, 0, 0, TimeSpan.Zero));
         await AddEntryCommit(new CommitMetadata { AuthorName = "Unsynced", AuthorId = "unsynced" }, "unsynced-entry");
 
         var activities = await Service.ProjectActivity(0, 1000, new ActivityQuery(Sort: ActivitySort.SyncedNewestFirst)).ToArrayAsync();
-        var syncedIndex = Array.FindIndex(activities, a => a.Metadata.AuthorId == "synced");
-        var unsyncedIndex = Array.FindIndex(activities, a => a.Metadata.AuthorId == "unsynced");
-        syncedIndex.Should().BeGreaterThanOrEqualTo(0);
-        unsyncedIndex.Should().BeGreaterThanOrEqualTo(0);
-        syncedIndex.Should().BeLessThan(unsyncedIndex);
+        var commitAuthors = activities.Select(a => a.Metadata.AuthorId).Where(a => a is not null);
+        commitAuthors.Should().ContainInOrder(["unsynced", "synced"]);
     }
 
     [Fact]

@@ -214,7 +214,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             ActivitySort.OldestFirst => commits.DefaultOrder(),
             ActivitySort.SyncedNewestFirst => commits.ToLinqToDB()
                 .OrderBy(c => Sql.Expr<int>(
-                    "CASE WHEN json_extract({0}, '$.ExtraMetadata.SyncDate') IS NULL THEN 1 ELSE 0 END", c.Metadata))
+                    "CASE WHEN json_extract({0}, '$.ExtraMetadata.SyncDate') IS NULL THEN 0 ELSE 1 END", c.Metadata))
                 .ThenByDescending(c => Sql.Expr<string>(
                     "json_extract({0}, '$.ExtraMetadata.SyncDate')", c.Metadata))
                 .ThenByDescending(c => c.HybridDateTime.DateTime)
@@ -222,7 +222,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
                 .ThenByDescending(c => c.Id),
             ActivitySort.SyncedOldestFirst => commits.ToLinqToDB()
                 .OrderBy(c => Sql.Expr<int>(
-                    "CASE WHEN json_extract({0}, '$.ExtraMetadata.SyncDate') IS NULL THEN 1 ELSE 0 END", c.Metadata))
+                    "CASE WHEN json_extract({0}, '$.ExtraMetadata.SyncDate') IS NULL THEN 0 ELSE 1 END", c.Metadata))
                 .ThenBy(c => Sql.Expr<string>(
                     "json_extract({0}, '$.ExtraMetadata.SyncDate')", c.Metadata))
                 .ThenBy(c => c.HybridDateTime.DateTime)
