@@ -34,13 +34,14 @@ I.e. If there's small, big, small, then sonner thinks the big one is small and p
     classes: {
       toast:
         'gap-3 group toast data-[expanded="true"]:h-max! data-[expanded="true"]:max-h-max group-[.toaster]:bg-background! group-[.toaster]:border-border! group-[.toaster]:shadow-lg',
+      title: 'line-clamp-4',
       description:
         'group-[.toast]:text-muted-foreground! max-h-[30vh] overflow-y-auto whitespace-break-spaces touch-pan-y' /* pan-y means the browser should handle y-scrolling (and NOT x-scrolling, which is for swiping away) */,
       actionButton: buttonVariants({
         size: 'sm',
         variant: 'default',
         class:
-          'group-[.toast]:bg-primary! group-[.toast]:text-primary-foreground! h-9! min-h-9 px-3! group-[.toast[data-type="error"]]:i-mdi-content-copy [&.copied]:i-mdi-check! group-[.toast[data-promise="true"][data-type="loading"]]:hidden!',
+          'group-[.toast]:bg-primary! group-[.toast]:text-primary-foreground! h-9! min-h-9 px-3! group-[.toast[data-type="error"]]:i-mdi-content-copy group-[.toast[data-type="error"]]:[&.copied]:i-mdi-check group-[.toast[data-promise="true"][data-type="loading"]]:hidden!',
       }),
       cancelButton: buttonVariants({
         size: 'sm',
