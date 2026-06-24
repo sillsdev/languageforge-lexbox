@@ -20,6 +20,7 @@
   import {useAuthService} from '$lib/services/service-provider';
   import {Button} from '$lib/components/ui/button';
   import {AppNotification} from '$lib/notifications/notifications';
+  import {openUrl} from '$lib/services/url-opener';
 
   const authService = useAuthService();
   const shouldUseSystemWebView = useSystemWebView(authService);
@@ -43,12 +44,24 @@
     loading = true;
     try {
       const result = await authService.signInWebView(server);
+
       if (result === LoginResult.Success) {
         statusChange('logged-in');
       } else if (result === LoginResult.Offline) {
-        AppNotification.display($t`You're offline. Connect to the internet to log in.`, {type: 'warning', timeout: 'short'});
+        AppNotification.displayAction(
+          $t`You appear to be offline. Can you connect to ${server.displayName}?`,
+          {
+            label: $t`Open in browser`,
+            callback: () => {
+              void openUrl(server.authority);
+              return {dismiss: true};
+            },
+          },
+          {type: 'warning'},
+        );
+      } else {
+        AppNotification.display($t`Login cancelled.`, {type: 'warning', timeout: 'short'});
       }
-      // LoginResult.Cancelled: the user backed out, so stay quiet
     } finally {
       loading = false;
     }
@@ -63,6 +76,7 @@
       loading = false;
     }
   }
+
 </script>
 
 {#if status.loggedIn}
