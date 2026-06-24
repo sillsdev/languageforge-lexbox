@@ -15,7 +15,7 @@ public class BackgroundSyncService(
     CrdtProjectsService crdtProjectsService,
     ILogger<BackgroundSyncService> logger,
     IServiceProvider serviceProvider,
-    IHostApplicationLifetime? applicationLifetime = null) : BackgroundService
+    IHostApplicationLifetime? applicationLifetime = null) : BackgroundService, IBackgroundSyncService
 {
     private readonly Channel<CrdtProject> _syncResultsChannel = Channel.CreateUnbounded<CrdtProject>();
     private bool _running;

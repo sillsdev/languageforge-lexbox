@@ -31,7 +31,7 @@ localResourcesCache/
 backend/FwLite/FwLiteShared/wwwroot/viewer
 
 *.csproj.user
-backend/Directory.Build.props.user
+*.props.user
 *.log
 failedSyncs/
 

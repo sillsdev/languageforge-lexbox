@@ -438,6 +438,12 @@ msgstr "Copied to clipboard"
 msgid "Copy version"
 msgstr "Copy version"
 
+#. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
+#. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
+#: src/project/SyncDialog.svelte
+msgid "Couldn't sync right now — your local changes are safe."
+msgstr "Couldn't sync right now — your local changes are safe."
+
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
@@ -768,7 +774,6 @@ msgstr "Failed to open URL: {0}"
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
-#: src/project/SyncDialog.svelte
 msgid "Failed to synchronize"
 msgstr "Failed to synchronize"
 
