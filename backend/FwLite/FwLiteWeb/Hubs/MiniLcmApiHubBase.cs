@@ -132,6 +132,6 @@ public abstract class MiniLcmApiHubBase(
 
     protected virtual async Task NotifyEntryUpdated(Entry entry)
     {
-        await Clients.Others.OnEntryUpdated(entry);
+        await Clients.Others.OnEntriesChanged([entry.Id], []);
     }
 }

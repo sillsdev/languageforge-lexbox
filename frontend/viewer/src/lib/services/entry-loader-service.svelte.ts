@@ -123,7 +123,7 @@ export class EntryLoaderService {
     await this.quietReset();
   }
 
-  async onEntryUpdated(_entry: IEntry): Promise<void> {
+  async onEntryUpdated(_entryId: string): Promise<void> {
     // We could (and I did) try to optimize some update events, however:
     // 1) We can't debounce them. We need to handle every unique event or we get out of sync.
     // 2) We can't rely on the local index cache to determine if the entry matches the current filter,

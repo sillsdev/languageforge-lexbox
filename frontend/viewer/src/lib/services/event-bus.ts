@@ -3,9 +3,8 @@ import {useService} from '$lib/services/service-provider';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
 import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
-import type {IEntryChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryChangedEvent';
+import type {IEntriesChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntriesChangedEvent';
 import type {IProjectEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectEvent';
-import type {IEntryDeletedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryDeletedEvent';
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {onDestroy} from 'svelte';
 import type {ISyncEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/ISyncEvent';
@@ -99,11 +98,11 @@ export class ProjectEventBus {
   }
 
   public notifyEntryDeleted(entryId: string) {
-    this.notifyProjectEvent({entryId, type: FwEventType.EntryDeleted, isGlobal: false} satisfies IEntryDeletedEvent);
+    this.notifyProjectEvent({changedEntryIds: [], deletedEntryIds: [entryId], type: FwEventType.EntriesChanged, isGlobal: false} satisfies IEntriesChangedEvent);
   }
 
   public notifyEntryUpdated(entry: IEntry) {
-    this.notifyProjectEvent({entry, type: FwEventType.EntryChanged, isGlobal: false} satisfies IEntryChangedEvent);
+    this.notifyProjectEvent({changedEntryIds: [entry.id], deletedEntryIds: [], type: FwEventType.EntriesChanged, isGlobal: false} satisfies IEntriesChangedEvent);
   }
 
   private notifyProjectEvent<T extends IFwEvent>(event: T) {
@@ -115,18 +114,18 @@ export class ProjectEventBus {
     } as IProjectEvent);
   }
 
-  public onEntryUpdated(callback: (entry: IEntry) => void) {
+  public onEntryUpdated(callback: (entryId: string) => void) {
     this.onProjectEvent(event => {
-      if (isEntryChangedEvent(event)) {
-        callback(event.entry);
+      if (isEntriesChangedEvent(event)) {
+        event.changedEntryIds.forEach(callback);
       }
     });
   }
 
   public onEntryDeleted(callback: (entryId: string) => void) {
     this.onProjectEvent(event => {
-      if (isEntryDeletedEvent(event)) {
-        callback(event.entryId);
+      if (isEntriesChangedEvent(event)) {
+        event.deletedEntryIds.forEach(callback);
       }
     });
   }
@@ -161,12 +160,8 @@ export function useProjectEventBus() {
   return new ProjectEventBus(useProjectContext(), useEventBus());
 }
 
-function isEntryChangedEvent(event: IFwEvent): event is IEntryChangedEvent {
-  return event.type === FwEventType.EntryChanged;
-}
-
-function isEntryDeletedEvent(event: IFwEvent): event is IEntryDeletedEvent {
-  return event.type === FwEventType.EntryDeleted;
+function isEntriesChangedEvent(event: IFwEvent): event is IEntriesChangedEvent {
+  return event.type === FwEventType.EntriesChanged;
 }
 
 function isProjectEvent(event: IFwEvent): event is IProjectEvent {

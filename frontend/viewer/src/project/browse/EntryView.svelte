@@ -69,10 +69,16 @@
     return entry;
   }
 
-  eventBus.onEntryUpdated((e) => {
-    if (e.id !== entryId) return;
-    // The event payload is the latest server state
-    setEntry(e);
+  eventBus.onEntryUpdated((id) => {
+    if (id !== entryId) return;
+    void miniLcmApi.getEntry(id).then(refreshed => {
+      if (id !== entryId) return; // entry switched while we were fetching
+      if (!refreshed) {
+        deleted = true;
+        return;
+      }
+      setEntry(refreshed);
+    });
   });
 
   eventBus.onEntryDeleted(id => {

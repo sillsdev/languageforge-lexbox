@@ -86,11 +86,11 @@
   });
 
   // Handle entry updated events
-  projectEventBus.onEntryUpdated(entry => {
-    void entryLoader?.onEntryUpdated(entry).then(() => {
+  projectEventBus.onEntryUpdated(entryId => {
+    void entryLoader?.onEntryUpdated(entryId).then(() => {
       // follow the selected entry if it "jumps"/reorders
-      if (entry.id === selectedEntryId) {
-        return tryToScrollToEntry(entry.id);
+      if (entryId === selectedEntryId) {
+        return tryToScrollToEntry(entryId);
       }
     });
   });

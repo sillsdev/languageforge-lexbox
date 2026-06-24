@@ -6,10 +6,11 @@
 import type {IFwEvent} from './IFwEvent';
 import type {FwEventType} from './FwEventType';
 
-export interface IEntryDeletedEvent extends IFwEvent
+export interface IEntriesChangedEvent extends IFwEvent
 {
 	type: FwEventType;
 	isGlobal: boolean;
-	entryId: string;
+	changedEntryIds: string[];
+	deletedEntryIds: string[];
 }
 /* eslint-enable */

@@ -33,49 +33,43 @@ public partial class MiniLcmApiNotifyWrapper(
 
     private record PendingChangeNotifications(MiniLcmApiNotifyWrapper Wrapper): IAsyncDisposable
     {
-        public HashSet<Guid> EntryIds { get; init; } = [];
-        public Dictionary<Guid, Entry> Entries { get; init; } = [];
+        public HashSet<Guid> ChangedEntryIds { get; init; } = [];
+        public HashSet<Guid> DeletedEntryIds { get; init; } = [];
 
-        public async ValueTask DisposeAsync()
+        public ValueTask DisposeAsync()
         {
             Wrapper._pendingChanges = null;
-            foreach (var (id, entry) in Entries)
-            {
-                Wrapper.NotifyEntryChanged(entry);
-                EntryIds.Remove(id);
-            }
-            foreach (var entryId in EntryIds)
-            {
-                await Wrapper.NotifyEntryChangedAsync(entryId);
-            }
+            Wrapper.PublishChanges([.. ChangedEntryIds.Except(DeletedEntryIds)], [.. DeletedEntryIds]);
+            return ValueTask.CompletedTask;
         }
     }
 
-    public void NotifyEntryChanged(Entry entry)
-    {
-        if (_pendingChanges is not null)
-        {
-            _pendingChanges.Entries[entry.Id] = entry;
-            return;
-        }
-        bus.PublishEntryChangedEvent(project, entry);
-    }
+    public void NotifyEntryChanged(Entry entry) => NotifyEntryChanged(entry.Id);
 
-    public async Task NotifyEntryChangedAsync(Guid entryId)
+    public void NotifyEntryChanged(Guid entryId)
     {
         if (_pendingChanges is not null)
         {
-            _pendingChanges.EntryIds.Add(entryId);
+            _pendingChanges.ChangedEntryIds.Add(entryId);
             return;
         }
-        var entry = await _api.GetEntry(entryId);
-        if (entry is null) return;
-        bus.PublishEntryChangedEvent(project, entry);
+        PublishChanges([entryId], []);
     }
 
     public void NotifyEntryDeleted(Guid entryId)
     {
-        bus.PublishEvent(project, new EntryDeletedEvent(entryId));
+        if (_pendingChanges is not null)
+        {
+            _pendingChanges.DeletedEntryIds.Add(entryId);
+            return;
+        }
+        PublishChanges([], [entryId]);
+    }
+
+    private void PublishChanges(Guid[] changedEntryIds, Guid[] deletedEntryIds)
+    {
+        if (changedEntryIds.Length == 0 && deletedEntryIds.Length == 0) return;
+        bus.PublishEntriesChanged(project, changedEntryIds, deletedEntryIds);
     }
 
     // ********** Overrides go here **********
@@ -135,16 +129,16 @@ public partial class MiniLcmApiNotifyWrapper(
     async Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
     {
         var result = await _api.CreateComplexFormComponent(complexFormComponent, position);
-        await NotifyEntryChangedAsync(result.ComplexFormEntryId);
-        await NotifyEntryChangedAsync(result.ComponentEntryId);
+        NotifyEntryChanged(result.ComplexFormEntryId);
+        NotifyEntryChanged(result.ComponentEntryId);
         return result;
     }
 
     async Task IMiniLcmWriteApi.DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
         await _api.DeleteComplexFormComponent(complexFormComponent);
-        await NotifyEntryChangedAsync(complexFormComponent.ComplexFormEntryId);
-        await NotifyEntryChangedAsync(complexFormComponent.ComponentEntryId);
+        NotifyEntryChanged(complexFormComponent.ComplexFormEntryId);
+        NotifyEntryChanged(complexFormComponent.ComponentEntryId);
     }
 
     async Task IMiniLcmWriteApi.DeleteEntry(Guid id)
@@ -156,13 +150,13 @@ public partial class MiniLcmApiNotifyWrapper(
     async Task IMiniLcmWriteApi.DeleteSense(Guid entryId, Guid senseId)
     {
         await _api.DeleteSense(entryId, senseId);
-        await NotifyEntryChangedAsync(entryId);
+        NotifyEntryChanged(entryId);
     }
 
     async Task IMiniLcmWriteApi.DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
         await _api.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
-        await NotifyEntryChangedAsync(entryId);
+        NotifyEntryChanged(entryId);
     }
 
     void IDisposable.Dispose()
