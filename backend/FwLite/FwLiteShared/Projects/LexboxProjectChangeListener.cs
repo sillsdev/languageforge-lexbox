@@ -1,20 +1,48 @@
 using System.Collections.Concurrent;
 using FwLiteShared.Auth;
+using FwLiteShared.Events;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FwLiteShared.Projects;
 
-public sealed class LexboxProjectChangeListener(IServiceProvider serviceProvider, IOptions<AuthConfig> options) : IAsyncDisposable
+public sealed class LexboxProjectChangeListener : IAsyncDisposable
 {
     private readonly ConcurrentDictionary<LexboxServer, LexboxHubConnection> _connections = new();
+    private readonly IServiceProvider serviceProvider;
+    private readonly IOptions<AuthConfig> options;
+    private readonly ILogger<LexboxProjectChangeListener> logger;
+    private readonly IDisposable authChangedSubscription;
+
+    public LexboxProjectChangeListener(
+        IServiceProvider serviceProvider,
+        IOptions<AuthConfig> options,
+        GlobalEventBus globalEventBus,
+        ILogger<LexboxProjectChangeListener> logger)
+    {
+        this.serviceProvider = serviceProvider;
+        this.options = options;
+        this.logger = logger;
+
+        authChangedSubscription = globalEventBus.OnAuthenticationChanged
+            .Subscribe(@event => _ = HandleAuthChanged(@event.Server));
+    }
 
     public async Task HandleAuthChanged(LexboxServer server)
     {
-        _connections.TryGetValue(server, out var connection);
-        if (connection is not null) {
-            await connection.OnAuthChanged();
+        try
+        {
+            _connections.TryGetValue(server, out var connection);
+            if (connection is not null)
+            {
+                await connection.OnAuthChanged();
+            }
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to handle authentication change for {Server}", server.Authority);
         }
     }
 
@@ -36,6 +64,7 @@ public sealed class LexboxProjectChangeListener(IServiceProvider serviceProvider
 
     public async ValueTask DisposeAsync()
     {
+        authChangedSubscription.Dispose();
         foreach (var connection in _connections.Values)
         {
             await connection.DisposeAsync();

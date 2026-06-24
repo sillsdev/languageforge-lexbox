@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using FwLiteShared.Auth;
+using FwLiteShared.Events;
 using LcmCrdt;
 using LexCore.Entities;
 using LexCore.Sync;
@@ -10,39 +11,36 @@ using SIL.Harmony.Core;
 
 namespace FwLiteShared.Projects;
 
-public class LexboxProjectService
+public class LexboxProjectService : IDisposable
 {
     private readonly OAuthClientFactory clientFactory;
     private readonly ILogger<LexboxProjectService> logger;
     private readonly IOptions<AuthConfig> options;
     private readonly IMemoryCache cache;
     private readonly LexboxProjectChangeListener projectChangeListener;
+    private readonly IDisposable authChangedSubscription;
 
     public LexboxProjectService(
         OAuthClientFactory clientFactory,
         ILogger<LexboxProjectService> logger,
         IOptions<AuthConfig> options,
         IMemoryCache cache,
-        LexboxProjectChangeListener projectChangeListener)
+        LexboxProjectChangeListener projectChangeListener,
+        GlobalEventBus globalEventBus)
     {
         this.clientFactory = clientFactory;
         this.logger = logger;
         this.options = options;
         this.cache = cache;
         this.projectChangeListener = projectChangeListener;
+
+        authChangedSubscription = globalEventBus.OnAuthenticationChanged
+            .Subscribe(@event => InvalidateProjectsCache(@event.Server));
     }
 
-    public async Task HandleAuthChanged(LexboxServer server)
+    public void Dispose()
     {
-        try
-        {
-            InvalidateProjectsCache(server);
-            await projectChangeListener.HandleAuthChanged(server);
-        }
-        catch (Exception e)
-        {
-            logger.LogWarning(e, "Failed to handle authentication change for {Server}", server.Authority);
-        }
+        authChangedSubscription.Dispose();
     }
 
     public LexboxServer[] Servers()
