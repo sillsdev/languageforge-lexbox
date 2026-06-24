@@ -120,21 +120,28 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
     public async Task ProjectActivity_FiltersByChangeTypeKeys()
     {
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
+        await AddNewPublicationCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: ["CreateEntryChange"])).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: [nameof(CreateEntryChange)])).ToArrayAsync();
 
-        activities.Should().OnlyContain(a => a.ChangeTypes.Contains("CreateEntryChange"));
+        activities.Should().OnlyContain(a => a.ChangeTypes.Contains(nameof(CreateEntryChange)));
         activities.Should().HaveCountGreaterThanOrEqualTo(1);
+        activities.Should().NotContain(a => a.ChangeTypes.Contains(nameof(CreatePublicationChange)));
     }
 
     [Fact]
     public async Task ProjectActivity_ChangeTypeKeys_FiltersMultipleTypes()
     {
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
+        await AddNewPublicationCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
+        await AddNewPartOfSpeechCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
+        (await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync())
+            .Should().Contain(a => a.ChangeTypes.Contains(nameof(CreatePartOfSpeechChange)));
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: ["CreateEntryChange", "MissingType"])).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: [nameof(CreateEntryChange), nameof(CreatePublicationChange)])).ToArrayAsync();
 
-        activities.Should().OnlyContain(a => a.ChangeTypes.Any(t => t == "CreateEntryChange"));
+        activities.Should().OnlyContain(a => a.ChangeTypes.Any(t => t == nameof(CreateEntryChange) || t == nameof(CreatePublicationChange)));
+        activities.Should().NotContain(a => a.ChangeTypes.Contains(nameof(CreatePartOfSpeechChange)));
     }
 
     [Fact]
@@ -153,6 +160,22 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
             ? await AutoFaker.EntryReadyForCreation(_fixture.Api)
             : new Entry { Id = Guid.NewGuid(), LexemeForm = new MultiString { ["en"] = headword } };
         return await DataModel.AddChange(ClientId, new CreateEntryChange(entry), metadata);
+    }
+
+    private async Task<Commit> AddNewPublicationCommit(CommitMetadata metadata, string publicationName = "Test Publication")
+    {
+        return await DataModel.AddChange(ClientId, new CreatePublicationChange(Guid.NewGuid(), new MultiString
+        {
+            ["en"] = publicationName
+        }), metadata);
+    }
+
+    private async Task<Commit> AddNewPartOfSpeechCommit(CommitMetadata metadata, string partOfSpeechName = "Test Part of Speech")
+    {
+        return await DataModel.AddChange(ClientId, new CreatePartOfSpeechChange(Guid.NewGuid(), new MultiString
+        {
+            ["en"] = partOfSpeechName
+        }), metadata);
     }
 
     private async Task SetSyncDate(Guid commitId, DateTimeOffset syncDate)
