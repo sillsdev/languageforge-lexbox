@@ -1088,13 +1088,15 @@ public class FwDataMiniLcmApi(
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
+        //complex form entry has been deleted, so this component relationship is gone already
+        if (!EntriesRepository.TryGetObject(complexFormComponent.ComplexFormEntryId, out var lexEntry))
+            return Task.CompletedTask;
+
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Complex Form Component",
             "Add Complex Form Component",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                //complex form entry has been deleted, so this component relationship is gone already
-                if (!EntriesRepository.TryGetObject(complexFormComponent.ComplexFormEntryId, out var lexEntry)) return;
                 RemoveComplexFormComponent(lexEntry, complexFormComponent);
             });
         return Task.CompletedTask;
