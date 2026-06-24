@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.Objects;
 using LcmCrdt.Project;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -80,6 +81,42 @@ public class CurrentProjectService(
         //migrate will only execute once with a static which tracks if we've already migrated
         await MigrateDb();
         return project.Data = await RefreshProjectData();
+    }
+
+    /// <summary>
+    /// Like <see cref="SetupProjectContext(CrdtProject)"/> but tolerant of a project DB that exists on disk yet
+    /// isn't usable yet: a sync on another thread can create the sqlite file before it commits the ProjectData row
+    /// (or even before migrations create the table). Calling SetupProjectContext in that window throws
+    /// "Sequence contains no elements" and caches a faulted migration task. Returns false, establishing no
+    /// context, when the project isn't ready. Intended for request middleware that may observe a project mid-creation.
+    /// </summary>
+    public async ValueTask<bool> TrySetupProjectContext(CrdtProject project)
+    {
+        if (_project != null && project != _project)
+            throw new InvalidOperationException($"Can't setup project context for {project.Name} when already in context of project {_project.Name}");
+        //the DbContext factory resolves the file from Project.DbPath, so the project must be set before we can probe it
+        _project = project;
+        if (!await ProjectDbIsInitialized())
+        {
+            _project = null;
+            return false;
+        }
+        await SetupProjectContext(project);
+        return true;
+    }
+
+    private async ValueTask<bool> ProjectDbIsInitialized()
+    {
+        try
+        {
+            await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+            return await dbContext.ProjectData.AsNoTracking().AnyAsync();
+        }
+        catch (SqliteException)
+        {
+            //file exists but migrations haven't created the ProjectData table yet (project is mid-creation)
+            return false;
+        }
     }
 
     public async ValueTask<ProjectData> SetupProjectContext(string projectCode)

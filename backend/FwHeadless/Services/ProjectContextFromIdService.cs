@@ -18,8 +18,9 @@ public class ProjectContextFromIdService(IOptions<FwHeadlessConfig> config, IPro
                 var crdtFile = config.Value.GetCrdtFile(projectCode, projectId);
                 if (File.Exists(crdtFile))
                 {
+                    //the file can exist before a concurrent sync finishes creating the project; Try... no-ops in that window
                     var project = new CrdtProject("crdt", crdtFile, projectDataCache);
-                    await context.RequestServices.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
+                    await context.RequestServices.GetRequiredService<CurrentProjectService>().TrySetupProjectContext(project);
                 }
             }
         }
