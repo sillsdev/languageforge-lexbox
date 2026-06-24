@@ -150,6 +150,7 @@ public interface IMiniLcmWriteApi
     // Dependency types too (they sync before entries, outside EntrySync's try/catch). WritingSystem is omitted
     // (its update resolves the entity id, so it can't be a blind submit); MorphType is omitted (not deletable).
     Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => UpdatePartOfSpeech(id, update);
+    Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => UpdatePicture(entryId, senseId, pictureId, update);
     Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update) => UpdatePublication(id, update);
     Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update) => UpdateSemanticDomain(id, update);
     Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update) => UpdateComplexFormType(id, update);
