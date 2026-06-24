@@ -110,12 +110,16 @@ public class CurrentProjectService(
         await using var dbContext = await DbContextFactory.CreateDbContextAsync();
         try
         {
-            return await dbContext.ProjectData.AsNoTracking().AnyAsync();
+            if (await dbContext.ProjectData.AsNoTracking().AnyAsync()) return true;
+            //rare: schema exists but a concurrent sync hasn't committed the ProjectData row yet
+            logger.LogInformation("Project DB '{DbPath}' exists but has no ProjectData row yet; treating as not-yet-initialized", Project.DbPath);
+            return false;
         }
-        catch (SqliteException { SqliteErrorCode: 1 }) //SQLITE_ERROR "no such table": migrations haven't run yet
+        catch (SqliteException { SqliteErrorCode: 1 } e) //SQLITE_ERROR "no such table": migrations haven't run yet
         {
-            //a concurrent sync created the sqlite file but not the ProjectData table; other error codes
+            //rare: a concurrent sync created the file but not the ProjectData table. Other error codes
             //(corruption, I/O) intentionally propagate rather than masquerade as "not ready"
+            logger.LogInformation(e, "Project DB '{DbPath}' exists but its ProjectData table is missing; treating as not-yet-initialized", Project.DbPath);
             return false;
         }
     }
