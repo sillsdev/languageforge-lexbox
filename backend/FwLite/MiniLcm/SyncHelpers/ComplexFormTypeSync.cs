@@ -20,7 +20,7 @@ public static class ComplexFormTypeSync
         IMiniLcmApi api)
     {
         var updateObjectInput = ComplexFormTypeDiffToUpdate(before, after);
-        if (updateObjectInput is not null) await api.UpdateComplexFormType(after.Id, updateObjectInput);
+        if (updateObjectInput is not null) await api.SubmitUpdateComplexFormType(after.Id, updateObjectInput);
         return updateObjectInput is null ? 0 : 1;
     }
 

@@ -173,6 +173,12 @@ msgstr "Añadir parte de"
 msgid "Add Sense"
 msgstr "Añadir acepción"
 
+#. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
+#. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
+#: src/project/browse/EntriesList.svelte
+msgid "Add to dictionary"
+msgstr ""
+
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
@@ -299,6 +305,10 @@ msgstr "azul"
 msgid "Browse"
 msgstr "Visite"
 
+#: src/project/browse/BrowseView.svelte
+msgid "Browse view failed"
+msgstr ""
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -361,6 +371,7 @@ msgid "Close"
 msgstr "Cerrar"
 
 #. Menu option to close project
+#: src/lib/layout/ViewErrorBoundary.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Cerrar Diccionario"
@@ -1322,6 +1333,7 @@ msgstr "No hay tema, no se puede crear un nuevo {0}"
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/project/browse/EntriesList.svelte
 msgid "No words found"
 msgstr "No se han encontrado palabras"
 
@@ -1736,6 +1748,10 @@ msgstr "Tamaño:"
 msgid "Skip"
 msgstr "Saltar"
 
+#: src/lib/layout/ViewErrorBoundary.svelte
+msgid "Something went wrong"
+msgstr ""
+
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
@@ -1835,6 +1851,10 @@ msgstr "Tarea {0}"
 msgid "Task not found: {0}"
 msgstr "Tarea no encontrada: {0}"
 
+#: src/project/tasks/TasksView.svelte
+msgid "Task view failed"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
@@ -1933,6 +1953,10 @@ msgstr "Traducción {0}"
 #: src/project/ProjectSidebar.svelte
 msgid "Troubleshoot"
 msgstr "Solución de problemas"
+
+#: src/lib/layout/ViewErrorBoundary.svelte
+msgid "Try again"
+msgstr ""
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts

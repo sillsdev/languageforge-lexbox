@@ -16,6 +16,7 @@ public enum ProjectSyncStatusEnum
 public enum ProjectSyncStatusErrorCode
 {
     NotLoggedIn,
+    Offline,
     Unknown
 }
 

@@ -1,0 +1,17 @@
+<Project InitialTargets="ValidateHarmonyCoreSource">
+  <PropertyGroup Condition="'$(UseHarmonySource)' == 'true'">
+    <_HarmonyCoreProject>$(HarmonySourcePath)\src\SIL.Harmony.Core\SIL.Harmony.Core.csproj</_HarmonyCoreProject>
+  </PropertyGroup>
+
+  <Target Name="ValidateHarmonyCoreSource" Condition="'$(UseHarmonySource)' == 'true'">
+    <Error Condition="!Exists('$(_HarmonyCoreProject)')"
+           Text="UseHarmonySource is enabled but SIL.Harmony.Core was not found at $(_HarmonyCoreProject). Clone https://github.com/sillsdev/harmony or set HarmonySourcePath. See backend/Directory.Build.props.user.example." />
+  </Target>
+
+  <ItemGroup Condition="'$(UseHarmonySource)' == 'true'">
+    <ProjectReference Include="$(_HarmonyCoreProject)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHarmonySource)' != 'true'">
+    <PackageReference Include="SIL.Harmony.Core" />
+  </ItemGroup>
+</Project>

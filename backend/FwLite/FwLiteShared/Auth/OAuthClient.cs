@@ -1,7 +1,6 @@
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using FwLiteShared.Events;
-using FwLiteShared.Projects;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,29 +16,29 @@ namespace FwLiteShared.Auth;
 /// </summary>
 public class OAuthClient
 {
-    //all 3 scopes are required to work around this bug https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/5094
-    //more can be added in needed but this is the minimum set
-    public static IReadOnlyCollection<string> DefaultScopes { get; } = ["profile", "openid", "offline_access", "sendandreceive" ];
+    //profile, openid and offline_access are all required to work around https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/5094;
+    //sendandreceive is the API permission scope for our backend.
+    public static IReadOnlyCollection<string> DefaultScopes { get; } = ["profile", "openid", "offline_access", "sendandreceive"];
     public const string AuthHttpClientName = "LexboxHttpClient";
     public string? RedirectUrl { get; }
     private readonly IHttpMessageHandlerFactory _httpMessageHandlerFactory;
     private readonly AuthConfig _options;
     private readonly OAuthService _oAuthService;
     private readonly LexboxServer _lexboxServer;
-    private readonly LexboxProjectService _lexboxProjectService;
     private readonly ILogger<OAuthClient> _logger;
     private readonly GlobalEventBus _globalEventBus;
     private readonly IPublicClientApplication _application;
     private bool _cacheConfigured;
     private readonly SemaphoreSlim _cacheConfiguredSemaphore = new(1, 1);
-    AuthenticationResult? _authResult;
+    // prevents using same refresh token twice, logging in and out simulteneously etc.
+    private readonly SemaphoreSlim _authSemaphore = new(1, 1);
+    private AuthenticationResult? _authResult;
 
     public OAuthClient(LoggerAdapter loggerAdapter,
         IHttpMessageHandlerFactory httpMessageHandlerFactory,
         IOptions<AuthConfig> options,
         OAuthService oAuthService,
         LexboxServer lexboxServer,
-        LexboxProjectService lexboxProjectService,
         ILogger<OAuthClient> logger,
         GlobalEventBus globalEventBus,
         IHostEnvironment? hostEnvironment = null,
@@ -50,12 +49,11 @@ public class OAuthClient
         _options = options.Value;
         _oAuthService = oAuthService;
         _lexboxServer = lexboxServer;
-        _lexboxProjectService = lexboxProjectService;
         _logger = logger;
         _globalEventBus = globalEventBus;
         RedirectUrl = options.Value.SystemWebViewLogin
             ? "http://localhost" //system web view will always have no path, changing this will not do anything in that case
-            :  redirectUrlProvider?.GetRedirectUrl() ?? throw new InvalidOperationException("No IRedirectUrlProvider configured, required for non-system web view login");
+            : redirectUrlProvider?.GetRedirectUrl() ?? throw new InvalidOperationException("No IRedirectUrlProvider configured, required for non-system web view login");
         //todo configure token cache as seen here
         //https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
         var builder = PublicClientApplicationBuilder.Create(options.Value.ClientId)
@@ -73,6 +71,23 @@ public class OAuthClient
             builder.WithDefaultRedirectUri();
         }
         _application = builder.Build();
+    }
+
+    //test seam — skips persistent cache wiring; only GetAuth/Logout are safe to exercise via this ctor.
+    internal OAuthClient(IPublicClientApplication application,
+        LexboxServer lexboxServer,
+        ILogger<OAuthClient> logger,
+        GlobalEventBus globalEventBus)
+    {
+        _application = application;
+        _lexboxServer = lexboxServer;
+        _logger = logger;
+        _globalEventBus = globalEventBus;
+        _cacheConfigured = true;
+
+        _httpMessageHandlerFactory = null!;
+        _options = null!;
+        _oAuthService = null!;
     }
 
     public static readonly KeyValuePair<string, string> LinuxKeyRingAttr1 = new("Version", "1");
@@ -141,61 +156,140 @@ public class OAuthClient
 
     public async Task Logout()
     {
-        _authResult = null;
-        await ConfigureCache();
-        var accounts = await _application.GetAccountsAsync();
-        foreach (var account in accounts)
+        //take the same lock as GetAuth: otherwise an in-flight AcquireTokenSilent could complete after we
+        //clear state and re-populate _authResult, leaving the user silently logged back in.
+        await _authSemaphore.WaitAsync();
+        try
         {
-            await _application.RemoveAsync(account);
+            _authResult = null;
+            await ConfigureCache();
+            var accounts = await _application.GetAccountsAsync();
+            foreach (var account in accounts)
+            {
+                await _application.RemoveAsync(account);
+            }
         }
+        finally
+        {
+            _authSemaphore.Release();
+        }
+        //publish outside the lock to avoid deadlocks
         _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
     }
 
-    private async ValueTask<AuthenticationResult?> GetAuth(bool forceRefresh = false)
+    /// <summary>
+    /// Whether an account is present in the local MSAL cache. Purely a local read — never touches
+    /// the network — so callers can distinguish "not logged in" from "offline" without triggering a
+    /// token acquisition. Account presence implies signed-in.
+    /// </summary>
+    public async ValueTask<bool> IsSignedIn()
+    {
+        await ConfigureCache();
+        var accounts = await _application.GetAccountsAsync();
+        return accounts.Any();
+    }
+
+    internal async ValueTask<AuthenticationResult?> GetAuth(bool forceRefresh = false)
     {
         if (DateTimeOffset.UtcNow.AddMinutes(5) < _authResult?.ExpiresOn && !forceRefresh)
         {
             return _authResult;
         }
 
-        await ConfigureCache();
-        var accounts = await _application.GetAccountsAsync();
-        var account = accounts.FirstOrDefault();
-        if (account is null) return null;
+        var accountRemoved = false;
+        AuthenticationResult? result;
+        await _authSemaphore.WaitAsync();
         try
         {
-            _authResult = await _application.AcquireTokenSilent(DefaultScopes, account)
-                .WithForceRefresh(forceRefresh)
-                .ExecuteAsync();
+            //re-check inside the lock: another caller may have refreshed while we waited
+            if (DateTimeOffset.UtcNow.AddMinutes(5) < _authResult?.ExpiresOn && !forceRefresh)
+            {
+                return _authResult;
+            }
+
+            await ConfigureCache();
+            var accounts = await _application.GetAccountsAsync();
+            var account = accounts.FirstOrDefault();
+            if (account is null) return null;
+            try
+            {
+                _authResult = await AcquireTokenSilentAsync(account, forceRefresh);
+            }
+            catch (Exception e)
+            {
+                switch (ClassifySilentAuthFailure(e))
+                {
+                    case SilentAuthFailureOutcome.RemoveAccount:
+                        //removing the account deletes the cache state that caused this, so capture it in the log first
+                        _logger.LogWarning(e,
+                            "Silent token acquisition failed with a non-recoverable error, logging out. Cached accounts: {Accounts}",
+                            string.Join("; ", accounts.Select(a => $"{a.Username} ({a.HomeAccountId?.Identifier}) @ {a.Environment}")));
+                        await _application.RemoveAsync(account);
+                        accountRemoved = true;
+                        _authResult = null;
+                        break;
+                    case SilentAuthFailureOutcome.KeepCachedCredentials:
+                    default:
+                        _logger.LogWarning(e, "Silent token acquisition failed with a transient or unknown error; keeping cached credentials");
+                        // Only drop the in-memory access token if it has actually expired. Keeping a still-valid
+                        // token across a transient blip avoids spuriously taking SignalR offline in the 5-minute
+                        // pre-expiry refresh window. The refresh token in the MSAL cache is preserved either way,
+                        // so the next GetAuth still retries silently once the transient condition clears.
+                        if (_authResult is { } r && r.ExpiresOn <= DateTimeOffset.UtcNow)
+                        {
+                            _authResult = null;
+                        }
+                        break;
+                }
+            }
+
+            //capture under the lock: after release a concurrent GetAuth could repopulate _authResult.
+            result = _authResult;
         }
-        catch (MsalUiRequiredException)
+        finally
         {
-            _logger.LogWarning("Ui required, logging out");
-            await _application.RemoveAsync(account);
-            _authResult = null;
-        }
-        catch (MsalClientException e) when (e.ErrorCode == "multiple_matching_tokens_detected")
-        {
-            _logger.LogWarning(e, "Multiple matching tokens detected, logging out");
-            await _application.RemoveAsync(account);
-            _authResult = null;
-        }
-        catch (MsalServiceException e) when (e.InnerException is HttpRequestException)
-        {
-            _logger.LogWarning(e, "Failed to acquire token silently");
-            await _application
-                .RemoveAsync(account); //todo might not be the best way to handle this, maybe it's a transient error?
-            _authResult = null;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Failed to acquire token silently");
-            await _application.RemoveAsync(account);
-            _authResult = null;
+            _authSemaphore.Release();
         }
 
-        return _authResult;
+        //publish outside the lock to avoid deadlocks
+        if (accountRemoved) _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
+        return result;
     }
+
+    //test seam — virtual so tests can mock it
+    internal virtual Task<AuthenticationResult> AcquireTokenSilentAsync(IAccount account, bool forceRefresh)
+    {
+        return _application.AcquireTokenSilent(DefaultScopes, account)
+            .WithForceRefresh(forceRefresh)
+            .ExecuteAsync();
+    }
+
+    internal enum SilentAuthFailureOutcome
+    {
+        KeepCachedCredentials,
+        RemoveAccount,
+    }
+
+    //KeepCachedCredentials is the default because the two RemoveAccount cases below are the only ones
+    //we expect to need (and benefit from) a fresh sign-in.
+    //Other MsalServiceExceptions/MsalClientExceptions are presumably either transient or not fixable
+    //by a re-login (see the doc linked below). OperationCanceledException is transient too: GetAuth
+    //takes no CancellationToken, so cancellation can only be MSAL-internal (e.g. an HttpClient timeout).
+    internal static SilentAuthFailureOutcome ClassifySilentAuthFailure(Exception e) => e switch
+    {
+        //MSAL's umbrella for "silent auth can never succeed, user interaction required" (refresh token
+        //expired/revoked, consent revoked, etc.). Our equivalent of the documented AcquireTokenInteractive
+        //fallback is signing the user out so the UI prompts a fresh login.
+        //https://learn.microsoft.com/en-us/entra/msal/dotnet/advanced/exceptions/msal-error-handling
+        MsalUiRequiredException => SilentAuthFailureOutcome.RemoveAccount,
+        //the cache holds several tokens that all match this request (e.g. one account on multiple servers,
+        //or scope drift across app versions). The documented mitigation — specify the authority — is already
+        //in place via WithOidcAuthority, so the only remaining self-heal is a fresh sign-in.
+        //https://learn.microsoft.com/en-us/dotnet/api/microsoft.identity.client.msalerror.multipletokensmatchederror
+        MsalClientException { ErrorCode: MsalError.MultipleTokensMatchedError } => SilentAuthFailureOutcome.RemoveAccount,
+        //everything else is transient or server-side — see the method comment
+        _ => SilentAuthFailureOutcome.KeepCachedCredentials,
+    };
 
     public async Task<string?> GetCurrentName()
     {
@@ -224,8 +318,10 @@ public class OAuthClient
         if (auth is null) return null;
 
         var handler = _httpMessageHandlerFactory.CreateHandler(AuthHttpClientName);
-        var client = new HttpClient(handler, false);
-        client.BaseAddress = _lexboxServer.Authority;
+        var client = new HttpClient(handler, false)
+        {
+            BaseAddress = _lexboxServer.Authority
+        };
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
         return client;
     }

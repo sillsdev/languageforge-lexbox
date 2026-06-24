@@ -1,4 +1,5 @@
 import {expect, test} from '@playwright/test';
+
 import {EntriesListComponent} from './entries-list-component';
 import {EntryApiHelper} from './entry-api-helper';
 
@@ -131,6 +132,24 @@ test.describe('EntriesList', () => {
 
       await expect(entriesList.selectedEntry).toBeVisible({timeout: 10000});
       await expect(entriesList.selectedEntry).toContainText(headword);
+    });
+
+    test('searching an existing entry after load shows it', async () => {
+      const {headword} = await api.getEntryWithEnglishGloss();
+      expect(headword.length).toBeGreaterThan(0);
+
+      await entriesList.searchInput.fill(headword);
+      await expect(entriesList.skeletons).toHaveCount(0);
+
+      const entryRow = entriesList.entryRows
+        .filter({hasText: headword})
+        .filter({hasNotText: 'Add to dictionary'});
+      const createFromSearchRow = entriesList.entryRows
+        .filter({hasText: 'Add to dictionary'});
+
+      await expect(entriesList.entryRows).toHaveCount(2);
+      await expect(entryRow).toBeVisible();
+      await expect(createFromSearchRow).toBeVisible();
     });
   });
 

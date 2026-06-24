@@ -53,6 +53,13 @@ using (var asm = AssemblyDefinition.ReadAssembly(dllPath, new ReaderParameters {
     if (cctor is null || !cctor.HasBody)
         return Fail("SqlTransparentExpression .cctor not found (or has no body).");
 
+    if (cctor.Body.Instructions.Count == 1 && cctor.Body.Instructions[0].OpCode == OpCodes.Ret)
+    {
+        Console.WriteLine($"Already patched (inferred from IL): {dllPath}");
+        File.WriteAllText(markerPath, DateTime.UtcNow.ToString("O"));
+        return 0;
+    }
+
     // Sanity-check the cctor shape: at least one stsfld targeting the _ctor field.
     // If upstream renames _ctor or restructures the field init, we want to know.
     var storesCtorField = cctor.Body.Instructions.Any(ins =>

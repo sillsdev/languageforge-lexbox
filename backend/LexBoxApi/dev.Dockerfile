@@ -9,13 +9,10 @@ RUN mkdir -p /var/www && chown -R www-data:www-data /var/www
 USER www-data:www-data
 WORKDIR /src/backend
 # Copy the main source project files
-COPY */*.csproj *.sln Directory.Build.props Directory.Packages.props ./
+COPY */*.csproj *.sln Directory.Build.props Directory.Packages.props Harmony.props Harmony.*.References.props ./
 # move them into the proper sub folders, based on the name of the project
 RUN for file in $(ls *.csproj); do dir=${file%.*}; mkdir -p ${dir}/ && mv -v $file ${dir}/; done
 # Do the same for csproj files in slightly different hierarchies
-COPY harmony/src/*/*.csproj ./
-RUN for file in $(ls *.csproj); do dir=${file%.*}; mkdir -p harmony/src/${dir}/ && mv -v $file harmony/src/${dir}/; done
-COPY harmony/src/Directory.Build.props harmony/Directory.Packages.props ./harmony/src/
 COPY FwLite/*/*.csproj ./
 RUN for file in $(ls *.csproj); do dir=${file%.*}; mkdir -p FwLite/${dir}/ && mv -v $file FwLite/${dir}/; done
 

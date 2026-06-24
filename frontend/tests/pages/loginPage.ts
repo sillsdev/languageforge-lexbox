@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 import { BasePage } from './basePage';
 import { ForgotPasswordPage } from './forgotPasswordPage';
+import { defaultPassword } from '../envVars';
 
 export class LoginPage extends BasePage {
   constructor(page: Page) {
@@ -14,6 +15,12 @@ export class LoginPage extends BasePage {
 
   submit(): Promise<void> {
       return this.page.getByRole('button', { name: 'Log in' }).click();
+  }
+
+  static async loginAsAdmin(page: Page): Promise<void> {
+    const loginPage = await new LoginPage(page).goto();
+    await loginPage.fillForm('admin', defaultPassword);
+    await Promise.all([page.waitForURL((url) => !url.pathname.startsWith('/login')), loginPage.submit()]);
   }
 
   async clickForgotPassword(): Promise<ForgotPasswordPage> {

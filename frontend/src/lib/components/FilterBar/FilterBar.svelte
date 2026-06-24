@@ -16,10 +16,11 @@
   import {PlainInput} from '$lib/forms';
   import {pick} from '$lib/util/object';
   import t from '$lib/i18n';
-  import type {Writable} from 'svelte/store';
   import Dropdown from '../Dropdown.svelte';
-  import {Previous, Debounced, watch} from 'runed';
+  import {Previous} from 'runed';
+  import {untrack} from 'svelte';
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/util/time';
+  import {debouncedFilter} from '$lib/util/debouncedFilter.svelte';
 
   type DumbFilters = $$Generic<Record<string, unknown>>;
   type Filters = DumbFilters & Record<typeof searchKey, string>;
@@ -29,7 +30,7 @@
   interface Props {
     searchKey: keyof ConditionalPick<DumbFilters, string>;
     autofocus?: true;
-    filters: Writable<Filters>;
+    filters: Filters;
     filterDefaults: Filters;
     onFiltersChanged?: OnFiltersChanged;
     hasActiveFilter?: boolean;
@@ -46,7 +47,7 @@
   let {
     searchKey,
     autofocus,
-    filters: allFilters,
+    filters,
     filterDefaults: allFilterDefaults,
     onFiltersChanged,
     hasActiveFilter = $bindable(false),
@@ -56,53 +57,34 @@
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
-  let undebouncedSearch: string | undefined = $derived($allFilters[searchKey]);
 
-  const watcher = $derived.by(() => {
-    if (debounce === false) {
-      return () => undebouncedSearch;
-    } else {
-      const debounceTime: number = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
-      const debouncer = new Debounced(() => undebouncedSearch, debounceTime);
-      return () => debouncer.current;
-    }
-  })
-
-  watch(() => watcher(), (value) => {
-    if ($allFilters[searchKey] === value) return;
-    $allFilters[searchKey] = value as Filters[typeof searchKey];
+  // `untrack`: these props are intentionally read once at setup (silences state_referenced_locally)
+  const search = untrack(() => {
+    const debounceMs = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce === false ? 0 : debounce;
+    return debouncedFilter(filters, searchKey, debounceMs);
   });
 
-  function onClearFiltersClick(): void {
-    if (!searchInput) return;
-    searchInput.clear();
-    $allFilters = {
-      ...$allFilters,
-      ...filterDefaults,
-    };
-    searchInput.focus();
+  function resetFilter(key: string): void {
+    (filters as Record<string, unknown>)[key] = (filterDefaults as Record<string, unknown>)[key];
   }
 
-  function resetFilter(key: string): void {
-    $allFilters = {
-      ...$allFilters,
-      [key]: filterDefaults[key],
-    };
+  function onClearFiltersClick(): void {
+    Object.keys(filterDefaults).forEach(resetFilter);
+    searchInput?.focus();
   }
 
   function pickActiveFilters(values: Filters, defaultValues: Filters): Readonly<Filter<Filters>[]> {
     const filters: Filter<Filters>[] = [];
-    for (const key in values) {
-      const value = values[key];
-      if (value !== defaultValues[key]) {
+    for (const key of Object.keys(defaultValues)) {
+      const value = (values as Record<string, unknown>)[key];
+      if (value !== (defaultValues as Record<string, unknown>)[key]) {
         filters.push({ key, value, clear: () => resetFilter(key) } as Filter<Filters>);
       }
     }
-    return Object.freeze(filters);
+    return filters;
   }
 
-  let filters = $derived(Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters));
-  let filterDefaults = $derived(Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults));
+  let filterDefaults = $derived(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults);
   let activeFilters: Readonly<Filter<Filters>[]> = $derived(pickActiveFilters(filters, filterDefaults));
   let prevActiveFilters = new Previous(() => activeFilters, []);
   $effect(() => {
@@ -119,7 +101,7 @@
   {@render activeFilterSlot?.({ activeFilters })}
   <div class="flex grow">
     <PlainInput
-      bind:value={undebouncedSearch}
+      bind:value={() => search.value, (v) => (search.value = v ?? '')}
       bind:this={searchInput}
       placeholder={$t('filter.placeholder')}
       style="seach-input border-none h-8 px-1 focus:outline-none min-w-[120px] flex-grow"
@@ -131,8 +113,8 @@
           <Loader loading />
         </div>
       {/if}
-      <!-- The user sees the "undebounced" search value, so the X button should consider that (and not the debounced value) -->
-      {#if !!undebouncedSearch || activeFilters.find((f) => f.key !== searchKey)}
+      <!-- show the X if the input has unflushed typed text, or any non-search filter is active -->
+      {#if search.value || activeFilters.some((f) => f.key !== searchKey)}
         <button class="btn btn-square btn-sm join-item" onclick={onClearFiltersClick}>
           <span class="text-lg">✕</span>
         </button>

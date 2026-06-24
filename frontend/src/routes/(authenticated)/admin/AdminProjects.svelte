@@ -33,9 +33,8 @@
   }
 
   const { projects, draftProjects, queryParams }: Props = $props();
-  let queryParamValues = $derived(queryParams.queryParamValues);
-  let filters = $derived(queryParamValues);
-  let filterDefaults = $derived(queryParams.defaultQueryParamValues);
+  const filters = $derived(queryParams.queryParamValues);
+  const filterDefaults = $derived(queryParams.defaultQueryParamValues);
 
   const { notifyWarning } = useNotifications();
 
@@ -46,7 +45,7 @@
     return (
       fromUrl &&
       serverSideProjectFilterKeys.some(
-        (key) => (fromUrl.searchParams.get(key) ?? filterDefaults?.[key])?.toString() !== $filters?.[key]?.toString(),
+        (key) => (fromUrl.searchParams.get(key) ?? filterDefaults?.[key])?.toString() !== filters?.[key]?.toString(),
       )
     );
   });
@@ -62,7 +61,7 @@
     })),
     ...projects.map((p) => ({ ...p, isDraft: false as const })),
   ]);
-  const filteredProjects: ProjectItemWithDraftStatus[] = $derived(filterProjects(allProjects, $filters));
+  const filteredProjects: ProjectItemWithDraftStatus[] = $derived(filterProjects(allProjects, filters));
   const shownProjects = $derived(
     limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects,
   );
@@ -83,7 +82,7 @@
 
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
 <div>
-  <AdminTabs activeTab="projects" onClickTab={(tab) => ($queryParamValues.tab = tab)}>
+  <AdminTabs activeTab="projects" onClickTab={(tab) => (queryParams.queryParamValues.tab = tab)}>
     <div class="flex gap-4 justify-between grow">
       <div class="flex gap-4 items-center">
         {$t('admin_dashboard.project_table_title')}

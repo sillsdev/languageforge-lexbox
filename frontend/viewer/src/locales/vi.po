@@ -173,6 +173,12 @@ msgstr "Thêm phần của"
 msgid "Add Sense"
 msgstr "Thêm Ý nghĩa (sense)"
 
+#. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
+#. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
+#: src/project/browse/EntriesList.svelte
+msgid "Add to dictionary"
+msgstr ""
+
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
@@ -299,6 +305,10 @@ msgstr "xanh dương"
 msgid "Browse"
 msgstr "Duyệt"
 
+#: src/project/browse/BrowseView.svelte
+msgid "Browse view failed"
+msgstr ""
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -361,6 +371,7 @@ msgid "Close"
 msgstr "Đóng"
 
 #. Menu option to close project
+#: src/lib/layout/ViewErrorBoundary.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Đóng Từ điển"
@@ -1322,6 +1333,7 @@ msgstr "Không có chủ đề, không thể tạo mới {0}"
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/project/browse/EntriesList.svelte
 msgid "No words found"
 msgstr "Không tìm thấy từ nào"
 
@@ -1736,6 +1748,10 @@ msgstr "Kích thước:"
 msgid "Skip"
 msgstr "Bỏ qua"
 
+#: src/lib/layout/ViewErrorBoundary.svelte
+msgid "Something went wrong"
+msgstr ""
+
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
@@ -1835,6 +1851,10 @@ msgstr "Nhiệm vụ {0}"
 msgid "Task not found: {0}"
 msgstr "Không tìm thấy nhiệm vụ: {0}"
 
+#: src/project/tasks/TasksView.svelte
+msgid "Task view failed"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Tasks"
@@ -1933,6 +1953,10 @@ msgstr "Bản dịch {0}"
 #: src/project/ProjectSidebar.svelte
 msgid "Troubleshoot"
 msgstr "Khắc phục sự cố"
+
+#: src/lib/layout/ViewErrorBoundary.svelte
+msgid "Try again"
+msgstr ""
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts

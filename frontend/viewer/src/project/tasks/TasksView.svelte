@@ -6,6 +6,7 @@
   import TaskView from './TaskView.svelte';
   import {untrack} from 'svelte';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
+  import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
 
   const selectedTaskId = useProjectStorage().selectedTaskId;
   const tasksService = useTasksService();
@@ -37,9 +38,11 @@
       </Select.Content>
     </Select.Root>
   </div>
-  {#if selectedTaskId.current}
-    <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.set('')}/>
-  {:else}
-    <h1 class="text-xl p-4 mx-auto">{$t`Select a new task to work on`}</h1>
-  {/if}
+  <ViewErrorBoundary class="flex-1 min-h-0 overflow-auto" title={$t`Task view failed`}>
+    {#if selectedTaskId.current}
+      <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.set('')}/>
+    {:else}
+      <h1 class="text-xl p-4 mx-auto">{$t`Select a new task to work on`}</h1>
+    {/if}
+  </ViewErrorBoundary>
 </div>

@@ -567,6 +567,8 @@ namespace LcmCrdt.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Commits", (string)null);
+
+                    b.HasAnnotation("CustomIndex:CompositeIndexes", "[{\"paths\":[\"HybridDateTime.DateTime\",\"HybridDateTime.Counter\",\"Id\"],\"unique\":false,\"name\":\"IX_Commits_DateTime_Counter_Id\"}]");
                 });
 
             modelBuilder.Entity("SIL.Harmony.Core.ChangeEntity<SIL.Harmony.Changes.IChange>", b =>

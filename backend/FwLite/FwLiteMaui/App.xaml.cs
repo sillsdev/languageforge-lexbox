@@ -1,20 +1,22 @@
-using FwLiteShared.Services;
 
 namespace FwLiteMaui;
 
 public partial class App : Application
 {
+    public IServiceProvider ServiceProvider { get; }
     private readonly MainPage _mainPage;
+    public static string? OverrideStartupUrl { get; set; }
 
-    public App(MainPage mainPage, IPreferencesService preferences)
+    public App(MainPage mainPage, IServiceProvider serviceProvider)
     {
+        ServiceProvider = serviceProvider;
         _mainPage = mainPage;
-        var lastUrl = preferences.Get(nameof(PreferenceKey.AppLastUrl));
-        if (lastUrl?.StartsWith('/') == true)
-        {
-            mainPage.StartPath = lastUrl;
-        }
         InitializeComponent();
+    }
+
+    internal void LoadAppUrl(string url)
+    {
+        _mainPage.LoadAppUrl(url);
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

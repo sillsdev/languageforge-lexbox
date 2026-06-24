@@ -25,6 +25,8 @@ export class EntriesListComponent {
   async goto(waitForTestUtils = false): Promise<void> {
     await this.page.goto('/testing/project-view');
     await waitForProjectViewReady(this.page, waitForTestUtils);
+    const renderedRowCount = await this.entryRows.count();
+    expect(renderedRowCount).toBeGreaterThan(0);
   }
 
   async waitForSkeletonsToResolve(): Promise<void> {
