@@ -53,8 +53,8 @@ public class SyncBenchmark(Sena3Fixture fixture, ITestOutputHelper output)
 public class FirstSyncBench
 {
     // Bound catches large regressions, not tight perf budgets — CI variance is too high for that.
-    // Rough mean from a ubuntu-latest CI run, as a baseline for future work: ~57s.
-    public const double ThresholdSeconds = 65.0;
+    // round(mean * 1.4); rough mean from a ubuntu-latest CI run is ~57s.
+    public const double ThresholdSeconds = 80;
 
     internal static Sena3Fixture Fixture = null!;
 

@@ -67,19 +67,19 @@ public class SyncMutationBenchmark(Sena3Fixture fixture, ITestOutputHelper outpu
 public class MutationSyncBench
 {
     // Bounds catch large regressions, not tight perf budgets — CI variance is too high for that.
-    // Per-profile comments are rough mean sync times from a ubuntu-latest CI run — a baseline for future work.
+    // Each bound is round(mean * 1.4); the // comment is the rough mean from a ubuntu-latest CI run.
     public static readonly IReadOnlyDictionary<string, double> ThresholdSecondsByProfile = new Dictionary<string, double>
     {
         // ~40s
-        ["component-heavy"] = 65.0,
+        ["component-heavy"] = 56,
         // ~63s
-        ["delete-heavy"] = 110.0,
+        ["delete-heavy"] = 88,
         // ~25s
-        ["mixed-realistic"] = 45.0,
-        // ~4.5s
-        ["patch-heavy"] = 6.0,
-        // ~0.6s
-        ["reorder-heavy"] = 2.0,
+        ["mixed-realistic"] = 35,
+        // ~4.6s
+        ["patch-heavy"] = 7,
+        // ~1.9s
+        ["reorder-heavy"] = 3,
     };
 
     public static IEnumerable<string> Profiles => ThresholdSecondsByProfile.Keys;
@@ -131,7 +131,6 @@ public class MutationSyncBench
     {
         var allEntries = await api.GetAllEntries().ToListAsync();
         var shuffled = AutoFaker.Faker.Random.Shuffle(allEntries).ToList();
-        Console.WriteLine($"[REORDER-COUNT] {shuffled.Count(e => e.Senses.Count >= 2)} of {shuffled.Count} entries have 2+ senses"); // TEMP
 
         switch (profile)
         {
