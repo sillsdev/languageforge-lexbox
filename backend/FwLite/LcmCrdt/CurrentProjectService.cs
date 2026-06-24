@@ -107,14 +107,15 @@ public class CurrentProjectService(
 
     private async ValueTask<bool> ProjectDbIsInitialized()
     {
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
         try
         {
-            await using var dbContext = await DbContextFactory.CreateDbContextAsync();
             return await dbContext.ProjectData.AsNoTracking().AnyAsync();
         }
-        catch (SqliteException)
+        catch (SqliteException { SqliteErrorCode: 1 }) //SQLITE_ERROR "no such table": migrations haven't run yet
         {
-            //file exists but migrations haven't created the ProjectData table yet (project is mid-creation)
+            //a concurrent sync created the sqlite file but not the ProjectData table; other error codes
+            //(corruption, I/O) intentionally propagate rather than masquerade as "not ready"
             return false;
         }
     }
