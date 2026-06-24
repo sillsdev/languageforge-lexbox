@@ -216,7 +216,8 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Order)
                 .For(e => e.ComplexForms).Exclude(c => c.Order)
-                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order);
+                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order)
+                .For(e => e.Senses).For(s => s.Pictures).Exclude(e => e.Order);
             if (currentApiType == ApiType.Crdt)
             {
                 // does not yet update Headwords 😕

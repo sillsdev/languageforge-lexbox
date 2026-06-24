@@ -4,6 +4,7 @@ using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
+using MiniLcm.Media;
 using MiniLcm.Models;
 
 namespace FwLiteProjectSync.Tests;
@@ -87,6 +88,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         options = options
             .For(e => e.Senses).Exclude(s => s.Order)
             .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
+            .For(e => e.Senses).For(s => s.Pictures).Exclude(s => s.Order)
             .For(e => e.Components).Exclude(c => c.Id)
             .For(e => e.Components).Exclude(c => c.Order)
             .For(e => e.ComplexForms).Exclude(c => c.Id)
@@ -96,7 +98,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
     internal static void AssertSnapshotsAreEquivalent(ProjectSnapshot expected, ProjectSnapshot actual)
     {
-        var excludeOrderTypes = new[] { typeof(Sense), typeof(ExampleSentence), typeof(ComplexFormComponent), typeof(WritingSystem) };
+        var excludeOrderTypes = new[] { typeof(Sense), typeof(ExampleSentence), typeof(Picture), typeof(ComplexFormComponent), typeof(WritingSystem) };
         var excludeIds = new[] { typeof(ComplexFormComponent), typeof(WritingSystem) };
         actual.Should().BeEquivalentTo(expected,
             options =>
