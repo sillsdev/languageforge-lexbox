@@ -43,6 +43,10 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
+#: src/lib/activity/ActivityFilter.svelte
+msgid "{0} activity types"
+msgstr ""
+
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
@@ -50,10 +54,6 @@ msgstr "{0} iliyopita"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
-msgstr ""
-
-#: src/lib/activity/ActivityFilter.svelte
-msgid "{0} change types"
 msgstr ""
 
 #. File size display with unit
@@ -198,18 +198,18 @@ msgstr "Ongeza Neno"
 msgid "All"
 msgstr "Vyote"
 
+#. Filter option in activity view activity-type dropdown — show all kinds of edits.
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+msgid "All activity types"
+msgstr ""
+
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
-msgstr ""
-
-#. Filter option in activity view change-type dropdown — show all kinds of edits.
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-msgid "All change types"
 msgstr ""
 
 #. Relevant view: Classic
@@ -852,6 +852,7 @@ msgstr "Toleo la FieldWorks Lite"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
+#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1132,7 +1133,6 @@ msgstr "Maana halisi"
 
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
 msgstr ""
 
@@ -1325,6 +1325,10 @@ msgstr "Inayofuata"
 msgid "No activity matches these filters"
 msgstr ""
 
+#: src/lib/activity/ActivityFilter.svelte
+msgid "No activity types"
+msgstr ""
+
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1333,10 +1337,6 @@ msgstr "Hakuna sauti"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
-msgstr ""
-
-#: src/lib/activity/ActivityFilter.svelte
-msgid "No change types"
 msgstr ""
 
 #. Empty state message in the manage custom views dialog when none exist.
@@ -2250,6 +2250,7 @@ msgstr "Mifumo ya uandishi"
 msgid "Writing Systems"
 msgstr "Mifumo ya Kuandika"
 
+#. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte
 msgid "You appear to be offline. Can you connect to {0}?"
 msgstr ""

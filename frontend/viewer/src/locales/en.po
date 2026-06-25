@@ -38,6 +38,10 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
+#: src/lib/activity/ActivityFilter.svelte
+msgid "{0} activity types"
+msgstr "{0} activity types"
+
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
@@ -46,10 +50,6 @@ msgstr "{0} ago"
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
 msgstr "{0} authors"
-
-#: src/lib/activity/ActivityFilter.svelte
-msgid "{0} change types"
-msgstr "{0} change types"
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -193,19 +193,19 @@ msgstr "Add Word"
 msgid "All"
 msgstr "All"
 
+#. Filter option in activity view activity-type dropdown — show all kinds of edits.
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+msgid "All activity types"
+msgstr "All activity types"
+
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
 msgstr "All authors"
-
-#. Filter option in activity view change-type dropdown — show all kinds of edits.
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-msgid "All change types"
-msgstr "All change types"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -847,6 +847,7 @@ msgstr "FieldWorks Lite version"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
+#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1127,7 +1128,6 @@ msgstr "Literal meaning"
 
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
-#: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
 msgstr "Loading activity"
 
@@ -1320,6 +1320,10 @@ msgstr "Next"
 msgid "No activity matches these filters"
 msgstr "No activity matches these filters"
 
+#: src/lib/activity/ActivityFilter.svelte
+msgid "No activity types"
+msgstr "No activity types"
+
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1329,10 +1333,6 @@ msgstr "No audio"
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
 msgstr "No authors"
-
-#: src/lib/activity/ActivityFilter.svelte
-msgid "No change types"
-msgstr "No change types"
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
