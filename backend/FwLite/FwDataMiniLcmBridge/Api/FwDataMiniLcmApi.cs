@@ -811,10 +811,6 @@ public class FwDataMiniLcmApi(
     internal MediaUri MediaUriFromLcmPicture(ICmPicture picture)
     {
         var mediaFilePath = picture.PictureFileRA?.AbsoluteInternalPath;
-        // TODO: Check whether AbsoluteInternalPath is correctly getting it from the Pictures folder
-        // Otherwise we might need to get InternalPath rather than Absolute and then do something like
-        // var fullPath = Path.Join(Cache.LangProject.LinkedFilesRootDir, PicturesFolder, mediaFilePath);
-        // mediaUri = mediaAdapter.MediaUriFromPath(fullPath, Cache);
         if (!string.IsNullOrEmpty(mediaFilePath))
         {
             return mediaAdapter.MediaUriFromPath(mediaFilePath, Cache);
