@@ -12,6 +12,7 @@
   import type {Snippet} from 'svelte';
   import {entityConfig, type SenseFieldId} from '../../views/entity-config';
   import {tvt} from '$lib/views/view-text';
+  import PicturesEditor from '../field-editors/PicturesEditor.svelte';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     sense: ISense;
@@ -95,6 +96,13 @@
           sortValuesBy="optionOrder"
           {readonly} />
       {@render semanticDomainsDescription?.()}
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+
+  <Editor.Field.Root fieldId="pictures" class={cn(fields.pictures?.show || 'hidden')}>
+    <Editor.Field.Title name={$tvt(entityConfig.sense.pictures.label)} helpId={entityConfig.sense.pictures.helpId} />
+    <Editor.Field.Body>
+      <PicturesEditor value={sense.pictures} {readonly} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>

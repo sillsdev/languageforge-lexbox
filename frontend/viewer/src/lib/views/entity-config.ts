@@ -65,6 +65,10 @@ export const entityConfig = {
       label: msg`Semantic domains`,
       helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/semantic_domains_field.htm',
     },
+    pictures: {
+      label: msg`Pictures`,
+      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Pictures_field.htm',
+    },
   },
   example: {
     $label: msg`Example`,

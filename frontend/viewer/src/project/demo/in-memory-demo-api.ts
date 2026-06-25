@@ -26,7 +26,7 @@ import {
   ViewBase,
   MorphTypeKind,
 } from '$lib/dotnet-types';
-import {entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
+import {demoPictureSvgs, entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
@@ -520,8 +520,18 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     throw new Error('Method not implemented.');
   }
 
-  getFileStream(_mediaUri: string): Promise<IReadFileResponseJs> {
-    return Promise.resolve({result: ReadFileResult.NotSupported});
+  getFileStream(mediaUri: string): Promise<IReadFileResponseJs> {
+    const svg = demoPictureSvgs[mediaUri];
+    if (!svg) return Promise.resolve({result: ReadFileResult.NotFound});
+    const blob = new Blob([svg], {type: 'image/svg+xml'});
+    return Promise.resolve({
+      result: ReadFileResult.Success,
+      fileName: 'demo-picture.svg',
+      stream: {
+        stream: () => Promise.resolve(blob.stream()),
+        arrayBuffer: () => blob.arrayBuffer(),
+      },
+    });
   }
 
   saveFile(_streamReference: Blob | ArrayBuffer | Uint8Array, _metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {

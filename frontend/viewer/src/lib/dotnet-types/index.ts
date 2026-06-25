@@ -16,6 +16,7 @@ export * from './generated-types/MiniLcm/Models/ITranslation';
 export * from './generated-types/MiniLcm/Models/IMorphType';
 export * from './generated-types/MiniLcm/Models/IObjectWithId';
 export * from './generated-types/MiniLcm/Models/IPartOfSpeech';
+export * from './generated-types/MiniLcm/Models/IPicture';
 export * from './generated-types/MiniLcm/Models/IProjectIdentifier';
 export * from './generated-types/MiniLcm/Models/IPublication';
 export * from './generated-types/MiniLcm/Models/IRichSpan';
