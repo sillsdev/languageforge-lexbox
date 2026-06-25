@@ -1,7 +1,8 @@
 import {ActivitySort, type IActivityAuthor, type IActivityQuery, type IProjectActivity} from '$lib/dotnet-types';
 
 export const ALL_AUTHORS = '__all__';
-export const UNKNOWN_AUTHOR = '__unknown__';
+export const UNKNOWN_AUTHOR_KEY = '__unknown__';
+export const FIELDWORKS_AUTHOR_KEY = authorFilterKey({authorName: 'FieldWorks'});
 export const ALL_CHANGE_TYPES = '__all__';
 export const MIN_VISIBLE_FILTERED = 20;
 
@@ -61,10 +62,23 @@ export function formatJsonForUi(json: object) {
     .join('\n');
 }
 
-export function authorFilterKey(author: IActivityAuthor): string {
-  if (!author.authorId && !author.authorName) return UNKNOWN_AUTHOR;
+export function authorFilterKey(author: Omit<IActivityAuthor, 'commitCount'>): string {
+  if (!author.authorId && !author.authorName) return UNKNOWN_AUTHOR_KEY;
   if (author.authorId) return author.authorId;
   return `name:${author.authorName}`;
+}
+
+function authorSortRank(author: IActivityAuthor): number {
+  const key = authorFilterKey(author);
+  if (key === UNKNOWN_AUTHOR_KEY) return 0; // 1st
+  if (key === FIELDWORKS_AUTHOR_KEY) return 1; // 2nd
+  return 2;
+}
+
+export function compareActivityAuthors(a: IActivityAuthor, b: IActivityAuthor): number {
+  const rankDiff = authorSortRank(a) - authorSortRank(b);
+  if (rankDiff !== 0) return rankDiff;
+  return (a.authorName || '').localeCompare(b.authorName || '');
 }
 
 export function applyMultiSelectValue(
@@ -82,6 +96,6 @@ export function applyMultiSelectValue(
   return value;
 }
 
-export function hasActiveServerFilters(filters: ActivityFilters): boolean {
+export function hasActiveServerSideFilters(filters: ActivityFilters): boolean {
   return filters.authorFilterKeys !== 'all' || filters.changeTypeFilterKeys !== 'all';
 }

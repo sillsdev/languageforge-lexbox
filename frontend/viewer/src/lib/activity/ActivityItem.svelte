@@ -31,6 +31,7 @@
   import * as Popover from '$lib/components/ui/popover';
   import {Button} from '$lib/components/ui/button';
   import HistoryView from '$lib/history/HistoryView.svelte';
+  import {Icon} from '$lib/components/ui/icon';
 
   type Props = HTMLAttributes<HTMLDivElement> & {
     activity: IProjectActivity;
@@ -77,11 +78,16 @@
           <span>
             <Popover.Root>
               <Popover.InfoTrigger>
-                <T msg="Synced: #">
-                  <FormatRelativeDate
-                    class="font-semibold"
-                    date={new Date(activity.metadata.extraMetadata['SyncDate'])} />
-                </T>
+                <span class="inline-flex gap-2 items-center">
+                  <Icon icon="i-mdi-cloud-outline" class="size-4 shrink-0" />
+                  <span>
+                    <T msg="Synced: #">
+                      <FormatRelativeDate
+                        class="font-semibold"
+                        date={new Date(activity.metadata.extraMetadata['SyncDate'])} />
+                    </T>
+                  </span>
+                </span>
               </Popover.InfoTrigger>
               <Popover.Content class="w-auto p-2 text-sm text-center max-w-48">
                 {$t`The time when you uploaded or downloaded these changes`}
@@ -89,7 +95,8 @@
             </Popover.Root>
           </span>
         {:else}
-          <span class="text-red-500 font-semibold" title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`}>
+          <span class="inline-flex gap-2 items-center font-semibold" title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`}>
+            <Icon icon="i-mdi-cloud-off-outline" class="size-4 shrink-0 text-muted-foreground" />
             {$t`Not synced`}
           </span>
         {/if}
@@ -118,7 +125,7 @@
                 <div class="h-[700px]"></div>
               {:then context}
                 <div class="change">
-                  <div class="px-4 pt-2 flex font-semibold">
+                  <div class="px-4 pt-2 flex font-semibold items-center">
                     <span class="grow">{context.changeName}</span>
 
                     {#if showHistoryButton}

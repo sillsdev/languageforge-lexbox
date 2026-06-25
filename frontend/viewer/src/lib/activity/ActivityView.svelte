@@ -14,7 +14,7 @@
   import {
     createDefaultActivityFilters,
     emptyActivityLoad,
-    hasActiveServerFilters,
+    hasActiveServerSideFilters,
     MIN_VISIBLE_FILTERED,
     serverQueryKey,
     toServerQuery,
@@ -99,7 +99,7 @@
   });
 
   $effect(() => {
-    if (!hasActiveServerFilters(filters) || activity.loading || visibleActivity === null || !hasMorePages) return;
+    if (!hasActiveServerSideFilters(filters) || activity.loading || visibleActivity === null || !hasMorePages) return;
     const filtered = visibleActivity.length;
     const loaded = activity.current?.items.length ?? 0;
     if (filtered < MIN_VISIBLE_FILTERED && loaded >= (pageCount - 1) * BATCH_SIZE && loaded > 0) {
@@ -127,7 +127,7 @@
 </script>
 
 <div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
-     style="grid-template-rows: auto minmax(0,100%); grid-template-columns: 1fr 2fr">
+     style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(8rem,25%) 2fr">
 
   <ActivityFilter bind:filters />
 
