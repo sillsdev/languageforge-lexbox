@@ -135,6 +135,12 @@ public static class LcmCrdtKernel
                     //rather than the real IList<T> columns; see Entry.PublishInRows for why.
                     .Entity<Sense>().Property(s => s.SemanticDomainRows).IsExpression(SenseSemanticDomainRowsExpression(), isColumn: false)
                     .Entity<Entry>().Property(e => e.PublishInRows).IsExpression(EntryPublishInRowsExpression(), isColumn: false)
+                    .Entity<Entry>().Association(e => e.QueryMorphType(), e => e.MorphType, m => m!.Kind)
+                    .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComponentEntry(c), c => c.ComponentEntryId, e => e!.Id)
+                    .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComponentSense(c), c => c.ComponentSenseId, s => s!.Id)
+                    .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComplexFormEntry(c), c => c.ComplexFormEntryId, e => e!.Id)
+                    .Entity<ComplexFormComponent>().Property(c => c.ComponentHeadword).IsExpression(c => EntryQueryHelpers.QueryComponentEntry(c)!.QueryHeadwordWithTokens(EntryQueryHelpers.DefaultWritingSystem(WritingSystemType.Vernacular)), isColumn: true, alias: "componentHeadword")
+                    .Entity<ComplexFormComponent>().Property(c => c.ComplexFormHeadword).IsExpression(c => EntryQueryHelpers.QueryComplexFormEntry(c)!.QueryHeadwordWithTokens(EntryQueryHelpers.DefaultWritingSystem(WritingSystemType.Vernacular)), isColumn: true, alias: "complexFormHeadword")
                     .Entity<RichString>().Member(r => r.GetPlainText()).IsExpression(r => Json.GetPlainText(r))
                     .Entity<Guid>().Member(g => g.ToString()).IsExpression(g => Json.ToString(g))
                     .Build();

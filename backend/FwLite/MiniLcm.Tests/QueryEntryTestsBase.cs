@@ -6,7 +6,7 @@ namespace MiniLcm.Tests;
 
 public abstract class QueryEntryTestsBase : MiniLcmTestBase
 {
-    private readonly Guid appleId = Guid.NewGuid();
+    protected readonly Guid appleId = Guid.NewGuid();
     private readonly string Apple = "Apple";
     private readonly string Peach = "Peach";
     private readonly string Banana = "Banana";
@@ -116,6 +116,28 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         var entry = await Api.GetEntry(appleId);
         entry.Should().NotBeNull();
         entry.LexemeForm["en"].Should().Be(Apple);
+    }
+
+    [Fact]
+    public async Task Get_EntryWithComponents_ComponentHeadwordIncludesMorphToken()
+    {
+        var pluralEntry = await Api.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "s" } }, MorphType = MorphTypeKind.Suffix,
+        });
+        var appleEntry = await Api.GetEntry(appleId);
+        appleEntry.Should().NotBeNull();
+        var complexForm = await Api.CreateEntry(new Entry() { LexemeForm = { { "en", "apples" } }, });
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(complexForm, appleEntry));
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(complexForm, pluralEntry));
+        var result = await Api.GetEntry(complexForm.Id);
+        result.Should().NotBeNull();
+        result.Components.Should().HaveCount(2);
+
+        result.Components[0].ComponentHeadword.Should().Be("Apple");
+        result.Components[0].ComplexFormHeadword.Should().Be("apples");
+        result.Components[1].ComponentHeadword.Should().Be("-s");
+        result.Components[1].ComplexFormHeadword.Should().Be("apples");
     }
 
     [Fact]
