@@ -230,6 +230,36 @@ public class EntrySearchServiceTests : IAsyncLifetime
         (await Headword(id)).Should().Be("=in=");
     }
 
+    [Fact]
+    public async Task SearchTableIsUpdatedAutomaticallyWhenManyChangesHappenAtOnce()
+    {
+        var id = Guid.NewGuid();
+        await fixture.Api.CreateEntry(new Entry()
+        {
+            Id = id,
+            LexemeForm = { ["en"] = "in" },
+            MorphType = MorphTypeKind.Infix
+        });
+        (await Headword(id)).Should().Be("-in-");
+
+        var simulfix = await fixture.Api.GetMorphType(MorphTypeKind.Simulfix);
+        simulfix.Should().NotBeNull();
+        var updatedMorphType = simulfix!.Copy();
+        updatedMorphType.Prefix = "~";
+        updatedMorphType.Postfix = "~";
+        await fixture.Api.UpdateMorphType(simulfix, updatedMorphType);
+
+        var entry = await _context.FindAsync<Entry>(id);
+        entry.Should().NotBeNull();
+        var updated = entry.Copy();
+        updated.LexemeForm = new() { ["en"] = "out" };
+        updated.MorphType = MorphTypeKind.Simulfix; // Prefix and Postfix are "="
+        await fixture.Api.UpdateEntry(entry, updated);
+
+        // Changing morph type of an entry must regenerate its search record's headword.
+        (await Headword(id)).Should().Be("~out~");
+    }
+
     private async Task<string?> Headword(Guid entryId)
     {
         // .AsNoTracking() needed here because RegenerateEntrySearchTable() has just cleared

@@ -289,8 +289,6 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         await entrySearchRecordsTable.TruncateAsync();
 
         var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
-        // TODO: Double check that dbContext.MorphTypes will be returning the changed morph type tokens (it's using .AsNoTracking() which could interfere with that)
-        // Alternately, just ensure that this runs after the EF Core changes have been committed, and then we'll get the correct tokens anyway
         var morphTypeLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
         await entrySearchRecordsTable
             .BulkCopyAsync(dbContext.Set<Entry>()
