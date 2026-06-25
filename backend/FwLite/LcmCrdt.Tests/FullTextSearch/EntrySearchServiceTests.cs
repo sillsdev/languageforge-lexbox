@@ -209,7 +209,6 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
-    [Trait("Category", "Verified")]
     public async Task SearchTableIsUpdatedAutomaticallyOnMorphTypeChange()
     {
         var id = Guid.NewGuid();
