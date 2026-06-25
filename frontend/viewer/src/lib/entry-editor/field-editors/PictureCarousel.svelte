@@ -31,10 +31,8 @@
 
   const hasMultiple = $derived(pictures.length > 1);
 
-  // embla-carousel-svelte dispatches an `emblaInit` CustomEvent carrying the api in `detail`.
-  // It fires synchronously while the `use:` action sets up (during mount), which is *before*
-  // $effects run — so the listener must be bound in the template (the `on:` directive form,
-  // as documented by embla-carousel-svelte) to avoid missing it.
+  // embla-carousel-svelte dispatches an `emblaInit` CustomEvent (typed by the package as the
+  // `onemblaInit` attribute) carrying the api in `detail` once the carousel has initialised.
   function onEmblaInit(event: Event) {
     emblaApi = (event as CustomEvent<EmblaApi>).detail;
   }
@@ -43,7 +41,9 @@
   $effect(() => {
     const api = emblaApi;
     if (!api) return;
-    const onSelect = () => (selectedIndex = api.selectedScrollSnap());
+    function onSelect() {
+      selectedIndex = api!.selectedScrollSnap();
+    }
     onSelect();
     api.on('select', onSelect);
     api.on('reInit', onSelect);
@@ -63,7 +63,7 @@
 </script>
 
 <div class="flex flex-col gap-2">
-  <div class="overflow-hidden" use:emblaCarouselSvelte={{options: {loop: true}}} on:emblaInit={onEmblaInit}>
+  <div class="overflow-hidden" use:emblaCarouselSvelte={{options: {loop: true}, plugins: []}} onemblaInit={onEmblaInit}>
     <div class="flex">
       {#each pictures as picture (picture.id)}
         <div class="min-w-0 flex-[0_0_100%] px-2">

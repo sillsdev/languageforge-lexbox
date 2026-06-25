@@ -990,6 +990,10 @@ msgstr "Glose"
 msgid "Go to {0}"
 msgstr "Naviguer à {0}"
 
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Go to picture {0}"
+msgstr ""
+
 #. Filter option label
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
@@ -1038,6 +1042,10 @@ msgstr "Je ne vois pas mon projet"
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "I understand that this can't be undone"
 msgstr "Je comprends que cela ne peut pas être annulé"
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Image not found"
+msgstr ""
 
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
@@ -1320,6 +1328,10 @@ msgstr ""
 msgid "Next"
 msgstr "Suivant"
 
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Next picture"
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1373,6 +1385,10 @@ msgstr "Aucun élément trouvé"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
 msgstr "Aucune nouvelle donnée"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "No pictures"
+msgstr ""
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1452,6 +1468,11 @@ msgstr "Déconnecté"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Déconnecté, impossible de télécharger"
+
+#. Error when offline and trying to download image
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Offline, unable to download image"
+msgstr "Déconnecté, impossible de télécharger l'image"
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
@@ -1545,6 +1566,15 @@ msgstr "En attente"
 msgid "Pick a Part of Speech"
 msgstr "Choisir une partie du discours"
 
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Picture"
+msgstr ""
+
+#: src/lib/views/entity-config.ts
+msgid "Pictures"
+msgstr ""
+
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
 #. Allows quick reference while editing without scrolling
@@ -1568,6 +1598,10 @@ msgstr "Avant-première"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr "Aperçu non disponible"
+
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Previous picture"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2057,6 +2091,11 @@ msgstr "Saisir une phrase exemplaire"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
 msgstr "Type :"
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Unable to load image"
+msgstr ""
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte

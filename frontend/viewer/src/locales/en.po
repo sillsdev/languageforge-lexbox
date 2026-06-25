@@ -985,6 +985,12 @@ msgstr "Gloss"
 msgid "Go to {0}"
 msgstr "Go to {0}"
 
+#. Aria-label on a carousel dot button below the picture; navigates to a specific picture
+#. {0} = 1-based picture number (e.g., "Go to picture 2")
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Go to picture {0}"
+msgstr "Go to picture {0}"
+
 #. Filter option label
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
@@ -1033,6 +1039,11 @@ msgstr "I don't see my project"
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "I understand that this can't be undone"
 msgstr "I understand that this can't be undone"
+
+#. Error displayed in place of a picture when the media file is missing from local storage
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Image not found"
+msgstr "Image not found"
 
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
@@ -1315,6 +1326,11 @@ msgstr "Newest first"
 msgid "Next"
 msgstr "Next"
 
+#. Aria-label on the right-arrow button in the picture carousel; advances to the next image
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Next picture"
+msgstr "Next picture"
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1368,6 +1384,11 @@ msgstr "No items found"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
 msgstr "No new data"
+
+#. Empty state shown read-only in the Pictures field when a sense has no pictures
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "No pictures"
+msgstr "No pictures"
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1447,6 +1468,11 @@ msgstr "Offline"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Offline, unable to download"
+
+#. Error when offline and trying to download image
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Offline, unable to download image"
+msgstr "Offline, unable to download image"
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
@@ -1540,6 +1566,17 @@ msgstr "Pending"
 msgid "Pick a Part of Speech"
 msgstr "Pick a Part of Speech"
 
+#. Two uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Picture"
+msgstr "Picture"
+
+#. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
+#: src/lib/views/entity-config.ts
+msgid "Pictures"
+msgstr "Pictures"
+
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
 #. Allows quick reference while editing without scrolling
@@ -1563,6 +1600,11 @@ msgstr "Preview"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr "Preview not available"
+
+#. Aria-label on the left-arrow button in the picture carousel; goes back to the previous image
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Previous picture"
+msgstr "Previous picture"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2052,6 +2094,12 @@ msgstr "Type an example sentence"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
 msgstr "Type:"
+
+#. Generic error displayed in place of a picture when loading fails for an unspecified reason
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Unable to load image"
+msgstr "Unable to load image"
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte

@@ -990,6 +990,10 @@ msgstr "Ghi chú"
 msgid "Go to {0}"
 msgstr "Đi tới {0}"
 
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Go to picture {0}"
+msgstr ""
+
 #. Filter option label
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
@@ -1038,6 +1042,10 @@ msgstr "Tôi không thấy dự án của mình"
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "I understand that this can't be undone"
 msgstr "Tôi hiểu rằng điều này không thể hoàn tác"
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Image not found"
+msgstr ""
 
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
@@ -1320,6 +1328,10 @@ msgstr ""
 msgid "Next"
 msgstr "Tiếp theo"
 
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Next picture"
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1373,6 +1385,10 @@ msgstr "Không tìm thấy mục nào"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
 msgstr "Không có dữ liệu mới"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "No pictures"
+msgstr ""
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1452,6 +1468,11 @@ msgstr "Ngoại tuyến"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Ngoại tuyến, không thể tải xuống"
+
+#. Error when offline and trying to download image
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Offline, unable to download image"
+msgstr ""
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
@@ -1545,6 +1566,15 @@ msgstr "Đang chờ xử lý"
 msgid "Pick a Part of Speech"
 msgstr "Chọn một Loại từ"
 
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Picture"
+msgstr ""
+
+#: src/lib/views/entity-config.ts
+msgid "Pictures"
+msgstr ""
+
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
 #. Allows quick reference while editing without scrolling
@@ -1568,6 +1598,10 @@ msgstr "Xem trước"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr "Xem trước không khả dụng"
+
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Previous picture"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2057,6 +2091,11 @@ msgstr "Gõ một câu ví dụ"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
 msgstr "Loại:"
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Unable to load image"
+msgstr ""
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte

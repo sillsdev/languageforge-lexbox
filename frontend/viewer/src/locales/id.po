@@ -990,6 +990,10 @@ msgstr "Arti Singkat"
 msgid "Go to {0}"
 msgstr "Buka {0}"
 
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Go to picture {0}"
+msgstr ""
+
 #. Filter option label
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
@@ -1038,6 +1042,10 @@ msgstr "Saya tidak melihat proyek saya"
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "I understand that this can't be undone"
 msgstr "Saya memahami bahwa hal ini tidak dapat dibatalkan"
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Image not found"
+msgstr ""
 
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
@@ -1320,6 +1328,10 @@ msgstr ""
 msgid "Next"
 msgstr "Berikutnya"
 
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Next picture"
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1373,6 +1385,10 @@ msgstr "Tidak ada barang yang ditemukan"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
 msgstr "Tidak ada data baru"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "No pictures"
+msgstr ""
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1452,6 +1468,11 @@ msgstr "Offline"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Offline, tidak dapat mengunduh"
+
+#. Error when offline and trying to download image
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Offline, unable to download image"
+msgstr ""
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
@@ -1545,6 +1566,15 @@ msgstr "Tertunda"
 msgid "Pick a Part of Speech"
 msgstr "Pilih Bagian dari Pidato"
 
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Picture"
+msgstr ""
+
+#: src/lib/views/entity-config.ts
+msgid "Pictures"
+msgstr ""
+
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
 #. Allows quick reference while editing without scrolling
@@ -1568,6 +1598,10 @@ msgstr "Pratinjau"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr "Pratinjau tidak tersedia"
+
+#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
+msgid "Previous picture"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2057,6 +2091,11 @@ msgstr "Ketik contoh kalimat"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
 msgstr "Ketik:"
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Unable to load image"
+msgstr ""
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
