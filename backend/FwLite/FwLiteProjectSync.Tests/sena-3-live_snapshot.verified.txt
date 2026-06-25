@@ -103375,7 +103375,7 @@
           "ComplexFormHeadword": "ubaba",
           "ComponentEntryId": "f1c350fe-ebc2-41f0-9e5d-4e06bb47ccce",
           "ComponentSenseId": null,
-          "ComponentHeadword": "u"
+          "ComponentHeadword": "u-"
         }
       ],
       "ComplexFormTypes": [],
@@ -103791,7 +103791,7 @@
           "ComplexFormHeadword": "ubaba",
           "ComponentEntryId": "f1c350fe-ebc2-41f0-9e5d-4e06bb47ccce",
           "ComponentSenseId": null,
-          "ComponentHeadword": "u"
+          "ComponentHeadword": "u-"
         }
       ],
       "ComplexForms": [],
