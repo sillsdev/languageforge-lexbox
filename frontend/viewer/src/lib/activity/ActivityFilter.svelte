@@ -93,91 +93,89 @@
   }
 </script>
 
-<div>
-  <div class="flex items-center gap-2">
-  <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 shrink-0" />
-  <Select.Root type="multiple" value={authorSelectValue} onValueChange={onAuthorValueChange}>
-    <Select.Trigger class="w-44">
-      {#if isAllFilterSelection(filters.authorFilterKeys, authorKeys)}
-        {$t`All authors`}
-      {:else if filters.authorFilterKeys.length === 0}
-        {$t`No authors`}
-      {:else if filters.authorFilterKeys.length === 1}
-        {authorLabel(filters.authorFilterKeys[0])}
-      {:else}
-        {$t`${filters.authorFilterKeys.length} authors`}
-      {/if}
-    </Select.Trigger>
-    <Select.Content>
-      <Select.Item value={ALL_AUTHORS} label={$t`All authors`}>
-        {#snippet selectedIndicator()}
-          {@const icon = allSelectionIcon(filters.authorFilterKeys, authorKeys)}
-          {#if icon}
-            <Icon {icon} class="size-4" />
-          {/if}
-        {/snippet}
-        {$t`All authors`}
-      </Select.Item>
-      {#each authors.current as author (authorFilterKey(author))}
-        {@const key = authorFilterKey(author)}
-        <Select.Item value={key} label={author.authorName ?? $t`Unknown`}>
-          {author.authorName ?? $t`Unknown`}
-          <span class="text-muted-foreground ml-1">({author.commitCount})</span>
+<div class="flex flex-col gap-2">
+  <div class="flex flex-wrap gap-2">
+    <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 shrink-0" />
+    <Select.Root type="multiple" value={authorSelectValue} onValueChange={onAuthorValueChange}>
+      <Select.Trigger class="w-44">
+        {#if isAllFilterSelection(filters.authorFilterKeys, authorKeys)}
+          {$t`All authors`}
+        {:else if filters.authorFilterKeys.length === 0}
+          {$t`No authors`}
+        {:else if filters.authorFilterKeys.length === 1}
+          {authorLabel(filters.authorFilterKeys[0])}
+        {:else}
+          {$t`${filters.authorFilterKeys.length} authors`}
+        {/if}
+      </Select.Trigger>
+      <Select.Content>
+        <Select.Item value={ALL_AUTHORS} label={$t`All authors`}>
+          {#snippet selectedIndicator()}
+            {@const icon = allSelectionIcon(filters.authorFilterKeys, authorKeys)}
+            {#if icon}
+              <Icon {icon} class="size-4" />
+            {/if}
+          {/snippet}
+          {$t`All authors`}
         </Select.Item>
-      {/each}
-    </Select.Content>
-  </Select.Root>
+        {#each authors.current as author (authorFilterKey(author))}
+          {@const key = authorFilterKey(author)}
+          <Select.Item value={key} label={author.authorName ?? $t`Unknown`}>
+            {author.authorName ?? $t`Unknown`}
+            <span class="text-muted-foreground ml-1">({author.commitCount})</span>
+          </Select.Item>
+        {/each}
+      </Select.Content>
+    </Select.Root>
 
-  <Select.Root type="multiple" value={changeTypeSelectValue} onValueChange={onChangeTypeValueChange}>
-    <Select.Trigger class="w-48">
-      {#if isAllFilterSelection(filters.changeTypeFilterKeys, changeTypeKeys)}
-        {$t`All change types`}
-      {:else if filters.changeTypeFilterKeys.length === 0}
-        {$t`No change types`}
-      {:else if filters.changeTypeFilterKeys.length === 1}
-        {changeTypes.current.find(ct => ct.key === filters.changeTypeFilterKeys[0])?.label ?? filters.changeTypeFilterKeys[0]}
-      {:else}
-        {$t`${filters.changeTypeFilterKeys.length} change types`}
-      {/if}
-    </Select.Trigger>
-    <Select.Content>
-      <Select.Item value={ALL_CHANGE_TYPES} label={$t`All change types`}>
-        {#snippet selectedIndicator()}
-          {@const icon = allSelectionIcon(filters.changeTypeFilterKeys, changeTypeKeys)}
-          {#if icon}
-            <Icon {icon} class="size-4" />
-          {/if}
-        {/snippet}
-        {$t`All change types`}
-      </Select.Item>
-      {#each changeTypes.current as changeType (changeType.key)}
-        <Select.Item value={changeType.key} label={changeType.label}>
-          {changeType.label}
-          <span class="text-muted-foreground ml-1">({changeType.commitCount})</span>
+    <Select.Root type="multiple" value={changeTypeSelectValue} onValueChange={onChangeTypeValueChange}>
+      <Select.Trigger class="w-48">
+        {#if isAllFilterSelection(filters.changeTypeFilterKeys, changeTypeKeys)}
+          {$t`All change types`}
+        {:else if filters.changeTypeFilterKeys.length === 0}
+          {$t`No change types`}
+        {:else if filters.changeTypeFilterKeys.length === 1}
+          {changeTypes.current.find(ct => ct.key === filters.changeTypeFilterKeys[0])?.label ?? filters.changeTypeFilterKeys[0]}
+        {:else}
+          {$t`${filters.changeTypeFilterKeys.length} change types`}
+        {/if}
+      </Select.Trigger>
+      <Select.Content>
+        <Select.Item value={ALL_CHANGE_TYPES} label={$t`All change types`}>
+          {#snippet selectedIndicator()}
+            {@const icon = allSelectionIcon(filters.changeTypeFilterKeys, changeTypeKeys)}
+            {#if icon}
+              <Icon {icon} class="size-4" />
+            {/if}
+          {/snippet}
+          {$t`All change types`}
         </Select.Item>
-      {/each}
-    </Select.Content>
-  </Select.Root>
+        {#each changeTypes.current as changeType (changeType.key)}
+          <Select.Item value={changeType.key} label={changeType.label}>
+            {changeType.label}
+            <span class="text-muted-foreground ml-1">({changeType.commitCount})</span>
+          </Select.Item>
+        {/each}
+      </Select.Content>
+    </Select.Root>
   </div>
-  <div class="my-2 flex items-center justify-between">
-    <ResponsiveMenu.Root>
-    <ResponsiveMenu.Trigger class={cn(buttonVariants({variant: 'secondary', size: 'xs'}), badgeVariants({variant: 'secondary'}), 'border-none h-7')}>
-      {#snippet child({props})}
-        <Button {...props} icon={sortIcons[filters.sort]} iconProps={{class: 'size-4'}}>
-          {sortLabels[filters.sort]}
-        </Button>
-      {/snippet}
-    </ResponsiveMenu.Trigger>
-    <ResponsiveMenu.Content align="start">
-      {#each Object.values(ActivitySort) as sortOption (sortOption)}
-        <ResponsiveMenu.Item
-          onSelect={() => filters.sort = sortOption}
-          class={cn(filters.sort === sortOption && 'bg-muted')}>
-          <Icon icon={sortIcons[sortOption]} />
-          {sortLabels[sortOption]}
-        </ResponsiveMenu.Item>
-      {/each}
-    </ResponsiveMenu.Content>
-  </ResponsiveMenu.Root>
-  </div>
+  <ResponsiveMenu.Root>
+  <ResponsiveMenu.Trigger class={cn(buttonVariants({variant: 'secondary', size: 'xs'}), badgeVariants({variant: 'secondary'}), 'border-none h-7')}>
+    {#snippet child({props})}
+      <Button {...props} icon={sortIcons[filters.sort]} iconProps={{class: 'size-4'}}>
+        {sortLabels[filters.sort]}
+      </Button>
+    {/snippet}
+  </ResponsiveMenu.Trigger>
+  <ResponsiveMenu.Content align="start">
+    {#each Object.values(ActivitySort) as sortOption (sortOption)}
+      <ResponsiveMenu.Item
+        onSelect={() => filters.sort = sortOption}
+        class={cn(filters.sort === sortOption && 'bg-muted')}>
+        <Icon icon={sortIcons[sortOption]} />
+        {sortLabels[sortOption]}
+      </ResponsiveMenu.Item>
+    {/each}
+  </ResponsiveMenu.Content>
+</ResponsiveMenu.Root>
 </div>
