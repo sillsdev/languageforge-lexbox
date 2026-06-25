@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-06-16 03:05\n"
+"PO-Revision-Date: 2026-06-25 07:37\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -443,6 +443,12 @@ msgstr "클립보드에 복사"
 msgid "Copy version"
 msgstr "복사 버전"
 
+#. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
+#. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
+#: src/project/SyncDialog.svelte
+msgid "Couldn't sync right now — your local changes are safe."
+msgstr "지금은 동기화할 수 없습니다. 로컬에서 변경한 내용은 안전하게 보관됩니다."
+
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
@@ -773,7 +779,6 @@ msgstr "URL을 열지 못했습니다: {0}"
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
-#: src/project/SyncDialog.svelte
 msgid "Failed to synchronize"
 msgstr "동기화 실패"
 
@@ -1122,6 +1127,11 @@ msgstr "로컬 전용"
 msgid "Login"
 msgstr "로그인"
 
+#. Toast shown when the user closes or cancels the login dialog before signing in.
+#: src/lib/auth/LoginButton.svelte
+msgid "Login cancelled."
+msgstr "로그인이 취소되었습니다."
+
 #. Default button label on the login button when not yet authenticated. Clicking opens the login flow for a server.
 #: src/lib/auth/LoginButton.svelte
 #: src/lib/auth/LoginButton.svelte
@@ -1408,6 +1418,11 @@ msgstr "열기"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "오픈 데이터 디렉터리"
+
+#. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
+#: src/lib/auth/LoginButton.svelte
+msgid "Open in browser"
+msgstr "브라우저에서 열기"
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2165,6 +2180,11 @@ msgstr "쓰기 시스템"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "쓰기 시스템"
+
+#. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
+#: src/lib/auth/LoginButton.svelte
+msgid "You appear to be offline. Can you connect to {0}?"
+msgstr "현재 오프라인 상태인 것 같습니다. {0} 에 접속할 수 있나요?"
 
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
