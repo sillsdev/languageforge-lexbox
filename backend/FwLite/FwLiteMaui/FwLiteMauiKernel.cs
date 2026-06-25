@@ -132,6 +132,8 @@ public static class FwLiteMauiKernel
         services.AddSingleton(_ => Preferences.Default);
         services.AddSingleton(_ => VersionTracking.Default);
         services.AddSingleton(_ => Connectivity.Current);
+        services.AddSingleton<IHostedService, ConnectivitySyncTrigger>();
+        services.AddSingleton<INetworkStatus, ConnectivityNetworkStatus>();
         services.AddSingleton(_ => Launcher.Default);
         services.AddSingleton(_ => Browser.Default);
         services.AddSingleton(_ => Share.Default);

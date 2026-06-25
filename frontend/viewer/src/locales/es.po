@@ -465,6 +465,12 @@ msgstr "Copiado al portapapeles"
 msgid "Copy version"
 msgstr "Copiar versión"
 
+#. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
+#. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
+#: src/project/SyncDialog.svelte
+msgid "Couldn't sync right now — your local changes are safe."
+msgstr ""
+
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
@@ -801,7 +807,6 @@ msgstr "Error al abrir la URL: {0}"
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
-#: src/project/SyncDialog.svelte
 msgid "Failed to synchronize"
 msgstr "Error de sincronización"
 
@@ -1157,6 +1162,11 @@ msgstr "Sólo local"
 msgid "Login"
 msgstr "Inicio de sesión"
 
+#. Toast shown when the user closes or cancels the login dialog before signing in.
+#: src/lib/auth/LoginButton.svelte
+msgid "Login cancelled."
+msgstr ""
+
 #. Default button label on the login button when not yet authenticated. Clicking opens the login flow for a server.
 #: src/lib/auth/LoginButton.svelte
 #: src/lib/auth/LoginButton.svelte
@@ -1462,6 +1472,11 @@ msgstr "Abrir"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Directorio de datos abiertos"
+
+#. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
+#: src/lib/auth/LoginButton.svelte
+msgid "Open in browser"
+msgstr ""
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2234,6 +2249,10 @@ msgstr "Sistemas de escritura"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Sistemas de escritura"
+
+#: src/lib/auth/LoginButton.svelte
+msgid "You appear to be offline. Can you connect to {0}?"
+msgstr ""
 
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte

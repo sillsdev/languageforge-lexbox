@@ -1,0 +1,22 @@
+<Project InitialTargets="ValidateHarmonyLinq2dbSource">
+  <PropertyGroup Condition="'$(UseHarmonySource)' == 'true'">
+    <_HarmonyAppProject>$(HarmonySourcePath)\src\SIL.Harmony\SIL.Harmony.csproj</_HarmonyAppProject>
+    <_HarmonyLinq2dbProject>$(HarmonySourcePath)\src\SIL.Harmony.Linq2db\SIL.Harmony.Linq2db.csproj</_HarmonyLinq2dbProject>
+  </PropertyGroup>
+
+  <Target Name="ValidateHarmonyLinq2dbSource" Condition="'$(UseHarmonySource)' == 'true'">
+    <Error Condition="!Exists('$(_HarmonyAppProject)')"
+           Text="UseHarmonySource is enabled but SIL.Harmony was not found at $(_HarmonyAppProject). Clone https://github.com/sillsdev/harmony or set HarmonySourcePath. See backend/Directory.Build.props.user.example." />
+    <Error Condition="!Exists('$(_HarmonyLinq2dbProject)')"
+           Text="UseHarmonySource is enabled but SIL.Harmony.Linq2db was not found at $(_HarmonyLinq2dbProject). Clone https://github.com/sillsdev/harmony or set HarmonySourcePath. See backend/Directory.Build.props.user.example." />
+  </Target>
+
+  <ItemGroup Condition="'$(UseHarmonySource)' == 'true'">
+    <ProjectReference Include="$(_HarmonyAppProject)" />
+    <ProjectReference Include="$(_HarmonyLinq2dbProject)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHarmonySource)' != 'true'">
+    <PackageReference Include="SIL.Harmony" />
+    <PackageReference Include="SIL.Harmony.Linq2db" />
+  </ItemGroup>
+</Project>

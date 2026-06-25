@@ -45,8 +45,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
-        with:
-          submodules: true
       - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
           dotnet-version: '10.x'
@@ -60,6 +58,7 @@ jobs:
         with:
           check_name: C# FwHeadless Unit Tests
           files: ./test-results/*.xml
+          comment_mode: off
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4

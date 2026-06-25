@@ -148,6 +148,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<ProjectRole>().UseString();
         builder.ExportAsEnum<MorphTypeKind>().UseString();
         builder.ExportAsEnum<SyncStatus>().UseString();
+        builder.ExportAsEnum<LoginResult>().UseString();
         builder.ExportAsEnum<DownloadProjectByCodeResult>().UseString();
         builder.ExportAsEnum<SyncJobStatusEnum>().UseString();
         builder.ExportAsEnum<ViewBase>().UseString();

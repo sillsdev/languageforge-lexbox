@@ -1,3 +1,4 @@
+using FwLiteShared.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 
@@ -52,6 +53,41 @@ public static class MauiProgram
         builder.ConfigureEssentials(essentialsBuilder =>
         {
             essentialsBuilder.UseVersionTracking();
+
+            // Register all shortcuts from a single central place
+            foreach (var action in Shortcuts.Declarations)
+            {
+                essentialsBuilder.AddAppAction(action);
+            }
+
+            essentialsBuilder.OnAppAction(action =>
+            {
+                var app = (App?)Application.Current;
+                if (app is null) return;
+                if (Shortcuts.TryGetUrl(action.Id, out var url))
+                {
+                    app.Dispatcher.Dispatch(() =>
+                    {
+                        app.LoadAppUrl(url);
+                    });
+                }
+                else if (action.Id == Shortcuts.ShareLogOut)
+                {
+                    _ = app.Dispatcher.DispatchAsync(async () =>
+                    {
+                        try
+                        {
+                            await app.ServiceProvider.GetRequiredService<ITroubleshootingService>()
+                                .ShareLogFile();
+                        }
+                        catch (Exception e)
+                        {
+                            app.ServiceProvider.GetService<ILogger<App>>()?
+                                .LogError(e, "Failed to share log file from app action");
+                        }
+                    });
+                }
+            });
         });
         builder.Services.AddFwLiteMauiServices(builder.Configuration, builder.Logging);
 
