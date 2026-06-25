@@ -115,24 +115,6 @@ export class EntryLoaderService {
     return this.#scheduleEventReset();
   }
 
-  async onEntryDeleted(_id: string): Promise<void> {
-    // We could optimize some delete events, but:
-    // 1) They probably don't happen often enough to matter.
-    // 2) Handling shifting of indices is complex and error-prone.
-    // So, we might as well just do a quiet reset to keep things simple and robust.
-    await this.quietReset();
-  }
-
-  async onEntryUpdated(_entryId: string): Promise<void> {
-    // We could (and I did) try to optimize some update events, however:
-    // 1) We can't debounce them. We need to handle every unique event or we get out of sync.
-    // 2) We can't rely on the local index cache to determine if the entry matches the current filter,
-    //    because the update that triggered this event may have changed whether it matches the filter or not.
-    //    So, we need to query the index from the backend anyway.
-    // So, we might as well just do a quiet reset to keep things simple and robust.
-    await this.quietReset();
-  }
-
   async #scheduleFilterReset(): Promise<void> {
     this.loading = true;
     this.#debouncedEventReset.cancel();

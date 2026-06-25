@@ -130,6 +130,16 @@ export class ProjectEventBus {
     });
   }
 
+  // Bulk subscription: one callback per sync/edit, for consumers that re-query
+  // the whole set rather than react per entry (the list, stats).
+  public onEntriesChanged(callback: (event: IEntriesChangedEvent) => void) {
+    this.onProjectEvent(event => {
+      if (isEntriesChangedEvent(event)) {
+        callback(event);
+      }
+    });
+  }
+
   public onSync(callback: (event: ISyncEvent) => void) {
     const lastEvent = this.eventBus.getLastEvent<ISyncEvent>(this.projectCode, FwEventType.Sync);
     if (lastEvent) callback(lastEvent);
