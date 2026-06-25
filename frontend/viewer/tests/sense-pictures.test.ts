@@ -6,7 +6,8 @@ import {BrowsePage} from './browse-page';
  * - a sense with pictures renders the image (loaded via getFileStream into a blob url) + caption
  * - a sense without pictures shows the disabled "+ Picture" add button
  *
- * The demo "nyumba" entry's first sense has two demo pictures; its other senses have none.
+ * The demo "nyumba" entry (allWsEntry) has two demo pictures on its sense; other demo
+ * entries (e.g. "ambuka") have none.
  */
 test.describe('Sense pictures', () => {
   test('displays a picture (and its caption) for a sense that has pictures', async ({page}) => {
@@ -32,14 +33,16 @@ test.describe('Sense pictures', () => {
     const browsePage = new BrowsePage(page);
     await browsePage.goto();
 
-    await browsePage.selectEntryByFilter('nyumba');
+    // "ambuka" has no pictures, so its Pictures field shows the add button.
+    await browsePage.selectEntryByFilter('ambuka');
 
-    // First sense has pictures; later senses do not, so their Pictures field shows the add button.
-    const emptyPicturesField = page.locator('[style*="grid-area: pictures"]').nth(1);
-    await expect(emptyPicturesField).toBeVisible({timeout: 5000});
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await expect(picturesField).toBeVisible({timeout: 5000});
 
-    const addButton = emptyPicturesField.getByRole('button', {name: 'Picture'});
+    const addButton = picturesField.getByRole('button', {name: 'Picture'});
     await expect(addButton).toBeVisible();
     await expect(addButton).toBeDisabled();
+    // The add button is the empty state, so no image should be present.
+    await expect(picturesField.locator('img')).toHaveCount(0);
   });
 });

@@ -183,20 +183,7 @@ export const _entries: IEntry[] = [
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
-        'pictures': [
-          {
-            'id': 'ce4a3b1e-6d2f-4f1a-8c0d-1f2e3a4b5c6d',
-            'order': 1,
-            'mediaUri': demoPictureMediaUris.house1,
-            'caption': {'en': {spans: [{text: 'A traditional house', ws: 'en'}]}, 'pt': {spans: [{text: 'Uma casa tradicional', ws: 'pt'}]}},
-          },
-          {
-            'id': 'a1b2c3d4-7e8f-4a0b-9c1d-2e3f4a5b6c7d',
-            'order': 2,
-            'mediaUri': demoPictureMediaUris.house2,
-            'caption': {'en': {spans: [{text: 'A modern house', ws: 'en'}]}, 'pt': {spans: [{text: 'Uma casa moderna', ws: 'pt'}]}},
-          },
-        ],
+        'pictures': [],
         'exampleSentences': [
           {
             'id': 'ex-001',
@@ -344,7 +331,26 @@ export const allWsEntry: IEntry = {
     partOfSpeech: partsOfSpeech[1],
     partOfSpeechId: partsOfSpeech[1].id,
     semanticDomains: [],
-    pictures: [],
+    pictures: [
+      {
+        id: 'ce4a3b1e-6d2f-4f1a-8c0d-1f2e3a4b5c6d',
+        order: 1,
+        mediaUri: demoPictureMediaUris.house1,
+        caption: {
+          en: { spans: [{ text: 'A traditional house', ws: 'en' }] },
+          pt: { spans: [{ text: 'Uma casa tradicional', ws: 'pt' }] },
+        },
+      },
+      {
+        id: 'a1b2c3d4-7e8f-4a0b-9c1d-2e3f4a5b6c7d',
+        order: 2,
+        mediaUri: demoPictureMediaUris.house2,
+        caption: {
+          en: { spans: [{ text: 'A modern house', ws: 'en' }] },
+          pt: { spans: [{ text: 'Uma casa moderna', ws: 'pt' }] },
+        },
+      },
+    ],
     exampleSentences: [{
       id: '00000000-0000-0000-0000-000000000003',
       senseId: '00000000-0000-0000-0000-000000000002',

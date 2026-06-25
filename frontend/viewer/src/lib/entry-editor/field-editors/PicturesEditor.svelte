@@ -5,14 +5,18 @@
   import {t} from 'svelte-i18n-lingui';
 
   type Props = {
-    value: IPicture[];
+    value: IPicture[] | undefined;
     readonly?: boolean;
   };
   const {value, readonly = false}: Props = $props();
+
+  // `pictures` is typed as required, but older/legacy sense data may omit it entirely,
+  // so guard against undefined rather than trusting the type at runtime.
+  const pictures = $derived(value ?? []);
 </script>
 
-{#if value.length > 0}
-  <PictureCarousel pictures={value} />
+{#if pictures.length > 0}
+  <PictureCarousel {pictures} />
 {:else if !readonly}
   <!-- TODO: wire this up to actually add a picture once a create-picture API is exposed
        to the frontend. MiniLcmJsInvokable currently has no create/update picture method,
