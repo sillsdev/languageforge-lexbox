@@ -31,7 +31,6 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         CancellationToken cancellationToken = new CancellationToken())
     {
         if (EntryTableNeedsRegeneration) await RegenerateSearchTableAfterSave(eventData.Context);
-        // await UpdateSearchTableOnSave(eventData.Context);
         return result;
     }
 
