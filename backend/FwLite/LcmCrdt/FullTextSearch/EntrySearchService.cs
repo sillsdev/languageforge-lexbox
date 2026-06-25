@@ -276,14 +276,22 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             .DeleteAsync();
     }
 
-    public async Task RegenerateEntrySearchTable()
+    public Task RegenerateEntrySearchTable()
+    {
+        return RegenerateEntrySearchTable(dbContext);
+    }
+
+    public static async Task RegenerateEntrySearchTable(LcmCrdtDbContext dbContext)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
-        await EntrySearchRecordsTable.TruncateAsync();
+        var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
+        await entrySearchRecordsTable.TruncateAsync();
 
         var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
+        // TODO: Double check that dbContext.MorphTypes will be returning the changed morph type tokens (it's using .AsNoTracking() which could interfere with that)
+        // Alternately, just ensure that this runs after the EF Core changes have been committed, and then we'll get the correct tokens anyway
         var morphTypeLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
-        await EntrySearchRecordsTable
+        await entrySearchRecordsTable
             .BulkCopyAsync(dbContext.Set<Entry>()
                 .LoadWith(e => e.Senses)
                 .AsQueryable()
