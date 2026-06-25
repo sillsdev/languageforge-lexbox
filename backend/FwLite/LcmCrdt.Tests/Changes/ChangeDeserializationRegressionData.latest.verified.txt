@@ -1091,7 +1091,22 @@
   {
     "$type": "UpdateSensePictureChange",
     "PictureId": "d805f51a-23fd-f17e-3d8d-51612ce16a36",
-    "Patch": [],
+    "Patch": [
+      {
+        "op": "replace",
+        "path": "/Caption",
+        "value": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "An updated caption",
+                "Ws": "en"
+              }
+            ]
+          }
+        }
+      }
+    ],
     "EntityId": "b4217cd5-6213-bf41-bf96-3b176903a58d"
   },
   {
