@@ -131,7 +131,6 @@ public interface IMiniLcmWriteApi
         Picture after,
         IMiniLcmApi? api = null);
     Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position);
-
     Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId);
     #endregion
 
