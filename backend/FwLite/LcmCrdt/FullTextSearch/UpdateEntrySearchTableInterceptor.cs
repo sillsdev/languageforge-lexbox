@@ -7,6 +7,7 @@ namespace LcmCrdt.FullTextSearch;
 
 public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
 {
+    private bool EntryTableNeedsRegeneration { get; set; } = false;
     public InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         throw new NotImplementedException(
@@ -22,6 +23,15 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         CancellationToken cancellationToken = new CancellationToken())
     {
         await UpdateSearchTableOnSave(eventData.Context);
+        return result;
+    }
+
+    public async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData,
+        int result,
+        CancellationToken cancellationToken = new CancellationToken())
+    {
+        if (EntryTableNeedsRegeneration) await RegenerateSearchTableAfterSave(eventData.Context);
+        // await UpdateSearchTableOnSave(eventData.Context);
         return result;
     }
 
@@ -63,9 +73,16 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         }
         else
         {
-            // TODO: Cue this up to run *after* the EF Core commit is done, so we don't have to regenerate the search table multiple times
-            await EntrySearchService.RegenerateEntrySearchTable(dbContext);
+            // Skip updating the entry search table for individual records, because we're going to regenerate the whole thing later
+            EntryTableNeedsRegeneration = true;
         }
+    }
+
+    private async Task RegenerateSearchTableAfterSave(DbContext? maybeDbContext)
+    {
+        EntryTableNeedsRegeneration = false;
+        if (maybeDbContext is not LcmCrdtDbContext dbContext) return;
+        await EntrySearchService.RegenerateEntrySearchTable(dbContext);
     }
 
     private async Task<(Entry? updatedEntry, Guid? removed)> ForUpdate(IEnumerable<EntityEntry> group, Guid entryId, DbContext dbContext)

@@ -139,6 +139,87 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task RegeneratesSearchRecords_WhenMorphTypePrefixChanges()
+    {
+        // Suffix morph type has Prefix="-" by default, so a lexeme-only entry's headword is "-cat".
+        var id = Guid.NewGuid();
+        await fixture.Api.CreateEntry(new Entry()
+        {
+            Id = id,
+            LexemeForm = { ["en"] = "cat" },
+            MorphType = MorphTypeKind.Suffix
+        });
+        (await Headword(id)).Should().Be("-cat");
+
+        var suffix = await fixture.Api.GetMorphType(MorphTypeKind.Suffix);
+        suffix.Should().NotBeNull();
+        var updated = suffix!.Copy();
+        updated.Prefix = "~";
+        await fixture.Api.UpdateMorphType(suffix, updated);
+
+        // Changing the prefix token must regenerate the search record's headword.
+        (await Headword(id)).Should().Be("~cat");
+    }
+
+    [Fact]
+    public async Task RegeneratesSearchRecords_WhenMorphTypePostfixChanges()
+    {
+        // Prefix morph type has Postfix="-" by default, so a lexeme-only entry's headword is "un-".
+        var id = Guid.NewGuid();
+        await fixture.Api.CreateEntry(new Entry()
+        {
+            Id = id,
+            LexemeForm = { ["en"] = "un" },
+            MorphType = MorphTypeKind.Prefix
+        });
+        (await Headword(id)).Should().Be("un-");
+
+        var prefix = await fixture.Api.GetMorphType(MorphTypeKind.Prefix);
+        prefix.Should().NotBeNull();
+        var updated = prefix!.Copy();
+        updated.Postfix = "~";
+        await fixture.Api.UpdateMorphType(prefix, updated);
+
+        // Changing the postfix token must regenerate the search record's headword.
+        (await Headword(id)).Should().Be("un~");
+    }
+
+    [Fact]
+    public async Task RegeneratesSearchRecords_WhenMorphTypePrefixAndPostfixChange()
+    {
+        // Infix morph type has Prefix="-" and Postfix="-" by default, so the headword is "-in-".
+        var id = Guid.NewGuid();
+        await fixture.Api.CreateEntry(new Entry()
+        {
+            Id = id,
+            LexemeForm = { ["en"] = "in" },
+            MorphType = MorphTypeKind.Infix
+        });
+        (await Headword(id)).Should().Be("-in-");
+
+        var infix = await fixture.Api.GetMorphType(MorphTypeKind.Infix);
+        infix.Should().NotBeNull();
+        var updated = infix!.Copy();
+        updated.Prefix = "~";
+        updated.Postfix = "~";
+        await fixture.Api.UpdateMorphType(infix, updated);
+
+        // Changing both tokens in a single update must regenerate the search record's headword.
+        (await Headword(id)).Should().Be("~in~");
+    }
+
+    private async Task<string?> Headword(Guid entryId)
+    {
+        // .AsNoTracking() needed here because RegenerateEntrySearchTable() has just cleared
+        // and recreated the table using Linq2DB, but EF Core doesn't know that yet and so it
+        // will serve us the cached copy of the table. So .AsNoTracking() ensures that EF Core
+        // will hit the database and retrieve a fresh copy of the headword.
+        var record = await _service.EntrySearchRecords.AsNoTracking().SingleOrDefaultAsync(e => e.Id == entryId);
+        record.Should().NotBeNull();
+        return record!.Headword;
+    }
+
+    [Fact]
     public async Task CanRegenerateTheSearchTable()
     {
         var id = Guid.NewGuid();

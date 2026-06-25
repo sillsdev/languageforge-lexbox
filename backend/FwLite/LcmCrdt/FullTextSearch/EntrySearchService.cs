@@ -283,7 +283,8 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public static async Task RegenerateEntrySearchTable(LcmCrdtDbContext dbContext)
     {
-        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        // SQLite doesn't allow nested transactions, so check if we're already in one before opening a new transaction
+        await using var transaction = dbContext.Database.CurrentTransaction is null ? await dbContext.Database.BeginTransactionAsync() : null;
         var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
         await entrySearchRecordsTable.TruncateAsync();
 
@@ -297,7 +298,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
                 .AsQueryable()
                 .Select(entry => ToEntrySearchRecord(entry, writingSystems, morphTypeLookup))
                 .AsAsyncEnumerable());
-        await transaction.CommitAsync();
+        if (transaction is not null) await transaction.CommitAsync();
     }
 
     public async Task RegenerateIfMissing()
