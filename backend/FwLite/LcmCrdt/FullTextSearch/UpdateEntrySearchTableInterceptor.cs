@@ -84,6 +84,15 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         await EntrySearchService.RegenerateEntrySearchTable(dbContext);
     }
 
+    // If saving changes fails, then the MorphType changes didn't make it into the DB and headwords don't need to be regenerated after all
+    public void SaveChangesFailed(DbContextErrorEventData eventData) => EntryTableNeedsRegeneration = false;
+
+    public Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
+    {
+        EntryTableNeedsRegeneration = false;
+        return Task.CompletedTask;
+    }
+
     private async Task<(Entry? updatedEntry, Guid? removed)> ForUpdate(IEnumerable<EntityEntry> group, Guid entryId, DbContext dbContext)
     {
         var entities = group.ToArray();
