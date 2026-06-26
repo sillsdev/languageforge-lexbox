@@ -231,7 +231,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task SearchTableIsUpdatedAutomaticallyWhenManyChangesHappenAtOnce()
+    public async Task SearchTableIsUpdatedAutomaticallyWhenManyChangesHappenOneAfterAnother()
     {
         var id = Guid.NewGuid();
         await fixture.Api.CreateEntry(new Entry()
@@ -253,8 +253,68 @@ public class EntrySearchServiceTests : IAsyncLifetime
         entry.Should().NotBeNull();
         var updated = entry.Copy();
         updated.LexemeForm = new() { ["en"] = "out" };
-        updated.MorphType = MorphTypeKind.Simulfix; // Prefix and Postfix are "="
+        updated.MorphType = MorphTypeKind.Simulfix;
         await fixture.Api.UpdateEntry(entry, updated);
+
+        // Changing morph type of an entry must regenerate its search record's headword.
+        (await Headword(id)).Should().Be("~out~");
+    }
+
+    [Fact]
+    public async Task SearchTableIsUpdatedAutomaticallyWhenManyChangesHappenAtOnce_MorphTypeFirstThenEntry()
+    {
+        var id = Guid.NewGuid();
+        await fixture.Api.CreateEntry(new Entry()
+        {
+            Id = id,
+            LexemeForm = { ["en"] = "in" },
+            MorphType = MorphTypeKind.Infix
+        });
+        (await Headword(id)).Should().Be("-in-");
+
+        // Here we make changes directly in the DbContext, then call SaveChanges once at the end
+        var simulfix = await _context.Set<MorphType>().FirstOrDefaultAsync(mt => mt.Kind == MorphTypeKind.Simulfix);
+        simulfix.Should().NotBeNull();
+        simulfix.Prefix = "~";
+        simulfix.Postfix = "~";
+        _context.Update(simulfix);
+
+        var entry = await _context.FindAsync<Entry>(id);
+        entry.Should().NotBeNull();
+        entry.LexemeForm = new() { ["en"] = "out" };
+        entry.MorphType = MorphTypeKind.Simulfix;
+        _context.Update(entry);
+        await _context.SaveChangesAsync();
+
+        // Changing morph type of an entry must regenerate its search record's headword.
+        (await Headword(id)).Should().Be("~out~");
+    }
+
+    [Fact]
+    public async Task SearchTableIsUpdatedAutomaticallyWhenManyChangesHappenAtOnce_EntryFirstThenMorphType()
+    {
+        var id = Guid.NewGuid();
+        await fixture.Api.CreateEntry(new Entry()
+        {
+            Id = id,
+            LexemeForm = { ["en"] = "in" },
+            MorphType = MorphTypeKind.Infix
+        });
+        (await Headword(id)).Should().Be("-in-");
+
+        // Here we make changes directly in the DbContext, then call SaveChanges once at the end
+        var entry = await _context.FindAsync<Entry>(id);
+        entry.Should().NotBeNull();
+        entry.LexemeForm = new() { ["en"] = "out" };
+        entry.MorphType = MorphTypeKind.Simulfix;
+        _context.Update(entry);
+
+        var simulfix = await _context.Set<MorphType>().FirstOrDefaultAsync(mt => mt.Kind == MorphTypeKind.Simulfix);
+        simulfix.Should().NotBeNull();
+        simulfix.Prefix = "~";
+        simulfix.Postfix = "~";
+        _context.Update(simulfix);
+        await _context.SaveChangesAsync();
 
         // Changing morph type of an entry must regenerate its search record's headword.
         (await Headword(id)).Should().Be("~out~");
