@@ -59,7 +59,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
         ArgumentNullException.ThrowIfNull(publication);
         ArgumentNullException.ThrowIfNull(publication2);
 
-        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = []});
+        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = [] }, CreateEntryOptions.AsIs);
         entry.PublishIn.Should().BeEmpty();
     }
 
@@ -83,7 +83,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
 
         var publication = await Api.GetPublication(_publicationId);
         ArgumentNullException.ThrowIfNull(publication);
-        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = [publication] });
+        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = [publication] }, CreateEntryOptions.AsIs);
 
         await Api.RemovePublication(entry.Id, _publicationId);
 
@@ -140,5 +140,30 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
         var act = () => Api.UpdatePublication(main.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, false));
 
         await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+    }
+
+    [Fact]
+    public async Task UpdatePublication_WithBeforeAndAfter_CannotPromoteSecondMain()
+    {
+        await GetOrCreateMainPublication();
+        var other = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Pocket" } } });
+        var promoted = other.Copy();
+        promoted.IsMain = true;
+
+        var act = () => Api.UpdatePublication(other, promoted);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task UpdatePublication_WithBeforeAndAfter_CannotTurnOffIsMain()
+    {
+        var main = await GetOrCreateMainPublication();
+        var demoted = main.Copy();
+        demoted.IsMain = false;
+
+        var act = () => Api.UpdatePublication(main, demoted);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 }

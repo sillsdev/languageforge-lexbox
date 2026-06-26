@@ -27,12 +27,14 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateComplexFormType(complexFormType);
         mainDictionary = new Publication() { Id = Guid.NewGuid(), Name = { { "en", "Main Dictionary" } } };
         await Api.CreatePublication(mainDictionary);
+        // Create the dataset exactly as specified (AsIs); the publication-filter tests below depend on these precise
+        // PublishIn values, which the default's auto-added main publication would otherwise disturb.
         await Api.CreateEntry(new Entry()
         {
             Id = appleId,
             LexemeForm = { { "en", Apple } },
             MorphType = MorphTypeKind.Root,
-        });
+        }, CreateEntryOptions.AsIs);
         await Api.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", Peach } },
@@ -44,7 +46,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                     Definition = { { "en", new RichString("Fruit which tapers to a stem, grows from a tree") } }
                 }
             ]
-        });
+        }, CreateEntryOptions.AsIs);
         await Api.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", Banana } },
@@ -76,7 +78,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                     SemanticDomains = [semanticDomain],
                 }
             ]
-        });
+        }, CreateEntryOptions.AsIs);
         await Api.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", Kiwi } },
@@ -98,9 +100,9 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                     ]
                 }
             ]
-        });
+        }, CreateEntryOptions.AsIs);
         // null / missing key - exposes potential NPEs
-        await Api.CreateEntry(new Entry());
+        await Api.CreateEntry(new Entry(), CreateEntryOptions.AsIs);
     }
 
     [Fact]

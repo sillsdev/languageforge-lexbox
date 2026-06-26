@@ -51,6 +51,12 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region Entry
+    /// <summary>
+    /// Creates an entry. When <paramref name="options"/> is null the project's main publication is auto-added
+    /// (<see cref="CreateEntryOptions.WithMainPublication"/>), mirroring FieldWorks' protected Main Dictionary.
+    /// Pass <see cref="CreateEntryOptions.AsIs"/> to create the entry exactly as given — sync and bulk import do
+    /// this so they preserve the source's publications.
+    /// </summary>
     Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null);
     Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update);
 

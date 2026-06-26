@@ -17,7 +17,8 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     public async Task CanCreateEntry_AutoFaker()
     {
         var entry = await AutoFaker.EntryReadyForCreation(Api);
-        var createdEntry = await Api.CreateEntry(entry);
+        // AsIs so the round-trip comparison isn't disturbed by the default's auto-added main publication.
+        var createdEntry = await Api.CreateEntry(entry, CreateEntryOptions.AsIs);
         createdEntry.Should().BeEquivalentTo(entry, options => options
             .For(e => e.Components).Exclude(e => e.Id)
             .For(e => e.ComplexForms).Exclude(e => e.Id)
@@ -149,6 +150,17 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
         entry.LiteralMeaning["en"].Should().BeEquivalentTo(new RichString([
             new RichSpan() { Text = "span", Ws = "en", Tags = [tag1] }
         ]));
+    }
+
+    [Fact]
+    public async Task CreateEntry_ByDefault_AutoAddsMainPublication()
+    {
+        var mainPublication = await GetOrCreateMainPublication();
+
+        // No options passed -> the default (CreateEntryOptions.WithMainPublication) applies.
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] });
+
+        entry.PublishIn.Should().ContainSingle().Which.Id.Should().Be(mainPublication.Id);
     }
 
     [Fact]

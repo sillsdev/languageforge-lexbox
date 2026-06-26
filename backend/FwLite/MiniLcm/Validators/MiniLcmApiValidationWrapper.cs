@@ -35,18 +35,27 @@ public partial class MiniLcmApiValidationWrapper(
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
         await validators.ValidateAndThrow(update);
-        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain)
-            && isMain
-            && await GetExistingMain() is { } main
-            && main.Id != id)
-            throw new InvalidOperationException("Cannot set IsMain on this publication. Another publication is already the main publication.");
+        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain) && isMain)
+            await ThrowIfAnotherMainExists(id);
         return await _api.UpdatePublication(id, update);
     }
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
         await validators.ValidateAndThrow(after);
+        // The patch overload's single-main invariant is enforced by PublicationUpdateValidator + the check above;
+        // the before/after overload bypasses that validator, so enforce the same rules here.
+        if (after.IsMain && !before.IsMain)
+            await ThrowIfAnotherMainExists(after.Id);
+        if (before.IsMain && !after.IsMain)
+            throw new InvalidOperationException("Cannot turn off the IsMain flag on a publication; the main publication is fixed.");
         return await _api.UpdatePublication(before, after, api ?? this);
+    }
+
+    private async Task ThrowIfAnotherMainExists(Guid id)
+    {
+        if (await GetExistingMain() is { } main && main.Id != id)
+            throw new InvalidOperationException("Cannot set IsMain on this publication. Another publication is already the main publication.");
     }
 
     private async Task<Publication?> GetExistingMain()

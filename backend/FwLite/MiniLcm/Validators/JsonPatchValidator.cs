@@ -1,5 +1,6 @@
 using FluentValidation;
 using SystemTextJsonPatch;
+using SystemTextJsonPatch.Operations;
 
 namespace MiniLcm.Validators;
 
@@ -29,8 +30,11 @@ internal static class JsonPatchValidator
     {
         return builder.Custom((document, context) =>
         {
+            // Only ops that actually set the value (add/replace) can change the property to the forbidden value;
+            // a non-mutating op like test must not trip this.
             if (document.Operations.Any(o =>
-                    string.Equals(o.Path, $"/{propertyName}", StringComparison.InvariantCultureIgnoreCase)
+                    o.OperationType is OperationType.Add or OperationType.Replace
+                    && string.Equals(o.Path, $"/{propertyName}", StringComparison.OrdinalIgnoreCase)
                     && Equals(o.Value, forbiddenValue)))
                 context.AddFailure(propertyName, message);
         });

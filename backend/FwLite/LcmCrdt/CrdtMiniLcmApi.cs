@@ -187,15 +187,16 @@ public class CrdtMiniLcmApi(
 
     public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        // IsMain is applied via SetMainPublicationChange (which converges), not as a plain field patch, so it's
-        // stripped from the patch and translated to that change — but only when an IsMain op is actually present.
+        // IsMain isn't a plain field patch: promoting to main goes through SetMainPublicationChange (which converges
+        // across replicas), and the raw IsMain op is stripped out. The interactive path can't reach here with
+        // IsMain=false (PublicationUpdateValidator rejects it); the sync path (this blind submit) is unvalidated, so a
+        // stray IsMain=false op is simply dropped rather than thrown — throwing would wedge a whole project sync.
         if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain))
         {
             var patch = new JsonPatchDocument<Publication>();
             patch.Operations.AddRange(update.Patch.Operations.Where(op =>
                 !string.Equals(op.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase)));
             var changes = patch.ToChanges(id).ToList();
-            // prior/wrapping validation actually prevents setting IsMain to false via patch, so isMain is always true
             if (isMain) changes.Add(new SetMainPublicationChange(id));
             if (changes.Count > 0) await AddChanges(changes);
         }
@@ -553,7 +554,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
-        options ??= CreateEntryOptions.AsIs;
+        options ??= CreateEntryOptions.WithMainPublication;
         await using var repo = await repoFactory.CreateRepoAsync();
 
         // This is our primitive logic for now:

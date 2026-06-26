@@ -16,7 +16,7 @@
   import {useLexboxApi} from '../services/service-provider';
   import {defaultEntry, defaultSense} from '../utils';
   import OverrideFields from '$lib/views/OverrideFields.svelte';
-  import {useWritingSystemService} from '$project/data';
+  import {useWritingSystemService, usePublications} from '$project/data';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
@@ -37,6 +37,7 @@
 
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
+  const publicationService = usePublications();
   const dialogsService = useDialogsService();
   dialogsService.invokeNewEntryDialog = openWithValue;
   const lexboxApi = useLexboxApi();
@@ -65,9 +66,8 @@
 
     loading = true;
     const entrySnapshot = $state.snapshot(entry);
-    // Field shown -> the user controls publications, so create as-is; otherwise auto-add the main publication.
-    const options = entryTemplate?.publishIn?.length ? createEntryOptions.asIs : createEntryOptions.withMainPublication;
-    await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot, options));
+    // The dialog pre-populates publishIn (main publication + any active filter), so always create the entry as-is.
+    await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot, createEntryOptions.asIs));
     requester.resolve(entry);
     requester = undefined;
     loading = false;
@@ -117,12 +117,28 @@
 
       const tmpEntry = defaultEntry();
       publishInIsFromTemplate = undefined;
+      // publishIn starts from the active filter (if any); the main publication is added on top below.
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
+      void addMainPublication(entry.id);
       addSense();
 
       errors = [];
       open = true;
     });
+  }
+
+  // Always include the project's main publication in a new entry (the user can remove it when the field is shown).
+  // Loaded lazily so opening the dialog isn't blocked on fetching publications.
+  async function addMainPublication(entryId: string) {
+    let main = publicationService.mainPublication;
+    if (!main) {
+      await publicationService.refetch();
+      main = publicationService.mainPublication;
+    }
+    if (!main || entry.id !== entryId) return; // dialog moved on while we awaited
+    if (!entry.publishIn.some(p => p.id === main.id)) {
+      entry.publishIn = [...entry.publishIn, main];
+    }
   }
 
   function addSense() {
