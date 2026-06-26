@@ -48,14 +48,15 @@ public partial class MiniLcmApiNotifyWrapper(
 
     public void NotifyEntryChanged(Guid entryId) => NotifyEntriesChanged(entryId);
 
-    public void NotifyEntriesChanged(params Guid[] entryIds)
+    public void NotifyEntriesChanged(params ReadOnlySpan<Guid> entryIds)
     {
         if (_pendingChanges is not null)
         {
-            _pendingChanges.ChangedEntryIds.UnionWith(entryIds);
+            foreach (var entryId in entryIds) _pendingChanges.ChangedEntryIds.Add(entryId);
             return;
         }
-        PublishChanges(entryIds, []);
+        // the published event owns a heap array; the span only saves the allocation while buffering
+        PublishChanges(entryIds.ToArray(), []);
     }
 
     public void NotifyEntryDeleted(Guid entryId)
