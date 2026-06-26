@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 using LcmCrdt.MediaServer;
 using SIL.Harmony;
@@ -285,4 +286,18 @@ public partial class CrdtProjectsService(
     // source of truth — keep these in sync so a code valid here is also valid on the server.
     [GeneratedRegex(@"^[a-z\d][a-z-\d]*$")]
     public static partial Regex ProjectCode();
+
+    // Normalises an arbitrary name into a code satisfying ProjectCode(): lowercase, every other character
+    // becomes '-', and leading '-' is trimmed so the first character is alphanumeric. FwData project names
+    // (e.g. "Sena 3") routinely contain uppercase letters and spaces, which the code rule rejects.
+    public static string SanitizeProjectCode(string name)
+    {
+        var sb = new StringBuilder(name.Length);
+        foreach (var c in name.ToLowerInvariant())
+            sb.Append(c is (>= 'a' and <= 'z') or (>= '0' and <= '9') or '-' ? c : '-');
+        var code = sb.ToString().TrimStart('-');
+        if (code.Length == 0)
+            throw new ArgumentException($"Project name '{name}' has no usable characters for a project code", nameof(name));
+        return code;
+    }
 }

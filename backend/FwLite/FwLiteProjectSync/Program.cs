@@ -45,7 +45,7 @@ public class Program
                 Console.WriteLine($"crdtFile: {crdtFile}");
                 Console.WriteLine($"fwDataFile: {fwDataFile}");
                 var fwProjectName = Path.GetFileNameWithoutExtension(fwDataFile);
-                var crdtProjectCode = Path.GetFileNameWithoutExtension(crdtFile);
+                var crdtProjectCode = CrdtProjectsService.SanitizeProjectCode(Path.GetFileNameWithoutExtension(crdtFile));
 
                 await using var serviceRoot = SyncServices(crdtFile, fwDataFile, createCrdtDir);
                 await using var scope = serviceRoot.CreateAsyncScope();

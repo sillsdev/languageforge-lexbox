@@ -133,6 +133,20 @@ public class OpenProjectTests
         ProjectCode().IsMatch(code).Should().Be(expected);
     }
 
+    [Theory]
+    // Regression guard: SanitizeProjectCode must turn raw FwData names like "Sena3" into a code
+    // ProjectCode() accepts, otherwise importing such a project throws on the tightened code rule.
+    [InlineData("Sena3", "sena3")]
+    [InlineData("Sena 3", "sena-3")]
+    [InlineData("My_Dictionary", "my-dictionary")]
+    [InlineData("-leading", "leading")]
+    public void SanitizeProjectCode_ProducesCodeMatchingProjectCodeRule(string name, string expectedCode)
+    {
+        var code = SanitizeProjectCode(name);
+        code.Should().Be(expectedCode);
+        ProjectCode().IsMatch(code).Should().BeTrue();
+    }
+
     [Fact]
     public async Task OpeningAProjectWorks()
     {

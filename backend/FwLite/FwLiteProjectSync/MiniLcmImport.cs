@@ -27,7 +27,7 @@ public class MiniLcmImport(
         {
             using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
             var harmonyProject = await crdtProjectsService.CreateProject(new(fwDataProject.Name,
-                fwDataProject.Name,
+                CrdtProjectsService.SanitizeProjectCode(fwDataProject.Name),
                 FwProjectId: fwDataApi.ProjectId,
                 AfterCreate: async (provider, _) =>
                 {

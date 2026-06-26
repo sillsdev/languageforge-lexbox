@@ -68,7 +68,7 @@ public class SyncFixture : IAsyncLifetime
         // projectName doubles as the CRDT project code and must satisfy CrdtProjectsService.ProjectCode()
         // (lowercase letters, digits, '-'). It can arrive as a [CallerMemberName] test name (PascalCase,
         // underscores), so normalise it.
-        _projectName = SanitizeProjectCode(projectName);
+        _projectName = CrdtProjectsService.SanitizeProjectCode(projectName);
         _projectFolder = projectFolder;
         var crdtServices = new ServiceCollection()
             .AddSyncServices(projectFolder);
@@ -79,17 +79,6 @@ public class SyncFixture : IAsyncLifetime
 
     public SyncFixture() : this("sena-3-" + Guid.NewGuid().ToString().Split("-")[0], "FwLiteSyncFixture")
     {
-    }
-
-    private static string SanitizeProjectCode(string name)
-    {
-        var sb = new System.Text.StringBuilder(name.Length);
-        foreach (var c in name.ToLowerInvariant())
-            sb.Append(c is (>= 'a' and <= 'z') or (>= '0' and <= '9') or '-' ? c : '-');
-        var code = sb.ToString().TrimStart('-');
-        if (code.Length == 0)
-            throw new ArgumentException($"Project name '{name}' has no usable characters for a project code", nameof(name));
-        return code;
     }
 
     public virtual async Task InitializeAsync()
