@@ -7,9 +7,6 @@
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
 
-  // Mirrors LexBox's server-side project-code rule (LexCore Project.ProjectCodeRegex); keep in sync.
-  const projectCodePattern = /^[a-z0-9][a-z0-9-]*$/;
-
   let {refreshProjects}: {refreshProjects: () => Promise<void>} = $props();
 
   const projectsService = useProjectsService();
@@ -21,8 +18,6 @@
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'create-project-dialog'});
 
   let name = $state('');
-  let code = $state('');
-  let codeEdited = $state(false);
   let vernacularWs = $state('');
   let analysisWs = $state('');
 
@@ -30,25 +25,19 @@
     return value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+/, '');
   }
 
-  let derivedCode = $derived(codeEdited ? code : slugify(name));
+  let code = $derived(`${slugify(name)}-${slugify(vernacularWs)}`);
 
   let nameError = $derived(name.trim() ? undefined : $t`Name is required`);
-  let codeError = $derived.by(() => {
-    if (!derivedCode.trim()) return $t`Code is required`;
-    if (!projectCodePattern.test(derivedCode)) return $t`Only lowercase letters, numbers and '-' are allowed`;
-    return undefined;
-  });
   let vernacularWsError = $derived(vernacularWs.trim() ? undefined : $t`Vernacular writing system is required`);
-  let valid = $derived(!nameError && !codeError && !vernacularWsError);
+  let valid = $derived(!nameError && !vernacularWsError);
   // Surfaced only after a submit attempt, then they clear live as each field is fixed.
-  let fieldErrors = $derived(submitted ? [nameError, codeError, vernacularWsError].filter(e => e !== undefined) : []);
+  let fieldErrors = $derived(submitted ? [nameError, vernacularWsError].filter(e => e !== undefined) : []);
 
   export function openDialog() {
     error = undefined;
     submitted = false;
     name = '';
     code = '';
-    codeEdited = false;
     vernacularWs = '';
     analysisWs = '';
     loading = false;
@@ -63,7 +52,7 @@
     loading = true;
     error = undefined;
     try {
-      await projectsService.createProject(name.trim(), derivedCode.trim(), vernacularWs.trim(), analysisWs.trim() || undefined);
+      await projectsService.createProject(name.trim(), code.trim(), vernacularWs.trim(), analysisWs.trim() || undefined);
       await refreshProjects();
       open = false;
     } catch (e) {
@@ -98,15 +87,15 @@
       </Label>
       <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
         {$t`Code`}
-        <Input bind:value={code} oninput={() => codeEdited = true} placeholder={derivedCode} />
+        <Input readonly value={code} />
       </Label>
       <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
         {$t`Vernacular writing system`}
-        <Input bind:value={vernacularWs} placeholder={$t`e.g. en, fr`} />
+        <Input bind:value={vernacularWs} placeholder={$t`e.g. th, de`} />
       </Label>
       <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
         {$t`Analysis writing system`}
-        <Input bind:value={analysisWs} placeholder={$t`e.g. en, fr`} />
+        <Input bind:value={analysisWs} placeholder={$t`en`} />
       </Label>
       <div class="col-span-2 text-end space-y-2">
         {#each fieldErrors as fieldError (fieldError)}

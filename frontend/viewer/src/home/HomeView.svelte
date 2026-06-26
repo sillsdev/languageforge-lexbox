@@ -210,11 +210,8 @@
               </Anchor>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName)}
-              <ListItem class="mb-2" onclick={() => createDemoProject()} loading={createDemoProjectLoading}>
+              <ListItem icon="i-mdi-book-plus-outline" class="mb-2" onclick={() => createDemoProject()} loading={createDemoProjectLoading}>
                 <span>{$t`Create Example Project`}</span>
-                {#snippet actions()}
-                  <Icon icon="i-mdi-book-plus-outline" class="p-2"/>
-                {/snippet}
               </ListItem>
             {/if}
             <DevContent>
