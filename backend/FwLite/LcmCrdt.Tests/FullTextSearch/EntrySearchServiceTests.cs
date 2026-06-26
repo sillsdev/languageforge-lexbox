@@ -209,6 +209,50 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task RegeneratesSearchRecords_WhenMorphTypePostfixIsAdded()
+    {
+        var id = Guid.NewGuid();
+        await fixture.Api.CreateEntry(new Entry()
+        {
+            Id = id,
+            LexemeForm = { ["en"] = "in" },
+            MorphType = MorphTypeKind.Suffix
+        });
+        (await Headword(id)).Should().Be("-in");
+
+        var suffix = await fixture.Api.GetMorphType(MorphTypeKind.Suffix);
+        suffix.Should().NotBeNull();
+        var updated = suffix!.Copy();
+        updated.Postfix = "~";
+        await fixture.Api.UpdateMorphType(suffix, updated);
+
+        // Adding a new token must regenerate the search record's headword.
+        (await Headword(id)).Should().Be("-in~");
+    }
+
+    [Fact]
+    public async Task RegeneratesSearchRecords_WhenMorphTypePostfixIsRemoved()
+    {
+        var id = Guid.NewGuid();
+        await fixture.Api.CreateEntry(new Entry()
+        {
+            Id = id,
+            LexemeForm = { ["en"] = "in" },
+            MorphType = MorphTypeKind.Infix
+        });
+        (await Headword(id)).Should().Be("-in-");
+
+        var infix = await fixture.Api.GetMorphType(MorphTypeKind.Infix);
+        infix.Should().NotBeNull();
+        var updated = infix!.Copy();
+        updated.Postfix = "";
+        await fixture.Api.UpdateMorphType(infix, updated);
+
+        // Deleting a token must regenerate the search record's headword.
+        (await Headword(id)).Should().Be("-in");
+    }
+
+    [Fact]
     public async Task SearchTableIsUpdatedAutomaticallyOnMorphTypeChange()
     {
         var id = Guid.NewGuid();
