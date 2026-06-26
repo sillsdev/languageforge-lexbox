@@ -20,7 +20,8 @@ public partial class CrdtProjectsService(
     ILogger<CrdtProjectsService> logger,
     IOptions<LcmCrdtConfig> config,
     IMemoryCache memoryCache,
-    ProjectDataCache projectDataCache
+    ProjectDataCache projectDataCache,
+    ProjectImporter projectImporter
 ) : IProjectProvider
 {
     private static readonly Lock EnsureProjectDataCacheIsLoadedLock = new();
@@ -162,7 +163,7 @@ public partial class CrdtProjectsService(
                 // Add the requested writing systems to the snapshot so they're created with everything else
                 // in dependency order, rather than tacked on after the import.
                 snapshot = snapshot with { WritingSystems = WithRequestedWritingSystems(snapshot.WritingSystems, vernacularWs, analysisWs) };
-                await ProjectImporter.ImportData(api, snapshot);
+                await projectImporter.ImportData(api, snapshot);
                 if (callerAfterCreate is not null) await callerAfterCreate(provider, project);
             }
         });

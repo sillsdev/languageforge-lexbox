@@ -133,7 +133,8 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     public async Task DryRunSync_MakesTheSameChangesAsSync()
     {
         //syncing requires querying entries, which fails if there are no writing systems, so we import those first
-        await ProjectImporter.ImportWritingSystems(_crdtApi, await _fwDataApi.GetWritingSystems());
+        await _project.Services.GetRequiredService<ProjectImporter>()
+            .ImportWritingSystems(_crdtApi, await _fwDataApi.GetWritingSystems());
         var projectSnapshot = await CreateAndSaveMinimalSnapshot(true);
         var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
         var syncResult = await _syncService.Sync(_crdtApi, _fwDataApi, projectSnapshot);

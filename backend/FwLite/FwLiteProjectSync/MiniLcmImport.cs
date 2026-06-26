@@ -15,7 +15,8 @@ namespace FwLiteProjectSync;
 public class MiniLcmImport(
     ILogger<MiniLcmImport> logger,
     FwDataFactory fwDataFactory,
-    CrdtProjectsService crdtProjectsService
+    CrdtProjectsService crdtProjectsService,
+    ProjectImporter projectImporter
     ) : IProjectImport
 {
     public async Task<IProjectIdentifier> Import(IProjectIdentifier project)
@@ -53,7 +54,7 @@ public class MiniLcmImport(
         // ResumableImportApi dedupes creates by object Id so a crashed import can be re-run; it wraps the
         // destination, so every write ProjectImporter makes goes through it.
         var resumableImportTo = new ResumableImportApi(importTo);
-        await ProjectImporter.ImportData(resumableImportTo, await importFrom.TakeProjectSnapshot());
+        await projectImporter.ImportProject(resumableImportTo, await importFrom.TakeProjectSnapshot());
 
         activity?.SetTag("app.import.entries", entryCount);
         logger.LogInformation("Imported {Count} entries", entryCount);
