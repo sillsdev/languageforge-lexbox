@@ -37,6 +37,18 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
     private async Task UpdateSearchTableOnSave(DbContext? maybeDbContext)
     {
         if (maybeDbContext is not LcmCrdtDbContext dbContext) return;
+        // Morph types with changes to prefix or postfix tokens will require updated entry search records
+        // (Note that morph types can't be added or deleted, so we only need to catch changes, which will be rare)
+        var changedMorphTypes = dbContext.ChangeTracker.Entries<MorphType>()
+            .Where(e => e.State == EntityState.Modified && (e.Property(m => m.Prefix).IsModified || e.Property(m => m.Postfix).IsModified))
+            .Select(e => e.Entity).ToList();
+        if (changedMorphTypes is not [])
+        {
+            // The actual table regeneration will happen in the SavedChangesAsync handler; here we just flag that it will be needed
+            EntryTableNeedsRegeneration = true;
+            // Any change to morph-type tokens will invalidate the whole entry search table, so no need to check for individual entries
+            return;
+        }
         List<Entry> toUpdate = [];
         List<Guid> toRemove = [];
         var newWritingSystems = dbContext.ChangeTracker.Entries<WritingSystem>()
@@ -59,22 +71,8 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
             if (updatedEntry is not null) toUpdate.Add(updatedEntry);
             if (removed is not null) toRemove.Add(removed.Value);
         }
-
-        // Morph types with changes to prefix or postfix tokens will also require updated entry search records
-        // (Note that morph types can't be added or deleted, so we only need to catch changes, which will be rare)
-        var changedMorphTypes = dbContext.ChangeTracker.Entries<MorphType>()
-            .Where(e => e.State == EntityState.Modified && (e.Property(m => m.Prefix).IsModified || e.Property(m => m.Postfix).IsModified))
-            .Select(e => e.Entity).ToList();
-        if (toUpdate is [] && toRemove is [] && changedMorphTypes is []) return;
-        if (changedMorphTypes is [])
-        {
-            await EntrySearchService.UpdateEntrySearchTable(toUpdate, toRemove, newWritingSystems, dbContext);
-        }
-        else
-        {
-            // Skip updating the entry search table for individual records, because we're going to regenerate the whole thing later
-            EntryTableNeedsRegeneration = true;
-        }
+        if (toUpdate is [] && toRemove is []) return;
+        await EntrySearchService.UpdateEntrySearchTable(toUpdate, toRemove, newWritingSystems, dbContext);
     }
 
     private async Task RegenerateSearchTableAfterSave(DbContext? maybeDbContext)
