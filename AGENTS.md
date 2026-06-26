@@ -91,3 +91,20 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ **Assert that E2E test user actions** e.g. (scroll, click, etc.) actually have the expected effect before proceeding further.
 
 If you are struggling, explain the difficulty to the user instead of cheating. **Integrity is non-negotiable.**
+
+## Cursor Cloud specific instructions
+
+System deps (.NET 10 SDK, Taskfile/`task`) are baked into the VM snapshot; the startup update script only refreshes pnpm + FwLiteWeb NuGet deps. The generated TS types under `frontend/viewer/src/lib/dotnet-types/generated-types/` are committed, so the viewer runs without a backend build.
+
+### Running FW Lite Web (headless)
+
+`task fw-lite-web` is the documented dev workflow but it also launches the https-proxy + Storybook (only needed for MSAL OAuth / component dev). For headless cloud testing, run just the two core processes (each in its own background/tmux session):
+
+- Viewer (Vite dev server, port 5173): `pnpm -C frontend/viewer run dev`
+- Backend host (port 5137): `cd backend/FwLite/FwLiteWeb && dotnet run`
+
+The app is at `http://localhost:5137` (Blazor host that serves the viewer via Vite dev assets). On the home page, click **Create Example Project** → open it to test entry editing fully offline — no remote login required.
+
+### Gotcha: embedded webview
+
+`FwLiteWeb/appsettings.Development.json` sets `OpenBrowser: true`, which spawns an embedded Photino/Chromium window on startup. In headless this floods logs with harmless `dbus`/`gpu` errors and is unusable. When testing through an external browser, start the backend with `FwLiteWeb__OpenBrowser=false dotnet run` to suppress it (runtime override, no file change).
