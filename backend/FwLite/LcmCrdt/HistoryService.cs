@@ -5,11 +5,36 @@ using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using MiniLcm.Exceptions;
 using LinqToDB.Async;
 
 namespace LcmCrdt;
+
+public record ActivityAuthor(string? AuthorId, string? AuthorName, int CommitCount);
+
+public record ActivityChangeType(string Key, string Label, int CommitCount);
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum ActivitySort
+{
+    NewestFirst = 0,
+    OldestFirst = 1,
+    SyncedNewestFirst = 2,
+    SyncedOldestFirst = 3,
+}
+
+public record ActivityQuery(
+    string[]? AuthorFilterKeys = null,
+    string[]? ChangeTypeKeys = null,
+    ActivitySort Sort = ActivitySort.NewestFirst);
+
+public static class ActivityFilterKeys
+{
+    public const string UnknownAuthor = "__unknown__";
+    public const string AuthorNamePrefix = "name:";
+}
 
 public record ProjectActivity(
     Guid CommitId,
@@ -18,6 +43,7 @@ public record ProjectActivity(
     CommitMetadata Metadata)
 {
     public string ChangeName => HistoryService.ChangesNameHelper(Changes);
+    public string[] ChangeTypes { get; } = Changes.Select(c => HistoryService.GetChangeTypeKey(c.Change)).Distinct().ToArray();
 }
 
 public record ChangeContext(
@@ -67,24 +93,155 @@ public record HistoryLineItem(
 
 public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory, IMiniLcmApi miniLcmApi)
 {
-    public async IAsyncEnumerable<ProjectActivity> ProjectActivity(int skip = 0, int take = 100)
+
+    public async Task<ActivityAuthor[]> ListActivityAuthors()
     {
         await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
-        var changeEntities = dbContext.Set<ChangeEntity<IChange>>();
-        var query =
-            from commit in dbContext.Commits.DefaultOrderDescending()
-            join changeEntity in changeEntities
-                on commit.Id equals changeEntity.CommitId into changes
-            join snapshot in dbContext.Snapshots
-                on commit.Id equals snapshot.CommitId into snapshots
+        var authors = await dbContext.Commits
+            .GroupBy(c => new
+            {
+                AuthorId = Json.Value(c.Metadata, m => m.AuthorId),
+                AuthorName = Json.Value(c.Metadata, m => m.AuthorName),
+            })
+            .Select(g => new ActivityAuthor(g.Key.AuthorId, g.Key.AuthorName, g.Count()))
+            .ToListAsyncLinqToDB();
+        return authors.OrderBy(a => a.AuthorName ?? "").ThenBy(a => a.AuthorId ?? "").ToArray();
+    }
+
+    public async Task<ActivityChangeType[]> ListActivityChangeTypes()
+    {
+        await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
+        var changeCounts = await dbContext.Set<ChangeEntity<IChange>>()
+            .GroupBy(c => new
+            {
+                ChangeTypeKey = Sql.Expr<string>("json_extract({0}, '$.\"$type\"')", c.Change)
+            })
+            .Select(g => new KeyValuePair<string, int>(g.Key.ChangeTypeKey, g.Count()))
+            .ToDictionaryAsyncLinqToDB(p => p.Key, p => p.Value);
+
+        var registeredTypes = LcmCrdtKernel.AllChangeTypes()
+            .Select(t => new ActivityChangeType(
+                GetChangeTypeKeyFromType(t),
+                ChangeTypeLabel(t),
+                changeCounts.GetValueOrDefault(GetChangeTypeKeyFromType(t))))
+            .Where(t => t.CommitCount > 0)
+            .OrderBy(t => t.Label)
+            .ToArray();
+
+        return registeredTypes;
+    }
+
+    public async IAsyncEnumerable<ProjectActivity> ProjectActivity(int skip = 0, int take = 100, ActivityQuery? query = null)
+    {
+        query ??= new ActivityQuery();
+        await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
+        var commits = ApplyActivityFilters(dbContext.Commits, query);
+        commits = ApplyActivitySort(commits, query.Sort);
+        var queryable =
+            from commit in commits.Skip(skip).Take(take)
             select new ProjectActivity(commit.Id,
                 NormalizeTimestamp(commit.HybridDateTime.DateTime),
-                changes.ToList(),
+                commit.ChangeEntities.ToList(),
                 commit.Metadata);
-        await foreach (var projectActivity in query.Skip(skip).Take(take).ToLinqToDB().AsAsyncEnumerable())
+        await foreach (var projectActivity in queryable.ToLinqToDB().AsAsyncEnumerable())
         {
             yield return projectActivity;
         }
+    }
+
+    private static IQueryable<Commit> ApplyActivityFilters(IQueryable<Commit> commits, ActivityQuery query)
+    {
+        if (query.AuthorFilterKeys is { Length: 0 })
+        {
+            return commits.ToLinqToDB().Where(_ => false);
+        }
+
+        if (query.AuthorFilterKeys is { Length: > 0 })
+        {
+            var authorIds = new List<string>();
+            var authorNames = new List<string>();
+            var includeUnknown = false;
+            foreach (var key in query.AuthorFilterKeys)
+            {
+                if (key == ActivityFilterKeys.UnknownAuthor)
+                    includeUnknown = true;
+                else if (key.StartsWith(ActivityFilterKeys.AuthorNamePrefix, StringComparison.Ordinal))
+                    authorNames.Add(key[ActivityFilterKeys.AuthorNamePrefix.Length..]);
+                else
+                    authorIds.Add(key);
+            }
+
+            commits = commits.ToLinqToDB().Where(c =>
+                (includeUnknown
+                 && (Json.Value(c.Metadata, m => m.AuthorId) ?? "") == ""
+                 && (Json.Value(c.Metadata, m => m.AuthorName) ?? "") == "")
+                || authorIds.Contains(Json.Value(c.Metadata, m => m.AuthorId) ?? "")
+                || authorNames.Contains(Json.Value(c.Metadata, m => m.AuthorName) ?? ""));
+        }
+
+        if (query.ChangeTypeKeys is { Length: 0 })
+        {
+            return commits.ToLinqToDB().Where(_ => false);
+        }
+
+        if (query.ChangeTypeKeys is { Length: > 0 })
+        {
+            var changeTypeKeys = query.ChangeTypeKeys;
+            commits = commits.ToLinqToDB().Where(c => c.ChangeEntities
+                .Any(ce => changeTypeKeys.Contains(Sql.Expr<string>("json_extract({0}, '$.\"$type\"')", ce.Change)))
+            );
+        }
+
+        return commits;
+    }
+
+    private static IQueryable<Commit> ApplyActivitySort(IQueryable<Commit> commits, ActivitySort sort)
+    {
+        return sort switch
+        {
+            ActivitySort.OldestFirst => commits.DefaultOrder(),
+            ActivitySort.SyncedNewestFirst => commits.ToLinqToDB()
+                .OrderByDescending(c => Sql.Expr<int>(
+                    "CASE WHEN json_extract({0}, '$.ExtraMetadata.SyncDate') IS NULL THEN 1 ELSE 0 END", c.Metadata))
+                .ThenByDescending(c => Sql.Expr<string>(
+                    "json_extract({0}, '$.ExtraMetadata.SyncDate')", c.Metadata))
+                .ThenByDescending(c => c.HybridDateTime.DateTime)
+                .ThenByDescending(c => c.HybridDateTime.Counter)
+                .ThenByDescending(c => c.Id),
+            ActivitySort.SyncedOldestFirst => commits.ToLinqToDB()
+                .OrderBy(c => Sql.Expr<int>(
+                    "CASE WHEN json_extract({0}, '$.ExtraMetadata.SyncDate') IS NULL THEN 1 ELSE 0 END", c.Metadata))
+                .ThenBy(c => Sql.Expr<string>(
+                    "json_extract({0}, '$.ExtraMetadata.SyncDate')", c.Metadata))
+                .ThenBy(c => c.HybridDateTime.DateTime)
+                .ThenBy(c => c.HybridDateTime.Counter)
+                .ThenBy(c => c.Id),
+            _ => commits.DefaultOrderDescending(),
+        };
+    }
+
+    private static string GetChangeTypeKeyFromType(Type changeType)
+    {
+        var typeNameProp = changeType.GetProperty("TypeName",
+            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy);
+        if (typeNameProp?.GetValue(null) is string name)
+            return name;
+        return changeType.Name;
+    }
+
+    internal static string GetChangeTypeKey(IChange change) =>
+        GetChangeTypeKeyFromType(change.GetType());
+
+    public static string ChangeTypeLabel(Type changeType)
+    {
+        if (changeType.IsGenericType && changeType.Name.Contains("JsonPatch", StringComparison.Ordinal))
+            return $"Edit{changeType.GetGenericArguments()[0].Name}".Humanize();
+        if (changeType.IsGenericType && changeType.GetGenericTypeDefinition() == typeof(DeleteChange<>))
+            return $"Delete{changeType.GetGenericArguments()[0].Name}".Humanize();
+        if (changeType.IsGenericType && changeType.Name.StartsWith("SetOrderChange", StringComparison.Ordinal))
+            return $"Reorder{changeType.GetGenericArguments()[0].Name}".Humanize();
+        var changeName = changeType.Name.Humanize();
+        return Regex.Replace(changeName, " Change$", "", RegexOptions.IgnoreCase);
     }
 
     public async Task<ObjectSnapshot?> GetSnapshot(Guid snapshotId)
