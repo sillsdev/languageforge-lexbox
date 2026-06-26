@@ -96,7 +96,7 @@ csharp_style_deconstructed_variable_declaration = true:suggestion
 csharp_prefer_simple_default_expression = true:suggestion
 csharp_style_prefer_local_over_anonymous_function = true:suggestion
 csharp_style_inlined_variable_declaration = true:suggestion
-# Remove unnecessary using directives 
+# Remove unnecessary using directives
 dotnet_diagnostic.IDE0005.severity = warning
 ###############################
 # C# Formatting Rules         #
@@ -133,6 +133,11 @@ csharp_preserve_single_line_blocks = true
 dotnet_diagnostic.VSTHRD200.severity = none
 # "Expression value is never used"
 dotnet_diagnostic.IDE0058.severity = suggestion
+
+# IDE0061: Use block body for local function
+dotnet_diagnostic.IDE0061.severity = silent
+# IDE0022: Use block body for method
+dotnet_diagnostic.IDE0022.severity = silent
 
 [{*Kernel}.cs]
 dotnet_diagnostic.IDE0058.severity = none

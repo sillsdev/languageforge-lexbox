@@ -65,9 +65,14 @@ export function wrapInProxy<K extends ServiceKey>(dotnetObject: DotNet.DotNetObj
       return async function proxyHandler(...args: unknown[]) {
         console.debug(`[Dotnet Proxy] Calling ${serviceName} method ${dotnetMethodName}`, args);
         args = transformArgs(args);
-        const result = await target.invokeMethodAsync(dotnetMethodName, ...args);
-        console.debug(`[Dotnet Proxy] ${serviceName} method ${dotnetMethodName} returned`, result);
-        return result;
+        try {
+          const result = await target.invokeMethodAsync(dotnetMethodName, ...args);
+          console.debug(`[Dotnet Proxy] ${serviceName} method ${dotnetMethodName} returned`, result);
+          return result;
+        } catch (error) {
+          console.error(`[Dotnet Proxy] ${serviceName} method ${dotnetMethodName} failed`, error);
+          throw error;
+        }
       };
     },
   }) as unknown as LexboxServiceRegistry[K];

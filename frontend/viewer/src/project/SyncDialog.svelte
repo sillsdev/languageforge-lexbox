@@ -120,8 +120,12 @@
 
   async function syncLexboxToLocal() {
     const result = await service.triggerCrdtSync();
-    if (!result) {
-      AppNotification.display($t`Failed to synchronize`, 'error');
+    if (!result.isSynced) {
+      // Couldn't sync (offline, server unreachable, or not logged in): the backend has already published the
+      // real sync status, which re-renders this dialog, so give gentle feedback instead of optimistically
+      // zeroing the counts.
+      AppNotification.display($t`Couldn't sync right now — your local changes are safe.`, {type: 'warning', timeout: 'short'});
+      await refreshStatus();
       return;
     }
     // Optimistically update status, then query it

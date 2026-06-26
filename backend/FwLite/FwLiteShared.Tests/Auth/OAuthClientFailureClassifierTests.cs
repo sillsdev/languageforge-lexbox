@@ -44,4 +44,36 @@ public class OAuthClientFailureClassifierTests
 
         outcome.Should().Be(OAuthClient.SilentAuthFailureOutcome.KeepCachedCredentials);
     }
+
+    [Fact]
+    public void OidcFetchFailure_IsOffline()
+    {
+        //the real-world offline error: MSAL fails to fetch the OIDC config, wrapping the connection failure
+        var e = new MsalServiceException("oidc_failure", "Failed to retrieve OIDC configuration",
+            new HttpRequestException("Connection failure"));
+
+        var result = OAuthClient.ClassifyInteractiveLoginFailure(e);
+
+        result.Should().Be(LoginResult.Offline);
+    }
+
+    [Fact]
+    public void UserCancel_IsCancelled()
+    {
+        //a cancel is a cancel regardless of connectivity; offline-with-warm-cache also lands here
+        var e = new MsalClientException(MsalError.AuthenticationCanceledError, "User canceled authentication");
+
+        var result = OAuthClient.ClassifyInteractiveLoginFailure(e);
+
+        result.Should().Be(LoginResult.Cancelled);
+    }
+
+    [Fact]
+    public void UnexpectedFailure_IsNotClassified_SoCallerRethrows()
+    {
+        var result = OAuthClient.ClassifyInteractiveLoginFailure(
+            new InvalidOperationException("something unexpected"));
+
+        result.Should().BeNull();
+    }
 }

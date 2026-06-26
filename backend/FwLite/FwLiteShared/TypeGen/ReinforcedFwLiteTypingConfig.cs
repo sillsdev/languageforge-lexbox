@@ -148,6 +148,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<ProjectRole>().UseString();
         builder.ExportAsEnum<MorphTypeKind>().UseString();
         builder.ExportAsEnum<SyncStatus>().UseString();
+        builder.ExportAsEnum<LoginResult>().UseString();
         builder.ExportAsEnum<DownloadProjectByCodeResult>().UseString();
         builder.ExportAsEnum<SyncJobStatusEnum>().UseString();
         builder.ExportAsEnum<ViewBase>().UseString();
@@ -174,6 +175,9 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
+            typeof(ActivityAuthor),
+            typeof(ActivityChangeType),
+            typeof(ActivityQuery),
             typeof(ChangeContext),
             typeof(ChangeEntity<IChange>),
             typeof(IChange),
@@ -184,6 +188,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(AvailableUpdate),
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
+        builder.ExportAsEnum<ActivitySort>().UseString();
         builder.ExportAsEnum<FwEventType>().UseString();
         builder.ExportAsEnum<LogLevel>().UseString(false);
         var eventJsAttrs = typeof(IFwEvent).GetCustomAttributes<JsonDerivedTypeAttribute>();

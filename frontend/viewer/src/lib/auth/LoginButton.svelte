@@ -16,8 +16,11 @@
 <script lang="ts">
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import type {ILexboxServer} from '$lib/dotnet-types';
+  import {LoginResult} from '$lib/dotnet-types';
   import {useAuthService} from '$lib/services/service-provider';
   import {Button} from '$lib/components/ui/button';
+  import {AppNotification} from '$lib/notifications/notifications';
+  import {openUrl} from '$lib/services/url-opener';
 
   const authService = useAuthService();
   const shouldUseSystemWebView = useSystemWebView(authService);
@@ -40,8 +43,25 @@
   async function login(server: ILexboxServer) {
     loading = true;
     try {
-      await authService.signInWebView(server);
-      statusChange('logged-in');
+      const result = await authService.signInWebView(server);
+
+      if (result === LoginResult.Success) {
+        statusChange('logged-in');
+      } else if (result === LoginResult.Offline) {
+        AppNotification.displayAction(
+          $t`You appear to be offline. Can you connect to ${server.displayName}?`,
+          {
+            label: $t`Open in browser`,
+            callback: () => {
+              void openUrl(server.authority);
+              return {dismiss: true};
+            },
+          },
+          {type: 'warning'},
+        );
+      } else {
+        AppNotification.display($t`Login cancelled.`, {type: 'warning', timeout: 'short'});
+      }
     } finally {
       loading = false;
     }
@@ -56,6 +76,7 @@
       loading = false;
     }
   }
+
 </script>
 
 {#if status.loggedIn}

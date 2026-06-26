@@ -1,11 +1,26 @@
+using System.Text.Json.Serialization;
 using FwLiteShared.Projects;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 
 namespace FwLiteShared.Auth;
 
 public record ServerStatus(string DisplayName, bool LoggedIn, string? LoggedInAs, LexboxServer Server);
-public class AuthService(LexboxProjectService lexboxProjectService, OAuthClientFactory clientFactory, IOptions<AuthConfig> options)
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum LoginResult
+{
+    Success,
+    Offline,
+    Cancelled,
+}
+
+public class AuthService(
+    LexboxProjectService lexboxProjectService,
+    OAuthClientFactory clientFactory,
+    ILogger<AuthService> logger,
+    IOptions<AuthConfig> options)
 {
     [JSInvokable]
     public async Task<ServerStatus[]> Servers()
@@ -21,11 +36,22 @@ public class AuthService(LexboxProjectService lexboxProjectService, OAuthClientF
     }
 
     [JSInvokable]
-    public async Task SignInWebView(LexboxServer server)
+    public async Task<LoginResult> SignInWebView(LexboxServer server)
     {
-        var result = await clientFactory.GetClient(server).SignIn(string.Empty);//does nothing here
-        if (!result.HandledBySystemWebView) throw new InvalidOperationException("Sign in not handled by system web view");
-        options.Value.AfterLoginWebView?.Invoke();
+        try
+        {
+            var result = await clientFactory.GetClient(server).SignIn(string.Empty);//does nothing here
+            if (!result.HandledBySystemWebView) throw new InvalidOperationException("Sign in not handled by system web view");
+            options.Value.AfterLoginWebView?.Invoke();
+            return LoginResult.Success;
+        }
+        catch (Exception e)
+        {
+            var classified = OAuthClient.ClassifyInteractiveLoginFailure(e);
+            if (classified is null) throw;
+            logger.LogInformation(e, "Web view sign in did not complete: {LoginResult}", classified);
+            return classified.Value;
+        }
     }
 
     [JSInvokable]

@@ -60,8 +60,7 @@ public class ProjectServicesProvider(
                 var server = lexboxProjectService.GetServer(project.Data);
                 var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
                 var projectData = await currentProjectService.SetupProjectContext(project);
-                await scopedServices.GetRequiredService<SyncService>().SafeExecuteSync(true);
-                await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
+                scopedServices.GetRequiredService<BackgroundSyncService>().TriggerSync(project);
                 var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project);
                 scope = ProjectScope.Create(serviceScope, this, projectData.Name, miniLcm);
                 scope.ProjectData = projectData;
