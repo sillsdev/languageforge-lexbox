@@ -44,16 +44,18 @@ public partial class MiniLcmApiNotifyWrapper(
         }
     }
 
-    public void NotifyEntryChanged(Entry entry) => NotifyEntryChanged(entry.Id);
+    public void NotifyEntryChanged(Entry entry) => NotifyEntriesChanged(entry.Id);
 
-    public void NotifyEntryChanged(Guid entryId)
+    public void NotifyEntryChanged(Guid entryId) => NotifyEntriesChanged(entryId);
+
+    public void NotifyEntriesChanged(params Guid[] entryIds)
     {
         if (_pendingChanges is not null)
         {
-            _pendingChanges.ChangedEntryIds.Add(entryId);
+            _pendingChanges.ChangedEntryIds.UnionWith(entryIds);
             return;
         }
-        PublishChanges([entryId], []);
+        PublishChanges(entryIds, []);
     }
 
     public void NotifyEntryDeleted(Guid entryId)
@@ -129,16 +131,14 @@ public partial class MiniLcmApiNotifyWrapper(
     async Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
     {
         var result = await _api.CreateComplexFormComponent(complexFormComponent, position);
-        NotifyEntryChanged(result.ComplexFormEntryId);
-        NotifyEntryChanged(result.ComponentEntryId);
+        NotifyEntriesChanged(result.ComplexFormEntryId, result.ComponentEntryId);
         return result;
     }
 
     async Task IMiniLcmWriteApi.DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
         await _api.DeleteComplexFormComponent(complexFormComponent);
-        NotifyEntryChanged(complexFormComponent.ComplexFormEntryId);
-        NotifyEntryChanged(complexFormComponent.ComponentEntryId);
+        NotifyEntriesChanged(complexFormComponent.ComplexFormEntryId, complexFormComponent.ComponentEntryId);
     }
 
     async Task IMiniLcmWriteApi.DeleteEntry(Guid id)
