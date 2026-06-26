@@ -4,7 +4,7 @@ using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
-using LcmCrdt.Tests;
+using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MiniLcm;
@@ -81,25 +81,46 @@ public class ProjectTemplateTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task VerifyCreateFromTemplate()
+    public async Task CreateFromTemplateMatchesTemplateFilePlusRequestedVernacular()
     {
+        const string vernacularWs = "fr";
         var crdtProjectsService = Services.GetRequiredService<CrdtProjectsService>();
         var crdtProject = await crdtProjectsService.CreateProjectFromTemplate(new(
             Name: "template-test-project",
             Code: "template-test",
             Role: UserProjectRole.Manager),
-            vernacularWs: "fr");
+            vernacularWs: vernacularWs);
 
         var api = await Services.OpenCrdtProject(crdtProject);
-        var snapshot = await api.TakeProjectSnapshot();
+        var actual = await api.TakeProjectSnapshot();
 
-        await Verify(JsonSerializer.Serialize(snapshot, new JsonSerializerOptions { WriteIndented = true }))
-            .ScrubInlineGuids();
+        // Expected = the committed template file plus the one writing system creation adds at runtime
+        var template = DeserializeTemplate();
+        var fr = ProjectTemplate.DefaultWritingSystem(vernacularWs, WritingSystemType.Vernacular);
+        var actualFr = actual.WritingSystems.Vernacular.Single(ws => ws.WsId == fr.WsId);
+        // Id is a fresh Guid.NewGuid() and Order is assigned by OrderPicker at creation, so neither is
+        // knowable up front; everything else (including every preserved template entity Id) must match.
+        fr.Id = actualFr.Id;
+        fr.Order = actualFr.Order;
+        var expected = template with
+        {
+            WritingSystems = template.WritingSystems with { Vernacular = [.. template.WritingSystems.Vernacular, fr] }
+        };
+
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    private static ProjectSnapshot DeserializeTemplate()
+    {
+        using var stream = File.OpenRead(TemplatePath);
+        // Read with default options to round-trip the [MiniLcmInternal] members (writing-system Id/Order)
+        // that GenerateTemplate writes; the CRDT config's options suppress them.
+        return JsonSerializer.Deserialize<ProjectSnapshot>(stream, new JsonSerializerOptions())
+            ?? throw new InvalidOperationException("Template snapshot deserialized to null.");
     }
 
     private FwDataProject CreateFwDataProject()
     {
-        // Fixed name — it surfaces as a literal in ProjectData.{Name,Code} in the verified output.
         const string name = "template-source";
         var folder = Services.GetRequiredService<IOptions<FwDataBridgeConfig>>().Value.ProjectsFolder;
         var fwDataProject = new FwDataProject(name, folder);

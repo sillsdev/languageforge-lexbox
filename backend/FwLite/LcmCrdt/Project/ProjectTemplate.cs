@@ -1,6 +1,4 @@
 using System.Text.Json;
-using MiniLcm;
-using MiniLcm.Models;
 using SIL.WritingSystems;
 
 namespace LcmCrdt.Project;
@@ -8,9 +6,10 @@ namespace LcmCrdt.Project;
 /// <summary>
 /// Loads the embedded project template — a <see cref="ProjectSnapshot"/> (JSON) of a blank
 /// FieldWorks/liblcm project: generic seed data (analysis WS, morph types, parts of speech, semantic
-/// domains, complex-form types) and no entries. <c>CrdtProjectsService.CreateProjectFromTemplate</c>
-/// imports it into a fresh CRDT project via the normal MiniLcm write path, then adds the requested
-/// vernacular WS. The template ships analysis-WS-only; the per-project vernacular WS is added at runtime.
+/// domains, complex-form types) and no entries. <see cref="CreateNewSnapshot"/> merges in the requested
+/// per-project writing systems before returning it; <c>CrdtProjectsService.CreateProjectFromTemplate</c>
+/// then imports it into a fresh CRDT project via the normal MiniLcm write path. The template ships
+/// analysis-WS-only; the vernacular WS is always added at runtime.
 /// Regenerate via <c>FwLiteProjectSync.Tests.ProjectTemplateTests.GenerateTemplate</c>.
 /// </summary>
 public static class ProjectTemplate
@@ -20,15 +19,31 @@ public static class ProjectTemplate
     // Read and parsed fresh per call rather than cached: the snapshot is large and project creation is
     // rare, so there's no point pinning it in memory. The import also hands these entities to the writer,
     // which may mutate or retain them, so a shared instance couldn't be reused across creations anyway.
-    public static ProjectSnapshot LoadSnapshot(JsonSerializerOptions jsonSerializerOptions)
+    public static ProjectSnapshot CreateNewSnapshot(
+        JsonSerializerOptions jsonSerializerOptions,
+        WritingSystemId vernacularWs,
+        WritingSystemId? analysisWs = null)
     {
         var assembly = typeof(ProjectTemplate).Assembly;
         using var stream = assembly.GetManifestResourceStream(EmbeddedResourceName)
             ?? throw new InvalidOperationException(
                 $"Project template resource '{EmbeddedResourceName}' not found. Regenerate it by " +
                 "running FwLiteProjectSync.Tests.ProjectTemplateTests.GenerateTemplate.");
-        return JsonSerializer.Deserialize<ProjectSnapshot>(stream, jsonSerializerOptions)
+        var snapshot = JsonSerializer.Deserialize<ProjectSnapshot>(stream, jsonSerializerOptions)
             ?? throw new InvalidOperationException("Project template snapshot deserialized to null.");
+        // Merge the requested writing systems into the snapshot so they're created with everything else
+        // in dependency order, rather than tacked on after the import.
+        return snapshot with { WritingSystems = WithRequestedWritingSystems(snapshot.WritingSystems, vernacularWs, analysisWs) };
+    }
+
+    private static WritingSystems WithRequestedWritingSystems(WritingSystems template, WritingSystemId vernacularWs, WritingSystemId? analysisWs)
+    {
+        WritingSystem[] vernacular = [.. template.Vernacular, DefaultWritingSystem(vernacularWs, WritingSystemType.Vernacular)];
+        var analysis = template.Analysis;
+        // The template already ships English analysis; only add the requested analysis WS if it's a different one.
+        if (analysisWs is { } aws && !analysis.Any(ws => ws.WsId == aws))
+            analysis = [.. analysis, DefaultWritingSystem(aws, WritingSystemType.Analysis)];
+        return template with { Vernacular = vernacular, Analysis = analysis };
     }
 
     /// <summary>
@@ -57,7 +72,9 @@ public static class ProjectTemplate
         if (subtag is not null
             && StandardSubtags.RegisteredLanguages.TryGet(subtag, out var lang)
             && lang.Iso3Code.Length > 0)
+        {
             return Capitalize(lang.Iso3Code);
+        }
         return Capitalize(subtag ?? wsId.Code);
     }
 

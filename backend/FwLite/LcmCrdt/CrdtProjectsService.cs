@@ -159,24 +159,11 @@ public partial class CrdtProjectsService(
             {
                 var api = provider.GetRequiredService<IMiniLcmApi>();
                 var jsonOptions = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.JsonSerializerOptions;
-                var snapshot = ProjectTemplate.LoadSnapshot(jsonOptions);
-                // Add the requested writing systems to the snapshot so they're created with everything else
-                // in dependency order, rather than tacked on after the import.
-                snapshot = snapshot with { WritingSystems = WithRequestedWritingSystems(snapshot.WritingSystems, vernacularWs, analysisWs) };
-                await projectImporter.ImportData(api, snapshot);
+                var snapshot = ProjectTemplate.CreateNewSnapshot(jsonOptions, vernacularWs, analysisWs);
+                await projectImporter.ImportProject(api, snapshot);
                 if (callerAfterCreate is not null) await callerAfterCreate(provider, project);
             }
         });
-    }
-
-    private static WritingSystems WithRequestedWritingSystems(WritingSystems template, WritingSystemId vernacularWs, WritingSystemId? analysisWs)
-    {
-        WritingSystem[] vernacular = [.. template.Vernacular, ProjectTemplate.DefaultWritingSystem(vernacularWs, WritingSystemType.Vernacular)];
-        var analysis = template.Analysis;
-        // The template already ships English analysis; only add the requested analysis WS if it's a different one.
-        if (analysisWs is { } aws && !analysis.Any(ws => ws.WsId == aws))
-            analysis = [.. analysis, ProjectTemplate.DefaultWritingSystem(aws, WritingSystemType.Analysis)];
-        return template with { Vernacular = vernacular, Analysis = analysis };
     }
 
     public virtual async Task<CrdtProject> CreateProject(CreateProjectRequest request)
