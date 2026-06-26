@@ -90,12 +90,12 @@
         <Input readonly value={code} />
       </Label>
       <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
-        {$t`Vernacular writing system`}
-        <Input bind:value={vernacularWs} placeholder={$t`e.g. th, de`} />
+        {$t`Vernacular writing system code`}
+        <Input bind:value={vernacularWs} placeholder={$t`e.g. th, sw`} />
       </Label>
       <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
-        {$t`Analysis writing system`}
-        <Input bind:value={analysisWs} placeholder={$t`en`} />
+        {$t`Analysis writing system code`}
+        <Input bind:value={analysisWs} placeholder="en" />
       </Label>
       <div class="col-span-2 text-end space-y-2">
         {#each fieldErrors as fieldError (fieldError)}

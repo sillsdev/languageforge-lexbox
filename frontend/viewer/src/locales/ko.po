@@ -227,7 +227,7 @@ msgstr "분석"
 
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
-msgid "Analysis writing system"
+msgid "Analysis writing system code"
 msgstr ""
 
 #. Relevant view: Classic
@@ -409,11 +409,6 @@ msgstr "사전 닫기"
 msgid "Code"
 msgstr ""
 
-#. Validation error shown when the project Code field (the machine-readable identifier) is empty.
-#: src/home/CreateProjectDialog.svelte
-msgid "Code is required"
-msgstr ""
-
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
@@ -481,6 +476,12 @@ msgstr "클립보드에 복사"
 msgid "Copy version"
 msgstr "복사 버전"
 
+#. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
+#. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
+#: src/project/SyncDialog.svelte
+msgid "Couldn't sync right now — your local changes are safe."
+msgstr ""
+
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
 msgid "Create"
@@ -489,12 +490,6 @@ msgstr ""
 #. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
-msgstr ""
-
-#. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
-#. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
-#: src/project/SyncDialog.svelte
-msgid "Couldn't sync right now — your local changes are safe."
 msgstr ""
 
 #. Dialog title when creating a new custom view.
@@ -707,10 +702,9 @@ msgstr "다운로드 {0}..."
 msgid "Downloading..."
 msgstr "다운로드 중..."
 
-#. Placeholder in the Vernacular writing system input. "en" and "fr" are example IETF language tags — keep them untranslated.
+#. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
-#: src/home/CreateProjectDialog.svelte
-msgid "e.g. en, fr"
+msgid "e.g. th, sw"
 msgstr ""
 
 #. Dialog title when editing an existing custom view.
@@ -1503,11 +1497,6 @@ msgstr ""
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "하나의 FieldWorks Classic 커밋은 여러 항목 또는 필드에 대한 변경 사항으로 구성될 수 있습니다. 반면에 커밋은 FieldWorks Lite에 동기화되지 않은 데이터에만 영향을 미칠 수 있습니다."
 
-#. Validation error for the project Code field when it contains characters other than lowercase letters, numbers, or '-'.
-#: src/home/CreateProjectDialog.svelte
-msgid "Only lowercase letters, numbers and '-' are allowed"
-msgstr ""
-
 #. Button to open downloaded project
 #: src/home/Server.svelte
 msgid "Open"
@@ -2215,7 +2204,7 @@ msgstr "토착어"
 
 #. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
-msgid "Vernacular writing system"
+msgid "Vernacular writing system code"
 msgstr ""
 
 #: src/home/CreateProjectDialog.svelte
