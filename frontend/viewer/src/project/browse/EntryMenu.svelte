@@ -15,6 +15,8 @@
   import {useAppLauncherService} from '$lib/services/app-launcher-service';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import OpenInFieldWorksButton from '$lib/components/OpenInFieldWorksButton.svelte';
+  import CommentDialog from '$lib/entry-editor/CommentDialog.svelte';
+  import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
 
   const multiWindowService = useMultiWindowService();
   const dialogsService = useDialogsService();
@@ -41,15 +43,25 @@
 
   const features = useFeatures();
   let showHistoryView = $state(false);
+  let showCommentDialog = $state(false);
   const appLauncher = useAppLauncherService();
 </script>
 {#if features.history}
   <HistoryView bind:open={showHistoryView} id={entry.id}/>
 {/if}
+<CommentDialog
+  bind:open={showCommentDialog}
+  subjectType={SubjectType.Entry}
+  subjectId={entry.id}
+  subjectName={headword}
+/>
 
 <ResponsiveMenu.Root {contextMenu} bind:open>
   <ResponsiveMenu.Trigger {children} />
   <ResponsiveMenu.Content>
+    <ResponsiveMenu.Item icon="i-mdi-comment-text-outline" onSelect={() => showCommentDialog = true}>
+      {$t`Comments`}
+    </ResponsiveMenu.Item>
     {#if features.write}
       <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onDelete}>
         {pt($t`Delete Entry`, $t`Delete Word`, viewService.currentView)}

@@ -317,6 +317,7 @@ msgstr ""
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -380,6 +381,19 @@ msgstr "사전 닫기"
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
 msgstr "색상"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Comment"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/project/browse/EntryMenu.svelte
+msgid "Comments"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Comments for {0}"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -653,6 +667,14 @@ msgstr "다운로드 {0}..."
 msgid "Downloading..."
 msgstr "다운로드 중..."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit comment"
+msgstr ""
+
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
@@ -662,6 +684,10 @@ msgstr "사용자 지정 보기 편집"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "편집기"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Empty comment"
+msgstr ""
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -1096,6 +1122,10 @@ msgstr "목록 모드"
 msgid "Literal meaning"
 msgstr "문자 그대로의 의미"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Loading comments..."
+msgstr ""
+
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
 msgid "Loading Dictionaries..."
@@ -1279,6 +1309,10 @@ msgstr "활동을 찾을 수 없습니다."
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "오디오 없음"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "No comment threads yet."
+msgstr ""
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1585,6 +1619,11 @@ msgstr "다시 열기"
 msgid "Replace audio"
 msgstr "오디오 교체"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Reply"
+msgstr ""
+
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
@@ -1604,6 +1643,10 @@ msgstr "검토"
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
 msgstr "rose"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Save"
+msgstr ""
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1756,6 +1799,18 @@ msgstr ""
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "특정 필드"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Start a new thread"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Start a thread, reply to existing threads, or edit comments."
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Start thread"
+msgstr ""
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -1924,6 +1979,10 @@ msgstr "이 작업이 완료되었습니다."
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "이렇게 하면 렉스박스에서 프로젝트의 FieldWorks Lite 및 FieldWorks Classic 사본이 동기화됩니다."
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Thread"
+msgstr ""
 
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
@@ -2144,6 +2203,14 @@ msgstr "단어 또는 표시 이름은 필수 입력 사항입니다."
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "단어 또는 의미:"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write a reply..."
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write the first comment..."
+msgstr ""
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte

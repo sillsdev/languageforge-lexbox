@@ -33,6 +33,7 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import ObjectHeader from './ObjectHeader.svelte';
   import AddSenseButton from './AddSenseButton.svelte';
+  import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
 
   let {
     entry = $bindable(),
@@ -180,6 +181,7 @@
             'top-0 bg-background z-1 w-[calc(100%+2px)] pr-0.5 animate-fade-out animation-scroll')}>
             <EntityListItemActions {i}
                 items={entry.senses}
+                subjectType={SubjectType.Sense}
                 getDisplayName={(sense) => writingSystemService.firstDefOrGlossVal(sense)}
                 {readonly}
                 onmove={(newIndex) => moveSense(sense, newIndex)}
@@ -196,6 +198,7 @@
                   <ObjectHeader type="example" index={j + 1}>
                     <EntityListItemActions i={j} {readonly}
                                           items={sense.exampleSentences}
+                                          subjectType={SubjectType.ExampleSentence}
                                           getDisplayName={example => writingSystemService.firstSentenceOrTranslationVal(example)}
                                           onmove={(newIndex) => moveExample(sense, example, newIndex)}
                                           ondelete={() => deleteExample(sense, example)}

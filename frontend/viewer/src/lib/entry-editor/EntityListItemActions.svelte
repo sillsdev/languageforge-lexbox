@@ -3,11 +3,14 @@
   import {useFeatures} from '$lib/services/feature-service';
   import { Reorderer } from '$lib/components/reorderer';
   import {Button} from '$lib/components/ui/button';
+  import CommentDialog from './CommentDialog.svelte';
+  import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
 
   type Props<T> = {
     items: T[];
     i: number;
     id?: string;
+    subjectType?: SubjectType;
     getDisplayName: (item: T) => string | undefined;
     readonly: boolean;
     onmove?: (newIndex: number) => void;
@@ -18,6 +21,7 @@
     items = $bindable(),
     i,
     id,
+    subjectType,
     getDisplayName,
     readonly,
     onmove,
@@ -27,18 +31,25 @@
   const features = useFeatures();
 
   let showHistoryView = $state(false);
+  let showCommentDialog = $state(false);
+  const item = $derived(items[i]);
+  const subjectName = $derived(item ? getDisplayName(item) : undefined);
 </script>
 
-{#if !readonly || features.history}
+{#if !readonly || features.history || (subjectType && id)}
 <div class="flex gap-2">
   {#if !readonly}
     <Reorderer
       direction="vertical"
-      item={items[i]}
+      {item}
       {items}
       {getDisplayName}
       onchange={(_newItems, _fromIndex, newIndex) => onmove?.(newIndex)}
     />
+  {/if}
+  {#if subjectType && id}
+    <Button onclick={() => showCommentDialog = true} size="icon" variant="secondary" icon="i-mdi-comment-text-outline" />
+    <CommentDialog bind:open={showCommentDialog} {subjectType} subjectId={id} {subjectName} />
   {/if}
   {#if features.history && id}
     <Button onclick={() => showHistoryView = true} size="icon" variant="secondary" icon="i-mdi-history" />

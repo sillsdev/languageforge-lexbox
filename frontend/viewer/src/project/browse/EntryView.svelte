@@ -24,6 +24,8 @@
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
+  import CommentDialog from '$lib/entry-editor/CommentDialog.svelte';
+  import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
 
   type DictionaryPreviewMode = 'show' | 'hide' | 'sticky';
 
@@ -102,6 +104,7 @@
 
   let readonly = $state(false);
   let deleted = $state(false);
+  let showCommentDialog = $state(false);
 
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);
@@ -127,6 +130,12 @@
 
 <div class="h-full flex flex-col relative">
   {#if entry}
+    <CommentDialog
+      bind:open={showCommentDialog}
+      subjectType={SubjectType.Entry}
+      subjectId={entry.id}
+      subjectName={headword}
+    />
     <header>
       <div class="max-md:p-2 md:mb-4 flex justify-between">
         {#if showClose && onClose}
@@ -134,6 +143,13 @@
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
         <div class="flex">
+          <Button
+            variant="ghost"
+            size="icon"
+            icon="i-mdi-comment-text-outline"
+            aria-label={$t`Comments`}
+            onclick={() => showCommentDialog = true}
+          />
           <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} bind:readonly />
           <EntryMenu {entry} />
         </div>
