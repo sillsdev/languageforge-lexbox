@@ -126,6 +126,45 @@ public interface IMiniLcmWriteApi
     }
     #endregion
 
+    #region Comments
+    Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task<UserComment> AddUserComment(Guid threadId, UserComment comment)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task<UserComment> EditUserComment(Guid commentId, string text)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task<CommentThread> SetCommentThreadStatus(Guid threadId, ThreadStatus status)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task DeleteUserComment(Guid commentId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task DeleteCommentThread(Guid threadId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task MarkCommentRead(Guid commentId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task MarkCommentThreadRead(Guid threadId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task MarkAllCommentsRead()
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    #endregion
+
 
     /// <summary>
     /// Imports the provided semantic domains in bulk.

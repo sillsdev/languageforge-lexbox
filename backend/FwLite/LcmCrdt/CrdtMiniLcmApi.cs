@@ -2,6 +2,7 @@ using System.Data;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
@@ -29,6 +30,7 @@ public class CrdtMiniLcmApi(
     IOptions<LcmCrdtConfig> config,
     ILogger<CrdtMiniLcmApi> logger,
     LcmMediaService lcmMediaService,
+    LocalCommentReadStatusService commentReadStatusService,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
@@ -915,6 +917,151 @@ public class CrdtMiniLcmApi(
         if (ProjectData.Role == UserProjectRole.Manager) return;
         throw new UnauthorizedAccessException(
             $"Only managers can manage custom views.");
+    }
+
+    public async IAsyncEnumerable<CommentThread> GetCommentThreads(SubjectType subjectType, Guid subjectId)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var threads = await repo.CommentThreads
+            .Where(t => t.SubjectType == subjectType && t.SubjectId == subjectId)
+            .ToArrayAsync();
+        foreach (var thread in threads.OrderBy(t => t.CreatedAt).ThenBy(t => t.Id))
+        {
+            yield return thread;
+        }
+    }
+
+    public async Task<CommentThread?> GetCommentThread(Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetCommentThread(id);
+    }
+
+    public async IAsyncEnumerable<UserComment> GetUserComments(Guid threadId)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var comments = await repo.UserComments
+            .Where(c => c.CommentThreadId == threadId)
+            .ToArrayAsync();
+        foreach (var comment in comments.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id))
+        {
+            yield return comment;
+        }
+    }
+
+    public async Task<UserComment?> GetUserComment(Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetUserComment(id);
+    }
+
+    public async IAsyncEnumerable<UserComment> GetUnreadComments(Guid? threadId = null)
+    {
+        foreach (var comment in await commentReadStatusService.GetUnreadComments(CurrentCommentUserId(), threadId))
+        {
+            yield return comment;
+        }
+    }
+
+    public Task<int> CountUnreadComments(Guid? threadId = null)
+    {
+        return commentReadStatusService.CountUnreadComments(CurrentCommentUserId(), threadId);
+    }
+
+    public async Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
+    {
+        if (thread.Id == Guid.Empty) thread.Id = Guid.NewGuid();
+        var now = DateTimeOffset.UtcNow;
+        thread.CreatedAt = thread.CreatedAt == default ? now : thread.CreatedAt;
+        thread.UpdatedAt = thread.UpdatedAt == default ? thread.CreatedAt : thread.UpdatedAt;
+        firstComment.CommentThreadId = thread.Id;
+        StampCommentAuthor(firstComment, now);
+
+        await AddChanges([
+            new CreateCommentThreadChange(thread),
+            new CreateUserCommentChange(firstComment)
+        ]);
+        await commentReadStatusService.MarkCommentRead(CurrentCommentUserId(), firstComment.Id);
+        return await GetCommentThread(thread.Id) ?? throw NotFoundException.ForType<CommentThread>(thread.Id);
+    }
+
+    public async Task<UserComment> AddUserComment(Guid threadId, UserComment comment)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
+        comment.CommentThreadId = threadId;
+        StampCommentAuthor(comment, DateTimeOffset.UtcNow);
+
+        await AddChange(new CreateUserCommentChange(comment));
+        await commentReadStatusService.MarkCommentRead(CurrentCommentUserId(), comment.Id);
+        return await repo.GetUserComment(comment.Id) ?? throw NotFoundException.ForType<UserComment>(comment.Id);
+    }
+
+    public async Task<UserComment> EditUserComment(Guid commentId, string text)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var comment = await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
+        AssertCurrentUserCanChangeComment(comment);
+        await AddChange(new EditUserCommentChange(commentId, text, DateTimeOffset.UtcNow));
+        return await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
+    }
+
+    public async Task<CommentThread> SetCommentThreadStatus(Guid threadId, ThreadStatus status)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
+        await AddChange(new SetCommentThreadStatusChange(threadId, status, DateTimeOffset.UtcNow));
+        return await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
+    }
+
+    public async Task DeleteUserComment(Guid commentId)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var comment = await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
+        AssertCurrentUserCanChangeComment(comment);
+        await AddChange(new DeleteChange<UserComment>(commentId));
+    }
+
+    public async Task DeleteCommentThread(Guid threadId)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
+        await AddChange(new DeleteChange<CommentThread>(threadId));
+    }
+
+    public Task MarkCommentRead(Guid commentId)
+    {
+        return commentReadStatusService.MarkCommentRead(CurrentCommentUserId(), commentId);
+    }
+
+    public Task MarkCommentThreadRead(Guid threadId)
+    {
+        return commentReadStatusService.MarkThreadRead(CurrentCommentUserId(), threadId);
+    }
+
+    public Task MarkAllCommentsRead()
+    {
+        return commentReadStatusService.MarkAllRead(CurrentCommentUserId());
+    }
+
+    private void StampCommentAuthor(UserComment comment, DateTimeOffset now)
+    {
+        if (comment.Id == Guid.Empty) comment.Id = Guid.NewGuid();
+        comment.AuthorId = CurrentCommentUserId();
+        comment.AuthorName = ProjectData.LastUserName;
+        comment.CreatedAt = comment.CreatedAt == default ? now : comment.CreatedAt;
+        comment.UpdatedAt = comment.UpdatedAt == default ? comment.CreatedAt : comment.UpdatedAt;
+    }
+
+    private string CurrentCommentUserId()
+    {
+        return ProjectData.LastUserId ?? ProjectData.ClientId.ToString();
+    }
+
+    private void AssertCurrentUserCanChangeComment(UserComment comment)
+    {
+        if (comment.AuthorId == CurrentCommentUserId()) return;
+        throw new UnauthorizedAccessException("Only the comment author can edit or delete this comment.");
     }
 
     public void Dispose()

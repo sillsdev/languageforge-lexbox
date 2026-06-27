@@ -201,6 +201,30 @@
       TypeDiscriminator: delete:CustomView
     },
     {
+      DerivedType: CreateCommentThreadChange,
+      TypeDiscriminator: CreateCommentThreadChange
+    },
+    {
+      DerivedType: CreateUserCommentChange,
+      TypeDiscriminator: CreateUserCommentChange
+    },
+    {
+      DerivedType: EditUserCommentChange,
+      TypeDiscriminator: EditUserCommentChange
+    },
+    {
+      DerivedType: SetCommentThreadStatusChange,
+      TypeDiscriminator: SetCommentThreadStatusChange
+    },
+    {
+      DerivedType: DeleteChange<CommentThread>,
+      TypeDiscriminator: delete:CommentThread
+    },
+    {
+      DerivedType: DeleteChange<UserComment>,
+      TypeDiscriminator: delete:UserComment
+    },
+    {
       DerivedType: CreateMorphTypeChange,
       TypeDiscriminator: CreateMorphTypeChange
     },

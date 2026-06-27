@@ -41,6 +41,14 @@
       TypeDiscriminator: CustomView
     },
     {
+      DerivedType: CommentThread,
+      TypeDiscriminator: CommentThread
+    },
+    {
+      DerivedType: UserComment,
+      TypeDiscriminator: UserComment
+    },
+    {
       DerivedType: MorphType,
       TypeDiscriminator: MorphType
     }

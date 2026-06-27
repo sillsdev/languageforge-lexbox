@@ -3,6 +3,7 @@ using System.Text.Json;
 using Bogus;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
@@ -299,5 +300,36 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
                 Analysis = null
             });
         yield return new ChangeWithDependencies(editCustomViewChange, [createCustomViewChange]);
+
+        var commentThread = new CommentThread
+        {
+            Id = Guid.NewGuid(),
+            SubjectId = entry.Id,
+            SubjectType = SubjectType.Entry,
+            Status = ThreadStatus.Open,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        var createCommentThreadChange = new CreateCommentThreadChange(commentThread);
+        yield return new ChangeWithDependencies(createCommentThreadChange, [createEntryChange]);
+
+        var userComment = new UserComment
+        {
+            Id = Guid.NewGuid(),
+            CommentThreadId = commentThread.Id,
+            Text = "Test comment",
+            AuthorId = "author-id",
+            AuthorName = "Author",
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        var createUserCommentChange = new CreateUserCommentChange(userComment);
+        yield return new ChangeWithDependencies(createUserCommentChange, [createCommentThreadChange]);
+
+        var editUserCommentChange = new EditUserCommentChange(userComment.Id, "Updated comment", DateTimeOffset.UtcNow);
+        yield return new ChangeWithDependencies(editUserCommentChange, [createUserCommentChange]);
+
+        var closeCommentThreadChange = new SetCommentThreadStatusChange(commentThread.Id, ThreadStatus.Closed, DateTimeOffset.UtcNow);
+        yield return new ChangeWithDependencies(closeCommentThreadChange, [createCommentThreadChange]);
     }
 }

@@ -48,6 +48,30 @@ public interface IMiniLcmReadApi
     {
         throw new NotSupportedException("Custom views are only supported by CRDT projects");
     }
+    IAsyncEnumerable<CommentThread> GetCommentThreads(SubjectType subjectType, Guid subjectId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task<CommentThread?> GetCommentThread(Guid id)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    IAsyncEnumerable<UserComment> GetUserComments(Guid threadId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task<UserComment?> GetUserComment(Guid id)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    IAsyncEnumerable<UserComment> GetUnreadComments(Guid? threadId = null)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task<int> CountUnreadComments(Guid? threadId = null)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
 }
 
 public record IndexQueryOptions(

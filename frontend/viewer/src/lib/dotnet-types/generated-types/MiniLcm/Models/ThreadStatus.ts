@@ -3,15 +3,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface IMiniLcmFeatures
-{
-	history?: boolean;
-	write?: boolean;
-	openWithFlex?: boolean;
-	feedback?: boolean;
-	sync?: boolean;
-	audio?: boolean;
-	customViews?: boolean;
-	comments?: boolean;
+export enum ThreadStatus {
+	Open = "Open",
+	Closed = "Closed"
 }
 /* eslint-enable */

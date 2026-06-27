@@ -21,14 +21,14 @@ public class MiniLcmJsInvokable(
 {
     private readonly IMiniLcmApi _wrappedApi = userFacingWrappers.Apply(api, project, notificationWrapperFactory);
 
-    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio, bool? CustomViews);
+    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio, bool? CustomViews, bool? Comments);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
     [JSInvokable]
     public MiniLcmFeatures SupportedFeatures()
     {
         var isCrdtProject = project.DataFormat == ProjectDataFormat.Harmony;
         var isFwDataProject = project.DataFormat == ProjectDataFormat.FwData;
-        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true, CustomViews: isCrdtProject);
+        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true, CustomViews: isCrdtProject, Comments: isCrdtProject);
     }
 
     private bool CanWrite =>
@@ -268,6 +268,108 @@ public class MiniLcmJsInvokable(
     {
         await _wrappedApi.DeleteCustomView(id);
         OnDataChanged();
+    }
+
+    [JSInvokable]
+    public ValueTask<CommentThread[]> GetCommentThreads(SubjectType subjectType, Guid subjectId)
+    {
+        return _wrappedApi.GetCommentThreads(subjectType, subjectId).ToArrayAsync();
+    }
+
+    [JSInvokable]
+    [TsFunction(Type = "Promise<ICommentThread | null>")]
+    public Task<CommentThread?> GetCommentThread(Guid id)
+    {
+        return _wrappedApi.GetCommentThread(id);
+    }
+
+    [JSInvokable]
+    public ValueTask<UserComment[]> GetUserComments(Guid threadId)
+    {
+        return _wrappedApi.GetUserComments(threadId).ToArrayAsync();
+    }
+
+    [JSInvokable]
+    [TsFunction(Type = "Promise<IUserComment | null>")]
+    public Task<UserComment?> GetUserComment(Guid id)
+    {
+        return _wrappedApi.GetUserComment(id);
+    }
+
+    [JSInvokable]
+    public ValueTask<UserComment[]> GetUnreadComments(Guid? threadId = null)
+    {
+        return _wrappedApi.GetUnreadComments(threadId).ToArrayAsync();
+    }
+
+    [JSInvokable]
+    public Task<int> CountUnreadComments(Guid? threadId = null)
+    {
+        return _wrappedApi.CountUnreadComments(threadId);
+    }
+
+    [JSInvokable]
+    public async Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
+    {
+        var createdThread = await _wrappedApi.CreateCommentThread(thread, firstComment);
+        OnDataChanged();
+        return createdThread;
+    }
+
+    [JSInvokable]
+    public async Task<UserComment> AddUserComment(Guid threadId, UserComment comment)
+    {
+        var createdComment = await _wrappedApi.AddUserComment(threadId, comment);
+        OnDataChanged();
+        return createdComment;
+    }
+
+    [JSInvokable]
+    public async Task<UserComment> EditUserComment(Guid commentId, string text)
+    {
+        var updatedComment = await _wrappedApi.EditUserComment(commentId, text);
+        OnDataChanged();
+        return updatedComment;
+    }
+
+    [JSInvokable]
+    public async Task<CommentThread> SetCommentThreadStatus(Guid threadId, ThreadStatus status)
+    {
+        var updatedThread = await _wrappedApi.SetCommentThreadStatus(threadId, status);
+        OnDataChanged();
+        return updatedThread;
+    }
+
+    [JSInvokable]
+    public async Task DeleteUserComment(Guid commentId)
+    {
+        await _wrappedApi.DeleteUserComment(commentId);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task DeleteCommentThread(Guid threadId)
+    {
+        await _wrappedApi.DeleteCommentThread(threadId);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public Task MarkCommentRead(Guid commentId)
+    {
+        return _wrappedApi.MarkCommentRead(commentId);
+    }
+
+    [JSInvokable]
+    public Task MarkCommentThreadRead(Guid threadId)
+    {
+        return _wrappedApi.MarkCommentThreadRead(threadId);
+    }
+
+    [JSInvokable]
+    public Task MarkAllCommentsRead()
+    {
+        return _wrappedApi.MarkAllCommentsRead();
     }
 
     [JSInvokable]

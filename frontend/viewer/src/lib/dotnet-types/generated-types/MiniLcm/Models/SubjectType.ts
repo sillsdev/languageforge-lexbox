@@ -3,15 +3,9 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface IMiniLcmFeatures
-{
-	history?: boolean;
-	write?: boolean;
-	openWithFlex?: boolean;
-	feedback?: boolean;
-	sync?: boolean;
-	audio?: boolean;
-	customViews?: boolean;
-	comments?: boolean;
+export enum SubjectType {
+	Entry = "Entry",
+	Sense = "Sense",
+	ExampleSentence = "ExampleSentence"
 }
 /* eslint-enable */
