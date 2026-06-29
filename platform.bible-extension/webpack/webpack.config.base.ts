@@ -33,6 +33,9 @@ const configBase: webpack.Configuration = {
   externals: [
     // Built-in node modules that are not blocked by Platform.Bible
     'crypto',
+    'fs',
+    'os',
+    'path',
     // Additional modules provided by Platform.Bible
     'react',
     'react/jsx-runtime',
