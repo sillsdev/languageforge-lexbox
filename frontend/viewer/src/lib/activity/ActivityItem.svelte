@@ -53,8 +53,7 @@
     return new ChangeWithLazyContext(change, activity, () => historyService.loadChangeContext(activity.commitId, change.index));
   }));
 
-  // A commit that only builds one entry (its creation + that entry's own senses/fields) reads best as the finished
-  // entry rather than a stack of per-change cards. We recognise it from cheap signals — no need to interpret the changes.
+  // A commit that only builds one entry (creation + its own senses/fields) collapses to the finished entry.
   const collapseToEntry = $derived(
     !!changes && changes.length > 1
     && activity.changeTypes.includes('CreateEntryChange')
@@ -62,8 +61,7 @@
     && activity.changeInfo.every(ci => !!ci.rootEntryId && ci.rootEntryId === activity.changeInfo[0].rootEntryId),
   );
 
-  // The backend already resolves the full entry (with senses) into affectedEntries, so we render it directly — no
-  // change-by-change assembly. Falls back to the per-change list if the commit turns out to touch more than one entry.
+  // Render the backend-resolved entry directly; fall back to the per-change list if it actually touches more than one entry.
   const collapsedEntry = $derived.by((): Promise<IEntry | undefined> => {
     const first = collapseToEntry ? changes?.[0] : undefined;
     if (!first) return Promise.resolve(undefined);
@@ -180,7 +178,7 @@
                 </Tabs.List>
                 <div class="pt-1 pb-4 px-2">
                   <Tabs.Content value="preview">
-                    <ActivityItemChangePreview {activity} {context} />
+                    <ActivityItemChangePreview {context} />
                   </Tabs.Content>
                   <Tabs.Content value="change">
                     <div class="whitespace-pre-wrap font-mono text-sm">

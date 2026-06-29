@@ -153,6 +153,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: [nameof(CreateEntryChange), nameof(CreatePublicationChange)])).ToArrayAsync();
 
+        activities.Should().HaveCountGreaterThanOrEqualTo(2); // the entry + publication commits, so the filter can't pass vacuously on an empty result
         activities.Should().OnlyContain(a => a.ChangeTypes.Any(t => t == nameof(CreateEntryChange) || t == nameof(CreatePublicationChange)));
         activities.Should().NotContain(a => a.ChangeTypes.Contains(nameof(CreatePartOfSpeechChange)));
     }

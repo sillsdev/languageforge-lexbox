@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as Editor from '$lib/components/editor';
-  import {type IChangeContext, type IComplexFormComponent, type IEntry, type IExampleSentence, type IProjectActivity, type ISense} from '$lib/dotnet-types';
+  import {type IChangeContext, type IComplexFormComponent, type IEntry, type IExampleSentence, type ISense} from '$lib/dotnet-types';
   import {t} from 'svelte-i18n-lingui';
   import {formatJsonForUi} from './utils';
   import {useMultiWindowService} from '$lib/services/multi-window-service';
@@ -18,7 +18,6 @@
   import DiffExamplePrimitive from '$lib/entry-editor/diff-view/DiffExamplePrimitive.svelte';
 
   type Props = {
-    activity: IProjectActivity,
     context: IChangeContext,
   }
 

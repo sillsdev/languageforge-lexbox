@@ -161,14 +161,15 @@ internal static class ActivityChangeInfoResolver
         return loaded.ToDictionary(o => o.Id);
     }
 
-    private static string? SenseLabel(string headword, MultiString gloss)
+    private static string SenseLabel(string headword, MultiString gloss)
     {
         var glossText = Label(gloss);
         return glossText is null ? headword : $"{headword} › {glossText}";
     }
 
+    // Order by writing-system code so a multi-writing-system name resolves to the same alternative every time, matching Entry.Headword().
     private static string? Label(MultiString multiString) =>
-        multiString.Values.Select(kvp => kvp.Value?.Trim()).FirstOrDefault(text => !string.IsNullOrEmpty(text));
+        multiString.Values.OrderBy(kvp => kvp.Key.Code).Select(kvp => kvp.Value?.Trim()).FirstOrDefault(text => !string.IsNullOrEmpty(text));
 
     // FieldWorks distinguishes same-spelled entries by a homograph number shown as a subscript; it's only assigned (> 0) when there's a collision.
     private static string HeadwordWithHomograph(Entry entry)

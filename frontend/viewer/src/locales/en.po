@@ -20,6 +20,7 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
+#. Activity list: the number of further changes in this commit not shown on the line ({0} = count).
 #: src/lib/activity/ActivityView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "(+{0} more)"
@@ -722,6 +723,7 @@ msgstr "Deleted entry"
 msgid "Deleted sense"
 msgstr "Deleted sense"
 
+#. View option in the activity list mode picker (paired with "Simple"). Shows every change in a commit as its own summary line.
 #: src/lib/activity/ActivityListViewOptions.svelte
 msgid "Detailed"
 msgstr "Detailed"
@@ -1291,7 +1293,7 @@ msgstr "Linked a component"
 msgid "Linked component"
 msgstr "Linked component"
 
-#. Section header in the entry list view options popup. Controls whether the entry list shows simple rows or a preview. Options below it: "Simple" and "Preview".
+#. Section header in a list-view options popup. In the entry list the options are "Simple" and "Preview"; in the activity list they are "Simple" and "Detailed".
 #: src/lib/activity/ActivityListViewOptions.svelte
 #: src/lib/activity/ActivityListViewOptions.svelte
 #: src/project/browse/EntryListViewOptions.svelte
@@ -2019,11 +2021,13 @@ msgstr "senses"
 msgid "Sentence"
 msgstr "Sentence"
 
+#. Activity-log line. {0} = field label (e.g. "Gloss"); {1} = writing system code (e.g. "en"); {2} = the new value. A multilingual field value was set.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set {0} ({1}) to “{2}”"
 msgstr "Set {0} ({1}) to “{2}”"
 
+#. Activity-log line. {0} = field label; {1} = the new value. A field value was set.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set {0} to “{1}”"

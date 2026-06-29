@@ -4,15 +4,12 @@
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import {fwliteStoryParameters} from '../fwl-parameters';
   import {allWsEntry} from '$project/demo/demo-entry-data';
-  import type {IChangeContext, IComplexFormComponent, IEntry, IObjectWithId, IProjectActivity} from '$lib/dotnet-types';
+  import type {IChangeContext, IComplexFormComponent, IEntry, IObjectWithId} from '$lib/dotnet-types';
 
   const {Story} = defineMeta({
     title: 'activity/previews',
     parameters: fwliteStoryParameters({resizable: false}),
   });
-
-  // ActivityItemChangePreview only reads `context`; `activity` is required by the prop type but unused.
-  const activity = {commitId: 'demo'} as unknown as IProjectActivity;
 
   function ctx(partial: Partial<IChangeContext>): IChangeContext {
     return {commitId: 'demo', changeIndex: 0, changeName: 'Demo change', affectedEntries: [], entityType: 'Unknown', ...partial} as IChangeContext;
@@ -57,7 +54,7 @@
         <div>
           <div class="font-bold text-sm mb-1 text-muted-foreground">{testCase.label}</div>
           <div class="border rounded p-3">
-            <ActivityItemChangePreview {activity} context={testCase.context} />
+            <ActivityItemChangePreview context={testCase.context} />
           </div>
         </div>
       {/each}

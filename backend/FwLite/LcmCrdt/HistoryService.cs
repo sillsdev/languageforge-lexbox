@@ -154,6 +154,8 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
                 NormalizeTimestamp(commit.HybridDateTime.DateTime),
                 commit.ChangeEntities.ToList(),
                 commit.Metadata);
+        // Materialize the whole page before resolving: ActivityChangeInfoResolver batch-loads labels across all
+        // changes in the page at once, so this enumerates the page rather than streaming row-by-row.
         var activities = new List<ProjectActivity>();
         await foreach (var projectActivity in queryable.ToLinqToDB().AsAsyncEnumerable())
         {
