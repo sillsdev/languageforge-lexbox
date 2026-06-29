@@ -129,12 +129,11 @@
   }
 
   // Add the project's main publication to a new entry; the user can remove it when the publish-in field is shown.
+  // Gate on `loaded`, not on reading `mainPublication`: reading it lazily kicks off a second getPublications fetch,
+  // and that superseded fetch resolves with stale empty data — so the main publication would silently never be added.
   async function addMainPublication(entryId: string) {
-    let main = publicationService.mainPublication;
-    if (!main && !publicationService.loaded) {
-      await publicationService.refetch();
-      main = publicationService.mainPublication;
-    }
+    if (!publicationService.loaded) await publicationService.refetch();
+    const main = publicationService.mainPublication;
     if (!main || entry.id !== entryId) return; // dialog moved on while we awaited
     if (!entry.publishIn.some(p => p.id === main.id)) {
       entry.publishIn = [...entry.publishIn, main];
