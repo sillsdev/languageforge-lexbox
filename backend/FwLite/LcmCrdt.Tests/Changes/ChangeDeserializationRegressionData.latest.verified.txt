@@ -530,12 +530,28 @@
     "Publication": {
       "Id": "84597629-7d00-a415-9ac1-2865b7efa9bf",
       "DeletedAt": null,
+      "IsMain": false,
       "Name": {
         "dgw": "Money Market Account",
         "yrn": "parse"
       }
     },
     "EntityId": "4dcbedc5-c4f1-54fd-f0b0-ede17a5af7e7"
+  },
+  {
+    "$type": "AddPublicationChange",
+    "Publication": {
+      "Id": "6988b38f-5680-6879-3ef3-49069fe52f50",
+      "DeletedAt": null,
+      "IsMain": false,
+      "Name": {
+        "xsl": "payment",
+        "aks": "tan",
+        "awu": "Stream",
+        "xau": "Avon"
+      }
+    },
+    "EntityId": "70c82811-ccce-4b93-7a2b-e489cbfb1c47"
   },
   {
     "$type": "RemovePublicationChange",
@@ -547,6 +563,7 @@
     "NewPublication": {
       "Id": "09c00842-481a-516f-f9fc-e6732c9ada73",
       "DeletedAt": null,
+      "IsMain": false,
       "Name": {
         "iap": "whiteboard",
         "jiy": "Trafficway",
@@ -556,6 +573,19 @@
     },
     "OldPublicationId": "e0fca592-c089-8850-8026-0c34610352fa",
     "EntityId": "727546c3-8a97-c721-4a9a-5205cc029c77"
+  },
+  {
+    "$type": "ReplacePublicationChange",
+    "NewPublication": {
+      "Id": "4cf93c3f-603c-0ffa-ed53-f7fd358a9377",
+      "DeletedAt": null,
+      "IsMain": false,
+      "Name": {
+        "lez": "proactive"
+      }
+    },
+    "OldPublicationId": "4b77fae0-7efa-bdc0-32a9-b9c9e86d495e",
+    "EntityId": "5314df10-b90d-7dec-8f35-1e59e497afc2"
   },
   {
     "$type": "CreateComplexFormType",
@@ -622,7 +652,17 @@
       "tre": "capacitor",
       "xnu": "Multi-channelled"
     },
+    "IsMain": false,
     "EntityId": "a024fdbe-52a4-6447-aae3-50fd8b815f10"
+  },
+  {
+    "$type": "CreatePublicationChange",
+    "Name": {
+      "scq": "Radial",
+      "zqe": "compress"
+    },
+    "IsMain": false,
+    "EntityId": "85442be2-438c-710b-255c-90d97c2b1628"
   },
   {
     "$type": "uploaded:RemoteResource",
@@ -894,5 +934,9 @@
     "MorphType": "Prefix",
     "HomographNumber": 4,
     "EntityId": "d8005217-eba2-7937-34f9-b76d6543eea6"
+  },
+  {
+    "$type": "SetMainPublicationChange",
+    "EntityId": "f7233b83-aa4d-5cd8-32bd-4e5041b310c3"
   }
 ]

@@ -59,7 +59,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
         ArgumentNullException.ThrowIfNull(publication);
         ArgumentNullException.ThrowIfNull(publication2);
 
-        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = []});
+        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = [] }, CreateEntryOptions.AsIs);
         entry.PublishIn.Should().BeEmpty();
     }
 
@@ -83,7 +83,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
 
         var publication = await Api.GetPublication(_publicationId);
         ArgumentNullException.ThrowIfNull(publication);
-        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = [publication] });
+        var entry = await Api.CreateEntry(new Entry() { Id = Guid.NewGuid(), PublishIn = [publication] }, CreateEntryOptions.AsIs);
 
         await Api.RemovePublication(entry.Id, _publicationId);
 
@@ -109,5 +109,82 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
         var afterPub = new Publication() { Id = publication.Id, Name = new() { { "en", "updated" } } };
         var actualPub = await Api.UpdatePublication(publication, afterPub);
         actualPub.Should().BeEquivalentTo(afterPub);
+    }
+
+    [Fact]
+    public async Task CreatePublication_CannotCreateSecondMain()
+    {
+        await GetOrCreateMainPublication();
+
+        var act = () => Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Second" } }, IsMain = true });
+
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+    }
+
+    [Fact]
+    public async Task UpdatePublication_CannotPromoteSecondMain()
+    {
+        await GetOrCreateMainPublication();
+        var other = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Pocket" } } });
+
+        var act = () => Api.UpdatePublication(other.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, true));
+
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+    }
+
+    [Fact]
+    public async Task UpdatePublication_CannotTurnOffIsMain()
+    {
+        var main = await GetOrCreateMainPublication();
+
+        var act = () => Api.UpdatePublication(main.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, false));
+
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+    }
+
+    [Fact]
+    public async Task UpdatePublication_WithBeforeAndAfter_CannotPromoteSecondMain()
+    {
+        await GetOrCreateMainPublication();
+        var other = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Pocket" } } });
+        var promoted = other.Copy();
+        promoted.IsMain = true;
+
+        var act = () => Api.UpdatePublication(other, promoted);
+
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+    }
+
+    [Fact]
+    public async Task UpdatePublication_WithBeforeAndAfter_CannotTurnOffIsMain()
+    {
+        var main = await GetOrCreateMainPublication();
+        var demoted = main.Copy();
+        demoted.IsMain = false;
+
+        var act = () => Api.UpdatePublication(main, demoted);
+
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+    }
+
+    [Fact]
+    public async Task SubmitUpdatePublication_CannotTurnOffIsMain()
+    {
+        var main = await GetOrCreateMainPublication();
+
+        var act = () => Api.SubmitUpdatePublication(main.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, false));
+
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+    }
+
+    [Fact]
+    public async Task SubmitUpdatePublication_CannotPromoteSecondMain()
+    {
+        await GetOrCreateMainPublication();
+        var other = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Pocket" } } });
+
+        var act = () => Api.SubmitUpdatePublication(other.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, true));
+
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
     }
 }

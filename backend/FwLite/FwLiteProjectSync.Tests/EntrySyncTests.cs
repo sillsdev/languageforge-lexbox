@@ -332,18 +332,20 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         // We expect the final result to be equivalent to this "raw"/untouched, requested state.
         var expected = after.Copy();
 
+        // Don't auto-add the main publication when staging data: the sync path under test (EntrySync) never does.
+        var asIsEntryOptions = CreateEntryOptions.AsIs;
         if (roundTripApi is not null)
         {
             // round-tripping ensures we're dealing with realistic data
             // (e.g. in fwdata ComplexFormComponents do not have an Id)
-            before = await roundTripApi.CreateEntry(before);
+            before = await roundTripApi.CreateEntry(before, asIsEntryOptions);
             await roundTripApi.DeleteEntry(before.Id);
-            after = await roundTripApi.CreateEntry(after);
+            after = await roundTripApi.CreateEntry(after, asIsEntryOptions);
             await roundTripApi.DeleteEntry(after.Id);
         }
 
         // before should not be round-tripped here. That's handled above.
-        await Api.CreateEntry(before);
+        await Api.CreateEntry(before, asIsEntryOptions);
 
         // act
         await EntrySync.SyncFull(before, after, Api);

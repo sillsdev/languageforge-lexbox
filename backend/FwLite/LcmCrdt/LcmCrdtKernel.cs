@@ -337,6 +337,7 @@ public static class LcmCrdtKernel
             .Add<CreateSemanticDomainChange>()
             .Add<CreateWritingSystemChange>()
             .Add<CreatePublicationChange>()
+            .Add<SetMainPublicationChange>()
             .Add<AddComplexFormTypeChange>()
             .Add<AddEntryComponentChange>()
             .Add<RemoveComplexFormTypeChange>()

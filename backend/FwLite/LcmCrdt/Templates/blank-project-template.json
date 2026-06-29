@@ -46,6 +46,7 @@
     {
       "Id": "70c0a758-5901-4884-b992-94ca31087607",
       "DeletedAt": null,
+      "IsMain": true,
       "Name": {
         "en": "Main Dictionary"
       }
