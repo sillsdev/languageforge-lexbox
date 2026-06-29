@@ -161,9 +161,10 @@
           />
           <InputGroup.Addon align="block-end" class="flex-row-reverse">
             <InputGroup.Button
-              variant="ghost"
+              variant="default"
               size="icon-xs"
               icon="i-mdi-send"
+              class="p-0! [&>.icon-wrapper]:flex [&>.icon-wrapper]:items-center [&>.icon-wrapper]:justify-center"
               iconProps={{ class: 'size-4' }}
               type="submit" disabled={!newThreadText.trim() || loading} loading={saving}
             />
@@ -251,6 +252,7 @@
                         variant="ghost"
                         size="icon-xs"
                         icon="i-mdi-send"
+                        class="p-0! [&>.icon-wrapper]:flex [&>.icon-wrapper]:items-center [&>.icon-wrapper]:justify-center"
                         iconProps={{ class: 'size-4' }}
                         type="submit"
                         disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
