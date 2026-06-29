@@ -11,6 +11,10 @@
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {IProjectActivity} from '$lib/dotnet-types';
+  import {useProjectStorage} from '$lib/storage/project-storage.svelte';
+  import ActivityListViewOptions, {type ActivityListViewMode} from './ActivityListViewOptions.svelte';
+  import ChangeSummary from './ChangeSummary.svelte';
+  import {describeActivity, pickHeadline} from './change-summary';
   import {
     createDefaultActivityFilters,
     emptyActivityLoad,
@@ -23,6 +27,9 @@
   } from './utils';
 
   const historyService = useHistoryService();
+
+  const activityListViewMode = useProjectStorage().activityListViewMode;
+  const activityMode = $derived((activityListViewMode.current as ActivityListViewMode | undefined) ?? 'simple');
 
   const THRESHOLD = 20;
   const BATCH_SIZE = THRESHOLD * 2;
@@ -129,7 +136,12 @@
 <div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
      style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(8rem,25%) 2fr">
 
-  <ActivityFilter bind:filters />
+  <div class="flex flex-wrap items-center gap-2">
+    <div class="grow min-w-0">
+      <ActivityFilter bind:filters />
+    </div>
+    <ActivityListViewOptions bind:mode={() => activityMode, (v) => void activityListViewMode.set(v)} />
+  </div>
 
   <div class="gap-4 overflow-hidden row-start-2 relative">
     {#if activity.error && awaitingFreshData}
@@ -147,11 +159,28 @@
              onscroll={onListScroll}
              getKey={row => row.commitId} bufferSize={400}>
         {#snippet children(row)}
+          {@const entries = describeActivity(row.changes, row.changeInfo)}
           <ListItem
             onclick={() => selectedRow = row}
             selected={selectedRow?.commitId === row.commitId}
             class="mb-2">
-            <span>{row.changeName}</span>
+            {#if entries.length === 0}
+              <span>{row.changeName}</span>
+            {:else if activityMode === 'detailed'}
+              <div class="space-y-0.5">
+                {#each entries as entry, i (i)}
+                  <div class="text-sm"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></div>
+                {/each}
+              </div>
+            {:else}
+              {@const headline = pickHeadline(entries)}
+              <span>
+                <ChangeSummary fact={headline.entry.fact} subject={headline.entry.subject} target={headline.entry.target} />
+                {#if headline.remaining > 0}
+                  <span class="text-muted-foreground">{$t`(+${headline.remaining} more)`}</span>
+                {/if}
+              </span>
+            {/if}
             <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
               <span class="flex items-center gap-1">
                 {#if !row.metadata.extraMetadata['SyncDate']}

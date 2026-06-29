@@ -36,6 +36,14 @@ public static class ActivityFilterKeys
     public const string AuthorNamePrefix = "name:";
 }
 
+/// <summary>
+/// Resolved display info for one change, so the frontend can name what the change is about.
+/// <paramref name="Subject"/> is the entity the change is on (entry headword, "headword › gloss" for a sense, or a vocab object's name);
+/// <paramref name="Target"/> is a referenced item the change names only by id (e.g. the part of speech assigned, the semantic domain removed).
+/// Both are null when unresolved — the frontend falls back to a type label.
+/// </summary>
+public record ActivityChangeInfo(string? Subject, Guid? RootEntryId, string? Target = null);
+
 public record ProjectActivity(
     Guid CommitId,
     DateTimeOffset Timestamp,
@@ -44,6 +52,8 @@ public record ProjectActivity(
 {
     public string ChangeName => HistoryService.ChangesNameHelper(Changes);
     public string[] ChangeTypes { get; } = Changes.Select(c => HistoryService.GetChangeTypeKey(c.Change)).Distinct().ToArray();
+    /// <summary>Resolved display info per change, parallel to <see cref="Changes"/> by index. Set during enrichment.</summary>
+    public IReadOnlyList<ActivityChangeInfo> ChangeInfo { get; set; } = [];
 }
 
 public record ChangeContext(
@@ -51,13 +61,14 @@ public record ChangeContext(
     int ChangeIndex,
     string ChangeName,
     IObjectWithId? Snapshot,
+    IObjectWithId? PreviousSnapshot,
     ICollection<Entry> AffectedEntries)
 {
-    public ChangeContext(ChangeEntity<IChange> change, IObjectWithId? snapshot, ICollection<Entry> affectedEntries)
-        : this(change.CommitId, change.Index, HistoryService.ChangeNameHelper(change.Change), snapshot, affectedEntries)
+    public ChangeContext(ChangeEntity<IChange> change, IObjectWithId? snapshot, IObjectWithId? previousSnapshot, ICollection<Entry> affectedEntries)
+        : this(change.CommitId, change.Index, HistoryService.ChangeNameHelper(change.Change), snapshot, previousSnapshot, affectedEntries)
     {
     }
-    public string EntityType => Snapshot?.GetType().Name ?? "Unknown";
+    public string EntityType => (Snapshot ?? PreviousSnapshot)?.GetType().Name ?? "Unknown";
 }
 
 public record HistoryLineItem(
@@ -143,7 +154,13 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
                 NormalizeTimestamp(commit.HybridDateTime.DateTime),
                 commit.ChangeEntities.ToList(),
                 commit.Metadata);
+        var activities = new List<ProjectActivity>();
         await foreach (var projectActivity in queryable.ToLinqToDB().AsAsyncEnumerable())
+        {
+            activities.Add(projectActivity);
+        }
+        await ActivityChangeInfoResolver.ResolveAsync(dbContext, activities);
+        foreach (var projectActivity in activities)
         {
             yield return projectActivity;
         }
@@ -301,21 +318,41 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
 
         // Use safe cast - some entity types like RemoteResource don't implement IObjectWithId
         var snapshot = await dataModel.GetAtCommit<object>(commitId, change.EntityId) as IObjectWithId;
+        var previousSnapshot = await LoadPreviousSnapshot(crdtDbContext, commitId, change.EntityId);
 
-        if (snapshot is Sense sense && sense.PartOfSpeechId != sense.PartOfSpeech?.Id)
-        {
-            // previously we didn't update the part of speech object on sense snapshots
-            // we do now, so we patch old snapshots
-            sense.PartOfSpeech = sense.PartOfSpeechId.HasValue
-                ? await dataModel.GetLatest<PartOfSpeech>(sense.PartOfSpeechId.Value)
-                : null;
-        }
+        await ResolveSensePartOfSpeech(snapshot);
+        await ResolveSensePartOfSpeech(previousSnapshot);
 
         var affectedEntries = await GetAffectedEntryIds(change)
             .Select(async (Guid entryId, CancellationToken _) => await GetCurrentOrLatestEntry(entryId))
             .ToArrayAsync();
 
-        return new ChangeContext(change, snapshot, affectedEntries);
+        return new ChangeContext(change, snapshot, previousSnapshot, affectedEntries);
+    }
+
+    /// <summary>The entity's state just before <paramref name="commitId"/>, i.e. the snapshot at the most recent
+    /// commit that affected it before this one. Null if this commit created the entity.</summary>
+    private async Task<IObjectWithId?> LoadPreviousSnapshot(ICrdtDbContext dbContext, Guid commitId, Guid entityId)
+    {
+        var affectingCommitIds = await dbContext.Commits
+            .Where(c => c.ChangeEntities.Any(ce => ce.EntityId == entityId))
+            .DefaultOrderDescending()
+            .Select(c => c.Id)
+            .ToListAsyncLinqToDB();
+        var index = affectingCommitIds.IndexOf(commitId);
+        if (index < 0 || index + 1 >= affectingCommitIds.Count) return null;
+        return await dataModel.GetAtCommit<object>(affectingCommitIds[index + 1], entityId) as IObjectWithId;
+    }
+
+    // Older sense snapshots didn't store the part-of-speech object, only its id; resolve it so previews can show a label.
+    private async Task ResolveSensePartOfSpeech(IObjectWithId? snapshot)
+    {
+        if (snapshot is Sense sense && sense.PartOfSpeechId != sense.PartOfSpeech?.Id)
+        {
+            sense.PartOfSpeech = sense.PartOfSpeechId.HasValue
+                ? await dataModel.GetLatest<PartOfSpeech>(sense.PartOfSpeechId.Value)
+                : null;
+        }
     }
 
     private async Task<Entry> GetCurrentOrLatestEntry(Guid entryId)

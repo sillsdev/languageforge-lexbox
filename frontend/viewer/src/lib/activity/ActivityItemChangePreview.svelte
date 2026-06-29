@@ -1,14 +1,9 @@
 <script lang="ts">
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as Editor from '$lib/components/editor';
-  import {Switch} from '$lib/components/ui/switch';
   import {type IChangeContext, type IComplexFormComponent, type IEntry, type IExampleSentence, type IProjectActivity, type ISense} from '$lib/dotnet-types';
-  import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
-  import ExampleEditorPrimitive from '$lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte';
-  import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import {t} from 'svelte-i18n-lingui';
   import {formatJsonForUi} from './utils';
-  import FormatRelativeDate from '$lib/components/ui/format/format-relative-date.svelte';
   import {useMultiWindowService} from '$lib/services/multi-window-service';
   import {Button} from '$lib/components/ui/button';
   import {pt} from '$lib/views/view-text';
@@ -18,38 +13,21 @@
   import {cn} from '$lib/utils';
   import {Link} from 'svelte-routing';
   import Headwords from '$lib/components/dictionary/Headwords.svelte';
+  import DiffEntryPrimitive from '$lib/entry-editor/diff-view/DiffEntryPrimitive.svelte';
+  import DiffSensePrimitive from '$lib/entry-editor/diff-view/DiffSensePrimitive.svelte';
+  import DiffExamplePrimitive from '$lib/entry-editor/diff-view/DiffExamplePrimitive.svelte';
 
   type Props = {
     activity: IProjectActivity,
     context: IChangeContext,
   }
 
-  const { activity, context }: Props = $props();
+  const { context }: Props = $props();
 
   const multiWindowService = useMultiWindowService();
   const viewService = useViewService();
 
   const affectedEntry = $derived(context.affectedEntries.length === 1 ? context.affectedEntries[0] : undefined);
-
-  let currentEntity = $derived.by(() => {
-    if (!affectedEntry || !context.snapshot) return undefined;
-
-    if (context.entityType === 'Entry') {
-      return affectedEntry;
-    } else if (context.entityType === 'Sense') {
-      const senseId = (context.snapshot as ISense).id;
-      return affectedEntry.senses.find((s) => s.id === senseId);
-    } else if (context.entityType === 'ExampleSentence') {
-      const exampleId = (context.snapshot as IExampleSentence).id;
-      for (const sense of affectedEntry.senses) {
-        const example = sense.exampleSentences.find((ex) => ex.id === exampleId);
-        if (example) return example;
-      }
-    }
-    return undefined;
-  });
-  let selectedShowCurrent = $derived(false);
-  let showCurrent = $derived(currentEntity && selectedShowCurrent);
 </script>
 
 {#snippet entryButton(entry: IEntry)}
@@ -90,58 +68,36 @@
   </DropdownMenu.Root>
 {/snippet}
 
-{#if affectedEntry || currentEntity}
-  <div class="flex flex-wrap gap-2 mb-3 items-center content-center justify-between">
-    {#if context.affectedEntries.length === 1}
-      <!--
-      If there are more than 1 affected entries (e.g. complex-form-components that link two entries together)
-      then the preview should be more explicit about what role the entries have and thus should be handled below
-      based on the entity type.
-      -->
-      {@const entry = context.affectedEntries[0]}
-      {@render entryButton(entry)}
-    {/if}
-
-    <label class={cn(
-      'w-fit flex items-center gap-2 border rounded p-2 px-4 bg-secondary/25',
-      currentEntity && 'cursor-pointer')}>
-      <FormatRelativeDate date={activity.timestamp}
-                          live
-                          actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
-      <Switch disabled={!currentEntity} bind:checked={selectedShowCurrent} class="text-destructive" />
-      {#if currentEntity}
-        <span>{$t`Current version`}</span>
-      {:else}
-        <span class="text-destructive">{$t`Deleted`}</span>
-      {/if}
-    </label>
+{#if context.affectedEntries.length === 1}
+  <div class="flex flex-wrap gap-2 mb-3 items-center">
+    {@render entryButton(context.affectedEntries[0])}
   </div>
 {/if}
 
-{#if !context.snapshot}
+{#if !context.snapshot && !context.previousSnapshot}
   <div class="text-muted-foreground p-4 text-center">
-    {$t`Preview not available`}
+    {$t`Preview not available for this type of change`}
   </div>
 {:else if context.entityType === 'Entry'}
   <Editor.Root>
     <Editor.Grid>
-      <EntryEditorPrimitive modalMode readonly entry={(showCurrent ? currentEntity : context.snapshot) as IEntry}/>
+      <DiffEntryPrimitive before={context.previousSnapshot as IEntry | undefined} after={context.snapshot as IEntry | undefined} />
     </Editor.Grid>
   </Editor.Root>
 {:else if context.entityType === 'Sense'}
   <Editor.Root>
     <Editor.Grid>
-        <SenseEditorPrimitive readonly sense={(showCurrent ? currentEntity : context.snapshot) as ISense}/>
+      <DiffSensePrimitive before={context.previousSnapshot as ISense | undefined} after={context.snapshot as ISense | undefined} />
     </Editor.Grid>
   </Editor.Root>
 {:else if context.entityType === 'ExampleSentence'}
   <Editor.Root>
     <Editor.Grid>
-        <ExampleEditorPrimitive readonly example={(showCurrent ? currentEntity : context.snapshot) as IExampleSentence}/>
+      <DiffExamplePrimitive before={context.previousSnapshot as IExampleSentence | undefined} after={context.snapshot as IExampleSentence | undefined} />
     </Editor.Grid>
   </Editor.Root>
 {:else if context.entityType === 'ComplexFormComponent'}
-  {@const cfc = context.snapshot as IComplexFormComponent}
+  {@const cfc = (context.snapshot ?? context.previousSnapshot) as IComplexFormComponent}
   {@const complexForm = context.affectedEntries.find(e => e.id === cfc.complexFormEntryId)}
   {@const component = context.affectedEntries.find(e => e.id === cfc.componentEntryId)}
   <div class="space-y-2">
@@ -164,6 +120,6 @@
   </div>
 {:else}
   <div class="whitespace-pre-wrap font-mono text-sm">
-    {formatJsonForUi(context.snapshot)}
+    {formatJsonForUi(context.snapshot ?? context.previousSnapshot ?? {})}
   </div>
 {/if}

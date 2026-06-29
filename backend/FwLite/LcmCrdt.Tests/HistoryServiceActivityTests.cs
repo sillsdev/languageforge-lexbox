@@ -167,6 +167,27 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         activity.ChangeTypes.Should().Contain("CreateEntryChange");
     }
 
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_AddsHomographSubscriptToSubject_OnlyWhenAssigned()
+    {
+        await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = new MultiString { ["en"] = "plain" }
+        }), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
+        await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = new MultiString { ["en"] = "homograph" },
+            HomographNumber = 2
+        }), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "plain");
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "homograph₂");
+    }
+
     private async Task<Commit> AddEntryCommit(CommitMetadata metadata, string? headword = null)
     {
         var entry = headword is null

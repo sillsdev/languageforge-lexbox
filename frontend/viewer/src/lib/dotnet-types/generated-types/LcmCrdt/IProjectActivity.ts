@@ -5,6 +5,7 @@
 
 import type {IChangeEntity} from '../SIL/Harmony/Core/IChangeEntity';
 import type {ICommitMetadata} from '../SIL/Harmony/Core/ICommitMetadata';
+import type {IActivityChangeInfo} from './IActivityChangeInfo';
 
 export interface IProjectActivity
 {
@@ -14,5 +15,6 @@ export interface IProjectActivity
 	metadata: ICommitMetadata;
 	changeName: string;
 	changeTypes: string[];
+	changeInfo: IActivityChangeInfo[];
 }
 /* eslint-enable */

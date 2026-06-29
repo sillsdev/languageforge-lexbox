@@ -36,12 +36,14 @@ export class ProjectStorage {
   readonly selectedTaskId: ProjectStorageProp;
   readonly currentView: ProjectStorageProp;
   readonly entryListViewMode: ProjectStorageProp;
+  readonly activityListViewMode: ProjectStorageProp;
   readonly dictionaryPreview: ProjectStorageProp;
 
   constructor(projectCode: string, backend: IPreferencesService) {
     this.selectedTaskId = new ProjectStorageProp(projectCode, 'selectedTaskId', backend);
     this.currentView = new ProjectStorageProp(projectCode, 'currentView', backend);
     this.entryListViewMode = new ProjectStorageProp(projectCode, 'entryListViewMode', backend);
+    this.activityListViewMode = new ProjectStorageProp(projectCode, 'activityListViewMode', backend);
     this.dictionaryPreview = new ProjectStorageProp(projectCode, 'dictionaryPreview', backend);
   }
 }

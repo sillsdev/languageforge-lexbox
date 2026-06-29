@@ -25,6 +25,10 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} cambios)"
 
+#: src/lib/activity/ActivityView.svelte
+msgid "(+{0} more)"
+msgstr ""
+
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -192,6 +196,46 @@ msgstr ""
 msgid "Add Word"
 msgstr "Añadir palabra"
 
+#. Activity-log line in the dictionary edit history. {0} = singular noun for a list-item type (e.g. "semantic domain", "complex form type", "publication", "translation"). A second chip with the new item's name follows this text.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added {0}"
+msgstr ""
+
+#. Activity-log line. {0} = singular noun for a list-item type (e.g. "semantic domain", "publication"). Used when the new item has no display name available.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added a {0}"
+msgstr ""
+
+#. Activity-log line. Shown when a new sense (meaning) was added to an entry; the entry name chip follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added a sense"
+msgstr ""
+
+#. Activity-log line. Shown when a new example sentence was added to a sense; no subject chip is available.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added an example"
+msgstr ""
+
+#. Activity-log line. {subject} = name of the sense/entry the example was added to, rendered as a chip after this text.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added an example to"
+msgstr ""
+
+#. Activity-log line. Shown when a named sense was added; the sense's gloss chip follows this text.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added sense"
+msgstr ""
+
+#. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A chip with the added item follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added to {0}"
+msgstr ""
+
+#. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label; {1} = name of the added item.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added to {0}: {1}"
+msgstr ""
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -345,6 +389,19 @@ msgstr ""
 msgid "Cancel"
 msgstr "Cancelar"
 
+#. Activity-log line. {0} = field label (e.g. "Part of speech") or singular list-item noun (e.g. "complex form type"). Used when the new value is unknown or not displayed.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Changed {0}"
+msgstr ""
+
+#. Activity-log line. {0} = field label (e.g. "Part of speech"); a chip showing the new value follows this text.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Changed {0} to"
+msgstr ""
+
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
@@ -384,6 +441,17 @@ msgstr "Proyectos clásicos de FieldWorks"
 msgid "clear"
 msgstr "borrar"
 
+#. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Cleared {0}"
+msgstr ""
+
+#. Activity-log line. {0} = field label; {1} = writing system code (e.g. "en", "fr"). Means the field value for that writing system was erased.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Cleared {0} ({1})"
+msgstr ""
+
 #. Button to close popup
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -410,6 +478,12 @@ msgstr "Color"
 msgid "Complex Form"
 msgstr "Forma compleja"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added complex form type"). Refers to a user-defined classification of compound-word relationships (e.g. "compound", "derivative").
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "complex form type"
+msgstr ""
+
 #. Field label
 #. Classifies the type of complex form relationship (user-configurable)
 #. Examples: "compound", "derivative", "inflectional" (varies by project)
@@ -427,6 +501,11 @@ msgstr "Forma compleja:"
 msgid "Complex forms"
 msgstr "Formas complejas"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added component"). Refers to an entry that is a constituent part of a compound word (e.g. "sun" is a component of "sunflower").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "component"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Part"
 #. Field label in complex forms editor
@@ -442,6 +521,11 @@ msgstr "Componente"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Component:"
 msgstr "Componente:"
+
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of component entries in a compound word.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "components"
+msgstr ""
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -498,6 +582,26 @@ msgstr "Crear un proyecto de ejemplo"
 msgid "Create View"
 msgstr "Crear vista"
 
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "custom view"); a chip with the created item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created {0}"
+msgstr ""
+
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech"). Used when the created item has no display name.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created a {0}"
+msgstr ""
+
+#. Activity-log line. Shown when a new dictionary entry was created but no headword is available.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created an entry"
+msgstr ""
+
+#. Activity-log line. Shown when a named dictionary entry was created; a chip with the headword follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created entry"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
 #. Label in picker: marks the entry that is currently being edited
@@ -505,11 +609,6 @@ msgstr "Crear vista"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Current Entry"
 msgstr "Entrada actual"
-
-#. Column header
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Current version"
-msgstr "Versión actual"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Current Entry"
@@ -524,6 +623,11 @@ msgstr "Palabra actual"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Custom"
 msgstr "Personalizado"
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Created custom view"). A custom view is a user-defined configuration of which dictionary fields and writing systems are visible.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "custom view"
+msgstr ""
 
 #. Label used in delete confirmation prompt for a custom view.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -581,9 +685,33 @@ msgstr "Borrar palabra"
 
 #. Change type indicator
 #: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Deleted"
 msgstr "Eliminado"
+
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "writing system"); a chip with the deleted item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted {0}"
+msgstr ""
+
+#. Activity-log line. {subject} = name of the sense/entry the example belonged to, rendered as a chip after this text.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted an example from"
+msgstr ""
+
+#. Activity-log line. Shown when a named dictionary entry was deleted; a chip with the headword follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted entry"
+msgstr ""
+
+#. Activity-log line. Shown when a named sense was deleted; a chip with the sense's gloss follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted sense"
+msgstr ""
+
+#: src/lib/activity/ActivityListViewOptions.svelte
+msgid "Detailed"
+msgstr ""
 
 #. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
@@ -686,6 +814,11 @@ msgstr "Descargando..."
 msgid "Edit Custom View"
 msgstr "Editar vista personalizada"
 
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "morph type"); a chip with the edited item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Edited {0}"
+msgstr ""
+
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
@@ -772,6 +905,11 @@ msgstr "Ejemplo"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr "Ejemplo de frase"
+
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of example sentences under a sense.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "examples"
+msgstr ""
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1119,7 +1257,18 @@ msgstr "Se requiere la forma de lexema o la forma de citación"
 msgid "Light"
 msgstr "Claro"
 
+#. Activity-log line. Shown when an existing entry was linked as a component of a compound word.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Linked a component"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Linked component"
+msgstr ""
+
 #. Section header in the entry list view options popup. Controls whether the entry list shows simple rows or a preview. Options below it: "Simple" and "Preview".
+#: src/lib/activity/ActivityListViewOptions.svelte
+#: src/lib/activity/ActivityListViewOptions.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
 msgstr "Modo lista"
@@ -1254,10 +1403,19 @@ msgstr "Falta: {0}"
 msgid "Mode"
 msgstr "Modo"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Edited morph type"). Morph type classifies the morphological status of an entry (e.g. "root", "stem", "bound stem").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "morph type"
+msgstr ""
+
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Mover"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Moved from another entry"
+msgstr ""
 
 #. Placeholder text in the name input of the custom view form.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -1526,6 +1684,11 @@ msgstr "Pieza"
 msgid "Part of"
 msgstr "Parte de"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added part of speech", "Changed part of speech to"). Refers to the grammatical category of a word (noun, verb, adjective, etc.). Classic view calls this "Grammatical info."
+#: src/lib/activity/ChangeSummary.svelte
+msgid "part of speech"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
@@ -1564,10 +1727,9 @@ msgstr "Plataforma"
 msgid "Preview"
 msgstr "Vista previa"
 
-#. Shown in the change preview area where no preview is available for the selected change
 #: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Preview not available"
-msgstr "Vista previa no disponible"
+msgid "Preview not available for this type of change"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -1588,6 +1750,12 @@ msgstr "El proyecto {0} en {1} aún no está configurado para FieldWorks Lite"
 #: src/home/HomeView.svelte
 msgid "Project name..."
 msgstr "Nombre del proyecto..."
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added publication"). A publication is a dictionary or word list that entries can be assigned to for distribution.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "publication"
+msgstr ""
 
 #. Filter option
 #. Publication type/dictionary for entries
@@ -1644,10 +1812,30 @@ msgstr "Eliminar"
 msgid "Remove audio"
 msgstr "Eliminar audio"
 
+#. Activity-log line. {0} = singular noun for a list-item type (e.g. "semantic domain", "component"); a chip with the removed item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed {0}"
+msgstr ""
+
+#. Activity-log line. {0} = singular noun for a list-item type (e.g. "semantic domain"). Used when the removed item has no display name.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed a {0}"
+msgstr ""
+
+#. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A leading entry chip may precede this text.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed from {0}"
+msgstr ""
+
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
 msgstr "Vuelva a abrir"
+
+#. Activity-log line. {0} = plural collection noun: "senses", "examples", "components", or "writing systems".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reordered {0}"
+msgstr ""
 
 #. Button to overwrite audio file
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1730,6 +1918,12 @@ msgstr "Seleccione al menos un sistema de escritura vernácula"
 msgid "Select file"
 msgstr "Seleccionar archivo"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added semantic domain"). A semantic domain is a meaning category assigned to a sense (e.g. "plants", "emotions", "body parts").
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "semantic domain"
+msgstr ""
+
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
 #. Used to organize and filter entries by meaning category
@@ -1760,12 +1954,32 @@ msgstr "Envíenos un mensaje"
 msgid "Sense"
 msgstr "Acepción"
 
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of senses (meanings) within a dictionary entry.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "senses"
+msgstr ""
+
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Sentencia"
+
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set {0} ({1}) to “{2}”"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set {0} to “{1}”"
+msgstr ""
+
+#. Activity-log line. Shown when the default translation of an example sentence was assigned. A leading entry chip may precede this text.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set the default translation"
+msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -1803,6 +2017,7 @@ msgid "Show {0} more..."
 msgstr "Mostrar {0} más..."
 
 #. View option
+#: src/lib/activity/ActivityListViewOptions.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Simple"
@@ -2015,13 +2230,20 @@ msgstr "Alternar filtros"
 msgid "Toggle pinned"
 msgstr "Alternar fijado"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to the translation of an example sentence (not of the headword itself).
+#: src/lib/activity/ChangeSummary.svelte
+msgid "translation"
+msgstr ""
+
 #. Field label
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Traducción"
 
 #. Field title in the example editor when an entry has multiple translations. {0} = 1-based index number (e.g., "Translation 1", "Translation 2"). When there is only one translation, "Translation" is used instead.
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Traducción {0}"
@@ -2100,6 +2322,11 @@ msgstr "Servidor desconocido"
 msgid "Unknown update result"
 msgstr "Resultado de actualización desconocido"
 
+#. Activity-log line. Shown when a component entry was removed from a compound word's components list.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Unlinked a component"
+msgstr ""
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -2150,6 +2377,15 @@ msgstr "La actualización comenzó en segundo plano. Reinicie la aplicación des
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update was disallowed by permission settings."
 msgstr "La actualización no fue permitida por la configuración de permisos."
+
+#. Activity-log line. Shown when the link between a compound word and one of its component entries was modified (e.g. the component sense was changed).
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Updated a component link"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Updated component"
+msgstr ""
 
 #. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
@@ -2229,6 +2465,11 @@ msgstr "Se requiere Palabra o Mostrar como"
 msgid "Word or meaning:"
 msgstr "Palabra o significado:"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Created writing system"). A writing system defines a script and language variant (e.g. "Latin/English", "Cyrillic/Russian").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "writing system"
+msgstr ""
+
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"
@@ -2238,6 +2479,11 @@ msgstr "Sistema de escritura"
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
 msgstr "Sistema de escritura: {0}"
+
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of writing systems configured in the project.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "writing systems"
+msgstr ""
 
 #. Section label in custom view form.
 #. Configures which vernacular and analysis writing systems are shown.
