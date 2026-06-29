@@ -26,6 +26,7 @@
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
   import CommentDialog from '$lib/entry-editor/CommentDialog.svelte';
   import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   type DictionaryPreviewMode = 'show' | 'hide' | 'sticky';
 
@@ -137,15 +138,17 @@
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
         <div class="flex">
-          {#if features.comments}
-            <Button
-              variant="ghost"
-              size="icon"
-              icon="i-mdi-comment-text-outline"
-              aria-label={$t`Comments`}
-              onclick={() => showCommentDialog = !showCommentDialog}
-            />
-          {/if}
+          <DevContent>
+            {#if features.comments}
+              <Button
+                variant="ghost"
+                size="icon"
+                icon="i-mdi-comment-text-outline"
+                aria-label={$t`Comments`}
+                onclick={() => showCommentDialog = !showCommentDialog}
+              />
+            {/if}
+          </DevContent>
           <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} bind:readonly />
           <EntryMenu {entry} />
         </div>
