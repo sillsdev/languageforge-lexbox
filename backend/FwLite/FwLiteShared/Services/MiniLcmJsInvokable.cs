@@ -303,6 +303,12 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public ValueTask<UserComment[]> GetUnreadCommentsForSubject(SubjectType subjectType, Guid subjectId)
+    {
+        return _wrappedApi.GetUnreadCommentsForSubject(subjectType, subjectId).ToArrayAsync();
+    }
+
+    [JSInvokable]
     public Task<int> CountUnreadComments(Guid? threadId = null)
     {
         return _wrappedApi.CountUnreadComments(threadId);

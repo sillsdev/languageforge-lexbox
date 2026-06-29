@@ -213,6 +213,29 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
     }
 
     [Fact]
+    public async Task ReadStatus_CanGetUnreadCommentsBySubject()
+    {
+        var readerId = $"reader-{Guid.NewGuid()}";
+        var authorId = $"author-{Guid.NewGuid()}";
+        var subjectId = Guid.NewGuid();
+        await ClearUnreadComments();
+        var (_, firstComment) = await CreateThreadWithComment(authorId, SubjectType.Entry, subjectId, "target 1");
+        var (_, secondComment) = await CreateThreadWithComment(authorId, SubjectType.Entry, subjectId, "target 2");
+        var (_, otherSubjectComment) = await CreateThreadWithComment(authorId, SubjectType.Entry, Guid.NewGuid(), "other subject");
+        var (_, otherTypeComment) = await CreateThreadWithComment(authorId, SubjectType.Sense, subjectId, "other type");
+        await MarkCommentsUnread(firstComment, secondComment, otherSubjectComment, otherTypeComment);
+
+        await SetCurrentUser(readerId);
+        var unread = await fixture.Api.GetUnreadCommentsForSubject(SubjectType.Entry, subjectId).ToArrayAsync();
+
+        unread.Should().HaveCount(2);
+        unread.Should().Contain(c => c.Id == firstComment.Id);
+        unread.Should().Contain(c => c.Id == secondComment.Id);
+        unread.Should().NotContain(c => c.Id == otherSubjectComment.Id);
+        unread.Should().NotContain(c => c.Id == otherTypeComment.Id);
+    }
+
+    [Fact]
     public async Task ReadStatus_IsLocalNotPerUser()
     {
         var reader1 = $"reader-{Guid.NewGuid()}";

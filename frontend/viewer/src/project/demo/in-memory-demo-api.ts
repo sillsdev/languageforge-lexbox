@@ -231,6 +231,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve([]);
   }
 
+  getUnreadCommentsForSubject(_subjectType: SubjectType, _subjectId: string): Promise<IUserComment[]> {
+    return Promise.resolve([]);
+  }
+
   countUnreadComments(_threadId?: string): Promise<number> {
     return Promise.resolve(0);
   }

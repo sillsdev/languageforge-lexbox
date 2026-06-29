@@ -68,6 +68,7 @@ export interface IMiniLcmJsInvokable
 	getUserComments(threadId: string) : Promise<IUserComment[]>;
 	getUserComment(id: string) : Promise<IUserComment | null>;
 	getUnreadComments(threadId?: string) : Promise<IUserComment[]>;
+	getUnreadCommentsForSubject(subjectType: SubjectType, subjectId: string) : Promise<IUserComment[]>;
 	countUnreadComments(threadId?: string) : Promise<number>;
 	createCommentThread(thread: ICommentThread, firstComment: IUserComment) : Promise<ICommentThread>;
 	addUserComment(threadId: string, comment: IUserComment) : Promise<IUserComment>;

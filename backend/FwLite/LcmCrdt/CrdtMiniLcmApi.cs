@@ -963,6 +963,14 @@ public class CrdtMiniLcmApi(
         }
     }
 
+    public async IAsyncEnumerable<UserComment> GetUnreadCommentsForSubject(SubjectType subjectType, Guid subjectId)
+    {
+        foreach (var comment in await commentReadStatusService.GetUnreadCommentsForSubject(subjectType, subjectId))
+        {
+            yield return comment;
+        }
+    }
+
     public Task<int> CountUnreadComments(Guid? threadId = null)
     {
         return commentReadStatusService.CountUnreadComments(threadId);

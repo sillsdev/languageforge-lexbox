@@ -68,6 +68,10 @@ public interface IMiniLcmReadApi
     {
         throw new NotSupportedException("Comments are only supported by CRDT projects");
     }
+    IAsyncEnumerable<UserComment> GetUnreadCommentsForSubject(SubjectType subjectType, Guid subjectId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
     Task<int> CountUnreadComments(Guid? threadId = null)
     {
         throw new NotSupportedException("Comments are only supported by CRDT projects");
