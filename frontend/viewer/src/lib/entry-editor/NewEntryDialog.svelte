@@ -156,6 +156,7 @@
       requester = undefined;
     }
     entry = defaultEntry();
+    addMainPublicationPromise = undefined;
   }
 
   function handleKeydown(event: KeyboardEvent) {

@@ -118,7 +118,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
 
         var act = () => Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Second" } }, IsMain = true });
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
 
         var act = () => Api.UpdatePublication(other.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, true));
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
     }
 
     [Fact]
@@ -152,7 +152,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
 
         var act = () => Api.UpdatePublication(other, promoted);
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
     }
 
     [Fact]
@@ -164,7 +164,7 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
 
         var act = () => Api.UpdatePublication(main, demoted);
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
     }
 
     [Fact]
@@ -185,6 +185,6 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
 
         var act = () => Api.SubmitUpdatePublication(other.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, true));
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
     }
 }

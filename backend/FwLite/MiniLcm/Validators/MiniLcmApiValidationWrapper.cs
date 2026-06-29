@@ -1,3 +1,4 @@
+using FluentValidation;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
@@ -28,7 +29,7 @@ public partial class MiniLcmApiValidationWrapper(
     {
         await validators.ValidateAndThrow(pub);
         if (pub.IsMain && await GetExistingMain() is not null)
-            throw new InvalidOperationException("Cannot create a second main publication. A main publication already exists.");
+            throw new ValidationException("Cannot create a second main publication. A main publication already exists.");
         return await _api.CreatePublication(pub);
     }
 
@@ -55,14 +56,14 @@ public partial class MiniLcmApiValidationWrapper(
         if (after.IsMain && !before.IsMain)
             await ThrowIfAnotherMainExists(after.Id);
         if (before.IsMain && !after.IsMain)
-            throw new InvalidOperationException("Cannot turn off the IsMain flag on a publication; the main publication is fixed.");
+            throw new ValidationException("Cannot turn off the IsMain flag on a publication; the main publication is fixed.");
         return await _api.UpdatePublication(before, after, api ?? this);
     }
 
     private async Task ThrowIfAnotherMainExists(Guid id)
     {
         if (await GetExistingMain() is { } main && main.Id != id)
-            throw new InvalidOperationException("Cannot set IsMain on this publication. Another publication is already the main publication.");
+            throw new ValidationException("Cannot set IsMain on this publication. Another publication is already the main publication.");
     }
 
     private async Task<Publication?> GetExistingMain()

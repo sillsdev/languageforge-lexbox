@@ -1,7 +1,7 @@
 import type {IPublication} from '$lib/dotnet-types';
 import {useWritingSystemService, type WritingSystemService} from './writing-system-service.svelte';
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
-import {type ResourceReturn} from 'runed';
+import {type DetachedResourceReturn} from '$project/detached-resource';
 
 type LabeledPublication = IPublication & { label: string };
 
@@ -20,19 +20,14 @@ export function usePublications(): PublicationService {
 
 export class PublicationService {
   constructor(projectContext: ProjectContext, private writingSystemService: WritingSystemService) {
-    this.#publicationsResource = projectContext.apiResource([], async (api) => {
-      const publications = await api.getPublications();
-      this.#loaded = true;
-      return publications;
-    });
+    this.#publicationsResource = projectContext.apiResource([], api => api.getPublications());
   }
 
-  #publicationsResource: ResourceReturn<IPublication[], unknown, true>;
-  #loaded = $state(false);
+  #publicationsResource: DetachedResourceReturn<IPublication[]>;
 
   // True once publications have been fetched at least once, so callers can tell "no main yet" from "not loaded yet".
   get loaded(): boolean {
-    return this.#loaded;
+    return this.#publicationsResource.loaded;
   }
 
   current: LabeledPublication[] = $derived.by(() => {
