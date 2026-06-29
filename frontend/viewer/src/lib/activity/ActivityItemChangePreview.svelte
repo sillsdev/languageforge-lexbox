@@ -55,7 +55,7 @@
 {#snippet entryButton(entry: IEntry)}
   {@const deleted = Boolean(entry.deletedAt)}
   <DropdownMenu.Root>
-    <DropdownMenu.Trigger class={cn('text-base w-fit mr-2 justify-between', deleted && 'pointer-events-none')}>
+    <DropdownMenu.Trigger class={cn('text-base w-fit mr-2 justify-between flex-wrap whitespace-break-spaces text-start min-h-max py-1.5', deleted && 'pointer-events-none')}>
       {#snippet child({props})}
         <Button {...props} variant="secondary" size="sm">
           <Headwords {entry} placeholder={$t`Untitled`} />
@@ -91,32 +91,30 @@
 {/snippet}
 
 {#if affectedEntry || currentEntity}
-  <div class="@container">
-    <div class="flex flex-wrap gap-2 @lg:grid @lg:grid-cols-[2fr_4fr_auto] mb-3 items-center content-center justify-center">
-      {#if context.affectedEntries.length === 1}
-        <!--
-        If there are more than 1 affected entries (e.g. complex-form-components that link two entries together)
-        then the preview should be more explicit about what role the entries have and thus should be handled below
-        based on the entity type.
-        -->
-        {@const entry = context.affectedEntries[0]}
-        {@render entryButton(entry)}
-      {/if}
+  <div class="flex flex-wrap gap-2 mb-3 items-center content-center justify-between">
+    {#if context.affectedEntries.length === 1}
+      <!--
+      If there are more than 1 affected entries (e.g. complex-form-components that link two entries together)
+      then the preview should be more explicit about what role the entries have and thus should be handled below
+      based on the entity type.
+      -->
+      {@const entry = context.affectedEntries[0]}
+      {@render entryButton(entry)}
+    {/if}
 
-      <label class={cn(
-        'w-fit flex items-center gap-2 border rounded p-2 px-4 bg-secondary/25',
-        currentEntity && 'cursor-pointer')}>
-        <FormatRelativeDate date={activity.timestamp}
-                            live
-                            actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
-        <Switch disabled={!currentEntity} bind:checked={selectedShowCurrent} class="text-destructive" />
-        {#if currentEntity}
-          <span>{$t`Current version`}</span>
-        {:else}
-          <span class="text-destructive">{$t`Deleted`}</span>
-        {/if}
-      </label>
-    </div>
+    <label class={cn(
+      'w-fit flex items-center gap-2 border rounded p-2 px-4 bg-secondary/25',
+      currentEntity && 'cursor-pointer')}>
+      <FormatRelativeDate date={activity.timestamp}
+                          live
+                          actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
+      <Switch disabled={!currentEntity} bind:checked={selectedShowCurrent} class="text-destructive" />
+      {#if currentEntity}
+        <span>{$t`Current version`}</span>
+      {:else}
+        <span class="text-destructive">{$t`Deleted`}</span>
+      {/if}
+    </label>
   </div>
 {/if}
 
@@ -147,7 +145,7 @@
   {@const complexForm = context.affectedEntries.find(e => e.id === cfc.complexFormEntryId)}
   {@const component = context.affectedEntries.find(e => e.id === cfc.componentEntryId)}
   <div class="space-y-2">
-    <div class="flex gap-x-2 items-baseline">
+    <div class="flex flex-wrap gap-2 items-baseline">
       <span class="label">{$t`Complex form:`}</span>
       {#if complexForm}
         {@render entryButton(complexForm)}
@@ -155,7 +153,7 @@
         {$t`Not found`}
       {/if}
     </div>
-    <div class="flex gap-x-2 items-baseline">
+    <div class="flex flex-wrap gap-2 items-baseline">
       <span class="label">{$t`Component:`}</span>
       {#if component}
         {@render entryButton(component)}

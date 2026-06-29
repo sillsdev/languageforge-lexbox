@@ -1,9 +1,13 @@
 import type {IPublication} from '$lib/dotnet-types';
 import {useWritingSystemService, type WritingSystemService} from './writing-system-service.svelte';
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
-import {type ResourceReturn} from 'runed';
+import {type DetachedResourceReturn} from '$project/detached-resource';
 
 type LabeledPublication = IPublication & { label: string };
+
+export function resolveMainPublication(publications: IPublication[]): IPublication | undefined {
+  return publications.find(pub => pub.isMain);
+}
 
 const symbol = Symbol.for('fw-lite-publications');
 export function usePublications(): PublicationService {
@@ -19,7 +23,12 @@ export class PublicationService {
     this.#publicationsResource = projectContext.apiResource([], api => api.getPublications());
   }
 
-  #publicationsResource: ResourceReturn<IPublication[], unknown, true>;
+  #publicationsResource: DetachedResourceReturn<IPublication[]>;
+
+  // True once publications have been fetched at least once, so callers can tell "no main yet" from "not loaded yet".
+  get loaded(): boolean {
+    return this.#publicationsResource.loaded;
+  }
 
   current: LabeledPublication[] = $derived.by(() => {
     return this.#publicationsResource.current.map(pub => ({
@@ -27,6 +36,8 @@ export class PublicationService {
       label: this.getLabel(pub),
     })).sort((a, b) => a.label.localeCompare(b.label));
   });
+
+  mainPublication: IPublication | undefined = $derived.by(() => resolveMainPublication(this.#publicationsResource.current));
 
   async refetch() {
     await this.#publicationsResource.refetch();

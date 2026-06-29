@@ -38,10 +38,18 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
+#: src/lib/activity/ActivityFilter.svelte
+msgid "{0} activity types"
+msgstr "{0} activity types"
+
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "{0} ago"
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "{0} authors"
+msgstr "{0} authors"
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -184,6 +192,20 @@ msgstr "Add Word"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "All"
+
+#. Filter option in activity view activity-type dropdown — show all kinds of edits.
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+msgid "All activity types"
+msgstr "All activity types"
+
+#. Filter option in activity view author dropdown — show commits from every author.
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+msgid "All authors"
+msgstr "All authors"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -756,6 +778,12 @@ msgstr "Failed to copy to clipboard"
 msgid "Failed to download {0}"
 msgstr "Failed to download {0}"
 
+#. Error message when the activity feed fails to load (toast and empty state).
+#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "Failed to load activity"
+msgstr "Failed to load activity"
+
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
 #: src/project/browse/EntriesList.svelte
@@ -819,6 +847,7 @@ msgstr "FieldWorks Lite version"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
+#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -982,6 +1011,7 @@ msgstr "Headword"
 msgid "Hide"
 msgstr "Hide"
 
+#: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "History"
@@ -1095,6 +1125,11 @@ msgstr "List mode"
 #: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "Literal meaning"
+
+#. Accessible label on the activity view loading spinner while filtered commits are fetched.
+#: src/lib/activity/ActivityView.svelte
+msgid "Loading activity"
+msgstr "Loading activity"
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1271,19 +1306,33 @@ msgstr "New Entry"
 msgid "New Word"
 msgstr "New Word"
 
+#. Sort option in activity view — most recent commit first.
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Newest first"
+msgstr "Newest first"
+
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
 msgstr "Next"
 
+#. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
-msgid "No activity found"
-msgstr "No activity found"
+msgid "No activity matches these filters"
+msgstr "No activity matches these filters"
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "No activity types"
+msgstr "No activity types"
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "No audio"
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "No authors"
+msgstr "No authors"
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1398,6 +1447,11 @@ msgstr "Offline"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Offline, unable to download"
+
+#. Sort option in activity view — earliest commit first.
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Oldest first"
+msgstr "Oldest first"
 
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1821,6 +1875,16 @@ msgstr "Sync your changes with other FieldWorks Lite users"
 msgid "Synced"
 msgstr "Synced"
 
+#. Sort option in activity view — by upload/download time, newest synced first (unsynced commits last).
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Synced newest"
+msgstr "Synced newest"
+
+#. Sort option in activity view — by upload/download time, oldest synced first (unsynced commits last).
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Synced oldest"
+msgstr "Synced oldest"
+
 #. Status showing sync source server
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
@@ -1907,6 +1971,7 @@ msgstr "The time when you uploaded or downloaded these changes"
 
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 
@@ -1994,7 +2059,11 @@ msgid "Unable to open in FieldWorks"
 msgstr "Unable to open in FieldWorks"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/activity/ActivityView.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Unknown"

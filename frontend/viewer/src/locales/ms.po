@@ -43,10 +43,18 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
+#: src/lib/activity/ActivityFilter.svelte
+msgid "{0} activity types"
+msgstr ""
+
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "{0} yang lalu"
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "{0} authors"
+msgstr ""
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -189,6 +197,20 @@ msgstr "Tambah Perkataan"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Semua"
+
+#. Filter option in activity view activity-type dropdown — show all kinds of edits.
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+msgid "All activity types"
+msgstr ""
+
+#. Filter option in activity view author dropdown — show commits from every author.
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+msgid "All authors"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -761,6 +783,12 @@ msgstr "Gagal menyalin ke papan keratan"
 msgid "Failed to download {0}"
 msgstr "Gagal memuat turun {0}"
 
+#. Error message when the activity feed fails to load (toast and empty state).
+#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "Failed to load activity"
+msgstr ""
+
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
 #: src/project/browse/EntriesList.svelte
@@ -824,6 +852,7 @@ msgstr "Versi FieldWorks Lite"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
+#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -987,6 +1016,7 @@ msgstr "Kata Utama"
 msgid "Hide"
 msgstr "Sembunyi"
 
+#: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "History"
@@ -1100,6 +1130,11 @@ msgstr "Mod senarai"
 #: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "Makna harfiah"
+
+#. Accessible label on the activity view loading spinner while filtered commits are fetched.
+#: src/lib/activity/ActivityView.svelte
+msgid "Loading activity"
+msgstr ""
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1276,19 +1311,33 @@ msgstr "Entri Baru"
 msgid "New Word"
 msgstr "Perkataan Baru"
 
+#. Sort option in activity view — most recent commit first.
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Newest first"
+msgstr ""
+
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
 msgstr "Seterusnya"
 
+#. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
-msgid "No activity found"
-msgstr "Tiada aktiviti ditemui"
+msgid "No activity matches these filters"
+msgstr ""
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "No activity types"
+msgstr ""
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "Tiada audio"
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "No authors"
+msgstr ""
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1403,6 +1452,11 @@ msgstr "Luar talian"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Luar talian, tidak dapat memuat turun"
+
+#. Sort option in activity view — earliest commit first.
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Oldest first"
+msgstr ""
 
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1826,6 +1880,16 @@ msgstr "Segerakkan perubahan anda dengan pengguna FieldWorks Lite yang lain"
 msgid "Synced"
 msgstr "Disegerakkan"
 
+#. Sort option in activity view — by upload/download time, newest synced first (unsynced commits last).
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Synced newest"
+msgstr ""
+
+#. Sort option in activity view — by upload/download time, oldest synced first (unsynced commits last).
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Synced oldest"
+msgstr ""
+
 #. Status showing sync source server
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
@@ -1912,6 +1976,7 @@ msgstr "Masa apabila anda memuat naik atau memuat turun perubahan ini"
 
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Perubahan ini belum dimuat naik. Pastikan anda dalam talian dan log masuk untuk berkongsi perubahan anda."
 
@@ -1999,7 +2064,11 @@ msgid "Unable to open in FieldWorks"
 msgstr "Tidak dapat membuka dalam FieldWorks"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/activity/ActivityView.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Unknown"
@@ -2181,6 +2250,7 @@ msgstr "Sistem tulisan"
 msgid "Writing Systems"
 msgstr "Sistem Penulisan"
 
+#. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte
 msgid "You appear to be offline. Can you connect to {0}?"
 msgstr ""

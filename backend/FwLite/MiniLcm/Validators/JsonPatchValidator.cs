@@ -19,4 +19,20 @@ internal static class JsonPatchValidator
                 context.AddFailure(propertyName, "Not allowed to update " + propertyName);
         });
     }
+
+    public static IRuleBuilderOptionsConditions<UpdateObjectInput<T>, JsonPatchDocument<T>> DoesNotChangePropertyTo<T, V>(
+        this IRuleBuilder<UpdateObjectInput<T>, JsonPatchDocument<T>> builder,
+        string propertyName,
+        V forbiddenValue,
+        string message
+    ) where T : class
+    {
+        return builder.Custom((document, context) =>
+        {
+            if (document.Operations.Any(o =>
+                    string.Equals(o.Path, $"/{propertyName}", StringComparison.OrdinalIgnoreCase)
+                    && Equals(o.Value, forbiddenValue)))
+                context.AddFailure(propertyName, message);
+        });
+    }
 }

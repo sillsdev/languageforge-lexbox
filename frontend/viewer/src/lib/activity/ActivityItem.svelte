@@ -29,18 +29,24 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
   import * as Popover from '$lib/components/ui/popover';
+  import {Button} from '$lib/components/ui/button';
+  import HistoryView from '$lib/history/HistoryView.svelte';
+  import {Icon} from '$lib/components/ui/icon';
 
   type Props = HTMLAttributes<HTMLDivElement> & {
     activity: IProjectActivity;
+    showHistoryButton?: boolean;
   }
 
   const {
     activity,
+    showHistoryButton = false,
     class: className,
     ...restProps
   }: Props = $props();
 
   const historyService = useHistoryService();
+  let openHistoryId = $state<string>()
 
   const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(change => {
     return new ChangeWithLazyContext(change, activity, () => historyService.loadChangeContext(activity.commitId, change.index));
@@ -72,11 +78,16 @@
           <span>
             <Popover.Root>
               <Popover.InfoTrigger>
-                <T msg="Synced: #">
-                  <FormatRelativeDate
-                    class="font-semibold"
-                    date={new Date(activity.metadata.extraMetadata['SyncDate'])} />
-                </T>
+                <span class="inline-flex gap-2 items-center">
+                  <Icon icon="i-mdi-cloud-outline" class="size-4 shrink-0" />
+                  <span>
+                    <T msg="Synced: #">
+                      <FormatRelativeDate
+                        class="font-semibold"
+                        date={new Date(activity.metadata.extraMetadata['SyncDate'])} />
+                    </T>
+                  </span>
+                </span>
               </Popover.InfoTrigger>
               <Popover.Content class="w-auto p-2 text-sm text-center max-w-48">
                 {$t`The time when you uploaded or downloaded these changes`}
@@ -84,12 +95,18 @@
             </Popover.Root>
           </span>
         {:else}
-          <span class="text-red-500 font-semibold" title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`}>
+          <span class="inline-flex gap-2 items-center font-semibold" title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`}>
+            <Icon icon="i-mdi-cloud-off-outline" class="size-4 shrink-0 text-muted-foreground" />
             {$t`Not synced`}
           </span>
         {/if}
       </span>
     </div>
+    
+    {#if openHistoryId}
+    <!-- this is a dialog so it doesn't matter where it is in the DOM -->
+        <HistoryView bind:open={() => !!openHistoryId, (open) => (open ? undefined : openHistoryId = undefined)} id={openHistoryId} selectedCommitId={activity.commitId}/>
+    {/if}
     {#if changes}
       <div
         class="change-list flex flex-col gap-4 overflow-auto border rounded">
@@ -108,10 +125,16 @@
                 <div class="h-[700px]"></div>
               {:then context}
                 <div class="change">
-                  <div class="px-4 pt-2 flex font-semibold">
-                    <span>{context.changeName}</span>
+                  <div class="px-4 pt-2 flex font-semibold items-center">
+                    <span class="grow">{context.changeName}</span>
+
+                    {#if showHistoryButton}
+                      <Button icon="i-mdi-history" onclick={() => openHistoryId = context.snapshot?.id}>
+                        {$t`History`}
+                      </Button>
+                    {/if}
                   </div>
-                  <Tabs.Root value="preview" class="px-2 mt-2">
+                  <Tabs.Root value="preview" class="px-2 mt-2 grow">
                     <Tabs.List class="w-full">
                       <Tabs.Trigger class="flex-1" value="preview">
                         {$t`Preview`}

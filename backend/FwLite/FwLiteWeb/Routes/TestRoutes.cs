@@ -36,7 +36,7 @@ public static class TestRoutes
         group.MapPost("/add-new-entry",
             async (IMiniLcmApi api, CurrentProjectService projectContext, ProjectEventBus eventBus, Entry entry) =>
             {
-                var createdEntry = await api.CreateEntry(entry);
+                var createdEntry = await api.CreateEntry(entry, CreateEntryOptions.WithMainPublication);
                 eventBus.PublishEntryChanged(projectContext.Project, createdEntry.Id);
             });
         return group;

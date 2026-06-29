@@ -253,6 +253,12 @@ if (entity?.DeletedAt is not null) return;
 
 ---
 
+## Validation
+
+Imperative validation in `MiniLcmApiValidationWrapper` (rules that need an async lookup, so they can't be FluentValidation rules) must throw `FluentValidation.ValidationException` — the same type the validators throw — not `InvalidOperationException`. Otherwise the same rule reports different exception types per code path. Reserve `InvalidOperationException` for genuine "can't happen" data-integrity guards, not user-input validation.
+
+---
+
 ## Important Files Quick Reference
 
 | File | Purpose | Risk Level |

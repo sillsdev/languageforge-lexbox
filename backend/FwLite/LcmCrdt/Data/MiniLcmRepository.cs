@@ -295,6 +295,12 @@ public class MiniLcmRepository(
         return sortedIds.IndexOf(entryId);
     }
 
+    public Task<Publication?> GetMainPublication()
+    {
+        // Exactly one main publication is the only valid state; SingleOrDefault surfaces a >1 corruption rather than masking it.
+        return AsyncExtensions.SingleOrDefaultAsync(Publications.Where(pub => pub.IsMain));
+    }
+
     public async Task<Publication?> GetPublication(Guid publicationId)
     {
         var publication = await AsyncExtensions.SingleOrDefaultAsync(Publications

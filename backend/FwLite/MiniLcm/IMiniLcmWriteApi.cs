@@ -51,6 +51,10 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region Entry
+    /// <summary>
+    /// Creates an entry. With null <paramref name="options"/> the main publication is auto-added
+    /// (<see cref="CreateEntryOptions.WithMainPublication"/>); pass <see cref="CreateEntryOptions.AsIs"/> to keep publications as given (sync/import do this).
+    /// </summary>
     Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null);
     Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update);
 
@@ -167,7 +171,8 @@ public interface IMiniLcmWriteApi
     {
         await foreach (var entry in entries)
         {
-            await this.CreateEntry(entry);
+            // Import preserves the source's publications; never inject the main publication into imported entries.
+            await this.CreateEntry(entry, CreateEntryOptions.AsIs);
         }
     }
 

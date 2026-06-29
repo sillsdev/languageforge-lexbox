@@ -2,14 +2,21 @@ import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {ResourceReturn} from 'runed';
 
 /**
+ * runed's resource exposes `current`/`loading`/`error` but no "has fetched yet" flag — with an initial value
+ * `current` is never undefined, so it can't tell "not loaded" from "loaded, empty". `loaded` fills that gap.
+ */
+export type DetachedResourceReturn<T> = ResourceReturn<T, unknown, true> & {loaded: boolean};
+
+/**
  * Like runed's `resource`, but uses Promise + $state instead of $effect,
  * so the fetch is not tied to (and torn down with) the creating component's lifecycle.
  * By default the first fetch is deferred until `.current` is read or `.refetch()` is called;
  * pass `eager: true` to fetch immediately.
  */
-export class DetachedResource<T> implements ResourceReturn<T, unknown, true> {
+export class DetachedResource<T> implements DetachedResourceReturn<T> {
   #current: T = $state()!;
   #loading = $state(false);
+  #loaded = $state(false);
   #error: Error | undefined = $state(undefined);
   #active = false;
   #fetchVersion = 0;
@@ -34,6 +41,10 @@ export class DetachedResource<T> implements ResourceReturn<T, unknown, true> {
 
   get loading(): boolean {
     return this.#loading;
+  }
+
+  get loaded(): boolean {
+    return this.#loaded;
   }
 
   get error(): Error | undefined {
@@ -73,6 +84,7 @@ export class DetachedResource<T> implements ResourceReturn<T, unknown, true> {
       const result = await this.#factory(api);
       if (version !== this.#fetchVersion) return result;
       this.#current = result;
+      this.#loaded = true;
       return result;
     } catch (e) {
       if (version === this.#fetchVersion) {
