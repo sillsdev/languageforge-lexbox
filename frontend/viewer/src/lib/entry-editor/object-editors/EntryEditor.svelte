@@ -34,6 +34,13 @@
   import ObjectHeader from './ObjectHeader.svelte';
   import AddSenseButton from './AddSenseButton.svelte';
   import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
+  import CommentDialog from '../CommentDialog.svelte';
+
+  type CommentTarget = {
+    subjectType: SubjectType;
+    subjectId: string;
+    subjectName?: string;
+  };
 
   let {
     entry = $bindable(),
@@ -127,6 +134,15 @@
     onchange?.({entry, sense, example});
   }
 
+  let showCommentDialog = $state(false);
+  let commentTarget = $state<CommentTarget>();
+
+  function openCommentTarget(target: CommentTarget): void {
+    const isSameTarget = commentTarget?.subjectType === target.subjectType && commentTarget.subjectId === target.subjectId;
+    commentTarget = target;
+    showCommentDialog = !isSameTarget || !showCommentDialog;
+  }
+
   let editorElem: HTMLDivElement | null = $state(null);
   let highlighted = $state<{ entity: IExampleSentence | ISense; autofocus?: boolean}>();
   let highlightTimeout: ReturnType<typeof setTimeout>;
@@ -174,9 +190,10 @@
   const showSenses = $derived(showExamples || hasVisibleFields(viewService.currentView.senseFields));
 </script>
 
-<Editor.Root bind:ref bind:this={editor}>
-  <Editor.Grid bind:ref={editorElem}>
-    <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
+<div class="flex min-h-0 gap-4">
+  <Editor.Root bind:ref bind:this={editor} class="min-w-0 flex-1">
+    <Editor.Grid bind:ref={editorElem}>
+      <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
     {#if showSenses}
       {#each entry.senses as sense, i (sense.id)}
@@ -192,6 +209,7 @@
                 getCommentSubjectName={senseCommentSubjectName}
                 {readonly}
                 onmove={(newIndex) => moveSense(sense, newIndex)}
+                oncomment={openCommentTarget}
                 ondelete={() => deleteSense(sense)} id={sense.id} />
           </ObjectHeader>
 
@@ -208,6 +226,7 @@
                                           subjectType={SubjectType.ExampleSentence}
                                           getDisplayName={example => writingSystemService.firstSentenceOrTranslationVal(example)}
                                           onmove={(newIndex) => moveExample(sense, example, newIndex)}
+                                          oncomment={openCommentTarget}
                                           ondelete={() => deleteExample(sense, example)}
                                           id={example.id} />
                   </ObjectHeader>
@@ -253,8 +272,20 @@
         </code>
       </details>
     </DevContent>
-  </Editor.Grid>
-</Editor.Root>
+    </Editor.Grid>
+  </Editor.Root>
+
+  {#if commentTarget && showCommentDialog}
+    <CommentDialog
+      bind:open={showCommentDialog}
+      inlineSidebar={!modalMode}
+      class="self-start xl:sticky xl:top-2 xl:h-[calc(100dvh-1rem)]"
+      subjectType={commentTarget.subjectType}
+      subjectId={commentTarget.subjectId}
+      subjectName={commentTarget.subjectName}
+    />
+  {/if}
+</div>
 
 <style lang="postcss">
   @reference "#app.css";

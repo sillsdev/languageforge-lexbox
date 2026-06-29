@@ -1,14 +1,20 @@
 <script lang="ts">
-  import * as Dialog from '$lib/components/ui/dialog';
-  import {Button} from '$lib/components/ui/button';
+  import * as Drawer from '$lib/components/ui/drawer';
+  import * as Sheet from '$lib/components/ui/sheet';
+  import {Button, buttonVariants} from '$lib/components/ui/button';
+  import {Icon} from '$lib/components/ui/icon';
   import {Label} from '$lib/components/ui/label';
   import {Textarea} from '$lib/components/ui/textarea';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {useMiniLcmApi} from '$lib/services/service-provider';
   import {cn} from '$lib/utils';
   import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICommentThread';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
   import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
   import {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
+  import type {ClassValue} from 'clsx';
+  import {watch} from 'runed';
+  import {MediaQuery} from 'svelte/reactivity';
   import {t} from 'svelte-i18n-lingui';
 
   type ThreadView = {
@@ -21,14 +27,19 @@
     subjectType,
     subjectId,
     subjectName,
+    inlineSidebar = false,
+    class: className,
   }: {
     open: boolean;
     subjectType: SubjectType;
     subjectId: string;
     subjectName?: string;
+    inlineSidebar?: boolean;
+    class?: ClassValue;
   } = $props();
 
   const api = useMiniLcmApi();
+  const isExtraLarge = new MediaQuery('min-width: 1280px');
 
   let threadViews = $state<ThreadView[]>([]);
   let loading = $state(false);
@@ -37,26 +48,44 @@
   let replyTextByThreadId = $state<Record<string, string>>({});
   let editingCommentId = $state<string>();
   let editTextByCommentId = $state<Record<string, string>>({});
+  let loadRequestId = 0;
 
   const title = $derived(subjectName ? $t`Comments for ${subjectName}` : $t`Comments`);
   const hasThreads = $derived(threadViews.length > 0);
+  const shouldUseSidebar = $derived(inlineSidebar && isExtraLarge.current);
+
+  watch([() => open, () => subjectType, () => subjectId], ([isOpen, targetSubjectType, targetSubjectId]) => {
+    if (!isOpen) return;
+    void loadThreads(targetSubjectType, targetSubjectId);
+  });
 
   function onOpenChange(value: boolean): void {
     open = value;
-    if (value) void loadThreads();
   }
 
-  async function loadThreads(): Promise<void> {
+  function isCurrentLoad(requestId: number, targetSubjectType: SubjectType, targetSubjectId: string): boolean {
+    return requestId === loadRequestId && targetSubjectType === subjectType && targetSubjectId === subjectId;
+  }
+
+  async function loadThreads(targetSubjectType = subjectType, targetSubjectId = subjectId): Promise<void> {
+    const requestId = ++loadRequestId;
     loading = true;
-    const threads = await api.getCommentThreads(subjectType, subjectId);
-    const loadedThreadViews = await Promise.all(
-      threads.map(async (thread) => ({
-        thread,
-        comments: await api.getUserComments(thread.id),
-      })),
-    );
-    threadViews = loadedThreadViews;
-    loading = false;
+    try {
+      const threads = await api.getCommentThreads(targetSubjectType, targetSubjectId);
+      const loadedThreadViews = await Promise.all(
+        threads.map(async (thread) => ({
+          thread,
+          comments: await api.getUserComments(thread.id),
+        })),
+      );
+      if (isCurrentLoad(requestId, targetSubjectType, targetSubjectId)) {
+        threadViews = loadedThreadViews;
+      }
+    } finally {
+      if (isCurrentLoad(requestId, targetSubjectType, targetSubjectId)) {
+        loading = false;
+      }
+    }
   }
 
   async function startThread(): Promise<void> {
@@ -125,120 +154,166 @@
   }
 </script>
 
-<Dialog.Root bind:open={() => open, onOpenChange}>
-  <Dialog.DialogContent class="sm:max-w-2xl">
-    <Dialog.DialogHeader>
-      <Dialog.DialogTitle class="max-w-[calc(100%-2rem)] truncate pr-2" title={title}>{title}</Dialog.DialogTitle>
-      <Dialog.DialogDescription>
-        {$t`Start a thread, reply to existing threads, or edit comments.`}
-      </Dialog.DialogDescription>
-    </Dialog.DialogHeader>
-
-    <div class="space-y-4">
-      <div class="space-y-2">
-        <Label for="new-comment-thread">{$t`Start a new thread`}</Label>
-        <Textarea
-          id="new-comment-thread"
-          bind:value={newThreadText}
-          placeholder={$t`Write the first comment...`}
-          rows={3}
-          disabled={loading || saving}
-        />
-        <div class="flex justify-end">
-          <Button onclick={() => void startThread()} disabled={!newThreadText.trim() || loading} loading={saving}>
-            {$t`Start thread`}
-          </Button>
-        </div>
-      </div>
-
-      <div class="max-h-[60vh] space-y-3 overflow-y-auto pr-1">
-        {#if loading}
-          <p class="text-sm text-muted-foreground">{$t`Loading comments...`}</p>
-        {:else if !hasThreads}
-          <p class="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-            {$t`No comment threads yet.`}
-          </p>
-        {:else}
-          {#each threadViews as threadView (threadView.thread.id)}
-            <section class="space-y-3 rounded-md border p-3">
-              <div class="flex items-center justify-between gap-2">
-                <h3 class="text-sm font-semibold">{$t`Thread`}</h3>
-                <span class="text-xs text-muted-foreground">{threadView.thread.status}</span>
-              </div>
-
-              <div class="space-y-2">
-                {#each threadView.comments as comment (comment.id)}
-                  <article class="rounded-md bg-muted/60 p-3">
-                    <div class="mb-2 flex items-center justify-between gap-2">
-                      <span class="text-xs font-medium text-muted-foreground">
-                        {comment.authorName || $t`Comment`}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onclick={() => startEditing(comment)}
-                        disabled={saving || editingCommentId === comment.id}
-                      >
-                        {$t`Edit`}
-                      </Button>
-                    </div>
-
-                    {#if editingCommentId === comment.id}
-                      <div class="space-y-2">
-                        <Textarea
-                          bind:value={editTextByCommentId[comment.id]}
-                          aria-label={$t`Edit comment`}
-                          rows={3}
-                          disabled={saving}
-                        />
-                        <div class="flex justify-end gap-2">
-                          <Button variant="secondary" size="sm" onclick={() => cancelEditing(comment.id)} disabled={saving}>
-                            {$t`Cancel`}
-                          </Button>
-                          <Button
-                            size="sm"
-                            onclick={() => void saveEdit(comment.id)}
-                            disabled={!editTextByCommentId[comment.id]?.trim()}
-                            loading={saving}
-                          >
-                            {$t`Save`}
-                          </Button>
-                        </div>
-                      </div>
-                    {:else}
-                      <p class={cn('whitespace-pre-wrap text-sm', !comment.text && 'text-muted-foreground')}>
-                        {comment.text || $t`Empty comment`}
-                      </p>
-                    {/if}
-                  </article>
-                {/each}
-              </div>
-
-              <div class="space-y-2">
-                <Label for={`reply-${threadView.thread.id}`}>{$t`Reply`}</Label>
-                <Textarea
-                  id={`reply-${threadView.thread.id}`}
-                  bind:value={replyTextByThreadId[threadView.thread.id]}
-                  placeholder={$t`Write a reply...`}
-                  rows={2}
-                  disabled={saving}
-                />
-                <div class="flex justify-end">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onclick={() => void replyToThread(threadView.thread.id)}
-                    disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
-                    loading={saving}
-                  >
-                    {$t`Reply`}
-                  </Button>
-                </div>
-              </div>
-            </section>
-          {/each}
-        {/if}
+{#snippet commentContent()}
+  <div class="flex min-h-0 flex-1 flex-col space-y-4 overflow-hidden px-4 pb-4">
+    <div class="space-y-2">
+      <Label for="new-comment-thread">{$t`Start a new thread`}</Label>
+      <Textarea
+        id="new-comment-thread"
+        bind:value={newThreadText}
+        placeholder={$t`Write the first comment...`}
+        rows={3}
+        disabled={loading || saving}
+      />
+      <div class="flex justify-end">
+        <Button onclick={() => void startThread()} disabled={!newThreadText.trim() || loading} loading={saving}>
+          {$t`Start thread`}
+        </Button>
       </div>
     </div>
-  </Dialog.DialogContent>
-</Dialog.Root>
+
+    <div class="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+      {#if loading}
+        <p class="text-sm text-muted-foreground">{$t`Loading comments...`}</p>
+      {:else if !hasThreads}
+        <p class="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+          {$t`No comment threads yet.`}
+        </p>
+      {:else}
+        {#each threadViews as threadView (threadView.thread.id)}
+          <section class="space-y-3 rounded-md border p-3">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="text-sm font-semibold">{$t`Thread`}</h3>
+              <span class="text-xs text-muted-foreground">{threadView.thread.status}</span>
+            </div>
+
+            <div class="space-y-2">
+              {#each threadView.comments as comment (comment.id)}
+                <article class="rounded-md bg-muted/60 p-3">
+                  <div class="mb-2 flex items-center justify-between gap-2">
+                    <span class="text-xs font-medium text-muted-foreground">
+                      {comment.authorName || $t`Comment`}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      onclick={() => startEditing(comment)}
+                      disabled={saving || editingCommentId === comment.id}
+                    >
+                      {$t`Edit`}
+                    </Button>
+                  </div>
+
+                  {#if editingCommentId === comment.id}
+                    <div class="space-y-2">
+                      <Textarea
+                        bind:value={editTextByCommentId[comment.id]}
+                        aria-label={$t`Edit comment`}
+                        rows={3}
+                        disabled={saving}
+                      />
+                      <div class="flex justify-end gap-2">
+                        <Button variant="secondary" size="sm" onclick={() => cancelEditing(comment.id)} disabled={saving}>
+                          {$t`Cancel`}
+                        </Button>
+                        <Button
+                          size="sm"
+                          onclick={() => void saveEdit(comment.id)}
+                          disabled={!editTextByCommentId[comment.id]?.trim()}
+                          loading={saving}
+                        >
+                          {$t`Save`}
+                        </Button>
+                      </div>
+                    </div>
+                  {:else}
+                    <p class={cn('whitespace-pre-wrap text-sm', !comment.text && 'text-muted-foreground')}>
+                      {comment.text || $t`Empty comment`}
+                    </p>
+                  {/if}
+                </article>
+              {/each}
+            </div>
+
+            <div class="space-y-2">
+              <Label for={`reply-${threadView.thread.id}`}>{$t`Reply`}</Label>
+              <Textarea
+                id={`reply-${threadView.thread.id}`}
+                bind:value={replyTextByThreadId[threadView.thread.id]}
+                placeholder={$t`Write a reply...`}
+                rows={2}
+                disabled={saving}
+              />
+              <div class="flex justify-end">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onclick={() => void replyToThread(threadView.thread.id)}
+                  disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
+                  loading={saving}
+                >
+                  {$t`Reply`}
+                </Button>
+              </div>
+            </div>
+          </section>
+        {/each}
+      {/if}
+    </div>
+  </div>
+{/snippet}
+
+{#if shouldUseSidebar && open}
+  <aside
+    class={cn(
+      'flex h-full min-h-0 w-96 shrink-0 flex-col overflow-hidden rounded-lg border bg-background shadow-sm',
+      className,
+    )}
+  >
+    <div class="flex items-start gap-2 px-4 pt-4 pb-0">
+      <div class="min-w-0 flex-1">
+        <h2 class="truncate text-lg font-semibold" title={title}>{title}</h2>
+        <p class="text-sm text-muted-foreground">
+          {$t`Start a thread, reply to existing threads, or edit comments.`}
+        </p>
+      </div>
+      <Button variant="ghost" size="icon" aria-label={$t`Close`} onclick={() => onOpenChange(false)}>
+        <Icon icon="i-mdi-close" />
+      </Button>
+    </div>
+    {@render commentContent()}
+  </aside>
+{:else if IsMobile.value}
+  <Drawer.Root bind:open={() => open, onOpenChange}>
+    <Drawer.Content class="max-h-[90dvh] overflow-hidden">
+      <Drawer.Close
+        class={buttonVariants({variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10'})}
+        aria-label={$t`Close`}
+      >
+        <Icon icon="i-mdi-close" />
+      </Drawer.Close>
+
+      <div class="mx-auto flex max-h-[90dvh] w-full max-w-lg flex-1 flex-col overflow-hidden">
+        <Drawer.Header class="px-4 text-left">
+          <Drawer.Title class="max-w-[calc(100%-2rem)] truncate pr-2 text-left" title={title}>{title}</Drawer.Title>
+          <Drawer.Description>
+            {$t`Start a thread, reply to existing threads, or edit comments.`}
+          </Drawer.Description>
+        </Drawer.Header>
+        {@render commentContent()}
+      </div>
+    </Drawer.Content>
+  </Drawer.Root>
+{:else}
+  <Sheet.Root bind:open={() => open, onOpenChange}>
+    <Sheet.Content side="right" class="w-full overflow-hidden p-0 sm:max-w-md">
+      <Sheet.Header class="px-4 pb-0">
+        <Sheet.Title class="max-w-[calc(100%-2rem)] truncate pr-2" title={title}>{title}</Sheet.Title>
+        <Sheet.Description>
+          {$t`Start a thread, reply to existing threads, or edit comments.`}
+        </Sheet.Description>
+      </Sheet.Header>
+      {@render commentContent()}
+    </Sheet.Content>
+  </Sheet.Root>
+{/if}

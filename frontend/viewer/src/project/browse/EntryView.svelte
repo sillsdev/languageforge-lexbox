@@ -130,12 +130,6 @@
 
 <div class="h-full flex flex-col relative">
   {#if entry}
-    <CommentDialog
-      bind:open={showCommentDialog}
-      subjectType={SubjectType.Entry}
-      subjectId={entry.id}
-      subjectName={headword}
-    />
     <header>
       <div class="max-md:p-2 md:mb-4 flex justify-between">
         {#if showClose && onClose}
@@ -178,23 +172,34 @@
         </div>
       {/if}
     </header>
-    <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('grow md:pr-2')}>
-      {#if dictionaryPreview === 'show'}
-        <div class="md:pl-2">
-          {@render preview(entry)}
+    <div class="flex min-h-0 grow gap-4">
+      <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('min-w-0 grow md:pr-2')}>
+        {#if dictionaryPreview === 'show'}
+          <div class="md:pl-2">
+            {@render preview(entry)}
+          </div>
+        {/if}
+        <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
+          {#key entry.id}
+            <EntryEditor
+              bind:this={editor}
+              bind:ref={editorRef}
+              bind:entry
+              readonly={readonly || !features.write || deleted}
+              {...entryPersistence.entryEditorProps} />
+          {/key}
         </div>
+      </ScrollArea>
+      {#if showCommentDialog}
+        <CommentDialog
+          bind:open={showCommentDialog}
+          inlineSidebar
+          subjectType={SubjectType.Entry}
+          subjectId={entry.id}
+          subjectName={headword}
+        />
       {/if}
-      <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
-        {#key entry.id}
-          <EntryEditor
-            bind:this={editor}
-            bind:ref={editorRef}
-            bind:entry
-            readonly={readonly || !features.write || deleted}
-            {...entryPersistence.entryEditorProps} />
-        {/key}
-      </div>
-    </ScrollArea>
+    </div>
   {/if}
   {#if loadingDebounced.current && entryResource.current?.id !== entryId}
     <div
