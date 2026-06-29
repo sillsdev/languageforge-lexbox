@@ -57,9 +57,13 @@ internal static class ActivityChangeInfoResolver
             }
         }
 
-        // Walk down to the root entry: component → entry, example → sense → entry.
+        // Walk down to the root entry: component → entry, example → sense → entry. Load both ends of a component link so we can name either.
         var components = await LoadByIds<ComplexFormComponent>(db, componentIds);
-        foreach (var component in components.Values) entryIds.Add(component.ComplexFormEntryId);
+        foreach (var component in components.Values)
+        {
+            entryIds.Add(component.ComplexFormEntryId);
+            entryIds.Add(component.ComponentEntryId);
+        }
         var examples = await LoadByIds<ExampleSentence>(db, exampleIds);
         foreach (var example in examples.Values) senseIds.Add(example.SenseId);
         var senses = await LoadByIds<Sense>(db, senseIds);
@@ -83,8 +87,26 @@ internal static class ActivityChangeInfoResolver
 
         ActivityChangeInfo Build(ChangeEntity<IChange> change, Func<Guid, string> headword)
         {
+            if (ResolveReorder(change) is { } reorder) return reorder;
             var (subject, rootEntryId) = ResolveSubject(change, headword);
             return new ActivityChangeInfo(subject, rootEntryId, TargetLabel(change));
+        }
+
+        // A reorder reads best as "<container> · Reordered <item> <name>": the subject is the parent whose list changed, the target is the moved item.
+        ActivityChangeInfo? ResolveReorder(ChangeEntity<IChange> change)
+        {
+            switch (change.Change)
+            {
+                case Changes.SetOrderChange<Sense> when senses.TryGetValue(change.EntityId, out var sense):
+                    return new ActivityChangeInfo(Headword(sense.EntryId), sense.EntryId, Label(sense.Gloss));
+                case Changes.SetOrderChange<ExampleSentence> when examples.TryGetValue(change.EntityId, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
+                    return new ActivityChangeInfo(SenseLabel(Headword(exSense.EntryId), exSense.Gloss), exSense.EntryId, null);
+                case Changes.SetOrderChange<ComplexFormComponent> when components.TryGetValue(change.EntityId, out var comp):
+                    return new ActivityChangeInfo(Headword(comp.ComplexFormEntryId), comp.ComplexFormEntryId,
+                        entries.ContainsKey(comp.ComponentEntryId) ? Headword(comp.ComponentEntryId) : null);
+                default:
+                    return null;
+            }
         }
 
         (string? Subject, Guid? RootEntryId) ResolveSubject(ChangeEntity<IChange> change, Func<Guid, string> headword)

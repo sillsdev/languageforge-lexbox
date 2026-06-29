@@ -503,6 +503,7 @@ msgstr "Bentuk kompleks"
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added component"). Refers to an entry that is a constituent part of a compound word (e.g. "sun" is a component of "sunflower").
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
 msgid "component"
 msgstr ""
 
@@ -891,6 +892,10 @@ msgstr "Ralat mendapatkan status penyegerakan"
 msgid "Error getting sync status."
 msgstr "Ralat mendapatkan status penyegerakan."
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "example"
+msgstr ""
+
 #. Section header
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
@@ -1262,6 +1267,7 @@ msgstr "Terang"
 msgid "Linked a component"
 msgstr ""
 
+#. Activity-log line followed by the name of the component entry that was linked; the compound word it was linked to is the subject shown before. E.g. "blackbird · Linked component black".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Linked component"
 msgstr ""
@@ -1413,6 +1419,7 @@ msgstr ""
 msgid "Move"
 msgstr "Gerak"
 
+#. Activity-log line. Shown when a sense was moved into the entry it now belongs to (shown as the subject) from a different entry.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Moved from another entry"
 msgstr ""
@@ -1834,6 +1841,7 @@ msgstr "Buka semula"
 
 #. Activity-log line. {0} = plural collection noun: "senses", "examples", "components", or "writing systems".
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
 msgid "Reordered {0}"
 msgstr ""
 
@@ -1942,6 +1950,10 @@ msgstr "Domain semantik"
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Send us a message"
 msgstr "Hantar kami mesej"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "sense"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Meaning"
@@ -2383,6 +2395,7 @@ msgstr "Kemas kini tidak dibenarkan oleh tetapan kebenaran."
 msgid "Updated a component link"
 msgstr ""
 
+#. Activity-log line followed by the name of the component entry whose link was changed; the compound word is the subject shown before.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Updated component"
 msgstr ""
@@ -2466,6 +2479,7 @@ msgid "Word or meaning:"
 msgstr "Perkataan atau makna:"
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Created writing system"). A writing system defines a script and language variant (e.g. "Latin/English", "Cyrillic/Russian").
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "writing system"
 msgstr ""

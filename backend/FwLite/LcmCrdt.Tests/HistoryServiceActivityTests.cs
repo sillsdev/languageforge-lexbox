@@ -188,6 +188,29 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "homograph₂");
     }
 
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_Reorder_NamesParentEntryAndMovedSense()
+    {
+        var entryId = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry
+        {
+            Id = entryId,
+            LexemeForm = new MultiString { ["en"] = "run" }
+        }), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
+        var senseId = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreateSenseChange(new Sense
+        {
+            Id = senseId,
+            Gloss = new MultiString { ["en"] = "to run" }
+        }, entryId), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
+        await DataModel.AddChange(ClientId, new SetOrderChange<Sense>(senseId, 2.0), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+
+        // The reorder names the parent entry as the subject and the moved sense's gloss as the target.
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "to run");
+    }
+
     private async Task<Commit> AddEntryCommit(CommitMetadata metadata, string? headword = null)
     {
         var entry = headword is null

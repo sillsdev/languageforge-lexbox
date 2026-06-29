@@ -12,8 +12,12 @@
   // These kinds weave the subject into their own sentence ("Created entry X"); the rest get it as a leading chip.
   const selfNaming = $derived(
     fact.kind === 'create' || fact.kind === 'createObject' || fact.kind === 'editObject'
-    || fact.kind === 'deleteObject' || fact.kind === 'delete',
+    || fact.kind === 'editObjectField' || fact.kind === 'deleteObject' || fact.kind === 'delete',
   );
+
+  function capitalize(text: string): string {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
 
   function resolve(text: ViewText): string {
     return pt($tvt(text), viewService.currentView);
@@ -35,6 +39,17 @@
       examples: $t`examples`,
       components: $t`components`,
       writingSystems: $t`writing systems`,
+    };
+    return nouns[collection];
+  }
+
+  // Singular noun for one reordered item, so we can name it ("Reordered sense apple").
+  function collectionItemNoun(collection: CollectionKind): string {
+    const nouns: Record<CollectionKind, string> = {
+      senses: $t`sense`,
+      examples: $t`example`,
+      components: $t`component`,
+      writingSystems: $t`writing system`,
     };
     return nouns[collection];
   }
@@ -111,7 +126,7 @@
     {:else}{$t`Deleted an example from`} {@render chip(subject)}{/if}
   {:else}{$t`Deleted ${entityName(fact.entity)}`}{/if}
 {:else if fact.kind === 'reorder'}
-  {$t`Reordered ${collectionNoun(fact.collection)}`}
+  {#if target}{$t`Reordered ${collectionItemNoun(fact.collection)}`} {@render chip(target)}{:else}{$t`Reordered ${collectionNoun(fact.collection)}`}{/if}
 {:else if fact.kind === 'moveSense'}
   {$t`Moved from another entry`}
 {:else if fact.kind === 'componentLink'}
@@ -129,10 +144,8 @@
 {:else if fact.kind === 'editObject'}
   {$t`Edited ${objectNoun(fact.object)}`} {#if subject}{@render chip(subject)}{/if}
 {:else if fact.kind === 'editObjectField'}
-  {#if fact.cleared}{$t`Cleared ${fact.field}`}
-  {:else if fact.value !== undefined}
-    {#if fact.ws}{$t`Set ${fact.field} (${fact.ws}) to “${fact.value}”`}{:else}{$t`Set ${fact.field} to “${fact.value}”`}{/if}
-  {:else}{$t`Changed ${fact.field}`}{/if}
+  {@const objectType = capitalize(objectNoun(fact.object))}
+  {#if subject}{objectType} {@render chip(subject)}{:else}{objectType}{/if}<span class="px-1.5 text-muted-foreground/70">·</span>{#if fact.cleared}{$t`Cleared ${fact.field}`}{:else if fact.value !== undefined}{#if fact.ws}{$t`Set ${fact.field} (${fact.ws}) to “${fact.value}”`}{:else}{$t`Set ${fact.field} to “${fact.value}”`}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
 {:else if fact.kind === 'deleteObject'}
   {$t`Deleted ${objectNoun(fact.object)}`} {#if subject}{@render chip(subject)}{/if}
 {:else}
