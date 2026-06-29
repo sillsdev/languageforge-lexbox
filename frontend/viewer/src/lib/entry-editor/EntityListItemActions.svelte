@@ -3,61 +3,34 @@
   import {useFeatures} from '$lib/services/feature-service';
   import { Reorderer } from '$lib/components/reorderer';
   import {Button} from '$lib/components/ui/button';
-  import CommentDialog from './CommentDialog.svelte';
-  import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
-
-  type CommentTarget = {
-    subjectType: SubjectType;
-    subjectId: string;
-    subjectName?: string;
-  };
 
   type Props<T> = {
     items: T[];
     i: number;
     id?: string;
-    subjectType?: SubjectType;
     getDisplayName: (item: T) => string | undefined;
-    getCommentSubjectName?: (item: T, index: number) => string | undefined;
     readonly: boolean;
     onmove?: (newIndex: number) => void;
     ondelete?: () => void;
-    oncomment?: (target: CommentTarget) => void;
   };
 
   let {
     items = $bindable(),
     i,
     id,
-    subjectType,
     getDisplayName,
-    getCommentSubjectName,
     readonly,
     onmove,
     ondelete,
-    oncomment,
   }: Props<T> = $props();
 
   const features = useFeatures();
 
   let showHistoryView = $state(false);
-  let showCommentDialog = $state(false);
   const item = $derived(items[i]);
-  const subjectName = $derived(item ? getCommentSubjectName?.(item, i) ?? getDisplayName(item) : undefined);
-
-  function openComments(): void {
-    if (!subjectType || !id) return;
-
-    if (oncomment) {
-      oncomment({subjectType, subjectId: id, subjectName});
-      return;
-    }
-
-    showCommentDialog = !showCommentDialog;
-  }
 </script>
 
-{#if !readonly || features.history || (features.comments && subjectType && id)}
+{#if !readonly || features.history}
 <div class="flex gap-2">
   {#if !readonly}
     <Reorderer
@@ -67,12 +40,6 @@
       {getDisplayName}
       onchange={(_newItems, _fromIndex, newIndex) => onmove?.(newIndex)}
     />
-  {/if}
-  {#if features.comments && subjectType && id}
-    <Button onclick={openComments} size="icon" variant="secondary" icon="i-mdi-comment-text-outline" />
-    {#if !oncomment && showCommentDialog}
-      <CommentDialog bind:open={showCommentDialog} {subjectType} subjectId={id} {subjectName} />
-    {/if}
   {/if}
   {#if features.history && id}
     <Button onclick={() => showHistoryView = true} size="icon" variant="secondary" icon="i-mdi-history" />

@@ -34,14 +34,6 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import ObjectHeader from './ObjectHeader.svelte';
   import AddSenseButton from './AddSenseButton.svelte';
-  import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
-  import CommentDialog from '../CommentDialog.svelte';
-
-  type CommentTarget = {
-    subjectType: SubjectType;
-    subjectId: string;
-    subjectName?: string;
-  };
 
   let {
     entry = $bindable(),
@@ -100,12 +92,6 @@
     highlighted = { entity: sense };
   }
 
-  function senseCommentSubjectName(sense: ISense, index: number): string {
-    const label = pt($t`Sense`, $t`Meaning`, viewService.currentView);
-    const glossOrDefinition = writingSystemService.firstGloss(sense) || writingSystemService.firstDef(sense);
-    return glossOrDefinition ? `${label} ${index + 1}: ${glossOrDefinition}` : `${label} ${index + 1}`;
-  }
-
   async function deleteExample(sense: ISense, example: IExampleSentence) {
     if (newExamples.some(e => e.id === example.id)) {
       newExamples = newExamples.filter(e => e.id !== example.id);
@@ -133,15 +119,6 @@
   function onExampleChange(sense: ISense, example: IExampleSentence) {
     newExamples = newExamples.filter(e => e.id !== example.id);
     onchange?.({entry, sense, example});
-  }
-
-  let showCommentDialog = $state(false);
-  let commentTarget = $state<CommentTarget>();
-
-  function openCommentTarget(target: CommentTarget): void {
-    const isSameTarget = commentTarget?.subjectType === target.subjectType && commentTarget.subjectId === target.subjectId;
-    commentTarget = target;
-    showCommentDialog = !isSameTarget || !showCommentDialog;
   }
 
   let editorElem: HTMLDivElement | null = $state(null);
@@ -205,12 +182,9 @@
             'top-0 bg-background z-1 w-[calc(100%+2px)] pr-0.5 animate-fade-out animation-scroll')}>
             <EntityListItemActions {i}
                 items={entry.senses}
-                subjectType={SubjectType.Sense}
                 getDisplayName={(sense) => writingSystemService.firstDefOrGlossVal(sense)}
-                getCommentSubjectName={senseCommentSubjectName}
                 {readonly}
                 onmove={(newIndex) => moveSense(sense, newIndex)}
-                oncomment={openCommentTarget}
                 ondelete={() => deleteSense(sense)} id={sense.id} />
           </ObjectHeader>
 
@@ -224,11 +198,8 @@
                   <ObjectHeader type="example" index={j + 1}>
                     <EntityListItemActions i={j} {readonly}
                                            items={sense.exampleSentences}
-                                           subjectType={SubjectType.ExampleSentence}
                                            getDisplayName={example => writingSystemService.firstSentenceOrTranslationVal(example)}
-                                           getCommentSubjectName={_ => pt($t`Sense ${i + 1} Example ${j + 1}`, $t`Meaning ${i + 1} Example ${j + 1}`, viewService.currentView)}
                                            onmove={(newIndex) => moveExample(sense, example, newIndex)}
-                                           oncomment={openCommentTarget}
                                            ondelete={() => deleteExample(sense, example)}
                                            id={example.id}/>
                   </ObjectHeader>
@@ -276,17 +247,6 @@
     </DevContent>
     </Editor.Grid>
   </Editor.Root>
-
-  {#if commentTarget && showCommentDialog}
-    <CommentDialog
-      bind:open={showCommentDialog}
-      inlineSidebar={!modalMode}
-      class="self-start xl:sticky xl:top-2 xl:h-[calc(100dvh-1rem)]"
-      subjectType={commentTarget.subjectType}
-      subjectId={commentTarget.subjectId}
-      subjectName={commentTarget.subjectName}
-    />
-  {/if}
 </div>
 
 <style lang="postcss">

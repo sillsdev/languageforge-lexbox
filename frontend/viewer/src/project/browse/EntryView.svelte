@@ -168,30 +168,32 @@
           </Alert.Root>
         </div>
       {/if}
-      {#if dictionaryPreview === 'sticky'}
-        <div class="md:px-2">
-          {@render preview(entry)}
-        </div>
-      {/if}
     </header>
     <div class="flex min-h-0 grow gap-4">
-      <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('min-w-0 grow md:pr-2')}>
-        {#if dictionaryPreview === 'show'}
-          <div class="md:pl-2">
+      <div class="flex min-h-0 min-w-0 grow flex-col">
+        {#if dictionaryPreview === 'sticky'}
+          <div class="shrink-0 md:px-2">
             {@render preview(entry)}
           </div>
         {/if}
-        <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
-          {#key entry.id}
-            <EntryEditor
-              bind:this={editor}
-              bind:ref={editorRef}
-              bind:entry
-              readonly={readonly || !features.write || deleted}
-              {...entryPersistence.entryEditorProps} />
-          {/key}
-        </div>
-      </ScrollArea>
+        <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('min-w-0 grow md:pr-2')}>
+          {#if dictionaryPreview === 'show'}
+            <div class="md:pl-2">
+              {@render preview(entry)}
+            </div>
+          {/if}
+          <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
+            {#key entry.id}
+              <EntryEditor
+                bind:this={editor}
+                bind:ref={editorRef}
+                bind:entry
+                readonly={readonly || !features.write || deleted}
+                {...entryPersistence.entryEditorProps} />
+            {/key}
+          </div>
+        </ScrollArea>
+      </div>
       {#if showCommentDialog}
         <CommentDialog
           bind:open={showCommentDialog}
