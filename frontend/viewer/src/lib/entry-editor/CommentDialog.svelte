@@ -144,114 +144,115 @@
 </script>
 
 {#snippet commentContent()}
-  <div class="flex min-h-0 flex-1 flex-col space-y-4 overflow-hidden px-4 pb-4">
-    <form onsubmit={(e) => (e.preventDefault(), startThread())} class="space-y-2">
-      <Label for="new-comment-thread">{$t`Start a new thread`}</Label>
-      <Textarea
-        id="new-comment-thread"
-        bind:value={newThreadText}
-        placeholder={$t`Write the first comment...`}
-        rows={3}
-        disabled={loading || saving}
-        onkeydown={submitOnCtrlEnter}
-      />
-      <div class="flex justify-end">
-        <Button type="submit" disabled={!newThreadText.trim() || loading} loading={saving}>
-          {$t`Start thread`}
-        </Button>
-      </div>
-    </form>
+  <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div class="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-4">
+      <form onsubmit={(e) => (e.preventDefault(), startThread())} class="space-y-2">
+        <Label for="new-comment-thread">{$t`Start a new thread`}</Label>
+        <Textarea
+          id="new-comment-thread"
+          bind:value={newThreadText}
+          placeholder={$t`Write the first comment...`}
+          rows={3}
+          disabled={loading || saving}
+          onkeydown={submitOnCtrlEnter}
+        />
+        <div class="flex justify-end">
+          <Button type="submit" disabled={!newThreadText.trim() || loading} loading={saving}>
+            {$t`Start thread`}
+          </Button>
+        </div>
+      </form>
 
-    <div class="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
-      {#if loading}
-        <p class="text-sm text-muted-foreground">{$t`Loading comments...`}</p>
-      {:else if !hasThreads}
-        <p class="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-          {$t`No comment threads yet.`}
-        </p>
-      {:else}
-        {#each threadViews as threadView (threadView.thread.id)}
-          <section class="space-y-3 rounded-md border p-3">
-            <div class="flex items-center justify-between gap-2">
-              <h3 class="text-sm font-semibold">{$t`Thread`}</h3>
-              <span class="text-xs text-muted-foreground">{threadView.thread.status}</span>
-            </div>
+      <div class="space-y-3">
+        {#if loading}
+          <p class="text-sm text-muted-foreground">{$t`Loading comments...`}</p>
+        {:else if !hasThreads}
+          <p class="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+            {$t`No comment threads yet.`}
+          </p>
+        {:else}
+          {#each threadViews as threadView (threadView.thread.id)}
+            <section class="space-y-3 rounded-md border p-3">
+              <div class="flex items-center justify-between gap-2">
+                <h3 class="text-sm font-semibold">{$t`Thread`}</h3>
+                <span class="text-xs text-muted-foreground">{threadView.thread.status}</span>
+              </div>
 
-            <div class="space-y-2">
-              {#each threadView.comments as comment (comment.id)}
-                <article class="rounded-md bg-muted/60 p-3">
-                  <div class="mb-2 flex items-center justify-between gap-2">
-                    <span class="text-xs font-medium text-muted-foreground">
-                      {comment.authorName || $t`(unknown)`}
-                    </span>
+              <div class="space-y-2">
+                {#each threadView.comments as comment (comment.id)}
+                  <article class="rounded-md bg-muted/60 p-3">
+                    <div class="mb-2 flex items-center justify-between gap-2">
+                      <span class="text-xs font-medium text-muted-foreground">
+                        {comment.authorName || $t`(unknown)`}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        onclick={() => startEditing(comment)}
+                        disabled={saving || editingCommentId === comment.id}
+                      >
+                        {$t`Edit`}
+                      </Button>
+                    </div>
+
+                    {#if editingCommentId === comment.id}
+                      <div class="space-y-2">
+                        <Textarea
+                          bind:value={editTextByCommentId[comment.id]}
+                          aria-label={$t`Edit comment`}
+                          rows={3}
+                          disabled={saving}
+                        />
+                        <div class="flex justify-end gap-2">
+                          <Button variant="secondary" size="sm" onclick={() => cancelEditing(comment.id)} disabled={saving}>
+                            {$t`Cancel`}
+                          </Button>
+                          <Button
+                            size="sm"
+                            onclick={() => void saveEdit(comment.id)}
+                            disabled={!editTextByCommentId[comment.id]?.trim()}
+                            loading={saving}
+                          >
+                            {$t`Save`}
+                          </Button>
+                        </div>
+                      </div>
+                    {:else}
+                      <p class={cn('whitespace-pre-wrap text-sm', !comment.text && 'text-muted-foreground')}>
+                        {comment.text || $t`Empty comment`}
+                      </p>
+                    {/if}
+                  </article>
+                {/each}
+              </div>
+
+              <div class="space-y-2">
+                <form onsubmit={(e) => (e.preventDefault(), replyToThread(threadView))} class="space-y-2">
+                  <Textarea
+                    id={`reply-${threadView.thread.id}`}
+                    bind:value={replyTextByThreadId[threadView.thread.id]}
+                    placeholder={$t`Write a reply...`}
+                    rows={2}
+                    disabled={saving}
+                    onkeydown={submitOnCtrlEnter}
+                  />
+                  <div class="flex justify-end">
                     <Button
-                      variant="ghost"
-                      size="xs"
-                      onclick={() => startEditing(comment)}
-                      disabled={saving || editingCommentId === comment.id}
+                      type="submit"
+                      variant="secondary"
+                      size="sm"
+                      disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
+                      loading={saving}
                     >
-                      {$t`Edit`}
+                      {$t`Reply`}
                     </Button>
                   </div>
-
-                  {#if editingCommentId === comment.id}
-                    <div class="space-y-2">
-                      <Textarea
-                        bind:value={editTextByCommentId[comment.id]}
-                        aria-label={$t`Edit comment`}
-                        rows={3}
-                        disabled={saving}
-                      />
-                      <div class="flex justify-end gap-2">
-                        <Button variant="secondary" size="sm" onclick={() => cancelEditing(comment.id)} disabled={saving}>
-                          {$t`Cancel`}
-                        </Button>
-                        <Button
-                          size="sm"
-                          onclick={() => void saveEdit(comment.id)}
-                          disabled={!editTextByCommentId[comment.id]?.trim()}
-                          loading={saving}
-                        >
-                          {$t`Save`}
-                        </Button>
-                      </div>
-                    </div>
-                  {:else}
-                    <p class={cn('whitespace-pre-wrap text-sm', !comment.text && 'text-muted-foreground')}>
-                      {comment.text || $t`Empty comment`}
-                    </p>
-                  {/if}
-                </article>
-              {/each}
-            </div>
-
-            <div class="space-y-2">
-              <form onsubmit={(e) => (e.preventDefault(), replyToThread(threadView))} class="space-y-2">
-                <Label for={`reply-${threadView.thread.id}`}>{$t`Reply`}</Label>
-                <Textarea
-                  id={`reply-${threadView.thread.id}`}
-                  bind:value={replyTextByThreadId[threadView.thread.id]}
-                  placeholder={$t`Write a reply...`}
-                  rows={2}
-                  disabled={saving}
-                  onkeydown={submitOnCtrlEnter}
-                />
-                <div class="flex justify-end">
-                  <Button
-                    type="submit"
-                    variant="secondary"
-                    size="sm"
-                    disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
-                    loading={saving}
-                  >
-                    {$t`Reply`}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </section>
-        {/each}
-      {/if}
+                </form>
+              </div>
+            </section>
+          {/each}
+        {/if}
+      </div>
     </div>
   </div>
 {/snippet}
