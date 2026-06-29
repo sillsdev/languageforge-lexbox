@@ -27,6 +27,7 @@ public record CommentThread : IObjectWithId<CommentThread>
     public ThreadStatus Status { get; set; } = ThreadStatus.Open;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
+    public List<UserComment>? Comments { get; set; }
 
     public Guid[] GetReferences()
     {
@@ -39,7 +40,10 @@ public record CommentThread : IObjectWithId<CommentThread>
 
     public CommentThread Copy()
     {
-        return this with { };
+        return this with
+        {
+            Comments = Comments?.Select(comment => comment.Copy()).ToList()
+        };
     }
 }
 

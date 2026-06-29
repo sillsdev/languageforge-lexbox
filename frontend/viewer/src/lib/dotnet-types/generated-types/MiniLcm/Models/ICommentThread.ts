@@ -6,6 +6,7 @@
 import type {IObjectWithId} from './IObjectWithId';
 import type {SubjectType} from './SubjectType';
 import type {ThreadStatus} from './ThreadStatus';
+import type {IUserComment} from './IUserComment';
 
 export interface ICommentThread extends IObjectWithId
 {
@@ -16,5 +17,6 @@ export interface ICommentThread extends IObjectWithId
 	status: ThreadStatus;
 	createdAt: string;
 	updatedAt: string;
+	comments?: IUserComment[];
 }
 /* eslint-enable */

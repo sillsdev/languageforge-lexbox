@@ -93,6 +93,31 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
     }
 
     [Fact]
+    public async Task GetCommentThreads_CanIncludeComments()
+    {
+        var authorId = $"author-{Guid.NewGuid()}";
+        var subjectId = Guid.NewGuid();
+        var (thread, firstComment) = await CreateThreadWithComment(authorId, SubjectType.Entry, subjectId);
+        var reply = await fixture.Api.AddUserComment(thread.Id, NewComment("reply") with
+        {
+            PreviousCommentId = firstComment.Id
+        });
+        var (_, otherComment) = await CreateThreadWithComment(authorId, SubjectType.Entry, Guid.NewGuid(), "other");
+
+        var withoutComments = await fixture.Api.GetCommentThreads(SubjectType.Entry, subjectId).ToArrayAsync();
+        var withComments = await fixture.Api.GetCommentThreads(SubjectType.Entry, subjectId, includeComments: true).ToArrayAsync();
+
+        withoutComments.Should().ContainSingle();
+        withoutComments[0].Comments.Should().BeNull();
+        withComments.Should().ContainSingle();
+        var includedComments = withComments[0].Comments;
+        includedComments.Should().NotBeNull();
+        includedComments!.Should().Contain(c => c.Id == firstComment.Id);
+        includedComments.Should().Contain(c => c.Id == reply.Id);
+        includedComments.Should().NotContain(c => c.Id == otherComment.Id);
+    }
+
+    [Fact]
     public async Task DeleteThread_CascadesToComments()
     {
         var (thread, _) = await CreateThreadWithComment($"author-{Guid.NewGuid()}");

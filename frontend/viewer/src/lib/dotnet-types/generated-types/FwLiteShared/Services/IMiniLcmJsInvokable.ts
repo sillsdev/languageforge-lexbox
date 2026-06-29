@@ -63,7 +63,7 @@ export interface IMiniLcmJsInvokable
 	createCustomView(customView: ICustomView) : Promise<ICustomView>;
 	updateCustomView(customView: ICustomView) : Promise<ICustomView>;
 	deleteCustomView(id: string) : Promise<void>;
-	getCommentThreads(subjectType: SubjectType, subjectId: string) : Promise<ICommentThread[]>;
+	getCommentThreads(subjectType: SubjectType, subjectId: string, includeComments?: boolean) : Promise<ICommentThread[]>;
 	getCommentThread(id: string) : Promise<ICommentThread | null>;
 	getUserComments(threadId: string) : Promise<IUserComment[]>;
 	getUserComment(id: string) : Promise<IUserComment | null>;

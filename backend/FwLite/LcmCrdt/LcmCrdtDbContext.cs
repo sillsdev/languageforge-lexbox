@@ -50,6 +50,13 @@ public class LcmCrdtDbContext(
         var morphTypeModel = modelBuilder.Entity<MorphType>();
         morphTypeModel.HasIndex(m => m.Kind).IsUnique();
 
+        var commentThreadModel = modelBuilder.Entity<CommentThread>();
+        commentThreadModel
+            .HasMany(t => t.Comments)
+            .WithOne()
+            .HasForeignKey(c => c.CommentThreadId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         var unreadCommentModel = modelBuilder.Entity<UnreadComment>();
         unreadCommentModel.HasKey(c => c.CommentId);
         unreadCommentModel.HasIndex(c => c.CommentThreadId);

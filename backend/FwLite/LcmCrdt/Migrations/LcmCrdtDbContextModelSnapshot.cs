@@ -893,7 +893,7 @@ namespace LcmCrdt.Migrations
             modelBuilder.Entity("MiniLcm.Models.UserComment", b =>
                 {
                     b.HasOne("MiniLcm.Models.CommentThread", null)
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("CommentThreadId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -938,6 +938,11 @@ namespace LcmCrdt.Migrations
                         .WithOne()
                         .HasForeignKey("SIL.Harmony.Resource.RemoteResource", "SnapshotId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("MiniLcm.Models.CommentThread", b =>
+                {
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.Entry", b =>

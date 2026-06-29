@@ -271,9 +271,9 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public ValueTask<CommentThread[]> GetCommentThreads(SubjectType subjectType, Guid subjectId)
+    public ValueTask<CommentThread[]> GetCommentThreads(SubjectType subjectType, Guid subjectId, bool includeComments = false)
     {
-        return _wrappedApi.GetCommentThreads(subjectType, subjectId).ToArrayAsync();
+        return _wrappedApi.GetCommentThreads(subjectType, subjectId, includeComments).ToArrayAsync();
     }
 
     [JSInvokable]

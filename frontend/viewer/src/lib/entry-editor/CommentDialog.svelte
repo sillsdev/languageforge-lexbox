@@ -71,13 +71,11 @@
     const requestId = ++loadRequestId;
     loading = true;
     try {
-      const threads = await api.getCommentThreads(targetSubjectType, targetSubjectId);
-      const loadedThreadViews = await Promise.all(
-        threads.map(async (thread) => ({
-          thread,
-          comments: await api.getUserComments(thread.id),
-        })),
-      );
+      const threads = await api.getCommentThreads(targetSubjectType, targetSubjectId, true);
+      const loadedThreadViews = threads.map((thread) => ({
+        thread,
+        comments: thread.comments ?? [],
+      }));
       if (isCurrentLoad(requestId, targetSubjectType, targetSubjectId)) {
         threadViews = loadedThreadViews;
       }

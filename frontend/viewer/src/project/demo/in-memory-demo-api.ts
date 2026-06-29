@@ -205,10 +205,15 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   private _commentThreads: ICommentThread[] = [];
   private _userComments: IUserComment[] = [];
 
-  getCommentThreads(subjectType: SubjectType, subjectId: string): Promise<ICommentThread[]> {
+  getCommentThreads(subjectType: SubjectType, subjectId: string, includeComments = false): Promise<ICommentThread[]> {
     return Promise.resolve(this._commentThreads
       .filter(thread => !thread.deletedAt && thread.subjectType === subjectType && thread.subjectId === subjectId)
-      .map(thread => ({...thread})));
+      .map(thread => ({
+        ...thread,
+        comments: includeComments
+          ? this._userComments.filter(comment => !comment.deletedAt && comment.commentThreadId === thread.id).map(comment => ({...comment}))
+          : undefined,
+      })));
   }
 
   getCommentThread(id: string): Promise<ICommentThread | null> {

@@ -64,6 +64,8 @@
       SubjectId (Guid) Required Index
       SubjectType (SubjectType) Required Index
       UpdatedAt (DateTimeOffset) Required
+    Navigations: 
+      Comments (List<UserComment>) Collection ToDependent UserComment
     Keys: 
       Id PK
     Foreign keys: 
@@ -395,7 +397,7 @@
     Keys: 
       Id PK
     Foreign keys: 
-      UserComment {'CommentThreadId'} -> CommentThread {'Id'} Required Cascade
+      UserComment {'CommentThreadId'} -> CommentThread {'Id'} Required Cascade ToDependent: Comments
       UserComment {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
     Indexes: 
       CommentThreadId

@@ -919,12 +919,17 @@ public class CrdtMiniLcmApi(
             $"Only managers can manage custom views.");
     }
 
-    public async IAsyncEnumerable<CommentThread> GetCommentThreads(SubjectType subjectType, Guid subjectId)
+    public async IAsyncEnumerable<CommentThread> GetCommentThreads(SubjectType subjectType, Guid subjectId, bool includeComments = false)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var threads = repo.CommentThreads
-            .Where(t => t.SubjectType == subjectType && t.SubjectId == subjectId)
-            .OrderBy(t => t.CreatedAt).ThenBy(t => t.Id);
+            .Where(t => t.SubjectType == subjectType && t.SubjectId == subjectId);
+        if (includeComments)
+        {
+            threads = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(threads, t => t.Comments);
+        }
+
+        threads = threads.OrderBy(t => t.CreatedAt).ThenBy(t => t.Id);
         await foreach (var thread in threads.AsAsyncEnumerable())
         {
             yield return thread;
