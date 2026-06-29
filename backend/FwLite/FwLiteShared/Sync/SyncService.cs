@@ -4,6 +4,7 @@ using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using LexCore.Sync;
 using LcmCrdt;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Data;
 using LcmCrdt.MediaServer;
 using LcmCrdt.RemoteSync;
@@ -31,7 +32,8 @@ public class SyncService(
     LcmMediaService lcmMediaService,
     IOptions<AuthConfig> authOptions,
     ILogger<SyncService> logger,
-    SyncRepository syncRepository)
+    SyncRepository syncRepository,
+    LocalCommentReadStatusService commentReadStatusService)
 {
     public async Task<SyncResults> SafeExecuteSync(bool skipNotifications = false)
     {
@@ -97,6 +99,7 @@ public class SyncService(
         }
         logger.LogInformation("Synced project {ProjectName} with server", project.Name);
         UpdateSyncStatus(SyncStatus.Success);
+        await MarkSyncedCommentsUnread(syncResults);
         await syncRepository.UpdateSyncDate(syncDate);
         //need to await this, otherwise the database connection will be closed before the notifications are sent
         if (!skipNotifications) await SendNotifications(syncResults);
@@ -199,6 +202,19 @@ public class SyncService(
         {
             logger.LogError(e, "Failed to send notifications, continuing");
         }
+    }
+
+    private Task MarkSyncedCommentsUnread(SyncResults syncResults)
+    {
+        return commentReadStatusService.MarkCommentsUnread(GetUnreadCommentsFromSyncResults(syncResults));
+    }
+
+    public static IEnumerable<(Guid CommentId, Guid CommentThreadId)> GetUnreadCommentsFromSyncResults(SyncResults syncResults)
+    {
+        return syncResults.MissingFromLocal
+            .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
+            .OfType<CreateUserCommentChange>()
+            .Select(change => (CommentId: change.EntityId, change.CommentThreadId));
     }
 
     private async IAsyncEnumerable<Guid?> GetEntryId(IObjectWithId? entity)

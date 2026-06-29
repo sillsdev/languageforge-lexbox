@@ -4,77 +4,79 @@ namespace LcmCrdt.Data;
 
 public class LocalCommentReadStatusService(IDbContextFactory<LcmCrdtDbContext> dbContextFactory)
 {
-    public async Task<UserComment[]> GetUnreadComments(string userId, Guid? threadId = null)
+    public async Task<UserComment[]> GetUnreadComments(Guid? threadId = null)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
-        var query = UnreadComments(dbContext, userId);
+        var query = UnreadComments(dbContext);
         if (threadId is not null)
             query = query.Where(c => c.CommentThreadId == threadId);
         var comments = await query.ToArrayAsync();
-        return [.. comments.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id)];
+        return [.. comments];
     }
 
-    public async Task<int> CountUnreadComments(string userId, Guid? threadId = null)
+    public async Task<int> CountUnreadComments(Guid? threadId = null)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
-        var query = UnreadComments(dbContext, userId);
+        var query = UnreadComments(dbContext);
         if (threadId is not null)
             query = query.Where(c => c.CommentThreadId == threadId);
         return await query.CountAsync();
     }
 
-    public async Task MarkCommentRead(string userId, Guid commentId)
+    public async Task MarkCommentRead(Guid commentId)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
-        await MarkCommentsRead(dbContext, userId, [commentId]);
+        await dbContext.UnreadComments
+            .Where(c => c.CommentId == commentId)
+            .ExecuteDeleteAsync();
     }
 
-    public async Task MarkThreadRead(string userId, Guid threadId)
+    public async Task MarkThreadRead(Guid threadId)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
-        var commentIds = await dbContext.UserComments
+        await dbContext.UnreadComments
             .Where(c => c.CommentThreadId == threadId)
-            .Select(c => c.Id)
-            .ToArrayAsync();
-        await MarkCommentsRead(dbContext, userId, commentIds);
+            .ExecuteDeleteAsync();
     }
 
-    public async Task MarkAllRead(string userId)
+    public async Task MarkAllRead()
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
-        var commentIds = await dbContext.UserComments
-            .Select(c => c.Id)
-            .ToArrayAsync();
-        await MarkCommentsRead(dbContext, userId, commentIds);
+        await dbContext.UnreadComments.ExecuteDeleteAsync();
     }
 
-    private static IQueryable<UserComment> UnreadComments(LcmCrdtDbContext dbContext, string userId)
+    public async Task MarkCommentsUnread(IEnumerable<(Guid CommentId, Guid CommentThreadId)> comments)
     {
-        return dbContext.UserComments
-            .Where(c => c.AuthorId != userId)
-            .Where(c => !dbContext.SeenUserComments.Any(seen =>
-                seen.UserId == userId &&
-                seen.CommentId == c.Id));
-    }
+        var commentsToMark = comments
+            .DistinctBy(c => c.CommentId)
+            .ToArray();
+        if (commentsToMark.Length == 0) return;
 
-    private static async Task MarkCommentsRead(LcmCrdtDbContext dbContext, string userId, IReadOnlyCollection<Guid> commentIds)
-    {
-        if (commentIds.Count == 0) return;
-
-        var alreadySeen = await dbContext.SeenUserComments
-            .Where(s => s.UserId == userId && commentIds.Contains(s.CommentId))
-            .Select(s => s.CommentId)
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        var commentIds = commentsToMark.Select(c => c.CommentId).ToArray();
+        var alreadyUnread = await dbContext.UnreadComments
+            .Where(c => commentIds.Contains(c.CommentId))
+            .Select(c => c.CommentId)
             .ToArrayAsync();
-        var alreadySeenSet = alreadySeen.ToHashSet();
+        var alreadyUnreadSet = alreadyUnread.ToHashSet();
         var now = DateTimeOffset.UtcNow;
-        dbContext.SeenUserComments.AddRange(commentIds
-            .Where(commentId => !alreadySeenSet.Contains(commentId))
-            .Select(commentId => new SeenUserComment
+        dbContext.UnreadComments.AddRange(commentsToMark
+            .Where(comment => !alreadyUnreadSet.Contains(comment.CommentId))
+            .Select(comment => new UnreadComment
             {
-                UserId = userId,
-                CommentId = commentId,
-                SeenAt = now
+                CommentId = comment.CommentId,
+                CommentThreadId = comment.CommentThreadId,
+                MarkedUnreadAt = now
             }));
         await dbContext.SaveChangesAsync();
+    }
+
+    private static IQueryable<UserComment> UnreadComments(LcmCrdtDbContext dbContext)
+    {
+        return
+            from unread in dbContext.UnreadComments
+            join comment in dbContext.UserComments on unread.CommentId equals comment.Id
+            orderby comment.CreatedAt, comment.Id
+            select comment;
     }
 }

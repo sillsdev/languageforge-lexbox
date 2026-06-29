@@ -16,12 +16,12 @@ namespace LcmCrdt.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     SubjectId = table.Column<Guid>(type: "TEXT", nullable: false),
                     SubjectType = table.Column<int>(type: "INTEGER", nullable: false),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     SnapshotId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -36,16 +36,16 @@ namespace LcmCrdt.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SeenUserComments",
+                name: "UnreadComments",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
                     CommentId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SeenAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    CommentThreadId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    MarkedUnreadAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SeenUserComments", x => new { x.UserId, x.CommentId });
+                    table.PrimaryKey("PK_UnreadComments", x => x.CommentId);
                 });
 
             migrationBuilder.CreateTable(
@@ -53,14 +53,14 @@ namespace LcmCrdt.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     CommentThreadId = table.Column<Guid>(type: "TEXT", nullable: false),
                     PreviousCommentId = table.Column<Guid>(type: "TEXT", nullable: true),
                     Text = table.Column<string>(type: "TEXT", nullable: false),
                     AuthorId = table.Column<string>(type: "TEXT", nullable: true),
                     AuthorName = table.Column<string>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     SnapshotId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -97,9 +97,9 @@ namespace LcmCrdt.Migrations
                 columns: new[] { "SubjectType", "SubjectId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SeenUserComments_CommentId",
-                table: "SeenUserComments",
-                column: "CommentId");
+                name: "IX_UnreadComments_CommentThreadId",
+                table: "UnreadComments",
+                column: "CommentThreadId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserComment_CommentThreadId",
@@ -122,7 +122,7 @@ namespace LcmCrdt.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SeenUserComments");
+                name: "UnreadComments");
 
             migrationBuilder.DropTable(
                 name: "UserComment");

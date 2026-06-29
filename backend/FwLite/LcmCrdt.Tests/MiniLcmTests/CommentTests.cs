@@ -1,3 +1,5 @@
+using LcmCrdt.Data;
+
 namespace LcmCrdt.Tests.MiniLcmTests;
 
 public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFixture>
@@ -9,10 +11,15 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
         await projectService.UpdateUserRole(UserProjectRole.Editor);
     }
 
-    private async Task MarkExistingCommentsRead(string userId)
+    private Task MarkCommentsUnread(params UserComment[] comments)
     {
-        await SetCurrentUser(userId);
-        await fixture.Api.MarkAllCommentsRead();
+        var readStatusService = fixture.GetService<LocalCommentReadStatusService>();
+        return readStatusService.MarkCommentsUnread(comments.Select(comment => (comment.Id, comment.CommentThreadId)));
+    }
+
+    private Task ClearUnreadComments()
+    {
+        return fixture.Api.MarkAllCommentsRead();
     }
 
     private static CommentThread NewThread(SubjectType subjectType = SubjectType.Entry, Guid? subjectId = null)
@@ -138,12 +145,12 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
     {
         var firstAuthor = $"author-{Guid.NewGuid()}";
         var secondAuthor = $"author-{Guid.NewGuid()}";
-        await MarkExistingCommentsRead(firstAuthor);
         var (thread, _) = await CreateThreadWithComment(firstAuthor);
         await fixture.Api.SetCommentThreadStatus(thread.Id, ThreadStatus.Closed);
 
         await SetCurrentUser(secondAuthor);
         var reply = await fixture.Api.AddUserComment(thread.Id, NewComment("late reply"));
+        await MarkCommentsUnread(reply);
 
         await SetCurrentUser(firstAuthor);
         var comments = await fixture.Api.GetUserComments(thread.Id).ToArrayAsync();
@@ -182,10 +189,11 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
     {
         var readerId = $"reader-{Guid.NewGuid()}";
         var authorId = $"author-{Guid.NewGuid()}";
-        await MarkExistingCommentsRead(readerId);
+        await ClearUnreadComments();
         var (thread1, firstComment1) = await CreateThreadWithComment(authorId);
         var reply1 = await fixture.Api.AddUserComment(thread1.Id, NewComment("reply 1"));
-        var (thread2, _) = await CreateThreadWithComment(authorId);
+        var (thread2, firstComment2) = await CreateThreadWithComment(authorId);
+        await MarkCommentsUnread(firstComment1, reply1, firstComment2);
 
         await SetCurrentUser(readerId);
         (await fixture.Api.CountUnreadComments()).Should().Be(3);
@@ -196,6 +204,8 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
 
         await fixture.Api.MarkCommentThreadRead(thread1.Id);
         (await fixture.Api.CountUnreadComments()).Should().Be(1);
+        (await fixture.Api.GetUnreadComments().ToArrayAsync()).Should().ContainSingle(c => c.Id == firstComment2.Id);
+        (await fixture.Api.CountUnreadComments(thread2.Id)).Should().Be(1);
 
         await fixture.Api.MarkAllCommentsRead();
         (await fixture.Api.CountUnreadComments()).Should().Be(0);
@@ -203,38 +213,69 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
     }
 
     [Fact]
-    public async Task ReadStatus_IsPerUser()
+    public async Task ReadStatus_IsLocalNotPerUser()
     {
         var reader1 = $"reader-{Guid.NewGuid()}";
         var reader2 = $"reader-{Guid.NewGuid()}";
         var authorId = $"author-{Guid.NewGuid()}";
-        await MarkExistingCommentsRead(reader1);
-        await MarkExistingCommentsRead(reader2);
+        await ClearUnreadComments();
         var (_, firstComment) = await CreateThreadWithComment(authorId);
+        await MarkCommentsUnread(firstComment);
 
         await SetCurrentUser(reader1);
         await fixture.Api.MarkCommentRead(firstComment.Id);
 
         await SetCurrentUser(reader2);
-        (await fixture.Api.GetUnreadComments().ToArrayAsync()).Should().ContainSingle(c => c.Id == firstComment.Id);
+        (await fixture.Api.GetUnreadComments().ToArrayAsync()).Should().BeEmpty();
     }
 
     [Fact]
-    public async Task ReadStatus_RemainsSeenWhenCommentArrivesAfterSeenRow()
+    public async Task ReadStatus_IncomingCommentsBecomeUnreadAndMarkingIsIdempotent()
     {
         var readerId = $"reader-{Guid.NewGuid()}";
         var authorId = $"author-{Guid.NewGuid()}";
-        var futureCommentId = Guid.NewGuid();
-        await MarkExistingCommentsRead(readerId);
+        await ClearUnreadComments();
         var (thread, _) = await CreateThreadWithComment(authorId);
 
-        await SetCurrentUser(readerId);
-        await fixture.Api.MarkCommentRead(futureCommentId);
-
         await SetCurrentUser(authorId);
-        await fixture.Api.AddUserComment(thread.Id, NewComment("arrived later", futureCommentId));
+        var comment = await fixture.Api.AddUserComment(thread.Id, NewComment("arrived later"));
+        await MarkCommentsUnread(comment);
+        await MarkCommentsUnread(comment);
 
         await SetCurrentUser(readerId);
-        (await fixture.Api.GetUnreadComments(thread.Id).ToArrayAsync()).Should().NotContain(c => c.Id == futureCommentId);
+        (await fixture.Api.GetUnreadComments(thread.Id).ToArrayAsync()).Should().ContainSingle(c => c.Id == comment.Id);
+
+        await fixture.Api.MarkCommentRead(comment.Id);
+        await fixture.Api.MarkCommentRead(comment.Id);
+
+        (await fixture.Api.GetUnreadComments(thread.Id).ToArrayAsync()).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ReadStatus_LocalCreatedCommentsStartRead()
+    {
+        var authorId = $"author-{Guid.NewGuid()}";
+        await ClearUnreadComments();
+        var (thread, firstComment) = await CreateThreadWithComment(authorId);
+        await fixture.Api.AddUserComment(thread.Id, NewComment("reply"));
+
+        (await fixture.Api.GetUnreadComments().ToArrayAsync()).Should().BeEmpty();
+        fixture.DbContext.UnreadComments.Should().BeEmpty();
+        (await fixture.Api.GetUserComment(firstComment.Id)).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task ReadStatus_DeletedUnreadCommentsDoNotInflateUnreadResults()
+    {
+        var authorId = $"author-{Guid.NewGuid()}";
+        await ClearUnreadComments();
+        var (thread, firstComment) = await CreateThreadWithComment(authorId);
+        await MarkCommentsUnread(firstComment);
+        (await fixture.Api.CountUnreadComments(thread.Id)).Should().Be(1);
+
+        await fixture.Api.DeleteUserComment(firstComment.Id);
+
+        (await fixture.Api.GetUnreadComments(thread.Id).ToArrayAsync()).Should().BeEmpty();
+        (await fixture.Api.CountUnreadComments(thread.Id)).Should().Be(0);
     }
 }

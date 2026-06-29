@@ -32,7 +32,7 @@ public class LcmCrdtDbContext(
     public IQueryable<CustomView> CustomViews => Set<CustomView>().AsNoTracking();
     public IQueryable<CommentThread> CommentThreads => Set<CommentThread>().AsNoTracking();
     public IQueryable<UserComment> UserComments => Set<UserComment>().AsNoTracking();
-    public DbSet<SeenUserComment> SeenUserComments => Set<SeenUserComment>();
+    public DbSet<UnreadComment> UnreadComments => Set<UnreadComment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,9 +50,9 @@ public class LcmCrdtDbContext(
         var morphTypeModel = modelBuilder.Entity<MorphType>();
         morphTypeModel.HasIndex(m => m.Kind).IsUnique();
 
-        var seenUserCommentModel = modelBuilder.Entity<SeenUserComment>();
-        seenUserCommentModel.HasKey(s => new { s.UserId, s.CommentId });
-        seenUserCommentModel.HasIndex(s => s.CommentId);
+        var unreadCommentModel = modelBuilder.Entity<UnreadComment>();
+        unreadCommentModel.HasKey(c => c.CommentId);
+        unreadCommentModel.HasIndex(c => c.CommentThreadId);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)

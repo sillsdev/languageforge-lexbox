@@ -922,10 +922,10 @@ public class CrdtMiniLcmApi(
     public async IAsyncEnumerable<CommentThread> GetCommentThreads(SubjectType subjectType, Guid subjectId)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var threads = await repo.CommentThreads
+        var threads = repo.CommentThreads
             .Where(t => t.SubjectType == subjectType && t.SubjectId == subjectId)
-            .ToArrayAsync();
-        foreach (var thread in threads.OrderBy(t => t.CreatedAt).ThenBy(t => t.Id))
+            .OrderBy(t => t.CreatedAt).ThenBy(t => t.Id);
+        await foreach (var thread in threads.AsAsyncEnumerable())
         {
             yield return thread;
         }
@@ -940,10 +940,10 @@ public class CrdtMiniLcmApi(
     public async IAsyncEnumerable<UserComment> GetUserComments(Guid threadId)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var comments = await repo.UserComments
+        var comments = repo.UserComments
             .Where(c => c.CommentThreadId == threadId)
-            .ToArrayAsync();
-        foreach (var comment in comments.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id))
+            .OrderBy(c => c.CreatedAt).ThenBy(c => c.Id);
+        await foreach (var comment in comments.AsAsyncEnumerable())
         {
             yield return comment;
         }
@@ -957,7 +957,7 @@ public class CrdtMiniLcmApi(
 
     public async IAsyncEnumerable<UserComment> GetUnreadComments(Guid? threadId = null)
     {
-        foreach (var comment in await commentReadStatusService.GetUnreadComments(CurrentCommentUserId(), threadId))
+        foreach (var comment in await commentReadStatusService.GetUnreadComments(threadId))
         {
             yield return comment;
         }
@@ -965,7 +965,7 @@ public class CrdtMiniLcmApi(
 
     public Task<int> CountUnreadComments(Guid? threadId = null)
     {
-        return commentReadStatusService.CountUnreadComments(CurrentCommentUserId(), threadId);
+        return commentReadStatusService.CountUnreadComments(threadId);
     }
 
     public async Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
@@ -981,7 +981,6 @@ public class CrdtMiniLcmApi(
             new CreateCommentThreadChange(thread),
             new CreateUserCommentChange(firstComment)
         ]);
-        await commentReadStatusService.MarkCommentRead(CurrentCommentUserId(), firstComment.Id);
         return await GetCommentThread(thread.Id) ?? throw NotFoundException.ForType<CommentThread>(thread.Id);
     }
 
@@ -993,7 +992,6 @@ public class CrdtMiniLcmApi(
         StampCommentAuthor(comment, DateTimeOffset.UtcNow);
 
         await AddChange(new CreateUserCommentChange(comment));
-        await commentReadStatusService.MarkCommentRead(CurrentCommentUserId(), comment.Id);
         return await repo.GetUserComment(comment.Id) ?? throw NotFoundException.ForType<UserComment>(comment.Id);
     }
 
@@ -1031,17 +1029,17 @@ public class CrdtMiniLcmApi(
 
     public Task MarkCommentRead(Guid commentId)
     {
-        return commentReadStatusService.MarkCommentRead(CurrentCommentUserId(), commentId);
+        return commentReadStatusService.MarkCommentRead(commentId);
     }
 
     public Task MarkCommentThreadRead(Guid threadId)
     {
-        return commentReadStatusService.MarkThreadRead(CurrentCommentUserId(), threadId);
+        return commentReadStatusService.MarkThreadRead(threadId);
     }
 
     public Task MarkAllCommentsRead()
     {
-        return commentReadStatusService.MarkAllRead(CurrentCommentUserId());
+        return commentReadStatusService.MarkAllRead();
     }
 
     private void StampCommentAuthor(UserComment comment, DateTimeOffset now)
