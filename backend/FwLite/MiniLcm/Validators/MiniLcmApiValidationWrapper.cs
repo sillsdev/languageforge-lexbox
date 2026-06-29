@@ -40,11 +40,18 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.UpdatePublication(id, update);
     }
 
+    public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        await validators.ValidateAndThrow(update);
+        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain) && isMain)
+            await ThrowIfAnotherMainExists(id);
+        await _api.SubmitUpdatePublication(id, update);
+    }
+
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
         await validators.ValidateAndThrow(after);
-        // The patch overload's single-main invariant is enforced by PublicationUpdateValidator + the check above;
-        // the before/after overload bypasses that validator, so enforce the same rules here.
+        // This overload bypasses PublicationUpdateValidator, so enforce the single-main invariant here too.
         if (after.IsMain && !before.IsMain)
             await ThrowIfAnotherMainExists(after.Id);
         if (before.IsMain && !after.IsMain)

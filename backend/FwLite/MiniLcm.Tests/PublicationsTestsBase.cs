@@ -166,4 +166,25 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
+
+    [Fact]
+    public async Task SubmitUpdatePublication_CannotTurnOffIsMain()
+    {
+        var main = await GetOrCreateMainPublication();
+
+        var act = () => Api.SubmitUpdatePublication(main.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, false));
+
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+    }
+
+    [Fact]
+    public async Task SubmitUpdatePublication_CannotPromoteSecondMain()
+    {
+        await GetOrCreateMainPublication();
+        var other = await Api.CreatePublication(new Publication { Id = Guid.NewGuid(), Name = { { "en", "Pocket" } } });
+
+        var act = () => Api.SubmitUpdatePublication(other.Id, new UpdateObjectInput<Publication>().Set(p => p.IsMain, true));
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
 }

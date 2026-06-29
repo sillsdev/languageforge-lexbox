@@ -157,7 +157,6 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     {
         var mainPublication = await GetOrCreateMainPublication();
 
-        // No options passed -> the default (CreateEntryOptions.WithMainPublication) applies.
         var entry = await Api.CreateEntry(new Entry { LexemeForm = { { "en", "test" } }, PublishIn = [] });
 
         entry.PublishIn.Should().ContainSingle().Which.Id.Should().Be(mainPublication.Id);

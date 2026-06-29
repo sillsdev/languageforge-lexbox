@@ -20,10 +20,20 @@ export function usePublications(): PublicationService {
 
 export class PublicationService {
   constructor(projectContext: ProjectContext, private writingSystemService: WritingSystemService) {
-    this.#publicationsResource = projectContext.apiResource([], api => api.getPublications());
+    this.#publicationsResource = projectContext.apiResource([], async (api) => {
+      const publications = await api.getPublications();
+      this.#loaded = true;
+      return publications;
+    });
   }
 
   #publicationsResource: ResourceReturn<IPublication[], unknown, true>;
+  #loaded = $state(false);
+
+  // True once publications have been fetched at least once, so callers can tell "no main yet" from "not loaded yet".
+  get loaded(): boolean {
+    return this.#loaded;
+  }
 
   current: LabeledPublication[] = $derived.by(() => {
     return this.#publicationsResource.current.map(pub => ({

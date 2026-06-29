@@ -187,10 +187,8 @@ public class CrdtMiniLcmApi(
 
     public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        // IsMain isn't a plain field patch: promoting to main goes through SetMainPublicationChange (which converges
-        // across replicas), and the raw IsMain op is stripped out. The interactive path can't reach here with
-        // IsMain=false (PublicationUpdateValidator rejects it); the sync path (this blind submit) is unvalidated, so a
-        // stray IsMain=false op is simply dropped rather than thrown — throwing would wedge a whole project sync.
+        // IsMain is applied via SetMainPublicationChange (which converges across replicas), not as a plain patch op,
+        // so it's stripped here. Validation rejects setting IsMain to false on every update/submit path, so isMain is always true.
         if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain))
         {
             var patch = new JsonPatchDocument<Publication>();

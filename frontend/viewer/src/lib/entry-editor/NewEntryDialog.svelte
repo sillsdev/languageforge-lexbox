@@ -117,7 +117,6 @@
 
       const tmpEntry = defaultEntry();
       publishInIsFromTemplate = undefined;
-      // publishIn starts from the active filter (if any); the main publication is added on top below.
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
       void addMainPublication(entry.id);
       addSense();
@@ -127,11 +126,10 @@
     });
   }
 
-  // Always include the project's main publication in a new entry (the user can remove it when the field is shown).
-  // Loaded lazily so opening the dialog isn't blocked on fetching publications.
+  // Add the project's main publication to a new entry; the user can remove it when the publish-in field is shown.
   async function addMainPublication(entryId: string) {
     let main = publicationService.mainPublication;
-    if (!main) {
+    if (!main && !publicationService.loaded) {
       await publicationService.refetch();
       main = publicationService.mainPublication;
     }

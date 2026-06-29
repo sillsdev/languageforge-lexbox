@@ -27,8 +27,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateComplexFormType(complexFormType);
         mainDictionary = new Publication() { Id = Guid.NewGuid(), Name = { { "en", "Main Dictionary" } } };
         await Api.CreatePublication(mainDictionary);
-        // Create the dataset exactly as specified (AsIs); the publication-filter tests below depend on these precise
-        // PublishIn values, which the default's auto-added main publication would otherwise disturb.
+        // AsIs throughout: the publication-filter tests below assert on these exact PublishIn values.
         await Api.CreateEntry(new Entry()
         {
             Id = appleId,
