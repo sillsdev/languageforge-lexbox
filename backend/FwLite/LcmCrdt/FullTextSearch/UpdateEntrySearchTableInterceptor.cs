@@ -40,9 +40,8 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         // Morph types with changes to prefix or postfix tokens will require updated entry search records
         // (Note that morph types can't be added or deleted, so we only need to catch changes, which will be rare)
         var changedMorphTypes = dbContext.ChangeTracker.Entries<MorphType>()
-            .Where(e => e.State == EntityState.Modified && (e.Property(m => m.Prefix).IsModified || e.Property(m => m.Postfix).IsModified))
-            .Select(e => e.Entity).ToList();
-        if (changedMorphTypes is not [])
+            .Any(e => e.State == EntityState.Modified && (e.Property(m => m.Prefix).IsModified || e.Property(m => m.Postfix).IsModified));
+        if (changedMorphTypes)
         {
             // The actual table regeneration will happen in the SavedChangesAsync handler; here we just flag that it will be needed
             EntryTableNeedsRegeneration = true;
