@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Text.Json;
 using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
@@ -67,6 +68,8 @@ public class LcmCrdtDbContext(
             .HaveConversion<RichMultiStringDbConverter>();
         builder.Properties<WritingSystemId>()
             .HaveConversion<WritingSystemIdConverter>();
+        builder.Properties<DateTimeOffset>()
+            .HaveConversion<DateTimeOffsetDbConverter>();
     }
 
     private class MultiStringDbConverter() : ValueConverter<MultiString, string>(
@@ -99,4 +102,9 @@ public class LcmCrdtDbContext(
     private class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
         id => id.Code,
         code => new WritingSystemId(code));
+
+    private class DateTimeOffsetDbConverter() : ValueConverter<DateTimeOffset, DateTime>(
+        d => d.UtcDateTime,
+        //need to use ticks here because the DateTime is stored as UTC, but the db records it as unspecified
+        d => new DateTimeOffset(d.Ticks, TimeSpan.Zero));
 }
