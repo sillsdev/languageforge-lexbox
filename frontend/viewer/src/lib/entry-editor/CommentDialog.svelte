@@ -154,11 +154,19 @@
     await loadThreads();
     saving = false;
   }
+
+  function submitOnCtrlEnter(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && event.ctrlKey) {
+      const target = event.target as HTMLTextAreaElement | null;
+      target?.form?.requestSubmit();
+      event.preventDefault();
+    }
+  }
 </script>
 
 {#snippet commentContent()}
   <div class="flex min-h-0 flex-1 flex-col space-y-4 overflow-hidden px-4 pb-4">
-    <div class="space-y-2">
+    <form onsubmit={(e) => (e.preventDefault(), startThread())} class="space-y-2">
       <Label for="new-comment-thread">{$t`Start a new thread`}</Label>
       <Textarea
         id="new-comment-thread"
@@ -166,13 +174,14 @@
         placeholder={$t`Write the first comment...`}
         rows={3}
         disabled={loading || saving}
+        onkeydown={submitOnCtrlEnter}
       />
       <div class="flex justify-end">
-        <Button onclick={() => void startThread()} disabled={!newThreadText.trim() || loading} loading={saving}>
+        <Button type="submit" disabled={!newThreadText.trim() || loading} loading={saving}>
           {$t`Start thread`}
         </Button>
       </div>
-    </div>
+    </form>
 
     <div class="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
       {#if loading}
@@ -238,25 +247,28 @@
             </div>
 
             <div class="space-y-2">
-              <Label for={`reply-${threadView.thread.id}`}>{$t`Reply`}</Label>
-              <Textarea
-                id={`reply-${threadView.thread.id}`}
-                bind:value={replyTextByThreadId[threadView.thread.id]}
-                placeholder={$t`Write a reply...`}
-                rows={2}
-                disabled={saving}
-              />
-              <div class="flex justify-end">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onclick={() => void replyToThread(threadView)}
-                  disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
-                  loading={saving}
-                >
-                  {$t`Reply`}
-                </Button>
-              </div>
+              <form onsubmit={(e) => (e.preventDefault(), replyToThread(threadView))} class="space-y-2">
+                <Label for={`reply-${threadView.thread.id}`}>{$t`Reply`}</Label>
+                <Textarea
+                  id={`reply-${threadView.thread.id}`}
+                  bind:value={replyTextByThreadId[threadView.thread.id]}
+                  placeholder={$t`Write a reply...`}
+                  rows={2}
+                  disabled={saving}
+                  onkeydown={submitOnCtrlEnter}
+                />
+                <div class="flex justify-end">
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    size="sm"
+                    disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
+                    loading={saving}
+                  >
+                    {$t`Reply`}
+                  </Button>
+                </div>
+              </form>
             </div>
           </section>
         {/each}
