@@ -92,6 +92,12 @@
     highlighted = { entity: sense };
   }
 
+  function senseCommentSubjectName(sense: ISense, index: number): string {
+    const label = pt($t`Sense`, $t`Meaning`, viewService.currentView);
+    const glossOrDefinition = writingSystemService.firstGloss(sense) || writingSystemService.firstDef(sense);
+    return glossOrDefinition ? `${label} ${index + 1}: ${glossOrDefinition}` : `${label} ${index + 1}`;
+  }
+
   async function deleteExample(sense: ISense, example: IExampleSentence) {
     if (newExamples.some(e => e.id === example.id)) {
       newExamples = newExamples.filter(e => e.id !== example.id);
@@ -183,6 +189,7 @@
                 items={entry.senses}
                 subjectType={SubjectType.Sense}
                 getDisplayName={(sense) => writingSystemService.firstDefOrGlossVal(sense)}
+                getCommentSubjectName={senseCommentSubjectName}
                 {readonly}
                 onmove={(newIndex) => moveSense(sense, newIndex)}
                 ondelete={() => deleteSense(sense)} id={sense.id} />

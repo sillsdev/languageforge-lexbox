@@ -128,7 +128,7 @@
 <Dialog.Root bind:open={() => open, onOpenChange}>
   <Dialog.DialogContent class="sm:max-w-2xl">
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>{title}</Dialog.DialogTitle>
+      <Dialog.DialogTitle class="max-w-[calc(100%-2rem)] truncate pr-2" title={title}>{title}</Dialog.DialogTitle>
       <Dialog.DialogDescription>
         {$t`Start a thread, reply to existing threads, or edit comments.`}
       </Dialog.DialogDescription>

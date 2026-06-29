@@ -12,6 +12,7 @@
     id?: string;
     subjectType?: SubjectType;
     getDisplayName: (item: T) => string | undefined;
+    getCommentSubjectName?: (item: T, index: number) => string | undefined;
     readonly: boolean;
     onmove?: (newIndex: number) => void;
     ondelete?: () => void;
@@ -23,6 +24,7 @@
     id,
     subjectType,
     getDisplayName,
+    getCommentSubjectName,
     readonly,
     onmove,
     ondelete,
@@ -33,7 +35,7 @@
   let showHistoryView = $state(false);
   let showCommentDialog = $state(false);
   const item = $derived(items[i]);
-  const subjectName = $derived(item ? getDisplayName(item) : undefined);
+  const subjectName = $derived(item ? getCommentSubjectName?.(item, i) ?? getDisplayName(item) : undefined);
 </script>
 
 {#if !readonly || features.history || (subjectType && id)}
