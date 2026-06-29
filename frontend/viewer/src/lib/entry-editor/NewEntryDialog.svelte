@@ -45,6 +45,7 @@
   let requester: {
     resolve: (entry: IEntry | undefined) => void
   } | undefined;
+  let addMainPublicationPromise: Promise<void> | undefined;
 
   // Watch for changes in the open state to detect when the dialog is closed
   $effect(() => {
@@ -61,6 +62,7 @@
     if (!requester) throw new Error('No requester');
 
     await editor?.commit();
+    await addMainPublicationPromise; // make sure the main publication landed before we snapshot the entry
     entry.senses = sense ? [sense] : [];
     if (!validateEntry()) return;
 
@@ -118,7 +120,7 @@
       const tmpEntry = defaultEntry();
       publishInIsFromTemplate = undefined;
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
-      void addMainPublication(entry.id);
+      addMainPublicationPromise = addMainPublication(entry.id);
       addSense();
 
       errors = [];
