@@ -203,7 +203,6 @@ const TYPED_HANDLERS: Record<string, (change: unknown) => ChangeFact[]> = {
 
   AddComplexFormTypeChange: (c) => [{kind: 'addItem', entity: 'entry', fieldId: 'complexFormTypes', label: labelOf(prop(prop(c, 'complexFormType'), 'name'))}],
   RemoveComplexFormTypeChange: () => [{kind: 'removeItem', entity: 'entry', fieldId: 'complexFormTypes'}],
-  ReplaceComplexFormTypeChange: (c) => [{kind: 'replaceItem', entity: 'entry', fieldId: 'complexFormTypes', label: labelOf(prop(prop(c, 'newComplexFormType'), 'name'))}],
 
   AddPublicationChange: (c) => [{kind: 'addItem', entity: 'entry', fieldId: 'publishIn', label: labelOf(prop(prop(c, 'publication'), 'name'))}],
   RemovePublicationChange: () => [{kind: 'removeItem', entity: 'entry', fieldId: 'publishIn'}],
@@ -228,6 +227,9 @@ const TYPED_HANDLERS: Record<string, (change: unknown) => ChangeFact[]> = {
   CreateCustomViewChange: (c) => [{kind: 'createObject', object: 'customView', label: labelOf(prop(c, 'name'))}],
   EditCustomViewChange: () => [{kind: 'editObject', object: 'customView'}],
 };
+
+/** The `$type`s with a purpose-built handler — exported so the coverage test can assert each is a real generated change type (a handler must not outlive the backend type it decodes). */
+export const explicitlyHandledChangeTypes: readonly string[] = Object.keys(TYPED_HANDLERS);
 
 function jsonPatchFacts(suffix: string, change: unknown): ChangeFact[] {
   const entity = MAIN_ENTITY_BY_SUFFIX[suffix];

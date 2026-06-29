@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention -- change payloads below mirror the PascalCase CRDT wire format on purpose */
 import {describe, it, expect} from 'vitest';
-import {describeActivity, describeChange, isHandledChangeType, recognizeCommit, summarizeActivity} from './change-summary';
+import {describeActivity, describeChange, explicitlyHandledChangeTypes, isHandledChangeType, recognizeCommit, summarizeActivity} from './change-summary';
 import {knownChangeTypes} from '$lib/dotnet-types/generated-types/LcmCrdt/ChangeTypes';
 import type {IChangeEntity} from '$lib/dotnet-types';
 
@@ -137,6 +137,12 @@ describe('describeChange', () => {
   it('handles every backend change type (generated list) or allows it as intentionally generic', () => {
     const unhandled = knownChangeTypes.filter((type) => !isHandledChangeType(type) && !INTENTIONALLY_GENERIC.has(type));
     expect(unhandled).toEqual([]);
+  });
+
+  it('has no handler for a change type the backend never emits (reverse coverage — no dead handlers)', () => {
+    const known = new Set<string>(knownChangeTypes);
+    const stale = explicitlyHandledChangeTypes.filter((type) => !known.has(type));
+    expect(stale).toEqual([]);
   });
 });
 
