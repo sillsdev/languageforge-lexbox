@@ -4,6 +4,7 @@
 //     the code is regenerated.
 
 export enum SubjectType {
+	Unknown = "Unknown",
 	Entry = "Entry",
 	Sense = "Sense",
 	ExampleSentence = "ExampleSentence"

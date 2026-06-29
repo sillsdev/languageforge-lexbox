@@ -12,6 +12,7 @@ public enum ThreadStatus
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SubjectType
 {
+    Unknown = 0,
     Entry,
     Sense,
     ExampleSentence
