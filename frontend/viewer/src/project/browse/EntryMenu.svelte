@@ -49,19 +49,23 @@
 {#if features.history}
   <HistoryView bind:open={showHistoryView} id={entry.id}/>
 {/if}
-<CommentDialog
-  bind:open={showCommentDialog}
-  subjectType={SubjectType.Entry}
-  subjectId={entry.id}
-  subjectName={headword}
-/>
+{#if features.comments}
+  <CommentDialog
+    bind:open={showCommentDialog}
+    subjectType={SubjectType.Entry}
+    subjectId={entry.id}
+    subjectName={headword}
+  />
+{/if}
 
 <ResponsiveMenu.Root {contextMenu} bind:open>
   <ResponsiveMenu.Trigger {children} />
   <ResponsiveMenu.Content>
-    <ResponsiveMenu.Item icon="i-mdi-comment-text-outline" onSelect={() => showCommentDialog = true}>
-      {$t`Comments`}
-    </ResponsiveMenu.Item>
+    {#if features.comments}
+      <ResponsiveMenu.Item icon="i-mdi-comment-text-outline" onSelect={() => showCommentDialog = true}>
+        {$t`Comments`}
+      </ResponsiveMenu.Item>
+    {/if}
     {#if features.write}
       <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onDelete}>
         {pt($t`Delete Entry`, $t`Delete Word`, viewService.currentView)}

@@ -57,7 +57,7 @@
   }
 </script>
 
-{#if !readonly || features.history || (subjectType && id)}
+{#if !readonly || features.history || (features.comments && subjectType && id)}
 <div class="flex gap-2">
   {#if !readonly}
     <Reorderer
@@ -68,7 +68,7 @@
       onchange={(_newItems, _fromIndex, newIndex) => onmove?.(newIndex)}
     />
   {/if}
-  {#if subjectType && id}
+  {#if features.comments && subjectType && id}
     <Button onclick={openComments} size="icon" variant="secondary" icon="i-mdi-comment-text-outline" />
     {#if !oncomment && showCommentDialog}
       <CommentDialog bind:open={showCommentDialog} {subjectType} subjectId={id} {subjectName} />

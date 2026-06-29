@@ -137,13 +137,15 @@
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
         <div class="flex">
-          <Button
-            variant="ghost"
-            size="icon"
-            icon="i-mdi-comment-text-outline"
-            aria-label={$t`Comments`}
-            onclick={() => showCommentDialog = true}
-          />
+          {#if features.comments}
+            <Button
+              variant="ghost"
+              size="icon"
+              icon="i-mdi-comment-text-outline"
+              aria-label={$t`Comments`}
+              onclick={() => showCommentDialog = !showCommentDialog}
+            />
+          {/if}
           <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} bind:readonly />
           <EntryMenu {entry} />
         </div>
