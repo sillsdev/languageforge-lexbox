@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as Drawer from '$lib/components/ui/drawer';
   import * as Sheet from '$lib/components/ui/sheet';
+  import * as InputGroup from '$lib/components/ui/input-group';
   import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import {Label} from '$lib/components/ui/label';
@@ -148,19 +149,26 @@
     <div class="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-4">
       <form onsubmit={(e) => (e.preventDefault(), startThread())} class="space-y-2">
         <Label for="new-comment-thread">{$t`Start a new thread`}</Label>
-        <Textarea
-          id="new-comment-thread"
-          bind:value={newThreadText}
-          placeholder={$t`Write the first comment...`}
-          rows={3}
-          disabled={loading || saving}
-          onkeydown={submitOnCtrlEnter}
-        />
-        <div class="flex justify-end">
-          <Button type="submit" disabled={!newThreadText.trim() || loading} loading={saving}>
-            {$t`Start thread`}
-          </Button>
-        </div>
+        <InputGroup.Root>
+          <InputGroup.Textarea
+            id="new-comment-thread"
+            bind:value={newThreadText}
+            placeholder={$t`Write the first comment...`}
+            rows={2}
+            disabled={loading || saving}
+            onkeydown={submitOnCtrlEnter}
+            class="min-h-4 py-1"
+          />
+          <InputGroup.Addon align="block-end" class="flex-row-reverse">
+            <InputGroup.Button
+              variant="ghost"
+              size="icon-xs"
+              icon="i-mdi-send"
+              iconProps={{ class: 'size-4' }}
+              type="submit" disabled={!newThreadText.trim() || loading} loading={saving}
+            />
+          </InputGroup.Addon>
+        </InputGroup.Root>
       </form>
 
       <div class="space-y-3">
@@ -228,25 +236,28 @@
 
               <div class="space-y-2">
                 <form onsubmit={(e) => (e.preventDefault(), replyToThread(threadView))} class="space-y-2">
-                  <Textarea
-                    id={`reply-${threadView.thread.id}`}
-                    bind:value={replyTextByThreadId[threadView.thread.id]}
-                    placeholder={$t`Write a reply...`}
-                    rows={2}
-                    disabled={saving}
-                    onkeydown={submitOnCtrlEnter}
-                  />
-                  <div class="flex justify-end">
-                    <Button
-                      type="submit"
-                      variant="secondary"
-                      size="sm"
-                      disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
-                      loading={saving}
-                    >
-                      {$t`Reply`}
-                    </Button>
-                  </div>
+                  <InputGroup.Root>
+                    <InputGroup.Textarea
+                      id={`reply-${threadView.thread.id}`}
+                      bind:value={replyTextByThreadId[threadView.thread.id]}
+                      placeholder={$t`Write a reply...`}
+                      class="min-h-4 py-1"
+                      rows={1}
+                      disabled={saving}
+                      onkeydown={submitOnCtrlEnter}
+                    />
+                    <InputGroup.Addon align="block-end" class="flex-row-reverse">
+                      <InputGroup.Button
+                        variant="ghost"
+                        size="icon-xs"
+                        icon="i-mdi-send"
+                        iconProps={{ class: 'size-4' }}
+                        type="submit"
+                        disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
+                        loading={saving}
+                      />
+                    </InputGroup.Addon>
+                  </InputGroup.Root>
                 </form>
               </div>
             </section>
