@@ -7,7 +7,7 @@
   import {Textarea} from '$lib/components/ui/textarea';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {useMiniLcmApi} from '$lib/services/service-provider';
-  import {cn} from '$lib/utils';
+  import {cn, randomId} from '$lib/utils';
   import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICommentThread';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
   import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
@@ -94,7 +94,7 @@
 
     saving = true;
     const now = new Date().toISOString();
-    const threadId = crypto.randomUUID();
+    const threadId = randomId();
     await api.createCommentThread({
       id: threadId,
       subjectId,
@@ -103,7 +103,7 @@
       createdAt: now,
       updatedAt: now,
     }, {
-      id: crypto.randomUUID(),
+      id: randomId(),
       commentThreadId: threadId,
       text,
       createdAt: now,
@@ -114,15 +114,17 @@
     saving = false;
   }
 
-  async function replyToThread(threadId: string): Promise<void> {
+  async function replyToThread(threadView: ThreadView): Promise<void> {
+    const threadId = threadView.thread.id;
     const text = replyTextByThreadId[threadId]?.trim();
     if (!text) return;
 
     saving = true;
     const now = new Date().toISOString();
     await api.addUserComment(threadId, {
-      id: crypto.randomUUID(),
+      id: randomId(),
       commentThreadId: threadId,
+      previousCommentId: threadView.comments.at(-1)?.id,
       text,
       createdAt: now,
       updatedAt: now,
@@ -192,7 +194,7 @@
                 <article class="rounded-md bg-muted/60 p-3">
                   <div class="mb-2 flex items-center justify-between gap-2">
                     <span class="text-xs font-medium text-muted-foreground">
-                      {comment.authorName || $t`Comment`}
+                      {comment.authorName || $t`(unknown)`}
                     </span>
                     <Button
                       variant="ghost"
@@ -248,7 +250,7 @@
                 <Button
                   variant="secondary"
                   size="sm"
-                  onclick={() => void replyToThread(threadView.thread.id)}
+                  onclick={() => void replyToThread(threadView)}
                   disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
                   loading={saving}
                 >
@@ -273,9 +275,6 @@
     <div class="flex items-start gap-2 px-4 pt-4 pb-0">
       <div class="min-w-0 flex-1">
         <h2 class="truncate text-lg font-semibold" title={title}>{title}</h2>
-        <p class="text-sm text-muted-foreground">
-          {$t`Start a thread, reply to existing threads, or edit comments.`}
-        </p>
       </div>
       <Button variant="ghost" size="icon" aria-label={$t`Close`} onclick={() => onOpenChange(false)}>
         <Icon icon="i-mdi-close" />
@@ -296,9 +295,6 @@
       <div class="mx-auto flex max-h-[90dvh] w-full max-w-lg flex-1 flex-col overflow-hidden">
         <Drawer.Header class="px-4 text-left">
           <Drawer.Title class="max-w-[calc(100%-2rem)] truncate pr-2 text-left" title={title}>{title}</Drawer.Title>
-          <Drawer.Description>
-            {$t`Start a thread, reply to existing threads, or edit comments.`}
-          </Drawer.Description>
         </Drawer.Header>
         {@render commentContent()}
       </div>
@@ -309,9 +305,6 @@
     <Sheet.Content side="right" class="w-full overflow-hidden p-0 sm:max-w-md">
       <Sheet.Header class="px-4 pb-0">
         <Sheet.Title class="max-w-[calc(100%-2rem)] truncate pr-2" title={title}>{title}</Sheet.Title>
-        <Sheet.Description>
-          {$t`Start a thread, reply to existing threads, or edit comments.`}
-        </Sheet.Description>
       </Sheet.Header>
       {@render commentContent()}
     </Sheet.Content>
