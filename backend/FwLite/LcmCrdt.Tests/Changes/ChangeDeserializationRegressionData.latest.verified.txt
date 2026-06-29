@@ -405,11 +405,141 @@
               }
             ]
           }
-        },
-        "DeletedAt": null
+        }
       }
     ],
     "EntityId": "f27a032b-e0f6-f389-b466-959bdb17086d"
+  },
+  {
+    "$type": "CreateSenseChange",
+    "EntryId": "84933f4f-7b19-8a8e-e097-93bf8791c8bd",
+    "Order": 0.8292564606550344,
+    "Definition": {
+      "tjs": {
+        "Spans": [
+          {
+            "Text": "applications",
+            "Ws": "tjs",
+            "Tags": [
+              "04a9fefa-6277-47de-9898-3a106f880d90"
+            ]
+          }
+        ]
+      },
+      "xse": {
+        "Spans": [
+          {
+            "Text": "Causeway",
+            "Ws": "xse",
+            "Tags": [
+              "38ae79c4-62fa-4f06-af05-3c189c54a6f2"
+            ]
+          },
+          {
+            "Text": "Ecuador",
+            "Ws": "xse",
+            "Tags": [
+              "9ccdf2af-e2b0-42f0-bf1f-85357b833f8e"
+            ]
+          },
+          {
+            "Text": "support",
+            "Ws": "tsw",
+            "Bold": "Off",
+            "FontSize": -371592350,
+            "ForeColor": "#ADFF2F",
+            "Tags": [
+              "c51425ff-666e-00de-3300-a8cc8dca667f"
+            ]
+          },
+          {
+            "Text": "Metal",
+            "Ws": "xse",
+            "Tags": [
+              "f429e625-904b-4a5c-ba2f-c6a5d15f7a8a"
+            ]
+          }
+        ]
+      }
+    },
+    "Gloss": {
+      "kwz": "Plain",
+      "bfm": "Handcrafted",
+      "pru": "Cotton",
+      "lgr": "Investment Account"
+    },
+    "PartOfSpeechId": "71340b71-d4e6-fafc-6203-b06ff067d931",
+    "SemanticDomains": [
+      {
+        "Id": "d5a0d584-8aa1-a025-7afe-335db5ae3829",
+        "Name": {
+          "zu": "Parkway",
+          "jjr": "connecting"
+        },
+        "Code": "Inlet",
+        "DeletedAt": null,
+        "Predefined": false
+      }
+    ],
+    "Pictures": [
+      {
+        "Id": "9c8532e4-2fd6-162f-0d1a-abec581993d0",
+        "Order": 0,
+        "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+        "Caption": {
+          "bie": {
+            "Spans": [
+              {
+                "Text": "navigating",
+                "Ws": "bie",
+                "Tags": [
+                  "bd0bfdb7-0b21-41b6-99cb-cddb9fa346b3"
+                ]
+              }
+            ]
+          },
+          "sbu": {
+            "Spans": [
+              {
+                "Text": "exploit",
+                "Ws": "mxz",
+                "Bold": "On",
+                "FontSize": -980458710,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "586b0c7f-a6ba-40f1-d1f6-3cefb9e989a2"
+                ]
+              },
+              {
+                "Text": "Legacy",
+                "Ws": "sbu",
+                "Tags": [
+                  "39816162-718d-46a4-8122-d32211061a00"
+                ]
+              },
+              {
+                "Text": "alarm",
+                "Ws": "sbu",
+                "Tags": [
+                  "fa0eaeca-9c62-422f-b40e-3c1961d87a19"
+                ]
+              },
+              {
+                "Text": "compressing",
+                "Ws": "jbw",
+                "Bold": "Invert",
+                "FontSize": -269252843,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "db7c8cfa-0459-b936-b425-79d43ceb19d5"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "EntityId": "f18d4c1d-00e2-afa1-166b-a8f75a2d43de"
   },
   {
     "$type": "CreateExampleSentenceChange",

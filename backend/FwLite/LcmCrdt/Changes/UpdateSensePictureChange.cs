@@ -25,13 +25,13 @@ public class UpdateSensePictureChange : EditChange<Sense>, ISelfNamedType<Update
 
     public override ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
-        var picture = entity.Pictures.FirstOrDefault(p => p.Id == PictureId && p.DeletedAt is null);
+        var picture = entity.Pictures.FirstOrDefault(p => p.Id == PictureId);
         if (picture is null) return ValueTask.CompletedTask;
         var orderChanges = Patch.Operations.Any(op => op.Path == $"/{nameof(Picture.Order)}");
         Patch.ApplyTo(picture);
         if (orderChanges)
         {
-            entity.Pictures.Sort((a, b) => a.Order == b.Order ? a.Id.CompareTo(b.Id) : a.Order.CompareTo(b.Order));
+            entity.Pictures.Sort(Picture.ComparePictures);
         }
         return ValueTask.CompletedTask;
     }

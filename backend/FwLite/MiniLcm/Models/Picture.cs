@@ -9,8 +9,6 @@ public class Picture : IOrderable
     public virtual MediaUri MediaUri { get; set; }
     public virtual RichMultiString Caption { get; set; } = [];
 
-    public DateTimeOffset? DeletedAt { get; set; }
-
     public Picture Copy()
     {
         return new Picture
@@ -19,7 +17,13 @@ public class Picture : IOrderable
             Order = Order,
             MediaUri = MediaUri,
             Caption = Caption.Copy(),
-            DeletedAt = DeletedAt,
         };
+    }
+
+    public static int ComparePictures(Picture a, Picture b)
+    {
+        return a.Order == b.Order ?
+            a.Id.CompareTo(b.Id) :
+            a.Order.CompareTo(b.Order);
     }
 }

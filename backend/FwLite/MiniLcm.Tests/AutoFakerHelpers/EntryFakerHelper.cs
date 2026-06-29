@@ -60,10 +60,6 @@ public static class EntryFakerHelper
             {
                 exampleSentence.SenseId = sense.Id;
             }
-            foreach (var picture in sense.Pictures)
-            {
-                picture.DeletedAt = null;
-            }
         }
     }
 

@@ -41,10 +41,9 @@ public class CreateSensePictureChange: EditChange<Sense>, ISelfNamedType<CreateS
             Order = Order,
             Caption = Caption ?? new(),
             MediaUri = MediaUri,
-            DeletedAt = entity.DeletedAt,
         };
         entity.Pictures.Add(pic);
-        entity.Pictures.Sort((a, b) => a.Order == b.Order ? a.Id.CompareTo(b.Id) : a.Order.CompareTo(b.Order));
+        entity.Pictures.Sort(Picture.ComparePictures);
         return ValueTask.CompletedTask;
     }
 }

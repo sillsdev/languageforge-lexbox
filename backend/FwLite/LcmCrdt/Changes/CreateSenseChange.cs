@@ -48,7 +48,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
             Gloss = Gloss ?? new MultiString(),
             PartOfSpeech = partOfSpeech,
             PartOfSpeechId = partOfSpeech?.Id,
-            Pictures = new(),
+            Pictures = Pictures ?? [],
             SemanticDomains = await context.FilterDeleted(SemanticDomains ?? []).ToArrayAsync(),
             DeletedAt = await context.IsObjectDeleted(EntryId) ? commit.DateTime : (DateTime?)null
         };

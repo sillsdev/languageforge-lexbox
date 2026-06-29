@@ -533,12 +533,6 @@ public class CrdtMiniLcmApi(
                 exampleSentence.Order = exampleOrder++;
                 yield return new CreateExampleSentenceChange(exampleSentence, sense.Id);
             }
-            var pictureOrder = 1;
-            foreach (var picture in sense.Pictures)
-            {
-                picture.Order = pictureOrder++;
-                yield return new CreateSensePictureChange(picture, sense.Id);
-            }
         }
     }
 
@@ -939,7 +933,7 @@ public class CrdtMiniLcmApi(
         return sense?.Pictures.FirstOrDefault(pic => pic.Id == id);
     }
 
-    public async Task<Picture> UpdatePicture(Guid entryId,
+    public async Task SubmitUpdatePicture(Guid entryId,
         Guid senseId,
         Guid pictureId,
         UpdateObjectInput<Picture> update)
@@ -947,6 +941,14 @@ public class CrdtMiniLcmApi(
         var jsonPatch = update.Patch;
         var patchChange = new UpdateSensePictureChange(pictureId, senseId, jsonPatch);
         await AddChange(patchChange);
+    }
+
+    public async Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Guid pictureId,
+        UpdateObjectInput<Picture> update)
+    {
+        await SubmitUpdatePicture(entryId, senseId, pictureId, update);
         return await GetPicture(entryId, senseId, pictureId) ?? throw NotFoundException.ForType<Picture>(pictureId);
     }
 

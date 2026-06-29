@@ -140,9 +140,6 @@ public static class LcmCrdtKernel
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
-                mappingSchema.SetConvertExpression<string?, List<Picture>>(
-                    json => string.IsNullOrEmpty(json) ? new() : JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new List<Picture>()
-                );
                 optionsBuilder.AddMappingSchema(mappingSchema);
                 optionsBuilder.AddCustomOptions(options => options.UseSQLite());
 

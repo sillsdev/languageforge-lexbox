@@ -25,7 +25,7 @@ public static class PictureSync
     {
         var updateObjectInput = DiffToUpdate(beforePicture, afterPicture);
         if (updateObjectInput is not null)
-            await api.UpdatePicture(entryId, senseId, beforePicture.Id, updateObjectInput);
+            await api.SubmitUpdatePicture(entryId, senseId, beforePicture.Id, updateObjectInput);
         return updateObjectInput is not null ? 1 : 0;
     }
 

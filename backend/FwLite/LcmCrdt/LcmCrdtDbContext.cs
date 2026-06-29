@@ -62,8 +62,6 @@ public class LcmCrdtDbContext(
             .HaveConversion<RichMultiStringDbConverter>();
         builder.Properties<WritingSystemId>()
             .HaveConversion<WritingSystemIdConverter>();
-        builder.Properties<MiniLcm.Media.MediaUri>()
-            .HaveConversion<MediaUriDbConverter>();
         builder.Properties<List<Picture>>()
             .HaveConversion<PictureListDbConverter>();
     }
@@ -98,10 +96,6 @@ public class LcmCrdtDbContext(
     private class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
         id => id.Code,
         code => new WritingSystemId(code));
-
-    private class MediaUriDbConverter() : ValueConverter<MiniLcm.Media.MediaUri, string>(
-        mul => JsonSerializer.Serialize(mul, (JsonSerializerOptions?)null),
-        json => JsonSerializer.Deserialize<MiniLcm.Media.MediaUri>(json, (JsonSerializerOptions?)null));
 
     private class PictureListDbConverter() : ValueConverter<List<Picture>, string>(
         pic => JsonSerializer.Serialize(pic, (JsonSerializerOptions?)null),

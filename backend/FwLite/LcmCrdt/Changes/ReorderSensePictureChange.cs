@@ -12,11 +12,11 @@ public class ReorderSensePictureChange(Guid pictureId, Guid entityId, double ord
 
     public override ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
-        var picture = entity.Pictures.FirstOrDefault(pic => pic.Id == PictureId && pic.DeletedAt is null);
+        var picture = entity.Pictures.FirstOrDefault(pic => pic.Id == PictureId);
         // Not found? Picture may have been deleted by another change, in which case the reodering has become a no-op
         if (picture is null) return ValueTask.CompletedTask;
         picture.Order = Order;
-        entity.Pictures.Sort((a, b) => a.Order == b.Order ? a.Id.CompareTo(b.Id) : a.Order.CompareTo(b.Order));
+        entity.Pictures.Sort(Picture.ComparePictures);
         return ValueTask.CompletedTask;
     }
 }
