@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention -- change payloads below mirror the PascalCase CRDT wire format on purpose */
 import {describe, it, expect} from 'vitest';
 import {describeActivity, describeChange, isHandledChangeType, recognizeCommit, summarizeActivity} from './change-summary';
 import {knownChangeTypes} from '$lib/dotnet-types/generated-types/LcmCrdt/ChangeTypes';

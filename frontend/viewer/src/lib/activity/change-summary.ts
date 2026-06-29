@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention -- object keys here are backend change-type discriminators, entity-type suffixes, and wire-format property names; all are intentionally PascalCase */
 import {entityFieldIds, type FieldId} from '$lib/views/entity-config';
 import type {IChangeEntity} from '$lib/dotnet-types';
 import type {IActivityChangeInfo} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivityChangeInfo';
@@ -99,7 +100,7 @@ function displayValue(value: unknown): string | undefined {
   if (typeof value === 'string') return value;
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   const spans = prop(value, 'spans');
-  if (Array.isArray(spans)) return spans.map((s) => String(prop(s, 'text') ?? '')).join('');
+  if (Array.isArray(spans)) return spans.map((s) => displayValue(prop(s, 'text')) ?? '').join('');
   return undefined;
 }
 
@@ -225,7 +226,7 @@ const TYPED_HANDLERS: Record<string, (change: unknown) => ChangeFact[]> = {
   CreateWritingSystemChange: (c) => [{kind: 'createObject', object: 'writingSystem', label: labelOf(prop(c, 'name'))}],
   CreateMorphTypeChange: (c) => [{kind: 'createObject', object: 'morphType', label: labelOf(prop(c, 'name'))}],
   CreateCustomViewChange: (c) => [{kind: 'createObject', object: 'customView', label: labelOf(prop(c, 'name'))}],
-  EditCustomViewChange: (c) => [{kind: 'editObject', object: 'customView'}],
+  EditCustomViewChange: () => [{kind: 'editObject', object: 'customView'}],
 };
 
 function jsonPatchFacts(suffix: string, change: unknown): ChangeFact[] {

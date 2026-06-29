@@ -26,7 +26,6 @@
   const multiWindowService = useMultiWindowService();
   const viewService = useViewService();
 
-  const affectedEntry = $derived(context.affectedEntries.length === 1 ? context.affectedEntries[0] : undefined);
 </script>
 
 {#snippet entryButton(entry: IEntry)}
