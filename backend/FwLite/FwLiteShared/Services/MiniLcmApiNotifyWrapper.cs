@@ -44,8 +44,6 @@ public partial class MiniLcmApiNotifyWrapper(
         }
     }
 
-    public void NotifyEntryChanged(Entry entry) => NotifyEntriesChanged(entry.Id);
-
     public void NotifyEntryChanged(Guid entryId) => NotifyEntriesChanged(entryId);
 
     public void NotifyEntriesChanged(params ReadOnlySpan<Guid> entryIds)
@@ -81,7 +79,7 @@ public partial class MiniLcmApiNotifyWrapper(
     {
         await using var _ = BeginTrackingChanges();
         var result = await _api.CreateEntry(entry, options);
-        NotifyEntryChanged(result);
+        NotifyEntryChanged(result.Id);
         return result;
     }
 
@@ -89,7 +87,7 @@ public partial class MiniLcmApiNotifyWrapper(
     {
         await using var _ = BeginTrackingChanges();
         var result = await _api.UpdateEntry(before, after, api ?? this);
-        NotifyEntryChanged(result);
+        NotifyEntryChanged(result.Id);
         return result;
     }
 
@@ -97,8 +95,7 @@ public partial class MiniLcmApiNotifyWrapper(
     {
         await using var _ = BeginTrackingChanges();
         var result = await _api.CreateSense(entryId, sense, position);
-        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
-        NotifyEntryChanged(entry);
+        NotifyEntryChanged(entryId);
         return result;
     }
 
@@ -106,17 +103,15 @@ public partial class MiniLcmApiNotifyWrapper(
     {
         await using var _ = BeginTrackingChanges();
         var result = await _api.UpdateSense(entryId, before, after, api ?? this);
-        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
-        NotifyEntryChanged(entry);
-        return result; 
+        NotifyEntryChanged(entryId);
+        return result;
     }
 
     async Task<ExampleSentence> IMiniLcmWriteApi.CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position)
     {
         await using var _ = BeginTrackingChanges();
         var result = await _api.CreateExampleSentence(entryId, senseId, exampleSentence, position);
-        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
-        NotifyEntryChanged(entry);
+        NotifyEntryChanged(entryId);
         return result;
     }
 
@@ -124,8 +119,7 @@ public partial class MiniLcmApiNotifyWrapper(
     {
         await using var _ = BeginTrackingChanges();
         var result = await _api.UpdateExampleSentence(entryId, senseId, before, after, api ?? this);
-        var entry = await _api.GetEntry(entryId) ?? throw new NullReferenceException($"Entry {entryId} not found");
-        NotifyEntryChanged(entry);
+        NotifyEntryChanged(entryId);
         return result;
     }
 
