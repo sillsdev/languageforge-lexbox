@@ -1,10 +1,7 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
 import { ChildProcessByStdio } from 'child_process';
-import { mkdirSync } from 'fs';
 import type { BrowseWebViewOptions } from 'lexicon';
-import os from 'os';
-import path from 'path';
 import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
@@ -247,9 +244,12 @@ export async function deactivate(): Promise<boolean> {
 /**
  * Returns a stable per-user directory for FW Lite data (projects, auth cache). Mirrors
  * Platform.Bible's own app:// convention so the path survives extension updates.
+ *
+ * Uses process.env instead of require('os') because Platform.Bible blocks non-papi requires.
  */
 function getFwLiteDataDir(): string {
-  return path.join(os.homedir(), '.platform.bible', 'extensions', 'lexicon');
+  const home = process.env.USERPROFILE ?? process.env.HOME ?? '';
+  return `${home}\\.platform.bible\\extensions\\lexicon`;
 }
 
 /** Launches the FieldWorks Lite process and returns its URL domain. */
@@ -265,7 +265,6 @@ function launchFwLite(context: ExecutionActivationContext): string {
   const baseUrl = 'http://localhost:29348';
 
   const dataDir = getFwLiteDataDir();
-  mkdirSync(dataDir, { recursive: true });
   fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
@@ -277,7 +276,7 @@ function launchFwLite(context: ExecutionActivationContext): string {
       '--FwLiteWeb:EnableFileLogging=false', // already piped to P.B (and triggers npm watch)
       '--FwLiteWeb:OpenBrowser=false',
       `--LcmCrdt:ProjectPath=${dataDir}`,
-      `--Auth:CacheFileName=${path.join(dataDir, 'msal.json')}`,
+      `--Auth:CacheFileName=${dataDir}\\msal.json`,
     ],
     { stdio: ['pipe', 'pipe', 'pipe'] },
   );
