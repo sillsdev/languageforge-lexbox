@@ -13,7 +13,7 @@
   import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
   import {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
   import type {ClassValue} from 'clsx';
-  import {watch} from 'runed';
+  import {resource} from 'runed';
   import {MediaQuery} from 'svelte/reactivity';
   import {t} from 'svelte-i18n-lingui';
 
@@ -41,49 +41,30 @@
   const api = useMiniLcmApi();
   const isExtraLarge = new MediaQuery('min-width: 1280px');
 
-  let threadViews = $state<ThreadView[]>([]);
-  let loading = $state(false);
   let saving = $state(false);
   let newThreadText = $state('');
   let replyTextByThreadId = $state<Record<string, string>>({});
   let editingCommentId = $state<string>();
   let editTextByCommentId = $state<Record<string, string>>({});
-  let loadRequestId = 0;
+
+  const threadsResource = resource(
+    [() => open, () => subjectType, () => subjectId],
+    async ([isOpen, targetSubjectType, targetSubjectId]): Promise<ThreadView[]> => {
+      if (!isOpen) return [];
+      const threads = await api.getCommentThreads(targetSubjectType, targetSubjectId, true);
+      return threads.map((thread) => ({thread, comments: thread.comments ?? []}));
+    },
+    {initialValue: [] satisfies ThreadView[]},
+  );
+  const threadViews = $derived(threadsResource.current);
+  const loading = $derived(threadsResource.loading);
 
   const title = $derived(subjectName ? $t`Comments for ${subjectName}` : $t`Comments`);
   const hasThreads = $derived(threadViews.length > 0);
   const shouldUseSidebar = $derived(inlineSidebar && isExtraLarge.current);
 
-  watch([() => open, () => subjectType, () => subjectId], ([isOpen, targetSubjectType, targetSubjectId]) => {
-    if (!isOpen) return;
-    void loadThreads(targetSubjectType, targetSubjectId);
-  });
-
   function onOpenChange(value: boolean): void {
     open = value;
-  }
-
-  function isCurrentLoad(requestId: number, targetSubjectType: SubjectType, targetSubjectId: string): boolean {
-    return requestId === loadRequestId && targetSubjectType === subjectType && targetSubjectId === subjectId;
-  }
-
-  async function loadThreads(targetSubjectType = subjectType, targetSubjectId = subjectId): Promise<void> {
-    const requestId = ++loadRequestId;
-    loading = true;
-    try {
-      const threads = await api.getCommentThreads(targetSubjectType, targetSubjectId, true);
-      const loadedThreadViews = threads.map((thread) => ({
-        thread,
-        comments: thread.comments ?? [],
-      }));
-      if (isCurrentLoad(requestId, targetSubjectType, targetSubjectId)) {
-        threadViews = loadedThreadViews;
-      }
-    } finally {
-      if (isCurrentLoad(requestId, targetSubjectType, targetSubjectId)) {
-        loading = false;
-      }
-    }
   }
 
   async function startThread(): Promise<void> {
@@ -108,7 +89,7 @@
       updatedAt: now,
     });
     newThreadText = '';
-    await loadThreads();
+    await threadsResource.refetch();
     saving = false;
   }
 
@@ -128,7 +109,7 @@
       updatedAt: now,
     });
     replyTextByThreadId[threadId] = '';
-    await loadThreads();
+    await threadsResource.refetch();
     saving = false;
   }
 
@@ -149,7 +130,7 @@
     saving = true;
     await api.editUserComment(commentId, text);
     cancelEditing(commentId);
-    await loadThreads();
+    await threadsResource.refetch();
     saving = false;
   }
 
