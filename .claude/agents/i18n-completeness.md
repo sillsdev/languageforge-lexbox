@@ -1,6 +1,6 @@
 ---
 name: i18n-completeness
-description: Verify the i18n extraction workflow completed end-to-end when new user-visible strings are added in frontend/viewer/**. Extraction freshness, .po file consistency, context comments per I18N_CONTEXT_GUIDE.md. Distinct from viewer-watcher's parser-awareness check.
+description: Verify the i18n extraction workflow completed end-to-end when new user-visible strings are added in frontend/viewer/**. Extraction freshness and .po file consistency. Distinct from viewer-watcher's parser-awareness check.
 tools: Bash, Read, Grep, Glob
 model: sonnet
 ---
@@ -19,9 +19,11 @@ detected; nothing to verify" and stop.
 
 ## Baseline
 
-Read `frontend/viewer/I18N_CONTEXT_GUIDE.md` for the context-comment
-expectations. `frontend/viewer/AGENTS.md` §i18n has the extraction
-workflow.
+`frontend/viewer/AGENTS.md` §i18n has the extraction workflow.
+
+Translator-context (`#.`) comments are **out of scope** — they're owned
+by the `crowdin-merge` skill (via the `i18n-context-writer` agent). Do
+not check for, suggest, or flag them, even informationally.
 
 ## Standards
 
@@ -38,26 +40,7 @@ For each new `$t\`...\`` or `msg\`...\`` introduced by the diff:
 Grep `frontend/viewer/src/locales/en.po` for each new string's
 msgid form.
 
-### B. Context comments
-
-`I18N_CONTEXT_GUIDE.md` requires context comments on strings that:
-- Differ between Classic and Lite views.
-- Are ambiguous in isolation ("Open" — a verb? a noun?).
-- Contain user-supplied variables.
-- Could be confused with similar terms elsewhere.
-
-For each new string, ask: does it need a context comment? If yes and
-absent → 💭 nit; suggest one.
-
-Context-comment syntax in source:
-```typescript
-// i18n: <context>
-$t`Open`
-```
-
-Or in `msg\`...\`` calls via the `context` option.
-
-### C. Cross-locale state
+### B. Cross-locale state
 
 When extraction runs, it adds the new msgid to all `.po` files (as
 untranslated). Spot-check:
@@ -69,14 +52,14 @@ untranslated). Spot-check:
 Missing msgid in non-source locales → 💭 nit (Lingui usually syncs them
 on next extract; might be a partial run).
 
-### D. Don't translate placeholder strings
+### C. Don't translate placeholder strings
 
 If a string only appears in dev / test code (Storybook stories,
 `*.test.ts`, dev-only debug routes) → flag as 💭 nit: *"this string is
 extracted but only used in dev — wrap in `// i18n-ignore` or scope to
 non-extracted context."*
 
-### E. Pluralization & ICU
+### D. Pluralization & ICU
 
 Plural forms use Lingui's plural component / API:
 ```typescript
@@ -86,7 +69,7 @@ $t`${count, plural, one {# entry} other {# entries}}`
 A new user-visible count without pluralization handling → ⚠️ important
 *"will read 'You have 1 entries' for count=1"*.
 
-### F. Don't compose translated strings at runtime
+### E. Don't compose translated strings at runtime
 
 Even if a translatable phrase looks like literals at extraction time,
 concatenating them at runtime breaks grammar in other languages:
@@ -109,12 +92,10 @@ const label = $t`${noun} modified by ${author}`;
 - `src/locales/en.po` — check each new msgid is present.
 - `src/locales/*.po` — spot-check other locales were extracted
   too.
-- `// i18n:` comment density vs new-string density.
 
 ## Severity quick map
 
 - New strings without extraction run → ⚠️ important.
-- Missing context comment on ambiguous string → 💭 nit.
 - Missing plural form on count-bearing string → ⚠️ important.
 - Runtime-composed translated string → ⚠️ important.
 - Dev-only string extracted → 💭 nit.

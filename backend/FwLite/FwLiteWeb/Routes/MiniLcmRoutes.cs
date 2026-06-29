@@ -173,10 +173,12 @@ public static class MiniLcmRoutes
             return api.GetPublications();
         }
 
-        public static Task<Entry> PostEntry([FromBody] Entry entry, [FromServices] MiniLcmHolder holder)
+        public static Task<Entry> PostEntry([FromBody] Entry entry,
+            [AsParameters] CreateEntryOptionsParams paramOptions,
+            [FromServices] MiniLcmHolder holder)
         {
             var api = holder.MiniLcmApi;
-            return api.CreateEntry(entry);
+            return api.CreateEntry(entry, paramOptions.ToOptions(defaults: CreateEntryOptions.WithMainPublication));
         }
 
         public static Task DeleteEntry(Guid id, [FromServices] MiniLcmHolder holder)
@@ -184,6 +186,18 @@ public static class MiniLcmRoutes
             var api = holder.MiniLcmApi;
             return api.DeleteEntry(id);
         }
+    }
+
+    private class CreateEntryOptionsParams
+    {
+        [FromQuery]
+        public bool? AutoAddMainPublication { get; set; }
+        [FromQuery]
+        public bool? IncludeComplexFormsAndComponents { get; set; }
+
+        public CreateEntryOptions ToOptions(CreateEntryOptions defaults) => new(
+            IncludeComplexFormsAndComponents: IncludeComplexFormsAndComponents ?? defaults.IncludeComplexFormsAndComponents,
+            AutoAddMainPublication: AutoAddMainPublication ?? defaults.AutoAddMainPublication);
     }
 
     private class MiniLcmQueryOptions
