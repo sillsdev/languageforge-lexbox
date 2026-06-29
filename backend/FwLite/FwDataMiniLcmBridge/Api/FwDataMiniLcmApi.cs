@@ -1463,9 +1463,14 @@ public class FwDataMiniLcmApi(
             CreateExampleSentence(lexSense, exampleSentence);
         }
 
-        foreach (var picture in sense.Pictures)
+        if (sense.Pictures.Any())
         {
-            CreatePicture(lexSense, picture);
+            List<Picture> pictures = [.. sense.Pictures];
+            pictures.Sort(Picture.ComparePictures);
+            foreach (var picture in pictures)
+            {
+                CreatePicture(lexSense, picture);
+            }
         }
     }
 
