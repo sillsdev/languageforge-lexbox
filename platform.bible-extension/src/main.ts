@@ -1,6 +1,7 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
 import { ChildProcessByStdio } from 'child_process';
+import { mkdirSync } from 'fs';
 import type { BrowseWebViewOptions } from 'lexicon';
 import os from 'os';
 import path from 'path';
@@ -244,8 +245,8 @@ export async function deactivate(): Promise<boolean> {
 }
 
 /**
- * Returns a stable per-user directory for FW Lite data (projects, auth cache).
- * Mirrors Platform.Bible's own app:// convention so the path survives extension updates.
+ * Returns a stable per-user directory for FW Lite data (projects, auth cache). Mirrors
+ * Platform.Bible's own app:// convention so the path survives extension updates.
  */
 function getFwLiteDataDir(): string {
   return path.join(os.homedir(), '.platform.bible', 'extensions', 'lexicon');
@@ -264,6 +265,7 @@ function launchFwLite(context: ExecutionActivationContext): string {
   const baseUrl = 'http://localhost:29348';
 
   const dataDir = getFwLiteDataDir();
+  mkdirSync(dataDir, { recursive: true });
   fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
