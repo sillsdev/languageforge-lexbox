@@ -12,6 +12,18 @@ export type ObjectKind =
   | 'writingSystem'
   | 'morphType'
   | 'customView';
+/** Plural noun for a bulk-create collapse ("Created 100 semantic domains"). Keys mirror {@link BULK_CREATE_NOUNS}. */
+export type BulkNoun =
+  | 'entries'
+  | 'senses'
+  | 'examples'
+  | 'partsOfSpeech'
+  | 'semanticDomains'
+  | 'publications'
+  | 'complexFormTypes'
+  | 'morphTypes'
+  | 'writingSystems'
+  | 'customViews';
 
 /**
  * A localization-free description of one thing that happened in a change. The render component
@@ -37,6 +49,8 @@ export type ChangeFact =
   // A decoded field edit on a vocab object. `field` is humanized from the patch path (vocab objects have no field-label config).
   | {kind: 'editObjectField'; object: ObjectKind; field: string; ws?: string; value?: string; cleared?: boolean}
   | {kind: 'deleteObject'; object: ObjectKind}
+  // A whole commit's worth of same-type creations collapsed to a count ("Created 100 semantic domains").
+  | {kind: 'bulkCreate'; noun: BulkNoun; count: number}
   | {kind: 'generic'; text: string};
 
 const MAIN_ENTITY_BY_SUFFIX: Record<string, SummaryEntity> = {
@@ -300,15 +314,76 @@ export function describeActivity(
   });
 }
 
+/** Create change types whose commits collapse to a count when batched ("Created 100 semantic domains"). */
+const BULK_CREATE_NOUNS: Record<string, BulkNoun> = {
+  CreateEntryChange: 'entries',
+  CreateSenseChange: 'senses',
+  CreateExampleSentenceChange: 'examples',
+  CreatePartOfSpeechChange: 'partsOfSpeech',
+  CreateSemanticDomainChange: 'semanticDomains',
+  CreatePublicationChange: 'publications',
+  CreateComplexFormType: 'complexFormTypes',
+  CreateMorphTypeChange: 'morphTypes',
+  CreateWritingSystemChange: 'writingSystems',
+  CreateCustomViewChange: 'customViews',
+};
+
+/** Whether every change in the commit is on the same single entry tree (its root entry resolved and identical). */
+function allSameRoot(changeInfo?: readonly IActivityChangeInfo[]): boolean {
+  const root = changeInfo?.[0]?.rootEntryId;
+  return !!root && !!changeInfo && changeInfo.every((ci) => ci.rootEntryId === root);
+}
+
 /**
- * Picks the headline fact for the compact (Simple) list view. A commit that creates an entry and only
- * touches that one entry's tree (its senses/examples) collapses to just the entry-creation — so the user
- * isn't left wondering what the "+N" changes were. Otherwise the first fact leads and `remaining` is counted.
+ * Recognises a whole commit that reads best as a single line — without parsing every change. Returns that one
+ * fact, or null to fall back to listing facts. Driven by cheap signals the commit already carries (distinct
+ * change-type keys, per-change root ids, count), so a 100-change sync commit costs nothing to classify.
  */
-export function pickHeadline(entries: ChangeFactWithSubject[]): {entry: ChangeFactWithSubject; remaining: number} {
-  const rootEntryId = entries[0]?.rootEntryId;
-  const createEntry = entries.find((e) => e.fact.kind === 'create' && e.fact.entity === 'entry');
-  const allSameEntry = !!rootEntryId && entries.every((e) => e.rootEntryId === rootEntryId);
-  if (createEntry && allSameEntry) return {entry: createEntry, remaining: 0};
-  return {entry: entries[0], remaining: entries.length - 1};
+export function recognizeCommit(
+  changes: readonly IChangeEntity[],
+  changeInfo: readonly IActivityChangeInfo[] | undefined,
+  changeTypes: readonly string[],
+): ChangeFactWithSubject | null {
+  if (changes.length <= 1) return null; // a single change renders fine on its own
+  // Building one entry (its creation + that entry's own senses/fields) → "Created entry X".
+  if (changeTypes.includes('CreateEntryChange') && allSameRoot(changeInfo)) {
+    const index = changes.findIndex((c) => changeType(c.change) === 'CreateEntryChange');
+    const info = changeInfo?.[index >= 0 ? index : 0];
+    return {fact: {kind: 'create', entity: 'entry', label: info?.subject}, subject: info?.subject, rootEntryId: info?.rootEntryId};
+  }
+  // One kind of thing created across many entities (import / sync batch) → "Created N entries".
+  const noun = changeTypes.length === 1 ? BULK_CREATE_NOUNS[changeTypes[0]] : undefined;
+  if (noun && !allSameRoot(changeInfo)) {
+    return {fact: {kind: 'bulkCreate', noun, count: changes.length}};
+  }
+  return null;
+}
+
+/** Facts for the first <paramref name="maxChanges"/> changes, plus how many changes were left off (for "+N more"). */
+export function describeActivityCapped(
+  changes: readonly IChangeEntity[],
+  changeInfo: readonly IActivityChangeInfo[] | undefined,
+  maxChanges: number,
+): {entries: ChangeFactWithSubject[]; remaining: number} {
+  const entries = describeActivity(changes.slice(0, maxChanges), changeInfo);
+  return {entries, remaining: Math.max(0, changes.length - maxChanges)};
+}
+
+/** Max changes listed per commit row in Detailed mode before the rest collapse to "+N more". */
+export const DETAIL_CHANGE_CAP = 10;
+
+/**
+ * Bounded summary of a commit for one row of the activity list. A recognised whole-commit shape (entry creation,
+ * bulk create) collapses to a single line; otherwise the first changes are listed — capped in Detailed mode,
+ * just the first in Simple mode — with the rest counted. Never parses more changes than it shows.
+ */
+export function summarizeActivity(
+  changes: readonly IChangeEntity[],
+  changeInfo: readonly IActivityChangeInfo[] | undefined,
+  changeTypes: readonly string[],
+  detailed: boolean,
+): {entries: ChangeFactWithSubject[]; remaining: number} {
+  const recognized = recognizeCommit(changes, changeInfo, changeTypes);
+  if (recognized) return {entries: [recognized], remaining: 0};
+  return describeActivityCapped(changes, changeInfo, detailed ? DETAIL_CHANGE_CAP : 1);
 }

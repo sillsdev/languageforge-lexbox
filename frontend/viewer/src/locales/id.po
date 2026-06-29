@@ -26,6 +26,7 @@ msgid "– ({0} changes)"
 msgstr "- ({0} perubahan)"
 
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "(+{0} more)"
 msgstr ""
 
@@ -484,6 +485,10 @@ msgstr "Bentuk Kompleks"
 msgid "complex form type"
 msgstr ""
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "complex form types"
+msgstr ""
+
 #. Field label
 #. Classifies the type of complex form relationship (user-configurable)
 #. Examples: "compound", "derivative", "inflectional" (varies by project)
@@ -588,6 +593,10 @@ msgstr "Buat Tampilan"
 msgid "Created {0}"
 msgstr ""
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created {0} {1}"
+msgstr ""
+
 #. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech"). Used when the created item has no display name.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Created a {0}"
@@ -634,6 +643,10 @@ msgstr ""
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr "Tampilan khusus"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "custom views"
+msgstr ""
 
 #. Theme option
 #: src/lib/components/ThemePicker.svelte
@@ -832,6 +845,10 @@ msgstr "Editor"
 msgid "Ends with"
 msgstr "Diakhiri dengan"
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "entries"
+msgstr ""
+
 #. Filter option label
 #. Dropdown to filter entries by missing fields
 #. Example: "Entries missing Definition" shows words without definitions
@@ -892,6 +909,7 @@ msgstr "Kesalahan mendapatkan status sinkronisasi"
 msgid "Error getting sync status."
 msgstr "Kesalahan mendapatkan status sinkronisasi."
 
+#. Standalone noun (an example sentence on a sense), interpolated into a reorder activity-log line, e.g. "<sense> · Reordered example".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "example"
 msgstr ""
@@ -912,6 +930,7 @@ msgid "Example sentence"
 msgstr "Contoh kalimat"
 
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of example sentences under a sense.
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "examples"
 msgstr ""
@@ -1414,6 +1433,10 @@ msgstr "Mode"
 msgid "morph type"
 msgstr ""
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "morph types"
+msgstr ""
+
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1704,6 +1727,10 @@ msgstr ""
 msgid "Part of speech"
 msgstr "Bagian dari pidato"
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "parts of speech"
+msgstr ""
+
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1770,6 +1797,10 @@ msgstr ""
 #: src/project/browse/SearchFilter.svelte
 msgid "Publication"
 msgstr "Publikasi"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "publications"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Publish Word in"
@@ -1939,6 +1970,10 @@ msgstr ""
 msgid "Semantic domain"
 msgstr "Domain semantik"
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "semantic domains"
+msgstr ""
+
 #. Field label
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
 #. Appears under each Sense/Meaning; usually multiple selection allowed
@@ -1951,6 +1986,7 @@ msgstr "Domain semantik"
 msgid "Send us a message"
 msgstr "Kirimkan pesan kepada kami"
 
+#. Standalone noun (one meaning of a word), interpolated into a reorder activity-log line followed by the sense's gloss, e.g. "Apfel · Reordered sense apple".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "sense"
 msgstr ""
@@ -1967,6 +2003,7 @@ msgid "Sense"
 msgstr "Pengertian"
 
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of senses (meanings) within a dictionary entry.
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "senses"
 msgstr ""
@@ -2495,6 +2532,7 @@ msgid "Writing system: {0}"
 msgstr "Sistem penulisan: {0}"
 
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of writing systems configured in the project.
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "writing systems"
 msgstr ""

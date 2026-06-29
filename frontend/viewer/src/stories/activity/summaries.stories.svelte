@@ -32,6 +32,7 @@
     {label: 'Edit vocab (generic)', fact: {kind: 'editObject', object: 'partOfSpeech'}, subject: 'Noun'},
     {label: 'Create vocab', fact: {kind: 'createObject', object: 'semanticDomain', label: '5.2 Food'}, subject: '5.2 Food'},
     {label: 'Delete vocab', fact: {kind: 'deleteObject', object: 'publication'}, subject: 'School Dictionary'},
+    {label: 'Bulk create (import/sync)', fact: {kind: 'bulkCreate', noun: 'semanticDomains', count: 100}},
     {label: 'Generic fallback', fact: {kind: 'generic', text: 'Create remote resource'}},
   ];
 </script>

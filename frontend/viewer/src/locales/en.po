@@ -21,6 +21,7 @@ msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "(+{0} more)"
 msgstr "(+{0} more)"
 
@@ -479,6 +480,11 @@ msgstr "Complex Form"
 msgid "complex form type"
 msgstr "complex form type"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined classifications of compound-word relationships (e.g. "compound", "derivative").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "complex form types"
+msgstr "complex form types"
+
 #. Field label
 #. Classifies the type of complex form relationship (user-configurable)
 #. Examples: "compound", "derivative", "inflectional" (varies by project)
@@ -583,6 +589,12 @@ msgstr "Create View"
 msgid "Created {0}"
 msgstr "Created {0}"
 
+#. Activity-log line for a batch of same-type creations. {0} = count (number, always ≥ 2); {1} = plural noun for the created object type (e.g. "entries", "semantic domains").
+#. Example: "Created 100 semantic domains". Order and inflection of {0} and {1} may vary by language.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created {0} {1}"
+msgstr "Created {0} {1}"
+
 #. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech"). Used when the created item has no display name.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Created a {0}"
@@ -629,6 +641,11 @@ msgstr "custom view"
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr "Custom view"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined configurations of which dictionary fields and writing systems are visible.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "custom views"
+msgstr "custom views"
 
 #. Theme option
 #: src/lib/components/ThemePicker.svelte
@@ -827,6 +844,11 @@ msgstr "Editor"
 msgid "Ends with"
 msgstr "Ends with"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
+#: src/lib/activity/ChangeSummary.svelte
+msgid "entries"
+msgstr "entries"
+
 #. Filter option label
 #. Dropdown to filter entries by missing fields
 #. Example: "Entries missing Definition" shows words without definitions
@@ -908,6 +930,7 @@ msgid "Example sentence"
 msgstr "Example sentence"
 
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of example sentences under a sense.
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "examples"
 msgstr "examples"
@@ -1410,6 +1433,11 @@ msgstr "Mode"
 msgid "morph type"
 msgstr "morph type"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "morph types"
+msgstr "morph types"
+
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1700,6 +1728,11 @@ msgstr "part of speech"
 msgid "Part of speech"
 msgstr "Part of speech"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Grammatical categories (noun, verb, adjective, etc.). Classic view calls these "Grammatical info."
+#: src/lib/activity/ChangeSummary.svelte
+msgid "parts of speech"
+msgstr "parts of speech"
+
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1766,6 +1799,11 @@ msgstr "publication"
 #: src/project/browse/SearchFilter.svelte
 msgid "Publication"
 msgstr "Publication"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Publications are dictionaries or word lists that entries can be assigned to for distribution.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "publications"
+msgstr "publications"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Publish Word in"
@@ -1935,6 +1973,11 @@ msgstr "semantic domain"
 msgid "Semantic domain"
 msgstr "Semantic domain"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Semantic domains are meaning categories assigned to senses (e.g. "plants", "emotions", "body parts").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "semantic domains"
+msgstr "semantic domains"
+
 #. Field label
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
 #. Appears under each Sense/Meaning; usually multiple selection allowed
@@ -1964,6 +2007,7 @@ msgid "Sense"
 msgstr "Sense"
 
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of senses (meanings) within a dictionary entry.
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "senses"
 msgstr "senses"
@@ -2492,6 +2536,7 @@ msgid "Writing system: {0}"
 msgstr "Writing system: {0}"
 
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of writing systems configured in the project.
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "writing systems"
 msgstr "writing systems"

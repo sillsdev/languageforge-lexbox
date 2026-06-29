@@ -211,6 +211,37 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "to run");
     }
 
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_NamesAVocabSubject()
+    {
+        var meta = new CommitMetadata { AuthorName = "A", AuthorId = "a" };
+        await DataModel.AddChange(ClientId, new CreatePartOfSpeechChange(Guid.NewGuid(), new MultiString { ["en"] = "Verb" }), meta);
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "Verb");
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_NamesTheReferencedPartOfSpeech()
+    {
+        var meta = new CommitMetadata { AuthorName = "A", AuthorId = "a" };
+        var posId = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreatePartOfSpeechChange(posId, new MultiString { ["en"] = "Noun" }), meta);
+        var entryId = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry { Id = entryId, LexemeForm = new MultiString { ["en"] = "run" } }), meta);
+        var senseId = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreateSenseChange(new Sense { Id = senseId, Gloss = new MultiString { ["en"] = "to run" } }, entryId), meta);
+        await DataModel.AddChange(ClientId, new SetPartOfSpeechChange(senseId, posId), meta);
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+
+        // The set-part-of-speech change names the sense as its subject and the assigned part of speech as its target.
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1
+            && a.ChangeInfo[0].Subject == "run › to run"
+            && a.ChangeInfo[0].Target == "Noun");
+    }
+
     private async Task<Commit> AddEntryCommit(CommitMetadata metadata, string? headword = null)
     {
         var entry = headword is null

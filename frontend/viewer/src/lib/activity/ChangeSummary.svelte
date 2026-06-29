@@ -3,7 +3,7 @@
   import {getEntityConfig} from '$lib/views/entity-config';
   import {pt, tvt, type ViewText} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
-  import type {ChangeFact, CollectionKind, ObjectKind, SummaryEntity} from './change-summary';
+  import type {BulkNoun, ChangeFact, CollectionKind, ObjectKind, SummaryEntity} from './change-summary';
 
   let {fact, subject, target}: {fact: ChangeFact; subject?: string; target?: string} = $props();
 
@@ -41,6 +41,23 @@
       writingSystems: $t`writing systems`,
     };
     return nouns[collection];
+  }
+
+  // Plural noun for a bulk-create collapse ("Created 100 semantic domains").
+  function bulkNoun(noun: BulkNoun): string {
+    const nouns: Record<BulkNoun, string> = {
+      entries: $t`entries`,
+      senses: $t`senses`,
+      examples: $t`examples`,
+      partsOfSpeech: $t`parts of speech`,
+      semanticDomains: $t`semantic domains`,
+      publications: $t`publications`,
+      complexFormTypes: $t`complex form types`,
+      morphTypes: $t`morph types`,
+      writingSystems: $t`writing systems`,
+      customViews: $t`custom views`,
+    };
+    return nouns[noun];
   }
 
   // Singular noun for one reordered item, so we can name it ("Reordered sense apple").
@@ -148,6 +165,8 @@
   {#if subject}{objectType} {@render chip(subject)}{:else}{objectType}{/if}<span class="px-1.5 text-muted-foreground/70">·</span>{#if fact.cleared}{$t`Cleared ${fact.field}`}{:else if fact.value !== undefined}{#if fact.ws}{$t`Set ${fact.field} (${fact.ws}) to “${fact.value}”`}{:else}{$t`Set ${fact.field} to “${fact.value}”`}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
 {:else if fact.kind === 'deleteObject'}
   {$t`Deleted ${objectNoun(fact.object)}`} {#if subject}{@render chip(subject)}{/if}
+{:else if fact.kind === 'bulkCreate'}
+  {$t`Created ${fact.count} ${bulkNoun(fact.noun)}`}
 {:else}
   {fact.text}
 {/if}

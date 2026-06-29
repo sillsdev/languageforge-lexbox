@@ -14,7 +14,7 @@
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
   import ActivityListViewOptions, {type ActivityListViewMode} from './ActivityListViewOptions.svelte';
   import ChangeSummary from './ChangeSummary.svelte';
-  import {describeActivity, pickHeadline} from './change-summary';
+  import {summarizeActivity} from './change-summary';
   import {
     createDefaultActivityFilters,
     emptyActivityLoad,
@@ -159,25 +159,27 @@
              onscroll={onListScroll}
              getKey={row => row.commitId} bufferSize={400}>
         {#snippet children(row)}
-          {@const entries = describeActivity(row.changes, row.changeInfo)}
+          {@const summary = summarizeActivity(row.changes, row.changeInfo, row.changeTypes, activityMode === 'detailed')}
           <ListItem
             onclick={() => selectedRow = row}
             selected={selectedRow?.commitId === row.commitId}
             class="mb-2">
-            {#if entries.length === 0}
+            {#if summary.entries.length === 0}
               <span>{row.changeName}</span>
             {:else if activityMode === 'detailed'}
               <div class="space-y-0.5">
-                {#each entries as entry, i (i)}
+                {#each summary.entries as entry, i (i)}
                   <div class="text-sm"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></div>
                 {/each}
+                {#if summary.remaining > 0}
+                  <div class="text-sm text-muted-foreground">{$t`(+${summary.remaining} more)`}</div>
+                {/if}
               </div>
             {:else}
-              {@const headline = pickHeadline(entries)}
               <span>
-                <ChangeSummary fact={headline.entry.fact} subject={headline.entry.subject} target={headline.entry.target} />
-                {#if headline.remaining > 0}
-                  <span class="text-muted-foreground">{$t`(+${headline.remaining} more)`}</span>
+                <ChangeSummary fact={summary.entries[0].fact} subject={summary.entries[0].subject} target={summary.entries[0].target} />
+                {#if summary.remaining > 0}
+                  <span class="text-muted-foreground">{$t`(+${summary.remaining} more)`}</span>
                 {/if}
               </span>
             {/if}

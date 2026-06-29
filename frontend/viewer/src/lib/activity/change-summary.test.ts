@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {describeActivity, describeChange, isHandledChangeType, pickHeadline, type ChangeFact, type ChangeFactWithSubject} from './change-summary';
+import {describeActivity, describeChange, isHandledChangeType, recognizeCommit, summarizeActivity} from './change-summary';
 import {knownChangeTypes} from '$lib/dotnet-types/generated-types/LcmCrdt/ChangeTypes';
 import type {IChangeEntity} from '$lib/dotnet-types';
 
@@ -154,25 +154,97 @@ describe('describeActivity', () => {
   });
 });
 
-describe('pickHeadline', () => {
-  function entry(fact: ChangeFact, subject?: string, rootEntryId?: string): ChangeFactWithSubject {
-    return {fact, subject, rootEntryId};
-  }
-
-  it('collapses a create-entry tree to the entry creation', () => {
-    const headline = pickHeadline([
-      entry({kind: 'create', entity: 'entry', label: 'Apfel'}, 'Apfel', 'e1'),
-      entry({kind: 'create', entity: 'sense', label: 'apple'}, 'Apfel › apple', 'e1'),
-    ]);
-    expect(headline.entry.fact).toMatchObject({kind: 'create', entity: 'entry'});
-    expect(headline.remaining).toBe(0);
+describe('recognizeCommit', () => {
+  it('collapses an entry-creation commit (create + its tree) to "Created entry X"', () => {
+    const result = recognizeCommit(
+      [changeEntity({'$type': 'CreateEntryChange'}), changeEntity({'$type': 'CreateSenseChange'})],
+      [{subject: 'Apfel', rootEntryId: 'e1'}, {subject: 'Apfel › apple', rootEntryId: 'e1'}],
+      ['CreateEntryChange', 'CreateSenseChange'],
+    );
+    expect(result?.fact).toMatchObject({kind: 'create', entity: 'entry'});
+    expect(result?.subject).toBe('Apfel');
   });
 
-  it('leads with the first change and counts the rest when entities differ', () => {
-    const headline = pickHeadline([
-      entry({kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value: 'a'}, 'Apfel', 'e1'),
-      entry({kind: 'setField', entity: 'sense', fieldId: 'gloss', value: 'b'}, 'Pear › p', 'e2'),
-    ]);
-    expect(headline.remaining).toBe(1);
+  it('collapses a bulk vocab import to a count', () => {
+    const result = recognizeCommit(
+      [changeEntity({'$type': 'CreateSemanticDomainChange'}), changeEntity({'$type': 'CreateSemanticDomainChange'}), changeEntity({'$type': 'CreateSemanticDomainChange'})],
+      [{}, {}, {}],
+      ['CreateSemanticDomainChange'],
+    );
+    expect(result?.fact).toEqual({kind: 'bulkCreate', noun: 'semanticDomains', count: 3});
+  });
+
+  it('collapses a bulk entry import (different entries) to a count', () => {
+    const result = recognizeCommit(
+      [changeEntity({'$type': 'CreateEntryChange'}), changeEntity({'$type': 'CreateEntryChange'})],
+      [{rootEntryId: 'e1'}, {rootEntryId: 'e2'}],
+      ['CreateEntryChange'],
+    );
+    expect(result?.fact).toEqual({kind: 'bulkCreate', noun: 'entries', count: 2});
+  });
+
+  it('does not collapse a single change', () => {
+    expect(recognizeCommit([changeEntity({'$type': 'CreateEntryChange'})], [{rootEntryId: 'e1'}], ['CreateEntryChange'])).toBeNull();
+  });
+
+  it('does not collapse same-entity edits (they get listed, keeping the headword)', () => {
+    expect(recognizeCommit(
+      [changeEntity({'$type': 'jsonPatch:Entry'}), changeEntity({'$type': 'jsonPatch:Sense'})],
+      [{rootEntryId: 'e1'}, {rootEntryId: 'e1'}],
+      ['jsonPatch:Entry', 'jsonPatch:Sense'],
+    )).toBeNull();
+  });
+
+  it('does not collapse a diverse commit', () => {
+    expect(recognizeCommit(
+      [changeEntity({'$type': 'AddComplexFormTypeChange'}), changeEntity({'$type': 'CreateSenseChange'})],
+      [{rootEntryId: 'e1'}, {rootEntryId: 'e2'}],
+      ['AddComplexFormTypeChange', 'CreateSenseChange'],
+    )).toBeNull();
+  });
+
+  it('has a bulk noun for every create change type, so any batch collapses', () => {
+    const createTypes = knownChangeTypes.filter((type) =>
+      describeChange(changeEntity({'$type': type})).some((f) => f.kind === 'create' || f.kind === 'createObject'),
+    );
+    const uncollapsed = createTypes.filter((type) =>
+      recognizeCommit([changeEntity({'$type': type}), changeEntity({'$type': type})], [{}, {}], [type])?.fact.kind !== 'bulkCreate',
+    );
+    expect(uncollapsed).toEqual([]);
+  });
+});
+
+describe('summarizeActivity', () => {
+  function patchChange() {
+    return changeEntity({'$type': 'jsonPatch:Entry', PatchDocument: [{op: 'replace', path: '/LexemeForm/en', value: 'x'}]});
+  }
+
+  it('caps the listed changes in detailed mode and counts the rest', () => {
+    const changes = Array.from({length: 25}, patchChange);
+    const info = changes.map((_, i) => ({rootEntryId: `e${i}`})); // different roots → not collapsed
+    const result = summarizeActivity(changes, info, ['jsonPatch:Entry'], true);
+    expect(result.entries.length).toBeLessThanOrEqual(10);
+    expect(result.remaining).toBe(15);
+  });
+
+  it('shows just the first change in simple mode', () => {
+    const changes = [patchChange(), patchChange()];
+    const result = summarizeActivity(changes, [{rootEntryId: 'e1'}, {rootEntryId: 'e2'}], ['jsonPatch:Entry'], false);
+    expect(result.entries).toHaveLength(1);
+    expect(result.remaining).toBe(1);
+  });
+
+  it('collapses a recognized commit to one line in both modes', () => {
+    const args = [
+      [changeEntity({'$type': 'CreateEntryChange'}), changeEntity({'$type': 'CreateSenseChange'})],
+      [{subject: 'Apfel', rootEntryId: 'e1'}, {subject: 'Apfel › apple', rootEntryId: 'e1'}],
+      ['CreateEntryChange', 'CreateSenseChange'],
+    ] as const;
+    for (const detailed of [true, false]) {
+      const result = summarizeActivity(args[0], args[1], args[2], detailed);
+      expect(result.entries).toHaveLength(1);
+      expect(result.remaining).toBe(0);
+      expect(result.entries[0].fact).toMatchObject({kind: 'create', entity: 'entry'});
+    }
   });
 });
