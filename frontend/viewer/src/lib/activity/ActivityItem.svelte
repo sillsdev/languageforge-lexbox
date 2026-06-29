@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import type {IChangeContext, IChangeEntity, IProjectActivity} from '$lib/dotnet-types';
+  import type {IChangeContext, IChangeEntity, IEntry, IProjectActivity} from '$lib/dotnet-types';
 
   export class ChangeWithLazyContext {
 
@@ -25,6 +25,7 @@
   import {T, t} from 'svelte-i18n-lingui';
   import {VList} from 'virtua/svelte';
   import ActivityItemChangePreview from './ActivityItemChangePreview.svelte';
+  import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import {formatJsonForUi} from './utils';
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
@@ -51,6 +52,23 @@
   const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(change => {
     return new ChangeWithLazyContext(change, activity, () => historyService.loadChangeContext(activity.commitId, change.index));
   }));
+
+  // A commit that only builds one entry (its creation + that entry's own senses/fields) reads best as the finished
+  // entry rather than a stack of per-change cards. We recognise it from cheap signals — no need to interpret the changes.
+  const collapseToEntry = $derived(
+    !!changes && changes.length > 1
+    && activity.changeTypes.includes('CreateEntryChange')
+    && activity.changeInfo.length > 0
+    && activity.changeInfo.every(ci => !!ci.rootEntryId && ci.rootEntryId === activity.changeInfo[0].rootEntryId),
+  );
+
+  // The backend already resolves the full entry (with senses) into affectedEntries, so we render it directly — no
+  // change-by-change assembly. Falls back to the per-change list if the commit turns out to touch more than one entry.
+  const collapsedEntry = $derived.by((): Promise<IEntry | undefined> => {
+    const first = collapseToEntry ? changes?.[0] : undefined;
+    if (!first) return Promise.resolve(undefined);
+    return first.lazyContext.then(c => c.affectedEntries.length === 1 ? c.affectedEntries[0] : undefined);
+  });
 </script>
 
 <div {...restProps} class={cn(className, 'grid gap-2 grid-rows-[auto_1fr] h-full')}>
@@ -108,59 +126,76 @@
         <HistoryView bind:open={() => !!openHistoryId, (open) => (open ? undefined : openHistoryId = undefined)} id={openHistoryId} selectedCommitId={activity.commitId}/>
     {/if}
     {#if changes}
-      <div
-        class="change-list flex flex-col gap-4 overflow-auto border rounded">
-        {#key changes}
-          <VList
-            class="space-y-2"
-            data={changes}
-            bufferSize={1400}
-            getKey={(item) => `${item.change.commitId}:${item.change.index}`}>
-            {#snippet children(changeWithContext)}
-              {@const {change, lazyContext} = changeWithContext}
-              {#await lazyContext}
-                <!-- determines how many rows are initially visible,
-                 which in turn determines how many changes will be loaded.
-                 Too big is not much of a problem, it will just stagger subsequent loads -->
-                <div class="h-[700px]"></div>
-              {:then context}
-                <div class="change">
-                  <div class="px-4 pt-2 flex font-semibold items-center">
-                    <span class="grow">{context.changeName}</span>
-
-                    {#if showHistoryButton}
-                      <Button icon="i-mdi-history" onclick={() => openHistoryId = context.snapshot?.id}>
-                        {$t`History`}
-                      </Button>
-                    {/if}
-                  </div>
-                  <Tabs.Root value="preview" class="px-2 mt-2 grow">
-                    <Tabs.List class="w-full">
-                      <Tabs.Trigger class="flex-1" value="preview">
-                        {$t`Preview`}
-                      </Tabs.Trigger>
-                      <Tabs.Trigger class="flex-1" value="change">{$t`Details`}</Tabs.Trigger>
-                    </Tabs.List>
-                    <div class="pt-1 pb-4 px-2">
-                      <Tabs.Content value="preview">
-                        <ActivityItemChangePreview {activity} {context} />
-                      </Tabs.Content>
-                      <Tabs.Content value="change">
-                        <div class="whitespace-pre-wrap font-mono text-sm">
-                          {formatJsonForUi(change)}
-                        </div>
-                      </Tabs.Content>
-                    </div>
-                  </Tabs.Root>
-                </div>
-              {/await}
-            {/snippet}
-          </VList>
-        {/key}
-      </div>
+      {#if collapseToEntry}
+        {#await collapsedEntry}
+          <div class="h-[700px] border rounded"></div>
+        {:then entry}
+          {#if entry}
+            <div class="overflow-auto border rounded p-3">
+              <EntryEditor {entry} readonly modalMode canAddSense={false} canAddExample={false} />
+            </div>
+          {:else}
+            {@render changeList(changes)}
+          {/if}
+        {/await}
+      {:else}
+        {@render changeList(changes)}
+      {/if}
     {/if}
   {/if}
 </div>
+
+{#snippet changeList(items: ChangeWithLazyContext[])}
+  <div class="change-list flex flex-col gap-4 overflow-auto border rounded">
+    {#key items}
+      <VList
+        class="space-y-2"
+        data={items}
+        bufferSize={1400}
+        getKey={(item) => `${item.change.commitId}:${item.change.index}`}>
+        {#snippet children(changeWithContext)}
+          {@const {change, lazyContext} = changeWithContext}
+          {#await lazyContext}
+            <!-- determines how many rows are initially visible,
+             which in turn determines how many changes will be loaded.
+             Too big is not much of a problem, it will just stagger subsequent loads -->
+            <div class="h-[700px]"></div>
+          {:then context}
+            <div class="change">
+              <div class="px-4 pt-2 flex font-semibold items-center">
+                <span class="grow">{context.changeName}</span>
+
+                {#if showHistoryButton}
+                  <Button icon="i-mdi-history" onclick={() => openHistoryId = context.snapshot?.id}>
+                    {$t`History`}
+                  </Button>
+                {/if}
+              </div>
+              <Tabs.Root value="preview" class="px-2 mt-2 grow">
+                <Tabs.List class="w-full">
+                  <Tabs.Trigger class="flex-1" value="preview">
+                    {$t`Preview`}
+                  </Tabs.Trigger>
+                  <Tabs.Trigger class="flex-1" value="change">{$t`Details`}</Tabs.Trigger>
+                </Tabs.List>
+                <div class="pt-1 pb-4 px-2">
+                  <Tabs.Content value="preview">
+                    <ActivityItemChangePreview {activity} {context} />
+                  </Tabs.Content>
+                  <Tabs.Content value="change">
+                    <div class="whitespace-pre-wrap font-mono text-sm">
+                      {formatJsonForUi(change)}
+                    </div>
+                  </Tabs.Content>
+                </div>
+              </Tabs.Root>
+            </div>
+          {/await}
+        {/snippet}
+      </VList>
+    {/key}
+  </div>
+{/snippet}
 
 <style lang="postcss">
   @reference "#app.css";
