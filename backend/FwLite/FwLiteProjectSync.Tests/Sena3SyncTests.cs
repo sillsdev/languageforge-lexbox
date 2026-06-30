@@ -13,7 +13,8 @@ using MiniLcm.Models;
 namespace FwLiteProjectSync.Tests;
 
 [Trait("Category", "Integration")]
-public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
+[Collection(Sena3Collection.Name)]
+public class Sena3SyncTests : IAsyncLifetime
 {
     private readonly Sena3Fixture _fixture;
     private CrdtFwdataProjectSyncService _syncService = null!;

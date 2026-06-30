@@ -262,6 +262,7 @@
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       DeletedAt (DateTimeOffset?)
+      IsMain (bool) Required
       Name (MultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb

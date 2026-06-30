@@ -191,6 +191,7 @@
         {
           "Id": "ec21b4b7-3861-38d4-bc7b-fe77bd2321c2",
           "DeletedAt": null,
+          "IsMain": false,
           "Name": {
             "nak": "CSS"
           }
@@ -405,6 +406,7 @@
         {
           "Id": "bd874c92-e063-2a20-d263-bdc6897a1e85",
           "DeletedAt": null,
+          "IsMain": false,
           "Name": {
             "zrg": "cross-platform",
             "bno": "heuristic"
@@ -413,6 +415,38 @@
       ]
     },
     "Id": "8dbc0f41-998e-836a-97e1-f05d46d95c92",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Entry",
+      "Id": "84bb5f48-b2a9-d0c8-85ee-aec9203830ee",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "dkk": "Product"
+      },
+      "CitationForm": {},
+      "LiteralMeaning": {},
+      "MorphType": "Infix",
+      "HomographNumber": 1102525176,
+      "Senses": [],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": [
+        {
+          "Id": "78c00e29-d69e-56ba-77f5-b5be25469c4f",
+          "DeletedAt": null,
+          "IsMain": true,
+          "Name": {
+            "mps": "Small Granite Salad"
+          }
+        }
+      ]
+    },
+    "Id": "84bb5f48-b2a9-d0c8-85ee-aec9203830ee",
     "DeletedAt": null
   },
   {
@@ -3765,6 +3799,7 @@
       "$type": "Publication",
       "Id": "78f9bd83-8dcb-6972-7e0b-5863ef2ea0a8",
       "DeletedAt": null,
+      "IsMain": false,
       "Name": {
         "zun": "Creative",
         "km": "overriding",
@@ -3773,6 +3808,20 @@
       }
     },
     "Id": "78f9bd83-8dcb-6972-7e0b-5863ef2ea0a8",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Publication",
+      "Id": "a3ca5bad-7e34-ab17-b9f0-acbdb69de80f",
+      "DeletedAt": null,
+      "IsMain": true,
+      "Name": {
+        "ywa": "attitude"
+      }
+    },
+    "Id": "a3ca5bad-7e34-ab17-b9f0-acbdb69de80f",
     "DeletedAt": null
   },
   {

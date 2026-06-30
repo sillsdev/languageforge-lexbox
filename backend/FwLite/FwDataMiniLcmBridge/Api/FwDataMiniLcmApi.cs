@@ -367,10 +367,23 @@ public class FwDataMiniLcmApi(
         var possibility = new Publication
         {
             Id = lcmPossibility.Guid,
-            Name = FromLcmMultiString(lcmPossibility.Name)
+            Name = FromLcmMultiString(lcmPossibility.Name),
+            IsMain = lcmPossibility.IsProtected
         };
 
         return possibility;
+    }
+
+    // The Main Dictionary is the publication FieldWorks protects from deletion (IsProtected). LibLCM treats anything
+    // other than exactly one protected publication as an error; we mirror that for >1 but tolerate 0 so a project
+    // without a Main Dictionary can still create entries (it just won't auto-add one).
+    private ICmPossibility? FindMainPublication()
+    {
+        var protectedPublications = Publications.PossibilitiesOS.Where(pub => pub.IsProtected).ToArray();
+        if (protectedPublications.Length > 1)
+            throw new InvalidOperationException(
+                $"Expected at most one protected (main) publication but found {protectedPublications.Length}.");
+        return protectedPublications.FirstOrDefault();
     }
 
     public Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
@@ -734,9 +747,9 @@ public class FwDataMiniLcmApi(
         return new ComplexFormComponent
         {
             ComponentEntryId = component.Guid,
-            ComponentHeadword = component.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
+            ComponentHeadword = component.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
             Order = Order(component, complexEntry)
         };
     }
@@ -747,9 +760,9 @@ public class FwDataMiniLcmApi(
         {
             ComponentEntryId = componentSense.Entry.Guid,
             ComponentSenseId = componentSense.Guid,
-            ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
+            ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
             Order = Order(componentSense, complexEntry)
         };
     }
@@ -1017,8 +1030,16 @@ public class FwDataMiniLcmApi(
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
-        options ??= CreateEntryOptions.Everything;
+        options ??= CreateEntryOptions.WithMainPublication;
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
+        if (options.AutoAddMainPublication)
+        {
+            var mainPublication = FindMainPublication();
+            if (mainPublication is not null && entry.PublishIn.All(pub => pub.Id != mainPublication.Guid))
+            {
+                entry.PublishIn.Add(FromLcmPossibility(mainPublication));
+            }
+        }
         try
         {
             UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Entry",
@@ -1113,12 +1134,15 @@ public class FwDataMiniLcmApi(
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
+        //complex form entry has been deleted, so this component relationship is gone already
+        if (!EntriesRepository.TryGetObject(complexFormComponent.ComplexFormEntryId, out var lexEntry))
+            return Task.CompletedTask;
+
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Complex Form Component",
             "Add Complex Form Component",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var lexEntry = EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId);
                 RemoveComplexFormComponent(lexEntry, complexFormComponent);
             });
         return Task.CompletedTask;

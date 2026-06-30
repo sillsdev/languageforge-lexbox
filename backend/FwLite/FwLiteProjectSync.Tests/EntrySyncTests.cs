@@ -168,6 +168,27 @@ public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : Entr
         actual.Should().NotBeNull();
         actual.MorphType.Should().Be(MorphTypeKind.BoundStem);
     }
+
+    [Fact]
+    public async Task SyncFull_RemovingComplexFormWhoseParentWasDeleted_DoesNotThrow()
+    {
+        var component = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "component" } } });
+        var complexForm = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "complexForm" } } };
+        complexForm.Components = [ComplexFormComponent.FromEntries(complexForm, component)];
+        await Api.CreateEntry(complexForm);
+
+        var before = await Api.GetEntry(component.Id);
+        before!.ComplexForms.Should().ContainSingle();
+
+        // Deleting the parent already drops the relationship; the sync then redundantly removes it from the surviving component, which used to throw because the parent was gone.
+        await Api.DeleteEntry(complexForm.Id);
+        var after = before.Copy();
+        after.ComplexForms.Clear();
+
+        await EntrySync.SyncFull(before, after, Api);
+
+        (await Api.GetEntry(component.Id)).Should().NotBeNull();
+    }
 }
 
 public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture) : IClassFixture<ExtraWritingSystemsSyncFixture>, IAsyncLifetime
@@ -311,18 +332,20 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         // We expect the final result to be equivalent to this "raw"/untouched, requested state.
         var expected = after.Copy();
 
+        // Don't auto-add the main publication when staging data: the sync path under test (EntrySync) never does.
+        var asIsEntryOptions = CreateEntryOptions.AsIs;
         if (roundTripApi is not null)
         {
             // round-tripping ensures we're dealing with realistic data
             // (e.g. in fwdata ComplexFormComponents do not have an Id)
-            before = await roundTripApi.CreateEntry(before);
+            before = await roundTripApi.CreateEntry(before, asIsEntryOptions);
             await roundTripApi.DeleteEntry(before.Id);
-            after = await roundTripApi.CreateEntry(after);
+            after = await roundTripApi.CreateEntry(after, asIsEntryOptions);
             await roundTripApi.DeleteEntry(after.Id);
         }
 
         // before should not be round-tripped here. That's handled above.
-        await Api.CreateEntry(before);
+        await Api.CreateEntry(before, asIsEntryOptions);
 
         // act
         await EntrySync.SyncFull(before, after, Api);
@@ -341,13 +364,12 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 .For(e => e.ComplexForms).Exclude(c => c.Order)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order)
                 .For(e => e.Senses).For(s => s.Pictures).Exclude(e => e.Order);
-            if (currentApiType == ApiType.Crdt)
-            {
-                // does not yet update Headwords 😕
-                options = options
-                    .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
-                    .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
-            }
+            // ComplexFormHeadword/ComponentHeadword are derived live from the referenced entry on read,
+            // so they don't round-trip the randomly-generated values here; their behaviour is asserted in
+            // ComplexFormComponentTestsBase (see ComplexFormComponentHeadwords_UpdateWhenReferencedEntriesChange).
+            options = options
+                .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
+                .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
             if (currentApiType == ApiType.FwData)
             {
                 // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)

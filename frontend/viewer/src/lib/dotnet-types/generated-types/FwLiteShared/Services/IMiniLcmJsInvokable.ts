@@ -17,6 +17,7 @@ import type {IEntry} from '../../MiniLcm/Models/IEntry';
 import type {IQueryOptions} from '../../MiniLcm/IQueryOptions';
 import type {IWritingSystem} from '../../MiniLcm/Models/IWritingSystem';
 import type {WritingSystemType} from '../../MiniLcm/Models/WritingSystemType';
+import type {ICreateEntryOptions} from '../../MiniLcm/ICreateEntryOptions';
 import type {IComplexFormComponent} from '../../MiniLcm/Models/IComplexFormComponent';
 import type {ISense} from '../../MiniLcm/Models/ISense';
 import type {IExampleSentence} from '../../MiniLcm/Models/IExampleSentence';
@@ -59,7 +60,7 @@ export interface IMiniLcmJsInvokable
 	createCustomView(customView: ICustomView) : Promise<ICustomView>;
 	updateCustomView(customView: ICustomView) : Promise<ICustomView>;
 	deleteCustomView(id: string) : Promise<void>;
-	createEntry(entry: IEntry) : Promise<IEntry>;
+	createEntry(entry: IEntry, options: ICreateEntryOptions) : Promise<IEntry>;
 	updateEntry(before: IEntry, after: IEntry) : Promise<IEntry>;
 	deleteEntry(id: string) : Promise<void>;
 	createComplexFormComponent(complexFormComponent: IComplexFormComponent) : Promise<IComplexFormComponent>;

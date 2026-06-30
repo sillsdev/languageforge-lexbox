@@ -47,6 +47,14 @@ public static class AutoFakerDefault
                         domain.Predefined = false;
                     }
                 }, true),
+                new SimpleOverride<Publication>(context =>
+                {
+                    // The main publication is a controlled singleton; faked publications must never claim to be it.
+                    if (context.Instance is Publication publication)
+                    {
+                        publication.IsMain = false;
+                    }
+                }, true),
                 new PredicateOverride<MorphTypeKind>(morph =>
                 {
                     // Unknown values map to null and get replaced with MorphType.Stem so they're not round-tripped

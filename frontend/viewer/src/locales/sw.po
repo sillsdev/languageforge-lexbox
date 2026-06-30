@@ -43,10 +43,18 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
+#: src/lib/activity/ActivityFilter.svelte
+msgid "{0} activity types"
+msgstr ""
+
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "{0} iliyopita"
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "{0} authors"
+msgstr ""
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -189,6 +197,20 @@ msgstr "Ongeza Neno"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Vyote"
+
+#. Filter option in activity view activity-type dropdown — show all kinds of edits.
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+msgid "All activity types"
+msgstr ""
+
+#. Filter option in activity view author dropdown — show commits from every author.
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+msgid "All authors"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -442,6 +464,12 @@ msgstr "Imenakiliwa kwenye ubao wa kunakili"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
 msgstr "Nakili toleo"
+
+#. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
+#. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
+#: src/project/SyncDialog.svelte
+msgid "Couldn't sync right now — your local changes are safe."
+msgstr ""
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -755,6 +783,12 @@ msgstr "Imeshindwa kunakili kwenye ubao wa kunakili"
 msgid "Failed to download {0}"
 msgstr "Imeshindwa kupakua {0}"
 
+#. Error message when the activity feed fails to load (toast and empty state).
+#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
+msgid "Failed to load activity"
+msgstr ""
+
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
 #: src/project/browse/EntriesList.svelte
@@ -773,7 +807,6 @@ msgstr "Imeshindwa kufungua URL: {0}"
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
-#: src/project/SyncDialog.svelte
 msgid "Failed to synchronize"
 msgstr "Imeshindwa kuoanisha"
 
@@ -819,6 +852,7 @@ msgstr "Toleo la FieldWorks Lite"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
+#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -982,6 +1016,7 @@ msgstr "Neno la kichwa"
 msgid "Hide"
 msgstr "Ficha"
 
+#: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "History"
@@ -1096,6 +1131,11 @@ msgstr "Hali ya orodha"
 msgid "Literal meaning"
 msgstr "Maana halisi"
 
+#. Accessible label on the activity view loading spinner while filtered commits are fetched.
+#: src/lib/activity/ActivityView.svelte
+msgid "Loading activity"
+msgstr ""
+
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
 msgid "Loading Dictionaries..."
@@ -1121,6 +1161,11 @@ msgstr "Mitaa tu"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Login"
 msgstr "Ingia"
+
+#. Toast shown when the user closes or cancels the login dialog before signing in.
+#: src/lib/auth/LoginButton.svelte
+msgid "Login cancelled."
+msgstr ""
 
 #. Default button label on the login button when not yet authenticated. Clicking opens the login flow for a server.
 #: src/lib/auth/LoginButton.svelte
@@ -1266,19 +1311,33 @@ msgstr "Ingizo Mpya"
 msgid "New Word"
 msgstr "Neno Jipya"
 
+#. Sort option in activity view — most recent commit first.
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Newest first"
+msgstr ""
+
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
 msgstr "Inayofuata"
 
+#. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
-msgid "No activity found"
-msgstr "Hakuna shughuli iliyopatikana"
+msgid "No activity matches these filters"
+msgstr ""
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "No activity types"
+msgstr ""
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "No audio"
 msgstr "Hakuna sauti"
+
+#: src/lib/activity/ActivityFilter.svelte
+msgid "No authors"
+msgstr ""
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1394,6 +1453,11 @@ msgstr "Nyuma ya mtandao"
 msgid "Offline, unable to download"
 msgstr "Nyuma ya mtandao, haiwezi kupakua"
 
+#. Sort option in activity view — earliest commit first.
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Oldest first"
+msgstr ""
+
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
@@ -1408,6 +1472,11 @@ msgstr "Fungua"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Fungua Faharasa ya Data"
+
+#. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
+#: src/lib/auth/LoginButton.svelte
+msgid "Open in browser"
+msgstr ""
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -1811,6 +1880,16 @@ msgstr "Kuoanisha mabadiliko yako na watumiaji wengine wa FieldWorks Lite"
 msgid "Synced"
 msgstr "Kuoanishwa"
 
+#. Sort option in activity view — by upload/download time, newest synced first (unsynced commits last).
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Synced newest"
+msgstr ""
+
+#. Sort option in activity view — by upload/download time, oldest synced first (unsynced commits last).
+#: src/lib/activity/ActivityFilter.svelte
+msgid "Synced oldest"
+msgstr ""
+
 #. Status showing sync source server
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
@@ -1897,6 +1976,7 @@ msgstr "Wakati ulipoweka au kupakua mabadiliko haya"
 
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Mabadiliko haya hayajawekwa bado. Hakikisha unaunganishwa na kuingia ili kushiriki mabadiliko yako."
 
@@ -1984,7 +2064,11 @@ msgid "Unable to open in FieldWorks"
 msgstr "Haiwezi kufungua katika FieldWorks"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/activity/ActivityView.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Unknown"
@@ -2165,6 +2249,11 @@ msgstr "Mifumo ya uandishi"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Mifumo ya Kuandika"
+
+#. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
+#: src/lib/auth/LoginButton.svelte
+msgid "You appear to be offline. Can you connect to {0}?"
+msgstr ""
 
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte

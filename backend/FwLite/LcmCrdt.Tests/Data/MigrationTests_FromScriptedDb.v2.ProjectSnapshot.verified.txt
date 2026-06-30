@@ -149,7 +149,7 @@
           "Order": 1,
           "DeletedAt": null,
           "ComplexFormEntryId": "75050583-70d7-4605-a6e6-872b8f36c482",
-          "ComplexFormHeadword": "Orange",
+          "ComplexFormHeadword": null,
           "ComponentEntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
           "ComponentSenseId": null,
           "ComponentHeadword": "de"
@@ -240,7 +240,7 @@
           "Order": 1,
           "DeletedAt": null,
           "ComplexFormEntryId": "75050583-70d7-4605-a6e6-872b8f36c482",
-          "ComplexFormHeadword": "Orange",
+          "ComplexFormHeadword": null,
           "ComponentEntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
           "ComponentSenseId": null,
           "ComponentHeadword": "de"

@@ -173,6 +173,10 @@
       TypeDiscriminator: CreatePublicationChange
     },
     {
+      DerivedType: SetMainPublicationChange,
+      TypeDiscriminator: SetMainPublicationChange
+    },
+    {
       DerivedType: AddComplexFormTypeChange,
       TypeDiscriminator: AddComplexFormTypeChange
     },
