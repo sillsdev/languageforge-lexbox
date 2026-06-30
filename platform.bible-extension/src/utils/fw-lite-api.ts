@@ -43,7 +43,9 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   if (!results.ok) {
     throw new Error(`Failed to fetch: ${results.status} ${results.statusText}`);
   }
-  return await results.json();
+  const text = await results.text();
+  // eslint-disable-next-line no-type-assertion/no-type-assertion
+  return text ? (JSON.parse(text) as unknown) : undefined;
 }
 
 export function getBrowseUrl(baseUrl: string, lexiconCode: string, entryId?: string): string {
@@ -163,6 +165,17 @@ export class FwLiteApi {
   }
 
   /* eslint-enable no-type-assertion/no-type-assertion */
+
+  async createProject(
+    name: string,
+    code: string,
+    vernacularWs: string,
+    analysisWs?: string,
+  ): Promise<void> {
+    const params = new URLSearchParams({ name, code, vernacularWs });
+    if (analysisWs) params.append('analysisWs', analysisWs);
+    await this.fetchPath(`project/create?${params.toString()}`, 'POST');
+  }
 
   private checkLexiconCode(lexiconCode?: string): LexiconRef {
     const code = sanitizeUrlComponent(lexiconCode || this.lexiconCode);
