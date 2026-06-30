@@ -363,13 +363,12 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 .For(e => e.Components).Exclude(c => c.Order)
                 .For(e => e.ComplexForms).Exclude(c => c.Order)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order);
-            if (currentApiType == ApiType.Crdt)
-            {
-                // does not yet update Headwords 😕
-                options = options
-                    .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
-                    .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
-            }
+            // ComplexFormHeadword/ComponentHeadword are derived live from the referenced entry on read,
+            // so they don't round-trip the randomly-generated values here; their behaviour is asserted in
+            // ComplexFormComponentTestsBase (see ComplexFormComponentHeadwords_UpdateWhenReferencedEntriesChange).
+            options = options
+                .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
+                .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
             if (currentApiType == ApiType.FwData)
             {
                 // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)

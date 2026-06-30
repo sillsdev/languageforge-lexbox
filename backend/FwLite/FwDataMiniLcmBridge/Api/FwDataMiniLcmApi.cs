@@ -744,9 +744,9 @@ public class FwDataMiniLcmApi(
         return new ComplexFormComponent
         {
             ComponentEntryId = component.Guid,
-            ComponentHeadword = component.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
+            ComponentHeadword = component.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
             Order = Order(component, complexEntry)
         };
     }
@@ -757,9 +757,9 @@ public class FwDataMiniLcmApi(
         {
             ComponentEntryId = componentSense.Entry.Guid,
             ComponentSenseId = componentSense.Guid,
-            ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
+            ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(applyMorphTokens: false), // match CRDT for now
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
             Order = Order(componentSense, complexEntry)
         };
     }
