@@ -6,6 +6,7 @@
 
 <script lang="ts">
   import type {IEntry, ISense} from '$lib/dotnet-types';
+  import {createEntryOptions} from '$lib/create-entry-options';
   import {untrack} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
   import {useViewService} from '$lib/views/view-service.svelte';
@@ -15,7 +16,7 @@
   import {useLexboxApi} from '../services/service-provider';
   import {defaultEntry, defaultSense} from '../utils';
   import OverrideFields from '$lib/views/OverrideFields.svelte';
-  import {useWritingSystemService} from '$project/data';
+  import {useWritingSystemService, usePublications} from '$project/data';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
@@ -36,6 +37,7 @@
 
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
+  const publicationService = usePublications();
   const dialogsService = useDialogsService();
   dialogsService.invokeNewEntryDialog = openWithValue;
   const lexboxApi = useLexboxApi();
@@ -43,6 +45,7 @@
   let requester: {
     resolve: (entry: IEntry | undefined) => void
   } | undefined;
+  let addMainPublicationPromise: Promise<void> | undefined;
 
   // Watch for changes in the open state to detect when the dialog is closed
   $effect(() => {
@@ -59,12 +62,14 @@
     if (!requester) throw new Error('No requester');
 
     await editor?.commit();
+    await addMainPublicationPromise; // make sure the main publication landed before we snapshot the entry
     entry.senses = sense ? [sense] : [];
     if (!validateEntry()) return;
 
     loading = true;
     const entrySnapshot = $state.snapshot(entry);
-    await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot));
+    // The dialog pre-populates publishIn (main publication + any active filter), so always create the entry as-is.
+    await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot, createEntryOptions.asIs));
     requester.resolve(entry);
     requester = undefined;
     loading = false;
@@ -115,11 +120,24 @@
       const tmpEntry = defaultEntry();
       publishInIsFromTemplate = undefined;
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
+      addMainPublicationPromise = addMainPublication(entry.id);
       addSense();
 
       errors = [];
       open = true;
     });
+  }
+
+  // Add the project's main publication to a new entry; the user can remove it when the publish-in field is shown.
+  // Gate on `loaded`, not on reading `mainPublication`: reading it lazily kicks off a second getPublications fetch,
+  // and that superseded fetch resolves with stale empty data — so the main publication would silently never be added.
+  async function addMainPublication(entryId: string) {
+    if (!publicationService.loaded) await publicationService.refetch();
+    const main = publicationService.mainPublication;
+    if (!main || entry.id !== entryId) return; // dialog moved on while we awaited
+    if (!entry.publishIn.some(p => p.id === main.id)) {
+      entry.publishIn = [...entry.publishIn, main];
+    }
   }
 
   function addSense() {
@@ -137,6 +155,7 @@
       requester = undefined;
     }
     entry = defaultEntry();
+    addMainPublicationPromise = undefined;
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -152,6 +171,10 @@
     {$t`From active filter`}
     <Icon icon="i-mdi-filter-outline" class="size-4" />
   </span>
+{/snippet}
+
+{#snippet publishInNote()}
+  {#if publishInIsFromTemplate}{@render fromActiveFilter()}{/if}
 {/snippet}
 
 <Dialog.Root bind:open={open}>
@@ -170,7 +193,7 @@
         <Editor.Root bind:this={editor}>
           <Editor.Grid>
             <EntryEditorPrimitive bind:entry autofocus modalMode
-              publishInDescription={publishInIsFromTemplate ? fromActiveFilter : undefined} />
+              publishInDescription={entryTemplate?.publishIn?.length ? publishInNote : undefined} />
             {#if sense}
               <Editor.SubGrid>
                 <ObjectHeader type="sense">

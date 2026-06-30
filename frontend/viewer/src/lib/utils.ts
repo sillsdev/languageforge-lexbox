@@ -59,7 +59,8 @@ export function defaultSense(entryId: string): ISense {
     partOfSpeechId: undefined,
     partOfSpeech: undefined,
     semanticDomains: [],
-    exampleSentences: []
+    exampleSentences: [],
+    pictures: [],
   };
 }
 

@@ -86,6 +86,7 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(RichTextObjectData),
                 typeof(Translation),
 
+                typeof(Picture),
                 typeof(MediaFile),
                 typeof(LcmFileMetadata),
                 typeof(ViewField),
@@ -124,6 +125,7 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(IndexQueryOptions),
                 typeof(SortOptions),
                 typeof(ExemplarOptions),
+                typeof(CreateEntryOptions),
                 typeof(EntryFilter),
                 typeof(MiniLcmJsInvokable.ReadFileResponseJs),
                 typeof(UploadFileResponse)

@@ -371,6 +371,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         copy.Gloss = StringNormalizer.Normalize(sense.Gloss);
         copy.PartOfSpeech = sense.PartOfSpeech is not null ? NormalizePartOfSpeech(sense.PartOfSpeech) : null;
         copy.SemanticDomains = [.. sense.SemanticDomains.Select(NormalizeSemanticDomain)];
+        copy.Pictures = [.. sense.Pictures.Select(NormalizePicture)];
         copy.ExampleSentences = [.. sense.ExampleSentences.Select(NormalizeExampleSentence)];
         return copy;
     }
@@ -435,6 +436,49 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         var copy = translation.Copy();
         copy.Text = StringNormalizer.Normalize(translation.Text);
         return copy;
+    }
+
+    #endregion
+
+    #region Picture
+
+
+    private static Picture NormalizePicture(Picture picture)
+    {
+        var copy = picture.Copy();
+        copy.Caption = StringNormalizer.Normalize(picture.Caption);
+        // Normalizing MediaUri might change the filename, we want to accept whatever FW Classic gives us even if it's wrong
+        return copy;
+    }
+
+    public async Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null)
+    {
+        return await _api.CreatePicture(entryId, senseId, NormalizePicture(picture), position);
+    }
+
+    public Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
+    {
+        return _api.UpdatePicture(entryId, senseId, pictureId, NormalizePatch(update));
+    }
+
+    public Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
+    {
+        return _api.SubmitUpdatePicture(entryId, senseId, pictureId, NormalizePatch(update));
+    }
+
+    public async Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Picture before, Picture after, IMiniLcmApi? api = null)
+    {
+        return await _api.UpdatePicture(entryId, senseId, NormalizePicture(before), NormalizePicture(after), api);
+    }
+
+    public Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position)
+    {
+        return _api.MovePicture(entryId, senseId, pictureId, position);
+    }
+
+    public Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
+    {
+        return _api.DeletePicture(entryId, senseId, pictureId);
     }
 
     #endregion

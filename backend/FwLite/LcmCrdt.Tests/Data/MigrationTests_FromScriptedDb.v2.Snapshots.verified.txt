@@ -1066,7 +1066,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": null,
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "1b423127-deb2-468d-8100-e1f1bff20826",
       "DeletedAt": null
@@ -1107,7 +1108,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": null,
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "241d95a7-6d90-411b-8569-5648cc40b42b",
       "DeletedAt": null
@@ -1148,7 +1150,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": null,
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
       "DeletedAt": null
@@ -1190,7 +1193,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": null,
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
       "DeletedAt": null
@@ -1240,7 +1244,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": null,
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
       "DeletedAt": null
@@ -1290,7 +1295,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
       "DeletedAt": null
@@ -1351,7 +1357,8 @@
             "Predefined": true
           }
         ],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "b9440091-a9fc-4769-82b1-2ee8d030808d",
       "DeletedAt": null
@@ -1394,7 +1401,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": null,
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "c77d7553-209d-45be-a83e-d07e69808873",
       "DeletedAt": null

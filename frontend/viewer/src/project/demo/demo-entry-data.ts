@@ -153,6 +153,7 @@ export const _entries: IEntry[] = [
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
+        'pictures': [],
         'exampleSentences': [
           {
             'id': 'ex-001',
@@ -170,6 +171,7 @@ export const _entries: IEntry[] = [
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
+        'pictures': [],
         'exampleSentences': []
       },
       {
@@ -180,6 +182,7 @@ export const _entries: IEntry[] = [
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
+        'pictures': [],
         'exampleSentences': []
       },
       {
@@ -189,6 +192,7 @@ export const _entries: IEntry[] = [
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
+        'pictures': [],
         'exampleSentences': []
       },
       {
@@ -199,6 +203,7 @@ export const _entries: IEntry[] = [
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
+        'pictures': [],
         'exampleSentences': []
       }
     ], 'note': {},
@@ -220,6 +225,7 @@ export const _entries: IEntry[] = [
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
+        'pictures': [],
         'exampleSentences': []
       },
       {
@@ -230,6 +236,7 @@ export const _entries: IEntry[] = [
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
+        'pictures': [],
         'exampleSentences': []
       },
       {
@@ -240,6 +247,7 @@ export const _entries: IEntry[] = [
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
+        'pictures': [],
         'exampleSentences': []
       },
       {
@@ -249,7 +257,9 @@ export const _entries: IEntry[] = [
         'gloss': { 'en': '2', 'pt': '2' },
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
-        'semanticDomains': [], 'exampleSentences': []
+        'semanticDomains': [],
+        'pictures': [],
+        'exampleSentences': []
       },
       {
         'id': '3360f2c7-1026-c558-a0fb-e9574aae16ee',
@@ -259,6 +269,7 @@ export const _entries: IEntry[] = [
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
+        'pictures': [],
         'exampleSentences': []
       }
     ],
@@ -290,6 +301,7 @@ export const allWsEntry: IEntry = {
     partOfSpeech: partsOfSpeech[1],
     partOfSpeechId: partsOfSpeech[1].id,
     semanticDomains: [],
+    pictures: [],
     exampleSentences: [{
       id: '00000000-0000-0000-0000-000000000003',
       senseId: '00000000-0000-0000-0000-000000000002',

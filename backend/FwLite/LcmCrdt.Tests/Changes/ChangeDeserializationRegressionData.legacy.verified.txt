@@ -145,6 +145,7 @@
           "Predefined": false
         }
       ],
+      "Pictures": null,
       "EntityId": "fb918ba0-ba5e-7977-312e-3028d1295dd8"
     }
   },
@@ -332,6 +333,297 @@
         ]
       },
       "EntityId": "5a96652c-32d0-72ad-a29c-8ee1b07b187a"
+    }
+  },
+  {
+    "Input": {
+      "$type": "CreateSenseChange",
+      "EntryId": "d982e31f-04a7-9f11-1996-f5de8ad336ca",
+      "Order": 0.017837893500294633,
+      "Definition": {
+        "boi": {
+          "Spans": [
+            {
+              "Text": "Place",
+              "Ws": "boi",
+              "Tags": [
+                "5e2d4a6f-ca61-4ccc-8bc4-d07e9c25b370"
+              ]
+            },
+            {
+              "Text": "zero administration",
+              "Ws": "boi",
+              "Tags": [
+                "6e41a783-8b2d-4379-b2d8-ad14fef2fd6c"
+              ]
+            },
+            {
+              "Text": "port",
+              "Ws": "nch",
+              "Bold": "Invert",
+              "FontSize": -235922745,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "c5bf050a-a023-fa08-8961-f33e94904058"
+              ]
+            }
+          ]
+        },
+        "obl": {
+          "Spans": [
+            {
+              "Text": "SMTP",
+              "Ws": "obl",
+              "Tags": [
+                "523f4a52-4c14-4b3c-ae19-d89ba9e118b2"
+              ]
+            },
+            {
+              "Text": "Creative",
+              "Ws": "obl",
+              "Tags": [
+                "4b2fea6c-b602-43a2-b883-629f13f38183"
+              ]
+            },
+            {
+              "Text": "Concrete",
+              "Ws": "tdi",
+              "Bold": "Invert",
+              "FontSize": 1570803136,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "84f8cf23-b81a-27e9-14e9-630f52875f12"
+              ]
+            },
+            {
+              "Text": "Bedfordshire",
+              "Ws": "srt",
+              "Bold": "Invert",
+              "FontSize": -1137475355,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "0d5c77b9-3fa8-8d48-fbb5-70e5aea2e024"
+              ]
+            }
+          ]
+        },
+        "nuj": {
+          "Spans": [
+            {
+              "Text": "Borders",
+              "Ws": "nuj",
+              "Tags": [
+                "cb7ce368-20e8-42f7-b716-41e1e29d8f83"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "onr": "viral"
+      },
+      "PartOfSpeechId": "bb9df589-487a-c176-2b3b-c1c8314b812a",
+      "SemanticDomains": [
+        {
+          "Id": "9413074b-a698-2182-c159-105e3d96e128",
+          "Name": {
+            "ljw": "Path"
+          },
+          "Code": "Handmade Fresh Towels",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "Pictures": [
+        {
+          "Id": "e99a5e31-033e-7e62-a17e-078949b729e6",
+          "Order": 0,
+          "MediaUri": "sil-media://lexbox/545c2525-991a-46e6-b532-80878055abff",
+          "Caption": {
+            "gac": {
+              "Spans": [
+                {
+                  "Text": "Communications",
+                  "Ws": "gac",
+                  "Tags": [
+                    "1375adb1-a078-43dd-801a-162a70ac9d82"
+                  ]
+                },
+                {
+                  "Text": "Forward",
+                  "Ws": "gac",
+                  "Tags": [
+                    "a11a5391-2b6c-450b-9e05-f3bf6290c559"
+                  ]
+                },
+                {
+                  "Text": "Agent",
+                  "Ws": "gac",
+                  "Tags": [
+                    "9a4fd03d-dad2-4f43-8400-57ea2947db12"
+                  ]
+                },
+                {
+                  "Text": "invoice",
+                  "Ws": "xmw",
+                  "Bold": "On",
+                  "FontSize": -133486167,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "4dea1beb-7631-ddf9-ce0e-802c0969d277"
+                  ]
+                }
+              ]
+            }
+          },
+          "DeletedAt": null
+        }
+      ],
+      "EntityId": "f27a032b-e0f6-f389-b466-959bdb17086d"
+    },
+    "Output": {
+      "$type": "CreateSenseChange",
+      "EntryId": "d982e31f-04a7-9f11-1996-f5de8ad336ca",
+      "Order": 0.017837893500294633,
+      "Definition": {
+        "boi": {
+          "Spans": [
+            {
+              "Text": "Place",
+              "Ws": "boi",
+              "Tags": [
+                "5e2d4a6f-ca61-4ccc-8bc4-d07e9c25b370"
+              ]
+            },
+            {
+              "Text": "zero administration",
+              "Ws": "boi",
+              "Tags": [
+                "6e41a783-8b2d-4379-b2d8-ad14fef2fd6c"
+              ]
+            },
+            {
+              "Text": "port",
+              "Ws": "nch",
+              "Bold": "Invert",
+              "FontSize": -235922745,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "c5bf050a-a023-fa08-8961-f33e94904058"
+              ]
+            }
+          ]
+        },
+        "obl": {
+          "Spans": [
+            {
+              "Text": "SMTP",
+              "Ws": "obl",
+              "Tags": [
+                "523f4a52-4c14-4b3c-ae19-d89ba9e118b2"
+              ]
+            },
+            {
+              "Text": "Creative",
+              "Ws": "obl",
+              "Tags": [
+                "4b2fea6c-b602-43a2-b883-629f13f38183"
+              ]
+            },
+            {
+              "Text": "Concrete",
+              "Ws": "tdi",
+              "Bold": "Invert",
+              "FontSize": 1570803136,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "84f8cf23-b81a-27e9-14e9-630f52875f12"
+              ]
+            },
+            {
+              "Text": "Bedfordshire",
+              "Ws": "srt",
+              "Bold": "Invert",
+              "FontSize": -1137475355,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "0d5c77b9-3fa8-8d48-fbb5-70e5aea2e024"
+              ]
+            }
+          ]
+        },
+        "nuj": {
+          "Spans": [
+            {
+              "Text": "Borders",
+              "Ws": "nuj",
+              "Tags": [
+                "cb7ce368-20e8-42f7-b716-41e1e29d8f83"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "onr": "viral"
+      },
+      "PartOfSpeechId": "bb9df589-487a-c176-2b3b-c1c8314b812a",
+      "SemanticDomains": [
+        {
+          "Id": "9413074b-a698-2182-c159-105e3d96e128",
+          "Name": {
+            "ljw": "Path"
+          },
+          "Code": "Handmade Fresh Towels",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "Pictures": [
+        {
+          "Id": "e99a5e31-033e-7e62-a17e-078949b729e6",
+          "Order": 0,
+          "MediaUri": "sil-media://lexbox/545c2525-991a-46e6-b532-80878055abff",
+          "Caption": {
+            "gac": {
+              "Spans": [
+                {
+                  "Text": "Communications",
+                  "Ws": "gac",
+                  "Tags": [
+                    "1375adb1-a078-43dd-801a-162a70ac9d82"
+                  ]
+                },
+                {
+                  "Text": "Forward",
+                  "Ws": "gac",
+                  "Tags": [
+                    "a11a5391-2b6c-450b-9e05-f3bf6290c559"
+                  ]
+                },
+                {
+                  "Text": "Agent",
+                  "Ws": "gac",
+                  "Tags": [
+                    "9a4fd03d-dad2-4f43-8400-57ea2947db12"
+                  ]
+                },
+                {
+                  "Text": "invoice",
+                  "Ws": "xmw",
+                  "Bold": "On",
+                  "FontSize": -133486167,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "4dea1beb-7631-ddf9-ce0e-802c0969d277"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "EntityId": "f27a032b-e0f6-f389-b466-959bdb17086d"
     }
   }
 ]
