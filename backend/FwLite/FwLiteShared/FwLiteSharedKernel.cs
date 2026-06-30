@@ -37,6 +37,8 @@ public static class FwLiteSharedKernel
         services.AddSingleton<GlobalEventBus>();
         services.AddSingleton<ProjectEventBus>();
         services.AddSingleton<MiniLcmApiNotifyWrapperFactory>();
+        services.TryAddSingleton<ILongRunningWorkHost, NoOpLongRunningWorkHost>();
+        services.TryAddSingleton<ILongRunningWorkQueue, InProcessLongRunningWorkQueue>();
         services.AddScoped<JsEventListener>();
         services.AddScoped<JsInvokableLogger>();
         //this is scoped so that there will be once instance per blazor circuit, this prevents issues where the same instance is used when reloading the page.
