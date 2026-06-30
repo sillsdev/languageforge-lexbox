@@ -187,7 +187,7 @@ public partial class CrdtProjectsService(
             }
             catch
             {
-                EnsureDeleteProject(sqliteFile);
+                _ = EnsureDeleteProject(sqliteFile);
             }
 
             throw;
@@ -196,17 +196,25 @@ public partial class CrdtProjectsService(
         return crdtProject;
     }
 
-    private void EnsureDeleteProject(string sqliteFile)
+    private Task EnsureDeleteProject(string sqliteFile)
     {
-        _ = Task.Run(async () =>
+        return Task.Run(async () =>
         {
             var counter = 0;
-            while (File.Exists(sqliteFile) && counter < 10)
+            var walFile = sqliteFile + "-wal";
+            var shmFile = sqliteFile + "-shm";
+
+            while ((File.Exists(sqliteFile) || File.Exists(walFile) || File.Exists(shmFile)) && counter < 10)
             {
                 await Task.Delay(1000);
                 try
                 {
-                    File.Delete(sqliteFile);
+                    if (File.Exists(sqliteFile))
+                        File.Delete(sqliteFile);
+                    if (File.Exists(walFile))
+                        File.Delete(walFile);
+                    if (File.Exists(shmFile))
+                        File.Delete(shmFile);
                     return;
                 }
                 catch (IOException)
@@ -229,13 +237,9 @@ public partial class CrdtProjectsService(
     public async Task DeleteProject(string code)
     {
         var project = GetProject(code) ?? throw new InvalidOperationException($"Project {code} not found");
-        await using var serviceScope = provider.CreateAsyncScope();
-        var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
-        currentProjectService.SetupProjectContextForNewDb(project);
-        var projectResourceCachePath = serviceScope.ServiceProvider.GetRequiredService<LcmMediaService>().ProjectResourceCachePath;
+        var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<CrdtConfig>>().Value);
         if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
-        await using var db = await serviceScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
-        await db.Database.EnsureDeletedAsync();
+        await EnsureDeleteProject(project.DbPath);
     }
 
     internal static async Task InitProjectDb(LcmCrdtDbContext db, ProjectData data)
