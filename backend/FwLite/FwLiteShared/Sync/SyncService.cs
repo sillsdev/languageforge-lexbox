@@ -25,7 +25,6 @@ public class SyncService(
     CurrentProjectService currentProjectService,
     ProjectEventBus changeEventBus,
     LexboxProjectService lexboxProjectService,
-    IMiniLcmApi lexboxApi,
     LcmMediaService lcmMediaService,
     IOptions<AuthConfig> authOptions,
     ILogger<SyncService> logger,
@@ -208,30 +207,25 @@ public class SyncService(
     {
         try
         {
+            var deletedEntryIds = syncResults.MissingFromLocal
+                .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
+                .OfType<DeleteChange<Entry>>()
+                .Select(c => c.EntityId)
+                .ToHashSet();
+
+            var changedEntryIds = new List<Guid>();
             await foreach (var entryId in syncResults.MissingFromLocal
                                .SelectMany(c => c.Snapshots, (commit, snapshot) => snapshot.Entity)
                                .ToAsyncEnumerable()
                                .SelectMany(e => GetEntryId(e.DbObject as IObjectWithId))
                                .Distinct())
             {
-                if (entryId is null) continue;
-                var entry = await lexboxApi.GetEntry(entryId.Value);
-                if (entry is not null)
-                {
-                    changeEventBus.PublishEntryChangedEvent(currentProjectService.Project, entry);
-                }
-                else
-                {
-                    logger.LogError("Failed to get entry {EntryId}, was not found", entryId);
-                }
+                if (entryId is null || deletedEntryIds.Contains(entryId.Value)) continue;
+                changedEntryIds.Add(entryId.Value);
             }
 
-            foreach (var deleteChange in syncResults.MissingFromLocal
-                         .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
-                         .OfType<DeleteChange<Entry>>())
-            {
-                changeEventBus.PublishEvent(currentProjectService.Project, new EntryDeletedEvent(deleteChange.EntityId));
-            }
+            if (changedEntryIds.Count == 0 && deletedEntryIds.Count == 0) return;
+            changeEventBus.PublishEntriesChanged(currentProjectService.Project, [.. changedEntryIds], [.. deletedEntryIds]);
         }
         catch (Exception e)
         {
