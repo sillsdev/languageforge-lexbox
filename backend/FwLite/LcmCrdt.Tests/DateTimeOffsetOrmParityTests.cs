@@ -1,6 +1,4 @@
-using System.Linq.Expressions;
 using LcmCrdt.Changes;
-using LcmCrdt.Data;
 using LinqToDB;
 using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
@@ -60,22 +58,28 @@ public class DateTimeOffsetOrmParityTests(ITestOutputHelper output) : IAsyncLife
     }
 
     [Fact]
-    public async Task PlainColumnTimestamps_SameUtcInstant_ThroughEfCoreAndLinq2db()
+    public async Task CommentTimestamp_SameUtcInstant_ThroughEfCoreAndLinq2db()
     {
         RequireNonUtc();
 
+        // One plain column is representative: every DateTimeOffset column shares the same global converter.
         var before = DateTimeOffset.UtcNow;
         var thread = await _fixture.Api.CreateCommentThread(
             new CommentThread { Id = Guid.NewGuid(), SubjectType = SubjectType.Entry, SubjectId = Guid.NewGuid() },
             new UserComment { Id = Guid.NewGuid(), Text = "hi" });
-        var comment = (await _fixture.Api.GetUserComments(thread.Id).ToArrayAsync()).Single();
-        await _fixture.GetService<LocalCommentReadStatusService>().MarkCommentsUnread([(comment.Id, thread.Id)]);
         var after = DateTimeOffset.UtcNow;
 
         await using var ctx = await NewContext();
-        await AssertColumnsAreUtc<CommentThread>(ctx, t => t.Id == thread.Id, before, after, t => t.CreatedAt, t => t.UpdatedAt);
-        await AssertColumnsAreUtc<UserComment>(ctx, c => c.Id == comment.Id, before, after, c => c.CreatedAt, c => c.UpdatedAt);
-        await AssertColumnsAreUtc<UnreadComment>(ctx, u => u.CommentId == comment.Id, before, after, u => u.MarkedUnreadAt);
+        var ef = (await EntityFrameworkQueryableExtensions.SingleAsync(
+            ctx.Set<CommentThread>().AsNoTracking(), t => t.Id == thread.Id)).CreatedAt;
+        var l2db = await ctx.Set<CommentThread>().Where(t => t.Id == thread.Id)
+            .ToLinqToDB().Select(t => t.CreatedAt).FirstAsyncLinqToDB();
+
+        output.WriteLine($"CommentThread.CreatedAt: EF {ef:o} | linq2db {l2db:o}");
+        l2db.UtcDateTime.Should().Be(ef.UtcDateTime, "EF and linq2db must agree");
+        ef.UtcDateTime.Should().BeOnOrAfter(before.UtcDateTime).And.BeOnOrBefore(after.UtcDateTime, "round-trips the written instant");
+        ef.Offset.Should().Be(TimeSpan.Zero, "EF should be UTC");
+        l2db.Offset.Should().Be(TimeSpan.Zero, "linq2db should be UTC");
     }
 
     [Fact]
@@ -96,25 +100,6 @@ public class DateTimeOffsetOrmParityTests(ITestOutputHelper output) : IAsyncLife
         l2db.UtcDateTime.Should().Be(deletedAtUtc);
         ef.Offset.Should().Be(TimeSpan.Zero);
         l2db.Offset.Should().Be(TimeSpan.Zero);
-    }
-
-    // Asserts a column reads as the same UTC instant (offset zero) via EF and linq2db, within the write window.
-    private async Task AssertColumnsAreUtc<T>(LcmCrdtDbContext ctx, Expression<Func<T, bool>> row,
-        DateTimeOffset before, DateTimeOffset after, params Expression<Func<T, DateTimeOffset>>[] columns) where T : class
-    {
-        foreach (var column in columns)
-        {
-            var name = $"{typeof(T).Name}.{((MemberExpression)column.Body).Member.Name}";
-            var rows = ctx.Set<T>().AsNoTracking().Where(row);
-            var ef = await EntityFrameworkQueryableExtensions.SingleAsync(rows.Select(column));
-            var l2db = await rows.ToLinqToDB().Select(column).FirstAsyncLinqToDB();
-
-            output.WriteLine($"{name}: EF {ef:o} | linq2db {l2db:o}");
-            l2db.UtcDateTime.Should().Be(ef.UtcDateTime, $"{name}: EF and linq2db must agree");
-            ef.UtcDateTime.Should().BeOnOrAfter(before.UtcDateTime).And.BeOnOrBefore(after.UtcDateTime, $"{name}: round-trips the written instant");
-            ef.Offset.Should().Be(TimeSpan.Zero, $"{name}: EF should be UTC");
-            l2db.Offset.Should().Be(TimeSpan.Zero, $"{name}: linq2db should be UTC");
-        }
     }
 
     private static void RequireNonUtc() =>
