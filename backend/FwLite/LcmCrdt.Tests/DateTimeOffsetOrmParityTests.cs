@@ -12,7 +12,7 @@ namespace LcmCrdt.Tests;
 // Every persisted DateTimeOffset must round-trip to the same UTC instant through BOTH EF Core and
 // linq2db. A broken converter shifts the instant by exactly the local UTC offset, so it is invisible
 // on UTC (why #2092 shipped); CI runs a non-UTC zone (fw-lite.yaml) and RequireNonUtc() fails loudly
-// if that regresses. DeletedAt is null in projected columns, so it's read from the snapshot entity JSON.
+// if that regresses.
 public class DateTimeOffsetOrmParityTests(ITestOutputHelper output) : IAsyncLifetime, IAsyncDisposable
 {
     private MiniLcmApiFixture _fixture = null!;
@@ -90,7 +90,8 @@ public class DateTimeOffsetOrmParityTests(ITestOutputHelper output) : IAsyncLife
         var deletedAtUtc = (await DataModel.AddChange(ClientId, new DeleteChange<Entry>(entryId))).HybridDateTime.DateTime.UtcDateTime;
 
         await using var ctx = await NewContext();
-        // Find the deleted snapshot via the EntityIsDeleted column; DeletedAt itself is in its entity JSON.
+        // No RequireNonUtc: DeletedAt lives in the snapshot's entity JSON (offset-preserving, so correct on
+        // any zone). Find the deleted snapshot via the EntityIsDeleted column.
         var deletedSnapshot = ctx.Set<ObjectSnapshot>().AsNoTracking().Where(s => s.EntityId == entryId && s.EntityIsDeleted);
         var ef = (await EntityFrameworkQueryableExtensions.SingleAsync(deletedSnapshot)).Entity.DeletedAt!.Value;
         var l2db = (await deletedSnapshot.ToLinqToDB().FirstAsyncLinqToDB()).Entity.DeletedAt!.Value;

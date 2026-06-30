@@ -131,8 +131,9 @@ public static class LcmCrdtKernel
             .UseLinqToDB(optionsBuilder =>
             {
                 // Reuse Harmony's existing mapping schema; a fresh one shadows it and drops Harmony's
-                // Commit.HybridDateTime.DateTime UTC conversion, making linq2db read commit timestamps
-                // in local time (issue #2092). Extending it keeps the conversion — no manual fixup needed.
+                // Commit.HybridDateTime.DateTime UTC conversion, making linq2db read commit timestamps in
+                // local time (issue #2092). UseLinqToDbCrdt already registered this schema, so only a
+                // freshly-created fallback needs adding.
                 var mappingSchema = optionsBuilder.DbContextOptions.GetLinqToDBOptions()?.ConnectionOptions.MappingSchema;
                 var isNewSchema = mappingSchema is null;
                 mappingSchema ??= new MappingSchema();
