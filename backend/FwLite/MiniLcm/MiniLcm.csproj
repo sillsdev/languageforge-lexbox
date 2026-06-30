@@ -8,6 +8,7 @@
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="Gridify" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="SIL.WritingSystems" />
     <PackageReference Include="SystemTextJson.JsonDiffPatch" />
     <PackageReference Include="SystemTextJsonPatch" />

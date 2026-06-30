@@ -1,34 +1,28 @@
-using LcmCrdt.Objects;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LcmCrdt;
 
 internal static class ExampleProjectData
 {
-    // Parts of speech (Noun/Verb/Adjective/Adverb) and complex form types (Compound/Unspecified)
-    // are seeded by PreDefinedData via SeedSystemData, so we reference their canonical IDs directly.
+    // Parts of speech and complex form types ship in the template (CreateProjectFromTemplate) with
+    // liblcm's canonical Ids. We resolve the ones the demo needs (Noun, Compound) by name rather than
+    // hard-coding those Ids, so this stays correct regardless of what the template assigns.
 
     public static async Task Seed(IServiceProvider provider, CrdtProject _)
     {
         var api = provider.GetRequiredService<IMiniLcmApi>();
         await CreateWritingSystems(api);
-        await CreateMainPublication(api);
-        var beere = await CreateFruitEntries(api);
-        await CreateBerryComplexForms(api, beere);
+        var nounPosId = (await api.GetPartsOfSpeech().FirstOrDefaultAsync(pos => pos.Name["en"] == "Noun")
+            ?? throw new InvalidOperationException("Template is missing the 'Noun' part of speech.")).Id;
+        var beere = await CreateFruitEntries(api, nounPosId);
+        await CreateBerryComplexForms(api, beere, nounPosId);
     }
 
     private static async Task CreateWritingSystems(IMiniLcmApi api)
     {
-        await api.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Vernacular,
-            WsId = "de",
-            Name = "German",
-            Abbreviation = "de",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
+        // The template path already provides vernacular "de" and analysis "en", so we only add the
+        // remaining demo writing systems here. They're appended after the template's, preserving the
+        // order users see (de, de-audio, de-ipa / en, fr).
         await api.CreateWritingSystem(new()
         {
             Id = Guid.NewGuid(),
@@ -53,16 +47,6 @@ internal static class ExampleProjectData
         {
             Id = Guid.NewGuid(),
             Type = WritingSystemType.Analysis,
-            WsId = "en",
-            Name = "English",
-            Abbreviation = "en",
-            Font = "Arial",
-            Exemplars = WritingSystem.LatinExemplars
-        });
-        await api.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Analysis,
             WsId = "fr",
             Name = "French",
             Abbreviation = "fr",
@@ -71,17 +55,7 @@ internal static class ExampleProjectData
         });
     }
 
-    private static async Task CreateMainPublication(IMiniLcmApi api)
-    {
-        await api.CreatePublication(new()
-        {
-            Id = Guid.NewGuid(),
-            Name = new MultiString() { ["en"] = "Main Dictionary" },
-            IsMain = true
-        });
-    }
-
-    private static async Task<Entry> CreateFruitEntries(IMiniLcmApi api)
+    private static async Task<Entry> CreateFruitEntries(IMiniLcmApi api, Guid nounPosId)
     {
         await api.CreateEntry(new()
         {
@@ -93,7 +67,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Apple", ["fr"] = "Pomme" },
                     Definition =
                     {
@@ -125,7 +99,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Banana", ["fr"] = "Banane" },
                     Definition = { ["en"] = new RichString("long curved fruit with yellow skin and soft sweet flesh") },
                     ExampleSentences =
@@ -153,7 +127,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Orange", ["fr"] = "Orange" },
                     Definition =
                     {
@@ -184,7 +158,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Grape", ["fr"] = "Raisin" },
                     Definition =
                     {
@@ -216,7 +190,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Berry", ["fr"] = "Baie" },
                     Definition =
                     {
@@ -238,8 +212,11 @@ internal static class ExampleProjectData
         });
     }
 
-    private static async Task CreateBerryComplexForms(IMiniLcmApi api, Entry beere)
+    private static async Task CreateBerryComplexForms(IMiniLcmApi api, Entry beere, Guid nounPosId)
     {
+        var compoundType = await api.GetComplexFormTypes().FirstOrDefaultAsync(ct => ct.Name["en"] == "Compound")
+            ?? throw new InvalidOperationException("Template is missing the 'Compound' complex-form type.");
+
         var erdbeere = new Entry
         {
             Id = Guid.NewGuid(),
@@ -250,7 +227,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Strawberry", ["fr"] = "Fraise" },
                     Definition =
                     {
@@ -262,7 +239,7 @@ internal static class ExampleProjectData
         };
         erdbeere.Components = [ComplexFormComponent.FromEntries(erdbeere, beere)];
         await api.CreateEntry(erdbeere);
-        await api.AddComplexFormType(erdbeere.Id, PreDefinedData.CompoundComplexFormTypeId);
+        await api.AddComplexFormType(erdbeere.Id, compoundType.Id);
 
         var heidelbeere = new Entry
         {
@@ -274,7 +251,7 @@ internal static class ExampleProjectData
             [
                 new()
                 {
-                    PartOfSpeechId = PreDefinedData.NounPartOfSpeechId,
+                    PartOfSpeechId = nounPosId,
                     Gloss = { ["en"] = "Blueberry", ["fr"] = "Myrtille" },
                     Definition = { ["en"] = new RichString("small blue-purple berry that grows on a shrub") }
                 }
@@ -282,6 +259,6 @@ internal static class ExampleProjectData
         };
         heidelbeere.Components = [ComplexFormComponent.FromEntries(heidelbeere, beere)];
         await api.CreateEntry(heidelbeere);
-        await api.AddComplexFormType(heidelbeere.Id, PreDefinedData.CompoundComplexFormTypeId);
+        await api.AddComplexFormType(heidelbeere.Id, compoundType.Id);
     }
 }
