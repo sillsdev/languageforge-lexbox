@@ -119,6 +119,7 @@ msgstr "Versi baru FieldWorks Lite telah tersedia."
 msgid "a word"
 msgstr "sebuah kata"
 
+#. Field label in the activity change-preview diff for vocabulary objects (part of speech, semantic domain, etc.). Shows the abbreviated form alongside the full name.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Abbreviation"
@@ -215,10 +216,12 @@ msgstr "Tambahkan Kata"
 msgid "Added {0}"
 msgstr ""
 
+#. Activity-log line. {0} = singular entity noun (e.g. "example", "meaning"/"sense"). A chip with the parent entry/sense name follows (e.g. "Added example to «Apfel»").
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added {0} to"
 msgstr ""
 
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Removed picture", "Updated picture", "Reordered pictures".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added picture"
 msgstr ""
@@ -261,6 +264,10 @@ msgstr "sebuah entri"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr "Analisis"
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Analysis writing system code"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -372,6 +379,7 @@ msgstr ""
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -459,6 +467,8 @@ msgstr "Tutup"
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
 
+#. Field label in the activity change-preview diff. "Code" is the short identifier on a semantic domain (e.g. "1.1") or the writing-system ID (e.g. "en").
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Code"
@@ -557,6 +567,14 @@ msgstr "Versi salin"
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/SyncDialog.svelte
 msgid "Couldn't sync right now — your local changes are safe."
+msgstr ""
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Create"
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "Create a new FieldWorks Lite project"
 msgstr ""
 
 #. Dialog title when creating a new custom view.
@@ -697,6 +715,7 @@ msgstr "Dihapus"
 msgid "Deleted {0}"
 msgstr ""
 
+#. Activity-log line. {0} = singular entity noun (e.g. "example", "meaning"/"sense"). A chip with the parent entry/sense name follows (e.g. "Deleted example from «Apfel»").
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Deleted {0} from"
 msgstr ""
@@ -801,6 +820,10 @@ msgstr "Mengunduh {0}..."
 #: src/home/Server.svelte
 msgid "Downloading..."
 msgstr "Mengunduh..."
+
+#: src/home/CreateProjectDialog.svelte
+msgid "e.g. th, sw"
+msgstr ""
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -1103,6 +1126,7 @@ msgstr "Temukan kata..."
 msgid "Finish"
 msgstr "Selesai"
 
+#. Field label in the activity change-preview diff. "Font" is the typeface name configured on a writing system.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Font"
 msgstr ""
@@ -1308,6 +1332,7 @@ msgstr "Lokal"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
+#: src/home/HomeView.svelte
 msgid "Local only"
 msgstr "Hanya lokal"
 
@@ -1367,6 +1392,9 @@ msgstr "Manajer"
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Diperlukan pembaruan manual. Ikuti petunjuk yang diberikan."
 
+#. Relevant view: Lite
+#. Classic view equivalent: "sense"
+#. Lowercase singular noun interpolated into activity-log lines (e.g. "Added meaning «happy»"). A sense is one meaning of a word.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "meaning"
@@ -1382,6 +1410,9 @@ msgstr ""
 msgid "Meaning"
 msgstr "Arti"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "senses"
+#. Lowercase plural noun interpolated into activity-log lines (e.g. "Reordered meanings"). Paired with singular "meaning".
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "meanings"
@@ -1445,6 +1476,7 @@ msgid "My custom view..."
 msgstr "Tampilan khusus saya..."
 
 #. Field label for the custom view name input.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -1452,6 +1484,7 @@ msgid "Name"
 msgstr "Nama"
 
 #. Validation error shown when the custom view name is empty.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Nama harus diisi"
@@ -1484,6 +1517,11 @@ msgstr "Data baru"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "Entri Baru"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/home/HomeView.svelte
+msgid "New Project"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1750,10 +1788,12 @@ msgstr "Disematkan"
 msgid "Platform"
 msgstr "Platform"
 
+#. Field label in the activity change-preview diff for a morph type. "Postfix" is the character(s) appended after a morpheme to mark its grammatical role (e.g. "-" for a suffix).
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Postfix"
 msgstr ""
 
+#. Field label in the activity change-preview diff for a morph type. "Prefix" is the character(s) prepended before a morpheme to mark its grammatical role (e.g. "-" for a prefix).
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Prefix"
 msgstr ""
@@ -1782,11 +1822,6 @@ msgstr "Proyek {0} tidak ditemukan di {1}"
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Proyek {0} di {1} belum disiapkan untuk FieldWorks Lite"
-
-#. Placeholder for project search
-#: src/home/HomeView.svelte
-msgid "Project name..."
-msgstr "Nama proyek..."
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added publication"). A publication is a dictionary or word list that entries can be assigned to for distribution.
 #: src/lib/activity/ChangeSummary.svelte
@@ -1864,6 +1899,7 @@ msgstr ""
 msgid "Removed from {0}"
 msgstr ""
 
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Updated picture", "Reordered pictures".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Removed picture"
 msgstr ""
@@ -1879,6 +1915,7 @@ msgstr "Buka kembali"
 msgid "Reordered {0}"
 msgstr ""
 
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Updated picture".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Reordered pictures"
 msgstr ""
@@ -2036,6 +2073,7 @@ msgstr ""
 msgid "Set {0} to"
 msgstr ""
 
+#. Activity-log line. A leading chip names the publication. Means this publication was marked as the project's single main (default) publication.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set as the main publication"
 msgstr ""
@@ -2376,6 +2414,10 @@ msgstr "Kesalahan yang tidak diketahui"
 msgid "Unknown error {0}"
 msgstr "Kesalahan tidak dikenal {0}"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "Unknown error creating project"
+msgstr ""
+
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Unknown error downloading {0}"
@@ -2457,6 +2499,7 @@ msgstr ""
 msgid "Updated component link"
 msgstr ""
 
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Reordered pictures".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Updated picture"
 msgstr ""
@@ -2478,6 +2521,14 @@ msgstr "Menggunakan komponen sebagai"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Vernakular"
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system code"
+msgstr ""
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system is required"
+msgstr ""
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
@@ -2540,6 +2591,9 @@ msgstr "Kata atau Tampilan sesuai kebutuhan"
 msgid "Word or meaning:"
 msgstr "Kata atau makna:"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "entries"
+#. Lowercase plural noun interpolated into activity-log lines (e.g. "Created 5 words"). Paired with "words" / "entries" terminology across the app.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "words"
 msgstr ""

@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MiniLcm.Import;
 using MiniLcm.Project;
 using MiniLcm.Validators;
 using Refit;
@@ -53,6 +54,7 @@ public static class LcmCrdtKernel
 
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
+        services.AddSingleton<ProjectImporter>();
         services.AddScoped<SnapshotAtCommitService>();
         services.AddSingleton<SetupCollationInterceptor>();
         services.AddDbContextFactory<LcmCrdtDbContext>(ConfigureDbOptions, ServiceLifetime.Scoped);

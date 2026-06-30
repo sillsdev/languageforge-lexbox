@@ -260,6 +260,10 @@ msgstr "an entry"
 msgid "Analysis"
 msgstr "Analysis"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "Analysis writing system code"
+msgstr "Analysis writing system code"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
 #. Filter option: clear grammatical info filter
@@ -370,6 +374,7 @@ msgstr "Browse view failed"
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -458,6 +463,7 @@ msgid "Close Dictionary"
 msgstr "Close Dictionary"
 
 #. Field label in the activity change-preview diff. "Code" is the short identifier on a semantic domain (e.g. "1.1") or the writing-system ID (e.g. "en").
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Code"
@@ -557,6 +563,14 @@ msgstr "Copy version"
 #: src/project/SyncDialog.svelte
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr "Couldn't sync right now — your local changes are safe."
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Create"
+msgstr "Create"
+
+#: src/home/HomeView.svelte
+msgid "Create a new FieldWorks Lite project"
+msgstr "Create a new FieldWorks Lite project"
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -801,6 +815,10 @@ msgstr "Downloading {0}..."
 #: src/home/Server.svelte
 msgid "Downloading..."
 msgstr "Downloading..."
+
+#: src/home/CreateProjectDialog.svelte
+msgid "e.g. th, sw"
+msgstr "e.g. th, sw"
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -1309,6 +1327,7 @@ msgstr "Local"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
+#: src/home/HomeView.svelte
 msgid "Local only"
 msgstr "Local only"
 
@@ -1452,6 +1471,7 @@ msgid "My custom view..."
 msgstr "My custom view..."
 
 #. Field label for the custom view name input.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -1459,6 +1479,7 @@ msgid "Name"
 msgstr "Name"
 
 #. Validation error shown when the custom view name is empty.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Name is required"
@@ -1491,6 +1512,11 @@ msgstr "New data"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "New Entry"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/home/HomeView.svelte
+msgid "New Project"
+msgstr "New Project"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1791,11 +1817,6 @@ msgstr "Project {0} not found on {1}"
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
-
-#. Placeholder for project search
-#: src/home/HomeView.svelte
-msgid "Project name..."
-msgstr "Project name..."
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added publication"). A publication is a dictionary or word list that entries can be assigned to for distribution.
 #: src/lib/activity/ChangeSummary.svelte
@@ -2388,6 +2409,10 @@ msgstr "Unknown error"
 msgid "Unknown error {0}"
 msgstr "Unknown error {0}"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "Unknown error creating project"
+msgstr "Unknown error creating project"
+
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Unknown error downloading {0}"
@@ -2491,6 +2516,14 @@ msgstr "Uses components as"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Vernacular"
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system code"
+msgstr "Vernacular writing system code"
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system is required"
+msgstr "Vernacular writing system is required"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte

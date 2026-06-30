@@ -43,7 +43,7 @@ public class Sena3Fixture : IAsyncLifetime
             .BuildServiceProvider();
         var cleanup = Defer.Action(() => rootServiceProvider.Dispose());
         var services = rootServiceProvider.CreateAsyncScope().ServiceProvider;
-        var projectName = "sena-3_" + Guid.NewGuid().ToString("N");
+        var projectName = "sena-3-" + Guid.NewGuid().ToString("N");
 
         var projectsFolder = services.GetRequiredService<IOptions<FwDataBridgeConfig>>()
             .Value
@@ -54,7 +54,7 @@ public class Sena3Fixture : IAsyncLifetime
         var fwDataMiniLcmApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
 
         var crdtProject = await services.GetRequiredService<CrdtProjectsService>()
-            .CreateProject(new(projectName, projectName, FwProjectId: fwDataMiniLcmApi.ProjectId, SeedNewProjectData: false));
+            .CreateProject(new(projectName, projectName, FwProjectId: fwDataMiniLcmApi.ProjectId));
         var crdtMiniLcmApi = (CrdtMiniLcmApi)await services.OpenCrdtProject(crdtProject);
         return new TestProject(crdtMiniLcmApi, fwDataMiniLcmApi, crdtProject, fwDataProject, services, cleanup);
     }
