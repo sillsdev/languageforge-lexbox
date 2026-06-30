@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using LcmCrdt.Objects;
 using LcmCrdt.Project;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using MiniLcm.Project;
 
@@ -203,6 +204,14 @@ public partial class CrdtProjectsService(
             var counter = 0;
             var walFile = sqliteFile + "-wal";
             var shmFile = sqliteFile + "-shm";
+            try
+            {
+                SqliteConnection.ClearAllPools();
+            }
+            catch
+            {
+                //ignore, this is to ensure that all connections are closed
+            }
 
             while ((File.Exists(sqliteFile) || File.Exists(walFile) || File.Exists(shmFile)) && counter < 10)
             {
