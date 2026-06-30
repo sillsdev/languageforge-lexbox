@@ -168,7 +168,7 @@
                 <span class="grow">{context.changeName}</span>
 
                 {#if showHistoryButton}
-                  <Button icon="i-mdi-history" onclick={() => openHistoryId = context.snapshot?.id}>
+                  <Button icon="i-mdi-history" onclick={() => openHistoryId = context.snapshot?.id ?? context.previousSnapshot?.id}>
                     {$t`History`}
                   </Button>
                 {/if}
