@@ -40,7 +40,7 @@
       <span class="text-muted-foreground">{placeholder}</span>
     {/if}
   {/each}
-  {#if showHomograph && entry.homographNumber && headwords.length}<sub class="font-normal text-muted-foreground"
-      >{entry.homographNumber}</sub
+  {#if showHomograph && entry.homographNumber && (headwords.length || placeholder)}<sub
+      class="font-normal text-muted-foreground">{entry.homographNumber}</sub
     >{/if}
 </strong>

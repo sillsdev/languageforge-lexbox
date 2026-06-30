@@ -132,7 +132,7 @@
           <div class="h-[700px] border rounded"></div>
         {:then entry}
           {#if entry}
-            <div class="overflow-auto border rounded p-3">
+            <div class="overflow-auto border rounded p-3 min-w-0 min-h-0">
               <EntryEditor {entry} readonly modalMode canAddSense={false} canAddExample={false} />
             </div>
           {:else}
@@ -152,7 +152,8 @@
       <VList
         class="space-y-2"
         data={items}
-        bufferSize={1400}
+        itemSize={700}
+        bufferSize={700}
         getKey={(item) => `${item.change.commitId}:${item.change.index}`}>
         {#snippet children(changeWithContext)}
           {@const {change, lazyContext} = changeWithContext}

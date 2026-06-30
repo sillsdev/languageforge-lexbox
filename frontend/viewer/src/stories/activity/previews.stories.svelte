@@ -4,7 +4,7 @@
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import {fwliteStoryParameters} from '../fwl-parameters';
   import {allWsEntry} from '$project/demo/demo-entry-data';
-  import type {IChangeContext, IComplexFormComponent, IEntry, IObjectWithId} from '$lib/dotnet-types';
+  import type {IChangeContext, IComplexFormComponent, IEntry, IObjectWithId, IPartOfSpeech, ISemanticDomain} from '$lib/dotnet-types';
 
   const {Story} = defineMeta({
     title: 'activity/previews',
@@ -29,6 +29,12 @@
   const exampleBefore = {...example, sentence: {...example.sentence, seh: {spans: [{text: 'Nyumba ndi yaing ono', ws: 'seh'}]}}};
   const exampleAfter = example;
 
+  const posBefore: IPartOfSpeech = {id: '00000000-0000-0000-0000-0000000000c1', name: {en: 'Noun'}, predefined: true};
+  const posAfter: IPartOfSpeech = {...posBefore, name: {en: 'Common noun'}};
+
+  const semDomBefore: ISemanticDomain = {id: '00000000-0000-0000-0000-0000000000c2', name: {en: 'Universe, creation'}, code: '1', predefined: true};
+  const semDomAfter: ISemanticDomain = {...semDomBefore, name: {en: 'Universe, creation, cosmos'}};
+
   const componentEntry: IEntry = {...entry, id: '00000000-0000-0000-0000-0000000000aa', lexemeForm: {seh: 'mwala'}, citationForm: {}, senses: []};
   const cfc = {
     id: '00000000-0000-0000-0000-0000000000bb',
@@ -44,6 +50,8 @@
     {label: 'Sense — edited', context: ctx({entityType: 'Sense', previousSnapshot: senseBefore, snapshot: senseAfter, affectedEntries: [entry]})},
     {label: 'Example — edited', context: ctx({entityType: 'ExampleSentence', previousSnapshot: exampleBefore, snapshot: exampleAfter, affectedEntries: [entry]})},
     {label: 'Complex form component', context: ctx({entityType: 'ComplexFormComponent', snapshot: cfc, affectedEntries: [entry, componentEntry]})},
+    {label: 'Part of speech — name edited', context: ctx({entityType: 'PartOfSpeech', previousSnapshot: posBefore, snapshot: posAfter})},
+    {label: 'Semantic domain — name edited (keeps code)', context: ctx({entityType: 'SemanticDomain', previousSnapshot: semDomBefore, snapshot: semDomAfter})},
     {label: 'Remote resource (generic JSON)', context: ctx({entityType: 'RemoteResource', snapshot: {id: 'res-1', fileName: 'audio.mp3', uploaded: true} as unknown as IObjectWithId})},
     {label: 'No preview available', context: ctx({entityType: 'Unknown'})},
   ];

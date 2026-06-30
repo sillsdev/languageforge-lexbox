@@ -157,7 +157,7 @@
       <VList bind:this={vlist} data={visibleActivity}
              class="h-full p-0.5 md:pr-3 after:h-12 after:block"
              onscroll={onListScroll}
-             getKey={row => row.commitId} bufferSize={400}>
+             getKey={row => row.commitId} itemSize={72} bufferSize={400}>
         {#snippet children(row)}
           {@const summary = summarizeActivity(row.changes, row.changeInfo, row.changeTypes, activityMode === 'detailed')}
           <ListItem

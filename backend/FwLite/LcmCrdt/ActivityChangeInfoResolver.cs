@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
@@ -62,30 +63,58 @@ internal static class ActivityChangeInfoResolver
         }
 
         // Walk down to the root entry: component → entry, example → sense → entry. Load both ends of a component link so we can name either.
-        var components = await LoadByIds<ComplexFormComponent>(db, componentIds);
+        var components = await LoadComponents(db, componentIds);
         foreach (var component in components.Values)
         {
             entryIds.Add(component.ComplexFormEntryId);
             entryIds.Add(component.ComponentEntryId);
         }
-        var examples = await LoadByIds<ExampleSentence>(db, exampleIds);
+        var examples = await LoadExamples(db, exampleIds);
         foreach (var example in examples.Values) senseIds.Add(example.SenseId);
-        var senses = await LoadByIds<Sense>(db, senseIds);
+        var senses = await LoadSenses(db, senseIds);
         foreach (var sense in senses.Values) entryIds.Add(sense.EntryId);
 
-        var entries = await LoadByIds<Entry>(db, entryIds);
-        var partsOfSpeech = await LoadByIds<PartOfSpeech>(db, partOfSpeechIds);
-        var semanticDomains = await LoadByIds<SemanticDomain>(db, semanticDomainIds);
-        var publications = await LoadByIds<Publication>(db, publicationIds);
-        var complexFormTypes = await LoadByIds<ComplexFormType>(db, complexFormTypeIds);
-        var morphTypes = await LoadByIds<MorphType>(db, morphTypeIds);
+        // Sibling senses of every affected sense's entry, so a sense's subject can carry its 1-based position
+        // (and detect duplicate glosses) without a per-sense query. Ordered by Order to match the editor.
+        var sensesByEntry = await LoadSensesByEntry(db, senses.Values.Select(s => s.EntryId).ToHashSet());
+
+        var entries = await LoadEntries(db, entryIds);
+        var partsOfSpeech = await LoadNamed<PartOfSpeech>(db, partOfSpeechIds, p => new PartOfSpeech { Id = p.Id, Name = p.Name });
+        var semanticDomains = await LoadSemanticDomains(db, semanticDomainIds);
+        var publications = await LoadNamed<Publication>(db, publicationIds, p => new Publication { Id = p.Id, Name = p.Name });
+        var complexFormTypes = await LoadNamed<ComplexFormType>(db, complexFormTypeIds, c => new ComplexFormType { Id = c.Id, Name = c.Name });
+        var morphTypes = await LoadNamed<MorphType>(db, morphTypeIds, m => new MorphType { Id = m.Id, Kind = m.Kind, Name = m.Name });
 
         // Markers (e.g. suffix "-") for the display headword, keyed by morph-type kind; first wins on duplicates.
-        var morphLookup = (await db.Set<MorphType>().ToListAsyncLinqToDB())
-            .GroupBy(m => m.Kind)
-            .ToDictionary(g => g.Key, g => g.First());
+        // Only needed to render an entry headword, so skip the load entirely when no entry is being resolved.
+        var morphLookup = entryIds.Count == 0
+            ? new Dictionary<MorphTypeKind, MorphType>()
+            : (await db.Set<MorphType>().Select(m => new MorphType { Kind = m.Kind, Prefix = m.Prefix, Postfix = m.Postfix }).ToListAsyncLinqToDB())
+                .GroupBy(m => m.Kind)
+                .ToDictionary(g => g.Key, g => g.First());
 
         string? Headword(Guid entryId) => entries.TryGetValue(entryId, out var entry) ? DisplayHeadword(entry, morphLookup) : null;
+
+        // The gloss-part of a sense's label, disambiguated by its 1-based position among its entry's senses:
+        // empty gloss → "sense {n}"; a gloss another sibling shares → "{gloss} ({n})"; a unique gloss → "{gloss}".
+        // Never null, so an empty-gloss sense reads as a sense rather than collapsing to the bare entry headword.
+        string SenseGlossPart(Sense sense)
+        {
+            var siblings = sensesByEntry.GetValueOrDefault(sense.EntryId) ?? [];
+            var number = siblings.FindIndex(s => s.Id == sense.Id) + 1;
+            if (number == 0) number = 1; // not found among siblings (shouldn't happen for a snapshot sense)
+            var glossText = Label(sense.Gloss);
+            if (string.IsNullOrEmpty(glossText)) return $"sense {number}";
+            var duplicated = siblings.Count(s => string.Equals(Label(s.Gloss), glossText, StringComparison.Ordinal)) > 1;
+            return duplicated ? $"{glossText} ({number})" : glossText;
+        }
+
+        // Degrades to just the gloss-part when the entry has no displayable headword.
+        string SenseLabel(string? headword, Sense sense)
+        {
+            var glossPart = SenseGlossPart(sense);
+            return headword is null ? glossPart : $"{headword} › {glossPart}";
+        }
 
         foreach (var activity in activities)
         {
@@ -107,9 +136,9 @@ internal static class ActivityChangeInfoResolver
             switch (change.Change)
             {
                 case Changes.SetOrderChange<Sense> when senses.TryGetValue(change.EntityId, out var sense):
-                    return new ActivityChangeInfo(Headword(sense.EntryId), sense.EntryId, Label(sense.Gloss));
+                    return new ActivityChangeInfo(Headword(sense.EntryId), sense.EntryId, SenseGlossPart(sense));
                 case Changes.SetOrderChange<ExampleSentence> when examples.TryGetValue(change.EntityId, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
-                    return new ActivityChangeInfo(SenseLabel(Headword(exSense.EntryId), exSense.Gloss), exSense.EntryId, null);
+                    return new ActivityChangeInfo(SenseLabel(Headword(exSense.EntryId), exSense), exSense.EntryId, null);
                 case Changes.SetOrderChange<ComplexFormComponent> when components.TryGetValue(change.EntityId, out var comp):
                     return new ActivityChangeInfo(Headword(comp.ComplexFormEntryId), comp.ComplexFormEntryId,
                         entries.ContainsKey(comp.ComponentEntryId) ? Headword(comp.ComponentEntryId) : null);
@@ -126,9 +155,9 @@ internal static class ActivityChangeInfoResolver
                 case nameof(Entry):
                     return (headword(id), id);
                 case nameof(Sense) when senses.TryGetValue(id, out var sense):
-                    return (SenseLabel(headword(sense.EntryId), sense.Gloss), sense.EntryId);
+                    return (SenseLabel(headword(sense.EntryId), sense), sense.EntryId);
                 case nameof(ExampleSentence) when examples.TryGetValue(id, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
-                    return (SenseLabel(headword(exSense.EntryId), exSense.Gloss), exSense.EntryId);
+                    return (SenseLabel(headword(exSense.EntryId), exSense), exSense.EntryId);
                 case nameof(ComplexFormComponent) when components.TryGetValue(id, out var component):
                     return (headword(component.ComplexFormEntryId), component.ComplexFormEntryId);
                 case nameof(PartOfSpeech) when partsOfSpeech.TryGetValue(id, out var pos):
@@ -162,20 +191,84 @@ internal static class ActivityChangeInfoResolver
 
     private static string BucketFor(Type entityType) => entityType.Name;
 
-    private static async Task<Dictionary<Guid, T>> LoadByIds<T>(ICrdtDbContext db, HashSet<Guid> ids)
+    // Per-type projected loads: only the columns the resolver reads, so we skip hydrating heavy JSONB columns
+    // (definitions, notes, nested senses/components, pictures, …) that never feed a label.
+
+    private static async Task<Dictionary<Guid, Entry>> LoadEntries(ICrdtDbContext db, HashSet<Guid> ids)
+    {
+        if (ids.Count == 0) return [];
+        var loaded = await db.Set<Entry>().Where(e => ids.Contains(e.Id))
+            .Select(e => new Entry
+            {
+                Id = e.Id,
+                CitationForm = e.CitationForm,
+                LexemeForm = e.LexemeForm,
+                MorphType = e.MorphType,
+                HomographNumber = e.HomographNumber,
+            })
+            .ToListAsyncLinqToDB();
+        return loaded.ToDictionary(e => e.Id);
+    }
+
+    private static async Task<Dictionary<Guid, Sense>> LoadSenses(ICrdtDbContext db, HashSet<Guid> ids)
+    {
+        if (ids.Count == 0) return [];
+        var loaded = await db.Set<Sense>().Where(s => ids.Contains(s.Id))
+            .Select(s => new Sense { Id = s.Id, EntryId = s.EntryId, Gloss = s.Gloss, Order = s.Order })
+            .ToListAsyncLinqToDB();
+        return loaded.ToDictionary(s => s.Id);
+    }
+
+    private static async Task<Dictionary<Guid, List<Sense>>> LoadSensesByEntry(ICrdtDbContext db, HashSet<Guid> entryIds)
+    {
+        if (entryIds.Count == 0) return [];
+        var loaded = await db.Set<Sense>().Where(s => entryIds.Contains(s.EntryId))
+            .Select(s => new Sense { Id = s.Id, EntryId = s.EntryId, Gloss = s.Gloss, Order = s.Order })
+            .ToListAsyncLinqToDB();
+        return loaded
+            .GroupBy(s => s.EntryId)
+            .ToDictionary(g => g.Key, g => g.OrderBy(s => s.Order).ThenBy(s => s.Id).ToList());
+    }
+
+    private static async Task<Dictionary<Guid, ExampleSentence>> LoadExamples(ICrdtDbContext db, HashSet<Guid> ids)
+    {
+        if (ids.Count == 0) return [];
+        var loaded = await db.Set<ExampleSentence>().Where(e => ids.Contains(e.Id))
+            .Select(e => new ExampleSentence { Id = e.Id, SenseId = e.SenseId })
+            .ToListAsyncLinqToDB();
+        return loaded.ToDictionary(e => e.Id);
+    }
+
+    private static async Task<Dictionary<Guid, ComplexFormComponent>> LoadComponents(ICrdtDbContext db, HashSet<Guid> ids)
+    {
+        if (ids.Count == 0) return [];
+        var loaded = await db.Set<ComplexFormComponent>().Where(c => ids.Contains(c.Id))
+            .Select(c => new ComplexFormComponent
+            {
+                Id = c.Id,
+                ComplexFormEntryId = c.ComplexFormEntryId,
+                ComponentEntryId = c.ComponentEntryId,
+            })
+            .ToListAsyncLinqToDB();
+        return loaded.ToDictionary(c => c.Id);
+    }
+
+    private static async Task<Dictionary<Guid, SemanticDomain>> LoadSemanticDomains(ICrdtDbContext db, HashSet<Guid> ids)
+    {
+        if (ids.Count == 0) return [];
+        var loaded = await db.Set<SemanticDomain>().Where(d => ids.Contains(d.Id))
+            .Select(d => new SemanticDomain { Id = d.Id, Code = d.Code, Name = d.Name })
+            .ToListAsyncLinqToDB();
+        return loaded.ToDictionary(d => d.Id);
+    }
+
+    // Vocab objects the resolver only labels by name (part of speech, publication, complex-form type, morph type).
+    private static async Task<Dictionary<Guid, T>> LoadNamed<T>(ICrdtDbContext db, HashSet<Guid> ids, Expression<Func<T, T>> project)
         where T : class, IObjectWithId
     {
         if (ids.Count == 0) return [];
-        var loaded = await db.Set<T>().Where(o => ids.Contains(o.Id)).ToListAsyncLinqToDB();
+        var loaded = await db.Set<T>().Where(o => ids.Contains(o.Id)).Select(project).ToListAsyncLinqToDB();
         return loaded.ToDictionary(o => o.Id);
-    }
-
-    // Degrades to just the gloss when the entry has no displayable headword (and to null when neither is present).
-    private static string? SenseLabel(string? headword, MultiString gloss)
-    {
-        var glossText = Label(gloss);
-        if (headword is null) return glossText;
-        return glossText is null ? headword : $"{headword} › {glossText}";
     }
 
     // Order by writing-system code so a multi-writing-system name resolves to the same alternative every time, matching Entry.Headword().

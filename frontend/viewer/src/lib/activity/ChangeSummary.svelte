@@ -33,9 +33,19 @@
     return resolve(getEntityConfig(entity).$label);
   }
 
+  // View-aware entity nouns — Classic "entry/sense" vs Lite "word/meaning" — so the log matches the field labels and the rest of the app.
+  function entityNoun(entity: SummaryEntity): string {
+    const nouns: Record<SummaryEntity, string> = {
+      entry: pt($t`entry`, $t`word`, viewService.currentView),
+      sense: pt($t`sense`, $t`meaning`, viewService.currentView),
+      example: $t`example`,
+    };
+    return nouns[entity];
+  }
+
   function collectionNoun(collection: CollectionKind): string {
     const nouns: Record<CollectionKind, string> = {
-      senses: $t`senses`,
+      senses: pt($t`senses`, $t`meanings`, viewService.currentView),
       examples: $t`examples`,
       components: $t`components`,
       writingSystems: $t`writing systems`,
@@ -46,8 +56,8 @@
   // Plural noun for a bulk-create collapse ("Created 100 semantic domains").
   function bulkNoun(noun: BulkNoun): string {
     const nouns: Record<BulkNoun, string> = {
-      entries: $t`entries`,
-      senses: $t`senses`,
+      entries: pt($t`entries`, $t`words`, viewService.currentView),
+      senses: pt($t`senses`, $t`meanings`, viewService.currentView),
       examples: $t`examples`,
       partsOfSpeech: $t`parts of speech`,
       semanticDomains: $t`semantic domains`,
@@ -63,7 +73,7 @@
   // Singular noun for one reordered item, so we can name it ("Reordered sense apple").
   function collectionItemNoun(collection: CollectionKind): string {
     const nouns: Record<CollectionKind, string> = {
-      senses: $t`sense`,
+      senses: pt($t`sense`, $t`meaning`, viewService.currentView),
       examples: $t`example`,
       components: $t`component`,
       writingSystems: $t`writing system`,
@@ -133,17 +143,17 @@
 {:else if fact.kind === 'create'}
   {@const name = subject ?? fact.label}
   {#if fact.entity === 'entry'}
-    {$t`Created entry`} {#if name}{@render chip(name)}{:else}{@render noHeadword()}{/if}
+    {$t`Created ${entityNoun('entry')}`} {#if name}{@render chip(name)}{:else}{@render noHeadword()}{/if}
   {:else if fact.entity === 'sense'}
-    {$t`Added sense`}{#if name} {@render chip(name)}{/if}
+    {$t`Added ${entityNoun('sense')}`}{#if name} {@render chip(name)}{/if}
   {:else}
-    {#if subject}{$t`Added example to`} {@render chip(subject)}{:else}{$t`Added example`}{/if}
+    {#if subject}{$t`Added ${entityNoun('example')} to`} {@render chip(subject)}{:else}{$t`Added ${entityNoun('example')}`}{/if}
   {/if}
 {:else if fact.kind === 'delete'}
   {#if subject}
-    {#if fact.entity === 'entry'}{$t`Deleted entry`} {@render chip(subject)}
-    {:else if fact.entity === 'sense'}{$t`Deleted sense`} {@render chip(subject)}
-    {:else}{$t`Deleted example from`} {@render chip(subject)}{/if}
+    {#if fact.entity === 'entry'}{$t`Deleted ${entityNoun('entry')}`} {@render chip(subject)}
+    {:else if fact.entity === 'sense'}{$t`Deleted ${entityNoun('sense')}`} {@render chip(subject)}
+    {:else}{$t`Deleted ${entityNoun('example')} from`} {@render chip(subject)}{/if}
   {:else}{$t`Deleted ${entityName(fact.entity)}`}{/if}
 {:else if fact.kind === 'reorder'}
   {#if target}{$t`Reordered ${collectionItemNoun(fact.collection)}`} {@render chip(target)}{:else}{$t`Reordered ${collectionNoun(fact.collection)}`}{/if}
@@ -168,6 +178,10 @@
   {#if subject}{objectType} {@render chip(subject)}{:else}{objectType}{/if}<span class="px-1.5 text-muted-foreground/70">·</span>{#if fact.cleared}{$t`Cleared ${fact.field}`}{:else if fact.value !== undefined}{#if fact.ws}{$t`Set ${fact.field} (${fact.ws}) to`} {@render chip(fact.value)}{:else}{$t`Set ${fact.field} to`} {@render chip(fact.value)}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
 {:else if fact.kind === 'deleteObject'}
   {$t`Deleted ${objectNoun(fact.object)}`} {#if subject}{@render chip(subject)}{/if}
+{:else if fact.kind === 'sensePicture'}
+  {#if fact.action === 'add'}{$t`Added picture`}{:else if fact.action === 'remove'}{$t`Removed picture`}{:else if fact.action === 'update'}{$t`Updated picture`}{:else}{$t`Reordered pictures`}{/if}
+{:else if fact.kind === 'setMainPublication'}
+  {$t`Set as the main publication`}
 {:else if fact.kind === 'bulkCreate'}
   {$t`Created ${fact.count} ${bulkNoun(fact.noun)}`}
 {:else}

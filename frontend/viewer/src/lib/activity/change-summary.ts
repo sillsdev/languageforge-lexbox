@@ -47,6 +47,10 @@ export type ChangeFact =
   | {kind: 'moveSense'}
   | {kind: 'componentLink'; action: 'add' | 'update' | 'remove'}
   | {kind: 'setDefaultTranslation'}
+  // A sense picture (a develop feature): added/removed/updated one, or reordered the list. Subject is the sense.
+  | {kind: 'sensePicture'; action: 'add' | 'remove' | 'update' | 'reorder'}
+  // The publication marked as the project's main one. Subject is the publication.
+  | {kind: 'setMainPublication'}
   | {kind: 'createObject'; object: ObjectKind; label?: string}
   | {kind: 'editObject'; object: ObjectKind}
   // A decoded field edit on a vocab object. `field` is humanized from the patch path (vocab objects have no field-label config).
@@ -225,8 +229,14 @@ const TYPED_HANDLERS: Record<string, (change: unknown) => ChangeFact[]> = {
   UpdateTranslationChange: () => [{kind: 'changeField', entity: 'example', fieldId: 'translations'}],
   SetFirstTranslationIdChange: () => [{kind: 'setDefaultTranslation'}],
 
+  CreateSensePictureChange: () => [{kind: 'sensePicture', action: 'add'}],
+  RemoveSensePictureChange: () => [{kind: 'sensePicture', action: 'remove'}],
+  UpdateSensePictureChange: () => [{kind: 'sensePicture', action: 'update'}],
+  ReorderSensePictureChange: () => [{kind: 'sensePicture', action: 'reorder'}],
+  SetMainPublicationChange: () => [{kind: 'setMainPublication'}],
+
   CreatePartOfSpeechChange: (c) => [{kind: 'createObject', object: 'partOfSpeech', label: labelOf(prop(c, 'name'))}],
-  CreateSemanticDomainChange: (c) => [{kind: 'createObject', object: 'semanticDomain', label: labelOf(prop(c, 'code'))}],
+  CreateSemanticDomainChange: (c) => [{kind: 'createObject', object: 'semanticDomain', label: semanticDomainLabel(c)}],
   CreatePublicationChange: (c) => [{kind: 'createObject', object: 'publication', label: labelOf(prop(c, 'name'))}],
   CreateComplexFormType: (c) => [{kind: 'createObject', object: 'complexFormType', label: labelOf(prop(c, 'name'))}],
   CreateWritingSystemChange: (c) => [{kind: 'createObject', object: 'writingSystem', label: labelOf(prop(c, 'name'))}],
@@ -362,7 +372,10 @@ export function recognizeCommit(
     return {fact: {kind: 'create', entity: 'entry', label: info?.subject}, subject: info?.subject, rootEntryId: info?.rootEntryId};
   }
   // Adding one sense to an existing entry (its creation + that sense's examples) → "Added sense X".
-  if (changeTypes.includes('CreateSenseChange') && allSameRoot(changeInfo)) {
+  // Require a PURE sense-tree commit (only the sense + its examples); a mixed commit (sense + an edit) stays listed so nothing is hidden.
+  if (changeTypes.includes('CreateSenseChange')
+    && changeTypes.every((t) => t === 'CreateSenseChange' || t === 'CreateExampleSentenceChange')
+    && allSameRoot(changeInfo)) {
     const index = changes.findIndex((c) => changeType(c.change) === 'CreateSenseChange');
     const info = changeInfo?.[index >= 0 ? index : 0];
     return {fact: {kind: 'create', entity: 'sense', label: info?.subject}, subject: info?.subject, rootEntryId: info?.rootEntryId};

@@ -17,7 +17,7 @@ function modelFields(file: string): string[] {
 // entry or a line here fails this test — so activity summaries and diffs can't silently drop a new field.
 const NOT_VIEW_FIELDS: Record<EntityType, string[]> = {
   entry: ['id', 'deletedAt', 'morphType', 'homographNumber', 'senses'],
-  sense: ['id', 'deletedAt', 'entryId', 'partOfSpeech', 'exampleSentences'],
+  sense: ['id', 'deletedAt', 'entryId', 'partOfSpeech', 'exampleSentences', 'pictures'],
   example: ['id', 'deletedAt', 'senseId'],
 };
 

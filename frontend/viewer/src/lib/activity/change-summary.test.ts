@@ -124,6 +124,14 @@ describe('describeChange', () => {
       .toEqual([{kind: 'reorder', collection: 'senses'}]);
   });
 
+  it('describes the sense-picture and main-publication changes (added on develop)', () => {
+    expect(describeChange(changeEntity({'$type': 'CreateSensePictureChange', EntityId: 'e'}))).toEqual([{kind: 'sensePicture', action: 'add'}]);
+    expect(describeChange(changeEntity({'$type': 'RemoveSensePictureChange', EntityId: 'e'}))).toEqual([{kind: 'sensePicture', action: 'remove'}]);
+    expect(describeChange(changeEntity({'$type': 'UpdateSensePictureChange', EntityId: 'e'}))).toEqual([{kind: 'sensePicture', action: 'update'}]);
+    expect(describeChange(changeEntity({'$type': 'ReorderSensePictureChange', EntityId: 'e'}))).toEqual([{kind: 'sensePicture', action: 'reorder'}]);
+    expect(describeChange(changeEntity({'$type': 'SetMainPublicationChange', EntityId: 'e'}))).toEqual([{kind: 'setMainPublication'}]);
+  });
+
   it('describes moving a sense', () => {
     expect(describeChange(changeEntity({'$type': 'MoveSenseToEntryChange', EntryId: 'x', EntityId: 'e'})))
       .toEqual([{kind: 'moveSense'}]);
@@ -132,6 +140,11 @@ describe('describeChange', () => {
   it('describes creating a vocabulary object with its name', () => {
     expect(describeChange(changeEntity({'$type': 'CreatePartOfSpeechChange', Name: {en: 'Noun'}, EntityId: 'e'})))
       .toEqual([{kind: 'createObject', object: 'partOfSpeech', label: 'Noun'}]);
+  });
+
+  it('labels a created semantic domain with its code and name (not just the code)', () => {
+    expect(describeChange(changeEntity({'$type': 'CreateSemanticDomainChange', Code: '5.2', Name: {en: 'Food'}, EntityId: 'd'})))
+      .toEqual([{kind: 'createObject', object: 'semanticDomain', label: '5.2 Food'}]);
   });
 
   // Resource/media sync changes that intentionally use the generic humanized fallback (not user-facing edits).
@@ -188,6 +201,14 @@ describe('recognizeCommit', () => {
     );
     expect(result?.fact).toMatchObject({kind: 'create', entity: 'sense'});
     expect(result?.subject).toBe('Apfel › apple');
+  });
+
+  it('does NOT collapse a sense addition mixed with an edit (must not hide the edit)', () => {
+    expect(recognizeCommit(
+      [changeEntity({'$type': 'CreateSenseChange'}), changeEntity({'$type': 'jsonPatch:Entry'})],
+      [{rootEntryId: 'e1'}, {rootEntryId: 'e1'}],
+      ['CreateSenseChange', 'jsonPatch:Entry'],
+    )).toBeNull();
   });
 
   it('collapses a bulk vocab import to a count', () => {

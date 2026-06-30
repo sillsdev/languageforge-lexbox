@@ -31,6 +31,7 @@ msgstr "- ({0} perubahan)"
 msgid "(+{0} more)"
 msgstr ""
 
+#. Italic placeholder in an activity-log summary when an entry has no headword text in any vernacular writing system.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "(no headword)"
 msgstr ""
@@ -118,6 +119,11 @@ msgstr "Versi baru FieldWorks Lite telah tersedia."
 msgid "a word"
 msgstr "sebuah kata"
 
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Abbreviation"
+msgstr ""
+
 #. Dialog title
 #: src/lib/about/AboutDialog.svelte
 msgid "About"
@@ -204,20 +210,17 @@ msgstr "Tambahkan Kata"
 
 #. Activity-log line in the dictionary edit history. {0} = singular noun for a list-item type (e.g. "semantic domain", "complex form type", "publication", "translation"). A second chip with the new item's name follows this text.
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
 msgid "Added {0}"
 msgstr ""
 
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Added example"
+msgid "Added {0} to"
 msgstr ""
 
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Added example to"
-msgstr ""
-
-#. Activity-log line. Shown when a named sense was added; the sense's gloss chip follows this text.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Added sense"
+msgid "Added picture"
 msgstr ""
 
 #. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A chip with the added item follows.
@@ -456,6 +459,11 @@ msgstr "Tutup"
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
 
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Code"
+msgstr ""
+
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
@@ -580,6 +588,7 @@ msgstr "Buat Tampilan"
 
 #. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "custom view"); a chip with the created item's name follows.
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
 msgid "Created {0}"
 msgstr ""
 
@@ -587,11 +596,6 @@ msgstr ""
 #. Example: "Created 100 semantic domains". Order and inflection of {0} and {1} may vary by language.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Created {0} {1}"
-msgstr ""
-
-#. Activity-log line. Shown when a named dictionary entry was created; a chip with the headword follows.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Created entry"
 msgstr ""
 
 #. Relevant view: Classic
@@ -688,21 +692,13 @@ msgstr "Dihapus"
 #. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "writing system"); a chip with the deleted item's name follows.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
 msgid "Deleted {0}"
 msgstr ""
 
-#. Activity-log line. Shown when a named dictionary entry was deleted; a chip with the headword follows.
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Deleted entry"
-msgstr ""
-
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Deleted example from"
-msgstr ""
-
-#. Activity-log line. Shown when a named sense was deleted; a chip with the sense's gloss follows.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Deleted sense"
+msgid "Deleted {0} from"
 msgstr ""
 
 #. View option in the activity list mode picker (paired with "Simple"). Shows every change in a commit as its own summary line.
@@ -841,6 +837,7 @@ msgid "Entries missing..."
 msgstr "Entri yang hilang..."
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
+#: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
 msgid "entry"
 msgstr "entri"
@@ -894,6 +891,7 @@ msgid "Error getting sync status."
 msgstr "Kesalahan mendapatkan status sinkronisasi."
 
 #. Standalone noun (an example sentence on a sense), interpolated into a reorder activity-log line, e.g. "<sense> · Reordered example".
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "example"
 msgstr ""
@@ -1104,6 +1102,10 @@ msgstr "Temukan kata..."
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
 msgstr "Selesai"
+
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Font"
+msgstr ""
 
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
@@ -1365,6 +1367,11 @@ msgstr "Manajer"
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Diperlukan pembaruan manual. Ikuti petunjuk yang diberikan."
 
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "meaning"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word
@@ -1374,6 +1381,11 @@ msgstr "Diperlukan pembaruan manual. Ikuti petunjuk yang diberikan."
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Meaning"
 msgstr "Arti"
+
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "meanings"
+msgstr ""
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1433,6 +1445,8 @@ msgid "My custom view..."
 msgstr "Tampilan khusus saya..."
 
 #. Field label for the custom view name input.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Nama"
@@ -1736,6 +1750,14 @@ msgstr "Disematkan"
 msgid "Platform"
 msgstr "Platform"
 
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Postfix"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Prefix"
+msgstr ""
+
 #. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/project/browse/EntryListViewOptions.svelte
@@ -1842,6 +1864,10 @@ msgstr ""
 msgid "Removed from {0}"
 msgstr ""
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed picture"
+msgstr ""
+
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
@@ -1851,6 +1877,10 @@ msgstr "Buka kembali"
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Reordered {0}"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reordered pictures"
 msgstr ""
 
 #. Button to overwrite audio file
@@ -1966,6 +1996,7 @@ msgstr "Kirimkan pesan kepada kami"
 
 #. Standalone noun (one meaning of a word), interpolated into a reorder activity-log line followed by the sense's gloss, e.g. "Apfel · Reordered sense apple".
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
 msgid "sense"
 msgstr ""
 
@@ -1993,20 +2024,28 @@ msgstr ""
 msgid "Sentence"
 msgstr "Kalimat"
 
+#. Activity-log line. {0} = field label (e.g. "Gloss"), {1} = writing-system code (e.g. "en"); a chip with the new value follows.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set {0} ({1}) to"
 msgstr ""
 
+#. Activity-log line. {0} = field label (e.g. "Definition"); a chip with the new value follows. Used when there is no writing-system qualifier.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set {0} to"
 msgstr ""
 
 #: src/lib/activity/ChangeSummary.svelte
+msgid "Set as the main publication"
+msgstr ""
+
+#. Activity-log line. The default/primary free translation of an example sentence was set; no chip follows.
+#: src/lib/activity/ChangeSummary.svelte
 msgid "Set default translation"
 msgstr ""
 
+#. Activity-log line. The FieldWorks homograph number (disambiguates entries with the same headword) was set; a chip with the number follows.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set homograph number to"
 msgstr ""
@@ -2352,6 +2391,7 @@ msgstr "Server tidak dikenal"
 msgid "Unknown update result"
 msgstr "Hasil pembaruan tidak diketahui"
 
+#. Activity-log line. A complex-form component link was removed from an entry (the component entry is no longer a part of this compound).
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Unlinked component"
 msgstr ""
@@ -2412,8 +2452,13 @@ msgstr "Pembaruan ditolak oleh pengaturan izin."
 msgid "Updated component"
 msgstr ""
 
+#. Activity-log line. A complex-form component link on an entry was updated (target component changed); no chip follows when the new target name is unavailable.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Updated component link"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Updated picture"
 msgstr ""
 
 #. Menu item and dialog title for app updates
@@ -2456,6 +2501,7 @@ msgid "Why is that?"
 msgstr "Mengapa demikian?"
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
+#: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
 msgid "word"
 msgstr "kata"
@@ -2493,6 +2539,10 @@ msgstr "Kata atau Tampilan sesuai kebutuhan"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Kata atau makna:"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "words"
+msgstr ""
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Created writing system"). A writing system defines a script and language variant (e.g. "Latin/English", "Cyrillic/Russian").
 #: src/lib/activity/ChangeSummary.svelte

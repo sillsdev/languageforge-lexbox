@@ -16,6 +16,7 @@
   import DiffEntryPrimitive from '$lib/entry-editor/diff-view/DiffEntryPrimitive.svelte';
   import DiffSensePrimitive from '$lib/entry-editor/diff-view/DiffSensePrimitive.svelte';
   import DiffExamplePrimitive from '$lib/entry-editor/diff-view/DiffExamplePrimitive.svelte';
+  import DiffVocabPrimitive from '$lib/entry-editor/diff-view/DiffVocabPrimitive.svelte';
 
   type Props = {
     context: IChangeContext,
@@ -116,6 +117,18 @@
       {/if}
     </div>
   </div>
+{:else if context.entityType === 'PartOfSpeech'
+  || context.entityType === 'SemanticDomain'
+  || context.entityType === 'Publication'
+  || context.entityType === 'ComplexFormType'
+  || context.entityType === 'MorphType'
+  || context.entityType === 'WritingSystem'
+  || context.entityType === 'CustomView'}
+  <Editor.Root>
+    <Editor.Grid>
+      <DiffVocabPrimitive before={context.previousSnapshot} after={context.snapshot} />
+    </Editor.Grid>
+  </Editor.Root>
 {:else}
   <div class="whitespace-pre-wrap font-mono text-sm">
     {formatJsonForUi(context.snapshot ?? context.previousSnapshot ?? {})}

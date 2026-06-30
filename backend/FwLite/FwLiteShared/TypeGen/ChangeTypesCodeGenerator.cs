@@ -36,6 +36,10 @@ public class ChangeTypesCodeGenerator : ClassCodeGenerator
     {
         var typeNameProperty = changeType.GetProperty("TypeName",
             BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+        // Mirrors Harmony's own discriminator logic, so the generated list stays in sync with the runtime $type:
+        // generic/shared changes (jsonPatch:, delete:, SetOrderChange:) define a custom static TypeName, while a
+        // dedicated change class (e.g. SetPartOfSpeechChange) has none and serializes under its CLR type name.
+        // The fallback to changeType.Name is therefore intentional, not a silent mismatch.
         return typeNameProperty?.GetValue(null) as string ?? changeType.Name;
     }
 }

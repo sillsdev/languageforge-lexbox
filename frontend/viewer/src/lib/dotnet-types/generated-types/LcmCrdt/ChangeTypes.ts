@@ -18,22 +18,27 @@ export type ChangeType =
   | 'CreatePublicationChange'
   | 'CreateSemanticDomainChange'
   | 'CreateSenseChange'
+  | 'CreateSensePictureChange'
   | 'CreateWritingSystemChange'
   | 'EditCustomViewChange'
   | 'MoveSenseToEntryChange'
   | 'RemoveComplexFormTypeChange'
   | 'RemovePublicationChange'
   | 'RemoveSemanticDomainChange'
+  | 'RemoveSensePictureChange'
   | 'RemoveTranslationChange'
+  | 'ReorderSensePictureChange'
   | 'ReplacePublicationChange'
   | 'ReplaceSemanticDomainChange'
   | 'SetComplexFormComponentChange'
   | 'SetFirstTranslationIdChange'
+  | 'SetMainPublicationChange'
   | 'SetOrderChange:ComplexFormComponent'
   | 'SetOrderChange:ExampleSentence'
   | 'SetOrderChange:Sense'
   | 'SetOrderChange:WritingSystem'
   | 'SetPartOfSpeechChange'
+  | 'UpdateSensePictureChange'
   | 'UpdateTranslationChange'
   | 'create:pendingUpload'
   | 'create:remote-resource'
@@ -74,22 +79,27 @@ export const knownChangeTypes = [
   'CreatePublicationChange',
   'CreateSemanticDomainChange',
   'CreateSenseChange',
+  'CreateSensePictureChange',
   'CreateWritingSystemChange',
   'EditCustomViewChange',
   'MoveSenseToEntryChange',
   'RemoveComplexFormTypeChange',
   'RemovePublicationChange',
   'RemoveSemanticDomainChange',
+  'RemoveSensePictureChange',
   'RemoveTranslationChange',
+  'ReorderSensePictureChange',
   'ReplacePublicationChange',
   'ReplaceSemanticDomainChange',
   'SetComplexFormComponentChange',
   'SetFirstTranslationIdChange',
+  'SetMainPublicationChange',
   'SetOrderChange:ComplexFormComponent',
   'SetOrderChange:ExampleSentence',
   'SetOrderChange:Sense',
   'SetOrderChange:WritingSystem',
   'SetPartOfSpeechChange',
+  'UpdateSensePictureChange',
   'UpdateTranslationChange',
   'create:pendingUpload',
   'create:remote-resource',

@@ -114,6 +114,12 @@ msgstr "A new version of FieldWorks Lite is available."
 msgid "a word"
 msgstr "a word"
 
+#. Field label in the activity change-preview diff for vocabulary objects (part of speech, semantic domain, etc.). Shows the abbreviated form alongside the full name.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Abbreviation"
+msgstr "Abbreviation"
+
 #. Dialog title
 #: src/lib/about/AboutDialog.svelte
 msgid "About"
@@ -200,23 +206,20 @@ msgstr "Add Word"
 
 #. Activity-log line in the dictionary edit history. {0} = singular noun for a list-item type (e.g. "semantic domain", "complex form type", "publication", "translation"). A second chip with the new item's name follows this text.
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
 msgid "Added {0}"
 msgstr "Added {0}"
 
-#. Activity-log line. An example sentence was added; no parent entry or sense name is available.
+#. Activity-log line. {0} = singular entity noun (e.g. "example", "meaning"/"sense"). A chip with the parent entry/sense name follows (e.g. "Added example to «Apfel»").
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Added example"
-msgstr "Added example"
+msgid "Added {0} to"
+msgstr "Added {0} to"
 
-#. Activity-log line. An example sentence was added; a chip with the parent entry or sense name follows this text.
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Removed picture", "Updated picture", "Reordered pictures".
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Added example to"
-msgstr "Added example to"
-
-#. Activity-log line. Shown when a named sense was added; the sense's gloss chip follows this text.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Added sense"
-msgstr "Added sense"
+msgid "Added picture"
+msgstr "Added picture"
 
 #. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A chip with the added item follows.
 #: src/lib/activity/ChangeSummary.svelte
@@ -454,6 +457,12 @@ msgstr "Close"
 msgid "Close Dictionary"
 msgstr "Close Dictionary"
 
+#. Field label in the activity change-preview diff. "Code" is the short identifier on a semantic domain (e.g. "1.1") or the writing-system ID (e.g. "en").
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Code"
+msgstr "Code"
+
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
@@ -578,6 +587,7 @@ msgstr "Create View"
 
 #. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "custom view"); a chip with the created item's name follows.
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
 msgid "Created {0}"
 msgstr "Created {0}"
 
@@ -586,11 +596,6 @@ msgstr "Created {0}"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Created {0} {1}"
 msgstr "Created {0} {1}"
-
-#. Activity-log line. Shown when a named dictionary entry was created; a chip with the headword follows.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Created entry"
-msgstr "Created entry"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
@@ -686,23 +691,15 @@ msgstr "Deleted"
 #. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "writing system"); a chip with the deleted item's name follows.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
 msgid "Deleted {0}"
 msgstr "Deleted {0}"
 
-#. Activity-log line. Shown when a named dictionary entry was deleted; a chip with the headword follows.
+#. Activity-log line. {0} = singular entity noun (e.g. "example", "meaning"/"sense"). A chip with the parent entry/sense name follows (e.g. "Deleted example from «Apfel»").
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Deleted entry"
-msgstr "Deleted entry"
-
-#. Activity-log line. An example sentence was deleted; a chip with the parent entry or sense name follows this text.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Deleted example from"
-msgstr "Deleted example from"
-
-#. Activity-log line. Shown when a named sense was deleted; a chip with the sense's gloss follows.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Deleted sense"
-msgstr "Deleted sense"
+msgid "Deleted {0} from"
+msgstr "Deleted {0} from"
 
 #. View option in the activity list mode picker (paired with "Simple"). Shows every change in a commit as its own summary line.
 #: src/lib/activity/ActivityListViewOptions.svelte
@@ -840,6 +837,7 @@ msgid "Entries missing..."
 msgstr "Entries missing..."
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
+#: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
 msgid "entry"
 msgstr "entry"
@@ -893,6 +891,7 @@ msgid "Error getting sync status."
 msgstr "Error getting sync status."
 
 #. Standalone noun (an example sentence on a sense), interpolated into a reorder activity-log line, e.g. "<sense> · Reordered example".
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "example"
 msgstr "example"
@@ -1103,6 +1102,11 @@ msgstr "Find word..."
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
 msgstr "Finish"
+
+#. Field label in the activity change-preview diff. "Font" is the typeface name configured on a writing system.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Font"
+msgstr "Font"
 
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
@@ -1365,6 +1369,14 @@ msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Manual update is required. Please follow the instructions provided."
 
 #. Relevant view: Lite
+#. Classic view equivalent: "sense"
+#. Lowercase singular noun interpolated into activity-log lines (e.g. "Added meaning «happy»"). A sense is one meaning of a word.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "meaning"
+msgstr "meaning"
+
+#. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1373,6 +1385,14 @@ msgstr "Manual update is required. Please follow the instructions provided."
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Meaning"
 msgstr "Meaning"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "senses"
+#. Lowercase plural noun interpolated into activity-log lines (e.g. "Reordered meanings"). Paired with singular "meaning".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "meanings"
+msgstr "meanings"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1432,6 +1452,8 @@ msgid "My custom view..."
 msgstr "My custom view..."
 
 #. Field label for the custom view name input.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Name"
@@ -1735,6 +1757,16 @@ msgstr "Pinned"
 msgid "Platform"
 msgstr "Platform"
 
+#. Field label in the activity change-preview diff for a morph type. "Postfix" is the character(s) appended after a morpheme to mark its grammatical role (e.g. "-" for a suffix).
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Postfix"
+msgstr "Postfix"
+
+#. Field label in the activity change-preview diff for a morph type. "Prefix" is the character(s) prepended before a morpheme to mark its grammatical role (e.g. "-" for a prefix).
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Prefix"
+msgstr "Prefix"
+
 #. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/project/browse/EntryListViewOptions.svelte
@@ -1841,6 +1873,11 @@ msgstr "Removed {0}"
 msgid "Removed from {0}"
 msgstr "Removed from {0}"
 
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Updated picture", "Reordered pictures".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed picture"
+msgstr "Removed picture"
+
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
@@ -1851,6 +1888,11 @@ msgstr "Reopen"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Reordered {0}"
 msgstr "Reordered {0}"
+
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Updated picture".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reordered pictures"
+msgstr "Reordered pictures"
 
 #. Button to overwrite audio file
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1965,6 +2007,7 @@ msgstr "Send us a message"
 
 #. Standalone noun (one meaning of a word), interpolated into a reorder activity-log line followed by the sense's gloss, e.g. "Apfel · Reordered sense apple".
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
 msgid "sense"
 msgstr "sense"
 
@@ -2003,6 +2046,11 @@ msgstr "Set {0} ({1}) to"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set {0} to"
 msgstr "Set {0} to"
+
+#. Activity-log line. A leading chip names the publication. Means this publication was marked as the project's single main (default) publication.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set as the main publication"
+msgstr "Set as the main publication"
 
 #. Activity-log line. The default/primary free translation of an example sentence was set; no chip follows.
 #: src/lib/activity/ChangeSummary.svelte
@@ -2421,6 +2469,11 @@ msgstr "Updated component"
 msgid "Updated component link"
 msgstr "Updated component link"
 
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Reordered pictures".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Updated picture"
+msgstr "Updated picture"
+
 #. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
 #: src/lib/updates/UpdateDialog.svelte
@@ -2461,6 +2514,7 @@ msgid "Why is that?"
 msgstr "Why is that?"
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
+#: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
 msgid "word"
 msgstr "word"
@@ -2498,6 +2552,13 @@ msgstr "Word or Display as is required"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Word or meaning:"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "entries"
+#. Lowercase plural noun interpolated into activity-log lines (e.g. "Created 5 words"). Paired with "words" / "entries" terminology across the app.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "words"
+msgstr "words"
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Created writing system"). A writing system defines a script and language variant (e.g. "Latin/English", "Cyrillic/Russian").
 #: src/lib/activity/ChangeSummary.svelte
