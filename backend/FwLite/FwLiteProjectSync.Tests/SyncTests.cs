@@ -4,6 +4,7 @@ using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
+using MiniLcm.Media;
 using MiniLcm.Models;
 
 namespace FwLiteProjectSync.Tests;
@@ -87,6 +88,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         options = options
             .For(e => e.Senses).Exclude(s => s.Order)
             .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
+            .For(e => e.Senses).For(s => s.Pictures).Exclude(s => s.Order)
             .For(e => e.Components).Exclude(c => c.Id)
             .For(e => e.Components).Exclude(c => c.Order)
             .For(e => e.ComplexForms).Exclude(c => c.Id)
@@ -96,7 +98,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
     internal static void AssertSnapshotsAreEquivalent(ProjectSnapshot expected, ProjectSnapshot actual)
     {
-        var excludeOrderTypes = new[] { typeof(Sense), typeof(ExampleSentence), typeof(ComplexFormComponent), typeof(WritingSystem) };
+        var excludeOrderTypes = new[] { typeof(Sense), typeof(ExampleSentence), typeof(Picture), typeof(ComplexFormComponent), typeof(WritingSystem) };
         var excludeIds = new[] { typeof(ComplexFormComponent), typeof(WritingSystem) };
         actual.Should().BeEquivalentTo(expected,
             options =>
@@ -606,7 +608,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         await fwdataApi.CreateSense(_testEntry.Id, new Sense()
-            {
+        {
             Gloss = { { "en", "Fruit" } },
             Definition = { { "en", new RichString("a round fruit, red or yellow") } },
         });
@@ -614,7 +616,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Gloss = { { "en", "Tree" } },
             Definition = { { "en", new RichString("a tall, woody plant, which grows fruit") } },
-            });
+        });
 
         await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
 
@@ -712,4 +714,197 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         entry2Final.HomographNumber.Should().Be(0,
             "after 2 syncs, LibLCM should have corrected HomographNumber to 0 (sole entry with this headword)");
     }
-}
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task AddingAPictureToASenseInFwDataSyncsToCrdt()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        var sense = _testEntry.Senses[0];
+        var picture = new Picture
+        {
+            Id = Guid.NewGuid(),
+            MediaUri = MediaUri.NotFound,
+            Caption = new RichMultiString { { "en", new RichString("An apple on a tree") } },
+        };
+        await fwdataApi.CreatePicture(_testEntry.Id, sense.Id, picture);
+
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        var crdtSense = await crdtApi.GetSense(_testEntry.Id, sense.Id);
+        crdtSense.Should().NotBeNull();
+        crdtSense!.Pictures.Should().HaveCount(1);
+        crdtSense.Pictures[0].Id.Should().Be(picture.Id);
+        crdtSense.Pictures[0].Caption["en"].Should().BeEquivalentTo(picture.Caption["en"]);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task AddingAPictureToASenseInCrdtSyncsToFwData()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        var sense = _testEntry.Senses[0];
+        var picture = new Picture
+        {
+            Id = Guid.NewGuid(),
+            MediaUri = MediaUri.NotFound,
+            Caption = new RichMultiString { { "en", new RichString("An apple") } },
+        };
+        await crdtApi.CreatePicture(_testEntry.Id, sense.Id, picture);
+
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        var fwdataSense = await fwdataApi.GetSense(_testEntry.Id, sense.Id);
+        fwdataSense.Should().NotBeNull();
+        fwdataSense!.Pictures.Should().HaveCount(1);
+        fwdataSense.Pictures[0].Id.Should().Be(picture.Id);
+        fwdataSense.Pictures[0].Caption["en"].Should().BeEquivalentTo(picture.Caption["en"]);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task PictureCaptionUpdateSyncsFromFwDataToCrdt()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+
+        // Arrange - create a picture in FwData before importing so both APIs see it
+        var sense = _testEntry.Senses[0];
+        var picture = new Picture
+        {
+            Id = Guid.NewGuid(),
+            MediaUri = MediaUri.NotFound,
+            Caption = new RichMultiString { { "en", new RichString("original caption") } },
+        };
+        await fwdataApi.CreatePicture(_testEntry.Id, sense.Id, picture);
+
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        // Act - update caption in FwData only
+        var fwdataPictureBefore = await fwdataApi.GetPicture(_testEntry.Id, sense.Id, picture.Id);
+        fwdataPictureBefore.Should().NotBeNull();
+        var fwdataPictureAfter = fwdataPictureBefore!.Copy();
+        fwdataPictureAfter.Caption = new RichMultiString { { "en", new RichString("updated caption") } };
+        await fwdataApi.UpdatePicture(_testEntry.Id, sense.Id, fwdataPictureBefore, fwdataPictureAfter);
+
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        // Assert - CRDT should reflect the updated caption
+        var crdtPicture = await crdtApi.GetPicture(_testEntry.Id, sense.Id, picture.Id);
+        crdtPicture.Should().NotBeNull();
+        crdtPicture!.Caption["en"].Should().BeEquivalentTo(fwdataPictureAfter.Caption["en"]);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task PictureCaptionUpdateSyncsFromCrdtToFwData()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+
+        // Arrange - create a picture in FwData before importing so both APIs see it
+        var sense = _testEntry.Senses[0];
+        var picture = new Picture
+        {
+            Id = Guid.NewGuid(),
+            MediaUri = MediaUri.NotFound,
+            Caption = new RichMultiString { { "en", new RichString("original caption") } },
+        };
+        await fwdataApi.CreatePicture(_testEntry.Id, sense.Id, picture);
+
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        // Act - update caption in Crdt only
+        var crdtPictureBefore = await crdtApi.GetPicture(_testEntry.Id, sense.Id, picture.Id);
+        crdtPictureBefore.Should().NotBeNull();
+        var crdtPictureAfter = crdtPictureBefore!.Copy();
+        crdtPictureAfter.Caption = new RichMultiString { { "en", new RichString("updated caption") } };
+        await crdtApi.UpdatePicture(_testEntry.Id, sense.Id, crdtPictureBefore, crdtPictureAfter);
+
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        // Assert - CRDT should reflect the updated caption
+        var fwdataPicture = await fwdataApi.GetPicture(_testEntry.Id, sense.Id, picture.Id);
+        fwdataPicture.Should().NotBeNull();
+        fwdataPicture!.Caption["en"].Should().BeEquivalentTo(crdtPictureAfter.Caption["en"]);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task DeletingAPictureInFwDataSyncsToCrdt()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+
+        // Arrange - create a picture in FwData before importing so both APIs see it
+        var sense = _testEntry.Senses[0];
+        var picture = new Picture
+        {
+            Id = Guid.NewGuid(),
+            MediaUri = MediaUri.NotFound,
+            Caption = new RichMultiString { { "en", new RichString("a picture to delete") } },
+        };
+        await fwdataApi.CreatePicture(_testEntry.Id, sense.Id, picture);
+
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        // verify picture arrived in CRDT after import
+        var crdtSenseBeforeDelete = await crdtApi.GetSense(_testEntry.Id, sense.Id);
+        crdtSenseBeforeDelete!.Pictures.Should().HaveCount(1, "picture should have been imported");
+
+        // Act - delete picture in FwData
+        await fwdataApi.DeletePicture(_testEntry.Id, sense.Id, picture.Id);
+
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        // Assert - CRDT should no longer have the picture
+        var crdtSenseAfterDelete = await crdtApi.GetSense(_testEntry.Id, sense.Id);
+        crdtSenseAfterDelete.Should().NotBeNull();
+        crdtSenseAfterDelete!.Pictures.Should().BeEmpty();
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task DeletingAPictureInCrdtSyncsToFwData()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+
+        // Arrange - create a picture in FwData before importing so both APIs see it
+        var sense = _testEntry.Senses[0];
+        var picture = new Picture
+        {
+            Id = Guid.NewGuid(),
+            MediaUri = MediaUri.NotFound,
+            Caption = new RichMultiString { { "en", new RichString("a picture to delete") } },
+        };
+        await fwdataApi.CreatePicture(_testEntry.Id, sense.Id, picture);
+
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        // verify picture arrived in CRDT after import
+        var crdtSenseBeforeDelete = await crdtApi.GetSense(_testEntry.Id, sense.Id);
+        crdtSenseBeforeDelete!.Pictures.Should().HaveCount(1, "picture should have been imported");
+
+        // Act - delete picture in CRDT
+        await crdtApi.DeletePicture(_testEntry.Id, sense.Id, picture.Id);
+
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        // Assert - FwData should no longer have the picture
+        var fwdataSenseAfterDelete = await fwdataApi.GetSense(_testEntry.Id, sense.Id);
+        fwdataSenseAfterDelete.Should().NotBeNull();
+        fwdataSenseAfterDelete!.Pictures.Should().BeEmpty();
+    }}

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LcmCrdt.Migrations
 {
     [DbContext(typeof(LcmCrdtDbContext))]
-    partial class LcmCrdtDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260619022528_AddPicturesColumnToSenses")]
+    partial class AddPicturesColumnToSenses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
@@ -384,9 +387,6 @@ namespace LcmCrdt.Migrations
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsMain")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("jsonb");
@@ -570,8 +570,6 @@ namespace LcmCrdt.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Commits", (string)null);
-
-                    b.HasAnnotation("CustomIndex:CompositeIndexes", "[{\"paths\":[\"HybridDateTime.DateTime\",\"HybridDateTime.Counter\",\"Id\"],\"unique\":false,\"name\":\"IX_Commits_DateTime_Counter_Id\"}]");
                 });
 
             modelBuilder.Entity("SIL.Harmony.Core.ChangeEntity<SIL.Harmony.Changes.IChange>", b =>

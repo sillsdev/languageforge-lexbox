@@ -41,6 +41,7 @@ public class UpdateDiffTests
             .Excluding(x => x.EntryId)
             .Excluding(x => x.DeletedAt)
             .Excluding(x => x.ExampleSentences)
+            .Excluding(x => x.Pictures)
             .Excluding(x => x.SemanticDomains)
             .Excluding(x => x.PartOfSpeech)
             .Excluding(x => x.PartOfSpeechId));

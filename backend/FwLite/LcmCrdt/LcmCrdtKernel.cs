@@ -226,6 +226,10 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => JsonSerializer.Deserialize<List<SemanticDomain>>(json, (JsonSerializerOptions?)null) ?? new());
+                builder.Property(s => s.Pictures)
+                    .HasColumnType("jsonb")
+                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new());
             })
             .Add<ExampleSentence>(builder =>
             {
@@ -337,6 +341,10 @@ public static class LcmCrdtKernel
             .Add<UpdateTranslationChange>()
             .Add<SetFirstTranslationIdChange>()
 
+            .Add<CreateSensePictureChange>()
+            .Add<UpdateSensePictureChange>()
+            .Add<ReorderSensePictureChange>()
+            .Add<RemoveSensePictureChange>()
             .Add<CreatePartOfSpeechChange>()
             .Add<CreateSemanticDomainChange>()
             .Add<CreateWritingSystemChange>()

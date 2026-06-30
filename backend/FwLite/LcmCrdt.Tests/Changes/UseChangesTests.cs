@@ -174,6 +174,10 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var removeTranslationChange = new RemoveTranslationChange(exampleSentence.Id, translation.Id);
         yield return new ChangeWithDependencies(removeTranslationChange, [createTranslationChange]);
 
+        var picture = new Picture { Id = Guid.NewGuid(), Caption = { { "en", new RichString("test pic") } } };
+        var createSensePictureChange = new CreateSensePictureChange(picture, sense.Id, between: null);
+        yield return new ChangeWithDependencies(createSensePictureChange, [createSenseChange]);
+
         var semanticDomain = new SemanticDomain { Id = Guid.NewGuid(), Name = { { "en", "test sd" } } };
         var createSemanticDomainChange = new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, "1.1.1");
         yield return new ChangeWithDependencies(createSemanticDomainChange);
@@ -239,6 +243,16 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
 
         var setExampleSentenceOrderChange = new LcmCrdt.Changes.SetOrderChange<ExampleSentence>(exampleSentence.Id, 10);
         yield return new ChangeWithDependencies(setExampleSentenceOrderChange, [createExampleSentenceChange]);
+
+        var setPictureOrderChange = new ReorderSensePictureChange(picture.Id, sense.Id, 10);
+        yield return new ChangeWithDependencies(setPictureOrderChange, [createSenseChange, createSensePictureChange]);
+
+        var updatePictureChange = new UpdateSensePictureChange(picture.Id, sense.Id, new JsonPatchDocument<Picture>()
+            .Replace(pic => pic.Caption, new() { { "en", new RichString("test caption update") } }));
+        yield return new ChangeWithDependencies(updatePictureChange, [createSenseChange, createSensePictureChange]);
+
+        var removePictureChange = new RemoveSensePictureChange(picture.Id, sense.Id);
+        yield return new ChangeWithDependencies(removePictureChange, [createSenseChange, createSensePictureChange, setPictureOrderChange, updatePictureChange]);
 
         var setComplexFormComponentOrderChange = new LcmCrdt.Changes.SetOrderChange<ComplexFormComponent>(complexFormComponent.Id, 10);
         yield return new ChangeWithDependencies(setComplexFormComponentOrderChange, [createComplexFormComponentChange]);
