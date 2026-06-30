@@ -103,10 +103,18 @@ globalThis.webViewComponent = function LexiconSelect({
 
   const onCreated = useCallback(
     async (code: string): Promise<void> => {
-      await selectLexicon(code);
-      setDone(true);
+      try {
+        await selectLexicon(code);
+        setDone(true);
+      } catch (e) {
+        // Lexicon was created but auto-selection failed; go back to the combo box so
+        // the user can select it manually from the refreshed list.
+        logger.error('Error auto-selecting created lexicon:', JSON.stringify(e));
+        fetchLexicons();
+        setShowCreate(false);
+      }
     },
-    [selectLexicon],
+    [fetchLexicons, selectLexicon],
   );
 
   if (done) {
