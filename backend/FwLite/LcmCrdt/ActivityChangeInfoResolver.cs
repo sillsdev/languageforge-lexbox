@@ -1,5 +1,6 @@
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
+using LcmCrdt.Data;
 using LinqToDB;
 using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
@@ -14,7 +15,10 @@ namespace LcmCrdt;
 /// Batch-resolves a human label (and the root entry) for each change in a page of activity, so summaries
 /// can name the entry/sense/vocab object a change is about without a per-row lookup. Degradable: leaves
 /// <see cref="ActivityChangeInfo.Subject"/> null for types it doesn't resolve (the frontend falls back to a type label).
-/// Reads the projected snapshot tables, so labels reflect the current state; deleted entities get the "(Unknown)" headword.
+/// Reads the projected snapshot tables, so labels reflect the current state. The display headword is the best
+/// non-audio alternative across writing systems with morph-type markers applied (e.g. "-ness" for a suffix);
+/// it's null when there's no displayable headword (all empty/audio-only) or the entry is deleted/missing, and
+/// the frontend renders a translatable placeholder in that case.
 /// </summary>
 internal static class ActivityChangeInfoResolver
 {
@@ -76,7 +80,12 @@ internal static class ActivityChangeInfoResolver
         var complexFormTypes = await LoadByIds<ComplexFormType>(db, complexFormTypeIds);
         var morphTypes = await LoadByIds<MorphType>(db, morphTypeIds);
 
-        string Headword(Guid entryId) => entries.TryGetValue(entryId, out var entry) ? HeadwordWithHomograph(entry) : Entry.UnknownHeadword;
+        // Markers (e.g. suffix "-") for the display headword, keyed by morph-type kind; first wins on duplicates.
+        var morphLookup = (await db.Set<MorphType>().ToListAsyncLinqToDB())
+            .GroupBy(m => m.Kind)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        string? Headword(Guid entryId) => entries.TryGetValue(entryId, out var entry) ? DisplayHeadword(entry, morphLookup) : null;
 
         foreach (var activity in activities)
         {
@@ -85,7 +94,7 @@ internal static class ActivityChangeInfoResolver
                 .ToList();
         }
 
-        ActivityChangeInfo Build(ChangeEntity<IChange> change, Func<Guid, string> headword)
+        ActivityChangeInfo Build(ChangeEntity<IChange> change, Func<Guid, string?> headword)
         {
             if (ResolveReorder(change) is { } reorder) return reorder;
             var (subject, rootEntryId) = ResolveSubject(change, headword);
@@ -109,7 +118,7 @@ internal static class ActivityChangeInfoResolver
             }
         }
 
-        (string? Subject, Guid? RootEntryId) ResolveSubject(ChangeEntity<IChange> change, Func<Guid, string> headword)
+        (string? Subject, Guid? RootEntryId) ResolveSubject(ChangeEntity<IChange> change, Func<Guid, string?> headword)
         {
             var id = change.EntityId;
             switch (BucketFor(change.Change.EntityType))
@@ -145,8 +154,8 @@ internal static class ActivityChangeInfoResolver
             RemovePublicationChange r when publications.TryGetValue(r.PublicationId, out var publication) => Label(publication.Name),
             RemoveComplexFormTypeChange r when complexFormTypes.TryGetValue(r.ComplexFormTypeId, out var cft) => Label(cft.Name),
             // Component links resolve the component being linked (the change's subject is the complex form).
-            AddEntryComponentChange a when entries.TryGetValue(a.ComponentEntryId, out var component) => HeadwordWithHomograph(component),
-            SetComplexFormComponentChange { ComponentEntryId: { } cid } when entries.TryGetValue(cid, out var component) => HeadwordWithHomograph(component),
+            AddEntryComponentChange a when entries.TryGetValue(a.ComponentEntryId, out var component) => DisplayHeadword(component, morphLookup),
+            SetComplexFormComponentChange { ComponentEntryId: { } cid } when entries.TryGetValue(cid, out var component) => DisplayHeadword(component, morphLookup),
             _ => null
         };
     }
@@ -161,9 +170,11 @@ internal static class ActivityChangeInfoResolver
         return loaded.ToDictionary(o => o.Id);
     }
 
-    private static string SenseLabel(string headword, MultiString gloss)
+    // Degrades to just the gloss when the entry has no displayable headword (and to null when neither is present).
+    private static string? SenseLabel(string? headword, MultiString gloss)
     {
         var glossText = Label(gloss);
+        if (headword is null) return glossText;
         return glossText is null ? headword : $"{headword} › {glossText}";
     }
 
@@ -171,10 +182,17 @@ internal static class ActivityChangeInfoResolver
     private static string? Label(MultiString multiString) =>
         multiString.Values.OrderBy(kvp => kvp.Key.Code).Select(kvp => kvp.Value?.Trim()).FirstOrDefault(text => !string.IsNullOrEmpty(text));
 
-    // FieldWorks distinguishes same-spelled entries by a homograph number shown as a subscript; it's only assigned (> 0) when there's a collision.
-    private static string HeadwordWithHomograph(Entry entry)
+    // Best non-audio alternative across writing systems (ordered by code, matching Label()) with morph-type markers
+    // applied (e.g. "-ness" for a suffix); null when there's no displayable text. FieldWorks distinguishes same-spelled
+    // entries by a homograph number shown as a subscript, assigned (> 0) only on a collision.
+    private static string? DisplayHeadword(Entry entry, IReadOnlyDictionary<MorphTypeKind, MorphType> morphLookup)
     {
-        var headword = entry.Headword();
+        var headword = EntryQueryHelpers.ComputeHeadwords(entry, morphLookup).Values
+            .Where(kvp => !kvp.Key.IsAudio)
+            .OrderBy(kvp => kvp.Key.Code)
+            .Select(kvp => kvp.Value?.Trim())
+            .FirstOrDefault(text => !string.IsNullOrEmpty(text));
+        if (string.IsNullOrEmpty(headword)) return null;
         return entry.HomographNumber > 0 ? headword + Subscript(entry.HomographNumber) : headword;
     }
 

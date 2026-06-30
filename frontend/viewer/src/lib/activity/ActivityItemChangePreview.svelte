@@ -34,7 +34,7 @@
     <DropdownMenu.Trigger class={cn('text-base w-fit mr-2 justify-between flex-wrap whitespace-break-spaces text-start min-h-max py-1.5', deleted && 'pointer-events-none')}>
       {#snippet child({props})}
         <Button {...props} variant="secondary" size="sm">
-          <Headwords {entry} placeholder={$t`Untitled`} />
+          <Headwords {entry} showHomograph placeholder={$t`Untitled`} />
           {#if !deleted}
             <Icon icon="i-mdi-dots-vertical" />
           {:else}

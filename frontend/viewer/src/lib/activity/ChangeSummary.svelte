@@ -98,11 +98,14 @@
   }
 </script>
 
-{#snippet chip(text: string)}<span class="font-medium text-foreground">{text}</span>{/snippet}
+{#snippet chip(text: string)}<span class="rounded bg-muted px-1 font-medium text-foreground">{text}</span>{/snippet}
+{#snippet noHeadword()}<span class="italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
 
 {#if subject && !selfNaming}{@render chip(subject)}<span class="px-1.5 text-muted-foreground/70">·</span>{/if}{#if fact.kind === 'setField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
-  {#if fact.ws}{$t`Set ${label} (${fact.ws}) to “${fact.value}”`}{:else}{$t`Set ${label} to “${fact.value}”`}{/if}
+  {#if fact.ws}{$t`Set ${label} (${fact.ws}) to`} {@render chip(fact.value)}{:else}{$t`Set ${label} to`} {@render chip(fact.value)}{/if}
+{:else if fact.kind === 'setHomograph'}
+  {$t`Set homograph number to`} {@render chip(fact.value)}
 {:else if fact.kind === 'clearField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
   {#if fact.ws}{$t`Cleared ${label} (${fact.ws})`}{:else}{$t`Cleared ${label}`}{/if}
@@ -112,15 +115,15 @@
 {:else if fact.kind === 'addItem'}
   {@const noun = itemNoun(fact.fieldId)}
   {#if noun}
-    {#if fact.label}{$t`Added ${noun}`} {@render chip(fact.label)}{:else}{$t`Added a ${noun}`}{/if}
+    {$t`Added ${noun}`}{#if fact.label} {@render chip(fact.label)}{/if}
   {:else}
     {@const label = fieldLabel(fact.entity, fact.fieldId)}
-    {#if fact.label}{$t`Added to ${label}: ${fact.label}`}{:else}{$t`Added to ${label}`}{/if}
+    {#if fact.label}{$t`Added to ${label}`}: {@render chip(fact.label)}{:else}{$t`Added to ${label}`}{/if}
   {/if}
 {:else if fact.kind === 'removeItem'}
   {@const noun = itemNoun(fact.fieldId)}
   {#if noun}
-    {#if target}{$t`Removed ${noun}`} {@render chip(target)}{:else}{$t`Removed a ${noun}`}{/if}
+    {$t`Removed ${noun}`}{#if target} {@render chip(target)}{/if}
   {:else}
     {$t`Removed from ${fieldLabel(fact.entity, fact.fieldId)}`}
   {/if}
@@ -130,17 +133,17 @@
 {:else if fact.kind === 'create'}
   {@const name = subject ?? fact.label}
   {#if fact.entity === 'entry'}
-    {#if name}{$t`Created entry`} {@render chip(name)}{:else}{$t`Created an entry`}{/if}
+    {$t`Created entry`} {#if name}{@render chip(name)}{:else}{@render noHeadword()}{/if}
   {:else if fact.entity === 'sense'}
-    {#if name}{$t`Added sense`} {@render chip(name)}{:else}{$t`Added a sense`}{/if}
+    {$t`Added sense`}{#if name} {@render chip(name)}{/if}
   {:else}
-    {#if subject}{$t`Added an example to`} {@render chip(subject)}{:else}{$t`Added an example`}{/if}
+    {#if subject}{$t`Added example to`} {@render chip(subject)}{:else}{$t`Added example`}{/if}
   {/if}
 {:else if fact.kind === 'delete'}
   {#if subject}
     {#if fact.entity === 'entry'}{$t`Deleted entry`} {@render chip(subject)}
     {:else if fact.entity === 'sense'}{$t`Deleted sense`} {@render chip(subject)}
-    {:else}{$t`Deleted an example from`} {@render chip(subject)}{/if}
+    {:else}{$t`Deleted example from`} {@render chip(subject)}{/if}
   {:else}{$t`Deleted ${entityName(fact.entity)}`}{/if}
 {:else if fact.kind === 'reorder'}
   {#if target}{$t`Reordered ${collectionItemNoun(fact.collection)}`} {@render chip(target)}{:else}{$t`Reordered ${collectionNoun(fact.collection)}`}{/if}
@@ -148,21 +151,21 @@
   {$t`Moved from another entry`}
 {:else if fact.kind === 'componentLink'}
   {#if fact.action === 'add'}
-    {#if target}{$t`Linked component`} {@render chip(target)}{:else}{$t`Linked a component`}{/if}
-  {:else if fact.action === 'remove'}{$t`Unlinked a component`}
+    {$t`Linked component`}{#if target} {@render chip(target)}{/if}
+  {:else if fact.action === 'remove'}{$t`Unlinked component`}
   {:else}
-    {#if target}{$t`Updated component`} {@render chip(target)}{:else}{$t`Updated a component link`}{/if}
+    {#if target}{$t`Updated component`} {@render chip(target)}{:else}{$t`Updated component link`}{/if}
   {/if}
 {:else if fact.kind === 'setDefaultTranslation'}
-  {$t`Set the default translation`}
+  {$t`Set default translation`}
 {:else if fact.kind === 'createObject'}
   {@const name = subject ?? fact.label}
-  {#if name}{$t`Created ${objectNoun(fact.object)}`} {@render chip(name)}{:else}{$t`Created a ${objectNoun(fact.object)}`}{/if}
+  {$t`Created ${objectNoun(fact.object)}`}{#if name} {@render chip(name)}{/if}
 {:else if fact.kind === 'editObject'}
   {$t`Edited ${objectNoun(fact.object)}`} {#if subject}{@render chip(subject)}{/if}
 {:else if fact.kind === 'editObjectField'}
   {@const objectType = capitalize(objectNoun(fact.object))}
-  {#if subject}{objectType} {@render chip(subject)}{:else}{objectType}{/if}<span class="px-1.5 text-muted-foreground/70">·</span>{#if fact.cleared}{$t`Cleared ${fact.field}`}{:else if fact.value !== undefined}{#if fact.ws}{$t`Set ${fact.field} (${fact.ws}) to “${fact.value}”`}{:else}{$t`Set ${fact.field} to “${fact.value}”`}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
+  {#if subject}{objectType} {@render chip(subject)}{:else}{objectType}{/if}<span class="px-1.5 text-muted-foreground/70">·</span>{#if fact.cleared}{$t`Cleared ${fact.field}`}{:else if fact.value !== undefined}{#if fact.ws}{$t`Set ${fact.field} (${fact.ws}) to`} {@render chip(fact.value)}{:else}{$t`Set ${fact.field} to`} {@render chip(fact.value)}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
 {:else if fact.kind === 'deleteObject'}
   {$t`Deleted ${objectNoun(fact.object)}`} {#if subject}{@render chip(subject)}{/if}
 {:else if fact.kind === 'bulkCreate'}

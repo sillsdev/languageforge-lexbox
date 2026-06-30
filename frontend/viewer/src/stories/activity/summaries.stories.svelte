@@ -34,6 +34,11 @@
     {label: 'Delete vocab', fact: {kind: 'deleteObject', object: 'publication'}, subject: 'School Dictionary'},
     {label: 'Bulk create (import/sync)', fact: {kind: 'bulkCreate', noun: 'semanticDomains', count: 100}},
     {label: 'Generic fallback', fact: {kind: 'generic', text: 'Create remote resource'}},
+    {label: 'Create entry (no headword)', fact: {kind: 'create', entity: 'entry'}},
+    {label: 'Set homograph number', fact: {kind: 'setHomograph', value: '2'}, subject: 'Apfel₂'},
+    {label: 'Unlinked component', fact: {kind: 'componentLink', action: 'remove'}, subject: 'Apple tree'},
+    {label: 'Set default translation', fact: {kind: 'setDefaultTranslation'}, subject: 'Apfel › apple'},
+    {label: 'Long value (data pill)', fact: {kind: 'setField', entity: 'sense', fieldId: 'definition', ws: 'en', value: 'a long definition that shows how the value pill stands apart from the surrounding template words'}, subject: 'Apfel › apple'},
   ];
 </script>
 
@@ -43,6 +48,17 @@
       {#each cases as testCase (testCase.label)}
         <div class="text-muted-foreground">{testCase.label}</div>
         <div><ChangeSummary fact={testCase.fact} subject={testCase.subject} target={testCase.target} /></div>
+      {/each}
+    </div>
+  {/snippet}
+</Story>
+
+<!-- Mimics the narrow activity-list column: each row truncates with an ellipsis instead of wrapping/overflowing. -->
+<Story name="Narrow column (truncation)">
+  {#snippet template()}
+    <div class="w-64 space-y-1 rounded border p-2 text-sm">
+      {#each cases as testCase (testCase.label)}
+        <div class="truncate"><ChangeSummary fact={testCase.fact} subject={testCase.subject} target={testCase.target} /></div>
       {/each}
     </div>
   {/snippet}

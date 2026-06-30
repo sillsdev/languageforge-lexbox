@@ -134,7 +134,7 @@
 </script>
 
 <div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
-     style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(8rem,25%) 2fr">
+     style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(8rem,25%) minmax(0,2fr)">
 
   <div class="flex flex-wrap items-center gap-2">
     <div class="grow min-w-0">
@@ -169,19 +169,21 @@
             {:else if activityMode === 'detailed'}
               <div class="space-y-0.5">
                 {#each summary.entries as entry, i (i)}
-                  <div class="text-sm"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></div>
+                  <div class="text-sm truncate"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></div>
                 {/each}
                 {#if summary.remaining > 0}
                   <div class="text-sm text-muted-foreground">{$t`(+${summary.remaining} more)`}</div>
                 {/if}
               </div>
             {:else}
-              <span>
-                <ChangeSummary fact={summary.entries[0].fact} subject={summary.entries[0].subject} target={summary.entries[0].target} />
+              <div class="flex items-baseline gap-1 min-w-0">
+                <span class="min-w-0 truncate">
+                  <ChangeSummary fact={summary.entries[0].fact} subject={summary.entries[0].subject} target={summary.entries[0].target} />
+                </span>
                 {#if summary.remaining > 0}
-                  <span class="text-muted-foreground">{$t`(+${summary.remaining} more)`}</span>
+                  <span class="shrink-0 text-muted-foreground">{$t`(+${summary.remaining} more)`}</span>
                 {/if}
-              </span>
+              </div>
             {/if}
             <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
               <span class="flex items-center gap-1">

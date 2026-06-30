@@ -21,6 +21,7 @@
 
   const entryBefore: IEntry = {...entry, lexemeForm: {...entry.lexemeForm, seh: 'nyumba'}, citationForm: {seh: 'nyumba'}};
   const entryAfter: IEntry = {...entry, lexemeForm: {...entry.lexemeForm, seh: 'nyumba zikulu'}, citationForm: {}};
+  const homographEntry: IEntry = {...entryAfter, homographNumber: 2};
 
   const senseBefore = {...sense, gloss: {...sense.gloss, en: 'dwelling'}};
   const senseAfter = {...sense, gloss: {...sense.gloss, en: 'house'}};
@@ -38,6 +39,7 @@
 
   const cases: {label: string; context: IChangeContext}[] = [
     {label: 'Entry — edited', context: ctx({entityType: 'Entry', previousSnapshot: entryBefore, snapshot: entryAfter, affectedEntries: [entryAfter]})},
+    {label: 'Entry — homograph (subscript in header)', context: ctx({entityType: 'Entry', previousSnapshot: entryBefore, snapshot: homographEntry, affectedEntries: [homographEntry]})},
     {label: 'Entry — created (no before)', context: ctx({entityType: 'Entry', snapshot: entry, affectedEntries: [entry]})},
     {label: 'Sense — edited', context: ctx({entityType: 'Sense', previousSnapshot: senseBefore, snapshot: senseAfter, affectedEntries: [entry]})},
     {label: 'Example — edited', context: ctx({entityType: 'ExampleSentence', previousSnapshot: exampleBefore, snapshot: exampleAfter, affectedEntries: [entry]})},

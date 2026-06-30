@@ -36,6 +36,8 @@ export type ChangeFact =
   | {kind: 'create'; entity: SummaryEntity; label?: string}
   | {kind: 'delete'; entity: SummaryEntity}
   | {kind: 'setField'; entity: SummaryEntity; fieldId: FieldId; ws?: string; value: string}
+  // The system-assigned homograph number (a jsonPatch on a non-view field) — surfaced specifically, not as a generic patch.
+  | {kind: 'setHomograph'; value: string}
   | {kind: 'clearField'; entity: SummaryEntity; fieldId: FieldId; ws?: string}
   | {kind: 'changeField'; entity: SummaryEntity; fieldId: FieldId}
   | {kind: 'addItem'; entity: SummaryEntity; fieldId: FieldId; label?: string}
@@ -150,6 +152,11 @@ function patchOpToFact(entity: SummaryEntity, op: unknown): ChangeFact | undefin
   const path = (prop(op, 'path') as string) ?? '';
   const segments = path.split('/').filter(Boolean);
   if (!segments.length) return undefined;
+  // Homograph number isn't a view field (no field config), so surface it explicitly instead of dropping to a generic patch summary.
+  if (entity === 'entry' && segments[0].toLowerCase() === 'homographnumber') {
+    const homograph = displayValue(prop(op, 'value'));
+    return homograph === undefined ? undefined : {kind: 'setHomograph', value: homograph};
+  }
   const fieldId = normalizeFieldId(entity, segments[0]);
   if (!fieldId) return undefined;
   const ws = segments[1];
@@ -353,6 +360,12 @@ export function recognizeCommit(
     const index = changes.findIndex((c) => changeType(c.change) === 'CreateEntryChange');
     const info = changeInfo?.[index >= 0 ? index : 0];
     return {fact: {kind: 'create', entity: 'entry', label: info?.subject}, subject: info?.subject, rootEntryId: info?.rootEntryId};
+  }
+  // Adding one sense to an existing entry (its creation + that sense's examples) → "Added sense X".
+  if (changeTypes.includes('CreateSenseChange') && allSameRoot(changeInfo)) {
+    const index = changes.findIndex((c) => changeType(c.change) === 'CreateSenseChange');
+    const info = changeInfo?.[index >= 0 ? index : 0];
+    return {fact: {kind: 'create', entity: 'sense', label: info?.subject}, subject: info?.subject, rootEntryId: info?.rootEntryId};
   }
   // One kind of thing created across many entities (import / sync batch) → "Created N entries".
   const noun = changeTypes.length === 1 ? BULK_CREATE_NOUNS[changeTypes[0]] : undefined;

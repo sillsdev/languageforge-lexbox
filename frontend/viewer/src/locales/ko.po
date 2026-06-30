@@ -25,9 +25,14 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "- ({0}개 변경)"
 
+#. Activity list: the number of further changes in this commit not shown on the line ({0} = count).
 #: src/lib/activity/ActivityView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "(+{0} more)"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "(no headword)"
 msgstr ""
 
 #. Generic placeholder for dynamic content
@@ -202,24 +207,12 @@ msgstr "단어 추가"
 msgid "Added {0}"
 msgstr ""
 
-#. Activity-log line. {0} = singular noun for a list-item type (e.g. "semantic domain", "publication"). Used when the new item has no display name available.
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Added a {0}"
+msgid "Added example"
 msgstr ""
 
-#. Activity-log line. Shown when a new sense (meaning) was added to an entry; the entry name chip follows.
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Added a sense"
-msgstr ""
-
-#. Activity-log line. Shown when a new example sentence was added to a sense; no subject chip is available.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Added an example"
-msgstr ""
-
-#. Activity-log line. {subject} = name of the sense/entry the example was added to, rendered as a chip after this text.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Added an example to"
+msgid "Added example to"
 msgstr ""
 
 #. Activity-log line. Shown when a named sense was added; the sense's gloss chip follows this text.
@@ -229,12 +222,8 @@ msgstr ""
 
 #. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A chip with the added item follows.
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Added to {0}"
-msgstr ""
-
-#. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label; {1} = name of the added item.
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Added to {0}: {1}"
+msgid "Added to {0}"
 msgstr ""
 
 #. Radio option in custom view writing system picker.
@@ -485,6 +474,7 @@ msgstr "복잡한 양식"
 msgid "complex form type"
 msgstr ""
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined classifications of compound-word relationships (e.g. "compound", "derivative").
 #: src/lib/activity/ChangeSummary.svelte
 msgid "complex form types"
 msgstr ""
@@ -593,18 +583,10 @@ msgstr "보기 만들기"
 msgid "Created {0}"
 msgstr ""
 
+#. Activity-log line for a batch of same-type creations. {0} = count (number, always ≥ 2); {1} = plural noun for the created object type (e.g. "entries", "semantic domains").
+#. Example: "Created 100 semantic domains". Order and inflection of {0} and {1} may vary by language.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Created {0} {1}"
-msgstr ""
-
-#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech"). Used when the created item has no display name.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Created a {0}"
-msgstr ""
-
-#. Activity-log line. Shown when a new dictionary entry was created but no headword is available.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Created an entry"
 msgstr ""
 
 #. Activity-log line. Shown when a named dictionary entry was created; a chip with the headword follows.
@@ -644,6 +626,7 @@ msgstr ""
 msgid "Custom view"
 msgstr "사용자 지정 보기"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined configurations of which dictionary fields and writing systems are visible.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "custom views"
 msgstr ""
@@ -708,14 +691,13 @@ msgstr "삭제됨"
 msgid "Deleted {0}"
 msgstr ""
 
-#. Activity-log line. {subject} = name of the sense/entry the example belonged to, rendered as a chip after this text.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Deleted an example from"
-msgstr ""
-
 #. Activity-log line. Shown when a named dictionary entry was deleted; a chip with the headword follows.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Deleted entry"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted example from"
 msgstr ""
 
 #. Activity-log line. Shown when a named sense was deleted; a chip with the sense's gloss follows.
@@ -723,6 +705,7 @@ msgstr ""
 msgid "Deleted sense"
 msgstr ""
 
+#. View option in the activity list mode picker (paired with "Simple"). Shows every change in a commit as its own summary line.
 #: src/lib/activity/ActivityListViewOptions.svelte
 msgid "Detailed"
 msgstr ""
@@ -845,6 +828,7 @@ msgstr "편집기"
 msgid "Ends with"
 msgstr "로 끝납니다."
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
 #: src/lib/activity/ChangeSummary.svelte
 msgid "entries"
 msgstr ""
@@ -1281,17 +1265,12 @@ msgstr "Lexeme 양식 또는 인용 양식이 필요합니다."
 msgid "Light"
 msgstr "빛"
 
-#. Activity-log line. Shown when an existing entry was linked as a component of a compound word.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Linked a component"
-msgstr ""
-
 #. Activity-log line followed by the name of the component entry that was linked; the compound word it was linked to is the subject shown before. E.g. "blackbird · Linked component black".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Linked component"
 msgstr ""
 
-#. Section header in the entry list view options popup. Controls whether the entry list shows simple rows or a preview. Options below it: "Simple" and "Preview".
+#. Section header in a list-view options popup. In the entry list the options are "Simple" and "Preview"; in the activity list they are "Simple" and "Detailed".
 #: src/lib/activity/ActivityListViewOptions.svelte
 #: src/lib/activity/ActivityListViewOptions.svelte
 #: src/project/browse/EntryListViewOptions.svelte
@@ -1433,6 +1412,7 @@ msgstr "모드"
 msgid "morph type"
 msgstr ""
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").
 #: src/lib/activity/ChangeSummary.svelte
 msgid "morph types"
 msgstr ""
@@ -1727,6 +1707,7 @@ msgstr ""
 msgid "Part of speech"
 msgstr "품사"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Grammatical categories (noun, verb, adjective, etc.). Classic view calls these "Grammatical info."
 #: src/lib/activity/ChangeSummary.svelte
 msgid "parts of speech"
 msgstr ""
@@ -1798,6 +1779,7 @@ msgstr ""
 msgid "Publication"
 msgstr "출판"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Publications are dictionaries or word lists that entries can be assigned to for distribution.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "publications"
 msgstr ""
@@ -1853,11 +1835,6 @@ msgstr "오디오 제거"
 #. Activity-log line. {0} = singular noun for a list-item type (e.g. "semantic domain", "component"); a chip with the removed item's name follows.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Removed {0}"
-msgstr ""
-
-#. Activity-log line. {0} = singular noun for a list-item type (e.g. "semantic domain"). Used when the removed item has no display name.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Removed a {0}"
 msgstr ""
 
 #. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A leading entry chip may precede this text.
@@ -1970,6 +1947,7 @@ msgstr ""
 msgid "Semantic domain"
 msgstr "시맨틱 도메인"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Semantic domains are meaning categories assigned to senses (e.g. "plants", "emotions", "body parts").
 #: src/lib/activity/ChangeSummary.svelte
 msgid "semantic domains"
 msgstr ""
@@ -2017,17 +1995,20 @@ msgstr "문장"
 
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Set {0} ({1}) to “{2}”"
+msgid "Set {0} ({1}) to"
 msgstr ""
 
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Set {0} to “{1}”"
+msgid "Set {0} to"
 msgstr ""
 
-#. Activity-log line. Shown when the default translation of an example sentence was assigned. A leading entry chip may precede this text.
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Set the default translation"
+msgid "Set default translation"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set homograph number to"
 msgstr ""
 
 #. Sidebar menu item
@@ -2371,9 +2352,8 @@ msgstr "알 수 없는 서버"
 msgid "Unknown update result"
 msgstr "알 수 없는 업데이트 결과"
 
-#. Activity-log line. Shown when a component entry was removed from a compound word's components list.
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Unlinked a component"
+msgid "Unlinked component"
 msgstr ""
 
 #. Placeholder for missing value
@@ -2427,14 +2407,13 @@ msgstr "백그라운드에서 업데이트가 시작되었습니다. 업데이�
 msgid "Update was disallowed by permission settings."
 msgstr "권한 설정에 의해 업데이트가 허용되지 않았습니다."
 
-#. Activity-log line. Shown when the link between a compound word and one of its component entries was modified (e.g. the component sense was changed).
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Updated a component link"
-msgstr ""
-
 #. Activity-log line followed by the name of the component entry whose link was changed; the compound word is the subject shown before.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Updated component"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Updated component link"
 msgstr ""
 
 #. Menu item and dialog title for app updates

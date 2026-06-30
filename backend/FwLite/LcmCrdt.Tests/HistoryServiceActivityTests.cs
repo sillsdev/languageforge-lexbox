@@ -190,6 +190,58 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
     }
 
     [Fact]
+    public async Task ProjectActivity_ChangeInfo_SkipsAudioAndUsesAnotherWritingSystem()
+    {
+        // The headword lives only in "seh"; the alphabetically-first writing system is audio, which Entry.Headword()
+        // would surface (or report "(Unknown)") — the activity headword skips audio and falls through to a real value.
+        await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = new MultiString
+            {
+                ["de-Zxxx-x-audio"] = "recording.wav",
+                ["seh"] = "nyumba"
+            }
+        }), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "nyumba");
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_AppliesMorphTypeMarkers()
+    {
+        // Suffix morph types carry a leading "-" marker (seeded as a canonical morph type on project setup).
+        await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = new MultiString { ["en"] = "ness" },
+            MorphType = MorphTypeKind.Suffix
+        }), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "-ness");
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_EmptyEntryHasNullSubject()
+    {
+        var entryId = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry { Id = entryId }),
+            new CommitMetadata { AuthorName = "A", AuthorId = "a" });
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+
+        // No displayable headword: the subject is null (the frontend renders its placeholder, never "(Unknown)"),
+        // but the change still resolves to its root entry.
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1
+            && a.ChangeInfo[0].RootEntryId == entryId
+            && a.ChangeInfo[0].Subject == null);
+    }
+
+    [Fact]
     public async Task ProjectActivity_ChangeInfo_Reorder_NamesParentEntryAndMovedSense()
     {
         var entryId = Guid.NewGuid();

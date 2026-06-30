@@ -18,6 +18,14 @@ describe('describeChange', () => {
     expect(facts).toEqual([{kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', ws: 'en', value: 'asdasd'}]);
   });
 
+  it('summarizes a homograph-number patch specifically (not a generic patch)', () => {
+    const facts = describeChange(changeEntity({
+      '$type': 'jsonPatch:Entry',
+      PatchDocument: [{op: 'replace', path: '/HomographNumber', value: 2}],
+    }));
+    expect(facts).toEqual([{kind: 'setHomograph', value: '2'}]);
+  });
+
   it('tolerates camelCase wire format', () => {
     const facts = describeChange(changeEntity({
       '$type': 'jsonPatch:Sense',
@@ -170,6 +178,16 @@ describe('recognizeCommit', () => {
     );
     expect(result?.fact).toMatchObject({kind: 'create', entity: 'entry'});
     expect(result?.subject).toBe('Apfel');
+  });
+
+  it('collapses a sense-creation commit (sense + its examples) to "Added sense X"', () => {
+    const result = recognizeCommit(
+      [changeEntity({'$type': 'CreateSenseChange'}), changeEntity({'$type': 'CreateExampleSentenceChange'})],
+      [{subject: 'Apfel › apple', rootEntryId: 'e1'}, {subject: 'Apfel › apple', rootEntryId: 'e1'}],
+      ['CreateSenseChange', 'CreateExampleSentenceChange'],
+    );
+    expect(result?.fact).toMatchObject({kind: 'create', entity: 'sense'});
+    expect(result?.subject).toBe('Apfel › apple');
   });
 
   it('collapses a bulk vocab import to a count', () => {

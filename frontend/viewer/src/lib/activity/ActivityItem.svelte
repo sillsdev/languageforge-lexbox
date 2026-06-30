@@ -69,7 +69,7 @@
   });
 </script>
 
-<div {...restProps} class={cn(className, 'grid gap-2 grid-rows-[auto_1fr] h-full')}>
+<div {...restProps} class={cn(className, 'grid gap-2 grid-rows-[auto_1fr] h-full min-w-0')}>
   {#if activity}
     <div class="text-sm flex flex-wrap justify-between gap-2">
       <span>
@@ -117,6 +117,9 @@
           </span>
         {/if}
       </span>
+      {#if activity.changeTypes.length}
+        <div class="w-full text-xs text-muted-foreground truncate" title={activity.changeTypes.join(', ')}>{activity.changeTypes.join(', ')}</div>
+      {/if}
     </div>
     
     {#if openHistoryId}
@@ -181,7 +184,7 @@
                     <ActivityItemChangePreview {context} />
                   </Tabs.Content>
                   <Tabs.Content value="change">
-                    <div class="whitespace-pre-wrap font-mono text-sm">
+                    <div class="whitespace-pre-wrap break-words font-mono text-sm">
                       {formatJsonForUi(change)}
                     </div>
                   </Tabs.Content>

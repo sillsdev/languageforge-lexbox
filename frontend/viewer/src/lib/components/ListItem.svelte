@@ -56,7 +56,7 @@
   {:else}
     {@render icon?.()}
   {/if}
-  <div class="flex flex-col grow">
+  <div class="flex flex-col grow min-w-0">
     {@render children?.()}
   </div>
   {@render actions?.()}
