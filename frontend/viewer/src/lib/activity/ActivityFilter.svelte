@@ -16,6 +16,7 @@
     ALL_AUTHORS,
     ALL_CHANGE_TYPES,
     FIELDWORKS_AUTHOR_KEY,
+    SYSTEM_AUTHOR_KEY,
     UNKNOWN_AUTHOR_KEY,
     applyMultiSelectValue,
     authorFilterKey,
@@ -23,6 +24,7 @@
     createDefaultActivityFilters,
     isAllFilterSelection,
     resolveFilterKeys,
+    wellKnownAuthorKeyToLabel,
     type ActivityFilters,
     type MultiFilterSelection,
   } from './utils';
@@ -79,7 +81,8 @@
   };
 
   function authorKeyToLabel(key: string): string {
-    if (key === UNKNOWN_AUTHOR_KEY) return $t`Unknown`;
+    const wellKnownLabel = wellKnownAuthorKeyToLabel(key);
+    if (wellKnownLabel) return wellKnownLabel;
     const author = authors.current.find(a => authorFilterKey(a) === key);
     return author?.authorName ?? key;
   }
@@ -109,6 +112,9 @@
     {/if}
     {#if key === FIELDWORKS_AUTHOR_KEY}
       <Icon class="size-5" src={flexLogo} alt={$t`FieldWorks logo`} />
+    {/if}
+    {#if key === SYSTEM_AUTHOR_KEY}
+      <Icon icon="i-mdi-cog" class="size-5" />
     {/if}
   </span>
 {/snippet}

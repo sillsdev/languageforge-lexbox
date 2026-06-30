@@ -1,8 +1,11 @@
 import {ActivitySort, type IActivityAuthor, type IActivityQuery, type IProjectActivity} from '$lib/dotnet-types';
+import {gt} from 'svelte-i18n-lingui';
 
 export const ALL_AUTHORS = '__all__';
 export const UNKNOWN_AUTHOR_KEY = '__unknown__';
 export const FIELDWORKS_AUTHOR_KEY = authorFilterKey({authorName: 'FieldWorks'});
+// Mirrors SystemAuthorId in backend/FwLite/LcmCrdt/Utils/CommitHelpers.cs
+export const SYSTEM_AUTHOR_KEY = '00000000-0000-0000-0000-000000000001';
 export const ALL_CHANGE_TYPES = '__all__';
 export const MIN_VISIBLE_FILTERED = 20;
 
@@ -68,17 +71,24 @@ export function authorFilterKey(author: Omit<IActivityAuthor, 'commitCount'>): s
   return `name:${author.authorName}`;
 }
 
+export function wellKnownAuthorKeyToLabel(key: string | undefined): string | undefined {
+  if (key === UNKNOWN_AUTHOR_KEY) return gt`Unknown`;
+  if (key === SYSTEM_AUTHOR_KEY) return gt`System`;
+  return undefined;
+}
+
 function authorSortRank(author: IActivityAuthor): number {
-  const key = authorFilterKey(author);
-  if (key === UNKNOWN_AUTHOR_KEY) return 0; // 1st
-  if (key === FIELDWORKS_AUTHOR_KEY) return 1; // 2nd
-  return 2;
+  // Unknown is pinned to the top (it's the catch-all, not a real author); FieldWorks, System
+  // and people all sort alphabetically together.
+  return authorFilterKey(author) === UNKNOWN_AUTHOR_KEY ? 0 : 1;
 }
 
 export function compareActivityAuthors(a: IActivityAuthor, b: IActivityAuthor): number {
   const rankDiff = authorSortRank(a) - authorSortRank(b);
   if (rankDiff !== 0) return rankDiff;
-  return (a.authorName || '').localeCompare(b.authorName || '');
+  const aName = wellKnownAuthorKeyToLabel(a.authorId) || a.authorName || a.authorId || '';
+  const bName = wellKnownAuthorKeyToLabel(b.authorId) || b.authorName || b.authorId || '';
+  return aName.localeCompare(bName);
 }
 
 export function applyMultiSelectValue(
