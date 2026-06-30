@@ -1289,5 +1289,9 @@
     "$type": "RemoveSensePictureChange",
     "PictureId": "8697d62c-1742-7598-030d-43bcf8aef52c",
     "EntityId": "1dbb14cf-fb94-5a40-7cc5-eba28aa230ca"
+  },
+  {
+    "$type": "SetMainPublicationChange",
+    "EntityId": "c775e310-fc5c-6d01-5a02-146d579a88e5"
   }
 ]
