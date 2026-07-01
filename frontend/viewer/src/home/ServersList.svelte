@@ -1,10 +1,9 @@
 <script lang="ts">
-  import type {ILexboxServer, IServerProjects} from '$lib/dotnet-types';
-  import {type Project} from '$lib/services/projects-service';
+  import type {ILexboxServer, IProjectModel, IServerProjects} from '$lib/dotnet-types';
   import {useAuthService, useProjectsService} from '$lib/services/service-provider';
   import Server from './Server.svelte';
 
-  export let localProjects: Project[];
+  export let localProjects: IProjectModel[];
   export let refreshProjects: () => Promise<void>;
 
   const projectsService = useProjectsService();

@@ -241,6 +241,11 @@ msgstr "ingizo"
 msgid "Analysis"
 msgstr "Uchambuzi"
 
+#. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
+#: src/home/CreateProjectDialog.svelte
+msgid "Analysis writing system code"
+msgstr ""
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
 msgstr ""
@@ -355,6 +360,7 @@ msgstr ""
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -418,6 +424,11 @@ msgstr "Funga"
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Funga Kamusi"
+
+#. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
+#: src/home/CreateProjectDialog.svelte
+msgid "Code"
+msgstr ""
 
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
@@ -490,6 +501,16 @@ msgstr "Nakili toleo"
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/SyncDialog.svelte
 msgid "Couldn't sync right now — your local changes are safe."
+msgstr ""
+
+#. Confirm button in the create-project dialog footer; creates the new dictionary project.
+#: src/home/CreateProjectDialog.svelte
+msgid "Create"
+msgstr ""
+
+#. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
+#: src/home/HomeView.svelte
+msgid "Create a new FieldWorks Lite project"
 msgstr ""
 
 #. Dialog title when creating a new custom view.
@@ -707,6 +728,11 @@ msgstr "Inapakua {0}..."
 #: src/home/Server.svelte
 msgid "Downloading..."
 msgstr "Inapakua..."
+
+#. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
+#: src/home/CreateProjectDialog.svelte
+msgid "e.g. th, sw"
+msgstr ""
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -1198,6 +1224,7 @@ msgstr "Mitaa"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
+#: src/home/HomeView.svelte
 msgid "Local only"
 msgstr "Mitaa tu"
 
@@ -1310,11 +1337,13 @@ msgid "My custom view..."
 msgstr "Mtazamo wangu maalum..."
 
 #. Field label for the custom view name input.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Jina"
 
 #. Validation error shown when the custom view name is empty.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Jina linahitajika"
@@ -1347,6 +1376,11 @@ msgstr "Data mpya"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "Ingizo Mpya"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/home/HomeView.svelte
+msgid "New Project"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1636,11 +1670,6 @@ msgstr "Mradi {0} haipatikani kwenye {1}"
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Mradi {0} kwenye {1} haujajajengwa kwa FieldWorks Lite"
-
-#. Placeholder for project search
-#: src/home/HomeView.svelte
-msgid "Project name..."
-msgstr "Jina la mradi..."
 
 #. Filter option
 #. Publication type/dictionary for entries
@@ -2142,6 +2171,10 @@ msgstr "Hitilafu isiyojulikana"
 msgid "Unknown error {0}"
 msgstr "Hitilafu isiyojulikana {0}"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "Unknown error creating project"
+msgstr ""
+
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Unknown error downloading {0}"
@@ -2225,6 +2258,15 @@ msgstr "Inatumia sehemu kama"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Lugha ya kienyeji"
+
+#. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system code"
+msgstr ""
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system is required"
+msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
