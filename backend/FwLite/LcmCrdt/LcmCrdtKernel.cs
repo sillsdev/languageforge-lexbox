@@ -280,6 +280,10 @@ public static class LcmCrdtKernel
             {
                 builder.HasIndex(t => new { t.SubjectType, t.SubjectId });
                 builder.HasIndex(t => t.CreatedAt);
+                builder.HasMany(t => t.Comments)
+                    .WithOne()
+                    .HasForeignKey(c => c.CommentThreadId)
+                    .OnDelete(DeleteBehavior.Cascade);
             })
             .Add<UserComment>(builder =>
             {
