@@ -111,16 +111,16 @@
   }
 </script>
 
-<!-- Two chip snippets: `leadingChip` has no left margin (used at the start of a summary line, right after
-  the subject or as a bare subject); `chip` always has ms-1 for consistent spacing after preceding text.
-  This is more robust than `first:ms-0` because CSS `:first-child` treats text nodes as absent, so a
-  mid-sentence chip was still matching `:first-child` and losing its left margin. -->
-{#snippet leadingChip(text: string)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground">{text}</span>{/snippet}
+<!-- Visual hierarchy: the SUBJECT (the entry/object the change is about) is the dominant scannable token —
+  bold foreground text, no chrome. The verb phrase inherits the container's muted colour. DATA values the
+  change carries render as bordered `chip`s. So a line reads: **subject**  muted verb phrase  [boxed data].
+  `subjectToken` carries a trailing margin (mid-line separation without a middot); `chip` a leading one. -->
+{#snippet subjectToken(text: string)}<span class="me-1 font-semibold text-foreground">{text}</span>{/snippet}
 {#snippet chip(text: string)}<span class="ms-1 rounded border border-border bg-background px-1 font-medium text-foreground">{text}</span>{/snippet}
 {#snippet wsCode(ws: string)}<span class="ms-1 font-mono text-xs text-muted-foreground">{ws}</span>{/snippet}
 {#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
 
-{#if subject && !selfNaming}{@render leadingChip(subject)}<span class="px-1.5 text-muted-foreground/70">·</span>{/if}{#if fact.kind === 'setField'}
+{#if subject && !selfNaming}{@render subjectToken(subject)}{/if}{#if fact.kind === 'setField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
   {$t`Set ${label} to`}{@render chip(fact.value)}{#if fact.ws}{@render wsCode(fact.ws)}{/if}
 {:else if fact.kind === 'setHomograph'}
@@ -189,7 +189,7 @@
   {$t`Edited ${objectNoun(fact.object)}`}{#if subject}{@render chip(subject)}{/if}
 {:else if fact.kind === 'editObjectField'}
   {@const objectType = capitalize(objectNoun(fact.object))}
-  {#if subject}{objectType}{@render chip(subject)}{:else}{objectType}{/if}<span class="px-1.5 text-muted-foreground/70">·</span>{#if fact.cleared}{$t`Cleared ${fact.field}`}{#if fact.ws}{@render wsCode(fact.ws)}{/if}{:else if fact.value !== undefined}{$t`Set ${fact.field} to`}{@render chip(fact.value)}{#if fact.ws}{@render wsCode(fact.ws)}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
+  {objectType}{#if subject} {@render subjectToken(subject)}{/if}{#if fact.cleared}{$t`Cleared ${fact.field}`}{#if fact.ws}{@render wsCode(fact.ws)}{/if}{:else if fact.value !== undefined}{$t`Set ${fact.field} to`}{@render chip(fact.value)}{#if fact.ws}{@render wsCode(fact.ws)}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
 {:else if fact.kind === 'deleteObject'}
   {$t`Deleted ${objectNoun(fact.object)}`}{#if subject}{@render chip(subject)}{/if}
 {:else if fact.kind === 'sensePicture'}

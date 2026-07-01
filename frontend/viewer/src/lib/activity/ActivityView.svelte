@@ -168,21 +168,23 @@
             {#if summary.entries.length === 0}
               <span>{row.changeName}</span>
             {:else if activityMode === 'detailed'}
-              <div class="space-y-0.5">
+              <!-- Base text muted so the verb phrase recedes; ChangeSummary's subject token and data chips
+                   render foreground and pop out of it (bold subject / muted verb / boxed data). -->
+              <div class="space-y-0.5 text-muted-foreground">
                 {#each summary.entries as entry, i (i)}
                   <div><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></div>
                 {/each}
                 {#if summary.remaining > 0}
-                  <div class="text-muted-foreground">{$t`(+${summary.remaining} more)`}</div>
+                  <div>{$t`(+${summary.remaining} more)`}</div>
                 {/if}
               </div>
             {:else}
-              <div class="flex items-baseline gap-1 min-w-0">
+              <div class="flex items-baseline gap-1 min-w-0 text-muted-foreground">
                 <span class="min-w-0 truncate">
                   <ChangeSummary fact={summary.entries[0].fact} subject={summary.entries[0].subject} target={summary.entries[0].target} />
                 </span>
                 {#if summary.remaining > 0}
-                  <span class="shrink-0 text-muted-foreground">{$t`(+${summary.remaining} more)`}</span>
+                  <span class="shrink-0">{$t`(+${summary.remaining} more)`}</span>
                 {/if}
               </div>
             {/if}
