@@ -1,5 +1,4 @@
 <script lang="ts">
-  import flexLogo from '$lib/assets/flex-logo.png';
   import {useHistoryService} from '$lib/services/history-service';
   import {t} from 'svelte-i18n-lingui';
   import {resource} from 'runed';
@@ -15,9 +14,6 @@
   import {
     ALL_AUTHORS,
     ALL_CHANGE_TYPES,
-    FIELDWORKS_AUTHOR_KEY,
-    SYSTEM_AUTHOR_KEY,
-    UNKNOWN_AUTHOR_KEY,
     applyMultiSelectValue,
     authorFilterKey,
     compareActivityAuthors,
@@ -28,6 +24,7 @@
     type ActivityFilters,
     type MultiFilterSelection,
   } from './utils';
+  import AuthorLabel from './AuthorLabel.svelte';
 
   type Props = {
     filters?: ActivityFilters;
@@ -102,23 +99,6 @@
   }
 </script>
 
-{#snippet authorLabel(key: string)}
-  {@const label = authorKeyToLabel(key)}
-  <span class="inline-flex items-center gap-1">
-    {#if key === UNKNOWN_AUTHOR_KEY}
-      <span class="italic">{$t`Unknown`}</span>
-    {:else}
-      {label}
-    {/if}
-    {#if key === FIELDWORKS_AUTHOR_KEY}
-      <Icon class="size-5" src={flexLogo} alt={$t`FieldWorks logo`} />
-    {/if}
-    {#if key === SYSTEM_AUTHOR_KEY}
-      <Icon icon="i-mdi-cog" class="size-5" />
-    {/if}
-  </span>
-{/snippet}
-
 <div class="flex flex-col gap-2 mb-1">
   <div class="flex flex-wrap gap-2">
     <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 shrink-0" />
@@ -130,7 +110,8 @@
         {:else if filters.authorFilterKeys.length === 0}
           {$t`No authors`}
         {:else if filters.authorFilterKeys.length === 1}
-          {@render authorLabel(filters.authorFilterKeys[0])}
+          {@const selectedAuthor = authors.current.find(a => authorFilterKey(a) === filters.authorFilterKeys[0])}
+          <AuthorLabel authorId={selectedAuthor?.authorId} authorName={selectedAuthor?.authorName} />
         {:else}
           {$t`${filters.authorFilterKeys.length} authors`}
         {/if}
@@ -148,7 +129,7 @@
         {#each authors.current as author (authorFilterKey(author))}
           {@const key = authorFilterKey(author)}
           <Select.Item value={key} label={authorKeyToLabel(key)}>
-            {@render authorLabel(key)}
+            <AuthorLabel authorId={author.authorId} authorName={author.authorName} />
             <span class="text-muted-foreground ml-1">({author.commitCount})</span>
           </Select.Item>
         {/each}
