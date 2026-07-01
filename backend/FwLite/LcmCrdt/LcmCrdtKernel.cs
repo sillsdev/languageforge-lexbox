@@ -4,6 +4,7 @@ using SIL.Harmony;
 using SIL.Harmony.Linq2db;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Resource;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
@@ -61,6 +62,10 @@ public static class LcmCrdtKernel
         services.RemoveAll<LcmCrdtDbContext>();//we don't want to be able to inject these directly as they will leak.
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
+        // Order matters: AddCrdtRemoteResources' Configure<CrdtConfig> delegate must run before
+        // ConfigureCrdt so the RemoteResourcesEnabled guard in ConfigureCrdt sees enabled=true and
+        // skips its own AddRemoteResourceEntity call. Configure delegates run in registration order.
+        services.AddCrdtRemoteResources<NoMetadata>();
         services.AddCrdtDataDbFactory<LcmCrdtDbContext>(
             ConfigureCrdt
         );
@@ -307,7 +312,7 @@ public static class LcmCrdtKernel
                 }).IsUnique().HasFilter($"{componentSenseId} IS NULL");
             });
 
-        config.AddRemoteResourceEntity();
+        if (!config.RemoteResourcesEnabled) config.AddRemoteResourceEntity<NoMetadata>();
 
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()

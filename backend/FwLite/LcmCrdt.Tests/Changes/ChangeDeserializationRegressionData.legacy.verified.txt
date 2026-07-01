@@ -625,5 +625,42 @@
       ],
       "EntityId": "f27a032b-e0f6-f389-b466-959bdb17086d"
     }
+  },
+  {
+    "Input": {
+      "$type": "uploaded:RemoteResource",
+      "RemoteId": "withdrawal",
+      "EntityId": "9c8b252c-d342-dfe8-c1dd-5899471ecbd1"
+    },
+    "Output": {
+      "$type": "uploaded:RemoteResource",
+      "RemoteId": "withdrawal",
+      "Metadata": null,
+      "EntityId": "9c8b252c-d342-dfe8-c1dd-5899471ecbd1"
+    }
+  },
+  {
+    "Input": {
+      "$type": "create:remote-resource",
+      "RemoteId": "Buckinghamshire",
+      "EntityId": "188a57e7-7d61-8742-59eb-c0bfbf959737"
+    },
+    "Output": {
+      "$type": "create:remote-resource",
+      "RemoteId": "Buckinghamshire",
+      "Metadata": null,
+      "EntityId": "188a57e7-7d61-8742-59eb-c0bfbf959737"
+    }
+  },
+  {
+    "Input": {
+      "$type": "create:pendingUpload",
+      "EntityId": "52d7432c-ad4f-430c-8304-925603b3fefa"
+    },
+    "Output": {
+      "$type": "create:pendingUpload",
+      "Metadata": null,
+      "EntityId": "52d7432c-ad4f-430c-8304-925603b3fefa"
+    }
   }
 ]

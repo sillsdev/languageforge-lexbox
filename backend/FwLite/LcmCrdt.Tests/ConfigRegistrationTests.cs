@@ -12,7 +12,7 @@ public class ConfigRegistrationTests
     private readonly HashSet<Type> _excludedChangeTypes =
     [
         typeof(JsonPatchChange<ComplexFormComponent>), //not supported
-        typeof(JsonPatchChange<RemoteResource>), //not supported
+        typeof(JsonPatchChange<RemoteResource<NoMetadata>>), //not supported
         typeof(JsonPatchChange<ExampleSentence>), //replaced by JsonPatchExampleSentenceChange
         typeof(JsonPatchChange<CustomView>), //not supported. Use EditCustomViewChange
         typeof(DeleteChange<MorphType>), //MorphTypes cannot be deleted

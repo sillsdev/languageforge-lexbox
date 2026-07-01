@@ -943,16 +943,36 @@
   {
     "$type": "uploaded:RemoteResource",
     "RemoteId": "withdrawal",
+    "Metadata": null,
     "EntityId": "9c8b252c-d342-dfe8-c1dd-5899471ecbd1"
+  },
+  {
+    "$type": "uploaded:RemoteResource",
+    "RemoteId": "Identity",
+    "Metadata": {},
+    "EntityId": "c0fe5fa7-76ba-de0c-2a94-316fbbb84b0c"
   },
   {
     "$type": "create:remote-resource",
     "RemoteId": "Buckinghamshire",
+    "Metadata": null,
     "EntityId": "188a57e7-7d61-8742-59eb-c0bfbf959737"
   },
   {
+    "$type": "create:remote-resource",
+    "RemoteId": "back-end",
+    "Metadata": {},
+    "EntityId": "0aace990-edd6-295c-2538-7611f0622e6e"
+  },
+  {
     "$type": "create:pendingUpload",
+    "Metadata": null,
     "EntityId": "52d7432c-ad4f-430c-8304-925603b3fefa"
+  },
+  {
+    "$type": "create:pendingUpload",
+    "Metadata": {},
+    "EntityId": "f58a4713-11d6-999e-d355-0344e4fcd7b3"
   },
   {
     "$type": "delete:RemoteResource",
@@ -1293,5 +1313,10 @@
   {
     "$type": "SetMainPublicationChange",
     "EntityId": "c775e310-fc5c-6d01-5a02-146d579a88e5"
+  },
+  {
+    "$type": "set:remote-resource-metadata",
+    "Metadata": {},
+    "EntityId": "ef64afaa-972e-34b2-b57f-ae99e543b5ea"
   }
 ]

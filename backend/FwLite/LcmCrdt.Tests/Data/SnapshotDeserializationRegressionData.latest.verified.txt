@@ -3828,7 +3828,15 @@
     "$type": "RemoteResource",
     "Id": "fce4cb31-93bd-f380-fd73-3fb0d09c0fa5",
     "DeletedAt": "2025-09-17T23:53:03.6147633+02:00",
-    "RemoteId": "end-to-end"
+    "RemoteId": "end-to-end",
+    "Metadata": null
+  },
+  {
+    "$type": "RemoteResource",
+    "Id": "666023e2-5d9e-58e1-15ba-d47562be1752",
+    "DeletedAt": "2026-07-01T14:13:37.7894421+02:00",
+    "RemoteId": "4th generation",
+    "Metadata": {}
   },
   {
     "$type": "MiniLcmCrdtAdapter",

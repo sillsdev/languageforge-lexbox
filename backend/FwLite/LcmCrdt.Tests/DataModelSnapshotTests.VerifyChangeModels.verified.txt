@@ -1,19 +1,23 @@
 ﻿{
   DerivedTypes: [
     {
-      DerivedType: RemoteResourceUploadedChange,
+      DerivedType: RemoteResourceUploadedChange<NoMetadata>,
       TypeDiscriminator: uploaded:RemoteResource
     },
     {
-      DerivedType: CreateRemoteResourceChange,
+      DerivedType: CreateRemoteResourceChange<NoMetadata>,
       TypeDiscriminator: create:remote-resource
     },
     {
-      DerivedType: CreateRemoteResourcePendingUploadChange,
+      DerivedType: CreateRemoteResourcePendingUploadChange<NoMetadata>,
       TypeDiscriminator: create:pendingUpload
     },
     {
-      DerivedType: DeleteChange<RemoteResource>,
+      DerivedType: SetRemoteResourceMetadataChange<NoMetadata>,
+      TypeDiscriminator: set:remote-resource-metadata
+    },
+    {
+      DerivedType: DeleteRemoteResourceChange<NoMetadata>,
       TypeDiscriminator: delete:RemoteResource
     },
     {

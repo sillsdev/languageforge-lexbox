@@ -16,7 +16,7 @@ public class EntityCopyMethodTests
         var crdtConfig = new CrdtConfig();
         LcmCrdtKernel.ConfigureCrdt(crdtConfig);
         return crdtConfig.ObjectTypes
-            .Except([typeof(RemoteResource)])//exclude remote resource as it's a harmony defined type, not miniLcm
+            .Except([typeof(RemoteResource<NoMetadata>)])//exclude remote resource as it's a harmony defined type, not miniLcm
             .Select(t => new object[] { t });
     }
 
