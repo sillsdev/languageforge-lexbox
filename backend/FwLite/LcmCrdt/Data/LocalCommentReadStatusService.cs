@@ -10,8 +10,7 @@ public class LocalCommentReadStatusService(IDbContextFactory<LcmCrdtDbContext> d
         var query = UnreadComments(dbContext);
         if (threadId is not null)
             query = query.Where(c => c.CommentThreadId == threadId);
-        var comments = await query.ToArrayAsync();
-        return [.. comments];
+        return await query.ToArrayAsync();
     }
 
     public async Task<UserComment[]> GetUnreadCommentsForSubject(SubjectType subjectType, Guid subjectId)
