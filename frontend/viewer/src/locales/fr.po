@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-06-26 09:11\n"
+"PO-Revision-Date: 2026-07-01 04:22\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -225,6 +225,11 @@ msgstr "une entrée"
 msgid "Analysis"
 msgstr "Analyse"
 
+#. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
+#: src/home/CreateProjectDialog.svelte
+msgid "Analysis writing system code"
+msgstr "Code du système d'écriture d'analyse"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
 #. Filter option: clear grammatical info filter
@@ -335,6 +340,7 @@ msgstr "La vue de la navigation a échoué"
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -397,6 +403,11 @@ msgstr "Fermer"
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Fermer le dictionnaire"
+
+#. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
+#: src/home/CreateProjectDialog.svelte
+msgid "Code"
+msgstr "Code"
 
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
@@ -470,6 +481,16 @@ msgstr "Copier la version dans le presse-papiers"
 #: src/project/SyncDialog.svelte
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr "Échec de la synchronisation pour le moment, vos modifications locales sont sécurisées."
+
+#. Confirm button in the create-project dialog footer; creates the new dictionary project.
+#: src/home/CreateProjectDialog.svelte
+msgid "Create"
+msgstr "Créer"
+
+#. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
+#: src/home/HomeView.svelte
+msgid "Create a new FieldWorks Lite project"
+msgstr "Créer un nouveau projet FieldWorks Lite"
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -680,6 +701,11 @@ msgstr "Téléchargement en cours {0}..."
 #: src/home/Server.svelte
 msgid "Downloading..."
 msgstr "Téléchargement en cours..."
+
+#. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
+#: src/home/CreateProjectDialog.svelte
+msgid "e.g. th, sw"
+msgstr "par exemple th, sw"
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -1153,6 +1179,7 @@ msgstr "Local"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
+#: src/home/HomeView.svelte
 msgid "Local only"
 msgstr "Uniquement au niveau local"
 
@@ -1265,11 +1292,13 @@ msgid "My custom view..."
 msgstr "Ma vue personnalisée..."
 
 #. Field label for the custom view name input.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Nom"
 
 #. Validation error shown when the custom view name is empty.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Le nom est requis"
@@ -1302,6 +1331,11 @@ msgstr "Nouvelles données"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "Nouvelle entrée"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/home/HomeView.svelte
+msgid "New Project"
+msgstr "Nouveau projet"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1583,11 +1617,6 @@ msgstr "Projet {0} introuvable sur {1}"
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Le projet {0} sur {1} n'est pas encore configuré pour FieldWorks Lite"
-
-#. Placeholder for project search
-#: src/home/HomeView.svelte
-msgid "Project name..."
-msgstr "Nom du projet..."
 
 #. Filter option
 #. Publication type/dictionary for entries
@@ -2085,6 +2114,10 @@ msgstr "Erreur inconnue"
 msgid "Unknown error {0}"
 msgstr "Erreur inconnue {0}"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "Unknown error creating project"
+msgstr "Erreur inconnue lors de la création du projet"
+
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Unknown error downloading {0}"
@@ -2168,6 +2201,15 @@ msgstr "Utilise des composants comme"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Vernaculaire"
+
+#. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system code"
+msgstr "Code du système d'écriture vernaculaire"
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system is required"
+msgstr "Un système d'écriture vernaculaire est requis"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
