@@ -6,6 +6,7 @@ using MiniLcm;
 using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Tests;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 
@@ -16,6 +17,126 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
     protected override IMiniLcmApi GetApi(SyncFixture fixture)
     {
         return fixture.CrdtApi;
+    }
+
+    // These delete-win cases live only in the CRDT subclass: the CRDT deletion must win when an object it
+    // deleted is still edited from the other side, whereas FwData intentionally still throws on a missing target.
+
+    [Fact]
+    public async Task SyncFull_EntryEditedButDeletedInCrdt_DoesNotThrow()
+    {
+        var entry = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "victim" } } });
+        await Api.DeleteEntry(entry.Id);
+        var after = entry.Copy();
+        after.CitationForm["en"] = "edited";
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        (await Api.GetEntry(entry.Id)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task SyncFull_SenseAddedToEntryDeletedInCrdt_DoesNotThrow()
+    {
+        var entry = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "victim" } } });
+        await Api.DeleteEntry(entry.Id);
+        var after = entry.Copy();
+        after.Senses.Add(new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "gloss" } } });
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        (await Api.GetEntry(entry.Id)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task SyncFull_SenseEditedButDeletedInCrdt_DoesNotThrow()
+    {
+        var entry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "victim" } },
+            Senses = [new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "gloss" } } }]
+        });
+        await Api.DeleteSense(entry.Id, entry.Senses[0].Id);
+        var after = entry.Copy();
+        after.Senses[0].Gloss["en"] = "edited";
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        var actual = await Api.GetEntry(entry.Id);
+        actual.Should().NotBeNull();
+        actual.Senses.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SyncFull_ExampleSentenceEditedButDeletedInCrdt_DoesNotThrow()
+    {
+        var entry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "victim" } },
+            Senses =
+            [
+                new Sense
+                {
+                    Id = Guid.NewGuid(),
+                    Gloss = { { "en", "gloss" } },
+                    ExampleSentences = [new ExampleSentence { Id = Guid.NewGuid(), Sentence = { { "en", new RichString("sentence") } } }]
+                }
+            ]
+        });
+        var sense = entry.Senses[0];
+        await Api.DeleteExampleSentence(entry.Id, sense.Id, sense.ExampleSentences[0].Id);
+        var after = entry.Copy();
+        after.Senses[0].ExampleSentences[0].Sentence["en"] = new RichString("edited");
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        var actual = await Api.GetEntry(entry.Id);
+        actual.Should().NotBeNull();
+        actual.Senses[0].ExampleSentences.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SyncFull_ComplexFormComponentReferencingEntryDeletedInCrdt_DoesNotThrow()
+    {
+        var component = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "component" } } });
+        var complexForm = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "complexForm" } } });
+        await Api.DeleteEntry(component.Id);
+        var after = complexForm.Copy();
+        after.Components.Add(ComplexFormComponent.FromEntries(complexForm, component));
+
+        await EntrySync.SyncFull(complexForm, after, Api);
+
+        (await Api.GetEntry(component.Id)).Should().BeNull();
+        (await Api.GetEntry(complexForm.Id))!.Components.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SyncFull_ComplexFormComponentReorderedButEntryDeletedInCrdt_DoesNotThrow()
+    {
+        var componentA = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "a" } } });
+        var componentB = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "b" } } });
+        var complexForm = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "complexForm" } } };
+        complexForm.Components =
+        [
+            ComplexFormComponent.FromEntries(complexForm, componentA),
+            ComplexFormComponent.FromEntries(complexForm, componentB),
+        ];
+        var before = await Api.CreateEntry(complexForm);
+        await Api.DeleteEntry(before.Id);
+
+        // Id-less components (as FwData produces them) force the move to resolve the now-deleted component — the case that used to throw.
+        var after = before.Copy();
+        after.Components =
+        [
+            new ComplexFormComponent { ComplexFormEntryId = before.Id, ComponentEntryId = componentB.Id, ComponentHeadword = "b" },
+            new ComplexFormComponent { ComplexFormEntryId = before.Id, ComponentEntryId = componentA.Id, ComponentHeadword = "a" },
+        ];
+
+        await EntrySync.SyncFull(before, after, Api);
+
+        (await Api.GetEntry(before.Id)).Should().BeNull();
     }
 }
 
@@ -47,13 +168,37 @@ public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : Entr
         actual.Should().NotBeNull();
         actual.MorphType.Should().Be(MorphTypeKind.BoundStem);
     }
+
+    [Fact]
+    public async Task SyncFull_RemovingComplexFormWhoseParentWasDeleted_DoesNotThrow()
+    {
+        var component = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "component" } } });
+        var complexForm = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "complexForm" } } };
+        complexForm.Components = [ComplexFormComponent.FromEntries(complexForm, component)];
+        await Api.CreateEntry(complexForm);
+
+        var before = await Api.GetEntry(component.Id);
+        before!.ComplexForms.Should().ContainSingle();
+
+        // Deleting the parent already drops the relationship; the sync then redundantly removes it from the surviving component, which used to throw because the parent was gone.
+        await Api.DeleteEntry(complexForm.Id);
+        var after = before.Copy();
+        after.ComplexForms.Clear();
+
+        await EntrySync.SyncFull(before, after, Api);
+
+        (await Api.GetEntry(component.Id)).Should().NotBeNull();
+    }
 }
 
 public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture) : IClassFixture<ExtraWritingSystemsSyncFixture>, IAsyncLifetime
 {
     public Task InitializeAsync()
     {
-        Api = GetApi(_fixture);
+        BaseApi = GetApi(_fixture);
+        // Mirror production sync (CrdtFwdataProjectSyncService): validation only, no normalization,
+        // because the data is already normalized on both sides.
+        Api = TestMiniLcmWrappers.CreateValidationFactory().Create(BaseApi);
         return Task.CompletedTask;
     }
 
@@ -66,6 +211,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
 
     private readonly SyncFixture _fixture = fixture;
     protected IMiniLcmApi Api = null!;
+    protected IMiniLcmApi BaseApi = null!;
 
     private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.MakeConfig(
         ExtraWritingSystemsSyncFixture.VernacularWritingSystems));
@@ -99,12 +245,10 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
     public async Task CanSyncRandomEntries(ApiType? roundTripApiType)
     {
         // arrange
-        var currentApiType = Api switch
+        var currentApiType = BaseApi switch
         {
             FwDataMiniLcmApi => ApiType.FwData,
             CrdtMiniLcmApi => ApiType.Crdt,
-            // This works now, because we're not currently wrapping Api,
-            // but if we ever do, then we want this to throw, so we know we need to detect the api differently.
             _ => throw new InvalidOperationException("Unknown API type")
         };
 
@@ -188,18 +332,20 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         // We expect the final result to be equivalent to this "raw"/untouched, requested state.
         var expected = after.Copy();
 
+        // Don't auto-add the main publication when staging data: the sync path under test (EntrySync) never does.
+        var asIsEntryOptions = CreateEntryOptions.AsIs;
         if (roundTripApi is not null)
         {
             // round-tripping ensures we're dealing with realistic data
             // (e.g. in fwdata ComplexFormComponents do not have an Id)
-            before = await roundTripApi.CreateEntry(before);
+            before = await roundTripApi.CreateEntry(before, asIsEntryOptions);
             await roundTripApi.DeleteEntry(before.Id);
-            after = await roundTripApi.CreateEntry(after);
+            after = await roundTripApi.CreateEntry(after, asIsEntryOptions);
             await roundTripApi.DeleteEntry(after.Id);
         }
 
         // before should not be round-tripped here. That's handled above.
-        await Api.CreateEntry(before);
+        await Api.CreateEntry(before, asIsEntryOptions);
 
         // act
         await EntrySync.SyncFull(before, after, Api);
@@ -216,14 +362,14 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Order)
                 .For(e => e.ComplexForms).Exclude(c => c.Order)
-                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order);
-            if (currentApiType == ApiType.Crdt)
-            {
-                // does not yet update Headwords 😕
-                options = options
-                    .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
-                    .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
-            }
+                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order)
+                .For(e => e.Senses).For(s => s.Pictures).Exclude(e => e.Order);
+            // ComplexFormHeadword/ComponentHeadword are derived live from the referenced entry on read,
+            // so they don't round-trip the randomly-generated values here; their behaviour is asserted in
+            // ComplexFormComponentTestsBase (see ComplexFormComponentHeadwords_UpdateWhenReferencedEntriesChange).
+            options = options
+                .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
+                .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
             if (currentApiType == ApiType.FwData)
             {
                 // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)

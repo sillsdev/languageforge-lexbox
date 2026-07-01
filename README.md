@@ -45,7 +45,6 @@ Summary of setup steps below. See the appropriate file for your operating system
  * run `task setup`, which:
    * initializes a local.env file
    * tells Git to use our ignore revs file
-   * checks out Git submodules
    * downloads the FLEx repo for the project seed data
 
 ### Kubernetes workflow
@@ -144,7 +143,7 @@ flowchart TD
 More info on the following subfolders can be found in their respective READMEs:
 * [backend](backend/README.md)
 * [backend/FwLite](backend/FwLite/README.md)
-* [backend/harmony](backend/harmony/README.md)
+* [SIL.Harmony](https://github.com/sillsdev/harmony) (NuGet dependency; optional local source — see [backend/AGENTS.md](backend/AGENTS.md))
 * [deployment](deployment/README.md)
 * [deployment/restore-scripts](deployment/restore-scripts/README.md)
 * [frontend](frontend/README.md)

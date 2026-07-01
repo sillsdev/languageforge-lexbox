@@ -41,6 +41,9 @@ The frontend viewer uses TypeScript types and API interfaces generated from .NET
 ```bash
 # To manually update generated types:
 dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
+
+# Verify types are committed (also runs in CI):
+task fw-lite:has-stale-generated-types
 ```
 
 The configuration for this lives in `FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs` and `FwLiteShared/Reinforced.Typings.settings.xml`.
@@ -250,6 +253,12 @@ if (entity?.DeletedAt is not null) return;
 
 - ❌ **Do NOT** add `DeletedAt is null` filters when querying these DbSets — soft-deleted rows are never present. The `DeletedAt` column exists on the entity types (it's used inside Change classes during change application — see above), but the projection drops deleted rows entirely, so filtering on it is dead code that misleads readers.
 - ✅ If you need deleted history, query the change/commit tables directly (see `HistoryService.cs`, `SnapshotAtCommitService.cs`).
+
+---
+
+## Validation
+
+Imperative validation in `MiniLcmApiValidationWrapper` (rules that need an async lookup, so they can't be FluentValidation rules) must throw `FluentValidation.ValidationException` — the same type the validators throw — not `InvalidOperationException`. Otherwise the same rule reports different exception types per code path. Reserve `InvalidOperationException` for genuine "can't happen" data-integrity guards, not user-input validation.
 
 ---
 

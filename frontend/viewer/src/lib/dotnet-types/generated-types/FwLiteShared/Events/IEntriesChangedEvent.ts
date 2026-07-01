@@ -5,12 +5,12 @@
 
 import type {IFwEvent} from './IFwEvent';
 import type {FwEventType} from './FwEventType';
-import type {IEntry} from '../../MiniLcm/Models/IEntry';
 
-export interface IEntryChangedEvent extends IFwEvent
+export interface IEntriesChangedEvent extends IFwEvent
 {
 	type: FwEventType;
 	isGlobal: boolean;
-	entry: IEntry;
+	changedEntryIds: string[];
+	deletedEntryIds: string[];
 }
 /* eslint-enable */

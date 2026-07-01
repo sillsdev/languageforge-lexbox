@@ -61,5 +61,39 @@
             ],
             "problemMatcher": "$msCompile"
         },
+        {
+            "label": "FW Lite Web",
+            "dependsOn": [
+                "Fw Lite aspnet server",
+                "Fw Lite vite"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Fw Lite aspnet server",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "--project",
+                "${workspaceFolder}/backend/FwLite/FwLiteWeb/FwLiteWeb.csproj",
+                "--no-hot-reload",
+                "--",
+                "--FwLiteWeb:OpenBrowser=false"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Fw Lite vite",
+            "command": "npm",
+            "type": "process",
+            "args": [
+                "run",
+                "dev"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/frontend/viewer"
+            },
+        }
     ]
 }

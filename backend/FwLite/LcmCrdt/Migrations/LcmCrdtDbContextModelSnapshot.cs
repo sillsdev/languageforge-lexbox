@@ -16,7 +16,7 @@ namespace LcmCrdt.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.16");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
 
             modelBuilder.Entity("LcmCrdt.FullTextSearch.EntrySearchRecord", b =>
                 {
@@ -384,6 +384,9 @@ namespace LcmCrdt.Migrations
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsMain")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("jsonb");
@@ -455,6 +458,12 @@ namespace LcmCrdt.Migrations
 
                     b.Property<Guid?>("PartOfSpeechId")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Pictures")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'");
 
                     b.Property<string>("SemanticDomains")
                         .IsRequired()
@@ -545,7 +554,7 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.ComplexProperty<Dictionary<string, object>>("HybridDateTime", "SIL.Harmony.Commit.HybridDateTime#HybridDateTime", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "HybridDateTime", "SIL.Harmony.Commit.HybridDateTime#HybridDateTime", b1 =>
                         {
                             b1.IsRequired();
 
@@ -561,6 +570,8 @@ namespace LcmCrdt.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Commits", (string)null);
+
+                    b.HasAnnotation("CustomIndex:CompositeIndexes", "[{\"paths\":[\"HybridDateTime.DateTime\",\"HybridDateTime.Counter\",\"Id\"],\"unique\":false,\"name\":\"IX_Commits_DateTime_Counter_Id\"}]");
                 });
 
             modelBuilder.Entity("SIL.Harmony.Core.ChangeEntity<SIL.Harmony.Changes.IChange>", b =>

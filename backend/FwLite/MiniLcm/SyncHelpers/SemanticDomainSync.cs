@@ -20,7 +20,7 @@ public static class SemanticDomainSync
         IMiniLcmApi api)
     {
         var updateObjectInput = SemanticDomainDiffToUpdate(before, after);
-        if (updateObjectInput is not null) await api.UpdateSemanticDomain(after.Id, updateObjectInput);
+        if (updateObjectInput is not null) await api.SubmitUpdateSemanticDomain(after.Id, updateObjectInput);
         return updateObjectInput is null ? 0 : 1;
     }
 

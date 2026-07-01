@@ -4,7 +4,6 @@ using FwLiteShared.Sync;
 using LcmCrdt;
 using LcmCrdt.Data;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.Wrappers;
@@ -14,12 +13,11 @@ namespace FwLiteWeb.Hubs;
 
 public class CrdtMiniLcmApiHub(
     IMiniLcmApi miniLcmApi,
-    BackgroundSyncService backgroundSyncService,
+    IBackgroundSyncService backgroundSyncService,
     SyncService syncService,
     ProjectEventBus projectEventBus,
     CurrentProjectService projectContext,
     LexboxProjectService lexboxProjectService,
-    IMemoryCache memoryCache,
     IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext,
     MiniLcmApiUserFacingWrappers userFacingWrappers
 ) : MiniLcmApiHubBase(miniLcmApi, userFacingWrappers, projectContext.Project)
@@ -38,7 +36,7 @@ public class CrdtMiniLcmApiHub(
         await syncService.SafeExecuteSync(true);
         Cleanup =
         [
-            projectEventBus.OnEntryChanged(projectContext.Project).Subscribe(e => OnEntryChangedExternal(e.Entry, hubContext, memoryCache, Context.ConnectionId))
+            projectEventBus.OnEntriesChanged(projectContext.Project).Subscribe(e => OnEntriesChangedExternal(e, hubContext, Context.ConnectionId))
         ];
 
         await lexboxProjectService.ListenForProjectChanges(projectContext.ProjectData, Context.ConnectionAborted);
@@ -49,16 +47,11 @@ public class CrdtMiniLcmApiHub(
         backgroundSyncService.TriggerSync(projectContext.Project);
     }
 
-    private static void OnEntryChangedExternal(Entry entry,
+    private static void OnEntriesChangedExternal(EntriesChangedEvent e,
         IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext,
-        IMemoryCache cache,
         string connectionId)
     {
-        var currentFilter = CurrentProjectFilter(cache, connectionId);
-        if (currentFilter.Invoke(entry))
-        {
-            _ = hubContext.Clients.Client(connectionId).OnEntryUpdated(entry);
-        }
+        _ = hubContext.Clients.Client(connectionId).OnEntriesChanged(e.ChangedEntryIds, e.DeletedEntryIds);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
@@ -68,33 +61,6 @@ public class CrdtMiniLcmApiHub(
         {
             disposable.Dispose();
         }
-        memoryCache.Remove($"CurrentFilter|HubConnectionId={Context.ConnectionId}");
-    }
-
-    private Func<Entry, bool> CurrentFilter
-    {
-        set => memoryCache.Set($"CurrentFilter|HubConnectionId={Context.ConnectionId}", value);
-    }
-
-    public static Func<Entry, bool> CurrentProjectFilter(IMemoryCache memoryCache, string connectionId)
-    {
-        return memoryCache.Get<Func<Entry, bool>>(
-            $"CurrentFilter|HubConnectionId={connectionId}") ?? (_ => true);
-    }
-
-    public override IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
-    {
-        CurrentFilter =
-            Filtering.CompiledFilter(null, options?.Exemplar?.WritingSystem ?? "default", options?.Exemplar?.Value);
-        return base.GetEntries(options);
-    }
-
-    public override IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
-    {
-        CurrentFilter = Filtering.CompiledFilter(query,
-            options?.Exemplar?.WritingSystem ?? "default",
-            options?.Exemplar?.Value);
-        return base.SearchEntries(query, options);
     }
 
     public override async Task<MorphType> UpdateMorphType(Guid id, JsonPatchDocument<MorphType> update)

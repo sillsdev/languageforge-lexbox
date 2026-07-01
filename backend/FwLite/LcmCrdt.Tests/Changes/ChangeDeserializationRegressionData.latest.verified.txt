@@ -263,7 +263,283 @@
         "Predefined": false
       }
     ],
+    "Pictures": null,
     "EntityId": "fb918ba0-ba5e-7977-312e-3028d1295dd8"
+  },
+  {
+    "$type": "CreateSenseChange",
+    "EntryId": "d982e31f-04a7-9f11-1996-f5de8ad336ca",
+    "Order": 0.017837893500294633,
+    "Definition": {
+      "boi": {
+        "Spans": [
+          {
+            "Text": "Place",
+            "Ws": "boi",
+            "Tags": [
+              "5e2d4a6f-ca61-4ccc-8bc4-d07e9c25b370"
+            ]
+          },
+          {
+            "Text": "zero administration",
+            "Ws": "boi",
+            "Tags": [
+              "6e41a783-8b2d-4379-b2d8-ad14fef2fd6c"
+            ]
+          },
+          {
+            "Text": "port",
+            "Ws": "nch",
+            "Bold": "Invert",
+            "FontSize": -235922745,
+            "ForeColor": "#00FFFF",
+            "Tags": [
+              "c5bf050a-a023-fa08-8961-f33e94904058"
+            ]
+          }
+        ]
+      },
+      "obl": {
+        "Spans": [
+          {
+            "Text": "SMTP",
+            "Ws": "obl",
+            "Tags": [
+              "523f4a52-4c14-4b3c-ae19-d89ba9e118b2"
+            ]
+          },
+          {
+            "Text": "Creative",
+            "Ws": "obl",
+            "Tags": [
+              "4b2fea6c-b602-43a2-b883-629f13f38183"
+            ]
+          },
+          {
+            "Text": "Concrete",
+            "Ws": "tdi",
+            "Bold": "Invert",
+            "FontSize": 1570803136,
+            "ForeColor": "#0000FF",
+            "Tags": [
+              "84f8cf23-b81a-27e9-14e9-630f52875f12"
+            ]
+          },
+          {
+            "Text": "Bedfordshire",
+            "Ws": "srt",
+            "Bold": "Invert",
+            "FontSize": -1137475355,
+            "ForeColor": "#FF0000",
+            "Tags": [
+              "0d5c77b9-3fa8-8d48-fbb5-70e5aea2e024"
+            ]
+          }
+        ]
+      },
+      "nuj": {
+        "Spans": [
+          {
+            "Text": "Borders",
+            "Ws": "nuj",
+            "Tags": [
+              "cb7ce368-20e8-42f7-b716-41e1e29d8f83"
+            ]
+          }
+        ]
+      }
+    },
+    "Gloss": {
+      "onr": "viral"
+    },
+    "PartOfSpeechId": "bb9df589-487a-c176-2b3b-c1c8314b812a",
+    "SemanticDomains": [
+      {
+        "Id": "9413074b-a698-2182-c159-105e3d96e128",
+        "Name": {
+          "ljw": "Path"
+        },
+        "Code": "Handmade Fresh Towels",
+        "DeletedAt": null,
+        "Predefined": false
+      }
+    ],
+    "Pictures": [
+      {
+        "Id": "e99a5e31-033e-7e62-a17e-078949b729e6",
+        "Order": 0,
+        "MediaUri": "sil-media://lexbox/545c2525-991a-46e6-b532-80878055abff",
+        "Caption": {
+          "gac": {
+            "Spans": [
+              {
+                "Text": "Communications",
+                "Ws": "gac",
+                "Tags": [
+                  "1375adb1-a078-43dd-801a-162a70ac9d82"
+                ]
+              },
+              {
+                "Text": "Forward",
+                "Ws": "gac",
+                "Tags": [
+                  "a11a5391-2b6c-450b-9e05-f3bf6290c559"
+                ]
+              },
+              {
+                "Text": "Agent",
+                "Ws": "gac",
+                "Tags": [
+                  "9a4fd03d-dad2-4f43-8400-57ea2947db12"
+                ]
+              },
+              {
+                "Text": "invoice",
+                "Ws": "xmw",
+                "Bold": "On",
+                "FontSize": -133486167,
+                "ForeColor": "#ADFF2F",
+                "Tags": [
+                  "4dea1beb-7631-ddf9-ce0e-802c0969d277"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "EntityId": "f27a032b-e0f6-f389-b466-959bdb17086d"
+  },
+  {
+    "$type": "CreateSenseChange",
+    "EntryId": "84933f4f-7b19-8a8e-e097-93bf8791c8bd",
+    "Order": 0.8292564606550344,
+    "Definition": {
+      "tjs": {
+        "Spans": [
+          {
+            "Text": "applications",
+            "Ws": "tjs",
+            "Tags": [
+              "04a9fefa-6277-47de-9898-3a106f880d90"
+            ]
+          }
+        ]
+      },
+      "xse": {
+        "Spans": [
+          {
+            "Text": "Causeway",
+            "Ws": "xse",
+            "Tags": [
+              "38ae79c4-62fa-4f06-af05-3c189c54a6f2"
+            ]
+          },
+          {
+            "Text": "Ecuador",
+            "Ws": "xse",
+            "Tags": [
+              "9ccdf2af-e2b0-42f0-bf1f-85357b833f8e"
+            ]
+          },
+          {
+            "Text": "support",
+            "Ws": "tsw",
+            "Bold": "Off",
+            "FontSize": -371592350,
+            "ForeColor": "#ADFF2F",
+            "Tags": [
+              "c51425ff-666e-00de-3300-a8cc8dca667f"
+            ]
+          },
+          {
+            "Text": "Metal",
+            "Ws": "xse",
+            "Tags": [
+              "f429e625-904b-4a5c-ba2f-c6a5d15f7a8a"
+            ]
+          }
+        ]
+      }
+    },
+    "Gloss": {
+      "kwz": "Plain",
+      "bfm": "Handcrafted",
+      "pru": "Cotton",
+      "lgr": "Investment Account"
+    },
+    "PartOfSpeechId": "71340b71-d4e6-fafc-6203-b06ff067d931",
+    "SemanticDomains": [
+      {
+        "Id": "d5a0d584-8aa1-a025-7afe-335db5ae3829",
+        "Name": {
+          "zu": "Parkway",
+          "jjr": "connecting"
+        },
+        "Code": "Inlet",
+        "DeletedAt": null,
+        "Predefined": false
+      }
+    ],
+    "Pictures": [
+      {
+        "Id": "9c8532e4-2fd6-162f-0d1a-abec581993d0",
+        "Order": 0,
+        "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+        "Caption": {
+          "bie": {
+            "Spans": [
+              {
+                "Text": "navigating",
+                "Ws": "bie",
+                "Tags": [
+                  "bd0bfdb7-0b21-41b6-99cb-cddb9fa346b3"
+                ]
+              }
+            ]
+          },
+          "sbu": {
+            "Spans": [
+              {
+                "Text": "exploit",
+                "Ws": "mxz",
+                "Bold": "On",
+                "FontSize": -980458710,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "586b0c7f-a6ba-40f1-d1f6-3cefb9e989a2"
+                ]
+              },
+              {
+                "Text": "Legacy",
+                "Ws": "sbu",
+                "Tags": [
+                  "39816162-718d-46a4-8122-d32211061a00"
+                ]
+              },
+              {
+                "Text": "alarm",
+                "Ws": "sbu",
+                "Tags": [
+                  "fa0eaeca-9c62-422f-b40e-3c1961d87a19"
+                ]
+              },
+              {
+                "Text": "compressing",
+                "Ws": "jbw",
+                "Bold": "Invert",
+                "FontSize": -269252843,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "db7c8cfa-0459-b936-b425-79d43ceb19d5"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "EntityId": "f18d4c1d-00e2-afa1-166b-a8f75a2d43de"
   },
   {
     "$type": "CreateExampleSentenceChange",
@@ -530,12 +806,28 @@
     "Publication": {
       "Id": "84597629-7d00-a415-9ac1-2865b7efa9bf",
       "DeletedAt": null,
+      "IsMain": false,
       "Name": {
         "dgw": "Money Market Account",
         "yrn": "parse"
       }
     },
     "EntityId": "4dcbedc5-c4f1-54fd-f0b0-ede17a5af7e7"
+  },
+  {
+    "$type": "AddPublicationChange",
+    "Publication": {
+      "Id": "6988b38f-5680-6879-3ef3-49069fe52f50",
+      "DeletedAt": null,
+      "IsMain": false,
+      "Name": {
+        "xsl": "payment",
+        "aks": "tan",
+        "awu": "Stream",
+        "xau": "Avon"
+      }
+    },
+    "EntityId": "70c82811-ccce-4b93-7a2b-e489cbfb1c47"
   },
   {
     "$type": "RemovePublicationChange",
@@ -547,6 +839,7 @@
     "NewPublication": {
       "Id": "09c00842-481a-516f-f9fc-e6732c9ada73",
       "DeletedAt": null,
+      "IsMain": false,
       "Name": {
         "iap": "whiteboard",
         "jiy": "Trafficway",
@@ -556,6 +849,19 @@
     },
     "OldPublicationId": "e0fca592-c089-8850-8026-0c34610352fa",
     "EntityId": "727546c3-8a97-c721-4a9a-5205cc029c77"
+  },
+  {
+    "$type": "ReplacePublicationChange",
+    "NewPublication": {
+      "Id": "4cf93c3f-603c-0ffa-ed53-f7fd358a9377",
+      "DeletedAt": null,
+      "IsMain": false,
+      "Name": {
+        "lez": "proactive"
+      }
+    },
+    "OldPublicationId": "4b77fae0-7efa-bdc0-32a9-b9c9e86d495e",
+    "EntityId": "5314df10-b90d-7dec-8f35-1e59e497afc2"
   },
   {
     "$type": "CreateComplexFormType",
@@ -622,7 +928,17 @@
       "tre": "capacitor",
       "xnu": "Multi-channelled"
     },
+    "IsMain": false,
     "EntityId": "a024fdbe-52a4-6447-aae3-50fd8b815f10"
+  },
+  {
+    "$type": "CreatePublicationChange",
+    "Name": {
+      "scq": "Radial",
+      "zqe": "compress"
+    },
+    "IsMain": false,
+    "EntityId": "85442be2-438c-710b-255c-90d97c2b1628"
   },
   {
     "$type": "uploaded:RemoteResource",
@@ -894,5 +1210,88 @@
     "MorphType": "Prefix",
     "HomographNumber": 4,
     "EntityId": "d8005217-eba2-7937-34f9-b76d6543eea6"
+  },
+  {
+    "$type": "CreateSensePictureChange",
+    "PictureId": "ea235f25-c0eb-eead-811e-e68a39c055a9",
+    "Order": 0.623824122246817,
+    "Caption": {
+      "mvl": {
+        "Spans": [
+          {
+            "Text": "Run",
+            "Ws": "sso",
+            "Bold": "On",
+            "FontSize": -1025374372,
+            "ForeColor": "#ADFF2F",
+            "Tags": [
+              "f99e1091-279a-6e3e-18e0-49f9aba4eb69"
+            ]
+          },
+          {
+            "Text": "monitor",
+            "Ws": "uks",
+            "Bold": "On",
+            "FontSize": -1061805835,
+            "ForeColor": "#0000FF",
+            "Tags": [
+              "4c6179f1-6270-d103-b943-73b82516e7de"
+            ]
+          },
+          {
+            "Text": "Money Market Account",
+            "Ws": "uum",
+            "Bold": "Invert",
+            "FontSize": -340849323,
+            "ForeColor": "#A52A2A",
+            "Tags": [
+              "45cf6f51-b486-f3ce-4eee-3131a4c1d081"
+            ]
+          }
+        ]
+      }
+    },
+    "MediaUri": "sil-media://lexbox/5d4d0fdb-7734-4c5b-9ad4-6e865a9e8b8c",
+    "Between": {
+      "Previous": "8d9db6e7-b1a3-211c-1bc4-40deddbfca78",
+      "Next": "0d77c2e3-133d-e964-313c-66b3e8323acd"
+    },
+    "EntityId": "4dc2b41e-ec36-267f-91e2-e84bd00fd77c"
+  },
+  {
+    "$type": "UpdateSensePictureChange",
+    "PictureId": "d805f51a-23fd-f17e-3d8d-51612ce16a36",
+    "Patch": [
+      {
+        "op": "replace",
+        "path": "/Caption",
+        "value": {
+          "en": {
+            "Spans": [
+              {
+                "Text": "An updated caption",
+                "Ws": "en"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "EntityId": "b4217cd5-6213-bf41-bf96-3b176903a58d"
+  },
+  {
+    "$type": "ReorderSensePictureChange",
+    "PictureId": "c5ff743f-2bae-b7ec-9c4c-9e2feb0e37a2",
+    "Order": 0.24129482687531023,
+    "EntityId": "f584fdda-67f7-4807-35bd-efc9d775cd39"
+  },
+  {
+    "$type": "RemoveSensePictureChange",
+    "PictureId": "8697d62c-1742-7598-030d-43bcf8aef52c",
+    "EntityId": "1dbb14cf-fb94-5a40-7cc5-eba28aa230ca"
+  },
+  {
+    "$type": "SetMainPublicationChange",
+    "EntityId": "c775e310-fc5c-6d01-5a02-146d579a88e5"
   }
 ]

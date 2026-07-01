@@ -15,9 +15,7 @@
       "backend\\FwLite\\LcmCrdt\\LcmCrdt.csproj",
       "backend\\FwLite\\MiniLcm\\MiniLcm.csproj",
       "backend\\FwLite\\MiniLcm.Tests\\MiniLcm.Tests.csproj",
-      "backend\\LfClassicData\\LfClassicData.csproj",
-      "backend\\harmony\\src\\SIL.Harmony.Core\\SIL.Harmony.Core.csproj",
-      "backend\\harmony\\src\\SIL.Harmony\\SIL.Harmony.csproj"
+      "backend\\LfClassicData\\LfClassicData.csproj"
     ]
   }
 }

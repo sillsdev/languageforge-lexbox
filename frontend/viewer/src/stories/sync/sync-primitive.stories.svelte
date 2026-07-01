@@ -10,14 +10,14 @@ import SyncStatusPrimitive from '../../project/sync/SyncStatusPrimitive.svelte';
 import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
 import {ProjectSyncStatusEnum} from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusEnum';
 import {onDestroy} from 'svelte';
-import {DotnetService} from '$lib/dotnet-types';
+import {DotnetService, LoginResult} from '$lib/dotnet-types';
 
 
 if (!window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService)) {
   window.lexbox.ServiceProvider.setService(DotnetService.AuthService, {
     useSystemWebView: () => Promise.resolve(true),
     logout: () => Promise.resolve(),
-    signInWebView: () => Promise.resolve(),
+    signInWebView: () => Promise.resolve(LoginResult.Success),
     servers: () => Promise.resolve([]),
   });
   onDestroy(() => {

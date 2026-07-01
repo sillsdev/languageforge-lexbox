@@ -292,6 +292,46 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+
+    public Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreatePicture), $"Create picture {picture.Caption} between {position?.Previous} and {position?.Next}"));
+        return Task.FromResult(picture);
+    }
+
+    public async Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Guid pictureId,
+        UpdateObjectInput<Picture> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePicture),
+            $"Update picture {pictureId}, changes: {update.Summarize()}"));
+        var picture = await _api.GetPicture(entryId, senseId, pictureId);
+        return picture ?? throw new NullReferenceException($"unable to find picture with id {pictureId}");
+    }
+
+    public Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Picture before,
+        Picture after,
+        IMiniLcmApi? api)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePicture), $"Update picture {after.Id}"));
+        return Task.FromResult(after);
+    }
+
+    public Task MovePicture(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(MovePicture), $"Move picture {exampleId} between {between.Previous} and {between.Next}"));
+        return Task.CompletedTask;
+    }
+
+    public Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeletePicture), $"Delete picture {pictureId}"));
+        return Task.CompletedTask;
+    }
+
     public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
         var complexFormName = ComplexFormName(complexFormComponent);
@@ -359,6 +399,71 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         DryRunRecords.Add(new DryRunRecord(nameof(RemovePublication), $"Remove publication {publicationId} from entry {entryId}"));
         return Task.CompletedTask;
     }
+
+    #region Submit (sync's result-less write variants)
+    // Record-only. Overridden explicitly (not inherited from the interface default, which would route to the
+    // returning Update* and re-read the object) so a dry-run of a conflicted project doesn't throw on the
+    // now-deleted object.
+    public Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdateEntry), $"Update entry {id}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdateSense), $"Update sense {senseId}, changes: {update.Summarize()}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdateExampleSentence), $"Update example sentence {exampleSentenceId}, changes: {update.Summarize()}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitCreateSense), $"Create sense {sense.Gloss}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitCreateExampleSentence), $"Create example sentence {exampleSentence.Sentence}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitCreateComplexFormComponent), $"Create complex form component {ComplexFormComponentName(complexFormComponent)}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdatePartOfSpeech), $"Update part of speech {id}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdatePublication), $"Update publication {id}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdateSemanticDomain), $"Update semantic domain {id}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdateComplexFormType), $"Update complex form type {id}"));
+        return Task.CompletedTask;
+    }
+    #endregion
 
     private string ComplexFormComponentName(ComplexFormComponent? component)
     {

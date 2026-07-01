@@ -35,6 +35,7 @@
       // matches the Button 'outline' variant
       'hover:bg-accent hover:text-accent-foreground',
       'text-start',
+      'x-ellipsis mr-4',
     )}
     {...restProps}
   >

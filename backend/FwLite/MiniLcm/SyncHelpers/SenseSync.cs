@@ -11,7 +11,7 @@ public static class SenseSync
         IMiniLcmApi api)
     {
         var updateObjectInput = SenseDiffToUpdate(beforeSense, afterSense);
-        if (updateObjectInput is not null) await api.UpdateSense(entryId, beforeSense.Id, updateObjectInput);
+        if (updateObjectInput is not null) await api.SubmitUpdateSense(entryId, beforeSense.Id, updateObjectInput);
         if (beforeSense.PartOfSpeechId != afterSense.PartOfSpeechId)
         {
             await api.SetSensePartOfSpeech(beforeSense.Id, afterSense.PartOfSpeechId);
@@ -20,6 +20,11 @@ public static class SenseSync
             beforeSense.Id,
             beforeSense.ExampleSentences,
             afterSense.ExampleSentences,
+            api);
+        changes += await PictureSync.Sync(entryId,
+            beforeSense.Id,
+            beforeSense.Pictures,
+            afterSense.Pictures,
             api);
         changes += await DiffCollection.Diff(
             beforeSense.SemanticDomains,

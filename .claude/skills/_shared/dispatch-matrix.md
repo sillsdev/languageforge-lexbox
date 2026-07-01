@@ -22,7 +22,7 @@ Dispatch via `Agent` with `subagent_type=<name>` (the value in the
 
 | Touched | Agent |
 |---|---|
-| `backend/harmony/**` (submodule pointer bump or in-place edits) | `harmony-sentinel` |
+| `backend/Directory.Packages.props` or `backend/Harmony*.props` (SIL.Harmony* version or reference changes) | `harmony-sentinel` |
 | `backend/FwLite/**` | `fwlite-sentinel` |
 | `backend/FwHeadless/**` | `fwheadless-sentinel` |
 | `backend/LexBoxApi/GraphQL/**` or any `.cs` with `[GraphQLType]` / `[QueryType]` / `[MutationType]` / `[ObjectType]` | `graphql` (additive — `dotnet-stylist` still runs on these too) |
