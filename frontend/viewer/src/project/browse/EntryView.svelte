@@ -14,6 +14,7 @@
   import {Button, XButton} from '$lib/components/ui/button';
   import type {IEntry} from '$lib/dotnet-types';
   import {copy, EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
+  import {createEntryOptions} from '$lib/create-entry-options';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
@@ -72,10 +73,11 @@
     return entry;
   }
 
-  eventBus.onEntryUpdated((e) => {
-    if (e.id !== entryId) return;
-    // The event payload is the latest server state
-    setEntry(e);
+  eventBus.onEntryUpdated((id) => {
+    if (id !== entryId) return;
+    void miniLcmApi.getEntry(id).then(refreshed => {
+      if (id === entryId && refreshed) setEntry(refreshed); // entryId may have changed mid-fetch
+    });
   });
 
   eventBus.onEntryDeleted(id => {
@@ -86,7 +88,7 @@
 
   async function restore() {
     if (!entry) return;
-    const restoredEntry = await miniLcmApi.createEntry(entry);
+    const restoredEntry = await miniLcmApi.createEntry(entry, createEntryOptions.asIs);
     setEntry(restoredEntry);
   }
 

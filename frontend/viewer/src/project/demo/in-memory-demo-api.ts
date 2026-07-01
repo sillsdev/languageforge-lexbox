@@ -4,6 +4,7 @@ import {
   DotnetService,
   type IComplexFormComponent,
   type IComplexFormType,
+  type ICreateEntryOptions,
   type IEntry,
   type IExampleSentence,
   type IFilterQueryOptions,
@@ -141,7 +142,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       downloadProjectByCode: function (_code, _server, _userRole): Promise<DownloadProjectByCodeResult> {
         return Promise.resolve(DownloadProjectByCodeResult.Success);
       },
-      createProject: function (_name: string): Promise<void> {
+      createProject: function (_name: string, _code: string, _vernacularWs: string, _analysisWs?: string): Promise<void> {
+        return Promise.resolve();
+      },
+      createDemoProject: function (_name: string): Promise<void> {
         return Promise.resolve();
       },
       deleteProject: function (_code: string): Promise<void> {
@@ -454,10 +458,14 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return JSON.parse(JSON.stringify(entry)) as IEntry;
   }
 
-  createEntry(entry: IEntry): Promise<IEntry> {
+  async createEntry(entry: IEntry, options: ICreateEntryOptions): Promise<IEntry> {
+    if (options.autoAddMainPublication) {
+      const main = (await this.getPublications()).find(p => p.isMain);
+      if (main && !entry.publishIn.some(p => p.id === main.id)) entry.publishIn.push(main);
+    }
     this._entries.push(entry);
     this.#projectEventBus.notifyEntryUpdated(entry);
-    return Promise.resolve(entry);
+    return entry;
   }
 
   updateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
@@ -639,8 +647,8 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   getPublications(): Promise<IPublication[]> {
     return Promise.resolve([
-      {id: '1', name: {en: 'Main Dictionary'}, deletedAt: undefined},
-      {id: '2', name: {en: 'School Dictionary'}, deletedAt: undefined},
+      {id: '1', name: {en: 'Main Dictionary'}, isMain: true, deletedAt: undefined},
+      {id: '2', name: {en: 'School Dictionary'}, isMain: false, deletedAt: undefined},
     ]);
   }
 

@@ -64,7 +64,41 @@ jobs:
         run: task fw-lite:has-pending-model-changes -- --no-build
 
       - name: Dotnet test
-        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build -p:BuildAndroid=false
+        # Benchmarks run in a separate Release-mode job — see `benchmark` below.
+        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build -p:BuildAndroid=false --filter "Category!=Benchmark"
+
+  benchmark:
+    name: Run FW Lite sync benchmarks
+    # Auto-runs post-merge on develop only — too slow and variance-prone to gate every PR (revisit
+    # if they get fast enough). Also runnable on demand via workflow_dispatch to baseline a branch.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
+    # Benchmarks take tens of minutes; 60 leaves headroom for hosted-runner variance.
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          submodules: true
+      - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
+        with:
+          dotnet-version: '10.x'
+
+      - name: Dotnet build (Release)
+        run: dotnet build backend/FwLite/FwLiteProjectSync.Tests/FwLiteProjectSync.Tests.csproj -c Release
+
+      - name: Dotnet test (benchmarks)
+        run: dotnet test backend/FwLite/FwLiteProjectSync.Tests/FwLiteProjectSync.Tests.csproj -c Release --logger GitHubActions --no-build --filter "Category=Benchmark"
+
+      - name: Upload benchmark results
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: benchmark-results
+          path: '**/BenchmarkDotNet.Artifacts/**'
+          # warn, not error: with if: always() a build/crash failure emits no artifacts, and the real
+          # failure is already red elsewhere — a threshold-assertion failure still writes artifacts first.
+          if-no-files-found: warn
 
   frontend:
     runs-on: ubuntu-latest
@@ -162,6 +196,7 @@ jobs:
           check_name: UI unit Tests
           files: ./frontend/viewer/test-results/*.xml
           action_fail_on_inconclusive: true
+          comment_mode: off
 
   publish-mac:
     name: Publish FW Lite app for Mac

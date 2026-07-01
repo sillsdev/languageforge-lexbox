@@ -10,15 +10,17 @@ type UnifiedErrorEvent = {
   at?: string;
 }
 
-function unifyErrorEvent(event: ErrorEvent | PromiseRejectionEvent | Error): UnifiedErrorEvent {
+// message is normalized here to a display-ready title so consumers don't each re-derive one. For any Error we
+// use toString() ("TypeError: x", not the bare "x") to keep the type, and drop the browser's "Uncaught" prefix.
+export function unifyErrorEvent(event: ErrorEvent | PromiseRejectionEvent | Error): UnifiedErrorEvent {
   if (event instanceof Error) {
-    return { message: event.message, error: event };
+    return { message: event.toString(), error: event };
   } else if ('message' in event) {
-    return { message: event.message, error: event.error, at: `${event.filename}:${event.lineno}:${event.colno}` };
+    return { message: event.error instanceof Error ? event.error.toString() : event.message, error: event.error, at: `${event.filename}:${event.lineno}:${event.colno}` };
   } else if (typeof event.reason === 'string') {
     return { message: event.reason, error: null };
   } else if (event.reason instanceof Error) {
-    return { message: event.reason.message, error: event.reason };
+    return { message: event.reason.toString(), error: event.reason };
   } else {
     return { message: 'Unknown error', error: event.reason };
   }
@@ -37,18 +39,35 @@ function shouldIgnoreError(message: string): boolean {
   return false;
 }
 
-/** Matches messages/stack traces of the format:
+/** Splits a .NET error string into its leading message and the rest (stack/inner exceptions), at whichever
+comes first: the first stack frame ("   at ") or the first inner-exception marker (" ---> "). The latter matters
+because .NET prints the whole inner-exception chain before the outer frames, so without it a deeply-wrapped
+error (e.g. MSAL wrapping an Android network failure) dumps the entire cascade into the title.
 System.InvalidOperationException: Everything is broken. Here's some ice cream.
    at FwLiteShared.Services.ProjectServicesProvider.OpenCrdtProject(String projectName)
  */
-const dotnetErrorRegex = /^([\s\S]+?) {3}at /m;
+const dotnetErrorRegex = /^([\s\S]+?)(?: {3}at | ---> )/m;
 
-function processErrorIntoDetails(event: UnifiedErrorEvent): {message: string, detail?: string} {
+export function processErrorIntoDetails(event: UnifiedErrorEvent): {message: string, detail?: string} {
   const message = event.message;
   const match = dotnetErrorRegex.exec(message);
   if (match) return {message: match[1].trim(), detail: message.substring(match[1].length).trim()};
-  else if (event.error instanceof Error) return {message: message, detail: event.error.stack};
+  // stackFrames drops the leading "Error: <message>" header so the message isn't shown in both slots.
+  else if (event.error instanceof Error) return {message, detail: stackFrames(event.error)};
   else return {message};
+}
+
+function stackFrames(error: Error): string | undefined {
+  const stack = error.stack;
+  if (!stack) return undefined;
+
+  // the stack seems to sometimes start with the error message, so we drop it to avoid duplication in the UI
+  const header = error.toString();
+  if (stack.startsWith(header)) return stack.slice(header.length).trim();
+  // perhaps redundant, but cheap
+  else if (stack.startsWith(error.message)) return stack.slice(error.message.length).trim();
+
+  return stack;
 }
 
 let setup = false;

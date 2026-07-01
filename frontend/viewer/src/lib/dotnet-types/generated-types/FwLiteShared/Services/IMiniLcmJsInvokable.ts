@@ -21,6 +21,7 @@ import type {ICommentThread} from '../../MiniLcm/Models/ICommentThread';
 import type {SubjectType} from '../../MiniLcm/Models/SubjectType';
 import type {IUserComment} from '../../MiniLcm/Models/IUserComment';
 import type {ThreadStatus} from '../../MiniLcm/Models/ThreadStatus';
+import type {ICreateEntryOptions} from '../../MiniLcm/ICreateEntryOptions';
 import type {IComplexFormComponent} from '../../MiniLcm/Models/IComplexFormComponent';
 import type {ISense} from '../../MiniLcm/Models/ISense';
 import type {IExampleSentence} from '../../MiniLcm/Models/IExampleSentence';
@@ -79,7 +80,7 @@ export interface IMiniLcmJsInvokable
 	markCommentRead(commentId: string) : Promise<void>;
 	markCommentThreadRead(threadId: string) : Promise<void>;
 	markAllCommentsRead() : Promise<void>;
-	createEntry(entry: IEntry) : Promise<IEntry>;
+	createEntry(entry: IEntry, options: ICreateEntryOptions) : Promise<IEntry>;
 	updateEntry(before: IEntry, after: IEntry) : Promise<IEntry>;
 	deleteEntry(id: string) : Promise<void>;
 	createComplexFormComponent(complexFormComponent: IComplexFormComponent) : Promise<IComplexFormComponent>;

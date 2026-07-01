@@ -7,7 +7,7 @@ import type {
   ISyncServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {resource, type ResourceReturn} from 'runed';
-import {DetachedResource} from './detached-resource';
+import {DetachedResource, type DetachedResourceReturn} from './detached-resource';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
 
@@ -125,9 +125,9 @@ export class ProjectContext {
     }
   }
 
-  public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): ResourceReturn<T, unknown, true> {
+  public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): DetachedResourceReturn<T> {
     if (this.#stateCache.has(key)) {
-      return this.#stateCache.get(key) as ResourceReturn<T, unknown, true>;
+      return this.#stateCache.get(key) as DetachedResourceReturn<T>;
     }
 
     return this.#ownAndCache(key, () => {
@@ -142,7 +142,7 @@ export class ProjectContext {
    * Note: we aren't using resource from runed, because it's based on $effect,
    * which ties the resource lifecycle to the calling component, rather than the project.
    */
-  public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: { eager?: boolean }): ResourceReturn<T, unknown, true> {
+  public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: { eager?: boolean }): DetachedResourceReturn<T> {
     const res = new DetachedResource(initialValue, factory, () => this.#api, options);
     this.#detachedResources.add(res as DetachedResource<unknown>);
     return res;

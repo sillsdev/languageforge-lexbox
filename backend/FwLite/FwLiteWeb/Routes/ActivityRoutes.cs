@@ -18,7 +18,16 @@ public static class ActivityRoutes
             });
             return Task.CompletedTask;
         });
-        group.MapGet("/", (HistoryService historyService, int skip, int take) => historyService.ProjectActivity(skip, take));
+        group.MapGet("/", (
+            HistoryService historyService,
+            int skip = 0,
+            int take = 100,
+            string[]? authorFilterKeys = null,
+            string[]? changeTypeKeys = null,
+            ActivitySort sort = ActivitySort.NewestFirst) =>
+            historyService.ProjectActivity(skip, take, new ActivityQuery(authorFilterKeys, changeTypeKeys, sort)));
+        group.MapGet("/authors", (HistoryService historyService) => historyService.ListActivityAuthors());
+        group.MapGet("/change-types", (HistoryService historyService) => historyService.ListActivityChangeTypes());
         return group;
     }
 }

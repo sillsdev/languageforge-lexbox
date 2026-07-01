@@ -20,6 +20,7 @@ using MiniLcm.SyncHelpers;
 using SIL.Harmony.Core;
 using MiniLcm.Culture;
 using MiniLcm.Media;
+using SystemTextJsonPatch;
 
 namespace LcmCrdt;
 
@@ -143,11 +144,14 @@ public class CrdtMiniLcmApi(
         return await GetPartOfSpeech(partOfSpeech.Id) ?? throw NotFoundException.ForType<PartOfSpeech>(partOfSpeech.Id);
     }
 
+    public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        await AddChanges(update.Patch.ToChanges(id));
+    }
+
     public async Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
-        var pos = await GetPartOfSpeech(id) ?? throw NotFoundException.ForType<PartOfSpeech>(id);
-
-        await AddChanges(update.Patch.ToChanges(pos.Id));
+        await SubmitUpdatePartOfSpeech(id, update);
         return await GetPartOfSpeech(id) ?? throw NotFoundException.ForType<PartOfSpeech>(id);
     }
 
@@ -179,16 +183,33 @@ public class CrdtMiniLcmApi(
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
-        await AddChange(new CreatePublicationChange(pub.Id, pub.Name));
+        await AddChange(new CreatePublicationChange(pub.Id, pub.Name, pub.IsMain));
         return await GetPublication(pub.Id) ?? throw NotFoundException.ForType<Publication>(pub.Id);
+    }
 
+    public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        // IsMain is applied via SetMainPublicationChange (which converges across replicas), not as a plain patch op,
+        // so it's stripped here. Validation rejects setting IsMain to false on every update/submit path, so isMain is always true.
+        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain))
+        {
+            var patch = new JsonPatchDocument<Publication>();
+            patch.Operations.AddRange(update.Patch.Operations.Where(op =>
+                !string.Equals(op.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase)));
+            var changes = patch.ToChanges(id).ToList();
+            if (isMain) changes.Add(new SetMainPublicationChange(id));
+            if (changes.Count > 0) await AddChanges(changes);
+        }
+        else if (update.Patch.Operations.Count > 0)
+        {
+            await AddChanges(update.Patch.ToChanges(id));
+        }
     }
 
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
+        await SubmitUpdatePublication(id, update);
         await using var repo = await repoFactory.CreateRepoAsync();
-        var pub = await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
-        await AddChanges(update.Patch.ToChanges(pub.Id));
         return await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>($"{id} (invalid patching to a new id?)");
     }
 
@@ -236,10 +257,14 @@ public class CrdtMiniLcmApi(
         return await GetSemanticDomain(semanticDomain.Id) ?? throw NotFoundException.ForType<SemanticDomain>(semanticDomain.Id);
     }
 
+    public async Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
+    {
+        await AddChanges(update.Patch.ToChanges(id));
+    }
+
     public async Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        var semDom = await GetSemanticDomain(id) ?? throw NotFoundException.ForType<SemanticDomain>(id);
-        await AddChanges(update.Patch.ToChanges(semDom.Id));
+        await SubmitUpdateSemanticDomain(id, update);
         return await GetSemanticDomain(id) ?? throw NotFoundException.ForType<SemanticDomain>(id);
     }
 
@@ -282,9 +307,14 @@ public class CrdtMiniLcmApi(
         return await repo.ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
     }
 
-    public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
+    public async Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
     {
         await AddChange(new JsonPatchChange<ComplexFormType>(id, update.Patch));
+    }
+
+    public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
+    {
+        await SubmitUpdateComplexFormType(id, update);
         return await GetComplexFormType(id) ?? throw NotFoundException.ForType<ComplexFormType>(id);
     }
 
@@ -299,7 +329,7 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<ComplexFormType>(id));
     }
 
-    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
+    public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var existing = await repo.FindComplexFormComponent(complexFormComponent);
@@ -308,11 +338,11 @@ public class CrdtMiniLcmApi(
             var betweenIds = between is null ? null : await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
             // Always generate a new entity ID — the caller's ID is never used.
             // This aligns with FwData (which ignores the ID entirely) and prevents
-            // Harmony duplicate-ID pitfalls during sync (see EntrySync.ComplexFormsDiffApi.Add).
+            // Harmony duplicate-ID pitfalls during sync.
             complexFormComponent.Id = Guid.NewGuid();
             var addEntryComponentChange = await repo.CreateComplexFormComponentChange(complexFormComponent, betweenIds);
             await AddChange(addEntryComponentChange);
-            return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
+            return;
         }
 
         // The orderable diff sends (null, null) for singletons; skip the move so
@@ -321,18 +351,38 @@ public class CrdtMiniLcmApi(
         {
             await MoveComplexFormComponent(existing, between);
         }
-        return existing;
+    }
+
+    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
+    {
+        await SubmitCreateComplexFormComponent(complexFormComponent, between);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.FindComplexFormComponent(complexFormComponent) ?? throw NotFoundException.ForType<ComplexFormComponent>(complexFormComponent.ComplexFormEntryId);
     }
 
     public async Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
     {
+        await MoveComplexFormComponent(component, between, tolerateMissing: false);
+    }
+
+    public async Task SubmitMoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
+    {
+        await MoveComplexFormComponent(component, between, tolerateMissing: true);
+    }
+
+    private async Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between, bool tolerateMissing)
+    {
         await using var repo = await repoFactory.CreateRepoAsync();
+        // FwData components carry no stable Id, so the move target is resolved by its references rather than MaybeId.
+        var id = component.MaybeId ?? (await repo.FindComplexFormComponent(component))?.Id;
+        if (id is null)
+        {
+            if (tolerateMissing) return; // we can't submit the change, because we don't have an ID to refer to
+            throw NotFoundException.ForType<ComplexFormComponent>("missing ID");
+        }
         var betweenIds = await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
         var order = await OrderPicker.PickOrder(repo.ComplexFormComponents.Where(s => s.ComplexFormEntryId == component.ComplexFormEntryId), betweenIds);
-        var id = component.MaybeId ??
-                 (await repo.FindComplexFormComponent(component))?.Id
-                 ?? throw NotFoundException.ForType<ComplexFormComponent>("missing ID");
-        await AddChange(new Changes.SetOrderChange<ComplexFormComponent>(id, order));
+        await AddChange(new Changes.SetOrderChange<ComplexFormComponent>(id.Value, order));
     }
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -504,7 +554,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
-        options ??= CreateEntryOptions.Everything;
+        options ??= CreateEntryOptions.WithMainPublication;
         await using var repo = await repoFactory.CreateRepoAsync();
 
         // This is our primitive logic for now:
@@ -524,6 +574,15 @@ public class CrdtMiniLcmApi(
                 var patchDoc = new SystemTextJsonPatch.JsonPatchDocument<Entry>();
                 patchDoc.Replace(e => e.HomographNumber, promotion.NewNumber);
                 homographPromotionChange = patchDoc.ToChanges(promotion.EntryId).Single();
+            }
+        }
+
+        if (options.AutoAddMainPublication)
+        {
+            var mainPublication = await repo.GetMainPublication();
+            if (mainPublication is not null && entry.PublishIn.All(pub => pub.Id != mainPublication.Id))
+            {
+                entry.PublishIn.Add(mainPublication);
             }
         }
         await AddChanges([
@@ -631,14 +690,17 @@ public class CrdtMiniLcmApi(
         return !await repo.Entries.AnyAsyncEF(e => e.Id == id);
     }
 
+    public async Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
+    {
+        await AddChanges(update.Patch.ToChanges(id));
+    }
+
     public async Task<Entry> UpdateEntry(Guid id,
         UpdateObjectInput<Entry> update)
     {
+        await SubmitUpdateEntry(id, update);
         await using var repo = await repoFactory.CreateRepoAsync();
-        var entry = await repo.GetEntry(id) ?? throw NotFoundException.ForType<Entry>(id);
-        await AddChanges(update.Patch.ToChanges(entry.Id));
-        var updatedEntry = await repo.GetEntry(id) ?? throw NotFoundException.ForType<Entry>(id);
-        return updatedEntry;
+        return await repo.GetEntry(id) ?? throw NotFoundException.ForType<Entry>(id);
     }
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
@@ -690,27 +752,36 @@ public class CrdtMiniLcmApi(
         if (sense.EntryId != entryId) throw new NotFoundException($"Sense {sense.Id} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.EntryId}", nameof(Sense));
     }
 
-    public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
+    public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
+        sense.Order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
+        await AddChanges(await CreateSenseChanges(entryId, sense, repo.SemanticDomains).ToArrayAsync());
+    }
+
+    public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
+    {
         if (sense.PartOfSpeechId.HasValue && await GetPartOfSpeech(sense.PartOfSpeechId.Value) is null)
             throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
 
-        sense.Order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
-        await AddChanges(await CreateSenseChanges(entryId, sense, repo.SemanticDomains).ToArrayAsync());
+        await SubmitCreateSense(entryId, sense, between);
+        await using var repo = await repoFactory.CreateRepoAsync();
         var createdSense = await repo.GetSense(sense.Id) ?? throw NotFoundException.ForType<Sense>(sense.Id);
         VerifySenseBelongsToEntry(entryId, createdSense);
         return createdSense;
+    }
+
+    public async Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
+    {
+        await AddChanges(update.Patch.ToChanges(senseId));
     }
 
     public async Task<Sense> UpdateSense(Guid entryId,
         Guid senseId,
         UpdateObjectInput<Sense> update)
     {
+        await SubmitUpdateSense(entryId, senseId, update);
         await using var repo = await repoFactory.CreateRepoAsync();
-        var sense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
-        VerifySenseBelongsToEntry(entryId, sense);
-        await AddChanges(update.Patch.ToChanges(sense.Id));
         var updatedSense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
         VerifySenseBelongsToEntry(entryId, updatedSense);
         return updatedSense;
@@ -759,7 +830,7 @@ public class CrdtMiniLcmApi(
         await AddChange(new SetPartOfSpeechChange(senseId, partOfSpeechId));
     }
 
-    public async Task<ExampleSentence> CreateExampleSentence(Guid entryId,
+    public async Task SubmitCreateExampleSentence(Guid entryId,
         Guid senseId,
         ExampleSentence exampleSentence,
         BetweenPosition? between = null)
@@ -767,7 +838,15 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         exampleSentence.Order = await OrderPicker.PickOrder(repo.ExampleSentences.Where(s => s.SenseId == senseId), between);
         await AddChange(new CreateExampleSentenceChange(exampleSentence, senseId));
-        return await repo.GetExampleSentence(entryId, senseId, exampleSentence.Id) ?? throw NotFoundException.ForType<ExampleSentence>(exampleSentence.Id);
+    }
+
+    public async Task<ExampleSentence> CreateExampleSentence(Guid entryId,
+        Guid senseId,
+        ExampleSentence exampleSentence,
+        BetweenPosition? between = null)
+    {
+        await SubmitCreateExampleSentence(entryId, senseId, exampleSentence, between);
+        return await GetExampleSentence(entryId, senseId, exampleSentence.Id) ?? throw NotFoundException.ForType<ExampleSentence>(exampleSentence.Id);
     }
 
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
@@ -776,14 +855,20 @@ public class CrdtMiniLcmApi(
         return await repo.GetExampleSentence(entryId, senseId, id);
     }
 
+    public async Task SubmitUpdateExampleSentence(Guid entryId,
+        Guid senseId,
+        Guid exampleSentenceId,
+        UpdateObjectInput<ExampleSentence> update)
+    {
+        await AddChange(new JsonPatchExampleSentenceChange(exampleSentenceId, update.Patch));
+    }
+
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         Guid exampleSentenceId,
         UpdateObjectInput<ExampleSentence> update)
     {
-        var jsonPatch = update.Patch;
-        var patchChange = new JsonPatchExampleSentenceChange(exampleSentenceId, jsonPatch);
-        await AddChange(patchChange);
+        await SubmitUpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
         return await GetExampleSentence(entryId, senseId, exampleSentenceId) ?? throw NotFoundException.ForType<ExampleSentence>(exampleSentenceId);
     }
 
@@ -847,6 +932,67 @@ public class CrdtMiniLcmApi(
             // but it doesn't really matter if it is. It would just be unexpected.
             return new SetFirstTranslationIdChange(exampleSentenceId, translationId);
         }
+    }
+
+    public async Task<Picture> CreatePicture(Guid entryId,
+        Guid senseId,
+        Picture picture,
+        BetweenPosition? between = null)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var change = new CreateSensePictureChange(picture, senseId, between);
+        await AddChange(change);
+        return await GetPicture(entryId, senseId, change.PictureId) ?? throw NotFoundException.ForType<Picture>(change.PictureId);
+    }
+
+    public async Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var sense = await repo.GetSense(senseId);
+        return sense?.Pictures.FirstOrDefault(pic => pic.Id == id);
+    }
+
+    public async Task SubmitUpdatePicture(Guid entryId,
+        Guid senseId,
+        Guid pictureId,
+        UpdateObjectInput<Picture> update)
+    {
+        var jsonPatch = update.Patch;
+        var patchChange = new UpdateSensePictureChange(pictureId, senseId, jsonPatch);
+        await AddChange(patchChange);
+    }
+
+    public async Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Guid pictureId,
+        UpdateObjectInput<Picture> update)
+    {
+        await SubmitUpdatePicture(entryId, senseId, pictureId, update);
+        return await GetPicture(entryId, senseId, pictureId) ?? throw NotFoundException.ForType<Picture>(pictureId);
+    }
+
+    public async Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Picture before,
+        Picture after,
+        IMiniLcmApi? api = null)
+    {
+        await PictureSync.Sync(entryId, senseId, before, after, api ?? this);
+        return await GetPicture(entryId, senseId, after.Id) ?? throw NotFoundException.ForType<Picture>(after.Id);
+    }
+
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var sense = await repo.GetSense(senseId);
+        if (sense is null) throw NotFoundException.ForType<Sense>(senseId);
+        var order = OrderPicker.PickOrder(sense.Pictures, between);
+        await AddChange(new ReorderSensePictureChange(pictureId, senseId, order));
+    }
+
+    public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
+    {
+        await AddChange(new RemoveSensePictureChange(pictureId, senseId));
     }
 
     public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)

@@ -1,10 +1,8 @@
-using MiniLcm.Models;
-
 namespace FwLiteWeb.Hubs;
 
 public interface ILexboxHubClient
 {
-    Task OnEntryUpdated(Entry entry);
+    Task OnEntriesChanged(Guid[] changedEntryIds, Guid[] deletedEntryIds);
     Task OnProjectClosed(CloseReason reason);
 }
 

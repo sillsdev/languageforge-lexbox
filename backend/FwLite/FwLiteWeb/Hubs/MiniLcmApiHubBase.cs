@@ -69,9 +69,9 @@ public abstract class MiniLcmApiHubBase(
         return await _miniLcmApi.GetEntry(id);
     }
 
-    public virtual async Task<Entry> CreateEntry(Entry entry)
+    public virtual async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
-        var newEntry = await _miniLcmApi.CreateEntry(entry);
+        var newEntry = await _miniLcmApi.CreateEntry(entry, options ?? CreateEntryOptions.WithMainPublication);
         await NotifyEntryUpdated(newEntry);
         return newEntry;
     }
@@ -132,6 +132,6 @@ public abstract class MiniLcmApiHubBase(
 
     protected virtual async Task NotifyEntryUpdated(Entry entry)
     {
-        await Clients.Others.OnEntryUpdated(entry);
+        await Clients.Others.OnEntriesChanged([entry.Id], []);
     }
 }

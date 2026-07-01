@@ -12,7 +12,7 @@ namespace FwLiteShared.Services;
 
 public class MiniLcmJsInvokable(
     IMiniLcmApi api,
-    BackgroundSyncService backgroundSyncService,
+    IBackgroundSyncService backgroundSyncService,
     IProjectIdentifier project,
     ILogger<MiniLcmJsInvokable> logger,
     MiniLcmApiNotifyWrapperFactory notificationWrapperFactory,
@@ -379,9 +379,9 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public async Task<Entry> CreateEntry(Entry entry)
+    public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions options)
     {
-        var createdEntry = await _wrappedApi.CreateEntry(entry);
+        var createdEntry = await _wrappedApi.CreateEntry(entry, options);
         OnDataChanged();
         return createdEntry;
     }

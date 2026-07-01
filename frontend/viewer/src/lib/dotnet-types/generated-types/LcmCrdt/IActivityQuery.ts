@@ -3,13 +3,12 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {IFwEvent} from './IFwEvent';
-import type {FwEventType} from './FwEventType';
+import type {ActivitySort} from './ActivitySort';
 
-export interface IEntryDeletedEvent extends IFwEvent
+export interface IActivityQuery
 {
-	type: FwEventType;
-	isGlobal: boolean;
-	entryId: string;
+	authorFilterKeys?: string[];
+	changeTypeKeys?: string[];
+	sort: ActivitySort;
 }
 /* eslint-enable */

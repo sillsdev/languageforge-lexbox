@@ -53,6 +53,9 @@ public class LcmCrdtDbContext(
         var unreadCommentModel = modelBuilder.Entity<UnreadComment>();
         unreadCommentModel.HasKey(c => c.CommentId);
         unreadCommentModel.HasIndex(c => c.CommentThreadId);
+
+        var senseModel = modelBuilder.Entity<Sense>();
+        senseModel.Property(s => s.Pictures).HasColumnType("jsonb").HasDefaultValueSql("'[]'");
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
@@ -70,6 +73,8 @@ public class LcmCrdtDbContext(
             .HaveConversion<WritingSystemIdConverter>();
         builder.Properties<DateTimeOffset>()
             .HaveConversion<DateTimeOffsetDbConverter>();
+        builder.Properties<List<Picture>>()
+            .HaveConversion<PictureListDbConverter>();
     }
 
     private class MultiStringDbConverter() : ValueConverter<MultiString, string>(
@@ -107,4 +112,8 @@ public class LcmCrdtDbContext(
         d => d.UtcDateTime,
         //need to use ticks here because the DateTime is stored as UTC, but the db records it as unspecified
         d => new DateTimeOffset(d.Ticks, TimeSpan.Zero));
+
+    private class PictureListDbConverter() : ValueConverter<List<Picture>, string>(
+        pic => JsonSerializer.Serialize(pic, (JsonSerializerOptions?)null),
+        json => JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new());
 }

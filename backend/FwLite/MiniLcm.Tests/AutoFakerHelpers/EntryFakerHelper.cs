@@ -60,6 +60,11 @@ public static class EntryFakerHelper
             {
                 exampleSentence.SenseId = sense.Id;
             }
+            var order = 0;
+            foreach (var picture in sense.Pictures)
+            {
+                picture.Order = ++order;
+            }
         }
     }
 

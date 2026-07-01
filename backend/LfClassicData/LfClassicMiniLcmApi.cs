@@ -3,6 +3,7 @@ using LfClassicData.Entities;
 using LfClassicData.Entities.MongoUtils;
 using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -334,6 +335,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                 .Select(sd => new SemanticDomain { Id = Guid.Empty, Code = sd, Name = new MultiString { { "en", sd } } })
                 .ToList(),
             ExampleSentences = sense.Examples?.OfType<Example>().Select(example => ToExampleSentence(sense.Guid, example)).ToList() ?? [],
+            Pictures = sense.Pictures?.OfType<Entities.Picture>().Select(pic => ToPicture(sense.Guid, pic)).ToList() ?? [],
         };
     }
 
@@ -346,6 +348,17 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             Reference = new((example.Reference?.TryGetValue("en", out var value) == true) ? value.Value : string.Empty),
             Sentence = ToRichMultiString(example.Sentence),
             Translations = [new Translation() { Id = Guid.NewGuid(), Text = ToRichMultiString(example.Translation) }]
+        };
+    }
+
+    private static MiniLcm.Models.Picture ToPicture(Guid senseId, Entities.Picture picture)
+    {
+        return new MiniLcm.Models.Picture
+        {
+            Id = picture.Guid,
+            Caption = ToRichMultiString(picture.Caption),
+            // TODO: Create a LfClassicMediaAdapter that can create MediaUris for LF URLs, then use that rather than returning NotFound
+            MediaUri = MediaUri.NotFound,
         };
     }
 
@@ -433,6 +446,17 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         var exampleSentence = sense.Examples?.FirstOrDefault(e => e?.Guid == id);
         if (exampleSentence is null) return null;
         return ToExampleSentence(sense.Guid, exampleSentence);
+    }
+
+    public async Task<MiniLcm.Models.Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
+    {
+        var entry = await Entries.Find(e => e.Guid == entryId).FirstOrDefaultAsync();
+        if (entry is null) return null;
+        var sense = entry.Senses?.FirstOrDefault(s => s?.Guid == senseId);
+        if (sense is null) return null;
+        var picture = sense.Pictures?.FirstOrDefault(e => e?.Guid == id);
+        if (picture is null) return null;
+        return ToPicture(sense.Guid, picture);
     }
 
     public Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)

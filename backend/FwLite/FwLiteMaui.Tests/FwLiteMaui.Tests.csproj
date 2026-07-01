@@ -8,6 +8,7 @@
     <TargetFrameworks Condition=" '$(BuildAndroid)' != 'false' ">$(TargetFrameworks);net10.0-android</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx')) And '$(BuildApple)' != 'false'">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+    <NoWarn Condition="'$(TargetFramework)' == 'net10.0-android'">$(NoWarn);XA0101</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

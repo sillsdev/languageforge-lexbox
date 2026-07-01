@@ -4,6 +4,7 @@ using FluentAssertions.Execution;
 using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
+using MiniLcm.Import;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,14 +14,14 @@ using MiniLcm.Models;
 namespace FwLiteProjectSync.Tests;
 
 [Trait("Category", "Integration")]
-public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
+[Collection(Sena3Collection.Name)]
+public class Sena3SyncTests : IAsyncLifetime
 {
     private readonly Sena3Fixture _fixture;
     private CrdtFwdataProjectSyncService _syncService = null!;
     private CrdtMiniLcmApi _crdtApi = null!;
     private FwDataMiniLcmApi _fwDataApi = null!;
     private TestProject _project = null!;
-    private MiniLcmImport _miniLcmImport = null!;
     private ProjectSnapshotService _snapshotService = null!;
     private static readonly JsonSerializerOptions IndentedDefaultJsonOptions = new()
     {
@@ -40,7 +41,6 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         _fwDataApi = _project.FwDataApi;
         var services = _project.Services;
         _syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
-        _miniLcmImport = services.GetRequiredService<MiniLcmImport>();
         _snapshotService = services.GetRequiredService<ProjectSnapshotService>();
         _fwDataApi.EntryCount.Should().BeGreaterThan(100, "project should be loaded and have entries");
     }
@@ -134,7 +134,8 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     public async Task DryRunSync_MakesTheSameChangesAsSync()
     {
         //syncing requires querying entries, which fails if there are no writing systems, so we import those first
-        await _miniLcmImport.ImportWritingSystems(_crdtApi, _fwDataApi);
+        await _project.Services.GetRequiredService<ProjectImporter>()
+            .ImportWritingSystems(_crdtApi, await _fwDataApi.GetWritingSystems());
         var projectSnapshot = await CreateAndSaveMinimalSnapshot(true);
         var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
         var syncResult = await _syncService.Sync(_crdtApi, _fwDataApi, projectSnapshot);

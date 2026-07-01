@@ -370,7 +370,6 @@ public class SyncWorker(
 
             return await projectsService.CreateProject(new("crdt",
                 "crdt",
-                SeedNewProjectData: false,
                 Id: projectId,
                 Path: projectFolder,
                 FwProjectId: fwProjectId,

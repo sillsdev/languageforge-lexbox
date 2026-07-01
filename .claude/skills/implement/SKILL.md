@@ -4,7 +4,6 @@ description: Implement an issue or task end-to-end. Reads the issue, drafts a pl
 when_to_use: User asks to "implement #N", "work on issue N", "do this task", "start the work for", "build out the feature", or hands off an issue or task description to be turned into code.
 argument-hint: "[issue-number or short task description]"
 allowed-tools: Bash(git diff:*) Bash(git log:*) Bash(git status:*) Bash(git show:*) Bash(git branch:*) Bash(git switch:*) Bash(git checkout:*) Bash(git add:*) Bash(git restore:*) Bash(git stash:*) Bash(gh api:*) Bash(dotnet *:*) Bash(pnpm *:*) Bash(node *:*) Bash(task:*) Bash(grep:*) Bash(rg:*) Read Write Edit Grep Glob Agent
-disable-model-invocation: true
 ---
 
 # /implement — End-to-end implementation of an issue
@@ -128,6 +127,12 @@ Chesterton's-fence). Don't narrate your reasoning into the file.
 When the plan deviates mid-implementation (it usually does): surface
 the change and the reason in your next user-facing update. Don't
 silently rewrite the plan.
+
+When a change legitimately alters a Verify/snapshot test's output (e.g.
+`*.verified.txt`), regenerating that file **is your job** — run the test
+to produce the `.received.` output, eyeball the diff to confirm it's the
+intended change (not a regression), then accept it. Don't leave a stale
+verified file for the user to fix.
 
 ## Phase 4 · Self-review (same engine as `/polish`)
 

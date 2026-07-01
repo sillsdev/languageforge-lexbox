@@ -49,6 +49,10 @@ public static class ReinforcedFwLiteTypingConfig
         builder.Substitute(typeof(Uri), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(Color), new RtSimpleTypeName("string"));
+        builder.Substitute(typeof(TimeSpan), new RtSimpleTypeName("unknown"));
+        builder.Substitute(typeof(Type), new RtSimpleTypeName("unknown"));
+        builder.Substitute(typeof(Commit), new RtSimpleTypeName("unknown"));
+        builder.Substitute(typeof(IObjectBase), new RtSimpleTypeName("unknown"));
         builder.Substitute(typeof(ValueTask), new RtAsyncType());
         builder.SubstituteGeneric(typeof(ValueTask<>), (type, resolver) => resolver.ResolveTypeName(typeof(Task<>).MakeGenericType(type.GenericTypeArguments[0]), true));
         var dotnetObjectRefInterface = typeof(DotNetObjectReference<>).GetInterfaces().First();
@@ -86,6 +90,7 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(RichTextObjectData),
                 typeof(Translation),
 
+                typeof(Picture),
                 typeof(MediaFile),
                 typeof(LcmFileMetadata),
                 typeof(ViewField),
@@ -126,6 +131,7 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(IndexQueryOptions),
                 typeof(SortOptions),
                 typeof(ExemplarOptions),
+                typeof(CreateEntryOptions),
                 typeof(EntryFilter),
                 typeof(MiniLcmJsInvokable.ReadFileResponseJs),
                 typeof(UploadFileResponse)
@@ -150,6 +156,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<ProjectRole>().UseString();
         builder.ExportAsEnum<MorphTypeKind>().UseString();
         builder.ExportAsEnum<SyncStatus>().UseString();
+        builder.ExportAsEnum<LoginResult>().UseString();
         builder.ExportAsEnum<DownloadProjectByCodeResult>().UseString();
         builder.ExportAsEnum<SyncJobStatusEnum>().UseString();
         builder.ExportAsEnum<ViewBase>().UseString();
@@ -176,6 +183,9 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
+            typeof(ActivityAuthor),
+            typeof(ActivityChangeType),
+            typeof(ActivityQuery),
             typeof(ChangeContext),
             typeof(ChangeEntity<IChange>),
             typeof(IChange),
@@ -186,6 +196,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(AvailableUpdate),
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
+        builder.ExportAsEnum<ActivitySort>().UseString();
         builder.ExportAsEnum<FwEventType>().UseString();
         builder.ExportAsEnum<LogLevel>().UseString(false);
         var eventJsAttrs = typeof(IFwEvent).GetCustomAttributes<JsonDerivedTypeAttribute>();

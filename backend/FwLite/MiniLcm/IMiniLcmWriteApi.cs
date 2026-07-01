@@ -51,6 +51,10 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region Entry
+    /// <summary>
+    /// Creates an entry. With null <paramref name="options"/> the main publication is auto-added
+    /// (<see cref="CreateEntryOptions.WithMainPublication"/>); pass <see cref="CreateEntryOptions.AsIs"/> to keep publications as given (sync/import do this).
+    /// </summary>
     Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null);
     Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update);
 
@@ -109,6 +113,50 @@ public interface IMiniLcmWriteApi
     Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation);
     Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId);
     Task UpdateTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId, UpdateObjectInput<Translation> update);
+    #endregion
+
+    #region Picture
+    /// <summary>
+    /// Creates the provided picture and adds it to the specified sense
+    /// </summary>
+    /// <param name="entryId">The ID of the sense's parent entry</param>
+    /// <param name="senseId">The ID of picture's parent sense</param>
+    /// <param name="picture">The picture to create</param>
+    /// <param name="position">Where the picture should be inserted in the sense's list of pictures. If null it will be appended to the end of the list.</param>
+    /// <returns></returns>
+    Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null);
+    Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Guid pictureId,
+        UpdateObjectInput<Picture> update);
+    Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Picture before,
+        Picture after,
+        IMiniLcmApi? api = null);
+    Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position);
+    Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId);
+    #endregion
+
+    #region Submit (fire-and-forget write variants for sync)
+    // Result-less write variants the sync uses instead of the returning Update/Create methods above. The CRDT
+    // overrides them to submit the change without fetching the result, so applying to an object the other side
+    // deleted leaves it deleted (delete wins) rather than throwing. The defaults forward to the returning
+    // method (correct for FwData, which still surfaces a genuinely-missing object).
+    Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update) => UpdateEntry(id, update);
+    Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => CreateComplexFormComponent(complexFormComponent, position);
+    Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => MoveComplexFormComponent(complexFormComponent, between);
+    Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => CreateSense(entryId, sense, position);
+    Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => UpdateSense(entryId, senseId, update);
+    Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => CreateExampleSentence(entryId, senseId, exampleSentence, position);
+    Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
+    // Dependency types too (they sync before entries, outside EntrySync's try/catch). WritingSystem is omitted
+    // (its update resolves the entity id, so it can't be a blind submit); MorphType is omitted (not deletable).
+    Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => UpdatePartOfSpeech(id, update);
+    Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => UpdatePicture(entryId, senseId, pictureId, update);
+    Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update) => UpdatePublication(id, update);
+    Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update) => UpdateSemanticDomain(id, update);
+    Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update) => UpdateComplexFormType(id, update);
     #endregion
 
     #region CustomView
@@ -186,7 +234,8 @@ public interface IMiniLcmWriteApi
     {
         await foreach (var entry in entries)
         {
-            await this.CreateEntry(entry);
+            // Import preserves the source's publications; never inject the main publication into imported entries.
+            await this.CreateEntry(entry, CreateEntryOptions.AsIs);
         }
     }
 

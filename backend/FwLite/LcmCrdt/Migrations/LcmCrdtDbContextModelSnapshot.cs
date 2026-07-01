@@ -442,6 +442,9 @@ namespace LcmCrdt.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsMain")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("jsonb");
@@ -513,6 +516,12 @@ namespace LcmCrdt.Migrations
 
                     b.Property<Guid?>("PartOfSpeechId")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Pictures")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'");
 
                     b.Property<string>("SemanticDomains")
                         .IsRequired()

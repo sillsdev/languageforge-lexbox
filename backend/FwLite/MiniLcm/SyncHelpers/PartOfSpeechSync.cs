@@ -20,7 +20,7 @@ public static class PartOfSpeechSync
         IMiniLcmApi api)
     {
         var updateObjectInput = PartOfSpeechDiffToUpdate(before, after);
-        if (updateObjectInput is not null) await api.UpdatePartOfSpeech(after.Id, updateObjectInput);
+        if (updateObjectInput is not null) await api.SubmitUpdatePartOfSpeech(after.Id, updateObjectInput);
         return updateObjectInput is null ? 0 : 1;
     }
 

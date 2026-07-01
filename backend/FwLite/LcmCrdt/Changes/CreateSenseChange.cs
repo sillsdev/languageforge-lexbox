@@ -18,6 +18,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
         SemanticDomains = sense.SemanticDomains;
         Gloss = sense.Gloss;
         PartOfSpeechId = sense.PartOfSpeech?.Id ?? sense.PartOfSpeechId;
+        Pictures = sense.Pictures;
     }
 
     [JsonConstructor]
@@ -32,6 +33,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
     public MultiString? Gloss { get; set; }
     public Guid? PartOfSpeechId { get; set; }
     public IList<SemanticDomain>? SemanticDomains { get; set; }
+    public List<Picture>? Pictures { get; set; }
 
     public override async ValueTask<Sense> NewEntity(Commit commit, IChangeContext context)
     {
@@ -46,6 +48,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
             Gloss = Gloss ?? new MultiString(),
             PartOfSpeech = partOfSpeech,
             PartOfSpeechId = partOfSpeech?.Id,
+            Pictures = Pictures ?? [],
             SemanticDomains = await context.FilterDeleted(SemanticDomains ?? []).ToArrayAsync(),
             DeletedAt = await context.IsObjectDeleted(EntryId) ? commit.DateTime : (DateTime?)null
         };

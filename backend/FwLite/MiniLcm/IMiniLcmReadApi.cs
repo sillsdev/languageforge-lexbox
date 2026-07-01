@@ -30,6 +30,7 @@ public interface IMiniLcmReadApi
     Task<Publication?> GetPublication(Guid id);
     Task<SemanticDomain?> GetSemanticDomain(Guid id);
     Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id);
+    Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id);
     /// <summary>
     /// Get the index of an entry within the sorted/filtered entry list.
     /// Returns -1 if the entry is not found.

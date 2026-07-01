@@ -1,6 +1,7 @@
 export * from './generated-types/FwLiteShared/Auth/IAuthService';
 export * from './generated-types/FwLiteShared/Auth/ILexboxServer';
 export * from './generated-types/FwLiteShared/Auth/IServerStatus';
+export * from './generated-types/FwLiteShared/Auth/LoginResult';
 export * from './generated-types/FwLiteShared/Projects/ICombinedProjectsService';
 export * from './generated-types/FwLiteShared/Projects/IProjectModel';
 export * from './generated-types/FwLiteShared/Projects/IServerProjects';
@@ -31,6 +32,7 @@ export * from './generated-types/MiniLcm/Models/IViewField';
 export * from './generated-types/MiniLcm/Models/IViewWritingSystem';
 export * from './generated-types/MiniLcm/Models/ViewBase';
 export * from './generated-types/MiniLcm/ICountQueryOptions';
+export * from './generated-types/MiniLcm/ICreateEntryOptions';
 export * from './generated-types/MiniLcm/IExemplarOptions';
 export * from './generated-types/MiniLcm/IFilterQueryOptions';
 export * from './generated-types/MiniLcm/IQueryOptions';
