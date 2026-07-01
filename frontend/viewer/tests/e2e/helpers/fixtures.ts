@@ -4,11 +4,7 @@ import {FwLiteLauncher} from './fw-lite-launcher';
 import {deleteProject} from './project-operations';
 import {HomePage} from '../../pages/home.page';
 
-/**
- * `fwLite` fixture: spawns FwLiteWeb pointed at the kind-cluster Lexbox,
- * navigates to its base URL, and tears down (best-effort logout + project
- * delete + process shutdown) after the test.
- */
+// Teardown is best-effort: a test that failed mid-flow may leave nothing to log out or delete.
 export const test = base.extend<{fwLite: FwLiteLauncher}>({
   fwLite: async ({page}, use, testInfo) => {
     const launcher = new FwLiteLauncher();

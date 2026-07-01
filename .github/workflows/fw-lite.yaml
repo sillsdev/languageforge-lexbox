@@ -25,6 +25,11 @@ on:
       - main
       - feat/sync-morph-types #just for now ensure PRs to this branch have checks run
 
+# Only cancel superseded PR runs; never cancel release builds triggered by a push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
 jobs:

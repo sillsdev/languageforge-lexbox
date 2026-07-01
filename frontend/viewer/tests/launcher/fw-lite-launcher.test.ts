@@ -4,9 +4,8 @@ import {existsSync} from 'node:fs';
 import {FwLiteLauncher, type LaunchConfig} from '../e2e/helpers/fw-lite-launcher';
 import {fwLiteBinaryPath} from '../e2e/config';
 
-// Hard-fail if the binary is missing. Running this suite at all means you've opted in
-// (via `pnpm test:launcher` or the e2e CI job). The default `pnpm test` excludes
-// the launcher project so unrelated workflows aren't burdened with building the binary.
+// Hard-fail rather than skip: running this suite is an explicit opt-in (`pnpm test:launcher` / the e2e CI job),
+// so a missing binary is a real error, not a reason to silently pass.
 if (!existsSync(fwLiteBinaryPath)) {
   throw new Error(
     `FW Lite binary not found at ${fwLiteBinaryPath}. ` +
