@@ -8,5 +8,6 @@ export interface IRemoteResource
 	id: string;
 	deletedAt?: string;
 	remoteId?: string;
+	metadata?: unknown;
 }
 /* eslint-enable */
