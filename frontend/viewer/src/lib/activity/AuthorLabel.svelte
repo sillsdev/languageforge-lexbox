@@ -5,10 +5,9 @@
   import flexLogo from '$lib/assets/flex-logo.png';
   import {FIELDWORKS_AUTHOR_KEY, SYSTEM_AUTHOR_KEY, UNKNOWN_AUTHOR_KEY, authorFilterKey, wellKnownAuthorKeyToLabel} from './utils';
 
-  let {authorId, authorName, iconClass = 'size-4', class: className}: {
+  let {authorId, authorName, class: className}: {
     authorId?: string;
     authorName?: string;
-    iconClass?: string;
     class?: string;
   } = $props();
 
@@ -24,8 +23,8 @@
     {label}
   {/if}
   {#if key === FIELDWORKS_AUTHOR_KEY}
-    <Icon class={iconClass} src={flexLogo} alt={$t`FieldWorks logo`} />
+    <Icon class="size-5" src={flexLogo} alt={$t`FieldWorks logo`} />
   {:else if key === SYSTEM_AUTHOR_KEY}
-    <Icon icon="i-mdi-cog" class={iconClass} />
+    <Icon icon="i-mdi-cog" class="size-4" />
   {/if}
 </span>
