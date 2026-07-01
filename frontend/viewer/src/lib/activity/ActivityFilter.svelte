@@ -147,7 +147,7 @@
         </Select.Item>
         {#each authors.current as author (authorFilterKey(author))}
           {@const key = authorFilterKey(author)}
-          <Select.Item value={key} label={author.authorName ?? $t`Unknown`}>
+          <Select.Item value={key} label={authorKeyToLabel(key)}>
             {@render authorLabel(key)}
             <span class="text-muted-foreground ml-1">({author.commitCount})</span>
           </Select.Item>
