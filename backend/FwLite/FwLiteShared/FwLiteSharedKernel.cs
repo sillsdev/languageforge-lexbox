@@ -53,7 +53,13 @@ public static class FwLiteSharedKernel
         services.TryAddSingleton<INetworkStatus, NetworkInterfaceNetworkStatus>();
         services.AddSingleton<UpdateService>();
         services.AddSingleton<TestingService>();
-        services.AddOptions<FwLiteConfig>().BindConfiguration("FwLite");
+        services.AddOptions<FwLiteConfig>().BindConfiguration("FwLite")
+            //env override wins over config so parallel dev worktrees can each point at their own Vite dev server
+            .PostConfigure(c =>
+            {
+                if (int.TryParse(Environment.GetEnvironmentVariable("FW_LITE_DEV_PORT"), out var devAssetsPort))
+                    c.DevAssetsPort = devAssetsPort;
+            });
         services.DecorateConstructor<IJSRuntime>((provider, runtime) =>
         {
             var crdtConfig = provider.GetRequiredService<IOptions<CrdtConfig>>().Value;

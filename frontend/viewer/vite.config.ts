@@ -7,6 +7,11 @@ import webfontDownload from 'vite-plugin-webfont-dl';
 
 const ssl = false;
 
+// Override the dev-server port (and the origin it advertises) via FW_LITE_DEV_PORT so multiple
+// worktrees can each run their own viewer; the .NET host loads assets cross-origin, so origin must track the port.
+const devPortFromEnv = !!process.env.FW_LITE_DEV_PORT;
+const devPort = Number(process.env.FW_LITE_DEV_PORT) || 5173;
+
 // https://vitejs.dev/config/
 export default defineConfig(({command}) => ({
   base: command === 'build' ? '/_content/FwLiteShared/viewer' : '/',
@@ -48,7 +53,9 @@ export default defineConfig(({command}) => ({
       ssl ? basicSsl() : null, // crypto.subtle is only available on secure connections
     ],
   server: {
-      origin: 'http://localhost:5173',
+      port: devPort,
+      strictPort: devPortFromEnv,
+      origin: `http://localhost:${devPort}`,
       host: true,
       allowedHosts: true,
       cors: true,
