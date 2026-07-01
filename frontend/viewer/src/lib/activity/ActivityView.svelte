@@ -164,7 +164,7 @@
                 <FormatRelativeDate date={row.timestamp}
                         actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
               </span>
-              <AuthorLabel authorId={row.metadata.authorId} authorName={row.metadata.authorName} iconClass="size-4" />
+              <AuthorLabel authorId={row.metadata.authorId} authorName={row.metadata.authorName} />
             </div>
           </ListItem>
         {/snippet}

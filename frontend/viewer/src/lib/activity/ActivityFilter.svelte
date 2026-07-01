@@ -111,7 +111,7 @@
           {$t`No authors`}
         {:else if filters.authorFilterKeys.length === 1}
           {@const selectedAuthor = authors.current.find(a => authorFilterKey(a) === filters.authorFilterKeys[0])}
-          <AuthorLabel authorId={selectedAuthor?.authorId} authorName={selectedAuthor?.authorName} />
+          <AuthorLabel authorId={selectedAuthor?.authorId} authorName={selectedAuthor?.authorName} iconClass="size-5" />
         {:else}
           {$t`${filters.authorFilterKeys.length} authors`}
         {/if}
@@ -129,7 +129,7 @@
         {#each authors.current as author (authorFilterKey(author))}
           {@const key = authorFilterKey(author)}
           <Select.Item value={key} label={authorKeyToLabel(key)}>
-            <AuthorLabel authorId={author.authorId} authorName={author.authorName} />
+            <AuthorLabel authorId={author.authorId} authorName={author.authorName} iconClass="size-5" />
             <span class="text-muted-foreground ml-1">({author.commitCount})</span>
           </Select.Item>
         {/each}

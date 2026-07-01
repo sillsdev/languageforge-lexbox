@@ -5,7 +5,7 @@
   import flexLogo from '$lib/assets/flex-logo.png';
   import {FIELDWORKS_AUTHOR_KEY, SYSTEM_AUTHOR_KEY, UNKNOWN_AUTHOR_KEY, authorFilterKey, wellKnownAuthorKeyToLabel} from './utils';
 
-  let {authorId, authorName, iconClass = 'size-5', class: className}: {
+  let {authorId, authorName, iconClass = 'size-4', class: className}: {
     authorId?: string;
     authorName?: string;
     iconClass?: string;
