@@ -241,7 +241,8 @@ public partial class CrdtProjectsService(
             var shmFile = sqliteFile + "-shm";
             try
             {
-                using var clearConn = new SqliteConnection($"Data Source={sqliteFile}");
+                var connStr = new SqliteConnectionStringBuilder { DataSource = sqliteFile }.ConnectionString;
+                using var clearConn = new SqliteConnection(connStr);
                 SqliteConnection.ClearPool(clearConn);
             }
             catch
