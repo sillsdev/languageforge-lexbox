@@ -16,6 +16,7 @@ public class ConfigRegistrationTests
         typeof(JsonPatchChange<ExampleSentence>), //replaced by JsonPatchExampleSentenceChange
         typeof(JsonPatchChange<CustomView>), //not supported. Use EditCustomViewChange
         typeof(DeleteChange<MorphType>), //MorphTypes cannot be deleted
+        typeof(DeleteChange<RemoteResource<NoMetadata>>), //replaced by DeleteRemoteResourceChange<NoMetadata>
     ];
 
     private readonly CrdtConfig _config;

@@ -280,12 +280,19 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var removePublicationChange = new RemovePublicationChange(entry.Id, publication2.Id);
         yield return new ChangeWithDependencies(removePublicationChange, [replacePublicationChange]);
 
-        yield return new ChangeWithDependencies(new CreateRemoteResourceChange<NoMetadata>(Guid.NewGuid(), "test-remote-id"));
+        var createRemoteResourceChange = new CreateRemoteResourceChange<NoMetadata>(Guid.NewGuid(), "test-remote-id");
+        yield return new ChangeWithDependencies(createRemoteResourceChange);
         var createRemoteResourcePendingUploadChange = new CreateRemoteResourcePendingUploadChange<NoMetadata>(Guid.NewGuid());
         yield return new ChangeWithDependencies(createRemoteResourcePendingUploadChange);
         yield return new ChangeWithDependencies(
             new RemoteResourceUploadedChange<NoMetadata>(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
             [createRemoteResourcePendingUploadChange]);
+        yield return new ChangeWithDependencies(
+            new SetRemoteResourceMetadataChange<NoMetadata>(createRemoteResourceChange.EntityId, new NoMetadata()),
+            [createRemoteResourceChange]);
+        yield return new ChangeWithDependencies(
+            new DeleteRemoteResourceChange<NoMetadata>(createRemoteResourceChange.EntityId),
+            [createRemoteResourceChange]);
 
         var customView = new CustomView
         {
