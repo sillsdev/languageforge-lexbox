@@ -38,6 +38,25 @@ tasks:
     cmds:
       - dotnet ef migrations has-pending-model-changes {{.CLI_ARGS}}
 
+  has-stale-generated-types:
+    desc: 'Fail if generated TypeScript types are out of date. Pass -- --no-build after a solution build.'
+    cmds:
+      - task: _build-fw-lite-shared-for-types
+        vars: { CLI_ARGS: '{{.CLI_ARGS}}' }
+      - task: _assert-generated-types-committed
+
+  _build-fw-lite-shared-for-types:
+    internal: true
+    status:
+      - 'powershell -NoProfile -Command "if (''{{.CLI_ARGS}}'' -match ''--no-build'') { exit 0 } else { exit 1 }"'
+    dir: ./FwLiteShared
+    cmd: dotnet build
+
+  _assert-generated-types-committed:
+    internal: true
+    dir: ../..
+    cmd: pwsh -NoProfile -File backend/FwLite/scripts/assert-generated-types-committed.ps1
+
   remove-last-migration:
     desc: "This will remove the last migration, don't remove migrations that have been pushed to production, but you can remove ones you created locally."
     deps: [ tool-restore ]
