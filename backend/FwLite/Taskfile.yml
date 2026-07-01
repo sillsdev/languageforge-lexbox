@@ -48,7 +48,7 @@ tasks:
   _build-fw-lite-shared-for-types:
     internal: true
     status:
-      - 'powershell -NoProfile -Command "if (''{{.CLI_ARGS}}'' -match ''--no-build'') { exit 0 } else { exit 1 }"'
+      - 'pwsh -NoProfile -Command "if (''{{.CLI_ARGS}}'' -match ''--no-build'') { exit 0 } else { exit 1 }"'
     dir: ./FwLiteShared
     cmd: dotnet build
 
