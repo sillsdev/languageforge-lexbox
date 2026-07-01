@@ -134,13 +134,14 @@
 </script>
 
 <div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
-     style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(8rem,25%) minmax(0,2fr)">
+     style="grid-template-rows: auto 1fr; grid-template-columns: minmax(8rem,25%) minmax(0,2fr)">
 
-  <div class="flex flex-wrap items-center gap-2">
-    <div class="grow min-w-0">
-      <ActivityFilter bind:filters />
-    </div>
-    <ActivityListViewOptions bind:mode={() => activityMode, (v) => void activityListViewMode.set(v)} />
+  <div>
+    <ActivityFilter bind:filters>
+      {#snippet trailing()}
+        <ActivityListViewOptions bind:mode={() => activityMode, (v) => void activityListViewMode.set(v)} />
+      {/snippet}
+    </ActivityFilter>
   </div>
 
   <div class="gap-4 overflow-hidden row-start-2 relative">
@@ -157,7 +158,7 @@
       <VList bind:this={vlist} data={visibleActivity}
              class="h-full p-0.5 md:pr-3 after:h-12 after:block"
              onscroll={onListScroll}
-             getKey={row => row.commitId} itemSize={72} bufferSize={400}>
+             getKey={row => row.commitId} bufferSize={400}>
         {#snippet children(row)}
           {@const summary = summarizeActivity(row.changes, row.changeInfo, row.changeTypes, activityMode === 'detailed')}
           <ListItem
@@ -169,10 +170,10 @@
             {:else if activityMode === 'detailed'}
               <div class="space-y-0.5">
                 {#each summary.entries as entry, i (i)}
-                  <div class="text-sm truncate"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></div>
+                  <div><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></div>
                 {/each}
                 {#if summary.remaining > 0}
-                  <div class="text-sm text-muted-foreground">{$t`(+${summary.remaining} more)`}</div>
+                  <div class="text-muted-foreground">{$t`(+${summary.remaining} more)`}</div>
                 {/if}
               </div>
             {:else}
@@ -186,6 +187,9 @@
               </div>
             {/if}
             <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
+              <span>
+                {row.metadata.authorName ?? $t`Unknown`}
+              </span>
               <span class="flex items-center gap-1">
                 {#if !row.metadata.extraMetadata['SyncDate']}
                   <Icon
@@ -195,9 +199,6 @@
                 {/if}
                 <FormatRelativeDate date={row.timestamp}
                         actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
-              </span>
-              <span>
-                {row.metadata.authorName ?? $t`Unknown`}
               </span>
             </div>
           </ListItem>

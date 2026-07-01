@@ -305,7 +305,9 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
 
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run › sense 1");
+        // Create-sense reads as an entry-level change ("run · Added sense senseN"): the subject is the
+        // parent entry headword and the sense identifier goes to Target (subscript for an empty gloss).
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "sense₁");
     }
 
     [Fact]
@@ -317,9 +319,11 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
 
-        // Both senses share a gloss, so each subject is disambiguated by its 1-based position.
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "bat › flying mammal (1)");
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "bat › flying mammal (2)");
+        // Both senses share a gloss, so each Target is disambiguated by its 1-based position as a subscript
+        // (matches the homograph-number convention so the number reads as a disambiguator, not a value).
+        // Subject is the parent entry headword since these are create-sense summaries.
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "bat" && a.ChangeInfo[0].Target == "flying mammal₁");
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "bat" && a.ChangeInfo[0].Target == "flying mammal₂");
     }
 
     [Fact]
@@ -331,9 +335,10 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
 
-        // Distinct glosses are unambiguous, so no number is appended.
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run › to run");
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run › a jog");
+        // Distinct glosses are unambiguous, so no number is appended. Create-sense subject is the parent
+        // entry headword; the sense gloss goes to Target ("run · Added sense to run").
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "to run");
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "a jog");
     }
 
     [Fact]

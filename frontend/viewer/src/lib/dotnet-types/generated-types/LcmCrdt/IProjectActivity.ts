@@ -15,6 +15,7 @@ export interface IProjectActivity
 	metadata: ICommitMetadata;
 	changeName: string;
 	changeTypes: string[];
+	changeTypeLabels: string[];
 	changeInfo: IActivityChangeInfo[];
 }
 /* eslint-enable */

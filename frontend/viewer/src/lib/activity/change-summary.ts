@@ -378,7 +378,9 @@ export function recognizeCommit(
     && allSameRoot(changeInfo)) {
     const index = changes.findIndex((c) => changeType(c.change) === 'CreateSenseChange');
     const info = changeInfo?.[index >= 0 ? index : 0];
-    return {fact: {kind: 'create', entity: 'sense', label: info?.subject}, subject: info?.subject, rootEntryId: info?.rootEntryId};
+    // Sense-create subject is the parent entry headword; target is the sense identifier (SenseGlossPart).
+    // Pass target through so ChangeSummary's sense-create branch can render "<headword> · Added sense <senseLabel>".
+    return {fact: {kind: 'create', entity: 'sense', label: info?.target}, subject: info?.subject, target: info?.target, rootEntryId: info?.rootEntryId};
   }
   // One kind of thing created across many entities (import / sync batch) → "Created N entries".
   const noun = changeTypes.length === 1 ? BULK_CREATE_NOUNS[changeTypes[0]] : undefined;

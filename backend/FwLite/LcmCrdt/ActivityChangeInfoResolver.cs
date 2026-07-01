@@ -57,7 +57,13 @@ internal static class ActivityChangeInfoResolver
                 case RemoveSemanticDomainChange r: semanticDomainIds.Add(r.SemanticDomainId); break;
                 case RemovePublicationChange r: publicationIds.Add(r.PublicationId); break;
                 case RemoveComplexFormTypeChange r: complexFormTypeIds.Add(r.ComplexFormTypeId); break;
-                case AddEntryComponentChange a: entryIds.Add(a.ComponentEntryId); break;
+                case AddEntryComponentChange a:
+                    entryIds.Add(a.ComponentEntryId);
+                    // Also load the complex-form entry so we can name the subject when the CFC has been deleted
+                    // (soft-deleted CFCs are absent from the projection dict, so the ComplexFormComponent case
+                    // below falls back to this change's ComplexFormEntryId).
+                    entryIds.Add(a.ComplexFormEntryId);
+                    break;
                 case SetComplexFormComponentChange { ComponentEntryId: { } cid }: entryIds.Add(cid); break;
             }
         }
@@ -96,17 +102,19 @@ internal static class ActivityChangeInfoResolver
         string? Headword(Guid entryId) => entries.TryGetValue(entryId, out var entry) ? DisplayHeadword(entry, morphLookup) : null;
 
         // The gloss-part of a sense's label, disambiguated by its 1-based position among its entry's senses:
-        // empty gloss → "sense {n}"; a gloss another sibling shares → "{gloss} ({n})"; a unique gloss → "{gloss}".
-        // Never null, so an empty-gloss sense reads as a sense rather than collapsing to the bare entry headword.
+        // empty gloss → "sense{₂}" (subscript, like homograph numbers); a duplicate gloss → "{gloss}{₂}"; a
+        // unique gloss → "{gloss}". Never null, so an empty-gloss sense reads as a sense rather than
+        // collapsing to the bare entry headword. Subscript matches the homograph convention so the number
+        // reads as a disambiguator rather than a value.
         string SenseGlossPart(Sense sense)
         {
             var siblings = sensesByEntry.GetValueOrDefault(sense.EntryId) ?? [];
             var number = siblings.FindIndex(s => s.Id == sense.Id) + 1;
             if (number == 0) number = 1; // not found among siblings (shouldn't happen for a snapshot sense)
             var glossText = Label(sense.Gloss);
-            if (string.IsNullOrEmpty(glossText)) return $"sense {number}";
+            if (string.IsNullOrEmpty(glossText)) return "sense" + Subscript(number);
             var duplicated = siblings.Count(s => string.Equals(Label(s.Gloss), glossText, StringComparison.Ordinal)) > 1;
-            return duplicated ? $"{glossText} ({number})" : glossText;
+            return duplicated ? glossText + Subscript(number) : glossText;
         }
 
         // Degrades to just the gloss-part when the entry has no displayable headword.
@@ -155,11 +163,20 @@ internal static class ActivityChangeInfoResolver
                 case nameof(Entry):
                     return (headword(id), id);
                 case nameof(Sense) when senses.TryGetValue(id, out var sense):
+                    // Create-sense reads as an entry-level change ("headword · Added sense senseN"), so the
+                    // subject is the parent entry's headword and the sense identifier goes to Target.
+                    // Sense edits keep the "headword › senseLabel" subject so field changes read as sense-level.
+                    if (change.Change is CreateSenseChange)
+                        return (headword(sense.EntryId), sense.EntryId);
                     return (SenseLabel(headword(sense.EntryId), sense), sense.EntryId);
                 case nameof(ExampleSentence) when examples.TryGetValue(id, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
                     return (SenseLabel(headword(exSense.EntryId), exSense), exSense.EntryId);
                 case nameof(ComplexFormComponent) when components.TryGetValue(id, out var component):
                     return (headword(component.ComplexFormEntryId), component.ComplexFormEntryId);
+                case nameof(ComplexFormComponent) when change.Change is AddEntryComponentChange add:
+                    // Projection excludes soft-deleted CFCs, so a later-deleted CFC isn't in `components`.
+                    // Fall back to the create-change payload, which carries the endpoint ids.
+                    return (headword(add.ComplexFormEntryId), add.ComplexFormEntryId);
                 case nameof(PartOfSpeech) when partsOfSpeech.TryGetValue(id, out var pos):
                     return (Label(pos.Name), null);
                 case nameof(SemanticDomain) when semanticDomains.TryGetValue(id, out var domain):
@@ -185,6 +202,10 @@ internal static class ActivityChangeInfoResolver
             // Component links resolve the component being linked (the change's subject is the complex form).
             AddEntryComponentChange a when entries.TryGetValue(a.ComponentEntryId, out var component) => DisplayHeadword(component, morphLookup),
             SetComplexFormComponentChange { ComponentEntryId: { } cid } when entries.TryGetValue(cid, out var component) => DisplayHeadword(component, morphLookup),
+            // Sense-create pairs with the ResolveSubject override above: subject is the parent entry headword,
+            // target names the new sense ("gwa₁ · Added sense senseN" — SenseGlossPart falls back to a subscript
+            // when the gloss is empty, matching sense-edit summaries).
+            CreateSenseChange when senses.TryGetValue(change.EntityId, out var sense) => SenseGlossPart(sense),
             _ => null
         };
     }

@@ -22,10 +22,17 @@
   const translationIds = $derived([
     ...new Set([...(before?.translations ?? []), ...(after?.translations ?? [])].map((tr) => tr.id)),
   ]);
+
+  // In a preview scope every field should be visible. A view configuration that predates a field addition
+  // returns undefined from fieldRecord — treat that as "show" so translations/reference never disappear
+  // just because the current view doesn't list them. Explicit `show: false` is still respected.
+  function shouldShow(field: {show: boolean} | undefined): boolean {
+    return field ? field.show : true;
+  }
 </script>
 
 <Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas(exampleFields)}">
-  <Editor.Field.Root fieldId="sentence" class={cn(fields.sentence?.show || 'hidden')}>
+  <Editor.Field.Root fieldId="sentence" class={cn(shouldShow(fields.sentence) || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.example.sentence.label)} helpId={entityConfig.example.sentence.helpId} />
     <Editor.Field.Body subGrid>
       <DiffRichText before={before?.sentence} after={after?.sentence}
@@ -33,27 +40,35 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root fieldId="translations" class={cn(fields.translations?.show || 'hidden', 'space-y-2')}>
-    {#each translationIds as id, i (id)}
-      {@const beforeTr = before?.translations.find((tr) => tr.id === id)}
-      {@const afterTr = after?.translations.find((tr) => tr.id === id)}
-      {@const title = translationIds.length > 1 ? $t`Translation ${i + 1}` : $t`Translation`}
-      <Editor.SubGrid class="items-baseline">
-        <Editor.Field.Title name={title} helpId={entityConfig.example.translations.helpId} />
-        <Editor.Field.Body subGrid>
-          <DiffRichText before={beforeTr?.text} after={afterTr?.text}
-                        writingSystems={writingSystemService.viewAnalysis(viewService.currentView)} />
-        </Editor.Field.Body>
-      </Editor.SubGrid>
-    {/each}
+  <Editor.Field.Root fieldId="translations" class={cn(shouldShow(fields.translations) || 'hidden', 'space-y-2')}>
+    {#if translationIds.length === 0}
+      <!-- Render the label + empty state even when neither side has translations, so the field's presence is discoverable. -->
+      <Editor.Field.Title name={$t`Translation`} helpId={entityConfig.example.translations.helpId} />
+      <Editor.Field.Body>
+        <DiffRichText before={undefined} after={undefined}
+                      writingSystems={writingSystemService.viewAnalysis(viewService.currentView)} />
+      </Editor.Field.Body>
+    {:else}
+      {#each translationIds as id, i (id)}
+        {@const beforeTr = before?.translations.find((tr) => tr.id === id)}
+        {@const afterTr = after?.translations.find((tr) => tr.id === id)}
+        {@const title = translationIds.length > 1 ? $t`Translation ${i + 1}` : $t`Translation`}
+        <Editor.SubGrid class="items-baseline">
+          <Editor.Field.Title name={title} helpId={entityConfig.example.translations.helpId} />
+          <Editor.Field.Body subGrid>
+            <DiffRichText before={beforeTr?.text} after={afterTr?.text}
+                          writingSystems={writingSystemService.viewAnalysis(viewService.currentView)} />
+          </Editor.Field.Body>
+        </Editor.SubGrid>
+      {/each}
+    {/if}
   </Editor.Field.Root>
 
-  {#if writingSystemService.defaultAnalysis}
-    <Editor.Field.Root fieldId="reference" class={cn(fields.reference?.show || 'hidden')}>
-      <Editor.Field.Title name={$tvt(entityConfig.example.reference.label)} helpId={entityConfig.example.reference.helpId} />
-      <Editor.Field.Body>
-        <DiffText before={asString(before?.reference)} after={asString(after?.reference)} />
-      </Editor.Field.Body>
-    </Editor.Field.Root>
-  {/if}
+  <!-- Reference is a plain RichString? (no writing-system dimension), so it renders regardless of defaultAnalysis. -->
+  <Editor.Field.Root fieldId="reference" class={cn(shouldShow(fields.reference) || 'hidden')}>
+    <Editor.Field.Title name={$tvt(entityConfig.example.reference.label)} helpId={entityConfig.example.reference.helpId} />
+    <Editor.Field.Body>
+      <DiffText before={asString(before?.reference)} after={asString(after?.reference)} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
 </Editor.SubGrid>

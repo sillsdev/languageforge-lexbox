@@ -35,13 +35,25 @@
   const semDomBefore: ISemanticDomain = {id: '00000000-0000-0000-0000-0000000000c2', name: {en: 'Universe, creation'}, code: '1', predefined: true};
   const semDomAfter: ISemanticDomain = {...semDomBefore, name: {en: 'Universe, creation, cosmos'}};
 
-  const componentEntry: IEntry = {...entry, id: '00000000-0000-0000-0000-0000000000aa', lexemeForm: {seh: 'mwala'}, citationForm: {}, senses: []};
+  const complexFormId = '00000000-0000-0000-0000-0000000000a1';
+  const addedComponentId = '00000000-0000-0000-0000-0000000000aa';
   const cfc = {
     id: '00000000-0000-0000-0000-0000000000bb',
-    complexFormEntryId: entry.id,
-    componentEntryId: componentEntry.id,
+    complexFormEntryId: complexFormId,
+    complexFormHeadword: 'nyumba yaikulu',
+    componentEntryId: addedComponentId,
+    componentHeadword: 'mwala',
     order: 1,
   } as unknown as IComplexFormComponent;
+  const siblingCfc = {
+    id: '00000000-0000-0000-0000-0000000000cc',
+    complexFormEntryId: complexFormId,
+    componentEntryId: '00000000-0000-0000-0000-0000000000dd',
+    componentHeadword: 'thanthwe',
+    order: 2,
+  } as unknown as IComplexFormComponent;
+  const complexFormEntry: IEntry = {...entry, id: complexFormId, lexemeForm: {seh: 'nyumba yaikulu'}, citationForm: {}, senses: [], components: [cfc, siblingCfc], complexForms: []};
+  const componentEntry: IEntry = {...entry, id: addedComponentId, lexemeForm: {seh: 'mwala'}, citationForm: {}, senses: [], components: [], complexForms: [cfc]};
 
   const cases: {label: string; context: IChangeContext}[] = [
     {label: 'Entry — edited', context: ctx({entityType: 'Entry', previousSnapshot: entryBefore, snapshot: entryAfter, affectedEntries: [entryAfter]})},
@@ -49,7 +61,48 @@
     {label: 'Entry — created (no before)', context: ctx({entityType: 'Entry', snapshot: entry, affectedEntries: [entry]})},
     {label: 'Sense — edited', context: ctx({entityType: 'Sense', previousSnapshot: senseBefore, snapshot: senseAfter, affectedEntries: [entry]})},
     {label: 'Example — edited', context: ctx({entityType: 'ExampleSentence', previousSnapshot: exampleBefore, snapshot: exampleAfter, affectedEntries: [entry]})},
-    {label: 'Complex form component', context: ctx({entityType: 'ComplexFormComponent', snapshot: cfc, affectedEntries: [entry, componentEntry]})},
+    {label: 'Complex form component — added', context: ctx({entityType: 'ComplexFormComponent', snapshot: cfc, affectedEntries: [complexFormEntry, componentEntry]})},
+    {label: 'Complex form component — added but later removed (live state has dropped the CFC)', context: (() => {
+      // Simulates: this commit added the CFC, a later commit removed it. affectedEntries carry live-state
+      // (post-removal) so both entries' lists don't include the CFC — the preview must re-inject it as "added".
+      const complexFormLive: IEntry = {...complexFormEntry, components: [siblingCfc]};
+      const componentLive: IEntry = {...componentEntry, complexForms: []};
+      return ctx({entityType: 'ComplexFormComponent', snapshot: cfc, affectedEntries: [complexFormLive, componentLive]});
+    })()},
+    {label: 'Complex form component — removed', context: (() => {
+      // Removed: the CFC is gone from the current entries' lists; previousSnapshot carries the departed link.
+      const complexFormAfter: IEntry = {...complexFormEntry, components: [siblingCfc]};
+      const componentAfter: IEntry = {...componentEntry, complexForms: []};
+      return ctx({entityType: 'ComplexFormComponent', previousSnapshot: cfc, affectedEntries: [complexFormAfter, componentAfter]});
+    })()},
+    {label: 'Complex form component — removed (deleted-snapshot present, mimics real backend)', context: (() => {
+      // Harmony's DeleteChange emits BOTH snapshots — previousSnapshot = the live CFC, snapshot = the same CFC with
+      // deletedAt set. The frontend must treat the deleted snapshot as absent, or it wrongly reads as a reorder.
+      const complexFormAfter: IEntry = {...complexFormEntry, components: [siblingCfc]};
+      const componentAfter: IEntry = {...componentEntry, complexForms: []};
+      const deletedCfc = {...cfc, deletedAt: '2026-06-30T12:00:00Z'} as unknown as IComplexFormComponent;
+      return ctx({entityType: 'ComplexFormComponent', previousSnapshot: cfc, snapshot: deletedCfc, affectedEntries: [complexFormAfter, componentAfter]});
+    })()},
+    {label: 'Complex form component — swapped (endpoint change)', context: (() => {
+      // Update: same cfc.id but the componentEntryId (and headword) changed.
+      const swappedCfc = {...cfc, componentEntryId: '00000000-0000-0000-0000-0000000000ee', componentHeadword: 'chithaphwi'} as unknown as IComplexFormComponent;
+      const complexFormAfter: IEntry = {...complexFormEntry, components: [swappedCfc, siblingCfc]};
+      const newComponentEntry: IEntry = {...componentEntry, id: swappedCfc.componentEntryId, lexemeForm: {seh: 'chithaphwi'}, complexForms: [swappedCfc]};
+      return ctx({entityType: 'ComplexFormComponent', previousSnapshot: cfc, snapshot: swappedCfc, affectedEntries: [complexFormAfter, newComponentEntry]});
+    })()},
+    {label: 'Complex form component — reordered', context: (() => {
+      // Reorder: same cfc.id, same endpoints, only .order changed. mwala moves from pos 1 → pos 3.
+      const reorderedCfc = {...cfc, order: 3} as unknown as IComplexFormComponent;
+      const thirdCfc = {
+        id: '00000000-0000-0000-0000-0000000000ff',
+        complexFormEntryId: complexFormId,
+        componentEntryId: '00000000-0000-0000-0000-0000000000ee',
+        componentHeadword: 'chithaphwi',
+        order: 2,
+      } as unknown as IComplexFormComponent;
+      const complexFormReordered: IEntry = {...complexFormEntry, components: [siblingCfc, thirdCfc, reorderedCfc]};
+      return ctx({entityType: 'ComplexFormComponent', previousSnapshot: cfc, snapshot: reorderedCfc, affectedEntries: [complexFormReordered]});
+    })()},
     {label: 'Part of speech — name edited', context: ctx({entityType: 'PartOfSpeech', previousSnapshot: posBefore, snapshot: posAfter})},
     {label: 'Semantic domain — name edited (keeps code)', context: ctx({entityType: 'SemanticDomain', previousSnapshot: semDomBefore, snapshot: semDomAfter})},
     {label: 'Remote resource (generic JSON)', context: ctx({entityType: 'RemoteResource', snapshot: {id: 'res-1', fileName: 'audio.mp3', uploaded: true} as unknown as IObjectWithId})},
@@ -76,6 +129,31 @@
   {#snippet template()}
     <div class="max-w-3xl border rounded p-3">
       <EntryEditor entry={structuredClone(allWsEntry)} readonly modalMode canAddSense={false} canAddExample={false} />
+    </div>
+  {/snippet}
+</Story>
+
+<Story name="Collapsed entry in activity grid (repro)">
+  {#snippet template()}
+    <div style="height: 640px;" class="border overflow-hidden">
+      <!-- Mirror ActivityView's outer grid exactly (post-fix: `auto 1fr` rows) -->
+      <div
+        class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
+        style="grid-template-rows: auto 1fr; grid-template-columns: minmax(8rem,25%) minmax(0,2fr)">
+        <div class="flex flex-wrap items-center gap-2 bg-muted/40 rounded p-2">Filter bar</div>
+        <div class="overflow-hidden row-start-2 relative bg-muted/20 rounded p-2 space-y-2 text-sm">
+          <div class="p-2 bg-muted rounded">Commit A · snappy — CreateEntryChange, CreateSenseChange</div>
+          <div class="p-2 bg-muted rounded">Commit B · Set Word (seh) to fooo</div>
+          <div class="p-2 bg-muted rounded">Commit C · Added semantic domain 1.1 Sky</div>
+          <div class="p-2 bg-muted rounded">Commit D · Added component</div>
+        </div>
+        <div class="sub-grid row-span-2 col-start-2 grid gap-2 grid-rows-[auto_1fr] h-full min-w-0 min-h-0">
+          <div class="text-sm">Author: Demo – (2 changes)<div class="text-xs text-muted-foreground">CreateEntryChange, CreateSenseChange</div></div>
+          <div class="overflow-auto border rounded p-3 min-w-0 min-h-0">
+            <EntryEditor entry={structuredClone(allWsEntry)} readonly modalMode canAddSense={false} canAddExample={false} />
+          </div>
+        </div>
+      </div>
     </div>
   {/snippet}
 </Story>

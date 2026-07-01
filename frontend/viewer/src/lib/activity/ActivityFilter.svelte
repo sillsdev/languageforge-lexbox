@@ -29,9 +29,11 @@
 
   type Props = {
     filters?: ActivityFilters;
+    /** Optional right-aligned content rendered on the same row as the sort menu (e.g. the list-mode icon). */
+    trailing?: import('svelte').Snippet;
   };
 
-  let {filters = $bindable(createDefaultActivityFilters())}: Props = $props();
+  let {filters = $bindable(createDefaultActivityFilters()), trailing}: Props = $props();
 
   const historyService = useHistoryService();
 
@@ -181,23 +183,28 @@
     </Select.Root>
   </div>
 
-  <ResponsiveMenu.Root>
-    <ResponsiveMenu.Trigger class={cn(buttonVariants({variant: 'secondary', size: 'xs'}), badgeVariants({variant: 'secondary'}), 'border-none h-7')}>
-      {#snippet child({props})}
-        <Button {...props} icon={sortIcons[filters.sort]} iconProps={{class: 'size-4'}}>
-          {sortLabels[filters.sort]}
-        </Button>
-      {/snippet}
-    </ResponsiveMenu.Trigger>
-    <ResponsiveMenu.Content align="start">
-      {#each Object.values(ActivitySort) as sortOption (sortOption)}
-        <ResponsiveMenu.Item
-          onSelect={() => filters.sort = sortOption}
-          class={cn(filters.sort === sortOption && 'bg-muted')}>
-          <Icon icon={sortIcons[sortOption]} />
-          {sortLabels[sortOption]}
-        </ResponsiveMenu.Item>
-      {/each}
-    </ResponsiveMenu.Content>
-  </ResponsiveMenu.Root>
+  <!-- Sort menu on the left, optional trailing element (list-mode icon) on the right — mirrors the entry
+       browser layout (SortMenu ↔ EntryListViewOptions) so the two views feel consistent. -->
+  <div class="flex items-center justify-between gap-2">
+    <ResponsiveMenu.Root>
+      <ResponsiveMenu.Trigger class={cn(buttonVariants({variant: 'secondary', size: 'xs'}), badgeVariants({variant: 'secondary'}), 'border-none h-7')}>
+        {#snippet child({props})}
+          <Button {...props} icon={sortIcons[filters.sort]} iconProps={{class: 'size-4'}}>
+            {sortLabels[filters.sort]}
+          </Button>
+        {/snippet}
+      </ResponsiveMenu.Trigger>
+      <ResponsiveMenu.Content align="start">
+        {#each Object.values(ActivitySort) as sortOption (sortOption)}
+          <ResponsiveMenu.Item
+            onSelect={() => filters.sort = sortOption}
+            class={cn(filters.sort === sortOption && 'bg-muted')}>
+            <Icon icon={sortIcons[sortOption]} />
+            {sortLabels[sortOption]}
+          </ResponsiveMenu.Item>
+        {/each}
+      </ResponsiveMenu.Content>
+    </ResponsiveMenu.Root>
+    {#if trailing}{@render trailing()}{/if}
+  </div>
 </div>

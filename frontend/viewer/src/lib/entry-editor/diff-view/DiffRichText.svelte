@@ -1,7 +1,7 @@
 <script lang="ts">
   import type {IRichMultiString, IWritingSystem} from '$lib/dotnet-types';
   import type {ReadonlyDeep} from 'type-fest';
-  import {Label} from '$lib/components/ui/label';
+  import WsCode from '$lib/components/writing-system/WsCode.svelte';
   import {asString} from '$project/data';
   import DiffText from './DiffText.svelte';
   import DiffShell from './DiffShell.svelte';
@@ -17,8 +17,11 @@
 
 <div class="grid grid-cols-subgrid col-span-full gap-y-2">
   {#each visibleWritingSystems as ws (ws.wsId)}
-    <div class="grid gap-y-1 @lg/editor:grid-cols-subgrid col-span-full items-baseline" title={`${ws.name} (${ws.wsId})`}>
-      <Label>{ws.abbreviation}</Label>
+    <!-- Self-contained 2-col row so WS-code + value stay side-by-side regardless of the ancestor
+         container width. The editor's `@lg/editor:grid-cols-subgrid` variant only aligns with the
+         ambient editor grid when the container ≥ 1024px, which the activity preview pane often isn't. -->
+    <div class="grid gap-x-2 gap-y-1 grid-cols-[max-content_1fr] col-span-full items-baseline" title={`${ws.name} (${ws.wsId})`}>
+      <WsCode abbreviation={ws.abbreviation} />
       <DiffShell>
         <DiffText before={asString(before?.[ws.wsId])} after={asString(after?.[ws.wsId])} />
       </DiffShell>

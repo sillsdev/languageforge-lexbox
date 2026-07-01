@@ -3,6 +3,7 @@
   import {usePartsOfSpeech, asString, useWritingSystemService} from '$project/data';
   import type {HTMLAttributes} from 'svelte/elements';
   import {Icon} from '$lib/components/ui/icon';
+  import WsCode from '$lib/components/writing-system/WsCode.svelte';
   import {cn} from '$lib/utils';
   import type {Snippet} from 'svelte';
   import Headwords from './Headwords.svelte';
@@ -115,7 +116,7 @@
       {/if}
       <span>
         {#each sense.glossesAndDefs as glossAndDef (glossAndDef.wsId)}
-          <sub class="-mr-0.5">{glossAndDef.wsAbbr}</sub>
+          <WsCode abbreviation={glossAndDef.wsAbbr} class="-mr-0.5 align-sub" />
           {#if glossAndDef.gloss}
             <span class={glossAndDef.color}>{glossAndDef.gloss}</span>{#if glossAndDef.definition};{/if}
           {/if}

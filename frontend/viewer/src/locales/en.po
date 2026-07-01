@@ -216,6 +216,10 @@ msgstr "Added {0}"
 msgid "Added {0} to"
 msgstr "Added {0} to"
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added component"
+msgstr "Added component"
+
 #. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Removed picture", "Updated picture", "Reordered pictures".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added picture"
@@ -398,6 +402,14 @@ msgstr "Changed {0}"
 msgid "Changed {0} to"
 msgstr "Changed {0} to"
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Changed component"
+msgstr "Changed component"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Changed component to"
+msgstr "Changed component to"
+
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
@@ -443,11 +455,6 @@ msgstr "clear"
 msgid "Cleared {0}"
 msgstr "Cleared {0}"
 
-#. Activity-log line. {0} = field label; {1} = writing system code (e.g. "en", "fr"). Means the field value for that writing system was erased.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Cleared {0} ({1})"
-msgstr "Cleared {0} ({1})"
-
 #. Button to close popup
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -464,7 +471,6 @@ msgstr "Close Dictionary"
 
 #. Field label in the activity change-preview diff. "Code" is the short identifier on a semantic domain (e.g. "1.1") or the writing-system ID (e.g. "en").
 #: src/home/CreateProjectDialog.svelte
-#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Code"
 msgstr "Code"
@@ -499,11 +505,6 @@ msgstr "complex form types"
 msgid "Complex form types"
 msgstr "Complex form types"
 
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Complex form:"
-msgstr "Complex form:"
-
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Complex forms"
@@ -525,11 +526,6 @@ msgstr "component"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Component"
 msgstr "Component"
-
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Component:"
-msgstr "Component:"
 
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of component entries in a compound word.
 #: src/lib/activity/ChangeSummary.svelte
@@ -1286,11 +1282,6 @@ msgstr "Lexeme form or Citation form is required"
 msgid "Light"
 msgstr "Light"
 
-#. Activity-log line followed by the name of the component entry that was linked; the compound word it was linked to is the subject shown before. E.g. "blackbird · Linked component black".
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Linked component"
-msgstr "Linked component"
-
 #. Section header in a list-view options popup. In the entry list the options are "Simple" and "Preview"; in the activity list they are "Simple" and "Detailed".
 #: src/lib/activity/ActivityListViewOptions.svelte
 #: src/lib/activity/ActivityListViewOptions.svelte
@@ -1625,12 +1616,6 @@ msgstr "None"
 msgid "Not equal"
 msgstr "Not equal"
 
-#. Placeholder shown in the activity change preview when a referenced entry or sense no longer exists in the dictionary.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Not found"
-msgstr "Not found"
-
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
@@ -1889,6 +1874,10 @@ msgstr "Remove audio"
 msgid "Removed {0}"
 msgstr "Removed {0}"
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed component"
+msgstr "Removed component"
+
 #. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A leading entry chip may precede this text.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Removed from {0}"
@@ -2055,12 +2044,6 @@ msgstr "senses"
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Sentence"
-
-#. Activity-log line. {0} = field label (e.g. "Gloss"), {1} = writing-system code (e.g. "en"); a chip with the new value follows.
-#: src/lib/activity/ChangeSummary.svelte
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Set {0} ({1}) to"
-msgstr "Set {0} ({1}) to"
 
 #. Activity-log line. {0} = field label (e.g. "Definition"); a chip with the new value follows. Used when there is no writing-system qualifier.
 #: src/lib/activity/ChangeSummary.svelte
@@ -2428,15 +2411,11 @@ msgstr "Unknown server"
 msgid "Unknown update result"
 msgstr "Unknown update result"
 
-#. Activity-log line. A complex-form component link was removed from an entry (the component entry is no longer a part of this compound).
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Unlinked component"
-msgstr "Unlinked component"
-
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -2483,16 +2462,6 @@ msgstr "Update started in the background. Restart the application after the upda
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update was disallowed by permission settings."
 msgstr "Update was disallowed by permission settings."
-
-#. Activity-log line followed by the name of the component entry whose link was changed; the compound word is the subject shown before.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Updated component"
-msgstr "Updated component"
-
-#. Activity-log line. A complex-form component link on an entry was updated (target component changed); no chip follows when the new target name is unavailable.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Updated component link"
-msgstr "Updated component link"
 
 #. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Reordered pictures".
 #: src/lib/activity/ChangeSummary.svelte
@@ -2603,6 +2572,10 @@ msgstr "writing system"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"
 msgstr "Writing System"
+
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Writing system code"
+msgstr "Writing system code"
 
 #. Tooltip on a text span in the rich-text editor. {0} = writing system code (e.g., "en", "fr-IPA"). Identifies which writing system the span belongs to.
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts

@@ -1,6 +1,7 @@
 <script lang="ts" generics="T">
   import {Badge} from '$lib/components/ui/badge';
   import DiffShell from './DiffShell.svelte';
+  import {diffAdded, diffEmpty, diffKept, diffRemoved} from './diff-classes';
 
   let {before = [], after = [], idSelector, labelSelector}: {
     before?: readonly T[];
@@ -18,18 +19,18 @@
 
 {#if !before.length && !after.length}
   <DiffShell class="items-center">
-    <span class="text-muted-foreground/50 italic">—</span>
+    <span class={diffEmpty}>&nbsp;</span>
   </DiffShell>
 {:else}
   <DiffShell class="flex-wrap items-center gap-1">
     {#each kept as item (idSelector(item))}
-      <Badge class="bg-secondary text-muted-foreground">{labelSelector(item)}</Badge>
+      <Badge class={diffKept}>{labelSelector(item)}</Badge>
     {/each}
     {#each removed as item (idSelector(item))}
-      <Badge class="bg-destructive/10 text-destructive line-through decoration-destructive/50">{labelSelector(item)}</Badge>
+      <Badge class={diffRemoved}>{labelSelector(item)}</Badge>
     {/each}
     {#each added as item (idSelector(item))}
-      <Badge class="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">{labelSelector(item)}</Badge>
+      <Badge class={diffAdded}>{labelSelector(item)}</Badge>
     {/each}
   </DiffShell>
 {/if}

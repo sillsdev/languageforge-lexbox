@@ -25,6 +25,7 @@
   import {T, t} from 'svelte-i18n-lingui';
   import {VList} from 'virtua/svelte';
   import ActivityItemChangePreview from './ActivityItemChangePreview.svelte';
+  import PreviewViewScope from './PreviewViewScope.svelte';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import {formatJsonForUi} from './utils';
   import type {HTMLAttributes} from 'svelte/elements';
@@ -69,7 +70,7 @@
   });
 </script>
 
-<div {...restProps} class={cn(className, 'grid gap-2 grid-rows-[auto_1fr] h-full min-w-0')}>
+<div {...restProps} class={cn(className, 'grid gap-2 grid-rows-[auto_1fr] h-full min-w-0 min-h-0')}>
   {#if activity}
     <div class="text-sm flex flex-wrap justify-between gap-2">
       <span>
@@ -117,8 +118,8 @@
           </span>
         {/if}
       </span>
-      {#if activity.changeTypes.length}
-        <div class="w-full text-xs text-muted-foreground truncate" title={activity.changeTypes.join(', ')}>{activity.changeTypes.join(', ')}</div>
+      {#if activity.changeTypeLabels.length}
+        <div class="w-full text-xs text-muted-foreground truncate" title={activity.changeTypeLabels.join(', ')}>{activity.changeTypeLabels.join(', ')}</div>
       {/if}
     </div>
     
@@ -133,7 +134,9 @@
         {:then entry}
           {#if entry}
             <div class="overflow-auto border rounded p-3 min-w-0 min-h-0">
-              <EntryEditor {entry} readonly modalMode canAddSense={false} canAddExample={false} />
+              <PreviewViewScope>
+                <EntryEditor {entry} readonly modalMode canAddSense={false} canAddExample={false} />
+              </PreviewViewScope>
             </div>
           {:else}
             {@render changeList(changes)}

@@ -10,8 +10,11 @@
   const viewService = useViewService();
 
   // These kinds weave the subject into their own sentence ("Created entry X"); the rest get it as a leading chip.
+  // Sense- and example-creates are self-naming for `delete` (the deleted entity's own label) but NOT for `create`:
+  // there the subject is the *parent* entry, so we want it as a leading chip — "gwa₁ · Added sense apple".
   const selfNaming = $derived(
-    fact.kind === 'create' || fact.kind === 'createObject' || fact.kind === 'editObject'
+    (fact.kind === 'create' && fact.entity === 'entry')
+    || fact.kind === 'createObject' || fact.kind === 'editObject'
     || fact.kind === 'editObjectField' || fact.kind === 'deleteObject' || fact.kind === 'delete',
   );
 
@@ -108,76 +111,87 @@
   }
 </script>
 
-{#snippet chip(text: string)}<span class="rounded bg-muted px-1 font-medium text-foreground">{text}</span>{/snippet}
-{#snippet noHeadword()}<span class="italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
+<!-- Two chip snippets: `leadingChip` has no left margin (used at the start of a summary line, right after
+  the subject or as a bare subject); `chip` always has ms-1 for consistent spacing after preceding text.
+  This is more robust than `first:ms-0` because CSS `:first-child` treats text nodes as absent, so a
+  mid-sentence chip was still matching `:first-child` and losing its left margin. -->
+{#snippet leadingChip(text: string)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground">{text}</span>{/snippet}
+{#snippet chip(text: string)}<span class="ms-1 rounded border border-border bg-background px-1 font-medium text-foreground">{text}</span>{/snippet}
+{#snippet wsCode(ws: string)}<span class="ms-1 font-mono text-xs text-muted-foreground">{ws}</span>{/snippet}
+{#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
 
-{#if subject && !selfNaming}{@render chip(subject)}<span class="px-1.5 text-muted-foreground/70">·</span>{/if}{#if fact.kind === 'setField'}
+{#if subject && !selfNaming}{@render leadingChip(subject)}<span class="px-1.5 text-muted-foreground/70">·</span>{/if}{#if fact.kind === 'setField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
-  {#if fact.ws}{$t`Set ${label} (${fact.ws}) to`} {@render chip(fact.value)}{:else}{$t`Set ${label} to`} {@render chip(fact.value)}{/if}
+  {$t`Set ${label} to`}{@render chip(fact.value)}{#if fact.ws}{@render wsCode(fact.ws)}{/if}
 {:else if fact.kind === 'setHomograph'}
-  {$t`Set homograph number to`} {@render chip(fact.value)}
+  {$t`Set homograph number to`}{@render chip(fact.value)}
 {:else if fact.kind === 'clearField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
-  {#if fact.ws}{$t`Cleared ${label} (${fact.ws})`}{:else}{$t`Cleared ${label}`}{/if}
+  {$t`Cleared ${label}`}{#if fact.ws}{@render wsCode(fact.ws)}{/if}
 {:else if fact.kind === 'changeField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
-  {#if target}{$t`Changed ${label} to`} {@render chip(target)}{:else}{$t`Changed ${label}`}{/if}
+  {#if target}{$t`Changed ${label} to`}{@render chip(target)}{:else}{$t`Changed ${label}`}{/if}
 {:else if fact.kind === 'addItem'}
   {@const noun = itemNoun(fact.fieldId)}
   {#if noun}
-    {$t`Added ${noun}`}{#if fact.label} {@render chip(fact.label)}{/if}
+    {$t`Added ${noun}`}{#if fact.label}{@render chip(fact.label)}{/if}
   {:else}
     {@const label = fieldLabel(fact.entity, fact.fieldId)}
-    {#if fact.label}{$t`Added to ${label}`}: {@render chip(fact.label)}{:else}{$t`Added to ${label}`}{/if}
+    {#if fact.label}{$t`Added to ${label}`}:{@render chip(fact.label)}{:else}{$t`Added to ${label}`}{/if}
   {/if}
 {:else if fact.kind === 'removeItem'}
   {@const noun = itemNoun(fact.fieldId)}
   {#if noun}
-    {$t`Removed ${noun}`}{#if target} {@render chip(target)}{/if}
+    {$t`Removed ${noun}`}{#if target}{@render chip(target)}{/if}
   {:else}
     {$t`Removed from ${fieldLabel(fact.entity, fact.fieldId)}`}
   {/if}
 {:else if fact.kind === 'replaceItem'}
   {@const label = itemNoun(fact.fieldId) ?? fieldLabel(fact.entity, fact.fieldId)}
-  {#if fact.label}{$t`Changed ${label} to`} {@render chip(fact.label)}{:else}{$t`Changed ${label}`}{/if}
+  {#if fact.label}{$t`Changed ${label} to`}{@render chip(fact.label)}{:else}{$t`Changed ${label}`}{/if}
 {:else if fact.kind === 'create'}
-  {@const name = subject ?? fact.label}
   {#if fact.entity === 'entry'}
-    {$t`Created ${entityNoun('entry')}`} {#if name}{@render chip(name)}{:else}{@render noHeadword()}{/if}
+    {@const name = subject ?? fact.label}
+    {$t`Created ${entityNoun('entry')}`}{#if name}{@render chip(name)}{:else}{@render noHeadword()}{/if}
   {:else if fact.entity === 'sense'}
-    {$t`Added ${entityNoun('sense')}`}{#if name} {@render chip(name)}{/if}
+    <!-- "headword · Added sense senseN". Subject (parent entry headword) renders as leading chip via selfNaming=false;
+         `target` is the sense identifier from the backend (SenseGlossPart — the gloss when present, "senseN" subscript otherwise). -->
+    {@const name = target ?? fact.label}
+    {$t`Added ${entityNoun('sense')}`}{#if name}{@render chip(name)}{/if}
   {:else}
-    {#if subject}{$t`Added ${entityNoun('example')} to`} {@render chip(subject)}{:else}{$t`Added ${entityNoun('example')}`}{/if}
+    <!-- "headword › gloss · Added example". Subject is the parent sense's SenseLabel (headword › gloss); leading chip. -->
+    {@const name = fact.label}
+    {$t`Added ${entityNoun('example')}`}{#if name}{@render chip(name)}{/if}
   {/if}
 {:else if fact.kind === 'delete'}
   {#if subject}
-    {#if fact.entity === 'entry'}{$t`Deleted ${entityNoun('entry')}`} {@render chip(subject)}
-    {:else if fact.entity === 'sense'}{$t`Deleted ${entityNoun('sense')}`} {@render chip(subject)}
-    {:else}{$t`Deleted ${entityNoun('example')} from`} {@render chip(subject)}{/if}
+    {#if fact.entity === 'entry'}{$t`Deleted ${entityNoun('entry')}`}{@render chip(subject)}
+    {:else if fact.entity === 'sense'}{$t`Deleted ${entityNoun('sense')}`}{@render chip(subject)}
+    {:else}{$t`Deleted ${entityNoun('example')} from`}{@render chip(subject)}{/if}
   {:else}{$t`Deleted ${entityName(fact.entity)}`}{/if}
 {:else if fact.kind === 'reorder'}
-  {#if target}{$t`Reordered ${collectionItemNoun(fact.collection)}`} {@render chip(target)}{:else}{$t`Reordered ${collectionNoun(fact.collection)}`}{/if}
+  {#if target}{$t`Reordered ${collectionItemNoun(fact.collection)}`}{@render chip(target)}{:else}{$t`Reordered ${collectionNoun(fact.collection)}`}{/if}
 {:else if fact.kind === 'moveSense'}
   {$t`Moved from another entry`}
 {:else if fact.kind === 'componentLink'}
   {#if fact.action === 'add'}
-    {$t`Linked component`}{#if target} {@render chip(target)}{/if}
-  {:else if fact.action === 'remove'}{$t`Unlinked component`}
+    {$t`Added component`}{#if target}{@render chip(target)}{/if}
+  {:else if fact.action === 'remove'}{$t`Removed component`}
   {:else}
-    {#if target}{$t`Updated component`} {@render chip(target)}{:else}{$t`Updated component link`}{/if}
+    {#if target}{$t`Changed component to`}{@render chip(target)}{:else}{$t`Changed component`}{/if}
   {/if}
 {:else if fact.kind === 'setDefaultTranslation'}
   {$t`Set default translation`}
 {:else if fact.kind === 'createObject'}
   {@const name = subject ?? fact.label}
-  {$t`Created ${objectNoun(fact.object)}`}{#if name} {@render chip(name)}{/if}
+  {$t`Created ${objectNoun(fact.object)}`}{#if name}{@render chip(name)}{/if}
 {:else if fact.kind === 'editObject'}
-  {$t`Edited ${objectNoun(fact.object)}`} {#if subject}{@render chip(subject)}{/if}
+  {$t`Edited ${objectNoun(fact.object)}`}{#if subject}{@render chip(subject)}{/if}
 {:else if fact.kind === 'editObjectField'}
   {@const objectType = capitalize(objectNoun(fact.object))}
-  {#if subject}{objectType} {@render chip(subject)}{:else}{objectType}{/if}<span class="px-1.5 text-muted-foreground/70">·</span>{#if fact.cleared}{$t`Cleared ${fact.field}`}{:else if fact.value !== undefined}{#if fact.ws}{$t`Set ${fact.field} (${fact.ws}) to`} {@render chip(fact.value)}{:else}{$t`Set ${fact.field} to`} {@render chip(fact.value)}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
+  {#if subject}{objectType}{@render chip(subject)}{:else}{objectType}{/if}<span class="px-1.5 text-muted-foreground/70">·</span>{#if fact.cleared}{$t`Cleared ${fact.field}`}{#if fact.ws}{@render wsCode(fact.ws)}{/if}{:else if fact.value !== undefined}{$t`Set ${fact.field} to`}{@render chip(fact.value)}{#if fact.ws}{@render wsCode(fact.ws)}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
 {:else if fact.kind === 'deleteObject'}
-  {$t`Deleted ${objectNoun(fact.object)}`} {#if subject}{@render chip(subject)}{/if}
+  {$t`Deleted ${objectNoun(fact.object)}`}{#if subject}{@render chip(subject)}{/if}
 {:else if fact.kind === 'sensePicture'}
   {#if fact.action === 'add'}{$t`Added picture`}{:else if fact.action === 'remove'}{$t`Removed picture`}{:else if fact.action === 'update'}{$t`Updated picture`}{:else}{$t`Reordered pictures`}{/if}
 {:else if fact.kind === 'setMainPublication'}
