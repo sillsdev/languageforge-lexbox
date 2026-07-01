@@ -188,7 +188,7 @@ public partial class CrdtProjectsService(
             }
             catch
             {
-                _ = EnsureDeleteProject(sqliteFile);
+                _ = EnsureDeleteProject(sqliteFile, suppressException: true);
             }
 
             throw;
@@ -197,7 +197,7 @@ public partial class CrdtProjectsService(
         return crdtProject;
     }
 
-    private Task EnsureDeleteProject(string sqliteFile)
+    private Task EnsureDeleteProject(string sqliteFile, bool suppressException = false)
     {
         return Task.Run(async () =>
         {
@@ -235,11 +235,18 @@ public partial class CrdtProjectsService(
                 catch (Exception exception)
                 {
                     logger.LogError(exception, "Failed to delete sqlite file {SqliteFile}", sqliteFile);
+                    if (!suppressException)
+                        throw;
                     return;
                 }
             }
 
-            logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", sqliteFile);
+            if (File.Exists(sqliteFile) || File.Exists(walFile) || File.Exists(shmFile))
+            {
+                logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", sqliteFile);
+                if (!suppressException)
+                    throw new IOException($"Failed to delete sqlite file {sqliteFile} after 10 attempts");
+            }
         });
     }
 
