@@ -51,13 +51,13 @@ msgstr "{0} activity types"
 msgid "{0} ago"
 msgstr "{0} ago"
 
-#: src/project/dashboard/DashboardView.svelte
-msgid "{0} complete"
-msgstr "{0} complete"
-
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
 msgstr "{0} authors"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "{0} complete"
+msgstr "{0} complete"
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -240,14 +240,14 @@ msgstr "an entry"
 msgid "Analysis"
 msgstr "Analysis"
 
-#: src/project/dashboard/DashboardView.svelte
-msgid "Analysis writing systems"
-msgstr "Analysis writing systems"
-
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
 msgstr "Analysis writing system code"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Analysis writing systems"
+msgstr "Analysis writing systems"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -740,6 +740,11 @@ msgstr "Downloading {0}..."
 msgid "Downloading..."
 msgstr "Downloading..."
 
+#. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
+#: src/home/CreateProjectDialog.svelte
+msgid "e.g. th, sw"
+msgstr "e.g. th, sw"
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Edit"
 msgstr "Edit"
@@ -747,11 +752,6 @@ msgstr "Edit"
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Edit comment"
 msgstr "Edit comment"
-
-#. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
-#: src/home/CreateProjectDialog.svelte
-msgid "e.g. th, sw"
-msgstr "e.g. th, sw"
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -1221,6 +1221,11 @@ msgstr "List mode"
 msgid "Literal meaning"
 msgstr "Literal meaning"
 
+#. Accessible label on the activity view loading spinner while filtered commits are fetched.
+#: src/lib/activity/ActivityView.svelte
+msgid "Loading activity"
+msgstr "Loading activity"
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Loading comments..."
 msgstr "Loading comments..."
@@ -1228,11 +1233,6 @@ msgstr "Loading comments..."
 #: src/project/dashboard/DashboardView.svelte
 msgid "Loading dashboard..."
 msgstr "Loading dashboard..."
-
-#. Accessible label on the activity view loading spinner while filtered commits are fetched.
-#: src/lib/activity/ActivityView.svelte
-msgid "Loading activity"
-msgstr "Loading activity"
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1445,13 +1445,13 @@ msgstr "No analysis writing systems configured."
 msgid "No audio"
 msgstr "No audio"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "No comment threads yet."
-msgstr "No comment threads yet."
-
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
 msgstr "No authors"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "No comment threads yet."
+msgstr "No comment threads yet."
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -2302,10 +2302,6 @@ msgstr "Uses components as"
 msgid "Vernacular"
 msgstr "Vernacular"
 
-#: src/project/dashboard/DashboardView.svelte
-msgid "Vernacular writing systems"
-msgstr "Vernacular writing systems"
-
 #. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
@@ -2314,6 +2310,10 @@ msgstr "Vernacular writing system code"
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system is required"
 msgstr "Vernacular writing system is required"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Vernacular writing systems"
+msgstr "Vernacular writing systems"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte

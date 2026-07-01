@@ -56,11 +56,12 @@ msgstr ""
 msgid "{0} ago"
 msgstr "{0} iliyopita"
 
-#: src/project/dashboard/DashboardView.svelte
-msgid "{0} complete"
-
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "{0} complete"
 msgstr ""
 
 #. File size display with unit
@@ -244,12 +245,13 @@ msgstr "ingizo"
 msgid "Analysis"
 msgstr "Uchambuzi"
 
-#: src/project/dashboard/DashboardView.svelte
-msgid "Analysis writing systems"
-
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Analysis writing systems"
 msgstr ""
 
 #. Relevant view: Classic
@@ -743,16 +745,17 @@ msgstr "Inapakua {0}..."
 msgid "Downloading..."
 msgstr "Inapakua..."
 
+#. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
+#: src/home/CreateProjectDialog.svelte
+msgid "e.g. th, sw"
+msgstr ""
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Edit"
 msgstr ""
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Edit comment"
-
-#. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
-#: src/home/CreateProjectDialog.svelte
-msgid "e.g. th, sw"
 msgstr ""
 
 #. Dialog title when editing an existing custom view.
@@ -1223,16 +1226,17 @@ msgstr "Hali ya orodha"
 msgid "Literal meaning"
 msgstr "Maana halisi"
 
+#. Accessible label on the activity view loading spinner while filtered commits are fetched.
+#: src/lib/activity/ActivityView.svelte
+msgid "Loading activity"
+msgstr ""
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Loading comments..."
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Loading dashboard..."
-
-#. Accessible label on the activity view loading spinner while filtered commits are fetched.
-#: src/lib/activity/ActivityView.svelte
-msgid "Loading activity"
 msgstr ""
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
@@ -1446,11 +1450,12 @@ msgstr ""
 msgid "No audio"
 msgstr "Hakuna sauti"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "No comment threads yet."
-
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "No comment threads yet."
 msgstr ""
 
 #. Empty state message in the manage custom views dialog when none exist.
@@ -2302,9 +2307,6 @@ msgstr "Inatumia sehemu kama"
 msgid "Vernacular"
 msgstr "Lugha ya kienyeji"
 
-#: src/project/dashboard/DashboardView.svelte
-msgid "Vernacular writing systems"
-
 #. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
@@ -2312,6 +2314,10 @@ msgstr ""
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system is required"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Vernacular writing systems"
 msgstr ""
 
 #. Button label
