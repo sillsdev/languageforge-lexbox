@@ -14,7 +14,7 @@
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
   import ActivityListViewOptions, {type ActivityListViewMode} from './ActivityListViewOptions.svelte';
   import ChangeSummary from './ChangeSummary.svelte';
-  import {summarizeActivity} from './change-summary';
+  import {summarizeActivity, groupBySubject} from './change-summary';
   import {
     createDefaultActivityFilters,
     emptyActivityLoad,
@@ -168,11 +168,27 @@
             {#if summary.entries.length === 0}
               <span>{row.changeName}</span>
             {:else if activityMode === 'detailed'}
-              <!-- Base text muted so the verb phrase recedes; ChangeSummary's subject token and data chips
-                   render foreground and pop out of it (bold subject / muted verb / boxed data). -->
-              <div class="space-y-0.5 text-muted-foreground">
-                {#each summary.entries as entry, i (i)}
-                  <div><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></div>
+              <!-- Detailed groups facts by subject: the headword appears once as a bold header, its changes
+                   listed beneath along an indent rail. Base text muted so verbs recede; subject header and
+                   data chips render foreground. This is what makes Detailed a change-inspector rather than
+                   a longer version of Simple. -->
+              {@const groups = groupBySubject(summary.entries)}
+              <div class="space-y-1 text-muted-foreground">
+                {#each groups as group, gi (gi)}
+                  {#if group.subject && group.facts.length > 1}
+                    <div>
+                      <div class="font-semibold text-foreground">{group.subject}</div>
+                      <div class="ms-1 space-y-0.5 border-s border-border ps-2">
+                        {#each group.facts as entry, i (i)}
+                          <div><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} hideSubject /></div>
+                        {/each}
+                      </div>
+                    </div>
+                  {:else}
+                    {#each group.facts as entry, i (i)}
+                      <div><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></div>
+                    {/each}
+                  {/if}
                 {/each}
                 {#if summary.remaining > 0}
                   <div>{$t`(+${summary.remaining} more)`}</div>

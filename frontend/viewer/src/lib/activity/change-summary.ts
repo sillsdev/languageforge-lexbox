@@ -334,6 +334,33 @@ export function describeActivity(
   });
 }
 
+/** A run of facts that share a subject, so Detailed mode can render the headword once as a header. */
+export interface SubjectGroup {
+  /** Header text: the shared subject (entry headword or vocab-object name). Undefined for the subjectless bucket. */
+  subject?: string;
+  facts: ChangeFactWithSubject[];
+}
+
+/**
+ * Group consecutive facts that share a subject so Detailed mode can show the headword once and list the
+ * bare changes beneath it. Keyed by the resolved `subject` string, NOT `rootEntryId`: two different senses
+ * of one entry have distinct labels ("run › to run" vs "run › a jog") and must not fold under one header —
+ * but repeated edits to the same subject ("gwa₁ Set X", "gwa₁ Set Y") collapse. Facts with no subject each
+ * stand alone. Order is preserved; only adjacent same-subject facts merge, so interleaved history stays truthful.
+ */
+export function groupBySubject(entries: readonly ChangeFactWithSubject[]): SubjectGroup[] {
+  const groups: SubjectGroup[] = [];
+  for (const entry of entries) {
+    const last = groups.at(-1);
+    if (last && entry.subject !== undefined && entry.subject === last.subject) {
+      last.facts.push(entry);
+    } else {
+      groups.push({subject: entry.subject, facts: [entry]});
+    }
+  }
+  return groups;
+}
+
 /** Create change types whose commits collapse to a count when batched ("Created 100 semantic domains"). */
 const BULK_CREATE_NOUNS: Record<string, BulkNoun> = {
   CreateEntryChange: 'entries',

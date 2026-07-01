@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention -- change payloads below mirror the PascalCase CRDT wire format on purpose */
 import {describe, it, expect} from 'vitest';
-import {describeActivity, describeChange, explicitlyHandledChangeTypes, isHandledChangeType, recognizeCommit, summarizeActivity} from './change-summary';
+import {describeActivity, describeChange, explicitlyHandledChangeTypes, groupBySubject, isHandledChangeType, recognizeCommit, summarizeActivity} from './change-summary';
 import {knownChangeTypes} from '$lib/dotnet-types/generated-types/LcmCrdt/ChangeTypes';
 import type {IChangeEntity} from '$lib/dotnet-types';
 
@@ -292,5 +292,33 @@ describe('summarizeActivity', () => {
       expect(result.remaining).toBe(0);
       expect(result.entries[0].fact).toMatchObject({kind: 'create', entity: 'entry'});
     }
+  });
+});
+
+describe('groupBySubject', () => {
+  const f = (subject: string | undefined, value = 'x') =>
+    ({fact: {kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value}, subject}) as never;
+
+  it('merges adjacent facts with the same subject', () => {
+    const groups = groupBySubject([f('gwa₁'), f('gwa₁'), f('gwa₁')]);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].subject).toBe('gwa₁');
+    expect(groups[0].facts).toHaveLength(3);
+  });
+
+  it('keeps distinct subjects in separate groups', () => {
+    const groups = groupBySubject([f('run › to run'), f('run › a jog')]);
+    expect(groups).toHaveLength(2);
+    expect(groups.map((g) => g.subject)).toEqual(['run › to run', 'run › a jog']);
+  });
+
+  it('does not merge subjectless facts', () => {
+    const groups = groupBySubject([f(undefined), f(undefined)]);
+    expect(groups).toHaveLength(2);
+  });
+
+  it('preserves order and only merges adjacent runs', () => {
+    const groups = groupBySubject([f('a'), f('b'), f('a')]);
+    expect(groups.map((g) => g.subject)).toEqual(['a', 'b', 'a']);
   });
 });

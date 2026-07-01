@@ -5,7 +5,10 @@
   import {useViewService} from '$lib/views/view-service.svelte';
   import type {BulkNoun, ChangeFact, CollectionKind, ObjectKind, SummaryEntity} from './change-summary';
 
-  let {fact, subject, target}: {fact: ChangeFact; subject?: string; target?: string} = $props();
+  // `hideSubject`: the subject is already shown as a group header (Detailed mode), so suppress the leading
+  // subject token and render just the verb phrase. Only affects non-self-naming facts (self-naming facts
+  // weave the subject into their own sentence and are never grouped under a header).
+  let {fact, subject, target, hideSubject = false}: {fact: ChangeFact; subject?: string; target?: string; hideSubject?: boolean} = $props();
 
   const viewService = useViewService();
 
@@ -120,7 +123,7 @@
 {#snippet wsCode(ws: string)}<span class="ms-1 font-mono text-xs text-muted-foreground">{ws}</span>{/snippet}
 {#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
 
-{#if subject && !selfNaming}{@render subjectToken(subject)}{/if}{#if fact.kind === 'setField'}
+{#if subject && !selfNaming && !hideSubject}{@render subjectToken(subject)}{/if}{#if fact.kind === 'setField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
   {$t`Set ${label} to`}{@render chip(fact.value)}{#if fact.ws}{@render wsCode(fact.ws)}{/if}
 {:else if fact.kind === 'setHomograph'}
