@@ -41,6 +41,9 @@ The frontend viewer uses TypeScript types and API interfaces generated from .NET
 ```bash
 # To manually update generated types:
 dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
+
+# Verify types are committed (also runs in CI):
+task fw-lite:has-stale-generated-types
 ```
 
 The configuration for this lives in `FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs` and `FwLiteShared/Reinforced.Typings.settings.xml`.

@@ -65,7 +65,10 @@ public class SyncFixture : IAsyncLifetime
 
     private SyncFixture(string projectName, string projectFolder)
     {
-        _projectName = projectName;
+        // projectName doubles as the CRDT project code and must satisfy CrdtProjectsService.ProjectCode()
+        // (lowercase letters, digits, '-'). It can arrive as a [CallerMemberName] test name (PascalCase,
+        // underscores), so normalise it.
+        _projectName = CrdtProjectsService.SanitizeProjectCode(projectName);
         _projectFolder = projectFolder;
         var crdtServices = new ServiceCollection()
             .AddSyncServices(projectFolder);
@@ -74,7 +77,7 @@ public class SyncFixture : IAsyncLifetime
         _services = rootServiceProvider.CreateAsyncScope();
     }
 
-    public SyncFixture() : this("sena-3_" + Guid.NewGuid().ToString().Split("-")[0], "FwLiteSyncFixture")
+    public SyncFixture() : this("sena-3-" + Guid.NewGuid().ToString().Split("-")[0], "FwLiteSyncFixture")
     {
     }
 
@@ -104,7 +107,7 @@ public class SyncFixture : IAsyncLifetime
             _services.ServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
         Directory.CreateDirectory(crdtProjectsFolder);
         var crdtProject = await _services.ServiceProvider.GetRequiredService<CrdtProjectsService>()
-            .CreateProject(new(_projectName, _projectName, FwProjectId: FwDataApi.ProjectId, SeedNewProjectData: false));
+            .CreateProject(new(_projectName, _projectName, FwProjectId: FwDataApi.ProjectId));
         CrdtApi = (CrdtMiniLcmApi)await _services.ServiceProvider.OpenCrdtProject(crdtProject);
     }
 

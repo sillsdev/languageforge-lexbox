@@ -1,7 +1,10 @@
 using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 using LcmCrdt.MediaServer;
 using SIL.Harmony;
+using MiniLcm;
+using MiniLcm.Import;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,7 +22,8 @@ public partial class CrdtProjectsService(
     ILogger<CrdtProjectsService> logger,
     IOptions<LcmCrdtConfig> config,
     IMemoryCache memoryCache,
-    ProjectDataCache projectDataCache
+    ProjectDataCache projectDataCache,
+    ProjectImporter projectImporter
 ) : IProjectProvider
 {
     private static readonly Lock EnsureProjectDataCacheIsLoadedLock = new();
@@ -119,7 +123,6 @@ public partial class CrdtProjectsService(
         Guid? Id = null,
         Uri? Domain = null,
         Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
-        bool SeedNewProjectData = false,
         string? Path = null,
         Guid? FwProjectId = null,
         string? AuthenticatedUser = null,
@@ -128,7 +131,41 @@ public partial class CrdtProjectsService(
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
-        return await CreateProject(new(name, name, AfterCreate: ExampleProjectData.Seed, SeedNewProjectData: true, Role: UserProjectRole.Manager));
+        // Code must satisfy the lowercase-only ProjectCode rule; the display name keeps its casing.
+        return await CreateProjectFromTemplate(new(name, name.ToLowerInvariant(), AfterCreate: ExampleProjectData.Seed, Role: UserProjectRole.Manager), vernacularWs: "de");
+    }
+
+    /// <summary>
+    /// Creates a CRDT project pre-populated from the embedded template snapshot (a blank
+    /// FieldWorks/liblcm project — system data only, no user entries), plus the requested vernacular WS
+    /// and, if <paramref name="analysisWs"/> is a non-English code, that analysis WS too (the template
+    /// always ships English analysis, like FieldWorks). Runs through the normal <see cref="CreateProject"/>
+    /// path, so identity (ClientId, per-project commit Ids) is minted by ordinary Harmony writes.
+    /// </summary>
+    public virtual async Task<CrdtProject> CreateProjectFromTemplate(
+        CreateProjectRequest request,
+        WritingSystemId vernacularWs,
+        WritingSystemId? analysisWs = null)
+    {
+        // Templated projects are created locally; this path has no way to associate one with a server
+        // at creation time, so reject a Domain up front — the invariant holds where the project is born.
+        if (request.Domain is not null)
+            throw new ArgumentException(
+                "Templated projects can't be associated with a server at creation time — they're local-only.",
+                nameof(request));
+
+        var callerAfterCreate = request.AfterCreate;
+        return await CreateProject(request with
+        {
+            AfterCreate = async (provider, project) =>
+            {
+                var api = provider.GetRequiredService<IMiniLcmApi>();
+                var jsonOptions = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.JsonSerializerOptions;
+                var snapshot = ProjectTemplate.CreateNewSnapshot(jsonOptions, vernacularWs, analysisWs);
+                await projectImporter.ImportProject(api, snapshot);
+                if (callerAfterCreate is not null) await callerAfterCreate(provider, project);
+            }
+        });
     }
 
     public virtual async Task<CrdtProject> CreateProject(CreateProjectRequest request)
@@ -167,9 +204,6 @@ public partial class CrdtProjectsService(
             crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
-            var dataModel = serviceScope.ServiceProvider.GetRequiredService<DataModel>();
-            if (request.SeedNewProjectData)
-                await SeedSystemData(dataModel, projectData);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
             // Ensure "data migrations" are executed on project creation (e.g. seeding morph types)
             // These should happen AFTER the initial download, so they can be run conditionally based on
@@ -201,6 +235,7 @@ public partial class CrdtProjectsService(
     {
         return Task.Run(async () =>
         {
+            var safeSqliteFile = SanitizeForLog(sqliteFile);
             var counter = 0;
             var walFile = sqliteFile + "-wal";
             var shmFile = sqliteFile + "-shm";
@@ -234,7 +269,7 @@ public partial class CrdtProjectsService(
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, "Failed to delete sqlite file {SqliteFile}", sqliteFile);
+                    logger.LogError(exception, "Failed to delete sqlite file {SqliteFile}", safeSqliteFile);
                     if (!suppressException)
                         throw;
                     return;
@@ -243,12 +278,14 @@ public partial class CrdtProjectsService(
 
             if (File.Exists(sqliteFile) || File.Exists(walFile) || File.Exists(shmFile))
             {
-                logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", sqliteFile);
+                logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", safeSqliteFile);
                 if (!suppressException)
-                    throw new IOException($"Failed to delete sqlite file {sqliteFile} after 10 attempts");
+                    throw new IOException($"Failed to delete sqlite file {safeSqliteFile} after 10 attempts");
             }
         });
     }
+
+    private static string SanitizeForLog(string value) => value.ReplaceLineEndings(string.Empty);
 
     public async Task DeleteProject(string code)
     {
@@ -265,15 +302,22 @@ public partial class CrdtProjectsService(
         await db.SaveChangesAsync();
     }
 
-    internal static async Task SeedSystemData(DataModel dataModel, ProjectData projectData)
-    {
-        await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
-        await PreDefinedData.AddPredefinedComplexFormTypes(dataModel, projectData);
-        await PreDefinedData.AddPredefinedPartsOfSpeech(dataModel, projectData);
-        await PreDefinedData.AddPredefinedSemanticDomains(dataModel, projectData);
-        await PreDefinedData.AddPredefinedCustomViews(dataModel, projectData);
-    }
-
-    [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]
+    // Mirrors LexBox's server-side rule (LexCore.Entities.Project.ProjectCodeRegex). LexBox is the
+    // source of truth — keep these in sync so a code valid here is also valid on the server.
+    [GeneratedRegex(@"^[a-z\d][a-z-\d]*$")]
     public static partial Regex ProjectCode();
+
+    // Normalises an arbitrary name into a code satisfying ProjectCode(): lowercase, every other character
+    // becomes '-', and leading '-' is trimmed so the first character is alphanumeric. FwData project names
+    // (e.g. "Sena 3") routinely contain uppercase letters and spaces, which the code rule rejects.
+    public static string SanitizeProjectCode(string name)
+    {
+        var sb = new StringBuilder(name.Length);
+        foreach (var c in name.ToLowerInvariant())
+            sb.Append(c is (>= 'a' and <= 'z') or (>= '0' and <= '9') or '-' ? c : '-');
+        var code = sb.ToString().TrimStart('-');
+        if (code.Length == 0)
+            throw new ArgumentException($"Project name '{name}' has no usable characters for a project code", nameof(name));
+        return code;
+    }
 }

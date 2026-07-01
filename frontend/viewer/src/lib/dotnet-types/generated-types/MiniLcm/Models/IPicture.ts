@@ -11,6 +11,5 @@ export interface IPicture
 	order: number;
 	mediaUri: string;
 	caption: IRichMultiString;
-	deletedAt?: string;
 }
 /* eslint-enable */

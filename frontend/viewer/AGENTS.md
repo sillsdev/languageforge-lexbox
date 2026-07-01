@@ -22,6 +22,9 @@ This project depends on TypeScript types and API interfaces generated from .NET 
 ```bash
 # From repo root
 dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
+
+# Verify types are committed (also runs in CI):
+task fw-lite:has-stale-generated-types
 ```
 
 The generated files are located in `src/lib/dotnet-types/generated-types/`.
