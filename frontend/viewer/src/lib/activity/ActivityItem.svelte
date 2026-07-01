@@ -25,7 +25,7 @@
   import {T, t} from 'svelte-i18n-lingui';
   import {VList} from 'virtua/svelte';
   import ActivityItemChangePreview from './ActivityItemChangePreview.svelte';
-  import {formatJsonForUi} from './utils';
+  import {formatJsonForUi, wellKnownAuthorKeyToLabel} from './utils';
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
   import * as Popover from '$lib/components/ui/popover';
@@ -51,6 +51,8 @@
   const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(change => {
     return new ChangeWithLazyContext(change, activity, () => historyService.loadChangeContext(activity.commitId, change.index));
   }));
+
+  const authorLabel = $derived(wellKnownAuthorKeyToLabel(activity.metadata.authorId) ?? activity.metadata.authorName);
 </script>
 
 <div {...restProps} class={cn(className, 'grid gap-2 grid-rows-[auto_1fr] h-full')}>
@@ -59,8 +61,8 @@
       <span>
         <span>
           {$t`Author:`}
-          {#if activity.metadata.authorName}
-            <span class="font-semibold">{activity.metadata.authorName}</span>
+          {#if authorLabel}
+            <span class="font-semibold">{authorLabel}</span>
           {:else}
             <span class="opacity-75 italic">{$t`Unknown`}</span>
           {/if}

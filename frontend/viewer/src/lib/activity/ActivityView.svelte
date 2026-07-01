@@ -18,6 +18,7 @@
     MIN_VISIBLE_FILTERED,
     serverQueryKey,
     toServerQuery,
+    wellKnownAuthorKeyToLabel,
     type ActivityFilters,
     type ActivityLoad,
   } from './utils';
@@ -164,7 +165,7 @@
                         actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
               </span>
               <span>
-                {row.metadata.authorName ?? $t`Unknown`}
+                {wellKnownAuthorKeyToLabel(row.metadata.authorId) ?? row.metadata.authorName ?? $t`Unknown`}
               </span>
             </div>
           </ListItem>
