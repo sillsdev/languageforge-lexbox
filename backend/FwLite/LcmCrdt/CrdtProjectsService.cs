@@ -206,7 +206,8 @@ public partial class CrdtProjectsService(
             var shmFile = sqliteFile + "-shm";
             try
             {
-                SqliteConnection.ClearAllPools();
+                using var clearConn = new SqliteConnection($"Data Source={sqliteFile}");
+                SqliteConnection.ClearPool(clearConn);
             }
             catch
             {
@@ -215,28 +216,27 @@ public partial class CrdtProjectsService(
 
             while ((File.Exists(sqliteFile) || File.Exists(walFile) || File.Exists(shmFile)) && counter < 10)
             {
-                await Task.Delay(1000);
                 try
                 {
-                    if (File.Exists(sqliteFile))
-                        File.Delete(sqliteFile);
                     if (File.Exists(walFile))
                         File.Delete(walFile);
                     if (File.Exists(shmFile))
                         File.Delete(shmFile);
+                    if (File.Exists(sqliteFile))
+                        File.Delete(sqliteFile);
                     return;
                 }
                 catch (IOException)
                 {
-                    //inuse, try again
+                    counter++;
+                    if (counter < 10)
+                        await Task.Delay(1000);
                 }
                 catch (Exception exception)
                 {
                     logger.LogError(exception, "Failed to delete sqlite file {SqliteFile}", sqliteFile);
                     return;
                 }
-
-                counter++;
             }
 
             logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", sqliteFile);
