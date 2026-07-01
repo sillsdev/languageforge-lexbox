@@ -287,9 +287,6 @@ public static class LcmCrdtKernel
             })
             .Add<UserComment>(builder =>
             {
-                builder.HasOne<CommentThread>()
-                    .WithMany()
-                    .HasForeignKey(c => c.CommentThreadId);
                 builder.HasIndex(c => c.CommentThreadId);
                 builder.HasIndex(c => c.CreatedAt);
             })

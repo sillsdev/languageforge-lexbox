@@ -926,7 +926,7 @@ public class CrdtMiniLcmApi(
             .Where(t => t.SubjectType == subjectType && t.SubjectId == subjectId);
         if (includeComments)
         {
-            threads = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(threads, t => t.Comments);
+            threads = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(threads, t => t.Comments!.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id));
         }
 
         threads = threads.OrderBy(t => t.CreatedAt).ThenBy(t => t.Id);
@@ -1031,6 +1031,7 @@ public class CrdtMiniLcmApi(
         var comment = await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
         AssertCurrentUserCanChangeComment(comment);
         await AddChange(new DeleteChange<UserComment>(commentId));
+        await commentReadStatusService.RemoveUnreadComments([commentId]);
     }
 
     public async Task DeleteCommentThread(Guid threadId)
@@ -1038,6 +1039,7 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
         await AddChange(new DeleteChange<CommentThread>(threadId));
+        await commentReadStatusService.MarkThreadRead(threadId);
     }
 
     public Task MarkCommentRead(Guid commentId)

@@ -25,6 +25,10 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} cambios)"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "(unknown)"
+msgstr ""
+
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -48,10 +52,22 @@ msgstr "{0} (FieldWorks)"
 msgid "{0} ago"
 msgstr "{0} hace"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "{0} complete"
+msgstr ""
+
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "{0} of {1} entries"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "{0} remaining"
+msgstr ""
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -88,6 +104,10 @@ msgstr "**Menos tipos de morfema** (sólo *Raíz*, *Raíz vinculado*, *Tallo*, *
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Terminología más simple** (p. ej. *Palabra* en lugar de *Forma del lexema*, *Significado* en lugar de *Acepción*)"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "10,000 entry goal"
+msgstr ""
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -202,6 +222,10 @@ msgstr "una entrada"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr "Análisis"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Analysis writing systems"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -348,6 +372,7 @@ msgstr "Elegir tema"
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Citation form"
 msgstr "Formulario de cita"
 
@@ -367,6 +392,8 @@ msgstr "borrar"
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Cerrar"
@@ -383,11 +410,7 @@ msgid "Color"
 msgstr "Color"
 
 #: src/lib/entry-editor/CommentDialog.svelte
-msgid "Comment"
-msgstr ""
-
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/project/browse/EntryMenu.svelte
+#: src/project/browse/EntryView.svelte
 msgid "Comments"
 msgstr ""
 
@@ -523,8 +546,13 @@ msgstr "Oscuro"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard"
 msgstr "Cuadro de mandos"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Dashboard failed to load"
+msgstr ""
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -535,6 +563,7 @@ msgstr "Directorio de datos"
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Definition"
 msgstr "Definición"
 
@@ -703,6 +732,14 @@ msgstr "Termina con"
 msgid "Entries missing..."
 msgstr "Entradas faltantes..."
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with examples"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with senses"
+msgstr ""
+
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
 msgid "entry"
@@ -770,6 +807,10 @@ msgstr "Ejemplo"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr "Ejemplo de frase"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Example sentences"
+msgstr ""
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -971,6 +1012,7 @@ msgstr "Obtener soporte"
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Glosa"
 
@@ -1095,6 +1137,7 @@ msgstr "Logotipo de Lexbox"
 #. Lite view equivalent: "Word"
 #. Field label: the main headword/base form
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Lexeme form"
 msgstr "Forma del lexema"
 
@@ -1124,6 +1167,10 @@ msgstr "Significado literal"
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Loading comments..."
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Loading dashboard..."
 msgstr ""
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
@@ -1304,6 +1351,10 @@ msgstr "Siguiente"
 msgid "No activity found"
 msgstr "No se ha encontrado actividad"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "No analysis writing systems configured."
+msgstr ""
+
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1363,6 +1414,10 @@ msgstr "Ningún servidor configurado"
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
 msgstr "No hay tema, no se puede crear un nuevo {0}"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "No vernacular writing systems configured."
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1619,11 +1674,6 @@ msgstr "Vuelva a abrir"
 msgid "Replace audio"
 msgstr "Sustituir audio"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Reply"
-msgstr ""
-
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
@@ -1802,14 +1852,6 @@ msgstr "Campo específico"
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Start a new thread"
-msgstr ""
-
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Start a thread, reply to existing threads, or edit comments."
-msgstr ""
-
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Start thread"
 msgstr ""
 
 #. Filter operator
@@ -1994,6 +2036,10 @@ msgstr "Alternar filtros"
 msgid "Toggle pinned"
 msgstr "Alternar fijado"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Total entries"
+msgstr ""
+
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 #: src/lib/views/entity-config.ts
@@ -2143,6 +2189,10 @@ msgstr "Utiliza componentes como"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Vernáculo"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Vernacular writing systems"
+msgstr ""
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte

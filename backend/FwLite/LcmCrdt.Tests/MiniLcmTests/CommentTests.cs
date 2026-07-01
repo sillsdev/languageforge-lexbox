@@ -313,6 +313,63 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
     }
 
     [Fact]
+    public async Task GetCommentThreads_CommentsAreSortedChronologically()
+    {
+        var authorId = $"author-{Guid.NewGuid()}";
+        await SetCurrentUser(authorId);
+        var subjectId = Guid.NewGuid();
+        var baseTime = DateTimeOffset.UtcNow.AddHours(-5);
+        var threadId = Guid.NewGuid();
+        var firstCommentId = Guid.NewGuid();
+        var secondCommentId = Guid.NewGuid();
+        var thirdCommentId = Guid.NewGuid();
+
+        await fixture.Api.CreateCommentThread(
+            NewThread(SubjectType.Entry, subjectId) with { Id = threadId },
+            NewComment("first") with
+            {
+                Id = firstCommentId,
+                CreatedAt = baseTime,
+                UpdatedAt = baseTime
+            });
+        await fixture.Api.AddUserComment(threadId, NewComment("third") with
+        {
+            Id = thirdCommentId,
+            CreatedAt = baseTime.AddHours(2),
+            UpdatedAt = baseTime.AddHours(2)
+        });
+        await fixture.Api.AddUserComment(threadId, NewComment("second") with
+        {
+            Id = secondCommentId,
+            CreatedAt = baseTime.AddHours(1),
+            UpdatedAt = baseTime.AddHours(1)
+        });
+
+        var thread = (await fixture.Api.GetCommentThreads(SubjectType.Entry, subjectId, includeComments: true)
+            .ToArrayAsync()).Single();
+        var commentIds = thread.Comments!.Select(c => c.Id).ToArray();
+
+        commentIds.Should().Equal([firstCommentId, secondCommentId, thirdCommentId]);
+    }
+
+    [Fact]
+    public async Task ReadStatus_DeletedThreadRemovesUnreadRows()
+    {
+        var authorId = $"author-{Guid.NewGuid()}";
+        await ClearUnreadComments();
+        var (thread, firstComment) = await CreateThreadWithComment(authorId);
+        var reply = await fixture.Api.AddUserComment(thread.Id, NewComment("reply"));
+        await MarkCommentsUnread(firstComment, reply);
+        (await fixture.Api.CountUnreadComments(thread.Id)).Should().Be(2);
+
+        await fixture.Api.DeleteCommentThread(thread.Id);
+
+        (await fixture.Api.GetUnreadComments(thread.Id).ToArrayAsync()).Should().BeEmpty();
+        (await fixture.Api.CountUnreadComments(thread.Id)).Should().Be(0);
+        fixture.DbContext.UnreadComments.Where(c => c.CommentThreadId == thread.Id).Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ReadStatus_DeletedUnreadCommentsDoNotInflateUnreadResults()
     {
         var authorId = $"author-{Guid.NewGuid()}";

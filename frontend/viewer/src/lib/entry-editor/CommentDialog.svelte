@@ -73,25 +73,28 @@
     if (!text) return;
 
     saving = true;
-    const now = new Date().toISOString();
-    const threadId = randomId();
-    await api.createCommentThread({
-      id: threadId,
-      subjectId,
-      subjectType,
-      status: ThreadStatus.Open,
-      createdAt: now,
-      updatedAt: now,
-    }, {
-      id: randomId(),
-      commentThreadId: threadId,
-      text,
-      createdAt: now,
-      updatedAt: now,
-    });
-    newThreadText = '';
-    await threadsResource.refetch();
-    saving = false;
+    try {
+      const now = new Date().toISOString();
+      const threadId = randomId();
+      await api.createCommentThread({
+        id: threadId,
+        subjectId,
+        subjectType,
+        status: ThreadStatus.Open,
+        createdAt: now,
+        updatedAt: now,
+      }, {
+        id: randomId(),
+        commentThreadId: threadId,
+        text,
+        createdAt: now,
+        updatedAt: now,
+      });
+      newThreadText = '';
+      await threadsResource.refetch();
+    } finally {
+      saving = false;
+    }
   }
 
   async function replyToThread(threadView: ThreadView): Promise<void> {
@@ -100,18 +103,21 @@
     if (!text) return;
 
     saving = true;
-    const now = new Date().toISOString();
-    await api.addUserComment(threadId, {
-      id: randomId(),
-      commentThreadId: threadId,
-      previousCommentId: threadView.comments.at(-1)?.id,
-      text,
-      createdAt: now,
-      updatedAt: now,
-    });
-    replyTextByThreadId[threadId] = '';
-    await threadsResource.refetch();
-    saving = false;
+    try {
+      const now = new Date().toISOString();
+      await api.addUserComment(threadId, {
+        id: randomId(),
+        commentThreadId: threadId,
+        previousCommentId: threadView.comments.at(-1)?.id,
+        text,
+        createdAt: now,
+        updatedAt: now,
+      });
+      replyTextByThreadId[threadId] = '';
+      await threadsResource.refetch();
+    } finally {
+      saving = false;
+    }
   }
 
   function startEditing(comment: IUserComment): void {
@@ -129,10 +135,13 @@
     if (!text) return;
 
     saving = true;
-    await api.editUserComment(commentId, text);
-    cancelEditing(commentId);
-    await threadsResource.refetch();
-    saving = false;
+    try {
+      await api.editUserComment(commentId, text);
+      cancelEditing(commentId);
+      await threadsResource.refetch();
+    } finally {
+      saving = false;
+    }
   }
 
   function submitOnCtrlEnter(event: KeyboardEvent): void {

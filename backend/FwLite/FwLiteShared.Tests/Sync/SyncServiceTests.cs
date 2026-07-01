@@ -51,6 +51,54 @@ public class SyncServiceTests
             .Which.Should().Be((comment.Id, threadId));
     }
 
+    [Fact]
+    public void GetDeletedCommentsFromSyncResults_ReturnsDeletedCommentsAndThreads()
+    {
+        var threadId = Guid.NewGuid();
+        var commentId = Guid.NewGuid();
+        var deletedThreadId = Guid.NewGuid();
+        var commitId = Guid.NewGuid();
+        var commit = new FakeCommit(commitId, new HybridDateTime(DateTimeOffset.UtcNow, 0))
+        {
+            ChangeEntities =
+            [
+                new ChangeEntity<IChange>
+                {
+                    Change = new DeleteChange<UserComment>(commentId),
+                    CommitId = commitId,
+                    EntityId = commentId,
+                    Index = 0
+                },
+                new ChangeEntity<IChange>
+                {
+                    Change = new DeleteChange<CommentThread>(deletedThreadId),
+                    CommitId = commitId,
+                    EntityId = deletedThreadId,
+                    Index = 1
+                },
+                new ChangeEntity<IChange>
+                {
+                    Change = new CreateUserCommentChange(new UserComment
+                    {
+                        Id = Guid.NewGuid(),
+                        CommentThreadId = threadId,
+                        Text = "still here"
+                    }),
+                    CommitId = commitId,
+                    EntityId = Guid.NewGuid(),
+                    Index = 2
+                }
+            ]
+        };
+
+        var results = new SyncResults([commit], [], true);
+
+        var (deletedCommentIds, deletedThreadIds) = SyncService.GetDeletedCommentsFromSyncResults(results);
+
+        deletedCommentIds.Should().ContainSingle().Which.Should().Be(commentId);
+        deletedThreadIds.Should().ContainSingle().Which.Should().Be(deletedThreadId);
+    }
+
     private class FakeCommit : Commit
     {
         [SetsRequiredMembers]

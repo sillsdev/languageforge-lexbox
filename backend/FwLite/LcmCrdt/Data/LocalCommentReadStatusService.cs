@@ -56,6 +56,17 @@ public class LocalCommentReadStatusService(IDbContextFactory<LcmCrdtDbContext> d
         await dbContext.UnreadComments.ExecuteDeleteAsync();
     }
 
+    public async Task RemoveUnreadComments(IEnumerable<Guid> commentIds)
+    {
+        var ids = commentIds.Distinct().ToArray();
+        if (ids.Length == 0) return;
+
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await dbContext.UnreadComments
+            .Where(c => ids.Contains(c.CommentId))
+            .ExecuteDeleteAsync();
+    }
+
     public async Task MarkCommentsUnread(IEnumerable<(Guid CommentId, Guid CommentThreadId)> comments)
     {
         var commentsToMark = comments

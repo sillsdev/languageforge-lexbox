@@ -99,7 +99,7 @@ public class SyncService(
         }
         logger.LogInformation("Synced project {ProjectName} with server", project.Name);
         UpdateSyncStatus(SyncStatus.Success);
-        await MarkSyncedCommentsUnread(syncResults);
+        await ApplySyncedCommentReadStatus(syncResults);
         await syncRepository.UpdateSyncDate(syncDate);
         //need to await this, otherwise the database connection will be closed before the notifications are sent
         if (!skipNotifications) await SendNotifications(syncResults);
@@ -204,9 +204,15 @@ public class SyncService(
         }
     }
 
-    private Task MarkSyncedCommentsUnread(SyncResults syncResults)
+    private async Task ApplySyncedCommentReadStatus(SyncResults syncResults)
     {
-        return commentReadStatusService.MarkCommentsUnread(GetUnreadCommentsFromSyncResults(syncResults));
+        await commentReadStatusService.MarkCommentsUnread(GetUnreadCommentsFromSyncResults(syncResults));
+        var (deletedCommentIds, deletedThreadIds) = GetDeletedCommentsFromSyncResults(syncResults);
+        await commentReadStatusService.RemoveUnreadComments(deletedCommentIds);
+        foreach (var threadId in deletedThreadIds)
+        {
+            await commentReadStatusService.MarkThreadRead(threadId);
+        }
     }
 
     public static IEnumerable<(Guid CommentId, Guid CommentThreadId)> GetUnreadCommentsFromSyncResults(SyncResults syncResults)
@@ -215,6 +221,16 @@ public class SyncService(
             .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
             .OfType<CreateUserCommentChange>()
             .Select(change => (CommentId: change.EntityId, change.CommentThreadId));
+    }
+
+    public static (IEnumerable<Guid> CommentIds, IEnumerable<Guid> ThreadIds) GetDeletedCommentsFromSyncResults(
+        SyncResults syncResults)
+    {
+        var changes = syncResults.MissingFromLocal
+            .SelectMany(c => c.ChangeEntities, (_, change) => change.Change);
+        var commentIds = changes.OfType<DeleteChange<UserComment>>().Select(change => change.EntityId);
+        var threadIds = changes.OfType<DeleteChange<CommentThread>>().Select(change => change.EntityId);
+        return (commentIds, threadIds);
     }
 
     private async IAsyncEnumerable<Guid?> GetEntryId(IObjectWithId? entity)
