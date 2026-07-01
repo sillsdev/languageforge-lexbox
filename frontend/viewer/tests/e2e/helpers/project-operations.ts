@@ -10,8 +10,8 @@ export async function deleteProject(page: Page, projectCode: string): Promise<vo
 // IDs match `backend/LexData/SeedingData.cs`
 const SEEDED_PROJECT_IDS: Record<string, string> = {
   'sena-3': '0ebc5976-058d-4447-aaa7-297f8569f968',
-  'elawa': '9e972940-8a8e-4b29-a609-bdc2f93b3507',
-  'empty': '762b50e8-2e09-4ed4-a48d-775e1ada78e8',
+  'elawa-dev-flex': '9e972940-8a8e-4b29-a609-bdc2f93b3507',
+  'empty-dev-flex': '762b50e8-2e09-4ed4-a48d-775e1ada78e8',
 };
 
 /**
