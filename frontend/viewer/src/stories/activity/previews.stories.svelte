@@ -1,7 +1,7 @@
 <script module lang="ts">
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import ActivityItemChangePreview from '$lib/activity/ActivityItemChangePreview.svelte';
-  import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
+  import CollapsedEntryDiff from '$lib/activity/CollapsedEntryDiff.svelte';
   import {fwliteStoryParameters} from '../fwl-parameters';
   import {allWsEntry} from '$project/demo/demo-entry-data';
   import type {IChangeContext, IComplexFormComponent, IEntry, IObjectWithId, IPartOfSpeech, ISemanticDomain} from '$lib/dotnet-types';
@@ -135,7 +135,7 @@
 <Story name="Created entry (collapsed)">
   {#snippet template()}
     <div class="max-w-3xl border rounded p-3">
-      <EntryEditor entry={structuredClone(allWsEntry)} readonly modalMode canAddSense={false} canAddExample={false} />
+      <CollapsedEntryDiff entry={structuredClone(allWsEntry)} />
     </div>
   {/snippet}
 </Story>
@@ -157,7 +157,7 @@
         <div class="sub-grid row-span-2 col-start-2 grid gap-2 grid-rows-[auto_1fr] h-full min-w-0 min-h-0">
           <div class="text-sm">Author: Demo – (2 changes)<div class="text-xs text-muted-foreground">CreateEntryChange, CreateSenseChange</div></div>
           <div class="overflow-auto border rounded p-3 min-w-0 min-h-0">
-            <EntryEditor entry={structuredClone(allWsEntry)} readonly modalMode canAddSense={false} canAddExample={false} />
+            <CollapsedEntryDiff entry={structuredClone(allWsEntry)} />
           </div>
         </div>
       </div>

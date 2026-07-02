@@ -26,7 +26,7 @@
   import {VList} from 'virtua/svelte';
   import ActivityItemChangePreview from './ActivityItemChangePreview.svelte';
   import PreviewViewScope from './PreviewViewScope.svelte';
-  import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
+  import CollapsedEntryDiff from './CollapsedEntryDiff.svelte';
   import {formatJsonForUi} from './utils';
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
@@ -142,7 +142,7 @@
           {#if entry}
             <div class="overflow-auto border rounded p-3 min-w-0 min-h-0">
               <PreviewViewScope>
-                <EntryEditor {entry} readonly modalMode canAddSense={false} canAddExample={false} />
+                <CollapsedEntryDiff {entry} />
               </PreviewViewScope>
             </div>
           {:else}
