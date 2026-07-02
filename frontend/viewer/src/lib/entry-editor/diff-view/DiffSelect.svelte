@@ -1,4 +1,5 @@
 <script lang="ts">
+  import {Icon} from '$lib/components/ui/icon';
   import DiffShell from './DiffShell.svelte';
   import {diffAdded, diffEmpty, diffRemoved} from './diff-classes';
 
@@ -18,7 +19,7 @@
         <span class="rounded-sm px-1 {diffRemoved}">{before}</span>
       {/if}
       {#if before && after}
-        <span class="text-muted-foreground">→</span>
+        <Icon icon="i-mdi-arrow-right" class="size-4 shrink-0 text-muted-foreground" />
       {/if}
       {#if after}
         <span class="rounded-sm px-1 {diffAdded}">{after}</span>
