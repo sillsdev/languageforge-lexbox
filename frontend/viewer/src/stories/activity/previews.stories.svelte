@@ -4,7 +4,7 @@
   import CollapsedEntryDiff from '$lib/activity/CollapsedEntryDiff.svelte';
   import {fwliteStoryParameters} from '../fwl-parameters';
   import {allWsEntry} from '$project/demo/demo-entry-data';
-  import type {IChangeContext, IComplexFormComponent, IEntry, IObjectWithId, IPartOfSpeech, ISemanticDomain} from '$lib/dotnet-types';
+  import type {IChangeContext, IChangeEntity, IComplexFormComponent, IEntry, IObjectWithId, IPartOfSpeech, ISemanticDomain} from '$lib/dotnet-types';
 
   const {Story} = defineMeta({
     title: 'activity/previews',
@@ -64,7 +64,7 @@
   const complexFormEntry: IEntry = {...entry, id: complexFormId, lexemeForm: {seh: 'nyumba yaikulu'}, citationForm: {}, senses: [], components: [cfc, siblingCfc], complexForms: []};
   const componentEntry: IEntry = {...entry, id: addedComponentId, lexemeForm: {seh: 'mwala'}, citationForm: {}, senses: [], components: [], complexForms: [cfc]};
 
-  const cases: {label: string; context: IChangeContext}[] = [
+  const cases: {label: string; context: IChangeContext; change?: IChangeEntity}[] = [
     {label: 'Entry — edited', context: ctx({entityType: 'Entry', previousSnapshot: entryBefore, snapshot: entryAfter, affectedEntries: [entryAfter]})},
     {label: 'Entry — homograph (subscript in header)', context: ctx({entityType: 'Entry', previousSnapshot: entryBefore, snapshot: homographEntry, affectedEntries: [homographEntry]})},
     {label: 'Entry — created (no before)', context: ctx({entityType: 'Entry', snapshot: entry, affectedEntries: [entry]})},
@@ -116,7 +116,7 @@
     })()},
     {label: 'Part of speech — name edited', context: ctx({entityType: 'PartOfSpeech', previousSnapshot: posBefore, snapshot: posAfter})},
     {label: 'Semantic domain — name edited (keeps code)', context: ctx({entityType: 'SemanticDomain', previousSnapshot: semDomBefore, snapshot: semDomAfter})},
-    {label: 'Remote resource (audio player)', context: ctx({entityType: 'RemoteResource', snapshot: {id: '00000000-0000-0000-0000-0000000000f0'} as unknown as IObjectWithId})},
+    {label: 'Remote resource (audio player)', context: ctx({entityType: 'Unknown'}), change: {commitId: 'demo', index: 0, entityId: '00000000-0000-0000-0000-0000000000f0', change: {'$type': 'create:remote-resource', entityId: '00000000-0000-0000-0000-0000000000f0'}} as unknown as IChangeEntity},
     {label: 'No preview available', context: ctx({entityType: 'Unknown'})},
   ];
 </script>
@@ -128,7 +128,7 @@
         <div>
           <div class="font-bold text-sm mb-1 text-muted-foreground">{testCase.label}</div>
           <div class="border rounded p-3">
-            <ActivityItemChangePreview context={testCase.context} />
+            <ActivityItemChangePreview context={testCase.context} change={testCase.change} />
           </div>
         </div>
       {/each}

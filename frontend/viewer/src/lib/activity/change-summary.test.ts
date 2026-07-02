@@ -104,13 +104,13 @@ describe('describeChange', () => {
       .toEqual([{kind: 'delete', entity: 'entry'}]);
   });
 
-  it('describes a media-resource create/upload/delete', () => {
+  it('describes a media-resource create/upload/delete (assumed audio — the only resource kind today)', () => {
     expect(describeChange(changeEntity({'$type': 'create:remote-resource', EntityId: 'r1'})))
-      .toEqual([{kind: 'mediaResource', action: 'add', resourceId: 'r1'}]);
+      .toEqual([{kind: 'mediaResource', action: 'add', resourceId: 'r1', audio: true}]);
     expect(describeChange(changeEntity({'$type': 'uploaded:RemoteResource', EntityId: 'r1'})))
-      .toEqual([{kind: 'mediaResource', action: 'upload', resourceId: 'r1'}]);
+      .toEqual([{kind: 'mediaResource', action: 'upload', resourceId: 'r1', audio: true}]);
     expect(describeChange(changeEntity({'$type': 'delete:RemoteResource', EntityId: 'r1'})))
-      .toEqual([{kind: 'mediaResource', action: 'delete', resourceId: 'r1'}]);
+      .toEqual([{kind: 'mediaResource', action: 'delete', resourceId: 'r1', audio: true}]);
   });
 
   it('falls back to a PAST-TENSE humanized type for unrecognized changes', () => {
@@ -228,20 +228,9 @@ describe('describeActivity', () => {
     }]);
   });
 
-  it('marks a media resource as audio when a sibling change references it from an audio ws', () => {
-    const resourceId = 'b3bdcc7a-7746-4659-b79d-a5ac0c27f256';
-    const result = describeActivity([
-      changeEntity({'$type': 'create:remote-resource', EntityId: resourceId}),
-      changeEntity({'$type': 'jsonPatch:ExampleSentence', PatchDocument: [
-        {op: 'add', path: '/Sentence/seh-Zxxx-x-audio', value: {Spans: [{Text: `sil-media://lexbox.org/${resourceId}`, Ws: 'seh-Zxxx-x-audio'}]}},
-      ]}),
-    ]);
-    expect(result[0].fact).toEqual({kind: 'mediaResource', action: 'add', resourceId, audio: true});
-  });
-
-  it('leaves a media resource non-audio when nothing references it as audio', () => {
+  it('threads a media-resource fact through unchanged (audio assumed at describe time)', () => {
     const result = describeActivity([changeEntity({'$type': 'create:remote-resource', EntityId: 'r1'})]);
-    expect(result[0].fact).toEqual({kind: 'mediaResource', action: 'add', resourceId: 'r1', audio: false});
+    expect(result[0].fact).toEqual({kind: 'mediaResource', action: 'add', resourceId: 'r1', audio: true});
   });
 });
 

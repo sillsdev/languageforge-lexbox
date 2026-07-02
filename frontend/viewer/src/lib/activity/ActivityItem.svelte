@@ -192,7 +192,7 @@
                 </Tabs.List>
                 <div class="pt-1 pb-4 px-2">
                   <Tabs.Content value="preview">
-                    <ActivityItemChangePreview {context} />
+                    <ActivityItemChangePreview {context} {change} />
                   </Tabs.Content>
                   <Tabs.Content value="change">
                     <div class="whitespace-pre-wrap break-words font-mono text-sm">

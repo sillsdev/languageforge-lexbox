@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as Editor from '$lib/components/editor';
-  import {type IChangeContext, type IComplexFormComponent, type IEntry, type IExampleSentence, type IObjectWithId, type ISense} from '$lib/dotnet-types';
+  import {type IChangeContext, type IChangeEntity, type IComplexFormComponent, type IEntry, type IExampleSentence, type ISense} from '$lib/dotnet-types';
   import {t} from 'svelte-i18n-lingui';
   import {formatJsonForUi} from './utils';
   import AudioInput from '$lib/components/field-editors/audio-input.svelte';
@@ -24,12 +24,25 @@
 
   type Props = {
     context: IChangeContext,
+    // The raw change, so we can recover the entity id for types whose snapshot isn't an IObjectWithId
+    // (RemoteResource) — its snapshot is null, so context alone can't identify or locate it.
+    change?: IChangeEntity,
   }
 
-  const { context }: Props = $props();
+  const { context, change }: Props = $props();
 
   const multiWindowService = useMultiWindowService();
   const viewService = useViewService();
+
+  // A media-resource change ($type create:remote-resource / uploaded / delete:RemoteResource). Its snapshot
+  // isn't an IObjectWithId, so we read the resource id off the raw change to build a playable media URI.
+  const mediaResourceId = $derived.by(() => {
+    const raw = change?.change as Record<string, unknown> | undefined;
+    const type = typeof raw?.['$type'] === 'string' ? (raw['$type'] as string) : '';
+    if (type !== 'create:remote-resource' && type !== 'uploaded:RemoteResource' && type !== 'delete:RemoteResource') return undefined;
+    const id = raw?.entityId ?? raw?.EntityId;
+    return typeof id === 'string' ? id : undefined;
+  });
 
   // `.order` isn't in the generated TS type (Harmony's orderable-entity concept) but is present at runtime.
   function orderOf(item: unknown): number {
@@ -180,7 +193,11 @@
   </div>
 {/if}
 
-{#if context.entityType === 'ComplexFormComponent' && context.affectedEntries.length}
+{#if mediaResourceId}
+  <!-- A media resource (currently only audio recordings): play it. AudioInput resolves the URI by its
+       FileId through the media service, so the authority segment is just a placeholder. -->
+  <AudioInput audioId={`sil-media://local/${mediaResourceId}`} readonly />
+{:else if context.entityType === 'ComplexFormComponent' && context.affectedEntries.length}
   {@const beforeCfc = cfcAny(context.previousSnapshot)}
   {@const afterCfc = cfcAny(context.snapshot)}
   {@const anyCfc = afterCfc ?? beforeCfc}
@@ -260,15 +277,6 @@
           <DiffVocabPrimitive before={context.previousSnapshot} after={context.snapshot} />
         </Editor.Grid>
       </Editor.Root>
-    {:else if context.entityType === 'RemoteResource'}
-      {@const resource = (context.snapshot ?? context.previousSnapshot) as IObjectWithId | undefined}
-      {#if resource?.id}
-        <!-- A media resource (currently only audio recordings): play it. getFileStream resolves by the
-             FileId in the URI, so the authority is a placeholder. -->
-        <AudioInput audioId={`sil-media://local/${resource.id}`} readonly />
-      {:else}
-        <div class="text-muted-foreground p-4 text-center">{$t`Preview not available for this type of change`}</div>
-      {/if}
     {:else}
       <div class="whitespace-pre-wrap font-mono text-sm">
         {formatJsonForUi(context.snapshot ?? context.previousSnapshot ?? {})}

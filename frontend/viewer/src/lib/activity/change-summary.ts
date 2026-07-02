@@ -149,19 +149,6 @@ function resourceIdOf(change: unknown): string | undefined {
   return typeof id === 'string' ? id : undefined;
 }
 
-/**
- * Whether a media resource is audio, judged from the commit that created it: audio recordings are stored
- * against an audio writing system, so the sibling field-set that references this resource id also carries
- * the `-Zxxx-x-audio` ws marker. Both appear in that change's JSON, so a resource id co-occurring with the
- * audio marker in any change means the resource is audio. Non-audio resources (future images) won't match.
- */
-function commitResourceIsAudio(resourceId: string, changes: readonly IChangeEntity[]): boolean {
-  return changes.some((c) => {
-    const json = JSON.stringify(c.change);
-    return json.includes(resourceId) && /-zxxx-x-audio/i.test(json);
-  });
-}
-
 /** A label from a plain string (e.g. a semantic-domain Code) or a MultiString Name. */
 function labelOf(value: unknown): string | undefined {
   if (typeof value === 'string') return value || undefined;
@@ -342,9 +329,12 @@ export function describeChange(changeEntity: IChangeEntity): ChangeFact[] {
   const change = changeEntity.change;
   const type = changeType(change);
 
-  if (type === 'create:remote-resource') return [{kind: 'mediaResource', action: 'add', resourceId: resourceIdOf(change)}];
-  if (type === 'uploaded:RemoteResource') return [{kind: 'mediaResource', action: 'upload', resourceId: resourceIdOf(change)}];
-  if (type === 'delete:RemoteResource') return [{kind: 'mediaResource', action: 'delete', resourceId: resourceIdOf(change)}];
+  // Media resources carry no kind in the change, and the field-set that references one lives in a separate
+  // commit — so kind can't be derived here without fetching the file. Assume audio: it's the only resource
+  // kind today. Revisit (mime from the media service) when non-audio resources ship.
+  if (type === 'create:remote-resource') return [{kind: 'mediaResource', action: 'add', resourceId: resourceIdOf(change), audio: true}];
+  if (type === 'uploaded:RemoteResource') return [{kind: 'mediaResource', action: 'upload', resourceId: resourceIdOf(change), audio: true}];
+  if (type === 'delete:RemoteResource') return [{kind: 'mediaResource', action: 'delete', resourceId: resourceIdOf(change), audio: true}];
   if (type.startsWith('jsonPatch:')) return jsonPatchFacts(type.slice('jsonPatch:'.length), change);
   if (type.startsWith('delete:')) return deleteFacts(type.slice('delete:'.length));
   if (type.startsWith('SetOrderChange:')) {
@@ -394,13 +384,7 @@ export function describeActivity(
 ): ChangeFactWithSubject[] {
   return changes.flatMap((change, index) => {
     const info = changeInfo?.[index];
-    return describeChange(change).map((fact) => {
-      // A media-resource fact learns whether it's audio from its sibling changes in the same commit.
-      if (fact.kind === 'mediaResource' && fact.resourceId) {
-        fact = {...fact, audio: commitResourceIsAudio(fact.resourceId, changes)};
-      }
-      return {fact, subject: info?.subject, rootEntryId: info?.rootEntryId, target: info?.target};
-    });
+    return describeChange(change).map((fact) => ({fact, subject: info?.subject, rootEntryId: info?.rootEntryId, target: info?.target}));
   });
 }
 
