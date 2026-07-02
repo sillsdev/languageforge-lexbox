@@ -30,6 +30,8 @@
   import CollapsedSenseDiff from './CollapsedSenseDiff.svelte';
   import {formatJsonForUi} from './utils';
   import AuthorLabel from './AuthorLabel.svelte';
+  import EntryHeadwordButton from './EntryHeadwordButton.svelte';
+  import type {Snippet} from 'svelte';
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
   import * as Popover from '$lib/components/ui/popover';
@@ -95,10 +97,19 @@
     && activity.changeInfo.every(ci => !!ci.rootEntryId && ci.rootEntryId === activity.changeInfo[0].rootEntryId),
   );
 
-  const collapsedSense = $derived.by((): Promise<ISense | undefined> => {
+  // The assembled sense plus its parent entry (for the headword button). The entry isn't created in this
+  // commit, so we pull it from a change context's affectedEntries rather than assembling it.
+  const collapsedSense = $derived.by((): Promise<{sense: ISense; entry: IEntry | undefined} | undefined> => {
     if (!collapseToSense || !changes || !createdSenseId) return Promise.resolve(undefined);
     return Promise.all(changes.map(c => c.lazyContext))
-      .then(contexts => assembleSenseAtCommit(createdSenseId, contexts, partsOfSpeech.current));
+      .then(contexts => {
+        const sense = assembleSenseAtCommit(createdSenseId, contexts, partsOfSpeech.current);
+        if (!sense) return undefined;
+        const entryId = activity.changeInfo[0]?.rootEntryId;
+        const affected = contexts.flatMap(c => c.affectedEntries);
+        const entry = affected.find(e => e.id === entryId) ?? affected[0];
+        return {sense, entry};
+      });
   });
 </script>
 
@@ -158,11 +169,10 @@
           <div class="h-[700px] border rounded"></div>
         {:then entry}
           {#if entry}
-            <div class="overflow-auto border rounded p-3 min-w-0 min-h-0">
-              <PreviewViewScope>
-                <CollapsedEntryDiff {entry} />
-              </PreviewViewScope>
-            </div>
+            {#snippet entryPreview()}
+              <CollapsedEntryDiff {entry} />
+            {/snippet}
+            {@render collapsedShell(entry, entryPreview)}
           {:else}
             {@render changeList(changes)}
           {/if}
@@ -170,13 +180,12 @@
       {:else if collapseToSense}
         {#await collapsedSense}
           <div class="h-[700px] border rounded"></div>
-        {:then sense}
-          {#if sense}
-            <div class="overflow-auto border rounded p-3 min-w-0 min-h-0">
-              <PreviewViewScope>
-                <CollapsedSenseDiff {sense} />
-              </PreviewViewScope>
-            </div>
+        {:then result}
+          {#if result}
+            {#snippet sensePreview()}
+              <CollapsedSenseDiff sense={result.sense} />
+            {/snippet}
+            {@render collapsedShell(result.entry, sensePreview)}
           {:else}
             {@render changeList(changes)}
           {/if}
@@ -187,6 +196,36 @@
     {/if}
   {/if}
 </div>
+
+<!-- A collapsed commit (create-entry / create-sense) shown as a single card: the headword button, plus
+     Preview / Details tabs mirroring the per-change cards. Details is the whole commit's change JSON. -->
+{#snippet collapsedShell(headwordEntry: IEntry | undefined, preview: Snippet)}
+  <div class="overflow-auto border rounded p-3 min-w-0 min-h-0">
+    {#if headwordEntry}
+      <div class="flex flex-wrap gap-2 mb-3 items-center">
+        <EntryHeadwordButton entry={headwordEntry} />
+      </div>
+    {/if}
+    <Tabs.Root value="preview">
+      <Tabs.List class="w-full">
+        <Tabs.Trigger class="flex-1" value="preview">{$t`Preview`}</Tabs.Trigger>
+        <Tabs.Trigger class="flex-1" value="change">{$t`Details`}</Tabs.Trigger>
+      </Tabs.List>
+      <div class="pt-2">
+        <Tabs.Content value="preview">
+          <PreviewViewScope>
+            {@render preview()}
+          </PreviewViewScope>
+        </Tabs.Content>
+        <Tabs.Content value="change">
+          <div class="whitespace-pre-wrap break-words font-mono text-sm">
+            {formatJsonForUi(activity.changes)}
+          </div>
+        </Tabs.Content>
+      </div>
+    </Tabs.Root>
+  </div>
+{/snippet}
 
 {#snippet changeList(items: ChangeWithLazyContext[])}
   <div class="change-list flex flex-col gap-4 overflow-auto border rounded">
