@@ -39,8 +39,8 @@
   const semDomAfter: ISemanticDomain = {...semDomBefore, name: {en: 'Universe, creation, cosmos'}};
 
   // A custom view edited: name changed, an entry field swapped, a vernacular ws added.
-  const cvBefore = {id: 'cv-1', name: 'My View', base: 0, entryFields: [{fieldId: 'lexemeForm'}, {fieldId: 'citationForm'}], senseFields: [{fieldId: 'gloss'}], exampleFields: [], vernacular: [{wsId: 'seh'}], analysis: [{wsId: 'en'}]} as unknown as IObjectWithId;
-  const cvAfter = {id: 'cv-1', name: 'My Custom View', base: 0, entryFields: [{fieldId: 'lexemeForm'}, {fieldId: 'note'}], senseFields: [{fieldId: 'gloss'}], exampleFields: [], vernacular: [{wsId: 'seh'}, {wsId: 'ny'}], analysis: [{wsId: 'en'}]} as unknown as IObjectWithId;
+  const cvBefore = {id: 'cv-1', name: 'My View', base: 'FwLite', entryFields: [{fieldId: 'lexemeForm'}, {fieldId: 'citationForm'}], senseFields: [{fieldId: 'gloss'}], exampleFields: [], vernacular: [{wsId: 'seh'}], analysis: [{wsId: 'en'}]} as unknown as IObjectWithId;
+  const cvAfter = {id: 'cv-1', name: 'My Custom View', base: 'FwLite', entryFields: [{fieldId: 'lexemeForm'}, {fieldId: 'note'}], senseFields: [{fieldId: 'gloss'}], exampleFields: [], vernacular: [{wsId: 'seh'}, {wsId: 'ny'}], analysis: [{wsId: 'en'}]} as unknown as IObjectWithId;
 
   // A sense whose middle semantic domain (by code) is removed — verifies the removed badge keeps its sorted
   // position rather than being dumped at the end.

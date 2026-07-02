@@ -54,6 +54,17 @@
     return undefined;
   }
 
+  // Readable, app-consistent names for enum fields (CustomView.base, WritingSystem.type). Keyed by both the
+  // string enum name and its numeric value so it works whichever the wire sends. Unknown values fall through
+  // to asText so a new enum member still shows *something* rather than vanishing.
+  const viewBaseLabels = $derived<Record<string, string>>({FwLite: $t`FieldWorks Lite`, FieldWorks: $t`FieldWorks Classic`});
+  const wsTypeLabels = $derived<Record<string, string>>({'0': $t`Vernacular`, Vernacular: $t`Vernacular`, '1': $t`Analysis`, Analysis: $t`Analysis`});
+
+  function enumText(value: unknown, labels: Record<string, string>): string | undefined {
+    if (value === undefined || value === null) return undefined;
+    return labels[String(value)] ?? asText(value);
+  }
+
   // `name` is an IMultiString on most types but a plain string on WritingSystem/CustomView.
   const nameIsMultiString = $derived(isMultiString(b?.name) || isMultiString(a?.name));
   // `abbreviation` is an IMultiString on MorphType but a plain string on WritingSystem.
@@ -76,6 +87,17 @@
     <Editor.Field.Title name={label} />
     <Editor.Field.Body subGrid>
       <DiffMultiString before={multiString(b?.[field])} after={multiString(a?.[field])} writingSystems={analysisWss} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+{/snippet}
+
+{#snippet enumRow(label: string, field: string, labels: Record<string, string>)}
+  <Editor.Field.Root>
+    <Editor.Field.Title name={label} />
+    <Editor.Field.Body>
+      <DiffShell>
+        <DiffText before={enumText(b?.[field], labels)} after={enumText(a?.[field], labels)} />
+      </DiffShell>
     </Editor.Field.Body>
   </Editor.Field.Root>
 {/snippet}
@@ -167,7 +189,7 @@
   {/if}
 
   {#if present('type')}
-    {@render textRow($t`Type`, 'type')}
+    {@render enumRow($t`Type`, 'type', wsTypeLabels)}
   {/if}
 
   {#if present('isAudio')}
@@ -179,7 +201,7 @@
   {/if}
 
   {#if present('base')}
-    {@render textRow($t`Base view`, 'base')}
+    {@render enumRow($t`Base view`, 'base', viewBaseLabels)}
   {/if}
 
   {#if present('entryFields')}
