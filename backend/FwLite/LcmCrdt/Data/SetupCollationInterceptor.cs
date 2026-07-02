@@ -8,12 +8,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using LcmCrdt.Culture;
 using MiniLcm.Culture;
 using SIL.Harmony;
 
 namespace LcmCrdt.Data;
 
-public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider, IOptions<CrdtConfig> crdtConfig) : IDbConnectionInterceptor, ISaveChangesInterceptor, IConnectionInterceptor
+public class SetupCollationInterceptor(
+    IMemoryCache cache,
+    IMiniLcmCultureProvider cultureProvider,
+    IWritingSystemCollatorProvider collatorProvider,
+    IOptions<CrdtConfig> crdtConfig) : IDbConnectionInterceptor, ISaveChangesInterceptor, IConnectionInterceptor
 {
     private static string? WsTableName = null;
     private WritingSystem[] GetWritingSystems(DbConnection connection, LcmCrdtDbContext? dbContext = null)
@@ -191,9 +196,16 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
 
     private void SetupCollation(SqliteConnection connection, WritingSystem writingSystem)
     {
+        if (HasImportedCollation(writingSystem))
+        {
+            var collator = collatorProvider.GetCollator(writingSystem);
+            connection.CreateCollation(SqlSortingExtensions.CollationName(writingSystem.WsId),
+                (x, y) => collator.Compare(x, y));
+            return;
+        }
+
         var compareInfo = cultureProvider.GetCompareInfo(writingSystem);
 
-        //todo use custom comparison based on the writing system
         CreateSpanCollation(connection, SqlSortingExtensions.CollationName(writingSystem.WsId),
             compareInfo,
             static (compareInfo, x, y) =>
@@ -205,6 +217,10 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
                 return compareInfo.Compare(x, y, CompareOptions.None);
             });
     }
+
+    private static bool HasImportedCollation(WritingSystem writingSystem) =>
+        !string.IsNullOrEmpty(writingSystem.SystemCollationLocale)
+        || !string.IsNullOrEmpty(writingSystem.IcuCollationRules);
 
     //this is a premature optimization, but it avoids creating strings for each comparison and instead uses spans which avoids allocations
     //if the new comparison function does not support spans then we can use SqliteConnection.CreateCollation instead which works with strings

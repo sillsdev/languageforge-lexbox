@@ -51,7 +51,7 @@ public static class Sorting
                     !string.IsNullOrEmpty(query) && SqlHelpers.StartsWithIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!) descending,
                     !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!) descending,
                     e.Headword(order.WritingSystem).Length,
-                    e.Headword(order.WritingSystem),
+                    e.Headword(order.WritingSystem).CollateUnicode(order.WritingSystem),
                     mt != null ? mt.SecondaryOrder : stemOrder.FirstOrDefault(),
                     e.HomographNumber,
                     e.Id
@@ -67,7 +67,7 @@ public static class Sorting
                     !string.IsNullOrEmpty(query) && SqlHelpers.StartsWithIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!),
                     !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!),
                     e.Headword(order.WritingSystem).Length descending,
-                    e.Headword(order.WritingSystem) descending,
+                    e.Headword(order.WritingSystem).CollateUnicode(order.WritingSystem) descending,
                     (mt != null ? mt.SecondaryOrder : stemOrder.FirstOrDefault()) descending,
                     e.HomographNumber descending,
                     e.Id descending
