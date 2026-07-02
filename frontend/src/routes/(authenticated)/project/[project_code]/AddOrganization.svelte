@@ -17,7 +17,7 @@
   let orgList: Org[] = $state([]);
 
   const schema = z.object({
-    orgId: z.string().trim(),
+    orgId: z.uuid({ error: $t('project_page.add_org.no_org_selected') }),
   });
 
   type Schema = typeof schema;
@@ -52,6 +52,7 @@
   {/snippet}
   {#snippet children({ errors })}
     <Select id="org" label={$t('project_page.organization.title')} bind:value={$form!.orgId} error={errors.orgId}>
+      <option value="" disabled>{$t('project_page.add_org.select_org_placeholder')}</option>
       {#each orgList as org (org.id)}
         <option value={org.id}>{org.name}</option>
       {/each}

@@ -30,6 +30,7 @@ public class CrdtMiniLcmApi(
     IOptions<LcmCrdtConfig> config,
     ILogger<CrdtMiniLcmApi> logger,
     LcmMediaService lcmMediaService,
+    CommitMetadataInterceptor commitMetadataInterceptor,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
@@ -45,6 +46,7 @@ public class CrdtMiniLcmApi(
             AuthorName = ProjectData.LastUserName ?? config.Value.DefaultAuthorForCommits,
             AuthorId = ProjectData.LastUserId
         };
+        commitMetadataInterceptor.Apply(metadata);
         return metadata;
     }
     private async Task<Commit> AddChange(IChange change)

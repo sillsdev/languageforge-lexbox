@@ -63,6 +63,9 @@ jobs:
       - name: Check for pending EF model changes
         run: task fw-lite:has-pending-model-changes -- --no-build
 
+      - name: Check for stale generated TypeScript types
+        run: task fw-lite:has-stale-generated-types -- --no-build
+
       - name: Dotnet test
         # Benchmarks run in a separate Release-mode job — see `benchmark` below.
         run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build -p:BuildAndroid=false --filter "Category!=Benchmark"

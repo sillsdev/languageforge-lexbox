@@ -27,6 +27,7 @@
     type ActivityFilters,
     type ActivityLoad,
   } from './utils';
+  import AuthorLabel from './AuthorLabel.svelte';
 
   const historyService = useHistoryService();
 
@@ -44,20 +45,6 @@
   };
   function glyphFor(fact: ChangeFact) {
     return FACT_GLYPH[factCategory(fact)];
-  }
-
-  // Stable per-author colour for the person icon. A small curated palette (mid-tone hues that read in both
-  // light and dark) indexed by a hash of the name — not raw HSL, which drifts into muddy/low-contrast colours.
-  // Colours only the icon, never the name, so readability is untouched. Unknown author → neutral.
-  const AUTHOR_COLORS = [
-    'text-red-500', 'text-orange-500', 'text-amber-600', 'text-green-600',
-    'text-teal-500', 'text-sky-500', 'text-violet-500', 'text-pink-500',
-  ];
-  function authorColor(name: string | undefined | null): string {
-    if (!name) return 'text-muted-foreground';
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) hash = (Math.imul(hash, 31) + name.charCodeAt(i)) | 0;
-    return AUTHOR_COLORS[Math.abs(hash) % AUTHOR_COLORS.length];
   }
 
   const THRESHOLD = 20;
@@ -246,12 +233,7 @@
               </div>
             {/if}
             <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
-              <span class="flex items-center gap-1 min-w-0">
-                <!-- A person icon in a stable per-author colour — an at-a-glance "who" signal that doesn't
-                     hurt name readability (the name stays default text). -->
-                <Icon icon="i-mdi-account-circle" class="size-4 shrink-0 {authorColor(row.metadata.authorName)}" />
-                <span class="truncate">{row.metadata.authorName ?? $t`Unknown`}</span>
-              </span>
+              <AuthorLabel class="min-w-0" authorId={row.metadata.authorId} authorName={row.metadata.authorName} />
               <span class="flex items-center gap-1">
                 {#if !row.metadata.extraMetadata['SyncDate']}
                   <Icon

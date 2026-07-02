@@ -1336,7 +1336,6 @@ msgstr "Lokal"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
-#: src/home/HomeView.svelte
 msgid "Local only"
 msgstr "Hanya lokal"
 
@@ -1531,8 +1530,11 @@ msgid "New Entry"
 msgstr "Entri Baru"
 
 #: src/home/CreateProjectDialog.svelte
-#: src/home/HomeView.svelte
 msgid "New Project"
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "New Project (Local only)"
 msgstr ""
 
 #. Relevant view: Lite
@@ -2251,6 +2253,7 @@ msgid "Syncing..."
 msgstr "Menyinkronkan..."
 
 #. Theme option
+#: src/lib/activity/utils.ts
 #: src/lib/components/ThemePicker.svelte
 msgid "System"
 msgstr "Sistem"
@@ -2413,9 +2416,9 @@ msgstr "Tidak dapat dibuka di FieldWorks"
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Unknown"
