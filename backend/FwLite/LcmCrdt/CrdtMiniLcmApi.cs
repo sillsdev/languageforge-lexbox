@@ -1221,9 +1221,7 @@ public class CrdtMiniLcmApi(
 
     private void AssertCurrentUserCanChangeComment(UserComment comment)
     {
-        var currentUserId = CurrentCommentUserId();
-        //also accept ClientId: a comment authored offline is stamped with ClientId, but currentUserId prefers LastUserId once signed in
-        if (comment.AuthorId == currentUserId || comment.AuthorId == ProjectData.ClientId.ToString()) return;
+        if (comment.AuthorId == ProjectData.LastUserId || comment.AuthorId == ProjectData.ClientId.ToString()) return;
         throw new UnauthorizedAccessException("Only the comment author can edit or delete this comment.");
     }
 
