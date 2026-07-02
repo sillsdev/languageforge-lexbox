@@ -32,9 +32,14 @@
   const label = $derived(wellKnownAuthorKeyToLabel(key) ?? authorName);
 </script>
 
-<!-- Icon leads the name in every case (consistent side): FieldWorks → its logo, System → a cog, a person →
+<!-- Icon trails the name in every case (consistent side): FieldWorks → its logo, System → a cog, a person →
      a person icon coloured by a stable hash of their name (an at-a-glance "who"). Unknown → a muted person. -->
 <span class={cn('inline-flex items-center gap-1', className)}>
+  {#if key === UNKNOWN_AUTHOR_KEY}
+    <span class="italic opacity-75 truncate">{$t`Unknown`}</span>
+  {:else}
+    <span class="truncate">{label}</span>
+  {/if}
   {#if key === FIELDWORKS_AUTHOR_KEY}
     <Icon class="size-5 shrink-0" src={flexLogo} alt={$t`FieldWorks logo`} />
   {:else if key === SYSTEM_AUTHOR_KEY}
@@ -43,10 +48,5 @@
     <Icon icon="i-mdi-account-circle" class="size-4 shrink-0 text-muted-foreground" />
   {:else}
     <Icon icon="i-mdi-account-circle" class="size-4 shrink-0 {authorColor(authorName)}" />
-  {/if}
-  {#if key === UNKNOWN_AUTHOR_KEY}
-    <span class="italic opacity-75 truncate">{$t`Unknown`}</span>
-  {:else}
-    <span class="truncate">{label}</span>
   {/if}
 </span>
