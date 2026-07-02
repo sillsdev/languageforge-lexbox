@@ -26,6 +26,7 @@
   import {VList} from 'virtua/svelte';
   import ActivityItemChangePreview from './ActivityItemChangePreview.svelte';
   import {formatJsonForUi} from './utils';
+  import AuthorLabel from './AuthorLabel.svelte';
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
   import * as Popover from '$lib/components/ui/popover';
@@ -59,11 +60,7 @@
       <span>
         <span>
           {$t`Author:`}
-          {#if activity.metadata.authorName}
-            <span class="font-semibold">{activity.metadata.authorName}</span>
-          {:else}
-            <span class="opacity-75 italic">{$t`Unknown`}</span>
-          {/if}
+          <AuthorLabel class="font-semibold" authorId={activity.metadata.authorId} authorName={activity.metadata.authorName} />
         </span>
         {#if activity.changes.length > 1}
           <span>{$t`– (${activity.changes.length} changes)`}</span>

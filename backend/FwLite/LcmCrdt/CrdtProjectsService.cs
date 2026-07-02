@@ -2,14 +2,13 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using LcmCrdt.MediaServer;
+using LcmCrdt.Utils;
 using SIL.Harmony;
-using MiniLcm;
 using MiniLcm.Import;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using LcmCrdt.Objects;
 using LcmCrdt.Project;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -150,9 +149,11 @@ public partial class CrdtProjectsService(
         // Templated projects are created locally; this path has no way to associate one with a server
         // at creation time, so reject a Domain up front — the invariant holds where the project is born.
         if (request.Domain is not null)
+        {
             throw new ArgumentException(
                 "Templated projects can't be associated with a server at creation time — they're local-only.",
                 nameof(request));
+        }
 
         var callerAfterCreate = request.AfterCreate;
         return await CreateProject(request with
@@ -162,7 +163,11 @@ public partial class CrdtProjectsService(
                 var api = provider.GetRequiredService<IMiniLcmApi>();
                 var jsonOptions = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.JsonSerializerOptions;
                 var snapshot = ProjectTemplate.CreateNewSnapshot(jsonOptions, vernacularWs, analysisWs);
-                await projectImporter.ImportProject(api, snapshot);
+                var commitMetadataInterceptor = provider.GetRequiredService<CommitMetadataInterceptor>();
+                using (commitMetadataInterceptor.Intercept(CommitHelpers.StampAsTemplate))
+                {
+                    await projectImporter.ImportProject(api, snapshot);
+                }
                 if (callerAfterCreate is not null) await callerAfterCreate(provider, project);
             }
         });

@@ -37,7 +37,6 @@
     error = undefined;
     submitted = false;
     name = '';
-    code = '';
     vernacularWs = '';
     analysisWs = '';
     loading = false;
