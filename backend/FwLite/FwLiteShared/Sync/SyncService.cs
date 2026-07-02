@@ -107,7 +107,7 @@ public class SyncService(
             }
             logger.LogInformation("Synced project {ProjectName} with server", project.Name);
             UpdateSyncStatus(SyncStatus.Success);
-            await ApplySyncedCommentReadStatus(syncResults);
+            await ApplySyncedCommentReadStatus(syncResults, project.LastUserId);
             await syncRepository.UpdateSyncDate(syncDate);
             // Best-effort: if the push listener failed to start at project-open (e.g. user was offline), this
             // restarts it now that we know auth + network are healthy. If it's already running, the cache
@@ -236,9 +236,9 @@ public class SyncService(
         }
     }
 
-    private async Task ApplySyncedCommentReadStatus(SyncResults syncResults)
+    private async Task ApplySyncedCommentReadStatus(SyncResults syncResults, string? currentUserId)
     {
-        await commentReadStatusService.MarkCommentsUnread(GetUnreadCommentsFromSyncResults(syncResults));
+        await commentReadStatusService.MarkCommentsUnread(GetUnreadCommentsFromSyncResults(syncResults, currentUserId));
         var (deletedCommentIds, deletedThreadIds) = GetDeletedCommentsFromSyncResults(syncResults);
         await commentReadStatusService.RemoveUnreadComments(deletedCommentIds);
         foreach (var threadId in deletedThreadIds)
@@ -247,11 +247,13 @@ public class SyncService(
         }
     }
 
-    public static IEnumerable<(Guid CommentId, Guid CommentThreadId)> GetUnreadCommentsFromSyncResults(SyncResults syncResults)
+    public static IEnumerable<(Guid CommentId, Guid CommentThreadId)> GetUnreadCommentsFromSyncResults(SyncResults syncResults, string? currentUserId)
     {
         return syncResults.MissingFromLocal
             .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
             .OfType<CreateUserCommentChange>()
+            //with no current user (not signed in) nothing is "ours", so every synced comment is unread
+            .Where(change => currentUserId is null || change.AuthorId != currentUserId)
             .Select(change => (CommentId: change.EntityId, change.CommentThreadId));
     }
 

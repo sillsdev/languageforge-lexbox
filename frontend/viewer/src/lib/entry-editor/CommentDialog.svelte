@@ -156,7 +156,7 @@
 {#snippet commentContent()}
   <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
     <div class="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-4">
-      <form onsubmit={(e) => (e.preventDefault(), startThread())} class="space-y-2">
+      <form onsubmit={(e) => { e.preventDefault(); void startThread(); }} class="space-y-2">
         <Label for="new-comment-thread">{$t`Start a new thread`}</Label>
         <InputGroup.Root>
           <InputGroup.Textarea
@@ -193,7 +193,9 @@
             <section class="space-y-3 rounded-md border p-3">
               <div class="flex items-center justify-between gap-2">
                 <h3 class="text-sm font-semibold">{$t`Thread`}</h3>
-                <span class="text-xs text-muted-foreground">{threadView.thread.status}</span>
+                <span class="text-xs text-muted-foreground">
+                  {threadView.thread.status === ThreadStatus.Closed ? $t`Closed` : $t`Open`}
+                </span>
               </div>
 
               <div class="space-y-2">
@@ -245,7 +247,7 @@
               </div>
 
               <div class="space-y-2">
-                <form onsubmit={(e) => (e.preventDefault(), replyToThread(threadView))} class="space-y-2">
+                <form onsubmit={(e) => { e.preventDefault(); void replyToThread(threadView); }} class="space-y-2">
                   <InputGroup.Root>
                     <InputGroup.Textarea
                       id={`reply-${threadView.thread.id}`}

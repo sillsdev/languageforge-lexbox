@@ -21,8 +21,7 @@ public class LocalCommentReadStatusService(IDbContextFactory<LcmCrdtDbContext> d
             join thread in dbContext.CommentThreads on unreadComment.CommentThreadId equals thread.Id
             where thread.SubjectType == subjectType && thread.SubjectId == subjectId
             select unreadComment;
-        var comments = await query.ToArrayAsync();
-        return [.. comments];
+        return await query.ToArrayAsync();
     }
 
     public async Task<int> CountUnreadComments(Guid? threadId = null)

@@ -45,9 +45,73 @@ public class SyncServiceTests
 
         var results = new SyncResults([commit], [], true);
 
-        var unreadComments = SyncService.GetUnreadCommentsFromSyncResults(results).ToArray();
+        var unreadComments = SyncService.GetUnreadCommentsFromSyncResults(results, currentUserId: "current-user").ToArray();
 
         unreadComments.Should().ContainSingle()
+            .Which.Should().Be((comment.Id, threadId));
+    }
+
+    [Fact]
+    public void GetUnreadCommentsFromSyncResults_ExcludesCommentsAuthoredByCurrentUser()
+    {
+        var threadId = Guid.NewGuid();
+        var mine = new CreateUserCommentChange(new UserComment
+        {
+            Id = Guid.NewGuid(),
+            CommentThreadId = threadId,
+            Text = "authored by me on another device",
+            AuthorId = "current-user"
+        });
+        var theirs = new CreateUserCommentChange(new UserComment
+        {
+            Id = Guid.NewGuid(),
+            CommentThreadId = threadId,
+            Text = "authored by someone else",
+            AuthorId = "other-user"
+        });
+        var commitId = Guid.NewGuid();
+        var commit = new FakeCommit(commitId, new HybridDateTime(DateTimeOffset.UtcNow, 0))
+        {
+            ChangeEntities =
+            [
+                new ChangeEntity<IChange> { Change = mine, CommitId = commitId, EntityId = mine.EntityId, Index = 0 },
+                new ChangeEntity<IChange> { Change = theirs, CommitId = commitId, EntityId = theirs.EntityId, Index = 1 }
+            ]
+        };
+
+        var results = new SyncResults([commit], [], true);
+
+        var unreadComments = SyncService.GetUnreadCommentsFromSyncResults(results, currentUserId: "current-user").ToArray();
+
+        unreadComments.Should().ContainSingle("comments authored by other users are unread, the current user's own are not")
+            .Which.Should().Be((theirs.EntityId, threadId));
+    }
+
+    [Fact]
+    public void GetUnreadCommentsFromSyncResults_WithoutCurrentUser_IncludesCommentWithNullAuthor()
+    {
+        var threadId = Guid.NewGuid();
+        var comment = new UserComment
+        {
+            Id = Guid.NewGuid(),
+            CommentThreadId = threadId,
+            Text = "synced comment with no author"
+        };
+        var change = new CreateUserCommentChange(comment);
+        var commitId = Guid.NewGuid();
+        var commit = new FakeCommit(commitId, new HybridDateTime(DateTimeOffset.UtcNow, 0))
+        {
+            ChangeEntities =
+            [
+                new ChangeEntity<IChange> { Change = change, CommitId = commitId, EntityId = change.EntityId, Index = 0 }
+            ]
+        };
+
+        var results = new SyncResults([commit], [], true);
+
+        var unreadComments = SyncService.GetUnreadCommentsFromSyncResults(results, currentUserId: null).ToArray();
+
+        unreadComments.Should().ContainSingle("with no current user, even an author-less synced comment is unread")
             .Which.Should().Be((comment.Id, threadId));
     }
 
