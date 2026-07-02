@@ -20,10 +20,10 @@
   // position rather than being dumped after the kept ones. Each entry is tagged with its diff state.
   const key = $derived(sortKey ?? labelSelector);
   const merged = $derived.by(() => {
-    const byId = new Map<string, {item: T; state: 'kept' | 'removed' | 'added'}>();
-    for (const item of before) byId.set(idSelector(item), {item, state: afterIds.has(idSelector(item)) ? 'kept' : 'removed'});
-    for (const item of after) if (!beforeIds.has(idSelector(item))) byId.set(idSelector(item), {item, state: 'added'});
-    return [...byId.values()].sort((a, b) => key(a.item).localeCompare(key(b.item)));
+    type Entry = {item: T; state: 'kept' | 'removed' | 'added'};
+    const fromBefore: Entry[] = before.map((item) => ({item, state: afterIds.has(idSelector(item)) ? 'kept' : 'removed'}));
+    const fromAfter: Entry[] = after.filter((item) => !beforeIds.has(idSelector(item))).map((item) => ({item, state: 'added'}));
+    return [...fromBefore, ...fromAfter].sort((a, b) => key(a.item).localeCompare(key(b.item)));
   });
 
   const stateClass = {kept: diffKept, removed: diffRemoved, added: diffAdded} as const;

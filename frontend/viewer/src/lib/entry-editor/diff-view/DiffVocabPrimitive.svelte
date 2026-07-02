@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
   import type {IMultiString, IObjectWithId, IRichMultiString} from '$lib/dotnet-types';
-  import {asString, useWritingSystemService} from '$project/data';
+  import {useWritingSystemService} from '$project/data';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {t} from 'svelte-i18n-lingui';
   import DiffMultiString from './DiffMultiString.svelte';
@@ -44,7 +44,7 @@
   }
 
   function richMultiString(value: unknown): IRichMultiString | undefined {
-    return isRichMultiString(value) ? (value as IRichMultiString) : undefined;
+    return isRichMultiString(value) ? value : undefined;
   }
 
   function asText(value: unknown): string | undefined {
@@ -54,15 +54,24 @@
     return undefined;
   }
 
-  // Readable, app-consistent names for enum fields (CustomView.base, WritingSystem.type). Keyed by both the
-  // string enum name and its numeric value so it works whichever the wire sends. Unknown values fall through
-  // to asText so a new enum member still shows *something* rather than vanishing.
-  const viewBaseLabels = $derived<Record<string, string>>({FwLite: $t`FieldWorks Lite`, FieldWorks: $t`FieldWorks Classic`});
-  const wsTypeLabels = $derived<Record<string, string>>({'0': $t`Vernacular`, Vernacular: $t`Vernacular`, '1': $t`Analysis`, Analysis: $t`Analysis`});
+  // Readable, app-consistent names for enum fields (CustomView.base, WritingSystem.type). Matched against both
+  // the string enum name and its numeric value so it works whichever the wire sends. Unknown values fall
+  // through to asText so a new enum member still shows *something* rather than vanishing.
+  function viewBaseLabel(key: string): string | undefined {
+    if (key === 'FwLite') return $t`FieldWorks Lite`;
+    if (key === 'FieldWorks') return $t`FieldWorks Classic`;
+    return undefined;
+  }
+  function wsTypeLabel(key: string): string | undefined {
+    if (key === '0' || key === 'Vernacular') return $t`Vernacular`;
+    if (key === '1' || key === 'Analysis') return $t`Analysis`;
+    return undefined;
+  }
 
-  function enumText(value: unknown, labels: Record<string, string>): string | undefined {
+  function enumText(value: unknown, label: (key: string) => string | undefined): string | undefined {
     if (value === undefined || value === null) return undefined;
-    return labels[String(value)] ?? asText(value);
+    if (typeof value !== 'string' && typeof value !== 'number') return asText(value);
+    return label(String(value)) ?? asText(value);
   }
 
   // `name` is an IMultiString on most types but a plain string on WritingSystem/CustomView.
@@ -91,12 +100,12 @@
   </Editor.Field.Root>
 {/snippet}
 
-{#snippet enumRow(label: string, field: string, labels: Record<string, string>)}
+{#snippet enumRow(label: string, field: string, valueLabel: (key: string) => string | undefined)}
   <Editor.Field.Root>
     <Editor.Field.Title name={label} />
     <Editor.Field.Body>
       <DiffShell>
-        <DiffText before={enumText(b?.[field], labels)} after={enumText(a?.[field], labels)} />
+        <DiffText before={enumText(b?.[field], valueLabel)} after={enumText(a?.[field], valueLabel)} />
       </DiffShell>
     </Editor.Field.Body>
   </Editor.Field.Root>
@@ -189,7 +198,7 @@
   {/if}
 
   {#if present('type')}
-    {@render enumRow($t`Type`, 'type', wsTypeLabels)}
+    {@render enumRow($t`Type`, 'type', wsTypeLabel)}
   {/if}
 
   {#if present('isAudio')}
@@ -201,7 +210,7 @@
   {/if}
 
   {#if present('base')}
-    {@render enumRow($t`Base view`, 'base', viewBaseLabels)}
+    {@render enumRow($t`Base view`, 'base', viewBaseLabel)}
   {/if}
 
   {#if present('entryFields')}

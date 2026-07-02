@@ -25,11 +25,12 @@
     type MultiFilterSelection,
   } from './utils';
   import AuthorLabel from './AuthorLabel.svelte';
+  import type {Snippet} from 'svelte';
 
   type Props = {
     filters?: ActivityFilters;
     /** Optional right-aligned content rendered on the same row as the sort menu (e.g. the list-mode icon). */
-    trailing?: import('svelte').Snippet;
+    trailing?: Snippet;
   };
 
   let {filters = $bindable(createDefaultActivityFilters()), trailing}: Props = $props();
