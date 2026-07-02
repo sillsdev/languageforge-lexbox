@@ -47,6 +47,20 @@
     return FACT_GLYPH[factCategory(fact)];
   }
 
+  // Corner-cut colour for single-fact commits — a small triangle in the top-right that carries the change
+  // kind at a glance. Reserved for the two loudest kinds; edits and reorders leave the corner bare (absence
+  // is itself a signal that this row is a modification, not a creation or removal).
+  const CORNER_COLOR: Record<FactCategory, string | undefined> = {
+    added: 'bg-emerald-500',
+    removed: 'bg-destructive',
+    changed: undefined,
+    reordered: undefined,
+    other: undefined,
+  };
+  function cornerFor(fact: ChangeFact) {
+    return CORNER_COLOR[factCategory(fact)];
+  }
+
   const THRESHOLD = 20;
   const BATCH_SIZE = THRESHOLD * 2;
 
@@ -149,12 +163,13 @@
   }
 </script>
 
-<!-- One Detailed-mode change line: a change-kind glyph + the summary. `grouped` hides the subject token
-     (the subject is already the group header) AND reserves an icon gutter so wrapped lines hang-indent
-     under the text — a bulleted list of the group's changes. Ungrouped rows are one-offs, so the icon
-     just sits inline before the text and wrap flows naturally to the left edge. -->
-{#snippet factLine(entry: ChangeFactWithSubject, grouped: boolean)}
-  {@const glyph = glyphFor(entry.fact)}
+<!-- One Detailed-mode change line: an optional change-kind glyph + the summary. `grouped` hides the
+     subject token (the subject is already the group header) AND reserves a gutter so wrapped lines
+     hang-indent under the text — a bulleted list of the group's changes. Ungrouped rows are one-offs,
+     so the glyph sits inline; single-fact commits skip it entirely (the item shows one glyph in its
+     top-right corner instead — see below). -->
+{#snippet factLine(entry: ChangeFactWithSubject, grouped: boolean, hideGlyph = false)}
+  {@const glyph = hideGlyph ? undefined : glyphFor(entry.fact)}
   {#if grouped}
     <div class="flex items-center gap-1.5">
       <span class="w-3.5 shrink-0 flex justify-center">
@@ -198,10 +213,18 @@
              getKey={row => row.commitId} bufferSize={400}>
         {#snippet children(row)}
           {@const summary = summarizeActivity(row.changes, row.changeInfo, row.changeTypes, activityMode === 'detailed')}
+          <!-- One-fact commits (the common case) drop the inline glyph and mark the change kind with a
+               small colour-coded corner-cut in the top-right instead — colour is the communicator, no icon
+               required. Multi-fact commits keep per-fact glyphs inline; a single corner can't represent a
+               mixed set. -->
+          {@const singleFactCorner = activityMode === 'detailed' && summary.entries.length === 1 && summary.remaining === 0
+            ? cornerFor(summary.entries[0].fact)
+            : undefined}
+          {@const singleFactHideGlyph = activityMode === 'detailed' && summary.entries.length === 1 && summary.remaining === 0}
           <ListItem
             onclick={() => selectedRow = row}
             selected={selectedRow?.commitId === row.commitId}
-            class="mb-2">
+            class="mb-2 relative overflow-hidden">
             {#if summary.entries.length === 0}
               <span>{row.changeName}</span>
             {:else if activityMode === 'detailed'}
@@ -223,7 +246,7 @@
                     </div>
                   {:else}
                     {#each group.facts as entry, i (i)}
-                      {@render factLine(entry, false)}
+                      {@render factLine(entry, false, singleFactHideGlyph)}
                     {/each}
                   {/if}
                 {/each}
@@ -240,6 +263,11 @@
                   <span class="shrink-0">{$t`(+${summary.remaining} more)`}</span>
                 {/if}
               </div>
+            {/if}
+            {#if singleFactCorner}
+              <span aria-hidden="true"
+                    class="pointer-events-none absolute top-0 end-0 size-4 {singleFactCorner}"
+                    style="clip-path: polygon(0 0, 100% 0, 100% 100%);"></span>
             {/if}
             <div class="mt-2 text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
               <AuthorLabel class="min-w-0" authorId={row.metadata.authorId} authorName={row.metadata.authorName} />
