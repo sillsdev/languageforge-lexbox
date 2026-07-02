@@ -9,8 +9,9 @@ const ssl = false;
 
 // Override the dev-server port (and the origin it advertises) via FW_LITE_DEV_PORT so multiple
 // worktrees can each run their own viewer; the .NET host loads assets cross-origin, so origin must track the port.
-const devPortFromEnv = !!process.env.FW_LITE_DEV_PORT;
-const devPort = Number(process.env.FW_LITE_DEV_PORT) || 5173;
+const parsedDevPort = Number(process.env.FW_LITE_DEV_PORT);
+const devPortFromEnv = Number.isFinite(parsedDevPort) && parsedDevPort > 0;
+const devPort = devPortFromEnv ? parsedDevPort : 5173;
 
 // https://vitejs.dev/config/
 export default defineConfig(({command}) => ({
