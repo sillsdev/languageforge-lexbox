@@ -116,21 +116,21 @@ public class LcmMediaService(
         Path.Combine(options.Value.LocalResourceCachePath, currentProjectService.Project.Name);
 
 
-    async Task<UploadResult<LcmFileMetadata>> IRemoteResourceService<LcmFileMetadata>.UploadResource(Guid resourceId, string localPath)
+    async Task<UploadResult<LcmFileMetadata>> IRemoteResourceService<LcmFileMetadata>.UploadResource(Guid resourceId, string localPath, LcmFileMetadata? metadata)
     {
         var mediaClient = await MediaServerClient();
-        var fileName = Path.GetFileName(localPath);
+        var fileName = metadata?.Filename ?? Path.GetFileName(localPath);
         var response = await mediaClient.UploadFile(
             new FileInfoPart(new FileInfo(localPath), fileName),
             projectId: currentProjectService.ProjectData.Id,
             fileId: resourceId.ToString("D"),
             filename: fileName);
-        var metadata = new LcmFileMetadata(fileName,
-            response.Metadata?.MimeType ?? "application/octet-stream",
-            response.Metadata?.Author,
-            response.Metadata?.UploadDate,
-            response.Metadata?.SizeInBytes);
-        return new UploadResult<LcmFileMetadata>(resourceId.ToString("N"), metadata);
+        var uploadedMetadata = new LcmFileMetadata(fileName,
+            response.Metadata?.MimeType ?? metadata?.MimeType ?? "application/octet-stream",
+            response.Metadata?.Author ?? metadata?.Author,
+            response.Metadata?.UploadDate ?? metadata?.UploadDate,
+            response.Metadata?.SizeInBytes ?? metadata?.SizeInBytes);
+        return new UploadResult<LcmFileMetadata>(resourceId.ToString("N"), uploadedMetadata);
     }
 
     public async Task<(HarmonyResource<LcmFileMetadata> resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
