@@ -185,7 +185,7 @@
 {:else if fact.kind === 'componentLink'}
   {#if fact.action === 'add'}
     {$t`Added component`}{#if target}{@render chip(target)}{/if}
-  {:else if fact.action === 'remove'}{$t`Removed component`}
+  {:else if fact.action === 'remove'}{$t`Removed component`}{#if target}{@render chip(target)}{/if}
   {:else}
     {#if target}{$t`Changed component to`}{@render chip(target)}{:else}{$t`Changed component`}{/if}
   {/if}

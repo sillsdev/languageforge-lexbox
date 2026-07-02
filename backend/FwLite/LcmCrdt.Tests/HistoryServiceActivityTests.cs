@@ -422,6 +422,23 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
     }
 
     [Fact]
+    public async Task ProjectActivity_ChangeInfo_RemovedComponent_NamesEndpointsFromCreateChange()
+    {
+        var complexFormId = await CreateEntry("blackbird");
+        var componentId = await CreateEntry("bird");
+        var component = await AddComponent(complexFormId, componentId);
+        // Delete the link: it leaves the projection, so its endpoints must come from the create change.
+        await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<ComplexFormComponent>(component.Id), Meta());
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+
+        // The delete still names the complex form (subject) and component (target) for orientation.
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1
+            && a.ChangeInfo[0].Subject == "blackbird"
+            && a.ChangeInfo[0].Target == "bird");
+    }
+
+    [Fact]
     public async Task ProjectActivity_ChangeInfo_SetComplexFormComponent_NamesComplexFormAndNewComponent()
     {
         var complexFormId = await CreateEntry("blackbird");

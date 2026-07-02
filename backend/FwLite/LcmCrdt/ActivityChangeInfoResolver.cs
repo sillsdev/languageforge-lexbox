@@ -75,6 +75,17 @@ internal static class ActivityChangeInfoResolver
             entryIds.Add(component.ComplexFormEntryId);
             entryIds.Add(component.ComponentEntryId);
         }
+
+        // A deleted component link is absent from the projection above, so "Removed component" would have no
+        // headwords. Recover its endpoints from its create change (AddEntryComponentChange carries both entry
+        // ids) — enough to name the complex form and component for basic orientation.
+        var deletedComponentIds = componentIds.Where(id => !components.ContainsKey(id)).ToHashSet();
+        var deletedComponentEndpoints = await LoadComponentEndpointsFromCreate(db, deletedComponentIds);
+        foreach (var (complexFormEntryId, componentEntryId) in deletedComponentEndpoints.Values)
+        {
+            entryIds.Add(complexFormEntryId);
+            entryIds.Add(componentEntryId);
+        }
         var examples = await LoadExamples(db, exampleIds);
         foreach (var example in examples.Values) senseIds.Add(example.SenseId);
         var senses = await LoadSenses(db, senseIds);
@@ -173,10 +184,10 @@ internal static class ActivityChangeInfoResolver
                     return (SenseLabel(headword(exSense.EntryId), exSense), exSense.EntryId);
                 case nameof(ComplexFormComponent) when components.TryGetValue(id, out var component):
                     return (headword(component.ComplexFormEntryId), component.ComplexFormEntryId);
-                case nameof(ComplexFormComponent) when change.Change is AddEntryComponentChange add:
-                    // Projection excludes soft-deleted CFCs, so a later-deleted CFC isn't in `components`.
-                    // Fall back to the create-change payload, which carries the endpoint ids.
-                    return (headword(add.ComplexFormEntryId), add.ComplexFormEntryId);
+                case nameof(ComplexFormComponent) when deletedComponentEndpoints.TryGetValue(id, out var ep):
+                    // The CFC is deleted (absent from the projection); name the complex form from the endpoints
+                    // recovered from its create change. Covers both "Removed component" and add-then-deleted.
+                    return (headword(ep.ComplexFormEntryId), ep.ComplexFormEntryId);
                 case nameof(PartOfSpeech) when partsOfSpeech.TryGetValue(id, out var pos):
                     return (Label(pos.Name), null);
                 case nameof(SemanticDomain) when semanticDomains.TryGetValue(id, out var domain):
@@ -202,6 +213,10 @@ internal static class ActivityChangeInfoResolver
             // Component links resolve the component being linked (the change's subject is the complex form).
             AddEntryComponentChange a when entries.TryGetValue(a.ComponentEntryId, out var component) => DisplayHeadword(component, morphLookup),
             SetComplexFormComponentChange { ComponentEntryId: { } cid } when entries.TryGetValue(cid, out var component) => DisplayHeadword(component, morphLookup),
+            // A deleted component link (e.g. "Removed component"): name the component from the recovered endpoints.
+            _ when change.Change.EntityType == typeof(ComplexFormComponent)
+                   && deletedComponentEndpoints.TryGetValue(change.EntityId, out var ep)
+                   && entries.TryGetValue(ep.ComponentEntryId, out var component) => DisplayHeadword(component, morphLookup),
             // Sense-create pairs with the ResolveSubject override above: subject is the parent entry headword,
             // target names the new sense ("gwa₁ · Added sense senseN" — SenseGlossPart falls back to a subscript
             // when the gloss is empty, matching sense-edit summaries).
@@ -258,6 +273,22 @@ internal static class ActivityChangeInfoResolver
             .Select(e => new ExampleSentence { Id = e.Id, SenseId = e.SenseId })
             .ToListAsyncLinqToDB();
         return loaded.ToDictionary(e => e.Id);
+    }
+
+    // The endpoints of deleted component links, recovered from their create change (which carries both entry
+    // ids). Two steps: load the changes for these CFC ids, then read the ids off the AddEntryComponentChange.
+    private static async Task<Dictionary<Guid, (Guid ComplexFormEntryId, Guid ComponentEntryId)>> LoadComponentEndpointsFromCreate(
+        ICrdtDbContext db, HashSet<Guid> cfcIds)
+    {
+        if (cfcIds.Count == 0) return [];
+        var changeEntities = await db.Set<ChangeEntity<IChange>>()
+            .Where(ce => cfcIds.Contains(ce.EntityId))
+            .ToListAsyncLinqToDB();
+        return changeEntities
+            .Select(ce => ce.Change)
+            .OfType<AddEntryComponentChange>()
+            .GroupBy(c => c.EntityId)
+            .ToDictionary(g => g.Key, g => (g.First().ComplexFormEntryId, g.First().ComponentEntryId));
     }
 
     private static async Task<Dictionary<Guid, ComplexFormComponent>> LoadComponents(ICrdtDbContext db, HashSet<Guid> ids)
