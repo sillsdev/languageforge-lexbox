@@ -59,6 +59,9 @@ export type ChangeFact =
   | {kind: 'deleteObject'; object: ObjectKind}
   // A whole commit's worth of same-type creations collapsed to a count ("Created 100 semantic domains").
   | {kind: 'bulkCreate'; noun: BulkNoun; count: number}
+  // A media resource (a substrate file — currently only audio recordings). `audio` is set when the commit
+  // references this resource id from an audio writing system; `resourceId` lets the preview play it.
+  | {kind: 'mediaResource'; action: 'add' | 'delete' | 'upload'; resourceId?: string; audio?: boolean}
   | {kind: 'generic'; text: string};
 
 const MAIN_ENTITY_BY_SUFFIX: Record<string, SummaryEntity> = {
@@ -140,6 +143,25 @@ function hasAudioContent(multiString: unknown): boolean {
   return Object.entries(multiString as Record<string, unknown>).some(([wsId, value]) => isAudioWs(wsId) && !!displayValue(value));
 }
 
+/** The resource's own id (its EntityId), which equals the FileId in the sil-media URIs that reference it. */
+function resourceIdOf(change: unknown): string | undefined {
+  const id = prop(change, 'entityId');
+  return typeof id === 'string' ? id : undefined;
+}
+
+/**
+ * Whether a media resource is audio, judged from the commit that created it: audio recordings are stored
+ * against an audio writing system, so the sibling field-set that references this resource id also carries
+ * the `-Zxxx-x-audio` ws marker. Both appear in that change's JSON, so a resource id co-occurring with the
+ * audio marker in any change means the resource is audio. Non-audio resources (future images) won't match.
+ */
+function commitResourceIsAudio(resourceId: string, changes: readonly IChangeEntity[]): boolean {
+  return changes.some((c) => {
+    const json = JSON.stringify(c.change);
+    return json.includes(resourceId) && /-zxxx-x-audio/i.test(json);
+  });
+}
+
 /** A label from a plain string (e.g. a semantic-domain Code) or a MultiString Name. */
 function labelOf(value: unknown): string | undefined {
   if (typeof value === 'string') return value || undefined;
@@ -160,7 +182,15 @@ function normalizeFieldId(entity: SummaryEntity, pathSegment: string): FieldId |
   return ids.find((id) => id.toLowerCase() === target) as FieldId | undefined;
 }
 
-/** Turns a change `$type` into a readable sentence-case phrase, keeping any verb prefix (e.g. `create:remote-resource` → "Create remote resource"). */
+// Past-tense forms for the leading verb of a change type, so the generic fallback matches the past tense
+// of every purpose-built summary ("Created …", not "Create …"). Unknown leading words are just capitalized.
+const PAST_TENSE_VERB: Record<string, string> = {
+  create: 'Created', add: 'Added', set: 'Set', update: 'Updated', edit: 'Edited', delete: 'Deleted',
+  remove: 'Removed', replace: 'Replaced', move: 'Moved', reorder: 'Reordered', clear: 'Cleared',
+  upload: 'Uploaded', uploaded: 'Uploaded', merge: 'Merged',
+};
+
+/** Turns a change `$type` into a readable past-tense phrase (e.g. `create:remote-resource` → "Created remote resource"). */
 function humanizeType(type: string): string {
   const words = type
     .replace(/Change$/, '')
@@ -169,7 +199,9 @@ function humanizeType(type: string): string {
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
     .toLowerCase()
     .trim();
-  return words.charAt(0).toUpperCase() + words.slice(1);
+  const [first, ...rest] = words.split(' ');
+  const head = PAST_TENSE_VERB[first] ?? (first.charAt(0).toUpperCase() + first.slice(1));
+  return [head, ...rest].join(' ');
 }
 
 function patchOpToFact(entity: SummaryEntity, op: unknown): ChangeFact | undefined {
@@ -310,6 +342,9 @@ export function describeChange(changeEntity: IChangeEntity): ChangeFact[] {
   const change = changeEntity.change;
   const type = changeType(change);
 
+  if (type === 'create:remote-resource') return [{kind: 'mediaResource', action: 'add', resourceId: resourceIdOf(change)}];
+  if (type === 'uploaded:RemoteResource') return [{kind: 'mediaResource', action: 'upload', resourceId: resourceIdOf(change)}];
+  if (type === 'delete:RemoteResource') return [{kind: 'mediaResource', action: 'delete', resourceId: resourceIdOf(change)}];
   if (type.startsWith('jsonPatch:')) return jsonPatchFacts(type.slice('jsonPatch:'.length), change);
   if (type.startsWith('delete:')) return deleteFacts(type.slice('delete:'.length));
   if (type.startsWith('SetOrderChange:')) {
@@ -327,6 +362,7 @@ export function describeChange(changeEntity: IChangeEntity): ChangeFact[] {
  * small allow-list of intentionally-generic types), so a new backend change type fails the test.
  */
 export function isHandledChangeType(type: string): boolean {
+  if (type === 'create:remote-resource' || type === 'uploaded:RemoteResource' || type === 'delete:RemoteResource') return true;
   if (type.startsWith('jsonPatch:')) {
     const suffix = type.slice('jsonPatch:'.length);
     return suffix in MAIN_ENTITY_BY_SUFFIX || suffix in OBJECT_BY_SUFFIX;
@@ -358,7 +394,13 @@ export function describeActivity(
 ): ChangeFactWithSubject[] {
   return changes.flatMap((change, index) => {
     const info = changeInfo?.[index];
-    return describeChange(change).map((fact) => ({fact, subject: info?.subject, rootEntryId: info?.rootEntryId, target: info?.target}));
+    return describeChange(change).map((fact) => {
+      // A media-resource fact learns whether it's audio from its sibling changes in the same commit.
+      if (fact.kind === 'mediaResource' && fact.resourceId) {
+        fact = {...fact, audio: commitResourceIsAudio(fact.resourceId, changes)};
+      }
+      return {fact, subject: info?.subject, rootEntryId: info?.rootEntryId, target: info?.target};
+    });
   });
 }
 

@@ -112,7 +112,7 @@
     })()},
     {label: 'Part of speech — name edited', context: ctx({entityType: 'PartOfSpeech', previousSnapshot: posBefore, snapshot: posAfter})},
     {label: 'Semantic domain — name edited (keeps code)', context: ctx({entityType: 'SemanticDomain', previousSnapshot: semDomBefore, snapshot: semDomAfter})},
-    {label: 'Remote resource (generic JSON)', context: ctx({entityType: 'RemoteResource', snapshot: {id: 'res-1', fileName: 'audio.mp3', uploaded: true} as unknown as IObjectWithId})},
+    {label: 'Remote resource (audio player)', context: ctx({entityType: 'RemoteResource', snapshot: {id: '00000000-0000-0000-0000-0000000000f0'} as unknown as IObjectWithId})},
     {label: 'No preview available', context: ctx({entityType: 'Unknown'})},
   ];
 </script>

@@ -104,9 +104,21 @@ describe('describeChange', () => {
       .toEqual([{kind: 'delete', entity: 'entry'}]);
   });
 
-  it('falls back to a humanized type for unrecognized changes', () => {
+  it('describes a media-resource create/upload/delete', () => {
+    expect(describeChange(changeEntity({'$type': 'create:remote-resource', EntityId: 'r1'})))
+      .toEqual([{kind: 'mediaResource', action: 'add', resourceId: 'r1'}]);
+    expect(describeChange(changeEntity({'$type': 'uploaded:RemoteResource', EntityId: 'r1'})))
+      .toEqual([{kind: 'mediaResource', action: 'upload', resourceId: 'r1'}]);
+    expect(describeChange(changeEntity({'$type': 'delete:RemoteResource', EntityId: 'r1'})))
+      .toEqual([{kind: 'mediaResource', action: 'delete', resourceId: 'r1'}]);
+  });
+
+  it('falls back to a PAST-TENSE humanized type for unrecognized changes', () => {
     expect(describeChange(changeEntity({'$type': 'SomeFutureChange', EntityId: 'e'})))
       .toEqual([{kind: 'generic', text: 'Some future'}]);
+    // Leading verb is past-tensed so the fallback matches every other summary's tense.
+    expect(describeChange(changeEntity({'$type': 'create:widget', EntityId: 'e'})))
+      .toEqual([{kind: 'generic', text: 'Created widget'}]);
   });
 
   it('yields one fact per patch operation', () => {
@@ -185,12 +197,9 @@ describe('describeChange', () => {
       .toEqual([{kind: 'createObject', object: 'semanticDomain', label: '5.2 Food'}]);
   });
 
-  // Resource/media sync changes that intentionally use the generic humanized fallback (not user-facing edits).
+  // Substrate plumbing that intentionally uses the generic humanized fallback (not a user-facing edit).
   const INTENTIONALLY_GENERIC = new Set<string>([
     'create:pendingUpload',
-    'create:remote-resource',
-    'uploaded:RemoteResource',
-    'delete:RemoteResource',
   ]);
 
   it('handles every backend change type (generated list) or allows it as intentionally generic', () => {
@@ -217,6 +226,22 @@ describe('describeActivity', () => {
       rootEntryId: 'e1',
       target: '5.2 Food',
     }]);
+  });
+
+  it('marks a media resource as audio when a sibling change references it from an audio ws', () => {
+    const resourceId = 'b3bdcc7a-7746-4659-b79d-a5ac0c27f256';
+    const result = describeActivity([
+      changeEntity({'$type': 'create:remote-resource', EntityId: resourceId}),
+      changeEntity({'$type': 'jsonPatch:ExampleSentence', PatchDocument: [
+        {op: 'add', path: '/Sentence/seh-Zxxx-x-audio', value: {Spans: [{Text: `sil-media://lexbox.org/${resourceId}`, Ws: 'seh-Zxxx-x-audio'}]}},
+      ]}),
+    ]);
+    expect(result[0].fact).toEqual({kind: 'mediaResource', action: 'add', resourceId, audio: true});
+  });
+
+  it('leaves a media resource non-audio when nothing references it as audio', () => {
+    const result = describeActivity([changeEntity({'$type': 'create:remote-resource', EntityId: 'r1'})]);
+    expect(result[0].fact).toEqual({kind: 'mediaResource', action: 'add', resourceId: 'r1', audio: false});
   });
 });
 

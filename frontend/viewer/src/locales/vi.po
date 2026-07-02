@@ -213,12 +213,8 @@ msgstr "Thêm Từ"
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Added {0}"
-msgstr ""
-
-#. Activity-log line. {0} = singular entity noun (e.g. "example", "meaning"/"sense"). A chip with the parent entry/sense name follows (e.g. "Added example to «Apfel»").
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Added {0} to"
+msgid "Added {0}"
 msgstr ""
 
 #: src/lib/activity/ChangeSummary.svelte
@@ -318,10 +314,18 @@ msgstr "Bạn có chắc chắn muốn xóa {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Hỏi câu hỏi và nhận trợ giúp trên diễn đàn cộng đồng của chúng tôi."
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "audio"
+msgstr ""
+
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr "Tệp âm thanh không được bao gồm trong Gửi & Nhận"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "audio recording"
+msgstr ""
 
 #. Success message for audio sync
 #: src/lib/components/audio/AudioDialog.svelte
@@ -708,12 +712,17 @@ msgstr "Đã xóa"
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
 msgid "Deleted {0}"
 msgstr ""
 
 #. Activity-log line. {0} = singular entity noun (e.g. "example", "meaning"/"sense"). A chip with the parent entry/sense name follows (e.g. "Deleted example from «Apfel»").
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Deleted {0} from"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Description"
 msgstr ""
 
 #. View option in the activity list mode picker (paired with "Simple"). Shows every change in a commit as its own summary line.
@@ -1242,6 +1251,10 @@ msgstr "Đang cài đặt bản cập nhật..."
 msgid "Keep going"
 msgstr "Tiếp tục"
 
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Kind"
+msgstr ""
+
 #. Label showing the date of the last change in the FwLite↔Classic sync panel. # is replaced by a formatted relative date component (e.g., "3 days ago").
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1353,6 +1366,10 @@ msgstr "Đăng xuất"
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Được tạo với ❤️ từ 🇦🇹 🇹🇭 🇺🇸"
 
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Main"
+msgstr ""
+
 #. Button label in the Feedback & Support dialog. Opens an external link to submit a feature suggestion.
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Make a suggestion"
@@ -1407,6 +1424,10 @@ msgstr "Ý nghĩa"
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "meanings"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "media file"
 msgstr ""
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
@@ -1530,6 +1551,10 @@ msgstr ""
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
 msgstr "Tiếp theo"
+
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "No"
+msgstr ""
 
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
@@ -1790,6 +1815,7 @@ msgid "Preview"
 msgstr "Xem trước"
 
 #: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available for this type of change"
 msgstr ""
 
@@ -2049,6 +2075,10 @@ msgstr ""
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Câu"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set {0}"
+msgstr ""
 
 #. Activity-log line. {0} = field label (e.g. "Definition"); a chip with the new value follows. Used when there is no writing-system qualifier.
 #: src/lib/activity/ChangeSummary.svelte
@@ -2327,6 +2357,7 @@ msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 #: src/lib/views/entity-config.ts
 msgid "Translation"
@@ -2348,6 +2379,10 @@ msgstr "Khắc phục sự cố"
 
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Type"
 msgstr ""
 
 #. Task instruction
@@ -2421,11 +2456,11 @@ msgstr "Kết quả cập nhật không xác định"
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
 #: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/diff-view/DiffEntryLinkList.svelte
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryView.svelte
@@ -2479,6 +2514,10 @@ msgstr ""
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
 msgstr "Cập nhật"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Uploaded {0}"
+msgstr ""
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -2603,6 +2642,10 @@ msgstr "Hệ thống chữ viết"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Các hệ chữ"
+
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Yes"
+msgstr ""
 
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte

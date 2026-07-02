@@ -1,9 +1,10 @@
 <script lang="ts">
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as Editor from '$lib/components/editor';
-  import {type IChangeContext, type IComplexFormComponent, type IEntry, type IExampleSentence, type ISense} from '$lib/dotnet-types';
+  import {type IChangeContext, type IComplexFormComponent, type IEntry, type IExampleSentence, type IObjectWithId, type ISense} from '$lib/dotnet-types';
   import {t} from 'svelte-i18n-lingui';
   import {formatJsonForUi} from './utils';
+  import AudioInput from '$lib/components/field-editors/audio-input.svelte';
   import {useMultiWindowService} from '$lib/services/multi-window-service';
   import {Button} from '$lib/components/ui/button';
   import {pt, tvt} from '$lib/views/view-text';
@@ -259,6 +260,15 @@
           <DiffVocabPrimitive before={context.previousSnapshot} after={context.snapshot} />
         </Editor.Grid>
       </Editor.Root>
+    {:else if context.entityType === 'RemoteResource'}
+      {@const resource = (context.snapshot ?? context.previousSnapshot) as IObjectWithId | undefined}
+      {#if resource?.id}
+        <!-- A media resource (currently only audio recordings): play it. getFileStream resolves by the
+             FileId in the URI, so the authority is a placeholder. -->
+        <AudioInput audioId={`sil-media://local/${resource.id}`} readonly />
+      {:else}
+        <div class="text-muted-foreground p-4 text-center">{$t`Preview not available for this type of change`}</div>
+      {/if}
     {:else}
       <div class="whitespace-pre-wrap font-mono text-sm">
         {formatJsonForUi(context.snapshot ?? context.previousSnapshot ?? {})}

@@ -205,6 +205,9 @@
   {$t`Set as the main publication`}
 {:else if fact.kind === 'bulkCreate'}
   {$t`Created ${fact.count} ${bulkNoun(fact.noun)}`}
+{:else if fact.kind === 'mediaResource'}
+  {@const noun = fact.audio ? $t`audio recording` : $t`media file`}
+  {#if fact.action === 'delete'}{$t`Deleted ${noun}`}{:else if fact.action === 'upload'}{$t`Uploaded ${noun}`}{:else}{$t`Added ${noun}`}{/if}{#if fact.audio}{@render audioNote()}{/if}
 {:else}
   {fact.text}
 {/if}
