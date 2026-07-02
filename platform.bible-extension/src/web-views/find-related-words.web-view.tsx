@@ -143,8 +143,9 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       elementHeader={
         <div className="tw:flex tw:flex-col tw:gap-2">
           <div className="tw:flex tw:gap-2">
-            <div className="tw:max-w-lg">
+            <div className="tw:w-full tw:max-w-lg">
               <SearchBar
+                isFullWidth
                 onSearch={onSearch}
                 placeholder={localizedStrings['%lexicon_findRelatedWord_textField%']}
                 value={searchTerm}

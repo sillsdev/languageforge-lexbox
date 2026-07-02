@@ -14,6 +14,9 @@ public class ProjectSnapshotService(IOptions<CrdtConfig> crdtConfig)
         var snapshotPath = SnapshotPath(project);
         if (!File.Exists(snapshotPath)) return null;
         await using var file = File.OpenRead(snapshotPath);
+        // crdtConfig's options are fine for reading even though they "exclude" [MiniLcmInternal] members:
+        // the modifier only nulls the getter (the write side), so deserialization still populates those
+        // members (Order, entity Ids) via their setters. See SaveProjectSnapshot for why they're written.
         return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file, crdtConfig.Value.JsonSerializerOptions);
     }
 
@@ -49,7 +52,11 @@ public class ProjectSnapshotService(IOptions<CrdtConfig> crdtConfig)
         }
 
         await using var file = File.Create(snapshotPath);
-        //not using our serialization options because we don't want to exclude MiniLcmInternal
+        // Serialize with default options, not crdtConfig's: the CRDT options hide [MiniLcmInternal] members
+        // (the internal Order values and entity Ids) — that's the API's presentation view, which omits
+        // bookkeeping callers don't need. The snapshot is a stored record, so we keep the full object graph.
+        // The sync diff itself keys off business fields and list order, not these, so this is about a
+        // lossless, stable on-disk record (pinned by ProjectSnapshotSerializationTests), not diff correctness.
         await JsonSerializer.SerializeAsync(file, projectSnapshot);
     }
 

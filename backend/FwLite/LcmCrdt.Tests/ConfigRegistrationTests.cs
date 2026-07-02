@@ -13,7 +13,6 @@ public class ConfigRegistrationTests
 
     private readonly HashSet<Type> _excludedChangeTypes =
     [
-        typeof(ReplaceComplexFormTypeChange), //not currently in use
         typeof(JsonPatchChange<ComplexFormComponent>), //not supported
         typeof(JsonPatchChange<RemoteResource<LcmFileMetadata>>), //not supported
         typeof(JsonPatchChange<ExampleSentence>), //replaced by JsonPatchExampleSentenceChange

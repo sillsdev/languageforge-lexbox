@@ -31,6 +31,7 @@ public static class FwLiteSharedKernel
         services.AddScoped<SyncService>();
         services.AddScoped<ProjectServicesProvider>();
         services.AddScoped<IServerHttpClientProvider, LexboxOauthServerClientProvider>();
+        services.AddSingleton<LexboxProjectChangeListener>();
         services.AddSingleton<LexboxProjectService>();
         services.AddSingleton<CombinedProjectsService>();
         services.AddSingleton<GlobalEventBus>();
@@ -43,10 +44,13 @@ public static class FwLiteSharedKernel
         services.AddScoped<FwLiteProvider>();
 
         services.AddSingleton<BackgroundSyncService>();
+        services.AddSingleton<IBackgroundSyncService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
+        services.AddSingleton<IHostedService, PushListenerRecoveryService>();
         services.AddSingleton<UpdateChecker>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<UpdateChecker>());
         services.TryAddSingleton<IPlatformUpdateService, CorePlatformUpdateService>();
+        services.TryAddSingleton<INetworkStatus, NetworkInterfaceNetworkStatus>();
         services.AddSingleton<UpdateService>();
         services.AddSingleton<TestingService>();
         services.AddOptions<FwLiteConfig>().BindConfiguration("FwLite");

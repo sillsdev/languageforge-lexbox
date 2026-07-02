@@ -44,6 +44,9 @@ public class LcmCrdtDbContext(
 
         var morphTypeModel = modelBuilder.Entity<MorphType>();
         morphTypeModel.HasIndex(m => m.Kind).IsUnique();
+
+        var senseModel = modelBuilder.Entity<Sense>();
+        senseModel.Property(s => s.Pictures).HasColumnType("jsonb").HasDefaultValueSql("'[]'");
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
@@ -59,6 +62,8 @@ public class LcmCrdtDbContext(
             .HaveConversion<RichMultiStringDbConverter>();
         builder.Properties<WritingSystemId>()
             .HaveConversion<WritingSystemIdConverter>();
+        builder.Properties<List<Picture>>()
+            .HaveConversion<PictureListDbConverter>();
     }
 
     private class MultiStringDbConverter() : ValueConverter<MultiString, string>(
@@ -91,4 +96,8 @@ public class LcmCrdtDbContext(
     private class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
         id => id.Code,
         code => new WritingSystemId(code));
+
+    private class PictureListDbConverter() : ValueConverter<List<Picture>, string>(
+        pic => JsonSerializer.Serialize(pic, (JsonSerializerOptions?)null),
+        json => JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new());
 }

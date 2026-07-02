@@ -1,4 +1,4 @@
-[
+ï»¿[
   {
     "Input": {
       "$type": "MiniLcmCrdtAdapter",
@@ -613,7 +613,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": "a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5",
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "468b3fd0-3d9e-4cae-9e4f-842dec5fa74d",
       "DeletedAt": null
@@ -672,7 +673,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": null,
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "ac8c3b6f-9487-4949-ab7a-1ed078cadffe",
       "DeletedAt": null
@@ -741,7 +743,8 @@
         "PartOfSpeech": null,
         "PartOfSpeechId": null,
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "ff2f6647-0ff2-4d67-845b-c43baf851d93",
       "DeletedAt": null
@@ -1841,6 +1844,2060 @@
         "DeletedAt": null
       },
       "Id": "22365a16-4766-423e-58be-aa8cc941cb54",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "a7d178a9-1815-9673-a50e-12f1e9f2e88c",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "40441758-a443-78ad-5a91-ff960b9916d5",
+        "Definition": {
+          "bqu": {
+            "Spans": [
+              {
+                "Text": "Generic",
+                "Ws": "bqu",
+                "Tags": [
+                  "48c3c7a1-ec4e-4525-ba86-12bccc426156"
+                ]
+              },
+              {
+                "Text": "Ergonomic Wooden Pants",
+                "Ws": "mie",
+                "Bold": "Invert",
+                "FontSize": -1554990305,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "63895a7f-9e74-d3f2-fa1d-4e9c6249a821"
+                ]
+              },
+              {
+                "Text": "Missouri",
+                "Ws": "bqu",
+                "Tags": [
+                  "bfe28abd-921c-43ab-b12a-3983d72806ee"
+                ]
+              }
+            ]
+          },
+          "aaq": {
+            "Spans": [
+              {
+                "Text": "connect",
+                "Ws": "aaq",
+                "Tags": [
+                  "d1626cf1-836c-474c-9a60-0326b58c1133"
+                ]
+              }
+            ]
+          },
+          "kbr": {
+            "Spans": [
+              {
+                "Text": "Visionary",
+                "Ws": "olo",
+                "Bold": "Off",
+                "FontSize": -806356479,
+                "ForeColor": "#ADFF2F",
+                "Tags": [
+                  "2b69d915-a453-0323-2e8b-f9779ff69c71"
+                ]
+              },
+              {
+                "Text": "Wooden",
+                "Ws": "mgv",
+                "Bold": "On",
+                "FontSize": -42268580,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "21259b45-178e-13b0-f6b5-07cb32e8e086"
+                ]
+              },
+              {
+                "Text": "Incredible Plastic Cheese",
+                "Ws": "mtg",
+                "Bold": "Invert",
+                "FontSize": -741761540,
+                "ForeColor": "#00000000",
+                "Tags": [
+                  "cefbf8c2-8cc0-394a-b794-e9a238955186"
+                ]
+              }
+            ]
+          },
+          "aac": {
+            "Spans": [
+              {
+                "Text": "Automotive",
+                "Ws": "aac",
+                "Tags": [
+                  "59554364-b6c8-478f-ab66-797c70131883"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "wmm": "clear-thinking",
+          "mrr": "purple",
+          "nbv": "ADP",
+          "asv": "Keys"
+        },
+        "PartOfSpeech": {
+          "Id": "4f11dbe5-38f3-5d99-f97e-66dde448383c",
+          "Name": {
+            "suo": "payment",
+            "czk": "Robust",
+            "msn": "SQL"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "becc1fbd-40c9-74aa-d900-3a686e83905a",
+        "SemanticDomains": [
+          {
+            "Id": "d4fdc835-1442-31e9-6434-14c603b0cfc6",
+            "Name": {
+              "tay": "Borders",
+              "hle": "1080p"
+            },
+            "Code": "Gorgeous",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "7f3dac33-9bec-e820-a020-5b263fb3ddbb",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/9e223822-02f7-4964-ac7d-cb513c99a2e7",
+            "Caption": {
+              "xsd": {
+                "Spans": [
+                  {
+                    "Text": "Coordinator",
+                    "Ws": "csg",
+                    "Bold": "Invert",
+                    "FontSize": -327243448,
+                    "ForeColor": "#00000000",
+                    "Tags": [
+                      "818b5074-cd33-9963-c796-b5d6dfc342a6"
+                    ]
+                  },
+                  {
+                    "Text": "product",
+                    "Ws": "xsd",
+                    "Tags": [
+                      "79528c49-d5db-452b-97e2-169d8d410bcc"
+                    ]
+                  },
+                  {
+                    "Text": "Plastic",
+                    "Ws": "hts",
+                    "Bold": "On",
+                    "FontSize": -1770557873,
+                    "ForeColor": "#ADFF2F",
+                    "Tags": [
+                      "579e4099-8da7-2229-2e02-26ba5887ea95"
+                    ]
+                  },
+                  {
+                    "Text": "purple",
+                    "Ws": "xsd",
+                    "Tags": [
+                      "8e4d4fab-e322-4620-a75c-ab065950d3ea"
+                    ]
+                  }
+                ]
+              },
+              "umg": {
+                "Spans": [
+                  {
+                    "Text": "Inlet",
+                    "Ws": "wdy",
+                    "Bold": "On",
+                    "FontSize": -1879231265,
+                    "ForeColor": "#00FFFF",
+                    "Tags": [
+                      "4a560dbe-c97c-6e88-9a70-5ac3d7d8bab3"
+                    ]
+                  },
+                  {
+                    "Text": "systemic",
+                    "Ws": "uzs",
+                    "Bold": "Invert",
+                    "FontSize": -360633128,
+                    "ForeColor": "#0000FF",
+                    "Tags": [
+                      "10ecf908-a4e7-a5d2-e49f-36b1c80ee4dc"
+                    ]
+                  }
+                ]
+              },
+              "qvl": {
+                "Spans": [
+                  {
+                    "Text": "Health, Health \u0026 Movies",
+                    "Ws": "bfo",
+                    "Bold": "Off",
+                    "FontSize": -2011149657,
+                    "ForeColor": "#00FFFF",
+                    "Tags": [
+                      "24f961eb-bb2e-e9c7-7b54-d0f4869a1f62"
+                    ]
+                  }
+                ]
+              }
+            },
+            "DeletedAt": null
+          }
+        ]
+      },
+      "Id": "a7d178a9-1815-9673-a50e-12f1e9f2e88c",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "a7d178a9-1815-9673-a50e-12f1e9f2e88c",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "40441758-a443-78ad-5a91-ff960b9916d5",
+        "Definition": {
+          "bqu": {
+            "Spans": [
+              {
+                "Text": "Generic",
+                "Ws": "bqu",
+                "Tags": [
+                  "48c3c7a1-ec4e-4525-ba86-12bccc426156"
+                ]
+              },
+              {
+                "Text": "Ergonomic Wooden Pants",
+                "Ws": "mie",
+                "Bold": "Invert",
+                "FontSize": -1554990305,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "63895a7f-9e74-d3f2-fa1d-4e9c6249a821"
+                ]
+              },
+              {
+                "Text": "Missouri",
+                "Ws": "bqu",
+                "Tags": [
+                  "bfe28abd-921c-43ab-b12a-3983d72806ee"
+                ]
+              }
+            ]
+          },
+          "aaq": {
+            "Spans": [
+              {
+                "Text": "connect",
+                "Ws": "aaq",
+                "Tags": [
+                  "d1626cf1-836c-474c-9a60-0326b58c1133"
+                ]
+              }
+            ]
+          },
+          "kbr": {
+            "Spans": [
+              {
+                "Text": "Visionary",
+                "Ws": "olo",
+                "Bold": "Off",
+                "FontSize": -806356479,
+                "ForeColor": "#ADFF2F",
+                "Tags": [
+                  "2b69d915-a453-0323-2e8b-f9779ff69c71"
+                ]
+              },
+              {
+                "Text": "Wooden",
+                "Ws": "mgv",
+                "Bold": "On",
+                "FontSize": -42268580,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "21259b45-178e-13b0-f6b5-07cb32e8e086"
+                ]
+              },
+              {
+                "Text": "Incredible Plastic Cheese",
+                "Ws": "mtg",
+                "Bold": "Invert",
+                "FontSize": -741761540,
+                "ForeColor": "#00000000",
+                "Tags": [
+                  "cefbf8c2-8cc0-394a-b794-e9a238955186"
+                ]
+              }
+            ]
+          },
+          "aac": {
+            "Spans": [
+              {
+                "Text": "Automotive",
+                "Ws": "aac",
+                "Tags": [
+                  "59554364-b6c8-478f-ab66-797c70131883"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "wmm": "clear-thinking",
+          "mrr": "purple",
+          "nbv": "ADP",
+          "asv": "Keys"
+        },
+        "PartOfSpeech": {
+          "Id": "4f11dbe5-38f3-5d99-f97e-66dde448383c",
+          "Name": {
+            "suo": "payment",
+            "czk": "Robust",
+            "msn": "SQL"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "becc1fbd-40c9-74aa-d900-3a686e83905a",
+        "SemanticDomains": [
+          {
+            "Id": "d4fdc835-1442-31e9-6434-14c603b0cfc6",
+            "Name": {
+              "tay": "Borders",
+              "hle": "1080p"
+            },
+            "Code": "Gorgeous",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "7f3dac33-9bec-e820-a020-5b263fb3ddbb",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/9e223822-02f7-4964-ac7d-cb513c99a2e7",
+            "Caption": {
+              "xsd": {
+                "Spans": [
+                  {
+                    "Text": "Coordinator",
+                    "Ws": "csg",
+                    "Bold": "Invert",
+                    "FontSize": -327243448,
+                    "ForeColor": "#00000000",
+                    "Tags": [
+                      "818b5074-cd33-9963-c796-b5d6dfc342a6"
+                    ]
+                  },
+                  {
+                    "Text": "product",
+                    "Ws": "xsd",
+                    "Tags": [
+                      "79528c49-d5db-452b-97e2-169d8d410bcc"
+                    ]
+                  },
+                  {
+                    "Text": "Plastic",
+                    "Ws": "hts",
+                    "Bold": "On",
+                    "FontSize": -1770557873,
+                    "ForeColor": "#ADFF2F",
+                    "Tags": [
+                      "579e4099-8da7-2229-2e02-26ba5887ea95"
+                    ]
+                  },
+                  {
+                    "Text": "purple",
+                    "Ws": "xsd",
+                    "Tags": [
+                      "8e4d4fab-e322-4620-a75c-ab065950d3ea"
+                    ]
+                  }
+                ]
+              },
+              "umg": {
+                "Spans": [
+                  {
+                    "Text": "Inlet",
+                    "Ws": "wdy",
+                    "Bold": "On",
+                    "FontSize": -1879231265,
+                    "ForeColor": "#00FFFF",
+                    "Tags": [
+                      "4a560dbe-c97c-6e88-9a70-5ac3d7d8bab3"
+                    ]
+                  },
+                  {
+                    "Text": "systemic",
+                    "Ws": "uzs",
+                    "Bold": "Invert",
+                    "FontSize": -360633128,
+                    "ForeColor": "#0000FF",
+                    "Tags": [
+                      "10ecf908-a4e7-a5d2-e49f-36b1c80ee4dc"
+                    ]
+                  }
+                ]
+              },
+              "qvl": {
+                "Spans": [
+                  {
+                    "Text": "Health, Health \u0026 Movies",
+                    "Ws": "bfo",
+                    "Bold": "Off",
+                    "FontSize": -2011149657,
+                    "ForeColor": "#00FFFF",
+                    "Tags": [
+                      "24f961eb-bb2e-e9c7-7b54-d0f4869a1f62"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Id": "a7d178a9-1815-9673-a50e-12f1e9f2e88c",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "4f3be7d1-5e3d-ae3d-e207-c429480617d6",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "1451ad8e-6f5a-8923-a691-6e3ed0ba10ac",
+        "Definition": {
+          "djo": {
+            "Spans": [
+              {
+                "Text": "bi-directional",
+                "Ws": "dbr",
+                "Bold": "Invert",
+                "FontSize": -1747614445,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "cdbfc681-b4cb-fc53-0049-2f7a15f2cf9c"
+                ]
+              },
+              {
+                "Text": "Village",
+                "Ws": "djo",
+                "Tags": [
+                  "06b2b112-2eaf-498c-a2b6-3691a0a2d5f2"
+                ]
+              },
+              {
+                "Text": "Music, Clothing \u0026 Shoes",
+                "Ws": "djo",
+                "Tags": [
+                  "a7e91784-b210-401a-b134-8a7196d75290"
+                ]
+              }
+            ]
+          },
+          "qyp": {
+            "Spans": [
+              {
+                "Text": "flexibility",
+                "Ws": "qyp",
+                "Tags": [
+                  "a7ec7011-d986-4fcb-8c65-ed250fa27837"
+                ]
+              },
+              {
+                "Text": "users",
+                "Ws": "qyp",
+                "Tags": [
+                  "89317672-83e3-4ec0-b15a-130c709c296a"
+                ]
+              },
+              {
+                "Text": "Analyst",
+                "Ws": "dep",
+                "Bold": "Off",
+                "FontSize": -938960202,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "34eed6fc-feb1-cb7e-5fba-2cc249b35f9d"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "ciy": "Curve"
+        },
+        "PartOfSpeech": {
+          "Id": "a6b04de2-ca75-b141-abe1-f4494a514535",
+          "Name": {
+            "mxt": "TCP"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "fac379c1-43a4-5710-83c8-5b9f55c90108",
+        "SemanticDomains": [
+          {
+            "Id": "3ad12c58-f9a5-9ccd-04ff-8b979eac461b",
+            "Name": {
+              "ulk": "white"
+            },
+            "Code": "SSL",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "ddc6af94-5a95-c404-2cb8-ae1e61968538",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/24556101-1dbc-4d4a-bf5a-8f9cf05fe8ea",
+            "Caption": {
+              "pea": {
+                "Spans": [
+                  {
+                    "Text": "alarm",
+                    "Ws": "pea",
+                    "Tags": [
+                      "c97d629f-da4a-4e7f-9ea2-fedb628649e0"
+                    ]
+                  },
+                  {
+                    "Text": "relationships",
+                    "Ws": "byi",
+                    "Bold": "Invert",
+                    "FontSize": -1098187694,
+                    "ForeColor": "#ADFF2F",
+                    "Tags": [
+                      "d9693d70-5ee4-4a63-7abc-f42c99fca4f2"
+                    ]
+                  },
+                  {
+                    "Text": "Kentucky",
+                    "Ws": "pea",
+                    "Tags": [
+                      "2d593536-8d6e-4766-ae62-c141ee7cb206"
+                    ]
+                  }
+                ]
+              }
+            },
+            "DeletedAt": null
+          }
+        ]
+      },
+      "Id": "4f3be7d1-5e3d-ae3d-e207-c429480617d6",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "4f3be7d1-5e3d-ae3d-e207-c429480617d6",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "1451ad8e-6f5a-8923-a691-6e3ed0ba10ac",
+        "Definition": {
+          "djo": {
+            "Spans": [
+              {
+                "Text": "bi-directional",
+                "Ws": "dbr",
+                "Bold": "Invert",
+                "FontSize": -1747614445,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "cdbfc681-b4cb-fc53-0049-2f7a15f2cf9c"
+                ]
+              },
+              {
+                "Text": "Village",
+                "Ws": "djo",
+                "Tags": [
+                  "06b2b112-2eaf-498c-a2b6-3691a0a2d5f2"
+                ]
+              },
+              {
+                "Text": "Music, Clothing \u0026 Shoes",
+                "Ws": "djo",
+                "Tags": [
+                  "a7e91784-b210-401a-b134-8a7196d75290"
+                ]
+              }
+            ]
+          },
+          "qyp": {
+            "Spans": [
+              {
+                "Text": "flexibility",
+                "Ws": "qyp",
+                "Tags": [
+                  "a7ec7011-d986-4fcb-8c65-ed250fa27837"
+                ]
+              },
+              {
+                "Text": "users",
+                "Ws": "qyp",
+                "Tags": [
+                  "89317672-83e3-4ec0-b15a-130c709c296a"
+                ]
+              },
+              {
+                "Text": "Analyst",
+                "Ws": "dep",
+                "Bold": "Off",
+                "FontSize": -938960202,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "34eed6fc-feb1-cb7e-5fba-2cc249b35f9d"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "ciy": "Curve"
+        },
+        "PartOfSpeech": {
+          "Id": "a6b04de2-ca75-b141-abe1-f4494a514535",
+          "Name": {
+            "mxt": "TCP"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "fac379c1-43a4-5710-83c8-5b9f55c90108",
+        "SemanticDomains": [
+          {
+            "Id": "3ad12c58-f9a5-9ccd-04ff-8b979eac461b",
+            "Name": {
+              "ulk": "white"
+            },
+            "Code": "SSL",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "ddc6af94-5a95-c404-2cb8-ae1e61968538",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/24556101-1dbc-4d4a-bf5a-8f9cf05fe8ea",
+            "Caption": {
+              "pea": {
+                "Spans": [
+                  {
+                    "Text": "alarm",
+                    "Ws": "pea",
+                    "Tags": [
+                      "c97d629f-da4a-4e7f-9ea2-fedb628649e0"
+                    ]
+                  },
+                  {
+                    "Text": "relationships",
+                    "Ws": "byi",
+                    "Bold": "Invert",
+                    "FontSize": -1098187694,
+                    "ForeColor": "#ADFF2F",
+                    "Tags": [
+                      "d9693d70-5ee4-4a63-7abc-f42c99fca4f2"
+                    ]
+                  },
+                  {
+                    "Text": "Kentucky",
+                    "Ws": "pea",
+                    "Tags": [
+                      "2d593536-8d6e-4766-ae62-c141ee7cb206"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Id": "4f3be7d1-5e3d-ae3d-e207-c429480617d6",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "adc64923-5080-2e74-cc41-4ce82badf96b",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "d6347312-90fd-7a9b-611c-10e2be8f1e83",
+        "Definition": {
+          "zu": {
+            "Spans": [
+              {
+                "Text": "optical",
+                "Ws": "zu",
+                "Tags": [
+                  "2f40db72-6dcd-4605-94f4-bb2f8e6f2c24"
+                ]
+              },
+              {
+                "Text": "eco-centric",
+                "Ws": "ses",
+                "Bold": "On",
+                "FontSize": 150168967,
+                "ForeColor": "#ADFF2F",
+                "Tags": [
+                  "4d35b5c1-d8c0-2ee3-e261-985e474e2c62"
+                ]
+              },
+              {
+                "Text": "Internal",
+                "Ws": "zu",
+                "Tags": [
+                  "ef294368-381e-4228-9feb-6fc5a21cb6f1"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "nhz": "Personal Loan Account",
+          "vec": "Summit"
+        },
+        "PartOfSpeech": {
+          "Id": "fe457b90-ba20-b702-a156-13149c126cc6",
+          "Name": {
+            "zkh": "Parks"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "aa3e7491-0e0d-b22f-cbf1-63e76cd83314",
+        "SemanticDomains": [
+          {
+            "Id": "ecf6b571-e360-f100-7cf7-ec214489914a",
+            "Name": {
+              "bjy": "Montana",
+              "ga": "neural-net"
+            },
+            "Code": "Rand",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "c70c8e39-9fea-f0ca-96ea-c54682b26ff2",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/cc67fbb0-7072-4a0c-aa87-1c11dbd5c160",
+            "Caption": {
+              "spl": {
+                "Spans": [
+                  {
+                    "Text": "Road",
+                    "Ws": "plj",
+                    "Bold": "On",
+                    "FontSize": 206809027,
+                    "ForeColor": "#ADFF2F",
+                    "Tags": [
+                      "5ba3fafc-2a16-8ee1-4764-223a2ece4032"
+                    ]
+                  },
+                  {
+                    "Text": "explicit",
+                    "Ws": "ybb",
+                    "Bold": "On",
+                    "FontSize": -1840259444,
+                    "ForeColor": "#ADFF2F",
+                    "Tags": [
+                      "6fddd2cc-5dbd-6d0d-4bed-39e98d79771a"
+                    ]
+                  },
+                  {
+                    "Text": "TCP",
+                    "Ws": "mqb",
+                    "Bold": "Invert",
+                    "FontSize": 890686392,
+                    "ForeColor": "#0000FF",
+                    "Tags": [
+                      "2ff98fc6-d387-23aa-581a-9199a4971005"
+                    ]
+                  }
+                ]
+              }
+            },
+            "DeletedAt": null
+          }
+        ]
+      },
+      "Id": "adc64923-5080-2e74-cc41-4ce82badf96b",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "adc64923-5080-2e74-cc41-4ce82badf96b",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "d6347312-90fd-7a9b-611c-10e2be8f1e83",
+        "Definition": {
+          "zu": {
+            "Spans": [
+              {
+                "Text": "optical",
+                "Ws": "zu",
+                "Tags": [
+                  "2f40db72-6dcd-4605-94f4-bb2f8e6f2c24"
+                ]
+              },
+              {
+                "Text": "eco-centric",
+                "Ws": "ses",
+                "Bold": "On",
+                "FontSize": 150168967,
+                "ForeColor": "#ADFF2F",
+                "Tags": [
+                  "4d35b5c1-d8c0-2ee3-e261-985e474e2c62"
+                ]
+              },
+              {
+                "Text": "Internal",
+                "Ws": "zu",
+                "Tags": [
+                  "ef294368-381e-4228-9feb-6fc5a21cb6f1"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "nhz": "Personal Loan Account",
+          "vec": "Summit"
+        },
+        "PartOfSpeech": {
+          "Id": "fe457b90-ba20-b702-a156-13149c126cc6",
+          "Name": {
+            "zkh": "Parks"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "aa3e7491-0e0d-b22f-cbf1-63e76cd83314",
+        "SemanticDomains": [
+          {
+            "Id": "ecf6b571-e360-f100-7cf7-ec214489914a",
+            "Name": {
+              "bjy": "Montana",
+              "ga": "neural-net"
+            },
+            "Code": "Rand",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "c70c8e39-9fea-f0ca-96ea-c54682b26ff2",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/cc67fbb0-7072-4a0c-aa87-1c11dbd5c160",
+            "Caption": {
+              "spl": {
+                "Spans": [
+                  {
+                    "Text": "Road",
+                    "Ws": "plj",
+                    "Bold": "On",
+                    "FontSize": 206809027,
+                    "ForeColor": "#ADFF2F",
+                    "Tags": [
+                      "5ba3fafc-2a16-8ee1-4764-223a2ece4032"
+                    ]
+                  },
+                  {
+                    "Text": "explicit",
+                    "Ws": "ybb",
+                    "Bold": "On",
+                    "FontSize": -1840259444,
+                    "ForeColor": "#ADFF2F",
+                    "Tags": [
+                      "6fddd2cc-5dbd-6d0d-4bed-39e98d79771a"
+                    ]
+                  },
+                  {
+                    "Text": "TCP",
+                    "Ws": "mqb",
+                    "Bold": "Invert",
+                    "FontSize": 890686392,
+                    "ForeColor": "#0000FF",
+                    "Tags": [
+                      "2ff98fc6-d387-23aa-581a-9199a4971005"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Id": "adc64923-5080-2e74-cc41-4ce82badf96b",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "c866a27e-79d8-6ac8-1947-ec0e8c980ea9",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "b298a98d-22a6-40d4-f897-fb7e5ef12432",
+        "Definition": {
+          "lof": {
+            "Spans": [
+              {
+                "Text": "function",
+                "Ws": "lof",
+                "Tags": [
+                  "bc1cb5a3-0c11-47f3-aef1-f8ecb5e1a8d9"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "svm": "Incredible Soft Bike",
+          "boh": "Key",
+          "nfd": "analyzing",
+          "byo": "Argentine Peso"
+        },
+        "PartOfSpeech": {
+          "Id": "d257270c-51c4-6979-84cf-b9ccff8d60dc",
+          "Name": {
+            "bsp": "application"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "a353cc36-57b4-8ed4-0fd4-d616fced9108",
+        "SemanticDomains": [
+          {
+            "Id": "c43c9761-815e-0b1e-b90c-dfdf799b16d9",
+            "Name": {
+              "kxv": "Tenge",
+              "dih": "holistic",
+              "aif": "Bypass",
+              "hms": "Future"
+            },
+            "Code": "orange",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "f3fb453a-99d8-0b46-b190-409064885cbd",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/7d361699-1e9d-4d5e-89b3-eb66898523f7",
+            "Caption": {
+              "pdi": {
+                "Spans": [
+                  {
+                    "Text": "National",
+                    "Ws": "pdi",
+                    "Tags": [
+                      "47346349-78e0-470f-aaf9-3980c401e041"
+                    ]
+                  },
+                  {
+                    "Text": "Intelligent Wooden Computer",
+                    "Ws": "pdi",
+                    "Tags": [
+                      "a464551e-c62b-439a-90ff-a69add9b1241"
+                    ]
+                  },
+                  {
+                    "Text": "lime",
+                    "Ws": "shz",
+                    "Bold": "Invert",
+                    "FontSize": -455513223,
+                    "ForeColor": "#00000000",
+                    "Tags": [
+                      "6c1d33ac-f149-8bd9-a358-6e589cb34bc6"
+                    ]
+                  }
+                ]
+              },
+              "fip": {
+                "Spans": [
+                  {
+                    "Text": "indexing",
+                    "Ws": "fip",
+                    "Tags": [
+                      "eb32049a-a31e-4f10-aa04-8b3ac193abda"
+                    ]
+                  },
+                  {
+                    "Text": "integrate",
+                    "Ws": "fip",
+                    "Tags": [
+                      "5e96dfb4-a4ab-48b7-9139-0ddd54e5c2fc"
+                    ]
+                  },
+                  {
+                    "Text": "Grocery",
+                    "Ws": "nhu",
+                    "Bold": "Off",
+                    "FontSize": 781582330,
+                    "ForeColor": "#00000000",
+                    "Tags": [
+                      "aa20518f-f7e6-4157-b9e6-a0377a26c6c8"
+                    ]
+                  }
+                ]
+              },
+              "tdk": {
+                "Spans": [
+                  {
+                    "Text": "Kids \u0026 Home",
+                    "Ws": "tdk",
+                    "Tags": [
+                      "0fdbc8ee-310d-4954-bfd9-7db50ae03b2c"
+                    ]
+                  },
+                  {
+                    "Text": "District",
+                    "Ws": "dap",
+                    "Bold": "Invert",
+                    "FontSize": 1319768493,
+                    "ForeColor": "#A52A2A",
+                    "Tags": [
+                      "38206d1c-bcd0-8df6-4b10-234afe42152f"
+                    ]
+                  }
+                ]
+              },
+              "jos": {
+                "Spans": [
+                  {
+                    "Text": "Director",
+                    "Ws": "jos",
+                    "Tags": [
+                      "d7d60d66-c9ce-45aa-9004-e0268b91d2d5"
+                    ]
+                  },
+                  {
+                    "Text": "back-end",
+                    "Ws": "ham",
+                    "Bold": "Off",
+                    "FontSize": 613268958,
+                    "ForeColor": "#00000000",
+                    "Tags": [
+                      "1ef432cc-f167-0755-ec93-06d5f330878b"
+                    ]
+                  },
+                  {
+                    "Text": "Djibouti",
+                    "Ws": "hmv",
+                    "Bold": "Off",
+                    "FontSize": -1306242714,
+                    "ForeColor": "#0000FF",
+                    "Tags": [
+                      "0f4fc950-4619-ed72-314f-2239b9b1aab7"
+                    ]
+                  }
+                ]
+              }
+            },
+            "DeletedAt": null
+          }
+        ]
+      },
+      "Id": "c866a27e-79d8-6ac8-1947-ec0e8c980ea9",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "c866a27e-79d8-6ac8-1947-ec0e8c980ea9",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "b298a98d-22a6-40d4-f897-fb7e5ef12432",
+        "Definition": {
+          "lof": {
+            "Spans": [
+              {
+                "Text": "function",
+                "Ws": "lof",
+                "Tags": [
+                  "bc1cb5a3-0c11-47f3-aef1-f8ecb5e1a8d9"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "svm": "Incredible Soft Bike",
+          "boh": "Key",
+          "nfd": "analyzing",
+          "byo": "Argentine Peso"
+        },
+        "PartOfSpeech": {
+          "Id": "d257270c-51c4-6979-84cf-b9ccff8d60dc",
+          "Name": {
+            "bsp": "application"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "a353cc36-57b4-8ed4-0fd4-d616fced9108",
+        "SemanticDomains": [
+          {
+            "Id": "c43c9761-815e-0b1e-b90c-dfdf799b16d9",
+            "Name": {
+              "kxv": "Tenge",
+              "dih": "holistic",
+              "aif": "Bypass",
+              "hms": "Future"
+            },
+            "Code": "orange",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "f3fb453a-99d8-0b46-b190-409064885cbd",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/7d361699-1e9d-4d5e-89b3-eb66898523f7",
+            "Caption": {
+              "pdi": {
+                "Spans": [
+                  {
+                    "Text": "National",
+                    "Ws": "pdi",
+                    "Tags": [
+                      "47346349-78e0-470f-aaf9-3980c401e041"
+                    ]
+                  },
+                  {
+                    "Text": "Intelligent Wooden Computer",
+                    "Ws": "pdi",
+                    "Tags": [
+                      "a464551e-c62b-439a-90ff-a69add9b1241"
+                    ]
+                  },
+                  {
+                    "Text": "lime",
+                    "Ws": "shz",
+                    "Bold": "Invert",
+                    "FontSize": -455513223,
+                    "ForeColor": "#00000000",
+                    "Tags": [
+                      "6c1d33ac-f149-8bd9-a358-6e589cb34bc6"
+                    ]
+                  }
+                ]
+              },
+              "fip": {
+                "Spans": [
+                  {
+                    "Text": "indexing",
+                    "Ws": "fip",
+                    "Tags": [
+                      "eb32049a-a31e-4f10-aa04-8b3ac193abda"
+                    ]
+                  },
+                  {
+                    "Text": "integrate",
+                    "Ws": "fip",
+                    "Tags": [
+                      "5e96dfb4-a4ab-48b7-9139-0ddd54e5c2fc"
+                    ]
+                  },
+                  {
+                    "Text": "Grocery",
+                    "Ws": "nhu",
+                    "Bold": "Off",
+                    "FontSize": 781582330,
+                    "ForeColor": "#00000000",
+                    "Tags": [
+                      "aa20518f-f7e6-4157-b9e6-a0377a26c6c8"
+                    ]
+                  }
+                ]
+              },
+              "tdk": {
+                "Spans": [
+                  {
+                    "Text": "Kids \u0026 Home",
+                    "Ws": "tdk",
+                    "Tags": [
+                      "0fdbc8ee-310d-4954-bfd9-7db50ae03b2c"
+                    ]
+                  },
+                  {
+                    "Text": "District",
+                    "Ws": "dap",
+                    "Bold": "Invert",
+                    "FontSize": 1319768493,
+                    "ForeColor": "#A52A2A",
+                    "Tags": [
+                      "38206d1c-bcd0-8df6-4b10-234afe42152f"
+                    ]
+                  }
+                ]
+              },
+              "jos": {
+                "Spans": [
+                  {
+                    "Text": "Director",
+                    "Ws": "jos",
+                    "Tags": [
+                      "d7d60d66-c9ce-45aa-9004-e0268b91d2d5"
+                    ]
+                  },
+                  {
+                    "Text": "back-end",
+                    "Ws": "ham",
+                    "Bold": "Off",
+                    "FontSize": 613268958,
+                    "ForeColor": "#00000000",
+                    "Tags": [
+                      "1ef432cc-f167-0755-ec93-06d5f330878b"
+                    ]
+                  },
+                  {
+                    "Text": "Djibouti",
+                    "Ws": "hmv",
+                    "Bold": "Off",
+                    "FontSize": -1306242714,
+                    "ForeColor": "#0000FF",
+                    "Tags": [
+                      "0f4fc950-4619-ed72-314f-2239b9b1aab7"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Id": "c866a27e-79d8-6ac8-1947-ec0e8c980ea9",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "f359f97f-4c1e-48f7-9d28-5c137d46fb28",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "018eaf35-2a0a-6098-13b3-260ea4017d27",
+        "Definition": {
+          "dac": {
+            "Spans": [
+              {
+                "Text": "Accountability",
+                "Ws": "dac",
+                "Tags": [
+                  "755f2352-8b57-41a1-bb72-cdb00c70a723"
+                ]
+              },
+              {
+                "Text": "Berkshire",
+                "Ws": "osi",
+                "Bold": "Off",
+                "FontSize": 202893717,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "60af4336-04cc-2d89-f7d1-093374e118b8"
+                ]
+              }
+            ]
+          },
+          "ptt": {
+            "Spans": [
+              {
+                "Text": "Checking Account",
+                "Ws": "ptt",
+                "Tags": [
+                  "fb86b786-0054-48ba-8f7d-9cee06055c4d"
+                ]
+              },
+              {
+                "Text": "content",
+                "Ws": "fsl",
+                "Bold": "Invert",
+                "FontSize": -712294872,
+                "ForeColor": "#00000000",
+                "Tags": [
+                  "97add724-5b06-4d9d-54f5-ef39c28c08bb"
+                ]
+              },
+              {
+                "Text": "SQL",
+                "Ws": "ptt",
+                "Tags": [
+                  "49987f83-0e34-4f77-9b8b-d61c3a8e603d"
+                ]
+              }
+            ]
+          },
+          "kzh": {
+            "Spans": [
+              {
+                "Text": "Uzbekistan",
+                "Ws": "kzh",
+                "Tags": [
+                  "4aad02ff-438f-4f6f-89d9-6ec8340b6763"
+                ]
+              }
+            ]
+          },
+          "ulf": {
+            "Spans": [
+              {
+                "Text": "Intelligent Frozen Sausages",
+                "Ws": "ulf",
+                "Tags": [
+                  "e09b6dde-62e8-423a-af41-9ce466144488"
+                ]
+              },
+              {
+                "Text": "District",
+                "Ws": "twp",
+                "Bold": "Invert",
+                "FontSize": -1102337901,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "07334f1a-5d23-f06b-390c-f4e04cd6aaaa"
+                ]
+              },
+              {
+                "Text": "next-generation",
+                "Ws": "ulf",
+                "Tags": [
+                  "12169ebc-09bc-4536-94ee-764bd5495ede"
+                ]
+              },
+              {
+                "Text": "Direct",
+                "Ws": "loo",
+                "Bold": "Invert",
+                "FontSize": 1945097886,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "9ae6b7b0-9c92-0333-eac6-84a7fb521cb0"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "qud": "Square"
+        },
+        "PartOfSpeech": {
+          "Id": "ab15d93b-1c45-e79b-f1b2-5d8f71e45335",
+          "Name": {
+            "pmz": "infomediaries",
+            "tmj": "Health \u0026 Books",
+            "buu": "Corporate",
+            "hix": "International"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "326aff5e-43f0-7705-7672-a2aa8ba2023c",
+        "SemanticDomains": [
+          {
+            "Id": "702e9bc7-e774-0d90-8f88-dff28920154b",
+            "Name": {
+              "ktg": "card",
+              "zaf": "Tasty"
+            },
+            "Code": "North Korean Won",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "0e6a2808-96be-86d5-6092-04f762f26202",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/7b06b27e-80e9-420d-bc93-c2c29720ef78",
+            "Caption": {
+              "emq": {
+                "Spans": [
+                  {
+                    "Text": "strategize",
+                    "Ws": "emq",
+                    "Tags": [
+                      "c5fccb12-219e-46f0-93ff-2234546ef6b7"
+                    ]
+                  }
+                ]
+              }
+            },
+            "DeletedAt": null
+          }
+        ]
+      },
+      "Id": "f359f97f-4c1e-48f7-9d28-5c137d46fb28",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "f359f97f-4c1e-48f7-9d28-5c137d46fb28",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "018eaf35-2a0a-6098-13b3-260ea4017d27",
+        "Definition": {
+          "dac": {
+            "Spans": [
+              {
+                "Text": "Accountability",
+                "Ws": "dac",
+                "Tags": [
+                  "755f2352-8b57-41a1-bb72-cdb00c70a723"
+                ]
+              },
+              {
+                "Text": "Berkshire",
+                "Ws": "osi",
+                "Bold": "Off",
+                "FontSize": 202893717,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "60af4336-04cc-2d89-f7d1-093374e118b8"
+                ]
+              }
+            ]
+          },
+          "ptt": {
+            "Spans": [
+              {
+                "Text": "Checking Account",
+                "Ws": "ptt",
+                "Tags": [
+                  "fb86b786-0054-48ba-8f7d-9cee06055c4d"
+                ]
+              },
+              {
+                "Text": "content",
+                "Ws": "fsl",
+                "Bold": "Invert",
+                "FontSize": -712294872,
+                "ForeColor": "#00000000",
+                "Tags": [
+                  "97add724-5b06-4d9d-54f5-ef39c28c08bb"
+                ]
+              },
+              {
+                "Text": "SQL",
+                "Ws": "ptt",
+                "Tags": [
+                  "49987f83-0e34-4f77-9b8b-d61c3a8e603d"
+                ]
+              }
+            ]
+          },
+          "kzh": {
+            "Spans": [
+              {
+                "Text": "Uzbekistan",
+                "Ws": "kzh",
+                "Tags": [
+                  "4aad02ff-438f-4f6f-89d9-6ec8340b6763"
+                ]
+              }
+            ]
+          },
+          "ulf": {
+            "Spans": [
+              {
+                "Text": "Intelligent Frozen Sausages",
+                "Ws": "ulf",
+                "Tags": [
+                  "e09b6dde-62e8-423a-af41-9ce466144488"
+                ]
+              },
+              {
+                "Text": "District",
+                "Ws": "twp",
+                "Bold": "Invert",
+                "FontSize": -1102337901,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "07334f1a-5d23-f06b-390c-f4e04cd6aaaa"
+                ]
+              },
+              {
+                "Text": "next-generation",
+                "Ws": "ulf",
+                "Tags": [
+                  "12169ebc-09bc-4536-94ee-764bd5495ede"
+                ]
+              },
+              {
+                "Text": "Direct",
+                "Ws": "loo",
+                "Bold": "Invert",
+                "FontSize": 1945097886,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "9ae6b7b0-9c92-0333-eac6-84a7fb521cb0"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "qud": "Square"
+        },
+        "PartOfSpeech": {
+          "Id": "ab15d93b-1c45-e79b-f1b2-5d8f71e45335",
+          "Name": {
+            "pmz": "infomediaries",
+            "tmj": "Health \u0026 Books",
+            "buu": "Corporate",
+            "hix": "International"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "326aff5e-43f0-7705-7672-a2aa8ba2023c",
+        "SemanticDomains": [
+          {
+            "Id": "702e9bc7-e774-0d90-8f88-dff28920154b",
+            "Name": {
+              "ktg": "card",
+              "zaf": "Tasty"
+            },
+            "Code": "North Korean Won",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "0e6a2808-96be-86d5-6092-04f762f26202",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/7b06b27e-80e9-420d-bc93-c2c29720ef78",
+            "Caption": {
+              "emq": {
+                "Spans": [
+                  {
+                    "Text": "strategize",
+                    "Ws": "emq",
+                    "Tags": [
+                      "c5fccb12-219e-46f0-93ff-2234546ef6b7"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Id": "f359f97f-4c1e-48f7-9d28-5c137d46fb28",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "853b91e6-d738-7d5d-cc98-e62904160c35",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "45402c66-1666-a6ae-be14-52268308a80d",
+        "Definition": {
+          "wrr": {
+            "Spans": [
+              {
+                "Text": "radical",
+                "Ws": "wrr",
+                "Tags": [
+                  "ca09e09e-93d9-465b-a90c-150f9fe1c37d"
+                ]
+              },
+              {
+                "Text": "Denmark",
+                "Ws": "wrr",
+                "Tags": [
+                  "c98ffdcf-b21d-4f26-aa98-96766f1de795"
+                ]
+              },
+              {
+                "Text": "Strategist",
+                "Ws": "pag",
+                "Bold": "Invert",
+                "FontSize": 1802509412,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "83cedf51-7bb2-2a83-6ac1-3dfd1da56010"
+                ]
+              }
+            ]
+          },
+          "yaj": {
+            "Spans": [
+              {
+                "Text": "Shore",
+                "Ws": "yaj",
+                "Tags": [
+                  "c2cb390c-d89f-4d44-b15e-8c66084f976f"
+                ]
+              },
+              {
+                "Text": "Course",
+                "Ws": "tku",
+                "Bold": "On",
+                "FontSize": -887647908,
+                "ForeColor": "#ADFF2F",
+                "Tags": [
+                  "788a2a1f-d8b2-db8e-157a-f675ac13fc1a"
+                ]
+              }
+            ]
+          },
+          "ptq": {
+            "Spans": [
+              {
+                "Text": "copying",
+                "Ws": "ptq",
+                "Tags": [
+                  "30ada735-7e8e-4399-80cf-e0c87ecd94ae"
+                ]
+              },
+              {
+                "Text": "upward-trending",
+                "Ws": "kl",
+                "Bold": "On",
+                "FontSize": 2020980805,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "54fd1200-a70f-1498-b1d1-cb77180f34b0"
+                ]
+              },
+              {
+                "Text": "Kansas",
+                "Ws": "rcf",
+                "Bold": "Invert",
+                "FontSize": -1745182649,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "5d91118e-46d7-97d5-9b4d-e8efbc08330e"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "sda": "migration",
+          "url": "sexy"
+        },
+        "PartOfSpeech": {
+          "Id": "2aea7efe-0c41-a465-06d7-dc7d1dd44b9b",
+          "Name": {
+            "pab": "convergence",
+            "kgl": "North Dakota",
+            "ppu": "Iowa"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "f25a3e84-2992-a4c1-a86c-3f5d0a221a7c",
+        "SemanticDomains": [
+          {
+            "Id": "0404de20-eee7-0b57-0d07-9d00e64c3588",
+            "Name": {
+              "idt": "Persevering"
+            },
+            "Code": "auxiliary",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "de247b82-e534-9742-c69a-20a76209b78c",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/396c23b3-1736-4d1e-bc7d-15baf5e5aefb",
+            "Caption": {
+              "bab": {
+                "Spans": [
+                  {
+                    "Text": "convergence",
+                    "Ws": "bab",
+                    "Tags": [
+                      "7b5f64a7-3b9a-4cab-b513-80c8804a5175"
+                    ]
+                  },
+                  {
+                    "Text": "Buckinghamshire",
+                    "Ws": "bab",
+                    "Tags": [
+                      "b2da0f22-28e8-4b7e-9cc0-f7491b3ee991"
+                    ]
+                  },
+                  {
+                    "Text": "integrated",
+                    "Ws": "ibm",
+                    "Bold": "Off",
+                    "FontSize": -1988753505,
+                    "ForeColor": "#A52A2A",
+                    "Tags": [
+                      "8e0b442f-cccf-7a3d-d17a-2d8e56d3c038"
+                    ]
+                  },
+                  {
+                    "Text": "approach",
+                    "Ws": "rmx",
+                    "Bold": "Invert",
+                    "FontSize": 1336983740,
+                    "ForeColor": "#A52A2A",
+                    "Tags": [
+                      "b443ce55-c277-33c3-9d59-f863851a32c0"
+                    ]
+                  }
+                ]
+              },
+              "anj": {
+                "Spans": [
+                  {
+                    "Text": "Refined",
+                    "Ws": "anj",
+                    "Tags": [
+                      "70f80489-9e6a-4593-a7d4-b9a0651bdd32"
+                    ]
+                  },
+                  {
+                    "Text": "connect",
+                    "Ws": "won",
+                    "Bold": "Off",
+                    "FontSize": -1171626966,
+                    "ForeColor": "#FF0000",
+                    "Tags": [
+                      "2f7b1eca-ebad-a134-98bd-8453634579ab"
+                    ]
+                  }
+                ]
+              },
+              "jer": {
+                "Spans": [
+                  {
+                    "Text": "Mews",
+                    "Ws": "mek",
+                    "Bold": "On",
+                    "FontSize": -49834405,
+                    "ForeColor": "#ADFF2F",
+                    "Tags": [
+                      "d160ce7d-6803-3adc-c88d-05cf3939ae45"
+                    ]
+                  },
+                  {
+                    "Text": "productivity",
+                    "Ws": "beo",
+                    "Bold": "On",
+                    "FontSize": 1358440076,
+                    "ForeColor": "#0000FF",
+                    "Tags": [
+                      "791f8e3b-d5d0-593e-8ca2-c57ebb123c9b"
+                    ]
+                  },
+                  {
+                    "Text": "Internal",
+                    "Ws": "jer",
+                    "Tags": [
+                      "22593efb-681a-4e61-bdc4-96b4d54feee5"
+                    ]
+                  }
+                ]
+              },
+              "orn": {
+                "Spans": [
+                  {
+                    "Text": "Kiribati",
+                    "Ws": "orn",
+                    "Tags": [
+                      "43da294d-1349-48ab-a650-3fae8cd2cc0e"
+                    ]
+                  }
+                ]
+              }
+            },
+            "DeletedAt": null
+          }
+        ]
+      },
+      "Id": "853b91e6-d738-7d5d-cc98-e62904160c35",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "Sense",
+        "Id": "853b91e6-d738-7d5d-cc98-e62904160c35",
+        "Order": 0,
+        "DeletedAt": null,
+        "EntryId": "45402c66-1666-a6ae-be14-52268308a80d",
+        "Definition": {
+          "wrr": {
+            "Spans": [
+              {
+                "Text": "radical",
+                "Ws": "wrr",
+                "Tags": [
+                  "ca09e09e-93d9-465b-a90c-150f9fe1c37d"
+                ]
+              },
+              {
+                "Text": "Denmark",
+                "Ws": "wrr",
+                "Tags": [
+                  "c98ffdcf-b21d-4f26-aa98-96766f1de795"
+                ]
+              },
+              {
+                "Text": "Strategist",
+                "Ws": "pag",
+                "Bold": "Invert",
+                "FontSize": 1802509412,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "83cedf51-7bb2-2a83-6ac1-3dfd1da56010"
+                ]
+              }
+            ]
+          },
+          "yaj": {
+            "Spans": [
+              {
+                "Text": "Shore",
+                "Ws": "yaj",
+                "Tags": [
+                  "c2cb390c-d89f-4d44-b15e-8c66084f976f"
+                ]
+              },
+              {
+                "Text": "Course",
+                "Ws": "tku",
+                "Bold": "On",
+                "FontSize": -887647908,
+                "ForeColor": "#ADFF2F",
+                "Tags": [
+                  "788a2a1f-d8b2-db8e-157a-f675ac13fc1a"
+                ]
+              }
+            ]
+          },
+          "ptq": {
+            "Spans": [
+              {
+                "Text": "copying",
+                "Ws": "ptq",
+                "Tags": [
+                  "30ada735-7e8e-4399-80cf-e0c87ecd94ae"
+                ]
+              },
+              {
+                "Text": "upward-trending",
+                "Ws": "kl",
+                "Bold": "On",
+                "FontSize": 2020980805,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "54fd1200-a70f-1498-b1d1-cb77180f34b0"
+                ]
+              },
+              {
+                "Text": "Kansas",
+                "Ws": "rcf",
+                "Bold": "Invert",
+                "FontSize": -1745182649,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "5d91118e-46d7-97d5-9b4d-e8efbc08330e"
+                ]
+              }
+            ]
+          }
+        },
+        "Gloss": {
+          "sda": "migration",
+          "url": "sexy"
+        },
+        "PartOfSpeech": {
+          "Id": "2aea7efe-0c41-a465-06d7-dc7d1dd44b9b",
+          "Name": {
+            "pab": "convergence",
+            "kgl": "North Dakota",
+            "ppu": "Iowa"
+          },
+          "DeletedAt": null,
+          "Predefined": false
+        },
+        "PartOfSpeechId": "f25a3e84-2992-a4c1-a86c-3f5d0a221a7c",
+        "SemanticDomains": [
+          {
+            "Id": "0404de20-eee7-0b57-0d07-9d00e64c3588",
+            "Name": {
+              "idt": "Persevering"
+            },
+            "Code": "auxiliary",
+            "DeletedAt": null,
+            "Predefined": false
+          }
+        ],
+        "ExampleSentences": [],
+        "Pictures": [
+          {
+            "Id": "de247b82-e534-9742-c69a-20a76209b78c",
+            "Order": 0,
+            "MediaUri": "sil-media://lexbox/396c23b3-1736-4d1e-bc7d-15baf5e5aefb",
+            "Caption": {
+              "bab": {
+                "Spans": [
+                  {
+                    "Text": "convergence",
+                    "Ws": "bab",
+                    "Tags": [
+                      "7b5f64a7-3b9a-4cab-b513-80c8804a5175"
+                    ]
+                  },
+                  {
+                    "Text": "Buckinghamshire",
+                    "Ws": "bab",
+                    "Tags": [
+                      "b2da0f22-28e8-4b7e-9cc0-f7491b3ee991"
+                    ]
+                  },
+                  {
+                    "Text": "integrated",
+                    "Ws": "ibm",
+                    "Bold": "Off",
+                    "FontSize": -1988753505,
+                    "ForeColor": "#A52A2A",
+                    "Tags": [
+                      "8e0b442f-cccf-7a3d-d17a-2d8e56d3c038"
+                    ]
+                  },
+                  {
+                    "Text": "approach",
+                    "Ws": "rmx",
+                    "Bold": "Invert",
+                    "FontSize": 1336983740,
+                    "ForeColor": "#A52A2A",
+                    "Tags": [
+                      "b443ce55-c277-33c3-9d59-f863851a32c0"
+                    ]
+                  }
+                ]
+              },
+              "anj": {
+                "Spans": [
+                  {
+                    "Text": "Refined",
+                    "Ws": "anj",
+                    "Tags": [
+                      "70f80489-9e6a-4593-a7d4-b9a0651bdd32"
+                    ]
+                  },
+                  {
+                    "Text": "connect",
+                    "Ws": "won",
+                    "Bold": "Off",
+                    "FontSize": -1171626966,
+                    "ForeColor": "#FF0000",
+                    "Tags": [
+                      "2f7b1eca-ebad-a134-98bd-8453634579ab"
+                    ]
+                  }
+                ]
+              },
+              "jer": {
+                "Spans": [
+                  {
+                    "Text": "Mews",
+                    "Ws": "mek",
+                    "Bold": "On",
+                    "FontSize": -49834405,
+                    "ForeColor": "#ADFF2F",
+                    "Tags": [
+                      "d160ce7d-6803-3adc-c88d-05cf3939ae45"
+                    ]
+                  },
+                  {
+                    "Text": "productivity",
+                    "Ws": "beo",
+                    "Bold": "On",
+                    "FontSize": 1358440076,
+                    "ForeColor": "#0000FF",
+                    "Tags": [
+                      "791f8e3b-d5d0-593e-8ca2-c57ebb123c9b"
+                    ]
+                  },
+                  {
+                    "Text": "Internal",
+                    "Ws": "jer",
+                    "Tags": [
+                      "22593efb-681a-4e61-bdc4-96b4d54feee5"
+                    ]
+                  }
+                ]
+              },
+              "orn": {
+                "Spans": [
+                  {
+                    "Text": "Kiribati",
+                    "Ws": "orn",
+                    "Tags": [
+                      "43da294d-1349-48ab-a650-3fae8cd2cc0e"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Id": "853b91e6-d738-7d5d-cc98-e62904160c35",
       "DeletedAt": null
     }
   },

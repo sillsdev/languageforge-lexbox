@@ -15,7 +15,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build FwLite Windows (Maui)",
-      "program": "${workspaceFolder}/backend/FwLite/FwLiteMaui/bin/Debug/net10.0-windows10.0.19041.0/win10-x64/FwLiteMaui.exe",
+      "program": "${workspaceFolder}/backend/FwLite/FwLiteMaui/bin/Debug/net10.0-windows10.0.19041.0/win-x64/FwLiteMaui.exe",
       "cwd": "${workspaceFolder}/backend/FwLite/FwLiteMaui",
       "stopAtEntry": false,
     },

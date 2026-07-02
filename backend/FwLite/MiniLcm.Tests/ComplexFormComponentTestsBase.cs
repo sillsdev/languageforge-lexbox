@@ -53,6 +53,37 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task ComplexFormComponentHeadwords_UpdateWhenReferencedEntriesChange()
+    {
+        // a suffix component so the headword carries a morph token ("-s"), not just the bare form
+        var suffix = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "s" } },
+            MorphType = MorphTypeKind.Suffix,
+        });
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, suffix));
+
+        var component = (await Api.GetEntry(_complexFormEntryId))!.Components.Should().ContainSingle().Subject;
+        component.ComponentHeadword.Should().Be("-s");
+        component.ComplexFormHeadword.Should().Be("complex form");
+
+        var beforeSuffix = suffix.Copy();
+        suffix.LexemeForm["en"] = "es";
+        await Api.UpdateEntry(beforeSuffix, suffix);
+
+        var complexFormEntry = (await Api.GetEntry(_complexFormEntryId))!;
+        var beforeComplexForm = complexFormEntry.Copy();
+        complexFormEntry.LexemeForm["en"] = "renamed complex form";
+        await Api.UpdateEntry(beforeComplexForm, complexFormEntry);
+
+        // headwords are recomputed from the referenced entries on read (with morph tokens), not stored on the component
+        var updated = (await Api.GetEntry(_complexFormEntryId))!.Components.Should().ContainSingle().Subject;
+        updated.ComponentHeadword.Should().Be("-es");
+        updated.ComplexFormHeadword.Should().Be("renamed complex form");
+    }
+
+    [Fact]
     public async Task RemoveComplexFormComponent_Works()
     {
         var component = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));

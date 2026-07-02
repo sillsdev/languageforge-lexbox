@@ -3,13 +3,13 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {IFwEvent} from './IFwEvent';
-import type {FwEventType} from './FwEventType';
+import type {IRichMultiString} from '$lib/dotnet-types/i-multi-string';
 
-export interface IEntryDeletedEvent extends IFwEvent
+export interface IPicture
 {
-	type: FwEventType;
-	isGlobal: boolean;
-	entryId: string;
+	id: string;
+	order: number;
+	mediaUri: string;
+	caption: IRichMultiString;
 }
 /* eslint-enable */

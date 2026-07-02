@@ -119,7 +119,9 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
     public static AuthenticationTicket? ConvertJwtToAuthTicket(string? protectedText, JwtBearerOptions jwtBearerOptions, ILogger logger)
     {
         var validationParameters = jwtBearerOptions.TokenValidationParameters.Clone();
+#pragma warning disable CS0618 // Cookie ticket round-tripping still uses JwtSecurityTokenHandler validators.
         foreach (var validator in jwtBearerOptions.SecurityTokenValidators)
+#pragma warning restore CS0618
         {
             try
             {

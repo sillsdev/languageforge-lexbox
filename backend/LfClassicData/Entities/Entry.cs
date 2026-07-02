@@ -24,6 +24,7 @@ public class Sense
     public required Dictionary<string, LexValue> Definition { get; set; }
     public required Dictionary<string, LexValue>? PhonologyNote { get; set; }
     public List<Example?>? Examples { get; set; } = [];
+    public List<Picture?>? Pictures { get; set; } = [];
 }
 
 [BsonIgnoreExtraElements]
@@ -48,4 +49,13 @@ public class OptionListItem
     public string? Key { get; set; }
     public string? Value { get; set; }
     public string? Abbreviation { get; set; }
+}
+
+[BsonIgnoreExtraElements]
+public class Picture
+{
+    public Guid Guid { get; set; }
+    public required string FileName { get; set; }
+
+    public required Dictionary<string, LexValue> Caption { get; set; }
 }
