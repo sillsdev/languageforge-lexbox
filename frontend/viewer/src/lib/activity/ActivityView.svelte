@@ -156,15 +156,15 @@
 {#snippet factLine(entry: ChangeFactWithSubject, grouped: boolean)}
   {@const glyph = glyphFor(entry.fact)}
   {#if grouped}
-    <div class="flex items-baseline gap-1.5">
-      <span class="w-3.5 shrink-0 flex justify-center self-start mt-0.5">
+    <div class="flex items-center gap-1.5">
+      <span class="w-3.5 shrink-0 flex justify-center">
         {#if glyph}<Icon icon={glyph.icon} class="size-3.5 {glyph.class}" />{/if}
       </span>
       <span class="min-w-0"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} hideSubject /></span>
     </div>
   {:else}
     <div class="min-w-0">
-      {#if glyph}<Icon icon={glyph.icon} class="size-3.5 me-1 align-baseline {glyph.class}" />{/if}<ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} />
+      {#if glyph}<Icon icon={glyph.icon} class="size-3.5 me-1 align-middle {glyph.class}" />{/if}<ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} />
     </div>
   {/if}
 {/snippet}
@@ -240,7 +240,7 @@
                 {/if}
               </div>
             {/if}
-            <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
+            <div class="mt-2 text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
               <AuthorLabel class="min-w-0" authorId={row.metadata.authorId} authorName={row.metadata.authorName} />
               <span class="flex items-center gap-1">
                 {#if !row.metadata.extraMetadata['SyncDate']}
