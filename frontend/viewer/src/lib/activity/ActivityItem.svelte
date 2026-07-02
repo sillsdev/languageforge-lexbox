@@ -34,6 +34,8 @@
   import {Button} from '$lib/components/ui/button';
   import HistoryView from '$lib/history/HistoryView.svelte';
   import {Icon} from '$lib/components/ui/icon';
+  import {usePartsOfSpeech} from '$project/data';
+  import {assembleEntryAtCommit} from './assemble-entry';
 
   type Props = HTMLAttributes<HTMLDivElement> & {
     activity: IProjectActivity;
@@ -48,6 +50,7 @@
   }: Props = $props();
 
   const historyService = useHistoryService();
+  const partsOfSpeech = usePartsOfSpeech();
   let openHistoryId = $state<string>()
 
   const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(change => {
@@ -62,11 +65,15 @@
     && activity.changeInfo.every(ci => !!ci.rootEntryId && ci.rootEntryId === activity.changeInfo[0].rootEntryId),
   );
 
-  // Render the backend-resolved entry directly; fall back to the per-change list if it actually touches more than one entry.
+  // Assemble the entry as it stood AT this commit from the commit's own change snapshots, rather than showing
+  // its current (possibly since-edited) state. Every part of a create-entry commit is created in it, so the
+  // per-change snapshots piece together the historical entry. See assembleEntryAtCommit.
   const collapsedEntry = $derived.by((): Promise<IEntry | undefined> => {
-    const first = collapseToEntry ? changes?.[0] : undefined;
-    if (!first) return Promise.resolve(undefined);
-    return first.lazyContext.then(c => c.affectedEntries.length === 1 ? c.affectedEntries[0] : undefined);
+    if (!collapseToEntry || !changes) return Promise.resolve(undefined);
+    const entryId = activity.changeInfo[0]?.rootEntryId;
+    if (!entryId) return Promise.resolve(undefined);
+    return Promise.all(changes.map(c => c.lazyContext))
+      .then(contexts => assembleEntryAtCommit(entryId, contexts, partsOfSpeech.current));
   });
 </script>
 
