@@ -10,6 +10,7 @@
   import {t} from 'svelte-i18n-lingui';
   import DiffRichText from './DiffRichText.svelte';
   import DiffText from './DiffText.svelte';
+  import DiffShell from './DiffShell.svelte';
 
   let {before, after}: {before?: IExampleSentence; after?: IExampleSentence} = $props();
 
@@ -68,7 +69,10 @@
   <Editor.Field.Root fieldId="reference" class={cn(shouldShow(fields.reference) || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.example.reference.label)} helpId={entityConfig.example.reference.helpId} />
     <Editor.Field.Body>
-      <DiffText before={asString(before?.reference)} after={asString(after?.reference)} />
+      <!-- Reference is a single text field in the editor, so frame it like one (DiffShell) rather than bare text. -->
+      <DiffShell>
+        <DiffText before={asString(before?.reference)} after={asString(after?.reference)} />
+      </DiffShell>
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>

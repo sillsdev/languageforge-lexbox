@@ -61,6 +61,20 @@ describe('describeChange', () => {
     expect(facts).toEqual([{kind: 'create', entity: 'sense', label: 'fruit'}]);
   });
 
+  it('describes an example created with sentence text', () => {
+    const facts = describeChange(changeEntity({'$type': 'CreateExampleSentenceChange', Sentence: {seh: 'Nyumba yanga'}, EntityId: 'e'}));
+    expect(facts).toEqual([{kind: 'create', entity: 'example', label: 'Nyumba yanga', audioOnly: false}]);
+  });
+
+  it('flags an audio-only example instead of leaking the media URI', () => {
+    const facts = describeChange(changeEntity({
+      '$type': 'CreateExampleSentenceChange',
+      Sentence: {'seh-Zxxx-x-audio': {Spans: [{Text: 'sil-media://lexbox.org/abc', Ws: 'seh-Zxxx-x-audio'}]}},
+      EntityId: 'e',
+    }));
+    expect(facts).toEqual([{kind: 'create', entity: 'example', label: undefined, audioOnly: true}]);
+  });
+
   it('describes deletion', () => {
     expect(describeChange(changeEntity({'$type': 'delete:Entry', EntityId: 'e'})))
       .toEqual([{kind: 'delete', entity: 'entry'}]);

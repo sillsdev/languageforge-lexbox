@@ -33,7 +33,7 @@ export type BulkNoun =
  * resolve names per row — that would be a DB hit per activity).
  */
 export type ChangeFact =
-  | {kind: 'create'; entity: SummaryEntity; label?: string}
+  | {kind: 'create'; entity: SummaryEntity; label?: string; audioOnly?: boolean}
   | {kind: 'delete'; entity: SummaryEntity}
   | {kind: 'setField'; entity: SummaryEntity; fieldId: FieldId; ws?: string; value: string}
   // The system-assigned homograph number (a jsonPatch on a non-view field) — surfaced specifically, not as a generic patch.
@@ -110,14 +110,28 @@ function displayValue(value: unknown): string | undefined {
   return undefined;
 }
 
-/** First non-empty alternative of a MultiString or RichMultiString. */
+// An audio writing system stores a media URI (sil-media://…), never human-readable text. Mirrors the
+// backend WritingSystemId.IsAudio rule: script subtag Zxxx + the x-audio private-use variant.
+function isAudioWs(wsId: string): boolean {
+  const id = wsId.toLowerCase();
+  return id.includes('-zxxx-') && id.includes('x-audio');
+}
+
+/** First non-empty NON-audio alternative of a MultiString or RichMultiString (audio values are media URIs, not text). */
 function firstAlternative(multiString: unknown): string | undefined {
   if (!multiString || typeof multiString !== 'object') return undefined;
-  for (const value of Object.values(multiString as Record<string, unknown>)) {
+  for (const [wsId, value] of Object.entries(multiString as Record<string, unknown>)) {
+    if (isAudioWs(wsId)) continue;
     const text = displayValue(value);
     if (text) return text;
   }
   return undefined;
+}
+
+/** Whether a MultiString has any audio-WS content — so an audio-only field can be summarized as "with audio". */
+function hasAudioContent(multiString: unknown): boolean {
+  if (!multiString || typeof multiString !== 'object') return false;
+  return Object.entries(multiString as Record<string, unknown>).some(([wsId, value]) => isAudioWs(wsId) && !!displayValue(value));
 }
 
 /** A label from a plain string (e.g. a semantic-domain Code) or a MultiString Name. */
@@ -201,7 +215,11 @@ function patchOpToObjectField(object: ObjectKind, op: unknown): ChangeFact | und
 const TYPED_HANDLERS: Record<string, (change: unknown) => ChangeFact[]> = {
   CreateEntryChange: (c) => [{kind: 'create', entity: 'entry', label: firstAlternative(prop(c, 'lexemeForm')) ?? firstAlternative(prop(c, 'citationForm'))}],
   CreateSenseChange: (c) => [{kind: 'create', entity: 'sense', label: firstAlternative(prop(c, 'gloss')) ?? firstAlternative(prop(c, 'definition'))}],
-  CreateExampleSentenceChange: (c) => [{kind: 'create', entity: 'example', label: firstAlternative(prop(c, 'sentence'))}],
+  CreateExampleSentenceChange: (c) => {
+    const sentence = prop(c, 'sentence');
+    const label = firstAlternative(sentence);
+    return [{kind: 'create', entity: 'example', label, audioOnly: !label && hasAudioContent(sentence)}];
+  },
 
   // A null id clears the part of speech; otherwise the backend resolves the assigned POS name into the fact's target.
   SetPartOfSpeechChange: (c) => prop(c, 'partOfSpeechId') == null

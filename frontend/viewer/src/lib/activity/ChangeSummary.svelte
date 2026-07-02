@@ -122,6 +122,7 @@
 {#snippet chip(text: string)}<span class="ms-1 rounded border border-border bg-background px-1 font-medium text-foreground">{text}</span>{/snippet}
 {#snippet wsCode(ws: string)}<span class="ms-1 font-mono text-xs text-muted-foreground">{ws}</span>{/snippet}
 {#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
+{#snippet audioNote()}<span class="ms-1 italic text-muted-foreground">{$t`with audio`}</span>{/snippet}
 
 {#if subject && !selfNaming && !hideSubject}{@render subjectToken(subject)}{/if}{#if fact.kind === 'setField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
@@ -162,9 +163,10 @@
     {@const name = target ?? fact.label}
     {$t`Added ${entityNoun('sense')}`}{#if name}{@render chip(name)}{/if}
   {:else}
-    <!-- "headword › gloss · Added example". Subject is the parent sense's SenseLabel (headword › gloss); leading chip. -->
+    <!-- "headword › gloss · Added example". Subject is the parent sense's SenseLabel (headword › gloss); leading chip.
+         An audio-only example has no readable sentence text, so note "with audio" instead of a media URI. -->
     {@const name = fact.label}
-    {$t`Added ${entityNoun('example')}`}{#if name}{@render chip(name)}{/if}
+    {$t`Added ${entityNoun('example')}`}{#if name}{@render chip(name)}{:else if fact.audioOnly}{@render audioNote()}{/if}
   {/if}
 {:else if fact.kind === 'delete'}
   {#if subject}

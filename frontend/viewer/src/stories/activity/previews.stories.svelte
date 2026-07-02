@@ -35,6 +35,12 @@
   const semDomBefore: ISemanticDomain = {id: '00000000-0000-0000-0000-0000000000c2', name: {en: 'Universe, creation'}, code: '1', predefined: true};
   const semDomAfter: ISemanticDomain = {...semDomBefore, name: {en: 'Universe, creation, cosmos'}};
 
+  // A sense whose middle semantic domain (by code) is removed — verifies the removed badge keeps its sorted
+  // position rather than being dumped at the end.
+  const dom = (code: string, name: string): ISemanticDomain => ({id: `sd-${code}`, code, name: {en: name}, predefined: true});
+  const senseDomBefore = {...sense, semanticDomains: [dom('1.1', 'Sky'), dom('5.2', 'Food'), dom('8.3', 'Colour')]};
+  const senseDomAfter = {...sense, semanticDomains: [dom('1.1', 'Sky'), dom('8.3', 'Colour')]};
+
   const complexFormId = '00000000-0000-0000-0000-0000000000a1';
   const addedComponentId = '00000000-0000-0000-0000-0000000000aa';
   const cfc = {
@@ -60,6 +66,7 @@
     {label: 'Entry — homograph (subscript in header)', context: ctx({entityType: 'Entry', previousSnapshot: entryBefore, snapshot: homographEntry, affectedEntries: [homographEntry]})},
     {label: 'Entry — created (no before)', context: ctx({entityType: 'Entry', snapshot: entry, affectedEntries: [entry]})},
     {label: 'Sense — edited', context: ctx({entityType: 'Sense', previousSnapshot: senseBefore, snapshot: senseAfter, affectedEntries: [entry]})},
+    {label: 'Sense — removed middle semantic domain (stays in sorted position)', context: ctx({entityType: 'Sense', previousSnapshot: senseDomBefore, snapshot: senseDomAfter, affectedEntries: [entry]})},
     {label: 'Example — edited', context: ctx({entityType: 'ExampleSentence', previousSnapshot: exampleBefore, snapshot: exampleAfter, affectedEntries: [entry]})},
     {label: 'Complex form component — added', context: ctx({entityType: 'ComplexFormComponent', snapshot: cfc, affectedEntries: [complexFormEntry, componentEntry]})},
     {label: 'Complex form component — added but later removed (live state has dropped the CFC)', context: (() => {
