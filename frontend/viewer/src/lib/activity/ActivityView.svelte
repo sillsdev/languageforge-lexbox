@@ -163,8 +163,9 @@
       <span class="min-w-0"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} hideSubject /></span>
     </div>
   {:else}
-    <div class="min-w-0">
-      {#if glyph}<Icon icon={glyph.icon} class="size-3.5 me-1 align-middle {glyph.class}" />{/if}<ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} />
+    <div class="flex items-center gap-1 min-w-0">
+      {#if glyph}<Icon icon={glyph.icon} class="size-3.5 shrink-0 {glyph.class}" />{/if}
+      <span class="min-w-0"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></span>
     </div>
   {/if}
 {/snippet}
