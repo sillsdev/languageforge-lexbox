@@ -4,5 +4,4 @@ export * from './publications.svelte';
 export * from './parts-of-speech.svelte';
 export * from './complex-form-types';
 export * from './project-stats';
-export * from './dashboard-stats';
 export * from './semantic-domains';
