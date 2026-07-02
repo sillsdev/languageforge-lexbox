@@ -8,12 +8,13 @@
   import DiffRichText from './DiffRichText.svelte';
   import DiffText from './DiffText.svelte';
   import DiffShell from './DiffShell.svelte';
+  import DiffMultiSelect from './DiffMultiSelect.svelte';
 
   // One component for all vocab object types (PartOfSpeech, SemanticDomain, Publication, ComplexFormType,
   // MorphType, WritingSystem, CustomView). They don't share a TS interface beyond IObjectWithId, so fields are
   // read loosely and each row renders only when the field is present on the before or after snapshot.
-  // Fields covered (any type that HAS them): name, abbreviation, code, prefix, postfix, wsId, font, kind, type,
-  // description, isMain, secondaryOrder. See `vocab-diff-coverage.test.ts` for the field-completeness guardrail.
+  // The field-completeness guardrail is `vocab-diff-fields.ts` + `vocab-diff-coverage.test.ts` — keep the
+  // HANDLED_VOCAB_FIELDS set there in sync with the rows below when a vocab model gains a field.
   let {before, after}: {before?: IObjectWithId; after?: IObjectWithId} = $props();
 
   const writingSystemService = useWritingSystemService();
@@ -88,6 +89,38 @@
   </Editor.Field.Root>
 {/snippet}
 
+<!-- Custom-view list rows: field lists (IViewField[] → fieldId), writing-system lists (IViewWritingSystem[]
+  → wsId), and plain string lists (exemplars). Rendered as a DiffMultiSelect so add/remove reads consistently. -->
+{#snippet viewFieldsRow(label: string, field: string)}
+  <Editor.Field.Root>
+    <Editor.Field.Title name={label} />
+    <Editor.Field.Body>
+      <DiffMultiSelect before={b?.[field] as {fieldId: string}[] | undefined} after={a?.[field] as {fieldId: string}[] | undefined}
+                       idSelector={(f) => f.fieldId} labelSelector={(f) => f.fieldId} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+{/snippet}
+
+{#snippet wsListRow(label: string, field: string)}
+  <Editor.Field.Root>
+    <Editor.Field.Title name={label} />
+    <Editor.Field.Body>
+      <DiffMultiSelect before={b?.[field] as {wsId: string}[] | undefined} after={a?.[field] as {wsId: string}[] | undefined}
+                       idSelector={(w) => w.wsId} labelSelector={(w) => w.wsId} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+{/snippet}
+
+{#snippet stringListRow(label: string, field: string)}
+  <Editor.Field.Root>
+    <Editor.Field.Title name={label} />
+    <Editor.Field.Body>
+      <DiffMultiSelect before={b?.[field] as string[] | undefined} after={a?.[field] as string[] | undefined}
+                       idSelector={(s) => s} labelSelector={(s) => s} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+{/snippet}
+
 <Editor.SubGrid class="gap-2">
   {#if present('name')}
     {#if nameIsMultiString}
@@ -137,7 +170,39 @@
     {@render textRow($t`Type`, 'type')}
   {/if}
 
+  {#if present('isAudio')}
+    {@render textRow($t`Audio`, 'isAudio')}
+  {/if}
+
   {#if present('isMain')}
     {@render textRow($t`Main`, 'isMain')}
+  {/if}
+
+  {#if present('base')}
+    {@render textRow($t`Base view`, 'base')}
+  {/if}
+
+  {#if present('entryFields')}
+    {@render viewFieldsRow($t`Entry fields`, 'entryFields')}
+  {/if}
+
+  {#if present('senseFields')}
+    {@render viewFieldsRow($t`Sense fields`, 'senseFields')}
+  {/if}
+
+  {#if present('exampleFields')}
+    {@render viewFieldsRow($t`Example fields`, 'exampleFields')}
+  {/if}
+
+  {#if present('vernacular')}
+    {@render wsListRow($t`Vernacular writing systems`, 'vernacular')}
+  {/if}
+
+  {#if present('analysis')}
+    {@render wsListRow($t`Analysis writing systems`, 'analysis')}
+  {/if}
+
+  {#if present('exemplars')}
+    {@render stringListRow($t`Exemplars`, 'exemplars')}
   {/if}
 </Editor.SubGrid>

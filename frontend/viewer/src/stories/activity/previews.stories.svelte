@@ -38,6 +38,10 @@
   const semDomBefore: ISemanticDomain = {id: '00000000-0000-0000-0000-0000000000c2', name: {en: 'Universe, creation'}, code: '1', predefined: true};
   const semDomAfter: ISemanticDomain = {...semDomBefore, name: {en: 'Universe, creation, cosmos'}};
 
+  // A custom view edited: name changed, an entry field swapped, a vernacular ws added.
+  const cvBefore = {id: 'cv-1', name: 'My View', base: 0, entryFields: [{fieldId: 'lexemeForm'}, {fieldId: 'citationForm'}], senseFields: [{fieldId: 'gloss'}], exampleFields: [], vernacular: [{wsId: 'seh'}], analysis: [{wsId: 'en'}]} as unknown as IObjectWithId;
+  const cvAfter = {id: 'cv-1', name: 'My Custom View', base: 0, entryFields: [{fieldId: 'lexemeForm'}, {fieldId: 'note'}], senseFields: [{fieldId: 'gloss'}], exampleFields: [], vernacular: [{wsId: 'seh'}, {wsId: 'ny'}], analysis: [{wsId: 'en'}]} as unknown as IObjectWithId;
+
   // A sense whose middle semantic domain (by code) is removed — verifies the removed badge keeps its sorted
   // position rather than being dumped at the end.
   const dom = (code: string, name: string): ISemanticDomain => ({id: `sd-${code}`, code, name: {en: name}, predefined: true});
@@ -116,6 +120,7 @@
     })()},
     {label: 'Part of speech — name edited', context: ctx({entityType: 'PartOfSpeech', previousSnapshot: posBefore, snapshot: posAfter})},
     {label: 'Semantic domain — name edited (keeps code)', context: ctx({entityType: 'SemanticDomain', previousSnapshot: semDomBefore, snapshot: semDomAfter})},
+    {label: 'Custom view — edited (name, fields, writing systems)', context: ctx({entityType: 'CustomView', previousSnapshot: cvBefore, snapshot: cvAfter})},
     {label: 'Remote resource (audio player)', context: ctx({entityType: 'Unknown'}), change: {commitId: 'demo', index: 0, entityId: '00000000-0000-0000-0000-0000000000f0', change: {'$type': 'create:remote-resource', entityId: '00000000-0000-0000-0000-0000000000f0'}} as unknown as IChangeEntity},
     {label: 'No preview available', context: ctx({entityType: 'Unknown'})},
   ];
