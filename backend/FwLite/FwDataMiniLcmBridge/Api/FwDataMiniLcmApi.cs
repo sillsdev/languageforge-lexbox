@@ -2,6 +2,7 @@ using System.Collections.Frozen;
 using System.Globalization;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
+using FwDataMiniLcmBridge.Collation;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwDataMiniLcmBridge.Media;
 using Gridify;
@@ -113,6 +114,7 @@ public class FwDataMiniLcmApi(
 
     private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, WritingSystemType type, int index = default)
     {
+        var (icuCollationRules, systemCollationLocale) = WritingSystemCollationExtractor.Extract(ws);
         return new WritingSystem
         {
             Id = Guid.Empty,
@@ -125,7 +127,9 @@ public class FwDataMiniLcmApi(
             Name = ws.LanguageTag,
             Abbreviation = ws.Abbreviation,
             Font = ws.DefaultFontName,
-            Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
+            Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? [],
+            IcuCollationRules = icuCollationRules,
+            SystemCollationLocale = systemCollationLocale,
         };
     }
 

@@ -1,4 +1,46 @@
-# FwLite Commenting
+# FwLite
+
+## Collation
+
+How strings in a writing system are compared when ordering dictionary content. Imported from FLEx per writing system; stored on `WritingSystem` without LDML at runtime.
+
+**Collation**:
+The rules that govern string comparison for a writing system (ICU tailoring or .NET locale alias). Distinct from list position and from the user action of sorting entries.
+_Avoid_: Sort rules (when meaning collation specifically), custom sorting (as a model term)
+
+**Writing system order**:
+Where a writing system appears in the project's vernacular or analysis list (`WritingSystem.Order`). Not how strings alphabetize.
+_Avoid_: Confusing with collation
+
+**Entry sort**:
+The user-facing action of ordering the entry list (e.g. by headword in a chosen writing system). Uses the selected writing system's collation for headword comparison.
+_Avoid_: Collation (when meaning the user action)
+
+**Collation scope (v1)**:
+Collation governs headword entry sort (`SortField.Headword`) and the alphabetical tie-break when search results fall through to headword order (`SortField.SearchRelevance`). It does not govern search matching (whether a query matches text) or FTS ranking.
+_Avoid_: Applying collation to `ContainsDiacriticMatch`, prefix/contains predicates, or FTS rank
+
+**Imported collation**:
+Collation metadata synced from FLEx onto `WritingSystem`. Two optional fields: compiled ICU rules, or a .NET locale alias for "same as another language." No LDML at FwLite runtime.
+_Avoid_: Storing LDML, simple-rule source text, or import metadata
+
+**Legacy collation fallback**:
+When neither field is set, headword comparison uses the pre-existing FwLite behavior (`CultureInfo` from `WsId`, case-insensitive with lowercase-before-uppercase tie-break). FLEx "Default Ordering" is imported as this fallback too — FwLite does not replicate FLEx's empty-rule ICU default until we choose to.
+_Avoid_: Treating `null` and `""` as different states for `IcuCollationRules`
+
+**Collation compare (imported)**:
+When `IcuCollationRules` or `SystemCollationLocale` is set, use the libpalaso collator's native `Compare` with no legacy case tie-break layered on top. Matches FLEx for custom and other-language modes.
+_Avoid_: Applying case-insensitive or lowercase-first logic on top of `IcuRulesCollator` or `SystemCollator`
+
+**Collation import (from FLEx)**:
+Populated when mapping `CoreWritingSystemDefinition` → `WritingSystem` in the FwData bridge. Custom modes: store non-empty compiled ICU rules only. Other-language: store .NET locale tag only. Default ordering: leave both fields null (legacy fallback). Import-only — no write-back to fwdata LDML.
+_Avoid_: Parsing LDML in FwLite; persisting empty `IcuCollationRules` for default ordering
+
+**Collation write-back**:
+Explicitly a no-op. The fwdata `UpdateWritingSystemProxy` overrides collation fields and does not write them to LDML.
+_Avoid_: Assuming bidirectional collation sync
+
+## Commenting
 
 Collaborative discussion attached to dictionary data (entries, senses, example sentences). Comments sync via Harmony; read status is local-only per device (not synced, not per Lexbox user account).
 

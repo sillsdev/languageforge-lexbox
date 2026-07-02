@@ -353,9 +353,11 @@
         Annotations: 
           Relational:ColumnType: jsonb
       Font (string) Required
+      IcuCollationRules (string)
       Name (string) Required
       Order (double) Required
       SnapshotId (no field, Guid?) Shadow FK Index
+      SystemCollationLocale (string)
       Type (WritingSystemType) Required Index
       WsId (WritingSystemId) Required Index
     Keys: 

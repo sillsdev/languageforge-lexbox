@@ -756,9 +756,26 @@
     "Exemplars": [
       "Berkshire"
     ],
+    "IcuCollationRules": null,
+    "SystemCollationLocale": null,
     "Type": 1,
     "Order": 0.7988004089201804,
     "EntityId": "0fccfaaa-1e55-f6fb-966f-5c1e6caedf45"
+  },
+  {
+    "$type": "CreateWritingSystemChange",
+    "WsId": "prl",
+    "Name": "Investment Account",
+    "Abbreviation": "JBOD",
+    "Font": "SCSI",
+    "Exemplars": [
+      "Games \u0026 Industrial"
+    ],
+    "IcuCollationRules": "parsing",
+    "SystemCollationLocale": "interactive",
+    "Type": 1,
+    "Order": 0.10446673530044903,
+    "EntityId": "f6928dbf-09ad-c0e8-a12a-23616641b071"
   },
   {
     "$type": "AddComplexFormTypeChange",

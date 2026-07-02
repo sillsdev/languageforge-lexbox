@@ -3494,9 +3494,34 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Order": 0
     },
     "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "3b85e4c8-6330-9167-2349-3bba70056346",
+      "MaybeId": "3b85e4c8-6330-9167-2349-3bba70056346",
+      "WsId": "syk",
+      "IsAudio": false,
+      "Name": "vortals",
+      "Abbreviation": "Granite",
+      "Font": "Iowa",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "Incredible Metal Chair"
+      ],
+      "IcuCollationRules": "Customizable",
+      "SystemCollationLocale": "Borders",
+      "Order": 0.03765569767409571
+    },
+    "Id": "3b85e4c8-6330-9167-2349-3bba70056346",
     "DeletedAt": null
   },
   {
@@ -3515,9 +3540,34 @@
       "Exemplars": [
         "Planner"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Order": 0.4320924489200455
     },
     "Id": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "9be8f583-63b4-cf64-4202-0e09481317c0",
+      "MaybeId": "9be8f583-63b4-cf64-4202-0e09481317c0",
+      "WsId": "enh",
+      "IsAudio": false,
+      "Name": "internet solution",
+      "Abbreviation": "Walk",
+      "Font": "payment",
+      "DeletedAt": null,
+      "Type": 0,
+      "Exemplars": [
+        "Licensed Fresh Cheese"
+      ],
+      "IcuCollationRules": "connect",
+      "SystemCollationLocale": "Oregon",
+      "Order": 0.9633181157872764
+    },
+    "Id": "9be8f583-63b4-cf64-4202-0e09481317c0",
     "DeletedAt": null
   },
   {
@@ -3561,9 +3611,34 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Order": 0
     },
     "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "3b9876d2-3b5d-a9f6-735d-7b6a8c232acd",
+      "MaybeId": "3b9876d2-3b5d-a9f6-735d-7b6a8c232acd",
+      "WsId": "ksh",
+      "IsAudio": false,
+      "Name": "Refined",
+      "Abbreviation": "Coordinator",
+      "Font": "indexing",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "National"
+      ],
+      "IcuCollationRules": "Monitored",
+      "SystemCollationLocale": "bandwidth",
+      "Order": 0.2935114043495951
+    },
+    "Id": "3b9876d2-3b5d-a9f6-735d-7b6a8c232acd",
     "DeletedAt": null
   },
   {
@@ -3582,9 +3657,34 @@
       "Exemplars": [
         "blockchains"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Order": 0.14806393624996905
     },
     "Id": "19023cf0-de25-9b0c-d5ad-94df308267c4",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "6e82adb2-46c1-7a00-e603-c18419f13d4f",
+      "MaybeId": "6e82adb2-46c1-7a00-e603-c18419f13d4f",
+      "WsId": "mnm",
+      "IsAudio": false,
+      "Name": "uniform",
+      "Abbreviation": "feed",
+      "Font": "Intelligent Plastic Chips",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "Beauty, Games \u0026 Movies"
+      ],
+      "IcuCollationRules": "Assurance",
+      "SystemCollationLocale": "Kids \u0026 Electronics",
+      "Order": 0.34200726440404006
+    },
+    "Id": "6e82adb2-46c1-7a00-e603-c18419f13d4f",
     "DeletedAt": null
   },
   {
