@@ -14,14 +14,14 @@
   <!-- Unchanged (or empty on both sides): AudioInput shows the player, or its own "No audio" placeholder. -->
   <AudioInput audioId={after || undefined} readonly />
 {:else}
-  <div class="flex flex-col items-start gap-1">
+  <div class="flex flex-col gap-1 w-full">
     {#if before}
-      <div class="rounded border-s-2 border-destructive ps-2 {diffRemovedSurface}">
+      <div class="rounded {diffRemovedSurface}">
         <AudioInput audioId={before} readonly />
       </div>
     {/if}
     {#if after}
-      <div class="rounded border-s-2 border-emerald-500 ps-2 {diffAddedSurface}">
+      <div class="rounded {diffAddedSurface}">
         <AudioInput audioId={after} readonly />
       </div>
     {/if}
