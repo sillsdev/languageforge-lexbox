@@ -21,3 +21,9 @@ export const diffKept = 'bg-transparent text-foreground border-muted-foreground/
 // component whose position changed. Adds a primary accent on top of the neutral kept style.
 export const diffTouched = 'bg-transparent text-foreground border-primary/60 ring-2 ring-primary/60 text-sm';
 export const diffEmpty = 'text-muted-foreground/40';
+
+// Surface-only variants (background tint + no text styling) for wrapping non-text diff content — an audio
+// player, an image later — where a text token like line-through would be nonsensical. Pair with a gutter
+// border (border-destructive / border-emerald-500) to read as removed / added.
+export const diffRemovedSurface = 'bg-destructive/10';
+export const diffAddedSurface = 'bg-emerald-500/15';
