@@ -1254,7 +1254,6 @@ msgstr ""
 #: src/home/HomeView.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaManagerView.svelte
-#: src/home/HomeView.svelte
 msgid "Local only"
 msgstr "Chỉ cục bộ"
 
@@ -1417,8 +1416,11 @@ msgid "New Entry"
 msgstr "Mục mới"
 
 #: src/home/CreateProjectDialog.svelte
-#: src/home/HomeView.svelte
 msgid "New Project"
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "New Project (Local only)"
 msgstr ""
 
 #. Relevant view: Lite
@@ -2061,6 +2063,7 @@ msgid "Syncing..."
 msgstr "Đang đồng bộ..."
 
 #. Theme option
+#: src/lib/activity/utils.ts
 #: src/lib/components/ThemePicker.svelte
 msgid "System"
 msgstr "Hệ thống"
@@ -2231,9 +2234,9 @@ msgstr "Không thể mở trong FieldWorks"
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Unknown"
