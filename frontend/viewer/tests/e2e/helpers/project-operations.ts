@@ -1,8 +1,10 @@
 import {type Page} from '@playwright/test';
 import {serverUrl, type Server} from '../config';
 
-export async function deleteProject(page: Page, projectCode: string): Promise<void> {
-  const origin = new URL(page.url()).origin;
+// `/api/crdt/{code}` is a FwLite endpoint, so target FwLite explicitly rather than the
+// page's current origin (which may still be the Lexbox host mid-OAuth).
+export async function deleteProject(page: Page, fwLiteBaseUrl: string, projectCode: string): Promise<void> {
+  const origin = new URL(fwLiteBaseUrl).origin;
   // Best-effort cleanup; the project may not exist if the test failed early.
   await page.request.delete(`${origin}/api/crdt/${projectCode}`).catch(() => undefined);
 }

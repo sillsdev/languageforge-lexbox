@@ -8,21 +8,21 @@ import {HomePage} from '../../pages/home.page';
 export const test = base.extend<{fwLite: FwLiteLauncher}>({
   fwLite: async ({page}, use, testInfo) => {
     const launcher = new FwLiteLauncher();
-    await launcher.launch({
-      binaryPath: fwLiteBinaryPath,
-      serverUrl: serverUrl(lexboxServer),
-      logFile: testInfo.outputPath('fw-lite-server.log'),
-    });
-    await page.goto(launcher.getBaseUrl());
-    await page.waitForLoadState('networkidle');
-
-    await use(launcher);
-
     try {
+      await launcher.launch({
+        binaryPath: fwLiteBinaryPath,
+        serverUrl: serverUrl(lexboxServer),
+        logFile: testInfo.outputPath('fw-lite-server.log'),
+      });
+      await page.goto(launcher.getBaseUrl());
+      await page.waitForLoadState('networkidle');
+
+      await use(launcher);
+
       // Tests may end on a project page; logout/delete operate from the home page.
       await page.goto(launcher.getBaseUrl());
       await new HomePage(page).ensureLoggedOut(lexboxServer);
-      await deleteProject(page, projectCode);
+      await deleteProject(page, launcher.getBaseUrl(), projectCode);
     } finally {
       await launcher.shutdown();
     }

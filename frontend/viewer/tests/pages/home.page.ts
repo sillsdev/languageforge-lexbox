@@ -80,11 +80,9 @@ export class HomePage {
     await projectRow.waitFor({state: 'visible', timeout: 30_000});
     await projectRow.click();
 
-    const progressIndicator = this.page.locator('.i-mdi-loading');
-    await progressIndicator.waitFor({state: 'visible', timeout: 30_000});
-    await progressIndicator.waitFor({state: 'detached', timeout: 60_000});
-
-    await expect(this.localProjectLink(projectCode)).toBeVisible();
+    // A downloaded project renders as a local link. Wait on that rather than the transient
+    // loading spinner, which a fast download can finish before it ever becomes visible.
+    await expect(this.localProjectLink(projectCode)).toBeVisible({timeout: 90_000});
   }
 
   async openLocalProject(projectCode: string) {

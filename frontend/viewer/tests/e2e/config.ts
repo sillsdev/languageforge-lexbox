@@ -12,7 +12,8 @@ export const lexboxServer: Server = {
   port: process.env.TEST_SERVER_PORT ? parseInt(process.env.TEST_SERVER_PORT) : 6579,
 };
 
-export const fwLiteBinaryPath = process.env.FW_LITE_BINARY_PATH || './dist/fw-lite-server/FwLiteWeb.exe';
+const defaultBinaryName = process.platform === 'win32' ? 'FwLiteWeb.exe' : 'FwLiteWeb';
+export const fwLiteBinaryPath = process.env.FW_LITE_BINARY_PATH || `./dist/fw-lite-server/${defaultBinaryName}`;
 export const projectCode = process.env.TEST_PROJECT_CODE || 'sena-3';
 export const testUser = process.env.TEST_USER || 'manager';
 export const testPassword = process.env.TEST_DEFAULT_PASSWORD || 'pass';

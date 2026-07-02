@@ -34,14 +34,25 @@ export class FwLiteLauncher {
     const port = config.port ?? await findAvailablePort(5000);
     this.baseUrl = `http://localhost:${port}`;
 
-    await this.spawnProcess(config);
-    await this.waitForHealthy(config.timeout ?? DEFAULT_LAUNCH_TIMEOUT_MS);
+    try {
+      await this.spawnProcess(config);
+      await this.waitForHealthy(config.timeout ?? DEFAULT_LAUNCH_TIMEOUT_MS);
+    } catch (error) {
+      // A spawned-but-unhealthy process would otherwise be orphaned when launch() throws.
+      await this.shutdown().catch(() => undefined);
+      throw error;
+    }
   }
 
   async shutdown(): Promise<void> {
     if (!this.process) return;
     this.isHealthy = false;
     const proc = this.process;
+
+    // Track actual exit: proc.killed only reflects that a signal was *sent*, so it can't
+    // gate the SIGKILL escalation below (SIGTERM sets it true while the child keeps running).
+    let hasExited = false;
+    const exited = new Promise<void>(resolve => proc.once('exit', () => { hasExited = true; resolve(); }));
 
     if (platform() === 'win32') {
       // Windows can't SIGTERM a child; FwLiteWeb listens for "shutdown" on stdin.
@@ -51,9 +62,8 @@ export class FwLiteLauncher {
       proc.kill('SIGTERM');
     }
 
-    const exited = new Promise<void>(resolve => proc.once('exit', () => resolve()));
     const timedOut = delay(SHUTDOWN_TIMEOUT_MS).then(() => {
-      if (!proc.killed) proc.kill('SIGKILL');
+      if (!hasExited) proc.kill('SIGKILL');
     });
     await Promise.race([exited, timedOut]);
 

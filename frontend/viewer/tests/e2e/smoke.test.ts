@@ -7,5 +7,6 @@ test('FW Lite launches and connects to the server', async ({page, fwLite: _fwLit
   await homePage.waitFor();
 
   await homePage.ensureLoggedIn(lexboxServer, testUser, testPassword);
-  expect(await homePage.serverProjects(lexboxServer).count()).toBeGreaterThan(0);
+  // Server projects load asynchronously after login; poll rather than snapshot the count once.
+  await expect.poll(() => homePage.serverProjects(lexboxServer).count()).toBeGreaterThan(0);
 });
