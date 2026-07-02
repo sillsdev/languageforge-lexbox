@@ -1,6 +1,5 @@
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
-using LcmCrdt.Changes.Entries;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Resource;
 
@@ -12,7 +11,6 @@ public class ConfigRegistrationTests
 
     private readonly HashSet<Type> _excludedChangeTypes =
     [
-        typeof(ReplaceComplexFormTypeChange), //not currently in use
         typeof(JsonPatchChange<ComplexFormComponent>), //not supported
         typeof(JsonPatchChange<RemoteResource>), //not supported
         typeof(JsonPatchChange<ExampleSentence>), //replaced by JsonPatchExampleSentenceChange

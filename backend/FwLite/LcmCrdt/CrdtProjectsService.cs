@@ -2,15 +2,15 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using LcmCrdt.MediaServer;
+using LcmCrdt.Utils;
 using SIL.Harmony;
-using MiniLcm;
 using MiniLcm.Import;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using LcmCrdt.Objects;
 using LcmCrdt.Project;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using MiniLcm.Project;
 
@@ -149,9 +149,11 @@ public partial class CrdtProjectsService(
         // Templated projects are created locally; this path has no way to associate one with a server
         // at creation time, so reject a Domain up front — the invariant holds where the project is born.
         if (request.Domain is not null)
+        {
             throw new ArgumentException(
                 "Templated projects can't be associated with a server at creation time — they're local-only.",
                 nameof(request));
+        }
 
         var callerAfterCreate = request.AfterCreate;
         return await CreateProject(request with
@@ -161,7 +163,11 @@ public partial class CrdtProjectsService(
                 var api = provider.GetRequiredService<IMiniLcmApi>();
                 var jsonOptions = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.JsonSerializerOptions;
                 var snapshot = ProjectTemplate.CreateNewSnapshot(jsonOptions, vernacularWs, analysisWs);
-                await projectImporter.ImportProject(api, snapshot);
+                var commitMetadataInterceptor = provider.GetRequiredService<CommitMetadataInterceptor>();
+                using (commitMetadataInterceptor.Intercept(CommitHelpers.StampAsTemplate))
+                {
+                    await projectImporter.ImportProject(api, snapshot);
+                }
                 if (callerAfterCreate is not null) await callerAfterCreate(provider, project);
             }
         });
@@ -221,7 +227,7 @@ public partial class CrdtProjectsService(
             }
             catch
             {
-                EnsureDeleteProject(sqliteFile);
+                _ = EnsureDeleteProject(sqliteFile, suppressException: true);
             }
 
             throw;
@@ -230,34 +236,58 @@ public partial class CrdtProjectsService(
         return crdtProject;
     }
 
-    private void EnsureDeleteProject(string sqliteFile)
+    private Task EnsureDeleteProject(string sqliteFile, bool suppressException = false)
     {
-        _ = Task.Run(async () =>
+        return Task.Run(async () =>
         {
             var safeSqliteFile = SanitizeForLog(sqliteFile);
             var counter = 0;
-            while (File.Exists(sqliteFile) && counter < 10)
+            var walFile = sqliteFile + "-wal";
+            var shmFile = sqliteFile + "-shm";
+            try
             {
-                await Task.Delay(1000);
+                var connStr = new SqliteConnectionStringBuilder { DataSource = sqliteFile }.ConnectionString;
+                using var clearConn = new SqliteConnection(connStr);
+                SqliteConnection.ClearPool(clearConn);
+            }
+            catch
+            {
+                //ignore, this is to ensure that all connections are closed
+            }
+
+            while ((File.Exists(sqliteFile) || File.Exists(walFile) || File.Exists(shmFile)) && counter < 10)
+            {
                 try
                 {
-                    File.Delete(sqliteFile);
+                    if (File.Exists(walFile))
+                        File.Delete(walFile);
+                    if (File.Exists(shmFile))
+                        File.Delete(shmFile);
+                    if (File.Exists(sqliteFile))
+                        File.Delete(sqliteFile);
                     return;
                 }
                 catch (IOException)
                 {
-                    //inuse, try again
+                    counter++;
+                    if (counter < 10)
+                        await Task.Delay(1000);
                 }
                 catch (Exception exception)
                 {
                     logger.LogError(exception, "Failed to delete sqlite file {SqliteFile}", safeSqliteFile);
+                    if (!suppressException)
+                        throw;
                     return;
                 }
-
-                counter++;
             }
 
-            logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", safeSqliteFile);
+            if (File.Exists(sqliteFile) || File.Exists(walFile) || File.Exists(shmFile))
+            {
+                logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", safeSqliteFile);
+                if (!suppressException)
+                    throw new IOException($"Failed to delete sqlite file {safeSqliteFile} after 10 attempts");
+            }
         });
     }
 
@@ -266,13 +296,9 @@ public partial class CrdtProjectsService(
     public async Task DeleteProject(string code)
     {
         var project = GetProject(code) ?? throw new InvalidOperationException($"Project {code} not found");
-        await using var serviceScope = provider.CreateAsyncScope();
-        var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
-        currentProjectService.SetupProjectContextForNewDb(project);
-        var projectResourceCachePath = serviceScope.ServiceProvider.GetRequiredService<LcmMediaService>().ProjectResourceCachePath;
+        var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<CrdtConfig>>().Value);
         if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
-        await using var db = await serviceScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
-        await db.Database.EnsureDeletedAsync();
+        await EnsureDeleteProject(project.DbPath);
     }
 
     internal static async Task InitProjectDb(LcmCrdtDbContext db, ProjectData data)
