@@ -112,27 +112,28 @@ internal static class ActivityChangeInfoResolver
 
         string? Headword(Guid entryId) => entries.TryGetValue(entryId, out var entry) ? DisplayHeadword(entry, morphLookup) : null;
 
-        // The gloss-part of a sense's label, disambiguated by its 1-based position among its entry's senses:
-        // empty gloss → "sense{₂}" (subscript, like homograph numbers); a duplicate gloss → "{gloss}{₂}"; a
-        // unique gloss → "{gloss}". Never null, so an empty-gloss sense reads as a sense rather than
-        // collapsing to the bare entry headword. Subscript matches the homograph convention so the number
-        // reads as a disambiguator rather than a value.
+        // The distinguishing label for a sense within its entry. FieldWorks numbers senses positionally and
+        // shows the number when an entry has more than one sense — independent of the gloss (unlike homograph
+        // numbers, which key off identical headwords). So: >1 sense → "{number} {gloss}" (or just "{number}"
+        // when the gloss is empty); a lone sense → its gloss, or "" when it has none (nothing to distinguish).
         string SenseGlossPart(Sense sense)
         {
             var siblings = sensesByEntry.GetValueOrDefault(sense.EntryId) ?? [];
-            var number = siblings.FindIndex(s => s.Id == sense.Id) + 1;
-            if (number == 0) number = 1; // not found among siblings (shouldn't happen for a snapshot sense)
+            var index = siblings.FindIndex(s => s.Id == sense.Id);
+            var number = (index < 0 ? 0 : index) + 1; // <0 shouldn't happen for a snapshot sense
+            var multiple = siblings.Count > 1;
             var glossText = Label(sense.Gloss);
-            if (string.IsNullOrEmpty(glossText)) return "sense" + Subscript(number);
-            var duplicated = siblings.Count(s => string.Equals(Label(s.Gloss), glossText, StringComparison.Ordinal)) > 1;
-            return duplicated ? glossText + Subscript(number) : glossText;
+            if (!string.IsNullOrEmpty(glossText)) return multiple ? $"{number} {glossText}" : glossText;
+            return multiple ? number.ToString() : "";
         }
 
-        // Degrades to just the gloss-part when the entry has no displayable headword.
+        // "headword › senseLabel". Degrades to just the headword when the sense has nothing to distinguish it
+        // (a lone, gloss-less sense), and to "sense" when there's neither a headword nor a distinguishing label.
         string SenseLabel(string? headword, Sense sense)
         {
             var glossPart = SenseGlossPart(sense);
-            return headword is null ? glossPart : $"{headword} › {glossPart}";
+            if (headword is null) return string.IsNullOrEmpty(glossPart) ? "sense" : glossPart;
+            return string.IsNullOrEmpty(glossPart) ? headword : $"{headword} › {glossPart}";
         }
 
         foreach (var activity in activities)

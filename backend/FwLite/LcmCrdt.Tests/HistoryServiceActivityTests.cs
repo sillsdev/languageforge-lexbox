@@ -298,47 +298,32 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
     }
 
     [Fact]
-    public async Task ProjectActivity_ChangeInfo_SenseWithEmptyGloss_UsesSenseNumber()
+    public async Task ProjectActivity_ChangeInfo_LoneSense_HasNoSenseNumber()
     {
         var entryId = await CreateEntry("run");
-        await CreateSense(entryId, gloss: null, order: 1.0);
+        await CreateSense(entryId, gloss: "to run", order: 1.0);
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
 
-        // Create-sense reads as an entry-level change ("run · Added sense senseN"): the subject is the
-        // parent entry headword and the sense identifier goes to Target (subscript for an empty gloss).
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "sense₁");
+        // A lone sense needs no number (nothing to disambiguate): "run · Added sense to run".
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "to run");
     }
 
     [Fact]
-    public async Task ProjectActivity_ChangeInfo_DuplicateGlosses_AppendSenseNumber()
-    {
-        var entryId = await CreateEntry("bat");
-        await CreateSense(entryId, gloss: "flying mammal", order: 1.0);
-        await CreateSense(entryId, gloss: "flying mammal", order: 2.0);
-
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
-
-        // Both senses share a gloss, so each Target is disambiguated by its 1-based position as a subscript
-        // (matches the homograph-number convention so the number reads as a disambiguator, not a value).
-        // Subject is the parent entry headword since these are create-sense summaries.
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "bat" && a.ChangeInfo[0].Target == "flying mammal₁");
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "bat" && a.ChangeInfo[0].Target == "flying mammal₂");
-    }
-
-    [Fact]
-    public async Task ProjectActivity_ChangeInfo_UniqueGloss_HasNoSenseNumber()
+    public async Task ProjectActivity_ChangeInfo_MultipleSenses_NumberedPositionally()
     {
         var entryId = await CreateEntry("run");
         await CreateSense(entryId, gloss: "to run", order: 1.0);
         await CreateSense(entryId, gloss: "a jog", order: 2.0);
+        await CreateSense(entryId, gloss: null, order: 3.0);
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
 
-        // Distinct glosses are unambiguous, so no number is appended. Create-sense subject is the parent
-        // entry headword; the sense gloss goes to Target ("run · Added sense to run").
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "to run");
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "a jog");
+        // With more than one sense every sense is numbered by position (like FieldWorks), independent of the
+        // gloss — unique or not. An empty gloss shows just the number.
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "1 to run");
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "2 a jog");
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "3");
     }
 
     [Fact]
