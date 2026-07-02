@@ -56,22 +56,10 @@ msgstr "{0} yang lalu"
 msgid "{0} authors"
 msgstr ""
 
-#: src/project/dashboard/DashboardView.svelte
-msgid "{0} complete"
-msgstr ""
-
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
-
-#: src/project/dashboard/DashboardView.svelte
-msgid "{0} of {1} entries"
-msgstr ""
-
-#: src/project/dashboard/DashboardView.svelte
-msgid "{0} remaining"
-msgstr ""
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -108,10 +96,6 @@ msgstr "**Jenis morfem yang lebih sedikit** (hanya *Root*, *Bound Root*, *Stem*,
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Terminologi yang lebih sederhana** (mis. *Kata* alih-alih *Bentuk leksem*, *Makna* alih-alih *Rasa*)"
-
-#: src/project/dashboard/DashboardView.svelte
-msgid "10,000 entry goal"
-msgstr ""
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -207,6 +191,10 @@ msgstr ""
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
 msgstr "Tambahkan Kata"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Add your first entry to start building your dictionary."
+msgstr ""
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
@@ -1399,6 +1387,10 @@ msgstr ""
 msgid "Next"
 msgstr "Berikutnya"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Next milestone: {0}. {1} to go."
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -2026,6 +2018,10 @@ msgstr "Tugas"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Beritahu kami tentang bug atau masalah yang Anda temui."
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Tell us how you work and what would help most. Your ideas guide what we build."
+msgstr ""
+
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
@@ -2097,6 +2093,7 @@ msgstr "Beralih filter"
 msgid "Toggle pinned"
 msgstr "Beralih disematkan"
 
+#: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
 msgstr ""
@@ -2282,6 +2279,10 @@ msgstr "Melihat"
 msgid "violet"
 msgstr "violet"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "What would you like to see here?"
+msgstr ""
+
 #. External link button text for help
 #: src/home/Server.svelte
 msgid "Where are my projects?"
@@ -2378,3 +2379,11 @@ msgstr "Anda tidak memiliki izin untuk mengunduh proyek {0} dari {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah mengunduh proyek {0}"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "You've passed every milestone. What an achievement!"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Your dictionary starts here"
+msgstr ""

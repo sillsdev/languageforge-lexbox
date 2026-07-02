@@ -56,22 +56,10 @@ msgstr "{0} trước"
 msgid "{0} authors"
 msgstr ""
 
-#: src/project/dashboard/DashboardView.svelte
-msgid "{0} complete"
-msgstr ""
-
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
-
-#: src/project/dashboard/DashboardView.svelte
-msgid "{0} of {1} entries"
-msgstr ""
-
-#: src/project/dashboard/DashboardView.svelte
-msgid "{0} remaining"
-msgstr ""
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -108,10 +96,6 @@ msgstr "**Ít loại môrphêm hơn** (chỉ *Gốc*, *Gốc liên kết*, *Thâ
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Thuật ngữ đơn giản hơn** (ví dụ *Từ* thay vì *Hình thức lexeme*, *Ý nghĩa* thay vì *Sense*)"
-
-#: src/project/dashboard/DashboardView.svelte
-msgid "10,000 entry goal"
-msgstr ""
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -207,6 +191,10 @@ msgstr ""
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
 msgstr "Thêm Từ"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Add your first entry to start building your dictionary."
+msgstr ""
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
@@ -1399,6 +1387,10 @@ msgstr ""
 msgid "Next"
 msgstr "Tiếp theo"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Next milestone: {0}. {1} to go."
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -2026,6 +2018,10 @@ msgstr "Nhiệm vụ"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Hãy cho chúng tôi biết về lỗi hoặc vấn đề bạn gặp phải."
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Tell us how you work and what would help most. Your ideas guide what we build."
+msgstr ""
+
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
@@ -2097,6 +2093,7 @@ msgstr "Chuyển đổi bộ lọc"
 msgid "Toggle pinned"
 msgstr "Chuyển trạng thái ghim"
 
+#: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
 msgstr ""
@@ -2282,6 +2279,10 @@ msgstr "Xem"
 msgid "violet"
 msgstr "tím"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "What would you like to see here?"
+msgstr ""
+
 #. External link button text for help
 #: src/home/Server.svelte
 msgid "Where are my projects?"
@@ -2378,3 +2379,11 @@ msgstr "Bạn không có quyền tải dự án {0} từ {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Bạn đã tải xuống dự án {0}"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "You've passed every milestone. What an achievement!"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Your dictionary starts here"
+msgstr ""

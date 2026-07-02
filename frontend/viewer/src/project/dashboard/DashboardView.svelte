@@ -8,6 +8,9 @@
   import * as Card from '$lib/components/ui/card';
   import {Progress} from '$lib/components/ui/progress';
   import {CircularProgress} from '$lib/components/ui/circular-progress';
+  import {Icon} from '$lib/components/ui/icon';
+  import {Button} from '$lib/components/ui/button';
+  import {dashboardSuggestionUrl} from '$lib/about/community-links';
 
   const stats = useDashboardStats();
   const writingSystemService = useWritingSystemService();
@@ -49,44 +52,57 @@
   </div>
 {/snippet}
 
-<div class="flex flex-col h-full p-4 gap-4">
-  <div class="flex flex-row items-center">
+<div class="flex flex-col h-full py-4 gap-4">
+  <div class="flex flex-row items-center px-4">
     <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 mr-2" />
     <h1 class="text-xl font-semibold">{$t`Dashboard`}</h1>
   </div>
 
-  <ViewErrorBoundary class="flex-1 min-h-0 overflow-auto" title={$t`Dashboard failed to load`}>
+  <ViewErrorBoundary class="flex-1 min-h-0 overflow-auto mr-2" title={$t`Dashboard failed to load`}>
     {#if dashboard}
       {@const totalFormatted = formatNumber(dashboard.totalEntries)}
-      {@const goalFormatted = formatNumber(dashboard.goalTarget)}
-      {@const percentComplete = formatPercent(dashboard.goalPercent)}
-      {@const remainingFormatted = formatNumber(dashboard.goalRemaining)}
-      <div class="flex flex-col gap-6 pb-4">
-        <Card.Root>
-          <Card.Header>
-            <Card.Title>{$t`10,000 entry goal`}</Card.Title>
-            <Card.Description>
-              {$t`${totalFormatted} of ${goalFormatted} entries`}
-            </Card.Description>
-          </Card.Header>
-          <Card.Content class="space-y-3">
-            <Progress value={dashboard.goalPercent} max={100} />
-            <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
-              <span>{$t`${percentComplete} complete`}</span>
-              <span>{$t`${remainingFormatted} remaining`}</span>
-            </div>
-          </Card.Content>
-        </Card.Root>
-
-        <div class="grid gap-4 sm:grid-cols-3">
-          <Card.Root>
+      {@const milestone = dashboard.milestone}
+      <div class="flex flex-col gap-6 pb-4 px-4">
+        <Card.Root class="border-primary/30 bg-primary/5">
+          {#if dashboard.totalEntries === 0}
             <Card.Header>
-              <Card.Title>{$t`Total entries`}</Card.Title>
+              <Card.Title class="flex items-center gap-2">
+                <Icon icon="i-mdi-sprout-outline" class="size-6 text-primary" />
+                {$t`Your dictionary starts here`}
+              </Card.Title>
+              <Card.Description>{$t`Add your first entry to start building your dictionary.`}</Card.Description>
+            </Card.Header>
+          {:else if milestone}
+            {@const targetFormatted = formatNumber(milestone.target)}
+            {@const remainingFormatted = formatNumber(milestone.remaining)}
+            <Card.Header>
+              <div class="flex items-baseline gap-2">
+                <Icon icon="i-mdi-trending-up" class="size-6 self-center text-primary" />
+                <Card.Title class="text-4xl font-semibold tabular-nums">{totalFormatted}</Card.Title>
+                <Card.Description>{$t`Total entries`}</Card.Description>
+              </div>
+            </Card.Header>
+            <Card.Content class="space-y-2">
+              <Progress value={milestone.percent} max={100} />
+              <p class="text-sm text-muted-foreground">
+                {$t`Next milestone: ${targetFormatted}. ${remainingFormatted} to go.`}
+              </p>
+            </Card.Content>
+          {:else}
+            <Card.Header>
+              <div class="flex items-baseline gap-2">
+                <Icon icon="i-mdi-trophy-outline" class="size-6 self-center text-primary" />
+                <Card.Title class="text-4xl font-semibold tabular-nums">{totalFormatted}</Card.Title>
+                <Card.Description>{$t`Total entries`}</Card.Description>
+              </div>
             </Card.Header>
             <Card.Content>
-              <p class="text-3xl font-semibold tabular-nums">{formatNumber(dashboard.totalEntries)}</p>
+              <p class="text-sm text-muted-foreground">{$t`You've passed every milestone. What an achievement!`}</p>
             </Card.Content>
-          </Card.Root>
+          {/if}
+        </Card.Root>
+
+        <div class="grid gap-4 sm:grid-cols-2">
           <Card.Root>
             <Card.Header>
               <Card.Title>{$t`Entries with senses`}</Card.Title>
@@ -161,6 +177,24 @@
             </div>
           {/if}
         </section>
+
+        <Button
+          variant="ghost"
+          href={dashboardSuggestionUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="gap-4 p-6 h-auto w-full justify-start whitespace-normal text-start border border-dashed border-muted-foreground/40 rounded-xl">
+          <Icon icon="i-mdi-message-question-outline" class="size-8 text-primary" />
+          <div class="min-w-0">
+            <div class="font-semibold">{$t`What would you like to see here?`}</div>
+            <div class="text-sm text-muted-foreground">
+              {$t`Tell us how you work and what would help most. Your ideas guide what we build.`}
+            </div>
+          </div>
+          <span class="ml-auto shrink-0">
+            <Icon icon="i-mdi-open-in-new" class="size-5 text-muted-foreground" />
+          </span>
+        </Button>
       </div>
     {:else}
       <p class="text-muted-foreground p-4">{$t`Loading dashboard...`}</p>

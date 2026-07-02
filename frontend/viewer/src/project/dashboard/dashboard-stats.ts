@@ -4,12 +4,28 @@ import {useProjectEventBus} from '$lib/services/event-bus';
 import {useProjectContext} from '$project/project-context.svelte';
 import {useWritingSystemService} from '$project/data';
 
-export const ENTRY_GOAL = 10_000;
+export const MILESTONES = [50, 100, 250, 500, 1_000, 2_500, 5_000, 10_000, 25_000, 50_000, 100_000];
 
 export type FieldCompletion = {
   filled: number;
   percent: number;
 };
+
+export type MilestoneProgress = {
+  target: number;
+  remaining: number;
+  percent: number;
+};
+
+function nextMilestone(totalEntries: number): MilestoneProgress | undefined {
+  const target = MILESTONES.find(m => m > totalEntries);
+  if (target === undefined) return undefined;
+  return {
+    target,
+    remaining: target - totalEntries,
+    percent: Math.min(100, Math.round((totalEntries / target) * 100)),
+  };
+}
 
 export type VernacularWritingSystemStats = {
   wsId: string;
@@ -30,9 +46,7 @@ export type DashboardStats = {
   totalEntries: number;
   entriesWithSenses: number;
   entriesWithExamples: number;
-  goalTarget: number;
-  goalPercent: number;
-  goalRemaining: number;
+  milestone: MilestoneProgress | undefined;
   vernacular: VernacularWritingSystemStats[];
   analysis: AnalysisWritingSystemStats[];
 };
@@ -109,9 +123,7 @@ async function fetchDashboardStats(
     totalEntries,
     entriesWithSenses,
     entriesWithExamples,
-    goalTarget: ENTRY_GOAL,
-    goalPercent: totalEntries === 0 ? 0 : Math.min(100, Math.round((totalEntries / ENTRY_GOAL) * 100)),
-    goalRemaining: Math.max(0, ENTRY_GOAL - totalEntries),
+    milestone: nextMilestone(totalEntries),
     vernacular: mapVernacularStats(totalEntries, vernacular, vernacularFilled),
     analysis: mapAnalysisStats(totalEntries, analysis, analysisFilled),
   };

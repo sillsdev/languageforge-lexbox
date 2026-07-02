@@ -56,22 +56,10 @@ msgstr "{0} iliyopita"
 msgid "{0} authors"
 msgstr ""
 
-#: src/project/dashboard/DashboardView.svelte
-msgid "{0} complete"
-msgstr ""
-
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
-
-#: src/project/dashboard/DashboardView.svelte
-msgid "{0} of {1} entries"
-msgstr ""
-
-#: src/project/dashboard/DashboardView.svelte
-msgid "{0} remaining"
-msgstr ""
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -108,10 +96,6 @@ msgstr "**Aina chache za morifemi** (tu *Root*, *Bound Root*, *Stem*, *Bound Ste
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Istilahi rahisi** (kwa mfano *Neno* badala ya *Lexeme form*, *Maana* badala ya *Sense*)"
-
-#: src/project/dashboard/DashboardView.svelte
-msgid "10,000 entry goal"
-msgstr ""
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -207,6 +191,10 @@ msgstr ""
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
 msgstr "Ongeza Neno"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Add your first entry to start building your dictionary."
+msgstr ""
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
@@ -1399,6 +1387,10 @@ msgstr ""
 msgid "Next"
 msgstr "Inayofuata"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Next milestone: {0}. {1} to go."
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -2026,6 +2018,10 @@ msgstr "Jukumu"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Tuambie kuhusu kosa au matatizo uliyokabiliwa."
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Tell us how you work and what would help most. Your ideas guide what we build."
+msgstr ""
+
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
@@ -2097,6 +2093,7 @@ msgstr "Geuza kichujio"
 msgid "Toggle pinned"
 msgstr "Geuza iliyobandikwa"
 
+#: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
 msgstr ""
@@ -2282,6 +2279,10 @@ msgstr "Muonekano"
 msgid "violet"
 msgstr "zambarau"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "What would you like to see here?"
+msgstr ""
+
 #. External link button text for help
 #: src/home/Server.svelte
 msgid "Where are my projects?"
@@ -2378,3 +2379,11 @@ msgstr "Huna ruhusa ya kupakua mradi {0} kutoka {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Umeshapakua mradi wa {0}"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "You've passed every milestone. What an achievement!"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Your dictionary starts here"
+msgstr ""
