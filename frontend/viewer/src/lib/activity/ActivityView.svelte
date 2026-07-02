@@ -14,7 +14,9 @@
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
   import ActivityListViewOptions, {type ActivityListViewMode} from './ActivityListViewOptions.svelte';
   import ChangeSummary from './ChangeSummary.svelte';
-  import {summarizeActivity, groupBySubject} from './change-summary';
+  import {summarizeActivity, groupBySubject, factCategory, type FactCategory} from './change-summary';
+  import type {IconClass} from '$lib/icon-class';
+  import type {ChangeFact, ChangeFactWithSubject} from './change-summary';
   import {
     createDefaultActivityFilters,
     emptyActivityLoad,
@@ -30,6 +32,19 @@
 
   const activityListViewMode = useProjectStorage().activityListViewMode;
   const activityMode = $derived((activityListViewMode.current as ActivityListViewMode | undefined) ?? 'simple');
+
+  // Change-kind gutter glyph for Detailed mode — a coloured icon per fact for fast visual grepping down a
+  // commit (added / removed / changed / reordered). Kept out of Simple mode, which is a plain-sentence skim.
+  const FACT_GLYPH: Record<FactCategory, {icon: IconClass; class: string} | undefined> = {
+    added: {icon: 'i-mdi-plus', class: 'text-emerald-600 dark:text-emerald-400'},
+    removed: {icon: 'i-mdi-minus', class: 'text-destructive'},
+    changed: {icon: 'i-mdi-pencil-outline', class: 'text-muted-foreground'},
+    reordered: {icon: 'i-mdi-swap-vertical', class: 'text-muted-foreground'},
+    other: undefined,
+  };
+  function glyphFor(fact: ChangeFact) {
+    return FACT_GLYPH[factCategory(fact)];
+  }
 
   const THRESHOLD = 20;
   const BATCH_SIZE = THRESHOLD * 2;
@@ -133,6 +148,18 @@
   }
 </script>
 
+<!-- One Detailed-mode change line: a change-kind gutter glyph + the summary. `grouped` hides the subject
+     token (the subject is already the group header). -->
+{#snippet factLine(entry: ChangeFactWithSubject, grouped: boolean)}
+  {@const glyph = glyphFor(entry.fact)}
+  <div class="flex items-baseline gap-1.5">
+    <span class="w-3.5 shrink-0 flex justify-center self-start mt-0.5">
+      {#if glyph}<Icon icon={glyph.icon} class="size-3.5 {glyph.class}" />{/if}
+    </span>
+    <span class="min-w-0"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} hideSubject={grouped} /></span>
+  </div>
+{/snippet}
+
 <div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
      style="grid-template-rows: auto 1fr; grid-template-columns: minmax(8rem,25%) minmax(0,2fr)">
 
@@ -180,18 +207,18 @@
                       <div class="font-semibold text-foreground">{group.subject}</div>
                       <div class="ms-1 space-y-0.5 border-s border-border ps-2">
                         {#each group.facts as entry, i (i)}
-                          <div><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} hideSubject /></div>
+                          {@render factLine(entry, true)}
                         {/each}
                       </div>
                     </div>
                   {:else}
                     {#each group.facts as entry, i (i)}
-                      <div><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></div>
+                      {@render factLine(entry, false)}
                     {/each}
                   {/if}
                 {/each}
                 {#if summary.remaining > 0}
-                  <div>{$t`(+${summary.remaining} more)`}</div>
+                  <div class="ps-5">{$t`(+${summary.remaining} more)`}</div>
                 {/if}
               </div>
             {:else}

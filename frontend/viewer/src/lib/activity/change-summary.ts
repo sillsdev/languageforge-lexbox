@@ -415,6 +415,44 @@ export function groupBySubject(entries: readonly ChangeFactWithSubject[]): Subje
   return groups;
 }
 
+/** The broad kind of a change, for a gutter glyph in Detailed mode (fast visual grepping down a commit). */
+export type FactCategory = 'added' | 'removed' | 'changed' | 'reordered' | 'other';
+
+export function factCategory(fact: ChangeFact): FactCategory {
+  switch (fact.kind) {
+    case 'create':
+    case 'addItem':
+    case 'createObject':
+    case 'bulkCreate':
+      return 'added';
+    case 'delete':
+    case 'deleteObject':
+    case 'clearField':
+    case 'removeItem':
+      return 'removed';
+    case 'setField':
+    case 'setHomograph':
+    case 'changeField':
+    case 'replaceItem':
+    case 'editObject':
+    case 'editObjectField':
+    case 'moveSense':
+    case 'setDefaultTranslation':
+    case 'setMainPublication':
+      return 'changed';
+    case 'reorder':
+      return 'reordered';
+    case 'componentLink':
+      return fact.action === 'add' ? 'added' : fact.action === 'remove' ? 'removed' : 'changed';
+    case 'sensePicture':
+      return fact.action === 'add' ? 'added' : fact.action === 'remove' ? 'removed' : fact.action === 'reorder' ? 'reordered' : 'changed';
+    case 'mediaResource':
+      return fact.action === 'delete' ? 'removed' : 'added';
+    default:
+      return 'other';
+  }
+}
+
 /** Create change types whose commits collapse to a count when batched ("Created 100 semantic domains"). */
 const BULK_CREATE_NOUNS: Record<string, BulkNoun> = {
   CreateEntryChange: 'entries',
@@ -481,8 +519,10 @@ export function describeActivityCapped(
   return {entries, remaining: Math.max(0, changes.length - maxChanges)};
 }
 
-/** Max changes listed per commit row in Detailed mode before the rest collapse to "+N more". */
-export const DETAIL_CHANGE_CAP = 10;
+// Max changes listed per commit row in Detailed mode before the rest collapse to "+N more". Detailed is the
+// "inspect this commit" view, so it's generous — but still bounded, since a row's changes aren't virtualised
+// internally (a pathological many-change commit shouldn't render hundreds of DOM nodes in one row).
+export const DETAIL_CHANGE_CAP = 50;
 
 /**
  * Bounded summary of a commit for one row of the activity list. A recognised whole-commit shape (entry creation,

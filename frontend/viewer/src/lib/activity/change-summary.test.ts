@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention -- change payloads below mirror the PascalCase CRDT wire format on purpose */
 import {describe, it, expect} from 'vitest';
-import {describeActivity, describeChange, explicitlyHandledChangeTypes, groupBySubject, isHandledChangeType, recognizeCommit, summarizeActivity} from './change-summary';
+import {DETAIL_CHANGE_CAP, describeActivity, describeChange, explicitlyHandledChangeTypes, factCategory, groupBySubject, isHandledChangeType, recognizeCommit, summarizeActivity} from './change-summary';
 import {knownChangeTypes} from '$lib/dotnet-types/generated-types/LcmCrdt/ChangeTypes';
 import type {IChangeEntity} from '$lib/dotnet-types';
 
@@ -318,11 +318,12 @@ describe('summarizeActivity', () => {
   }
 
   it('caps the listed changes in detailed mode and counts the rest', () => {
-    const changes = Array.from({length: 25}, patchChange);
+    const overCap = DETAIL_CHANGE_CAP + 5;
+    const changes = Array.from({length: overCap}, patchChange);
     const info = changes.map((_, i) => ({rootEntryId: `e${i}`})); // different roots → not collapsed
     const result = summarizeActivity(changes, info, ['jsonPatch:Entry'], true);
-    expect(result.entries.length).toBeLessThanOrEqual(10);
-    expect(result.remaining).toBe(15);
+    expect(result.entries.length).toBe(DETAIL_CHANGE_CAP);
+    expect(result.remaining).toBe(overCap - DETAIL_CHANGE_CAP);
   });
 
   it('shows just the first change in simple mode', () => {
@@ -372,5 +373,19 @@ describe('groupBySubject', () => {
   it('preserves order and only merges adjacent runs', () => {
     const groups = groupBySubject([f('a'), f('b'), f('a')]);
     expect(groups.map((g) => g.subject)).toEqual(['a', 'b', 'a']);
+  });
+});
+
+describe('factCategory', () => {
+  it('maps facts to add/remove/change/reorder categories', () => {
+    expect(factCategory({kind: 'create', entity: 'entry'})).toBe('added');
+    expect(factCategory({kind: 'addItem', entity: 'sense', fieldId: 'semanticDomains'})).toBe('added');
+    expect(factCategory({kind: 'delete', entity: 'entry'})).toBe('removed');
+    expect(factCategory({kind: 'clearField', entity: 'entry', fieldId: 'citationForm'})).toBe('removed');
+    expect(factCategory({kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value: 'x'})).toBe('changed');
+    expect(factCategory({kind: 'reorder', collection: 'senses'})).toBe('reordered');
+    expect(factCategory({kind: 'componentLink', action: 'remove'})).toBe('removed');
+    expect(factCategory({kind: 'mediaResource', action: 'delete'})).toBe('removed');
+    expect(factCategory({kind: 'generic', text: 'x'})).toBe('other');
   });
 });
