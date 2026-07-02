@@ -6,7 +6,7 @@ namespace FwLiteShared;
 public class FwLiteConfig
 {
     public bool UseDevAssets { get; set; } = false;
-    //Vite dev-server port the browser pulls viewer assets from when UseDevAssets is true; override via FW_LITE_DEV_PORT so parallel worktrees can each run their own dev server.
+    //Vite dev-server port the browser pulls viewer assets from when UseDevAssets is true; override via env FwLite__DevAssetsPort so parallel worktrees can each run their own dev server.
     public int DevAssetsPort { get; set; } = 5173;
     public string AppVersion { get; set; } = "Unknown";
     public FwLitePlatform Os { get; set; } = Environment.OSVersion.Platform switch {

@@ -7,9 +7,10 @@ import webfontDownload from 'vite-plugin-webfont-dl';
 
 const ssl = false;
 
-// Override the dev-server port (and the origin it advertises) via FW_LITE_DEV_PORT so multiple
-// worktrees can each run their own viewer; the .NET host loads assets cross-origin, so origin must track the port.
-const parsedDevPort = Number(process.env.FW_LITE_DEV_PORT);
+// Override the dev-server port (and the origin it advertises) via FwLite__DevAssetsPort so multiple
+// worktrees can each run their own viewer; the .NET host binds the same setting (FwLiteConfig.DevAssetsPort)
+// and loads assets cross-origin, so origin must track the port.
+const parsedDevPort = Number(process.env.FwLite__DevAssetsPort);
 const devPortFromEnv = Number.isFinite(parsedDevPort) && parsedDevPort > 0;
 const devPort = devPortFromEnv ? parsedDevPort : 5173;
 
