@@ -125,9 +125,6 @@
           </span>
         {/if}
       </span>
-      {#if activity.changeTypeLabels.length}
-        <div class="w-full text-xs text-muted-foreground truncate" title={activity.changeTypeLabels.join(', ')}>{activity.changeTypeLabels.join(', ')}</div>
-      {/if}
     </div>
     
     {#if openHistoryId}

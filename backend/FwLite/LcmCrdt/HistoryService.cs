@@ -52,12 +52,6 @@ public record ProjectActivity(
 {
     public string ChangeName => HistoryService.ChangesNameHelper(Changes);
     public string[] ChangeTypes { get; } = Changes.Select(c => HistoryService.GetChangeTypeKey(c.Change)).Distinct().ToArray();
-    // Humanized version of ChangeTypes for display ("AddEntryComponentChange" → "Add entry component").
-    // Kept alongside the raw keys because ChangeTypes is also used as the filter identifier and must stay stable.
-    public string[] ChangeTypeLabels { get; } = Changes
-        .Select(c => HistoryService.ChangeNameHelper(c.Change))
-        .Distinct()
-        .ToArray();
     /// <summary>Resolved display info per change, parallel to <see cref="Changes"/> by index. Set during enrichment.</summary>
     public IReadOnlyList<ActivityChangeInfo> ChangeInfo { get; set; } = [];
 }
