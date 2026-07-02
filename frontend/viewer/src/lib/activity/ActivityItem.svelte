@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import type {IChangeContext, IChangeEntity, IEntry, IProjectActivity} from '$lib/dotnet-types';
+  import type {IChangeContext, IChangeEntity, IEntry, IProjectActivity, ISense} from '$lib/dotnet-types';
 
   export class ChangeWithLazyContext {
 
@@ -27,6 +27,7 @@
   import ActivityItemChangePreview from './ActivityItemChangePreview.svelte';
   import PreviewViewScope from './PreviewViewScope.svelte';
   import CollapsedEntryDiff from './CollapsedEntryDiff.svelte';
+  import CollapsedSenseDiff from './CollapsedSenseDiff.svelte';
   import {formatJsonForUi} from './utils';
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
@@ -35,7 +36,7 @@
   import HistoryView from '$lib/history/HistoryView.svelte';
   import {Icon} from '$lib/components/ui/icon';
   import {usePartsOfSpeech} from '$project/data';
-  import {assembleEntryAtCommit} from './assemble-entry';
+  import {assembleEntryAtCommit, assembleSenseAtCommit} from './assemble-entry';
 
   type Props = HTMLAttributes<HTMLDivElement> & {
     activity: IProjectActivity;
@@ -74,6 +75,29 @@
     if (!entryId) return Promise.resolve(undefined);
     return Promise.all(changes.map(c => c.lazyContext))
       .then(contexts => assembleEntryAtCommit(entryId, contexts, partsOfSpeech.current));
+  });
+
+  const changeType = (change: unknown) => (change as Record<string, unknown> | undefined)?.['$type'] as string | undefined;
+
+  // The single sense created in this commit, if the commit is exactly one new sense plus its examples.
+  const createdSenseId = $derived.by(() => {
+    const senseChanges = activity.changes.filter(c => changeType(c.change) === 'CreateSenseChange');
+    return senseChanges.length === 1 ? senseChanges[0].entityId : undefined;
+  });
+  // A commit that builds one sense (its creation + that sense's examples) collapses to the finished sense —
+  // the sense-level counterpart of collapseToEntry. Entry-creation takes precedence (that's collapseToEntry).
+  const collapseToSense = $derived(
+    !!changes && !!createdSenseId
+    && !activity.changeTypes.includes('CreateEntryChange')
+    && activity.changeTypes.every(t => t === 'CreateSenseChange' || t === 'CreateExampleSentenceChange')
+    && activity.changeInfo.length > 0
+    && activity.changeInfo.every(ci => !!ci.rootEntryId && ci.rootEntryId === activity.changeInfo[0].rootEntryId),
+  );
+
+  const collapsedSense = $derived.by((): Promise<ISense | undefined> => {
+    if (!collapseToSense || !changes || !createdSenseId) return Promise.resolve(undefined);
+    return Promise.all(changes.map(c => c.lazyContext))
+      .then(contexts => assembleSenseAtCommit(createdSenseId, contexts, partsOfSpeech.current));
   });
 </script>
 
@@ -140,6 +164,20 @@
             <div class="overflow-auto border rounded p-3 min-w-0 min-h-0">
               <PreviewViewScope>
                 <CollapsedEntryDiff {entry} />
+              </PreviewViewScope>
+            </div>
+          {:else}
+            {@render changeList(changes)}
+          {/if}
+        {/await}
+      {:else if collapseToSense}
+        {#await collapsedSense}
+          <div class="h-[700px] border rounded"></div>
+        {:then sense}
+          {#if sense}
+            <div class="overflow-auto border rounded p-3 min-w-0 min-h-0">
+              <PreviewViewScope>
+                <CollapsedSenseDiff {sense} />
               </PreviewViewScope>
             </div>
           {:else}

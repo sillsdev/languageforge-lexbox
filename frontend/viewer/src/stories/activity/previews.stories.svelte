@@ -2,6 +2,7 @@
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import ActivityItemChangePreview from '$lib/activity/ActivityItemChangePreview.svelte';
   import CollapsedEntryDiff from '$lib/activity/CollapsedEntryDiff.svelte';
+  import CollapsedSenseDiff from '$lib/activity/CollapsedSenseDiff.svelte';
   import {fwliteStoryParameters} from '../fwl-parameters';
   import {allWsEntry} from '$project/demo/demo-entry-data';
   import type {IChangeContext, IChangeEntity, IComplexFormComponent, IEntry, IObjectWithId, IPartOfSpeech, ISemanticDomain} from '$lib/dotnet-types';
@@ -145,6 +146,14 @@
   {#snippet template()}
     <div class="max-w-3xl border rounded p-3">
       <CollapsedEntryDiff entry={structuredClone(allWsEntry)} />
+    </div>
+  {/snippet}
+</Story>
+
+<Story name="Created sense (collapsed)">
+  {#snippet template()}
+    <div class="max-w-3xl border rounded p-3">
+      <CollapsedSenseDiff sense={structuredClone(allWsEntry.senses[0])} />
     </div>
   {/snippet}
 </Story>

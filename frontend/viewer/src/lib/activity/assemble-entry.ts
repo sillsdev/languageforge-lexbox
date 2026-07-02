@@ -34,6 +34,28 @@ export function assembleEntryAtCommit(
   return {...entrySnap, senses};
 }
 
+/**
+ * Rebuild one sense (with its examples) as it stood at a commit — for a commit that created a single sense
+ * and its child examples. Same at-commit-snapshot approach as {@link assembleEntryAtCommit}.
+ */
+export function assembleSenseAtCommit(
+  senseId: string,
+  contexts: readonly IChangeContext[],
+  partsOfSpeech: readonly IPartOfSpeech[],
+): ISense | undefined {
+  const senseSnap = [...contexts].reverse().find((c) => c.entityType === 'Sense' && c.snapshot?.id === senseId)?.snapshot as ISense | undefined;
+  if (!senseSnap) return undefined;
+
+  const exampleSnaps = latestById(contexts.filter((c) => c.entityType === 'ExampleSentence' && !!c.snapshot).map((c) => c.snapshot as IExampleSentence)).filter((e) => e.senseId === senseId);
+
+  return {
+    ...senseSnap,
+    partOfSpeech: senseSnap.partOfSpeech ?? (senseSnap.partOfSpeechId ? partsOfSpeech.find((p) => p.id === senseSnap.partOfSpeechId) : undefined),
+    pictures: senseSnap.pictures ?? [],
+    exampleSentences: exampleSnaps,
+  };
+}
+
 // Keep first-seen order (creation order within the commit) while taking each entity's latest snapshot.
 function latestById<T extends {id: string}>(items: readonly T[]): T[] {
   const order: string[] = [];

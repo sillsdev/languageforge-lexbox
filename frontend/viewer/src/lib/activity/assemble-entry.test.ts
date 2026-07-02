@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {assembleEntryAtCommit} from './assemble-entry';
+import {assembleEntryAtCommit, assembleSenseAtCommit} from './assemble-entry';
 import type {IChangeContext, IEntry, IExampleSentence, IPartOfSpeech, ISense} from '$lib/dotnet-types';
 
 function ctx(entityType: string, snapshot: object): IChangeContext {
@@ -37,5 +37,25 @@ describe('assembleEntryAtCommit', () => {
   it('ignores senses that belong to a different entry', () => {
     const contexts = [ctx('Entry', entrySnap), ctx('Sense', {id: 's1', entryId: 'other'})];
     expect(assembleEntryAtCommit(entryId, contexts, [])?.senses).toEqual([]);
+  });
+});
+
+describe('assembleSenseAtCommit', () => {
+  it('assembles a sense with its examples (in commit order) and resolves POS', () => {
+    const pos: IPartOfSpeech = {id: 'pos-1', name: {en: 'Verb'}, predefined: true};
+    const contexts = [
+      ctx('Sense', {id: 's1', entryId, gloss: {en: 'to run'}, partOfSpeechId: 'pos-1'}),
+      ctx('ExampleSentence', {id: 'e1', senseId: 's1'}),
+      ctx('ExampleSentence', {id: 'e2', senseId: 's1'}),
+      ctx('ExampleSentence', {id: 'eX', senseId: 'other'}),
+    ];
+    const sense = assembleSenseAtCommit('s1', contexts, [pos]);
+    expect(sense?.gloss).toEqual({en: 'to run'});
+    expect((sense as ISense).partOfSpeech).toEqual(pos);
+    expect(sense?.exampleSentences.map((e: IExampleSentence) => e.id)).toEqual(['e1', 'e2']);
+  });
+
+  it('returns undefined when the sense snapshot is missing', () => {
+    expect(assembleSenseAtCommit('s1', [ctx('ExampleSentence', {id: 'e1', senseId: 's1'})], [])).toBeUndefined();
   });
 });
