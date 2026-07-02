@@ -121,6 +121,7 @@ export default function CreateLexicon({
         <Input
           id="createLexiconAnalysisWs"
           onChange={(e) => setAnalysisWs(e.target.value)}
+          placeholder="en"
           value={analysisWs}
         />
       </div>
