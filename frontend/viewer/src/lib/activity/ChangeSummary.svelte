@@ -123,8 +123,10 @@
 {#snippet chip(text: string)}<span class="ms-1 rounded border border-border bg-background px-1 font-medium text-foreground">{text}</span>{/snippet}
 {#snippet wsCode(ws: string)}<span class="ms-1 font-mono text-xs text-muted-foreground">{ws}</span>{/snippet}
 {#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
-<!-- Audio marker: a media value has no readable text, so show an icon + "audio" chip instead of a URI. -->
-{#snippet audioNote()}<span class="ms-1 inline-flex items-center gap-1 rounded border border-border bg-background px-1 font-medium text-foreground"><Icon icon="i-mdi-volume-high" class="size-3.5" />{$t`audio`}</span>{/snippet}
+<!-- Audio marker: a media value has no readable text, so show an icon + "audio" chip instead of a URI.
+  Plain inline span (not inline-flex) so it sits on the text baseline like the other data chips; the icon
+  is aligned within it. An inline-flex chip aligns by its bottom edge and rides low against the text. -->
+{#snippet audioNote()}<span class="ms-1 rounded border border-border bg-background px-1 font-medium text-foreground whitespace-nowrap"><Icon icon="i-mdi-volume-high" class="inline-block align-middle size-3.5 me-0.5" />{$t`audio`}</span>{/snippet}
 
 {#if subject && !selfNaming && !hideSubject}{@render subjectToken(subject)}{/if}{#if fact.kind === 'setField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}

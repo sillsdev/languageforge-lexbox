@@ -29,6 +29,9 @@
   const exampleBefore = {...example, sentence: {...example.sentence, seh: {spans: [{text: 'Nyumba ndi yaing ono', ws: 'seh'}]}}};
   const exampleAfter = example;
 
+  // An example that added an audio recording of the sentence — the audio ws should show a player, not a URI.
+  const exampleAudioAfter = {...example, sentence: {...example.sentence, 'seh-Zxxx-x-audio': {spans: [{text: 'sil-media://lexbox.org/00000000-0000-0000-0000-0000000000f1', ws: 'seh-Zxxx-x-audio'}]}}};
+
   const posBefore: IPartOfSpeech = {id: '00000000-0000-0000-0000-0000000000c1', name: {en: 'Noun'}, predefined: true};
   const posAfter: IPartOfSpeech = {...posBefore, name: {en: 'Common noun'}};
 
@@ -68,6 +71,7 @@
     {label: 'Sense — edited', context: ctx({entityType: 'Sense', previousSnapshot: senseBefore, snapshot: senseAfter, affectedEntries: [entry]})},
     {label: 'Sense — removed middle semantic domain (stays in sorted position)', context: ctx({entityType: 'Sense', previousSnapshot: senseDomBefore, snapshot: senseDomAfter, affectedEntries: [entry]})},
     {label: 'Example — edited', context: ctx({entityType: 'ExampleSentence', previousSnapshot: exampleBefore, snapshot: exampleAfter, affectedEntries: [entry]})},
+    {label: 'Example — added audio recording (playable)', context: ctx({entityType: 'ExampleSentence', previousSnapshot: example, snapshot: exampleAudioAfter, affectedEntries: [entry]})},
     {label: 'Complex form component — added', context: ctx({entityType: 'ComplexFormComponent', snapshot: cfc, affectedEntries: [complexFormEntry, componentEntry]})},
     {label: 'Complex form component — added but later removed (live state has dropped the CFC)', context: (() => {
       // Simulates: this commit added the CFC, a later commit removed it. affectedEntries carry live-state
