@@ -149,16 +149,24 @@
   }
 </script>
 
-<!-- One Detailed-mode change line: a change-kind gutter glyph + the summary. `grouped` hides the subject
-     token (the subject is already the group header). -->
+<!-- One Detailed-mode change line: a change-kind glyph + the summary. `grouped` hides the subject token
+     (the subject is already the group header) AND reserves an icon gutter so wrapped lines hang-indent
+     under the text — a bulleted list of the group's changes. Ungrouped rows are one-offs, so the icon
+     just sits inline before the text and wrap flows naturally to the left edge. -->
 {#snippet factLine(entry: ChangeFactWithSubject, grouped: boolean)}
   {@const glyph = glyphFor(entry.fact)}
-  <div class="flex items-baseline gap-1.5">
-    <span class="w-3.5 shrink-0 flex justify-center self-start mt-0.5">
-      {#if glyph}<Icon icon={glyph.icon} class="size-3.5 {glyph.class}" />{/if}
-    </span>
-    <span class="min-w-0"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} hideSubject={grouped} /></span>
-  </div>
+  {#if grouped}
+    <div class="flex items-baseline gap-1.5">
+      <span class="w-3.5 shrink-0 flex justify-center self-start mt-0.5">
+        {#if glyph}<Icon icon={glyph.icon} class="size-3.5 {glyph.class}" />{/if}
+      </span>
+      <span class="min-w-0"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} hideSubject /></span>
+    </div>
+  {:else}
+    <div class="min-w-0">
+      {#if glyph}<Icon icon={glyph.icon} class="size-3.5 me-1 align-baseline {glyph.class}" />{/if}<ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} />
+    </div>
+  {/if}
 {/snippet}
 
 <div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
