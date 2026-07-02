@@ -47,4 +47,17 @@ public record UpdateWritingSystemProxy : WritingSystem
             }
         }
     }
+
+    // Collation is import-only from FLEx LDML; MiniLcm updates do not write back to fwdata.
+    public override string? IcuCollationRules
+    {
+        get => null;
+        set { }
+    }
+
+    public override string? SystemCollationLocale
+    {
+        get => null;
+        set { }
+    }
 }
