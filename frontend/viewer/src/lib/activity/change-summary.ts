@@ -35,10 +35,11 @@ export type BulkNoun =
 export type ChangeFact =
   | {kind: 'create'; entity: SummaryEntity; label?: string; audioOnly?: boolean}
   | {kind: 'delete'; entity: SummaryEntity}
-  | {kind: 'setField'; entity: SummaryEntity; fieldId: FieldId; ws?: string; value: string}
+  // `audio` marks a media value (a recording): the value/ws are dropped and the summary shows an audio marker.
+  | {kind: 'setField'; entity: SummaryEntity; fieldId: FieldId; ws?: string; value: string; audio?: boolean}
   // The system-assigned homograph number (a jsonPatch on a non-view field) — surfaced specifically, not as a generic patch.
   | {kind: 'setHomograph'; value: string}
-  | {kind: 'clearField'; entity: SummaryEntity; fieldId: FieldId; ws?: string}
+  | {kind: 'clearField'; entity: SummaryEntity; fieldId: FieldId; ws?: string; audio?: boolean}
   | {kind: 'changeField'; entity: SummaryEntity; fieldId: FieldId}
   | {kind: 'addItem'; entity: SummaryEntity; fieldId: FieldId; label?: string}
   | {kind: 'removeItem'; entity: SummaryEntity; fieldId: FieldId}
@@ -117,6 +118,11 @@ function isAudioWs(wsId: string): boolean {
   return id.includes('-zxxx-') && id.includes('x-audio');
 }
 
+/** A media reference stored as a field value (audio recordings, and any other sil-media resource). */
+function isMediaUri(value: string): boolean {
+  return value.startsWith('sil-media:');
+}
+
 /** First non-empty NON-audio alternative of a MultiString or RichMultiString (audio values are media URIs, not text). */
 function firstAlternative(multiString: unknown): string | undefined {
   if (!multiString || typeof multiString !== 'object') return undefined;
@@ -179,11 +185,15 @@ function patchOpToFact(entity: SummaryEntity, op: unknown): ChangeFact | undefin
   if (!fieldId) return undefined;
   const ws = segments[1];
 
+  const wsAudio = ws !== undefined && isAudioWs(ws);
+
   const opType = ((prop(op, 'op') as string) ?? '').toLowerCase();
-  if (opType === 'remove') return {kind: 'clearField', entity, fieldId, ws};
+  // Audio fields have no readable ws code or value, so drop both and flag the fact as audio.
+  if (opType === 'remove') return wsAudio ? {kind: 'clearField', entity, fieldId, audio: true} : {kind: 'clearField', entity, fieldId, ws};
 
   const value = displayValue(prop(op, 'value'));
   if (value === undefined) return {kind: 'changeField', entity, fieldId};
+  if (wsAudio || isMediaUri(value)) return {kind: 'setField', entity, fieldId, value: '', audio: true};
   if (value === '') return {kind: 'clearField', entity, fieldId, ws};
   return {kind: 'setField', entity, fieldId, ws, value};
 }

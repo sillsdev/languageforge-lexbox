@@ -1,5 +1,6 @@
 <script lang="ts">
   import {t} from 'svelte-i18n-lingui';
+  import {Icon} from '$lib/components/ui/icon';
   import {getEntityConfig} from '$lib/views/entity-config';
   import {pt, tvt, type ViewText} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
@@ -122,16 +123,17 @@
 {#snippet chip(text: string)}<span class="ms-1 rounded border border-border bg-background px-1 font-medium text-foreground">{text}</span>{/snippet}
 {#snippet wsCode(ws: string)}<span class="ms-1 font-mono text-xs text-muted-foreground">{ws}</span>{/snippet}
 {#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
-{#snippet audioNote()}<span class="ms-1 italic text-muted-foreground">{$t`with audio`}</span>{/snippet}
+<!-- Audio marker: a media value has no readable text, so show an icon + "audio" chip instead of a URI. -->
+{#snippet audioNote()}<span class="ms-1 inline-flex items-center gap-1 rounded border border-border bg-background px-1 font-medium text-foreground"><Icon icon="i-mdi-volume-high" class="size-3.5" />{$t`audio`}</span>{/snippet}
 
 {#if subject && !selfNaming && !hideSubject}{@render subjectToken(subject)}{/if}{#if fact.kind === 'setField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
-  {$t`Set ${label} to`}{@render chip(fact.value)}{#if fact.ws}{@render wsCode(fact.ws)}{/if}
+  {#if fact.audio}{$t`Set ${label}`}{@render audioNote()}{:else}{$t`Set ${label} to`}{@render chip(fact.value)}{#if fact.ws}{@render wsCode(fact.ws)}{/if}{/if}
 {:else if fact.kind === 'setHomograph'}
   {$t`Set homograph number to`}{@render chip(fact.value)}
 {:else if fact.kind === 'clearField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
-  {$t`Cleared ${label}`}{#if fact.ws}{@render wsCode(fact.ws)}{/if}
+  {$t`Cleared ${label}`}{#if fact.audio}{@render audioNote()}{:else if fact.ws}{@render wsCode(fact.ws)}{/if}
 {:else if fact.kind === 'changeField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
   {#if target}{$t`Changed ${label} to`}{@render chip(target)}{:else}{$t`Changed ${label}`}{/if}
@@ -164,7 +166,7 @@
     {$t`Added ${entityNoun('sense')}`}{#if name}{@render chip(name)}{/if}
   {:else}
     <!-- "headword › gloss · Added example". Subject is the parent sense's SenseLabel (headword › gloss); leading chip.
-         An audio-only example has no readable sentence text, so note "with audio" instead of a media URI. -->
+         An audio-only example has no readable sentence text, so show the audio marker instead of a media URI. -->
     {@const name = fact.label}
     {$t`Added ${entityNoun('example')}`}{#if name}{@render chip(name)}{:else if fact.audioOnly}{@render audioNote()}{/if}
   {/if}

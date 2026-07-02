@@ -51,6 +51,30 @@ describe('describeChange', () => {
     expect(facts).toEqual([{kind: 'setField', entity: 'sense', fieldId: 'definition', ws: 'en', value: 'to walk'}]);
   });
 
+  it('flags an audio-WS set as audio instead of leaking the media URI', () => {
+    const facts = describeChange(changeEntity({
+      '$type': 'jsonPatch:ExampleSentence',
+      PatchDocument: [{op: 'add', path: '/Sentence/seh-Zxxx-x-audio', value: {Spans: [{Text: 'sil-media://lexbox.org/abc', Ws: 'seh-Zxxx-x-audio'}]}}],
+    }));
+    expect(facts).toEqual([{kind: 'setField', entity: 'example', fieldId: 'sentence', value: '', audio: true}]);
+  });
+
+  it('flags a sil-media value as audio even on a non-audio ws', () => {
+    const facts = describeChange(changeEntity({
+      '$type': 'jsonPatch:ExampleSentence',
+      PatchDocument: [{op: 'replace', path: '/Sentence/seh', value: 'sil-media://lexbox.org/xyz'}],
+    }));
+    expect(facts).toEqual([{kind: 'setField', entity: 'example', fieldId: 'sentence', value: '', audio: true}]);
+  });
+
+  it('clears an audio ws without showing the raw audio ws code', () => {
+    const facts = describeChange(changeEntity({
+      '$type': 'jsonPatch:ExampleSentence',
+      PatchDocument: [{op: 'remove', path: '/Sentence/seh-Zxxx-x-audio'}],
+    }));
+    expect(facts).toEqual([{kind: 'clearField', entity: 'example', fieldId: 'sentence', audio: true}]);
+  });
+
   it('describes entry creation with the headword', () => {
     const facts = describeChange(changeEntity({'$type': 'CreateEntryChange', LexemeForm: {en: 'apple'}, EntityId: 'e'}));
     expect(facts).toEqual([{kind: 'create', entity: 'entry', label: 'apple'}]);
