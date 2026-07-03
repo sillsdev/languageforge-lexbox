@@ -2,6 +2,7 @@
 **/obj
 *Dockerfile
 Testing
+!Testing/test-template-repo.zip
 FwLite/FwLiteWeb
 FwLite/FwLiteMaui
 FwLite/FwLiteShared
