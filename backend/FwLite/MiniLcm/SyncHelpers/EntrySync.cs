@@ -70,6 +70,8 @@ public static class EntrySync
             var changes = 0;
             changes += await SyncComplexFormComponents(beforeEntry.Components, afterEntry.Components, api);
             changes += await SyncComplexForms(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
+            changes += await SyncVariants(beforeEntry.VariantOf, afterEntry.VariantOf, api);
+            changes += await SyncVariants(beforeEntry.Variants, afterEntry.Variants, api);
             return changes;
         }
         catch (Exception e)
@@ -115,6 +117,15 @@ public static class EntrySync
             beforeComponents,
             afterComponents,
             new ComplexFormsDiffApi(api)
+        );
+    }
+
+    private static async Task<int> SyncVariants(IList<Variant> beforeVariants, IList<Variant> afterVariants, IMiniLcmApi api)
+    {
+        return await DiffCollection.Diff(
+            beforeVariants,
+            afterVariants,
+            new VariantsDiffApi(api)
         );
     }
 
@@ -283,6 +294,33 @@ public static class EntrySync
                 return Task.FromResult(0);
             }
             throw new InvalidOperationException($"changing complex form components is not supported, they should just be deleted and recreated");
+        }
+    }
+
+    private class VariantsDiffApi(IMiniLcmApi api) : CollectionDiffApi<Variant, (Guid, Guid, Guid?)>
+    {
+        public override (Guid, Guid, Guid?) GetId(Variant variant)
+        {
+            //we can't use the ID as there's none defined by Fw so it won't work as a sync key
+            return (variant.VariantEntryId, variant.MainEntryId, variant.MainSenseId);
+        }
+
+        public override async Task<int> Add(Variant after)
+        {
+            await api.SubmitCreateVariant(after);
+            return 1;
+        }
+
+        public override async Task<int> Remove(Variant before)
+        {
+            await api.DeleteVariant(before);
+            return 1;
+        }
+
+        public override Task<int> Replace(Variant beforeVariant, Variant afterVariant)
+        {
+            //endpoints match (same composite key) — sync the link's own data (types, HideMinorEntry, Comment)
+            return VariantSync.Sync(beforeVariant, afterVariant, api);
         }
     }
 

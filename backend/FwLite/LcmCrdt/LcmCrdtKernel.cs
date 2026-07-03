@@ -144,6 +144,11 @@ public static class LcmCrdtKernel
                     .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComplexFormEntry(c), c => c.ComplexFormEntryId, e => e!.Id)
                     .Entity<ComplexFormComponent>().Property(c => c.ComponentHeadword).IsExpression(c => EntryQueryHelpers.QueryComponentEntry(c)!.QueryHeadwordWithTokens(EntryQueryHelpers.DefaultWritingSystem(WritingSystemType.Vernacular)), isColumn: true, alias: "componentHeadword")
                     .Entity<ComplexFormComponent>().Property(c => c.ComplexFormHeadword).IsExpression(c => EntryQueryHelpers.QueryComplexFormEntry(c)!.QueryHeadwordWithTokens(EntryQueryHelpers.DefaultWritingSystem(WritingSystemType.Vernacular)), isColumn: true, alias: "complexFormHeadword")
+                    .Entity<Variant>().Association(v => EntryQueryHelpers.QueryVariantEntry(v), v => v.VariantEntryId, e => e!.Id)
+                    .Entity<Variant>().Association(v => EntryQueryHelpers.QueryMainEntry(v), v => v.MainEntryId, e => e!.Id)
+                    .Entity<Variant>().Association(v => EntryQueryHelpers.QueryMainSense(v), v => v.MainSenseId, s => s!.Id)
+                    .Entity<Variant>().Property(v => v.VariantHeadword).IsExpression(v => EntryQueryHelpers.QueryVariantEntry(v)!.QueryHeadwordWithTokens(EntryQueryHelpers.DefaultWritingSystem(WritingSystemType.Vernacular)), isColumn: true, alias: "variantHeadword")
+                    .Entity<Variant>().Property(v => v.MainHeadword).IsExpression(v => EntryQueryHelpers.QueryMainEntry(v)!.QueryHeadwordWithTokens(EntryQueryHelpers.DefaultWritingSystem(WritingSystemType.Vernacular)), isColumn: true, alias: "mainHeadword")
                     .Entity<RichString>().Member(r => r.GetPlainText()).IsExpression(r => Json.GetPlainText(r))
                     .Entity<Guid>().Member(g => g.ToString()).IsExpression(g => Json.ToString(g))
                     .Build();
@@ -199,6 +204,16 @@ public static class LcmCrdtKernel
                     .HasPrincipalKey(entry => entry.Id)
                     .HasForeignKey(c => c.ComponentEntryId)
                     .OnDelete(DeleteBehavior.Cascade);
+                builder.HasMany(e => e.VariantOf)
+                    .WithOne()
+                    .HasPrincipalKey(entry => entry.Id)
+                    .HasForeignKey(v => v.VariantEntryId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                builder.HasMany(e => e.Variants)
+                    .WithOne()
+                    .HasPrincipalKey(entry => entry.Id)
+                    .HasForeignKey(v => v.MainEntryId)
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder
                     .Property(e => e.ComplexFormTypes)
                     .HasColumnType("jsonb")
@@ -217,6 +232,10 @@ public static class LcmCrdtKernel
                 builder.HasMany<ComplexFormComponent>()
                     .WithOne()
                     .HasForeignKey(c => c.ComponentSenseId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                builder.HasMany<Variant>()
+                    .WithOne()
+                    .HasForeignKey(v => v.MainSenseId)
                     .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne<Entry>()
                     .WithMany(e => e.Senses)
@@ -306,6 +325,32 @@ public static class LcmCrdtKernel
                     component.ComplexFormEntryId,
                     component.ComponentEntryId
                 }).IsUnique().HasFilter($"{componentSenseId} IS NULL");
+            })
+            .Add<VariantType>()
+            .Add<Variant>(builder =>
+            {
+                const string mainSenseId = "MainSenseId";
+                builder.ToTable("Variants");
+                builder.Property(v => v.MainSenseId).HasColumnName(mainSenseId);
+                builder
+                    .Property(v => v.Types)
+                    .HasColumnType("jsonb")
+                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<List<VariantType>>(json,
+                            (JsonSerializerOptions?)null) ?? new());
+                //these indexes are used to ensure that we don't create duplicate variant links
+                //we need the filter otherwise 2 links which are the same and have a null sense id can be created because 2 rows with the same null are not considered duplicates
+                builder.HasIndex(variant => new
+                {
+                    variant.VariantEntryId,
+                    variant.MainEntryId,
+                    variant.MainSenseId
+                }).IsUnique().HasFilter($"{mainSenseId} IS NOT NULL");
+                builder.HasIndex(variant => new
+                {
+                    variant.VariantEntryId,
+                    variant.MainEntryId
+                }).IsUnique().HasFilter($"{mainSenseId} IS NULL");
             });
 
         config.AddRemoteResourceEntity();
@@ -316,6 +361,8 @@ public static class LcmCrdtKernel
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
             .Add<JsonPatchChange<ComplexFormType>>()
+            .Add<JsonPatchChange<VariantType>>()
+            .Add<JsonPatchChange<Variant>>()
             .Add<JsonPatchChange<MorphType>>()
             .Add<JsonPatchChange<Publication>>()
             .Add<DeleteChange<Entry>>()
@@ -325,6 +372,8 @@ public static class LcmCrdtKernel
             .Add<DeleteChange<SemanticDomain>>()
             .Add<DeleteChange<ComplexFormType>>()
             .Add<DeleteChange<ComplexFormComponent>>()
+            .Add<DeleteChange<VariantType>>()
+            .Add<DeleteChange<Variant>>()
             .Add<DeleteChange<Publication>>()
             .Add<SetPartOfSpeechChange>()
             .Add<MoveSenseToEntryChange>()
@@ -361,6 +410,10 @@ public static class LcmCrdtKernel
             .Add<ReplacePublicationChange>()
             .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
+            .Add<AddVariantChange>()
+            .Add<AddVariantTypeChange>()
+            .Add<RemoveVariantTypeChange>()
+            .Add<CreateVariantType>()
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
             .Add<DeleteChange<CustomView>>()

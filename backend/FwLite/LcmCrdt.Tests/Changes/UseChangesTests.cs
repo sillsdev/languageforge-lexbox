@@ -238,6 +238,25 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var setComplexFormComponentChange = SetComplexFormComponentChange.NewComponent(complexFormComponent.Id, componentEntry.Id);
         yield return new ChangeWithDependencies(setComplexFormComponentChange, [createcomponentEntryChange, createComplexFormComponentChange]);
 
+        var variantTypeName = new MultiString { { "en", "test vt" } };
+        var variantType = new VariantType { Id = Guid.NewGuid(), Name = variantTypeName };
+        var createVariantType = new CreateVariantType(variantType.Id, variantTypeName);
+        yield return new ChangeWithDependencies(createVariantType);
+
+        var variantEntry = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "test variant" } } };
+        var createVariantEntryChange = new CreateEntryChange(variantEntry);
+        yield return new ChangeWithDependencies(createVariantEntryChange);
+
+        var variant = Variant.FromEntries(variantEntry, entry, sense.Id);
+        var addVariantChange = new AddVariantChange(variant);
+        yield return new ChangeWithDependencies(addVariantChange, [createVariantEntryChange, createEntryChange, createSenseChange]);
+
+        var addVariantTypeChange = new AddVariantTypeChange(variant.Id, variantType);
+        yield return new ChangeWithDependencies(addVariantTypeChange, [createVariantType, addVariantChange]);
+
+        var removeVariantTypeChange = new RemoveVariantTypeChange(variant.Id, variantType.Id);
+        yield return new ChangeWithDependencies(removeVariantTypeChange, [addVariantTypeChange]);
+
         var setSenseOrderChange = new LcmCrdt.Changes.SetOrderChange<Sense>(sense.Id, 10);
         yield return new ChangeWithDependencies(setSenseOrderChange, [createSenseChange]);
 
