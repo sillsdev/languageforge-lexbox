@@ -15,7 +15,7 @@
 
   const stats = useDashboardStats();
   const writingSystemService = useWritingSystemService();
-  const dashboard = $derived(stats.current);
+  const dashboard = stats.current;
 
   function formatPercent(value: number): string {
     return formatNumber(value / 100, {style: 'percent', maximumFractionDigits: 0});
