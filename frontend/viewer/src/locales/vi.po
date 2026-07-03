@@ -1878,6 +1878,10 @@ msgstr "Hiển thị"
 msgid "Show {0} more..."
 msgstr "Hiển thị thêm {0}..."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Sign in to add comments."
+msgstr ""
+
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"

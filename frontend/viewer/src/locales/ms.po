@@ -1878,6 +1878,10 @@ msgstr "Tunjukkan"
 msgid "Show {0} more..."
 msgstr "Tunjukkan {0} lagi..."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Sign in to add comments."
+msgstr ""
+
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"

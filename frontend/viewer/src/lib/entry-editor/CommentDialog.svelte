@@ -8,6 +8,7 @@
   import {Textarea} from '$lib/components/ui/textarea';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {useMiniLcmApi} from '$lib/services/service-provider';
+  import {useProjectContext} from '$project/project-context.svelte';
   import {cn, randomId} from '$lib/utils';
   import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICommentThread';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
@@ -40,6 +41,9 @@
   } = $props();
 
   const api = useMiniLcmApi();
+  const projectContext = useProjectContext();
+  const currentUserId = $derived(projectContext.projectData?.lastUserId);
+  const canComment = $derived(Boolean(currentUserId));
   const isExtraLarge = new MediaQuery('min-width: 1280px');
 
   let saving = $state(false);
@@ -158,27 +162,33 @@
     <div class="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-4">
       <form onsubmit={(e) => { e.preventDefault(); void startThread(); }} class="space-y-2">
         <Label for="new-comment-thread">{$t`Start a new thread`}</Label>
-        <InputGroup.Root>
-          <InputGroup.Textarea
-            id="new-comment-thread"
-            bind:value={newThreadText}
-            placeholder={$t`Write the first comment...`}
-            rows={2}
-            disabled={loading || saving}
-            onkeydown={submitOnCtrlEnter}
-            class="min-h-4 py-1"
-          />
-          <InputGroup.Addon align="block-end" class="flex-row-reverse">
-            <InputGroup.Button
-              variant="default"
-              size="icon-xs"
-              icon="i-mdi-send"
-              class="p-0! [&>.icon-wrapper]:flex [&>.icon-wrapper]:items-center [&>.icon-wrapper]:justify-center"
-              iconProps={{ class: 'size-4' }}
-              type="submit" disabled={!newThreadText.trim() || loading} loading={saving}
+        {#if canComment}
+          <InputGroup.Root>
+            <InputGroup.Textarea
+              id="new-comment-thread"
+              bind:value={newThreadText}
+              placeholder={$t`Write the first comment...`}
+              rows={2}
+              disabled={loading || saving}
+              onkeydown={submitOnCtrlEnter}
+              class="min-h-4 py-1"
             />
-          </InputGroup.Addon>
-        </InputGroup.Root>
+            <InputGroup.Addon align="block-end" class="flex-row-reverse">
+              <InputGroup.Button
+                variant="default"
+                size="icon-xs"
+                icon="i-mdi-send"
+                class="p-0! [&>.icon-wrapper]:flex [&>.icon-wrapper]:items-center [&>.icon-wrapper]:justify-center"
+                iconProps={{ class: 'size-4' }}
+                type="submit" disabled={!newThreadText.trim() || loading} loading={saving}
+              />
+            </InputGroup.Addon>
+          </InputGroup.Root>
+        {:else}
+          <p class="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
+            {$t`Sign in to add comments.`}
+          </p>
+        {/if}
       </form>
 
       <div class="space-y-3">
@@ -205,14 +215,16 @@
                       <span class="text-xs font-medium text-muted-foreground">
                         {comment.authorName || $t`(unknown)`}
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onclick={() => startEditing(comment)}
-                        disabled={saving || editingCommentId === comment.id}
-                      >
-                        {$t`Edit`}
-                      </Button>
+                      {#if currentUserId && comment.authorId === currentUserId}
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          onclick={() => startEditing(comment)}
+                          disabled={saving || editingCommentId === comment.id}
+                        >
+                          {$t`Edit`}
+                        </Button>
+                      {/if}
                     </div>
 
                     {#if editingCommentId === comment.id}
@@ -247,31 +259,33 @@
               </div>
 
               <div class="space-y-2">
-                <form onsubmit={(e) => { e.preventDefault(); void replyToThread(threadView); }} class="space-y-2">
-                  <InputGroup.Root>
-                    <InputGroup.Textarea
-                      id={`reply-${threadView.thread.id}`}
-                      bind:value={replyTextByThreadId[threadView.thread.id]}
-                      placeholder={$t`Write a reply...`}
-                      class="min-h-4 py-1"
-                      rows={1}
-                      disabled={saving}
-                      onkeydown={submitOnCtrlEnter}
-                    />
-                    <InputGroup.Addon align="block-end" class="flex-row-reverse">
-                      <InputGroup.Button
-                        variant="ghost"
-                        size="icon-xs"
-                        icon="i-mdi-send"
-                        class="p-0! [&>.icon-wrapper]:flex [&>.icon-wrapper]:items-center [&>.icon-wrapper]:justify-center"
-                        iconProps={{ class: 'size-4' }}
-                        type="submit"
-                        disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
-                        loading={saving}
+                {#if canComment}
+                  <form onsubmit={(e) => { e.preventDefault(); void replyToThread(threadView); }} class="space-y-2">
+                    <InputGroup.Root>
+                      <InputGroup.Textarea
+                        id={`reply-${threadView.thread.id}`}
+                        bind:value={replyTextByThreadId[threadView.thread.id]}
+                        placeholder={$t`Write a reply...`}
+                        class="min-h-4 py-1"
+                        rows={1}
+                        disabled={saving}
+                        onkeydown={submitOnCtrlEnter}
                       />
-                    </InputGroup.Addon>
-                  </InputGroup.Root>
-                </form>
+                      <InputGroup.Addon align="block-end" class="flex-row-reverse">
+                        <InputGroup.Button
+                          variant="ghost"
+                          size="icon-xs"
+                          icon="i-mdi-send"
+                          class="p-0! [&>.icon-wrapper]:flex [&>.icon-wrapper]:items-center [&>.icon-wrapper]:justify-center"
+                          iconProps={{ class: 'size-4' }}
+                          type="submit"
+                          disabled={!replyTextByThreadId[threadView.thread.id]?.trim()}
+                          loading={saving}
+                        />
+                      </InputGroup.Addon>
+                    </InputGroup.Root>
+                  </form>
+                {/if}
               </div>
             </section>
           {/each}

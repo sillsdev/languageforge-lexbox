@@ -1,4 +1,6 @@
+using FluentValidation;
 using LcmCrdt.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
 
@@ -20,6 +22,14 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
     private Task ClearUnreadComments()
     {
         return fixture.Api.MarkAllCommentsRead();
+    }
+
+    private async Task ClearLastUserId()
+    {
+        await fixture.DbContext.ProjectData.ExecuteUpdateAsync(calls => calls
+            .SetProperty(p => p.LastUserId, (string?)null)
+            .SetProperty(p => p.LastUserName, (string?)null));
+        await fixture.GetService<CurrentProjectService>().RefreshProjectData();
     }
 
     private static CommentThread NewThread(SubjectType subjectType = SubjectType.Entry, Guid? subjectId = null)
@@ -275,6 +285,74 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
 
         await SetCurrentUser(reader2);
         (await fixture.Api.GetUnreadComments().ToArrayAsync()).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task MarkCommentsUnread_ConcurrentDuplicate_DoesNotThrowAndLeavesSingleRow()
+    {
+        var authorId = $"author-{Guid.NewGuid()}";
+        await ClearUnreadComments();
+        var (thread, firstComment) = await CreateThreadWithComment(authorId);
+        var readStatusService = fixture.GetService<LocalCommentReadStatusService>();
+        var commentRef = (firstComment.Id, firstComment.CommentThreadId);
+
+        var tasks = Enumerable.Range(0, 10)
+            .Select(_ => readStatusService.MarkCommentsUnread([commentRef]))
+            .ToArray();
+
+        await Task.WhenAll(tasks);
+
+        fixture.DbContext.UnreadComments.Count(c => c.CommentId == firstComment.Id).Should().Be(1);
+        (await readStatusService.CountUnreadComments(thread.Id)).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task MarkCommentsUnread_BatchWithPartialDuplicate_InsertsRemainingNewComments()
+    {
+        var authorId = $"author-{Guid.NewGuid()}";
+        await ClearUnreadComments();
+        var (_, comment1) = await CreateThreadWithComment(authorId, text: "one");
+        var (_, comment2) = await CreateThreadWithComment(authorId, text: "two");
+        var (_, comment3) = await CreateThreadWithComment(authorId, text: "three");
+        var readStatusService = fixture.GetService<LocalCommentReadStatusService>();
+        var batch = new[]
+        {
+            (comment1.Id, comment1.CommentThreadId),
+            (comment2.Id, comment2.CommentThreadId),
+            (comment3.Id, comment3.CommentThreadId)
+        };
+
+        await Task.WhenAll(
+            readStatusService.MarkCommentsUnread(batch),
+            readStatusService.MarkCommentsUnread([(comment1.Id, comment1.CommentThreadId)]));
+
+        (await readStatusService.CountUnreadComments()).Should().Be(3);
+        fixture.DbContext.UnreadComments.Select(c => c.CommentId)
+            .Should().BeEquivalentTo([comment1.Id, comment2.Id, comment3.Id]);
+    }
+
+    [Fact]
+    public async Task CreateCommentThread_WithoutLastUserId_ThrowsValidationException()
+    {
+        await ClearLastUserId();
+
+        var act = () => fixture.Api.CreateCommentThread(NewThread(), NewComment("hello"));
+
+        await act.Should().ThrowAsync<ValidationException>()
+            .WithMessage("*known user identity*");
+    }
+
+    [Fact]
+    public async Task AddUserComment_WithoutLastUserId_ThrowsValidationException()
+    {
+        var authorId = $"author-{Guid.NewGuid()}";
+        var (thread, _) = await CreateThreadWithComment(authorId);
+        await ClearLastUserId();
+
+        var act = () => fixture.Api.AddUserComment(thread.Id, NewComment("reply"));
+
+        await act.Should().ThrowAsync<ValidationException>()
+            .WithMessage("*known user identity*");
     }
 
     [Fact]

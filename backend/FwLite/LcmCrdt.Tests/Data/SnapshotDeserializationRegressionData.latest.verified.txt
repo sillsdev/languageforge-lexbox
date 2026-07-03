@@ -3980,5 +3980,50 @@
     },
     "Id": "85ef40c2-e168-7cdd-e302-d3edc18c38a5",
     "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "CommentThread",
+      "Id": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+      "DeletedAt": null,
+      "SubjectId": "8f24e142-5373-8369-f828-417b81833e27",
+      "SubjectType": "Entry",
+      "Status": "Open",
+      "CreatedAt": "2026-07-03T04:57:05.9016384+07:00",
+      "UpdatedAt": "2026-07-03T16:30:59.5749065+07:00",
+      "Comments": [
+        {
+          "Id": "39408d18-4d46-a112-78eb-24c7c00d8d12",
+          "DeletedAt": null,
+          "CommentThreadId": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+          "PreviousCommentId": "b8099120-2b7c-5e86-da14-f5ab0e1b4bcd",
+          "Text": "Lek",
+          "AuthorId": "Cross-platform",
+          "AuthorName": "Functionality",
+          "CreatedAt": "2026-07-02T23:31:01.4636808+07:00",
+          "UpdatedAt": "2026-07-03T03:11:05.4871024+07:00"
+        }
+      ]
+    },
+    "Id": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "UserComment",
+      "Id": "4f5808a8-bbf1-e23d-e5fe-5a997f13bf3a",
+      "DeletedAt": null,
+      "CommentThreadId": "fdff5d2b-4405-84fa-40b9-bfa2c1302828",
+      "PreviousCommentId": "1e01381d-2b48-63f5-bc31-99710cea2695",
+      "Text": "Phased",
+      "AuthorId": "driver",
+      "AuthorName": "Home Loan Account",
+      "CreatedAt": "2026-07-02T22:19:48.4007941+07:00",
+      "UpdatedAt": "2026-07-03T13:54:23.9312531+07:00"
+    },
+    "Id": "4f5808a8-bbf1-e23d-e5fe-5a997f13bf3a",
+    "DeletedAt": null
   }
 ]

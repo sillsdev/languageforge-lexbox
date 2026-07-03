@@ -1,3 +1,4 @@
+using LcmCrdt.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace LcmCrdt.Data;
@@ -81,15 +82,39 @@ public class LocalCommentReadStatusService(IDbContextFactory<LcmCrdtDbContext> d
             .ToArrayAsync();
         var alreadyUnreadSet = alreadyUnread.ToHashSet();
         var now = DateTimeOffset.UtcNow;
-        dbContext.UnreadComments.AddRange(commentsToMark
+        var toInsert = commentsToMark
             .Where(comment => !alreadyUnreadSet.Contains(comment.CommentId))
             .Select(comment => new UnreadComment
             {
                 CommentId = comment.CommentId,
                 CommentThreadId = comment.CommentThreadId,
                 MarkedUnreadAt = now
-            }));
-        await dbContext.SaveChangesAsync();
+            })
+            .ToArray();
+        if (toInsert.Length == 0) return;
+
+        dbContext.UnreadComments.AddRange(toInsert);
+        try
+        {
+            await dbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException e) when (e.CausedByUniqueConstraintViolation())
+        {
+            // Concurrent callers can both pass the existence check; CommentId is the PK.
+            dbContext.ChangeTracker.Clear();
+            foreach (var unread in toInsert)
+            {
+                dbContext.UnreadComments.Add(unread);
+                try
+                {
+                    await dbContext.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex) when (ex.CausedByUniqueConstraintViolation())
+                {
+                    dbContext.ChangeTracker.Clear();
+                }
+            }
+        }
     }
 
     private static IQueryable<UserComment> UnreadComments(LcmCrdtDbContext dbContext)

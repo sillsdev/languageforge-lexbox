@@ -1,4 +1,5 @@
 using System.Data;
+using FluentValidation;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
@@ -1208,20 +1209,22 @@ public class CrdtMiniLcmApi(
     private void StampCommentAuthor(UserComment comment, DateTimeOffset now)
     {
         if (comment.Id == Guid.Empty) comment.Id = Guid.NewGuid();
-        comment.AuthorId = CurrentCommentUserId();
+        comment.AuthorId = RequireCommentUserId();
         comment.AuthorName = ProjectData.LastUserName;
         comment.CreatedAt = comment.CreatedAt == default ? now : comment.CreatedAt;
         comment.UpdatedAt = comment.UpdatedAt == default ? comment.CreatedAt : comment.UpdatedAt;
     }
 
-    private string CurrentCommentUserId()
+    private string RequireCommentUserId()
     {
-        return ProjectData.LastUserId ?? ProjectData.ClientId.ToString();
+        if (string.IsNullOrEmpty(ProjectData.LastUserId))
+            throw new ValidationException("Cannot create or modify comments without a known user identity.");
+        return ProjectData.LastUserId;
     }
 
     private void AssertCurrentUserCanChangeComment(UserComment comment)
     {
-        if (comment.AuthorId == ProjectData.LastUserId || comment.AuthorId == ProjectData.ClientId.ToString()) return;
+        if (comment.AuthorId == RequireCommentUserId()) return;
         throw new UnauthorizedAccessException("Only the comment author can edit or delete this comment.");
     }
 

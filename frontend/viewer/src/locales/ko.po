@@ -1878,6 +1878,10 @@ msgstr "표시"
 msgid "Show {0} more..."
 msgstr "보기 {0} 더보기..."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Sign in to add comments."
+msgstr ""
+
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
