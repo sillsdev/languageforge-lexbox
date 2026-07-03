@@ -67,7 +67,7 @@ export const entityConfig = {
     },
     pictures: {
       label: msg`Pictures`,
-      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Pictures_field.htm',
+      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Picture_field.htm',
     },
   },
   example: {
