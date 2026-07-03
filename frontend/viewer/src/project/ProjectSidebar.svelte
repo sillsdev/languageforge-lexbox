@@ -88,9 +88,7 @@
       <Sidebar.GroupLabel>{$t`Dictionary`}</Sidebar.GroupLabel>
       <Sidebar.GroupContent>
         <Sidebar.Menu>
-          <DevContent>
-            {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
-          </DevContent>
+          {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
           {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`, formatNumber(stats.current?.totalEntryCount))}
           {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
 
