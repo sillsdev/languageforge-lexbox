@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Net;
 using Microsoft.Extensions.Options;
 using MiniLcm.Project;
 using Refit;
@@ -132,15 +133,42 @@ public class LcmMediaService(
         }
     }
 
+    // Media files are proxied (lexbox -> FwHeadless). A cold request — e.g. the first one after the
+    // backend starts, before its code paths are JIT-warmed — can exceed the proxy's timeout and come
+    // back as 504 (or 502/503) even though the backend keeps working and warms up. Retrying a
+    // transient failure a few times usually hits the now-warm backend and succeeds. A failed fetch
+    // never reaches AddLocalResource, so retrying cannot reintroduce the duplicate-key insert.
+    private const int MaxDownloadAttempts = 3;
+    private static readonly HashSet<HttpStatusCode> TransientDownloadStatusCodes =
+    [
+        HttpStatusCode.RequestTimeout,      // 408
+        HttpStatusCode.BadGateway,          // 502
+        HttpStatusCode.ServiceUnavailable,  // 503
+        HttpStatusCode.GatewayTimeout,      // 504
+    ];
+
     private async Task<(Stream? stream, string? filename)> RequestMediaFile(Guid fileId)
     {
         var mediaClient = await MediaServerClient();
-        var response = await mediaClient.DownloadFile(fileId);
-        if (!response.IsSuccessStatusCode)
+        for (var attempt = 1; ; attempt++)
         {
-            throw new Exception($"Failed to download file {fileId}: {response.StatusCode} {response.ReasonPhrase}");
+            var response = await mediaClient.DownloadFile(fileId);
+            if (response.IsSuccessStatusCode)
+            {
+                return (await response.Content.ReadAsStreamAsync(), response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", ""));
+            }
+
+            var statusCode = response.StatusCode;
+            var reasonPhrase = response.ReasonPhrase;
+            response.Dispose();
+
+            if (attempt >= MaxDownloadAttempts || !TransientDownloadStatusCodes.Contains(statusCode))
+            {
+                throw new Exception($"Failed to download file {fileId}: {statusCode} {reasonPhrase}");
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(200));
         }
-        return (await response.Content.ReadAsStreamAsync(), response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", ""));
     }
 
     private async Task<IMediaServerClient> MediaServerClient()
