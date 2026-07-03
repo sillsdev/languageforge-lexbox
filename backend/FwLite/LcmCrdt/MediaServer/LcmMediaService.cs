@@ -69,7 +69,19 @@ public class LcmMediaService(
                 return new ReadFileResponse(ReadFileResult.Offline);
             }
 
-            localResource = await GetOrStartDownload(fileId);
+            try
+            {
+                localResource = await GetOrStartDownload(fileId);
+            }
+            catch (Exception e)
+            {
+                // The download can fail for reasons outside our control — the file may be missing
+                // on the server, or the media server/gateway may time out (504). Callers such as
+                // PictureImage expect failures via the result enum, not exceptions, so surface a
+                // graceful Error result (shown in the UI) instead of throwing an unhandled exception.
+                logger.LogError(e, "Failed to download media file {FileId}", fileId);
+                return new ReadFileResponse(ReadFileResult.Error, e.Message);
+            }
         }
         //todo, consider trying to download the file again, maybe the cache was cleared
         if (!File.Exists(localResource.LocalPath))
