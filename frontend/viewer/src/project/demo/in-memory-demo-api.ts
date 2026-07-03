@@ -59,6 +59,7 @@ export const mockFwLiteConfig: IFwLiteConfig = {
   feedbackUrl: '',
   os: FwLitePlatform.Web,
   useDevAssets: true,
+  devAssetsPort: 5173,
   edition: 0,
   updateCheckCondition: 0,
   updateCheckInterval: 0,

@@ -3,6 +3,7 @@
   import ProjectSidebar from './project/ProjectSidebar.svelte';
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
+  import DashboardView from './project/dashboard/DashboardView.svelte';
   import {initViewService} from '$lib/views/view-service.svelte';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
   import {navigate, Route, useRouter} from 'svelte-routing';
@@ -56,6 +57,9 @@
       </Route>
       <Route path="/tasks">
         <TasksView/>
+      </Route>
+      <Route path="/dashboard">
+        <DashboardView/>
       </Route>
       <Route path="/activity">
         <ActivityView />

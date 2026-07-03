@@ -1,7 +1,7 @@
+using LcmCrdt.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SIL.Harmony;
 using static LcmCrdt.CrdtProjectsService;
 
 namespace LcmCrdt.Tests;
@@ -76,46 +76,122 @@ public class OpenProjectTests
     public async Task CreateProjectFromTemplateAppliesRequestedIdentity()
     {
         var code = $"blank-from-template-{Guid.NewGuid():N}";
-        var sqliteFile = $"{code}.sqlite";
-        if (File.Exists(sqliteFile)) File.Delete(sqliteFile);
-        var builder = Host.CreateEmptyApplicationBuilder(null);
-        builder.Services.AddTestLcmCrdtClient();
-        using var host = builder.Build();
-        var asyncScope = host.Services.CreateAsyncScope();
-        var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
-
-        var crdtProject = await crdtProjectsService.CreateProjectFromTemplate(new(
+        var request = new CreateProjectRequest(
             Name: "Blank From Template",
             Code: code,
             Path: "",
-            Role: UserProjectRole.Manager),
-            vernacularWs: "fr");
+            Role: UserProjectRole.Manager);
 
-        var miniLcmApi = (CrdtMiniLcmApi)await asyncScope.ServiceProvider.OpenCrdtProject(crdtProject);
-        miniLcmApi.ProjectData.Name.Should().Be("Blank From Template");
-        miniLcmApi.ProjectData.Code.Should().Be(code);
-        miniLcmApi.ProjectData.Role.Should().Be(UserProjectRole.Manager);
-        miniLcmApi.ProjectData.ClientId.Should().NotBe(Guid.Empty);
-
-        var morphTypes = await miniLcmApi.GetMorphTypes().ToArrayAsync();
-        morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count);
-
-        var writingSystems = await miniLcmApi.GetWritingSystems();
-        writingSystems.Analysis.Should().ContainSingle().Which.WsId.Should().Be((WritingSystemId)"en");
-        writingSystems.Vernacular.Should().ContainSingle().Which.WsId.Should().Be((WritingSystemId)"fr");
-
-        var entry = await miniLcmApi.CreateEntry(new Entry
+        await WithProjectFromTemplate(request, "fr", async (services, api) =>
         {
-            LexemeForm = { { "fr", "post-template" } },
-        });
-        (await miniLcmApi.GetEntry(entry.Id)).Should().NotBeNull();
+            var miniLcmApi = (CrdtMiniLcmApi)api;
+            miniLcmApi.ProjectData.Name.Should().Be("Blank From Template");
+            miniLcmApi.ProjectData.Code.Should().Be(code);
+            miniLcmApi.ProjectData.Role.Should().Be(UserProjectRole.Manager);
+            miniLcmApi.ProjectData.ClientId.Should().NotBe(Guid.Empty);
 
-        await using var dbContext = await asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
-        // The template is imported through the normal MiniLcm write path, so every commit — the imported
-        // system data and the post-template writes — is authored under this project's own ClientId.
-        var commitClientIds = await dbContext.Set<Commit>().AsNoTracking().Select(c => c.ClientId).Distinct().ToArrayAsync();
-        commitClientIds.Should().ContainSingle().Which.Should().Be(miniLcmApi.ProjectData.ClientId);
-        await dbContext.Database.EnsureDeletedAsync();
+            var morphTypes = await miniLcmApi.GetMorphTypes().ToArrayAsync();
+            morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count);
+
+            var writingSystems = await miniLcmApi.GetWritingSystems();
+            writingSystems.Analysis.Should().ContainSingle().Which.WsId.Should().Be((WritingSystemId)"en");
+            writingSystems.Vernacular.Should().ContainSingle().Which.WsId.Should().Be((WritingSystemId)"fr");
+
+            var entry = await miniLcmApi.CreateEntry(new Entry
+            {
+                LexemeForm = { { "fr", "post-template" } },
+            });
+            (await miniLcmApi.GetEntry(entry.Id)).Should().NotBeNull();
+
+            await using var dbContext = await services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+            // The template is imported through the normal MiniLcm write path, so every commit — the imported
+            // system data and the post-template writes — is authored under this project's own ClientId.
+            var commitClientIds = await dbContext.Set<Commit>().AsNoTracking().Select(c => c.ClientId).Distinct().ToArrayAsync();
+            commitClientIds.Should().ContainSingle().Which.Should().Be(miniLcmApi.ProjectData.ClientId);
+        });
+    }
+
+    [Fact]
+    public async Task TemplateCommitsUseTheSystemAuthorAndAreStampedAsTemplateCommits()
+    {
+        // Create as a signed-in user so the template stamp has a real author to override.
+        var request = new CreateProjectRequest("Template Author", $"template-author-{Guid.NewGuid():N}",
+            AuthenticatedUser: "Test User", AuthenticatedUserId: "test-user-id", Role: UserProjectRole.Manager);
+
+        await WithProjectFromTemplate(request, "fr", async (services, api) =>
+        {
+            var historyService = services.GetRequiredService<HistoryService>();
+
+            // The imported template data is re-attributed to System and tagged, overriding the signed-in user.
+            var templateCommits = await historyService.ProjectActivity(0, 1000, new ActivityQuery()).ToArrayAsync();
+            templateCommits.Should().NotBeEmpty();
+            templateCommits.Should().AllSatisfy(activity =>
+            {
+                activity.Metadata.AuthorId.Should().Be(CommitHelpers.SystemAuthorId);
+                activity.Metadata.AuthorName.Should().BeNull("the UI owns and translates the System display name");
+                activity.Metadata[CommitHelpers.TemplateProp].Should().Be("true");
+            });
+
+            // A later edit keeps the signed-in user (not System) — the stamp is scoped to the template import.
+            await api.CreateEntry(new() { LexemeForm = { ["fr"] = "post-template" } });
+            var latest = (await historyService.ProjectActivity(0, 1, new ActivityQuery()).ToArrayAsync()).Single();
+            latest.Metadata.AuthorId.Should().Be("test-user-id");
+            latest.Metadata.AuthorName.Should().Be("Test User");
+            latest.Metadata[CommitHelpers.TemplateProp].Should().BeNull();
+        });
+    }
+
+    [Fact]
+    public async Task CommitMetadataOverrideIsScopedAndRestored()
+    {
+        var request = new CreateProjectRequest("Commit Metadata Scope", $"commit-metadata-scope-{Guid.NewGuid():N}",
+            Role: UserProjectRole.Manager);
+
+        await WithProjectFromTemplate(request, "fr", async (services, api) =>
+        {
+            var historyService = services.GetRequiredService<HistoryService>();
+            var interceptor = services.GetRequiredService<CommitMetadataInterceptor>();
+
+            // A commit made inside the interceptor scope carries the overridden author.
+            using (interceptor.Intercept(metadata => metadata.AuthorId = "override-id"))
+            {
+                await api.CreateEntry(new() { LexemeForm = { ["fr"] = "in scope" } });
+            }
+            (await LatestCommitAuthorId(historyService)).Should().Be("override-id");
+
+            // Once the scope ends the override is gone.
+            await api.CreateEntry(new() { LexemeForm = { ["fr"] = "after scope" } });
+            (await LatestCommitAuthorId(historyService)).Should().BeNull();
+        });
+    }
+
+    private static async Task<string?> LatestCommitAuthorId(HistoryService historyService)
+    {
+        var latest = await historyService.ProjectActivity(skip: 0, take: 1).ToArrayAsync();
+        return latest.Single().Metadata.AuthorId;
+    }
+
+    // Spins up a fresh CRDT host, creates a project from the template, opens it, runs the test, and deletes the db.
+    private static async Task WithProjectFromTemplate(
+        CreateProjectRequest request,
+        WritingSystemId vernacularWs,
+        Func<IServiceProvider, IMiniLcmApi, Task> test)
+    {
+        var builder = Host.CreateEmptyApplicationBuilder(null);
+        builder.Services.AddTestLcmCrdtClient();
+        using var host = builder.Build();
+        await using var scope = host.Services.CreateAsyncScope();
+        var services = scope.ServiceProvider;
+        var project = await services.GetRequiredService<CrdtProjectsService>().CreateProjectFromTemplate(request, vernacularWs);
+        try
+        {
+            await test(services, await services.OpenCrdtProject(project));
+        }
+        finally
+        {
+            await using var dbContext = await services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+            await dbContext.Database.EnsureDeletedAsync();
+        }
     }
 
     [Theory]

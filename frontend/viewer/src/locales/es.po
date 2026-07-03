@@ -192,6 +192,10 @@ msgstr ""
 msgid "Add Word"
 msgstr "Añadir palabra"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Add your first entry to start building your dictionary."
+msgstr ""
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -228,6 +232,10 @@ msgstr "Análisis"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Analysis writing systems"
 msgstr ""
 
 #. Relevant view: Classic
@@ -375,6 +383,7 @@ msgstr "Elegir tema"
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Citation form"
 msgstr "Formulario de cita"
 
@@ -558,8 +567,13 @@ msgstr "Oscuro"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard"
 msgstr "Cuadro de mandos"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Dashboard failed to load"
+msgstr ""
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -570,6 +584,7 @@ msgstr "Directorio de datos"
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Definition"
 msgstr "Definición"
 
@@ -731,6 +746,14 @@ msgstr "Termina con"
 msgid "Entries missing..."
 msgstr "Entradas faltantes..."
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with examples"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with senses"
+msgstr ""
+
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
 msgid "entry"
@@ -798,6 +821,10 @@ msgstr "Ejemplo"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr "Ejemplo de frase"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Example sentences"
+msgstr ""
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1005,6 +1032,7 @@ msgstr "Obtener soporte"
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Glosa"
 
@@ -1130,6 +1158,7 @@ msgstr "Logotipo de Lexbox"
 #. Lite view equivalent: "Word"
 #. Field label: the main headword/base form
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Lexeme form"
 msgstr "Forma del lexema"
 
@@ -1178,7 +1207,6 @@ msgid "Local"
 msgstr "Local"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
-#: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
 msgid "Local only"
 msgstr "Sólo local"
@@ -1333,8 +1361,11 @@ msgid "New Entry"
 msgstr "Nueva entrada"
 
 #: src/home/CreateProjectDialog.svelte
-#: src/home/HomeView.svelte
 msgid "New Project"
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "New Project (Local only)"
 msgstr ""
 
 #. Relevant view: Lite
@@ -1354,6 +1385,10 @@ msgstr ""
 msgid "Next"
 msgstr "Siguiente"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Next milestone: {0}. {1} to go."
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1361,6 +1396,10 @@ msgstr ""
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No activity types"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "No analysis writing systems configured."
 msgstr ""
 
 #. Placeholder when no audio file
@@ -1422,6 +1461,10 @@ msgstr "Ningún servidor configurado"
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
 msgstr "No hay tema, no se puede crear un nuevo {0}"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "No vernacular writing systems configured."
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1945,6 +1988,7 @@ msgid "Syncing..."
 msgstr "Sincronizando..."
 
 #. Theme option
+#: src/lib/activity/utils.ts
 #: src/lib/components/ThemePicker.svelte
 msgid "System"
 msgstr "Sistema"
@@ -1972,6 +2016,10 @@ msgstr "Tareas"
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Cuéntanos acerca de un error o problema que hayas encontrado."
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Tell us how you work and what would help most. Your ideas guide what we build."
+msgstr ""
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
@@ -2044,6 +2092,12 @@ msgstr "Alternar filtros"
 msgid "Toggle pinned"
 msgstr "Alternar fijado"
 
+#: src/project/dashboard/DashboardView.svelte
+#: src/project/dashboard/DashboardView.svelte
+#: src/project/dashboard/DashboardView.svelte
+msgid "Total entries"
+msgstr ""
+
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 #: src/lib/views/entity-config.ts
@@ -2095,9 +2149,9 @@ msgstr "No se puede abrir en FieldWorks"
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Unknown"
@@ -2211,6 +2265,10 @@ msgstr ""
 msgid "Vernacular writing system is required"
 msgstr ""
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Vernacular writing systems"
+msgstr ""
+
 #. Button label
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
@@ -2220,6 +2278,10 @@ msgstr "Ver"
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "violeta"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "What would you like to see here?"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -2317,3 +2379,11 @@ msgstr "No tiene permiso para descargar el proyecto {0} desde {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Ya has descargado el proyecto {0}"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "You've passed every milestone. What an achievement!"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Your dictionary starts here"
+msgstr ""
