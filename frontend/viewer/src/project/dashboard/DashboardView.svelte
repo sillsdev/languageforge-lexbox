@@ -15,6 +15,8 @@
 
   const stats = useDashboardStats();
   const writingSystemService = useWritingSystemService();
+  // Not $derived: the resource's factory always resolves to the same DashboardStats instance,
+  // so this reference never changes — reactivity comes from that instance's own $state fields.
   const dashboard = stats.current;
 
   function formatPercent(value: number): string {
