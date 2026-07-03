@@ -30,19 +30,19 @@ public class WritingSystemCollatorProviderTests
     };
 
     [Fact]
-    public void GetCollator_UsesSystemCollator_WhenLocaleSet()
+    public void GetCollator_UsesIcu4NLocaleCollator_WhenLocaleSet()
     {
         var provider = CreateProvider();
         var collator = provider.GetCollator(BaseWs() with { SystemCollationLocale = "de" });
-        collator.Should().BeOfType<SystemCollator>();
+        collator.Should().BeOfType<Icu4NLocaleCollator>();
     }
 
     [Fact]
-    public void GetCollator_UsesIcuRulesCollator_WhenRulesSet()
+    public void GetCollator_UsesIcu4NRulesCollator_WhenRulesSet()
     {
         var provider = CreateProvider();
         var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = "&a < b" });
-        collator.Should().BeOfType<IcuRulesCollator>();
+        collator.Should().BeOfType<Icu4NRulesCollator>();
     }
 
     [Fact]
@@ -50,16 +50,24 @@ public class WritingSystemCollatorProviderTests
     {
         var provider = CreateProvider();
         var collator = provider.GetCollator(BaseWs());
-        collator.Should().NotBeOfType<SystemCollator>();
-        collator.Should().NotBeOfType<IcuRulesCollator>();
+        collator.Should().NotBeOfType<Icu4NLocaleCollator>();
+        collator.Should().NotBeOfType<Icu4NRulesCollator>();
     }
 
     [Fact]
-    public void IcuRulesCollator_SortsByCustomRules()
+    public void Icu4NRulesCollator_SortsByCustomRules()
     {
         var provider = CreateProvider();
         var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = "&z < a" });
         collator.Compare("z", "a").Should().BeLessThan(0);
+    }
+
+    [Fact]
+    public void Icu4NRulesCollator_ReversesAAndB()
+    {
+        var provider = CreateProvider();
+        var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = "&b < a &B < A" });
+        collator.Compare("Banane", "Apfel").Should().BeLessThan(0);
     }
 
     [Fact]
@@ -68,5 +76,14 @@ public class WritingSystemCollatorProviderTests
         var provider = CreateProvider();
         var collator = provider.GetCollator(BaseWs());
         collator.Compare("Ab", "ab").Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void GetCollator_FallsBackToLegacy_WhenRulesInvalid()
+    {
+        var provider = CreateProvider();
+        var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = "not valid icu rules <<<<" });
+        collator.Should().NotBeOfType<Icu4NRulesCollator>();
+        collator.Should().BeOfType<LegacyCompareInfoCollator>();
     }
 }

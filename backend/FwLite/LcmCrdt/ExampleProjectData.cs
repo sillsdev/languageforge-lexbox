@@ -4,6 +4,9 @@ namespace LcmCrdt;
 
 internal static class ExampleProjectData
 {
+    /// <summary>ICU tailoring that sorts B before A so demo fruit headwords visibly differ from default order.</summary>
+    internal const string DemoIcuCollationRules = "&b < a &B < A";
+
     // Parts of speech and complex form types ship in the template (CreateProjectFromTemplate) with
     // liblcm's canonical Ids. We resolve the ones the demo needs (Noun, Compound) by name rather than
     // hard-coding those Ids, so this stays correct regardless of what the template assigns.
@@ -20,8 +23,8 @@ internal static class ExampleProjectData
 
     private static async Task CreateWritingSystems(IMiniLcmApi api)
     {
-        // The template path already provides vernacular "de" and analysis "en", so we only add the
-        // remaining demo writing systems here. They're appended after the template's, preserving the
+        // The template path already provides vernacular "de" (with demo ICU collation) and analysis "en".
+        // Add the remaining demo writing systems. They're appended after the template's, preserving the
         // order users see (de, de-audio, de-ipa / en, fr).
         await api.CreateWritingSystem(new()
         {

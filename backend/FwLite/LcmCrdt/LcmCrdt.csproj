@@ -24,7 +24,7 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Refit" />
     <PackageReference Include="Refit.HttpClientFactory" />
-    <PackageReference Include="icu.net" />
+    <PackageReference Include="ICU4N.Collation" />
     <PackageReference Include="UUIDNext" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsOsPlatform('linux'))">

@@ -24,7 +24,7 @@ public static class FwLiteWebServer
         var builder = WebApplication.CreateBuilder(options);
         if (!builder.Environment.IsDevelopment() && options.Args?.Contains("--urls") != true && string.IsNullOrEmpty(builder.Configuration["http_ports"]))
             builder.WebHost.UseUrls("http://127.0.0.1:0");
-        // ICU required for imported writing-system collations (IcuRulesCollator).
+        // ICU required for FwData bridge (liblcm / icu.net), not for CRDT collation (ICU4N).
         ProjectLoader.Init();
 
         builder.ConfigureDev<AuthConfig>(config =>
