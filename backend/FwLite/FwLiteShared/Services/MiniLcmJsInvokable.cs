@@ -383,6 +383,29 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public async Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture)
+    {
+        var createdPicture = await _wrappedApi.CreatePicture(entryId, senseId, picture);
+        OnDataChanged();
+        return createdPicture;
+    }
+
+    [JSInvokable]
+    public async Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Picture before, Picture after)
+    {
+        var updatedPicture = await _wrappedApi.UpdatePicture(entryId, senseId, before, after);
+        OnDataChanged();
+        return updatedPicture;
+    }
+
+    [JSInvokable]
+    public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
+    {
+        await _wrappedApi.DeletePicture(entryId, senseId, pictureId);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
     public async Task<ReadFileResponseJs?> GetFileStream(string mediaUri)
     {
         var result = await _wrappedApi.GetFileStream(new MediaUri(mediaUri));
