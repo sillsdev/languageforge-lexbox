@@ -63,7 +63,7 @@
   });
 </script>
 
-<figure class="flex flex-col items-center gap-1">
+<figure class="flex flex-col items-start gap-1">
   {#if state.status === 'loaded'}
     <img src={state.url} alt={caption || $t`Picture`} class="max-h-64 max-w-full rounded-md object-contain" />
   {:else if state.status === 'loading'}

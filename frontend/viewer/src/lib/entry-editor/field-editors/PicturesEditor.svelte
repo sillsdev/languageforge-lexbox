@@ -92,7 +92,10 @@
 {#if pictures.length > 0}
   <PictureCarousel {pictures} />
 {:else if !readonly}
-  <Button icon="i-mdi-plus" size="xs" loading={uploading} onclick={selectFile}>
+  <!-- justify-self-end: the field body is a grid, so this both sizes the button to its
+       (translatable) label instead of the full column width, and right-aligns it to match the
+       "+ Component" button. -->
+  <Button class="justify-self-end" icon="i-mdi-plus" size="xs" loading={uploading} onclick={selectFile}>
     {$t`Picture`}
   </Button>
   <!-- Hidden input drives the OS file picker; only JPG/PNG are offered. -->
