@@ -29,8 +29,8 @@ When neither field is set, headword comparison uses the pre-existing FwLite beha
 _Avoid_: Treating `null` and `""` as different states for `IcuCollationRules`
 
 **Collation compare (imported)**:
-When `IcuCollationRules` or `SystemCollationLocale` is set, use the libpalaso collator's native `Compare` with no legacy case tie-break layered on top. Matches FLEx for custom and other-language modes.
-_Avoid_: Applying case-insensitive or lowercase-first logic on top of `IcuRulesCollator` or `SystemCollator`
+When `IcuCollationRules` or `SystemCollationLocale` is set, use ICU4N (`RuleBasedCollator` / locale `Collator`) `Compare` with no legacy case tie-break layered on top. Matches FLEx for custom and other-language modes. FwData/FLEx bridge code still uses icu.net separately.
+_Avoid_: Applying case-insensitive or lowercase-first logic on top of imported ICU4N collation
 
 **Collation import (from FLEx)**:
 Populated when mapping `CoreWritingSystemDefinition` → `WritingSystem` in the FwData bridge. Custom modes: store non-empty compiled ICU rules only. Other-language: store .NET locale tag only. Default ordering: leave both fields null (legacy fallback). Import-only — no write-back to fwdata LDML.

@@ -1,4 +1,6 @@
+using System.Globalization;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using MiniLcm.Culture;
 using MiniLcm.Models;
 using SIL.WritingSystems;
@@ -7,7 +9,8 @@ namespace LcmCrdt.Culture;
 
 public class WritingSystemCollatorProvider(
     IMemoryCache cache,
-    IMiniLcmCultureProvider cultureProvider) : IWritingSystemCollatorProvider
+    IMiniLcmCultureProvider cultureProvider,
+    ILogger<WritingSystemCollatorProvider> logger) : IWritingSystemCollatorProvider
 {
     public ICollator GetCollator(WritingSystem writingSystem)
     {
@@ -22,17 +25,61 @@ public class WritingSystemCollatorProvider(
     {
         if (!string.IsNullOrEmpty(writingSystem.SystemCollationLocale))
         {
-            return new SystemCollator(writingSystem.SystemCollationLocale);
+            return TryCreateLocaleCollator(writingSystem);
         }
 
         if (!string.IsNullOrEmpty(writingSystem.IcuCollationRules))
         {
-            WritingSystemCollationInit.EnsureInitialized();
-            return new IcuRulesCollator(writingSystem.IcuCollationRules);
+            return TryCreateRulesCollator(writingSystem);
         }
 
-        // FLEx default ordering also lands here until we choose to match its empty-rule ICU default.
         return new LegacyCompareInfoCollator(cultureProvider.GetCompareInfo(writingSystem));
+    }
+
+    private ICollator TryCreateLocaleCollator(WritingSystem writingSystem)
+    {
+        try
+        {
+            return new Icu4NLocaleCollator(writingSystem.SystemCollationLocale!);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Failed to create ICU4N locale collator for '{Locale}' on writing system '{WsId}'; using .NET collation fallback",
+                writingSystem.SystemCollationLocale,
+                writingSystem.WsId);
+            return CreateCultureCollator(writingSystem.SystemCollationLocale!);
+        }
+    }
+
+    private ICollator TryCreateRulesCollator(WritingSystem writingSystem)
+    {
+        try
+        {
+            return new Icu4NRulesCollator(writingSystem.IcuCollationRules!);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Failed to create ICU4N rules collator for writing system '{WsId}'; using legacy collation fallback",
+                writingSystem.WsId);
+            return new LegacyCompareInfoCollator(cultureProvider.GetCompareInfo(writingSystem));
+        }
+    }
+
+    private ICollator CreateCultureCollator(string locale)
+    {
+        try
+        {
+            return new CultureCompareInfoCollator(CultureInfo.GetCultureInfo(locale).CompareInfo);
+        }
+        catch (CultureNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Unknown system collation locale '{Locale}'; using invariant collation", locale);
+            return new CultureCompareInfoCollator(CultureInfo.InvariantCulture.CompareInfo);
+        }
     }
 
     private static string CacheKey(WritingSystem writingSystem) =>
