@@ -1,5 +1,5 @@
 import {type Page, expect, test} from '@playwright/test';
-import {assertScreenshot} from './snapshot';
+import {assertScreenshot} from '../../helpers/argos-screenshot';
 
 for (const colorScheme of ['light', 'dark'] as const) {
   test(`ui snapshot selected entry (color: ${colorScheme})`, async ({page}) => {

@@ -13,7 +13,13 @@ export default defineConfig({
   outputDir: 'test-results',
   // outputFolder must NOT be inside outputDir; playwright errors otherwise.
   reporter: process.env.CI
-    ? [['github'], ['list'], ['junit', {outputFile: 'test-results/e2e-results.xml'}], ['html', {outputFolder: 'e2e-html-report', open: 'never'}]]
+    ? [
+      ['github'],
+      ['list'],
+      ['junit', {outputFile: 'test-results/e2e-results.xml'}],
+      ['html', {outputFolder: 'e2e-html-report', open: 'never'}],
+      ['@argos-ci/playwright/reporter', {uploadToArgos: true}],
+    ]
     : [['list'], ['html', {outputFolder: 'e2e-html-report', open: 'never'}]],
   use: {
     actionTimeout: 30_000,

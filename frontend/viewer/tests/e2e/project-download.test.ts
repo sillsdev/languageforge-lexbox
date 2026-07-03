@@ -3,6 +3,7 @@ import {ensureProjectCrdtReady} from './helpers/project-operations';
 import {lexboxServer, projectCode, testPassword, testUser} from './config';
 import {HomePage} from '../pages/home.page';
 import {ProjectPage} from '../pages/project.page';
+import {assertScreenshot} from '../helpers/argos-screenshot';
 
 test('Project download: log in, download, and open the project', async ({page, fwLite: _fwLite}) => {
   test.setTimeout(3 * 60_000);
@@ -19,4 +20,5 @@ test('Project download: log in, download, and open the project', async ({page, f
   await homePage.downloadProject(lexboxServer, projectCode);
   await homePage.openLocalProject(projectCode);
   await new ProjectPage(page).waitFor();
+  await assertScreenshot(page, 'e2e-project-view-default');
 });
