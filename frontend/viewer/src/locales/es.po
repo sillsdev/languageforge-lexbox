@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-07-01 04:22\n"
+"PO-Revision-Date: 2026-07-03 04:36\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -1179,7 +1179,6 @@ msgstr "Local"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
-#: src/home/HomeView.svelte
 msgid "Local only"
 msgstr "Sólo local"
 
@@ -1333,9 +1332,12 @@ msgid "New Entry"
 msgstr "Nueva entrada"
 
 #: src/home/CreateProjectDialog.svelte
-#: src/home/HomeView.svelte
 msgid "New Project"
 msgstr "Nuevo proyecto"
+
+#: src/home/HomeView.svelte
+msgid "New Project (Local only)"
+msgstr "Nuevo proyecto (sólo local)"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1945,6 +1947,7 @@ msgid "Syncing..."
 msgstr "Sincronizando..."
 
 #. Theme option
+#: src/lib/activity/utils.ts
 #: src/lib/components/ThemePicker.svelte
 msgid "System"
 msgstr "Sistema"
@@ -2095,9 +2098,9 @@ msgstr "No se puede abrir en FieldWorks"
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Unknown"
