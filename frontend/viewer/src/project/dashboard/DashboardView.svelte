@@ -83,6 +83,7 @@
   <ViewErrorBoundary class="flex-1 min-h-0 overflow-auto mr-2" title={$t`Dashboard failed to load`}>
     {@const milestone = dashboard.milestone}
     <div class="flex flex-col gap-6 pb-4 px-4">
+      <div class="flex flex-col gap-4">
       <Card.Root class="border-primary/30 bg-primary/5">
         {#if dashboard.totalEntries === undefined}
           <Card.Header>
@@ -137,6 +138,7 @@
       <div class="grid gap-4 sm:grid-cols-2">
         {@render summaryCard($t`Entries with senses`, dashboard.entriesWithSenses, dashboard.totalEntries)}
         {@render summaryCard($t`Entries with examples`, dashboard.entriesWithExamples, dashboard.totalEntries)}
+      </div>
       </div>
 
       <section class="space-y-4">
