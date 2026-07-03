@@ -1,7 +1,7 @@
 import { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
 import { Button, Input, Label } from 'platform-bible-react';
-import { type ReactElement, useCallback, useEffect, useState } from 'react';
+import { type ReactElement, useEffect, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 const CODE_PATTERN = /^[a-z\d][a-z\d-]*$/;
@@ -51,6 +51,7 @@ export default function CreateLexicon({
   const [vernacularWs, setVernacularWs] = useState(defaultVernacularWs ?? '');
   const [analysisWs, setAnalysisWs] = useState('');
   const [creating, setCreating] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!codeEdited) setCode(deriveCode(name));
@@ -63,18 +64,20 @@ export default function CreateLexicon({
     (!analysisWs.trim() || isValidLangTag(analysisWs.trim()))
   );
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = async () => {
     if (!isValid) return;
     setCreating(true);
+    setError('');
     try {
       await createLexicon(name.trim(), code, vernacularWs.trim(), analysisWs.trim() || undefined);
       await onCreated(code);
     } catch (e) {
       logger.error(localizedStrings['%lexicon_createLexicon_error%'], JSON.stringify(e));
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setCreating(false);
     }
-  }, [analysisWs, code, createLexicon, isValid, localizedStrings, name, onCreated, vernacularWs]);
+  };
 
   return (
     <div className="tw:flex tw:flex-col tw:gap-1 tw:p-4">
@@ -125,6 +128,8 @@ export default function CreateLexicon({
           value={analysisWs}
         />
       </div>
+
+      {error && <p className="tw:text-sm tw:text-destructive tw:mt-1">{error}</p>}
 
       <div className="tw:flex tw:gap-1 tw:mt-2">
         <Button disabled={!isValid || creating} onClick={() => handleSubmit()}>
