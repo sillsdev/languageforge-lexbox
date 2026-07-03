@@ -1191,10 +1191,6 @@ msgstr "Ý nghĩa đen"
 msgid "Loading activity"
 msgstr ""
 
-#: src/project/dashboard/DashboardView.svelte
-msgid "Loading dashboard..."
-msgstr ""
-
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
 msgid "Loading Dictionaries..."
@@ -2096,6 +2092,7 @@ msgstr "Chuyển đổi bộ lọc"
 msgid "Toggle pinned"
 msgstr "Chuyển trạng thái ghim"
 
+#: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"

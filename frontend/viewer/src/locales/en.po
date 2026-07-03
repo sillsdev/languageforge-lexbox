@@ -1186,10 +1186,6 @@ msgstr "Literal meaning"
 msgid "Loading activity"
 msgstr "Loading activity"
 
-#: src/project/dashboard/DashboardView.svelte
-msgid "Loading dashboard..."
-msgstr "Loading dashboard..."
-
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
 msgid "Loading Dictionaries..."
@@ -2091,6 +2087,7 @@ msgstr "Toggle filters"
 msgid "Toggle pinned"
 msgstr "Toggle pinned"
 
+#: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
