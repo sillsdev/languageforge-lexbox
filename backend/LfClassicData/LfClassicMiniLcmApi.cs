@@ -26,6 +26,16 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return Task.FromResult<ComplexFormType?>(null);
     }
 
+    public IAsyncEnumerable<VariantType> GetVariantTypes()
+    {
+        return AsyncEnumerable.Empty<VariantType>();
+    }
+
+    public Task<VariantType?> GetVariantType(Guid id)
+    {
+        return Task.FromResult<VariantType?>(null);
+    }
+
     public IAsyncEnumerable<MorphType> GetMorphTypes()
     {
         return AsyncEnumerable.Empty<MorphType>();

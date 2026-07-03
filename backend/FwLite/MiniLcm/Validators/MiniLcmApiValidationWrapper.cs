@@ -129,6 +129,30 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.UpdateComplexFormType(before, after, api ?? this);
     }
 
+    public async Task<VariantType> CreateVariantType(VariantType variantType)
+    {
+        await validators.ValidateAndThrow(variantType);
+        return await _api.CreateVariantType(variantType);
+    }
+
+    public async Task<VariantType> UpdateVariantType(VariantType before, VariantType after, IMiniLcmApi? api = null)
+    {
+        await validators.ValidateAndThrow(after);
+        return await _api.UpdateVariantType(before, after, api ?? this);
+    }
+
+    public async Task<Variant> CreateVariant(Variant variant)
+    {
+        await validators.ValidateAndThrow(variant);
+        return await _api.CreateVariant(variant);
+    }
+
+    public async Task<Variant> UpdateVariant(Variant before, Variant after, IMiniLcmApi? api = null)
+    {
+        await validators.ValidateAndThrow(after);
+        return await _api.UpdateVariant(before, after, api ?? this);
+    }
+
     public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
         await validators.ValidateAndThrow(update);

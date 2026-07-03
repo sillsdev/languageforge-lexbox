@@ -68,6 +68,7 @@ public class FwDataMiniLcmApi(
     internal IEnumerable<ILexEntryType> ComplexFormTypesFlattened => ComplexFormTypes.PossibilitiesOS.Cast<ILexEntryType>().Flatten();
 
     private ICmPossibilityList VariantTypes => Cache.LangProject.LexDbOA.VariantEntryTypesOA;
+    internal IEnumerable<ILexEntryType> VariantTypesFlattened => VariantTypes.PossibilitiesOS.Cast<ILexEntryType>().Flatten();
     private ICmPossibilityList Publications => Cache.LangProject.LexDbOA.PublicationTypesOA;
 
     public void Dispose()
@@ -568,6 +569,76 @@ public class FwDataMiniLcmApi(
             });
     }
 
+    // flattened (unlike complex-form types' public read) because the Irregularly Inflected Form
+    // subtypes (Plural, Past) are children in the possibility list and must be assignable
+    public IAsyncEnumerable<VariantType> GetVariantTypes()
+    {
+        return VariantTypesFlattened.Select(ToVariantType).ToAsyncEnumerable();
+    }
+
+    public Task<VariantType?> GetVariantType(Guid id)
+    {
+        var lexEntryType = VariantTypesFlattened.SingleOrDefault(t => t.Guid == id);
+        if (lexEntryType is null) return Task.FromResult<VariantType?>(null);
+        return Task.FromResult<VariantType?>(ToVariantType(lexEntryType));
+    }
+
+    private VariantType ToVariantType(ILexEntryType t)
+    {
+        return new VariantType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) };
+    }
+
+    public Task<VariantType> CreateVariantType(VariantType variantType)
+    {
+        if (variantType.Id == default) variantType.Id = Guid.NewGuid();
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create variant type",
+            "Remove variant type",
+            Cache.ActionHandlerAccessor,
+            () =>
+            {
+                var lexVariantType = Cache.ServiceLocator
+                    .GetInstance<ILexEntryTypeFactory>()
+                    .Create(variantType.Id);
+                VariantTypes.PossibilitiesOS.Add(lexVariantType);
+                UpdateLcmMultiString(lexVariantType.Name, variantType.Name);
+            });
+        return Task.FromResult(ToVariantType(VariantTypesFlattened.Single(t => t.Guid == variantType.Id)));
+    }
+
+    public Task<VariantType> UpdateVariantType(Guid id, UpdateObjectInput<VariantType> update)
+    {
+        var type = VariantTypesFlattened.SingleOrDefault(t => t.Guid == id);
+        if (type is null) throw new NullReferenceException($"unable to find variant type with id {id}");
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Variant Type",
+            "Revert Variant Type",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdateVariantTypeProxy(type, this);
+                update.Apply(updateProxy);
+            });
+        return Task.FromResult(ToVariantType(type));
+    }
+
+    public async Task<VariantType> UpdateVariantType(VariantType before, VariantType after, IMiniLcmApi? api = null)
+    {
+        await VariantTypeSync.Sync(before, after, api ?? this);
+        return ToVariantType(VariantTypesFlattened.Single(t => t.Guid == after.Id));
+    }
+
+    public async Task DeleteVariantType(Guid id)
+    {
+        var type = VariantTypesFlattened.SingleOrDefault(t => t.Guid == id);
+        if (type is null) return;
+        await Cache.DoUsingNewOrCurrentUOW("Delete Variant Type",
+            "Revert delete",
+            () =>
+            {
+                type.Delete();
+                return ValueTask.CompletedTask;
+            });
+    }
+
     public IAsyncEnumerable<MorphType> GetMorphTypes()
     {
         return
@@ -634,12 +705,6 @@ public class FwDataMiniLcmApi(
         return await GetMorphType(after.Id) ?? throw new NullReferenceException("unable to find morph type with id " + after.Id);
     }
 
-    public IAsyncEnumerable<VariantType> GetVariantTypes()
-    {
-        return VariantTypes.PossibilitiesOS
-            .Select(t => new VariantType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) })
-            .ToAsyncEnumerable();
-    }
     public IAsyncEnumerable<Publication> GetPublications()
     {
         return Publications.PossibilitiesOS
@@ -688,6 +753,8 @@ public class FwDataMiniLcmApi(
                     ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
                     ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
                 ],
+                VariantOf = [.. ToVariantOf(entry)],
+                Variants = [.. ToVariants(entry)],
                 // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
                 PublishIn = entry.PublishIn.Select(FromLcmPossibility).ToList(),
             };
@@ -718,27 +785,40 @@ public class FwDataMiniLcmApi(
             }).DistinctBy(c => (c.ComponentEntryId, c.ComplexFormEntryId, c.ComponentSenseId));
     }
 
-    private Variants? ToVariants(ILexEntry entry)
+    private IEnumerable<Variant> ToVariantOf(ILexEntry entry)
     {
-        var variantEntryRef = entry.VariantEntryRefs.SingleOrDefault();
-        if (variantEntryRef is null) return null;
-        return new Variants
-        {
-            Id = variantEntryRef.Guid,
-            VariantsOf =
-            [
-                ..variantEntryRef.ComponentLexemesRS.Select(o => o switch
+        return entry.VariantEntryRefs.SelectMany(r => r.ComponentLexemesRS,
+                (r, o) => o switch
                 {
-                    ILexEntry component => ToEntryReference(component, entry),
-                    ILexSense s => ToSenseReference(s, entry),
+                    ILexEntry mainEntry => ToVariant(entry, r, mainEntry, null),
+                    ILexSense mainSense => ToVariant(entry, r, mainSense.Entry, mainSense),
                     _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
                 })
-            ],
-            Types =
-            [
-                ..variantEntryRef.VariantEntryTypesRS.Select(t =>
-                    new VariantType() { Id = t.Guid, Name = FromLcmMultiString(t.Name), })
-            ]
+            .DistinctBy(v => (v.VariantEntryId, v.MainEntryId, v.MainSenseId));
+    }
+
+    private IEnumerable<Variant> ToVariants(ILexEntry entry)
+    {
+        return
+        [
+            ..entry.VariantFormEntryBackRefs.Select(r => ToVariant(r.OwningEntry, r, entry, null)),
+            ..entry.AllSenses.SelectMany(sense =>
+                sense.VariantFormEntryBackRefs.Select(r => ToVariant(r.OwningEntry, r, entry, sense)))
+        ];
+    }
+
+    private Variant ToVariant(ILexEntry variantEntry, ILexEntryRef variantRef, ILexEntry mainEntry, ILexSense? mainSense)
+    {
+        return new Variant
+        {
+            VariantEntryId = variantEntry.Guid,
+            VariantHeadword = variantEntry.LexEntryHeadwordOrUnknown(),
+            MainEntryId = mainEntry.Guid,
+            MainSenseId = mainSense?.Guid,
+            MainHeadword = mainEntry.LexEntryHeadwordOrUnknown(),
+            Types = [..variantRef.VariantEntryTypesRS.Select(ToVariantType)],
+            HideMinorEntry = variantRef.HideMinorEntry != 0,
+            Comment = FromLcmMultiString(variantRef.Summary),
         };
     }
 
@@ -1078,6 +1158,19 @@ public class FwDataMiniLcmApi(
                             var complexLexEntry = EntriesRepository.GetObject(complexForm.ComplexFormEntryId);
                             AddComplexFormComponent(complexLexEntry, complexForm);
                         }
+
+                        foreach (var variantOf in entry.VariantOf)
+                        {
+                            if (variantOf.VariantEntryId == default) variantOf.VariantEntryId = entry.Id;
+                            AddVariant(lexEntry, variantOf);
+                        }
+
+                        foreach (var variant in entry.Variants)
+                        {
+                            if (variant.MainEntryId == default) variant.MainEntryId = entry.Id;
+                            var lexVariantEntry = EntriesRepository.GetObject(variant.VariantEntryId);
+                            AddVariant(lexVariantEntry, variant);
+                        }
                     }
                     // Remove publications not in entry.PublishIn from lexEntry.PublishIn
                     foreach (var lcmPub in Publications.PossibilitiesOS.Where(p => entry.PublishIn.All(ep => ep.Id != p.Guid)))
@@ -1283,6 +1376,152 @@ public class FwDataMiniLcmApi(
             if (lexEntryType is null) continue;
             entryRef.ComplexEntryTypesRS.Remove(lexEntryType);
         }
+    }
+
+    public Task<Variant> CreateVariant(Variant variant)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Variant",
+            "Remove Variant",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexVariantEntry = EntriesRepository.GetObject(variant.VariantEntryId);
+                AddVariant(lexVariantEntry, variant);
+            });
+        return Task.FromResult(ToVariantOf(EntriesRepository.GetObject(variant.VariantEntryId))
+            .Single(v => v.MainEntryId == variant.MainEntryId && v.MainSenseId == variant.MainSenseId));
+    }
+
+    public async Task<Variant> UpdateVariant(Variant before, Variant after, IMiniLcmApi? api = null)
+    {
+        await VariantSync.Sync(before, after, api ?? this);
+        return ToVariantOf(EntriesRepository.GetObject(after.VariantEntryId))
+            .Single(v => v.MainEntryId == after.MainEntryId && v.MainSenseId == after.MainSenseId);
+    }
+
+    public Task SubmitUpdateVariant(Variant variant, UpdateObjectInput<Variant> update)
+    {
+        var lexVariantEntry = EntriesRepository.GetObject(variant.VariantEntryId);
+        var entryRef = FindVariantRef(lexVariantEntry, variant)
+            ?? throw NotFoundException.ForType<Variant>(variant.VariantEntryId);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Variant",
+            "Revert Variant",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdateVariantProxy(entryRef, this);
+                update.Apply(updateProxy);
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteVariant(Variant variant)
+    {
+        //variant entry has been deleted, so this link is gone already
+        if (!EntriesRepository.TryGetObject(variant.VariantEntryId, out var lexVariantEntry))
+            return Task.CompletedTask;
+
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Variant",
+            "Add Variant",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                RemoveVariant(lexVariantEntry, variant);
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task AddVariantType(Variant variant, Guid variantTypeId)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Variant Type",
+            "Remove Variant Type",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                //link (or its entry) deleted already — match CRDT tolerance
+                if (!EntriesRepository.TryGetObject(variant.VariantEntryId, out var lexVariantEntry)) return;
+                var entryRef = FindVariantRef(lexVariantEntry, variant);
+                if (entryRef is null) return;
+                var lexEntryType = VariantTypesFlattened.Single(t => t.Guid == variantTypeId);
+                if (entryRef.VariantEntryTypesRS.Contains(lexEntryType)) return;
+                entryRef.VariantEntryTypesRS.Add(lexEntryType);
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveVariantType(Variant variant, Guid variantTypeId)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Remove Variant Type",
+            "Add Variant Type",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                if (!EntriesRepository.TryGetObject(variant.VariantEntryId, out var lexVariantEntry)) return;
+                var entryRef = FindVariantRef(lexVariantEntry, variant);
+                if (entryRef is null) return;
+                var lexEntryType = entryRef.VariantEntryTypesRS.SingleOrDefault(t => t.Guid == variantTypeId);
+                if (lexEntryType is null) return;
+                entryRef.VariantEntryTypesRS.Remove(lexEntryType);
+            });
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// must be called as part of an lcm action
+    /// </summary>
+    internal void AddVariant(ILexEntry lexVariantEntry, Variant variant)
+    {
+        if (FindVariantRef(lexVariantEntry, variant) is not null) return; //idempotent, like the CRDT side
+        var target = variant.MainSenseId is not null
+            ? (ICmObject)SenseRepository.GetObject(variant.MainSenseId.Value)
+            : EntriesRepository.GetObject(variant.MainEntryId);
+        //one LexEntryRef per link — multiple variant refs on an entry are how FLEx represents
+        //being a variant of multiple things with different types
+        var entryRef = Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();
+        lexVariantEntry.EntryRefsOS.Add(entryRef);
+        entryRef.RefType = LexEntryRefTags.krtVariant;
+        entryRef.HideMinorEntry = variant.HideMinorEntry ? 1 : 0;
+        UpdateLcmMultiString(entryRef.Summary, variant.Comment);
+        foreach (var type in variant.Types)
+        {
+            entryRef.VariantEntryTypesRS.Add(VariantTypesFlattened.Single(t => t.Guid == type.Id));
+        }
+        entryRef.ComponentLexemesRS.Add(target);
+    }
+
+    internal void RemoveVariant(ILexEntry lexVariantEntry, Variant variant)
+    {
+        ICmObject target;
+        if (variant.MainSenseId is not null)
+        {
+            //sense has been deleted, so this link is gone already
+            if (!SenseRepository.TryGetObject(variant.MainSenseId.Value, out var sense)) return;
+            target = sense;
+        }
+        else
+        {
+            //entry has been deleted, so this link is gone already
+            if (!EntriesRepository.TryGetObject(variant.MainEntryId, out var mainEntry)) return;
+            target = mainEntry;
+        }
+
+        foreach (var entryRef in lexVariantEntry.VariantEntryRefs.ToArray())
+        {
+            entryRef.ComponentLexemesRS.Remove(target);
+            if (entryRef.ComponentLexemesRS.Count == 0)
+            {
+                //an empty variant ref is meaningless; liblcm deletes them in its own cleanup paths too
+                lexVariantEntry.EntryRefsOS.Remove(entryRef);
+            }
+        }
+        //not throwing to match CRDT behavior
+    }
+
+    internal ILexEntryRef? FindVariantRef(ILexEntry lexVariantEntry, Variant variant)
+    {
+        var targetGuid = variant.MainSenseId ?? variant.MainEntryId;
+        return lexVariantEntry.VariantEntryRefs
+            .FirstOrDefault(r => r.ComponentLexemesRS.Any(o => o.Guid == targetGuid));
     }
 
     private IList<ITsString> MultiStringToTsStrings(MultiString? multiString)

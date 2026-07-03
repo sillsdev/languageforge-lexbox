@@ -8,6 +8,8 @@ namespace MiniLcm.Validators;
 
 public record MiniLcmValidators(
     IValidator<ComplexFormType> ComplexFormTypeValidator,
+    IValidator<VariantType> VariantTypeValidator,
+    IValidator<Variant> VariantValidator,
     IValidator<MorphType> MorphTypeValidator,
     IValidator<Entry> EntryValidator,
     IValidator<Sense> SenseValidator,
@@ -23,6 +25,16 @@ public record MiniLcmValidators(
     public async Task ValidateAndThrow(ComplexFormType value)
     {
         await ComplexFormTypeValidator.ValidateAndThrowAsync(value);
+    }
+
+    public async Task ValidateAndThrow(VariantType value)
+    {
+        await VariantTypeValidator.ValidateAndThrowAsync(value);
+    }
+
+    public async Task ValidateAndThrow(Variant value)
+    {
+        await VariantValidator.ValidateAndThrowAsync(value);
     }
 
     public async Task ValidateAndThrow(MorphType value)
@@ -88,6 +100,8 @@ public static class MiniLcmValidatorsExtensions
         services.AddTransient<MiniLcmApiValidationWrapperFactory>();
         services.AddTransient<MiniLcmValidators>();
         services.AddTransient<IValidator<ComplexFormType>, ComplexFormTypeValidator>();
+        services.AddTransient<IValidator<VariantType>, VariantTypeValidator>();
+        services.AddTransient<IValidator<Variant>, VariantValidator>();
         services.AddTransient<IValidator<MorphType>, MorphTypeValidator>();
         services.AddTransient<IValidator<Entry>, EntryValidator>();
         services.AddTransient<IValidator<Sense>, SenseValidator>();

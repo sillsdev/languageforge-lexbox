@@ -4,12 +4,13 @@ namespace LcmCrdt;
 
 public static class QueryHelpers
 {
-    public static void Finalize(this Entry entry,
-        IComparer<ComplexFormComponent> complexFormComparer)
+    public static void Finalize(this Entry entry, CompareInfo compareInfo)
     {
         entry.Senses.ApplySortOrder();
         entry.Components.ApplySortOrder();
-        entry.ComplexForms.Sort(complexFormComparer);
+        entry.ComplexForms.Sort(compareInfo.AsComplexFormComparer());
+        entry.VariantOf.Sort(compareInfo.AsVariantOfComparer());
+        entry.Variants.Sort(compareInfo.AsVariantsComparer());
         foreach (var sense in entry.Senses)
         {
             sense.Finalize();
@@ -53,6 +54,26 @@ public static class QueryHelpers
             var result = compareInfo.Compare(a.ComplexFormHeadword, b.ComplexFormHeadword, CompareOptions.IgnoreCase);
             if (result != 0) return result;
             return a.ComplexFormEntryId.CompareTo(b.ComplexFormEntryId);
+        });
+    }
+
+    public static IComparer<Variant> AsVariantOfComparer(this CompareInfo compareInfo)
+    {
+        return Comparer<Variant>.Create((a, b) =>
+        {
+            var result = compareInfo.Compare(a.MainHeadword, b.MainHeadword, CompareOptions.IgnoreCase);
+            if (result != 0) return result;
+            return a.MainEntryId.CompareTo(b.MainEntryId);
+        });
+    }
+
+    public static IComparer<Variant> AsVariantsComparer(this CompareInfo compareInfo)
+    {
+        return Comparer<Variant>.Create((a, b) =>
+        {
+            var result = compareInfo.Compare(a.VariantHeadword, b.VariantHeadword, CompareOptions.IgnoreCase);
+            if (result != 0) return result;
+            return a.VariantEntryId.CompareTo(b.VariantEntryId);
         });
     }
 }

@@ -10,6 +10,7 @@ import type {MorphTypeKind} from './MorphTypeKind';
 import type {ISense} from './ISense';
 import type {IComplexFormComponent} from './IComplexFormComponent';
 import type {IComplexFormType} from './IComplexFormType';
+import type {IVariant} from './IVariant';
 import type {IPublication} from './IPublication';
 
 export interface IEntry extends IObjectWithId
@@ -26,6 +27,8 @@ export interface IEntry extends IObjectWithId
 	components: IComplexFormComponent[];
 	complexForms: IComplexFormComponent[];
 	complexFormTypes: IComplexFormType[];
+	variantOf: IVariant[];
+	variants: IVariant[];
 	publishIn: IPublication[];
 }
 /* eslint-enable */

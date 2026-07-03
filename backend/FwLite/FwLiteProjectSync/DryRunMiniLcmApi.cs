@@ -126,6 +126,31 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task<VariantType> CreateVariantType(VariantType variantType)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateVariantType),
+            $"Create variant type {variantType.Name}"));
+        return Task.FromResult(variantType);
+    }
+
+    public async Task<VariantType> UpdateVariantType(Guid id, UpdateObjectInput<VariantType> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateVariantType), $"Update variant type {id}"));
+        return await _api.GetVariantType(id) ?? throw new NullReferenceException($"unable to find variant type with id {id}");
+    }
+
+    public Task<VariantType> UpdateVariantType(VariantType before, VariantType after, IMiniLcmApi? api)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateVariantType), $"Update variant type {after.Id}"));
+        return Task.FromResult(after);
+    }
+
+    public Task DeleteVariantType(Guid id)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteVariantType), $"Delete variant type {id}"));
+        return Task.CompletedTask;
+    }
+
     public Task<MorphType> CreateMorphType(MorphType morphType)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateMorphType), $"Create morph type {morphType.Kind} ({morphType.Id})"));
@@ -152,7 +177,7 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         if (options.IncludeComplexFormsAndComponents)
             return Task.FromResult(entry);
         else
-            return Task.FromResult(entry with { Components = [], ComplexForms = [] });
+            return Task.FromResult(entry with { Components = [], ComplexForms = [], VariantOf = [], Variants = [] });
     }
 
     public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
@@ -364,6 +389,41 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         await Task.CompletedTask;
     }
 
+    public Task<Variant> CreateVariant(Variant variant)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateVariant), $"Create variant link {VariantName(variant)}"));
+        return Task.FromResult(variant);
+    }
+
+    public Task<Variant> UpdateVariant(Variant before, Variant after, IMiniLcmApi? api = null)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateVariant), $"Update variant link {VariantName(after)}"));
+        return Task.FromResult(after);
+    }
+
+    public Task DeleteVariant(Variant variant)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteVariant), $"Delete variant link {VariantName(variant)}"));
+        return Task.CompletedTask;
+    }
+
+    public Task AddVariantType(Variant variant, Guid variantTypeId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddVariantType), $"Add variant type {variantTypeId} to variant link {VariantName(variant)}"));
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveVariantType(Variant variant, Guid variantTypeId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemoveVariantType), $"Remove variant type {variantTypeId} from variant link {VariantName(variant)}"));
+        return Task.CompletedTask;
+    }
+
+    private static string VariantName(Variant variant)
+    {
+        return $"{variant.VariantHeadword ?? variant.VariantEntryId.ToString()} -> {variant.MainHeadword ?? variant.MainEntryId.ToString()}{(variant.MainSenseId is null ? "" : $" (sense {variant.MainSenseId})")}";
+    }
+
     public async Task<Publication> CreatePublication(Publication pub)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreatePublication), $"Create publication {pub.Id}"));
@@ -437,6 +497,24 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(SubmitCreateComplexFormComponent), $"Create complex form component {ComplexFormComponentName(complexFormComponent)}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitCreateVariant(Variant variant)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitCreateVariant), $"Create variant link {VariantName(variant)}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitUpdateVariant(Variant variant, UpdateObjectInput<Variant> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdateVariant), $"Update variant link {VariantName(variant)}"));
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitUpdateVariantType(Guid id, UpdateObjectInput<VariantType> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdateVariantType), $"Update variant type {id}"));
         return Task.CompletedTask;
     }
 

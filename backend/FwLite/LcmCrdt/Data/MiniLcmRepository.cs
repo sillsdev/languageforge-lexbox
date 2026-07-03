@@ -66,6 +66,8 @@ public class MiniLcmRepository(
     public IQueryable<Entry> Entries => dbContext.Entries.ToLinqToDB();
     public IQueryable<ComplexFormComponent> ComplexFormComponents => dbContext.ComplexFormComponents;
     public IQueryable<ComplexFormType> ComplexFormTypes => dbContext.ComplexFormTypes;
+    public IQueryable<Variant> Variants => dbContext.Variants;
+    public IQueryable<VariantType> VariantTypes => dbContext.VariantTypes;
     public IQueryable<MorphType> MorphTypes => dbContext.MorphTypes;
     public IQueryable<Sense> Senses => dbContext.Senses;
     public IQueryable<ExampleSentence> ExampleSentences => dbContext.ExampleSentences;
@@ -121,6 +123,15 @@ public class MiniLcmRepository(
                throw NotFoundException.ForType<ComplexFormComponent>(objectId);
     }
 
+    public async Task<Variant?> FindVariant(Variant variant)
+    {
+        return await AsyncExtensions.SingleOrDefaultAsync(Variants,
+            v =>
+            v.VariantEntryId == variant.VariantEntryId
+            && v.MainEntryId == variant.MainEntryId
+            && v.MainSenseId == variant.MainSenseId);
+    }
+
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
     {
         options ??= FilterQueryOptions.Default;
@@ -141,16 +152,17 @@ public class MiniLcmRepository(
             .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
             .LoadWith(e => e.ComplexForms)
             .LoadWith(e => e.Components)
+            .LoadWith(e => e.VariantOf)
+            .LoadWith(e => e.Variants)
             .AsQueryable();
 
         queryable = options.ApplyPaging(queryable);
-        var complexFormComparer = cultureProvider.GetCompareInfo(await GetWritingSystem(default, WritingSystemType.Vernacular))
-            .AsComplexFormComparer();
+        var compareInfo = cultureProvider.GetCompareInfo(await GetWritingSystem(default, WritingSystemType.Vernacular));
         var entries = AsyncExtensions.AsAsyncEnumerable(queryable);
         await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
         await foreach (var entry in EfExtensions.SafeIterate(entries))
         {
-            entry.Finalize(complexFormComparer);
+            entry.Finalize(compareInfo);
             yield return entry;
         }
     }
@@ -248,13 +260,13 @@ public class MiniLcmRepository(
                 .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
                 .LoadWith(e => e.ComplexForms)
                 .LoadWith(e => e.Components)
+                .LoadWith(e => e.VariantOf)
+                .LoadWith(e => e.Variants)
                 .AsQueryable(), e => e.Id == id);
         if (entry is not null)
         {
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
-            var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
-                .AsComplexFormComparer();
-            entry.Finalize(complexFormComparer);
+            entry.Finalize(cultureProvider.GetCompareInfo(sortWs));
         }
 
         return entry;
