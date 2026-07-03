@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
 using MiniLcm.Project;
 using Refit;
@@ -48,25 +49,75 @@ public class LcmMediaService(
     /// <param name="fileId">media file Id</param>
     /// <returns></returns>
     /// <exception cref="FileNotFoundException"></exception>
+    // Coalesces concurrent downloads of the same file into one shared task. Without this, two
+    // requests for a not-yet-cached file (e.g. the UI loading a picture more than once at first
+    // render) both see no local resource and both call DownloadResource, whose AddLocalResource
+    // inserts a LocalResource keyed by the file id — the second insert then fails with
+    // "UNIQUE constraint failed: LocalResource.Id". The first caller starts the task; others
+    // await the same one. Keyed by file id (a unique Guid), so different files still download in
+    // parallel.
+    private static readonly ConcurrentDictionary<Guid, Task<LocalResource>> DownloadTasks = new();
+
     public async Task<ReadFileResponse> GetFileStream(Guid fileId)
     {
         var localResource = await resourceService.GetLocalResource(fileId);
         if (localResource is null)
         {
             var connectionStatus = await httpClientProvider.ConnectionStatus();
-            if (connectionStatus == ConnectionStatus.Online)
-            {
-                localResource = await resourceService.DownloadResource(fileId, this);
-            }
-            else
+            if (connectionStatus != ConnectionStatus.Online)
             {
                 return new ReadFileResponse(ReadFileResult.Offline);
             }
+
+            localResource = await GetOrStartDownload(fileId);
         }
         //todo, consider trying to download the file again, maybe the cache was cleared
         if (!File.Exists(localResource.LocalPath))
             throw new FileNotFoundException("Unable to find the file with Id" + fileId, localResource.LocalPath);
         return new(File.OpenRead(localResource.LocalPath), Path.GetFileName(localResource.LocalPath));
+    }
+
+    private Task<LocalResource> GetOrStartDownload(Guid fileId)
+    {
+        // Use the *value* overload of GetOrAdd, not the factory overload: the factory can run more
+        // than once under contention (only one result is kept), which would start the download
+        // twice. Passing a not-yet-started TaskCompletionSource.Task lets exactly one caller — the
+        // one whose task actually got stored — kick off the download.
+        var tcs = new TaskCompletionSource<LocalResource>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var task = DownloadTasks.GetOrAdd(fileId, tcs.Task);
+        if (task != tcs.Task)
+        {
+            // Another caller already owns the in-flight download; await theirs (our tcs is unused).
+            return task;
+        }
+        _ = RunDownloadAsync(fileId, tcs);
+        return task;
+    }
+
+    private async Task RunDownloadAsync(Guid fileId, TaskCompletionSource<LocalResource> tcs)
+    {
+        try
+        {
+            // Re-check before downloading: a previous download may have committed the LocalResource
+            // after our caller's GetLocalResource miss (this closes the race between
+            // GetLocalResource and DownloadResource). The task entry is removed only after this
+            // completes — i.e. after the download has committed — so any later caller that starts a
+            // fresh task will find the committed resource here and skip the download, rather than
+            // inserting a duplicate primary key.
+            var resource = await resourceService.GetLocalResource(fileId)
+                           ?? await resourceService.DownloadResource(fileId, this);
+            tcs.SetResult(resource);
+        }
+        catch (Exception e)
+        {
+            tcs.SetException(e);
+        }
+        finally
+        {
+            // Cached now, so future misses can start fresh; also prevents a failed download from
+            // being cached as a permanently-faulted task.
+            DownloadTasks.TryRemove(fileId, out _);
+        }
     }
 
     private async Task<(Stream? stream, string? filename)> RequestMediaFile(Guid fileId)
