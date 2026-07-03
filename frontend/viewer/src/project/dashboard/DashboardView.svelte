@@ -108,12 +108,9 @@
               <Card.Title>{$t`Entries with senses`}</Card.Title>
             </Card.Header>
             <Card.Content>
-              <p class="text-3xl font-semibold tabular-nums">{formatNumber(dashboard.entriesWithSenses)}</p>
+              <p class="text-3xl font-semibold tabular-nums">{formatNumber(dashboard.entriesWithSenses.filled)}</p>
               <p class="text-sm text-muted-foreground mt-1">
-                {formatCompletion(
-                  {filled: dashboard.entriesWithSenses, percent: dashboard.totalEntries === 0 ? 0 : Math.round((dashboard.entriesWithSenses / dashboard.totalEntries) * 100)},
-                  dashboard.totalEntries,
-                )}
+                {formatCompletion(dashboard.entriesWithSenses, dashboard.totalEntries)}
               </p>
             </Card.Content>
           </Card.Root>
@@ -122,12 +119,9 @@
               <Card.Title>{$t`Entries with examples`}</Card.Title>
             </Card.Header>
             <Card.Content>
-              <p class="text-3xl font-semibold tabular-nums">{formatNumber(dashboard.entriesWithExamples)}</p>
+              <p class="text-3xl font-semibold tabular-nums">{formatNumber(dashboard.entriesWithExamples.filled)}</p>
               <p class="text-sm text-muted-foreground mt-1">
-                {formatCompletion(
-                  {filled: dashboard.entriesWithExamples, percent: dashboard.totalEntries === 0 ? 0 : Math.round((dashboard.entriesWithExamples / dashboard.totalEntries) * 100)},
-                  dashboard.totalEntries,
-                )}
+                {formatCompletion(dashboard.entriesWithExamples, dashboard.totalEntries)}
               </p>
             </Card.Content>
           </Card.Root>

@@ -44,11 +44,22 @@ export type AnalysisWritingSystemStats = {
 
 export type DashboardStats = {
   totalEntries: number;
-  entriesWithSenses: number;
-  entriesWithExamples: number;
+  entriesWithSenses: FieldCompletion;
+  entriesWithExamples: FieldCompletion;
   milestone: MilestoneProgress | undefined;
   vernacular: VernacularWritingSystemStats[];
   analysis: AnalysisWritingSystemStats[];
+};
+
+type VernacularFilledCounts = {
+  lexemeForm: number;
+  citationForm: number;
+  exampleSentence: number;
+};
+
+type AnalysisFilledCounts = {
+  gloss: number;
+  definition: number;
 };
 
 const dashboardStatsSymbol = Symbol.for('fw-lite-dashboard-stats');
@@ -72,30 +83,34 @@ async function filledCount(api: IMiniLcmJsInvokable, total: number, gridifyFilte
 function mapVernacularStats(
   totalEntries: number,
   writingSystems: IWritingSystem[],
-  filledCounts: number[],
+  filledCounts: VernacularFilledCounts[],
 ): VernacularWritingSystemStats[] {
-  let index = 0;
-  return writingSystems.map(ws => ({
-    wsId: ws.wsId,
-    abbreviation: ws.abbreviation,
-    lexemeForm: completion(totalEntries, filledCounts[index++]),
-    citationForm: completion(totalEntries, filledCounts[index++]),
-    exampleSentence: completion(totalEntries, filledCounts[index++]),
-  }));
+  return writingSystems.map((ws, i) => {
+    const counts = filledCounts[i];
+    return {
+      wsId: ws.wsId,
+      abbreviation: ws.abbreviation,
+      lexemeForm: completion(totalEntries, counts.lexemeForm),
+      citationForm: completion(totalEntries, counts.citationForm),
+      exampleSentence: completion(totalEntries, counts.exampleSentence),
+    };
+  });
 }
 
 function mapAnalysisStats(
   totalEntries: number,
   writingSystems: IWritingSystem[],
-  filledCounts: number[],
+  filledCounts: AnalysisFilledCounts[],
 ): AnalysisWritingSystemStats[] {
-  let index = 0;
-  return writingSystems.map(ws => ({
-    wsId: ws.wsId,
-    abbreviation: ws.abbreviation,
-    gloss: completion(totalEntries, filledCounts[index++]),
-    definition: completion(totalEntries, filledCounts[index++]),
-  }));
+  return writingSystems.map((ws, i) => {
+    const counts = filledCounts[i];
+    return {
+      wsId: ws.wsId,
+      abbreviation: ws.abbreviation,
+      gloss: completion(totalEntries, counts.gloss),
+      definition: completion(totalEntries, counts.definition),
+    };
+  });
 }
 
 async function fetchDashboardStats(
@@ -105,24 +120,24 @@ async function fetchDashboardStats(
 ): Promise<DashboardStats> {
   const totalEntries = await api.countEntries(undefined, undefined);
 
-  const [entriesWithSenses, entriesWithExamples, vernacularFilled, analysisFilled] = await Promise.all([
+  const [entriesWithSensesCount, entriesWithExamplesCount, vernacularFilled, analysisFilled] = await Promise.all([
     filledCount(api, totalEntries, 'Senses=null'),
     filledCount(api, totalEntries, 'Senses.ExampleSentences=null'),
-    Promise.all(vernacular.flatMap(ws => [
-      filledCount(api, totalEntries, `LexemeForm[${ws.wsId}]=`),
-      filledCount(api, totalEntries, `CitationForm[${ws.wsId}]=`),
-      filledCount(api, totalEntries, `Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${ws.wsId}]=`),
-    ])),
-    Promise.all(analysis.flatMap(ws => [
-      filledCount(api, totalEntries, `Senses=null|Senses.Gloss[${ws.wsId}]=`),
-      filledCount(api, totalEntries, `Senses=null|Senses.Definition[${ws.wsId}]=`),
-    ])),
+    Promise.all(vernacular.map(async ws => ({
+      lexemeForm: await filledCount(api, totalEntries, `LexemeForm[${ws.wsId}]=`),
+      citationForm: await filledCount(api, totalEntries, `CitationForm[${ws.wsId}]=`),
+      exampleSentence: await filledCount(api, totalEntries, `Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${ws.wsId}]=`),
+    }))),
+    Promise.all(analysis.map(async ws => ({
+      gloss: await filledCount(api, totalEntries, `Senses=null|Senses.Gloss[${ws.wsId}]=`),
+      definition: await filledCount(api, totalEntries, `Senses=null|Senses.Definition[${ws.wsId}]=`),
+    }))),
   ]);
 
   return {
     totalEntries,
-    entriesWithSenses,
-    entriesWithExamples,
+    entriesWithSenses: completion(totalEntries, entriesWithSensesCount),
+    entriesWithExamples: completion(totalEntries, entriesWithExamplesCount),
     milestone: nextMilestone(totalEntries),
     vernacular: mapVernacularStats(totalEntries, vernacular, vernacularFilled),
     analysis: mapAnalysisStats(totalEntries, analysis, analysisFilled),
