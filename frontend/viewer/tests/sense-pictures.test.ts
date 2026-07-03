@@ -1,10 +1,17 @@
 import {expect, test} from '@playwright/test';
 import {BrowsePage} from './browse-page';
 
+// A tiny valid 1x1 PNG, used to exercise the upload flow without a real image file.
+const ONE_PX_PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQDJ/pLvAAAAAElFTkSuQmCC',
+  'base64',
+);
+
 /**
  * Verifies the Sense "Pictures" field:
  * - a sense with pictures renders the image (loaded via getFileStream into a blob url) + caption
- * - a sense without pictures shows the disabled "+ Picture" add button
+ * - a sense without pictures shows the enabled "+ Picture" add button, and uploading a file
+ *   through it adds a picture that then renders
  *
  * The demo "nyumba" entry (allWsEntry) has two demo pictures on its sense; other demo
  * entries (e.g. "ambuka") have none.
@@ -29,7 +36,7 @@ test.describe('Sense pictures', () => {
     await expect(picturesField.getByText(/A traditional house|Uma casa tradicional/)).toBeVisible();
   });
 
-  test('shows a disabled "+ Picture" button for a sense with no pictures', async ({page}) => {
+  test('shows an enabled "+ Picture" button for a sense with no pictures', async ({page}) => {
     const browsePage = new BrowsePage(page);
     await browsePage.goto();
 
@@ -41,8 +48,31 @@ test.describe('Sense pictures', () => {
 
     const addButton = picturesField.getByRole('button', {name: 'Picture'});
     await expect(addButton).toBeVisible();
-    await expect(addButton).toBeDisabled();
-    // The add button is the empty state, so no image should be present.
+    await expect(addButton).toBeEnabled();
+    // The add button is the empty state, so no image should be present yet.
     await expect(picturesField.locator('img')).toHaveCount(0);
+  });
+
+  test('uploading a picture through the "+ Picture" button adds and renders it', async ({page}) => {
+    const browsePage = new BrowsePage(page);
+    await browsePage.goto();
+
+    await browsePage.selectEntryByFilter('ambuka');
+
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await expect(picturesField).toBeVisible({timeout: 5000});
+    await expect(picturesField.locator('img')).toHaveCount(0);
+
+    // Clicking the button opens the OS file picker; drive the hidden input directly instead.
+    await picturesField.locator('input[type="file"]').setInputFiles({
+      name: 'photo.png',
+      mimeType: 'image/png',
+      buffer: ONE_PX_PNG,
+    });
+
+    // The uploaded picture is created and re-loaded via getFileStream into a blob url.
+    const image = picturesField.locator('img').first();
+    await expect(image).toBeVisible({timeout: 5000});
+    await expect(image).toHaveAttribute('src', /^blob:/);
   });
 });

@@ -990,6 +990,8 @@ msgstr "Glosi"
 msgid "Go to {0}"
 msgstr "Nenda kwa {0}"
 
+#. Aria-label on a carousel dot button below the picture; navigates to a specific picture
+#. {0} = 1-based picture number (e.g., "Go to picture 2")
 #: src/lib/entry-editor/field-editors/PictureCarousel.svelte
 msgid "Go to picture {0}"
 msgstr ""
@@ -1043,6 +1045,7 @@ msgstr "Siioni mradi wangu"
 msgid "I understand that this can't be undone"
 msgstr "Ninaelewa kuwa hii haiwezi kurudishwa nyuma"
 
+#. Error displayed in place of a picture when the media file is missing from local storage
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Image not found"
 msgstr ""
@@ -1328,6 +1331,7 @@ msgstr ""
 msgid "Next"
 msgstr "Inayofuata"
 
+#. Aria-label on the right-arrow button in the picture carousel; advances to the next image
 #: src/lib/entry-editor/field-editors/PictureCarousel.svelte
 msgid "Next picture"
 msgstr ""
@@ -1386,6 +1390,7 @@ msgstr "Hakuna kitu kilichopatikana"
 msgid "No new data"
 msgstr "Hakuna data mpya"
 
+#. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
 msgstr ""
@@ -1566,11 +1571,13 @@ msgstr "Inasubiri"
 msgid "Pick a Part of Speech"
 msgstr "Chagua Sehemu ya Mazungumzo"
 
+#. Two uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
 msgstr ""
 
+#. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
 #: src/lib/views/entity-config.ts
 msgid "Pictures"
 msgstr ""
@@ -1599,6 +1606,7 @@ msgstr "Hakiki"
 msgid "Preview not available"
 msgstr "Muonekano awali haupatikani"
 
+#. Aria-label on the left-arrow button in the picture carousel; goes back to the previous image
 #: src/lib/entry-editor/field-editors/PictureCarousel.svelte
 msgid "Previous picture"
 msgstr ""
@@ -1978,6 +1986,10 @@ msgstr "Jukumu"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Tuambie kuhusu kosa au matatizo uliyokabiliwa."
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "That picture has already been uploaded"
+msgstr ""
+
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
@@ -2023,6 +2035,14 @@ msgstr "Hili {0} limefutwa"
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "Tarehe hii # na emoji hii # ni vigezo"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try reducing the image resolution and uploading again."
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
+msgstr ""
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2092,6 +2112,7 @@ msgstr "Andika sentensi ya mfano"
 msgid "Type:"
 msgstr "Aina:"
 
+#. Generic error displayed in place of a picture when loading fails for an unspecified reason
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Unable to load image"
@@ -2101,6 +2122,10 @@ msgstr ""
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "Haiwezi kufungua katika FieldWorks"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Unable to upload the picture"
+msgstr ""
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/ActivityFilter.svelte
@@ -2196,6 +2221,10 @@ msgstr "Sasisho halikuruhusiwa na mipangilio ya ruhusa."
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
 msgstr "Masasisho"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Uploading pictures is not supported here"
+msgstr ""
 
 #. Field label
 #: src/lib/views/entity-config.ts

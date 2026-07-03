@@ -990,6 +990,8 @@ msgstr "광택"
 msgid "Go to {0}"
 msgstr "{0}으로 이동"
 
+#. Aria-label on a carousel dot button below the picture; navigates to a specific picture
+#. {0} = 1-based picture number (e.g., "Go to picture 2")
 #: src/lib/entry-editor/field-editors/PictureCarousel.svelte
 msgid "Go to picture {0}"
 msgstr ""
@@ -1043,6 +1045,7 @@ msgstr "내 프로젝트가 보이지 않습니다."
 msgid "I understand that this can't be undone"
 msgstr "이 작업은 되돌릴 수 없다는 것을 이해합니다."
 
+#. Error displayed in place of a picture when the media file is missing from local storage
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Image not found"
 msgstr ""
@@ -1328,6 +1331,7 @@ msgstr ""
 msgid "Next"
 msgstr "다음"
 
+#. Aria-label on the right-arrow button in the picture carousel; advances to the next image
 #: src/lib/entry-editor/field-editors/PictureCarousel.svelte
 msgid "Next picture"
 msgstr ""
@@ -1386,6 +1390,7 @@ msgstr "항목을 찾을 수 없습니다."
 msgid "No new data"
 msgstr "새 데이터 없음"
 
+#. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
 msgstr ""
@@ -1566,11 +1571,13 @@ msgstr "보류 중"
 msgid "Pick a Part of Speech"
 msgstr "품사 선택"
 
+#. Two uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
 msgstr ""
 
+#. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
 #: src/lib/views/entity-config.ts
 msgid "Pictures"
 msgstr ""
@@ -1599,6 +1606,7 @@ msgstr "미리 보기"
 msgid "Preview not available"
 msgstr "미리 보기를 사용할 수 없습니다."
 
+#. Aria-label on the left-arrow button in the picture carousel; goes back to the previous image
 #: src/lib/entry-editor/field-editors/PictureCarousel.svelte
 msgid "Previous picture"
 msgstr ""
@@ -1978,6 +1986,10 @@ msgstr "작업"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "발생한 버그나 문제에 대해 알려주세요."
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "That picture has already been uploaded"
+msgstr ""
+
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
@@ -2023,6 +2035,14 @@ msgstr "이 {0} 삭제됨"
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "이 날짜 #와 이 이모티콘 #은 스니펫입니다."
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try reducing the image resolution and uploading again."
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
+msgstr ""
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2092,6 +2112,7 @@ msgstr "예제 문장을 입력합니다."
 msgid "Type:"
 msgstr "유형:"
 
+#. Generic error displayed in place of a picture when loading fails for an unspecified reason
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Unable to load image"
@@ -2101,6 +2122,10 @@ msgstr ""
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "FieldWorks에서 열 수 없음"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Unable to upload the picture"
+msgstr ""
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/ActivityFilter.svelte
@@ -2196,6 +2221,10 @@ msgstr "권한 설정에 의해 업데이트가 허용되지 않았습니다."
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
 msgstr "업데이트"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Uploading pictures is not supported here"
+msgstr ""
 
 #. Field label
 #: src/lib/views/entity-config.ts

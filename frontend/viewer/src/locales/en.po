@@ -1981,6 +1981,10 @@ msgstr "Tasks"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Tell us about a bug or issue you’ve encountered."
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "That picture has already been uploaded"
+msgstr "That picture has already been uploaded"
+
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
@@ -2026,6 +2030,14 @@ msgstr "This {0} was deleted"
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "This date # and this emoji # are snippets"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try reducing the image resolution and uploading again."
+msgstr "This picture is too large to upload. Try reducing the image resolution and uploading again."
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
+msgstr "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2105,6 +2117,10 @@ msgstr "Unable to load image"
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "Unable to open in FieldWorks"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Unable to upload the picture"
+msgstr "Unable to upload the picture"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/ActivityFilter.svelte
@@ -2200,6 +2216,10 @@ msgstr "Update was disallowed by permission settings."
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
 msgstr "Updates"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Uploading pictures is not supported here"
+msgstr "Uploading pictures is not supported here"
 
 #. Field label
 #: src/lib/views/entity-config.ts
