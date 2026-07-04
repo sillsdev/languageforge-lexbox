@@ -12,10 +12,46 @@ dev/agent can pick up the work mid-stream. Update the **Status** section as step
   FwLiteProjectSync.Tests incl. Sena3 live db regen; the WS-font failure on Windows is
   the known local-only false-fail)
 - [x] Step 3 — Viewer UI (fields, per-link type menu, demo seed, i18n, Playwright green)
-- [x] Review (8-agent pass; fixes: sense-move composite-key lookup in the FwData bridge,
-  type-toggle re-render, hub read parity) + draft PRs:
-  backend [#2408](https://github.com/sillsdev/languageforge-lexbox/pull/2408),
-  UI [#2409](https://github.com/sillsdev/languageforge-lexbox/pull/2409) (stacked)
+- [x] Review iterations — see "Review & verification log" below; ALL automated review is
+  done and green
+- [ ] **Next: human review of [#2410](https://github.com/sillsdev/languageforge-lexbox/pull/2410)**
+  (the only open PR; pay special attention to commit `0d03aed28` — it changes shipped
+  `AddEntryComponentChange` replay semantics, see decision 7 + rollout notes), then Tim's
+  merge sequence: reopen [#2408](https://github.com/sillsdev/languageforge-lexbox/pull/2408)
+  and merge the steps one by one.
+
+## Review & verification log
+
+The user-mandated workflow was: per step, polish → open a non-draft PR (so CodeRabbit
+reviews) → handle all CodeRabbit feedback → make Devin + CI green → close the PR
+(NOT merged) → next iteration opens a cumulative PR. PR closures are workflow, not
+abandonment.
+
+- **Iteration 1 — backend, [#2408](https://github.com/sillsdev/languageforge-lexbox/pull/2408)
+  (now closed on purpose)**: /polish agent suite; CodeRabbit round (2 accepted: sense-ownership
+  guard on variant create + `NotBeEmptyVariantEntryReference`; 3 rejected with posted replies);
+  Devin clean; CI 27/27 at `55d4485cd`. [#2409](https://github.com/sillsdev/languageforge-lexbox/pull/2409)
+  (stacked UI draft) closed as superseded.
+- **Iteration 2 — cumulative backend+UI, [#2410](https://github.com/sillsdev/languageforge-lexbox/pull/2410)
+  (OPEN, base develop)**: scoped /polish clean; CodeRabbit round (doc fixes accepted, picker
+  cycle-guard suggestion rejected as complex-form-picker precedent); Devin clean ×3; CI green.
+- **liblcm deep review (4 parallel agents, every claim cited against `D:\code\liblcm`
+  source)** → commit `0d03aed28`, the highest-risk commit in the stack. Found and fixed:
+  (a) CRDT rejected sense-targeted variant graphs FLEx accepts → sync would delete legal
+  links (decision 7's `AllComponents` no-recurse rule); (b) `AddEntryComponentChange` missed
+  mixed cycles liblcm rejects → mid-sync wedge; (c) per-link edits on FLEx shared
+  multi-target refs silently edited sibling links → split-before-mutate; plus read
+  hardening + `HideMinorEntry` bitfield guard.
+- **Merge-hardening (`aff08b562`)**: targeted mutation testing (3/3 mutants killed; the
+  surviving would-be mutant exposed the missing `HideMinorEntry` bitfield test, now added);
+  `CreateLinks_MatchTheLcmCycleRuleOnRandomGraphs` — a seeded random-graph differential test
+  in `VariantTestsBase` asserting both implementations accept/reject exactly per an inline
+  port of LCM's `AllComponents` oracle (the FwData side runs real liblcm, so this is
+  empirical conformance, not source-reading); maintainer-simulation review → truthful PR
+  framing, rollout-note completeness, this log.
+- **Verification commands used** (all green at `aff08b562`): FwData + CRDT variant/component
+  suites filtered, `FwLiteProjectSync.Tests --filter Sena3` (16/16), viewer
+  check/lint/vitest/Playwright.
 
 **Boundary change vs the original plan**: steps 1 and 2 merged — the moment the FwData
 bridge reads variants, importing a variant-containing project crashes unless variant types
@@ -324,6 +360,14 @@ Mirror the *named* complex-forms cases (test-auditor sweep), not just categories
   legacy-snapshot upgrade; flattened-type read + create-missing-type-lands-top-level
   (FwData bridge); Sena3 + verified files regen.
 - Playwright (step 3): add/remove a variant link + type via the demo project.
+- Hardening additions (post-review, all in the shared bases unless noted): sense-targeted
+  cycle trio (loop-through-sense-link allowed / 2-layer sense cycle rejected / sense-of-a-
+  dependent-entry rejected); mixed cycle closed by a complex-form add rejected
+  (`VariantTestsBase`) and its pure-CFC sense-loop mirror (`ComplexFormComponentTestsBase`);
+  `VariantTestsSharedRef` (FwData-only: real 2-component ref — reads fan out, per-link type
+  edits split instead of touching the sibling); `UpdateVariant_PreservesAMultiBitHideMinorEntry`
+  (FwData-only); `CreateLinks_MatchTheLcmCycleRuleOnRandomGraphs` (seeded differential test
+  against the LCM `AllComponents` oracle, both implementations).
 
 ## Stacked PR plan
 
