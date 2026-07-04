@@ -25,6 +25,7 @@ public class EntryValidator : AbstractValidator<Entry>
         RuleForEach(e => e.VariantOf).Must(NotBeEmptyMainEntryReference).WithMessage("Variant main-entry reference must not be empty.");
         RuleForEach(e => e.VariantOf).Must(NotBeVariantOfSelfReference).WithMessage("Variant main-entry reference must not be the same as the entry.");
         RuleForEach(e => e.VariantOf).Must(HaveCorrectVariantEntryReference).WithMessage("Variant entry reference must be correct.");
+        RuleForEach(e => e.Variants).Must(NotBeEmptyVariantEntryReference).WithMessage("Variant entry reference must not be empty.");
         RuleForEach(e => e.Variants).Must(NotBeVariantSelfReference).WithMessage("Variant entry reference must not be the same as the entry.");
         RuleForEach(e => e.Variants).Must(HaveCorrectMainEntryReference).WithMessage("Variant main-entry reference must be correct.");
         RuleForEach(e => e.VariantOf).SetValidator(new VariantValidator());
@@ -61,6 +62,11 @@ public class EntryValidator : AbstractValidator<Entry>
     private bool NotBeEmptyMainEntryReference(Entry entry, Variant variant)
     {
         return variant.MainEntryId != Guid.Empty;
+    }
+
+    private bool NotBeEmptyVariantEntryReference(Entry entry, Variant variant)
+    {
+        return variant.VariantEntryId != Guid.Empty;
     }
 
     private bool NotBeVariantOfSelfReference(Entry entry, Variant variant)

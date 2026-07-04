@@ -1476,9 +1476,20 @@ public class FwDataMiniLcmApi(
     internal void AddVariant(ILexEntry lexVariantEntry, Variant variant)
     {
         if (FindVariantRef(lexVariantEntry, variant) is not null) return; //idempotent, like the CRDT side
-        var target = variant.MainSenseId is not null
-            ? (ICmObject)SenseRepository.GetObject(variant.MainSenseId.Value)
-            : EntriesRepository.GetObject(variant.MainEntryId);
+        ICmObject target;
+        if (variant.MainSenseId is not null)
+        {
+            var sense = SenseRepository.GetObject(variant.MainSenseId.Value);
+            //fail before mutating: a mismatched pair would create a link whose derived
+            //MainEntryId is the sense's actual entry, not the requested one
+            if (sense.Entry.Guid != variant.MainEntryId)
+                throw new InvalidOperationException($"Sense {variant.MainSenseId} does not belong to entry {variant.MainEntryId}, it belongs to {sense.Entry.Guid}");
+            target = sense;
+        }
+        else
+        {
+            target = EntriesRepository.GetObject(variant.MainEntryId);
+        }
         //one LexEntryRef per link — multiple variant refs on an entry are how FLEx represents
         //being a variant of multiple things with different types
         var entryRef = Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();

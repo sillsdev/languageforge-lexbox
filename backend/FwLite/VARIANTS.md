@@ -136,13 +136,16 @@ public record Variant : IObjectWithId<Variant>
    This is what makes concurrent type edits merge instead of last-writer-wins.
 6. **No ordering.** Variant lists have no user-meaningful order in FLEx; both directions diff
    as sets. No `IOrderable`, no `SetOrderChange`, no Move API.
-7. **Only self-reference and duplicates are rejected — NOT chains or cycles.** This
-   deliberately diverges from complex forms' BFS cycle guard: FLEx itself allows variant
-   chains and cycles (`MakeVariantOf` has no cycle check, unlike complex-form components),
-   and FwLite never traverses variant links recursively, so rejecting shapes FLEx data can
-   contain would make sync diverge permanently. The duplicate guard lives in
-   `AddVariantChange` (soft-delete, sync-tolerant); self-reference is rejected by
-   `VariantValidator` in the validation wrapper (consistent across both implementations).
+7. **Self-references, duplicates AND cycles are rejected; chains are allowed.** (This
+   decision reversed mid-implementation: `MakeVariantOf` has no cycle check, but the FwData
+   conformance tests proved liblcm rejects circular refs at a lower level —
+   `LexEntryRef.ValidateAddObjectInternal` → `LexEntry.AllComponents`, which walks the
+   **combined** complex-form + variant component graph. Allowing in the CRDT what FLEx
+   rejects would wedge sync, so `AddVariantChange` mirrors the combined-graph walk.)
+   The duplicate/cycle guard lives in `AddVariantChange` (soft-delete, sync-tolerant);
+   self-reference is additionally rejected by `VariantValidator` in the validation wrapper
+   (consistent across both implementations). Chains (a variant of a variant) remain legal,
+   as in FLEx.
 8. **Deleted `VariantType` cleanup**: `Variant.GetReferences()` includes its `Types` ids, and
    `RemoveReference` removes the type from the list (only endpoint ids soft-delete the link).
    Better than the complex-forms quirk where deleted types linger in `Entry.ComplexFormTypes`.
