@@ -221,6 +221,19 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateVariant_ThrowsWhenSenseBelongsToADifferentEntry()
+    {
+        var otherEntry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "other entry" } }
+        });
+        //_mainSenseId1 belongs to _mainEntry, not otherEntry
+        var act = async () => await Api.CreateVariant(Variant.FromEntries(_variantEntry, otherEntry, _mainSenseId1));
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
     public async Task CreateVariant_AllowsChains()
     {
         // FLEx allows variant chains (a variant of a variant); we must too

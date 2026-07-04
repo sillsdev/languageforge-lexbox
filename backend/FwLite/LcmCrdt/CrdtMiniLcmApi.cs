@@ -463,6 +463,17 @@ public class CrdtMiniLcmApi(
 
     private static async Task<AddVariantChange> CreateVariantChange(MiniLcmRepository repo, Variant variant)
     {
+        if (variant.MainSenseId is not null)
+        {
+            //a missing sense is tolerated (out-of-order sync; the change soft-deletes the link),
+            //but a sense that exists under a DIFFERENT entry is a bad request
+            var senseEntryId = await repo.Senses
+                .Where(s => s.Id == variant.MainSenseId.Value)
+                .Select(s => (Guid?)s.EntryId)
+                .FirstOrDefaultAsync();
+            if (senseEntryId is not null && senseEntryId != variant.MainEntryId)
+                throw new InvalidOperationException($"Sense {variant.MainSenseId} does not belong to entry {variant.MainEntryId}, it belongs to {senseEntryId}");
+        }
         var typeIds = variant.Types.Select(t => t.Id).ToArray();
         var resolvedTypes = await repo.VariantTypes.Where(t => typeIds.Contains(t.Id)).ToArrayAsync();
         var missing = typeIds.Except(resolvedTypes.Select(t => t.Id)).ToArray();
