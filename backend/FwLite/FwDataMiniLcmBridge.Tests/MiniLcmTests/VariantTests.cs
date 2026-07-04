@@ -34,6 +34,30 @@ public class VariantTests(ProjectLoaderFixture fixture) : VariantTestsBase
         fwDataApi.Cache.LangProject.LexDbOA.VariantEntryTypesOA.PossibilitiesOS
             .Should().Contain(p => p.Guid == created.Id);
     }
+
+    [Fact]
+    public async Task UpdateVariant_PreservesAMultiBitHideMinorEntry()
+    {
+        // LCM reserves HideMinorEntry as a per-publication bitfield; a bool-level no-op
+        // write must not collapse a multi-bit value to 1
+        var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { HideMinorEntry = true });
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
+        var variantEntry = fwDataApi.EntriesRepository.GetObject(_variantEntryId);
+        await fwDataApi.Cache.DoUsingNewOrCurrentUOW("Set HideMinorEntry bits",
+            "Unset HideMinorEntry bits",
+            () =>
+            {
+                variantEntry.VariantEntryRefs.Single().HideMinorEntry = 2;
+                return ValueTask.CompletedTask;
+            });
+
+        // before deliberately disagrees so the diff emits a HideMinorEntry patch op
+        await Api.UpdateVariant(created with { HideMinorEntry = false }, created with { HideMinorEntry = true });
+
+        variantEntry.VariantEntryRefs.Single().HideMinorEntry.Should().Be(2);
+        var entry = await Api.GetEntry(_variantEntryId);
+        entry!.VariantOf.Single().HideMinorEntry.Should().BeTrue();
+    }
 }
 
 /// <summary>
