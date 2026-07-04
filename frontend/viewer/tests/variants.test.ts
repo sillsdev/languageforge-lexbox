@@ -45,6 +45,12 @@ test.describe('Variants', () => {
       const entry = await browsePage.api.getEntry(variant.id) as {variantOf: VariantLink[]};
       expect(entry.variantOf[0].types.map(t => t.id)).toContain(DIALECTAL_VARIANT_TYPE_ID);
     }).toPass({timeout: 5000});
+
+    // the menu reflects the toggle when reopened (guards the nested-state re-render)
+    await variantOfField.getByText(main.headword).click();
+    await page.getByRole('menuitem', {name: 'Variant type'}).click();
+    await expect(page.getByRole('menuitemcheckbox', {name: 'Dialectal Variant'})).toHaveAttribute('aria-checked', 'true');
+    await page.keyboard.press('Escape');
   });
 
   test('adding a variant via the main entry saves the reverse link', async ({page}) => {

@@ -57,7 +57,8 @@
 
 <EntryOrSenseItemList bind:items={value} {readonly} {onchange} getEntryId={(v) => v.variantEntryId} getHeadword={(v) => v.variantHeadword}>
   {#snippet extraMenuItems(variant)}
-    <VariantTypesMenuItems {variant} {readonly} onchange={() => onchange?.(value)} />
+    <!-- reassign so the nested types edit reliably re-renders (see EntryEditor's `entry = entry`) -->
+    <VariantTypesMenuItems {variant} {readonly} onchange={() => { value = [...value]; onchange?.(value); }} />
   {/snippet}
   {#snippet actions()}
     <EntryOrSensePicker title={$t`Add variant`} mode="only-entries" pick={(e) => addVariant(e)}
