@@ -163,7 +163,9 @@ public interface IMiniLcmWriteApi
     Task SubmitCreateVariant(Variant variant) => CreateVariant(variant);
     /// <summary>
     /// Patches a variant link's own fields (HideMinorEntry, Comment) — the link is located by
-    /// its composite key, not its Id, since FwData links have no stable Id.
+    /// its composite key, not its Id, since FwData links have no stable Id. Abstract (unlike
+    /// its Submit* siblings) because there is no id-based UpdateVariant(id, patch) twin to
+    /// forward to; the patch path only exists for sync.
     /// </summary>
     Task SubmitUpdateVariant(Variant variant, UpdateObjectInput<Variant> update);
     Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => CreateSense(entryId, sense, position);

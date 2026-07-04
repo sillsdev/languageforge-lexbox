@@ -290,6 +290,17 @@ Fanout sites that must stay in lockstep:
   auto-update closes the window. No extra gating exists or is added (precedent).
 - FwHeadless consumes the same sync libraries; it must be deployed with/before a client
   release that writes variant changes.
+- **`AddEntryComponentChange` replay semantics changed** (decision 7): this affects every
+  project with complex forms, not just variant users, on ANY deploy of this code. During
+  version skew, a historical add shaped like a sense-targeted cycle projects as soft-deleted
+  on old clients and live on new ones; the shape is rare (the old guard had to have rejected
+  it, so the link was never visible) and auto-update converges the fleet, same as the
+  new-change-type story above.
+- **Pre-existing FwLite-only (CRDT-only) projects have no variant types**: the 7 standard
+  types are seeded via the blank-project template (new projects) or FwData sync (FLEx-backed
+  projects) only. On older CRDT-only projects the viewer's type submenu hides itself and new
+  links are created untyped — usable but diverging from the FLEx "Unspecified Variant"
+  default. A one-time seeding path for existing projects is a follow-up.
 
 ### Test plan
 
@@ -328,10 +339,11 @@ Mirror the *named* complex-forms cases (test-auditor sweep), not just categories
    decide `show` defaults: mirror complexForms=true; variant-type picker inside the link
    rows), `VariantOf.svelte`/`Variants.svelte` (reuse `EntryOrSensePicker` +
    `EntryOrSenseItemList`, **both non-orderable**, `pt()` dual labels for FW-Classic view,
-   disable self/duplicates but allow cross-type overlap with components), variant badge for
-   minor entries (decision 11), demo data seeded with a variant pair + real (not stub)
-   `InMemoryDemoApi` support for the paths the UI uses, i18n extraction **with context
-   comments**, Playwright test.
+   disable self/duplicates but allow cross-type overlap with components), demo data seeded
+   with a variant pair + real (not stub) `InMemoryDemoApi` support for the paths the UI
+   uses, i18n extraction **with context comments**, Playwright test. The variant *badge*
+   for minor entries (decision 11) did NOT ship in this step — see follow-ups; in-editor
+   visibility is currently the always-shown "Variant of" field.
 
 ## Open questions / follow-ups (not blockers)
 
@@ -339,7 +351,10 @@ Mirror the *named* complex-forms cases (test-auditor sweep), not just categories
   "variant of X" there is a follow-up.
 - `LexEntryInflType` extras (GlossPrepend/Append, InflFeats, Slots), type hierarchy
   round-trip — future work.
-- Entry-list styling of minor entries (beyond the editor badge) — follow-up.
+- Minor-entry badge in the editor (decision 11) and entry-list styling of minor entries —
+  follow-up; today only the "Variant of" field signals variant status.
+- Seed the 7 standard variant types into pre-existing CRDT-only projects (see rollout
+  notes) — follow-up.
 - FLEx "Insert Variant" convenience (create variant entry + link in one step) in the
   new-entry dialog — follow-up UX; v1 links existing entries.
 - `HideMinorEntry` is modeled as bool; LCM docs hint the int may become per-publication bit

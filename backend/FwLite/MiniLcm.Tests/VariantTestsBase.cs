@@ -339,6 +339,82 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateLinks_MatchTheLcmCycleRuleOnRandomGraphs()
+    {
+        // differential check against a direct port of LCM's oracle (LexEntry.AllComponents):
+        // random variant/complex-form link-adds must be accepted/rejected exactly as LCM
+        // would, on both implementations. Fixed seed keeps it deterministic.
+        var random = new Random(20260704);
+        const int entryCount = 6;
+        var entries = new List<Entry>();
+        var senseIds = new Dictionary<Guid, Guid>();
+        for (var i = 0; i < entryCount; i++)
+        {
+            var senseId = Guid.NewGuid();
+            var entry = await Api.CreateEntry(new()
+            {
+                Id = Guid.NewGuid(),
+                LexemeForm = { { "en", $"graph entry {i}" } },
+                Senses = [new Sense { Id = senseId, Gloss = { { "en", $"graph sense {i}" } } }]
+            });
+            entries.Add(entry);
+            senseIds[entry.Id] = senseId;
+        }
+
+        var links = new List<(Guid Owner, Guid TargetEntry, bool TargetIsSense)>();
+        var attempted = new HashSet<(bool AsVariant, Guid Owner, Guid Target, Guid? Sense)>();
+        int accepted = 0, rejected = 0;
+        for (var attempt = 0; attempt < 40; attempt++)
+        {
+            var owner = entries[random.Next(entryCount)];
+            var target = entries[random.Next(entryCount)];
+            var asVariant = random.Next(2) == 0;
+            Guid? targetSenseId = random.Next(3) == 0 ? senseIds[target.Id] : null;
+            //duplicate links have their own (non-cycle) rules; keep this test about cycles
+            if (!attempted.Add((asVariant, owner.Id, target.Id, targetSenseId))) continue;
+
+            var act = asVariant
+                ? () => Api.CreateVariant(Variant.FromEntries(owner, target, targetSenseId))
+                : (Func<Task>)(() => Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(owner, target, targetSenseId)));
+            if (OracleRejects(owner.Id, target.Id))
+            {
+                await act.Should().ThrowAsync<Exception>($"LCM rejects link {attempt} ({owner.Id} -> {target.Id}, sense: {targetSenseId is not null})");
+                rejected++;
+            }
+            else
+            {
+                await act.Should().NotThrowAsync($"LCM accepts link {attempt} ({owner.Id} -> {target.Id}, sense: {targetSenseId is not null})");
+                links.Add((owner.Id, target.Id, targetSenseId is not null));
+                accepted++;
+            }
+        }
+        //seed sanity: both branches must genuinely be exercised
+        accepted.Should().BeGreaterThan(5);
+        rejected.Should().BeGreaterThan(5);
+
+        bool OracleRejects(Guid ownerId, Guid targetEntryId)
+        {
+            //LexEntryRef.ValidateAddObjectInternal: reject iff owner ∈ AllComponents(target).
+            //AllComponents yields the entry itself, recurses into entry-targeted links, and
+            //yields (without recursing into) the owning entry of sense-targeted links
+            var all = new HashSet<Guid>();
+            var stack = new Stack<Guid>();
+            stack.Push(targetEntryId);
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                if (!all.Add(current)) continue;
+                foreach (var link in links.Where(l => l.Owner == current))
+                {
+                    if (link.TargetIsSense) all.Add(link.TargetEntry);
+                    else stack.Push(link.TargetEntry);
+                }
+            }
+            return all.Contains(ownerId);
+        }
+    }
+
+    [Fact]
     public async Task CreateVariant_WorksWhenALinkWasDeletedWhichWouldCauseACycle()
     {
         var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry));
