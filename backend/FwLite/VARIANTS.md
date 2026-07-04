@@ -93,7 +93,7 @@ public record Variant : IObjectWithId<Variant>
     string? MainHeadword;       // derived cache
     List<VariantType> Types;    // LexEntryRef.VariantEntryTypesRS
     bool HideMinorEntry;        // LexEntryRef.HideMinorEntry != 0 (LCM polarity kept; UI shows "Show minor entry" inverted)
-    RichMultiString? Comment;   // LexEntryRef.Summary (FLEx UI labels it "Comment") — check actual MultiString kind at impl time
+    RichMultiString Comment;    // LexEntryRef.Summary (FLEx UI labels it "Comment")
     DateTimeOffset? DeletedAt;
 }
 ```
@@ -149,8 +149,11 @@ public record Variant : IObjectWithId<Variant>
 8. **Deleted `VariantType` cleanup**: `Variant.GetReferences()` includes its `Types` ids, and
    `RemoveReference` removes the type from the list (only endpoint ids soft-delete the link).
    Better than the complex-forms quirk where deleted types linger in `Entry.ComplexFormTypes`.
-   Like `Entry.ComplexFormTypes`, `Variant.Types` stores denormalized copies (jsonb), so a
-   type *rename* reaches already-linked variants on the next sync/read, not instantly.
+   Like `Entry.ComplexFormTypes`, `Variant.Types` stores denormalized copies (jsonb) that are
+   matched by id; a type *rename* updates only the canonical `VariantType` row (the embedded
+   `Name` copies go stale — the sync diff's `Replace` is deliberately a no-op, same as
+   `ComplexFormTypesDiffApi`). That never surfaces: the viewer and FwData writes resolve
+   names/refs via the canonical row, using the embedded copies only for their ids.
 9. **Variant entries with no senses are first-class** and must be covered by tests both ways
    (headline behavioral difference; FLEx "Insert Variant" creates sense-less entries).
 10. **A variant can target a sense** (`MainSenseId`); on the main side such links still
