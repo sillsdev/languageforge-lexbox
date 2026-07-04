@@ -9,8 +9,8 @@ public static class QueryHelpers
         entry.Senses.ApplySortOrder();
         entry.Components.ApplySortOrder();
         entry.ComplexForms.Sort(compareInfo.AsComplexFormComparer());
-        entry.VariantOf.Sort(compareInfo.AsVariantOfComparer());
-        entry.Variants.Sort(compareInfo.AsVariantsComparer());
+        entry.VariantOf.Sort(Variant.VariantOfOrder);
+        entry.Variants.Sort(Variant.VariantsOrder);
         foreach (var sense in entry.Senses)
         {
             sense.Finalize();
@@ -57,23 +57,4 @@ public static class QueryHelpers
         });
     }
 
-    public static IComparer<Variant> AsVariantOfComparer(this CompareInfo compareInfo)
-    {
-        return Comparer<Variant>.Create((a, b) =>
-        {
-            var result = compareInfo.Compare(a.MainHeadword, b.MainHeadword, CompareOptions.IgnoreCase);
-            if (result != 0) return result;
-            return a.MainEntryId.CompareTo(b.MainEntryId);
-        });
-    }
-
-    public static IComparer<Variant> AsVariantsComparer(this CompareInfo compareInfo)
-    {
-        return Comparer<Variant>.Create((a, b) =>
-        {
-            var result = compareInfo.Compare(a.VariantHeadword, b.VariantHeadword, CompareOptions.IgnoreCase);
-            if (result != 0) return result;
-            return a.VariantEntryId.CompareTo(b.VariantEntryId);
-        });
-    }
 }

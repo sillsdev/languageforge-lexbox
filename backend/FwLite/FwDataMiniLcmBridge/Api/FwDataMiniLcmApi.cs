@@ -794,7 +794,8 @@ public class FwDataMiniLcmApi(
                     ILexSense mainSense => ToVariant(entry, r, mainSense.Entry, mainSense),
                     _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
                 })
-            .DistinctBy(v => (v.VariantEntryId, v.MainEntryId, v.MainSenseId));
+            .DistinctBy(v => (v.VariantEntryId, v.MainEntryId, v.MainSenseId))
+            .Order(Variant.VariantOfOrder);
     }
 
     private IEnumerable<Variant> ToVariants(ILexEntry entry)
@@ -806,7 +807,8 @@ public class FwDataMiniLcmApi(
                     sense.VariantFormEntryBackRefs.Select(r => ToVariant(r.OwningEntry, r, entry, sense)))
             }
             .SelectMany(v => v)
-            .DistinctBy(v => (v.VariantEntryId, v.MainEntryId, v.MainSenseId));
+            .DistinctBy(v => (v.VariantEntryId, v.MainEntryId, v.MainSenseId))
+            .Order(Variant.VariantsOrder);
     }
 
     private Variant ToVariant(ILexEntry variantEntry, ILexEntryRef variantRef, ILexEntry mainEntry, ILexSense? mainSense)

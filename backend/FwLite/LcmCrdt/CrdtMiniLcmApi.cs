@@ -644,6 +644,18 @@ public class CrdtMiniLcmApi(
             if (!createdEntryIds.Contains(complexForm.ComplexFormEntryId)) continue;
             yield return new AddEntryComponentChange(complexForm);
         }
+        foreach (var variantOf in entry.VariantOf)
+        {
+            //only add variant links if the main entry was created already, otherwise it will be added when the main entry is created
+            if (!createdEntryIds.Contains(variantOf.MainEntryId)) continue;
+            yield return new AddVariantChange(variantOf);
+        }
+        foreach (var variant in entry.Variants)
+        {
+            //only add variant links if the variant entry was created already, otherwise it will be added when the variant entry is created
+            if (!createdEntryIds.Contains(variant.VariantEntryId)) continue;
+            yield return new AddVariantChange(variant);
+        }
         foreach (var addComplexFormTypeChange in entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c)))
         {
             yield return addComplexFormTypeChange;

@@ -370,6 +370,15 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
             options = options
                 .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
                 .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
+            // both apis sort variant links by composite key, not the order the expected object was built in;
+            // headwords are derived on read like the complex-form ones above (see VariantTestsBase)
+            options = options
+                .WithoutStrictOrderingFor(e => e.VariantOf)
+                .WithoutStrictOrderingFor(e => e.Variants)
+                .For(e => e.VariantOf).Exclude(v => v.VariantHeadword)
+                .For(e => e.VariantOf).Exclude(v => v.MainHeadword)
+                .For(e => e.Variants).Exclude(v => v.VariantHeadword)
+                .For(e => e.Variants).Exclude(v => v.MainHeadword);
             if (currentApiType == ApiType.FwData)
             {
                 // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)

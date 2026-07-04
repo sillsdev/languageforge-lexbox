@@ -323,6 +323,48 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public ValueTask<VariantType[]> GetVariantTypes()
+    {
+        return _wrappedApi.GetVariantTypes().ToArrayAsync();
+    }
+
+    [JSInvokable]
+    [TsFunction(Type = "Promise<IVariantType | null>")]
+    public Task<VariantType?> GetVariantType(Guid id)
+    {
+        return _wrappedApi.GetVariantType(id);
+    }
+
+    [JSInvokable]
+    public async Task<Variant> CreateVariant(Variant variant)
+    {
+        var createdVariant = await _wrappedApi.CreateVariant(variant);
+        OnDataChanged();
+        return createdVariant;
+    }
+
+    [JSInvokable]
+    public async Task DeleteVariant(Variant variant)
+    {
+        await _wrappedApi.DeleteVariant(variant);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task AddVariantType(Variant variant, Guid variantTypeId)
+    {
+        await _wrappedApi.AddVariantType(variant, variantTypeId);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task RemoveVariantType(Variant variant, Guid variantTypeId)
+    {
+        await _wrappedApi.RemoveVariantType(variant, variantTypeId);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
     public async Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
         var createdSense = await _wrappedApi.CreateSense(entryId, sense);

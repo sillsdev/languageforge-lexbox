@@ -96,6 +96,23 @@ public record Variant : IObjectWithId<Variant>
         };
     }
 
+    //variant lists have no user-meaningful order, so both IMiniLcmApi implementations sort them by
+    //their composite key — deterministic and culture-free, unlike headword sorting (which is why
+    //ComplexForms sort alphabetically: FieldWorks does; there's no such convention for variants)
+    public static readonly Comparer<Variant> VariantOfOrder = Comparer<Variant>.Create((a, b) =>
+    {
+        var result = a.MainEntryId.CompareTo(b.MainEntryId);
+        if (result != 0) return result;
+        return (a.MainSenseId ?? Guid.Empty).CompareTo(b.MainSenseId ?? Guid.Empty);
+    });
+
+    public static readonly Comparer<Variant> VariantsOrder = Comparer<Variant>.Create((a, b) =>
+    {
+        var result = a.VariantEntryId.CompareTo(b.VariantEntryId);
+        if (result != 0) return result;
+        return (a.MainSenseId ?? Guid.Empty).CompareTo(b.MainSenseId ?? Guid.Empty);
+    });
+
     public override string ToString()
     {
         return
