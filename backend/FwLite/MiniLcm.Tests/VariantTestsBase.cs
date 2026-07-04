@@ -152,7 +152,7 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     {
         var variant1 = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry));
         var variant2 = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry));
-        variant2.Should().BeEquivalentTo(variant1, options => options.ComparingByMembers<Variant>().Excluding(v => v.Id));
+        variant2.Should().BeEquivalentTo(variant1);
         (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle();
     }
 
@@ -161,7 +161,7 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     {
         var variant1 = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry, _mainSenseId1));
         var variant2 = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry, _mainSenseId1));
-        variant2.Should().BeEquivalentTo(variant1, options => options.ComparingByMembers<Variant>().Excluding(v => v.Id));
+        variant2.Should().BeEquivalentTo(variant1);
         (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle();
     }
 
@@ -172,7 +172,7 @@ public abstract class VariantTestsBase : MiniLcmTestBase
         // internal entity ID) may be passed to CreateVariant again.
         var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry));
         var again = await Api.CreateVariant(created);
-        again.Should().BeEquivalentTo(created, options => options.ComparingByMembers<Variant>().Excluding(v => v.Id));
+        again.Should().BeEquivalentTo(created);
     }
 
     [Fact]

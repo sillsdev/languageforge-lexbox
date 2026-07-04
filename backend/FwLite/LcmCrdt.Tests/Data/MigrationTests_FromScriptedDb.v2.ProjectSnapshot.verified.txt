@@ -496,7 +496,6 @@
     }
   ],
   "MorphTypes": [],
-  "VariantTypes": [],
   "WritingSystems": {
     "Analysis": [
       {
@@ -742,5 +741,6 @@
         "Order": 3
       }
     ]
-  }
+  },
+  "VariantTypes": []
 }
