@@ -23,6 +23,7 @@
   import {pt} from '$lib/views/view-text';
   import * as Editor from '$lib/components/editor';
   import Icon from '$lib/components/ui/icon/icon.svelte';
+  import DuplicateCheck from './DuplicateCheck.svelte';
   import EntryEditorPrimitive from './object-editors/EntryEditorPrimitive.svelte';
   import ObjectHeader from './object-editors/ObjectHeader.svelte';
   import SenseEditorPrimitive from './object-editors/SenseEditorPrimitive.svelte';
@@ -211,6 +212,9 @@
           </Editor.Grid>
         </Editor.Root>
       </OverrideFields>
+      <div class="mt-3">
+        <DuplicateCheck {entry} {sense} onNavigateToEntry={() => open = false} />
+      </div>
     </div>
     {#if errors.length}
       <div class="text-end space-y-2">

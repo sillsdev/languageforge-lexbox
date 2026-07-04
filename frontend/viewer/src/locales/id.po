@@ -161,6 +161,13 @@ msgstr "Tambahkan Contoh"
 msgid "Add Meaning"
 msgstr "Tambahkan Makna"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "Add sense to this entry"
+#. Button on a possible-duplicate result in the New Word dialog: saves the meaning being typed onto that existing word (instead of creating a duplicate) and opens it
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Add meaning to this word"
+msgstr ""
+
 #. Button in toolbar
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Add new word"
@@ -180,6 +187,13 @@ msgstr "Tambahkan bagian dari"
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
 msgstr "Tambahkan Pengertian"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Add meaning to this word"
+#. Button on a possible-duplicate result in the New Entry dialog: saves the sense being typed onto that existing entry (instead of creating a duplicate) and opens it
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Add sense to this entry"
+msgstr ""
 
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
@@ -368,6 +382,20 @@ msgstr "Perubahan juga dapat terjadi karena adanya penambahan field pada versi b
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Mengubah bidang yang sama dua kali, misalnya, dapat menghasilkan dua komit namun hanya satu perubahan yang perlu diterapkan ke FieldWorks Classic. Commit juga dapat terdiri dari beberapa perubahan."
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Checking for similar words…"
+#. Status line in the New Entry dialog while searching for possible duplicate entries
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Checking for similar entries…"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Checking for similar entries…"
+#. Status line in the New Word dialog while searching for possible duplicate words
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Checking for similar words…"
+msgstr ""
 
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -905,7 +933,7 @@ msgstr "Versi FieldWorks Lite"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1043,6 +1071,20 @@ msgstr "Arti Singkat"
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Buka {0}"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Go to word"
+#. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Go to entry"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Go to entry"
+#. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Go to word"
+msgstr ""
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1232,6 +1274,13 @@ msgstr "Login untuk melihat proyek"
 msgid "Logout"
 msgstr "Keluar"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "No similar entries found"
+#. Reassuring status line in the New Word dialog: the duplicate check found no existing words like the one being typed
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Looks like a new word"
+msgstr ""
+
 #. Footer text in the project sidebar. The emoji flags are the countries of origin of the development team — do not translate.
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
@@ -1276,6 +1325,13 @@ msgstr "Diperlukan pembaruan manual. Ikuti petunjuk yang diberikan."
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Meaning"
 msgstr "Arti"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Sense added to \"{0}\""
+#. Success notification after adding the typed meaning to an existing word; {0} is that word's headword
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Meaning added to \"{0}\""
+msgstr ""
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1456,6 +1512,13 @@ msgstr "Tidak ada server"
 #: src/project/ProjectSidebar.svelte
 msgid "No server configured"
 msgstr "Tidak ada server yang dikonfigurasi"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Looks like a new word"
+#. Status line in the New Entry dialog: the duplicate check found no existing entries like the one being typed
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "No similar entries found"
+msgstr ""
 
 #. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
 #: src/project/tasks/SubjectPopup.svelte
@@ -1746,6 +1809,20 @@ msgstr "Ulasan"
 msgid "rose"
 msgstr "naik"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Same word"
+#. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Same headword"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Same headword"
+#. Badge on a possible-duplicate result: it is spelled exactly like the word being typed in the New Word dialog
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Same word"
+msgstr ""
+
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1832,6 +1909,13 @@ msgstr "Kirimkan pesan kepada kami"
 msgid "Sense"
 msgstr "Pengertian"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Meaning added to \"{0}\""
+#. Success notification after adding the typed sense to an existing entry; {0} is that entry's headword
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Sense added to \"{0}\""
+msgstr ""
+
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
@@ -1870,9 +1954,52 @@ msgid "Show"
 msgstr "Tampilkan"
 
 #. Expand button with count
+#: src/lib/entry-editor/DuplicateCheck.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Show {0} more..."
 msgstr "Tampilkan {0} selengkapnya..."
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Similar words already exist"
+#. Warning banner in the New Entry dialog; expands to a list of possible duplicate entries
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Similar entries already exist"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Similar meaning"
+#. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Similar gloss"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Similar word"
+#. Badge on a possible-duplicate result: its headword partly matches the one being typed in the New Entry dialog
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Similar headword"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Similar gloss"
+#. Badge on a possible-duplicate result: one of its meanings matches the meaning being typed in the New Word dialog
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Similar meaning"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Similar headword"
+#. Badge on a possible-duplicate result: it is spelled almost like the word being typed in the New Word dialog
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Similar word"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Similar entries already exist"
+#. Warning banner in the New Word dialog; expands to a list of possible duplicate words
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Similar words already exist"
+msgstr ""
 
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
@@ -2067,6 +2194,13 @@ msgstr "{0} ini telah dihapus"
 msgid "This date # and this emoji # are snippets"
 msgstr "Tanggal ini # dan emoji ini # adalah cuplikan"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "This word may already exist"
+#. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "This entry may already exist"
+msgstr ""
+
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
@@ -2081,6 +2215,13 @@ msgstr "Tugas ini selesai"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Ini akan menyinkronkan salinan FieldWorks Lite dan FieldWorks Classic dari proyek Anda di Lexbox."
+
+#. Relevant view: Lite
+#. Classic view equivalent: "This entry may already exist"
+#. Warning banner in the New Word dialog when a word with the exact same spelling exists; expands to a list of possible duplicates
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "This word may already exist"
+msgstr ""
 
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
@@ -2147,10 +2288,7 @@ msgid "Unable to open in FieldWorks"
 msgstr "Tidak dapat dibuka di FieldWorks"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityItem.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
