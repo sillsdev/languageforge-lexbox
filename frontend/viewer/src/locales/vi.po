@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-07-03 04:36\n"
+"PO-Revision-Date: 2026-07-04 04:37\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -192,6 +192,10 @@ msgstr "Thêm vào từ điển"
 msgid "Add Word"
 msgstr "Thêm Từ"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Add your first entry to start building your dictionary."
+msgstr "Hãy thêm mục từ đầu tiên để bắt đầu xây dựng từ điển của bạn."
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -229,6 +233,10 @@ msgstr "Phân tích"
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
 msgstr "Phân tích mã nguồn hệ thống"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Analysis writing systems"
+msgstr "Các hệ thống viết phân tích"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -375,6 +383,7 @@ msgstr "Chọn chủ đề"
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Citation form"
 msgstr "Hình thức trích dẫn"
 
@@ -558,8 +567,13 @@ msgstr "Tối"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard"
 msgstr "Bảng điều khiển"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Dashboard failed to load"
+msgstr "Không thể tải trang tổng quan"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -570,6 +584,7 @@ msgstr "Thư mục dữ liệu"
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Definition"
 msgstr "Định nghĩa"
 
@@ -731,6 +746,14 @@ msgstr "Kết thúc bằng"
 msgid "Entries missing..."
 msgstr "Các mục còn thiếu..."
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with examples"
+msgstr "Các mục có ví dụ"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with senses"
+msgstr "Các mục từ có nghĩa"
+
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
 msgid "entry"
@@ -798,6 +821,10 @@ msgstr "Ví dụ"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr "Câu ví dụ"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Example sentences"
+msgstr "Các câu ví dụ"
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1005,6 +1032,7 @@ msgstr "Nhận hỗ trợ"
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Ghi chú"
 
@@ -1130,6 +1158,7 @@ msgstr "Logo Lexbox"
 #. Lite view equivalent: "Word"
 #. Field label: the main headword/base form
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Lexeme form"
 msgstr "Hình thức lexeme"
 
@@ -1356,6 +1385,10 @@ msgstr "Hiển thị theo thứ tự từ mới nhất"
 msgid "Next"
 msgstr "Tiếp theo"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Next milestone: {0}. {1} to go."
+msgstr "Cột mốc tiếp theo: {0}.  Còn {1} nữa."
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1364,6 +1397,10 @@ msgstr "Không có hoạt động nào phù hợp với các tiêu chí lọc n�
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No activity types"
 msgstr "Không có loại hoạt động nào"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "No analysis writing systems configured."
+msgstr "Chưa có hệ thống viết phân tích nào được cấu hình."
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
@@ -1424,6 +1461,10 @@ msgstr "Chưa cấu hình máy chủ"
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
 msgstr "Không có chủ đề, không thể tạo mới {0}"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "No vernacular writing systems configured."
+msgstr "Chưa có hệ thống chữ viết bản địa nào được cấu hình."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1976,6 +2017,10 @@ msgstr "Nhiệm vụ"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Hãy cho chúng tôi biết về lỗi hoặc vấn đề bạn gặp phải."
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Tell us how you work and what would help most. Your ideas guide what we build."
+msgstr "Hãy chia sẻ với chúng tôi cách bạn làm việc và điều gì sẽ hữu ích nhất đối với bạn. Những ý tưởng của bạn sẽ định hướng cho những gì chúng tôi phát triển."
+
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
@@ -2046,6 +2091,12 @@ msgstr "Chuyển đổi bộ lọc"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Chuyển trạng thái ghim"
+
+#: src/project/dashboard/DashboardView.svelte
+#: src/project/dashboard/DashboardView.svelte
+#: src/project/dashboard/DashboardView.svelte
+msgid "Total entries"
+msgstr "Tổng số bài dự thi"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -2214,6 +2265,10 @@ msgstr "Mã hệ thống chữ viết bản địa"
 msgid "Vernacular writing system is required"
 msgstr "Phải có hệ thống chữ viết bản địa"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Vernacular writing systems"
+msgstr "Các hệ thống chữ viết bản địa"
+
 #. Button label
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
@@ -2223,6 +2278,10 @@ msgstr "Xem"
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "tím"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "What would you like to see here?"
+msgstr "Bạn muốn xem gì ở đây?"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -2320,4 +2379,12 @@ msgstr "Bạn không có quyền tải dự án {0} từ {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Bạn đã tải xuống dự án {0}"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "You've passed every milestone. What an achievement!"
+msgstr "Bạn đã vượt qua mọi cột mốc. Thật là một thành tựu đáng tự hào!"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Your dictionary starts here"
+msgstr "Từ điển của bạn bắt đầu từ đây"
 
