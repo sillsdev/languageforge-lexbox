@@ -12,7 +12,10 @@ dev/agent can pick up the work mid-stream. Update the **Status** section as step
   FwLiteProjectSync.Tests incl. Sena3 live db regen; the WS-font failure on Windows is
   the known local-only false-fail)
 - [x] Step 3 — Viewer UI (fields, per-link type menu, demo seed, i18n, Playwright green)
-- [ ] Review + PR prep
+- [x] Review (8-agent pass; fixes: sense-move composite-key lookup in the FwData bridge,
+  type-toggle re-render, hub read parity) + draft PRs:
+  backend [#2408](https://github.com/sillsdev/languageforge-lexbox/pull/2408),
+  UI [#2409](https://github.com/sillsdev/languageforge-lexbox/pull/2409) (stacked)
 
 **Boundary change vs the original plan**: steps 1 and 2 merged — the moment the FwData
 bridge reads variants, importing a variant-containing project crashes unless variant types
