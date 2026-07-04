@@ -82,6 +82,12 @@ public class ResumableTests : IAsyncLifetime
                 Id = Guid.NewGuid(),
                 Name = new(){ ["en"] = "Test Complex Form Type" }
             }]));
+        mockFrom.Setup(f => f.GetVariantTypes())
+            .Returns(MockAsyncEnumerable([new VariantType()
+            {
+                Id = Guid.NewGuid(),
+                Name = new(){ ["en"] = "Test Variant Type" }
+            }]));
         mockFrom.Setup(f => f.GetMorphTypes())
             .Returns(MockAsyncEnumerable(expectedMorphTypes));
         mockFrom.Setup(f => f.GetSemanticDomains())
