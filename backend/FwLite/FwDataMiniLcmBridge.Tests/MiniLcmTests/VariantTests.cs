@@ -130,3 +130,96 @@ public class VariantTestsMultipleRefs(ProjectLoaderFixture fixture) : VariantTes
             });
     }
 }
+
+/// <summary>
+/// tests per-link edits when FLEx put multiple targets in ONE variant LexEntryRef:
+/// Types/HideMinorEntry/Comment live on the ref, shared across all its targets
+/// </summary>
+[Collection(ProjectLoaderFixture.Name)]
+public class VariantTestsSharedRef(ProjectLoaderFixture fixture) : MiniLcmTestBase
+{
+    private readonly Guid _variantEntryId = Guid.NewGuid();
+    private readonly Guid _mainEntryId = Guid.NewGuid();
+    private readonly Guid _otherMainEntryId = Guid.NewGuid();
+
+    protected override Task<IMiniLcmApi> NewApi()
+    {
+        return Task.FromResult<IMiniLcmApi>(fixture.NewProjectApi("variant-test-sharedRef", "en", "en"));
+    }
+
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+        await Api.CreateEntry(new()
+        {
+            Id = _variantEntryId,
+            LexemeForm = { { "en", "variant form" } }
+        });
+        await Api.CreateEntry(new()
+        {
+            Id = _mainEntryId,
+            LexemeForm = { { "en", "main entry" } }
+        });
+        await Api.CreateEntry(new()
+        {
+            Id = _otherMainEntryId,
+            LexemeForm = { { "en", "other main" } }
+        });
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
+        var variantEntry = fwDataApi.EntriesRepository.GetObject(_variantEntryId);
+        await fwDataApi.Cache.DoUsingNewOrCurrentUOW("Add shared variant LexEntryRef",
+            "Remove shared variant LexEntryRef",
+            () =>
+            {
+                var entryRef = fwDataApi.Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();
+                variantEntry.EntryRefsOS.Add(entryRef);
+                entryRef.RefType = LexEntryRefTags.krtVariant;
+                entryRef.HideMinorEntry = 1;
+                entryRef.VariantEntryTypesRS.Add(fwDataApi.Cache.ServiceLocator
+                    .GetInstance<ILexEntryTypeRepository>()
+                    .GetObject(LexEntryTypeTags.kguidLexTypDialectalVar));
+                entryRef.ComponentLexemesRS.Add(fwDataApi.EntriesRepository.GetObject(_mainEntryId));
+                entryRef.ComponentLexemesRS.Add(fwDataApi.EntriesRepository.GetObject(_otherMainEntryId));
+                return ValueTask.CompletedTask;
+            });
+    }
+
+    [Fact]
+    public async Task SharedRef_ReadsAsOneLinkPerTarget()
+    {
+        var entry = await Api.GetEntry(_variantEntryId);
+        entry!.VariantOf.Should().HaveCount(2);
+        entry.VariantOf.Should().OnlyContain(v => v.HideMinorEntry && v.Types.Count == 1);
+    }
+
+    [Fact]
+    public async Task AddVariantType_OnASharedRefLink_DoesNotAffectTheSiblingLink()
+    {
+        var entry = await Api.GetEntry(_variantEntryId);
+        var link = entry!.VariantOf.Single(v => v.MainEntryId == _mainEntryId);
+
+        await Api.AddVariantType(link, LexEntryTypeTags.kguidLexTypSpellingVar);
+
+        entry = await Api.GetEntry(_variantEntryId);
+        var edited = entry!.VariantOf.Single(v => v.MainEntryId == _mainEntryId);
+        var sibling = entry.VariantOf.Single(v => v.MainEntryId == _otherMainEntryId);
+        edited.Types.Select(t => t.Id).Should()
+            .BeEquivalentTo([LexEntryTypeTags.kguidLexTypDialectalVar, LexEntryTypeTags.kguidLexTypSpellingVar]);
+        sibling.Types.Select(t => t.Id).Should().BeEquivalentTo([LexEntryTypeTags.kguidLexTypDialectalVar]);
+        sibling.HideMinorEntry.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RemoveVariantType_OnASharedRefLink_DoesNotAffectTheSiblingLink()
+    {
+        var entry = await Api.GetEntry(_variantEntryId);
+        var link = entry!.VariantOf.Single(v => v.MainEntryId == _mainEntryId);
+
+        await Api.RemoveVariantType(link, LexEntryTypeTags.kguidLexTypDialectalVar);
+
+        entry = await Api.GetEntry(_variantEntryId);
+        entry!.VariantOf.Single(v => v.MainEntryId == _mainEntryId).Types.Should().BeEmpty();
+        entry.VariantOf.Single(v => v.MainEntryId == _otherMainEntryId).Types
+            .Should().ContainSingle(t => t.Id == LexEntryTypeTags.kguidLexTypDialectalVar);
+    }
+}

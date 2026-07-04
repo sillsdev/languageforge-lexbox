@@ -48,7 +48,13 @@ public record UpdateVariantProxy : Variant
     public override bool HideMinorEntry
     {
         get => _lexEntryRef.HideMinorEntry != 0;
-        set => _lexEntryRef.HideMinorEntry = value ? 1 : 0;
+        //LCM reserves the int as a per-publication bitfield; only write when our bool view
+        //actually flips so a multi-bit value isn't collapsed to 1
+        set
+        {
+            if (_lexEntryRef.HideMinorEntry != 0 != value)
+                _lexEntryRef.HideMinorEntry = value ? 1 : 0;
+        }
     }
 
     public override RichMultiString Comment

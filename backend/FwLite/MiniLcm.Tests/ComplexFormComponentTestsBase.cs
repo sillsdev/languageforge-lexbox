@@ -278,6 +278,22 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateComplexFormComponent_AllowsClosingALoopThroughASenseTargetedComponent()
+    {
+        // LCM's AllComponents resolves a sense-targeted component to its owning entry but does
+        // NOT recurse into it, so this graph is legal in FLEx and must stay legal here
+        var entry3 = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "entry3" } }
+        });
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry, _componentSenseId1));
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_componentEntry, entry3));
+        var act = async () => await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(entry3, _complexFormEntry));
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
     public async Task CreateComplexFormComponent_WorksWhenAComponentWasDeletedWhichWouldCauseACycle()
     {
         var entry3 = await Api.CreateEntry(new()

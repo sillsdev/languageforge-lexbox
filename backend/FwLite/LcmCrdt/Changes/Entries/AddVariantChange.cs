@@ -95,31 +95,6 @@ public class AddVariantChange : CreateChange<Variant>, ISelfNamedType<AddVariant
             if (duplicate) return true;
         }
 
-        //LCM enforces acyclicity over the COMBINED complex-form + variant component graph
-        //(LexEntryRef.ValidateAddObjectInternal → LexEntry.AllComponents), so mirror that:
-        //walk everything the main entry depends on through both link types; if the variant
-        //entry is reachable, this link would close a cycle FLEx rejects
-        HashSet<Guid> visited = [];
-        Queue<Guid> queue = new();
-        queue.Enqueue(parent.MainEntryId);
-        while (queue.Count > 0)
-        {
-            var entryId = queue.Dequeue();
-            if (entryId == parent.VariantEntryId) return true;
-            if (!visited.Add(entryId)) continue;
-            await foreach (var o in context.GetObjectsReferencing(entryId))
-            {
-                switch (o)
-                {
-                    case Variant v when v.DeletedAt is null && v.VariantEntryId == entryId:
-                        queue.Enqueue(v.MainEntryId);
-                        break;
-                    case ComplexFormComponent cfc when cfc.DeletedAt is null && cfc.ComplexFormEntryId == entryId:
-                        queue.Enqueue(cfc.ComponentEntryId);
-                        break;
-                }
-            }
-        }
-        return false;
+        return await ComponentGraph.CanReach(parent.MainEntryId, parent.VariantEntryId, context);
     }
 }

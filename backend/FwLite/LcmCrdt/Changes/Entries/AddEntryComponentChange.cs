@@ -68,32 +68,17 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
     private static async ValueTask<bool> CreatesReferenceCycleOrDuplicate(ComplexFormComponent parent, IChangeContext context)
     {
         if (parent.ComplexFormEntryId == parent.ComponentEntryId) return true;
-        //used to avoid checking the same ComplexFormComponent multiple times
-        HashSet<Guid> visited = [parent.Id];
-        Queue<ComplexFormComponent> queue = new Queue<ComplexFormComponent>();
-        queue.Enqueue(parent);
-        while (queue.Count > 0)
+        await foreach (var o in context.GetObjectsReferencing(parent.ComplexFormEntryId))
         {
-            var current = queue.Dequeue();
-            if (current.ComplexFormEntryId == parent.ComponentEntryId) return true;
-            await foreach (var o in context.GetObjectsReferencing(current.ComplexFormEntryId))
-            {
-                if (o is not ComplexFormComponent cfc) continue;
-                if (cfc.DeletedAt is not null) continue;
-                if (visited.Contains(cfc.Id)) continue;
-                if (current == parent)
-                {
-                    var duplicate = cfc.ComplexFormEntryId == parent.ComplexFormEntryId &&
-                                    cfc.ComponentEntryId == parent.ComponentEntryId &&
-                                    cfc.ComponentSenseId == parent.ComponentSenseId;
-                    if (duplicate) return true;
-                }
-
-                if (cfc.ComplexFormEntryId == parent.ComponentEntryId) return true;
-                queue.Enqueue(cfc);
-                visited.Add(cfc.Id);
-            }
+            if (o is not ComplexFormComponent cfc) continue;
+            if (cfc.DeletedAt is not null) continue;
+            if (cfc.Id == parent.Id) continue;
+            var duplicate = cfc.ComplexFormEntryId == parent.ComplexFormEntryId &&
+                            cfc.ComponentEntryId == parent.ComponentEntryId &&
+                            cfc.ComponentSenseId == parent.ComponentSenseId;
+            if (duplicate) return true;
         }
-        return false;
+
+        return await ComponentGraph.CanReach(parent.ComponentEntryId, parent.ComplexFormEntryId, context);
     }
 }
