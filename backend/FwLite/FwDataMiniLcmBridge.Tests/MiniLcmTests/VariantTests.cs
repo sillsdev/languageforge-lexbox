@@ -24,6 +24,16 @@ public class VariantTests(ProjectLoaderFixture fixture) : VariantTestsBase
         types.Should().Contain(t => t.Id == LexEntryTypeTags.kguidLexTypPastVar);
         types.Should().Contain(t => t.Id == LexEntryTypeTags.kguidLexTypSpellingVar);
     }
+
+    [Fact]
+    public async Task CreateVariantType_LandsAsATopLevelPossibility()
+    {
+        // the flattened read can surface children, but created types must be top-level
+        var created = await Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "custom type" } } });
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
+        fwDataApi.Cache.LangProject.LexDbOA.VariantEntryTypesOA.PossibilitiesOS
+            .Should().Contain(p => p.Guid == created.Id);
+    }
 }
 
 /// <summary>
