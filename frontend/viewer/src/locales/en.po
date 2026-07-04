@@ -182,10 +182,12 @@ msgstr "Add Sense"
 msgid "Add to dictionary"
 msgstr "Add to dictionary"
 
+#. Dialog title: picker for adding an entry as a variant of the current entry (fills the "Variants" field)
 #: src/lib/entry-editor/field-editors/Variants.svelte
 msgid "Add variant"
 msgstr "Add variant"
 
+#. Dialog title: picker for marking the current entry as a variant of another entry/sense (fills the "Variant of" field)
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
 msgid "Add variant of"
 msgstr "Add variant of"
@@ -2254,12 +2256,14 @@ msgstr "Updates"
 msgid "Uses components as"
 msgstr "Uses components as"
 
+#. Used two ways: (1) button label for adding an entry to the "Variants" field, and (2) disable-reason shown in the entry picker when an entry is already linked as a variant, so it can't be picked again
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
 #: src/lib/entry-editor/field-editors/Variants.svelte
 #: src/lib/entry-editor/field-editors/Variants.svelte
 msgid "Variant"
 msgstr "Variant"
 
+#. Used three ways: (1) field label for the "Variant of" relationship (this entry is a variant of another entry/sense), (2) button label in that field's entry picker, and (3) disable-reason shown when an entry is already linked, so it can't be picked again
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
@@ -2268,10 +2272,12 @@ msgstr "Variant"
 msgid "Variant of"
 msgstr "Variant of"
 
+#. Dropdown submenu label in a variant's context menu, for assigning its variant type (a user-configurable classification, e.g. dialectal or spelling variant)
 #: src/lib/entry-editor/field-editors/VariantTypesMenuItems.svelte
 msgid "Variant type"
 msgstr "Variant type"
 
+#. Field label: other entries that are variants of this entry (the reverse of "Variant of")
 #: src/lib/views/entity-config.ts
 msgid "Variants"
 msgstr "Variants"
