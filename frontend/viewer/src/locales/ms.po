@@ -191,6 +191,14 @@ msgstr "Tambah Makna"
 msgid "Add to dictionary"
 msgstr ""
 
+#: src/lib/entry-editor/field-editors/Variants.svelte
+msgid "Add variant"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+msgid "Add variant of"
+msgstr ""
+
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
@@ -553,6 +561,8 @@ msgstr "Buat Pandangan"
 #. Label in picker: marks the entry that is currently being edited
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/Variants.svelte
 msgid "Current Entry"
 msgstr "Entri Semasa"
 
@@ -566,6 +576,8 @@ msgstr "Versi semasa"
 #. Label in picker: marks the word that is currently being edited
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/Variants.svelte
 msgid "Current Word"
 msgstr "Perkataan Semasa"
 
@@ -2303,6 +2315,28 @@ msgstr "Kemas kini"
 #: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "Menggunakan komponen sebagai"
+
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/Variants.svelte
+#: src/lib/entry-editor/field-editors/Variants.svelte
+msgid "Variant"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/Variants.svelte
+#: src/lib/views/entity-config.ts
+msgid "Variant of"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/VariantTypesMenuItems.svelte
+msgid "Variant type"
+msgstr ""
+
+#: src/lib/views/entity-config.ts
+msgid "Variants"
+msgstr ""
 
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).

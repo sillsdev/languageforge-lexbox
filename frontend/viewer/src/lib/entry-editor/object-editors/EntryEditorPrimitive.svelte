@@ -9,6 +9,8 @@
   import {MultiSelect, MultiWsInput, RichMultiWsInput} from '$lib/components/field-editors';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
+  import VariantOf from '../field-editors/VariantOf.svelte';
+  import Variants from '../field-editors/Variants.svelte';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
   import {mergeProps} from 'bits-ui';
   import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
@@ -91,6 +93,26 @@
           bind:value={entry.components}
           {readonly}
           {entry} />
+      </Editor.Field.Body>
+    </Editor.Field.Root>
+
+    <Editor.Field.Root fieldId="variantOf" class={cn(fields.variantOf?.show || 'hidden')}>
+      <Editor.Field.Title name={$tvt(entityConfig.entry.variantOf.label)} helpId={entityConfig.entry.variantOf.helpId} />
+      <Editor.Field.Body>
+        <VariantOf onchange={() => onFieldChanged('variantOf')}
+                   bind:value={entry.variantOf}
+                   {readonly}
+                   {entry} />
+      </Editor.Field.Body>
+    </Editor.Field.Root>
+
+    <Editor.Field.Root fieldId="variants" class={cn(fields.variants?.show || 'hidden')}>
+      <Editor.Field.Title name={$tvt(entityConfig.entry.variants.label)} helpId={entityConfig.entry.variants.helpId} />
+      <Editor.Field.Body>
+        <Variants onchange={() => onFieldChanged('variants')}
+                  bind:value={entry.variants}
+                  {readonly}
+                  {entry} />
       </Editor.Field.Body>
     </Editor.Field.Root>
 

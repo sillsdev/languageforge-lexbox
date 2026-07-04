@@ -34,6 +34,15 @@ export const entityConfig = {
       label: msg`Components`,
       helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Components_field.htm',
     },
+    variantOf: {
+      label: msg`Variant of`,
+      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Variant_of_field.htm',
+    },
+    variants: {
+      label: msg`Variants`,
+      //there's no dedicated help topic for the variants back-reference; this one explains the relationship
+      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Variant_of_field.htm',
+    },
     literalMeaning: {
       label: msg`Literal meaning`,
       helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Literal_Meaning_field.htm',

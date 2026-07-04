@@ -186,6 +186,14 @@ msgstr "Add Sense"
 msgid "Add to dictionary"
 msgstr "Add to dictionary"
 
+#: src/lib/entry-editor/field-editors/Variants.svelte
+msgid "Add variant"
+msgstr "Add variant"
+
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+msgid "Add variant of"
+msgstr "Add variant of"
+
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
@@ -548,6 +556,8 @@ msgstr "Create View"
 #. Label in picker: marks the entry that is currently being edited
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/Variants.svelte
 msgid "Current Entry"
 msgstr "Current Entry"
 
@@ -561,6 +571,8 @@ msgstr "Current version"
 #. Label in picker: marks the word that is currently being edited
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/Variants.svelte
 msgid "Current Word"
 msgstr "Current Word"
 
@@ -2298,6 +2310,28 @@ msgstr "Updates"
 #: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "Uses components as"
+
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/Variants.svelte
+#: src/lib/entry-editor/field-editors/Variants.svelte
+msgid "Variant"
+msgstr "Variant"
+
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/VariantOf.svelte
+#: src/lib/entry-editor/field-editors/Variants.svelte
+#: src/lib/views/entity-config.ts
+msgid "Variant of"
+msgstr "Variant of"
+
+#: src/lib/entry-editor/field-editors/VariantTypesMenuItems.svelte
+msgid "Variant type"
+msgstr "Variant type"
+
+#: src/lib/views/entity-config.ts
+msgid "Variants"
+msgstr "Variants"
 
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
