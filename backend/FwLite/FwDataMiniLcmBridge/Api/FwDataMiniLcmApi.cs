@@ -787,13 +787,16 @@ public class FwDataMiniLcmApi(
 
     private IEnumerable<Variant> ToVariantOf(ILexEntry entry)
     {
+        //ComponentLexemesRS is only ICmObject; legacy/corrupt data may hold other types —
+        //skip them like liblcm's own back-ref reads do, or one bad ref wedges the whole entry
         return entry.VariantEntryRefs.SelectMany(r => r.ComponentLexemesRS,
                 (r, o) => o switch
                 {
                     ILexEntry mainEntry => ToVariant(entry, r, mainEntry, null),
                     ILexSense mainSense => ToVariant(entry, r, mainSense.Entry, mainSense),
-                    _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
+                    _ => null
                 })
+            .OfType<Variant>()
             .DistinctBy(v => (v.VariantEntryId, v.MainEntryId, v.MainSenseId))
             .Order(Variant.VariantOfOrder);
     }
@@ -1406,13 +1409,13 @@ public class FwDataMiniLcmApi(
     public Task SubmitUpdateVariant(Variant variant, UpdateObjectInput<Variant> update)
     {
         var lexVariantEntry = EntriesRepository.GetObject(variant.VariantEntryId);
-        var entryRef = FindVariantRef(lexVariantEntry, variant)
-            ?? throw NotFoundException.ForType<Variant>(variant.VariantEntryId);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Variant",
             "Revert Variant",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
+                var entryRef = FindVariantRefForUpdate(lexVariantEntry, variant)
+                    ?? throw NotFoundException.ForType<Variant>(variant.VariantEntryId);
                 var updateProxy = new UpdateVariantProxy(entryRef, this);
                 update.Apply(updateProxy);
             });
@@ -1444,7 +1447,7 @@ public class FwDataMiniLcmApi(
             {
                 //link (or its entry) deleted already — match CRDT tolerance
                 if (!EntriesRepository.TryGetObject(variant.VariantEntryId, out var lexVariantEntry)) return;
-                var entryRef = FindVariantRef(lexVariantEntry, variant);
+                var entryRef = FindVariantRefForUpdate(lexVariantEntry, variant);
                 if (entryRef is null) return;
                 var lexEntryType = VariantTypesFlattened.Single(t => t.Guid == variantTypeId);
                 if (entryRef.VariantEntryTypesRS.Contains(lexEntryType)) return;
@@ -1461,7 +1464,7 @@ public class FwDataMiniLcmApi(
             () =>
             {
                 if (!EntriesRepository.TryGetObject(variant.VariantEntryId, out var lexVariantEntry)) return;
-                var entryRef = FindVariantRef(lexVariantEntry, variant);
+                var entryRef = FindVariantRefForUpdate(lexVariantEntry, variant);
                 if (entryRef is null) return;
                 var lexEntryType = entryRef.VariantEntryTypesRS.SingleOrDefault(t => t.Guid == variantTypeId);
                 if (lexEntryType is null) return;
@@ -1537,8 +1540,36 @@ public class FwDataMiniLcmApi(
 
     internal ILexEntryRef? FindVariantRef(ILexEntry lexVariantEntry, Variant variant)
     {
+        //prefer a dedicated ref over a shared (multi-component) one, like FLEx's FindMatchingVariantEntryRef
         return lexVariantEntry.VariantEntryRefs
-            .FirstOrDefault(r => r.ComponentLexemesRS.Any(o => MatchesVariantTarget(o, variant)));
+            .Where(r => r.ComponentLexemesRS.Any(o => MatchesVariantTarget(o, variant)))
+            .OrderBy(r => r.ComponentLexemesRS.Count == 1 ? 0 : 1)
+            .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// must be called as part of an lcm action. Returns the ref that exclusively represents
+    /// this link, first splitting the target out of a shared (multi-component) ref: per-link
+    /// fields (Types, HideMinorEntry, Summary) live on the ref, so mutating a shared one
+    /// would silently edit the sibling links too.
+    /// </summary>
+    internal ILexEntryRef? FindVariantRefForUpdate(ILexEntry lexVariantEntry, Variant variant)
+    {
+        var entryRef = FindVariantRef(lexVariantEntry, variant);
+        if (entryRef is null || entryRef.ComponentLexemesRS.Count == 1) return entryRef;
+        var target = entryRef.ComponentLexemesRS.First(o => MatchesVariantTarget(o, variant));
+        var newRef = Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();
+        lexVariantEntry.EntryRefsOS.Insert(lexVariantEntry.EntryRefsOS.IndexOf(entryRef) + 1, newRef);
+        newRef.RefType = LexEntryRefTags.krtVariant;
+        newRef.HideMinorEntry = entryRef.HideMinorEntry;
+        newRef.Summary.CopyAlternatives(entryRef.Summary);
+        foreach (var type in entryRef.VariantEntryTypesRS)
+        {
+            newRef.VariantEntryTypesRS.Add(type);
+        }
+        entryRef.ComponentLexemesRS.Remove(target);
+        newRef.ComponentLexemesRS.Add(target);
+        return newRef;
     }
 
     //match the full composite key: a sense target only counts while the sense still belongs

@@ -283,6 +283,62 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateVariant_AllowsClosingALoopThroughASenseTargetedLink()
+    {
+        // LCM's AllComponents resolves a sense-targeted component to its owning entry but does
+        // NOT recurse into it, so this graph is legal in FLEx and must stay legal here
+        var entry3 = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "entry3" } }
+        });
+        await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry, _mainSenseId1));
+        await Api.CreateVariant(Variant.FromEntries(_mainEntry, entry3));
+        var act = async () => await Api.CreateVariant(Variant.FromEntries(entry3, _variantEntry));
+        await act.Should().NotThrowAsync();
+        var entry = await Api.GetEntry(_variantEntryId);
+        entry!.Variants.Should().ContainSingle(v => v.VariantEntryId == entry3.Id);
+    }
+
+    [Fact]
+    public async Task CreateVariant_ThrowsWhenMakingA2LayerCycleThroughASenseTargetedLink()
+    {
+        // no recursion past a sense-targeted link, but its owning entry still counts directly
+        await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry, _mainSenseId1));
+        var act = async () => await Api.CreateVariant(Variant.FromEntries(_mainEntry, _variantEntry));
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task CreateVariant_ThrowsWhenTargetingASenseOfADependentEntry()
+    {
+        // targeting a sense doesn't exempt the first hop: LCM resolves the added sense to its
+        // owning entry and walks that entry's full component closure
+        var entry3 = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "entry3" } }
+        });
+        await Api.CreateVariant(Variant.FromEntries(_mainEntry, entry3));
+        var act = async () => await Api.CreateVariant(Variant.FromEntries(entry3, _mainEntry, _mainSenseId1));
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task CreateComplexFormComponent_ThrowsWhenClosingAMixedCycleThroughAVariant()
+    {
+        var entry3 = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "entry3" } }
+        });
+        await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry));
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_mainEntry, entry3));
+        var act = async () => await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(entry3, _variantEntry));
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
     public async Task CreateVariant_WorksWhenALinkWasDeletedWhichWouldCauseACycle()
     {
         var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry));

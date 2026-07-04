@@ -145,7 +145,15 @@ public record Variant : IObjectWithId<Variant>
    The duplicate/cycle guard lives in `AddVariantChange` (soft-delete, sync-tolerant);
    self-reference is additionally rejected by `VariantValidator` in the validation wrapper
    (consistent across both implementations). Chains (a variant of a variant) remain legal,
-   as in FLEx.
+   as in FLEx. Two liblcm subtleties both change classes mirror exactly (shared walk in
+   `ComponentGraph`): `AllComponents` resolves a **sense-targeted** component to its owning
+   entry but does **not recurse** into it (so some loops through sense targets are legal in
+   FLEx and must stay legal here), while the *added* component's entry is always walked in
+   full. `AddEntryComponentChange` was aligned to the same combined walk — its old
+   complex-form-only walk accepted mixed cycles that liblcm rejects at sync time (a wedge),
+   and recursed past sense targets (over-rejecting vs FLEx). That loosening only affects
+   the rare pre-existing sense-cycle shape; pre-variants data is otherwise unaffected
+   (no `Variant` rows to walk).
 8. **Deleted `VariantType` cleanup**: `Variant.GetReferences()` includes its `Types` ids, and
    `RemoveReference` removes the type from the list (only endpoint ids soft-delete the link).
    Better than the complex-forms quirk where deleted types linger in `Entry.ComplexFormTypes`.
@@ -161,6 +169,24 @@ public record Variant : IObjectWithId<Variant>
 11. **Minor-entry visibility in FWL UI** (step 3): users must be able to see at a glance that
     an entry is a variant, not a first-class entry (badge / "Variant of X" in the editor;
     list styling is a follow-up).
+12. **FLEx ref shapes that don't fit the composite-key model** (one link per
+    (VariantEntryId, MainEntryId, MainSenseId)):
+    - *Shared refs* — one `LexEntryRef` with several targets shares Types/HideMinorEntry/
+      Comment across them. Reads fan the ref out into one `Variant` per target; per-link
+      **edits split the target out into its own single-component ref first**
+      (`FindVariantRefForUpdate`, copying the shared fields) so the sibling links are never
+      silently edited. FLEx's own `FindMatchingVariantEntryRef` likewise refuses to reuse
+      multi-component refs.
+    - *Duplicate refs* — two refs from the same variant entry to the same target collapse to
+      one link on read (`DistinctBy` composite key); the extra ref stays in FwData untouched
+      (never entering the snapshot, it never diffs) and `DeleteVariant` removes the target
+      from all of them.
+    - `HideMinorEntry` is an LCM **int reserved as a per-publication bitfield**; we model the
+      current 0/non-0 semantics as a bool and only write when the bool flips, so a future
+      multi-bit value isn't collapsed to 1.
+    - Deleting *Irregularly Inflected Form* cascades to its owned children (Plural/Past) in
+      FwData but not in the flat CRDT type list; the next `VariantTypeSync` reconciles
+      (direction-dependent), so it self-heals without touching entry data.
 
 ### FwData bridge mapping
 

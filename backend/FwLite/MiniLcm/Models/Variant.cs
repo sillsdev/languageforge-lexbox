@@ -5,10 +5,14 @@ namespace MiniLcm.Models;
 
 /// <summary>
 /// One variant relationship: a variant (minor) entry pointing at the main entry (or sense)
-/// it is a variant of. Maps 1:1 to a FieldWorks LexEntryRef with RefType = Variant, so the
-/// per-relationship fields (Types, HideMinorEntry, Comment) live here rather than on the
-/// entry. Unlike <see cref="ComplexFormComponent"/> there is no Order — variant lists have
-/// no user-meaningful order in FieldWorks.
+/// it is a variant of. Identified by the composite key (VariantEntryId, MainEntryId,
+/// MainSenseId) — one link per (FieldWorks LexEntryRef with RefType = Variant, target) pair,
+/// so the per-relationship fields (Types, HideMinorEntry, Comment) live here rather than on
+/// the entry. FLEx can also share one ref between several targets (fields shared) or hold
+/// duplicate refs for one target; both shapes collapse to this composite-key model on read,
+/// and per-link edits split a shared ref first (see FwDataMiniLcmApi.FindVariantRefForUpdate).
+/// Unlike <see cref="ComplexFormComponent"/> there is no Order — variant lists have no
+/// user-meaningful order in FieldWorks.
 /// </summary>
 public record Variant : IObjectWithId<Variant>
 {
