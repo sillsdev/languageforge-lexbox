@@ -1,4 +1,4 @@
-import {type IEntry, type IMorphType, type IWritingSystems, MorphTypeKind, WritingSystemType} from '$lib/dotnet-types';
+import {type IEntry, type IMorphType, type IVariant, type IVariantType, type IWritingSystems, MorphTypeKind, WritingSystemType} from '$lib/dotnet-types';
 
 export const projectName = 'Sena 3';
 
@@ -336,4 +336,33 @@ export const entries: IEntry[] = JSON.parse(
 
 // Keep the array the same length and don't shift entries down,
 // so that tests keep passing
+// entries in the JSON blob predate variants
+for (const entry of entries) {
+  entry.variantOf ??= [];
+  entry.variants ??= [];
+}
+
 entries.splice(0, 1, allWsEntry);
+
+// FLEx standard variant types (well-known guids)
+export const variantTypes: IVariantType[] = [
+  {id: '3942addb-99fd-43e9-ab7d-99025ceb0d4e', name: {en: 'Unspecified Variant'}},
+  {id: '024b62c9-93b3-41a0-ab19-587a0030219a', name: {en: 'Dialectal Variant'}},
+  {id: '0c4663b3-4d9a-47af-b9a1-c8565d8112ed', name: {en: 'Spelling Variant'}},
+];
+
+// seed a variant pair so the demo project shows the feature
+const demoVariantEntry = entries[2];
+const demoMainEntry = entries[3];
+const demoVariant: IVariant = {
+  id: 'b6d5be87-9958-0d55-8788-79e04c8cc001',
+  variantEntryId: demoVariantEntry.id,
+  variantHeadword: Object.values(demoVariantEntry.citationForm)[0] ?? Object.values(demoVariantEntry.lexemeForm)[0],
+  mainEntryId: demoMainEntry.id,
+  mainHeadword: Object.values(demoMainEntry.citationForm)[0] ?? Object.values(demoMainEntry.lexemeForm)[0],
+  types: [variantTypes[0]],
+  hideMinorEntry: false,
+  comment: {},
+};
+demoVariantEntry.variantOf = [demoVariant];
+demoMainEntry.variants = [demoVariant];
