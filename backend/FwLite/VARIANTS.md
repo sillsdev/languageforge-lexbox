@@ -7,19 +7,39 @@ dev/agent can pick up the work mid-stream. Update the **Status** section as step
 
 - [x] Exploration (complex-forms blueprint, liblcm variant model, viewer UI)
 - [x] Design review with Tim (2026-07-03): per-link model confirmed, naming settled
-- [~] Step 1 — model, changes, both APIs, sync orchestration, conformance tests
-  (in progress: conformance suites green both sides; chasing fallout in broader
-  LcmCrdt.Tests run)
-- [ ] Step 2 — sync round-trip test suite, upgrade tests, Sena3 + verified regens
-- [ ] Step 3 — Viewer UI (fields, picker, i18n, Playwright)
+- [x] Step 1+2 — model, changes, both APIs, sync orchestration + round-trip suite
+  (all backend suites green: MiniLcm.Tests, LcmCrdt.Tests, FwDataMiniLcmBridge.Tests,
+  FwLiteProjectSync.Tests incl. Sena3 live db regen; the WS-font failure on Windows is
+  the known local-only false-fail)
+- [x] Step 3 — Viewer UI (fields, per-link type menu, demo seed, i18n, Playwright green)
+- [ ] Review + PR prep
 
-Branches are stacked: `feat/variants-model` ← `feat/variants-sync` ← `feat/variants-ui`.
-
-**Boundary change vs the original plan**: the sync/import orchestration
-(`VariantTypeSync` in `SyncInternal`, `ProjectSnapshot.VariantTypes`, `ProjectImporter`
-variant-type loop, `ResumableImportApi` caching) moved INTO step 1 — the moment the FwData
+**Boundary change vs the original plan**: steps 1 and 2 merged — the moment the FwData
 bridge reads variants, importing a variant-containing project crashes unless variant types
 are imported before entries, so a "model-only" PR can't be green against real projects.
+Final split: one backend PR (model through sync) + one UI PR stacked on it.
+
+### Step 2/3 decision addenda
+
+- **Deterministic variant-list order on both sides** (`Variant.VariantOfOrder`/`VariantsOrder`,
+  composite-key based, culture-free). ComplexForms sort alphabetically because FieldWorks
+  does; variants have no such convention, and guid order keeps snapshot comparisons and
+  sync stable across cultures. UI can sort for display later if wanted.
+- **`CrdtMiniLcmApi.BulkCreateEntries`** (import fast path) emits `AddVariantChange` with the
+  same only-if-other-endpoint-already-created trick as components.
+- **Sena3 verified live db/snapshot regenerated**: sena-3 really contains variants
+  (*inde*→*ande*, *yenda*→*enda*, custom bilingual "Pronunciation Variant" type), which now
+  round-trip — the diff was inspected and is purely additive.
+- **Blank-project template regenerated**: new CRDT projects seed the 7 standard FLEx variant
+  types (well-known guids).
+- **UI**: `Variant of` (picker: entries-and-senses) and `Variants` (picker: only-entries)
+  fields, both shown by default in both views; per-link variant types via a "Variant type"
+  checkbox submenu on each link badge; new links default to *Unspecified Variant* (FLEx
+  behavior); all edits flow through `updateEntry` (before/after diff → EntrySync), so the
+  in-memory demo works without dedicated endpoints. `useVariantTypes()` is **eager** —
+  the type list must be loaded before the first pick applies the default.
+- **helpIds**: `Variant_of_field.htm` verified to exist (fetched); there's no dedicated
+  FLEx topic for the Variants back-reference field, so it reuses the same topic.
 
 ## The LCM model (authority: liblcm)
 
