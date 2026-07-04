@@ -79,6 +79,8 @@ export class EntryApiHelper {
         components: [],
         complexForms: [],
         complexFormTypes: [],
+        variantOf: [],
+        variants: [],
         publishIn: [],
         homographNumber: 0,
       };
@@ -101,6 +103,8 @@ export class EntryApiHelper {
         components: [],
         complexForms: [],
         complexFormTypes: [],
+        variantOf: [],
+        variants: [],
         publishIn: [],
         homographNumber: 0,
       };

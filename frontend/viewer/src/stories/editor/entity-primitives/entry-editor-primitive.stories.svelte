@@ -40,6 +40,8 @@
     complexForms: [],
     complexFormTypes: [],
     components: [],
+    variantOf: [],
+    variants: [],
     publishIn: [],
     senses: [],
     morphType: MorphTypeKind.Stem,

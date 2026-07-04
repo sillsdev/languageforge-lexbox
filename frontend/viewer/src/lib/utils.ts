@@ -44,6 +44,8 @@ export function defaultEntry(): IEntry {
     complexForms: [],
     complexFormTypes: [],
     components: [],
+    variantOf: [],
+    variants: [],
     publishIn: [],
     morphType: MorphTypeKind.Stem,
     homographNumber: 0,

@@ -207,7 +207,7 @@ export const _entries: IEntry[] = [
         'exampleSentences': []
       }
     ], 'note': {},
-    complexForms: [], complexFormTypes: [], components: [], publishIn: [],
+    complexForms: [], complexFormTypes: [], components: [], variantOf: [], variants: [], publishIn: [],
     homographNumber: 0,
   },
   {
@@ -277,6 +277,8 @@ export const _entries: IEntry[] = [
     complexForms: [],
     complexFormTypes: [],
     components: [],
+    variantOf: [],
+    variants: [],
     publishIn: [],
     homographNumber: 0,
   },
@@ -321,7 +323,7 @@ export const allWsEntry: IEntry = {
     }],
   }],
   note: {},
-  complexForms: [], complexFormTypes: [], components: [], publishIn: [],
+  complexForms: [], complexFormTypes: [], components: [], variantOf: [], variants: [], publishIn: [],
   homographNumber: 0,
 };
 
