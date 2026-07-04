@@ -1500,6 +1500,9 @@ public class FwDataMiniLcmApi(
         {
             //sense has been deleted, so this link is gone already
             if (!SenseRepository.TryGetObject(variant.MainSenseId.Value, out var sense)) return;
+            //links are identified by their full composite key; when the sense has moved to a
+            //different entry this link no longer exists (it became a link to the new entry)
+            if (sense.Entry.Guid != variant.MainEntryId) return;
             target = sense;
         }
         else
@@ -1523,9 +1526,17 @@ public class FwDataMiniLcmApi(
 
     internal ILexEntryRef? FindVariantRef(ILexEntry lexVariantEntry, Variant variant)
     {
-        var targetGuid = variant.MainSenseId ?? variant.MainEntryId;
         return lexVariantEntry.VariantEntryRefs
-            .FirstOrDefault(r => r.ComponentLexemesRS.Any(o => o.Guid == targetGuid));
+            .FirstOrDefault(r => r.ComponentLexemesRS.Any(o => MatchesVariantTarget(o, variant)));
+    }
+
+    //match the full composite key: a sense target only counts while the sense still belongs
+    //to the link's main entry (a moved sense means this is a different link)
+    private static bool MatchesVariantTarget(ICmObject o, Variant variant)
+    {
+        return variant.MainSenseId is not null
+            ? o is ILexSense sense && sense.Guid == variant.MainSenseId && sense.Entry.Guid == variant.MainEntryId
+            : o is ILexEntry entry && entry.Guid == variant.MainEntryId;
     }
 
     private IList<ITsString> MultiStringToTsStrings(MultiString? multiString)

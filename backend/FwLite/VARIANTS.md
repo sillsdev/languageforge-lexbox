@@ -143,6 +143,8 @@ public record Variant : IObjectWithId<Variant>
 8. **Deleted `VariantType` cleanup**: `Variant.GetReferences()` includes its `Types` ids, and
    `RemoveReference` removes the type from the list (only endpoint ids soft-delete the link).
    Better than the complex-forms quirk where deleted types linger in `Entry.ComplexFormTypes`.
+   Like `Entry.ComplexFormTypes`, `Variant.Types` stores denormalized copies (jsonb), so a
+   type *rename* reaches already-linked variants on the next sync/read, not instantly.
 9. **Variant entries with no senses are first-class** and must be covered by tests both ways
    (headline behavioral difference; FLEx "Insert Variant" creates sense-less entries).
 10. **A variant can target a sense** (`MainSenseId`); on the main side such links still
@@ -185,14 +187,13 @@ Write:
 - Changes (register in `LcmCrdtKernel.ConfigureCrdt` **and** add instances to
   `UseChangesTests.GetAllChanges()` — kernel comment mandates it):
   `AddVariantChange` (create; carries types+scalars; dedupe/cycle/deleted-ref handling
-  mirroring `AddEntryComponentChange`), `SetVariantChange` (mirror
-  `SetComplexFormComponentChange`; needs a hand-written generator branch in
-  `ChangeSerializationTests.GeneratedChangesForType` — protected ctor),
+  mirroring `AddEntryComponentChange`),
   `AddVariantTypeChange`/`RemoveVariantTypeChange` (`EditChange<Variant>`),
   `CreateVariantType`, `JsonPatchChange<Variant>`, `JsonPatchChange<VariantType>`,
   `DeleteChange<Variant>`, `DeleteChange<VariantType>`.
-  Check `ConfigRegistrationTests.AllChangesAreRegistered` exclusion list (it force-crosses
-  generic changes with all object types).
+  A `SetVariantChange` (mirror of `SetComplexFormComponentChange`) was considered and
+  dropped: that change turned out to be test/wire-legacy only for complex forms; variant
+  scalars go through `JsonPatchChange<Variant>` and endpoint changes are delete+recreate.
 
 ### API surface (both implementations + wrappers)
 
