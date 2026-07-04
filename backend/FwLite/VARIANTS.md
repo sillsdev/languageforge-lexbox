@@ -7,11 +7,19 @@ dev/agent can pick up the work mid-stream. Update the **Status** section as step
 
 - [x] Exploration (complex-forms blueprint, liblcm variant model, viewer UI)
 - [x] Design review with Tim (2026-07-03): per-link model confirmed, naming settled
-- [ ] Step 1 — MiniLcm model, CRDT change types, both API implementations, conformance tests
-- [ ] Step 2 — FwData↔CRDT project sync (orchestration, snapshot, round-trip tests)
+- [~] Step 1 — model, changes, both APIs, sync orchestration, conformance tests
+  (in progress: conformance suites green both sides; chasing fallout in broader
+  LcmCrdt.Tests run)
+- [ ] Step 2 — sync round-trip test suite, upgrade tests, Sena3 + verified regens
 - [ ] Step 3 — Viewer UI (fields, picker, i18n, Playwright)
 
 Branches are stacked: `feat/variants-model` ← `feat/variants-sync` ← `feat/variants-ui`.
+
+**Boundary change vs the original plan**: the sync/import orchestration
+(`VariantTypeSync` in `SyncInternal`, `ProjectSnapshot.VariantTypes`, `ProjectImporter`
+variant-type loop, `ResumableImportApi` caching) moved INTO step 1 — the moment the FwData
+bridge reads variants, importing a variant-containing project crashes unless variant types
+are imported before entries, so a "model-only" PR can't be green against real projects.
 
 ## The LCM model (authority: liblcm)
 
@@ -105,9 +113,13 @@ public record Variant : IObjectWithId<Variant>
    This is what makes concurrent type edits merge instead of last-writer-wins.
 6. **No ordering.** Variant lists have no user-meaningful order in FLEx; both directions diff
    as sets. No `IOrderable`, no `SetOrderChange`, no Move API.
-7. **Cycle/duplicate guard mirrors `AddEntryComponentChange`** — lives in the *change class*
-   (soft-deletes instead of throwing, because sync must tolerate incoming duplicates);
-   validator only rejects self-reference cheaply. Don't duplicate the BFS in validators.
+7. **Only self-reference and duplicates are rejected — NOT chains or cycles.** This
+   deliberately diverges from complex forms' BFS cycle guard: FLEx itself allows variant
+   chains and cycles (`MakeVariantOf` has no cycle check, unlike complex-form components),
+   and FwLite never traverses variant links recursively, so rejecting shapes FLEx data can
+   contain would make sync diverge permanently. The duplicate guard lives in
+   `AddVariantChange` (soft-delete, sync-tolerant); self-reference is rejected by
+   `VariantValidator` in the validation wrapper (consistent across both implementations).
 8. **Deleted `VariantType` cleanup**: `Variant.GetReferences()` includes its `Types` ids, and
    `RemoveReference` removes the type from the list (only endpoint ids soft-delete the link).
    Better than the complex-forms quirk where deleted types linger in `Entry.ComplexFormTypes`.

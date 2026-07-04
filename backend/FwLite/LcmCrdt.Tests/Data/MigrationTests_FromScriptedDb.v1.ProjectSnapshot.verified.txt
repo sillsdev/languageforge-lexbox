@@ -70,6 +70,8 @@
       "Components": [],
       "ComplexForms": [],
       "ComplexFormTypes": [],
+      "VariantOf": [],
+      "Variants": [],
       "PublishIn": []
     }
   ],
@@ -166,6 +168,7 @@
     }
   ],
   "MorphTypes": [],
+  "VariantTypes": [],
   "WritingSystems": {
     "Analysis": [
       {

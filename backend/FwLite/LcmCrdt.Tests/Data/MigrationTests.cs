@@ -164,6 +164,9 @@ public class MigrationTests : IAsyncLifetime
             await api.GetMorphTypes()
                 .OrderBy(m => m.Id)
                 .ToArrayAsync(),
+            await api.GetVariantTypes()
+                .OrderBy(v => v.Id)
+                .ToArrayAsync(),
             await api.GetWritingSystems());
     }
 

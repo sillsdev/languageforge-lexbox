@@ -134,6 +134,12 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         crdtChanges += await ComplexFormTypeSync.Sync(projectSnapshot.ComplexFormTypes, currentFwDataComplexFormTypes, crdtApi);
         fwdataChanges += await ComplexFormTypeSync.Sync(currentFwDataComplexFormTypes, await crdtApi.GetComplexFormTypes().ToArrayAsync(), fwdataApi);
 
+        var currentFwDataVariantTypes = await fwdataApi.GetVariantTypes().ToArrayAsync();
+        // Legacy snapshots predate variant support and deserialize with an empty list; the CRDT
+        // genuinely has no variant types yet, so that baseline correctly imports FwData's list.
+        crdtChanges += await VariantTypeSync.Sync(projectSnapshot.VariantTypes, currentFwDataVariantTypes, crdtApi);
+        fwdataChanges += await VariantTypeSync.Sync(currentFwDataVariantTypes, await crdtApi.GetVariantTypes().ToArrayAsync(), fwdataApi);
+
         var currentFwDataMorphTypes = await fwdataApi.GetMorphTypes().ToArrayAsync();
         crdtChanges += await MorphTypeSync.Sync(projectSnapshot.MorphTypes, currentFwDataMorphTypes, crdtApi);
         fwdataChanges += await MorphTypeSync.Sync(currentFwDataMorphTypes, await crdtApi.GetMorphTypes().ToArrayAsync(), fwdataApi);
