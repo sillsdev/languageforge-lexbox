@@ -13,12 +13,13 @@
   const viewService = useViewService();
   const multiWindowService = useMultiWindowService();
 
-  interface Props extends Omit<ItemListProps<T>, 'getDisplayName'> {
+  interface Props extends Omit<ItemListProps<T>, 'getDisplayName' | 'menuItems'> {
     getEntryId: (item: T) => string;
     getHeadword: (item: T) => string | undefined;
+    extraMenuItems?: ItemListProps<T>['menuItems'];
   }
 
-  let { items = $bindable(), getEntryId, getHeadword, ...rest }: Props = $props();
+  let { items = $bindable(), getEntryId, getHeadword, extraMenuItems, ...rest }: Props = $props();
 </script>
 
 <ItemList
@@ -41,5 +42,6 @@
         {$t`Open in new Window`}
       </DropdownMenu.Item>
     {/if}
+    {@render extraMenuItems?.(entry)}
   {/snippet}
 </ItemList>
