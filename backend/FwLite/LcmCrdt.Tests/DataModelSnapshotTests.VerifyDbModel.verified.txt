@@ -160,6 +160,8 @@
       ComplexForms (List<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
       Components (List<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
       Senses (List<Sense>) Collection ToDependent Sense
+      VariantOf (List<Variant>) Collection ToDependent Variant
+      Variants (List<Variant>) Collection ToDependent Variant
     Keys: 
       Id PK
     Foreign keys: 
@@ -342,6 +344,70 @@
       Relational:Schema: 
       Relational:SqlQuery: 
       Relational:TableName: Sense
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: Variant
+    Properties: 
+      Id (_id, Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      Comment (RichMultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      DeletedAt (DateTimeOffset?)
+      HideMinorEntry (bool) Required
+      MainEntryId (Guid) Required FK Index
+      MainHeadword (string)
+      MainSenseId (Guid?) FK Index
+        Annotations: 
+          Relational:ColumnName: MainSenseId
+      SnapshotId (no field, Guid?) Shadow FK Index
+      Types (List<VariantType>) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      VariantEntryId (Guid) Required FK Index
+      VariantHeadword (string)
+    Keys: 
+      Id PK
+    Foreign keys: 
+      Variant {'MainEntryId'} -> Entry {'Id'} Required Cascade ToDependent: Variants
+      Variant {'MainSenseId'} -> Sense {'Id'} Cascade
+      Variant {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+      Variant {'VariantEntryId'} -> Entry {'Id'} Required Cascade ToDependent: VariantOf
+    Indexes: 
+      MainEntryId
+      MainSenseId
+      SnapshotId Unique
+      VariantEntryId, MainEntryId Unique
+        Annotations: 
+          Relational:Filter: MainSenseId IS NULL
+      VariantEntryId, MainEntryId, MainSenseId Unique
+        Annotations: 
+          Relational:Filter: MainSenseId IS NOT NULL
+    Annotations: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: Variants
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: VariantType
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      DeletedAt (DateTimeOffset?)
+      Name (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      SnapshotId (no field, Guid?) Shadow FK Index
+    Keys: 
+      Id PK
+    Foreign keys: 
+      VariantType {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      SnapshotId Unique
+    Annotations: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: VariantType
       Relational:ViewName: 
       Relational:ViewSchema: 
   EntityType: WritingSystem

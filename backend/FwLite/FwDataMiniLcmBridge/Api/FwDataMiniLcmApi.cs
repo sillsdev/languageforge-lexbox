@@ -799,12 +799,14 @@ public class FwDataMiniLcmApi(
 
     private IEnumerable<Variant> ToVariants(ILexEntry entry)
     {
-        return
-        [
-            ..entry.VariantFormEntryBackRefs.Select(r => ToVariant(r.OwningEntry, r, entry, null)),
-            ..entry.AllSenses.SelectMany(sense =>
-                sense.VariantFormEntryBackRefs.Select(r => ToVariant(r.OwningEntry, r, entry, sense)))
-        ];
+        return new[]
+            {
+                entry.VariantFormEntryBackRefs.Select(r => ToVariant(r.OwningEntry, r, entry, null)),
+                entry.AllSenses.SelectMany(sense =>
+                    sense.VariantFormEntryBackRefs.Select(r => ToVariant(r.OwningEntry, r, entry, sense)))
+            }
+            .SelectMany(v => v)
+            .DistinctBy(v => (v.VariantEntryId, v.MainEntryId, v.MainSenseId));
     }
 
     private Variant ToVariant(ILexEntry variantEntry, ILexEntryRef variantRef, ILexEntry mainEntry, ILexSense? mainSense)

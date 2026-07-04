@@ -37,6 +37,14 @@
       TypeDiscriminator: ComplexFormComponent
     },
     {
+      DerivedType: VariantType,
+      TypeDiscriminator: VariantType
+    },
+    {
+      DerivedType: Variant,
+      TypeDiscriminator: Variant
+    },
+    {
       DerivedType: CustomView,
       TypeDiscriminator: CustomView
     },

@@ -84,30 +84,40 @@ public class AddVariantChange : CreateChange<Variant>, ISelfNamedType<AddVariant
     private static async ValueTask<bool> CreatesReferenceCycleOrDuplicate(Variant parent, IChangeContext context)
     {
         if (parent.VariantEntryId == parent.MainEntryId) return true;
-        //used to avoid checking the same Variant multiple times
-        HashSet<Guid> visited = [parent.Id];
-        Queue<Variant> queue = new Queue<Variant>();
-        queue.Enqueue(parent);
+        await foreach (var o in context.GetObjectsReferencing(parent.VariantEntryId))
+        {
+            if (o is not Variant v) continue;
+            if (v.DeletedAt is not null) continue;
+            if (v.Id == parent.Id) continue;
+            var duplicate = v.VariantEntryId == parent.VariantEntryId &&
+                            v.MainEntryId == parent.MainEntryId &&
+                            v.MainSenseId == parent.MainSenseId;
+            if (duplicate) return true;
+        }
+
+        //LCM enforces acyclicity over the COMBINED complex-form + variant component graph
+        //(LexEntryRef.ValidateAddObjectInternal → LexEntry.AllComponents), so mirror that:
+        //walk everything the main entry depends on through both link types; if the variant
+        //entry is reachable, this link would close a cycle FLEx rejects
+        HashSet<Guid> visited = [];
+        Queue<Guid> queue = new();
+        queue.Enqueue(parent.MainEntryId);
         while (queue.Count > 0)
         {
-            var current = queue.Dequeue();
-            if (current.VariantEntryId == parent.MainEntryId) return true;
-            await foreach (var o in context.GetObjectsReferencing(current.VariantEntryId))
+            var entryId = queue.Dequeue();
+            if (entryId == parent.VariantEntryId) return true;
+            if (!visited.Add(entryId)) continue;
+            await foreach (var o in context.GetObjectsReferencing(entryId))
             {
-                if (o is not Variant v) continue;
-                if (v.DeletedAt is not null) continue;
-                if (visited.Contains(v.Id)) continue;
-                if (current == parent)
+                switch (o)
                 {
-                    var duplicate = v.VariantEntryId == parent.VariantEntryId &&
-                                    v.MainEntryId == parent.MainEntryId &&
-                                    v.MainSenseId == parent.MainSenseId;
-                    if (duplicate) return true;
+                    case Variant v when v.DeletedAt is null && v.VariantEntryId == entryId:
+                        queue.Enqueue(v.MainEntryId);
+                        break;
+                    case ComplexFormComponent cfc when cfc.DeletedAt is null && cfc.ComplexFormEntryId == entryId:
+                        queue.Enqueue(cfc.ComponentEntryId);
+                        break;
                 }
-
-                if (v.VariantEntryId == parent.MainEntryId) return true;
-                queue.Enqueue(v);
-                visited.Add(v.Id);
             }
         }
         return false;

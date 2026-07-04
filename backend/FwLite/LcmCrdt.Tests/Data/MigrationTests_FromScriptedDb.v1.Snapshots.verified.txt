@@ -77,6 +77,8 @@
         "Components": [],
         "ComplexForms": [],
         "ComplexFormTypes": [],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1",

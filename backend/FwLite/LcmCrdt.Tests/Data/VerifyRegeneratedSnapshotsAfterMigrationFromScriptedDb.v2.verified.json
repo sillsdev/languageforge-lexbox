@@ -122,6 +122,8 @@
             }
           }
         ],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "Guid_4"
@@ -163,6 +165,8 @@
         "Components": [],
         "ComplexForms": [],
         "ComplexFormTypes": [],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "Guid_3"
@@ -204,6 +208,8 @@
         "Components": [],
         "ComplexForms": [],
         "ComplexFormTypes": [],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "Guid_16"
@@ -245,6 +251,8 @@
         "Components": [],
         "ComplexForms": [],
         "ComplexFormTypes": [],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "Guid_19"
