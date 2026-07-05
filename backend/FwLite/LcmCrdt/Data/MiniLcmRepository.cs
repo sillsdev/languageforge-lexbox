@@ -295,6 +295,83 @@ public class MiniLcmRepository(
         return sortedIds.IndexOf(entryId);
     }
 
+    public async Task<int> CountEntrySenseRows(string? query = null, FilterQueryOptions? options = null)
+    {
+        options ??= FilterQueryOptions.Default;
+        var (entries, _) = await FilterEntries(Entries, query, options);
+        var senses = dbContext.GetTable<Sense>();
+        var rows =
+            from e in entries
+            join sense in senses on e.Id equals sense.EntryId into senseGroup
+            from s in senseGroup.DefaultIfEmpty()
+            select e.Id;
+        return await AsyncExtensions.CountAsync(rows);
+    }
+
+    public async IAsyncEnumerable<EntrySenseRow> GetEntrySenseRows(string? query = null, QueryOptions? options = null)
+    {
+        options ??= new QueryOptions(SortOptions.DefaultGloss);
+        var rows = await FilterAndSortEntrySenseRows(query, options);
+        await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
+        var keys = await options.ApplyPaging(rows).ToListAsyncEF();
+        if (keys.Count == 0) yield break;
+
+        var entryIds = keys.Select(k => k.EntryId).Distinct().ToArray();
+        var entryQueryable = Entries.Where(e => entryIds.Contains(e.Id))
+            .LoadWith(e => e.Senses)
+            .ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
+            .LoadWith(e => e.ComplexForms)
+            .LoadWith(e => e.Components)
+            .AsQueryable();
+        var complexFormComparer = cultureProvider.GetCompareInfo(await GetWritingSystem(default, WritingSystemType.Vernacular))
+            .AsComplexFormComparer();
+        var entriesById = new Dictionary<Guid, Entry>(entryIds.Length);
+        await foreach (var entry in EfExtensions.SafeIterate(AsyncExtensions.AsAsyncEnumerable(entryQueryable)))
+        {
+            entry.Finalize(complexFormComparer);
+            entriesById.Add(entry.Id, entry);
+        }
+
+        foreach (var key in keys)
+        {
+            yield return new EntrySenseRow(key.SenseId, entriesById[key.EntryId]);
+        }
+    }
+
+    public async Task<int> GetEntrySenseRowIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
+    {
+        var queryOptions = new QueryOptions(
+            options?.Order ?? SortOptions.DefaultGloss,
+            options?.Exemplar,
+            QueryOptions.QueryAll,
+            0,
+            options?.Filter
+        );
+
+        var rows = await FilterAndSortEntrySenseRows(query, queryOptions);
+        await EnsureConnectionOpen();
+        // same materialize-the-ids approach as GetEntryIndex
+        var sortedEntryIds = await rows.Select(r => r.EntryId).ToListAsyncEF();
+        return sortedEntryIds.IndexOf(entryId);
+    }
+
+    private async Task<IQueryable<EntrySenseRowKey>> FilterAndSortEntrySenseRows(string? query, QueryOptions options)
+    {
+        if (options.Order.Field != SortField.Gloss)
+            throw new ArgumentException($"Sort field {options.Order.Field} is not supported for sense rows, only {SortField.Gloss} is",
+                nameof(options));
+
+        var glossWs = await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Analysis)
+            ?? throw NotFoundException.ForWs(options.Order.WritingSystem, WritingSystemType.Analysis);
+        var headwordWs = await GetWritingSystem(default, WritingSystemType.Vernacular)
+            ?? throw NotFoundException.ForWs(default, WritingSystemType.Vernacular);
+        var order = options.Order with { WritingSystem = glossWs.WsId };
+
+        var (entries, _) = await FilterEntries(Entries, query, options);
+        return entries.ApplyGlossOrder(dbContext.GetTable<Sense>(), dbContext.GetTable<MorphType>(), order, headwordWs.WsId);
+    }
+
     public Task<Publication?> GetMainPublication()
     {
         // Exactly one main publication is the only valid state; SingleOrDefault surfaces a >1 corruption rather than masking it.

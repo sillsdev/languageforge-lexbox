@@ -12,6 +12,8 @@
     entry?: IEntry;
     badge?: Snippet;
     previewDictionary?: boolean;
+    /** Renders the row for this specific sense (gloss sorting shows one row per sense). */
+    senseId?: string;
   };
 
   let {
@@ -19,13 +21,20 @@
     ref = $bindable(null),
     badge,
     previewDictionary = false,
+    senseId = undefined,
     ...rest
   }: Props = $props();
 
   const writingSystemService = useWritingSystemService();
   const partOfSpeechService = usePartsOfSpeech();
-  const sensePreview = $derived(writingSystemService.firstDefOrGlossVal(entry?.senses?.[0]));
-  const partOfSpeech = $derived(entry?.senses?.[0]?.partOfSpeech);
+  const senseIndex = $derived(senseId ? (entry?.senses?.findIndex(s => s.id === senseId) ?? -1) : 0);
+  const sense = $derived(senseIndex >= 0 ? entry?.senses?.[senseIndex] : undefined);
+  const sensePreview = $derived(senseId
+    // this row was picked by its gloss, so show the gloss over the definition
+    ? (sense ? writingSystemService.firstGloss(sense) || writingSystemService.firstDef(sense) : '')
+    : writingSystemService.firstDefOrGlossVal(sense));
+  const senseNumber = $derived(senseId && (entry?.senses?.length ?? 0) > 1 && senseIndex >= 0 ? senseIndex + 1 : undefined);
+  const partOfSpeech = $derived(sense?.partOfSpeech);
 
   // Generate random widths for skeleton UI elements
   function randomWidth(min: number, max: number): string {
@@ -59,6 +68,7 @@
     {#if entry.senses.length}
       <div class="flex justify-between items-end">
         <div class="text-sm text-muted-foreground">
+          {#if senseNumber}<span class="opacity-70">{senseNumber}.</span>{/if}
           {sensePreview}
         </div>
         {#if partOfSpeech}

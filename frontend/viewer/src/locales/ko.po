@@ -905,7 +905,7 @@ msgstr "FieldWorks Lite 버전"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1032,6 +1032,7 @@ msgstr "지원 받기"
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
 #: src/lib/views/entity-config.ts
+#: src/project/browse/sort/SortMenu.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "광택"
@@ -1274,6 +1275,7 @@ msgstr "수동 업데이트가 필요합니다. 제공된 지침을 따르세요
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/project/browse/sort/SortMenu.svelte
 msgid "Meaning"
 msgstr "의미"
 
@@ -2147,10 +2149,7 @@ msgid "Unable to open in FieldWorks"
 msgstr "FieldWorks에서 열 수 없음"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityItem.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte

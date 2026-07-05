@@ -6,6 +6,7 @@ import {
   type IComplexFormType,
   type ICreateEntryOptions,
   type IEntry,
+  type IEntrySenseRow,
   type IExampleSentence,
   type IFilterQueryOptions,
   type IIndexQueryOptions,
@@ -17,6 +18,7 @@ import {
   type IPublication,
   type IQueryOptions,
   type ISemanticDomain,
+  type ISortOptions,
   type ISense,
   type IServerProjects,
   type IWritingSystem,
@@ -250,6 +252,56 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     await delay(100);
     const entries = this.getFilteredSortedEntries(query, options);
     return entries.findIndex(e => e.id === entryId);
+  }
+
+  countEntrySenseRows(query?: string, options?: IFilterQueryOptions): Promise<number> {
+    return Promise.resolve(this.getSortedSenseRows(query, undefined, options).length);
+  }
+
+  async getEntrySenseRows(query?: string, options?: IQueryOptions): Promise<IEntrySenseRow[]> {
+    await delay(300);
+    const rows = this.getSortedSenseRows(query, options?.order, options);
+    if (!options) return rows;
+    return rows.slice(options.offset, options.offset + options.count);
+  }
+
+  async getEntrySenseRowIndex(entryId: string, query?: string, options?: IIndexQueryOptions): Promise<number> {
+    await delay(100);
+    const rows = this.getSortedSenseRows(query, options?.order, options);
+    return rows.findIndex(r => r.entry.id === entryId);
+  }
+
+  /**
+   * One row per sense (entries without senses keep a single row) sorted by gloss.
+   * Rows without a gloss in the sort writing system always sort last and
+   * tiebreakers always ascend, mirroring the real implementations.
+   */
+  private getSortedSenseRows(query?: string, order?: ISortOptions, filterOptions?: IFilterQueryOptions): IEntrySenseRow[] {
+    const entries = this.getFilteredEntries(query, filterOptions);
+    const glossWs = pickWs(order?.writingSystem ?? 'default', writingSystems.analysis[0].wsId);
+    const headwordWs = writingSystems.vernacular[0].wsId;
+    const ascending = order?.ascending ?? true;
+
+    type Row = {entry: IEntry, senseId?: string, gloss: string, senseIndex: number};
+    const rows: Row[] = entries.flatMap(entry => {
+      if (!entry.senses.length) return [{entry, gloss: '', senseIndex: -1}];
+      return entry.senses.map((sense, senseIndex) =>
+        ({entry, senseId: sense.id, gloss: sense.gloss[glossWs] ?? '', senseIndex}));
+    });
+    rows.sort((r1, r2) => {
+      if (!r1.gloss !== !r2.gloss) return r1.gloss ? -1 : 1;
+      let compare = r1.gloss.localeCompare(r2.gloss, glossWs);
+      if (!ascending) compare = -compare;
+      if (compare === 0) {
+        const h1 = r1.entry.citationForm[headwordWs] || r1.entry.lexemeForm[headwordWs] || '';
+        const h2 = r2.entry.citationForm[headwordWs] || r2.entry.lexemeForm[headwordWs] || '';
+        compare = h1.localeCompare(h2, headwordWs);
+      }
+      if (compare === 0) compare = r1.entry.id.localeCompare(r2.entry.id);
+      if (compare === 0) compare = r1.senseIndex - r2.senseIndex;
+      return compare;
+    });
+    return rows.map(r => ({entry: r.entry, senseId: r.senseId}));
   }
 
   getWritingSystems(): Promise<IWritingSystems> {

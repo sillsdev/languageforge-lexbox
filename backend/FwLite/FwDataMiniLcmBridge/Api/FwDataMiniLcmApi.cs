@@ -980,6 +980,9 @@ public class FwDataMiniLcmApi(
 
     private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query)
     {
+        if (order.Field is not (SortField.SearchRelevance or SortField.Headword))
+            throw new ArgumentOutOfRangeException(nameof(order), "sort field unknown " + order.Field);
+
         var sortWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Vernacular);
         var stemSecondaryOrder = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphStem).SecondaryOrder;
         if (order.Field == SortField.SearchRelevance)
@@ -1026,6 +1029,61 @@ public class FwDataMiniLcmApi(
         }
 
         return Task.FromResult(-1);
+    }
+
+    public Task<int> CountEntrySenseRows(string? query = null, FilterQueryOptions? options = null)
+    {
+        var entries = GetLexEntries(EntrySearchPredicate(query), options);
+        return Task.FromResult(entries.Sum(e => Math.Max(1, e.AllSenses.Count)));
+    }
+
+    public IAsyncEnumerable<EntrySenseRow> GetEntrySenseRows(string? query = null, QueryOptions? options = null)
+    {
+        options ??= new QueryOptions(SortOptions.DefaultGloss);
+        var rows = GetSortedLexEntrySenseRows(EntrySearchPredicate(query), options, options.Order);
+        rows = options.ApplyPaging(rows);
+
+        // rows of the same entry share one converted Entry, like the CRDT implementation
+        var entryCache = new Dictionary<Guid, Entry>();
+        return rows.ToAsyncEnumerable().Select(row =>
+        {
+            if (!entryCache.TryGetValue(row.Entry.Guid, out var entry))
+                entryCache.Add(row.Entry.Guid, entry = FromLexEntry(row.Entry));
+            return new EntrySenseRow(row.Sense?.Guid, entry);
+        });
+    }
+
+    public Task<int> GetEntrySenseRowIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
+    {
+        var rows = GetSortedLexEntrySenseRows(EntrySearchPredicate(query), options, options?.Order ?? SortOptions.DefaultGloss);
+
+        var rowIndex = 0;
+        foreach (var row in rows)
+        {
+            if (row.Entry.Guid == entryId)
+            {
+                return Task.FromResult(rowIndex);
+            }
+            rowIndex++;
+        }
+
+        return Task.FromResult(-1);
+    }
+
+    private IEnumerable<(ILexEntry Entry, ILexSense? Sense)> GetSortedLexEntrySenseRows(
+        Func<ILexEntry, bool>? predicate,
+        FilterQueryOptions? filterOptions,
+        SortOptions order)
+    {
+        if (order.Field != SortField.Gloss)
+            throw new ArgumentException($"Sort field {order.Field} is not supported for sense rows, only {SortField.Gloss} is",
+                nameof(order));
+
+        var glossWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Analysis);
+        var headwordWs = GetWritingSystemHandle(default, WritingSystemType.Vernacular);
+        var stemSecondaryOrder = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphStem).SecondaryOrder;
+        var entries = GetLexEntries(predicate, filterOptions);
+        return entries.ApplyGlossOrder(order, glossWs, headwordWs, stemSecondaryOrder);
     }
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)

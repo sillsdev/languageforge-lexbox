@@ -15,6 +15,7 @@ import type {IFilterQueryOptions} from '../../MiniLcm/IFilterQueryOptions';
 import type {IIndexQueryOptions} from '../../MiniLcm/IIndexQueryOptions';
 import type {IEntry} from '../../MiniLcm/Models/IEntry';
 import type {IQueryOptions} from '../../MiniLcm/IQueryOptions';
+import type {IEntrySenseRow} from '../../MiniLcm/Models/IEntrySenseRow';
 import type {IWritingSystem} from '../../MiniLcm/Models/IWritingSystem';
 import type {WritingSystemType} from '../../MiniLcm/Models/WritingSystemType';
 import type {ICreateEntryOptions} from '../../MiniLcm/ICreateEntryOptions';
@@ -41,6 +42,9 @@ export interface IMiniLcmJsInvokable
 	getEntryIndex(id: string, query?: string, options?: IIndexQueryOptions) : Promise<number>;
 	getEntries(options?: IQueryOptions) : Promise<IEntry[]>;
 	searchEntries(query: string, options?: IQueryOptions) : Promise<IEntry[]>;
+	countEntrySenseRows(query?: string, options?: IFilterQueryOptions) : Promise<number>;
+	getEntrySenseRows(query?: string, options?: IQueryOptions) : Promise<IEntrySenseRow[]>;
+	getEntrySenseRowIndex(entryId: string, query?: string, options?: IIndexQueryOptions) : Promise<number>;
 	getEntry(id: string) : Promise<IEntry | null>;
 	getSense(entryId: string, id: string) : Promise<ISense | null>;
 	getPartOfSpeech(id: string) : Promise<IPartOfSpeech | null>;

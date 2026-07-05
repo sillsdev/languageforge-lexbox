@@ -463,4 +463,77 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
     {
         throw new NotImplementedException();
     }
+
+    public async Task<int> CountEntrySenseRows(string? query = null, FilterQueryOptions? options = null)
+    {
+        var entries = Query(new QueryOptions
+        {
+            Count = QueryOptions.QueryAll,
+            Exemplar = options?.Exemplar,
+            Filter = options?.Filter
+        }, query);
+        return await entries.SumAsync(e => Math.Max(1, e.Senses.Count));
+    }
+
+    public async IAsyncEnumerable<EntrySenseRow> GetEntrySenseRows(string? query = null, QueryOptions? options = null)
+    {
+        options ??= new QueryOptions(SortOptions.DefaultGloss);
+        var order = options.Order;
+        if (order.Field != SortField.Gloss)
+            throw new ArgumentException($"Sort field {order.Field} is not supported for sense rows, only {SortField.Gloss} is",
+                nameof(options));
+
+        var glossWs = order.WritingSystem;
+        if (glossWs == default)
+        {
+            var writingSystems = await GetWritingSystems();
+            if (writingSystems.Analysis.Length == 0) yield break;
+            glossWs = writingSystems.Analysis[0].WsId;
+        }
+
+        // materialize everything: Query only pages/sorts by headword, so rows are re-sorted here
+        var entries = await Query(new QueryOptions
+        {
+            Count = QueryOptions.QueryAll,
+            Exemplar = options.Exemplar,
+            Filter = options.Filter
+        }, query).ToListAsync();
+
+        var rows = entries
+            .SelectMany(e => e.Senses
+                .Select((s, i) => (Entry: e, Sense: (Sense?)s, SenseIndex: i))
+                .DefaultIfEmpty((Entry: e, Sense: null, SenseIndex: -1)))
+            .Select(x => (x.Entry, x.Sense, x.SenseIndex, Gloss: x.Sense?.Gloss[glossWs]));
+
+        // rows without a gloss sort last; entries are already headword-sorted and OrderBy is
+        // stable, so equal glosses keep headword order (matching the other implementations)
+        var withoutGlossLast = rows.OrderBy(x => string.IsNullOrEmpty(x.Gloss));
+        var ordered = order.Ascending
+            ? withoutGlossLast.ThenBy(x => x.Gloss)
+            : withoutGlossLast.ThenByDescending(x => x.Gloss);
+
+        foreach (var row in options.ApplyPaging(ordered.AsEnumerable()))
+        {
+            yield return new EntrySenseRow(row.Sense?.Id, row.Entry);
+        }
+    }
+
+    public async Task<int> GetEntrySenseRowIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
+    {
+        var queryOptions = new QueryOptions(
+            options?.Order ?? SortOptions.DefaultGloss,
+            options?.Exemplar,
+            QueryOptions.QueryAll,
+            0,
+            options?.Filter);
+
+        var index = 0;
+        await foreach (var row in GetEntrySenseRows(query, queryOptions))
+        {
+            if (row.Entry.Id == entryId) return index;
+            index++;
+        }
+
+        return -1;
+    }
 }

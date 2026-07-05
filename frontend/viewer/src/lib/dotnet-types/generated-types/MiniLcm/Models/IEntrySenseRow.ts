@@ -3,9 +3,11 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export enum SortField {
-	Headword = "Headword",
-	SearchRelevance = "SearchRelevance",
-	Gloss = "Gloss"
+import type {IEntry} from './IEntry';
+
+export interface IEntrySenseRow
+{
+	senseId?: string;
+	entry: IEntry;
 }
 /* eslint-enable */

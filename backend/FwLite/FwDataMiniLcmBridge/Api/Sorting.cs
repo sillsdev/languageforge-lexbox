@@ -6,6 +6,37 @@ namespace FwDataMiniLcmBridge.Api;
 
 internal static class Sorting
 {
+    /// <summary>
+    /// Expands entries to one row per sense (an entry without senses keeps a single row) ordered by gloss.
+    /// Rows without a gloss in the sort writing system always sort last and tiebreakers always ascend,
+    /// so only the gloss order itself flips with <see cref="SortOptions.Ascending"/>.
+    /// Mirrors <c>LcmCrdt.Data.Sorting.ApplyGlossOrder</c>.
+    /// </summary>
+    public static IEnumerable<(ILexEntry Entry, ILexSense? Sense)> ApplyGlossOrder(
+        this IEnumerable<ILexEntry> entries,
+        SortOptions order,
+        int glossWsHandle,
+        int headwordWsHandle,
+        int stemSecondaryOrder)
+    {
+        var projected = entries.SelectMany(e =>
+            e.AllSenses.Select((s, i) => (Entry: e, Sense: (ILexSense?)s, SenseIndex: i))
+                .DefaultIfEmpty((Entry: e, Sense: null, SenseIndex: -1)))
+            .Select(x => (x.Entry, x.Sense, x.SenseIndex, Gloss: x.Sense?.Gloss.get_String(glossWsHandle).Text));
+
+        var withoutGlossLast = projected.OrderBy(x => string.IsNullOrEmpty(x.Gloss));
+        var byGloss = order.Ascending
+            ? withoutGlossLast.ThenBy(x => x.Gloss)
+            : withoutGlossLast.ThenByDescending(x => x.Gloss);
+        return byGloss
+            .ThenBy(x => x.Entry.LexEntryHeadword(headwordWsHandle, applyMorphTokens: false))
+            .ThenBy(x => x.Entry.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
+            .ThenBy(x => x.Entry.HomographNumber)
+            .ThenBy(x => x.Entry.Id.Guid)
+            .ThenBy(x => x.SenseIndex)
+            .Select(x => (x.Entry, x.Sense));
+    }
+
     public static IEnumerable<ILexEntry> ApplyHeadwordOrder(this IEnumerable<ILexEntry> entries, SortOptions order, int sortWsHandle, int stemSecondaryOrder)
     {
         if (order.Ascending)

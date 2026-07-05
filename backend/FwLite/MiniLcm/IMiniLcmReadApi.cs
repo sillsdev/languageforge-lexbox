@@ -37,6 +37,24 @@ public interface IMiniLcmReadApi
     /// </summary>
     Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null);
 
+    /// <summary>
+    /// Count the rows that <see cref="GetEntrySenseRows"/> would return for the same query/filter.
+    /// </summary>
+    Task<int> CountEntrySenseRows(string? query = null, FilterQueryOptions? options = null);
+    /// <summary>
+    /// The entry list expanded to one row per sense (like FLEx when sorting on a sense-level column).
+    /// Entries without senses still get a single row, with a null SenseId.
+    /// Only <see cref="SortField.Gloss"/> is supported; rows without a gloss in the sort
+    /// writing system always sort last, then by headword, regardless of direction.
+    /// <see cref="SortOptions.WritingSystem"/> names an analysis writing system ("default" = first analysis WS).
+    /// </summary>
+    IAsyncEnumerable<EntrySenseRow> GetEntrySenseRows(string? query = null, QueryOptions? options = null);
+    /// <summary>
+    /// Get the index of an entry's first row within the sorted/filtered sense-row list
+    /// (see <see cref="GetEntrySenseRows"/>). Returns -1 if the entry is not found.
+    /// </summary>
+    Task<int> GetEntrySenseRowIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null);
+
     Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
     {
         return Task.FromResult(new ReadFileResponse(ReadFileResult.NotSupported));
@@ -125,6 +143,7 @@ public record SortOptions(SortField Field, WritingSystemId WritingSystem = defau
 {
     public const string DefaultWritingSystem = "default";
     public static SortOptions Default { get; } = new(SortField.Headword, DefaultWritingSystem);
+    public static SortOptions DefaultGloss { get; } = new(SortField.Gloss, DefaultWritingSystem);
 
     public IOrderedEnumerable<T> ApplyOrder<T, TKey>(IEnumerable<T> enumerable, Func<T, TKey> orderFunc)
     {
@@ -149,5 +168,6 @@ public record ExemplarOptions(string Value, WritingSystemId WritingSystem)
 public enum SortField
 {
     Headword, //citation form -> lexeme form
-    SearchRelevance
+    SearchRelevance,
+    Gloss //sense-level; only supported by the EntrySenseRow queries
 }

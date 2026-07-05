@@ -167,16 +167,20 @@
     const indexOfSelected = selectedEntryId
       ? await entryLoader.getOrLoadEntryIndex(selectedEntryId)
       : -1;
-    const nextIndex = indexOfSelected < 0 ? 0 : indexOfSelected + 1;
+    let nextIndex = indexOfSelected < 0 ? 0 : indexOfSelected + 1;
 
     // Check count bounds
-    if (entryLoader.totalCount === undefined || nextIndex >= entryLoader.totalCount) {
-      return undefined;
+    while (entryLoader.totalCount !== undefined && nextIndex < entryLoader.totalCount) {
+      const nextEntry = (await entryLoader.getOrLoadRowByIndex(nextIndex))?.entry;
+      if (nextEntry && nextEntry.id === selectedEntryId) {
+        // gloss sorting produces a row per sense; step past the selected entry's other rows
+        nextIndex++;
+        continue;
+      }
+      onSelectEntry(nextEntry);
+      return nextEntry;
     }
-
-    const nextEntry = await entryLoader.getOrLoadEntryByIndex(nextIndex);
-    onSelectEntry(nextEntry);
-    return nextEntry;
+    return undefined;
   }
 
 </script>
@@ -236,17 +240,18 @@
             {@render newEntryFromSearchRow()}
           {:else}
             <Delayed
-              getCached={() => entryLoader?.getCachedEntryByIndex(row.index)}
-              load={() => entryLoader?.getOrLoadEntryByIndex(row.index)}
+              getCached={() => entryLoader?.getCachedRowByIndex(row.index)}
+              load={() => entryLoader?.getOrLoadRowByIndex(row.index)}
               delay={250}
             >
               {#snippet children(state)}
                 {#if state.loading || !state.current}
                   <EntryRow class="mb-2" skeleton={true}/>
                 {:else}
-                  {@const entry = state.current}
+                  {@const entry = state.current.entry}
                   <EntryMenu {entry} contextMenu>
                     <EntryRow {entry}
+                              senseId={state.current.senseId}
                               class="mb-2"
                               selected={selectedEntryId === entry.id}
                               onclick={() => onSelectEntry(entry)}

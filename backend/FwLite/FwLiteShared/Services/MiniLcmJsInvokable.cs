@@ -130,6 +130,24 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public Task<int> CountEntrySenseRows(string? query, FilterQueryOptions? options)
+    {
+        return Task.Run(() => _wrappedApi.CountEntrySenseRows(query, options));
+    }
+
+    [JSInvokable]
+    public Task<EntrySenseRow[]> GetEntrySenseRows(string? query, QueryOptions? options = null)
+    {
+        return Task.Run(async () => await _wrappedApi.GetEntrySenseRows(query, options).ToArrayAsync());
+    }
+
+    [JSInvokable]
+    public Task<int> GetEntrySenseRowIndex(Guid entryId, string? query, IndexQueryOptions? options)
+    {
+        return Task.Run(() => _wrappedApi.GetEntrySenseRowIndex(entryId, query, options));
+    }
+
+    [JSInvokable]
     [TsFunction(Type = "Promise<IEntry | null>")]
     public Task<Entry?> GetEntry(Guid id)
     {

@@ -1,9 +1,10 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {EntryLoaderService} from '$lib/services/entry-loader-service.svelte';
-import type {IEntry} from '$lib/dotnet-types';
+import {SortField, type IEntry, type IEntrySenseRow} from '$lib/dotnet-types';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
-import {defaultEntry} from '$lib/utils';
+import type {SortConfig} from '$project/browse/sort/options';
+import {defaultEntry, defaultSense} from '$lib/utils';
 
 const BATCH_SIZE = 50;
 
@@ -24,9 +25,18 @@ type MiniLcmApiMock = IMiniLcmJsInvokable & {
   getEntries: ReturnType<typeof vi.fn>;
   searchEntries: ReturnType<typeof vi.fn>;
   getEntryIndex: ReturnType<typeof vi.fn>;
+  countEntrySenseRows: ReturnType<typeof vi.fn>;
+  getEntrySenseRows: ReturnType<typeof vi.fn>;
+  getEntrySenseRowIndex: ReturnType<typeof vi.fn>;
 };
 
 let cleanups: (() => void)[] = [];
+
+function toSenseRows(allEntries: IEntry[]): IEntrySenseRow[] {
+  return allEntries.flatMap(entry => entry.senses.length
+    ? entry.senses.map(sense => ({entry, senseId: sense.id}))
+    : [{entry}]);
+}
 
 function createMiniLcmApi(allEntries: IEntry[], totalCount = allEntries.length): MiniLcmApiMock {
   return ({
@@ -40,7 +50,17 @@ function createMiniLcmApi(allEntries: IEntry[], totalCount = allEntries.length):
     getEntryIndex: vi.fn().mockImplementation((id: string) => {
       return Promise.resolve(allEntries.findIndex(e => e.id === id));
     }),
-  } satisfies Pick<IMiniLcmJsInvokable, 'countEntries' | 'getEntries' | 'searchEntries' | 'getEntryIndex'>
+    countEntrySenseRows: vi.fn().mockImplementation(() => {
+      return Promise.resolve(toSenseRows(allEntries).length);
+    }),
+    getEntrySenseRows: vi.fn().mockImplementation((_query: string | undefined, options: {offset: number; count: number}) => {
+      return Promise.resolve(toSenseRows(allEntries).slice(options.offset, options.offset + options.count));
+    }),
+    getEntrySenseRowIndex: vi.fn().mockImplementation((id: string) => {
+      return Promise.resolve(toSenseRows(allEntries).findIndex(r => r.entry.id === id));
+    }),
+  } satisfies Pick<IMiniLcmJsInvokable, 'countEntries' | 'getEntries' | 'searchEntries' | 'getEntryIndex'
+    | 'countEntrySenseRows' | 'getEntrySenseRows' | 'getEntrySenseRowIndex'>
   ) as unknown as MiniLcmApiMock;
 }
 
@@ -75,10 +95,10 @@ describe('EntryLoaderService', () => {
       const entries = makeEntries(3);
       const {api, service} = await createService(entries);
 
-      await service.getOrLoadEntryByIndex(1);
+      await service.getOrLoadRowByIndex(1);
 
       expect(api.getEntries).toHaveBeenCalledTimes(1);
-      expect(service.getCachedEntryByIndex(0)?.id).toBe('e0');
+      expect(service.getCachedRowByIndex(0)?.entry.id).toBe('e0');
       expect(await service.getOrLoadEntryIndex('e1')).toBe(1);
     });
 
@@ -86,8 +106,8 @@ describe('EntryLoaderService', () => {
       const entries = makeEntries(5);
       const {api, service} = await createService(entries);
 
-      await service.getOrLoadEntryByIndex(0);
-      await service.getOrLoadEntryByIndex(0);
+      await service.getOrLoadRowByIndex(0);
+      await service.getOrLoadRowByIndex(0);
 
       expect(api.getEntries).toHaveBeenCalledTimes(1);
     });
@@ -97,9 +117,9 @@ describe('EntryLoaderService', () => {
       const {api, service} = await createService(entries, entries.length);
 
       const promises = [
-        service.getOrLoadEntryByIndex(0),
-        service.getOrLoadEntryByIndex(0),
-        service.getOrLoadEntryByIndex(0),
+        service.getOrLoadRowByIndex(0),
+        service.getOrLoadRowByIndex(0),
+        service.getOrLoadRowByIndex(0),
       ];
 
       await Promise.all(promises);
@@ -113,7 +133,7 @@ describe('EntryLoaderService', () => {
       const failure = new Error('boom');
       api.getEntries.mockRejectedValueOnce(failure);
 
-      await expect(service.getOrLoadEntryByIndex(2 * BATCH_SIZE)).rejects.toBe(failure);
+      await expect(service.getOrLoadRowByIndex(2 * BATCH_SIZE)).rejects.toBe(failure);
       expect(service.error).toBe(failure);
     });
   });
@@ -124,8 +144,8 @@ describe('EntryLoaderService', () => {
       const {api, service} = await createService(entries, entries.length);
 
       // Mark batches 0 and 1 as "relevant" (adjacent)
-      service.getCachedEntryByIndex(0);
-      service.getCachedEntryByIndex(BATCH_SIZE);
+      service.getCachedRowByIndex(0);
+      service.getCachedRowByIndex(BATCH_SIZE);
 
       await service.quietReset();
 
@@ -137,8 +157,8 @@ describe('EntryLoaderService', () => {
       const entries = makeEntries(10 * BATCH_SIZE);
       const {api, service} = await createService(entries, entries.length);
 
-      service.getCachedEntryByIndex(0);              // batch 0
-      service.getCachedEntryByIndex(3 * BATCH_SIZE); // batch 3
+      service.getCachedRowByIndex(0);              // batch 0
+      service.getCachedRowByIndex(3 * BATCH_SIZE); // batch 3
 
       await service.quietReset();
 
@@ -150,8 +170,8 @@ describe('EntryLoaderService', () => {
       const {api, service} = await createService(entries, entries.length);
 
       // Warm cache with batch 0
-      await service.getOrLoadEntryByIndex(0);
-      expect(service.getCachedEntryByIndex(0)?.id).toBe('old0');
+      await service.getOrLoadRowByIndex(0);
+      expect(service.getCachedRowByIndex(0)?.entry.id).toBe('old0');
       const genBefore = service.generation;
       expect(service.loading).toBe(false);
 
@@ -162,12 +182,12 @@ describe('EntryLoaderService', () => {
       api.countEntries.mockReturnValueOnce(new Promise<number>(r => { resolveCount = r; }));
 
       // Mark batch 0 as relevant
-      service.getCachedEntryByIndex(0);
+      service.getCachedRowByIndex(0);
 
       const quietResetPromise = service.quietReset();
 
       // Cache remains available during quiet reset
-      expect(service.getCachedEntryByIndex(0)?.id).toBe('old0');
+      expect(service.getCachedRowByIndex(0)?.entry.id).toBe('old0');
       expect(service.loading).toBe(false);
 
       // Resolve with new entries
@@ -178,7 +198,7 @@ describe('EntryLoaderService', () => {
 
       expect(service.generation).toBeGreaterThan(genBefore);
       expect(service.totalCount).toBe(entries.length + 1);
-      expect(service.getCachedEntryByIndex(0)?.id).toBe('new0');
+      expect(service.getCachedRowByIndex(0)?.entry.id).toBe('new0');
     });
 
     it('debounces multiple calls', async () => {
@@ -186,7 +206,7 @@ describe('EntryLoaderService', () => {
       const {api, service} = await createService(entries, entries.length);
 
       // Warm batch 0
-      await service.getOrLoadEntryByIndex(0);
+      await service.getOrLoadRowByIndex(0);
       const countBefore = api.countEntries.mock.calls.length;
 
       // Multiple rapid calls
@@ -247,7 +267,7 @@ describe('EntryLoaderService', () => {
       api.getEntries.mockReturnValueOnce(new Promise<IEntry[]>(r => { resolveEntries = r; }));
 
       // Start loading batch 0 (will wait for slow fetch)
-      const loadPromise = service.getOrLoadEntryByIndex(0);
+      const loadPromise = service.getOrLoadRowByIndex(0);
 
       // Reset invalidates the in-flight load
       void service.reset();
@@ -266,8 +286,8 @@ describe('EntryLoaderService', () => {
       expect(result).toBeUndefined();
 
       // Fresh load should get the new entries
-      const freshResult = await service.getOrLoadEntryByIndex(0);
-      expect(freshResult?.id).toBe('b0');
+      const freshResult = await service.getOrLoadRowByIndex(0);
+      expect(freshResult?.entry.id).toBe('b0');
     });
 
     it('does not allow a stale load to clear a newer pending promise', async () => {
@@ -279,7 +299,7 @@ describe('EntryLoaderService', () => {
       api.getEntries.mockReturnValueOnce(new Promise<IEntry[]>(r => { resolveFirst = r; }));
 
       // Start first load
-      const firstLoad = service.getOrLoadEntryByIndex(0);
+      const firstLoad = service.getOrLoadRowByIndex(0);
 
       // Reset and wait for it to complete
       void service.reset();
@@ -291,7 +311,7 @@ describe('EntryLoaderService', () => {
       api.getEntries.mockReturnValueOnce(new Promise<IEntry[]>(r => { resolveSecond = r; }));
 
       // Start second load (different generation)
-      const secondLoad = service.getOrLoadEntryByIndex(0);
+      const secondLoad = service.getOrLoadRowByIndex(0);
 
       expect(api.getEntries).toHaveBeenCalledTimes(2);
 
@@ -299,7 +319,7 @@ describe('EntryLoaderService', () => {
       resolveFirst!(entries.slice(0, BATCH_SIZE));
 
       // Third load should reuse the second pending promise, not trigger a new fetch
-      const thirdLoad = service.getOrLoadEntryByIndex(0);
+      const thirdLoad = service.getOrLoadRowByIndex(0);
       await vi.waitFor(() => expect(api.getEntries).toHaveBeenCalledTimes(2));
 
       // Resolve second load
@@ -308,8 +328,49 @@ describe('EntryLoaderService', () => {
       const results = await Promise.all([firstLoad, secondLoad, thirdLoad]);
 
       // First may be undefined (stale), second and third should have data
-      expect(results[1]?.id).toBe('v0');
-      expect(results[2]?.id).toBe('v0');
+      expect(results[1]?.entry.id).toBe('v0');
+      expect(results[2]?.entry.id).toBe('v0');
+    });
+
+    it('uses sense-row endpoints when sorting by gloss', async () => {
+      const entries = makeEntries(2).map((entry, i) => ({
+        ...entry,
+        senses: [
+          {...defaultSense(entry.id), id: `${entry.id}-s0`, gloss: {en: `gloss ${i}a`}},
+          {...defaultSense(entry.id), id: `${entry.id}-s1`, gloss: {en: `gloss ${i}b`}},
+        ],
+      }));
+      const api = createMiniLcmApi(entries);
+
+      let service!: EntryLoaderService;
+      cleanups.push($effect.root(() => {
+        let sort = $state<SortConfig>();
+        service = new EntryLoaderService(api, {
+          search: () => '',
+          sort: () => sort,
+          gridifyFilter: () => undefined,
+        }, BATCH_SIZE);
+        sort = {field: SortField.Gloss, dir: 'asc'};
+        return () => service.destroy();
+      }));
+      await vi.waitFor(() => expect(service.loading).toBe(false));
+
+      // one row per sense
+      expect(service.totalCount).toBe(4);
+      expect(api.countEntrySenseRows).toHaveBeenCalled();
+      expect(api.countEntries).not.toHaveBeenCalled();
+
+      // jump-to-entry goes through the sense-row index; e1's first row is after e0's two rows
+      expect(await service.getOrLoadEntryIndex('e1')).toBe(2);
+      expect(api.getEntrySenseRowIndex).toHaveBeenCalled();
+      expect(api.getEntryIndex).not.toHaveBeenCalled();
+
+      const row = await service.getOrLoadRowByIndex(1);
+      expect(api.getEntrySenseRows).toHaveBeenCalledWith(undefined, expect.objectContaining({
+        order: {field: SortField.Gloss, writingSystem: 'default', ascending: true},
+      }));
+      expect(row).toEqual({entry: entries[0], senseId: 'e0-s1'});
+      expect(api.getEntries).not.toHaveBeenCalled();
     });
 
     it('refetches count when filters become ready during the initial reset', async () => {

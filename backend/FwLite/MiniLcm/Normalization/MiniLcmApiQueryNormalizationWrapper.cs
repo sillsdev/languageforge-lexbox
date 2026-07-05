@@ -44,6 +44,21 @@ public partial class MiniLcmApiQueryNormalizationWrapper(
         return _api.GetEntryIndex(entryId, query?.Normalize(Form), options?.Normalized(Form));
     }
 
+    public Task<int> CountEntrySenseRows(string? query = null, FilterQueryOptions? options = null)
+    {
+        return _api.CountEntrySenseRows(query?.Normalize(Form), options?.Normalized(Form));
+    }
+
+    public IAsyncEnumerable<EntrySenseRow> GetEntrySenseRows(string? query = null, QueryOptions? options = null)
+    {
+        return _api.GetEntrySenseRows(query?.Normalize(Form), options?.Normalized(Form));
+    }
+
+    public Task<int> GetEntrySenseRowIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
+    {
+        return _api.GetEntrySenseRowIndex(entryId, query?.Normalize(Form), options?.Normalized(Form));
+    }
+
     void IDisposable.Dispose()
     {
     }

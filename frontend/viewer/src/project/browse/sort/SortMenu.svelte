@@ -7,11 +7,17 @@
 
   const sortLabels = {
     [SortField.SearchRelevance]: msg`Best match`,
-    [SortField.Headword]: msg`Headword`
+    [SortField.Headword]: msg`Headword`,
+    [SortField.Gloss]: msg`Gloss`,
   } as const;
+  const glossLiteLabel = msg`Meaning`;
 
   const sortIcons: Partial<Record<SortField, Record<SortDirection, IconClass>>> = {
     [SortField.Headword]: {
+      asc: 'i-mdi-sort-alphabetical-ascending',
+      desc: 'i-mdi-sort-alphabetical-descending'
+    },
+    [SortField.Gloss]: {
       asc: 'i-mdi-sort-alphabetical-ascending',
       desc: 'i-mdi-sort-alphabetical-descending'
     }
@@ -27,6 +33,8 @@
   import {Icon} from '$lib/components/ui/icon';
   import {sortOptions, type SortConfig} from './options';
   import {Button, buttonVariants} from '$lib/components/ui/button';
+  import {pt} from '$lib/views/view-text';
+  import {useViewService} from '$lib/views/view-service.svelte';
 
   type Props = {
     value?: SortConfig;
@@ -38,6 +46,8 @@
     autoSelector,
   }: Props = $props();
 
+  const viewService = useViewService();
+
   let selectedSortField = $state<SortField>();
   let direction = $state<SortDirection>('asc');
   const autoSort = $derived(autoSelector());
@@ -47,13 +57,21 @@
   });
 </script>
 
+{#snippet sortLabel(field: SortField)}
+  {#if field === SortField.Gloss}
+    {pt($t(sortLabels[field]), $t(glossLiteLabel), viewService.currentView)}
+  {:else}
+    {$t(sortLabels[field])}
+  {/if}
+{/snippet}
+
 <ResponsiveMenu.Root>
   <ResponsiveMenu.Trigger class={cn(buttonVariants({variant: 'secondary', size: 'xs'}), badgeVariants({ variant: 'secondary' }), 'border-none h-7')}>
     {#snippet child({props})}
       <Button {...props}
         icon={sortIcons[sortField]?.[direction] ?? 'i-mdi-arrow-down'}
         iconProps={{ class: 'size-4' }}>
-        {$t(sortLabels[sortField])}
+        {@render sortLabel(sortField)}
       </Button>
     {/snippet}
   </ResponsiveMenu.Trigger>
@@ -67,7 +85,7 @@
         >
         {$t`Auto`}
         <span class="text-muted-foreground ml-auto">
-          ({$t(sortLabels[autoSort])})
+          ({@render sortLabel(autoSort)})
         </span>
     </ResponsiveMenu.Item>
     {#each sortOptions as option (option)}
@@ -82,7 +100,7 @@
         {#if icon}
           <Icon {icon} />
         {/if}
-        {$t(sortLabels[option.field])}
+        {@render sortLabel(option.field)}
       </ResponsiveMenu.Item>
     {/each}
   </ResponsiveMenu.Content>

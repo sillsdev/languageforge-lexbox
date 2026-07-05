@@ -84,6 +84,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterfaces([
                 ..config.ObjectTypes,
                 typeof(WritingSystems),
+                typeof(EntrySenseRow),
                 typeof(MiniLcmJsInvokable.MiniLcmFeatures),
                 typeof(IObjectWithId),
                 typeof(RichString),

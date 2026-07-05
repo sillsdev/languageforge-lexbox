@@ -11,13 +11,22 @@ import type {IEntry} from '$lib/dotnet-types';
 import type {IFilterQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
-import type {SortConfig} from '$project/browse/sort/options';
+import {isSenseRowSort, type SortConfig} from '$project/browse/sort/options';
 import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
 
 interface QueryDeps {
   search: () => string;
   sort: () => SortConfig | undefined;
   gridifyFilter: () => string | undefined;
+}
+
+/**
+ * A row in the entry list. Gloss sorting produces one row per sense
+ * (senseId tells which one); other sorts produce one row per entry.
+ */
+export interface EntryListRow {
+  entry: IEntry;
+  senseId?: string;
 }
 
 const EVENT_DEBOUNCE_MS = 600;
@@ -70,12 +79,12 @@ export class EntryLoaderService {
     this.#generation++;
   }
 
-  getCachedEntryByIndex(index: number): IEntry | undefined {
+  getCachedRowByIndex(index: number): EntryListRow | undefined {
     this.#viewport.markViewed(this.#batchFor(index));
     return this.#cache.getByIndex(index);
   }
 
-  async getOrLoadEntryByIndex(index: number): Promise<IEntry | undefined> {
+  async getOrLoadRowByIndex(index: number): Promise<EntryListRow | undefined> {
     this.#viewport.markViewed(this.#batchFor(index));
 
     const cached = this.#cache.getByIndex(index);
@@ -87,16 +96,17 @@ export class EntryLoaderService {
     return gen === this.#generation ? this.#cache.getByIndex(index) : undefined;
   }
 
+  /** The index of the entry's row, or of its first row when sorting produces a row per sense. */
   async getOrLoadEntryIndex(id: string): Promise<number> {
     const cached = this.#cache.getIndexById(id);
     if (cached !== undefined) return cached;
 
     const gen = this.#generation;
-    const index = await this.api.getEntryIndex(
-      id,
-      this.deps.search() || undefined,
-      this.#buildQueryOptions(0, 0)
-    );
+    const search = this.deps.search() || undefined;
+    const options = this.#buildQueryOptions(0, 0);
+    const index = await (this.#senseRowMode
+      ? this.api.getEntrySenseRowIndex(id, search, options)
+      : this.api.getEntryIndex(id, search, options));
 
     if (gen !== this.#generation) return -1;
     this.#cache.setIndexForId(id, index);
@@ -206,28 +216,37 @@ export class EntryLoaderService {
     }
   }
 
-  #fetchCount(): Promise<number> {
-    return this.api.countEntries(
-      this.deps.search() || undefined,
-      this.#buildFilterOptions()
-    );
+  get #senseRowMode(): boolean {
+    return isSenseRowSort(this.deps.sort());
   }
 
-  #fetchBatch(batch: number): Promise<IEntry[]> {
+  #fetchCount(): Promise<number> {
+    const search = this.deps.search() || undefined;
+    return this.#senseRowMode
+      ? this.api.countEntrySenseRows(search, this.#buildFilterOptions())
+      : this.api.countEntries(search, this.#buildFilterOptions());
+  }
+
+  #fetchBatch(batch: number): Promise<EntryListRow[]> {
     return this.#fetchRange(batch * this.batchSize, this.batchSize);
   }
 
-  #fetchBatchRange(batches: number[]): Promise<IEntry[]> {
+  #fetchBatchRange(batches: number[]): Promise<EntryListRow[]> {
     const start = Math.min(...batches);
     return this.#fetchRange(start * this.batchSize, batches.length * this.batchSize);
   }
 
-  #fetchRange(offset: number, count: number): Promise<IEntry[]> {
+  async #fetchRange(offset: number, count: number): Promise<EntryListRow[]> {
     const search = this.deps.search();
     const options = this.#buildQueryOptions(offset, count);
-    return search
+    if (this.#senseRowMode) {
+      const rows = await this.api.getEntrySenseRows(search || undefined, options);
+      return rows.map(row => ({entry: row.entry, senseId: row.senseId}));
+    }
+    const entries = await (search
       ? this.api.searchEntries(search, options)
-      : this.api.getEntries(options);
+      : this.api.getEntries(options));
+    return entries.map(entry => ({entry}));
   }
 
   #buildFilterOptions(): IFilterQueryOptions {
@@ -255,15 +274,15 @@ export class EntryLoaderService {
 }
 
 class EntryCache {
-  #entries = new SvelteMap<number, IEntry>();
+  #rows = new SvelteMap<number, EntryListRow>();
   #idToIndex = new SvelteMap<string, number>();
-  #pending = new SvelteMap<number, Promise<IEntry[]>>();
+  #pending = new SvelteMap<number, Promise<EntryListRow[]>>();
   #loaded = new SvelteSet<number>();
 
   constructor(private readonly batchSize: number) {}
 
-  getByIndex(index: number): IEntry | undefined {
-    return this.#entries.get(index);
+  getByIndex(index: number): EntryListRow | undefined {
+    return this.#rows.get(index);
   }
 
   getIndexById(id: string): number | undefined {
@@ -278,21 +297,21 @@ class EntryCache {
     return this.#loaded.has(batch);
   }
 
-  getPendingBatch(batch: number): Promise<IEntry[]> | undefined {
+  getPendingBatch(batch: number): Promise<EntryListRow[]> | undefined {
     return this.#pending.get(batch);
   }
 
-  setPendingBatch(batch: number, promise: Promise<IEntry[]>): void {
+  setPendingBatch(batch: number, promise: Promise<EntryListRow[]>): void {
     this.#pending.set(batch, promise);
   }
 
-  clearPendingBatch(batch: number, promise: Promise<IEntry[]>): void {
+  clearPendingBatch(batch: number, promise: Promise<EntryListRow[]>): void {
     if (this.#pending.get(batch) === promise) {
       this.#pending.delete(batch);
     }
   }
 
-  storeBatches(batches: number[], entries: IEntry[]): void {
+  storeBatches(batches: number[], rows: EntryListRow[]): void {
     batches.sort((a, b) => a - b);
 
     // ensure batches are consecutive
@@ -305,15 +324,21 @@ class EntryCache {
     if (!batches.length) return;
 
     const startIndex = batches[0] * this.batchSize;
-    for (let i = 0; i < entries.length; i++) {
-      this.#entries.set(startIndex + i, entries[i]);
-      this.#idToIndex.set(entries[i].id, startIndex + i);
+    for (let i = 0; i < rows.length; i++) {
+      const index = startIndex + i;
+      this.#rows.set(index, rows[i]);
+      // an entry can span several rows (one per sense); track its first known row
+      const entryId = rows[i].entry.id;
+      const existing = this.#idToIndex.get(entryId);
+      if (existing === undefined || index < existing) {
+        this.#idToIndex.set(entryId, index);
+      }
     }
     batches.forEach(b => this.#loaded.add(b));
   }
 
   clear(): void {
-    this.#entries.clear();
+    this.#rows.clear();
     this.#idToIndex.clear();
     this.#pending.clear();
     this.#loaded.clear();

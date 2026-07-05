@@ -3,6 +3,14 @@ import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
 import {MorphTypeKind} from '$lib/dotnet-types/generated-types/MiniLcm/Models/MorphTypeKind';
 
 const DEFAULT_ORDER = {field: SortField.Headword, writingSystem: 'default', ascending: true} as const;
+const GLOSS_ORDER = {field: SortField.Gloss, writingSystem: 'default', ascending: true} as const;
+
+export interface SenseRowInfo {
+  entryId: string;
+  senseId?: string;
+  headword: string;
+  gloss: string;
+}
 
 /**
  * Helper for interacting with the MiniLcm API via page.evaluate().
@@ -51,6 +59,28 @@ export class EntryApiHelper {
         index: count - 1,
       };
     }, {order: DEFAULT_ORDER});
+  }
+
+  async countSenseRows(): Promise<number> {
+    return this.page.evaluate(async () => {
+      return window.__PLAYWRIGHT_UTILS__.demoApi.countEntrySenseRows();
+    });
+  }
+
+  /** Rows in gloss-ascending order, as shown when sorting the list by meaning/gloss. */
+  async getSenseRows(offset: number, count: number): Promise<SenseRowInfo[]> {
+    return this.page.evaluate(async ({offset, count, order}) => {
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const writingSystems = await api.getWritingSystems();
+      const glossWs = writingSystems.analysis[0].wsId;
+      const rows = await api.getEntrySenseRows(undefined, {offset, count, order});
+      return rows.map(row => ({
+        entryId: row.entry.id,
+        senseId: row.senseId,
+        headword: row.entry.citationForm?.seh ?? row.entry.lexemeForm?.seh ?? '',
+        gloss: (row.senseId && row.entry.senses.find(s => s.id === row.senseId)?.gloss?.[glossWs]) || '',
+      }));
+    }, {offset, count, order: GLOSS_ORDER});
   }
 
   async getEntryIndex(entryId: string): Promise<number> {
