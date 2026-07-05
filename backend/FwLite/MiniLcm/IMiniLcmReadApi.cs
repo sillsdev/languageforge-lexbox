@@ -41,6 +41,7 @@ public interface IMiniLcmReadApi
     /// Count the rows that <see cref="GetEntrySenseRows"/> would return for the same query/filter.
     /// </summary>
     Task<int> CountEntrySenseRows(string? query = null, FilterQueryOptions? options = null);
+
     /// <summary>
     /// The entry list expanded to one row per sense (like FLEx when sorting on a sense-level column).
     /// Entries without senses still get a single row, with a null SenseId.
@@ -49,6 +50,7 @@ public interface IMiniLcmReadApi
     /// <see cref="SortOptions.WritingSystem"/> names an analysis writing system ("default" = first analysis WS).
     /// </summary>
     IAsyncEnumerable<EntrySenseRow> GetEntrySenseRows(string? query = null, QueryOptions? options = null);
+
     /// <summary>
     /// Get the index of an entry's first row within the sorted/filtered sense-row list
     /// (see <see cref="GetEntrySenseRows"/>). Returns -1 if the entry is not found.

@@ -46,6 +46,10 @@ public class MiniLcmRepository(
 {
     public EntrySearchService? SearchService { get; } = entrySearchService;
 
+    /// <summary>
+    /// Call before executing queries that rely on custom collations —
+    /// there can be a race condition where the collations aren't set up yet.
+    /// </summary>
     private async ValueTask EnsureConnectionOpen()
     {
         if (dbContext.Database.GetDbConnection().State == ConnectionState.Open) return;
@@ -147,7 +151,7 @@ public class MiniLcmRepository(
         var complexFormComparer = cultureProvider.GetCompareInfo(await GetWritingSystem(default, WritingSystemType.Vernacular))
             .AsComplexFormComparer();
         var entries = AsyncExtensions.AsAsyncEnumerable(queryable);
-        await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
+        await EnsureConnectionOpen();
         await foreach (var entry in EfExtensions.SafeIterate(entries))
         {
             entry.Finalize(complexFormComparer);
@@ -312,7 +316,7 @@ public class MiniLcmRepository(
     {
         options ??= new QueryOptions(SortOptions.DefaultGloss);
         var rows = await FilterAndSortEntrySenseRows(query, options);
-        await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
+        await EnsureConnectionOpen();
         var keys = await options.ApplyPaging(rows).ToListAsyncEF();
         if (keys.Count == 0) yield break;
 
@@ -351,7 +355,7 @@ public class MiniLcmRepository(
 
         var rows = await FilterAndSortEntrySenseRows(query, queryOptions);
         await EnsureConnectionOpen();
-        // same materialize-the-ids approach as GetEntryIndex
+        // SQLite's ROW_NUMBER() can't inherit the ORDER BY, so materialize the ids (see GetEntryIndex)
         var sortedEntryIds = await rows.Select(r => r.EntryId).ToListAsyncEF();
         return sortedEntryIds.IndexOf(entryId);
     }
@@ -359,8 +363,8 @@ public class MiniLcmRepository(
     private async Task<IQueryable<EntrySenseRowKey>> FilterAndSortEntrySenseRows(string? query, QueryOptions options)
     {
         if (options.Order.Field != SortField.Gloss)
-            throw new ArgumentException($"Sort field {options.Order.Field} is not supported for sense rows, only {SortField.Gloss} is",
-                nameof(options));
+            throw new ArgumentOutOfRangeException(nameof(options),
+                $"Sort field {options.Order.Field} is not supported for sense rows, only {SortField.Gloss} is");
 
         var glossWs = await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Analysis)
             ?? throw NotFoundException.ForWs(options.Order.WritingSystem, WritingSystemType.Analysis);

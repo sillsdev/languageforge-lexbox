@@ -163,6 +163,17 @@ public abstract class EntrySenseRowTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task GetEntrySenseRowIndex_RespectsFilterAndQuery()
+    {
+        var filtered = new IndexQueryOptions(GlossAsc, Filter: new() { GridifyFilter = "LexemeForm[en]^ban" });
+        (await Api.GetEntrySenseRowIndex(_banana.Id, options: filtered)).Should().Be(0);
+        (await Api.GetEntrySenseRowIndex(_apple.Id, options: filtered)).Should().Be(-1);
+
+        // "fruit" matches apple and banana; apple's single row comes first
+        (await Api.GetEntrySenseRowIndex(_banana.Id, "fruit", new IndexQueryOptions(GlossAsc))).Should().Be(1);
+    }
+
+    [Fact]
     public async Task Rows_SortByRequestedAnalysisWritingSystem()
     {
         await Api.CreateWritingSystem(new()
@@ -210,6 +221,6 @@ public abstract class EntrySenseRowTestsBase : MiniLcmTestBase
         var act = async () => await Api
             .GetEntrySenseRows(options: new QueryOptions(new SortOptions(SortField.Headword)))
             .ToArrayAsync();
-        await act.Should().ThrowAsync<ArgumentException>();
+        await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
     }
 }

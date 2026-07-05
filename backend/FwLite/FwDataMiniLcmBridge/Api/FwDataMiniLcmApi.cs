@@ -1076,8 +1076,8 @@ public class FwDataMiniLcmApi(
         SortOptions order)
     {
         if (order.Field != SortField.Gloss)
-            throw new ArgumentException($"Sort field {order.Field} is not supported for sense rows, only {SortField.Gloss} is",
-                nameof(order));
+            throw new ArgumentOutOfRangeException(nameof(order),
+                $"Sort field {order.Field} is not supported for sense rows, only {SortField.Gloss} is");
 
         var glossWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Analysis);
         var headwordWs = GetWritingSystemHandle(default, WritingSystemType.Vernacular);

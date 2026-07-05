@@ -480,8 +480,8 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         options ??= new QueryOptions(SortOptions.DefaultGloss);
         var order = options.Order;
         if (order.Field != SortField.Gloss)
-            throw new ArgumentException($"Sort field {order.Field} is not supported for sense rows, only {SortField.Gloss} is",
-                nameof(options));
+            throw new ArgumentOutOfRangeException(nameof(options),
+                $"Sort field {order.Field} is not supported for sense rows, only {SortField.Gloss} is");
 
         var glossWs = order.WritingSystem;
         if (glossWs == default)

@@ -38,8 +38,9 @@ test.describe('Sort by meaning (gloss)', () => {
       }
     }
 
-    // a multi-sense entry occupies one row per sense
-    const duplicated = expectedRows.find((row, _, all) =>
+    // a multi-sense entry occupies one row per sense, within the rows asserted above
+    const assertedRows = expectedRows.slice(0, 5);
+    const duplicated = assertedRows.find((row, _, all) =>
       all.filter(other => other.entryId === row.entryId).length > 1);
     expect(duplicated, 'demo data should surface a multi-sense entry near the top').toBeDefined();
 
