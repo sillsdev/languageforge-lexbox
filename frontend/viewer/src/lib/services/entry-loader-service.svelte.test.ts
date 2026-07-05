@@ -371,6 +371,11 @@ describe('EntryLoaderService', () => {
       }));
       expect(row).toEqual({entry: entries[0], senseId: 'e0-s1'});
       expect(api.getEntries).not.toHaveBeenCalled();
+
+      // a loaded sense row must not be trusted as its entry's first row:
+      // the index lookup for e0 still goes to the authoritative API
+      expect(await service.getOrLoadEntryIndex('e0')).toBe(0);
+      expect(api.getEntrySenseRowIndex).toHaveBeenCalledTimes(2);
     });
 
     it('refetches count when filters become ready during the initial reset', async () => {

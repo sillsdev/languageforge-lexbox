@@ -327,11 +327,10 @@ class EntryCache {
     for (let i = 0; i < rows.length; i++) {
       const index = startIndex + i;
       this.#rows.set(index, rows[i]);
-      // an entry can span several rows (one per sense); track its first known row
-      const entryId = rows[i].entry.id;
-      const existing = this.#idToIndex.get(entryId);
-      if (existing === undefined || index < existing) {
-        this.#idToIndex.set(entryId, index);
+      // a sense row may not be its entry's first row, so only the index
+      // API (setIndexForId) is allowed to map its entry id to an index
+      if (rows[i].senseId === undefined) {
+        this.#idToIndex.set(rows[i].entry.id, index);
       }
     }
     batches.forEach(b => this.#loaded.add(b));
