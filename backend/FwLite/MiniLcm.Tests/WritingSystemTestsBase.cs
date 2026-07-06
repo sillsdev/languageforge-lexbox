@@ -145,6 +145,117 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateWritingSystem_CanCreateDisabled()
+    {
+        var ws = await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "es",
+            Name = "Spanish",
+            Abbreviation = "Es",
+            Font = "Arial",
+            IsDisabled = true,
+        });
+        ws.IsDisabled.Should().BeTrue();
+        var writingSystems = await Api.GetWritingSystems();
+        writingSystems.Vernacular.Single(w => w.WsId == ws.WsId).IsDisabled.Should().BeTrue();
+
+        var defaultWs = await Api.GetWritingSystem(default, WritingSystemType.Vernacular);
+        defaultWs.Should().NotBeNull();
+        defaultWs.WsId.Should().NotBe(ws.WsId, "a disabled writing system must not become the default");
+    }
+
+    [Fact]
+    public async Task GetWritingSystems_ReturnsDisabledAfterEnabled()
+    {
+        var en = await Api.GetWritingSystem("en", WritingSystemType.Vernacular);
+        en.Should().NotBeNull();
+        var es = await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "es",
+            Name = "Spanish",
+            Abbreviation = "Es",
+            Font = "Arial",
+            IsDisabled = true,
+        });
+        // created after the disabled es, but should be sorted before it
+        var fr = await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "fr",
+            Name = "French",
+            Abbreviation = "Fr",
+            Font = "Arial",
+        });
+
+        var writingSystems = await Api.GetWritingSystems();
+        writingSystems.Vernacular.Should().BeEquivalentTo([en, fr, es],
+            options => options.WithStrictOrdering().Excluding(ws => ws.Order));
+    }
+
+    [Theory]
+    [InlineData(WritingSystemType.Vernacular)]
+    [InlineData(WritingSystemType.Analysis)]
+    public async Task UpdateWritingSystem_CanDisableAndReenable(WritingSystemType type)
+    {
+        var original = await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = type,
+            WsId = "es",
+            Name = "Spanish",
+            Abbreviation = "Es",
+            Font = "Arial",
+        });
+        original.IsDisabled.Should().BeFalse();
+
+        var disabled = original.Copy();
+        disabled.IsDisabled = true;
+        var updated = await Api.UpdateWritingSystem(original, disabled);
+        updated.IsDisabled.Should().BeTrue();
+        (await Api.GetWritingSystem("es", type))!.IsDisabled.Should().BeTrue();
+
+        var reenabled = disabled.Copy();
+        reenabled.IsDisabled = false;
+        updated = await Api.UpdateWritingSystem(disabled, reenabled);
+        updated.IsDisabled.Should().BeFalse();
+        (await Api.GetWritingSystem("es", type))!.IsDisabled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task UpdateWritingSystem_CannotDisableTheLastEnabledWritingSystem()
+    {
+        var writingSystems = await Api.GetWritingSystems();
+        var enabled = writingSystems.Vernacular.Where(ws => !ws.IsDisabled).ToArray();
+        enabled.Should().HaveCount(1);
+        var original = enabled[0];
+        var disabled = original.Copy();
+        disabled.IsDisabled = true;
+
+        var act = async () => await Api.UpdateWritingSystem(original, disabled);
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+        (await Api.GetWritingSystem(original.WsId, WritingSystemType.Vernacular))!.IsDisabled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task UpdateWritingSystem_CannotDisableTheLastEnabledWritingSystemViaJsonPatch()
+    {
+        var writingSystems = await Api.GetWritingSystems();
+        var enabled = writingSystems.Vernacular.Where(ws => !ws.IsDisabled).ToArray();
+        enabled.Should().HaveCount(1);
+
+        var act = async () => await Api.UpdateWritingSystem(enabled[0].WsId,
+            WritingSystemType.Vernacular,
+            new UpdateObjectInput<WritingSystem>().Set(ws => ws.IsDisabled, true));
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+        (await Api.GetWritingSystem(enabled[0].WsId, WritingSystemType.Vernacular))!.IsDisabled.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task CanChangeDefaultWritingSystem()
     {
         // arrange

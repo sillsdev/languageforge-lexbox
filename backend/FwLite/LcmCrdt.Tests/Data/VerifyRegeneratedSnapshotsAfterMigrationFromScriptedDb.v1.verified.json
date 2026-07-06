@@ -339,6 +339,7 @@
         "Abbreviation": "en",
         "Font": "Arial",
         "Type": 1,
+        "IsDisabled": false,
         "Exemplars": [
           "A",
           "B",
@@ -392,6 +393,7 @@
         "Abbreviation": "en",
         "Font": "Arial",
         "Type": 0,
+        "IsDisabled": false,
         "Exemplars": [
           "A",
           "B",

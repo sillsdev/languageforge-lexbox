@@ -32,6 +32,13 @@ public record WritingSystem: IObjectWithId<WritingSystem>, IOrderableNoId
 
     public DateTimeOffset? DeletedAt { get; set; }
     public required WritingSystemType Type { get; set; }
+
+    /// <summary>
+    /// A disabled writing system is unchecked in FLEx's writing-system setup (in the full analysis/vernacular
+    /// list, but not the "current" list). Its data is retained, but it is hidden from normal editing.
+    /// </summary>
+    public virtual bool IsDisabled { get; set; }
+
     public string[] Exemplars { get; set; } = [];
     //todo probably need more stuff here, see wesay for ideas
 
@@ -61,6 +68,7 @@ public record WritingSystem: IObjectWithId<WritingSystem>, IOrderableNoId
             Exemplars = [..Exemplars],
             DeletedAt = DeletedAt,
             Type = Type,
+            IsDisabled = IsDisabled,
             Order = Order
         };
     }

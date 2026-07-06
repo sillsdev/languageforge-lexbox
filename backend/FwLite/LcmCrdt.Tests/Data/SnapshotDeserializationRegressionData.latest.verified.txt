@@ -3466,6 +3466,7 @@
       "Font": "Charis SIL",
       "DeletedAt": null,
       "Type": 1,
+      "IsDisabled": false,
       "Exemplars": [
         "A",
         "B",
@@ -3503,6 +3504,28 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "WritingSystem",
+      "Id": "e387a485-8600-fb81-b329-3e53e120ca21",
+      "MaybeId": "e387a485-8600-fb81-b329-3e53e120ca21",
+      "WsId": "gnz",
+      "IsAudio": false,
+      "Name": "SMS",
+      "Abbreviation": "synthesizing",
+      "Font": "Washington",
+      "DeletedAt": null,
+      "Type": 0,
+      "IsDisabled": false,
+      "Exemplars": [
+        "generating"
+      ],
+      "Order": 0.9940992077844069
+    },
+    "Id": "e387a485-8600-fb81-b329-3e53e120ca21",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
       "Id": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
       "MaybeId": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
       "WsId": "lli",
@@ -3512,12 +3535,35 @@
       "Font": "Handmade",
       "DeletedAt": null,
       "Type": 0,
+      "IsDisabled": false,
       "Exemplars": [
         "Planner"
       ],
       "Order": 0.4320924489200455
     },
     "Id": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "206a6431-729f-e4b3-c5e5-54b463eedd93",
+      "MaybeId": "206a6431-729f-e4b3-c5e5-54b463eedd93",
+      "WsId": "ako",
+      "IsAudio": false,
+      "Name": "withdrawal",
+      "Abbreviation": "Armenian Dram",
+      "Font": "Customer",
+      "DeletedAt": null,
+      "Type": 1,
+      "IsDisabled": false,
+      "Exemplars": [
+        "Credit Card Account"
+      ],
+      "Order": 0.308166046527215
+    },
+    "Id": "206a6431-729f-e4b3-c5e5-54b463eedd93",
     "DeletedAt": null
   },
   {
@@ -3533,6 +3579,7 @@
       "Font": "Charis SIL",
       "DeletedAt": null,
       "Type": 0,
+      "IsDisabled": false,
       "Exemplars": [
         "A",
         "B",
@@ -3570,6 +3617,28 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "WritingSystem",
+      "Id": "68419099-2da6-749c-ded2-40d77e02fd5e",
+      "MaybeId": "68419099-2da6-749c-ded2-40d77e02fd5e",
+      "WsId": "dze",
+      "IsAudio": false,
+      "Name": "Creative",
+      "Abbreviation": "Walk",
+      "Font": "content",
+      "DeletedAt": null,
+      "Type": 0,
+      "IsDisabled": true,
+      "Exemplars": [
+        "deploy"
+      ],
+      "Order": 0.41862238470702673
+    },
+    "Id": "68419099-2da6-749c-ded2-40d77e02fd5e",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
       "Id": "19023cf0-de25-9b0c-d5ad-94df308267c4",
       "MaybeId": "19023cf0-de25-9b0c-d5ad-94df308267c4",
       "WsId": "taw",
@@ -3579,12 +3648,35 @@
       "Font": "Intelligent Concrete Sausages",
       "DeletedAt": null,
       "Type": 0,
+      "IsDisabled": false,
       "Exemplars": [
         "blockchains"
       ],
       "Order": 0.14806393624996905
     },
     "Id": "19023cf0-de25-9b0c-d5ad-94df308267c4",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "a7455daf-5b4e-6cc4-66f2-d635400d477d",
+      "MaybeId": "a7455daf-5b4e-6cc4-66f2-d635400d477d",
+      "WsId": "nab",
+      "IsAudio": false,
+      "Name": "monetize",
+      "Abbreviation": "Oklahoma",
+      "Font": "Cambridgeshire",
+      "DeletedAt": null,
+      "Type": 0,
+      "IsDisabled": false,
+      "Exemplars": [
+        "Mountains"
+      ],
+      "Order": 0.47855047058051414
+    },
+    "Id": "a7455daf-5b4e-6cc4-66f2-d635400d477d",
     "DeletedAt": null
   },
   {

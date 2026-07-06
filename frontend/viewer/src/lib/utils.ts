@@ -104,6 +104,7 @@ export function defaultWritingSystem(type: WritingSystemType): IWritingSystem {
     id: randomId(),
     wsId: 'en',
     isAudio: false,
+    isDisabled: false,
     name: 'English',
     abbreviation: 'en',
     font: 'Arial',

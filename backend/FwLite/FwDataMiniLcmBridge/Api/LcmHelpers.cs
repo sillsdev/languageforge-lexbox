@@ -193,7 +193,14 @@ internal static class LcmHelpers
             WritingSystemType.Vernacular => wsContainer.VernacularWritingSystems,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
-        if (wsId == default) return writingSystemsOfType.FirstOrDefault();
+        if (wsId == default)
+        {
+            // the default WS is the first *current* one; the full list can start with a disabled WS
+            var currentOfType = type == WritingSystemType.Analysis
+                ? wsContainer.CurrentAnalysisWritingSystems
+                : wsContainer.CurrentVernacularWritingSystems;
+            return currentOfType.FirstOrDefault() ?? writingSystemsOfType.FirstOrDefault();
+        }
         return writingSystemsOfType.FirstOrDefault(ws => ws.Id == wsId);
     }
 

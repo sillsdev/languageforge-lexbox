@@ -18,43 +18,45 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
     private static string? WsTableName = null;
     private WritingSystem[] GetWritingSystems(DbConnection connection, LcmCrdtDbContext? dbContext = null)
     {
-        return cache.GetOrCreate(CacheKey(connection),
-            entry =>
+        if (cache.TryGetValue(CacheKey(connection), out WritingSystem[]? cached) && cached is not null) return cached;
+        try
+        {
+            var localContext = dbContext;
+            if (localContext is null)
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                try
-                {
-                    var localContext = dbContext;
-                    if (localContext is null)
-                    {
-                        var optionsBuilder = new DbContextOptionsBuilder<LcmCrdtDbContext>();
-                        optionsBuilder.UseSqlite(connection);
-                        localContext = new LcmCrdtDbContext(optionsBuilder.Options, crdtConfig);
-                    }
+                var optionsBuilder = new DbContextOptionsBuilder<LcmCrdtDbContext>();
+                optionsBuilder.UseSqlite(connection);
+                localContext = new LcmCrdtDbContext(optionsBuilder.Options, crdtConfig);
+            }
 
-                    try
-                    {
-                        WsTableName ??= localContext.Model.FindRuntimeEntityType(typeof(WritingSystem))?.GetTableName() ?? "WritingSystem";
-                        if (!HasTable(localContext, WsTableName))
-                        {
-                            return [];
-                        }
-
-                        return localContext.WritingSystems.ToArray();
-                    }
-                    finally
-                    {
-                        if (dbContext is null)
-                        {
-                            localContext.Dispose();
-                        }
-                    }
-                }
-                catch (SqliteException)
+            try
+            {
+                WsTableName ??= localContext.Model.FindRuntimeEntityType(typeof(WritingSystem))?.GetTableName() ?? "WritingSystem";
+                if (!HasTable(localContext, WsTableName))
                 {
+                    // don't cache: the table is about to be created by migrations
                     return [];
                 }
-            }) ?? [];
+
+                var writingSystems = localContext.WritingSystems.ToArray();
+                cache.Set(CacheKey(connection), writingSystems, new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(30) });
+                return writingSystems;
+            }
+            finally
+            {
+                if (dbContext is null)
+                {
+                    localContext.Dispose();
+                }
+            }
+        }
+        catch (SqliteException)
+        {
+            // don't cache: this happens when the WritingSystem table doesn't match the EF model yet
+            // (e.g. a connection opened before migrations have run); caching would leave the
+            // connection without its writing-system collations even after migrations succeed
+            return [];
+        }
     }
 
     private bool HasTable(DbContext context, string tableName)

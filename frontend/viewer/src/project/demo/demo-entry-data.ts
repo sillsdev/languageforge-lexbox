@@ -70,6 +70,7 @@ export const writingSystems: IWritingSystems = {
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Analysis,
       isAudio: false,
+      isDisabled: false,
     },
     {
       'id': 'pt',
@@ -80,6 +81,7 @@ export const writingSystems: IWritingSystems = {
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Analysis,
       isAudio: false,
+      isDisabled: false,
     },
     {
       'id': 'fr',
@@ -90,6 +92,7 @@ export const writingSystems: IWritingSystems = {
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Analysis,
       isAudio: false,
+      isDisabled: false,
     }
   ],
   'vernacular': [
@@ -102,6 +105,7 @@ export const writingSystems: IWritingSystems = {
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Vernacular,
       isAudio: false,
+      isDisabled: false,
     },
     {
       'id': 'seh-fonipa-x-etic',
@@ -112,6 +116,7 @@ export const writingSystems: IWritingSystems = {
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Vernacular,
       isAudio: false,
+      isDisabled: false,
     },
     {
       'id': 'seh-Zxxx-x-audio',
@@ -122,6 +127,7 @@ export const writingSystems: IWritingSystems = {
       'exemplars': [],
       'type': WritingSystemType.Vernacular,
       isAudio: true,
+      isDisabled: false,
     },
     {
       'id': 'ny',
@@ -132,6 +138,7 @@ export const writingSystems: IWritingSystems = {
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Vernacular,
       isAudio: false,
+      isDisabled: false,
     }
   ]
 };

@@ -15,6 +15,7 @@ export interface IWritingSystem extends IObjectWithId
 	font: string;
 	deletedAt?: string;
 	type: WritingSystemType;
+	isDisabled: boolean;
 	exemplars: string[];
 }
 /* eslint-enable */

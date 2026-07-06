@@ -85,15 +85,20 @@ public class MiniLcmRepository(
         {
             return type switch
             {
-                WritingSystemType.Analysis => _defaultAnalysisWs ??=
-                    await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.Type == type),
-                WritingSystemType.Vernacular => _defaultVernacularWs ??=
-                    await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.Type == type),
+                WritingSystemType.Analysis => _defaultAnalysisWs ??= await GetDefaultWritingSystem(type),
+                WritingSystemType.Vernacular => _defaultVernacularWs ??= await GetDefaultWritingSystem(type),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             } ?? throw NotFoundException.ForWs(id, type);
         }
 
         return await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.WsId == id && ws.Type == type);
+    }
+
+    private async ValueTask<WritingSystem?> GetDefaultWritingSystem(WritingSystemType type)
+    {
+        // the default writing system is the first enabled one; only ever a disabled one if all of them are disabled
+        return await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.Type == type && !ws.IsDisabled)
+            ?? await AsyncExtensions.FirstOrDefaultAsync(WritingSystemsOrdered, ws => ws.Type == type);
     }
 
     public async Task<AddEntryComponentChange> CreateComplexFormComponentChange(

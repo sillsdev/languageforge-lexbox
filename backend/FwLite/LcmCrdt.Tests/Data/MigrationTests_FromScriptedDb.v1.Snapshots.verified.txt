@@ -382,6 +382,7 @@
         "Font": "Arial",
         "DeletedAt": null,
         "Type": 1,
+        "IsDisabled": false,
         "Exemplars": [
           "A",
           "B",
@@ -438,6 +439,7 @@
         "Font": "Arial",
         "DeletedAt": null,
         "Type": 0,
+        "IsDisabled": false,
         "Exemplars": [
           "A",
           "B",

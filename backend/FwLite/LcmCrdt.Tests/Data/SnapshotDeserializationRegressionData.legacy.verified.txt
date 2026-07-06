@@ -846,6 +846,7 @@
         "Font": "Charis SIL",
         "DeletedAt": null,
         "Type": 1,
+        "IsDisabled": false,
         "Exemplars": [
           "A",
           "B",
@@ -976,6 +977,7 @@
         "Font": "Charis SIL",
         "DeletedAt": null,
         "Type": 0,
+        "IsDisabled": false,
         "Exemplars": [
           "A",
           "B",
@@ -3898,6 +3900,286 @@
         ]
       },
       "Id": "853b91e6-d738-7d5d-cc98-e62904160c35",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "MaybeId": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
+        "DeletedAt": null,
+        "Type": 1,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      },
+      "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "MaybeId": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
+        "DeletedAt": null,
+        "Type": 1,
+        "IsDisabled": false,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      },
+      "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+        "MaybeId": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+        "WsId": "lli",
+        "IsAudio": false,
+        "Name": "Granite",
+        "Abbreviation": "withdrawal",
+        "Font": "Handmade",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "Planner"
+        ],
+        "Order": 0.4320924489200455
+      },
+      "Id": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+        "MaybeId": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+        "WsId": "lli",
+        "IsAudio": false,
+        "Name": "Granite",
+        "Abbreviation": "withdrawal",
+        "Font": "Handmade",
+        "DeletedAt": null,
+        "Type": 0,
+        "IsDisabled": false,
+        "Exemplars": [
+          "Planner"
+        ],
+        "Order": 0.4320924489200455
+      },
+      "Id": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "MaybeId": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      },
+      "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "MaybeId": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "WsId": "en",
+        "IsAudio": false,
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
+        "DeletedAt": null,
+        "Type": 0,
+        "IsDisabled": false,
+        "Exemplars": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
+        ],
+        "Order": 0
+      },
+      "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "19023cf0-de25-9b0c-d5ad-94df308267c4",
+        "MaybeId": "19023cf0-de25-9b0c-d5ad-94df308267c4",
+        "WsId": "taw",
+        "IsAudio": false,
+        "Name": "bluetooth",
+        "Abbreviation": "Credit Card Account",
+        "Font": "Intelligent Concrete Sausages",
+        "DeletedAt": null,
+        "Type": 0,
+        "Exemplars": [
+          "blockchains"
+        ],
+        "Order": 0.14806393624996905
+      },
+      "Id": "19023cf0-de25-9b0c-d5ad-94df308267c4",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "WritingSystem",
+        "Id": "19023cf0-de25-9b0c-d5ad-94df308267c4",
+        "MaybeId": "19023cf0-de25-9b0c-d5ad-94df308267c4",
+        "WsId": "taw",
+        "IsAudio": false,
+        "Name": "bluetooth",
+        "Abbreviation": "Credit Card Account",
+        "Font": "Intelligent Concrete Sausages",
+        "DeletedAt": null,
+        "Type": 0,
+        "IsDisabled": false,
+        "Exemplars": [
+          "blockchains"
+        ],
+        "Order": 0.14806393624996905
+      },
+      "Id": "19023cf0-de25-9b0c-d5ad-94df308267c4",
       "DeletedAt": null
     }
   }

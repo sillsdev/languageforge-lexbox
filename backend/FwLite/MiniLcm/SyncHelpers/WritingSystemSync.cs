@@ -44,6 +44,8 @@ public static class WritingSystemSync
         patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<WritingSystem>(nameof(WritingSystem.Font),
             beforeWritingSystem.Font,
             afterWritingSystem.Font));
+        if (beforeWritingSystem.IsDisabled != afterWritingSystem.IsDisabled)
+            patchDocument.Replace(ws => ws.IsDisabled, afterWritingSystem.IsDisabled);
         // TODO: Exemplars, Order, and do we need DeletedAt?
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<WritingSystem>(patchDocument);
@@ -51,13 +53,24 @@ public static class WritingSystemSync
 
     private class WritingSystemsDiffApi(IMiniLcmApi api) : IOrderableCollectionDiffApi<WritingSystem, WritingSystemId>
     {
+        private readonly List<(WritingSystem Before, WritingSystem After)> _pendingDisables = [];
+
         public async Task<int> Diff(WritingSystem[] beforeWritingSystems, WritingSystem[] afterWritingSystems)
         {
-            return await DiffCollection.DiffOrderable(
+            var changes = await DiffCollection.DiffOrderable(
                 [.. beforeWritingSystems.OrderBy(ws => ws.Order)],
                 [.. afterWritingSystems.OrderBy(ws => ws.Order)],
                 this
             );
+            // Disables are applied last (after adds and enables), so that e.g. swapping which writing
+            // system is enabled never passes through an intermediate state with no enabled writing
+            // system of a type, which would be rejected by validation.
+            foreach (var (before, after) in _pendingDisables)
+            {
+                changes += await Sync(before, after, api);
+            }
+            _pendingDisables.Clear();
+            return changes;
         }
 
         public WritingSystemId GetId(WritingSystem value)
@@ -67,6 +80,14 @@ public static class WritingSystemSync
 
         public async Task<int> Add(WritingSystem value, BetweenPosition<WritingSystem> between)
         {
+            var existing = await api.GetWritingSystem(value.WsId, value.Type);
+            if (existing is not null)
+            {
+                // The diff's before-side didn't know about this writing system (e.g. a legacy snapshot
+                // from before disabled writing systems were synced), but it already exists here.
+                // Creating would throw DuplicateObjectException, so converge by updating instead.
+                return await Replace(existing, value);
+            }
             var betweenWsId = new BetweenPosition<WritingSystemId?>(
                 between.Previous is null ? new WritingSystemId?() : between.Previous.WsId,
                 between.Next is null ? new WritingSystemId?() : between.Next.WsId
@@ -94,6 +115,11 @@ public static class WritingSystemSync
 
         public Task<int> Replace(WritingSystem before, WritingSystem after)
         {
+            if (after.IsDisabled && !before.IsDisabled)
+            {
+                _pendingDisables.Add((before, after));
+                return Task.FromResult(0);
+            }
             return Sync(before, after, api);
         }
     }

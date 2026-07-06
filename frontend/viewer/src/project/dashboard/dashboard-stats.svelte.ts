@@ -106,8 +106,8 @@ export class DashboardStats {
     if (vernacular.length === 0 && analysis.length === 0) {
       const writingSystems = await api.getWritingSystems();
       if (!fresh()) return;
-      vernacular = writingSystems.vernacular;
-      analysis = writingSystems.analysis;
+      vernacular = writingSystems.vernacular.filter(ws => !ws.isDisabled);
+      analysis = writingSystems.analysis.filter(ws => !ws.isDisabled);
     }
 
     this.vernacular = seedRows(vernacular, this.vernacular, ws => ({wsId: ws.wsId, abbreviation: ws.abbreviation}));

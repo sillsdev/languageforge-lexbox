@@ -87,6 +87,18 @@ public class CrdtMiniLcmApi(
         var exists = await repo.WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == wsType);
         if (exists) throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} ({wsType}) already exists");
         var betweenIds = between is null ? null : await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, wsType))?.Id);
+        if (betweenIds is null or { Previous: null, Next: null } && !writingSystem.IsDisabled)
+        {
+            // keep enabled writing systems grouped before disabled ones, matching FwData's ordering
+            // (FwData reports the current list first, then disabled writing systems)
+            var siblings = await repo.WritingSystemsOrdered.Where(ws => ws.Type == wsType).ToArrayAsync();
+            var firstDisabled = siblings.FirstOrDefault(ws => ws.IsDisabled);
+            if (firstDisabled is not null)
+            {
+                var lastEnabled = siblings.LastOrDefault(ws => !ws.IsDisabled);
+                betweenIds = new BetweenPosition(lastEnabled?.Id, firstDisabled.Id);
+            }
+        }
         var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(ws => ws.Type == wsType), betweenIds);
         await AddChange(new CreateWritingSystemChange(writingSystem, entityId, order));
         return await repo.GetWritingSystem(writingSystem.WsId, wsType) ?? throw NotFoundException.ForWs(writingSystem);

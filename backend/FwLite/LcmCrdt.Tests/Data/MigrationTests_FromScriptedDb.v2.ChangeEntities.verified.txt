@@ -733,6 +733,7 @@
       ],
       "Type": 1,
       "Order": 1,
+      "IsDisabled": false,
       "EntityId": "0b76099f-a102-4d24-8fd7-2c44b6eb3623"
     }
   },
@@ -776,6 +777,7 @@
       ],
       "Type": 0,
       "Order": 1,
+      "IsDisabled": false,
       "EntityId": "33c8a15a-1bd4-429e-a400-3304a3e1d997"
     }
   },
@@ -819,6 +821,7 @@
       ],
       "Type": 0,
       "Order": 3,
+      "IsDisabled": false,
       "EntityId": "485bd12f-976e-40df-b66c-16d70ee916fa"
     }
   },
@@ -862,6 +865,7 @@
       ],
       "Type": 0,
       "Order": 2,
+      "IsDisabled": false,
       "EntityId": "9fd79197-95ef-46d7-81a8-bb21aa2579c0"
     }
   },
@@ -905,6 +909,7 @@
       ],
       "Type": 1,
       "Order": 3,
+      "IsDisabled": false,
       "EntityId": "abeaeb03-1a56-49d5-8cc8-a3afe5ffe89e"
     }
   },
@@ -948,6 +953,7 @@
       ],
       "Type": 1,
       "Order": 2,
+      "IsDisabled": false,
       "EntityId": "d4078989-6c7b-4cc5-8501-ce968405484a"
     }
   }

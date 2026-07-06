@@ -17,6 +17,8 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
     public required string[] Exemplars { get; init; } = [];
     public required WritingSystemType Type { get; init; }
     public required double Order { get; init; }
+    // not required so changes serialized before this property existed still deserialize (false = enabled)
+    public bool IsDisabled { get; init; }
 
     [SetsRequiredMembers]
     public CreateWritingSystemChange(WritingSystem writingSystem, Guid entityId, double order) :
@@ -29,6 +31,7 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
         Exemplars = writingSystem.Exemplars;
         Type = writingSystem.Type;
         Order = order;
+        IsDisabled = writingSystem.IsDisabled;
     }
 
     [JsonConstructor]
@@ -49,6 +52,7 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
             Exemplars = Exemplars,
             Type = Type,
             Order = Order,
+            IsDisabled = IsDisabled,
             DeletedAt = alreadyExists ? commit.DateTime : null
         };
     }

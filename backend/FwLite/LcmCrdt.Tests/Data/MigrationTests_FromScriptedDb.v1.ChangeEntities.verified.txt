@@ -253,6 +253,7 @@
       ],
       "Type": 1,
       "Order": 0,
+      "IsDisabled": false,
       "EntityId": "1d6f788d-b5a7-4dd8-bdbc-e10b6ac78ef7"
     }
   },
@@ -296,6 +297,7 @@
       ],
       "Type": 0,
       "Order": 0,
+      "IsDisabled": false,
       "EntityId": "e8b2b514-e1ee-4a2b-9b52-6e32291aa407"
     }
   }

@@ -84,13 +84,26 @@ public partial class MiniLcmApiValidationWrapper(
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
         await validators.ValidateAndThrow(update);
+        if (update.TryGetPropertyChange<WritingSystem, bool>(nameof(WritingSystem.IsDisabled), out var isDisabled) && isDisabled)
+            await ThrowIfDisablingLastEnabled(id, type);
         return await _api.UpdateWritingSystem(id, type, update);
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
     {
         await validators.ValidateAndThrow(after);
+        // This overload bypasses WritingSystemUpdateValidator, so enforce the invariant here too.
+        if (after.IsDisabled && !before.IsDisabled)
+            await ThrowIfDisablingLastEnabled(after.WsId, after.Type);
         return await _api.UpdateWritingSystem(before, after, api ?? this);
+    }
+
+    private async Task ThrowIfDisablingLastEnabled(WritingSystemId id, WritingSystemType type)
+    {
+        var writingSystems = await _api.GetWritingSystems();
+        var ofType = type == WritingSystemType.Analysis ? writingSystems.Analysis : writingSystems.Vernacular;
+        if (!ofType.Any(ws => !ws.IsDisabled && ws.WsId != id))
+            throw new ValidationException($"Cannot disable the last enabled {type} writing system ({id}). At least one must remain enabled.");
     }
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)

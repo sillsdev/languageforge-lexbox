@@ -106356,7 +106356,7 @@
           "ComplexFormHeadword": "ubaba",
           "ComponentEntryId": "f1c350fe-ebc2-41f0-9e5d-4e06bb47ccce",
           "ComponentSenseId": null,
-          "ComponentHeadword": "u-"
+          "ComponentHeadword": "u"
         }
       ],
       "ComplexFormTypes": [],
@@ -106787,7 +106787,7 @@
           "ComplexFormHeadword": "ubaba",
           "ComponentEntryId": "f1c350fe-ebc2-41f0-9e5d-4e06bb47ccce",
           "ComponentSenseId": null,
-          "ComponentHeadword": "u-"
+          "ComponentHeadword": "u"
         }
       ],
       "ComplexForms": [],
@@ -113708,7 +113708,7 @@
     {
       "Id": "70c0a758-5901-4884-b992-94ca31087607",
       "DeletedAt": null,
-      "IsMain": true,
+      "IsMain": false,
       "Name": {
         "en": "Main Dictionary"
       }

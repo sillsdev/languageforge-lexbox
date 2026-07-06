@@ -47,8 +47,9 @@ export class WritingSystemService {
     this.#wsResource = projectContext.apiResource({analysis: [], vernacular: []}, async api => {
       const result = await api.getWritingSystems();
       return {
-        vernacular: result.vernacular,
-        analysis: result.analysis
+        // disabled writing systems are hidden for now, mirroring FLEx (data in them is preserved)
+        vernacular: result.vernacular.filter(ws => !ws.isDisabled),
+        analysis: result.analysis.filter(ws => !ws.isDisabled)
       };
     });
   }

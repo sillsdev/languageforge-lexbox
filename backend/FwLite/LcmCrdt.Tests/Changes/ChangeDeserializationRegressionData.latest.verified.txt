@@ -758,7 +758,22 @@
     ],
     "Type": 1,
     "Order": 0.7988004089201804,
+    "IsDisabled": false,
     "EntityId": "0fccfaaa-1e55-f6fb-966f-5c1e6caedf45"
+  },
+  {
+    "$type": "CreateWritingSystemChange",
+    "WsId": "res",
+    "Name": "parsing",
+    "Abbreviation": "programming",
+    "Font": "Factors",
+    "Exemplars": [
+      "grey"
+    ],
+    "Type": 1,
+    "Order": 0.7679724188592332,
+    "IsDisabled": false,
+    "EntityId": "47c8a4a8-0ead-d4fe-73fc-cd00dce4ed4a"
   },
   {
     "$type": "AddComplexFormTypeChange",

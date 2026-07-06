@@ -101,14 +101,45 @@ public class FwDataMiniLcmApi(
     {
         var writingSystems = new WritingSystems
         {
-            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select((definition, index) =>
-                FromLcmWritingSystem(definition, WritingSystemType.Vernacular, index)).ToArray(),
-            Analysis = WritingSystemContainer.CurrentAnalysisWritingSystems.Select((definition, index) =>
-                FromLcmWritingSystem(definition, WritingSystemType.Analysis, index)).ToArray()
+            Vernacular = GetWritingSystemsOfType(WritingSystemType.Vernacular),
+            Analysis = GetWritingSystemsOfType(WritingSystemType.Analysis),
         };
         // Not used and not implemented in CRDT (also not done in GetWritingSystem())
         // CompleteExemplars(writingSystems);
         return Task.FromResult(writingSystems);
+    }
+
+    /// <summary>
+    /// Enabled (current) writing systems first in current-list order, then disabled ones.
+    /// Index 0 must stay the default writing system, which LCM defines as the first current one.
+    /// </summary>
+    private WritingSystem[] GetWritingSystemsOfType(WritingSystemType type)
+    {
+        var current = CurrentWritingSystemList(type);
+        var disabled = AllWritingSystemCollection(type).Where(ws => !current.Contains(ws));
+        return current.Concat(disabled)
+            .Select((definition, index) => FromLcmWritingSystem(definition, type, index))
+            .ToArray();
+    }
+
+    private IList<CoreWritingSystemDefinition> CurrentWritingSystemList(WritingSystemType type)
+    {
+        return type switch
+        {
+            WritingSystemType.Analysis => WritingSystemContainer.CurrentAnalysisWritingSystems,
+            WritingSystemType.Vernacular => WritingSystemContainer.CurrentVernacularWritingSystems,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
+
+    private ICollection<CoreWritingSystemDefinition> AllWritingSystemCollection(WritingSystemType type)
+    {
+        return type switch
+        {
+            WritingSystemType.Analysis => WritingSystemContainer.AnalysisWritingSystems,
+            WritingSystemType.Vernacular => WritingSystemContainer.VernacularWritingSystems,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
     }
 
     private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, WritingSystemType type, int index = default)
@@ -120,11 +151,11 @@ public class FwDataMiniLcmApi(
             // so it probably shouldn't be used or set at all
             Order = index,
             Type = type,
-            //todo determine current and create a property for that.
             WsId = ws.Id,
             Name = ws.LanguageTag,
             Abbreviation = ws.Abbreviation,
             Font = ws.DefaultFontName,
+            IsDisabled = !CurrentWritingSystemList(type).Contains(ws),
             Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
         };
     }
@@ -161,7 +192,7 @@ public class FwDataMiniLcmApi(
     public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {
         var type = writingSystem.Type;
-        var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
+        var exitingWs = AllWritingSystemCollection(type);
         if (exitingWs.Any(ws => ws.Id == writingSystem.WsId))
         {
             throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
@@ -173,29 +204,31 @@ public class FwDataMiniLcmApi(
             {
                 Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.WsId.Code, out ws);
                 ws.Abbreviation = writingSystem.Abbreviation;
-                switch (type)
+                if (writingSystem.IsDisabled)
                 {
-                    case WritingSystemType.Analysis:
-                        Cache.ServiceLocator.WritingSystems.AddToCurrentAnalysisWritingSystems(ws);
-                        break;
-                    case WritingSystemType.Vernacular:
-                        Cache.ServiceLocator.WritingSystems.AddToCurrentVernacularWritingSystems(ws);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                    // in the full list but not the current list = disabled
+                    AllWritingSystemCollection(type).Add(ws);
+                }
+                else
+                {
+                    switch (type)
+                    {
+                        case WritingSystemType.Analysis:
+                            Cache.ServiceLocator.WritingSystems.AddToCurrentAnalysisWritingSystems(ws);
+                            break;
+                        case WritingSystemType.Vernacular:
+                            Cache.ServiceLocator.WritingSystems.AddToCurrentVernacularWritingSystems(ws);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                    }
                 }
 
                 if (between is not null && (between.Previous is not null || between.Next is not null))
                     await MoveWritingSystem(writingSystem.WsId, type, between);
             });
         if (ws is null) throw new InvalidOperationException("Writing system not found");
-        var index = type switch
-        {
-            WritingSystemType.Analysis => WritingSystemContainer.CurrentAnalysisWritingSystems.Count,
-            WritingSystemType.Vernacular => WritingSystemContainer.CurrentVernacularWritingSystems.Count,
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        } - 1;
-        return FromLcmWritingSystem(ws, type, index);
+        return GetWritingSystemsOfType(type).First(w => w.WsId == writingSystem.WsId);
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -208,7 +241,7 @@ public class FwDataMiniLcmApi(
             "Revert WritingSystem",
             () =>
             {
-                var updateProxy = new UpdateWritingSystemProxy(lcmWritingSystem)
+                var updateProxy = new UpdateWritingSystemProxy(lcmWritingSystem, WritingSystemContainer)
                 {
                     Id = Guid.Empty,
                     Type = type,
@@ -241,20 +274,18 @@ public class FwDataMiniLcmApi(
             "Revert Move WritingSystem",
             () =>
             {
-                var exitingWs = type == WritingSystemType.Analysis
-                    ? WritingSystemContainer.AnalysisWritingSystems
-                    : WritingSystemContainer.VernacularWritingSystems;
-                var currentExistingWs = type == WritingSystemType.Analysis
-                    ? WritingSystemContainer.CurrentAnalysisWritingSystems
-                    : WritingSystemContainer.CurrentVernacularWritingSystems;
-                MoveWs(wsToUpdate, previousWs, nextWs, exitingWs);
-                MoveWs(wsToUpdate, previousWs, nextWs, currentExistingWs);
+                MoveWs(wsToUpdate, previousWs, nextWs, AllWritingSystemCollection(type));
+                MoveWs(wsToUpdate, previousWs, nextWs, CurrentWritingSystemList(type));
 
                 void MoveWs(CoreWritingSystemDefinition ws,
                     CoreWritingSystemDefinition? previous,
                     CoreWritingSystemDefinition? next,
                     ICollection<CoreWritingSystemDefinition> list)
                 {
+                    // moving a WS into a list it's not a member of would implicitly enable/disable it
+                    // (a disabled WS is not in the current list)
+                    if (!list.Contains(ws)) return;
+
                     var index = -1;
                     if (previous is not null)
                     {
@@ -267,8 +298,9 @@ public class FwDataMiniLcmApi(
                         index = CollectionExtensions.IndexOf(list, next);
                     }
 
-                    if (index < 0)
-                        throw new InvalidOperationException("unable to find writing system with id " + between.Previous + " or " + between.Next);
+                    // neither anchor is in this list (e.g. both are disabled while moving within the
+                    // current list), so there's nothing meaningful to move relative to
+                    if (index < 0) return;
 
                     LcmHelpers.AddOrMoveInList(list, index, ws);
                 }

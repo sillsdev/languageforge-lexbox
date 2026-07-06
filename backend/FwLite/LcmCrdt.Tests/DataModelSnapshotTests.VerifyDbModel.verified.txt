@@ -353,6 +353,7 @@
         Annotations: 
           Relational:ColumnType: jsonb
       Font (string) Required
+      IsDisabled (bool) Required
       Name (string) Required
       Order (double) Required
       SnapshotId (no field, Guid?) Shadow FK Index
