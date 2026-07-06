@@ -34,10 +34,24 @@ export function useWritingSystemService(): WritingSystemService {
 
 export class WritingSystemService {
 
-  private wsColors: WritingSystemColors = $derived(calcWritingSystemColors(this.writingSystems));
+  private wsColors: WritingSystemColors = $derived(calcWritingSystemColors(this.allWithDisabled));
   #wsResource: ResourceReturn<IWritingSystems, unknown, true>;
-  private get writingSystems(): IWritingSystems {
+  /**
+   * Includes disabled writing systems (unchecked in FLEx's writing-system setup).
+   * They are hidden everywhere except where their data is explicitly surfaced,
+   * so most consumers should use {@link writingSystems} instead.
+   */
+  private get allWithDisabled(): IWritingSystems {
     return this.#wsResource.current;
+  }
+
+  private enabledWritingSystems: IWritingSystems = $derived({
+    vernacular: this.allWithDisabled.vernacular.filter(ws => !ws.isDisabled),
+    analysis: this.allWithDisabled.analysis.filter(ws => !ws.isDisabled),
+  });
+
+  private get writingSystems(): IWritingSystems {
+    return this.enabledWritingSystems;
   }
 
   #morphTypesService: MorphTypesService;
@@ -47,11 +61,26 @@ export class WritingSystemService {
     this.#wsResource = projectContext.apiResource({analysis: [], vernacular: []}, async api => {
       const result = await api.getWritingSystems();
       return {
-        // disabled writing systems are hidden for now, mirroring FLEx (data in them is preserved)
-        vernacular: result.vernacular.filter(ws => !ws.isDisabled),
-        analysis: result.analysis.filter(ws => !ws.isDisabled)
+        vernacular: result.vernacular,
+        analysis: result.analysis
       };
     });
+  }
+
+  /**
+   * Disabled writing systems whose data could be shown alongside the given visible writing systems:
+   * those of the same type(s), excluding any wsId that is already visible.
+   */
+  disabledCandidates(visibleWritingSystems: ReadonlyArray<ReadonlyDeep<IWritingSystem>>): IWritingSystem[] {
+    const visibleTypes = new Set(visibleWritingSystems.map(ws => ws.type));
+    const seenWsIds = new Set(visibleWritingSystems.map(ws => ws.wsId));
+    const result: IWritingSystem[] = [];
+    for (const ws of [...this.allWithDisabled.vernacular, ...this.allWithDisabled.analysis]) {
+      if (!ws.isDisabled || !visibleTypes.has(ws.type) || seenWsIds.has(ws.wsId)) continue;
+      seenWsIds.add(ws.wsId);
+      result.push(ws);
+    }
+    return result;
   }
 
   allWritingSystems(selection: Extract<WritingSystemSelection, 'vernacular-analysis' | 'analysis-vernacular'> = 'vernacular-analysis'): IWritingSystem[] {

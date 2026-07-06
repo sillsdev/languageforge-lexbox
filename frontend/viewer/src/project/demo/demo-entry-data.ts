@@ -139,6 +139,18 @@ export const writingSystems: IWritingSystems = {
       'type': WritingSystemType.Vernacular,
       isAudio: false,
       isDisabled: false,
+    },
+    {
+      'id': 'st',
+      'wsId': 'st',
+      'name': 'Sesotho',
+      'abbreviation': 'Ses',
+      'font': '???',
+      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+      'type': WritingSystemType.Vernacular,
+      isAudio: false,
+      // only shown on fields that have Sesotho data (e.g. the lexeme form of "nyumba")
+      isDisabled: true,
     }
   ]
 };
@@ -342,3 +354,21 @@ export const entries: IEntry[] = JSON.parse(
 // Keep the array the same length and don't shift entries down,
 // so that tests keep passing
 entries.splice(0, 1, allWsEntry);
+
+// Entry with data in the disabled writing system "st":
+// its lexeme form shows the extra writing system, other entries and fields don't
+export const disabledWsEntry: IEntry = {
+  id: '00000000-0000-0000-0000-000000000010',
+  lexemeForm: { seh: 'khumbo', st: 'ntlo' },
+  citationForm: {},
+  literalMeaning: {},
+  morphType: MorphTypeKind.Stem,
+  senses: [],
+  note: {},
+  complexForms: [],
+  complexFormTypes: [],
+  components: [],
+  publishIn: [],
+  homographNumber: 0,
+};
+entries.push(disabledWsEntry);

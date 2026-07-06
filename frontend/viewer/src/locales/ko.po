@@ -33,6 +33,12 @@ msgstr "- ({0}개 변경)"
 msgid "{0}"
 msgstr "{0}"
 
+#. Tooltip on a dictionary field input: {0} = writing system name, {1} = language tag. "disabled" refers to the writing system being unchecked in FieldWorks' writing-system setup
+#: src/lib/components/field-editors/multi-ws-input.svelte
+#: src/lib/components/field-editors/rich-multi-ws-input.svelte
+msgid "{0} ({1}) - disabled in FieldWorks"
+msgstr ""
+
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
@@ -905,7 +911,7 @@ msgstr "FieldWorks Lite 버전"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -2147,10 +2153,7 @@ msgid "Unable to open in FieldWorks"
 msgstr "FieldWorks에서 열 수 없음"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityItem.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte

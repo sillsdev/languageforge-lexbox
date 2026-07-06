@@ -7,6 +7,8 @@
   import StompSafeLcmRichTextEditor from '../stomp/stomp-safe-lcm-rich-text-editor.svelte';
   import AudioInput from '$lib/components/field-editors/audio-input.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
+  import {useShownDisabledWritingSystems} from './shown-disabled-writing-systems.svelte';
+  import {t} from 'svelte-i18n-lingui';
 
   const projectContext = useProjectContext();
   const supportsAudio = $derived(projectContext?.features.audio);
@@ -25,7 +27,13 @@
   } = $props();
 
   const {readonly = false, writingSystems, onchange, autofocus} = $derived(constProps);
-  let visibleWritingSystems = $derived(supportsAudio ? writingSystems : writingSystems.filter((ws) => !ws.isAudio));
+  const shownDisabled = useShownDisabledWritingSystems(
+    () => writingSystems,
+    () => value,
+  );
+  let visibleWritingSystems = $derived(
+    [...writingSystems, ...shownDisabled.current].filter((ws) => supportsAudio || !ws.isAudio),
+  );
 
   function onRichTextChange(wsId: string) {
     let richString = value[wsId];
@@ -56,9 +64,9 @@
     {@const labelId = `${inputId}-label`}
     <div
       class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
-      title={`${ws.name} (${ws.wsId})`}
+      title={ws.isDisabled ? $t`${ws.name} (${ws.wsId}) - disabled in FieldWorks` : `${ws.name} (${ws.wsId})`}
     >
-      <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
+      <Label id={labelId} for={inputId} class={ws.isDisabled ? 'opacity-60' : undefined}>{ws.abbreviation}</Label>
       {#if !ws.isAudio}
         <StompSafeLcmRichTextEditor
           bind:value={value[ws.wsId]}
