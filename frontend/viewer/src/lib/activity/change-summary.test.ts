@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention -- change payloads below mirror the PascalCase CRDT wire format on purpose */
 import {describe, it, expect} from 'vitest';
-import {DETAIL_CHANGE_CAP, describeActivity, describeChange, explicitlyHandledChangeTypes, factCategory, groupBySubject, isHandledChangeType, recognizeCommit, summarizeActivity} from './change-summary';
+import {commitBadge, describeActivity, describeActivityCapped, describeChange, explicitlyHandledChangeTypes, factCategory, groupByRootEntry, isHandledChangeType, recognizeBulkCreate, recognizeTreeCommit, ROW_FACT_CAP, summarizeActivity, type ChangeFact, type ChangeFactWithSubject} from './change-summary';
 import {knownChangeTypes} from '$lib/dotnet-types/generated-types/LcmCrdt/ChangeTypes';
 import type {IChangeEntity} from '$lib/dotnet-types';
 
@@ -197,6 +197,11 @@ describe('describeChange', () => {
       .toEqual([{kind: 'createObject', object: 'semanticDomain', label: '5.2 Food'}]);
   });
 
+  it('labels an edited custom view with its name, like the create does', () => {
+    expect(describeChange(changeEntity({'$type': 'EditCustomViewChange', Name: 'Example sentences (pt)', EntityId: 'v'})))
+      .toEqual([{kind: 'editObject', object: 'customView', label: 'Example sentences (pt)'}]);
+  });
+
   // Substrate plumbing that intentionally uses the generic humanized fallback (not a user-facing edit).
   const INTENTIONALLY_GENERIC = new Set<string>([
     'create:pendingUpload',
@@ -234,9 +239,9 @@ describe('describeActivity', () => {
   });
 });
 
-describe('recognizeCommit', () => {
-  it('collapses an entry-creation commit (create + its tree) to "Created entry X"', () => {
-    const result = recognizeCommit(
+describe('recognizeTreeCommit', () => {
+  it('recognizes an entry-creation tree (create + its tree) as "Created entry X"', () => {
+    const result = recognizeTreeCommit(
       [changeEntity({'$type': 'CreateEntryChange'}), changeEntity({'$type': 'CreateSenseChange'})],
       [{subject: 'Apfel', rootEntryId: 'e1'}, {subject: 'Apfel › apple', rootEntryId: 'e1'}],
       ['CreateEntryChange', 'CreateSenseChange'],
@@ -245,8 +250,8 @@ describe('recognizeCommit', () => {
     expect(result?.subject).toBe('Apfel');
   });
 
-  it('collapses a sense-creation commit (sense + its examples) to "Added sense X"', () => {
-    const result = recognizeCommit(
+  it('recognizes a sense-creation tree (sense + its examples) as "Added sense X"', () => {
+    const result = recognizeTreeCommit(
       [changeEntity({'$type': 'CreateSenseChange'}), changeEntity({'$type': 'CreateExampleSentenceChange'})],
       [{subject: 'Apfel › apple', rootEntryId: 'e1'}, {subject: 'Apfel › apple', rootEntryId: 'e1'}],
       ['CreateSenseChange', 'CreateExampleSentenceChange'],
@@ -255,16 +260,38 @@ describe('recognizeCommit', () => {
     expect(result?.subject).toBe('Apfel › apple');
   });
 
-  it('does NOT collapse a sense addition mixed with an edit (must not hide the edit)', () => {
-    expect(recognizeCommit(
+  it('does NOT recognize a sense addition mixed with an edit (must not hide the edit)', () => {
+    expect(recognizeTreeCommit(
       [changeEntity({'$type': 'CreateSenseChange'}), changeEntity({'$type': 'jsonPatch:Entry'})],
       [{rootEntryId: 'e1'}, {rootEntryId: 'e1'}],
       ['CreateSenseChange', 'jsonPatch:Entry'],
     )).toBeNull();
   });
 
+  it('does not recognize a single change', () => {
+    expect(recognizeTreeCommit([changeEntity({'$type': 'CreateEntryChange'})], [{rootEntryId: 'e1'}], ['CreateEntryChange'])).toBeNull();
+  });
+
+  it('does not recognize same-entity edits (they get listed, keeping the headword)', () => {
+    expect(recognizeTreeCommit(
+      [changeEntity({'$type': 'jsonPatch:Entry'}), changeEntity({'$type': 'jsonPatch:Sense'})],
+      [{rootEntryId: 'e1'}, {rootEntryId: 'e1'}],
+      ['jsonPatch:Entry', 'jsonPatch:Sense'],
+    )).toBeNull();
+  });
+
+  it('does not recognize a diverse commit', () => {
+    expect(recognizeTreeCommit(
+      [changeEntity({'$type': 'AddComplexFormTypeChange'}), changeEntity({'$type': 'CreateSenseChange'})],
+      [{rootEntryId: 'e1'}, {rootEntryId: 'e2'}],
+      ['AddComplexFormTypeChange', 'CreateSenseChange'],
+    )).toBeNull();
+  });
+});
+
+describe('recognizeBulkCreate', () => {
   it('collapses a bulk vocab import to a count', () => {
-    const result = recognizeCommit(
+    const result = recognizeBulkCreate(
       [changeEntity({'$type': 'CreateSemanticDomainChange'}), changeEntity({'$type': 'CreateSemanticDomainChange'}), changeEntity({'$type': 'CreateSemanticDomainChange'})],
       [{}, {}, {}],
       ['CreateSemanticDomainChange'],
@@ -273,7 +300,7 @@ describe('recognizeCommit', () => {
   });
 
   it('collapses a bulk entry import (different entries) to a count', () => {
-    const result = recognizeCommit(
+    const result = recognizeBulkCreate(
       [changeEntity({'$type': 'CreateEntryChange'}), changeEntity({'$type': 'CreateEntryChange'})],
       [{rootEntryId: 'e1'}, {rootEntryId: 'e2'}],
       ['CreateEntryChange'],
@@ -281,24 +308,16 @@ describe('recognizeCommit', () => {
     expect(result?.fact).toEqual({kind: 'bulkCreate', noun: 'entries', count: 2});
   });
 
-  it('does not collapse a single change', () => {
-    expect(recognizeCommit([changeEntity({'$type': 'CreateEntryChange'})], [{rootEntryId: 'e1'}], ['CreateEntryChange'])).toBeNull();
-  });
-
-  it('does not collapse same-entity edits (they get listed, keeping the headword)', () => {
-    expect(recognizeCommit(
-      [changeEntity({'$type': 'jsonPatch:Entry'}), changeEntity({'$type': 'jsonPatch:Sense'})],
+  it('does not collapse creates that all build one entry tree (those group under the headword instead)', () => {
+    expect(recognizeBulkCreate(
+      [changeEntity({'$type': 'CreateSenseChange'}), changeEntity({'$type': 'CreateSenseChange'})],
       [{rootEntryId: 'e1'}, {rootEntryId: 'e1'}],
-      ['jsonPatch:Entry', 'jsonPatch:Sense'],
+      ['CreateSenseChange'],
     )).toBeNull();
   });
 
-  it('does not collapse a diverse commit', () => {
-    expect(recognizeCommit(
-      [changeEntity({'$type': 'AddComplexFormTypeChange'}), changeEntity({'$type': 'CreateSenseChange'})],
-      [{rootEntryId: 'e1'}, {rootEntryId: 'e2'}],
-      ['AddComplexFormTypeChange', 'CreateSenseChange'],
-    )).toBeNull();
+  it('does not collapse a single change', () => {
+    expect(recognizeBulkCreate([changeEntity({'$type': 'CreateEntryChange'})], [{rootEntryId: 'e1'}], ['CreateEntryChange'])).toBeNull();
   });
 
   it('has a bulk noun for every create change type, so any batch collapses', () => {
@@ -306,7 +325,7 @@ describe('recognizeCommit', () => {
       describeChange(changeEntity({'$type': type})).some((f) => f.kind === 'create' || f.kind === 'createObject'),
     );
     const uncollapsed = createTypes.filter((type) =>
-      recognizeCommit([changeEntity({'$type': type}), changeEntity({'$type': type})], [{}, {}], [type])?.fact.kind !== 'bulkCreate',
+      recognizeBulkCreate([changeEntity({'$type': type}), changeEntity({'$type': type})], [{}, {}], [type])?.fact.kind !== 'bulkCreate',
     );
     expect(uncollapsed).toEqual([]);
   });
@@ -317,62 +336,110 @@ describe('summarizeActivity', () => {
     return changeEntity({'$type': 'jsonPatch:Entry', PatchDocument: [{op: 'replace', path: '/LexemeForm/en', value: 'x'}]});
   }
 
-  it('caps the listed changes in detailed mode and counts the rest', () => {
-    const overCap = DETAIL_CHANGE_CAP + 5;
+  it('caps the listed facts and counts the left-off changes', () => {
+    const overCap = ROW_FACT_CAP + 5;
     const changes = Array.from({length: overCap}, patchChange);
     const info = changes.map((_, i) => ({rootEntryId: `e${i}`})); // different roots → not collapsed
-    const result = summarizeActivity(changes, info, ['jsonPatch:Entry'], true);
-    expect(result.entries.length).toBe(DETAIL_CHANGE_CAP);
-    expect(result.remaining).toBe(overCap - DETAIL_CHANGE_CAP);
+    const result = summarizeActivity(changes, info, ['jsonPatch:Entry']);
+    expect(result.entries.length).toBe(ROW_FACT_CAP);
+    expect(result.remaining).toBe(overCap - ROW_FACT_CAP);
   });
 
-  it('shows just the first change in simple mode', () => {
-    const changes = [patchChange(), patchChange()];
-    const result = summarizeActivity(changes, [{rootEntryId: 'e1'}, {rootEntryId: 'e2'}], ['jsonPatch:Entry'], false);
-    expect(result.entries).toHaveLength(1);
+  it('renders the change that fills the fact budget whole, so remaining counts whole changes', () => {
+    function multiFactChange() {
+      return changeEntity({
+        '$type': 'jsonPatch:Entry',
+        PatchDocument: Array.from({length: 4}, (_, i) => ({op: 'replace', path: `/LexemeForm/ws${i}`, value: 'x'})),
+      });
+    }
+    const result = describeActivityCapped([multiFactChange(), multiFactChange(), patchChange()], undefined, 6);
+    expect(result.entries.length).toBe(8); // second change crosses the budget but is not truncated
     expect(result.remaining).toBe(1);
   });
 
-  it('collapses a recognized commit to one line in both modes', () => {
-    const args = [
+  it('lists an entry-creation commit instead of collapsing it, so it groups like the same tree in a bigger commit', () => {
+    const result = summarizeActivity(
       [changeEntity({'$type': 'CreateEntryChange'}), changeEntity({'$type': 'CreateSenseChange'})],
       [{subject: 'Apfel', rootEntryId: 'e1'}, {subject: 'Apfel › apple', rootEntryId: 'e1'}],
       ['CreateEntryChange', 'CreateSenseChange'],
-    ] as const;
-    for (const detailed of [true, false]) {
-      const result = summarizeActivity(args[0], args[1], args[2], detailed);
-      expect(result.entries).toHaveLength(1);
-      expect(result.remaining).toBe(0);
-      expect(result.entries[0].fact).toMatchObject({kind: 'create', entity: 'entry'});
-    }
+    );
+    expect(result.remaining).toBe(0);
+    expect(result.entries.map((e) => e.fact)).toMatchObject([
+      {kind: 'create', entity: 'entry'},
+      {kind: 'create', entity: 'sense'},
+    ]);
+  });
+
+  it('collapses a bulk create to one counted line', () => {
+    const result = summarizeActivity(
+      [changeEntity({'$type': 'CreateEntryChange'}), changeEntity({'$type': 'CreateEntryChange'})],
+      [{rootEntryId: 'e1'}, {rootEntryId: 'e2'}],
+      ['CreateEntryChange'],
+    );
+    expect(result.entries).toHaveLength(1);
+    expect(result.remaining).toBe(0);
+    expect(result.entries[0].fact).toEqual({kind: 'bulkCreate', noun: 'entries', count: 2});
   });
 });
 
-describe('groupBySubject', () => {
-  const f = (subject: string | undefined, value = 'x') =>
-    ({fact: {kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value}, subject}) as never;
+describe('groupByRootEntry', () => {
+  const f = (rootEntryId: string | undefined, rootEntryHeadword?: string, subject?: string): ChangeFactWithSubject =>
+    ({fact: {kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value: 'x'}, subject, rootEntryId, rootEntryHeadword});
 
-  it('merges adjacent facts with the same subject', () => {
-    const groups = groupBySubject([f('gwa₁'), f('gwa₁'), f('gwa₁')]);
+  it('groups mixed entry/sense/example facts of one entry tree, whatever their subjects', () => {
+    const groups = groupByRootEntry([
+      f('e1', 'nyumba', 'nyumba'),
+      f('e1', 'nyumba', 'nyumba › house'),
+      f('e1', 'nyumba', 'nyumba › 2 hut'),
+    ]);
     expect(groups).toHaveLength(1);
-    expect(groups[0].subject).toBe('gwa₁');
-    expect(groups[0].facts).toHaveLength(3);
+    expect(groups[0].headword).toBe('nyumba');
+    expect(groups[0].facts.map((e) => e.subject)).toEqual(['nyumba', 'nyumba › house', 'nyumba › 2 hut']);
   });
 
-  it('keeps distinct subjects in separate groups', () => {
-    const groups = groupBySubject([f('run › to run'), f('run › a jog')]);
+  it('merges non-adjacent facts of the same root, keeping first-occurrence group order', () => {
+    const groups = groupByRootEntry([f('e1', 'a'), f('e2', 'b'), f('e1', 'a')]);
+    expect(groups.map((g) => g.headword)).toEqual(['a', 'b']);
+    expect(groups[0].facts).toHaveLength(2);
+    expect(groups[1].facts).toHaveLength(1);
+  });
+
+  it('still groups by root when the headword is missing, normalizing empty to undefined', () => {
+    const groups = groupByRootEntry([f('e1', undefined), f('e1', '')]);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].headword).toBeUndefined();
+    expect(groups[0].facts).toHaveLength(2);
+  });
+
+  it('never groups facts without a root entry, even with identical subjects', () => {
+    const groups = groupByRootEntry([f(undefined, undefined, 'Noun'), f(undefined, undefined, 'Noun')]);
     expect(groups).toHaveLength(2);
-    expect(groups.map((g) => g.subject)).toEqual(['run › to run', 'run › a jog']);
+    expect(groups.every((g) => g.headword === undefined && g.facts.length === 1)).toBe(true);
   });
 
-  it('does not merge subjectless facts', () => {
-    const groups = groupBySubject([f(undefined), f(undefined)]);
-    expect(groups).toHaveLength(2);
+  it('promotes the root entry\'s create to the group lead, keeping the other facts listed', () => {
+    const create: ChangeFactWithSubject = {fact: {kind: 'create', entity: 'entry', label: 'nyumba'}, subject: 'nyumba', rootEntryId: 'e1', rootEntryHeadword: 'nyumba'};
+    const groups = groupByRootEntry([create, f('e1', 'nyumba'), f('e1', 'nyumba')]);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].lead).toBe(create);
+    expect(groups[0].facts).toHaveLength(2);
+    expect(groups[0].headword).toBe('nyumba');
   });
 
-  it('preserves order and only merges adjacent runs', () => {
-    const groups = groupBySubject([f('a'), f('b'), f('a')]);
-    expect(groups.map((g) => g.subject)).toEqual(['a', 'b', 'a']);
+  it('promotes a root entry delete, but never a sense create', () => {
+    const del: ChangeFactWithSubject = {fact: {kind: 'delete', entity: 'entry'}, subject: 'nyumba', rootEntryId: 'e1'};
+    expect(groupByRootEntry([f('e1'), del])[0].lead).toBe(del);
+    const senseCreate: ChangeFactWithSubject = {fact: {kind: 'create', entity: 'sense', label: 'house'}, rootEntryId: 'e1'};
+    const groups = groupByRootEntry([senseCreate, f('e1')]);
+    expect(groups[0].lead).toBeUndefined();
+    expect(groups[0].facts).toHaveLength(2);
+  });
+
+  it('keeps a solo create as the lead with no listed facts', () => {
+    const create: ChangeFactWithSubject = {fact: {kind: 'create', entity: 'entry'}, rootEntryId: 'e1'};
+    const groups = groupByRootEntry([create]);
+    expect(groups[0].lead).toBe(create);
+    expect(groups[0].facts).toHaveLength(0);
   });
 });
 
@@ -387,5 +454,35 @@ describe('factCategory', () => {
     expect(factCategory({kind: 'componentLink', action: 'remove'})).toBe('removed');
     expect(factCategory({kind: 'mediaResource', action: 'delete'})).toBe('removed');
     expect(factCategory({kind: 'generic', text: 'x'})).toBe('other');
+  });
+});
+
+describe('commitBadge', () => {
+  function summary(...facts: ChangeFact[]): {entries: ChangeFactWithSubject[]; remaining: number} {
+    return {entries: facts.map((fact) => ({fact})), remaining: 0};
+  }
+
+  it('colours structural creates and deletes', () => {
+    expect(commitBadge(summary({kind: 'create', entity: 'entry'}))).toEqual({category: 'added', structural: true});
+    expect(commitBadge(summary({kind: 'delete', entity: 'sense'}))).toEqual({category: 'removed', structural: true});
+    expect(commitBadge(summary({kind: 'bulkCreate', noun: 'entries', count: 100}))).toEqual({category: 'added', structural: true});
+    expect(commitBadge(summary({kind: 'deleteObject', object: 'publication'}))).toEqual({category: 'removed', structural: true});
+  });
+
+  it('classifies content-level facts without colour', () => {
+    expect(commitBadge(summary({kind: 'addItem', entity: 'sense', fieldId: 'semanticDomains'}))).toEqual({category: 'added', structural: false});
+    expect(commitBadge(summary({kind: 'clearField', entity: 'entry', fieldId: 'note'}))).toEqual({category: 'removed', structural: false});
+    expect(commitBadge(summary({kind: 'create', entity: 'example'}))).toEqual({category: 'added', structural: false});
+    expect(commitBadge(summary({kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value: 'x'}))).toEqual({category: 'changed', structural: false});
+    expect(commitBadge(summary({kind: 'reorder', collection: 'senses'}))).toEqual({category: 'reordered', structural: false});
+  });
+
+  it('gives mixed or unrecognized commits no badge', () => {
+    expect(commitBadge(summary(
+      {kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value: 'x'},
+      {kind: 'delete', entity: 'sense'},
+    ))).toBeUndefined();
+    expect(commitBadge({entries: summary({kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value: 'x'}).entries, remaining: 12})).toBeUndefined();
+    expect(commitBadge(summary({kind: 'generic', text: 'Create remote resource'}))).toBeUndefined();
   });
 });

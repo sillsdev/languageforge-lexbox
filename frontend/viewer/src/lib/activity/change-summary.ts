@@ -53,7 +53,7 @@ export type ChangeFact =
   // The publication marked as the project's main one. Subject is the publication.
   | {kind: 'setMainPublication'}
   | {kind: 'createObject'; object: ObjectKind; label?: string}
-  | {kind: 'editObject'; object: ObjectKind}
+  | {kind: 'editObject'; object: ObjectKind; label?: string}
   // A decoded field edit on a vocab object. `field` is humanized from the patch path (vocab objects have no field-label config).
   | {kind: 'editObjectField'; object: ObjectKind; field: string; ws?: string; value?: string; cleared?: boolean}
   | {kind: 'deleteObject'; object: ObjectKind}
@@ -289,7 +289,7 @@ const TYPED_HANDLERS: Record<string, (change: unknown) => ChangeFact[]> = {
   CreateWritingSystemChange: (c) => [{kind: 'createObject', object: 'writingSystem', label: labelOf(prop(c, 'name'))}],
   CreateMorphTypeChange: (c) => [{kind: 'createObject', object: 'morphType', label: labelOf(prop(c, 'name'))}],
   CreateCustomViewChange: (c) => [{kind: 'createObject', object: 'customView', label: labelOf(prop(c, 'name'))}],
-  EditCustomViewChange: () => [{kind: 'editObject', object: 'customView'}],
+  EditCustomViewChange: (c) => [{kind: 'editObject', object: 'customView', label: labelOf(prop(c, 'name'))}],
 };
 
 /** The `$type`s with a purpose-built handler — exported so the coverage test can assert each is a real generated change type (a handler must not outlive the backend type it decodes). */
@@ -373,8 +373,20 @@ export interface ChangeFactWithSubject {
   /** Entry headword, "headword › gloss" for senses, or a vocab object's name. Undefined when unresolved. */
   subject?: string;
   rootEntryId?: string;
+  /** Display headword of `rootEntryId`, for the entry-group header. Undefined when there's no root entry or no headword. */
+  rootEntryHeadword?: string;
   /** An item the change names only by id, resolved by the backend: the part of speech set, the semantic domain removed. */
   target?: string;
+}
+
+function factsWithSubject(change: IChangeEntity, info: IActivityChangeInfo | undefined): ChangeFactWithSubject[] {
+  return describeChange(change).map((fact) => ({
+    fact,
+    subject: info?.subject,
+    rootEntryId: info?.rootEntryId,
+    rootEntryHeadword: info?.rootEntryHeadword,
+    target: info?.target,
+  }));
 }
 
 /** All change facts across a commit, each paired with its resolved subject. `changeInfo` is parallel to `changes` by index. */
@@ -382,35 +394,48 @@ export function describeActivity(
   changes: readonly IChangeEntity[],
   changeInfo?: readonly IActivityChangeInfo[],
 ): ChangeFactWithSubject[] {
-  return changes.flatMap((change, index) => {
-    const info = changeInfo?.[index];
-    return describeChange(change).map((fact) => ({fact, subject: info?.subject, rootEntryId: info?.rootEntryId, target: info?.target}));
-  });
+  return changes.flatMap((change, index) => factsWithSubject(change, changeInfo?.[index]));
 }
 
-/** A run of facts that share a subject, so Detailed mode can render the headword once as a header. */
-export interface SubjectGroup {
-  /** Header text: the shared subject (entry headword or vocab-object name). Undefined for the subjectless bucket. */
-  subject?: string;
+/** Facts that share a root entry, so the headword can render once as a group header. */
+export interface EntryGroup {
+  /** Header text: the root entry's display headword. Undefined when the facts have no root entry or it has no headword. */
+  headword?: string;
+  /**
+   * The root entry's own create/delete fact, promoted out of `facts`: it's the group's main event, and its
+   * sentence already names the entry, so rendering it as the header line avoids repeating the headword.
+   */
+  lead?: ChangeFactWithSubject;
   facts: ChangeFactWithSubject[];
 }
 
+function isRootEntryLifecycle(entry: ChangeFactWithSubject): boolean {
+  return (entry.fact.kind === 'create' || entry.fact.kind === 'delete') && entry.fact.entity === 'entry';
+}
+
 /**
- * Group consecutive facts that share a subject so Detailed mode can show the headword once and list the
- * bare changes beneath it. Keyed by the resolved `subject` string, NOT `rootEntryId`: two different senses
- * of one entry have distinct labels ("run › to run" vs "run › a jog") and must not fold under one header —
- * but repeated edits to the same subject ("gwa₁ Set X", "gwa₁ Set Y") collapse. Facts with no subject each
- * stand alone. Order is preserved; only adjacent same-subject facts merge, so interleaved history stays truthful.
+ * Group a commit's facts by the entry tree they touch (`rootEntryId`), across the whole commit — a fact
+ * rejoins its entry's group even when another entry's change interleaves. Group order is first occurrence;
+ * fact order within a group is unchanged. The root entry's own create/delete becomes the group's `lead`.
+ * Facts with no root entry (vocab objects, media, generic) never group — their sentences are self-naming
+ * — so each stands alone in its own headerless group.
  */
-export function groupBySubject(entries: readonly ChangeFactWithSubject[]): SubjectGroup[] {
-  const groups: SubjectGroup[] = [];
+export function groupByRootEntry(entries: readonly ChangeFactWithSubject[]): EntryGroup[] {
+  const groups: EntryGroup[] = [];
+  const byRoot = new Map<string, EntryGroup>();
   for (const entry of entries) {
-    const last = groups.at(-1);
-    if (last && entry.subject !== undefined && entry.subject === last.subject) {
-      last.facts.push(entry);
-    } else {
-      groups.push({subject: entry.subject, facts: [entry]});
+    if (!entry.rootEntryId) {
+      groups.push({facts: [entry]});
+      continue;
     }
+    let group = byRoot.get(entry.rootEntryId);
+    if (!group) {
+      group = {headword: entry.rootEntryHeadword || undefined, facts: []};
+      byRoot.set(entry.rootEntryId, group);
+      groups.push(group);
+    }
+    if (!group.lead && isRootEntryLifecycle(entry)) group.lead = entry;
+    else group.facts.push(entry);
   }
   return groups;
 }
@@ -453,6 +478,38 @@ export function factCategory(fact: ChangeFact): FactCategory {
   }
 }
 
+/**
+ * Row-level change-kind badge for a commit: shape is the category, colour is reserved for `structural`
+ * facts. Only a commit that summarizes to exactly ONE fact gets a badge — that covers single changes and
+ * bulk creates. A multi-change commit (including a one-entry creation tree) has no single kind — its
+ * per-fact glyphs classify each line instead — so it gets none.
+ */
+export type CommitBadge = {category: Exclude<FactCategory, 'other'>; structural: boolean};
+
+export function commitBadge(summary: {entries: ChangeFactWithSubject[]; remaining: number}): CommitBadge | undefined {
+  if (summary.entries.length !== 1 || summary.remaining > 0) return undefined;
+  const fact = summary.entries[0].fact;
+  const category = factCategory(fact);
+  if (category === 'other') return undefined;
+  return {category, structural: isStructuralFact(fact)};
+}
+
+// Structural = a whole entity created or destroyed (entry/sense/vocab object/import batch). An example
+// sentence is content within a sense — like a field value — so its create/delete stays uncoloured.
+function isStructuralFact(fact: ChangeFact): boolean {
+  switch (fact.kind) {
+    case 'create':
+    case 'delete':
+      return fact.entity !== 'example';
+    case 'createObject':
+    case 'deleteObject':
+    case 'bulkCreate':
+      return true;
+    default:
+      return false;
+  }
+}
+
 /** Create change types whose commits collapse to a count when batched ("Created 100 semantic domains"). */
 const BULK_CREATE_NOUNS: Record<string, BulkNoun> = {
   CreateEntryChange: 'entries',
@@ -474,11 +531,13 @@ function allSameRoot(changeInfo?: readonly IActivityChangeInfo[]): boolean {
 }
 
 /**
- * Recognises a whole commit that reads best as a single line — without parsing every change. Returns that one
- * fact, or null to fall back to listing facts. Driven by cheap signals the commit already carries (distinct
- * change-type keys, per-change root ids, count), so a 100-change sync commit costs nothing to classify.
+ * Recognises a commit (or a group of a commit's changes) that builds ONE entry tree — an entry's creation
+ * plus that entry's own senses/fields ("Created entry X"), or one sense's creation plus its examples
+ * ("Added sense X"). Returns that one lead fact, or null. The detail pane titles its collapsed tree cards
+ * with this; the activity LIST never collapses these — it renders them grouped under the entry header
+ * (see {@link groupByRootEntry}), identical to how the same tree reads inside a bigger commit.
  */
-export function recognizeCommit(
+export function recognizeTreeCommit(
   changes: readonly IChangeEntity[],
   changeInfo: readonly IActivityChangeInfo[] | undefined,
   changeTypes: readonly string[],
@@ -501,7 +560,20 @@ export function recognizeCommit(
     // Pass target through so ChangeSummary's sense-create branch can render "<headword> · Added sense <senseLabel>".
     return {fact: {kind: 'create', entity: 'sense', label: info?.target}, subject: info?.subject, target: info?.target, rootEntryId: info?.rootEntryId};
   }
-  // One kind of thing created across many entities (import / sync batch) → "Created N entries".
+  return null;
+}
+
+/**
+ * Recognises a whole commit of same-type creations across many entities (import / sync batch) —
+ * "Created N entries" — without parsing every change. Driven by cheap signals the commit already carries
+ * (distinct change-type keys, per-change root ids, count), so a 100-change sync commit costs nothing to classify.
+ */
+export function recognizeBulkCreate(
+  changes: readonly IChangeEntity[],
+  changeInfo: readonly IActivityChangeInfo[] | undefined,
+  changeTypes: readonly string[],
+): ChangeFactWithSubject | null {
+  if (changes.length <= 1) return null;
   const noun = changeTypes.length === 1 ? BULK_CREATE_NOUNS[changeTypes[0]] : undefined;
   if (noun && !allSameRoot(changeInfo)) {
     return {fact: {kind: 'bulkCreate', noun, count: changes.length}};
@@ -509,33 +581,42 @@ export function recognizeCommit(
   return null;
 }
 
-/** Facts for the first <paramref name="maxChanges"/> changes, plus how many changes were left off (for "+N more"). */
+/**
+ * Facts for as many leading changes as fit the fact budget, plus how many changes were left off (for
+ * "+N more changes"). Changes are whole units: the change that fills the budget still contributes all its
+ * facts (so a many-op patch is never half-rendered), and `remaining` counts entire unrendered changes.
+ */
 export function describeActivityCapped(
   changes: readonly IChangeEntity[],
   changeInfo: readonly IActivityChangeInfo[] | undefined,
-  maxChanges: number,
+  maxFacts: number,
 ): {entries: ChangeFactWithSubject[]; remaining: number} {
-  const entries = describeActivity(changes.slice(0, maxChanges), changeInfo);
-  return {entries, remaining: Math.max(0, changes.length - maxChanges)};
+  const entries: ChangeFactWithSubject[] = [];
+  let consumed = 0;
+  while (consumed < changes.length && entries.length < maxFacts) {
+    entries.push(...factsWithSubject(changes[consumed], changeInfo?.[consumed]));
+    consumed++;
+  }
+  return {entries, remaining: changes.length - consumed};
 }
 
-// Max changes listed per commit row in Detailed mode before the rest collapse to "+N more". Detailed is the
-// "inspect this commit" view, so it's generous — but still bounded, since a row's changes aren't virtualised
-// internally (a pathological many-change commit shouldn't render hundreds of DOM nodes in one row).
-export const DETAIL_CHANGE_CAP = 50;
+// Fact budget per commit row before the rest collapse to "+N more changes". Small — the row identifies a
+// commit, the detail pane inspects it. Each fact line is CSS-clamped to 2 lines (ActivityView's factLine),
+// so this budget bounds row height without measuring rendered text.
+export const ROW_FACT_CAP = 6;
 
 /**
- * Bounded summary of a commit for one row of the activity list. A recognised whole-commit shape (entry creation,
- * bulk create) collapses to a single line; otherwise the first changes are listed — capped in Detailed mode,
- * just the first in Simple mode — with the rest counted. Never parses more changes than it shows.
+ * Bounded summary of a commit for one row of the activity list. A bulk create collapses to a single counted
+ * line; any other commit lists its leading changes until the fact budget fills, with the rest counted — an
+ * entry- or sense-creation commit is NOT collapsed, so it renders grouped under its entry header exactly
+ * like the same tree inside a bigger commit. Never parses more changes than it shows.
  */
 export function summarizeActivity(
   changes: readonly IChangeEntity[],
   changeInfo: readonly IActivityChangeInfo[] | undefined,
   changeTypes: readonly string[],
-  detailed: boolean,
 ): {entries: ChangeFactWithSubject[]; remaining: number} {
-  const recognized = recognizeCommit(changes, changeInfo, changeTypes);
-  if (recognized) return {entries: [recognized], remaining: 0};
-  return describeActivityCapped(changes, changeInfo, detailed ? DETAIL_CHANGE_CAP : 1);
+  const bulk = recognizeBulkCreate(changes, changeInfo, changeTypes);
+  if (bulk) return {entries: [bulk], remaining: 0};
+  return describeActivityCapped(changes, changeInfo, ROW_FACT_CAP);
 }

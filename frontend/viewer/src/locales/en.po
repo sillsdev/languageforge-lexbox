@@ -20,9 +20,8 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
-#. Activity list: the number of further changes in this commit not shown on the line ({0} = count).
-#: src/lib/activity/ActivityView.svelte
-#: src/lib/activity/ActivityView.svelte
+#. Change-card header: how many further things this one change did beyond the sentence shown ({0} = count). The preview below shows them all.
+#: src/lib/activity/ActivityItem.svelte
 msgid "(+{0} more)"
 msgstr "(+{0} more)"
 
@@ -71,6 +70,11 @@ msgstr "{0} MB"
 #: src/home/Server.svelte
 msgid "{0} Server"
 msgstr "{0} Server"
+
+#. Activity list row footer: how many further changes in this commit were left off the row (# = count). Clicking the row shows them all.
+#: src/lib/activity/ActivityView.svelte
+msgid "{num, plural, one {(+# more change)} other {(+# more changes)}}"
+msgstr "{num, plural, one {(+# more change)} other {(+# more changes)}}"
 
 #. Number of changes in sync operation
 #: src/project/SyncDialog.svelte
@@ -204,6 +208,10 @@ msgstr "Add to dictionary"
 msgid "Add Word"
 msgstr "Add Word"
 
+#: src/lib/activity/ActivityView.svelte
+msgid "Added"
+msgstr "Added"
+
 #. Activity-log line in the dictionary edit history. {0} = singular noun for a list-item type (e.g. "semantic domain", "complex form type", "publication", "translation"). A second chip with the new item's name follows this text.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
@@ -256,7 +264,6 @@ msgstr "an entry"
 
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
-#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
@@ -500,6 +507,10 @@ msgstr "Code"
 msgid "Color"
 msgstr "Color"
 
+#: src/lib/activity/ActivityItem.svelte
+msgid "Commit details"
+msgstr "Commit details"
+
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -736,11 +747,6 @@ msgstr "Deleted {0} from"
 msgid "Description"
 msgstr "Description"
 
-#. View option in the activity list mode picker (paired with "Simple"). Shows every change in a commit as its own summary line.
-#: src/lib/activity/ActivityListViewOptions.svelte
-msgid "Detailed"
-msgstr "Detailed"
-
 #. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/activity/ActivityItem.svelte
@@ -842,10 +848,19 @@ msgstr "Downloading..."
 msgid "e.g. th, sw"
 msgstr "e.g. th, sw"
 
+#: src/lib/activity/EntryHeadwordButton.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
+msgid "Edit {0}"
+msgstr "Edit {0}"
+
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Edit Custom View"
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Edited"
+msgstr "Edited"
 
 #. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "morph type"); a chip with the edited item's name follows.
 #: src/lib/activity/ChangeSummary.svelte
@@ -1330,8 +1345,6 @@ msgid "Light"
 msgstr "Light"
 
 #. Section header in a list-view options popup. In the entry list the options are "Simple" and "Preview"; in the activity list they are "Simple" and "Detailed".
-#: src/lib/activity/ActivityListViewOptions.svelte
-#: src/lib/activity/ActivityListViewOptions.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
 msgstr "List mode"
@@ -1490,6 +1503,11 @@ msgstr "Missing: {0}"
 #: src/lib/components/ThemePicker.svelte
 msgid "Mode"
 msgstr "Mode"
+
+#: src/lib/activity/EntryHeadwordButton.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
+msgid "More options"
+msgstr "More options"
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Edited morph type"). Morph type classifies the morphological status of an entry (e.g. "root", "stem", "bound stem").
 #: src/lib/activity/ChangeSummary.svelte
@@ -1932,6 +1950,10 @@ msgstr "Remove"
 msgid "Remove audio"
 msgstr "Remove audio"
 
+#: src/lib/activity/ActivityView.svelte
+msgid "Removed"
+msgstr "Removed"
+
 #. Activity-log line. {0} = singular noun for a list-item type (e.g. "semantic domain", "component"); a chip with the removed item's name follows.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Removed {0}"
@@ -1955,6 +1977,10 @@ msgstr "Removed picture"
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
 msgstr "Reopen"
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Reordered"
+msgstr "Reordered"
 
 #. Activity-log line. {0} = plural collection noun: "senses", "examples", "components", or "writing systems".
 #: src/lib/activity/ChangeSummary.svelte
@@ -2122,6 +2148,13 @@ msgstr "Set {0}"
 msgid "Set {0} to"
 msgstr "Set {0} to"
 
+#. First # is a field label plus writing-system code, second # is the new value
+#. First # is a field label plus writing-system code, second # is the new value
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set # to #"
+msgstr "Set # to #"
+
 #. Activity-log line. A leading chip names the publication. Means this publication was marked as the project's single main (default) publication.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set as the main publication"
@@ -2173,7 +2206,6 @@ msgid "Show {0} more..."
 msgstr "Show {0} more..."
 
 #. View option
-#: src/lib/activity/ActivityListViewOptions.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Simple"
@@ -2561,7 +2593,6 @@ msgstr "Uses components as"
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
-#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Vernacular"
@@ -2582,6 +2613,10 @@ msgstr "Vernacular writing systems"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "View"
+
+#: src/lib/activity/ActivityListViewOptions.svelte
+msgid "View options"
+msgstr "View options"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte

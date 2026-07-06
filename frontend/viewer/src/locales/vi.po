@@ -25,9 +25,8 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} thay đổi)"
 
-#. Activity list: the number of further changes in this commit not shown on the line ({0} = count).
-#: src/lib/activity/ActivityView.svelte
-#: src/lib/activity/ActivityView.svelte
+#. Change-card header: how many further things this one change did beyond the sentence shown ({0} = count). The preview below shows them all.
+#: src/lib/activity/ActivityItem.svelte
 msgid "(+{0} more)"
 msgstr ""
 
@@ -76,6 +75,11 @@ msgstr "{0} MB"
 #: src/home/Server.svelte
 msgid "{0} Server"
 msgstr "Máy chủ {0}"
+
+#. Activity list row footer: how many further changes in this commit were left off the row (# = count). Clicking the row shows them all.
+#: src/lib/activity/ActivityView.svelte
+msgid "{num, plural, one {(+# more change)} other {(+# more changes)}}"
+msgstr ""
 
 #. Number of changes in sync operation
 #: src/project/SyncDialog.svelte
@@ -209,6 +213,10 @@ msgstr ""
 msgid "Add Word"
 msgstr "Thêm Từ"
 
+#: src/lib/activity/ActivityView.svelte
+msgid "Added"
+msgstr ""
+
 #. Activity-log line in the dictionary edit history. {0} = singular noun for a list-item type (e.g. "semantic domain", "complex form type", "publication", "translation"). A second chip with the new item's name follows this text.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
@@ -261,7 +269,6 @@ msgstr "một mục"
 
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
-#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
@@ -505,6 +512,10 @@ msgstr ""
 msgid "Color"
 msgstr "Màu sắc"
 
+#: src/lib/activity/ActivityItem.svelte
+msgid "Commit details"
+msgstr ""
+
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -741,11 +752,6 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#. View option in the activity list mode picker (paired with "Simple"). Shows every change in a commit as its own summary line.
-#: src/lib/activity/ActivityListViewOptions.svelte
-msgid "Detailed"
-msgstr ""
-
 #. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/activity/ActivityItem.svelte
@@ -847,10 +853,19 @@ msgstr "Đang tải xuống..."
 msgid "e.g. th, sw"
 msgstr ""
 
+#: src/lib/activity/EntryHeadwordButton.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
+msgid "Edit {0}"
+msgstr ""
+
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Chỉnh sửa chế độ xem tùy chỉnh"
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Edited"
+msgstr ""
 
 #. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "morph type"); a chip with the edited item's name follows.
 #: src/lib/activity/ChangeSummary.svelte
@@ -1335,8 +1350,6 @@ msgid "Light"
 msgstr "Sáng"
 
 #. Section header in a list-view options popup. In the entry list the options are "Simple" and "Preview"; in the activity list they are "Simple" and "Detailed".
-#: src/lib/activity/ActivityListViewOptions.svelte
-#: src/lib/activity/ActivityListViewOptions.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
 msgstr "Chế độ danh sách"
@@ -1495,6 +1508,11 @@ msgstr "Thiếu: {0}"
 #: src/lib/components/ThemePicker.svelte
 msgid "Mode"
 msgstr "Chế độ"
+
+#: src/lib/activity/EntryHeadwordButton.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
+msgid "More options"
+msgstr ""
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Edited morph type"). Morph type classifies the morphological status of an entry (e.g. "root", "stem", "bound stem").
 #: src/lib/activity/ChangeSummary.svelte
@@ -1937,6 +1955,10 @@ msgstr "Gỡ bỏ"
 msgid "Remove audio"
 msgstr "Xóa âm thanh"
 
+#: src/lib/activity/ActivityView.svelte
+msgid "Removed"
+msgstr ""
+
 #. Activity-log line. {0} = singular noun for a list-item type (e.g. "semantic domain", "component"); a chip with the removed item's name follows.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Removed {0}"
@@ -1960,6 +1982,10 @@ msgstr ""
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
 msgstr "Mở lại"
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Reordered"
+msgstr ""
 
 #. Activity-log line. {0} = plural collection noun: "senses", "examples", "components", or "writing systems".
 #: src/lib/activity/ChangeSummary.svelte
@@ -2127,6 +2153,13 @@ msgstr ""
 msgid "Set {0} to"
 msgstr ""
 
+#. First # is a field label plus writing-system code, second # is the new value
+#. First # is a field label plus writing-system code, second # is the new value
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set # to #"
+msgstr ""
+
 #. Activity-log line. A leading chip names the publication. Means this publication was marked as the project's single main (default) publication.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set as the main publication"
@@ -2178,7 +2211,6 @@ msgid "Show {0} more..."
 msgstr "Hiển thị thêm {0}..."
 
 #. View option
-#: src/lib/activity/ActivityListViewOptions.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Đơn giản"
@@ -2566,7 +2598,6 @@ msgstr "Sử dụng các thành phần như"
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
-#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Tiếng địa phương"
@@ -2587,6 +2618,10 @@ msgstr ""
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Xem"
+
+#: src/lib/activity/ActivityListViewOptions.svelte
+msgid "View options"
+msgstr ""
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte

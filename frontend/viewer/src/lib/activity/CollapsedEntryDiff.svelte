@@ -8,9 +8,9 @@
   import ObjectHeader from '$lib/entry-editor/object-editors/ObjectHeader.svelte';
 
   // A whole created entry rendered through the diff components (not the real editor), so it shares the
-  // visual language of every other activity preview. `before` is left undefined on each primitive, so a
-  // create reads as all-added — matching how a lone create-entry change already renders. Layout mirrors
-  // EntryEditor's sense/example nesting.
+  // visual language of every other activity preview. Each primitive self-diffs (before = after) so the
+  // fields render plainly — the creation is stated once by the card header, not by marking every field
+  // added. Layout mirrors EntryEditor's sense/example nesting.
   let {entry}: {entry: IEntry} = $props();
 
   const viewService = useViewService();
@@ -20,20 +20,20 @@
 
 <Editor.Root>
   <Editor.Grid>
-    <DiffEntryPrimitive after={entry} />
+    <DiffEntryPrimitive before={entry} after={entry} />
 
     {#if showSenses}
       {#each entry.senses as sense, i (sense.id)}
         <Editor.SubGrid>
           <ObjectHeader type="sense" index={i + 1} />
-          <DiffSensePrimitive after={sense} />
+          <DiffSensePrimitive before={sense} after={sense} />
 
           {#if showExamples && sense.exampleSentences.length}
             <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
               {#each sense.exampleSentences as example, j (example.id)}
                 <Editor.SubGrid>
                   <ObjectHeader type="example" index={j + 1} />
-                  <DiffExamplePrimitive after={example} />
+                  <DiffExamplePrimitive before={example} after={example} />
                 </Editor.SubGrid>
               {/each}
             </Editor.SubGrid>

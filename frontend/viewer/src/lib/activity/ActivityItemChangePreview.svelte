@@ -7,7 +7,6 @@
   import EntryHeadwordButton from './EntryHeadwordButton.svelte';
   import {tvt} from '$lib/views/view-text';
   import {entityConfig} from '$lib/views/entity-config';
-  import {cn} from '$lib/utils';
   import DiffEntryPrimitive from '$lib/entry-editor/diff-view/DiffEntryPrimitive.svelte';
   import DiffSensePrimitive from '$lib/entry-editor/diff-view/DiffSensePrimitive.svelte';
   import DiffExamplePrimitive from '$lib/entry-editor/diff-view/DiffExamplePrimitive.svelte';
@@ -34,6 +33,22 @@
     const id = raw?.entityId ?? raw?.EntityId;
     return typeof id === 'string' ? id : undefined;
   });
+
+  // Whole-entity lifecycle events render their fields plainly (a self-diff): when every field shares the
+  // same added/removed state, per-field marking carries no information — and a fully struck-through or
+  // all-green entity is hard to read. The event is communicated once at card level instead: the header's
+  // glyph and sentence, plus the destructive wash below for deletes. Diff marking stays for edits, where
+  // it expresses contrast against unchanged neighbors. A delete is a soft-deleted snapshot (deletedAt set —
+  // Harmony's DeleteChange snapshot keeps every other field) or a missing after-snapshot; a create is a
+  // missing before-snapshot.
+  const isDeletion = $derived.by(() => {
+    const r = context.snapshot as Record<string, unknown> | null | undefined;
+    return !!(r?.deletedAt ?? r?.DeletedAt) || (!context.snapshot && !!context.previousSnapshot);
+  });
+  const isCreation = $derived(!isDeletion && !context.previousSnapshot && !!context.snapshot);
+  const shownState = $derived(isDeletion ? (context.previousSnapshot ?? context.snapshot) : context.snapshot);
+  const diffBefore = $derived(isDeletion || isCreation ? shownState : context.previousSnapshot);
+  const diffAfter = $derived(shownState);
 
   // `.order` isn't in the generated TS type (Harmony's orderable-entity concept) but is present at runtime.
   function orderOf(item: unknown): number {
@@ -140,15 +155,12 @@
   }
 </script>
 
+<!-- Single-entry previews get no headword button here: the change-card header (ActivityItem) names the
+     entry in its summary sentence and carries the entry menu. Only the two-entry complex-form panels below
+     need labeled buttons, to tell the panels apart. -->
 {#snippet entryButton(entry: IEntry)}
   <EntryHeadwordButton {entry} />
 {/snippet}
-
-{#if context.affectedEntries.length === 1 && context.entityType !== 'ComplexFormComponent'}
-  <div class="flex flex-wrap gap-2 mb-3 items-center">
-    {@render entryButton(context.affectedEntries[0])}
-  </div>
-{/if}
 
 {#if mediaResourceId}
   <!-- A media resource (currently only audio recordings): play it. AudioInput resolves the URI by its
@@ -168,38 +180,43 @@
     .filter((e, idx, arr) => arr.findIndex((o) => o.id === e.id) === idx)
     .filter((e) => !isReorder || (anyCfc && e.id === anyCfc.complexFormEntryId))}
   <PreviewViewScope>
-    <Editor.Root>
-      <Editor.Grid>
-        {#each uniqueEntries as entry, i (entry.id)}
-          {@const isComplexForm = anyCfc ? entry.id === anyCfc.complexFormEntryId : false}
-          {@const fieldId = isComplexForm ? 'components' : 'complexForms'}
-          {@const currentRaw = (isComplexForm ? entry.components : entry.complexForms) ?? []}
-          <!-- Sort by order so a reorder change is visually reflected in the after list. `order` isn't on the TS type but Harmony stores it. -->
-          {@const current = [...currentRaw].sort((a, b) => orderOf(a) - orderOf(b))}
-          {@const {before, after} = synthesizeLists(current, entry.id, isComplexForm, beforeCfc, afterCfc)}
-          <div class={cn('col-span-full', i > 0 && 'mt-4')}>{@render entryButton(entry)}</div>
-          <Editor.SubGrid class="gap-2" style="grid-template-areas: '{fieldId} {fieldId} {fieldId}'">
-            <Editor.Field.Root {fieldId}>
-              <Editor.Field.Title
-                name={$tvt(isComplexForm ? entityConfig.entry.components.label : entityConfig.entry.complexForms.label)}
-                helpId={isComplexForm ? entityConfig.entry.components.helpId : entityConfig.entry.complexForms.helpId} />
-              <Editor.Field.Body>
-                <DiffEntryLinkList
-                  {before}
-                  {after}
-                  getEntryId={(link) => (isComplexForm ? link.componentEntryId : link.complexFormEntryId) ?? ''}
-                  getKey={(link) => cfcKey(link)}
-                  getHeadword={(link) => (isComplexForm ? link.componentHeadword : link.complexFormHeadword) || undefined}
-                  touched={(link) => !!anyCfc && cfcKey(link) === cfcKey(anyCfc)} />
-              </Editor.Field.Body>
-            </Editor.Field.Root>
-          </Editor.SubGrid>
-        {/each}
-      </Editor.Grid>
-    </Editor.Root>
+    <div class="flex flex-col gap-3">
+      {#each uniqueEntries as entry (entry.id)}
+        {@const isComplexForm = anyCfc ? entry.id === anyCfc.complexFormEntryId : false}
+        {@const fieldId = isComplexForm ? 'components' : 'complexForms'}
+        {@const currentRaw = (isComplexForm ? entry.components : entry.complexForms) ?? []}
+        <!-- Sort by order so a reorder change is visually reflected in the after list. `order` isn't on the TS type but Harmony stores it. -->
+        {@const current = [...currentRaw].sort((a, b) => orderOf(a) - orderOf(b))}
+        {@const {before, after} = synthesizeLists(current, entry.id, isComplexForm, beforeCfc, afterCfc)}
+        <div class="rounded-md border bg-muted/30 p-3">
+          <div class="mb-3">{@render entryButton(entry)}</div>
+          <Editor.Root>
+            <Editor.Grid>
+              <Editor.SubGrid class="gap-2" style="grid-template-areas: '{fieldId} {fieldId} {fieldId}'">
+                <Editor.Field.Root {fieldId}>
+                  <Editor.Field.Title
+                    name={$tvt(isComplexForm ? entityConfig.entry.components.label : entityConfig.entry.complexForms.label)}
+                    helpId={isComplexForm ? entityConfig.entry.components.helpId : entityConfig.entry.complexForms.helpId} />
+                  <Editor.Field.Body>
+                    <DiffEntryLinkList
+                      {before}
+                      {after}
+                      getEntryId={(link) => (isComplexForm ? link.componentEntryId : link.complexFormEntryId) ?? ''}
+                      getKey={(link) => cfcKey(link)}
+                      getHeadword={(link) => (isComplexForm ? link.componentHeadword : link.complexFormHeadword) || undefined}
+                      touched={(link) => !!anyCfc && cfcKey(link) === cfcKey(anyCfc)} />
+                  </Editor.Field.Body>
+                </Editor.Field.Root>
+              </Editor.SubGrid>
+            </Editor.Grid>
+          </Editor.Root>
+        </div>
+      {/each}
+    </div>
   </PreviewViewScope>
 {:else}
   <PreviewViewScope>
+    <div class={isDeletion ? 'rounded-md border-s-4 border-destructive/70 bg-destructive/5 ps-3 pe-2 py-2' : undefined}>
     {#if !context.snapshot && !context.previousSnapshot}
       <div class="text-muted-foreground p-4 text-center">
         {$t`Preview not available for this type of change`}
@@ -207,19 +224,19 @@
     {:else if context.entityType === 'Entry'}
       <Editor.Root>
         <Editor.Grid>
-          <DiffEntryPrimitive before={context.previousSnapshot as IEntry | undefined} after={context.snapshot as IEntry | undefined} />
+          <DiffEntryPrimitive before={diffBefore as IEntry | undefined} after={diffAfter as IEntry | undefined} />
         </Editor.Grid>
       </Editor.Root>
     {:else if context.entityType === 'Sense'}
       <Editor.Root>
         <Editor.Grid>
-          <DiffSensePrimitive before={context.previousSnapshot as ISense | undefined} after={context.snapshot as ISense | undefined} />
+          <DiffSensePrimitive before={diffBefore as ISense | undefined} after={diffAfter as ISense | undefined} />
         </Editor.Grid>
       </Editor.Root>
     {:else if context.entityType === 'ExampleSentence'}
       <Editor.Root>
         <Editor.Grid>
-          <DiffExamplePrimitive before={context.previousSnapshot as IExampleSentence | undefined} after={context.snapshot as IExampleSentence | undefined} />
+          <DiffExamplePrimitive before={diffBefore as IExampleSentence | undefined} after={diffAfter as IExampleSentence | undefined} />
         </Editor.Grid>
       </Editor.Root>
     {:else if context.entityType === 'PartOfSpeech'
@@ -231,7 +248,7 @@
       || context.entityType === 'CustomView'}
       <Editor.Root>
         <Editor.Grid>
-          <DiffVocabPrimitive before={context.previousSnapshot} after={context.snapshot} />
+          <DiffVocabPrimitive before={diffBefore} after={diffAfter} />
         </Editor.Grid>
       </Editor.Root>
     {:else}
@@ -239,5 +256,6 @@
         {formatJsonForUi(context.snapshot ?? context.previousSnapshot ?? {})}
       </div>
     {/if}
+    </div>
   </PreviewViewScope>
 {/if}

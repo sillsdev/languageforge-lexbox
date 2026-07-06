@@ -1,6 +1,6 @@
 <script lang="ts">
   import {useHistoryService} from '$lib/services/history-service';
-  import {t} from 'svelte-i18n-lingui';
+  import {plural, t} from 'svelte-i18n-lingui';
   import {Debounced, resource} from 'runed';
   import ListItem from '$lib/components/ListItem.svelte';
   import {VList} from 'virtua/svelte';
@@ -11,12 +11,12 @@
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {IProjectActivity} from '$lib/dotnet-types';
-  import {useProjectStorage} from '$lib/storage/project-storage.svelte';
-  import ActivityListViewOptions, {type ActivityListViewMode} from './ActivityListViewOptions.svelte';
+  import ActivityListViewOptions from './ActivityListViewOptions.svelte';
   import ChangeSummary from './ChangeSummary.svelte';
-  import {summarizeActivity, groupBySubject, factCategory, type FactCategory} from './change-summary';
+  import {summarizeActivity, groupByRootEntry, factCategory, commitBadge, type CommitBadge} from './change-summary';
   import type {IconClass} from '$lib/icon-class';
   import type {ChangeFact, ChangeFactWithSubject} from './change-summary';
+  import {FACT_GLYPH} from './fact-glyph';
   import {
     createDefaultActivityFilters,
     emptyActivityLoad,
@@ -31,34 +31,33 @@
 
   const historyService = useHistoryService();
 
-  const activityListViewMode = useProjectStorage().activityListViewMode;
-  const activityMode = $derived((activityListViewMode.current as ActivityListViewMode | undefined) ?? 'simple');
-
-  // Change-kind gutter glyph for Detailed mode — a coloured icon per fact for fast visual grepping down a
-  // commit (added / removed / changed / reordered). Kept out of Simple mode, which is a plain-sentence skim.
-  const FACT_GLYPH: Record<FactCategory, {icon: IconClass; class: string} | undefined> = {
-    added: {icon: 'i-mdi-plus', class: 'text-emerald-600 dark:text-emerald-400'},
-    removed: {icon: 'i-mdi-minus', class: 'text-destructive'},
-    changed: {icon: 'i-mdi-pencil-outline', class: 'text-muted-foreground'},
-    reordered: {icon: 'i-mdi-swap-vertical', class: 'text-muted-foreground'},
-    other: undefined,
-  };
   function glyphFor(fact: ChangeFact) {
     return FACT_GLYPH[factCategory(fact)];
   }
 
-  // Corner-cut colour for single-fact commits — a small triangle in the top-right that carries the change
-  // kind at a glance. Reserved for the two loudest kinds; edits and reorders leave the corner bare (absence
-  // is itself a signal that this row is a modification, not a creation or removal).
-  const CORNER_COLOR: Record<FactCategory, string | undefined> = {
-    added: 'bg-emerald-500',
-    removed: 'bg-destructive',
-    changed: undefined,
-    reordered: undefined,
-    other: undefined,
+  // Row-level badge in the top-right corner: the icon SHAPE classifies every row's change kind;
+  // COLOUR is reserved for structural creates/deletes (entries, senses, vocab objects, imports) so
+  // routine edits recede and the events worth noticing pop.
+  const BADGE_ICON: Record<CommitBadge['category'], IconClass> = {
+    added: 'i-mdi-plus',
+    removed: 'i-mdi-minus',
+    changed: 'i-mdi-pencil-outline',
+    reordered: 'i-mdi-swap-vertical',
   };
-  function cornerFor(fact: ChangeFact) {
-    return CORNER_COLOR[factCategory(fact)];
+  function badgeColor(badge: CommitBadge): string {
+    if (!badge.structural) return 'text-muted-foreground';
+    return badge.category === 'added' ? 'text-emerald-600 dark:text-emerald-400'
+      : badge.category === 'removed' ? 'text-destructive'
+      : 'text-muted-foreground';
+  }
+  function badgeLabel(category: CommitBadge['category']): string {
+    const labels: Record<CommitBadge['category'], string> = {
+      added: $t`Added`,
+      removed: $t`Removed`,
+      changed: $t`Edited`,
+      reordered: $t`Reordered`,
+    };
+    return labels[category];
   }
 
   const THRESHOLD = 20;
@@ -163,24 +162,25 @@
   }
 </script>
 
-<!-- One Detailed-mode change line: an optional change-kind glyph + the summary. `grouped` hides the
-     subject token (the subject is already the group header) AND reserves a gutter so wrapped lines
+<!-- One change line: an optional change-kind glyph + the summary. `groupHeadword` (set when the line sits
+     under an entry-group header) lets ChangeSummary render the subject relative to the header — hidden when
+     identical, a muted "› gloss" context token for senses/examples — AND reserves a gutter so wrapped lines
      hang-indent under the text — a bulleted list of the group's changes. Ungrouped rows are one-offs,
      so the glyph sits inline; single-fact commits skip it entirely (the item shows one glyph in its
      top-right corner instead — see below). -->
-{#snippet factLine(entry: ChangeFactWithSubject, grouped: boolean, hideGlyph = false)}
+{#snippet factLine(entry: ChangeFactWithSubject, groupHeadword?: string, hideGlyph = false)}
   {@const glyph = hideGlyph ? undefined : glyphFor(entry.fact)}
-  {#if grouped}
+  {#if groupHeadword !== undefined}
     <div class="flex items-center gap-1.5">
       <span class="w-3.5 shrink-0 flex justify-center">
         {#if glyph}<Icon icon={glyph.icon} class="size-3.5 {glyph.class}" />{/if}
       </span>
-      <span class="min-w-0"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} hideSubject /></span>
+      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} {groupHeadword} /></span>
     </div>
   {:else}
     <div class="flex items-center gap-1 min-w-0">
       {#if glyph}<Icon icon={glyph.icon} class="size-3.5 shrink-0 {glyph.class}" />{/if}
-      <span class="min-w-0"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></span>
+      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></span>
     </div>
   {/if}
 {/snippet}
@@ -191,7 +191,7 @@
   <div>
     <ActivityFilter bind:filters>
       {#snippet trailing()}
-        <ActivityListViewOptions bind:mode={() => activityMode, (v) => void activityListViewMode.set(v)} />
+        <ActivityListViewOptions />
       {/snippet}
     </ActivityFilter>
   </div>
@@ -212,62 +212,61 @@
              onscroll={onListScroll}
              getKey={row => row.commitId} bufferSize={400}>
         {#snippet children(row)}
-          {@const summary = summarizeActivity(row.changes, row.changeInfo, row.changeTypes, activityMode === 'detailed')}
-          <!-- One-fact commits (the common case) drop the inline glyph and mark the change kind with a
-               small colour-coded corner-cut in the top-right instead — colour is the communicator, no icon
-               required. Multi-fact commits keep per-fact glyphs inline; a single corner can't represent a
-               mixed set. -->
-          {@const singleFactCorner = activityMode === 'detailed' && summary.entries.length === 1 && summary.remaining === 0
-            ? cornerFor(summary.entries[0].fact)
-            : undefined}
-          {@const singleFactHideGlyph = activityMode === 'detailed' && summary.entries.length === 1 && summary.remaining === 0}
+          {@const summary = summarizeActivity(row.changes, row.changeInfo, row.changeTypes)}
+          <!-- The badge replaces the inline glyph on single-fact rows (it IS that fact's glyph,
+               relocated). Multi-fact commits get no badge — see commitBadge — and keep per-fact glyphs. -->
+          {@const badge = commitBadge(summary)}
           <ListItem
             onclick={() => selectedRow = row}
             selected={selectedRow?.commitId === row.commitId}
             class="mb-2 relative overflow-hidden">
             {#if summary.entries.length === 0}
               <span>{row.changeName}</span>
-            {:else if activityMode === 'detailed'}
-              <!-- Detailed groups facts by subject: the headword appears once as a bold header, its changes
-                   listed beneath along an indent rail. Base text muted so verbs recede; subject header and
-                   data chips render foreground. This is what makes Detailed a change-inspector rather than
-                   a longer version of Simple. -->
-              {@const groups = groupBySubject(summary.entries)}
+            {:else}
+              <!-- Facts group by the entry tree they touch: the header line is the group's `lead` (the
+                   entry's own create/delete — the main event) when the commit contains one, else the bare
+                   bold headword; the entry's other changes list beneath along an indent rail. Single-fact
+                   and headwordless groups render inline instead (their line names its own subject). Base
+                   text muted so verbs recede; subject header and data chips render foreground. -->
+              {@const groups = groupByRootEntry(summary.entries)}
               <div class="space-y-1 text-muted-foreground">
                 {#each groups as group, gi (gi)}
-                  {#if group.subject && group.facts.length > 1}
+                  {#if group.lead && group.facts.length > 0}
                     <div>
-                      <div class="font-semibold text-foreground">{group.subject}</div>
+                      {@render factLine(group.lead)}
                       <div class="ms-1 space-y-0.5 border-s border-border ps-2">
                         {#each group.facts as entry, i (i)}
-                          {@render factLine(entry, true)}
+                          {@render factLine(entry, group.headword ?? '')}
+                        {/each}
+                      </div>
+                    </div>
+                  {:else if group.headword && group.facts.length > 1}
+                    <div>
+                      <div class="font-semibold text-foreground">{group.headword}</div>
+                      <div class="ms-1 space-y-0.5 border-s border-border ps-2">
+                        {#each group.facts as entry, i (i)}
+                          {@render factLine(entry, group.headword)}
                         {/each}
                       </div>
                     </div>
                   {:else}
+                    {#if group.lead}
+                      {@render factLine(group.lead, undefined, !!badge)}
+                    {/if}
                     {#each group.facts as entry, i (i)}
-                      {@render factLine(entry, false, singleFactHideGlyph)}
+                      {@render factLine(entry, undefined, !!badge)}
                     {/each}
                   {/if}
                 {/each}
                 {#if summary.remaining > 0}
-                  <div class="ps-5">{$t`(+${summary.remaining} more)`}</div>
-                {/if}
-              </div>
-            {:else}
-              <div class="flex items-baseline gap-1 min-w-0 text-muted-foreground">
-                <span class="min-w-0 truncate">
-                  <ChangeSummary fact={summary.entries[0].fact} subject={summary.entries[0].subject} target={summary.entries[0].target} />
-                </span>
-                {#if summary.remaining > 0}
-                  <span class="shrink-0">{$t`(+${summary.remaining} more)`}</span>
+                  <div class="ps-5">{$plural(summary.remaining, {one: '(+# more change)', other: '(+# more changes)'})}</div>
                 {/if}
               </div>
             {/if}
-            {#if singleFactCorner}
-              <span aria-hidden="true"
-                    class="pointer-events-none absolute top-0 end-0 size-4 {singleFactCorner}"
-                    style="clip-path: polygon(0 0, 100% 0, 100% 100%);"></span>
+            {#if badge}
+              <span class="absolute top-1 end-1" role="img" title={badgeLabel(badge.category)} aria-label={badgeLabel(badge.category)}>
+                <Icon icon={BADGE_ICON[badge.category]} class="size-3.5 {badgeColor(badge)}" />
+              </span>
             {/if}
             <div class="mt-2 text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
               <AuthorLabel class="min-w-0" authorId={row.metadata.authorId} authorName={row.metadata.authorName} />
