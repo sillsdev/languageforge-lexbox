@@ -62,11 +62,16 @@
   });
 </script>
 
-<div class="flex flex-col gap-2 w-fit max-w-full">
+<!-- With multiple pictures we bound the carousel to a fixed width and center each picture in
+     it, so the centered controls below sit under the picture. (Sizing the carousel to the
+     picture itself isn't possible here: embla lays slides out in a flex row, so a shrink-to-fit
+     width would span the sum of all slides.) A single picture keeps its natural, left-justified
+     size since it has no controls to align. -->
+<div class={cn('flex flex-col gap-2', hasMultiple && 'max-w-md')}>
   <div class="overflow-hidden" use:emblaCarouselSvelte={{options: {loop: true}, plugins: []}} onemblaInit={onEmblaInit}>
     <div class="flex">
       {#each pictures as picture (picture.id)}
-        <div class="min-w-0 flex-[0_0_100%] px-2">
+        <div class={cn('min-w-0 flex-[0_0_100%] px-2', hasMultiple && 'flex justify-center')}>
           <PictureImage {picture} />
         </div>
       {/each}
