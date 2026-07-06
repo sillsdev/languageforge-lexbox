@@ -2256,12 +2256,27 @@ msgstr "Updates"
 msgid "Uses components as"
 msgstr "Uses components as"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "variant of"
+#. Abbreviation of "variant of", printed in italics between a variant's headword and the headword of the entry it varies from, in the dictionary preview (like print dictionaries abbreviate it)
+#: src/lib/components/dictionary/DictionaryEntry.svelte
+msgid "var. of"
+msgstr "var. of"
+
 #. Used two ways: (1) button label for adding an entry to the "Variants" field, and (2) disable-reason shown in the entry picker when an entry is already linked as a variant, so it can't be picked again
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
 #: src/lib/entry-editor/field-editors/Variants.svelte
 #: src/lib/entry-editor/field-editors/Variants.svelte
+#: src/project/browse/EntryRow.svelte
 msgid "Variant"
 msgstr "Variant"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "var. of"
+#. Printed in italics between a variant's headword and the headword of the word it varies from, in the dictionary preview
+#: src/lib/components/dictionary/DictionaryEntry.svelte
+msgid "variant of"
+msgstr "variant of"
 
 #. Used three ways: (1) field label for the "Variant of" relationship (this entry is a variant of another entry/sense), (2) button label in that field's entry picker, and (3) disable-reason shown when an entry is already linked, so it can't be picked again
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
@@ -2271,6 +2286,11 @@ msgstr "Variant"
 #: src/lib/views/entity-config.ts
 msgid "Variant of"
 msgstr "Variant of"
+
+#. Tooltip on the "Variant" badge in the entry list; {0} is the headword(s) of the entry/entries this one is a variant of
+#: src/project/browse/EntryRow.svelte
+msgid "Variant of {0}"
+msgstr "Variant of {0}"
 
 #. Dropdown submenu label in a variant's context menu, for assigning its variant type (a user-configurable classification, e.g. dialectal or spelling variant)
 #: src/lib/entry-editor/field-editors/VariantTypesMenuItems.svelte

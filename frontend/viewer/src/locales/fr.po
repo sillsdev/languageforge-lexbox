@@ -187,10 +187,12 @@ msgstr "Ajouter du sens"
 msgid "Add to dictionary"
 msgstr ""
 
+#. Dialog title: picker for adding an entry as a variant of the current entry (fills the "Variants" field)
 #: src/lib/entry-editor/field-editors/Variants.svelte
 msgid "Add variant"
 msgstr ""
 
+#. Dialog title: picker for marking the current entry as a variant of another entry/sense (fills the "Variant of" field)
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
 msgid "Add variant of"
 msgstr ""
@@ -2259,12 +2261,23 @@ msgstr "Mises à jour"
 msgid "Uses components as"
 msgstr "Utilise des composants comme"
 
+#: src/lib/components/dictionary/DictionaryEntry.svelte
+msgid "var. of"
+msgstr ""
+
+#. Used two ways: (1) button label for adding an entry to the "Variants" field, and (2) disable-reason shown in the entry picker when an entry is already linked as a variant, so it can't be picked again
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
 #: src/lib/entry-editor/field-editors/Variants.svelte
 #: src/lib/entry-editor/field-editors/Variants.svelte
+#: src/project/browse/EntryRow.svelte
 msgid "Variant"
 msgstr ""
 
+#: src/lib/components/dictionary/DictionaryEntry.svelte
+msgid "variant of"
+msgstr ""
+
+#. Used three ways: (1) field label for the "Variant of" relationship (this entry is a variant of another entry/sense), (2) button label in that field's entry picker, and (3) disable-reason shown when an entry is already linked, so it can't be picked again
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
 #: src/lib/entry-editor/field-editors/VariantOf.svelte
@@ -2273,10 +2286,16 @@ msgstr ""
 msgid "Variant of"
 msgstr ""
 
+#: src/project/browse/EntryRow.svelte
+msgid "Variant of {0}"
+msgstr ""
+
+#. Dropdown submenu label in a variant's context menu, for assigning its variant type (a user-configurable classification, e.g. dialectal or spelling variant)
 #: src/lib/entry-editor/field-editors/VariantTypesMenuItems.svelte
 msgid "Variant type"
 msgstr ""
 
+#. Field label: other entries that are variants of this entry (the reverse of "Variant of")
 #: src/lib/views/entity-config.ts
 msgid "Variants"
 msgstr ""

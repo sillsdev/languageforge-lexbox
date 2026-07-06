@@ -119,6 +119,30 @@ export class EntryApiHelper {
     }, entryId);
   }
 
+  /** Links two entries as variant→main the way the UI does: through updateEntry. */
+  async createVariantLink(variantEntryId: string, mainEntryId: string): Promise<void> {
+    await this.page.evaluate(async ({variantId, mainId}) => {
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const before = await api.getEntry(variantId);
+      if (!before) throw new Error(`Entry ${variantId} not found`);
+      const main = await api.getEntry(mainId);
+      if (!main) throw new Error(`Entry ${mainId} not found`);
+      const after = structuredClone(before);
+      after.variantOf = [{
+        id: crypto.randomUUID(),
+        variantEntryId: variantId,
+        variantHeadword: Object.values(before.lexemeForm)[0],
+        mainEntryId: mainId,
+        mainSenseId: undefined,
+        mainHeadword: Object.values(main.lexemeForm)[0],
+        types: [],
+        hideMinorEntry: false,
+        comment: {},
+      }];
+      await api.updateEntry(before, after);
+    }, {variantId: variantEntryId, mainId: mainEntryId});
+  }
+
   async updateEntryHeadword(index: number, suffix: string): Promise<{id: string; updatedHeadword: string}> {
     return this.page.evaluate(async ({idx, sfx, order}) => {
       const api = window.__PLAYWRIGHT_UTILS__.demoApi;
