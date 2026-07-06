@@ -21,12 +21,12 @@
   }
 
   function toggleType(id: string) {
-    const type = variantTypes.current.find((vt) => vt.id === id);
-    if (!type) return;
+    if (!variantTypes.current.some((vt) => vt.id === id)) return;
     if (hasType(id)) {
       variant.types = variant.types.filter((existing) => existing.id !== id);
     } else {
-      variant.types = [...variant.types, type];
+      // order 0 = "append": the backend picks the real order after the current last type
+      variant.types = [...variant.types, {id, order: 0}];
     }
     onchange?.();
   }

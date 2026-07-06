@@ -38,7 +38,7 @@
       variantHeadword: writingSystemService.headword(selection.entry),
       mainEntryId: entry.id,
       mainHeadword: writingSystemService.headword(entry),
-      types: unspecified ? [unspecified] : [],
+      types: unspecified ? [{id: unspecified.id, order: 0}] : [],
       hideMinorEntry: false,
       comment: {},
     };
