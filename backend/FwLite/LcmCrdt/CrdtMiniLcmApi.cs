@@ -737,16 +737,16 @@ public class CrdtMiniLcmApi(
                 })
                 .ToArrayAsync(),
             ..await ToPublications(entry.PublishIn).ToArrayAsync(),
-            ..options.IncludeComplexFormsAndComponents ?
+            ..options.IncludeEntryReferences ?
                 await ToComplexFormComponents(entry.Components).ToArrayAsync() :
                 Enumerable.Empty<AddEntryComponentChange>(),
-            ..options.IncludeComplexFormsAndComponents ?
+            ..options.IncludeEntryReferences ?
                 await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync() :
                 Enumerable.Empty<AddEntryComponentChange>(),
-            ..options.IncludeComplexFormsAndComponents ?
+            ..options.IncludeEntryReferences ?
                 await ToVariants(entry.VariantOf).ToArrayAsync() :
                 Enumerable.Empty<AddVariantChange>(),
-            ..options.IncludeComplexFormsAndComponents ?
+            ..options.IncludeEntryReferences ?
                 await ToVariants(entry.Variants).ToArrayAsync() :
                 Enumerable.Empty<AddVariantChange>(),
             ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()

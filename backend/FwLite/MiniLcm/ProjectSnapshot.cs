@@ -14,6 +14,8 @@ public record ProjectSnapshot(
 {
     public static ProjectSnapshot Empty { get; } = new([], [], [], [], [], [], [], new WritingSystems());
 
-    //snapshots and templates serialized before variant support deserialize this as null
+    //Snapshots and templates serialized before variant support have no VariantTypes property, so
+    //System.Text.Json passes null for the constructor parameter; this init coalesces it back to
+    //empty (covered by the legacy SnapshotDeserializationRegressionData test).
     public VariantType[] VariantTypes { get; init; } = VariantTypes ?? [];
 }

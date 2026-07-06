@@ -803,13 +803,9 @@ public class FwDataMiniLcmApi(
 
     private IEnumerable<Variant> ToVariants(ILexEntry entry)
     {
-        return new[]
-            {
-                entry.VariantFormEntryBackRefs.Select(r => ToVariant(r.OwningEntry, r, entry, null)),
-                entry.AllSenses.SelectMany(sense =>
-                    sense.VariantFormEntryBackRefs.Select(r => ToVariant(r.OwningEntry, r, entry, sense)))
-            }
-            .SelectMany(v => v)
+        return entry.VariantFormEntryBackRefs.Select(r => ToVariant(r.OwningEntry, r, entry, null))
+            .Concat(entry.AllSenses.SelectMany(sense =>
+                sense.VariantFormEntryBackRefs.Select(r => ToVariant(r.OwningEntry, r, entry, sense))))
             .DistinctBy(v => (v.VariantEntryId, v.MainEntryId, v.MainSenseId))
             .Order(Variant.VariantsOrder);
     }
@@ -1153,7 +1149,7 @@ public class FwDataMiniLcmApi(
                         AddComplexFormType(lexEntry, complexFormType.Id);
                     }
 
-                    if (options.IncludeComplexFormsAndComponents)
+                    if (options.IncludeEntryReferences)
                     {
                         foreach (var component in entry.Components)
                         {

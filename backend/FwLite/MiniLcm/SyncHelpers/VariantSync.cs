@@ -27,8 +27,7 @@ public static class VariantSync
     public static UpdateObjectInput<Variant>? VariantDiffToUpdate(Variant before, Variant after)
     {
         JsonPatchDocument<Variant> patchDocument = new();
-        if (before.HideMinorEntry != after.HideMinorEntry)
-            patchDocument.Operations.Add(new Operation<Variant>("replace", $"/{nameof(Variant.HideMinorEntry)}", null, after.HideMinorEntry));
+        patchDocument.Operations.AddRange(BoolDiff.GetBoolDiff<Variant>(nameof(Variant.HideMinorEntry), before.HideMinorEntry, after.HideMinorEntry));
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Variant>(nameof(Variant.Comment), before.Comment, after.Comment));
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Variant>(patchDocument);
