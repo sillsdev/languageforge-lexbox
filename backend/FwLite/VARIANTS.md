@@ -14,11 +14,15 @@ dev/agent can pick up the work mid-stream. Update the **Status** section as step
 - [x] Step 3 — Viewer UI (fields, per-link type menu, demo seed, i18n, Playwright green)
 - [x] Review iterations — see "Review & verification log" below; ALL automated review is
   done and green
-- [ ] **Next: human review of [#2410](https://github.com/sillsdev/languageforge-lexbox/pull/2410)**
-  (the only open PR; pay special attention to commit `0d03aed28` — it changes shipped
-  `AddEntryComponentChange` replay semantics, see decision 7 + rollout notes), then Tim's
-  merge sequence: reopen [#2408](https://github.com/sillsdev/languageforge-lexbox/pull/2408)
-  and merge the steps one by one.
+- [x] Human review round on the cumulative PR (#2410): all of hahn-kev's findings
+  implemented (see the review-response commits), incl. reworking variant type order to
+  per-item orders (pictures pattern)
+- [ ] **Next: review the 3-PR stack, merging in order** —
+  1. `feat/variants-model-sync` (this PR: model through sync; pay special attention to
+     `Match liblcm variant/component semantics` — it changes shipped
+     `AddEntryComponentChange` replay semantics, see decision 7 + rollout notes)
+  2. `feat/variants-editor` (viewer editing UI, stacked)
+  3. `feat/variants-visibility` (variant badges/preview + custom-view coverage, stacked)
 
 ## Review & verification log
 
