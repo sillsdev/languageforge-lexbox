@@ -79,9 +79,10 @@ test.describe('New entry possible duplicates', () => {
 
     await expect(dialog).toBeHidden();
     await expect(page).toHaveURL(/entryId=/);
-    const entryId = new URL(page.url()).searchParams.get('entryId')!;
+    const entryId = new URL(page.url()).searchParams.get('entryId');
+    expect(entryId).toBeTruthy();
     await expect(async () => {
-      expect(await browsePage.api.entryHasGlossValue(entryId, newGloss)).toBe(true);
+      expect(await browsePage.api.entryHasGlossValue(entryId!, newGloss)).toBe(true);
     }).toPass({timeout: 5000});
   });
 
@@ -113,6 +114,7 @@ test.describe('New entry possible duplicates', () => {
 
     const rows = duplicateRows(dialog);
     if (await rows.count() === 0) await summary.click(); // expands automatically only on an exact match
+    // 3 = the component's initial display count; '10+' assumes the demo data has >10 entries containing 'ba'
     await expect(rows).toHaveCount(3);
     await dialog.getByRole('button', {name: /show \d+ more/i}).click();
     expect(await rows.count()).toBeGreaterThan(3);

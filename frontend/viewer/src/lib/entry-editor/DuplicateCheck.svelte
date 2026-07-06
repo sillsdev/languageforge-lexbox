@@ -26,9 +26,11 @@
     sense?: ISense;
     /** Called right before navigating to an existing entry, so the host dialog can close itself. */
     onNavigateToEntry?: (entry: IEntry) => void;
+    /** True while an add-sense save is in flight — the host dialog should block submitting until it settles. */
+    busy?: boolean;
   }
 
-  const {entry, sense, onNavigateToEntry}: Props = $props();
+  let {entry, sense, onNavigateToEntry, busy = $bindable(false)}: Props = $props();
 
   const lexboxApi = useLexboxApi();
   const writingSystemService = useWritingSystemService();
@@ -108,16 +110,16 @@
   // Rescues the meaning the user already typed: instead of creating a duplicate entry,
   // it becomes a new sense of the existing one.
   const canAddSense = $derived(!!sense && !!writingSystemService.firstDefOrGlossVal(sense));
-  let addingSense = $state(false);
 
   async function addSenseToEntry(target: IEntry): Promise<void> {
-    if (!sense || addingSense) return;
-    addingSense = true;
+    if (!sense || busy) return;
+    busy = true;
     try {
-      const senseSnapshot = {...$state.snapshot(sense), entryId: target.id};
+      // fresh id: the dialog's sense id must never end up on two entries (e.g. add-sense then create)
+      const senseSnapshot = {...$state.snapshot(sense), id: crypto.randomUUID(), entryId: target.id};
       await saveHandler.handleSave(() => lexboxApi.createSense(target.id, senseSnapshot));
     } finally {
-      addingSense = false;
+      busy = false;
     }
     AppNotification.display(
       pt($t`Sense added to "${writingSystemService.headword(target)}"`,
@@ -179,6 +181,7 @@
                 class="grow min-w-0 flex items-center gap-2 rounded bg-background/80 hover:bg-accent px-2.5 py-2 text-start"
                 title={goToLabel}
                 aria-label={headword ? `${goToLabel}: ${headword}` : goToLabel}
+                disabled={busy}
                 onkeydown={trapEnter}
                 onclick={() => openEntry(match.entry)}>
                 <div class="grow min-w-0 line-clamp-2 text-sm">
@@ -200,7 +203,7 @@
                   class="self-center shrink-0"
                   title={addSenseLabel}
                   aria-label={addSenseLabel}
-                  disabled={addingSense}
+                  disabled={busy}
                   onkeydown={trapEnter}
                   onclick={() => addSenseToEntry(match.entry)} />
               {/if}
