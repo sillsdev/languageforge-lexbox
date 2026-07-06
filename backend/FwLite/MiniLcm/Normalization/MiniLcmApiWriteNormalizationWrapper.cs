@@ -219,6 +219,13 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.UpdateVariantType(id, NormalizePatch(update));
     }
 
+    // Overridden (rather than left to the interface default) so the sync's delete-wins semantics survive
+    // this wrapper — see the Submit* region in IMiniLcmWriteApi and the AGENTS.md "Submit* write variants" rule.
+    public Task SubmitUpdateVariantType(Guid id, UpdateObjectInput<VariantType> update)
+    {
+        return _api.SubmitUpdateVariantType(id, NormalizePatch(update));
+    }
+
 
     public async Task<VariantType> UpdateVariantType(VariantType before, VariantType after, IMiniLcmApi? api = null)
     {
@@ -322,6 +329,12 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     public async Task<Variant> CreateVariant(Variant variant)
     {
         return await _api.CreateVariant(NormalizeVariant(variant));
+    }
+
+    // See SubmitUpdateVariantType above: forward to _api.SubmitCreateVariant so delete-wins is preserved.
+    public Task SubmitCreateVariant(Variant variant)
+    {
+        return _api.SubmitCreateVariant(NormalizeVariant(variant));
     }
 
     public async Task<Variant> UpdateVariant(Variant before, Variant after, IMiniLcmApi? api = null)

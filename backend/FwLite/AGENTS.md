@@ -262,6 +262,21 @@ Imperative validation in `MiniLcmApiValidationWrapper` (rules that need an async
 
 ---
 
+## `Submit*` write variants (sync fire-and-forget)
+
+`SubmitUpdateX`/`SubmitCreateX` on `IMiniLcmWriteApi` are the **result-less writes the sync's diff-apply uses** instead of the returning `Update`/`Create`. The CRDT submits the change without fetching, so a target concurrently deleted on the other replica is **delete-wins** (no-op) rather than a `NotFoundException` that wedges the whole project sync (see `sync_delete_vs_edit_notfound`). The returning methods fetch-after-write and throw.
+
+**When you need a new `Submit*` variant:** only where the sync diff writes to a target that could be concurrently deleted — every id-targeted update/move, plus child creates inside `EntrySync` whose parent entry may be gone. **Not** for a fresh top-level `Create` of a dependency type (a new GUID has no delete race — that's why there is no `SubmitCreateVariantType`/`ComplexFormType`).
+
+**Wrapper authoring (the trap):** `Submit*` have default interface bodies, so they are **not** compile-enforced like other write methods — a wrapper compiles without handling them, but its default behavior is wrong:
+
+- `MiniLcmApiValidationWrapper` (BeaKona `MemberMatch=Any`): un-overridden `Submit*` forward straight to `_api`, **skipping validation** (the #2362 gap). Override only where an invariant must hold on sync-supplied data (e.g. single-main publication, variant refs).
+- `MiniLcmApiWriteNormalizationWrapper` (writes manual): un-overridden `Submit*` hit the default body, which re-routes to the wrapper's own returning `Update`/`Create` and **silently downgrades delete-wins into a throwing update**. Any `Submit*` reachable through this wrapper must be overridden to normalize the payload *and* forward to `_api.Submit*`.
+
+Also fan out to `CrdtMiniLcmApi`, `FwDataMiniLcmApi`, and `DryRunMiniLcmApi` (`SubmitUpdateVariant` is abstract — no id-based twin to forward to). The write-normalization wrapper's coverage is currently variant-complete but not exhaustive across all types; completing it is tracked separately.
+
+---
+
 ## Important Files Quick Reference
 
 | File | Purpose | Risk Level |

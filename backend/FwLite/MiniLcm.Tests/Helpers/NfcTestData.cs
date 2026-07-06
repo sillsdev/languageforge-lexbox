@@ -224,4 +224,27 @@ public static class NfcTestData
             ComplexForms = [CreateNfcComplexFormComponent()]
         };
     }
+
+    public static VariantType CreateNfcVariantType()
+    {
+        return new()
+        {
+            Id = Guid.NewGuid(),
+            Name = CreateNfcMultiString()
+        };
+    }
+
+    public static Variant CreateNfcVariant()
+    {
+        return new()
+        {
+            Id = Guid.NewGuid(),
+            VariantEntryId = Guid.NewGuid(),
+            VariantHeadword = Nfc,
+            MainEntryId = Guid.NewGuid(),
+            MainHeadword = Nfc,
+            Comment = CreateNfcRichMultiString(),
+            Types = [new VariantTypeRef { Id = Guid.NewGuid() }]
+        };
+    }
 }

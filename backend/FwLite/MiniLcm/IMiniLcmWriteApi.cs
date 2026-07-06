@@ -155,10 +155,22 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region Submit (fire-and-forget write variants for sync)
-    // Result-less write variants the sync uses instead of the returning Update/Create methods above. The CRDT
-    // overrides them to submit the change without fetching the result, so applying to an object the other side
-    // deleted leaves it deleted (delete wins) rather than throwing. The defaults forward to the returning
-    // method (correct for FwData, which still surfaces a genuinely-missing object).
+    // Result-less write variants the sync's diff-apply uses instead of the returning Update/Create methods above.
+    // The CRDT overrides them to submit the change without fetching the result, so applying to an object the other
+    // side deleted leaves it deleted (delete wins) rather than throwing NotFoundException — which would otherwise
+    // wedge the whole project sync. The defaults forward to the returning method (correct for FwData, which still
+    // surfaces a genuinely-missing object).
+    //
+    // A Submit variant is only needed where the sync diff writes to a target that could have been concurrently
+    // deleted on the opposite replica: every id-targeted Update/Move, plus the child Creates run inside EntrySync
+    // (SubmitCreateSense/ExampleSentence/ComplexFormComponent/Variant) whose parent entry may be gone. It is NOT
+    // needed for a fresh top-level Create of a dependency type — that mints a new object, so there is no
+    // concurrent-delete race (hence there is no SubmitCreateVariantType/ComplexFormType/etc.).
+    //
+    // Wrapper authors: these have default bodies, so they are NOT compile-enforced like the other write methods.
+    // A wrapper that forwards to a Submit method (or is meant to preserve its semantics) MUST override it
+    // explicitly — see the "Submit* write variants" rule in backend/FwLite/AGENTS.md for why each wrapper's
+    // default behavior is wrong here.
     Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update) => UpdateEntry(id, update);
     Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => CreateComplexFormComponent(complexFormComponent, position);
     Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => MoveComplexFormComponent(complexFormComponent, between);
