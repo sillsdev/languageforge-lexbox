@@ -1,4 +1,4 @@
-import {test} from './helpers/fixtures';
+import {expect, test} from './helpers/fixtures';
 import {ensureProjectCrdtReady} from './helpers/project-operations';
 import {lexboxServer, projectCode, testPassword, testUser} from './config';
 import {HomePage} from '../pages/home.page';
@@ -19,6 +19,12 @@ test('Project download: log in, download, and open the project', async ({page, f
 
   await homePage.downloadProject(lexboxServer, projectCode);
   await homePage.openLocalProject(projectCode);
-  await new ProjectPage(page).waitFor();
+  const projectPage = new ProjectPage(page);
+  await projectPage.waitFor();
   await assertScreenshot(page, 'e2e-project-view-default');
+
+  await projectPage.entriesList.selectEntryByIndex(0);
+  await projectPage.entryView.waitForEntryLoaded();
+  await expect(page.locator('.i-mdi-loading')).toHaveCount(0);
+  await assertScreenshot(page, 'e2e-project-view-entry-selected');
 });
