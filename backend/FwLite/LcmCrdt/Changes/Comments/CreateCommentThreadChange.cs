@@ -14,6 +14,8 @@ public class CreateCommentThreadChange : CreateChange<CommentThread>, ISelfNamed
         SubjectId = thread.SubjectId;
         SubjectType = thread.SubjectType;
         Status = thread.Status;
+        AuthorId = thread.AuthorId;
+        AuthorName = thread.AuthorName;
         CreatedAt = thread.CreatedAt == default ? DateTimeOffset.UtcNow : thread.CreatedAt;
         UpdatedAt = thread.UpdatedAt == default ? CreatedAt : thread.UpdatedAt;
     }
@@ -28,6 +30,8 @@ public class CreateCommentThreadChange : CreateChange<CommentThread>, ISelfNamed
     public Guid SubjectId { get; init; }
     public SubjectType SubjectType { get; init; }
     public ThreadStatus Status { get; set; }
+    public string? AuthorId { get; set; }
+    public string? AuthorName { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 
@@ -39,6 +43,8 @@ public class CreateCommentThreadChange : CreateChange<CommentThread>, ISelfNamed
             SubjectId = SubjectId,
             SubjectType = SubjectType,
             Status = Status,
+            AuthorId = AuthorId,
+            AuthorName = AuthorName,
             CreatedAt = CreatedAt,
             UpdatedAt = UpdatedAt
         });

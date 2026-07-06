@@ -25,6 +25,8 @@ public record CommentThread : IObjectWithId<CommentThread>
     public Guid SubjectId { get; set; }
     public SubjectType SubjectType { get; set; }
     public ThreadStatus Status { get; set; } = ThreadStatus.Open;
+    public string? AuthorId { get; set; }
+    public string? AuthorName { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public List<UserComment>? Comments { get; set; }

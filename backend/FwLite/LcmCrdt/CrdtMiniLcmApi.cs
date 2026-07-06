@@ -1134,8 +1134,7 @@ public class CrdtMiniLcmApi(
     {
         if (thread.Id == Guid.Empty) thread.Id = Guid.NewGuid();
         var now = DateTimeOffset.UtcNow;
-        thread.CreatedAt = thread.CreatedAt == default ? now : thread.CreatedAt;
-        thread.UpdatedAt = thread.UpdatedAt == default ? thread.CreatedAt : thread.UpdatedAt;
+        StampCommentThreadAuthor(thread, now);
         firstComment.CommentThreadId = thread.Id;
         StampCommentAuthor(firstComment, now);
 
@@ -1204,6 +1203,15 @@ public class CrdtMiniLcmApi(
     public Task MarkAllCommentsRead()
     {
         return commentReadStatusService.MarkAllRead();
+    }
+
+    private void StampCommentThreadAuthor(CommentThread thread, DateTimeOffset now)
+    {
+        if (thread.Id == Guid.Empty) thread.Id = Guid.NewGuid();
+        thread.AuthorId = RequireCommentUserId();
+        thread.AuthorName = ProjectData.LastUserName;
+        thread.CreatedAt = thread.CreatedAt == default ? now : thread.CreatedAt;
+        thread.UpdatedAt = thread.UpdatedAt == default ? thread.CreatedAt : thread.UpdatedAt;
     }
 
     private void StampCommentAuthor(UserComment comment, DateTimeOffset now)

@@ -57,6 +57,8 @@
   EntityType: CommentThread
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      AuthorId (string)
+      AuthorName (string)
       CreatedAt (DateTimeOffset) Required Index
       DeletedAt (DateTimeOffset?)
       SnapshotId (no field, Guid?) Shadow FK Index

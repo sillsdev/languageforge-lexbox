@@ -1299,9 +1299,22 @@
     "SubjectId": "31bb6dfb-9987-6fd7-9ee3-92d6bce75611",
     "SubjectType": "ExampleSentence",
     "Status": "Closed",
+    "AuthorId": null,
+    "AuthorName": null,
     "CreatedAt": "2026-07-01T17:07:13.0291493+07:00",
     "UpdatedAt": "2026-07-02T07:20:03.8842896+07:00",
     "EntityId": "ed481334-f9d2-ec59-fa0d-70d7dc2e2aa2"
+  },
+  {
+    "$type": "CreateCommentThreadChange",
+    "SubjectId": "1fc16c5c-ea2b-92b8-9af6-26404afcf856",
+    "SubjectType": "Unknown",
+    "Status": "Closed",
+    "AuthorId": "Licensed Steel Chicken",
+    "AuthorName": "Loop",
+    "CreatedAt": "2026-07-06T10:16:45.6785696+07:00",
+    "UpdatedAt": "2026-07-05T21:39:14.8355266+07:00",
+    "EntityId": "3381486c-2101-43ff-b508-82bd515eb950"
   },
   {
     "$type": "CreateUserCommentChange",

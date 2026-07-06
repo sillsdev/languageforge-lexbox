@@ -74,11 +74,27 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
 
         thread.Status.Should().Be(ThreadStatus.Open);
         thread.CreatedAt.Should().NotBe(default);
+        thread.AuthorId.Should().Be(authorId);
+        thread.AuthorName.Should().Be("Author Name");
         comments.Should().ContainSingle();
         comments[0].Text.Should().Be("hello");
         comments[0].AuthorId.Should().Be(authorId);
         comments[0].AuthorName.Should().Be("Author Name");
         comments[0].CreatedAt.Should().NotBe(default);
+    }
+
+    [Fact]
+    public async Task CreateThreadWithFirstComment_ThreadAndCommentShareAuthor()
+    {
+        var authorId = $"author-{Guid.NewGuid()}";
+        await SetCurrentUser(authorId, "Thread Author");
+
+        var thread = await fixture.Api.CreateCommentThread(NewThread(), NewComment("hello"));
+        var reloaded = await fixture.Api.GetCommentThread(thread.Id);
+
+        reloaded.Should().NotBeNull();
+        reloaded!.AuthorId.Should().Be(authorId);
+        reloaded.AuthorName.Should().Be("Thread Author");
     }
 
     [Fact]

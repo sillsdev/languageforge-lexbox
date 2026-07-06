@@ -252,6 +252,8 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const now = new Date().toISOString();
     const createdThread = {
       ...thread,
+      authorId: thread.authorId ?? firstComment.authorId,
+      authorName: thread.authorName ?? firstComment.authorName,
       createdAt: thread.createdAt || now,
       updatedAt: thread.updatedAt || now,
     };

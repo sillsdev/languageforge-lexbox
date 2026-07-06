@@ -202,8 +202,13 @@
           {#each threadViews as threadView (threadView.thread.id)}
             <section class="space-y-3 rounded-md border p-3">
               <div class="flex items-center justify-between gap-2">
-                <h3 class="text-sm font-semibold">{$t`Thread`}</h3>
-                <span class="text-xs text-muted-foreground">
+                <div class="min-w-0">
+                  <h3 class="text-sm font-semibold">{$t`Thread`}</h3>
+                  <span class="text-xs text-muted-foreground">
+                    {threadView.thread.authorName || $t`(unknown)`}
+                  </span>
+                </div>
+                <span class="shrink-0 text-xs text-muted-foreground">
                   {threadView.thread.status === ThreadStatus.Closed ? $t`Closed` : $t`Open`}
                 </span>
               </div>

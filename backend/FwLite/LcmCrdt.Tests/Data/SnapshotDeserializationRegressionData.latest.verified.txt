@@ -3945,6 +3945,8 @@
       "SubjectId": "53b9eb28-12b0-2840-eaf2-7fc58c40a185",
       "SubjectType": "Sense",
       "Status": "Open",
+      "AuthorId": null,
+      "AuthorName": null,
       "CreatedAt": "2026-07-02T09:46:27.5880032+07:00",
       "UpdatedAt": "2026-07-02T04:31:08.1939565+07:00",
       "Comments": [
@@ -3962,6 +3964,36 @@
       ]
     },
     "Id": "8f911a35-f5c5-f686-4ae7-51edce857df1",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "CommentThread",
+      "Id": "e1e30272-9a49-2644-eef3-f36caa061eae",
+      "DeletedAt": null,
+      "SubjectId": "bbd65c4d-2448-6222-a207-d301428d881d",
+      "SubjectType": "ExampleSentence",
+      "Status": "Closed",
+      "AuthorId": "back-end",
+      "AuthorName": "Fantastic Rubber Tuna",
+      "CreatedAt": "2026-07-05T12:17:02.0060498+07:00",
+      "UpdatedAt": "2026-07-06T04:04:55.5381107+07:00",
+      "Comments": [
+        {
+          "Id": "33961abf-15c1-71b8-ff24-be0bd5987b6f",
+          "DeletedAt": null,
+          "CommentThreadId": "e1e30272-9a49-2644-eef3-f36caa061eae",
+          "PreviousCommentId": "6f6d1c85-1d21-3659-a8be-234ba476d167",
+          "Text": "Awesome Soft Hat",
+          "AuthorId": "Strategist",
+          "AuthorName": "redundant",
+          "CreatedAt": "2026-07-05T17:15:38.2078204+07:00",
+          "UpdatedAt": "2026-07-06T00:23:27.650184+07:00"
+        }
+      ]
+    },
+    "Id": "e1e30272-9a49-2644-eef3-f36caa061eae",
     "DeletedAt": null
   },
   {
@@ -3990,6 +4022,8 @@
       "SubjectId": "8f24e142-5373-8369-f828-417b81833e27",
       "SubjectType": "Entry",
       "Status": "Open",
+      "AuthorId": null,
+      "AuthorName": null,
       "CreatedAt": "2026-07-03T04:57:05.9016384+07:00",
       "UpdatedAt": "2026-07-03T16:30:59.5749065+07:00",
       "Comments": [
@@ -4007,6 +4041,36 @@
       ]
     },
     "Id": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "CommentThread",
+      "Id": "2afa7c96-656a-536d-705f-b7a60a64bed2",
+      "DeletedAt": null,
+      "SubjectId": "2fac2398-0791-6c39-9d6e-fae54133d59f",
+      "SubjectType": "ExampleSentence",
+      "Status": "Open",
+      "AuthorId": "Frozen",
+      "AuthorName": "Handcrafted Soft Chips",
+      "CreatedAt": "2026-07-06T10:31:41.0420447+07:00",
+      "UpdatedAt": "2026-07-05T13:20:51.1147632+07:00",
+      "Comments": [
+        {
+          "Id": "c830a70c-ae94-2b3f-6994-cc17334649df",
+          "DeletedAt": null,
+          "CommentThreadId": "2afa7c96-656a-536d-705f-b7a60a64bed2",
+          "PreviousCommentId": "040ce2bb-b5e4-e532-8f65-5f25062e79fb",
+          "Text": "withdrawal",
+          "AuthorId": "Human",
+          "AuthorName": "Island",
+          "CreatedAt": "2026-07-06T02:54:36.0758935+07:00",
+          "UpdatedAt": "2026-07-05T23:32:25.6629513+07:00"
+        }
+      ]
+    },
+    "Id": "2afa7c96-656a-536d-705f-b7a60a64bed2",
     "DeletedAt": null
   },
   {

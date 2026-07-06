@@ -324,6 +324,8 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
             SubjectId = entry.Id,
             SubjectType = SubjectType.Entry,
             Status = ThreadStatus.Open,
+            AuthorId = "author-id",
+            AuthorName = "Author",
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
         };

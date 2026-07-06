@@ -15,6 +15,8 @@ export interface ICommentThread extends IObjectWithId
 	subjectId: string;
 	subjectType: SubjectType;
 	status: ThreadStatus;
+	authorId?: string;
+	authorName?: string;
 	createdAt: string;
 	updatedAt: string;
 	comments?: IUserComment[];
