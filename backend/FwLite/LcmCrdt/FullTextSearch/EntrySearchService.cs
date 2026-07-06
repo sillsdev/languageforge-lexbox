@@ -243,25 +243,14 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public async Task UpdateEntrySearchTable(IEnumerable<Entry> entries)
     {
-        await UpdateEntrySearchTable(entries, [], [], dbContext);
+        await UpdateEntrySearchTable(entries, [], dbContext);
     }
 
     public static async Task UpdateEntrySearchTable(IEnumerable<Entry> entries,
         IEnumerable<Guid> removed,
-        IEnumerable<WritingSystem> newWritingSystems,
         LcmCrdtDbContext dbContext)
     {
-        WritingSystem[] writingSystems =
-        [
-            ..dbContext.WritingSystems,
-            ..newWritingSystems
-        ];
-        Array.Sort(writingSystems, (ws1, ws2) =>
-        {
-            var orderComparison = ws1.Order.CompareTo(ws2.Order);
-            if (orderComparison != 0) return orderComparison;
-            return ws1.Id.CompareTo(ws2.Id);
-        });
+        var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
         var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
         var morphTypeLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
         var searchRecords = entries.Select(entry => ToEntrySearchRecord(entry, writingSystems, morphTypeLookup));

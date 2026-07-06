@@ -41,18 +41,19 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         // (Note that morph types can't be added or deleted, so we only need to catch changes, which will be rare)
         var changedMorphTypes = dbContext.ChangeTracker.Entries<MorphType>()
             .Any(e => e.State == EntityState.Modified && (e.Property(m => m.Prefix).IsModified || e.Property(m => m.Postfix).IsModified));
-        if (changedMorphTypes)
+        // Entries can already contain data in a writing system that is only now becoming known
+        // (e.g. a disabled writing system arriving via sync), so the whole table must be re-indexed
+        var addedWritingSystems = dbContext.ChangeTracker.Entries<WritingSystem>()
+            .Any(e => e.State == EntityState.Added);
+        if (changedMorphTypes || addedWritingSystems)
         {
             // The actual table regeneration will happen in the SavedChangesAsync handler; here we just flag that it will be needed
             EntryTableNeedsRegeneration = true;
-            // Any change to morph-type tokens will invalidate the whole entry search table, so no need to check for individual entries
+            // The whole entry search table will be regenerated, so no need to check for individual entries
             return;
         }
         List<Entry> toUpdate = [];
         List<Guid> toRemove = [];
-        var newWritingSystems = dbContext.ChangeTracker.Entries<WritingSystem>()
-            .Where(e => e.State == EntityState.Added)
-            .Select(e => e.Entity).ToList();
         foreach (var group in dbContext.ChangeTracker.Entries()
                      .Where(e => e is { State: EntityState.Added or EntityState.Modified or EntityState.Deleted, Entity: Entry or Sense })
                      .GroupBy(e =>
@@ -71,7 +72,7 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
             if (removed is not null) toRemove.Add(removed.Value);
         }
         if (toUpdate is [] && toRemove is []) return;
-        await EntrySearchService.UpdateEntrySearchTable(toUpdate, toRemove, newWritingSystems, dbContext);
+        await EntrySearchService.UpdateEntrySearchTable(toUpdate, toRemove, dbContext);
     }
 
     private async Task RegenerateSearchTableAfterSave(DbContext? maybeDbContext)

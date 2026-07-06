@@ -376,6 +376,35 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task SearchTableIsRegeneratedWhenAWritingSystemIsAdded()
+    {
+        var id = Guid.NewGuid();
+        // entries can already hold data in a writing system the project doesn't know about yet,
+        // e.g. data in a writing system that is disabled in FLEx and arrives via a later sync
+        await fixture.Api.CreateEntry(new Entry()
+        {
+            Id = id,
+            LexemeForm = { ["en"] = "apple", ["de"] = "apfel" },
+        });
+        var record = await _service.EntrySearchRecords.AsNoTracking().SingleAsync(e => e.Id == id);
+        record.LexemeForm.Should().Be("apple");
+
+        await fixture.Api.CreateWritingSystem(new WritingSystem()
+        {
+            Id = Guid.NewGuid(),
+            WsId = "de",
+            Name = "German",
+            Abbreviation = "de",
+            Font = "Arial",
+            Type = WritingSystemType.Vernacular,
+            IsDisabled = true,
+        });
+
+        record = await _service.EntrySearchRecords.AsNoTracking().SingleAsync(e => e.Id == id);
+        record.LexemeForm.Should().Be("apple apfel");
+    }
+
+    [Fact]
     public async Task CanRegenerateTheSearchTable()
     {
         var id = Guid.NewGuid();
