@@ -18,7 +18,8 @@ export default defineConfig({
       ['list'],
       ['junit', {outputFile: 'test-results/e2e-results.xml'}],
       ['html', {outputFolder: 'e2e-html-report', open: 'never'}],
-      ['@argos-ci/playwright/reporter', {uploadToArgos: true}],
+      // Distinct buildName: under the shared default, Argos compares this suite against the ui suite's baseline and marks its screenshots "removed".
+      ['@argos-ci/playwright/reporter', {uploadToArgos: true, buildName: 'e2e'}],
     ]
     : [['list'], ['html', {outputFolder: 'e2e-html-report', open: 'never'}]],
   use: {
