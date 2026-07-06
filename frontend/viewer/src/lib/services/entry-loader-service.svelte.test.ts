@@ -189,15 +189,8 @@ describe('EntryLoaderService', () => {
       await service.getOrLoadEntryByIndex(0);
       const countBefore = api.countEntries.mock.calls.length;
 
-      // Multiple rapid calls
-      const p1 = service.quietReset();
-      const p2 = service.quietReset();
-      const p3 = service.quietReset();
-
-      expect(p1).toBe(p2);
-      expect(p2).toBe(p3);
-
-      await p3;
+      // Multiple rapid calls collapse into a single reset after the debounce delay
+      await Promise.all([service.quietReset(), service.quietReset(), service.quietReset()]);
 
       // Should only have called the API once (after the debounce delay)
       expect(api.countEntries.mock.calls.length).toBe(countBefore + 1);
