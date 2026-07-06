@@ -17,6 +17,15 @@ const marketingScreenshotSizes: Exclude<ArgosScreenshotOptions['viewports'], und
   {width: 2160, height: 1620},
 ];
 
+export async function assertScreenshotInBothColorSchemes(page: Page, name: string, options?: ArgosScreenshotOptions): Promise<void> {
+  for (const colorScheme of ['light', 'dark'] as const) {
+    await page.emulateMedia({colorScheme});
+    await assertScreenshot(page, `${name}-${colorScheme}`, options);
+  }
+  // Reset so anything after (including Playwright's automatic end-of-test screenshot) uses the default scheme.
+  await page.emulateMedia({colorScheme: null});
+}
+
 export async function assertScreenshot(page: Page, name: string, options?: ArgosScreenshotOptions): Promise<void> {
   if (process.env.MARKETING_SCREENSHOTS === 'true') {
     options = {
