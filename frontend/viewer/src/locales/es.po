@@ -102,6 +102,20 @@ msgstr "**Terminología más simple** (p. ej. *Palabra* en lugar de *Forma del l
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Una nueva versión de FieldWorks Lite está disponible."
 
+#. Relevant view: Classic
+#. Lite view equivalent: "A similar word already exists"
+#. Warning banner in the New Entry dialog when exactly one possible duplicate was found (none an exact headword match)
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "A similar entry already exists"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "A similar entry already exists"
+#. Warning banner in the New Word dialog when exactly one possible duplicate was found (none spelled exactly the same)
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "A similar word already exists"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
 #: src/project/browse/BrowseView.svelte

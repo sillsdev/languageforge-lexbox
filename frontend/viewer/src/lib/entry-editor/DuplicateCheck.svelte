@@ -14,6 +14,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {useSaveHandler} from '$lib/services/save-event-service.svelte';
   import {useLexboxApi} from '$lib/services/service-provider';
+  import {useMorphTypesService} from '$project/data/morph-types.svelte';
   import {useWritingSystemService} from '$project/data';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
@@ -34,6 +35,7 @@
 
   const lexboxApi = useLexboxApi();
   const writingSystemService = useWritingSystemService();
+  const morphTypesService = useMorphTypesService();
   const viewService = useViewService();
   const saveHandler = useSaveHandler();
   const {base} = useRouter();
@@ -44,24 +46,29 @@
   const vernacularWsIds = $derived(writingSystemService.vernacularNoAudio.map(ws => ws.wsId));
   const analysisWsIds = $derived(writingSystemService.analysisNoAudio.map(ws => ws.wsId));
   const queries = $derived(duplicateQueries(entry, sense, vernacularWsIds, analysisWsIds));
+  const hasQueries = $derived(queries.vernacular.length + queries.analysis.length > 0);
 
   const duplicatesResource = resource(
     // string key, so edits to unrelated fields don't retrigger the search
     () => JSON.stringify([queries.vernacular, queries.analysis]),
     async (_key, _prev, {signal}): Promise<{matches: DuplicateMatch[], capped: boolean} | undefined> => {
-      const allQueries = [...queries.vernacular, ...queries.analysis];
-      if (!allQueries.length) return undefined;
-      const results = await Promise.all(allQueries.map(query => lexboxApi.searchEntries(query, {
+      // rank each search by the writing system the text was typed in, so that WS's headword matches sort first
+      const searches = [
+        ...queries.vernacular.map(query => ({text: query.text, writingSystem: query.wsId})),
+        ...queries.analysis.map(text => ({text, writingSystem: 'default'})),
+      ];
+      if (!searches.length) return undefined;
+      const results = await Promise.all(searches.map(search => lexboxApi.searchEntries(search.text, {
         offset: 0,
         count: FETCH_COUNT,
-        order: {field: SortField.SearchRelevance, writingSystem: 'default', ascending: true},
+        order: {field: SortField.SearchRelevance, writingSystem: search.writingSystem, ascending: true},
       })));
       // searchEntries can't take the abort signal over JSInterop and `resource` keeps whatever
       // resolves last, so discard results that a newer keystroke has already superseded
       if (signal.aborted) throw new DOMException('superseded duplicate search', 'AbortError');
       const candidates = mergeSearchResults(results);
       return {
-        matches: classifyDuplicates(candidates, queries, vernacularWsIds, analysisWsIds),
+        matches: classifyDuplicates(candidates, queries, vernacularWsIds, analysisWsIds, morphTypesService.current),
         capped: results.some(result => result.length >= FETCH_COUNT),
       };
     },
@@ -137,7 +144,7 @@
 
 <div class="min-h-9 flex flex-col justify-center" aria-live="polite">
   {#if !matches?.length}
-    {#if duplicatesResource.loading || matches}
+    {#if (duplicatesResource.loading && hasQueries) || matches}
       <div class="flex items-center gap-2 px-1 text-sm text-muted-foreground" transition:slide={{duration: 150}}>
         {#if duplicatesResource.loading}
           <Loading class="size-4" />
@@ -159,6 +166,8 @@
         <span class="grow text-start font-medium">
           {#if hasExactWordMatch}
             {pt($t`This entry may already exist`, $t`This word may already exist`, viewService.currentView)}
+          {:else if matches.length === 1}
+            {pt($t`A similar entry already exists`, $t`A similar word already exists`, viewService.currentView)}
           {:else}
             {pt($t`Similar entries already exist`, $t`Similar words already exist`, viewService.currentView)}
           {/if}

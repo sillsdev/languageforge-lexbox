@@ -61,22 +61,27 @@
   async function createEntry(e: Event) {
     e.preventDefault();
     e.stopPropagation();
-    if (duplicateActionBusy) return; // a pending add-sense already consumes the typed meaning
+    // loading: double-Enter must not create twice, so it flips before the first await
+    // duplicateActionBusy: a pending add-sense already consumes the typed meaning
+    if (loading || duplicateActionBusy) return;
     if (!requester) throw new Error('No requester');
 
-    await editor?.commit();
-    await addMainPublicationPromise; // make sure the main publication landed before we snapshot the entry
-    entry.senses = sense ? [sense] : [];
-    if (!validateEntry()) return;
-
     loading = true;
-    const entrySnapshot = $state.snapshot(entry);
-    // The dialog pre-populates publishIn (main publication + any active filter), so always create the entry as-is.
-    await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot, createEntryOptions.asIs));
-    requester.resolve(entry);
-    requester = undefined;
-    loading = false;
-    open = false;
+    try {
+      await editor?.commit();
+      await addMainPublicationPromise; // make sure the main publication landed before we snapshot the entry
+      entry.senses = sense ? [sense] : [];
+      if (!validateEntry()) return;
+
+      const entrySnapshot = $state.snapshot(entry);
+      // The dialog pre-populates publishIn (main publication + any active filter), so always create the entry as-is.
+      await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot, createEntryOptions.asIs));
+      requester.resolve(entry);
+      requester = undefined;
+      open = false;
+    } finally {
+      loading = false;
+    }
   }
 
   let errors: string[] = $state([]);

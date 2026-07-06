@@ -1,9 +1,19 @@
 import {describe, expect, it} from 'vitest';
 import type {IEntry} from '$lib/dotnet-types';
-import {classifyDuplicates, duplicateQueries, mergeSearchResults, normalizeForCompare} from './duplicate-check';
+import {
+  classifyDuplicates,
+  duplicateQueries,
+  hasDiacritics,
+  mergeSearchResults,
+  normalizeForCompare,
+  stripMorphTokens,
+  type DuplicateQueries,
+} from './duplicate-check';
 
 const vernWs = ['seh', 'por'];
 const analysisWs = ['en', 'fr'];
+// canonical suffix/prefix morph-token shapes (CanonicalMorphTypes)
+const morphTypes = [{prefix: '-', postfix: undefined}, {prefix: undefined, postfix: '-'}];
 
 function makeEntry(partial: Partial<IEntry>): IEntry {
   return {
@@ -22,22 +32,63 @@ function withGloss(lexeme: string, gloss: string): IEntry {
   });
 }
 
+function vernQueries(...texts: string[]): DuplicateQueries {
+  return {vernacular: texts.map(text => ({text, wsId: 'seh'})), analysis: []};
+}
+
 describe('normalizeForCompare', () => {
-  it('ignores case and accents', () => {
+  it('ignores case and accents by default', () => {
     expect(normalizeForCompare('Ñumbá ')).toBe('numba');
     expect(normalizeForCompare('CAFÉ')).toBe('cafe');
+  });
+
+  it('keeps diacritics when asked, still folding case', () => {
+    expect(normalizeForCompare('CAFÉ', true)).toBe('café'.normalize('NFD'));
+    expect(normalizeForCompare('CAFÉ', true)).not.toBe('cafe');
+  });
+
+  it('folds case invariantly, not by host locale', () => {
+    // must never produce Turkish dotless ı for ASCII I
+    expect(normalizeForCompare('IZGARA')).toBe('izgara');
+  });
+});
+
+describe('hasDiacritics', () => {
+  it('detects combining marks in composed and decomposed input', () => {
+    expect(hasDiacritics('café')).toBe(true);
+    expect(hasDiacritics('café')).toBe(true);
+    expect(hasDiacritics('cafe')).toBe(false);
+  });
+});
+
+describe('stripMorphTokens', () => {
+  it('strips a leading token', () => {
+    expect(stripMorphTokens('-aji', morphTypes)).toBe('aji');
+  });
+
+  it('strips a trailing token', () => {
+    expect(stripMorphTokens('a-', morphTypes)).toBe('a');
+  });
+
+  it('prefers the type matching a leading token over a trailing one', () => {
+    // '-a-' matches both shapes; leading-token match scores higher (mirrors backend scoring)
+    expect(stripMorphTokens('-a-', [{prefix: '-', postfix: '-'}])).toBe('a');
+  });
+
+  it('leaves untokenized input alone', () => {
+    expect(stripMorphTokens('aji', morphTypes)).toBe('aji');
   });
 });
 
 describe('duplicateQueries', () => {
-  it('collects distinct vernacular and gloss texts', () => {
+  it('collects distinct vernacular texts with their writing system, and gloss texts', () => {
     const queries = duplicateQueries(
       {lexemeForm: {seh: 'nyumba', por: 'casa'}, citationForm: {seh: 'nyumba'}},
       {gloss: {en: 'house', fr: ''}},
       vernWs,
       analysisWs,
     );
-    expect(queries.vernacular).toEqual(['nyumba', 'casa']);
+    expect(queries.vernacular).toEqual([{text: 'nyumba', wsId: 'seh'}, {text: 'casa', wsId: 'por'}]);
     expect(queries.analysis).toEqual(['house']);
   });
 
@@ -52,10 +103,20 @@ describe('duplicateQueries', () => {
     expect(queries.analysis).toEqual([]);
   });
 
+  it('accepts a value exactly at the length threshold', () => {
+    const queries = duplicateQueries(
+      {lexemeForm: {seh: 'ba'}, citationForm: {}},
+      undefined,
+      vernWs,
+      analysisWs,
+    );
+    expect(queries.vernacular).toEqual([{text: 'ba', wsId: 'seh'}]);
+  });
+
   it('measures the length threshold on the normalized text', () => {
     // 'e' + combining acute is 2 chars raw but 1 char once marks are stripped
     const queries = duplicateQueries(
-      {lexemeForm: {seh: 'é'}, citationForm: {}},
+      {lexemeForm: {seh: 'é'}, citationForm: {}},
       undefined,
       vernWs,
       analysisWs,
@@ -70,7 +131,7 @@ describe('duplicateQueries', () => {
       vernWs,
       analysisWs,
     );
-    expect(queries.vernacular).toEqual(['café']);
+    expect(queries.vernacular).toEqual([{text: 'café', wsId: 'seh'}]);
   });
 
   it('ignores values in writing systems outside the given lists', () => {
@@ -80,7 +141,7 @@ describe('duplicateQueries', () => {
       vernWs,
       analysisWs,
     );
-    expect(queries.vernacular).toEqual(['nyumba']);
+    expect(queries.vernacular).toEqual([{text: 'nyumba', wsId: 'seh'}]);
   });
 });
 
@@ -94,7 +155,7 @@ describe('mergeSearchResults', () => {
 });
 
 describe('classifyDuplicates', () => {
-  const queries = {vernacular: ['nyumba'], analysis: ['house']};
+  const queries: DuplicateQueries = {vernacular: [{text: 'nyumba', wsId: 'seh'}], analysis: ['house']};
 
   it('classifies exact headword matches as same-word, even via citation form or other ws', () => {
     const byLexeme = makeEntry({lexemeForm: {seh: 'Nyumbá'}});
@@ -108,6 +169,24 @@ describe('classifyDuplicates', () => {
     const substring = makeEntry({lexemeForm: {seh: 'yumba'}});
     const result = classifyDuplicates([superstring, substring], queries, vernWs, analysisWs);
     expect(result.map(m => m.kind)).toEqual(['similar-word', 'similar-word']);
+  });
+
+  it('treats a typed morph token like the backend: "-aji" is the same word as suffix entry "aji"', () => {
+    const suffixEntry = makeEntry({lexemeForm: {seh: 'aji'}});
+    const result = classifyDuplicates([suffixEntry], vernQueries('-aji'), vernWs, analysisWs, morphTypes);
+    expect(result[0].kind).toBe('same-word');
+  });
+
+  it('is accent-insensitive only when the typed text has no diacritics (backend parity)', () => {
+    const plain = makeEntry({lexemeForm: {seh: 'cafe'}});
+    const accented = makeEntry({lexemeForm: {seh: 'café'}});
+    // typed without diacritics -> accents ignored -> both are the same word
+    expect(classifyDuplicates([plain, accented], vernQueries('cafe'), vernWs, analysisWs).map(m => m.kind))
+      .toEqual(['same-word', 'same-word']);
+    // typed with diacritics -> accents significant -> only the accented entry matches exactly
+    const result = classifyDuplicates([accented, plain], vernQueries('café'), vernWs, analysisWs);
+    expect(result[0]).toEqual({entry: accented, kind: 'same-word'});
+    expect(result[1].kind).not.toBe('same-word');
   });
 
   it('classifies gloss overlap as same-meaning', () => {
