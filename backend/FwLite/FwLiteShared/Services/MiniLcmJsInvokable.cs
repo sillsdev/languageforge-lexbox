@@ -399,6 +399,14 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    // previousPictureId and nextPictureId represent the target position, where the picture should end up after being moved
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, Guid? previousPictureId, Guid? nextPictureId)
+    {
+        await _wrappedApi.MovePicture(entryId, senseId, pictureId, new MiniLcm.SyncHelpers.BetweenPosition(previousPictureId, nextPictureId));
+        OnDataChanged();
+    }
+
+    [JSInvokable]
     public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
     {
         await _wrappedApi.DeletePicture(entryId, senseId, pictureId);
