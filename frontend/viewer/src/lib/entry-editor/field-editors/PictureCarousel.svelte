@@ -62,7 +62,7 @@
   });
 </script>
 
-<div class="flex flex-col gap-2">
+<div class="flex flex-col gap-2 w-fit max-w-full">
   <div class="overflow-hidden" use:emblaCarouselSvelte={{options: {loop: true}, plugins: []}} onemblaInit={onEmblaInit}>
     <div class="flex">
       {#each pictures as picture (picture.id)}
