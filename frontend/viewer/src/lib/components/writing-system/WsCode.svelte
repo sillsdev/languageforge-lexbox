@@ -7,6 +7,7 @@
     color,
     id,
     for: forId,
+    plain = false,
     class: className,
     ...restProps
   }: HTMLAttributes<HTMLElement> & {
@@ -14,6 +15,8 @@
     color?: string;
     id?: string;
     for?: string;
+    /** Drop the chip chrome (border/background) for print-like contexts, e.g. the dictionary preview. */
+    plain?: boolean;
   } = $props();
 </script>
 
@@ -21,6 +24,11 @@
   this={forId ? 'label' : 'span'}
   for={forId}
   {id}
-  class={cn('font-mono text-xs', color ?? 'text-muted-foreground', className)}
+  class={cn(
+    'font-mono text-xs',
+    !plain && 'rounded border border-border bg-muted/50 px-1',
+    color ?? 'text-muted-foreground',
+    className,
+  )}
   {...restProps}>{abbreviation}</svelte:element
 >

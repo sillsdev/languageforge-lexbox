@@ -37,7 +37,7 @@
       class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
       title={`${ws.name} (${ws.wsId})`}
     >
-      <WsCode for={inputId} id={labelId} abbreviation={ws.abbreviation} />
+      <WsCode for={inputId} id={labelId} abbreviation={ws.abbreviation} class="justify-self-start" />
       {#if !ws.isAudio}
         <StompSafeInput
           bind:value={value[ws.wsId]}

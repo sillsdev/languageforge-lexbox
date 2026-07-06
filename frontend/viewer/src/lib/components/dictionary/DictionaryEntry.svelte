@@ -116,7 +116,7 @@
       {/if}
       <span>
         {#each sense.glossesAndDefs as glossAndDef (glossAndDef.wsId)}
-          <WsCode abbreviation={glossAndDef.wsAbbr} class="-mr-0.5 align-sub" />
+          <WsCode plain abbreviation={glossAndDef.wsAbbr} class="-mr-0.5 align-sub" />
           {#if glossAndDef.gloss}
             <span class={glossAndDef.color}>{glossAndDef.gloss}</span>{#if glossAndDef.definition};{/if}
           {/if}
