@@ -11,8 +11,9 @@ namespace MiniLcm.Models;
 /// the entry. FLEx can also share one ref between several targets (fields shared) or hold
 /// duplicate refs for one target; both shapes collapse to this composite-key model on read,
 /// and per-link edits split a shared ref first (see FwDataMiniLcmApi.FindVariantRefForUpdate).
-/// Unlike <see cref="ComplexFormComponent"/> there is no Order — variant lists have no
-/// user-meaningful order in FieldWorks.
+/// Unlike <see cref="ComplexFormComponent"/> there is no Order — variant *link* lists have
+/// no user-meaningful order in FieldWorks. The <see cref="Types"/> sequence on a link IS
+/// user-ordered (FLEx: right-click a type → move left/right) and must round-trip.
 /// </summary>
 public record Variant : IObjectWithId<Variant>
 {

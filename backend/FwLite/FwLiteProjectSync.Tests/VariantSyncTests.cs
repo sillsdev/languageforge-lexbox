@@ -211,6 +211,34 @@ public class VariantSyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Integration")]
+    public async Task VariantTypeOrderSyncsBothWays()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        var free = await GetVariantType(fwdataApi, "Free Variant");
+        var dialectal = await GetVariantType(fwdataApi, "Dialectal Variant");
+        // deliberately not alphabetical and not creation order: order must come from the ref sequence
+        await fwdataApi.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [free, dialectal] });
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        var imported = (await crdtApi.GetEntry(_variantEntryId))!.VariantOf.Single();
+        imported.Types.Select(t => t.Id).Should().Equal(free.Id, dialectal.Id);
+
+        // reorder on the CRDT side, expect FwData to follow
+        var reordered = imported.Copy();
+        reordered.Types = [.. reordered.Types.AsEnumerable().Reverse()];
+        await crdtApi.UpdateVariant(imported, reordered);
+
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        SyncTests.AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
+        var fwLink = (await fwdataApi.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
+        fwLink.Types.Select(t => t.Id).Should().Equal(dialectal.Id, free.Id);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
     public async Task DeletingMainEntryInCrdtRemovesLinkOnSync()
     {
         var crdtApi = _fixture.CrdtApi;

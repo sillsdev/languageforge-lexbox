@@ -413,6 +413,7 @@ public static class LcmCrdtKernel
             .Add<AddVariantChange>()
             .Add<AddVariantTypeChange>()
             .Add<RemoveVariantTypeChange>()
+            .Add<SetVariantTypesOrderChange>()
             .Add<CreateVariantType>()
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()

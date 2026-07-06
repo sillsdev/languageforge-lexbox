@@ -1498,5 +1498,13 @@
       "nab": "Overpass"
     },
     "EntityId": "6a8e727c-2e47-90af-a1ec-42d94fc3e38e"
+  },
+  {
+    "$type": "SetVariantTypesOrderChange",
+    "OrderedTypeIds": [
+      "e767c058-6e6c-ed85-cb16-19506fa41aa8",
+      "ba0582e4-0f04-b78b-aecd-4eb72567556a"
+    ],
+    "EntityId": "6393c7c6-5baa-2966-15d7-b6cd0b7e60ed"
   }
 ]

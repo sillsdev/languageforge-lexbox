@@ -257,6 +257,9 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var removeVariantTypeChange = new RemoveVariantTypeChange(variant.Id, variantType.Id);
         yield return new ChangeWithDependencies(removeVariantTypeChange, [addVariantTypeChange]);
 
+        var setVariantTypesOrderChange = new SetVariantTypesOrderChange(variant.Id, [variantType.Id]);
+        yield return new ChangeWithDependencies(setVariantTypesOrderChange, [addVariantChange]);
+
         var setSenseOrderChange = new LcmCrdt.Changes.SetOrderChange<Sense>(sense.Id, 10);
         yield return new ChangeWithDependencies(setSenseOrderChange, [createSenseChange]);
 

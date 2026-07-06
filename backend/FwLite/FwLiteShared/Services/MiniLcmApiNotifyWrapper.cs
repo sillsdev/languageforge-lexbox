@@ -168,6 +168,12 @@ public partial class MiniLcmApiNotifyWrapper(
         NotifyEntriesChanged(variant.VariantEntryId, variant.MainEntryId);
     }
 
+    async Task IMiniLcmWriteApi.SetVariantTypesOrder(Variant variant, IReadOnlyList<Guid> orderedTypeIds)
+    {
+        await _api.SetVariantTypesOrder(variant, orderedTypeIds);
+        NotifyEntriesChanged(variant.VariantEntryId, variant.MainEntryId);
+    }
+
     async Task IMiniLcmWriteApi.DeleteEntry(Guid id)
     {
         await _api.DeleteEntry(id);

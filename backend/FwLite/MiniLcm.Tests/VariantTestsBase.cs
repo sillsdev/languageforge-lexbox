@@ -481,6 +481,74 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateVariant_PreservesTypesOrder()
+    {
+        var typeA = await CreateVariantType("type a");
+        var typeB = await CreateVariantType("type b");
+        await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeB, typeA] });
+
+        var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
+        link.Types.Select(t => t.Id).Should().Equal(typeB.Id, typeA.Id);
+    }
+
+    [Fact]
+    public async Task SetVariantTypesOrder_ReordersTypes()
+    {
+        var typeA = await CreateVariantType("type a");
+        var typeB = await CreateVariantType("type b");
+        var typeC = await CreateVariantType("type c");
+        var variant = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA, typeB, typeC] });
+
+        await Api.SetVariantTypesOrder(variant, [typeC.Id, typeA.Id, typeB.Id]);
+
+        var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
+        link.Types.Select(t => t.Id).Should().Equal(typeC.Id, typeA.Id, typeB.Id);
+    }
+
+    [Fact]
+    public async Task SetVariantTypesOrder_IgnoresUnknownIdsAndKeepsUnlistedTypesAfterListedOnes()
+    {
+        var typeA = await CreateVariantType("type a");
+        var typeB = await CreateVariantType("type b");
+        var variant = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA, typeB] });
+
+        await Api.SetVariantTypesOrder(variant, [Guid.NewGuid(), typeB.Id]);
+
+        var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
+        link.Types.Select(t => t.Id).Should().Equal(typeB.Id, typeA.Id);
+    }
+
+    [Fact]
+    public async Task UpdateVariant_ReordersTypes()
+    {
+        var typeA = await CreateVariantType("type a");
+        var typeB = await CreateVariantType("type b");
+        var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA, typeB] });
+
+        var after = created.Copy();
+        after.Types = [typeB, typeA];
+        await Api.UpdateVariant(created, after);
+
+        var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
+        link.Types.Select(t => t.Id).Should().Equal(typeB.Id, typeA.Id);
+    }
+
+    [Fact]
+    public async Task UpdateVariant_AddsTypeAtTheRequestedPosition()
+    {
+        var typeA = await CreateVariantType("type a");
+        var typeB = await CreateVariantType("type b");
+        var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeB] });
+
+        var after = created.Copy();
+        after.Types = [typeA, typeB];
+        await Api.UpdateVariant(created, after);
+
+        var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
+        link.Types.Select(t => t.Id).Should().Equal(typeA.Id, typeB.Id);
+    }
+
+    [Fact]
     public async Task CreateVariantType_Works()
     {
         var variantType = new VariantType() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };

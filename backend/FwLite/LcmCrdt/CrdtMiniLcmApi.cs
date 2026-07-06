@@ -533,6 +533,14 @@ public class CrdtMiniLcmApi(
         await AddChange(new RemoveVariantTypeChange(existing.Id, variantTypeId));
     }
 
+    public async Task SetVariantTypesOrder(Variant variant, IReadOnlyList<Guid> orderedTypeIds)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var existing = await repo.FindVariant(variant);
+        if (existing is null) return;
+        await AddChange(new SetVariantTypesOrderChange(existing.Id, [.. orderedTypeIds]));
+    }
+
     public async IAsyncEnumerable<MorphType> GetMorphTypes()
     {
         await using var repo = await repoFactory.CreateRepoAsync();
