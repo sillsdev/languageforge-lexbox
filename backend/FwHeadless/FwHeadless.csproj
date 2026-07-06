@@ -17,7 +17,14 @@
     <ProjectReference Include="../FwLite/FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj" />
     <ProjectReference Include="../FwLite/LcmCrdt/LcmCrdt.csproj" />
     <ProjectReference Include="../FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj" />
-    <ProjectReference Include="../FixFwData/FixFwData.csproj" />
+    <!-- FixFwData: co-publish only (no compile-time reference). ReferenceOutputAssembly=false
+         keeps the web app from linking FixFwData; PublishFixFwData (below) publishes it beside
+         FwHeadless. Without that, dotnet publish for this web project omits FixFwData's standalone
+         apphost output and framework-only dependencies (e.g. Microsoft.Extensions.Logging.Abstractions)
+         that AspNetCore publish supplies for FwHeadless but not for a Core-only tool. -->
+    <ProjectReference Include="../FixFwData/FixFwData.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="../LexData/LexData.csproj" />
     <ProjectReference Include="..\WebServiceDefaults\WebServiceDefaults.csproj" />
   </ItemGroup>
@@ -40,4 +47,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <!-- After FwHeadless publish, publish FixFwData into the same PublishDir (see ProjectReference comment). -->
+  <Target Name="PublishFixFwData" AfterTargets="Publish">
+    <MSBuild
+      Projects="$(MSBuildThisFileDirectory)..\FixFwData\FixFwData.csproj"
+      Targets="Publish"
+      Properties="Configuration=$(Configuration);PublishDir=$(PublishDir);PublishProtocol=FileSystem" />
+  </Target>
 </Project>

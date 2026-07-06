@@ -25,10 +25,15 @@ msgstr "– ({0} changes)"
 msgid "(+{0} more)"
 msgstr "(+{0} more)"
 
-#. Italic placeholder in an activity-log summary when an entry has no headword text in any vernacular writing system.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "(no headword)"
 msgstr "(no headword)"
+
+#. Italic placeholder in an activity-log summary when an entry has no headword text in any vernacular writing system.
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "(unknown)"
+msgstr "(unknown)"
 
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
@@ -208,6 +213,11 @@ msgstr "Add to dictionary"
 msgid "Add Word"
 msgstr "Add Word"
 
+#. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A chip with the added item follows.
+#: src/project/dashboard/DashboardView.svelte
+msgid "Add your first entry to start building your dictionary."
+msgstr "Add your first entry to start building your dictionary."
+
 #: src/lib/activity/ActivityView.svelte
 msgid "Added"
 msgstr "Added"
@@ -229,7 +239,6 @@ msgstr "Added component"
 msgid "Added picture"
 msgstr "Added picture"
 
-#. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A chip with the added item follows.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added to {0}"
@@ -274,6 +283,7 @@ msgid "Analysis writing system code"
 msgstr "Analysis writing system code"
 
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+#: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
 msgstr "Analysis writing systems"
 
@@ -410,6 +420,7 @@ msgstr "Browse view failed"
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -461,6 +472,7 @@ msgstr "Choose theme"
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Citation form"
 msgstr "Citation form"
 
@@ -486,6 +498,8 @@ msgstr "Cleared {0}"
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Close"
@@ -497,6 +511,11 @@ msgid "Close Dictionary"
 msgstr "Close Dictionary"
 
 #. Field label in the activity change-preview diff. "Code" is the short identifier on a semantic domain (e.g. "1.1") or the writing-system ID (e.g. "en").
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Closed"
+msgstr "Closed"
+
+#. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Code"
@@ -506,6 +525,15 @@ msgstr "Code"
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
 msgstr "Color"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/project/browse/EntryView.svelte
+msgid "Comments"
+msgstr "Comments"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Comments for {0}"
+msgstr "Comments for {0}"
 
 #: src/lib/activity/ActivityItem.svelte
 msgid "Commit details"
@@ -682,8 +710,13 @@ msgstr "Dark"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard"
 msgstr "Dashboard"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Dashboard failed to load"
+msgstr "Dashboard failed to load"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -694,6 +727,7 @@ msgstr "Data Directory"
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Definition"
 msgstr "Definition"
 
@@ -848,10 +882,18 @@ msgstr "Downloading..."
 msgid "e.g. th, sw"
 msgstr "e.g. th, sw"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit"
+msgstr "Edit"
+
 #: src/lib/activity/EntryHeadwordButton.svelte
 #: src/lib/activity/EntryHeadwordButton.svelte
 msgid "Edit {0}"
 msgstr "Edit {0}"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit comment"
+msgstr "Edit comment"
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -872,6 +914,10 @@ msgstr "Edited {0}"
 msgid "Editor"
 msgstr "Editor"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Empty comment"
+msgstr "Empty comment"
+
 #. Filter operator
 #. Search operator: matches fields ending with the search term
 #. Related operators: "Starts with", "Contains", "Equals"
@@ -890,6 +936,14 @@ msgstr "entries"
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Entries missing..."
 msgstr "Entries missing..."
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with examples"
+msgstr "Entries with examples"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with senses"
+msgstr "Entries with senses"
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/lib/activity/ChangeSummary.svelte
@@ -973,6 +1027,10 @@ msgstr "Example fields"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr "Example sentence"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Example sentences"
+msgstr "Example sentences"
 
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of example sentences under a sense.
 #: src/lib/activity/ChangeSummary.svelte
@@ -1200,6 +1258,7 @@ msgstr "Get support"
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Gloss"
 
@@ -1329,6 +1388,7 @@ msgstr "Lexbox logo"
 #. Lite view equivalent: "Word"
 #. Field label: the main headword/base form
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Lexeme form"
 msgstr "Lexeme form"
 
@@ -1360,6 +1420,10 @@ msgstr "Literal meaning"
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
 msgstr "Loading activity"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Loading comments..."
+msgstr "Loading comments..."
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1602,6 +1666,10 @@ msgstr "Newest first"
 msgid "Next"
 msgstr "Next"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Next milestone: {0}. {1} to go."
+msgstr "Next milestone: {0}. {1} to go."
+
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "No"
 msgstr "No"
@@ -1615,6 +1683,10 @@ msgstr "No activity matches these filters"
 msgid "No activity types"
 msgstr "No activity types"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "No analysis writing systems configured."
+msgstr "No analysis writing systems configured."
+
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1624,6 +1696,10 @@ msgstr "No audio"
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
 msgstr "No authors"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "No comment threads yet."
+msgstr "No comment threads yet."
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1674,6 +1750,10 @@ msgstr "No server configured"
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
 msgstr "No subject, unable to create a new {0}"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "No vernacular writing systems configured."
+msgstr "No vernacular writing systems configured."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1745,6 +1825,7 @@ msgstr "One FieldWorks Classic commit may consist of changes to multiple entries
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 msgid "Open"
 msgstr "Open"
 
@@ -2018,6 +2099,10 @@ msgstr "Review"
 msgid "rose"
 msgstr "rose"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Save"
+msgstr "Save"
+
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -2205,6 +2290,10 @@ msgstr "Show"
 msgid "Show {0} more..."
 msgstr "Show {0} more..."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Sign in to add comments."
+msgstr "Sign in to add comments."
+
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
@@ -2228,6 +2317,10 @@ msgstr "Something went wrong"
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "Specific field"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Start a new thread"
+msgstr "Start a new thread"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2348,6 +2441,10 @@ msgstr "Tasks"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Tell us about a bug or issue you’ve encountered."
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Tell us how you work and what would help most. Your ideas guide what we build."
+msgstr "Tell us how you work and what would help most. Your ideas guide what we build."
+
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
@@ -2409,6 +2506,10 @@ msgstr "This task is complete"
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Thread"
+msgstr "Thread"
+
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -2420,6 +2521,12 @@ msgid "Toggle pinned"
 msgstr "Toggle pinned"
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to the translation of an example sentence (not of the headword itself).
+#: src/project/dashboard/DashboardView.svelte
+#: src/project/dashboard/DashboardView.svelte
+#: src/project/dashboard/DashboardView.svelte
+msgid "Total entries"
+msgstr "Total entries"
+
 #: src/lib/activity/ChangeSummary.svelte
 msgid "translation"
 msgstr "translation"
@@ -2606,6 +2713,7 @@ msgid "Vernacular writing system is required"
 msgstr "Vernacular writing system is required"
 
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+#: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
 msgstr "Vernacular writing systems"
 
@@ -2622,6 +2730,10 @@ msgstr "View options"
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "violet"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "What would you like to see here?"
+msgstr "What would you like to see here?"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -2682,6 +2794,14 @@ msgid "words"
 msgstr "words"
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Created writing system"). A writing system defines a script and language variant (e.g. "Latin/English", "Cyrillic/Russian").
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write a reply..."
+msgstr "Write a reply..."
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write the first comment..."
+msgstr "Write the first comment..."
+
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "writing system"
@@ -2747,3 +2867,11 @@ msgstr "You don't have permission to download project {0} from {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "You have already downloaded the {0} project"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "You've passed every milestone. What an achievement!"
+msgstr "You've passed every milestone. What an achievement!"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Your dictionary starts here"
+msgstr "Your dictionary starts here"

@@ -6,6 +6,7 @@ using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.CustomJsonPatches;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
 using LcmCrdt.Data;
@@ -75,6 +76,7 @@ public static class LcmCrdtKernel
         services.AddSingleton<ProjectDataCache>();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
+        services.AddScoped<LocalCommentReadStatusService>();
         services.AddScoped<LcmMediaService>();
         services.AddScoped<SyncRepository>();
         services.AddSingleton<CrdtProjectsService>();
@@ -287,6 +289,20 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(writingSystemArrayConverter);
             })
+            .Add<CommentThread>(builder =>
+            {
+                builder.HasIndex(t => new { t.SubjectType, t.SubjectId });
+                builder.HasIndex(t => t.CreatedAt);
+                builder.HasMany(t => t.Comments)
+                    .WithOne()
+                    .HasForeignKey(c => c.CommentThreadId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            })
+            .Add<UserComment>(builder =>
+            {
+                builder.HasIndex(c => c.CommentThreadId);
+                builder.HasIndex(c => c.CreatedAt);
+            })
             .Add<MorphType>()
             .Add<ComplexFormComponent>(builder =>
             {
@@ -364,6 +380,12 @@ public static class LcmCrdtKernel
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
             .Add<DeleteChange<CustomView>>()
+            .Add<CreateCommentThreadChange>()
+            .Add<CreateUserCommentChange>()
+            .Add<EditUserCommentChange>()
+            .Add<SetCommentThreadStatusChange>()
+            .Add<DeleteChange<CommentThread>>()
+            .Add<DeleteChange<UserComment>>()
             .Add<CreateMorphTypeChange>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
