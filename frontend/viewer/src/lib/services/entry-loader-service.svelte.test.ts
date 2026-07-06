@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
-import {EntryLoaderService} from '$lib/services/entry-loader-service.svelte';
+import {EntryLoaderService, ignoreDebounceCancelled} from '$lib/services/entry-loader-service.svelte';
 import type {IEntry} from '$lib/dotnet-types';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import {defaultEntry} from '$lib/utils';
@@ -201,6 +201,18 @@ describe('EntryLoaderService', () => {
 
       // Should only have called the API once (after the debounce delay)
       expect(api.countEntries.mock.calls.length).toBe(countBefore + 1);
+    });
+  });
+
+  describe('ignoreDebounceCancelled', () => {
+    it('swallows the "Cancelled" rejection useDebounce.cancel() produces', () => {
+      expect(ignoreDebounceCancelled('Cancelled')).toBeUndefined();
+    });
+
+    it('rethrows any other rejection so genuine errors still surface', () => {
+      const failure = new Error('boom');
+      expect(() => ignoreDebounceCancelled(failure)).toThrow(failure);
+      expect(() => ignoreDebounceCancelled('other')).toThrow('other');
     });
   });
 

@@ -30,7 +30,7 @@ type DebouncedVoidFn = ReturnType<typeof useDebounce<[], void>>;
 // useDebounce rejects a pending promise with the string "Cancelled" when its
 // cancel() supersedes it (a newer reset took over). That's expected control flow,
 // not an error; anything else is rethrown so real failures still surface.
-function ignoreDebounceCancelled(reason: unknown): void {
+export function ignoreDebounceCancelled(reason: unknown): void {
   if (reason === 'Cancelled') return;
   throw reason;
 }
