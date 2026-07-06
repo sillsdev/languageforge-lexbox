@@ -1,25 +1,12 @@
-<script lang="ts" module>
-  // Stable per-author colour for the person icon. A small curated palette (mid-tone hues that read in both
-  // light and dark) indexed by a hash of the name — not raw HSL, which drifts into muddy/low-contrast colours.
-  // Colours only the icon, never the name, so readability is untouched.
-  const AUTHOR_COLORS = [
-    'text-red-500', 'text-orange-500', 'text-amber-600', 'text-green-600',
-    'text-teal-500', 'text-sky-500', 'text-violet-500', 'text-pink-500',
-  ];
-  function authorColor(name: string | undefined | null): string {
-    if (!name) return 'text-muted-foreground';
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) hash = (Math.imul(hash, 31) + name.charCodeAt(i)) | 0;
-    return AUTHOR_COLORS[Math.abs(hash) % AUTHOR_COLORS.length];
-  }
-</script>
-
 <script lang="ts">
   import {t} from 'svelte-i18n-lingui';
   import {Icon} from '$lib/components/ui/icon';
   import {cn} from '$lib/utils';
   import flexLogo from '$lib/assets/flex-logo.png';
   import {FIELDWORKS_AUTHOR_KEY, SYSTEM_AUTHOR_KEY, UNKNOWN_AUTHOR_KEY, authorFilterKey, wellKnownAuthorKeyToLabel} from './utils';
+  import {useAuthorColors} from './author-color-service.svelte';
+
+  const authorColors = useAuthorColors();
 
   let {authorId, authorName, class: className}: {
     authorId?: string;
@@ -47,6 +34,6 @@
   {:else if key === UNKNOWN_AUTHOR_KEY}
     <Icon icon="i-mdi-account-circle" class="size-4 shrink-0 text-muted-foreground" />
   {:else}
-    <Icon icon="i-mdi-account-circle" class="size-4 shrink-0 {authorColor(authorName)}" />
+    <Icon icon="i-mdi-account-circle" class="size-4 shrink-0 {authorColors.colorFor(authorName)}" />
   {/if}
 </span>
