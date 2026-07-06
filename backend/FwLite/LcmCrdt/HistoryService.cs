@@ -41,8 +41,10 @@ public static class ActivityFilterKeys
 /// <paramref name="Subject"/> is the entity the change is on (entry headword, "headword › gloss" for a sense, or a vocab object's name);
 /// <paramref name="Target"/> is a referenced item the change names only by id (e.g. the part of speech assigned, the semantic domain removed).
 /// Both are null when unresolved — the frontend falls back to a type label.
+/// <paramref name="RootEntryHeadword"/> is the display headword of <paramref name="RootEntryId"/>, so the frontend can
+/// group a commit's changes under one entry header; null when there's no root entry or no displayable headword.
 /// </summary>
-public record ActivityChangeInfo(string? Subject, Guid? RootEntryId, string? Target = null);
+public record ActivityChangeInfo(string? Subject, Guid? RootEntryId, string? Target = null, string? RootEntryHeadword = null);
 
 public record ProjectActivity(
     Guid CommitId,

@@ -16,10 +16,11 @@ namespace LcmCrdt;
 /// Batch-resolves a human label (and the root entry) for each change in a page of activity, so summaries
 /// can name the entry/sense/vocab object a change is about without a per-row lookup. Degradable: leaves
 /// <see cref="ActivityChangeInfo.Subject"/> null for types it doesn't resolve (the frontend falls back to a type label).
-/// Reads the projected snapshot tables, so labels reflect the current state. The display headword is the best
-/// non-audio alternative across writing systems with morph-type markers applied (e.g. "-ness" for a suffix);
-/// it's null when there's no displayable headword (all empty/audio-only) or the entry is deleted/missing, and
-/// the frontend renders a translatable placeholder in that case.
+/// Reads the projected snapshot tables, so labels reflect the current state; objects missing from the
+/// projection (deleted) are recovered from their latest snapshot so a delete can still name its subject.
+/// The display headword is the best non-audio alternative across writing systems with morph-type markers
+/// applied (e.g. "-ness" for a suffix); it's null when there's no displayable headword (all empty/audio-only)
+/// or the entry is missing entirely, and the frontend renders a translatable placeholder in that case.
 /// </summary>
 internal static class ActivityChangeInfoResolver
 {
@@ -87,8 +88,10 @@ internal static class ActivityChangeInfoResolver
             entryIds.Add(componentEntryId);
         }
         var examples = await LoadExamples(db, exampleIds);
+        await RecoverDeleted(db, exampleIds, examples);
         foreach (var example in examples.Values) senseIds.Add(example.SenseId);
         var senses = await LoadSenses(db, senseIds);
+        await RecoverDeleted(db, senseIds, senses);
         foreach (var sense in senses.Values) entryIds.Add(sense.EntryId);
 
         // Sibling senses of every affected sense's entry, so a sense's subject can carry its 1-based position
@@ -96,11 +99,17 @@ internal static class ActivityChangeInfoResolver
         var sensesByEntry = await LoadSensesByEntry(db, senses.Values.Select(s => s.EntryId).ToHashSet());
 
         var entries = await LoadEntries(db, entryIds);
+        await RecoverDeleted(db, entryIds, entries);
         var partsOfSpeech = await LoadNamed<PartOfSpeech>(db, partOfSpeechIds, p => new PartOfSpeech { Id = p.Id, Name = p.Name });
+        await RecoverDeleted(db, partOfSpeechIds, partsOfSpeech);
         var semanticDomains = await LoadSemanticDomains(db, semanticDomainIds);
+        await RecoverDeleted(db, semanticDomainIds, semanticDomains);
         var publications = await LoadNamed<Publication>(db, publicationIds, p => new Publication { Id = p.Id, Name = p.Name });
+        await RecoverDeleted(db, publicationIds, publications);
         var complexFormTypes = await LoadNamed<ComplexFormType>(db, complexFormTypeIds, c => new ComplexFormType { Id = c.Id, Name = c.Name });
+        await RecoverDeleted(db, complexFormTypeIds, complexFormTypes);
         var morphTypes = await LoadNamed<MorphType>(db, morphTypeIds, m => new MorphType { Id = m.Id, Kind = m.Kind, Name = m.Name });
+        await RecoverDeleted(db, morphTypeIds, morphTypes);
 
         // Markers (e.g. suffix "-") for the display headword, keyed by morph-type kind; first wins on duplicates.
         // Only needed to render an entry headword, so skip the load entirely when no entry is being resolved.
@@ -114,17 +123,23 @@ internal static class ActivityChangeInfoResolver
 
         // The distinguishing label for a sense within its entry. FieldWorks numbers senses positionally and
         // shows the number when an entry has more than one sense — independent of the gloss (unlike homograph
-        // numbers, which key off identical headwords). So: >1 sense → "{number} {gloss}" (or just "{number}"
-        // when the gloss is empty); a lone sense → its gloss, or "" when it has none (nothing to distinguish).
+        // numbers, which key off identical headwords). Rendered like a homograph number: >1 sense →
+        // "{gloss}{subscript number}"; when the gloss is empty, "({number})" — parenthesized so a bare
+        // position can't be mistaken for a gloss that IS a digit (a bare subscript would have nothing to
+        // attach to, and this string is data, so a translatable "no gloss" placeholder can't live here).
+        // A lone sense → its gloss, or "" when it has none (nothing to distinguish).
         string SenseGlossPart(Sense sense)
         {
             var siblings = sensesByEntry.GetValueOrDefault(sense.EntryId) ?? [];
             var index = siblings.FindIndex(s => s.Id == sense.Id);
-            var number = (index < 0 ? 0 : index) + 1; // <0 shouldn't happen for a snapshot sense
-            var multiple = siblings.Count > 1;
             var glossText = Label(sense.Gloss);
-            if (!string.IsNullOrEmpty(glossText)) return multiple ? $"{number} {glossText}" : glossText;
-            return multiple ? number.ToString() : "";
+            // A deleted sense (recovered from its snapshot) is absent from the live sibling list — it has no
+            // meaningful position, so no number.
+            if (index < 0) return glossText ?? "";
+            var number = index + 1;
+            var multiple = siblings.Count > 1;
+            if (!string.IsNullOrEmpty(glossText)) return multiple ? glossText + Subscript(number) : glossText;
+            return multiple ? $"({number})" : "";
         }
 
         // "headword › senseLabel". Degrades to just the headword when the sense has nothing to distinguish it
@@ -145,9 +160,13 @@ internal static class ActivityChangeInfoResolver
 
         ActivityChangeInfo Build(ChangeEntity<IChange> change, Func<Guid, string?> headword)
         {
-            if (ResolveReorder(change) is { } reorder) return reorder;
-            var (subject, rootEntryId) = ResolveSubject(change, headword);
-            return new ActivityChangeInfo(subject, rootEntryId, TargetLabel(change));
+            var info = ResolveReorder(change);
+            if (info is null)
+            {
+                var (subject, rootEntryId) = ResolveSubject(change, headword);
+                info = new ActivityChangeInfo(subject, rootEntryId, TargetLabel(change));
+            }
+            return info.RootEntryId is { } rootId ? info with { RootEntryHeadword = headword(rootId) } : info;
         }
 
         // A reorder reads best as "<container> · Reordered <item> <name>": the subject is the parent whose list changed, the target is the moved item.
@@ -227,6 +246,26 @@ internal static class ActivityChangeInfoResolver
     }
 
     private static string BucketFor(Type entityType) => entityType.Name;
+
+    // Deleted objects are dropped from the projected tables, so the loads below can't label them ("Deleted
+    // word" with no word). Recover any still-missing ids from their latest snapshot — a delete's own snapshot
+    // keeps every field, only DeletedAt is set. No-op in the common case where nothing is missing.
+    private static async Task RecoverDeleted<T>(ICrdtDbContext db, HashSet<Guid> ids, Dictionary<Guid, T> loaded)
+        where T : class, IObjectWithId
+    {
+        var missing = ids.Where(id => !loaded.ContainsKey(id)).ToHashSet();
+        if (missing.Count == 0) return;
+        var snapshots = await (
+            from commit in db.Commits.DefaultOrder()
+            from snapshot in db.Snapshots.InnerJoin(s => s.CommitId == commit.Id)
+            where missing.Contains(snapshot.EntityId)
+            select snapshot
+        ).ToListAsyncLinqToDB();
+        foreach (var group in snapshots.GroupBy(s => s.EntityId))
+        {
+            if (group.Last().Entity.DbObject is T entity) loaded[group.Key] = entity;
+        }
+    }
 
     // Per-type projected loads: only the columns the resolver reads, so we skip hydrating heavy JSONB columns
     // (definitions, notes, nested senses/components, pictures, …) that never feed a label.

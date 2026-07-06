@@ -8,5 +8,6 @@ export interface IActivityChangeInfo
 	subject?: string;
 	rootEntryId?: string;
 	target?: string;
+	rootEntryHeadword?: string;
 }
 /* eslint-enable */

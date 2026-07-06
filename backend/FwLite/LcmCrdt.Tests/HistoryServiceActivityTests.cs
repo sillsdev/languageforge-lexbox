@@ -236,11 +236,12 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
 
-        // No displayable headword: the subject is null (the frontend renders its placeholder, never "(Unknown)"),
-        // but the change still resolves to its root entry.
+        // No displayable headword: the subject and root-entry headword are null (the frontend renders its
+        // placeholder, never "(Unknown)"), but the change still resolves to its root entry.
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
             && a.ChangeInfo[0].RootEntryId == entryId
-            && a.ChangeInfo[0].Subject == null);
+            && a.ChangeInfo[0].Subject == null
+            && a.ChangeInfo[0].RootEntryHeadword == null);
     }
 
     [Fact]
@@ -274,7 +275,11 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
 
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "Verb");
+        // A vocab object has no root entry, so no root-entry headword either.
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1
+            && a.ChangeInfo[0].Subject == "Verb"
+            && a.ChangeInfo[0].RootEntryId == null
+            && a.ChangeInfo[0].RootEntryHeadword == null);
     }
 
     [Fact]
@@ -320,10 +325,39 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
 
         // With more than one sense every sense is numbered by position (like FieldWorks), independent of the
-        // gloss — unique or not. An empty gloss shows just the number.
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "1 to run");
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "2 a jog");
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "3");
+        // gloss — unique or not — shown as a subscript after the gloss, like a homograph number. An empty
+        // gloss shows the parenthesized position instead.
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "to run₁");
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "a jog₂");
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "(3)");
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_DeletedEntry_StillHasHeadword()
+    {
+        var entryId = await CreateEntry("run");
+        await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<Entry>(entryId), Meta());
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+
+        // The deleted entry is gone from the projected tables; its label is recovered from its last snapshot.
+        activities.Should().Contain(a => a.ChangeTypes.Contains("delete:Entry")
+            && a.ChangeInfo[0].Subject == "run"
+            && a.ChangeInfo[0].RootEntryHeadword == "run");
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_DeletedSense_StillHasLabel_WithoutPosition()
+    {
+        var entryId = await CreateEntry("run");
+        var senseId = await CreateSense(entryId, gloss: "to run", order: 1.0);
+        await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<Sense>(senseId), Meta());
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+
+        // Recovered from its snapshot; absent from the live sibling list, so labeled by gloss with no number.
+        activities.Should().Contain(a => a.ChangeTypes.Contains("delete:Sense")
+            && a.ChangeInfo[0].Subject == "run › to run");
     }
 
     [Fact]
@@ -384,10 +418,11 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
 
-        // An example resolves to its parent sense's subject and its root entry.
+        // An example resolves to its parent sense's subject and its root entry (id + headword).
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
             && a.ChangeInfo[0].Subject == "run › to run"
-            && a.ChangeInfo[0].RootEntryId == entryId);
+            && a.ChangeInfo[0].RootEntryId == entryId
+            && a.ChangeInfo[0].RootEntryHeadword == "run");
     }
 
     [Fact]
@@ -507,10 +542,11 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
 
-        // Reordering an example names its parent sense as the subject and the example's root entry.
+        // Reordering an example names its parent sense as the subject and the example's root entry (id + headword).
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
             && a.ChangeInfo[0].Subject == "run › to run"
-            && a.ChangeInfo[0].RootEntryId == entryId);
+            && a.ChangeInfo[0].RootEntryId == entryId
+            && a.ChangeInfo[0].RootEntryHeadword == "run");
     }
 
     [Fact]
