@@ -3,15 +3,19 @@
   import DiffShell from './DiffShell.svelte';
   import {diffAdded, diffEmpty, diffKept, diffRemoved} from './diff-classes';
 
-  let {before = [], after = [], idSelector, labelSelector, sortKey}: {
-    before?: readonly T[];
-    after?: readonly T[];
+  // .NET serializes an absent/empty list field as null, so callers passing snapshot data through can hand us null here too.
+  let {before: beforeProp, after: afterProp, idSelector, labelSelector, sortKey}: {
+    before?: readonly T[] | null;
+    after?: readonly T[] | null;
     idSelector: (item: T) => string;
     labelSelector: (item: T) => string;
     // How to order the merged list. Defaults to the label (semantic-domain labels are code-prefixed, so
     // this already sorts by code). Pass an explicit key when the display label isn't the sort field.
     sortKey?: (item: T) => string;
   } = $props();
+
+  const before = $derived(beforeProp ?? []);
+  const after = $derived(afterProp ?? []);
 
   const beforeIds = $derived(new Set(before.map(idSelector)));
   const afterIds = $derived(new Set(after.map(idSelector)));

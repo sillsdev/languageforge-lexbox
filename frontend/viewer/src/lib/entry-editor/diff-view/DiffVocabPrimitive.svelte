@@ -9,6 +9,8 @@
   import DiffText from './DiffText.svelte';
   import DiffShell from './DiffShell.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
+  import {pt, tvt, type ViewText} from '$lib/views/view-text';
+  import {getEntityConfig, type EntityType} from '$lib/views/entity-config';
 
   // One component for all vocab object types (PartOfSpeech, SemanticDomain, Publication, ComplexFormType,
   // MorphType, WritingSystem, CustomView). They don't share a TS interface beyond IObjectWithId, so fields are
@@ -78,6 +80,14 @@
   const nameIsMultiString = $derived(isMultiString(b?.name) || isMultiString(a?.name));
   // `abbreviation` is an IMultiString on MorphType but a plain string on WritingSystem.
   const abbreviationIsMultiString = $derived(isMultiString(b?.abbreviation) || isMultiString(a?.abbreviation));
+
+  // Resolves a CustomView field id to the same view-aware label the entry editor shows. Falls back to the
+  // raw id for fields not in entityConfig (e.g. a custom field added after this code was last updated).
+  function viewFieldLabel(entityType: EntityType, fieldId: string): string {
+    const entity = getEntityConfig(entityType);
+    const field = fieldId === '$label' ? undefined : (entity[fieldId] as {label: ViewText} | undefined);
+    return field ? pt($tvt(field.label), viewService.currentView) : fieldId;
+  }
 </script>
 
 {#snippet textRow(label: string, field: string)}
@@ -122,12 +132,13 @@
 
 <!-- Custom-view list rows: field lists (IViewField[] → fieldId), writing-system lists (IViewWritingSystem[]
   → wsId), and plain string lists (exemplars). Rendered as a DiffMultiSelect so add/remove reads consistently. -->
-{#snippet viewFieldsRow(label: string, field: string)}
+{#snippet viewFieldsRow(label: string, field: string, entityType: EntityType)}
   <Editor.Field.Root>
     <Editor.Field.Title name={label} />
     <Editor.Field.Body>
       <DiffMultiSelect before={b?.[field] as {fieldId: string}[] | undefined} after={a?.[field] as {fieldId: string}[] | undefined}
-                       idSelector={(f) => f.fieldId} labelSelector={(f) => f.fieldId} />
+                       idSelector={(f) => f.fieldId} labelSelector={(f) => viewFieldLabel(entityType, f.fieldId)}
+                       sortKey={(f) => f.fieldId} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 {/snippet}
@@ -214,15 +225,15 @@
   {/if}
 
   {#if present('entryFields')}
-    {@render viewFieldsRow($t`Entry fields`, 'entryFields')}
+    {@render viewFieldsRow($t`Entry fields`, 'entryFields', 'entry')}
   {/if}
 
   {#if present('senseFields')}
-    {@render viewFieldsRow($t`Sense fields`, 'senseFields')}
+    {@render viewFieldsRow($t`Sense fields`, 'senseFields', 'sense')}
   {/if}
 
   {#if present('exampleFields')}
-    {@render viewFieldsRow($t`Example fields`, 'exampleFields')}
+    {@render viewFieldsRow($t`Example fields`, 'exampleFields', 'example')}
   {/if}
 
   {#if present('vernacular')}
