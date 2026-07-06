@@ -1,4 +1,20 @@
 ﻿Model: 
+  EntityType: UnreadComment
+    Properties: 
+      CommentId (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      CommentThreadId (Guid) Required Index
+      MarkedUnreadAt (DateTimeOffset) Required
+    Keys: 
+      CommentId PK
+    Indexes: 
+      CommentThreadId
+    Annotations: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: UnreadComments
+      Relational:ViewName: 
+      Relational:ViewSchema: 
   EntityType: EntrySearchRecord
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
@@ -36,6 +52,35 @@
       Relational:Schema: 
       Relational:SqlQuery: 
       Relational:TableName: ProjectData
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: CommentThread
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      AuthorId (string)
+      AuthorName (string)
+      CreatedAt (DateTimeOffset) Required Index
+      DeletedAt (DateTimeOffset?)
+      SnapshotId (no field, Guid?) Shadow FK Index
+      Status (ThreadStatus) Required
+      SubjectId (Guid) Required Index
+      SubjectType (SubjectType) Required Index
+      UpdatedAt (DateTimeOffset) Required
+    Navigations: 
+      Comments (List<UserComment>) Collection ToDependent UserComment
+    Keys: 
+      Id PK
+    Foreign keys: 
+      CommentThread {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      CreatedAt
+      SnapshotId Unique
+      SubjectType, SubjectId
+    Annotations: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: CommentThread
       Relational:ViewName: 
       Relational:ViewSchema: 
   EntityType: ComplexFormComponent
@@ -342,6 +387,34 @@
       Relational:Schema: 
       Relational:SqlQuery: 
       Relational:TableName: Sense
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: UserComment
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      AuthorId (string)
+      AuthorName (string)
+      CommentThreadId (Guid) Required FK Index
+      CreatedAt (DateTimeOffset) Required Index
+      DeletedAt (DateTimeOffset?)
+      PreviousCommentId (Guid?)
+      SnapshotId (no field, Guid?) Shadow FK Index
+      Text (string) Required
+      UpdatedAt (DateTimeOffset) Required
+    Keys: 
+      Id PK
+    Foreign keys: 
+      UserComment {'CommentThreadId'} -> CommentThread {'Id'} Required Cascade ToDependent: Comments
+      UserComment {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      CommentThreadId
+      CreatedAt
+      SnapshotId Unique
+    Annotations: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: UserComment
       Relational:ViewName: 
       Relational:ViewSchema: 
   EntityType: WritingSystem
