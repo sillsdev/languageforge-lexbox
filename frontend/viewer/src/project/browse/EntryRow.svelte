@@ -52,8 +52,16 @@
   {:else if previewDictionary}
     <DictionaryEntry {entry}/>
   {:else}
-    <h2 class="font-medium text-2xl flex justify-between items-center">
-      {writingSystemService.headword(entry) || $t`Untitled`}
+    <h2 class="font-medium text-2xl flex justify-between items-center gap-2">
+      <span class="truncate">
+        {writingSystemService.headword(entry) || $t`Untitled`}
+        {#if entry.variantOf.length}
+          {@const mains = [...new Set(entry.variantOf.map(v => v.mainHeadword).filter(Boolean))].join(', ')}
+          <Badge variant="outline" class="align-middle text-muted-foreground font-normal whitespace-nowrap" title={mains ? $t`Variant of ${mains}` : undefined}>
+            {$t`Variant`}
+          </Badge>
+        {/if}
+      </span>
       {@render badge?.()}
     </h2>
     {#if entry.senses.length}

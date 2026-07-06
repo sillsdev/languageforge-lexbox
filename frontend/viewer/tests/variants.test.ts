@@ -53,6 +53,25 @@ test.describe('Variants', () => {
     await page.keyboard.press('Escape');
   });
 
+  test('a variant entry is recognizable in the list and the dictionary preview', async ({page}) => {
+    const browsePage = new BrowsePage(page);
+    await browsePage.goto();
+
+    const timestamp = Date.now().toString().slice(-6);
+    const main = await browsePage.api.createEntryWithHeadword(`vismain${timestamp}`);
+    const variant = await browsePage.api.createEntryWithHeadword(`visvariant${timestamp}`);
+    await browsePage.api.createVariantLink(variant.id, main.id);
+
+    await browsePage.entriesList.filterByText(variant.headword);
+    const row = browsePage.entriesList.entryWithText(variant.headword);
+    await expect(row.getByText('Variant', {exact: true})).toBeVisible();
+
+    await row.click();
+    // the dictionary preview reads like a print dictionary: "<variant> variant of <main>"
+    await expect(page.getByText(/var(iant|\.) of/).first()).toBeVisible({timeout: 5000});
+    await expect(page.getByText(main.headword).first()).toBeVisible();
+  });
+
   test('adding a variant via the main entry saves the reverse link', async ({page}) => {
     const browsePage = new BrowsePage(page);
     await browsePage.goto();

@@ -398,12 +398,14 @@ Mirror the *named* complex-forms cases (test-auditor sweep), not just categories
 
 ## Open questions / follow-ups (not blockers)
 
-- Dictionary preview (`DictionaryEntry.svelte`) shows neither complex forms nor variants;
-  "variant of X" there is a follow-up.
+- Dictionary preview (`DictionaryEntry.svelte`) now renders "var. of X" / "variant of X"
+  after a variant's headword (shipped on review feedback); complex forms there are still a
+  follow-up.
 - `LexEntryInflType` extras (GlossPrepend/Append, InflFeats, Slots), type hierarchy
   round-trip — future work.
-- Minor-entry badge in the editor (decision 11) and entry-list styling of minor entries —
-  follow-up; today only the "Variant of" field signals variant status.
+- Minor-entry visibility (decision 11) shipped: entry-list rows show a muted "Variant"
+  badge (tooltip names the main entries) and the editor's dictionary preview reads
+  "variant of X". Deeper list styling (e.g. indenting minor entries) remains open.
 - Seed the 7 standard variant types into pre-existing CRDT-only projects (see rollout
   notes) — follow-up.
 - FLEx "Insert Variant" convenience (create variant entry + link in one step) in the

@@ -1,5 +1,8 @@
 <script lang="ts">
   import type {IEntry, ISense} from '$lib/dotnet-types';
+  import {t} from 'svelte-i18n-lingui';
+  import {pt} from '$lib/views/view-text';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {usePartsOfSpeech, asString, useWritingSystemService} from '$project/data';
   import type {HTMLAttributes} from 'svelte/elements';
   import {Icon} from '$lib/components/ui/icon';
@@ -31,6 +34,12 @@
   });
 
   const wsService = useWritingSystemService();
+  const viewService = useViewService();
+
+  // deduped: several links can point at senses of the same main entry
+  const variantOfHeadwords = $derived(
+    [...new Set(entry.variantOf.map((v) => v.mainHeadword).filter(Boolean))].join(', '),
+  );
 
   let senses = $derived(entry.senses.map(getRenderedContent));
 
@@ -102,6 +111,11 @@
     {@render actions?.()}
   </div>
   <Headwords {entry} class={cn('mr-1', headwordClass)} />
+  {#if variantOfHeadwords}
+    <span class="text-muted-foreground"
+      ><i>{pt($t`var. of`, $t`variant of`, viewService.currentView)}</i> {variantOfHeadwords}</span
+    >
+  {/if}
   {#each senses as sense, i (sense.id)}
     {#if senses.length > 1}
       <br />
