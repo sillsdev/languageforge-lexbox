@@ -237,8 +237,8 @@
       TypeDiscriminator: RemoveVariantTypeChange
     },
     {
-      DerivedType: SetVariantTypesOrderChange,
-      TypeDiscriminator: SetVariantTypesOrderChange
+      DerivedType: ReorderVariantTypeChange,
+      TypeDiscriminator: ReorderVariantTypeChange
     },
     {
       DerivedType: CreateVariantType,

@@ -625,5 +625,344 @@
       ],
       "EntityId": "f27a032b-e0f6-f389-b466-959bdb17086d"
     }
+  },
+  {
+    "Input": {
+      "$type": "AddVariantChange",
+      "VariantEntryId": "6d309276-3cdc-3d59-7564-174855c2a66d",
+      "MainEntryId": "4ee3936e-f7bb-7bff-43ba-57a83f6e9090",
+      "MainSenseId": "51be3bfc-8d80-10f3-04a0-2f1b6b02a54a",
+      "Types": [
+        {
+          "Id": "d0d4caf3-7fcf-3cca-9044-fd1c8874a40e",
+          "Name": {
+            "bge": "Tactics",
+            "lla": "teal"
+          },
+          "DeletedAt": null
+        },
+        {
+          "Id": "eccfe67c-656e-b7a1-61f8-16fd6115f982",
+          "Name": {
+            "mrs": "ability"
+          },
+          "DeletedAt": null
+        }
+      ],
+      "HideMinorEntry": true,
+      "Comment": {
+        "dzl": {
+          "Spans": [
+            {
+              "Text": "Home Loan Account",
+              "Ws": "tdd",
+              "Bold": "Invert",
+              "FontSize": -635375918,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "284e5f58-55ce-28ae-b48a-2c683cfb7cd9"
+              ]
+            },
+            {
+              "Text": "calculate",
+              "Ws": "dzl",
+              "Tags": [
+                "f58baf48-036d-457f-a52f-359d4b662ee4"
+              ]
+            },
+            {
+              "Text": "XML",
+              "Ws": "dzl",
+              "Tags": [
+                "6f8f8ed2-6ada-498e-8bbf-1516e1a38946"
+              ]
+            }
+          ]
+        },
+        "poh": {
+          "Spans": [
+            {
+              "Text": "navigating",
+              "Ws": "plv",
+              "Bold": "Invert",
+              "FontSize": -1766572977,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "9a7525d3-a3a0-f5b6-75b8-dcc31842bd4b"
+              ]
+            },
+            {
+              "Text": "Buckinghamshire",
+              "Ws": "poh",
+              "Tags": [
+                "9733340e-a780-4915-9c6e-6a0a773bb624"
+              ]
+            },
+            {
+              "Text": "Reactive",
+              "Ws": "khw",
+              "Bold": "On",
+              "FontSize": 217067649,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "6590d40b-9c9e-6bf4-022e-cbef362e2539"
+              ]
+            },
+            {
+              "Text": "bypassing",
+              "Ws": "bao",
+              "Bold": "On",
+              "FontSize": -1139203638,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "a158092c-95c6-ece7-40f0-245eef31b440"
+              ]
+            }
+          ]
+        },
+        "mto": {
+          "Spans": [
+            {
+              "Text": "Small Wooden Mouse",
+              "Ws": "mto",
+              "Tags": [
+                "82ce54e3-899e-49f9-b68e-a32aac910447"
+              ]
+            },
+            {
+              "Text": "invoice",
+              "Ws": "ggo",
+              "Bold": "Off",
+              "FontSize": 156095798,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "8c03dece-11db-82ec-d8db-7f5b322993eb"
+              ]
+            },
+            {
+              "Text": "Square",
+              "Ws": "mto",
+              "Tags": [
+                "bb75edd3-cfcf-49f2-ac3a-a675fc34068d"
+              ]
+            },
+            {
+              "Text": "Borders",
+              "Ws": "mof",
+              "Bold": "Off",
+              "FontSize": 1551749924,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "83245146-9102-463d-6702-9805ecddf9ed"
+              ]
+            }
+          ]
+        },
+        "boj": {
+          "Spans": [
+            {
+              "Text": "Customer",
+              "Ws": "boj",
+              "Tags": [
+                "ab794f7a-1958-4c2f-82d8-dd80b331317f"
+              ]
+            },
+            {
+              "Text": "Response",
+              "Ws": "aso",
+              "Bold": "On",
+              "FontSize": 745397328,
+              "ForeColor": "#ADFF2F",
+              "Tags": [
+                "45286390-397e-4f46-c918-fc743707fe27"
+              ]
+            },
+            {
+              "Text": "visionary",
+              "Ws": "boj",
+              "Tags": [
+                "7f95818c-4e9f-4d43-85e4-91e2b1b7d7f6"
+              ]
+            }
+          ]
+        }
+      },
+      "EntityId": "696c660f-bc0e-75b2-3dc8-cd549fb77bc0"
+    },
+    "Output": {
+      "$type": "AddVariantChange",
+      "VariantEntryId": "6d309276-3cdc-3d59-7564-174855c2a66d",
+      "MainEntryId": "4ee3936e-f7bb-7bff-43ba-57a83f6e9090",
+      "MainSenseId": "51be3bfc-8d80-10f3-04a0-2f1b6b02a54a",
+      "Types": [
+        {
+          "Id": "d0d4caf3-7fcf-3cca-9044-fd1c8874a40e",
+          "Order": 0
+        },
+        {
+          "Id": "eccfe67c-656e-b7a1-61f8-16fd6115f982",
+          "Order": 0
+        }
+      ],
+      "HideMinorEntry": true,
+      "Comment": {
+        "dzl": {
+          "Spans": [
+            {
+              "Text": "Home Loan Account",
+              "Ws": "tdd",
+              "Bold": "Invert",
+              "FontSize": -635375918,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "284e5f58-55ce-28ae-b48a-2c683cfb7cd9"
+              ]
+            },
+            {
+              "Text": "calculate",
+              "Ws": "dzl",
+              "Tags": [
+                "f58baf48-036d-457f-a52f-359d4b662ee4"
+              ]
+            },
+            {
+              "Text": "XML",
+              "Ws": "dzl",
+              "Tags": [
+                "6f8f8ed2-6ada-498e-8bbf-1516e1a38946"
+              ]
+            }
+          ]
+        },
+        "poh": {
+          "Spans": [
+            {
+              "Text": "navigating",
+              "Ws": "plv",
+              "Bold": "Invert",
+              "FontSize": -1766572977,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "9a7525d3-a3a0-f5b6-75b8-dcc31842bd4b"
+              ]
+            },
+            {
+              "Text": "Buckinghamshire",
+              "Ws": "poh",
+              "Tags": [
+                "9733340e-a780-4915-9c6e-6a0a773bb624"
+              ]
+            },
+            {
+              "Text": "Reactive",
+              "Ws": "khw",
+              "Bold": "On",
+              "FontSize": 217067649,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "6590d40b-9c9e-6bf4-022e-cbef362e2539"
+              ]
+            },
+            {
+              "Text": "bypassing",
+              "Ws": "bao",
+              "Bold": "On",
+              "FontSize": -1139203638,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "a158092c-95c6-ece7-40f0-245eef31b440"
+              ]
+            }
+          ]
+        },
+        "mto": {
+          "Spans": [
+            {
+              "Text": "Small Wooden Mouse",
+              "Ws": "mto",
+              "Tags": [
+                "82ce54e3-899e-49f9-b68e-a32aac910447"
+              ]
+            },
+            {
+              "Text": "invoice",
+              "Ws": "ggo",
+              "Bold": "Off",
+              "FontSize": 156095798,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "8c03dece-11db-82ec-d8db-7f5b322993eb"
+              ]
+            },
+            {
+              "Text": "Square",
+              "Ws": "mto",
+              "Tags": [
+                "bb75edd3-cfcf-49f2-ac3a-a675fc34068d"
+              ]
+            },
+            {
+              "Text": "Borders",
+              "Ws": "mof",
+              "Bold": "Off",
+              "FontSize": 1551749924,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "83245146-9102-463d-6702-9805ecddf9ed"
+              ]
+            }
+          ]
+        },
+        "boj": {
+          "Spans": [
+            {
+              "Text": "Customer",
+              "Ws": "boj",
+              "Tags": [
+                "ab794f7a-1958-4c2f-82d8-dd80b331317f"
+              ]
+            },
+            {
+              "Text": "Response",
+              "Ws": "aso",
+              "Bold": "On",
+              "FontSize": 745397328,
+              "ForeColor": "#ADFF2F",
+              "Tags": [
+                "45286390-397e-4f46-c918-fc743707fe27"
+              ]
+            },
+            {
+              "Text": "visionary",
+              "Ws": "boj",
+              "Tags": [
+                "7f95818c-4e9f-4d43-85e4-91e2b1b7d7f6"
+              ]
+            }
+          ]
+        }
+      },
+      "EntityId": "696c660f-bc0e-75b2-3dc8-cd549fb77bc0"
+    }
+  },
+  {
+    "Input": {
+      "$type": "AddVariantTypeChange",
+      "VariantType": {
+        "Id": "c1d3f294-1a67-25b2-5110-864e2debb6bc",
+        "Name": {
+          "ggt": "Viaduct"
+        },
+        "DeletedAt": null
+      },
+      "EntityId": "0da6b6a5-5e7a-6f91-9610-a62c595dbdfb"
+    },
+    "Output": {
+      "$type": "AddVariantTypeChange",
+      "VariantTypeId": "00000000-0000-0000-0000-000000000000",
+      "Order": 0,
+      "Between": null,
+      "EntityId": "0da6b6a5-5e7a-6f91-9610-a62c595dbdfb"
+    }
   }
 ]

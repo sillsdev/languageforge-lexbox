@@ -819,7 +819,7 @@ public class FwDataMiniLcmApi(
             MainEntryId = mainEntry.Guid,
             MainSenseId = mainSense?.Guid,
             MainHeadword = mainEntry.LexEntryHeadwordOrUnknown(),
-            Types = [..variantRef.VariantEntryTypesRS.Select(ToVariantType)],
+            Types = [..variantRef.VariantEntryTypesRS.Select((t, i) => new VariantTypeRef { Id = t.Guid, Order = i + 1 })], // Order indexes from 1, like pictures
             HideMinorEntry = variantRef.HideMinorEntry != 0,
             Comment = FromLcmMultiString(variantRef.Summary),
         };
@@ -1434,7 +1434,7 @@ public class FwDataMiniLcmApi(
         return Task.CompletedTask;
     }
 
-    public Task AddVariantType(Variant variant, Guid variantTypeId)
+    public Task AddVariantType(Variant variant, Guid variantTypeId, BetweenPosition? position = null)
     {
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Variant Type",
             "Remove Variant Type",
@@ -1447,7 +1447,7 @@ public class FwDataMiniLcmApi(
                 if (entryRef is null) return;
                 var lexEntryType = VariantTypesFlattened.Single(t => t.Guid == variantTypeId);
                 if (entryRef.VariantEntryTypesRS.Contains(lexEntryType)) return;
-                entryRef.VariantEntryTypesRS.Add(lexEntryType);
+                entryRef.VariantEntryTypesRS.Insert(PickTypeInsertIndex(entryRef, position), lexEntryType);
             });
         return Task.CompletedTask;
     }
@@ -1469,27 +1469,38 @@ public class FwDataMiniLcmApi(
         return Task.CompletedTask;
     }
 
-    public Task SetVariantTypesOrder(Variant variant, IReadOnlyList<Guid> orderedTypeIds)
+    public Task MoveVariantType(Variant variant, Guid variantTypeId, BetweenPosition position)
     {
-        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Reorder Variant Types",
-            "Revert Variant Types order",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Variant Type",
+            "Move Variant Type back",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
                 if (!EntriesRepository.TryGetObject(variant.VariantEntryId, out var lexVariantEntry)) return;
                 var entryRef = FindVariantRefForUpdate(lexVariantEntry, variant);
                 if (entryRef is null) return;
-                var orderIds = orderedTypeIds.ToList();
-                var ordered = entryRef.VariantEntryTypesRS
-                    .Select((type, index) => (type, index))
-                    .OrderBy(t => orderIds.IndexOf(t.type.Guid) is var i and >= 0 ? i : int.MaxValue)
-                    .ThenBy(t => t.index)
-                    .Select(t => t.type)
-                    .ToArray();
-                if (ordered.SequenceEqual(entryRef.VariantEntryTypesRS)) return;
-                entryRef.VariantEntryTypesRS.Replace(0, entryRef.VariantEntryTypesRS.Count, ordered);
+                var lexEntryType = entryRef.VariantEntryTypesRS.SingleOrDefault(t => t.Guid == variantTypeId);
+                if (lexEntryType is null) return;
+                entryRef.VariantEntryTypesRS.Remove(lexEntryType);
+                entryRef.VariantEntryTypesRS.Insert(PickTypeInsertIndex(entryRef, position), lexEntryType);
             });
         return Task.CompletedTask;
+    }
+
+    private static int PickTypeInsertIndex(ILexEntryRef entryRef, BetweenPosition? position)
+    {
+        var types = entryRef.VariantEntryTypesRS;
+        if (position?.Previous is { } previousId)
+        {
+            var previous = types.FirstOrDefault(t => t.Guid == previousId);
+            if (previous is not null) return types.IndexOf(previous) + 1;
+        }
+        if (position?.Next is { } nextId)
+        {
+            var next = types.FirstOrDefault(t => t.Guid == nextId);
+            if (next is not null) return types.IndexOf(next);
+        }
+        return types.Count;
     }
 
     /// <summary>

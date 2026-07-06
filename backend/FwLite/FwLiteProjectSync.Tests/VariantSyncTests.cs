@@ -81,7 +81,7 @@ public class VariantSyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var dialectal = await GetVariantType(fwdataApi, "Dialectal Variant");
         await fwdataApi.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with
         {
-            Types = [dialectal],
+            Types = [dialectal.ToRef()],
             HideMinorEntry = true,
             Comment = new() { { "en", new RichString("british spelling") } },
         });
@@ -113,7 +113,7 @@ public class VariantSyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
         var spelling = await GetVariantType(crdtApi, "Spelling Variant");
-        await crdtApi.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [spelling] });
+        await crdtApi.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [spelling.ToRef()] });
 
         await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
 
@@ -184,7 +184,7 @@ public class VariantSyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         var free = await GetVariantType(fwdataApi, "Free Variant");
-        var created = await fwdataApi.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [free] });
+        var created = await fwdataApi.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [free.ToRef()] });
         await _syncService.Import(crdtApi, fwdataApi);
         var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
@@ -218,7 +218,7 @@ public class VariantSyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var free = await GetVariantType(fwdataApi, "Free Variant");
         var dialectal = await GetVariantType(fwdataApi, "Dialectal Variant");
         // deliberately not alphabetical and not creation order: order must come from the ref sequence
-        await fwdataApi.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [free, dialectal] });
+        await fwdataApi.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [free.ToRef(), dialectal.ToRef()] });
         await _syncService.Import(crdtApi, fwdataApi);
         var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 

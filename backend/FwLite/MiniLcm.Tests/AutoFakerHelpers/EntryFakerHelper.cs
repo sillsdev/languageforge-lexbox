@@ -165,7 +165,7 @@ public static class EntryFakerHelper
             foreach (var variantType in variant.Types)
             {
                 if (await api.GetVariantType(variantType.Id) is null)
-                    await api.CreateVariantType(variantType);
+                    await api.CreateVariantType(new VariantType { Id = variantType.Id, Name = new() { { "en", $"generated type {variantType.Id}" } } });
             }
 
             var name = $"test {(isVariantOf ? "main" : "variant")} entry {i}";

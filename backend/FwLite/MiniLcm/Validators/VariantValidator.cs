@@ -14,7 +14,9 @@ internal class VariantValidator : AbstractValidator<Variant>
             .Must(v => v.VariantEntryId == Guid.Empty || v.VariantEntryId != v.MainEntryId)
             .WithMessage(v => $"Variant {GetIdentifier(v)} must not be a variant of itself.");
         RuleFor(v => v.Comment).NoEmptyValues(GetIdentifier).NoDefaultWritingSystems(GetIdentifier);
-        RuleForEach(v => v.Types).SetValidator(new VariantTypeValidator());
+        RuleForEach(v => v.Types)
+            .Must(t => t.Id != Guid.Empty)
+            .WithMessage(v => $"Variant {GetIdentifier(v)} has a type reference without an id.");
     }
 
     private string GetIdentifier(Variant variant)

@@ -360,7 +360,7 @@ const demoVariant: IVariant = {
   variantHeadword: Object.values(demoVariantEntry.citationForm)[0] ?? Object.values(demoVariantEntry.lexemeForm)[0],
   mainEntryId: demoMainEntry.id,
   mainHeadword: Object.values(demoMainEntry.citationForm)[0] ?? Object.values(demoMainEntry.lexemeForm)[0],
-  types: [variantTypes[0]],
+  types: [{id: variantTypes[0].id, order: 1}],
   hideMinorEntry: false,
   comment: {},
 };

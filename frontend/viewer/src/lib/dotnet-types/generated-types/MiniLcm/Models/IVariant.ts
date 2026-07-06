@@ -4,7 +4,7 @@
 //     the code is regenerated.
 
 import type {IObjectWithId} from './IObjectWithId';
-import type {IVariantType} from './IVariantType';
+import type {IVariantTypeRef} from './IVariantTypeRef';
 import type {IRichMultiString} from '$lib/dotnet-types/i-multi-string';
 
 export interface IVariant extends IObjectWithId
@@ -15,7 +15,7 @@ export interface IVariant extends IObjectWithId
 	mainEntryId: string;
 	mainSenseId?: string;
 	mainHeadword?: string;
-	types: IVariantType[];
+	types: IVariantTypeRef[];
 	hideMinorEntry: boolean;
 	comment: IRichMultiString;
 }

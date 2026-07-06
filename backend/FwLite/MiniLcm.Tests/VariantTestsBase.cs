@@ -1,4 +1,5 @@
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 
 namespace MiniLcm.Tests;
 
@@ -76,7 +77,7 @@ public abstract class VariantTestsBase : MiniLcmTestBase
         var type = await CreateVariantType();
         var input = Variant.FromEntries(_variantEntry, _mainEntry) with
         {
-            Types = [type],
+            Types = [type.ToRef()],
             HideMinorEntry = true,
             Comment = new() { { "en", new RichString("originally meant something else") } },
         };
@@ -428,10 +429,10 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     {
         var typeA = await CreateVariantType("type a");
         var typeB = await CreateVariantType("type b");
-        var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA] });
+        var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA.ToRef()] });
 
         var after = created.Copy();
-        after.Types = [typeB];
+        after.Types = [typeB.ToRef()];
         after.HideMinorEntry = true;
         after.Comment = new() { { "en", new RichString("now hidden") } };
         await Api.UpdateVariant(created, after);
@@ -467,7 +468,7 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     public async Task RemoveVariantType_Works()
     {
         var type = await CreateVariantType();
-        var variant = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [type] });
+        var variant = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [type.ToRef()] });
         await Api.RemoveVariantType(variant, type.Id);
         var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
         link.Types.Should().BeEmpty();
@@ -485,37 +486,37 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     {
         var typeA = await CreateVariantType("type a");
         var typeB = await CreateVariantType("type b");
-        await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeB, typeA] });
+        await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeB.ToRef(), typeA.ToRef()] });
 
         var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
         link.Types.Select(t => t.Id).Should().Equal(typeB.Id, typeA.Id);
     }
 
     [Fact]
-    public async Task SetVariantTypesOrder_ReordersTypes()
+    public async Task MoveVariantType_MovesToTheRequestedPosition()
     {
         var typeA = await CreateVariantType("type a");
         var typeB = await CreateVariantType("type b");
         var typeC = await CreateVariantType("type c");
-        var variant = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA, typeB, typeC] });
+        var variant = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA.ToRef(), typeB.ToRef(), typeC.ToRef()] });
 
-        await Api.SetVariantTypesOrder(variant, [typeC.Id, typeA.Id, typeB.Id]);
+        await Api.MoveVariantType(variant, typeC.Id, new BetweenPosition(null, typeA.Id));
 
         var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
         link.Types.Select(t => t.Id).Should().Equal(typeC.Id, typeA.Id, typeB.Id);
     }
 
     [Fact]
-    public async Task SetVariantTypesOrder_IgnoresUnknownIdsAndKeepsUnlistedTypesAfterListedOnes()
+    public async Task MoveVariantType_UnknownTypeIsANoOp()
     {
         var typeA = await CreateVariantType("type a");
         var typeB = await CreateVariantType("type b");
-        var variant = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA, typeB] });
+        var variant = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA.ToRef(), typeB.ToRef()] });
 
-        await Api.SetVariantTypesOrder(variant, [Guid.NewGuid(), typeB.Id]);
+        await Api.MoveVariantType(variant, Guid.NewGuid(), new BetweenPosition(null, typeA.Id));
 
         var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
-        link.Types.Select(t => t.Id).Should().Equal(typeB.Id, typeA.Id);
+        link.Types.Select(t => t.Id).Should().Equal(typeA.Id, typeB.Id);
     }
 
     [Fact]
@@ -523,10 +524,10 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     {
         var typeA = await CreateVariantType("type a");
         var typeB = await CreateVariantType("type b");
-        var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA, typeB] });
+        var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA.ToRef(), typeB.ToRef()] });
 
         var after = created.Copy();
-        after.Types = [typeB, typeA];
+        after.Types = [typeB.ToRef(), typeA.ToRef()];
         await Api.UpdateVariant(created, after);
 
         var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
@@ -538,10 +539,10 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     {
         var typeA = await CreateVariantType("type a");
         var typeB = await CreateVariantType("type b");
-        var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeB] });
+        var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeB.ToRef()] });
 
         var after = created.Copy();
-        after.Types = [typeA, typeB];
+        after.Types = [typeA.ToRef(), typeB.ToRef()];
         await Api.UpdateVariant(created, after);
 
         var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;

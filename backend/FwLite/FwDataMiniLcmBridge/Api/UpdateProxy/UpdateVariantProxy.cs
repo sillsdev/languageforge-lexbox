@@ -39,7 +39,7 @@ public record UpdateVariantProxy : Variant
         set => throw new NotImplementedException();
     }
 
-    public override List<VariantType> Types
+    public override List<VariantTypeRef> Types
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();

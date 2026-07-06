@@ -1,6 +1,5 @@
 using MiniLcm.Models;
 using SystemTextJsonPatch;
-using SystemTextJsonPatch.Operations;
 
 namespace MiniLcm.SyncHelpers;
 
@@ -20,28 +19,8 @@ public static class VariantSync
             await api.SubmitUpdateVariant(after, updateObjectInput);
             changes++;
         }
-        changes += await DiffCollection.Diff(before.Types, after.Types, new VariantTypesDiffApi(api, after));
-        if (TypesOrderNeedsReset(before.Types, after.Types))
-        {
-            await api.SetVariantTypesOrder(after, [.. after.Types.Select(t => t.Id)]);
-            changes++;
-        }
+        changes += await DiffCollection.DiffOrderable(before.Types, after.Types, new VariantTypesDiffApi(api, after));
         return changes;
-    }
-
-    /// <summary>
-    /// Whether the Add/Remove diff above cannot be trusted to land the types in after-order:
-    /// either the surviving types changed relative order, or new types were added into a
-    /// multi-type list (adds append, so their position is only right by luck).
-    /// </summary>
-    public static bool TypesOrderNeedsReset(IReadOnlyList<VariantType> before, IReadOnlyList<VariantType> after)
-    {
-        if (after.Count <= 1) return false;
-        var beforeIds = before.Select(t => t.Id).ToList();
-        var afterIds = after.Select(t => t.Id).ToList();
-        if (afterIds.Any(id => !beforeIds.Contains(id))) return true;
-        var commonBefore = beforeIds.Where(afterIds.Contains);
-        return !commonBefore.SequenceEqual(afterIds);
     }
 
     public static UpdateObjectInput<Variant>? VariantDiffToUpdate(Variant before, Variant after)
@@ -53,23 +32,34 @@ public static class VariantSync
         return new UpdateObjectInput<Variant>(patchDocument);
     }
 
-    private class VariantTypesDiffApi(IMiniLcmApi api, Variant variant) : ObjectWithIdCollectionDiffApi<VariantType>
+    private class VariantTypesDiffApi(IMiniLcmApi api, Variant variant) : IOrderableCollectionDiffApi<VariantTypeRef, Guid>
     {
-        public override async Task<int> Add(VariantType afterVariantType)
+        public Guid GetId(VariantTypeRef value)
         {
-            await api.AddVariantType(variant, afterVariantType.Id);
+            return value.Id;
+        }
+
+        public async Task<int> Add(VariantTypeRef afterTypeRef, BetweenPosition<VariantTypeRef> between)
+        {
+            await api.AddVariantType(variant, afterTypeRef.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
-        public override async Task<int> Remove(VariantType beforeVariantType)
+        public async Task<int> Move(VariantTypeRef typeRef, BetweenPosition<VariantTypeRef> between)
         {
-            await api.RemoveVariantType(variant, beforeVariantType.Id);
+            await api.MoveVariantType(variant, typeRef.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
-        public override Task<int> Replace(VariantType before, VariantType after)
+        public async Task<int> Remove(VariantTypeRef beforeTypeRef)
         {
-            // type renames sync via VariantTypeSync (top-level list), not through the link
+            await api.RemoveVariantType(variant, beforeTypeRef.Id);
+            return 1;
+        }
+
+        public Task<int> Replace(VariantTypeRef before, VariantTypeRef after)
+        {
+            // the ref carries nothing but id + order; order differences are handled as moves
             return Task.FromResult(0);
         }
     }

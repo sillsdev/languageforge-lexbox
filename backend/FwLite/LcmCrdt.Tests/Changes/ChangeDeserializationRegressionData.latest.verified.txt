@@ -1320,18 +1320,11 @@
     "Types": [
       {
         "Id": "d0d4caf3-7fcf-3cca-9044-fd1c8874a40e",
-        "Name": {
-          "bge": "Tactics",
-          "lla": "teal"
-        },
-        "DeletedAt": null
+        "Order": 0
       },
       {
         "Id": "eccfe67c-656e-b7a1-61f8-16fd6115f982",
-        "Name": {
-          "mrs": "ability"
-        },
-        "DeletedAt": null
+        "Order": 0
       }
     ],
     "HideMinorEntry": true,
@@ -1475,15 +1468,55 @@
     "EntityId": "696c660f-bc0e-75b2-3dc8-cd549fb77bc0"
   },
   {
-    "$type": "AddVariantTypeChange",
-    "VariantType": {
-      "Id": "c1d3f294-1a67-25b2-5110-864e2debb6bc",
-      "Name": {
-        "ggt": "Viaduct"
+    "$type": "AddVariantChange",
+    "VariantEntryId": "9805fa15-9b21-ba44-fdfe-7f30340ec5ba",
+    "MainEntryId": "57e835b1-11dc-5a14-b879-146d94403d5e",
+    "MainSenseId": "51979c25-0ee3-2256-54c5-72c3d7bc84f8",
+    "Types": [
+      {
+        "Id": "c58aceb8-ed91-9fd7-f847-25a9bdb2f0a9",
+        "Order": 0
       },
-      "DeletedAt": null
+      {
+        "Id": "8a7ad5ed-7894-3522-5e59-b05a8c4f5485",
+        "Order": 0
+      }
+    ],
+    "HideMinorEntry": true,
+    "Comment": {
+      "imy": {
+        "Spans": [
+          {
+            "Text": "Throughway",
+            "Ws": "cbc",
+            "Bold": "Off",
+            "FontSize": -859798393,
+            "ForeColor": "#00FFFF",
+            "Tags": [
+              "c03da6a7-04ee-c7e8-648f-22692cd23b05"
+            ]
+          }
+        ]
+      }
     },
+    "EntityId": "02adb2ec-3fdd-a1c6-6533-66df9a04e307"
+  },
+  {
+    "$type": "AddVariantTypeChange",
+    "VariantTypeId": "00000000-0000-0000-0000-000000000000",
+    "Order": 0,
+    "Between": null,
     "EntityId": "0da6b6a5-5e7a-6f91-9610-a62c595dbdfb"
+  },
+  {
+    "$type": "AddVariantTypeChange",
+    "VariantTypeId": "f2ff124b-ba24-2093-4190-b5cc9cb79316",
+    "Order": 0.2819482232734233,
+    "Between": {
+      "Previous": "27898603-68c3-a90b-a745-0a51749d5d02",
+      "Next": "62ff5503-bfc8-db10-3c9a-65da49e62388"
+    },
+    "EntityId": "937aef98-bfe8-94b4-eaa3-32f8ae3c92e6"
   },
   {
     "$type": "RemoveVariantTypeChange",
@@ -1500,11 +1533,9 @@
     "EntityId": "6a8e727c-2e47-90af-a1ec-42d94fc3e38e"
   },
   {
-    "$type": "SetVariantTypesOrderChange",
-    "OrderedTypeIds": [
-      "e767c058-6e6c-ed85-cb16-19506fa41aa8",
-      "ba0582e4-0f04-b78b-aecd-4eb72567556a"
-    ],
-    "EntityId": "6393c7c6-5baa-2966-15d7-b6cd0b7e60ed"
+    "$type": "ReorderVariantTypeChange",
+    "VariantTypeId": "9797f4ff-a732-d9da-105b-c4139e8d7dee",
+    "Order": 0.6680058129866647,
+    "EntityId": "d887a5b5-f7aa-09ee-5439-84d4090a6216"
   }
 ]

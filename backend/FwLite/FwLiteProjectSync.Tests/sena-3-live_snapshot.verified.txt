@@ -1256,11 +1256,7 @@
           "Types": [
             {
               "Id": "bbd4adb3-9af5-4542-94e8-b0932124108b",
-              "Name": {
-                "en": "Pronunciation Variant",
-                "pt": "Variac\u0327a\u0303o da Pronuncia"
-              },
-              "DeletedAt": null
+              "Order": 0
             }
           ],
           "HideMinorEntry": false,
@@ -24169,11 +24165,7 @@
           "Types": [
             {
               "Id": "bbd4adb3-9af5-4542-94e8-b0932124108b",
-              "Name": {
-                "en": "Pronunciation Variant",
-                "pt": "Variac\u0327a\u0303o da Pronuncia"
-              },
-              "DeletedAt": null
+              "Order": 0
             }
           ],
           "HideMinorEntry": false,
@@ -30827,11 +30819,7 @@
           "Types": [
             {
               "Id": "bbd4adb3-9af5-4542-94e8-b0932124108b",
-              "Name": {
-                "en": "Pronunciation Variant",
-                "pt": "Variac\u0327a\u0303o da Pronuncia"
-              },
-              "DeletedAt": null
+              "Order": 0
             }
           ],
           "HideMinorEntry": false,
@@ -99245,11 +99233,7 @@
           "Types": [
             {
               "Id": "0c4663b3-4d9a-47af-b9a1-c8565d8112ed",
-              "Name": {
-                "en": "Spelling Variant",
-                "pt": "Variac\u0327a\u0303o de Soletrac\u0327a\u0303o"
-              },
-              "DeletedAt": null
+              "Order": 0
             }
           ],
           "HideMinorEntry": false,
@@ -99987,11 +99971,7 @@
           "Types": [
             {
               "Id": "0c4663b3-4d9a-47af-b9a1-c8565d8112ed",
-              "Name": {
-                "en": "Spelling Variant",
-                "pt": "Variac\u0327a\u0303o de Soletrac\u0327a\u0303o"
-              },
-              "DeletedAt": null
+              "Order": 0
             }
           ],
           "HideMinorEntry": false,
@@ -115366,11 +115346,7 @@
           "Types": [
             {
               "Id": "bbd4adb3-9af5-4542-94e8-b0932124108b",
-              "Name": {
-                "en": "Pronunciation Variant",
-                "pt": "Variac\u0327a\u0303o da Pronuncia"
-              },
-              "DeletedAt": null
+              "Order": 0
             }
           ],
           "HideMinorEntry": false,
