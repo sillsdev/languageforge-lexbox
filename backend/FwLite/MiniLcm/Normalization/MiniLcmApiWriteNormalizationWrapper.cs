@@ -614,6 +614,63 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #endregion
 
+    #region Comments
+
+    public Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
+    {
+        return _api.CreateCommentThread(thread, NormalizeUserComment(firstComment));
+    }
+
+    public Task<UserComment> AddUserComment(Guid threadId, UserComment comment)
+    {
+        return _api.AddUserComment(threadId, NormalizeUserComment(comment));
+    }
+
+    public Task<UserComment> EditUserComment(Guid commentId, string text)
+    {
+        return _api.EditUserComment(commentId, StringNormalizer.Normalize(text));
+    }
+
+    public Task<CommentThread> SetCommentThreadStatus(Guid threadId, ThreadStatus status)
+    {
+        return _api.SetCommentThreadStatus(threadId, status);
+    }
+
+    public Task DeleteUserComment(Guid commentId)
+    {
+        return _api.DeleteUserComment(commentId);
+    }
+
+    public Task DeleteCommentThread(Guid threadId)
+    {
+        return _api.DeleteCommentThread(threadId);
+    }
+
+    public Task MarkCommentRead(Guid commentId)
+    {
+        return _api.MarkCommentRead(commentId);
+    }
+
+    public Task MarkCommentThreadRead(Guid threadId)
+    {
+        return _api.MarkCommentThreadRead(threadId);
+    }
+
+    public Task MarkAllCommentsRead()
+    {
+        return _api.MarkAllCommentsRead();
+    }
+
+    private static UserComment NormalizeUserComment(UserComment comment)
+    {
+        return comment with
+        {
+            Text = StringNormalizer.Normalize(comment.Text)
+        };
+    }
+
+    #endregion
+
     #region File Operations
 
     public Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)

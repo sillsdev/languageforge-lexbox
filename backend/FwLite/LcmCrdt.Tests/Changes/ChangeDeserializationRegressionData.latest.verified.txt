@@ -1295,247 +1295,163 @@
     "EntityId": "c775e310-fc5c-6d01-5a02-146d579a88e5"
   },
   {
+    "$type": "CreateCommentThreadChange",
+    "SubjectId": "31bb6dfb-9987-6fd7-9ee3-92d6bce75611",
+    "SubjectType": "ExampleSentence",
+    "Status": "Closed",
+    "AuthorId": null,
+    "AuthorName": null,
+    "CreatedAt": "2026-07-01T17:07:13.0291493+07:00",
+    "UpdatedAt": "2026-07-02T07:20:03.8842896+07:00",
+    "EntityId": "ed481334-f9d2-ec59-fa0d-70d7dc2e2aa2"
+  },
+  {
+    "$type": "CreateCommentThreadChange",
+    "SubjectId": "1fc16c5c-ea2b-92b8-9af6-26404afcf856",
+    "SubjectType": "Unknown",
+    "Status": "Closed",
+    "AuthorId": "Licensed Steel Chicken",
+    "AuthorName": "Loop",
+    "CreatedAt": "2026-07-06T10:16:45.6785696+07:00",
+    "UpdatedAt": "2026-07-05T21:39:14.8355266+07:00",
+    "EntityId": "3381486c-2101-43ff-b508-82bd515eb950"
+  },
+  {
+    "$type": "CreateUserCommentChange",
+    "CommentThreadId": "a82b4c24-dec6-38c9-b69f-97b78457a395",
+    "PreviousCommentId": "4e472c9a-0274-ad6a-30a5-a89b27e221e0",
+    "Text": "composite",
+    "AuthorId": "Bolivar Fuerte",
+    "AuthorName": "Via",
+    "CreatedAt": "2026-07-01T21:49:53.1491117+07:00",
+    "UpdatedAt": "2026-07-02T02:56:57.3826486+07:00",
+    "EntityId": "1dadd431-cc82-d12c-8cc0-738cf0d15f09"
+  },
+  {
+    "$type": "EditUserCommentChange",
+    "Text": "Swiss Franc",
+    "UpdatedAt": "2026-07-01T19:07:09.8540119+07:00",
+    "EntityId": "41249114-1628-085e-fddd-a2afa9050490"
+  },
+  {
+    "$type": "SetCommentThreadStatusChange",
+    "Status": "Open",
+    "UpdatedAt": "2026-07-02T00:41:37.9431171+07:00",
+    "EntityId": "caab8a36-76c5-3ff7-1a98-593b697358c8"
+  },
+  {
+    "$type": "delete:CommentThread",
+    "EntityId": "5fd5cf80-bd5f-a0ad-e79c-4bfdb0973f9b"
+  },
+  {
+    "$type": "delete:UserComment",
+    "EntityId": "4be242d0-b1a6-986f-cc0d-b35860e69e60"
+  },
+  {
     "$type": "jsonPatch:VariantType",
     "PatchDocument": [],
-    "EntityId": "7f36b194-09c4-1938-164e-820359470a8d"
+    "EntityId": "f796b111-fed8-1fae-dacf-b549eb9ec93c"
   },
   {
     "$type": "jsonPatch:Variant",
     "PatchDocument": [],
-    "EntityId": "2c441083-20d5-f98e-bd30-453dee57152e"
+    "EntityId": "c753ced5-4a9f-8b3f-441a-72fd448a4ecb"
   },
   {
     "$type": "delete:VariantType",
-    "EntityId": "c76a3a53-8fa6-d2c3-df38-a742996e450e"
+    "EntityId": "32502ad4-c55c-fd4e-9e03-fd41b1630ada"
   },
   {
     "$type": "delete:Variant",
-    "EntityId": "a33e0d22-ca25-baaa-b103-61595e8d8443"
+    "EntityId": "eb03a87f-0d94-f1d4-be8b-1843383fe74d"
   },
   {
     "$type": "AddVariantChange",
-    "VariantEntryId": "6d309276-3cdc-3d59-7564-174855c2a66d",
-    "MainEntryId": "4ee3936e-f7bb-7bff-43ba-57a83f6e9090",
-    "MainSenseId": "51be3bfc-8d80-10f3-04a0-2f1b6b02a54a",
+    "VariantEntryId": "e269cf82-fb4c-b0e2-1327-93389e9c4a21",
+    "MainEntryId": "7cf2ef69-3a01-1402-43b4-59f0340c03aa",
+    "MainSenseId": "f4d3d906-6aed-5cf3-55f5-ceb2a3b4f595",
     "Types": [
       {
-        "Id": "d0d4caf3-7fcf-3cca-9044-fd1c8874a40e",
+        "Id": "606508ea-b0bb-5b9e-2cfb-2e2fdc2aba35",
         "Order": 0
       },
       {
-        "Id": "eccfe67c-656e-b7a1-61f8-16fd6115f982",
+        "Id": "7de9cece-74e6-93b4-9cda-1a0b21616664",
         "Order": 0
       }
     ],
-    "HideMinorEntry": true,
+    "HideMinorEntry": false,
     "Comment": {
-      "dzl": {
+      "se": {
         "Spans": [
           {
-            "Text": "Home Loan Account",
-            "Ws": "tdd",
-            "Bold": "Invert",
-            "FontSize": -635375918,
-            "ForeColor": "#FF0000",
-            "Tags": [
-              "284e5f58-55ce-28ae-b48a-2c683cfb7cd9"
-            ]
-          },
-          {
-            "Text": "calculate",
-            "Ws": "dzl",
-            "Tags": [
-              "f58baf48-036d-457f-a52f-359d4b662ee4"
-            ]
-          },
-          {
-            "Text": "XML",
-            "Ws": "dzl",
-            "Tags": [
-              "6f8f8ed2-6ada-498e-8bbf-1516e1a38946"
-            ]
-          }
-        ]
-      },
-      "poh": {
-        "Spans": [
-          {
-            "Text": "navigating",
-            "Ws": "plv",
-            "Bold": "Invert",
-            "FontSize": -1766572977,
-            "ForeColor": "#FF0000",
-            "Tags": [
-              "9a7525d3-a3a0-f5b6-75b8-dcc31842bd4b"
-            ]
-          },
-          {
-            "Text": "Buckinghamshire",
-            "Ws": "poh",
-            "Tags": [
-              "9733340e-a780-4915-9c6e-6a0a773bb624"
-            ]
-          },
-          {
-            "Text": "Reactive",
-            "Ws": "khw",
-            "Bold": "On",
-            "FontSize": 217067649,
-            "ForeColor": "#FF0000",
-            "Tags": [
-              "6590d40b-9c9e-6bf4-022e-cbef362e2539"
-            ]
-          },
-          {
-            "Text": "bypassing",
-            "Ws": "bao",
-            "Bold": "On",
-            "FontSize": -1139203638,
+            "Text": "mobile",
+            "Ws": "yal",
+            "Bold": "Off",
+            "FontSize": 971683928,
             "ForeColor": "#00FFFF",
             "Tags": [
-              "a158092c-95c6-ece7-40f0-245eef31b440"
-            ]
-          }
-        ]
-      },
-      "mto": {
-        "Spans": [
-          {
-            "Text": "Small Wooden Mouse",
-            "Ws": "mto",
-            "Tags": [
-              "82ce54e3-899e-49f9-b68e-a32aac910447"
+              "6bfc8990-ba0c-4312-0978-a188b7362a9c"
             ]
           },
           {
-            "Text": "invoice",
-            "Ws": "ggo",
+            "Text": "bandwidth",
+            "Ws": "lpo",
             "Bold": "Off",
-            "FontSize": 156095798,
-            "ForeColor": "#FF0000",
+            "FontSize": 361788072,
+            "ForeColor": "#0000FF",
             "Tags": [
-              "8c03dece-11db-82ec-d8db-7f5b322993eb"
+              "e25b45a2-560d-8122-6c0c-3aa989bd4667"
             ]
           },
           {
-            "Text": "Square",
-            "Ws": "mto",
-            "Tags": [
-              "bb75edd3-cfcf-49f2-ac3a-a675fc34068d"
-            ]
-          },
-          {
-            "Text": "Borders",
-            "Ws": "mof",
-            "Bold": "Off",
-            "FontSize": 1551749924,
+            "Text": "Money Market Account",
+            "Ws": "aox",
+            "Bold": "Invert",
+            "FontSize": 1881504352,
             "ForeColor": "#A52A2A",
             "Tags": [
-              "83245146-9102-463d-6702-9805ecddf9ed"
-            ]
-          }
-        ]
-      },
-      "boj": {
-        "Spans": [
-          {
-            "Text": "Customer",
-            "Ws": "boj",
-            "Tags": [
-              "ab794f7a-1958-4c2f-82d8-dd80b331317f"
+              "6cc91054-e9b2-75ca-58c4-833bb87a1948"
             ]
           },
           {
-            "Text": "Response",
-            "Ws": "aso",
-            "Bold": "On",
-            "FontSize": 745397328,
-            "ForeColor": "#ADFF2F",
+            "Text": "index",
+            "Ws": "se",
             "Tags": [
-              "45286390-397e-4f46-c918-fc743707fe27"
-            ]
-          },
-          {
-            "Text": "visionary",
-            "Ws": "boj",
-            "Tags": [
-              "7f95818c-4e9f-4d43-85e4-91e2b1b7d7f6"
+              "7353c7b7-43d3-40be-a82b-f1e5b4d31652"
             ]
           }
         ]
       }
     },
-    "EntityId": "696c660f-bc0e-75b2-3dc8-cd549fb77bc0"
-  },
-  {
-    "$type": "AddVariantChange",
-    "VariantEntryId": "9805fa15-9b21-ba44-fdfe-7f30340ec5ba",
-    "MainEntryId": "57e835b1-11dc-5a14-b879-146d94403d5e",
-    "MainSenseId": "51979c25-0ee3-2256-54c5-72c3d7bc84f8",
-    "Types": [
-      {
-        "Id": "c58aceb8-ed91-9fd7-f847-25a9bdb2f0a9",
-        "Order": 0
-      },
-      {
-        "Id": "8a7ad5ed-7894-3522-5e59-b05a8c4f5485",
-        "Order": 0
-      }
-    ],
-    "HideMinorEntry": true,
-    "Comment": {
-      "imy": {
-        "Spans": [
-          {
-            "Text": "Throughway",
-            "Ws": "cbc",
-            "Bold": "Off",
-            "FontSize": -859798393,
-            "ForeColor": "#00FFFF",
-            "Tags": [
-              "c03da6a7-04ee-c7e8-648f-22692cd23b05"
-            ]
-          }
-        ]
-      }
-    },
-    "EntityId": "02adb2ec-3fdd-a1c6-6533-66df9a04e307"
+    "EntityId": "3dd7c405-ea5e-d908-08cc-11e36ddb60fa"
   },
   {
     "$type": "AddVariantTypeChange",
-    "VariantTypeId": "00000000-0000-0000-0000-000000000000",
-    "Order": 0,
-    "Between": null,
-    "EntityId": "0da6b6a5-5e7a-6f91-9610-a62c595dbdfb"
-  },
-  {
-    "$type": "AddVariantTypeChange",
-    "VariantTypeId": "f2ff124b-ba24-2093-4190-b5cc9cb79316",
-    "Order": 0.2819482232734233,
+    "VariantTypeId": "3d19f188-5dc5-ec28-7035-bdf83b9d2df3",
+    "Order": 0.9152785924984018,
     "Between": {
-      "Previous": "27898603-68c3-a90b-a745-0a51749d5d02",
-      "Next": "62ff5503-bfc8-db10-3c9a-65da49e62388"
+      "Previous": "33187bcc-9543-d9ff-a3ae-99463cba8305",
+      "Next": "d6bee76a-42a1-6dff-cc98-18a0d3faeb21"
     },
-    "EntityId": "937aef98-bfe8-94b4-eaa3-32f8ae3c92e6"
+    "EntityId": "440ffc2f-b320-ffbc-e9d2-b921bdefcd3f"
   },
   {
     "$type": "RemoveVariantTypeChange",
-    "VariantTypeId": "33b6d5be-8799-580d-5587-8879e04c8cc9",
-    "EntityId": "8181bc40-4b7a-5402-4442-7eed4904cff1"
+    "VariantTypeId": "c525542a-22f9-3f06-ce7e-d968f464e381",
+    "EntityId": "11589fe6-8515-f40c-1d0a-d2a844cc8fe1"
+  },
+  {
+    "$type": "ReorderVariantTypeChange",
+    "VariantTypeId": "a6ba2998-406e-47af-fa84-76cc23f1e835",
+    "Order": 0.7073390569914089,
+    "EntityId": "3984f906-7fb3-27c5-506d-30898c9d029c"
   },
   {
     "$type": "CreateVariantType",
     "Name": {
-      "csj": "calculating",
-      "ljp": "open system",
-      "nab": "Overpass"
+      "es": "Health, Music \u0026 Tools"
     },
-    "EntityId": "6a8e727c-2e47-90af-a1ec-42d94fc3e38e"
-  },
-  {
-    "$type": "ReorderVariantTypeChange",
-    "VariantTypeId": "9797f4ff-a732-d9da-105b-c4139e8d7dee",
-    "Order": 0.6680058129866647,
-    "EntityId": "d887a5b5-f7aa-09ee-5439-84d4090a6216"
+    "EntityId": "814b85d6-0828-bc87-3c0b-a0b120ddc230"
   }
 ]

@@ -15,6 +15,8 @@ namespace MiniLcm.Models;
 [JsonDerivedType(typeof(VariantType), nameof(VariantType))]
 [JsonDerivedType(typeof(Variant), nameof(Variant))]
 [JsonDerivedType(typeof(CustomView), nameof(CustomView))]
+[JsonDerivedType(typeof(CommentThread), nameof(CommentThread))]
+[JsonDerivedType(typeof(UserComment), nameof(UserComment))]
 [JsonDerivedType(typeof(MorphType), nameof(MorphType))]
 public interface IObjectWithId
 {
