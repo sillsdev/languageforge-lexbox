@@ -407,7 +407,7 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public Task AddVariantType(Variant variant, Guid variantTypeId)
+    public Task AddVariantType(Variant variant, Guid variantTypeId, BetweenPosition? position = null)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(AddVariantType), $"Add variant type {variantTypeId} to variant link {VariantName(variant)}"));
         return Task.CompletedTask;
@@ -419,9 +419,9 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public Task SetVariantTypesOrder(Variant variant, IReadOnlyList<Guid> orderedTypeIds)
+    public Task MoveVariantType(Variant variant, Guid variantTypeId, BetweenPosition position)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(SetVariantTypesOrder), $"Reorder variant types to [{string.Join(", ", orderedTypeIds)}] on variant link {VariantName(variant)}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(MoveVariantType), $"Move variant type {variantTypeId} on variant link {VariantName(variant)}"));
         return Task.CompletedTask;
     }
 

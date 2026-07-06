@@ -20,4 +20,10 @@ public record VariantType : IObjectWithId<VariantType>
     {
         return new VariantType { Id = Id, Name = Name.Copy(), DeletedAt = DeletedAt };
     }
+
+    /// <summary>A per-link reference to this type (see <see cref="Variant.Types"/>).</summary>
+    public VariantTypeRef ToRef()
+    {
+        return new VariantTypeRef { Id = Id };
+    }
 }

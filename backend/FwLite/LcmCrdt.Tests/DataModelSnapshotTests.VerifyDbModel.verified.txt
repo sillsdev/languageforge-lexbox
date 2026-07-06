@@ -360,7 +360,7 @@
         Annotations: 
           Relational:ColumnName: MainSenseId
       SnapshotId (no field, Guid?) Shadow FK Index
-      Types (List<VariantType>) Required
+      Types (List<VariantTypeRef>) Required
         Annotations: 
           Relational:ColumnType: jsonb
       VariantEntryId (Guid) Required FK Index

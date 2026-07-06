@@ -336,7 +336,7 @@ public static class LcmCrdtKernel
                     .Property(v => v.Types)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<VariantType>>(json,
+                        json => JsonSerializer.Deserialize<List<VariantTypeRef>>(json,
                             (JsonSerializerOptions?)null) ?? new());
                 //these indexes are used to ensure that we don't create duplicate variant links
                 //we need the filter otherwise 2 links which are the same and have a null sense id can be created because 2 rows with the same null are not considered duplicates
@@ -413,7 +413,7 @@ public static class LcmCrdtKernel
             .Add<AddVariantChange>()
             .Add<AddVariantTypeChange>()
             .Add<RemoveVariantTypeChange>()
-            .Add<SetVariantTypesOrderChange>()
+            .Add<ReorderVariantTypeChange>()
             .Add<CreateVariantType>()
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()

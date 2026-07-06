@@ -102,8 +102,8 @@ public class VariantTestsMultipleRefs(ProjectLoaderFixture fixture) : VariantTes
         var typeA = await Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "type a" } } });
         var typeB = await Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "type b" } } });
 
-        await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA] });
-        await Api.CreateVariant(Variant.FromEntries(_variantEntry, otherMainEntry) with { Types = [typeB] });
+        await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA.ToRef()] });
+        await Api.CreateVariant(Variant.FromEntries(_variantEntry, otherMainEntry) with { Types = [typeB.ToRef()] });
 
         var entry = await Api.GetEntry(_variantEntryId);
         entry!.VariantOf.Should().HaveCount(2);

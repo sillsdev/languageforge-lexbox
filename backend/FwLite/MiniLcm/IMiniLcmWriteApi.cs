@@ -74,17 +74,13 @@ public interface IMiniLcmWriteApi
     Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId);
     // Variant links are unordered (no position/move) and resolved by their composite key
     // (VariantEntryId, MainEntryId, MainSenseId) — see VARIANTS.md. A link's Types sequence
-    // IS ordered (FLEx lets users reorder it), hence SetVariantTypesOrder.
+    // IS ordered (FLEx lets users reorder it), hence the picture-style position/move pair.
     Task<Variant> CreateVariant(Variant variant);
     Task<Variant> UpdateVariant(Variant before, Variant after, IMiniLcmApi? api = null);
     Task DeleteVariant(Variant variant);
-    Task AddVariantType(Variant variant, Guid variantTypeId);
+    Task AddVariantType(Variant variant, Guid variantTypeId, BetweenPosition? position = null);
     Task RemoveVariantType(Variant variant, Guid variantTypeId);
-    /// <summary>
-    /// Reorders the link's Types to the given id sequence; types missing from the list keep
-    /// their relative order after the listed ones, unknown ids are ignored.
-    /// </summary>
-    Task SetVariantTypesOrder(Variant variant, IReadOnlyList<Guid> orderedTypeIds);
+    Task MoveVariantType(Variant variant, Guid variantTypeId, BetweenPosition position);
     Task AddPublication(Guid entryId, Guid publicationId);
     Task RemovePublication(Guid entryId, Guid publicationId);
     #endregion

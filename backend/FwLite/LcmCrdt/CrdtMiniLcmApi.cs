@@ -475,15 +475,11 @@ public class CrdtMiniLcmApi(
                 throw new InvalidOperationException($"Sense {variant.MainSenseId} does not belong to entry {variant.MainEntryId}, it belongs to {senseEntryId}");
         }
         var typeIds = variant.Types.Select(t => t.Id).ToArray();
-        var resolvedTypes = await repo.VariantTypes.Where(t => typeIds.Contains(t.Id)).ToArrayAsync();
-        var missing = typeIds.Except(resolvedTypes.Select(t => t.Id)).ToArray();
+        var knownTypeIds = await repo.VariantTypes.Where(t => typeIds.Contains(t.Id)).Select(t => t.Id).ToArrayAsync();
+        var missing = typeIds.Except(knownTypeIds).ToArray();
         if (missing.Length > 0)
             throw new InvalidOperationException($"Variant {variant} references variant types which do not exist: {string.Join(", ", missing)}");
-        // use the repo's canonical type objects so embedded copies match CRDT state
-        return new AddVariantChange(variant with
-        {
-            Types = [..typeIds.Select(id => resolvedTypes.Single(t => t.Id == id))]
-        });
+        return new AddVariantChange(variant);
     }
 
     public async Task<Variant> CreateVariant(Variant variant)
@@ -517,12 +513,13 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<Variant>(existing.Id));
     }
 
-    public async Task AddVariantType(Variant variant, Guid variantTypeId)
+    public async Task AddVariantType(Variant variant, Guid variantTypeId, BetweenPosition? position = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var existing = await repo.FindVariant(variant);
         if (existing is null) return;
-        await AddChange(new AddVariantTypeChange(existing.Id, await repo.VariantTypes.SingleAsync(vt => vt.Id == variantTypeId)));
+        var variantType = await repo.VariantTypes.SingleAsync(vt => vt.Id == variantTypeId);
+        await AddChange(new AddVariantTypeChange(existing.Id, new VariantTypeRef { Id = variantType.Id }, position));
     }
 
     public async Task RemoveVariantType(Variant variant, Guid variantTypeId)
@@ -533,12 +530,13 @@ public class CrdtMiniLcmApi(
         await AddChange(new RemoveVariantTypeChange(existing.Id, variantTypeId));
     }
 
-    public async Task SetVariantTypesOrder(Variant variant, IReadOnlyList<Guid> orderedTypeIds)
+    public async Task MoveVariantType(Variant variant, Guid variantTypeId, BetweenPosition position)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var existing = await repo.FindVariant(variant);
         if (existing is null) return;
-        await AddChange(new SetVariantTypesOrderChange(existing.Id, [.. orderedTypeIds]));
+        var order = OrderPicker.PickOrder(existing.Types, position);
+        await AddChange(new ReorderVariantTypeChange(variantTypeId, existing.Id, order));
     }
 
     public async IAsyncEnumerable<MorphType> GetMorphTypes()

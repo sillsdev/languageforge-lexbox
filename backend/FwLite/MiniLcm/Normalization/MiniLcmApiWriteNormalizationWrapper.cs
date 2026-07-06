@@ -339,9 +339,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.DeleteVariant(variant);
     }
 
-    public Task AddVariantType(Variant variant, Guid variantTypeId)
+    public Task AddVariantType(Variant variant, Guid variantTypeId, BetweenPosition? position = null)
     {
-        return _api.AddVariantType(variant, variantTypeId);
+        return _api.AddVariantType(variant, variantTypeId, position);
     }
 
     public Task RemoveVariantType(Variant variant, Guid variantTypeId)
@@ -349,9 +349,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.RemoveVariantType(variant, variantTypeId);
     }
 
-    public Task SetVariantTypesOrder(Variant variant, IReadOnlyList<Guid> orderedTypeIds)
+    public Task MoveVariantType(Variant variant, Guid variantTypeId, BetweenPosition position)
     {
-        return _api.SetVariantTypesOrder(variant, orderedTypeIds);
+        return _api.MoveVariantType(variant, variantTypeId, position);
     }
 
     public Task AddPublication(Guid entryId, Guid publicationId)
@@ -396,7 +396,8 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
             VariantHeadword = StringNormalizer.Normalize(variant.VariantHeadword),
             MainHeadword = StringNormalizer.Normalize(variant.MainHeadword),
             Comment = StringNormalizer.Normalize(variant.Comment),
-            Types = [.. variant.Types.Select(NormalizeVariantType)]
+            // type refs carry no strings to normalize; copy to keep before/after lists independent
+            Types = [.. variant.Types.Select(t => t.Copy())]
         };
     }
 

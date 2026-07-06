@@ -55,10 +55,10 @@ public class VariantValidationTests
     }
 
     [Fact]
-    public void FailsForTypeWithEmptyName()
+    public void FailsForTypeRefWithoutId()
     {
         var variant = NewVariant();
-        variant.Types = [new VariantType { Id = Guid.NewGuid(), Name = new MultiString() }];
+        variant.Types = [new VariantTypeRef { Id = Guid.Empty }];
         _validator.TestValidate(variant).IsValid.Should().BeFalse();
     }
 }

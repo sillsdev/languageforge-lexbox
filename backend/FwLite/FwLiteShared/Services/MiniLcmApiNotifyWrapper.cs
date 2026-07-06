@@ -156,9 +156,9 @@ public partial class MiniLcmApiNotifyWrapper(
         NotifyEntriesChanged(variant.VariantEntryId, variant.MainEntryId);
     }
 
-    async Task IMiniLcmWriteApi.AddVariantType(Variant variant, Guid variantTypeId)
+    async Task IMiniLcmWriteApi.AddVariantType(Variant variant, Guid variantTypeId, BetweenPosition? position)
     {
-        await _api.AddVariantType(variant, variantTypeId);
+        await _api.AddVariantType(variant, variantTypeId, position);
         NotifyEntriesChanged(variant.VariantEntryId, variant.MainEntryId);
     }
 
@@ -168,9 +168,9 @@ public partial class MiniLcmApiNotifyWrapper(
         NotifyEntriesChanged(variant.VariantEntryId, variant.MainEntryId);
     }
 
-    async Task IMiniLcmWriteApi.SetVariantTypesOrder(Variant variant, IReadOnlyList<Guid> orderedTypeIds)
+    async Task IMiniLcmWriteApi.MoveVariantType(Variant variant, Guid variantTypeId, BetweenPosition position)
     {
-        await _api.SetVariantTypesOrder(variant, orderedTypeIds);
+        await _api.MoveVariantType(variant, variantTypeId, position);
         NotifyEntriesChanged(variant.VariantEntryId, variant.MainEntryId);
     }
 

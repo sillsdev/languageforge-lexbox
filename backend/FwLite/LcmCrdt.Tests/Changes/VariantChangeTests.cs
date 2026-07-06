@@ -36,7 +36,7 @@ public class VariantChangeTests(MiniLcmApiFixture fixture) : IClassFixture<MiniL
 
         var variant = Variant.FromEntries(variantEntry, mainEntry) with
         {
-            Types = [variantType],
+            Types = [variantType.ToRef()],
             HideMinorEntry = true,
             Comment = new() { { "en", new RichString("british spelling") } },
         };
@@ -55,7 +55,7 @@ public class VariantChangeTests(MiniLcmApiFixture fixture) : IClassFixture<MiniL
         var variantType = await fixture.Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "doomed" } } });
         await fixture.Api.DeleteVariantType(variantType.Id);
 
-        var variant = Variant.FromEntries(variantEntry, mainEntry) with { Types = [variantType] };
+        var variant = Variant.FromEntries(variantEntry, mainEntry) with { Types = [variantType.ToRef()] };
         await fixture.DataModel.AddChange(Guid.NewGuid(), new AddVariantChange(variant));
 
         var link = (await fixture.Api.GetEntry(variantEntry.Id))!.VariantOf.Should().ContainSingle().Subject;
@@ -115,7 +115,7 @@ public class VariantChangeTests(MiniLcmApiFixture fixture) : IClassFixture<MiniL
         await fixture.DataModel.AddChange(Guid.NewGuid(), new AddVariantChange(Variant.FromEntries(variantEntry, mainEntry)));
         var link = (await fixture.Api.GetEntry(variantEntry.Id))!.VariantOf.Single();
 
-        var change = new AddVariantTypeChange(link.Id, variantType);
+        var change = new AddVariantTypeChange(link.Id, variantType.ToRef());
         await fixture.DataModel.AddChange(Guid.NewGuid(), change);
 
         link = (await fixture.Api.GetEntry(variantEntry.Id))!.VariantOf.Single();
@@ -128,7 +128,7 @@ public class VariantChangeTests(MiniLcmApiFixture fixture) : IClassFixture<MiniL
         var (variantEntry, mainEntry) = await CreateEntryPair();
         var variantType = await fixture.Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } });
 
-        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddVariantChange(Variant.FromEntries(variantEntry, mainEntry) with { Types = [variantType] }));
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddVariantChange(Variant.FromEntries(variantEntry, mainEntry) with { Types = [variantType.ToRef()] }));
         var link = (await fixture.Api.GetEntry(variantEntry.Id))!.VariantOf.Single();
         link.Types.Should().ContainSingle();
 
@@ -139,25 +139,27 @@ public class VariantChangeTests(MiniLcmApiFixture fixture) : IClassFixture<MiniL
     }
 
     [Fact]
-    public async Task SetVariantTypesOrder_ReordersTypesAndMergesWithConcurrentAdd()
+    public async Task ReorderVariantType_AppliesPerTypeOrderAndSkipsRemovedTypes()
     {
         var (variantEntry, mainEntry) = await CreateEntryPair();
         var typeA = await fixture.Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "a" } } });
         var typeB = await fixture.Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "b" } } });
         var typeC = await fixture.Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "c" } } });
 
-        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddVariantChange(Variant.FromEntries(variantEntry, mainEntry) with { Types = [typeA, typeB] }));
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddVariantChange(Variant.FromEntries(variantEntry, mainEntry) with { Types = [typeA.ToRef(), typeB.ToRef()] }));
         var link = (await fixture.Api.GetEntry(variantEntry.Id))!.VariantOf.Single();
 
-        await fixture.DataModel.AddChange(Guid.NewGuid(), new SetVariantTypesOrderChange(link.Id, [typeB.Id, typeA.Id]));
+        // move B before A by giving it a smaller order (like ReorderSensePictureChange)
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new ReorderVariantTypeChange(typeB.Id, link.Id, 0.5));
         link = (await fixture.Api.GetEntry(variantEntry.Id))!.VariantOf.Single();
         link.Types.Select(t => t.Id).Should().Equal(typeB.Id, typeA.Id);
 
-        // a type the reorder never listed (e.g. added concurrently) lands after the listed ones
-        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddVariantTypeChange(link.Id, typeC));
-        await fixture.DataModel.AddChange(Guid.NewGuid(), new SetVariantTypesOrderChange(link.Id, [typeA.Id, typeB.Id]));
+        // adds append after existing orders; reordering a type removed in the meantime is a no-op
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddVariantTypeChange(link.Id, typeC.ToRef()));
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new RemoveVariantTypeChange(link.Id, typeA.Id));
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new ReorderVariantTypeChange(typeA.Id, link.Id, 10));
         link = (await fixture.Api.GetEntry(variantEntry.Id))!.VariantOf.Single();
-        link.Types.Select(t => t.Id).Should().Equal(typeA.Id, typeB.Id, typeC.Id);
+        link.Types.Select(t => t.Id).Should().Equal(typeB.Id, typeC.Id);
     }
 
     [Fact]
@@ -166,7 +168,7 @@ public class VariantChangeTests(MiniLcmApiFixture fixture) : IClassFixture<MiniL
         var (variantEntry, mainEntry) = await CreateEntryPair();
         var variantType = await fixture.Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } });
 
-        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddVariantChange(Variant.FromEntries(variantEntry, mainEntry) with { Types = [variantType] }));
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddVariantChange(Variant.FromEntries(variantEntry, mainEntry) with { Types = [variantType.ToRef()] }));
         await fixture.DataModel.AddChange(Guid.NewGuid(), new DeleteChange<VariantType>(variantType.Id));
 
         var link = (await fixture.Api.GetEntry(variantEntry.Id))!.VariantOf.Should().ContainSingle().Subject;

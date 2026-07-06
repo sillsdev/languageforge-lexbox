@@ -100,7 +100,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
     internal static void AssertSnapshotsAreEquivalent(ProjectSnapshot expected, ProjectSnapshot actual)
     {
-        var excludeOrderTypes = new[] { typeof(Sense), typeof(ExampleSentence), typeof(Picture), typeof(ComplexFormComponent), typeof(WritingSystem) };
+        var excludeOrderTypes = new[] { typeof(Sense), typeof(ExampleSentence), typeof(Picture), typeof(ComplexFormComponent), typeof(VariantTypeRef), typeof(WritingSystem) };
         var excludeIds = new[] { typeof(ComplexFormComponent), typeof(Variant), typeof(WritingSystem) };
         actual.Should().BeEquivalentTo(expected,
             options =>

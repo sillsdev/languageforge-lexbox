@@ -11,7 +11,7 @@ public class AddVariantChange : CreateChange<Variant>, ISelfNamedType<AddVariant
     public Guid VariantEntryId { get; }
     public Guid MainEntryId { get; }
     public Guid? MainSenseId { get; }
-    public List<VariantType> Types { get; }
+    public List<VariantTypeRef> Types { get; }
     public bool HideMinorEntry { get; }
     public RichMultiString Comment { get; }
 
@@ -20,7 +20,7 @@ public class AddVariantChange : CreateChange<Variant>, ISelfNamedType<AddVariant
         Guid variantEntryId,
         Guid mainEntryId,
         Guid? mainSenseId = null,
-        List<VariantType>? types = null,
+        List<VariantTypeRef>? types = null,
         bool hideMinorEntry = false,
         RichMultiString? comment = null) : base(entityId)
     {
@@ -52,12 +52,18 @@ public class AddVariantChange : CreateChange<Variant>, ISelfNamedType<AddVariant
         var shouldBeDeleted = (variantEntry is null or {DeletedAt: not null } ||
                                mainEntry is null or { DeletedAt: not null } ||
                                (MainSenseId.HasValue && mainSense?.DeletedAt is not null));
-        var types = new List<VariantType>(Types.Count);
+        var types = new List<VariantTypeRef>(Types.Count);
         foreach (var type in Types)
         {
             if (await context.IsObjectDeleted(type.Id)) continue;
             types.Add(type);
         }
+        // inputs that never picked orders (e.g. a link created whole with its types) keep list order
+        if (types.Count > 0 && types.All(t => t.Order == 0))
+        {
+            for (var i = 0; i < types.Count; i++) types[i].Order = i + 1;
+        }
+        types.Sort(VariantTypeRef.CompareRefs);
         var variant = new Variant
         {
             Id = EntityId,

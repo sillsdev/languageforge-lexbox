@@ -39,7 +39,7 @@
       mainEntryId: selection.entry.id,
       mainSenseId: selection.sense?.id,
       mainHeadword: writingSystemService.headword(selection.entry),
-      types: unspecified ? [unspecified] : [],
+      types: unspecified ? [{id: unspecified.id, order: 0}] : [],
       hideMinorEntry: false,
       comment: {},
     };
