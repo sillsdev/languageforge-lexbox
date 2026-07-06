@@ -235,6 +235,11 @@ msgstr ""
 msgid "Added {0}"
 msgstr ""
 
+#. Activity-log line: a user posted a discussion comment (on an entry). A chip with the comment text may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added comment"
+msgstr ""
+
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added component"
 msgstr ""
@@ -520,6 +525,11 @@ msgstr "Tutup Kamus"
 msgid "Closed"
 msgstr ""
 
+#. Activity-log line: a user closed (resolved) a discussion thread. Matches the "Closed" status in the comments dialog.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Closed comment thread"
+msgstr ""
+
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
@@ -782,6 +792,16 @@ msgstr ""
 msgid "Deleted {0} from"
 msgstr ""
 
+#. Activity-log line: a user deleted a discussion comment.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted comment"
+msgstr ""
+
+#. Activity-log line: a user deleted a whole discussion thread with its comments.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted comment thread"
+msgstr ""
+
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Description"
 msgstr ""
@@ -912,6 +932,11 @@ msgstr ""
 #. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "morph type"); a chip with the edited item's name follows.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Edited {0}"
+msgstr ""
+
+#. Activity-log line: a user edited their discussion comment. A chip with the new comment text may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Edited comment"
 msgstr ""
 
 #. Role selector option
@@ -2063,6 +2088,11 @@ msgstr ""
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Reopen"
 msgstr "Buka semula"
+
+#. Activity-log line: a user reopened a previously closed discussion thread.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reopened comment thread"
+msgstr ""
 
 #: src/lib/activity/ActivityView.svelte
 msgid "Reordered"

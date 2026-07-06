@@ -62,6 +62,10 @@ export type ChangeFact =
   // A media resource (a substrate file — currently only audio recordings). `audio` is set when the commit
   // references this resource id from an audio writing system; `resourceId` lets the preview play it.
   | {kind: 'mediaResource'; action: 'add' | 'delete' | 'upload'; resourceId?: string; audio?: boolean}
+  // A discussion comment (a develop feature). Thread *creation* is deliberately fact-less: it only ever
+  // accompanies its first comment, whose fact carries the line.
+  | {kind: 'comment'; action: 'add' | 'edit' | 'delete'; text?: string}
+  | {kind: 'commentThread'; action: 'close' | 'reopen' | 'delete'}
   | {kind: 'generic'; text: string};
 
 const MAIN_ENTITY_BY_SUFFIX: Record<string, SummaryEntity> = {
@@ -282,6 +286,17 @@ const TYPED_HANDLERS: Record<string, (change: unknown) => ChangeFact[]> = {
   ReorderSensePictureChange: () => [{kind: 'sensePicture', action: 'reorder'}],
   SetMainPublicationChange: () => [{kind: 'setMainPublication'}],
 
+  CreateCommentThreadChange: () => [],
+  CreateUserCommentChange: (c) => [{kind: 'comment', action: 'add', text: displayValue(prop(c, 'text'))}],
+  EditUserCommentChange: (c) => [{kind: 'comment', action: 'edit', text: displayValue(prop(c, 'text'))}],
+  // ThreadStatus has no string-enum converter, so tolerate both wire shapes: numeric (sqlite-stored change
+  // JSON: Open=0/Closed=1) and string (string-enum serializers elsewhere).
+  SetCommentThreadStatusChange: (c) => {
+    const status = prop(c, 'status');
+    const closed = status === 'Closed' || status === 1;
+    return [{kind: 'commentThread', action: closed ? 'close' : 'reopen'}];
+  },
+
   CreatePartOfSpeechChange: (c) => [{kind: 'createObject', object: 'partOfSpeech', label: labelOf(prop(c, 'name'))}],
   CreateSemanticDomainChange: (c) => [{kind: 'createObject', object: 'semanticDomain', label: semanticDomainLabel(c)}],
   CreatePublicationChange: (c) => [{kind: 'createObject', object: 'publication', label: labelOf(prop(c, 'name'))}],
@@ -319,6 +334,8 @@ function deleteFacts(suffix: string): ChangeFact[] {
   const entity = MAIN_ENTITY_BY_SUFFIX[suffix];
   if (entity) return [{kind: 'delete', entity}];
   if (suffix === 'ComplexFormComponent') return [{kind: 'componentLink', action: 'remove'}];
+  if (suffix === 'UserComment') return [{kind: 'comment', action: 'delete'}];
+  if (suffix === 'CommentThread') return [{kind: 'commentThread', action: 'delete'}];
   const object = OBJECT_BY_SUFFIX[suffix];
   if (object) return [{kind: 'deleteObject', object}];
   return [{kind: 'generic', text: humanizeType(`delete:${suffix}`)}];
@@ -359,7 +376,8 @@ export function isHandledChangeType(type: string): boolean {
   }
   if (type.startsWith('delete:')) {
     const suffix = type.slice('delete:'.length);
-    return suffix in MAIN_ENTITY_BY_SUFFIX || suffix in OBJECT_BY_SUFFIX || suffix === 'ComplexFormComponent';
+    return suffix in MAIN_ENTITY_BY_SUFFIX || suffix in OBJECT_BY_SUFFIX
+      || suffix === 'ComplexFormComponent' || suffix === 'UserComment' || suffix === 'CommentThread';
   }
   if (type.startsWith('SetOrderChange:')) {
     return type.slice('SetOrderChange:'.length) in ORDER_COLLECTION;
@@ -469,6 +487,10 @@ export function factCategory(fact: ChangeFact): FactCategory {
       return 'reordered';
     case 'componentLink':
       return fact.action === 'add' ? 'added' : fact.action === 'remove' ? 'removed' : 'changed';
+    case 'comment':
+      return fact.action === 'add' ? 'added' : fact.action === 'delete' ? 'removed' : 'changed';
+    case 'commentThread':
+      return fact.action === 'delete' ? 'removed' : 'changed';
     case 'sensePicture':
       return fact.action === 'add' ? 'added' : fact.action === 'remove' ? 'removed' : fact.action === 'reorder' ? 'reordered' : 'changed';
     case 'mediaResource':

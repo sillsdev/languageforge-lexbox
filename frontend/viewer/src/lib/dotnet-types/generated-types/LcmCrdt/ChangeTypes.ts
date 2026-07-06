@@ -9,6 +9,7 @@ export type ChangeType =
   | 'AddPublicationChange'
   | 'AddSemanticDomainChange'
   | 'AddTranslationChange'
+  | 'CreateCommentThreadChange'
   | 'CreateComplexFormType'
   | 'CreateCustomViewChange'
   | 'CreateEntryChange'
@@ -19,8 +20,10 @@ export type ChangeType =
   | 'CreateSemanticDomainChange'
   | 'CreateSenseChange'
   | 'CreateSensePictureChange'
+  | 'CreateUserCommentChange'
   | 'CreateWritingSystemChange'
   | 'EditCustomViewChange'
+  | 'EditUserCommentChange'
   | 'MoveSenseToEntryChange'
   | 'RemoveComplexFormTypeChange'
   | 'RemovePublicationChange'
@@ -30,6 +33,7 @@ export type ChangeType =
   | 'ReorderSensePictureChange'
   | 'ReplacePublicationChange'
   | 'ReplaceSemanticDomainChange'
+  | 'SetCommentThreadStatusChange'
   | 'SetComplexFormComponentChange'
   | 'SetFirstTranslationIdChange'
   | 'SetMainPublicationChange'
@@ -42,6 +46,7 @@ export type ChangeType =
   | 'UpdateTranslationChange'
   | 'create:pendingUpload'
   | 'create:remote-resource'
+  | 'delete:CommentThread'
   | 'delete:ComplexFormComponent'
   | 'delete:ComplexFormType'
   | 'delete:CustomView'
@@ -52,6 +57,7 @@ export type ChangeType =
   | 'delete:RemoteResource'
   | 'delete:SemanticDomain'
   | 'delete:Sense'
+  | 'delete:UserComment'
   | 'delete:WritingSystem'
   | 'jsonPatch:ComplexFormType'
   | 'jsonPatch:Entry'
@@ -70,6 +76,7 @@ export const knownChangeTypes = [
   'AddPublicationChange',
   'AddSemanticDomainChange',
   'AddTranslationChange',
+  'CreateCommentThreadChange',
   'CreateComplexFormType',
   'CreateCustomViewChange',
   'CreateEntryChange',
@@ -80,8 +87,10 @@ export const knownChangeTypes = [
   'CreateSemanticDomainChange',
   'CreateSenseChange',
   'CreateSensePictureChange',
+  'CreateUserCommentChange',
   'CreateWritingSystemChange',
   'EditCustomViewChange',
+  'EditUserCommentChange',
   'MoveSenseToEntryChange',
   'RemoveComplexFormTypeChange',
   'RemovePublicationChange',
@@ -91,6 +100,7 @@ export const knownChangeTypes = [
   'ReorderSensePictureChange',
   'ReplacePublicationChange',
   'ReplaceSemanticDomainChange',
+  'SetCommentThreadStatusChange',
   'SetComplexFormComponentChange',
   'SetFirstTranslationIdChange',
   'SetMainPublicationChange',
@@ -103,6 +113,7 @@ export const knownChangeTypes = [
   'UpdateTranslationChange',
   'create:pendingUpload',
   'create:remote-resource',
+  'delete:CommentThread',
   'delete:ComplexFormComponent',
   'delete:ComplexFormType',
   'delete:CustomView',
@@ -113,6 +124,7 @@ export const knownChangeTypes = [
   'delete:RemoteResource',
   'delete:SemanticDomain',
   'delete:Sense',
+  'delete:UserComment',
   'delete:WritingSystem',
   'jsonPatch:ComplexFormType',
   'jsonPatch:Entry',

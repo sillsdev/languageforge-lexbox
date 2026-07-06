@@ -202,6 +202,32 @@ describe('describeChange', () => {
       .toEqual([{kind: 'editObject', object: 'customView', label: 'Example sentences (pt)'}]);
   });
 
+  it('summarizes a comment post as just the comment (the paired thread create is plumbing, not a fact)', () => {
+    expect(describeChange(changeEntity({'$type': 'CreateCommentThreadChange', SubjectId: 's', EntityId: 't'}))).toEqual([]);
+    expect(describeChange(changeEntity({'$type': 'CreateUserCommentChange', Text: 'looks wrong', EntityId: 'c'})))
+      .toEqual([{kind: 'comment', action: 'add', text: 'looks wrong'}]);
+  });
+
+  it('describes comment edits and deletions', () => {
+    expect(describeChange(changeEntity({'$type': 'EditUserCommentChange', Text: 'fixed now', EntityId: 'c'})))
+      .toEqual([{kind: 'comment', action: 'edit', text: 'fixed now'}]);
+    expect(describeChange(changeEntity({'$type': 'delete:UserComment', EntityId: 'c'})))
+      .toEqual([{kind: 'comment', action: 'delete'}]);
+    expect(describeChange(changeEntity({'$type': 'delete:CommentThread', EntityId: 't'})))
+      .toEqual([{kind: 'commentThread', action: 'delete'}]);
+  });
+
+  it('reads a thread-status change in both wire shapes (numeric sqlite JSON and string enum)', () => {
+    expect(describeChange(changeEntity({'$type': 'SetCommentThreadStatusChange', Status: 1, EntityId: 't'})))
+      .toEqual([{kind: 'commentThread', action: 'close'}]);
+    expect(describeChange(changeEntity({'$type': 'SetCommentThreadStatusChange', Status: 'Closed', EntityId: 't'})))
+      .toEqual([{kind: 'commentThread', action: 'close'}]);
+    expect(describeChange(changeEntity({'$type': 'SetCommentThreadStatusChange', Status: 0, EntityId: 't'})))
+      .toEqual([{kind: 'commentThread', action: 'reopen'}]);
+    expect(describeChange(changeEntity({'$type': 'SetCommentThreadStatusChange', Status: 'Open', EntityId: 't'})))
+      .toEqual([{kind: 'commentThread', action: 'reopen'}]);
+  });
+
   // Substrate plumbing that intentionally uses the generic humanized fallback (not a user-facing edit).
   const INTENTIONALLY_GENERIC = new Set<string>([
     'create:pendingUpload',

@@ -31,17 +31,19 @@ function styledBranchTypes(): Set<string> {
   return new Set([...source.matchAll(/entityType === '([^']+)'/g)].map((m) => m[1]));
 }
 
-// Types that intentionally fall through to the raw-JSON fallback (no styled diff). These are NOT IObjectWithId
-// implementers today (RemoteResource isn't IObjectWithId, so it surfaces as entityType "Unknown"), so the
-// derived set below won't contain them — the list documents intent and absorbs any future IObjectWithId type
-// we deliberately choose not to preview. Adding a type here is a conscious opt-out, reviewed in the diff.
-const FALLBACK_ONLY: string[] = [];
+// Types that intentionally fall through to the raw-JSON fallback (no styled diff). Adding a type here is a
+// conscious opt-out, reviewed in the diff. Comments have their own discussion UI (CommentDialog) and their
+// activity line already shows the comment text, so a styled snapshot diff adds little; the raw JSON stays
+// inspectable for the curious. (RemoteResource isn't IObjectWithId — it surfaces as entityType "Unknown" —
+// so it can't appear in the derived set at all.)
+const FALLBACK_ONLY: string[] = ['CommentThread', 'UserComment'];
 
 describe('activity preview covers every emittable entity type', () => {
   it('the model set we derive is the full vocab + lexical set (guards the derivation itself)', () => {
     // If this drifts, the derivation broke or the model set changed — re-check before trusting the test below.
     expect(emittableEntityTypes().sort()).toEqual(
       [
+        'CommentThread',
         'ComplexFormComponent',
         'ComplexFormType',
         'CustomView',
@@ -52,6 +54,7 @@ describe('activity preview covers every emittable entity type', () => {
         'Publication',
         'SemanticDomain',
         'Sense',
+        'UserComment',
         'WritingSystem',
       ].sort(),
     );
