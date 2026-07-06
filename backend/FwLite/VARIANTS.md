@@ -170,8 +170,11 @@ public record Variant : IObjectWithId<Variant>
    are dedicated CRDT changes on the link (`AddVariantTypeChange`/`RemoveVariantTypeChange`,
    `EditChange<Variant>`); `HideMinorEntry`/`Comment` sync via `JsonPatchChange<Variant>`.
    This is what makes concurrent type edits merge instead of last-writer-wins.
-6. **No ordering.** Variant lists have no user-meaningful order in FLEx; both directions diff
-   as sets. No `IOrderable`, no `SetOrderChange`, no Move API.
+6. **No link ordering; type order is real.** Variant *link* lists have no user-meaningful
+   order in FLEx; both directions diff as sets — no `IOrderable`, no `SetOrderChange`, no Move
+   API for links. A link's `Types` sequence IS user-ordered (FLEx: right-click → move
+   left/right), so it round-trips: `SetVariantTypesOrderChange` + `SetVariantTypesOrder`
+   normalize order after the type add/remove diff (added on review, hahn-kev).
 7. **Self-references, duplicates AND cycles are rejected; chains are allowed.** (This
    decision reversed mid-implementation: `MakeVariantOf` has no cycle check, but the FwData
    conformance tests proved liblcm rejects circular refs at a lower level —

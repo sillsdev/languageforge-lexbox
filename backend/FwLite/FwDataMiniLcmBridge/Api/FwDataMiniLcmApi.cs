@@ -1469,6 +1469,29 @@ public class FwDataMiniLcmApi(
         return Task.CompletedTask;
     }
 
+    public Task SetVariantTypesOrder(Variant variant, IReadOnlyList<Guid> orderedTypeIds)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Reorder Variant Types",
+            "Revert Variant Types order",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                if (!EntriesRepository.TryGetObject(variant.VariantEntryId, out var lexVariantEntry)) return;
+                var entryRef = FindVariantRefForUpdate(lexVariantEntry, variant);
+                if (entryRef is null) return;
+                var orderIds = orderedTypeIds.ToList();
+                var ordered = entryRef.VariantEntryTypesRS
+                    .Select((type, index) => (type, index))
+                    .OrderBy(t => orderIds.IndexOf(t.type.Guid) is var i and >= 0 ? i : int.MaxValue)
+                    .ThenBy(t => t.index)
+                    .Select(t => t.type)
+                    .ToArray();
+                if (ordered.SequenceEqual(entryRef.VariantEntryTypesRS)) return;
+                entryRef.VariantEntryTypesRS.Replace(0, entryRef.VariantEntryTypesRS.Count, ordered);
+            });
+        return Task.CompletedTask;
+    }
+
     /// <summary>
     /// must be called as part of an lcm action
     /// </summary>

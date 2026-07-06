@@ -419,6 +419,12 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task SetVariantTypesOrder(Variant variant, IReadOnlyList<Guid> orderedTypeIds)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SetVariantTypesOrder), $"Reorder variant types to [{string.Join(", ", orderedTypeIds)}] on variant link {VariantName(variant)}"));
+        return Task.CompletedTask;
+    }
+
     private static string VariantName(Variant variant)
     {
         return $"{variant.VariantHeadword ?? variant.VariantEntryId.ToString()} -> {variant.MainHeadword ?? variant.MainEntryId.ToString()}{(variant.MainSenseId is null ? "" : $" (sense {variant.MainSenseId})")}";

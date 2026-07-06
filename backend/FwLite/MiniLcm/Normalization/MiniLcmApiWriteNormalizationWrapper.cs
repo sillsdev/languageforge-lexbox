@@ -349,6 +349,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.RemoveVariantType(variant, variantTypeId);
     }
 
+    public Task SetVariantTypesOrder(Variant variant, IReadOnlyList<Guid> orderedTypeIds)
+    {
+        return _api.SetVariantTypesOrder(variant, orderedTypeIds);
+    }
+
     public Task AddPublication(Guid entryId, Guid publicationId)
     {
         return _api.AddPublication(entryId, publicationId);
