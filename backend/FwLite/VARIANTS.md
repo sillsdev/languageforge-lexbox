@@ -296,7 +296,7 @@ Fanout sites that must stay in lockstep:
   directions — a one-direction wiring won't reconcile deletes). Phase/option names stay
   as-is in these PRs (`…ComplexFormsAndComponents` now covers variants too; renaming is a
   separate no-behavior PR — reviewer advice, keeps the critical diff small).
-- `CreateEntryOptions.IncludeComplexFormsAndComponents` also gates variant links (doc
+- `CreateEntryOptions.IncludeEntryReferences` (renamed from `IncludeComplexFormsAndComponents` on review) gates variant links too (doc
   comment updated; entry-to-entry refs need both endpoints to exist).
 - `ProjectSnapshot` gains `VariantTypes` — update **`TakeProjectSnapshot()`**
   (`MiniLcmApiExtensions`) and `ProjectSnapshot.Empty`, or it compiles-but-snapshots-empty

@@ -5,7 +5,7 @@
 
 export interface ICreateEntryOptions
 {
-	includeComplexFormsAndComponents: boolean;
+	includeEntryReferences: boolean;
 	autoAddMainPublication: boolean;
 }
 /* eslint-enable */

@@ -153,6 +153,20 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.UpdateVariant(before, after, api ?? this);
     }
 
+    // Submit* must be overridden explicitly: BeaKona's generated forwarders bypass the
+    // interface default bodies and go straight to _api, silently skipping validation (#2362)
+    public async Task SubmitCreateVariant(Variant variant)
+    {
+        await validators.ValidateAndThrow(variant);
+        await _api.SubmitCreateVariant(variant);
+    }
+
+    public async Task SubmitUpdateVariant(Variant variant, UpdateObjectInput<Variant> update)
+    {
+        await validators.ValidateAndThrow(update);
+        await _api.SubmitUpdateVariant(variant, update);
+    }
+
     public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
         await validators.ValidateAndThrow(update);

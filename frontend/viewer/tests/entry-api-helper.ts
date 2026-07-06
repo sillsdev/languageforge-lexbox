@@ -84,7 +84,7 @@ export class EntryApiHelper {
         publishIn: [],
         homographNumber: 0,
       };
-      const created = await api.createEntry(newEntry, {includeComplexFormsAndComponents: true, autoAddMainPublication: false});
+      const created = await api.createEntry(newEntry, {includeEntryReferences: true, autoAddMainPublication: false});
       return {id: created.id, headword: newHeadword};
     }, {idx: targetIndex, order: DEFAULT_ORDER, morphType: MorphTypeKind.Unknown});
   }
@@ -108,7 +108,7 @@ export class EntryApiHelper {
         publishIn: [],
         homographNumber: 0,
       };
-      const created = await api.createEntry(newEntry, {includeComplexFormsAndComponents: true, autoAddMainPublication: false});
+      const created = await api.createEntry(newEntry, {includeEntryReferences: true, autoAddMainPublication: false});
       return {id: created.id, headword: hw};
     }, {hw: headword, morphType: MorphTypeKind.Unknown});
   }

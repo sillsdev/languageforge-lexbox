@@ -174,7 +174,7 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         options ??= new CreateEntryOptions();
         DryRunRecords.Add(new DryRunRecord(nameof(CreateEntry), $"Create entry {entry.Headword()} ({options})"));
         // Only return what would have been persisted
-        if (options.IncludeComplexFormsAndComponents)
+        if (options.IncludeEntryReferences)
             return Task.FromResult(entry);
         else
             return Task.FromResult(entry with { Components = [], ComplexForms = [], VariantOf = [], Variants = [] });

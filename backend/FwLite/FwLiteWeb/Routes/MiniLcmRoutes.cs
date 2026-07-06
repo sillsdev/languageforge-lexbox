@@ -193,10 +193,10 @@ public static class MiniLcmRoutes
         [FromQuery]
         public bool? AutoAddMainPublication { get; set; }
         [FromQuery]
-        public bool? IncludeComplexFormsAndComponents { get; set; }
+        public bool? IncludeEntryReferences { get; set; }
 
         public CreateEntryOptions ToOptions(CreateEntryOptions defaults) => new(
-            IncludeComplexFormsAndComponents: IncludeComplexFormsAndComponents ?? defaults.IncludeComplexFormsAndComponents,
+            IncludeEntryReferences: IncludeEntryReferences ?? defaults.IncludeEntryReferences,
             AutoAddMainPublication: AutoAddMainPublication ?? defaults.AutoAddMainPublication);
     }
 
