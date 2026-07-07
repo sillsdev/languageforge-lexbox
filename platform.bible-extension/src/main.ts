@@ -263,15 +263,27 @@ function getFwLiteDataDir(): string {
   return `${appDataDir}\\extensions\\lexicon\\fw-lite`;
 }
 
+/** Returns the extension-relative path to the FW Lite binary for the given platform. */
+function getFwLiteBinaryPath(platform: string): string {
+  switch (platform) {
+    case 'win32':
+      return 'fw-lite/win-x64/FwLiteWeb.exe';
+    case 'linux':
+      // The extension zip doesn't preserve the Unix executable bit, but paranext-core's
+      // createProcess.spawn sets it on the command before spawning, so a plain spawn works.
+      return 'fw-lite/linux-x64/FwLiteWeb';
+    default:
+      // macOS is out of scope for now: https://github.com/sillsdev/languageforge-lexbox/issues/1603
+      throw new Error(`Cannot launch FW Lite on unsupported platform '${platform}'`);
+  }
+}
+
 /** Launches the FieldWorks Lite process and returns its URL domain. */
 function launchFwLite(context: ExecutionActivationContext): string {
-  const binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
     throw new Error('Requires createProcess elevated privileges to launch FW Lite');
   }
-  if (context.elevatedPrivileges.createProcess.osData.platform !== 'win32') {
-    throw new Error('Requires Windows to launch FW Lite');
-  }
+  const binaryPath = getFwLiteBinaryPath(context.elevatedPrivileges.createProcess.osData.platform);
   // TODO: Instead of hardcoding the URL and port we should run it and find them in the output.
   const baseUrl = 'http://localhost:29348';
 
