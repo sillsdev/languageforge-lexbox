@@ -9,7 +9,8 @@
 
   // `groupHeadword`: set when this line renders under an entry-group header (see ActivityView). The leading
   // subject token is then shown relative to that header — identical → omitted (the header already names it);
-  // "headword › rest" (the resolver's sense label) → a muted "› rest" context token; anything else → unchanged.
+  // "headword › rest" (the resolver's sense label) → a "› rest" context token (muted "›" connector, bold name);
+  // anything else → unchanged.
   // Only affects non-self-naming facts (self-naming facts weave the subject into their own sentence).
   let {fact, subject, target, groupHeadword}: {fact: ChangeFact; subject?: string; target?: string; groupHeadword?: string} = $props();
 
@@ -25,12 +26,13 @@
   );
 
   // The leading token for the subject, applying the `groupHeadword` contextualization described above.
+  // The context case carries only the name (the "›" connector is added by `contextToken`).
   const subjectLead = $derived.by((): {text: string; context: boolean} | undefined => {
     if (!subject) return undefined;
     if (groupHeadword === undefined) return {text: subject, context: false};
     if (subject === groupHeadword) return undefined;
     const sensePrefix = groupHeadword + ' › ';
-    if (subject.startsWith(sensePrefix)) return {text: '› ' + subject.slice(sensePrefix.length), context: true};
+    if (subject.startsWith(sensePrefix)) return {text: subject.slice(sensePrefix.length), context: true};
     return {text: subject, context: false};
   });
 
@@ -127,8 +129,9 @@
   creates/deletes/edits) are the dominant scannable tokens — bold foreground text, no chrome — wherever they
   appear in the sentence. The verb phrase inherits the container's muted colour. DATA values the change
   carries render as bordered `chip`s. So a line reads: **subject**  muted verb phrase  [boxed data].
-  Under a group header the subject may instead render as a `contextToken` ("› gloss") — muted, clearly
-  subordinate to the bold header naming the entry.
+  Under a group header the subject may instead render as a `contextToken` ("› gloss") — a muted "›" connector
+  plus the bold entity name: subordinate to the header via the connector and indentation, while the name stays
+  bold and scannable like every other entity name.
   Spacing contract: `subjectToken` and `contextToken` carry a trailing margin (mid-line separation without a
   middot); `subjectToken` adds an opt-in `leadingMargin` when it follows other text mid-line. `chip` carries
   a leading margin (its whole gap), droppable via `noLeadingMargin` when a preceding translated fragment
@@ -136,7 +139,7 @@
   on the same one-margin rhythm. Whitespace at a {#if}/{:else}/snippet boundary is trimmed, so these margins
   — never literal spaces — carry the gaps across branch edges. -->
 {#snippet subjectToken(text: string, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{text}</span>{/snippet}
-{#snippet contextToken(text: string)}<span class="me-1 text-muted-foreground">{text}</span>{/snippet}
+{#snippet contextToken(name: string)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span>{name}</span>{/snippet}
 {#snippet chip(text: string, noLeadingMargin = false)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground {noLeadingMargin ? '' : 'ms-1'}">{text}</span>{/snippet}
 {#snippet wsCode(ws: string)}<WsCode abbreviation={ws} class="ms-1" />{/snippet}
 {#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
