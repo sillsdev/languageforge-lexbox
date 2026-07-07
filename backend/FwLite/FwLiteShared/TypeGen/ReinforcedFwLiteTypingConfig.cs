@@ -118,6 +118,8 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<WritingSystemType>();
         builder.ExportAsEnum<ReadFileResult>().UseString();
         builder.ExportAsEnum<UploadFileResult>().UseString();
+        builder.ExportAsEnum<ThreadStatus>().UseString();
+        builder.ExportAsEnum<SubjectType>().UseString();
         builder.ExportAsInterface<MiniLcmJsInvokable>()
             .FlattenHierarchy()
             .WithPublicProperties()

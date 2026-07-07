@@ -25,6 +25,10 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} mabadiliko)"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "(unknown)"
+msgstr ""
+
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -353,6 +357,7 @@ msgstr ""
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -403,6 +408,8 @@ msgstr "futa"
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Funga"
@@ -413,6 +420,10 @@ msgstr "Funga"
 msgid "Close Dictionary"
 msgstr "Funga Kamusi"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Closed"
+msgstr ""
+
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 msgid "Code"
@@ -422,6 +433,15 @@ msgstr ""
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
 msgstr "Rangi"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/project/browse/EntryView.svelte
+msgid "Comments"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Comments for {0}"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -722,6 +742,14 @@ msgstr "Inapakua..."
 msgid "e.g. th, sw"
 msgstr ""
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit comment"
+msgstr ""
+
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
@@ -731,6 +759,10 @@ msgstr "Hariri Muonekano Binafsi"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "Mhariri"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Empty comment"
+msgstr ""
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -905,7 +937,7 @@ msgstr "Toleo la FieldWorks Lite"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1191,6 +1223,10 @@ msgstr "Maana halisi"
 msgid "Loading activity"
 msgstr ""
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Loading comments..."
+msgstr ""
+
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
 msgid "Loading Dictionaries..."
@@ -1412,6 +1448,10 @@ msgstr "Hakuna sauti"
 msgid "No authors"
 msgstr ""
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "No comment threads yet."
+msgstr ""
+
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
@@ -1542,6 +1582,7 @@ msgstr "Kumbuka moja ya FieldWorks Classic inaweza kuwa na mabadiliko kwa ingizo
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 msgid "Open"
 msgstr "Fungua"
 
@@ -1746,6 +1787,10 @@ msgstr "Tathmini"
 msgid "rose"
 msgstr "waridi"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Save"
+msgstr ""
+
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1874,6 +1919,10 @@ msgstr "Onyesha"
 msgid "Show {0} more..."
 msgstr "Onyesha {0} zaidi..."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Sign in to add comments."
+msgstr ""
+
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
@@ -1897,6 +1946,10 @@ msgstr ""
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "Sehemu mahsusi"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Start a new thread"
+msgstr ""
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2082,6 +2135,10 @@ msgstr "Jukumu hili limekamilika"
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Hii itaoanisha kopia za FieldWorks Lite na FieldWorks Classic za mradi wako kwenye Lexbox."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Thread"
+msgstr ""
+
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -2147,10 +2204,7 @@ msgid "Unable to open in FieldWorks"
 msgstr "Haiwezi kufungua katika FieldWorks"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityItem.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -2332,6 +2386,14 @@ msgstr "Neno au Onyesha kulingana na inavyohitajika"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Neno au maana:"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write a reply..."
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write the first comment..."
+msgstr ""
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte

@@ -20,6 +20,10 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "(unknown)"
+msgstr "(unknown)"
+
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -348,6 +352,7 @@ msgstr "Browse view failed"
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -398,6 +403,8 @@ msgstr "clear"
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Close"
@@ -408,6 +415,10 @@ msgstr "Close"
 msgid "Close Dictionary"
 msgstr "Close Dictionary"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Closed"
+msgstr "Closed"
+
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 msgid "Code"
@@ -417,6 +428,15 @@ msgstr "Code"
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
 msgstr "Color"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/project/browse/EntryView.svelte
+msgid "Comments"
+msgstr "Comments"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Comments for {0}"
+msgstr "Comments for {0}"
 
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -717,6 +737,14 @@ msgstr "Downloading..."
 msgid "e.g. th, sw"
 msgstr "e.g. th, sw"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit"
+msgstr "Edit"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit comment"
+msgstr "Edit comment"
+
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
@@ -726,6 +754,10 @@ msgstr "Edit Custom View"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "Editor"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Empty comment"
+msgstr "Empty comment"
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -900,7 +932,7 @@ msgstr "FieldWorks Lite version"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1186,6 +1218,10 @@ msgstr "Literal meaning"
 msgid "Loading activity"
 msgstr "Loading activity"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Loading comments..."
+msgstr "Loading comments..."
+
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
 msgid "Loading Dictionaries..."
@@ -1407,6 +1443,10 @@ msgstr "No audio"
 msgid "No authors"
 msgstr "No authors"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "No comment threads yet."
+msgstr "No comment threads yet."
+
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
@@ -1537,6 +1577,7 @@ msgstr "One FieldWorks Classic commit may consist of changes to multiple entries
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 msgid "Open"
 msgstr "Open"
 
@@ -1741,6 +1782,10 @@ msgstr "Review"
 msgid "rose"
 msgstr "rose"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Save"
+msgstr "Save"
+
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1869,6 +1914,10 @@ msgstr "Show"
 msgid "Show {0} more..."
 msgstr "Show {0} more..."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Sign in to add comments."
+msgstr "Sign in to add comments."
+
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
@@ -1892,6 +1941,10 @@ msgstr "Something went wrong"
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "Specific field"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Start a new thread"
+msgstr "Start a new thread"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2077,6 +2130,10 @@ msgstr "This task is complete"
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Thread"
+msgstr "Thread"
+
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -2142,10 +2199,7 @@ msgid "Unable to open in FieldWorks"
 msgstr "Unable to open in FieldWorks"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityItem.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -2327,6 +2381,14 @@ msgstr "Word or Display as is required"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Word or meaning:"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write a reply..."
+msgstr "Write a reply..."
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write the first comment..."
+msgstr "Write the first comment..."
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
