@@ -45,6 +45,10 @@ import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-b
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import {initProjectStorage} from '$lib/storage';
 import {MorphTypesService} from '$project/data/morph-types.svelte';
+import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICommentThread';
+import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
+import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
+import type {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -202,6 +206,137 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   }
 
   readonly projectName = projectName;
+
+  private _commentThreads: ICommentThread[] = [];
+  private _userComments: IUserComment[] = [];
+
+  getCommentThreads(subjectType: SubjectType, subjectId: string, includeComments = false): Promise<ICommentThread[]> {
+    return Promise.resolve(this._commentThreads
+      .filter(thread => !thread.deletedAt && thread.subjectType === subjectType && thread.subjectId === subjectId)
+      .map(thread => ({
+        ...thread,
+        comments: includeComments
+          ? this._userComments.filter(comment => !comment.deletedAt && comment.commentThreadId === thread.id).map(comment => ({...comment}))
+          : undefined,
+      })));
+  }
+
+  getCommentThread(id: string): Promise<ICommentThread | null> {
+    const thread = this._commentThreads.find(thread => thread.id === id && !thread.deletedAt);
+    return Promise.resolve(thread ? {...thread} : null);
+  }
+
+  getUserComments(threadId: string): Promise<IUserComment[]> {
+    return Promise.resolve(this._userComments
+      .filter(comment => !comment.deletedAt && comment.commentThreadId === threadId)
+      .map(comment => ({...comment})));
+  }
+
+  getUserComment(id: string): Promise<IUserComment | null> {
+    const comment = this._userComments.find(comment => comment.id === id && !comment.deletedAt);
+    return Promise.resolve(comment ? {...comment} : null);
+  }
+
+  getUnreadComments(_threadId?: string): Promise<IUserComment[]> {
+    return Promise.resolve([]);
+  }
+
+  getUnreadCommentsForSubject(_subjectType: SubjectType, _subjectId: string): Promise<IUserComment[]> {
+    return Promise.resolve([]);
+  }
+
+  countUnreadComments(_threadId?: string): Promise<number> {
+    return Promise.resolve(0);
+  }
+
+  createCommentThread(thread: ICommentThread, firstComment: IUserComment): Promise<ICommentThread> {
+    const now = new Date().toISOString();
+    const createdThread = {
+      ...thread,
+      authorId: thread.authorId ?? firstComment.authorId,
+      authorName: thread.authorName ?? firstComment.authorName,
+      createdAt: thread.createdAt || now,
+      updatedAt: thread.updatedAt || now,
+    };
+    const createdComment = {
+      ...firstComment,
+      commentThreadId: createdThread.id,
+      createdAt: firstComment.createdAt || now,
+      updatedAt: firstComment.updatedAt || now,
+    };
+    this._commentThreads = [...this._commentThreads, createdThread];
+    this._userComments = [...this._userComments, createdComment];
+    return Promise.resolve({...createdThread});
+  }
+
+  addUserComment(threadId: string, comment: IUserComment): Promise<IUserComment> {
+    const now = new Date().toISOString();
+    const createdComment = {
+      ...comment,
+      commentThreadId: threadId,
+      createdAt: comment.createdAt || now,
+      updatedAt: comment.updatedAt || now,
+    };
+    this._userComments = [...this._userComments, createdComment];
+    this.touchCommentThread(threadId, now);
+    return Promise.resolve({...createdComment});
+  }
+
+  editUserComment(commentId: string, text: string): Promise<IUserComment> {
+    const now = new Date().toISOString();
+    const index = this._userComments.findIndex(comment => comment.id === commentId);
+    if (index === -1) throw new Error(`Comment ${commentId} not found`);
+
+    const updatedComment = {...this._userComments[index], text, updatedAt: now};
+    this._userComments = this._userComments.map((comment, i) => i === index ? updatedComment : comment);
+    this.touchCommentThread(updatedComment.commentThreadId, now);
+    return Promise.resolve({...updatedComment});
+  }
+
+  setCommentThreadStatus(threadId: string, status: ThreadStatus): Promise<ICommentThread> {
+    const now = new Date().toISOString();
+    const index = this._commentThreads.findIndex(thread => thread.id === threadId);
+    if (index === -1) throw new Error(`Comment thread ${threadId} not found`);
+
+    const updatedThread = {...this._commentThreads[index], status, updatedAt: now};
+    this._commentThreads = this._commentThreads.map((thread, i) => i === index ? updatedThread : thread);
+    return Promise.resolve({...updatedThread});
+  }
+
+  deleteUserComment(commentId: string): Promise<void> {
+    const now = new Date().toISOString();
+    this._userComments = this._userComments.map(comment => comment.id === commentId
+      ? {...comment, deletedAt: now, updatedAt: now}
+      : comment);
+    return Promise.resolve();
+  }
+
+  deleteCommentThread(threadId: string): Promise<void> {
+    const now = new Date().toISOString();
+    this._commentThreads = this._commentThreads.map(thread => thread.id === threadId
+      ? {...thread, deletedAt: now, updatedAt: now}
+      : thread);
+    this._userComments = this._userComments.map(comment => comment.commentThreadId === threadId
+      ? {...comment, deletedAt: now, updatedAt: now}
+      : comment);
+    return Promise.resolve();
+  }
+
+  markCommentRead(_commentId: string): Promise<void> {
+    return Promise.resolve();
+  }
+
+  markCommentThreadRead(_threadId: string): Promise<void> {
+    return Promise.resolve();
+  }
+
+  markAllCommentsRead(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  private touchCommentThread(threadId: string, updatedAt: string): void {
+    this._commentThreads = this._commentThreads.map(thread => thread.id === threadId ? {...thread, updatedAt} : thread);
+  }
 
   private _customViews: ICustomView[] = [{
     id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
