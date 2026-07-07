@@ -242,14 +242,25 @@ export async function deactivate(): Promise<boolean> {
 }
 
 /**
- * Returns a stable per-user directory for FW Lite data (projects, auth cache). Mirrors
- * Platform.Bible's own app:// convention so the path survives extension updates.
+ * Returns a stable per-user directory for FW Lite data (projects, auth cache), in its own
+ * subdirectory so it doesn't collide with Platform.Bible's own `papi.storage` data for this
+ * extension (`.../extensions/lexicon/user-data/`). Mirrors Platform.Bible's own `app://` scheme
+ * (paranext-core's `getAppDir()`): the real per-user location when packaged, the repo-local
+ * dev-appdata directory in development, so `npm start` doesn't read/write production user data.
  *
- * Uses process.env instead of require('os') because Platform.Bible blocks non-papi requires.
+ * Uses process.env/globalThis instead of require('os'/'path') because Platform.Bible blocks
+ * non-papi requires.
  */
 function getFwLiteDataDir(): string {
-  const home = process.env.USERPROFILE ?? process.env.HOME ?? '';
-  return `${home}\\.platform.bible\\extensions\\lexicon`;
+  let appDataDir: string;
+  if (globalThis.isPackaged) {
+    const home = process.env.USERPROFILE;
+    if (!home) throw new Error('Cannot determine FW Lite data directory: USERPROFILE is not set');
+    appDataDir = `${home}\\.platform.bible`;
+  } else {
+    appDataDir = `${globalThis.resourcesPath}\\dev-appdata`;
+  }
+  return `${appDataDir}\\extensions\\lexicon\\fw-lite`;
 }
 
 /** Launches the FieldWorks Lite process and returns its URL domain. */
