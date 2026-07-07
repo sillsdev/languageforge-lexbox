@@ -145,6 +145,26 @@ public partial class CrdtProjectsService(
             stopwatch.ElapsedMilliseconds);
     }
 
+    public async Task RegenerateEntrySearchTableAsync(string projectCode)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        logger.LogInformation("Regenerating entry search table for project {ProjectCode}", projectCode);
+
+        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project {projectCode} not found");
+
+        await ExecInProject(project, async (services, _) =>
+        {
+            var dbContextFactory = services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>();
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+            await EntrySearchService.RegenerateEntrySearchTable(dbContext);
+        });
+
+        logger.LogInformation(
+            "Finished regenerating entry search table for project {ProjectCode} in {ElapsedMs}ms",
+            projectCode,
+            stopwatch.ElapsedMilliseconds);
+    }
+
     public record CreateProjectRequest(
         string Name,
         string Code,

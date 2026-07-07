@@ -58,4 +58,8 @@ public class WebTroubleshootingService(
     [JSInvokable]
     public Task RegenerateHarmonySnapshots(string projectCode) =>
         projectsService.RegenerateHarmonySnapshotsAsync(projectCode);
+
+    [JSInvokable]
+    public Task RegenerateEntrySearchTable(string projectCode) =>
+        projectsService.RegenerateEntrySearchTableAsync(projectCode);
 }

@@ -9,4 +9,5 @@ public interface ITroubleshootingService
     Task ShareLogFile();
     Task ShareCrdtProject(string projectCode);
     Task RegenerateHarmonySnapshots(string projectCode);
+    Task RegenerateEntrySearchTable(string projectCode);
 }
