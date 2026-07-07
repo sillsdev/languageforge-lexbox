@@ -9,6 +9,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using LcmCrdt.FullTextSearch;
 using LcmCrdt.Project;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -114,6 +115,30 @@ public partial class CrdtProjectsService(
     public bool ProjectExists(string code)
     {
         return GetProject(code) is not null;
+    }
+
+    public async Task RegenerateHarmonySnapshotsAsync(string projectCode)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        logger.LogInformation("Regenerating Harmony snapshots for project {ProjectCode}", projectCode);
+
+        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project {projectCode} not found");
+
+        await using var scope = provider.CreateAsyncScope();
+        var services = scope.ServiceProvider;
+        var currentProjectService = services.GetRequiredService<CurrentProjectService>();
+        await currentProjectService.SetupProjectContext(project);
+
+        var dataModel = services.GetRequiredService<DataModel>();
+        var dbContextFactory = services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await dataModel.RegenerateSnapshots();
+        await EntrySearchService.RegenerateEntrySearchTable(dbContext);
+
+        logger.LogInformation(
+            "Finished regenerating Harmony snapshots for project {ProjectCode} in {ElapsedMs}ms",
+            projectCode,
+            stopwatch.ElapsedMilliseconds);
     }
 
     public record CreateProjectRequest(

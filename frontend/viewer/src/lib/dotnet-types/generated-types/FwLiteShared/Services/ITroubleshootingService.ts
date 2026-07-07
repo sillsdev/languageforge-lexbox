@@ -11,5 +11,6 @@ export interface ITroubleshootingService
 	openLogFile() : Promise<void>;
 	shareLogFile() : Promise<void>;
 	shareCrdtProject(projectCode: string) : Promise<void>;
+	regenerateHarmonySnapshots(projectCode: string) : Promise<void>;
 }
 /* eslint-enable */

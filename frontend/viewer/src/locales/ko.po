@@ -355,6 +355,7 @@ msgstr ""
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "취소"
@@ -858,6 +859,10 @@ msgstr "데이터 디렉토리를 열지 못했습니다. 대신 텍스트 필�
 msgid "Failed to open URL: {0}"
 msgstr "URL을 열지 못했습니다: {0}"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to regenerate Harmony snapshots"
+msgstr ""
+
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
@@ -905,7 +910,7 @@ msgstr "FieldWorks Lite 버전"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1057,6 +1062,10 @@ msgstr "문법 정보."
 #: src/lib/components/ThemePicker.svelte
 msgid "green"
 msgstr "녹색"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Harmony snapshots regenerated successfully"
+msgstr ""
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1535,6 +1544,10 @@ msgstr "오프라인 상태, 다운로드할 수 없음"
 msgid "Oldest first"
 msgstr ""
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
+msgstr ""
+
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
@@ -1700,6 +1713,22 @@ msgstr "필터를 세분화하여 자세히 보기..."
 #: src/home/Server.svelte
 msgid "Refresh Projects"
 msgstr "프로젝트 새로 고침"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate Harmony snapshots"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate Harmony snapshots?"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
+msgstr ""
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -2072,6 +2101,10 @@ msgstr "이 날짜 #와 이 이모티콘 #은 스니펫입니다."
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "이제 이 프로젝트가 FieldWorks에서 열렸습니다. FieldWorks Lite에서 계속 작업하려면 FieldWorks에서 프로젝트를 닫고 다시 열기를 클릭합니다."
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "This rebuilds snapshot and projected tables from commit history."
+msgstr ""
+
 #. Status message
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
@@ -2147,10 +2180,7 @@ msgid "Unable to open in FieldWorks"
 msgstr "FieldWorks에서 열 수 없음"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityItem.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
