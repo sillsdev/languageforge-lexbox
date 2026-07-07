@@ -68,6 +68,14 @@ public partial class CrdtProjectsService(
         }
     }
 
+    private async Task ExecInProject(CrdtProject project, Func<IServiceProvider, CurrentProjectService, Task> exec)
+    {
+        await using var scope = provider.CreateAsyncScope();
+        var scopedServices = scope.ServiceProvider;
+        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
+        await currentProjectService.SetupProjectContext(project);
+        await exec(scopedServices, currentProjectService);
+    }
 
     public async ValueTask EnsureProjectDataCacheIsLoaded()
     {
@@ -82,13 +90,11 @@ public partial class CrdtProjectsService(
         UserProjectRole role)
     {
         if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return;
-        await using var scope = provider.CreateAsyncScope();
-        var scopedServices = scope.ServiceProvider;
-        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
-        await currentProjectService.SetupProjectContext(project);
-
-        await currentProjectService.UpdateLastUser(userName, userId);
-        await currentProjectService.UpdateUserRole(role);
+        await ExecInProject(project, async (scopedServices, currentProjectService) =>
+        {
+            await currentProjectService.UpdateLastUser(userName, userId);
+            await currentProjectService.UpdateUserRole(role);
+        });
     }
 
     public IEnumerable<CrdtProject> ListProjects()
@@ -124,16 +130,14 @@ public partial class CrdtProjectsService(
 
         var project = GetProject(projectCode) ?? throw new ArgumentException($"Project {projectCode} not found");
 
-        await using var scope = provider.CreateAsyncScope();
-        var services = scope.ServiceProvider;
-        var currentProjectService = services.GetRequiredService<CurrentProjectService>();
-        await currentProjectService.SetupProjectContext(project);
-
-        var dataModel = services.GetRequiredService<DataModel>();
-        var dbContextFactory = services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>();
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
-        await dataModel.RegenerateSnapshots();
-        await EntrySearchService.RegenerateEntrySearchTable(dbContext);
+        await ExecInProject(project, async (services, _) =>
+        {
+            var dataModel = services.GetRequiredService<DataModel>();
+            var dbContextFactory = services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>();
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+            await dataModel.RegenerateSnapshots();
+            await EntrySearchService.RegenerateEntrySearchTable(dbContext);
+        });
 
         logger.LogInformation(
             "Finished regenerating Harmony snapshots for project {ProjectCode} in {ElapsedMs}ms",
