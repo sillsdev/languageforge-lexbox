@@ -28,6 +28,10 @@
   let selectedIndex = $state(0);
   const currentPicture = $derived(pictures[selectedIndex]);
 
+  // Pause the carousel's auto-advance while the user is hovering/focusing the Replace or Delete
+  // buttons, so the "current" picture can't change out from under them before they click.
+  let pauseAutoplay = $state(false);
+
   // Formats the browser accepts and that the server supports for pictures.
   const ACCEPTED_TYPES = 'image/jpeg,image/png';
 
@@ -131,7 +135,7 @@
 
 <div class="flex flex-col gap-2">
   {#if pictures.length > 0}
-    <PictureCarousel {pictures} bind:selectedIndex />
+    <PictureCarousel {pictures} bind:selectedIndex paused={pauseAutoplay} />
   {:else if readonly}
     <div class="text-muted-foreground p-1">
       {$t`No pictures`}
@@ -145,26 +149,37 @@
         {$t`Picture`}
       </Button>
       {#if pictures.length > 0}
-        <Button
-          icon="i-mdi-image-refresh"
-          size="xs"
-          variant="secondary"
-          loading={busyAction === 'replace'}
-          disabled={busyAction !== null}
-          onclick={() => pickFile('replace')}
+        <!-- Hovering or focusing these actions pauses auto-advance (mouseenter/leave fire on this
+             box; focusin/focusout bubble from the buttons) so the current picture stays put. -->
+        <div
+          class="flex gap-2"
+          role="group"
+          onmouseenter={() => (pauseAutoplay = true)}
+          onmouseleave={() => (pauseAutoplay = false)}
+          onfocusin={() => (pauseAutoplay = true)}
+          onfocusout={() => (pauseAutoplay = false)}
         >
-          {$t`Replace Picture`}
-        </Button>
-        <Button
-          icon="i-mdi-delete"
-          size="xs"
-          variant="destructive"
-          loading={busyAction === 'delete'}
-          disabled={busyAction !== null}
-          onclick={() => deletePicture()}
-        >
-          {$t`Delete Picture`}
-        </Button>
+          <Button
+            icon="i-mdi-image-refresh"
+            size="xs"
+            variant="secondary"
+            loading={busyAction === 'replace'}
+            disabled={busyAction !== null}
+            onclick={() => pickFile('replace')}
+          >
+            {$t`Replace Picture`}
+          </Button>
+          <Button
+            icon="i-mdi-delete"
+            size="xs"
+            variant="destructive"
+            loading={busyAction === 'delete'}
+            disabled={busyAction !== null}
+            onclick={() => deletePicture()}
+          >
+            {$t`Delete Picture`}
+          </Button>
+        </div>
       {/if}
     </div>
     <!-- Hidden input drives the OS file picker (shared by add + replace); only JPG/PNG offered. -->

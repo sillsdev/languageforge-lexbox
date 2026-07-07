@@ -25,8 +25,10 @@
     pictures: IPicture[];
     /** Index of the picture currently shown; bindable so the parent can act on the current picture. */
     selectedIndex?: number;
+    /** When true, auto-advance is suspended (e.g. while the user is about to act on the current picture). */
+    paused?: boolean;
   };
-  let {pictures, selectedIndex = $bindable(0)}: Props = $props();
+  let {pictures, selectedIndex = $bindable(0), paused = false}: Props = $props();
 
   let emblaApi = $state<EmblaApi>();
 
@@ -54,10 +56,10 @@
     };
   });
 
-  // Auto-advance every 10 seconds when there is more than one picture.
+  // Auto-advance every 10 seconds when there is more than one picture (unless paused).
   $effect(() => {
     const api = emblaApi;
-    if (!api || !hasMultiple) return;
+    if (!api || !hasMultiple || paused) return;
     const interval = setInterval(() => api.scrollNext(), AUTOPLAY_DELAY_MS);
     return () => clearInterval(interval);
   });
