@@ -418,6 +418,25 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve();
   }
 
+  movePicture(entryGuid: string, senseGuid: string, pictureGuid: string, previousPictureGuid: string, nextPictureGuid: string): Promise<void> {
+    const entry = this._entries.find(e => e.id === entryGuid);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    const sense = entry.senses.find(s => s.id === senseGuid);
+    if (!sense) throw new Error(`Sense ${senseGuid} not found`);
+    const pictures = [...(sense.pictures ?? [])];
+    const from = pictures.findIndex(p => p.id === pictureGuid);
+    if (from === -1) throw new Error(`Picture ${pictureGuid} not found`);
+    const [moved] = pictures.splice(from, 1);
+    // Insert after the previous picture if given, else before the next, else at the end.
+    const prevIdx = previousPictureGuid ? pictures.findIndex(p => p.id === previousPictureGuid) : -1;
+    const nextIdx = nextPictureGuid ? pictures.findIndex(p => p.id === nextPictureGuid) : -1;
+    const insertAt = prevIdx !== -1 ? prevIdx + 1 : nextIdx !== -1 ? nextIdx : pictures.length;
+    pictures.splice(insertAt, 0, moved);
+    sense.pictures = pictures;
+    this.#projectEventBus.notifyEntryUpdated(entry);
+    return Promise.resolve();
+  }
+
   createWritingSystem(_type: WritingSystemType, _writingSystem: IWritingSystem): Promise<IWritingSystem> {
     throw new Error('Method not implemented.');
   }
