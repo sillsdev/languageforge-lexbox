@@ -1,3 +1,4 @@
+using LcmCrdt.FullTextSearch;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -61,6 +62,47 @@ public class RegenerateHarmonySnapshotsTests
             .WithoutStrictOrderingFor(x => x.SemanticDomains)
             .WithoutStrictOrderingFor(x => x.ComplexFormTypes)
             .WithoutStrictOrderingFor(x => x.MorphTypes));
+
+        await dbContext.Database.EnsureDeletedAsync();
+    }
+
+    [Fact]
+    public async Task RegenerateEntrySearchTableAsync_RebuildsSearchTable()
+    {
+        var code = $"search-regen-test-{Guid.NewGuid():N}";
+        var builder = Host.CreateEmptyApplicationBuilder(null);
+        builder.Services.AddTestLcmCrdtClient();
+        builder.Services.Configure<LcmCrdtConfig>(config => config.EnableProjectDataFileCache = false);
+        using var host = builder.Build();
+        await using var scope = host.Services.CreateAsyncScope();
+        var projectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
+        var project = await projectsService.CreateExampleProject(code);
+        var api = (CrdtMiniLcmApi)await scope.ServiceProvider.OpenCrdtProject(project);
+
+        var entryId = Guid.NewGuid();
+        await api.CreateEntry(new Entry
+        {
+            Id = entryId,
+            LexemeForm = { ["de"] = "search-regen-test-word" }
+        });
+
+        await using var dbContext = await scope.ServiceProvider
+            .GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>()
+            .CreateDbContextAsync();
+        (await dbContext.Set<EntrySearchRecord>().AnyAsync(r => r.Id == entryId)).Should().BeTrue();
+
+        await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM EntrySearchRecord");
+        (await dbContext.Set<EntrySearchRecord>().AnyAsync(r => r.Id == entryId)).Should().BeFalse();
+
+        await using var regenScope = host.Services.CreateAsyncScope();
+        await regenScope.ServiceProvider.GetRequiredService<CrdtProjectsService>()
+            .RegenerateEntrySearchTableAsync(code);
+
+        var afterRecord = await dbContext.Set<EntrySearchRecord>().AsNoTracking()
+            .SingleAsync(r => r.Id == entryId);
+        afterRecord.Headword.Should().Be("search-regen-test-word");
+        (await dbContext.Set<EntrySearchRecord>().CountAsync())
+            .Should().Be(await dbContext.Set<Entry>().CountAsync());
 
         await dbContext.Database.EnsureDeletedAsync();
     }

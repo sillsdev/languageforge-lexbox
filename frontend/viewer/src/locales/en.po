@@ -351,6 +351,7 @@ msgstr "Browse view failed"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Cancel"
@@ -858,6 +859,11 @@ msgstr "Failed to open URL: {0}"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate Harmony snapshots"
 msgstr "Failed to regenerate Harmony snapshots"
+
+#. Error toast when search index regeneration fails in the Troubleshoot dialog
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to regenerate search index"
+msgstr "Failed to regenerate search index"
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
@@ -1546,6 +1552,11 @@ msgstr "Oldest first"
 msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
 msgstr "On large projects this may take a long time. Do not close the app or interrupt the process."
 
+#. Warning in regenerate-search-index confirm dialog: operation may be slow
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "On large projects this may take a while. Do not close the app or interrupt the process."
+msgstr "On large projects this may take a while. Do not close the app or interrupt the process."
+
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
@@ -1714,6 +1725,7 @@ msgstr "Refresh Projects"
 
 #. Confirm button in the regenerate-snapshots warning dialog (Troubleshoot)
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate"
 msgstr "Regenerate"
 
@@ -1727,10 +1739,25 @@ msgstr "Regenerate Harmony snapshots"
 msgid "Regenerate Harmony snapshots?"
 msgstr "Regenerate Harmony snapshots?"
 
+#. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate search index"
+msgstr "Regenerate search index"
+
+#. Alert dialog title before starting search index regeneration
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate search index?"
+msgstr "Regenerate search index?"
+
 #. Blocking progress message while Harmony snapshots are being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
 msgstr "Regenerating Harmony snapshots. This may take a long time — do not close the app."
+
+#. Blocking progress message while the entry search index is being rebuilt
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerating search index. This may take a while — do not close the app."
+msgstr "Regenerating search index. This may take a while — do not close the app."
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -1801,6 +1828,11 @@ msgstr "Search # or #"
 #: src/project/ProjectDropdown.svelte
 msgid "Search Dictionaries"
 msgstr "Search Dictionaries"
+
+#. Success toast after rebuilding the FTS entry search index
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Search index regenerated successfully"
+msgstr "Search index regenerated successfully"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2107,6 +2139,11 @@ msgstr "This project is now open in FieldWorks. To continue working in FieldWork
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds snapshot and projected tables from commit history."
 msgstr "This rebuilds snapshot and projected tables from commit history."
+
+#. Warning in regenerate-search-index confirm dialog: explains what the operation does
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "This rebuilds the full-text search index from dictionary entries."
+msgstr "This rebuilds the full-text search index from dictionary entries."
 
 #. Status message
 #: src/project/tasks/TaskView.svelte

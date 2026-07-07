@@ -28,9 +28,12 @@
   const service = useTroubleshootingService();
   const config = useFwLiteConfig();
   let projectCode = $state<string>();
-  let regenerating = $state(false);
+  type RegeneratingOperation = 'snapshots' | 'search';
+  let regeneratingOperation = $state<RegeneratingOperation | null>(null);
   let regenerateConfirmOpen = $state(false);
+  let regenerateSearchConfirmOpen = $state(false);
   let canShare = resource(() => service, async (s) => await s?.getCanShare());
+  const regenerating = $derived(regeneratingOperation !== null);
   // Mobile platforms keep app data in private storage that no file manager can open.
   const canOpenDataDirectory = $derived(config.os !== FwLitePlatform.Android && config.os !== FwLitePlatform.iOS);
 
@@ -49,7 +52,7 @@
   async function confirmRegenerate() {
     regenerateConfirmOpen = false;
     if (!projectCode || !service) return;
-    regenerating = true;
+    regeneratingOperation = 'snapshots';
     try {
       await service.regenerateHarmonySnapshots(projectCode);
       AppNotification.display($t`Harmony snapshots regenerated successfully`, 'success');
@@ -57,7 +60,22 @@
       const message = e instanceof Error ? e.message : $t`Failed to regenerate Harmony snapshots`;
       AppNotification.display(message, 'error');
     } finally {
-      regenerating = false;
+      regeneratingOperation = null;
+    }
+  }
+
+  async function confirmRegenerateSearch() {
+    regenerateSearchConfirmOpen = false;
+    if (!projectCode || !service) return;
+    regeneratingOperation = 'search';
+    try {
+      await service.regenerateEntrySearchTable(projectCode);
+      AppNotification.display($t`Search index regenerated successfully`, 'success');
+    } catch (e) {
+      const message = e instanceof Error ? e.message : $t`Failed to regenerate search index`;
+      AppNotification.display(message, 'error');
+    } finally {
+      regeneratingOperation = null;
     }
   }
 </script>
@@ -75,7 +93,11 @@
     {#if regenerating}
       <div class="w-full flex flex-col items-center justify-center gap-3 py-8 text-center">
         <Loading class="size-10" />
-        <p>{$t`Regenerating Harmony snapshots. This may take a long time — do not close the app.`}</p>
+        {#if regeneratingOperation === 'snapshots'}
+          <p>{$t`Regenerating Harmony snapshots. This may take a long time — do not close the app.`}</p>
+        {:else}
+          <p>{$t`Regenerating search index. This may take a while — do not close the app.`}</p>
+        {/if}
       </div>
     {:else}
       <div>
@@ -123,6 +145,10 @@
             <i class="i-mdi-database-refresh"></i>
             {$t`Regenerate Harmony snapshots`}
           </Button>
+          <Button variant="outline" onclick={() => regenerateSearchConfirmOpen = true}>
+            <i class="i-mdi-magnify-scan"></i>
+            {$t`Regenerate search index`}
+          </Button>
         </div>
       {/if}
       {#if service}
@@ -162,6 +188,30 @@
       <AlertDialog.Footer>
         <AlertDialog.Cancel>{$t`Cancel`}</AlertDialog.Cancel>
         <AlertDialog.Action onclick={() => confirmRegenerate()}>{$t`Regenerate`}</AlertDialog.Action>
+      </AlertDialog.Footer>
+    </AlertDialog.Content>
+  </AlertDialog.Root>
+{/if}
+
+{#if regenerateSearchConfirmOpen}
+  <AlertDialog.Root bind:open={regenerateSearchConfirmOpen}>
+    <AlertDialog.Content>
+      <AlertDialog.Header>
+        <AlertDialog.Title>{$t`Regenerate search index?`}</AlertDialog.Title>
+      </AlertDialog.Header>
+      <AlertDialog.Description>
+        <div class="space-y-2">
+          <p>
+            {$t`This rebuilds the full-text search index from dictionary entries.`}
+          </p>
+          <p>
+            {$t`On large projects this may take a while. Do not close the app or interrupt the process.`}
+          </p>
+        </div>
+      </AlertDialog.Description>
+      <AlertDialog.Footer>
+        <AlertDialog.Cancel>{$t`Cancel`}</AlertDialog.Cancel>
+        <AlertDialog.Action onclick={() => confirmRegenerateSearch()}>{$t`Regenerate`}</AlertDialog.Action>
       </AlertDialog.Footer>
     </AlertDialog.Content>
   </AlertDialog.Root>
