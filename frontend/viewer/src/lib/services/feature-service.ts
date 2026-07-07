@@ -24,6 +24,9 @@ export function useFeatures(): LexboxFeatures {
     },
     get audio() {
       return context.features.audio;
-    }
+    },
+    get customViews() {
+      return context.features.customViews;
+    },
   };
 }
