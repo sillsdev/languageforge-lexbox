@@ -66,6 +66,8 @@ public class DateTimeOffsetOrmParityTests(ITestOutputHelper output) : IAsyncLife
         // One plain column is representative: every DateTimeOffset column shares the same global converter.
         // Set an explicit non-UTC-offset instant so we also verify the write records the value (the API
         // return is already round-tripped through the DB) and that it's normalized to UTC.
+        await _fixture.GetService<CurrentProjectService>().UpdateLastUser("tester", Guid.NewGuid().ToString());
+
         var created = new DateTimeOffset(2024, 3, 15, 10, 30, 0, TimeSpan.FromHours(5));
         var thread = await _fixture.Api.CreateCommentThread(
             new CommentThread { Id = Guid.NewGuid(), SubjectType = SubjectType.Entry, SubjectId = Guid.NewGuid(), CreatedAt = created },
