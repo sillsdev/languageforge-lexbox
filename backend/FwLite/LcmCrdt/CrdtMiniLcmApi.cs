@@ -478,10 +478,12 @@ public class CrdtMiniLcmApi(
                 throw new InvalidOperationException($"Sense {variant.MainSenseId} does not belong to entry {variant.MainEntryId}, it belongs to {senseEntryId}");
         }
         var typeIds = variant.Types.Select(t => t.Id).ToArray();
-        var knownTypeIds = await repo.VariantTypes.Where(t => typeIds.Contains(t.Id)).Select(t => t.Id).ToArrayAsync();
-        var missing = typeIds.Except(knownTypeIds).ToArray();
-        if (missing.Length > 0)
-            throw new InvalidOperationException($"Variant {variant} references variant types which do not exist: {string.Join(", ", missing)}");
+        var knownTypeIds = (await repo.VariantTypes.Where(t => typeIds.Contains(t.Id)).Select(t => t.Id).ToArrayAsync()).ToHashSet();
+        // Drop type refs whose VariantType was concurrently deleted on the other replica (delete wins);
+        // this is the sync-reachable path (SubmitCreateVariant), and AddVariantChange.NewEntity applies
+        // the same tolerance at change-apply time. Throwing here would wedge the whole project sync.
+        if (variant.Types.Any(t => !knownTypeIds.Contains(t.Id)))
+            variant.Types = [.. variant.Types.Where(t => knownTypeIds.Contains(t.Id))];
         return new AddVariantChange(variant);
     }
 
@@ -521,7 +523,9 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var existing = await repo.FindVariant(variant);
         if (existing is null) return;
-        var variantType = await repo.VariantTypes.SingleAsync(vt => vt.Id == variantTypeId);
+        // type concurrently deleted on the other replica → drop the add (delete wins), matching Remove/MoveVariantType
+        var variantType = await repo.VariantTypes.SingleOrDefaultAsync(vt => vt.Id == variantTypeId);
+        if (variantType is null) return;
         await AddChange(new AddVariantTypeChange(existing.Id, new VariantTypeRef { Id = variantType.Id }, position));
     }
 

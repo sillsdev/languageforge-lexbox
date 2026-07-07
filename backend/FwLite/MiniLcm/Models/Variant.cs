@@ -13,7 +13,7 @@ namespace MiniLcm.Models;
 /// and per-link edits split a shared ref first (see FwDataMiniLcmApi.FindVariantRefForUpdate).
 /// Unlike <see cref="ComplexFormComponent"/> there is no Order — variant *link* lists have
 /// no user-meaningful order in FieldWorks. The <see cref="Types"/> sequence on a link IS
-/// user-ordered (FLEx: right-click a type → move left/right) and round-trips via
+/// ordered (liblcm's VariantEntryTypes is a card="seq" reference sequence) and round-trips via
 /// <see cref="VariantTypeRef.Order"/>, like sense pictures.
 /// </summary>
 public record Variant : IObjectWithId<Variant>

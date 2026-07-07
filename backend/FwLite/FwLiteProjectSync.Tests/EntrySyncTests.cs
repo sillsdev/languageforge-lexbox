@@ -378,7 +378,11 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
                 .For(e => e.VariantOf).Exclude(v => v.VariantHeadword)
                 .For(e => e.VariantOf).Exclude(v => v.MainHeadword)
                 .For(e => e.Variants).Exclude(v => v.VariantHeadword)
-                .For(e => e.Variants).Exclude(v => v.MainHeadword);
+                .For(e => e.Variants).Exclude(v => v.MainHeadword)
+                // Type order is (re)assigned on write like every other Order above; the randomly-built
+                // values don't round-trip. Real order round-trip is asserted in VariantSyncTests.
+                .For(e => e.VariantOf).For(v => v.Types).Exclude(t => t.Order)
+                .For(e => e.Variants).For(v => v.Types).Exclude(t => t.Order);
             if (currentApiType == ApiType.FwData)
             {
                 // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)

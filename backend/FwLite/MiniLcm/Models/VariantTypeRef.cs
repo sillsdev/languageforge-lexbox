@@ -3,8 +3,8 @@ namespace MiniLcm.Models;
 /// <summary>
 /// One variant type assigned to a variant link (<see cref="Variant.Types"/>). Id is the
 /// <see cref="VariantType"/>'s id — names resolve via the canonical type list. Order makes the
-/// per-link sequence round-trip (FLEx: right-click a type → move left/right); it works like
-/// <see cref="Picture.Order"/>.
+/// per-link sequence round-trip (liblcm's VariantEntryTypes is an ordered card="seq" reference
+/// sequence); it works like <see cref="Picture.Order"/>.
 /// </summary>
 public class VariantTypeRef : IOrderable
 {

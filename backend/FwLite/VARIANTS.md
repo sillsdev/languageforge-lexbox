@@ -37,7 +37,7 @@ abandonment.
   Devin clean; CI 27/27 at `55d4485cd`. [#2409](https://github.com/sillsdev/languageforge-lexbox/pull/2409)
   (stacked UI draft) closed as superseded.
 - **Iteration 2 — cumulative backend+UI, [#2410](https://github.com/sillsdev/languageforge-lexbox/pull/2410)
-  (OPEN, base develop)**: scoped /polish clean; CodeRabbit round (doc fixes accepted, picker
+  (now closed, base develop)**: scoped /polish clean; CodeRabbit round (doc fixes accepted, picker
   cycle-guard suggestion rejected as complex-form-picker precedent); Devin clean ×3; CI green.
 - **liblcm deep review (4 parallel agents, every claim cited against `D:\code\liblcm`
   source)** → commit `0d03aed28`, the highest-risk commit in the stack. Found and fixed:
@@ -176,9 +176,11 @@ public record Variant : IObjectWithId<Variant>
    This is what makes concurrent type edits merge instead of last-writer-wins.
 6. **No link ordering; type order is real.** Variant *link* lists have no user-meaningful
    order in FLEx; both directions diff as sets — no `IOrderable`, no `SetOrderChange`, no Move
-   API for links. A link's `Types` sequence IS user-ordered (FLEx: right-click → move
-   left/right), so it round-trips: `SetVariantTypesOrderChange` + `SetVariantTypesOrder`
-   normalize order after the type add/remove diff (added on review, hahn-kev).
+   API for links. A link's `Types` sequence IS ordered (liblcm's `VariantEntryTypes` is a
+   `card="seq"` reference sequence), so it round-trips per-item like sense pictures:
+   `VariantTypeRef.Order` (fractional), `AddVariantType`/`MoveVariantType(…, BetweenPosition)`,
+   and `ReorderVariantTypeChange` (merges per type under concurrency). Reworked on review from
+   the earlier whole-list `SetVariantTypesOrderChange` design (197804694).
 7. **Self-references, duplicates AND cycles are rejected; chains are allowed.** (This
    decision reversed mid-implementation: `MakeVariantOf` has no cycle check, but the FwData
    conformance tests proved liblcm rejects circular refs at a lower level —
@@ -266,7 +268,7 @@ Write:
   `UseChangesTests.GetAllChanges()` — kernel comment mandates it):
   `AddVariantChange` (create; carries types+scalars; dedupe/cycle/deleted-ref handling
   mirroring `AddEntryComponentChange`),
-  `AddVariantTypeChange`/`RemoveVariantTypeChange` (`EditChange<Variant>`),
+  `AddVariantTypeChange`/`RemoveVariantTypeChange`/`ReorderVariantTypeChange` (`EditChange<Variant>`),
   `CreateVariantType`, `JsonPatchChange<Variant>`, `JsonPatchChange<VariantType>`,
   `DeleteChange<Variant>`, `DeleteChange<VariantType>`.
   A `SetVariantChange` (mirror of `SetComplexFormComponentChange`) was considered and

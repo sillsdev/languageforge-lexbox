@@ -1445,7 +1445,9 @@ public class FwDataMiniLcmApi(
                 if (!EntriesRepository.TryGetObject(variant.VariantEntryId, out var lexVariantEntry)) return;
                 var entryRef = FindVariantRefForUpdate(lexVariantEntry, variant);
                 if (entryRef is null) return;
-                var lexEntryType = VariantTypesFlattened.Single(t => t.Guid == variantTypeId);
+                //type concurrently deleted on the other replica → drop the add (delete wins), matching Remove/MoveVariantType
+                var lexEntryType = VariantTypesFlattened.SingleOrDefault(t => t.Guid == variantTypeId);
+                if (lexEntryType is null) return;
                 if (entryRef.VariantEntryTypesRS.Contains(lexEntryType)) return;
                 entryRef.VariantEntryTypesRS.Insert(PickTypeInsertIndex(entryRef, position), lexEntryType);
             });
@@ -1532,7 +1534,9 @@ public class FwDataMiniLcmApi(
         UpdateLcmMultiString(entryRef.Summary, variant.Comment);
         foreach (var type in variant.Types)
         {
-            entryRef.VariantEntryTypesRS.Add(VariantTypesFlattened.Single(t => t.Guid == type.Id));
+            //skip a type concurrently deleted on the other replica (delete wins), like the CRDT create path
+            var lexEntryType = VariantTypesFlattened.SingleOrDefault(t => t.Guid == type.Id);
+            if (lexEntryType is not null) entryRef.VariantEntryTypesRS.Add(lexEntryType);
         }
         entryRef.ComponentLexemesRS.Add(target);
     }

@@ -30,6 +30,9 @@ public class AddVariantTypeChange : EditChange<Variant>, ISelfNamedType<AddVaria
         // Skip adding if this is a duplicate change
         if (entity.Types.Any(t => t.Id == VariantTypeId)) return;
         if (await context.IsObjectDeleted(VariantTypeId)) return;
+        // Order is resolved from Between against live state at apply time (the ctor/serialized Order is not
+        // authoritative), so concurrent adds converge. ReorderVariantTypeChange deliberately differs — it
+        // stores a fixed Order — because a reorder targets a specific destination, an add just needs a slot.
         Order = OrderPicker.PickOrder(entity.Types, Between);
         entity.Types.Add(new VariantTypeRef { Id = VariantTypeId, Order = Order });
         entity.Types.Sort(VariantTypeRef.CompareRefs);

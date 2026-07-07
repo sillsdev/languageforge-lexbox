@@ -465,6 +465,36 @@ public abstract class VariantTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task AddVariantType_ToleratesAConcurrentlyDeletedType()
+    {
+        // Sync (VariantSync.Add -> AddVariantType) can add a type that was concurrently deleted on
+        // the other replica. Drop it (delete wins) instead of wedging the whole sync — matching
+        // Remove/MoveVariantType and AddVariantChange.NewEntity, which already tolerate this.
+        var type = await CreateVariantType();
+        var variant = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry));
+        await Api.DeleteVariantType(type.Id);
+
+        await Api.AddVariantType(variant, type.Id);
+
+        var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
+        link.Types.Should().NotContain(t => t.Id == type.Id);
+    }
+
+    [Fact]
+    public async Task SubmitCreateVariant_DropsAConcurrentlyDeletedType()
+    {
+        // A whole link synced in (EntrySync -> SubmitCreateVariant) may carry a type that was
+        // concurrently deleted on this replica; drop the dangling type rather than wedging the sync.
+        var type = await CreateVariantType();
+        await Api.DeleteVariantType(type.Id);
+
+        await Api.SubmitCreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [type.ToRef()] });
+
+        var link = (await Api.GetEntry(_variantEntryId))!.VariantOf.Should().ContainSingle().Subject;
+        link.Types.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task RemoveVariantType_Works()
     {
         var type = await CreateVariantType();
